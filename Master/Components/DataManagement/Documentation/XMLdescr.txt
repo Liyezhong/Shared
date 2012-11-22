@@ -1,0 +1,135 @@
+R.Wobst, @(#) Dec 23 2010, 15:20:55
+
+DESCRIPTION OF XML FILES
+========================
+
+General:
+--------
+
+- The name of the root element determines the XML type.
+- The root element (and only this) has an attribute "version" with a
+  numeric value containing the version number.
+- Text is always enclosed between opening and the corresponding closing
+  tags (no tails are allowed).
+- Text element descriptions are given as types (see below) and with
+  optional C++ comments after the tag.
+- Types of text elements are explained in detail in README.txt, 6.,
+  "kind" for other elements:
+
+    STRING,             // value is string
+    INT,                // value must be converted to int
+    TIME,               // value must have form like "4d 10h 15m 30s"
+    MAX_TIME,           // certain values like "15%"
+    BOOL               // value is "0" or "1", "true" or "false"
+
+
+XXX
+Special tags:
+
+temperature
+
+Reagent list: Reagents.xml
+-------------
+
+<reagentlist version="1">
+  <reagent>				// 1...100 times
+    <id>INT</id>
+    <shortname>STRING</shortname>	// 1 ... 10 characters
+    <longname>STRING</longname>		// 1 ... 32 characters
+    <maxtime>TIME</maxtime>
+    <maxcycles>INT</maxcycles>
+    <class>INT</class>
+    <rack5>BOOL</rack5>
+  </reagent>
+</reagentlist>
+
+
+Program list: Programs.xml
+-------------
+
+<programlist version="1">
+  <program>				// 1 ... 50 times
+    <progID>INT</progID>
+    <shortname>STRING</shortname>	// 1 ... 3 characters
+    <longname>STRING</longname>		// 1 ... 32 characters
+    <color>STRING</color>		// should be enum (value list)
+    <counter>INT</counter>
+    <steps>				// 1...50 times
+      <stepID>INT</stepID>
+      <stationType>STRING</stationType>	// can be MACRO
+      <minDuration>TIME</minDuration>	// 1...86400 (1 day)
+      <maxDuration>MAX_TIME</maxDuration>
+      <reagentID>INT</reagentID>
+      <reagentTemp>INT</reagentTemp>
+      <exclusive>BOOL</exclusive>
+    </steps>
+  </program>
+  <macro>				// 0 ... 50 times
+    <macroID>INT</macroID>
+    <shortname>STRING</shortname>	// 1 ... 3 characters
+    <longname>STRING</longname>		// 1 ... 32 characters
+    <steps>				// 1...9 times
+      <stepID>INT</stepID>
+      <stationType>STRING</stationType>
+      <minDuration>TIME</minDuration>	// 1...86400 (1 day)
+      <maxDuration>MAX_TIME</maxDuration>
+      <reagentID>INT</reagentID>
+      <reagentTemp>INT</reagentTemp>
+      <exclusive>BOOL</exclusive>
+    </steps>
+  </macro>
+</programlist>
+
+
+Station list: Stations.xml
+-------------
+
+<stations version="1">
+  <station>				// one or many times
+    <stationID>STRING</stationID>
+    <stationType>STRING</stationType>	// enum type (value list)
+    <rack5>BOOL</rack5>
+    <reagentID>INT</reagentID>
+    <reagentTemp>INT</reagentTemp>
+  </station>
+</stations>
+
+
+StationMaps: StationMaps.xml
+------------
+
+<stationsmap version="1">
+  <step>				// one or many times
+    <progID>INT</progID>
+    <stepID>INT</stepID>
+    <stations>				// one or many times
+      <stationID>STRING</stationID>
+    </stations>
+  </step>
+</stationsmap>
+
+ProgramsSequence.xml
+--------------------
+
+<programssequence version="1">
+  <program>				// one or many times
+    <progID>INT</progID>
+    <position>INT</position>
+    <used>BOOL</used>
+    <counter>INT</counter>
+  </program>
+</programssequence>
+
+
+Racks: Racks.xml
+------
+
+<racks version="1">
+  <rack>				// 1 ... 1000 items
+    <rackID>INT</rackID>
+    <progID>INT</progID>
+    <color>STRING</color>		// enum
+    <recolored>BOOL</recolored>
+    <adjustment>BOOL</adjustment>
+  </rack>
+</racks>

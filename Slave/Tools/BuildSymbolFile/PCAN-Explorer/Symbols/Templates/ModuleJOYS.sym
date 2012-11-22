@@ -1,0 +1,122 @@
+FormatVersion=5.0
+Title="Symbols for Joystick Module"
+
+{ENUMS}
+
+
+{SENDRECEIVE}
+
+[$B::MsgJoysSrvCfgStatistics@$I]
+ID=$MSG_JOYS_SRV_CFG_STATISTICS	// Configure and request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[$B::MsgJoysSrvReqResetData@$I]
+ID=$MSG_JOYS_SRV_REQ_RESET_DATA	// Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[$B::MsgJoysProcConfigure@$I]
+ID=$MSG_JOYS_PROC_CONFIGURE	// Configure process data of joystick
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[$B::MsgJoysProcReqData@$I]
+ID=$MSG_JOYS_PROC_REQ_DATA	// Request process data of joystick
+Type=Extended
+DLC=0
+
+[$B::MsgJoysSetConfiguration@$I]
+ID=$MSG_JOYS_SET_CONFIGURATION	// Configuration of joystick operation
+Type=Extended
+DLC=7
+Var=Mode unsigned 0,8 -m /ln:"Mode of operation"
+Var=SampleTime unsigned 8,16 -m /ln:"ADC sample time"
+Var=UThreshold unsigned 24,16 -m /ln:"Lower threshold"
+Var=LThreshold unsigned 40,16 -m /ln:"Upper threshold"
+
+[$B::MsgJoysSetMechOffset@$I]
+ID=$MSG_JOYS_SET_MECH_OFFSET	// Set mechanical offset on joysticks
+Type=Extended
+DLC=4
+Var=Offset unsigned 0,32 -m /ln:"Mechanical offset data"
+
+[$B::MsgJoysReqDisplacement@$I]
+ID=$MSG_JOYS_REQ_DISPLACEMENT	// Requests displacement factors from joysticks
+Type=Extended
+DLC=0
+
+[$B::MsgJoysReqMechOffset@$I]
+ID=$MSG_JOYS_REQ_MECH_OFFSET	// Requests mechanical offset from joysticks
+Type=Extended
+DLC=0
+
+
+{RECEIVE}
+
+[$B::MsgJoysEventInfo@$I]
+ID=$MSG_JOYS_EVENT_INFO	// Info message
+Type=Extended
+DLC=8
+Var=InfoCode unsigned 0,16 -m /ln:"Info code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::MsgJoysEventWarning@$I]
+ID=$MSG_JOYS_EVENT_WARNING	// Warning message
+Type=Extended
+DLC=8
+Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::MsgJoysEventError@$I]
+ID=$MSG_JOYS_EVENT_ERROR	// Error message
+Type=Extended
+DLC=8
+Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::MsgJoysSrvStatistics@$I]
+ID=$MSG_JOYS_SRV_STATISTICS	// Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[$B::MsgJoysSrvAckResetData@$I]
+ID=$MSG_JOYS_SRV_ACK_RESET_DATA	// Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[$B::MsgJoysProcData@$I]
+ID=$MSG_JOYS_PROC_DATA	// Process data of digital input
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+
+[$B::MsgJoysRespDisplacement@$I]
+ID=$MSG_JOYS_RESP_DISPLACEMENT	// Process data of digital input
+Type=Extended
+DLC=4
+Var=DisplacementX signed 0,16 -m /ln:"Displacement factor of the X axis"
+Var=DisplacementY signed 16,16 -m /ln:"Displacement factor of the Y axis"
+
+[$B::MsgJoysRespMechOffset@$I]
+ID=$MSG_JOYS_RESP_MECH_OFFSET	// Process data of digital input
+Type=Extended
+DLC=4
+Var=Offset unsigned 0,32 -m /ln:"Mechanical offset of jaystick"
+

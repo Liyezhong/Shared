@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE colorado_fct_module_specification>
+<colorado_fct_module_spec version="1.0">
+    <base_modules>
+        <base_module>
+            <CAN_messages>
+                <CAN_message key="HeartbeatMaster" commandclass="0x0" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="HeartbeatSlave" commandclass="0x0" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Initialisation" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="InitialisationAckn" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Configuration" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ConfigurationReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="OperationMode" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="OperationModeAckn" commandclass="0x4" commandcode="0x02" ms="0x1"/>
+                <CAN_message key="InitOperationData" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+                <CAN_message key="InitOperationDataReq" commandclass="0x4" commandcode="0x03" ms="0x1"/>
+                <CAN_message key="SetInitOperationData" commandclass="0x4" commandcode="0x04" ms="0x0"/>
+                <CAN_message key="AcknSetInitOperationData" commandclass="0x4" commandcode="0x04" ms="0x1"/>
+                <CAN_message key="ActOperationData" commandclass="0x4" commandcode="0x05" ms="0x0"/>
+                <CAN_message key="ActOperationDataReq" commandclass="0x4" commandcode="0x05" ms="0x1"/>
+                <CAN_message key="TestResult" commandclass="0x4" commandcode="0x06" ms="0x0"/>
+                <CAN_message key="TestResultReq" commandclass="0x4" commandcode="0x06" ms="0x1"/>
+                <CAN_message key="SetTestResult" commandclass="0x4" commandcode="0x07" ms="0x0"/>
+                <CAN_message key="AcknSetTestResult" commandclass="0x4" commandcode="0x07" ms="0x1"/>
+                <CAN_message key="PartitionResetReq" commandclass="0x4" commandcode="0x08" ms="0x0"/>
+                <CAN_message key="AcknPartitionReset" commandclass="0x4" commandcode="0x08" ms="0x1"/>
+                <CAN_message key="MemoryFormatReq" commandclass="0x4" commandcode="0x09" ms="0x0"/>
+                <CAN_message key="AcknMemoryFormat" commandclass="0x4" commandcode="0x09" ms="0x1"/>
+                <CAN_message key="SerialKeyReq" commandclass="0x4" commandcode="0x0a" ms="0x0"/>
+                <CAN_message key="SerialKey" commandclass="0x4" commandcode="0x0a" ms="0x1"/>
+            </CAN_messages>
+        </base_module>
+    </base_modules>
+    <function_modules>
+        <function_module type="DigitalInput" moduleID="1">
+            <!-- this sections defines all CAN-message IDs used by digital io function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="RefIOData" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefIODataAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActIOData" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ActIODataReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="ParIO1" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="ParIO2" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="DigitalOutput" moduleID="2">
+            <!-- this sections defines all CAN-message IDs used by digital io function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="RefIOData" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefIODataAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActIOData" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ActIODataReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="ParIO1" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="ParIO2" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="AnalogInput" moduleID="3">
+            <!-- this sections defines all CAN-message IDs used by analog io function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="RefIOData" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefIODataAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActIOData" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ActIODataReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="ParIO1" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="ParIO2" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="AnalogOutput" moduleID="4">
+            <!-- this sections defines all CAN-message IDs used by analog io function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="RefIOData" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefIODataAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActIOData" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ActIODataReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="ParIO1" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="ParIO2" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="steppermotor" moduleID="5">
+            <!-- this sections defines all CAN-message IDs used by function module 'stepper motor'  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="RefPosition" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefPositionAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActPosition" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ActPositionReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="RefSpeed" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="RefSpeedAckn" commandclass="0x4" commandcode="0x02" ms="0x1"/>
+                <CAN_message key="ActSpeed" commandclass="0x4" commandcode="0x03" ms="0x1"/>
+                <CAN_message key="ActSpeedReq" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+                <CAN_message key="FctReferenceRun" commandclass="0x4" commandcode="0x04" ms="0x0"/>
+                <CAN_message key="FctReferenceRunAckn" commandclass="0x4" commandcode="0x04" ms="0x1"/>
+                <CAN_message key="ParMovement" commandclass="0x4" commandcode="0x05" ms="0x0"/>
+                <CAN_message key="ParEnvironment" commandclass="0x4" commandcode="0x06" ms="0x0"/>
+                <CAN_message key="DiagSoftware" commandclass="0x7" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="DiagSoftwareReq" commandclass="0x7" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="DiagHardware" commandclass="0x7" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="DiagHardwareReq" commandclass="0x7" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="SrvSoftware" commandclass="0x7" commandcode="0x02" ms="0x1"/>
+                <CAN_message key="SrvSoftwareReq" commandclass="0x7" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="SrvHardware" commandclass="0x7" commandcode="0x03" ms="0x1"/>
+                <CAN_message key="SrvHardwareReq" commandclass="0x7" commandcode="0x03" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="RFID" moduleID="6">
+            <!-- this sections defines all CAN-message IDs used by RFID function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="RefRFIDData" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefRFIDDataAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="RefModuleState" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="ActRFIDData" commandclass="0x4" commandcode="0x02" ms="0x1"/>
+                <CAN_message key="ActRFIDDataReq" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="ParRFID1" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+                <CAN_message key="ParRFID2" commandclass="0x4" commandcode="0x04" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="inclinometer" moduleID="7">
+            <!-- this sections defines all CAN-message IDs used by RFID function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActData" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActDataReq" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Parameter1" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Parameter2" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+        <function_module type="temperature_control" moduleID="8">
+            <!-- this sections defines all CAN-message IDs used by RFID function module  -->
+            <CAN_messages>
+                <CAN_message key="ErrorReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Error" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="WarningReq" commandclass="0x2" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="Warning" commandclass="0x2" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="RefTemperature" commandclass="0x4" commandcode="0x00" ms="0x0"/>
+                <CAN_message key="RefTemperatureAckn" commandclass="0x4" commandcode="0x00" ms="0x1"/>
+                <CAN_message key="ActTemperature" commandclass="0x4" commandcode="0x01" ms="0x1"/>
+                <CAN_message key="ActTemperatureReq" commandclass="0x4" commandcode="0x01" ms="0x0"/>
+                <CAN_message key="Parameter1" commandclass="0x4" commandcode="0x02" ms="0x0"/>
+                <CAN_message key="Parameter2" commandclass="0x4" commandcode="0x03" ms="0x0"/>
+            </CAN_messages>
+        </function_module>
+    </function_modules>
+</colorado_fct_module_spec>

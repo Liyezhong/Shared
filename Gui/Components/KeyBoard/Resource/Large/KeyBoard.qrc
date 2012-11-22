@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Background.png</file>
+        <file>Subspeller_BG.png</file>
+    </qresource>
+</RCC>

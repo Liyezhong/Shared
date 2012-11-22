@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE colorado_hw_specification>
+<colorado_hwconfig version="1.0">
+    <name>Geraetename</name>
+    <serialnumber>666-42</serialnumber>
+    <parameter_master folded="yes">
+        <can_interface interface="can0"> </can_interface> <!-- network interface used for CAN bus communication -->
+        <nodetype>0</nodetype>
+        <nodeindex>0</nodeindex>
+    </parameter_master>
+    <parameter_slaves>
+        <!-- key is a unique string which identifies this 'can module'
+             name is a string as shown on application controls, e.g. lists or message boxes -->
+        <slave type="base" key="z-axis_grap1" name="z-axis grappler 1">
+            <!-- ASB1 x-axis grappler 1: stepper motor, RFID, analog input for liquid level sensor  
+                nodetype, node index used for slave addressing -->
+            <nodetype>1</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <!-- list of all functionmodules used on the slave -->
+                <!-- the function modules will be ordered as they are defined here -->
+                <functionmodule type="steppermotor" key="motor_z-axis_grap1" name="motor z-axis grappler 1"  interface="1">
+                    <!-- this is a stepper motor, counter clockwise rotation results in positive position valuese function modules will be ordered as they are defined here -->
+                    <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <!-- the limitswitch will be contacted if the motor turns cw
+                                     io port direction: 0 input, 1 output
+                                     interval for read operation im ms -->
+                                <configuration
+                                    direction="0" 
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <!-- the second limit switch is for the show;-), the motor has just one -->
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid_grap1" name="rfid grappler 1" interface="2">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="analog_in" key="liquidlev_grap1" name="liquid level grappler 1"  interface="3">
+                    <configuration
+                        direction="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="z-axis_grap2" name="z-axis grappler 2">
+            <!-- ASB1 x-axis grappler 2: stepper motor, RFID, analog input for liquid level sensor  -->
+            <nodetype>1</nodetype>
+            <nodeindex>1</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_z-axis_grap2" name="motor z-axis grappler 2"  interface="1">
+                    <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid_grap2" name="rfid grappler 2"  interface="2">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="analog_in" key="liquidlev_grap2" name="liquid level grappler 2"  interface="3">
+                    <configuration
+                        direction="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="y-axis_grap1" name="y-axis grappler 1">
+            <!-- ASB2 y-axis grappler 1: stepper motor -->
+            <nodetype>2</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_y-axis_grap1" name="motor y-axis grappler 1" interface="1">
+                    <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="y-axis_grap2" name="y-axis grappler 2">
+            <!-- ASB2 y-axis grappler 2: stepper motor -->
+            <nodetype>2</nodetype>
+            <nodeindex>1</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_y-axis_grap2" name="motor y-axis grappler 2" interface="1">
+                    <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="rack_transfer" name="rack transfer">
+            <!-- ASB2 rack transfer: stepper motor -->
+            <nodetype>2</nodetype>
+            <nodeindex>2</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_rack_transfer" name="motor rack transfer" interface="1">
+                    <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="oven" name="oven">
+            <!-- ASB3 oven: stepper motor for oven cover, temperature control for colorado oven -->
+            <nodetype>3</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_oven_cover" name="motor oven cover" interface="1">
+                   <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="temperature_control" key="temperature_control_oven" name="temperature control oven" interface="2">
+                    <configuration
+                        type="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="loading_drawer" name="loading drawer">
+            <!-- ASB4 loader: stepper motor, 5* RFID, pushbutton with 2 LEDs -->
+            <nodetype>4</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_loading_drawer" name="motor loading drawer" interface="1">
+                   <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid1_loading_drawer" name="rfid 1 loading drawer" interface="2">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid2_loading_drawer" name="rfid 2 loading drawer" interface="3">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid3_loading_drawer" name="rfid 3 loading drawer" interface="4">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid4_loading_drawer" name="rfid 4 loading drawer" interface="5">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid5_loading_drawer" name="rfid 5 loading drawer" interface="6">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_in" key="pushbutton_loading_drawer" name="pushbutton loading drawer" interface="7">
+                    <configuration
+                        direction="0"
+                        logic_level="1"
+                        interval="10"
+                        debounce="5"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="LED_free_loading_drawer" name="LED free loading drawer" interface="8">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="LED_blocked_loading_drawer" name="LED blocked loading drawer" interface="9">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="unloading_drawer" name="unloading drawer">
+            <!-- ASB4 unloader: stepper motor, 5* RFID, pushbutton with 2 LEDs -->
+            <nodetype>4</nodetype>
+            <nodeindex>1</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_unloading_drawer" name="motor unloading drawer" interface="1">
+                   <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid1_unloading_drawer" name="rfid 1 unloading drawer" interface="2">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid2_unloading_drawer" name="rfid 2 unloading drawer" interface="3">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid3_unloading_drawer" name="rfid 3 unloading drawer" interface="4">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid4_unloading_drawer" name="rfid 4 unloading drawer" interface="5">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="rfid" key="rfid5_unloading_drawer" name="rfid 5 unloading drawer" interface="6">
+                    <configuration
+                        type="1"
+                        protocol="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_in" key="pushbutton_unloading_drawer" name="pushbutton unloading drawer" interface="7">
+                    <configuration
+                        direction="0"
+                        logic_level="1"
+                        interval="10"
+                        debounce="5"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="LED_free_unloading_drawer" name="LED free unloading drawer" interface="8">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="LED_blocked_unloading_drawer" name="LED blocked unloading drawer" interface="9">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="hot_tube" name="hot tube">
+            <!-- ASB5 hot tube: temperature control for colorado hot tube -->
+            <nodetype>5</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="temperature_control" key="temperature_control_vessel" name="temperature control vessel" interface="1">
+                    <configuration
+                        type="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="sa_board_controller1" name="s/a board controller 1">
+            <!-- S/A board, controller 1: stepper motor x axis, stepper motor agitation, inclinometer -->
+            <nodetype>6</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_x-axis_grap1" name="motor x-axis grappler 1" interface="1">
+                   <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="steppermotor" key="motor_agitation" name="motor agitation" interface="2">
+                   <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="inclinometer" key="inclinometer" name="inclinometer" interface="3">
+                    <configuration
+                        type="1"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="sa_board_controller2" name="s/a board controller 2">
+            <!-- S/A board, controller 2: stepper motor x axis, 6 valves, 2 fan control, limit switch sewage -->
+            <nodetype>6</nodetype>
+            <nodeindex>1</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_x-axis_grap2" name="motor x-axis grappler 2" interface="1">
+                   <rotation direction="ccw" steps_revolution="200" />
+                    <position_coverage>
+                        <encoder type="1" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch orientation="cw" index="0">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                            <limitswitch orientation="ccw" index="1">
+                                <configuration
+                                    direction="0"
+                                    logic_level="1"
+                                    interval="10"
+                                    debounce="5"
+                                    />
+                            </limitswitch>
+                        </limitswitches>
+                    </position_coverage>
+                </functionmodule>
+                <functionmodule type="digital_out" key="water_valve1" name="water valve 1" interface="2">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="water_valve2" name="water valve 2" interface="3">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="water_valve3" name="water valve 3" interface="4">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="water_valve4" name="water valve 4" interface="5">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="water_valve5" name="water valve 5" interface="6">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_out" key="water_valve6" name="water valve 6" interface="7">
+                    <configuration
+                        direction="1"
+                        logic_level="1"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_in" key="fan_control1" name="fan control 1" interface="8">
+                    <configuration
+                        direction="0"
+                        logic_level="1"
+                        interval="10"
+                        debounce="5"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_in" key="fan_control2" name="fan control 2" interface="9">
+                    <configuration
+                        direction="0"
+                        logic_level="1"
+                        interval="10"
+                        debounce="5"
+                        />
+                </functionmodule>
+                <functionmodule type="digital_in" key="limit_sewage" name="limit sewage" interface="10">
+                    <configuration
+                        direction="0"
+                        logic_level="1"
+                        interval="10"
+                        debounce="5"
+                        />
+                </functionmodule>
+            </functionmodules>
+        </slave>
+    </parameter_slaves>
+</colorado_hwconfig>

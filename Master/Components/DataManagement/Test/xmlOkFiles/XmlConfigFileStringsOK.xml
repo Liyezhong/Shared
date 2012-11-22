@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings version="1">
+    <language name="English">
+        <string id="1" text="English 1"/>
+        <string id="2" text="English 2"/>
+        <string id="3" text="English 3"/>
+    </language>
+    <language name="Italian">
+        <string id="1" text="Italian 1"/>
+        <string id="2" text="Italian 2"/>
+        <string id="3" text="Italian 3"/>
+    </language>
+    <language name="German">
+        <string id="1" text="Deutsch 1"/>
+        <string id="2" text="Deutsch 2"/>
+        <string id="3" text="Deutsch 3"/>
+    </language>
+</strings>

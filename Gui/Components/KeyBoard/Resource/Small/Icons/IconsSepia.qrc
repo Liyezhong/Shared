@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/Small/Icons">
+        <file>CursorLeft.png</file>
+        <file>CursorRight.png</file>
+        <file>Delete.png</file>
+        <file>Shift.png</file>
+        <file>ShiftLock.png</file>
+    </qresource>
+</RCC>

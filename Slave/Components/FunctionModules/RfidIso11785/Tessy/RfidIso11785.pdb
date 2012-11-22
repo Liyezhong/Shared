@@ -1,0 +1,718 @@
+File Version     : 4.30
+Directory        : "$(PROJECTROOT)\Tessy\RfidIso11785"
+Backup Directory : "$(PROJECTROOT)\Tessy\backup"
+Configuration    : "$(PROJECTROOT)\Tessy\config\configuration.xml"
+Author           : "Martin Scherer"
+Created          : 29.03.2011 13:23
+Last Changed     : 12.04.2011 10:58
+Comment          : ""
+Project
+   Name    : "RfidIso11785"
+   Module
+      Name        : "fmRfid"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmRfidIso11785.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      Source File
+         Name : "bmUtilities.c"
+         Path : "C:\svn\Colorado_Sepia\trunk\Platform\Slave\Components\BaseModule\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000001
+               Value : "1"
+            End
+         End
+      End
+      Source File
+         Name : "fmRfidIso11785Link.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000001
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785ModuleControl"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\rfid11785ModuleControl.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785ModuleStatus"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\rfid11785ModuleStatus.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785ModuleTask"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\rfid11785ModuleTask.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkComplete"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkPatternOk"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkParityOk"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkGetData"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785RespondAck"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000008\rfid11785RespondAck.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmSetMessageItem"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785StartModOutput"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000A\rfid11785StartModOutput.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785SetModOutput"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000B\rfid11785SetModOutput.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785SetDeviceSel"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000C\rfid11785SetDeviceSel.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785SetConfig"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000D\rfid11785SetConfig.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetMessageItem"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785SendLogin"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000F\rfid11785SendLogin.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkStartLogin"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785WriteUserData"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000011\rfid11785WriteUserData.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkStartWrite"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785WritePassword"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000013\rfid11785WritePassword.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785WriteConfig"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000014\rfid11785WriteConfig.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785ReadUserData"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000015\rfid11785ReadUserData.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkStartRead"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785ReadUidNumber"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000017\rfid11785ReadUidNumber.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785InterruptHandler"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000018\rfid11785InterruptHandler.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785CompareIntHandler"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000019\rfid11785CompareIntHandler.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785CaptureIntHandler"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001A\rfid11785CaptureIntHandler.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkReadBit"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkWriteBit"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785HandleOpen"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001D\rfid11785HandleOpen.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785InitializeModule"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001E\rfid11785InitializeModule.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetBoardOptions"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmSetBoardOptionBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmLocateBoardOptionBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmCalculateCrc"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetBoardInfoBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetLoaderInfoBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetNodeAddress"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetCanIdField"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetPartitionID"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetDelta"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmCheckPassword"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmInitUtilities"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkCopyBits"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkComputeParity"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkCopyDataField"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+   End
+   Module
+      Name        : "fmRfidLink"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\Components\BaseModule\Include, $(PROJECTROOT)\Components\HAL\STM32\Include, $(PROJECTROOT)\Components\FunctionModules\Rfid\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmRfidIso11785Link.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Compiler Includes"
+               Type  : "Directory"
+               Flags : 0x90000049
+               Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkWriteBit"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\rfid11785LinkWriteBit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkReadBit"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\rfid11785LinkReadBit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkCopyBits"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\rfid11785LinkCopyBits.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkComputeParity"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\rfid11785LinkComputeParity.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkCopyDataField"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\rfid11785LinkCopyDataField.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkStartLogin"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\rfid11785LinkStartLogin.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkStartWrite"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\rfid11785LinkStartWrite.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkStartRead"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000008\rfid11785LinkStartRead.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkComplete"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000009\rfid11785LinkComplete.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkPatternOk"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000A\rfid11785LinkPatternOk.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkParityOk"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000B\rfid11785LinkParityOk.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "rfid11785LinkGetData"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000C\rfid11785LinkGetData.cte"
+            End
+         End
+      End
+   End
+End

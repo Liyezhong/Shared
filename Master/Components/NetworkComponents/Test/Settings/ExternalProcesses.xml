@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE external_processes>
+<external_processes version="1.0">
+
+<!--
+    ==========================================
+     List of all available in device external 
+     processes and their configurations.
+    ==========================================
+-->
+
+    <process>
+        <!-- Process Name: 
+        ExternalProcessController takes Process Name
+        as input parameter during initialization.
+        Corresponding startcmd will be fetched and
+        executed to start the process. -->
+        <name>Colorado GUI</name>
+        <!-- Start commando -->
+        <startcmd>nice -n 5 ./guiclient 127.0.0.16 8801 -qws &amp;</startcmd>
+        <!-- Remote login: Yes/No  (if empty, "No" is assumed) -->
+        <!-- If External Process is not started by Master and its exact login timing is 
+        undefined, remotelogin shall be set to "Yes". -->
+        <remotelogin>Yes</remotelogin>
+        <!-- Timeout for remote login option, in seconds. 
+        Zero means infinite waiting. -->
+        <remotetimeout>0</remotetimeout>
+    </process>
+
+</external_processes>
+

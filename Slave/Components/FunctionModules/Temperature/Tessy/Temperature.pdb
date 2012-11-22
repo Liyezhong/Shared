@@ -1,0 +1,1340 @@
+File Version     : 4.30
+Directory        : "$(PROJECTROOT)\Tessy\Temperature"
+Backup Directory : "$(PROJECTROOT)\Tessy\backup"
+Configuration    : "$(PROJECTROOT)\Tessy\config\configuration.xml"
+Author           : "Martin Scherer"
+Created          : 29.03.2011 13:23
+Last Changed     : 12.04.2011 14:15
+Comment          : ""
+Project
+   Name    : "Temperature"
+   Module
+      Name        : "fmTemperature"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmTemperature.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      Source File
+         Name : "fmTemperatureFan.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      Source File
+         Name : "fmTemperatureHeater.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      Source File
+         Name : "fmTemperaturePid.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      Source File
+         Name : "fmTemperatureSensor.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      Source File
+         Name : "fmTemperatureTime.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      Source File
+         Name : "bmUtilities.c"
+         Path : "C:\svn\Colorado_Sepia\trunk\Platform\Slave\Components\BaseModule\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempModuleControl"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\tempModuleControl.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeResetPartition"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\tempTimeResetPartition.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempModuleStatus"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\tempModuleStatus.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempModuleTask"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\tempModuleTask.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFetchCheck"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\tempFetchCheck.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempShutDown"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\tempShutDown.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempNotifRange"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\tempNotifRange.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempRegulation"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000008\tempRegulation.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterActuate"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000009\tempHeaterActuate.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeUpdate"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000A\tempTimeUpdate.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFindRoot"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000B\tempFindRoot.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidReset"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000C\tempPidReset.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanSpeed"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000D\tempFanSpeed.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterProgress"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000E\tempHeaterProgress.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempSensorRead"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000F\tempSensorRead.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmSetMessageItem"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidAutoProgress"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000011\tempPidAutoProgress.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidCalculate"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000012\tempPidCalculate.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidGetOutput"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000013\tempPidGetOutput.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidAutoStop"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000014\tempPidAutoStop.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidAutoStart"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000015\tempPidAutoStart.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempSetTemperature"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000016\tempSetTemperature.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetMessageItem"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempSetFanWatchdog"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000018\tempSetFanWatchdog.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempSetCurrentWatchdog"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000019\tempSetCurrentWatchdog.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempSetPidParameters"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001A\tempSetPidParameters.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempSetHeaterTime"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001B\tempSetHeaterTime.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeReset"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001C\tempTimeReset.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempGetTemperature"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001D\tempGetTemperature.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterParallel"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001E\tempHeaterParallel.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempGetPidParameters"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000001F\tempGetPidParameters.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempGetHeaterTime"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000020\tempGetHeaterTime.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeRead"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000021\tempTimeRead.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempGetServiceSensor"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000022\tempGetServiceSensor.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempGetServiceFan"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000023\tempGetServiceFan.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempGetHardware"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000024\tempGetHardware.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterCurrent"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000025\tempHeaterCurrent.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempReadOptions"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000025\tempReadOptions.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetBoardOptions"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempDeviceAlloc"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000028\tempDeviceAlloc.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHandleOpen"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000029\tempHandleOpen.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanOpen"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000002A\tempFanOpen.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempInitializeModule"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000002B\tempInitializeModule.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanInit"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000002C\tempFanInit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeInit"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000002D\tempTimeInit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterInit"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000002E\tempHeaterInit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanInterrupt"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000002F\tempFanInterrupt.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterSwitch"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000030\tempHeaterSwitch.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterCheck"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000031\tempHeaterCheck.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidParamsOk"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000032\tempPidParamsOk.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeVerifyPartition"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000033\tempTimeVerifyPartition.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmSetBoardOptionBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmLocateBoardOptionBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmCalculateCrc"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetBoardInfoBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetLoaderInfoBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetNodeAddress"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetCanIdField"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetPartitionID"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetDelta"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmCheckPassword"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmInitUtilities"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+   End
+   Module
+      Name        : "fmTemperatureFan"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmTemperatureFan.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      TestObject
+         Name    : "tempFanInit"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\tempFanInit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanOpen"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\tempFanOpen.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanInterrupt"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\tempFanInterrupt.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempFanSpeed"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\tempFanSpeed.cte"
+            End
+         End
+      End
+   End
+   Module
+      Name        : "fmTemperatureHeater"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmTemperatureHeater.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      TestObject
+         Name    : "tempHeaterInit"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\tempHeaterInit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterSwitch"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\tempHeaterSwitch.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterProgress"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\tempHeaterProgress.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterCheck"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\tempHeaterCheck.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterParallel"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\tempHeaterParallel.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterActuate"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\tempHeaterActuate.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempHeaterCurrent"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\tempHeaterCurrent.cte"
+            End
+         End
+      End
+   End
+   Module
+      Name        : "fmTemperaturePid"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmTemperaturePid.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      TestObject
+         Name    : "tempPidReset"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\tempPidReset.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidParamsOk"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\tempPidParamsOk.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidGetOutput"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\tempPidGetOutput.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidCalculate"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\tempPidCalculate.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidAutoStart"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\tempPidAutoStart.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidAutoProgress"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\tempPidAutoProgress.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempPidAutoStop"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\tempPidAutoStop.cte"
+            End
+         End
+      End
+   End
+   Module
+      Name        : "fmTemperatureSensor"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmTemperatureSensor.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      TestObject
+         Name    : "tempSensorRead"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\tempSensorRead.cte"
+            End
+         End
+      End
+   End
+   Module
+      Name        : "fmTemperatureTime"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+         Property
+            Name  : "Enable Inline Functions"
+            Type  : "Boolean"
+            Flags : 0x80000049
+            Value : "0"
+         End
+      End
+      Source File
+         Name : "fmTemperatureTime.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      TestObject
+         Name    : "tempTimeResetPartition"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\tempTimeResetPartition.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeVerifyPartition"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\tempTimeVerifyPartition.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeInit"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\tempTimeInit.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeRead"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\tempTimeRead.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeReset"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\tempTimeReset.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "tempTimeUpdate"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\tempTimeUpdate.cte"
+            End
+         End
+      End
+   End
+End
