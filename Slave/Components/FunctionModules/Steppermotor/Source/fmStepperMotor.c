@@ -61,7 +61,7 @@
 // Private Constants and Macros 
 //****************************************************************************/
 
-#define MODULE_VERSION          60007   //!< Version number of module (above 60000 for test versions)
+#define MODULE_VERSION          60008   //!< Version number of module (above 60000 for test versions)
 
 
 //****************************************************************************/
@@ -158,9 +158,7 @@ static Error_t smModuleControl (UInt16 Instance, bmModuleControlID_t ControlID)
             break;
 
         case MODULE_CONTROL_RESET:      //!< Reset module instance
-            if (MS_IDLE != Data->Motion.State) {
-                return E_ILLEGAL_MODE_CHANGE;               // can't reset while motor is running
-            }
+            halCapComControl(smHandleTimer, Data->Motion.CCR.Unit, TIM_INTR_DISABLE);    // stop motion by disabling timer CCR irq
             if ((RetVal = smCloseDevices(Data)) < 0) {      // close hal devices, this will also switch off driver stage
                 return RetVal;
             }
