@@ -114,6 +114,22 @@ int CExportData::CreateArchiveFiles()
     (void)ExportFile.AddVerifier(Verifier); // to avoid pc-lint e534
     ExportFile.SetDataVerificationMode(true);
 
+    QStringList Parts = ExportFile.GetTargetFileName().split(DELIMITER_UNDERSCORE);
+    // if the count is not greater than then verifier fails, so no need of else condition
+    if (Parts.count() > 0) {
+        // this is part added ony for verification purpose. Verifier ony verifies the data for the service export and
+        // user export
+        if (Parts.value(1).compare(TYPEOFIMPORT_SERVICE) == 0) {
+            ExportFile.SetServiceConfigurationFlag(true);
+        }
+        else if (Parts.value(1).compare(TYPEOFIMPORT_USER) == 0) {
+            ExportFile.SetUserConfigurationFlag(true);
+        }
+        else {
+            // this case is taken care at the down
+        }
+    }
+
     if (!ExportFile.VerifyData()) {
         return Global::EXIT_CODE_EXPORT_VERIFICATION_CONTAINER_FAILED;
     }
@@ -130,14 +146,14 @@ int CExportData::CreateArchiveFiles()
         return Global::EXIT_CODE_EXPORT_TARGET_DIRECTORY_NOT_EXISTS;
     }
 
-    QString TargetFileName = ExportFile.GetTargetDir() + QDir::separator() + ExportFile.GetTargetFileName();
-    qDebug() << ExportFile.GetTargetFileName().split(DELIMITER_UNDERSCORE).count();
-    if (ExportFile.GetTargetFileName().split(DELIMITER_UNDERSCORE).count() <= 2) {
+    QString TargetFileName = ExportFile.GetTargetDir() + QDir::separator() + ExportFile.GetTargetFileName();    
+
+    if (Parts.count() <= 3 || Parts.value(Parts.count() - 1).compare("%1") != 0) {
         // file does not contain the format
         return Global::EXIT_CODE_EXPORT_TARGET_FILE_FORMAT_IS_WRONG;
     }
-    if (ExportFile.GetTargetFileName().split(DELIMITER_UNDERSCORE).value(1).compare(TYPEOFIMPORT_SERVICE) == 0) {
-        ExportFile.SetServiceConfigurationFlag(true);
+
+    if (Parts.value(1).compare(TYPEOFIMPORT_SERVICE) == 0) {
         QString PackageType = ExportFile.GetServiceConfiguration().GetServiceConfigurationList().GetPackageType();
 
         // for nonnative type the file is zip
@@ -150,8 +166,7 @@ int CExportData::CreateArchiveFiles()
                             ExportFile.GetServiceConfiguration().GetServiceConfigurationList().GetFileList());
         }
     }
-    else if (ExportFile.GetTargetFileName().split(DELIMITER_UNDERSCORE).value(1).compare(TYPEOFIMPORT_USER) == 0) {
-        ExportFile.SetUserConfigurationFlag(true);
+    else if (Parts.value(1).compare(TYPEOFIMPORT_USER) == 0) {
         QString PackageType = ExportFile.GetUserConfiguration().GetUserConfigurationList().GetPackageType();
 
         // for nonnative type the file is zip
@@ -282,17 +297,21 @@ int CExportData::WriteZipFile(const DataManager::CExportConfiguration &ExportCon
     ZipProcess.start(COMMAND_ZIP , FileList);
 
     if (!(ZipProcess.waitForFinished())) {
-        return Global::EXIT_CODE_EXPORT_ZIP_IS_TAKING_LONGTIME;
+        // save the data in temporay string for the zip process it can be error or success
+        QString StdOutData(ZipProcess.readAllStandardOutput());
+        if (StdOutData.length() == 0) {
+            return Global::EXIT_CODE_EXPORT_ZIP_COMMAND_NOT_FOUND;
+        }
+        else {
+            return Global::EXIT_CODE_EXPORT_ZIP_IS_TAKING_LONGTIME;
+        }
     }
     else {
         // save the data in temporay string for the zip process it can be error or success
         QString StdOutData(ZipProcess.readAllStandardOutput());
         if (StdOutData.contains("zip error:")) {
             return Global::EXIT_CODE_EXPORT_ZIP_ERROR;
-        }
-        else if (StdOutData.contains("zip: command not found")) {
-            return Global::EXIT_CODE_EXPORT_ZIP_COMMAND_NOT_FOUND;
-        }
+        }        
         // else means zip command executed successfully
     }
 

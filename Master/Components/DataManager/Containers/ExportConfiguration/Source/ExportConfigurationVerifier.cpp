@@ -71,7 +71,7 @@ bool CExportConfigurationVerifier::VerifyData(CDataContainerBase* p_Configuratio
             VerifiedData = false;
         }
 
-        // check the user configuration flg so that verifier can verify only the user configuration
+        // check the service configuration flg so that verifier can verify only the service configuration
         if (mp_ECD->GetServiceConfigurationFlag()) {
             // check the service configuration
             if (!CheckFileNames(mp_ECD->GetServiceConfiguration().GetServiceConfigurationList())) {
