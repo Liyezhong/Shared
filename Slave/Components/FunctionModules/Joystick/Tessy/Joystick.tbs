@@ -1,0 +1,24 @@
+FileVersion     : 2.00
+Author          : "Martin Scherer"
+ProjectDatabase : "C:\svn\Colorado_Sepia\trunk\Platform\Slave\Components\FunctionModules\Joystick\Tessy\Joystick.pdb"
+CurrentVersion  : 1.14
+DateCreated     : 04.04.2011 10:11
+DateChanged     : 08.04.2011 12:56
+
+TestReport
+   OutputDirectory : "C:\tessy\report"
+   Format          : "html"
+   Style           : "Screen"
+   BatchLayout     : "Multiple Documents"
+   Layout          : "Details"
+End
+
+Actions
+   Instrumentation : C1, C2
+   Action          : GenerateDriver,
+                     CheckInterface,
+                     Compile,
+                     Execute,
+                     GenerateDocumentation
+   Testcases       : All
+End

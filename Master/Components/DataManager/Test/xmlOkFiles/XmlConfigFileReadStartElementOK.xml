@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rootelement version="1">
+    <startelement1 attrib1="value1">
+        <subelement1/>
+        <subelement2>blafasel</subelement2>
+    </startelement1>
+    <startelement2 attrib1="value1" attrib2="value2">gnagna</startelement2>
+    <startelement3 numattrib1="42" numattrib2="66"/>
+    <startelement4 langattrib1="German" langattrib2="English"/>
+    <startelement5 onoffattrib1="On" onoffattrib2="Off"/>
+</rootelement>

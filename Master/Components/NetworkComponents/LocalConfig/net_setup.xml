@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE net_setup>
+<net_setup version="1.0">
+<!-- Authentication section shall be read by both Servers and Clients to
+     identify the format of authentication messages -->
+    <authentication>
+        <request>Authenticate</request>
+        <reply>
+            <cmd>Authentication</cmd>
+            <name></name>
+            <version></version>
+        </reply>
+        <confirmation>Welcome</confirmation>
+    </authentication>
+<!-- Identity section shall be read by Clients to fetch
+     the authentication parameters (TBD: might be located in
+     some other file later) -->
+    <identity>
+        <gui>
+            <name>Sepia Device GUI</name>
+            <version>1.0</version>
+            <servertype>gui</servertype>
+        </gui>
+        <axeda>
+            <name>Axeda Client</name>
+            <version>1.0</version>
+            <servertype>axeda</servertype>
+        </axeda>
+    </identity>
+<!-- Networks section shall be read by Servers to identify
+     which IP/Port they shall serve -->
+    <networks>
+        <!-- 
+           The KEY attribute is not used so far.
+           This attribute allows usage of different network 
+           settings for one server type.
+        -->
+        <axeda>
+            <network key="">
+                <IP_address>127.0.0.1</IP_address>
+                <port>7701</port>
+            </network>
+        </axeda>
+        <gui>
+            <network key="">
+                <IP_address>127.0.0.1</IP_address>
+                <port>7702</port>
+            </network>
+        </gui>
+        <service>
+            <network key="">
+                <IP_address>192.168.3.11</IP_address>
+                <port>7703</port>
+            </network>
+        </service>
+    </networks>
+<!-- Clients section shall be read by Servers to identify
+     which Clients are allowed to connect -->
+    <clients>
+        <axeda>
+            <client>
+                <name>Axeda Client</name>
+                <version>1.0</version>
+            </client>
+        </axeda>
+        <gui>
+            <client>
+                <name>Sepia Device GUI</name>
+                <version>1.0</version>
+            </client>
+        </gui>
+        <service>
+            <client>
+                <name>Leica Service SW</name>
+                <version>1.0</version>
+            </client>
+        </service>
+    </clients>
+<!-- Servers section shall be read by Clients to identify
+     which Servers they shall connect to -->
+    <servers>
+        <axeda>
+            <server key="">
+                <IP_address>127.0.0.1</IP_address>
+                <port>7701</port>
+            </server>
+        </axeda>
+        <gui>
+            <server key="">
+                <IP_address>127.0.0.1</IP_address>
+                <port>7702</port>
+            </server>
+        </gui>
+    </servers>
+</net_setup>

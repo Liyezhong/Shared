@@ -1,0 +1,43 @@
+FileVersion     : 2.00
+Author          : "Martin Scherer"
+ProjectDatabase : "C:\svn\Colorado_Sepia\trunk\Platform\Slave\Components\FunctionModules\RfidIso11785\Tessy\RfidIso11785.pdb"
+CurrentVersion  : 1.17
+DateCreated     : 04.04.2011 10:11
+DateChanged     : 08.04.2011 15:37
+
+TestReport
+   OutputDirectory : "C:\tessy\report"
+   Format          : "html"
+   Style           : "Screen"
+   BatchLayout     : "Multiple Documents"
+   Layout          : "Details"
+End
+
+Actions
+   Instrumentation : C1, C2
+   Action          : GenerateDriver,
+                     CheckInterface,
+                     Compile,
+                     Execute,
+                     GenerateDocumentation
+   Testcases       : All
+End
+
+Project : "RfidIso11785"
+  Module : "fmRfid"
+    TestObject : "rfid11785ModuleControl"
+    TestObject : "rfid11785ModuleStatus"
+    TestObject : "rfid11785ModuleTask"
+    TestObject : "rfid11785RespondAck"
+    TestObject : "rfid11785StartModOutput"
+    TestObject : "rfid11785SetModOutput"
+    TestObject : "rfid11785SetDeviceSel"
+    TestObject : "rfid11785SetConfig"
+    TestObject : "rfid11785SendLogin"
+    TestObject : "rfid11785WriteUserData"
+    TestObject : "rfid11785WritePassword"
+    TestObject : "rfid11785WriteConfig"
+    TestObject : "rfid11785ReadUserData"
+    TestObject : "rfid11785ReadUidNumber"
+  End
+End

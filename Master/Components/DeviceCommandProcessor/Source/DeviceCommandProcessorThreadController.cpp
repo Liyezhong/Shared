@@ -1,0 +1,387 @@
+/****************************************************************************/
+/*! \file DeviceCommandProcessorThreadController.cpp
+ *
+ *  \brief Implementation file for class DeviceCommandProcessorThreadController.
+ *
+ *  $Version:   $ 0.1
+ *  $Date:      $ 2011-08-22
+ *  $Author:    $ Norbert Wiedmann
+ *
+ *  \b Company:
+ *
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
+ *
+ */
+/****************************************************************************/
+#include <QStringList>
+#include <QDebug>
+#include <DeviceCommandProcessor/Include/DeviceCommandProcessorThreadController.h>
+//#include <DeviceCommandProcessor/Include/DeviceCommandProcessorEventCodes.h>
+
+#include <DeviceCommandProcessor/Include/Commands/CmdDeviceProcessingInit.h>
+#include <DeviceCommandProcessor/Include/Commands/CmdDeviceProcessingCleanup.h>
+
+#include <Global/Include/Commands/AckOKNOK.h>
+
+
+#include "DeviceControl/Include/Devices/DeviceAgitation.h"
+#include "DeviceControl/Include/Devices/DeviceDrawer.h"
+#include "DeviceControl/Include/Devices/DeviceHeatedCuvettes.h"
+#include "DeviceControl/Include/Devices/DeviceHood.h"
+#include "DeviceControl/Include/Devices/DeviceOven.h"
+#include "DeviceControl/Include/Devices/DeviceRackTransfer.h"
+
+#include <stdlib.h>
+#include <math.h>
+
+namespace DeviceCommandProcessor {
+
+/****************************************************************************/
+DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(Global::gSourceType TheHeartBeatSource, QString name) :
+    Threads::ThreadController(TheHeartBeatSource, name),
+    m_RefInitDCL(Global::RefManager<Global::tRefType>::INVALID),
+    m_InLoaderChangedRef(Global::RefManager<Global::tRefType>::INVALID),
+    m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID)
+{
+    qRegisterMetaType<DevInstanceID_t>("DevInstanceID_t");
+    qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
+
+    for(quint8 Idx = 0; Idx < CMD_REF_CNT; Idx++)
+    {
+        m_CommandRef[Idx].m_State = DCP_TC_CMD_STATE_FREE;
+    }
+
+    connect(&m_DeviceProcessing, SIGNAL(ReportInitializationFinished(ReturnCode_t)),
+            this, SLOT(DevProcInitialisationAckn(ReturnCode_t)));
+//    connect(&m_DeviceProcessing, SIGNAL(ReportConfigurationFinished(ReturnCode_t)),
+//            this, SLOT(DevProcConfigurationAckn(ReturnCode_t)));
+    connect(&m_DeviceProcessing, SIGNAL(ReportStartNormalOperationMode(ReturnCode_t)),
+            this, SLOT(DevProcStartNormalOpModeAckn(ReturnCode_t)));
+
+    connect(&m_DeviceProcessing, SIGNAL(ReportError(DevInstanceID_t,quint32,quint32,quint16,QDateTime)),
+            this, SLOT(ThrowError(DevInstanceID_t,quint32,quint32,quint16,QDateTime)));
+    connect(&m_DeviceProcessing, SIGNAL(ReportErrorWithInfo(DevInstanceID_t,quint32,quint32,quint16,QDateTime,QString)),
+            this, SLOT(ThrowErrorWithInfo(DevInstanceID_t,quint32,quint32,quint16,QDateTime,QString)));
+}
+
+/****************************************************************************/
+DeviceCommandProcessorThreadController::~DeviceCommandProcessorThreadController()
+{
+    try {
+        DestroyObjects();
+    } catch (...) {
+        // to please lint
+    }
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::CreateAndInitializeObjects()
+{
+    qDebug() << "DeviceCommandProcessorThreadController::CreateAndInitializeObjects";
+
+    // register init and cleanup functions
+    RegisterCommandForProcessing<DeviceCommandProcessor::CmdDeviceProcessingInit, DeviceCommandProcessorThreadController>(
+            &DeviceCommandProcessorThreadController::OnDeviceProcessingInit, this);
+    RegisterCommandForProcessing<DeviceCommandProcessor::CmdDeviceProcessingCleanup, DeviceCommandProcessorThreadController>(
+            &DeviceCommandProcessorThreadController::OnDeviceProcessingCleanup, this);
+
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::CleanupAndDestroyObjects()
+{
+    // destroy objects
+    DestroyObjects();
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::DestroyObjects()
+{
+    try
+    {
+    }
+    catch(...)
+    {
+    }
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::OnGoReceived() {
+    /// \todo implement
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::OnStopReceived() {
+    /// \todo implement
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::OnPowerFail() {
+    /// \todo implement
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::OnCmdTimeout(Global::tRefType Ref, const QString &CmdName)
+{
+    /// \todo implement
+    return;
+
+    DEBUGWHEREAMI;
+    DEBUGMSG(QString("Ref = ") + QString::number(Ref, 10) + " CmdName = " + CmdName);
+    Q_UNUSED(Ref);
+    Q_UNUSED(CmdName);
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::OnDeviceProcessingInit(Global::tRefType Ref, const CmdDeviceProcessingInit &Cmd)
+{
+    DEBUGWHEREAMI;
+    Q_UNUSED(Cmd);
+
+    m_RefInitDCL = Ref;
+//    SendAcknowledgeOK(Ref);
+}
+
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::OnDeviceProcessingCleanup(Global::tRefType Ref, const CmdDeviceProcessingCleanup &Cmd)
+{
+    DEBUGWHEREAMI;
+    Q_UNUSED(Cmd);
+
+    m_DeviceProcessing.Destroy();
+    SendAcknowledgeOK(Ref);
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief  Error notification from device control layer
+ *
+ *      All errors detected within the device control layer will be routed
+ *      here.
+ *
+ *  \iparam InstanceID = device instance identifier
+ *  \iparam ErrorGroup = Error group
+ *  \iparam ErrorCode = Error code
+ *  \iparam ErrorData = Additional error information
+ *  \iparam ErrorTime = Error time
+ */
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::ThrowError(DevInstanceID_t InstanceID, quint32 ErrorGroup, quint32 ErrorCode, quint16 ErrorData,const QDateTime & ErrorTime)
+{
+    QString ErrorArgString = QString("InstanceID = 0x") + QString::number(Global::AsInt(InstanceID), 16).toUpper() + " " +
+                             QString("ErrorGroup = 0x") + QString::number(ErrorGroup, 16).toUpper() + " " +
+                             QString("ErrorCode = 0x") + QString::number(ErrorCode, 16).toUpper() + " " +
+                             QString("ErrorData = 0x") + QString::number(ErrorData, 16).toUpper() + " " +
+                             QString("ErrorTime = ") + ErrorTime.toString("yyyy-MM-dd hh:mm:ss.zzz");
+    //SEND_DEBUG(WHEREAMI + " " + ErrorArgString);
+
+    //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_ERROR_DEVCTRLLAYER, ErrorArgString);
+}
+
+void DeviceCommandProcessorThreadController::ThrowError(quint16 ErrorGroup, quint16 ErrorCode)
+{
+    quint32 eventCode = (ErrorGroup << 16) | ErrorCode;
+    Global::EventObject::Instance().RaiseEvent(eventCode);
+}
+
+void DeviceCommandProcessorThreadController::ThrowError(quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, const QDateTime & ErrorTime, QString ErrorInfo)
+{
+    bool active = true;
+
+    quint32 eventCode = (ErrorGroup << 16) | ErrorCode;
+    Global::tTranslatableStringList stringList;
+    stringList << QString::number(ErrorData);
+    stringList << ErrorTime.toString("yyyy-MM-dd hh:mm:ss.zzz");
+    stringList << ErrorInfo;
+
+    Global::EventObject::Instance().RaiseEvent(eventCode, stringList, active);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Error notification from device control layer
+ *
+ *      All errors detected within the device control layer will be routed
+ *      here.
+ *
+ *  \iparam InstanceID = device instance identifier
+ *  \iparam ErrorGroup = Error group
+ *  \iparam ErrorCode = Error code
+ *  \iparam ErrorData = Additional error information
+ *  \iparam ErrorTime = Error time
+ *  \iparam ErrorInfo = Additional Error Information in text
+ */
+/****************************************************************************/
+void DeviceCommandProcessorThreadController::ThrowErrorWithInfo(DevInstanceID_t InstanceID, quint32 ErrorGroup,
+                                                                quint32 ErrorCode, quint16 ErrorData,
+                                                                const QDateTime & ErrorTime, QString ErrorInfo)
+{
+    QString ErrorArgString = QString("InstanceID = 0x") + QString::number(Global::AsInt(InstanceID), 16).toUpper() + " " +
+                             QString("ErrorGroup = 0x") + QString::number(ErrorGroup, 16).toUpper() + " " +
+                             QString("ErrorCode = 0x") + QString::number(ErrorCode, 16).toUpper() + " " +
+                             QString("ErrorData = 0x") + QString::number(ErrorData, 16).toUpper() + " " +
+                             QString("ErrorTime = ") + ErrorTime.toString("yyyy-MM-dd hh:mm:ss.zzz") +
+                             ErrorInfo;
+    //SEND_DEBUG(WHEREAMI + " " + ErrorArgString);
+
+    //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_ERROR_DEVCTRLLAYER, ErrorArgString);
+}
+
+/*****************************************************************************/
+/**
+ *  \brief     Initialisation finished notification
+ *
+ *  \param     InstanceID  = Device instance ID for grappler identification
+ *  \param     InitResult  = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
+ *****************************************************************************/
+void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(ReturnCode_t InitResult)
+{
+    if(InitResult == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        // log success
+        //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_INFO_COMMAND_FINISHED, EVENT_DEVICECOMMANDPROCESSOR_STRING_INITIALIZATION);
+
+        // log start of command
+        //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_INFO_COMMAND_STARTED, EVENT_DEVICECOMMANDPROCESSOR_STRING_CONFIGURATION);
+        ReturnCode_t RetVal = m_DeviceProcessing.StartConfigurationService();
+
+        if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+        {
+            // log failure
+            //SEND_FATAL_ERROR(EVENT_DEVICECOMMANDPROCESSOR_ERROR_COMMAND_FAILED, EVENT_DEVICECOMMANDPROCESSOR_STRING_CONFIGURATION);
+            SendAcknowledgeNOK(m_RefInitDCL);
+        }
+    }
+    else
+    {
+        // log failure
+        //SEND_FATAL_ERROR(EVENT_DEVICECOMMANDPROCESSOR_ERROR_COMMAND_FAILED, EVENT_DEVICECOMMANDPROCESSOR_STRING_INITIALIZATION);
+        // send negative acknowledge back.
+        SendAcknowledgeNOK(m_RefInitDCL);
+    }
+}
+
+/*****************************************************************************/
+/**
+ *  \brief     Configuration finished notification
+ *
+ *  \param     InstanceID   = Device instance ID for grappler identification
+ *  \param     ConfigResult = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
+ *****************************************************************************/
+void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode_t ConfigResult)
+{
+}
+
+/*****************************************************************************/
+/**
+ *  \brief     Normal operation mode start notification
+ *
+ *  \param     InstanceID = Device instance ID for grappler identification
+ *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
+ *****************************************************************************/
+void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(ReturnCode_t HdlInfo)
+{
+    Q_UNUSED(HdlInfo);
+}
+
+/*****************************************************************************/
+/**
+ *  \brief     Mode change notification ( config - normal - diag - adjust - shutdown)
+ *
+ *  \param     InstanceID = Device instance ID for grappler identification
+ *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
+ *  \param     NewState   = New state identification
+ *****************************************************************************/
+void DeviceCommandProcessorThreadController::DevProcModeChangeInfo(ReturnCode_t HdlInfo, quint8 NewState)
+{
+    Q_UNUSED(HdlInfo);
+    Q_UNUSED(NewState);
+}
+
+/*****************************************************************************/
+/**
+ *  \brief     Adjustment service start notification
+ *
+ *  \param     InstanceID = Device instance ID for grappler identification
+ *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
+ *****************************************************************************/
+void DeviceCommandProcessorThreadController::StartAdjustmentServiceAckn(ReturnCode_t HdlInfo)
+{
+    Q_UNUSED(HdlInfo);
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief    Return the index of a free command control element
+ *
+ *
+ *  \param    CmdIdx = Index of the free command ctrl element
+ *
+ *  \return   true if a free command was found
+ *
+ ***************************************************************************/
+bool DeviceCommandProcessorThreadController::GetFreeCommandCtrlContainer(quint8& CmdIdx)
+{
+    quint8 Idx;
+
+    m_Mutex.lock();
+    for(Idx = 0; Idx < CMD_REF_CNT; Idx++)
+    {
+        if(m_CommandRef[Idx].m_State == DCP_TC_CMD_STATE_FREE)
+        {
+            CmdIdx = Idx;
+            m_Mutex.unlock();
+            return true;
+        }
+    }
+    m_Mutex.unlock();
+
+    return false;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief    Return the specified command control element
+ *
+ *
+ *  \param    CmdIdx = Index of the free command ctrl element
+ *  \param    InstanceID = Instance ID of the device the command was adressed to
+ *  \param    CommandNameList = List of command names
+ *
+ *  \return   true if a free command was found
+ *
+ ***************************************************************************/
+ bool DeviceCommandProcessorThreadController::GetCommandCtrlContainer(quint8& CmdIdx, DeviceControl::DevInstanceID_t InstanceID, QStringList& CommandNameList)
+{
+    quint8 Idx;
+    quint8 CommandNameCnt = 0;
+
+    CommandNameCnt = CommandNameList.size();
+
+    m_Mutex.lock();
+    for(Idx = 0; Idx < CMD_REF_CNT; Idx++)
+    {
+        if((m_CommandRef[Idx].m_State == DCP_TC_CMD_STATE_ACTIV) &&
+           (m_CommandRef[Idx].m_DevInstanceID == InstanceID))
+        {
+            if(CommandNameList.contains(m_CommandRef[Idx].m_CommandName))
+            {
+                CmdIdx = Idx;
+                m_Mutex.unlock();
+                return true;
+            }
+        }
+    }
+    m_Mutex.unlock();
+
+    return false;
+}
+
+
+} // end namespace DeviceCommandProcessor

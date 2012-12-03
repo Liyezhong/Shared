@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Xml">
+        <file>ExportConfiguration.xml</file>
+    </qresource>
+</RCC>

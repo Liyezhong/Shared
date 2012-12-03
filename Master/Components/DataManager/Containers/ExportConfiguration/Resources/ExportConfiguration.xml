@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExportConfiguration Version="1" >
+	<Source Directory="./Settings/" />
+	<Destination Directory="" Filename="" />
+	<ServiceConfig>
+		<List Encryption ="active" Certified = "active" Compressed = "active" PackageType = "native">
+			<File Path="Programs.xml"/>
+			<File Path="Reagents.xml"/>
+			<File Path="Stations.xml"/>
+			<File Path="ProgramSequence.xml"/>
+			<File Path="Settings.xml"/>
+			<File Path="BLGConfiguration.xml"/>
+			<File Path="HW_Configuration.xml"/>
+			<File Path="RMS_Status.csv"/>
+			<Group File="Eventlog"/>
+		</List>
+	</ServiceConfig>
+	<UserConfig>
+		<List Encryption ="active" Certified = "active" Compressed = "active" PackageType = "native">
+			<File Path="Programs.xml"/>
+			<File Path="Reagents.xml"/>
+			<File Path="Stations.xml"/>
+			<File Path="ProgramSequence.xml"/>
+			<File Path="Settings.xml"/>
+		</List>
+		<UserReport>
+			<List Encryption ="inactive" Certified = "inactive" Compressed = "active" PackageType = "nonnative">
+				<Group File="DailyRun"/>
+				<File Path="RMS_Status.csv"/>
+			</List>
+		</UserReport>
+	</UserConfig>
+</ExportConfiguration>

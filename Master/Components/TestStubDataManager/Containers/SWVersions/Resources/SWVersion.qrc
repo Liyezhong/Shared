@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Xml">
+        <file>SW_Version.xml</file>
+    </qresource>
+</RCC>

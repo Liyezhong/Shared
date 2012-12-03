@@ -1,0 +1,26 @@
+Index: AgentEmbedded-6.1-364/Sysdeps/Unix/AeOSLocal.h
+===================================================================
+--- AgentEmbedded-6.1-364/Sysdeps/Unix/AeOSLocal.h	(revision 10051)
++++ AgentEmbedded-6.1-364/Sysdeps/Unix/AeOSLocal.h	(working copy)
+@@ -3,8 +3,6 @@
+ #ifndef _AE_OS_LOCAL_H_
+ #define _AE_OS_LOCAL_H_
+ 
+-#define _GNU_SOURCE
+-
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+Index: AgentEmbedded-6.1-364/Sysdeps/Unix/AeOS.c
+===================================================================
+--- AgentEmbedded-6.1-364/Sysdeps/Unix/AeOS.c	(revision 10051)
++++ AgentEmbedded-6.1-364/Sysdeps/Unix/AeOS.c	(working copy)
+@@ -56,7 +56,7 @@
+ AeError AeNetInitialize(void)
+ {
+     struct sigaction sa;
+-    memset(&sa, sizeof(sa), 0);
++    memset(&sa, 0, sizeof(sa));
+     sigemptyset(&sa.sa_mask);
+     sa.sa_flags = SA_RESTART;
+ 

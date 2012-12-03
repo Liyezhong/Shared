@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/Large/Icons">
+        <file>ShiftLock.png</file>
+        <file>Shift.png</file>
+        <file>CursorRight.png</file>
+        <file>CursorLeft.png</file>
+        <file>Delete.png</file>
+    </qresource>
+</RCC>

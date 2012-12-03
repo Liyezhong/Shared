@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/Large/SpellerButtons">
+        <file>SpellerButton_Left-Pressed.png</file>
+        <file>SpellerButton_Center-Selected.png</file>
+        <file>SpellerButton_Center-Disabled.png</file>
+        <file>SpellerButton_Center-Enabled.png</file>
+        <file>SpellerButton_Right-Selected.png</file>
+        <file>SpellerButton_Left-Disabled.png</file>
+        <file>SpellerTextInput-Disabled.png</file>
+        <file>SpellerTextInput-Enabled.png</file>
+        <file>SpellerButton_Left-Selected.png</file>
+        <file>SpellerButton_Left-SelectedPressed.png</file>
+        <file>SpellerButton_Left-Enabled.png</file>
+        <file>SpellerButton_Right-Enabled.png</file>
+        <file>Speller_BG.png</file>
+        <file>SpellerButton_Right-Pressed.png</file>
+        <file>SpellerButton_Right-SelectedPressed.png</file>
+        <file>SpellerButton_Right-Disabled.png</file>
+        <file>SpellerButton_Center-Pressed.png</file>
+        <file>SpellerButton_Center-SelectedPressed.png</file>
+        <file>Subspeller_BG.png</file>
+        <file>SpellerButton_-Enabled.png</file>
+        <file>SpellerButton_-Pressed.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <xsd:element name="message">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="cmd" type="cmdtype" minOccurs="1" maxOccurs="1" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="cmdtype" >
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="ref" type="xsd:string"/>
+    </xsd:complexType>
+
+</xsd:schema>
+

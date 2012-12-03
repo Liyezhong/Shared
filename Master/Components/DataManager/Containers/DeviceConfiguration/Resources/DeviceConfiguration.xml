@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DeviceConfiguration>
+<DeviceConfiguration Version="8">
+    <Device Name="ST 8200" SerialNumber="12345678"/>
+    <Coverslipper Name="CV 8020"/>
+    <Workstation Mode="No"/>
+    <Heated Cuevettes="No"/>
+    <SlideId Camera="No"/>
+</DeviceConfiguration>

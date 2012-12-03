@@ -1,0 +1,26 @@
+;$FORMATVERSION=5.1
+; C:\Dokumente und Einstellungen\andreas menge\Eigene Dateien\PCAN-Explorer 5\Projects\SystemCommands.xmt
+; CAN messages saved by PCAN-Explorer 5.0.4
+;
+; Columns descriptions:
+; ~~~~~~~~~~~~~~~~~~~~~
+;+Bus
+;|  +Message ID
+;|  |         +Reserved
+;|  |         |  +Cycle time in ms (0=manual)
+;|  |         |  |     +Length of message
+;|  |         |  |     |    +Frame type: D)ata or R)emote request
+;|  |         |  |     |    | +Message data
+;|  |         |  |     |    | |
+ 1  00000267h 02 0     0    D
+ 1  00080267h 02 0     0    D
+ 1  00300267h 02 0     5    D 00h 07h D0h 13h 88h
+ 1  00380267h 02 1000  0    D  Angehalten
+ 1  00100267h 02 0     1    D 05h
+ 1  00180267h 02 0     0    D
+ 1  00200267h 02 0     8    D 0Bh 01h 11h 0Ah 1Fh 00h 00h 00h
+ 1  00280267h 02 0     2    D 00h 0Bh
+ 1  00480267h 02 0     1    D 00h
+ 1  00400267h 02 0     1    D 00h
+ 1  00500267h 02 0     1    D 55h
+ 1  00500267h 02 0     1    D E7h

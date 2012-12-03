@@ -1,0 +1,115 @@
+FormatVersion=5.0
+Title="Symbols for Digital Input Module"
+
+{ENUMS}
+
+{SENDRECEIVE}
+
+[$B::MsgDinSrvCfgStatistics@$I]
+ID=$MSG_DI_SRV_CFG_STATISTICS	// Configure and request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[$B::MsgDinSrvReqResetData@$I]
+ID=$MSG_DI_SRV_REQ_RESET_DATA	// Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[$B::MsgDinConfigInput@$I]
+ID=$MSG_DI_CONFIG_INPUT	// Configure digital input
+Type=Extended
+DLC=7
+Var=EnableInput unsigned 0,1 -m /ln:"Enable digital input module"
+Var=UseTimestamp unsigned 1,1 -m /ln:"Add timestamp when sending"
+Var=Polarity unsigned 8,16 -m /ln:"Threshold for autom. sending"
+Var=Threshold unsigned 24,16 -m /ln:"Threshold for autom. sending"
+Var=SampleRate unsigned 40,8 -m /u:ms /ln:"Input sample rate"
+Var=SampleCount unsigned 48,8 -m /ln:"Number of samples to average over"
+
+[$B::MsgDinConfigLimits@$I]
+ID=$MSG_DI_CONFIG_LIMITS	// Configure digital input limits
+Type=Extended
+DLC=8
+Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
+Var=Limit1 unsigned 8,16 -m /ln:"Limit 1 threshold"
+Var=Flags2 unsigned 24,8 -m -h /ln:"Limit 2 mode bits"
+Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
+Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
+
+[$B::MsgDinReqInputState@$I]
+ID=$MSG_DI_REQ_INPUT_STATE	// Request digital input status
+Type=Extended
+DLC=0
+
+[$B::MsgDinProcConfigure@$I]
+ID=$MSG_DI_PROC_CONFIGURE	// Configure process data of digital input
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[$B::MsgDinReqProcData@$I]
+ID=$MSG_DI_PROC_REQ_DATA	// Request process data of digital input
+Type=Extended
+DLC=0
+
+{RECEIVE}
+
+[$B::MsgDinEventInfo@$I]
+ID=$MSG_DI_EVENT_INFO	// Info message
+Type=Extended
+DLC=8
+Var=InfoCode unsigned 0,16 -m /ln:"Info code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::MsgDinEventWarning@$I]
+ID=$MSG_DI_EVENT_WARNING	// Warning message
+Type=Extended
+DLC=8
+Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::MsgDinEventError@$I]
+ID=$MSG_DI_EVENT_ERROR	// Error message
+Type=Extended
+DLC=8
+Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::MsgDinSrvStatistics@$I]
+ID=$MSG_DI_SRV_STATISTICS	// Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[$B::MsgDinSrvAckResetData@$I]
+ID=$MSG_DI_SRV_ACK_RESET_DATA	// Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[$B::MsgDinInputState@$I]
+ID=$MSG_DI_INPUT_STATE	// Actual state of digital input
+Type=Extended
+DLC=6
+Var=InputValue unsigned 0,16 -m /ln:"Actual digital input value"
+Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
+
+[$B::MsgDinProcData@$I]
+ID=$MSG_DI_PROC_DATA	// Process data of digital input
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+

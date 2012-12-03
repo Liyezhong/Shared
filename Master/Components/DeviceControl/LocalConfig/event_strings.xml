@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE colorado_err_definitionn>
+<colorado_event_definitions version="1.0" >
+    <event_definitions language="english">
+        <event_main_group key="app" ID="0x01">
+            <event_sub_group key="app_ctrl" ID="0x01">
+                <event ID="0x0001"
+                        shorttext="Application start"
+                        text="Application start."/>
+                <event ID="0x0002"
+                        shorttext="GUI start"
+                        text="Gui start."/>
+                <event ID="0x0003"
+                        shorttext="DCL start"
+                        text="DCL start."/>
+                <event ID="0x0004"
+                        shorttext="DCL-Configuration start"
+                        text="DCL-Configuration start."/>
+                <event ID="0x0005"
+                        shorttext="DCL-Diagnsotic service start"
+                        text="DCL-Diagnsotic service start."/>
+
+            </event_sub_group>
+        </event_main_group>
+        <event_main_group key="gui" ID="0x02">
+        </event_main_group>
+        <event_main_group key="dcl" ID="0x03">
+            <event_sub_group key="dcl_ctrl" ID="0x01">
+                <event ID="0x0000"
+                        shorttext="Internal communication"
+                        text="Communication interface can not be opened."/>
+                <event ID="0x0002"
+                        shorttext="Error read configuration"
+                        text="Error read configuration"/>
+                <event ID="0x0003"
+                        shorttext="Event: start diagnostic"
+                        text="Event: start diagnostic"/>
+                <event ID="0x0004"
+                        shorttext="Error 4"
+                        text="Error 4"/>
+                <event ID="0x0005"
+                        shorttext="Error 5"
+                        text="Error "/>
+            </event_sub_group>
+            <event_sub_group key="dcl_caniface" ID="0x02">
+            </event_sub_group>
+            <event_sub_group key="dcl_config" ID="0x03">
+                <event ID="0x0010"
+                        shorttext="Open failed: HW config file"
+                        text="The hardware configuration file could not be opened"/>
+                <event ID="0x0011"
+                        shorttext="Parse error: HW config file"
+                        text="Parse error: HW config file"/>
+                <event ID="0x0012"
+                        shorttext="Format error: HW config file"
+                        text="Format error: HW config file"/>
+                <event ID="0x0013"
+                        shorttext="Version error: HW config file"
+                        text="Version error: HW config file"/>
+                <event ID="0x0014"
+                        shorttext="Format error master: HW config file"
+                        text="Format error master: HW config file"/>
+                <event ID="0x0015"
+                        shorttext="Format error slave: HW config file"
+                        text="Format error slave: HW config file"/>
+                <event ID="0x0016"
+                        shorttext="Format error fct: HW config file"
+                        text="Format error fct: HW config file"/>
+            </event_sub_group>
+            <event_sub_group key="dcl_deviceproc_cfg" ID="0x04">
+            </event_sub_group>
+            <event_sub_group key="dcl_canbus" ID="0x05">
+                <event ID="0x0001"
+                        shorttext="Write operation failed"
+                        text="Write operation on can bus failed"/>
+            </event_sub_group>
+            <event_sub_group key="dcl_node" ID="0x10">
+                <event ID="0x0001"
+                        shorttext="Timeout node"
+                        text="Timeout node"/>
+                <event ID="0x0002"
+                        shorttext="Timeout node config"
+                        text="Timeout node communication, configuration"/>
+                <event ID="0x0003"
+                        shorttext="Channel count not conform"
+                        text="Channel count hw configuratin is not conform to the slaves channel count"/>
+                <event ID="0x0004"
+                        shorttext="Configuration received invalid module"
+                        text="Configuration received invalid module"/>
+                <event ID="0x0005"
+                        shorttext="Unexpected CAN-Message"
+                        text="Unexpected CAN-Message"/>
+                <event ID="0x0006"
+                        shorttext="Timeout config function modules"
+                        text="Timeout config function modules"/>
+                <event ID="0x0007"
+                        shorttext="Heartbeat timeout"
+                        text="Heartbeat timeout"/>
+            </event_sub_group>
+            <event_sub_group key="dcl_fct_dig_io" ID="0x11">
+            </event_sub_group>
+            <event_sub_group key="dcl_fct_ana_io" ID="0x12">
+            </event_sub_group>
+            <event_sub_group key="dcl_fct_incl" ID="0x13">
+            </event_sub_group>
+            <event_sub_group key="dcl_fct_motor" ID="0x14">
+            </event_sub_group>
+         </event_main_group>
+        <event_main_group key="node" ID="0x10">
+            <event_sub_group key="app_ctrl" ID="0x01">
+                <event ID="0x0001"
+                        shorttext="Application start"
+                        text="Application start."/>
+                <event ID="0x0002"
+                        shorttext="GUI start"
+                        text="Gui start."/>
+                <event ID="0x0003"
+                        shorttext="DCL start"
+                        text="DCL start."/>
+                <event ID="0x0004"
+                        shorttext="DCL-Configuration start"
+                        text="DCL-Configuration start."/>
+            </event_sub_group>
+        </event_main_group>
+        <event_main_group key="fctmod" ID="0x11">
+            <event_sub_group key="app_ctrl" ID="0x01">
+                <event ID="0x0001"
+                        shorttext="Application start"
+                        text="Application start."/>
+                <event ID="0x0002"
+                        shorttext="GUI start"
+                        text="Gui start."/>
+                <event ID="0x0003"
+                        shorttext="DCL start"
+                        text="DCL start."/>
+                <event ID="0x0004"
+                        shorttext="DCL-Configuration start"
+                        text="DCL-Configuration start."/>
+            </event_sub_group>
+        </event_main_group>
+    </event_definitions>
+    <event_definitions language="german">
+        <eventgroup key="devicecontrol" ID="0x0001">
+            <event ID="0x0000"
+                    shorttext="Interne Kommunikation"
+                    text="Fehler bei Zugriff auf Kommunikationsschnittstelle."/>
+        </eventgroup>
+        <eventgroup key="other_stuff" ID="0x0002">
+        </eventgroup>
+    </event_definitions>
+    <event_definitions language="español">
+        <eventgroup key="devicecontrol" ID="0x0001">
+            <event ID="0x0000"
+                    shorttext="Interna comunicatiòn"
+                    text="Error en el acceso de interna comunicatiòn."/>
+        </eventgroup>
+        <eventgroup key="other_stuff" ID="0x0002">
+        </eventgroup>
+    </event_definitions>
+</colorado_event_definitions>
