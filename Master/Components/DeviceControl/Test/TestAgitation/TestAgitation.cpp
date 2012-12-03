@@ -85,7 +85,7 @@ void TestAgitation::init()
         QFAIL("Cannot connect to Abort Signal.");
     }
 
-       // give instantiated state machine a chance to start and process events
+    // give instantiated state machine a chance to start and process events
     QCoreApplication::processEvents();
 
     THREAD_PROCESS();
@@ -121,7 +121,7 @@ void TestAgitation::utTestRotateStop()
     m_MockDcp.EmitRotate(2,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,3);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperRotationActive") );
     QCOMPARE( nackSpy.count(), 1 );
 
@@ -129,22 +129,21 @@ void TestAgitation::utTestRotateStop()
     m_MockDcp.EmitRotate(4,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,0);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,0);
     QVERIFY( mp_Agitation->GetStates().contains("StepperIdle") );
     QCOMPARE( nackSpy.count(), 2 );
 
     m_MockDcp.EmitRotate(2,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,3);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperRotationActive") );
     QCOMPARE( nackSpy.count(), 3 );
 
     m_MockDcp.EmitRotate(2,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,3);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperRotationActive") );
     QCOMPARE( nackSpy.count(), 4 );
 
@@ -210,7 +209,7 @@ void TestAgitation::utTestAgitationStopResumeMoveIdle()
     m_MockDcp.EmitRotate(2,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,3);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperRotationActive") );
 
     m_MockDcp.EmitMove(2,1);
@@ -262,7 +261,7 @@ void TestAgitation::utTestAgitationMoveAbortMove()
     m_MockDcp.EmitRotate(2,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,3);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperRotationActive") );
 
     m_MockDcp.EmitMove(2,1);
@@ -280,7 +279,7 @@ void TestAgitation::utTestAgitationMoveAbortMove()
     m_MockDcp.EmitRotate(2,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperChangingSpeed") );
 
-    m_Motor.EmitReportSpeed(1234,DCL_ERR_FCT_CALL_SUCCESS,3);
+    m_Motor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0,1);
     QVERIFY( mp_Agitation->GetStates().contains("StepperRotationActive") );
 
     m_MockDcp.EmitMove(2,1);

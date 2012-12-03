@@ -23,7 +23,7 @@ DEFINES +=  Q_UNIT_TEST
 
 #QMAKE_CXXFLAGS += Simulator.h
 
-HEADERS +=  ../../Include/Devices/State.h \
+HEADERS +=  ../../Include/Devices/DeviceState.h \
             ../../Include/Devices/DeviceAgitation.h \
             ../../Include/Devices/DeviceBase.h \
             ../../Include/Devices/FmStepperInit.h \
@@ -33,7 +33,7 @@ HEADERS +=  ../../Include/Devices/State.h \
             ../SlaveModules/*.h \
 
 SOURCES +=  TestAgitation.cpp \
-            ../../Source/Devices/State.cpp \
+            ../../Source/Devices/DeviceState.cpp \
             ../../Source/Devices/DeviceAgitation.cpp \
             ../../Source/Devices/DeviceBase.cpp \
             ../../Source/Devices/FmStepperInit.cpp \
