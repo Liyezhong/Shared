@@ -183,8 +183,8 @@ bool CDeviceOven::Trans_Configure(QEvent *p_Event)
     // Configure open close position & profile
     p_OvenMotion->SetOpenPosition(950);
     p_OvenMotion->SetClosePosition(20);
-    p_OvenMotion->SetOpenProfile(0);
-    p_OvenMotion->SetCloseProfile(0);
+    p_OvenMotion->SetOpenProfile(1);
+    p_OvenMotion->SetCloseProfile(1);
 
     // TODO Default Nacks for Stop Resume Abort in Base Device? plus helper method
     return true;
