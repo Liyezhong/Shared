@@ -770,6 +770,7 @@ static Error_t bmProcessNodeReset (UInt16 Channel, CanMessage_t *Message) {
         }
         if (PatternIndex >= ELEMENTS(PatternSequence)) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
+            bmSetGlobalControl (MODULE_CONTROL_RESET);
             canFlushMessages (1000);
 
             // Do hardware reset (should never return)
