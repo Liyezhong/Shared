@@ -1065,9 +1065,13 @@ void CStepperMotor::HandleCANMsgSetStateAck(can_frame* pCANframe)
 
     if(MSG_SMOT_SET_ENABLE_ACK_DLC == pCANframe->can_dlc)
     {
-        FILE_LOG_L(laFCT, llINFO) << "  CANStepperMotor set state ack'" << GetKey().toStdString();
+        Msg_EnableAckData_t *ackData = (Msg_EnableAckData_t*)pCANframe->data;
 
-        emit ReportSetStateAckn(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
+        SM_AckState_t ack = ackData->ack;
+
+        FILE_LOG_L(laFCT, llINFO) << "  CANStepperMotor set state ack'" << GetKey().toStdString() <<  "' Ack=" << ack;;
+
+        emit ReportSetStateAckn(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR));
     }
     else
     {
