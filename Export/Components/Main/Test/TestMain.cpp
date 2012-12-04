@@ -93,7 +93,7 @@ void TestMain::utTestMain() {
     
 }
 
-} // end namespace PlatformExport
+} // end namespace Export
 
 QTEST_MAIN(Export::TestMain)
 
