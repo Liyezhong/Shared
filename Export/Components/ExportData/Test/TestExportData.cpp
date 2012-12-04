@@ -114,6 +114,6 @@ void TestExportData::utTestExportData() {
 
 } // end namespace PlatformExport
 
-QTEST_MAIN(PlatformExport::TestExportData)
+QTEST_MAIN(Export::TestExportData)
 
 #include "TestExportData.moc"
