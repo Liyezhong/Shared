@@ -33,12 +33,18 @@ public:
     void EmitMove(quint32 TargetPosition, quint8 MotionProfileIdx){emit Move(TargetPosition,MotionProfileIdx); THREAD_PROCESS(); }
     void EmitSetLightOn() { emit SetLightOn(); THREAD_PROCESS(); }
     void EmitSetLightOff() { emit SetLightOff(); THREAD_PROCESS(); }
+
     void EmitSetValveOn(WaterValveID_t ValveID){emit SetValveOn( ValveID);}
     void EmitSetValveOff(WaterValveID_t ValveID){emit SetValveOff( ValveID);}
-    void EmitMoveEmptyTo(quint16 StationColumn, quint16 StationRow) {emit MoveEmptyTo(StationColumn, StationRow);   THREAD_PROCESS(); }
     void EmitReadLiquidLevel(){emit ReadLiquidLevel();}
-
+    
+    // Xyz Device signals
+    void EmitMoveEmptyTo(quint16 StationColumn, quint16 StationRow) {emit MoveEmptyTo(StationColumn, StationRow);   THREAD_PROCESS(); }
     void EmitTransportRack(quint16 StationColumn, quint16 StationRow) {emit TransportRackTo(StationColumn, StationRow);   THREAD_PROCESS(); }
+    void EmitAttachRack()   {emit AttachRack();     THREAD_PROCESS();   }
+    void EmitDetachRack()   {emit DetachRack();     THREAD_PROCESS();   }
+    void EmitLetDownRack()  {emit LetDownRack();    THREAD_PROCESS();   }
+    void EmitPullDownRack() {emit PullUpRack();     THREAD_PROCESS();   }
 
 Q_SIGNALS:
     void Configure();
@@ -67,6 +73,10 @@ Q_SIGNALS:
     // Xyz Device signals
     void MoveEmptyTo(quint16 StationColumn, quint16 StationRow);
     void TransportRackTo(quint16 StationColumn, quint16 StationRow);
+    void AttachRack();
+    void DetachRack();
+    void LetDownRack();
+    void PullUpRack();
 };
 
 

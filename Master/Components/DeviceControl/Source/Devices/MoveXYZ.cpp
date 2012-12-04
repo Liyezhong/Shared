@@ -25,16 +25,25 @@ CMoveXYZ::CMoveXYZ(CStepperMotor &XAxisMotor, CStepperMotor &YAxisMotor, CSteppe
     CState *p_Aborting = new CState("Aborting", this);
 
     p_Moving->setChildMode(QState::ParallelStates);
-    new CMoveAck(m_XAxisMotor, "XAxis", p_Moving);
-    new CMoveAck(m_YAxisMotor, "YAxis", p_Moving);
-    new CMoveAck(m_ZAxisMotor, "ZAxis", p_Moving);
+    CMoveAck* p_MovingAckX = new CMoveAck(m_XAxisMotor, "X", p_Moving);
+    CMoveAck* p_MovingAckY = new CMoveAck(m_YAxisMotor, "Y", p_Moving);
+    CMoveAck* p_MovingAckZ = new CMoveAck(m_ZAxisMotor, "Z", p_Moving);
 
     p_Aborting->setChildMode(QState::ParallelStates);
-    new CMoveAck(m_XAxisMotor, "XAxis", p_Aborting);
-    new CMoveAck(m_YAxisMotor, "YAxis", p_Aborting);
-    new CMoveAck(m_ZAxisMotor, "ZAxis", p_Aborting);
+    CMoveAck* p_AbortingAckX = new CMoveAck(m_XAxisMotor, "X", p_Aborting);
+    CMoveAck* p_AbortingAckY = new CMoveAck(m_YAxisMotor, "Y", p_Aborting);
+    CMoveAck* p_AbortingAckZ = new CMoveAck(m_ZAxisMotor, "Z", p_Aborting);
 
     // Signal Connections
+    connect(p_MovingAckX, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionX(quint32)));
+    connect(p_MovingAckY, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionY(quint32)));
+    connect(p_MovingAckZ, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionZ(quint32)));
+
+    connect(p_AbortingAckX, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionX(quint32)));
+    connect(p_AbortingAckY, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionY(quint32)));
+    connect(p_AbortingAckZ, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionZ(quint32)));
+
+    // State Transitions
     // Idle -> Moving
     p_Idle->addTransition(new CMoveXyzTransition(this, SIGNAL(Move(quint32,quint8,quint32,quint8,quint32,quint8)),
                                                  *this, &CMoveXYZ::Trans_Idle_Moving, p_Moving));
@@ -52,6 +61,8 @@ CMoveXYZ::CMoveXYZ(CStepperMotor &XAxisMotor, CStepperMotor &YAxisMotor, CSteppe
                                                      *this, &CMoveXYZ::Trans_Aborting_Idle, p_Idle));
 
     setInitialState(p_Idle);
+
+    m_CurrentPositionX = m_CurrentPositionY = m_CurrentPositionZ = 0;
 }
 
 bool CMoveXYZ::Trans_Idle_Moving(QEvent *p_Event)
@@ -83,6 +94,23 @@ bool CMoveXYZ::Trans_Idle_Moving(QEvent *p_Event)
         return false;
     }
 
+    if (PositionX == NO_CHANGE)
+    {
+        PositionX = m_CurrentPositionX;
+    }
+
+    if (PositionY == NO_CHANGE)
+    {
+        PositionY = m_CurrentPositionY;
+    }
+
+    if (PositionZ == NO_CHANGE)
+    {
+        PositionZ = m_CurrentPositionZ;
+    }
+
+    qDebug() << "Target:" << PositionX << PositionY << PositionZ;
+
     ReturnCode_t ReturnCode;
 
     ReturnCode = m_XAxisMotor.DriveToPosition(PositionX, ProfileX);
@@ -110,8 +138,9 @@ bool CMoveXYZ::Trans_Moving_Idle(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
 
-    emit ReportMove(DCL_ERR_FCT_CALL_SUCCESS);
+    qDebug() << "Current:" << m_CurrentPositionX << m_CurrentPositionY << m_CurrentPositionZ;
 
+    emit ReportMove(DCL_ERR_FCT_CALL_SUCCESS);
     return true;
 }
 
@@ -149,6 +178,37 @@ bool CMoveXYZ::Trans_Aborting_Idle(QEvent *p_Event)
     ReportAbort(DCL_ERR_FCT_CALL_SUCCESS);
 
     return true;
+}
+
+void CMoveXYZ::SetPositionX(quint32 Positon)
+{
+    m_CurrentPositionX = Positon;
+}
+
+void CMoveXYZ::SetPositionY(quint32 Positon)
+{
+    m_CurrentPositionY = Positon;
+}
+
+void CMoveXYZ::SetPositionZ(quint32 Positon)
+{
+    m_CurrentPositionZ = Positon;
+}
+
+//! \todo should check if Mutex is necessary, as its used within a thread.
+quint32 CMoveXYZ::GetPositionX()
+{
+    return m_CurrentPositionX;
+}
+
+quint32 CMoveXYZ::GetPositionY()
+{
+    return m_CurrentPositionY;
+}
+
+quint32 CMoveXYZ::GetPositionZ()
+{
+    return m_CurrentPositionZ;
 }
 
 }

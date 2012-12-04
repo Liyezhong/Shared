@@ -49,10 +49,16 @@ public:
     static bool GetEventValue(QEvent *p_Event, qint32 Index, TValue &Value)
     {
         QStateMachine::SignalEvent *p_SignalEvent = static_cast<QStateMachine::SignalEvent *>(p_Event);
-        QVariant Variant = p_SignalEvent->arguments().at(Index);
-        // TODO: if not isValid(), Value is set to QVariant::Invalid (0); okay?
-        Value = Variant.value<TValue>();
-        return Variant.isValid();
+
+        if (p_SignalEvent->arguments().count() > Index)
+        {
+            QVariant Variant = p_SignalEvent->arguments().at(Index);
+            // TODO: if not isValid(), Value is set to QVariant::Invalid (0); okay?
+            Value = Variant.value<TValue>();
+            return Variant.isValid();
+        }
+
+        return false;
     }
 
 protected:

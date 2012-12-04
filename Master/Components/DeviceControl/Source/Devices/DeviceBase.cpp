@@ -72,8 +72,8 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
                          DevInstanceID_t InstanceID) :
     m_machine(this), m_DeviceProcessing(DeviceProc), m_InstanceID(InstanceID), m_ModuleList(ModuleList)
 {
-    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_1] = "LeftGrappler";
-    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_2] = "LeftGrappler";
+    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_1] = "LeftXyz";
+    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_2] = "RightXyz";
     m_DeviceName[DEVICE_INSTANCE_ID_LOADER]     = "Loader";
     m_DeviceName[DEVICE_INSTANCE_ID_UNLOADER]   = "Unloader";
     m_DeviceName[DEVICE_INSTANCE_ID_OVEN]       = "Oven";

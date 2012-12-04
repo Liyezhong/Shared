@@ -23,13 +23,13 @@ DEFINES +=  Q_UNIT_TEST
 
 #QMAKE_CXXFLAGS += Simulator.h
 
-HEADERS +=  ../../Include/Devices/DeviceState.h \
+HEADERS +=  ../../Include/Devices/State.h \
             ../../Include/Devices/DeviceWater.h \
             ../../Include/Devices/DeviceBase.h \
             ../SlaveModules/*.h \
 
 SOURCES +=  TestWater.cpp \
-            ../../Source/Devices/DeviceState.cpp \
+            ../../Source/Devices/State.cpp \
             ../../Source/Devices/DeviceWater.cpp \
             ../../Source/Devices/DeviceBase.cpp \
             ../SlaveModules/*.cpp

@@ -21,6 +21,8 @@ public:
 signals:
     void MoveError(ReturnCode_t ReturnCode);
 
+    void ReportPosition(quint32 Position);
+
 protected:
     bool CheckMovementAckn(QEvent *p_Event);
 

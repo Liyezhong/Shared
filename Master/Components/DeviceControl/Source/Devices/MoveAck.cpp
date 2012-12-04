@@ -29,11 +29,18 @@ CMoveAck::CMoveAck(CStepperMotor &StepperMotor, const QString &Name, QState *p_P
 bool CMoveAck::CheckMovementAckn(QEvent *p_Event)
 {
     // ReportMovementAckn(quint32 InstanceID, ReturnCode_t ReturnCode, qint32 Position, qint16 Speed)
+    quint32 Position;
+
     ReturnCode_t ReturnCode = CMoveAckTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
-        //            emit NeedInitialize(ReturnCode);
         emit MoveError(ReturnCode);
     }
+
+    if (CMoveAckTransition::GetEventValue(p_Event, 2, Position))
+    {
+        emit ReportPosition(Position);
+    }
+
     return true;
 }
 

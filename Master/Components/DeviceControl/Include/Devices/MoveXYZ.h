@@ -26,13 +26,16 @@ public:
              const QString &Name,
              QState *p_Parent = 0);
 
+    quint32 GetPositionX();
+    quint32 GetPositionY();
+    quint32 GetPositionZ();
+
 signals:
     // Request Interface
     void Move(quint32 PositionX, quint8 ProfileX,
               quint32 PositionY, quint8 ProfileY,
               quint32 PositionZ, quint8 ProfileZ);
     void Abort();
-    void Disable();
 
     // Response Interface
     void ReportMove(ReturnCode_t ReturnCode);
@@ -45,18 +48,24 @@ signals:
 protected:
     bool Trans_Idle_Moving(QEvent *p_Event);
     bool Trans_Moving_Idle(QEvent *p_Event);
+    bool Trans_Moving(QEvent *p_Event);
 
     bool Trans_Moving_Aborting(QEvent *p_Event);
     bool Trans_Aborting_Idle(QEvent *p_Event);
+
+private slots:
+    void SetPositionX(quint32 Positon);
+    void SetPositionY(quint32 Positon);
+    void SetPositionZ(quint32 Positon);
 
 private:
     CStepperMotor &m_XAxisMotor;
     CStepperMotor &m_YAxisMotor;
     CStepperMotor &m_ZAxisMotor;
 
-    quint8 m_MotionProfileX;
-    quint8 m_MotionProfileY;
-    quint8 m_MotionProfileZ;
+    quint32 m_CurrentPositionX;
+    quint32 m_CurrentPositionY;
+    quint32 m_CurrentPositionZ;
 };
 
 }

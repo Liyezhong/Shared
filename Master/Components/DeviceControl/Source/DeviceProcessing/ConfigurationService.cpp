@@ -34,6 +34,7 @@
 #include "DeviceControl/Include/Devices/DeviceOven.h"
 #include "DeviceControl/Include/Devices/DeviceRackTransfer.h"
 #include "DeviceControl/Include/Devices/DeviceAgitation.h"
+#include "DeviceControl/Include/Devices/DeviceXyz.h"
 
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
@@ -376,6 +377,11 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
         else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevRackTransferKey)
         {
             pBaseDevice = new CDeviceRackTransfer(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
+                                                  pBaseDeviceCfg->m_InstanceID);
+        }
+        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevXyzTransportationKey)
+        {
+            pBaseDevice = new CDeviceXyz(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
                                                   pBaseDeviceCfg->m_InstanceID);
         }
         else
