@@ -1,5 +1,5 @@
-!include("../../../Test/PlatformExport.pri") {
-    error("../../../Test/PlatformExport.pri not found")
+!include("../../../Test/Export.pri") {
+    error("../../../Test/Export.pri not found")
 }
 
 TARGET = utTestMain

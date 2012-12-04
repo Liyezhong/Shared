@@ -6,7 +6,7 @@
  *  \b Description:
  *         Checks the CExportData class implementation
  *
- *  $Version:   $ 0.1
+ *  $Version:   $ 1.0
  *  $Date:      $ 2012-08-10
  *  $Author:    $ Raju
  *
@@ -29,7 +29,7 @@
 #include "ExportData/Include/Startup.h"
 
 
-namespace PlatformExport {
+namespace Export {
 
 static QString FilesPathWrite;  ///< Path to where we can write some files.
 //const QString RESOURCE_FILENAME = ":/Xml/ExportConfiguration.xml"; ///< Resource file path

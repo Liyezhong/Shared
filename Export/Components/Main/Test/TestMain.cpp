@@ -6,7 +6,7 @@
  *  \b Description:
  *         Checks the Main class implementation
  *
- *  $Version:   $ 0.1
+ *  $Version:   $ 1.0
  *  $Date:      $ 2012-08-10
  *  $Author:    $ Raju
  *
@@ -27,7 +27,7 @@
 #include "Global/Include/Utils.h"
 
 
-namespace PlatformExport {
+namespace Export {
 
 /****************************************************************************/
 /**
