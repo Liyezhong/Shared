@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
             return 0;
 
         case 'v':
-            std::cout << "Export " << Version.toStdString() << std::endl;
+            std::cout << Version.toStdString() << std::endl;
             return 0;
 
         default:
