@@ -32,7 +32,7 @@
 #include "QProcess"
 #include "QDebug"
 
-namespace PlatformExport {
+namespace Export {
 
 // constant file modes
 const char FILE_WRITEMODE                   = 'w'; ///< constant for file write mode
@@ -422,11 +422,11 @@ int CExportData::WriteArchiveFile(const QString &KeyName, const QList<QByteArray
             case ImportExport::ERROR_IMPORTEXPORT_CANNOT_OPEN_FILE_FOR_WRITE:
                 ExitCode = Global::EXIT_CODE_EXPORT_CANNOT_OPEN_FILE_FOR_WRITE;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_UNABLE_TO_READ:
-                ExitCode = Global::EXIT_CODE_EXPORT_UNABLE_TO_READ;
+            case ImportExport::ERROR_IMPORTEXPORT_ERROR_TO_READ:
+                ExitCode = Global::EXIT_CODE_EXPORT_ERROR_TO_READ;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_UNABLE_TO_WRITE:
-                ExitCode = Global::EXIT_CODE_EXPORT_UNABLE_TO_WRITE;
+            case ImportExport::ERROR_IMPORTEXPORT_ERROR_TO_WRITE:
+                ExitCode = Global::EXIT_CODE_EXPORT_ERROR_TO_WRITE;
                 break;
             case ImportExport::ERROR_IMPORTEXPORT_ARCHIVEFILE_FORMAT_WRONG:
                 ExitCode = Global::EXIT_CODE_EXPORT_TARGET_FILE_FORMAT_IS_WRONG;
@@ -466,4 +466,4 @@ int CExportData::WriteArchiveFile(const QString &KeyName, const QList<QByteArray
 }
 
 
-} // end namespace PlatformExport
+} // end namespace Export

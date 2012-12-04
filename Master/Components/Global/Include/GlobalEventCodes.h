@@ -86,8 +86,8 @@ const quint32 EVENT_EXPORT_INVALID_EXPORT                                   = EV
 const quint32 EVENT_EXPORT_CRYTOSERVICE_RUNNING                             = EVENT_GROUP_PLATFORM_EXPORT + 0x0010; ///< trying to run more than one Cryptoservice
 const quint32 EVENT_EXPORT_CANNOT_OPEN_FILE_FOR_READ                        = EVENT_GROUP_PLATFORM_EXPORT + 0x0011; ///< cannot open the file in read mode
 const quint32 EVENT_EXPORT_CANNOT_OPEN_FILE_FOR_WRITE                       = EVENT_GROUP_PLATFORM_EXPORT + 0x0012; ///< cannot open the file in write mode
-const quint32 EVENT_EXPORT_UNABLE_TO_READ                                   = EVENT_GROUP_PLATFORM_EXPORT + 0x0013; ///< unable to read the file
-const quint32 EVENT_EXPORT_UNABLE_TO_WRITE                                  = EVENT_GROUP_PLATFORM_EXPORT + 0x0014; ///< unable to write the file
+const quint32 EVENT_EXPORT_ERROR_TO_READ                                   = EVENT_GROUP_PLATFORM_EXPORT + 0x0013;  ///< error in reading the file
+const quint32 EVENT_EXPORT_ERROR_TO_WRITE                                  = EVENT_GROUP_PLATFORM_EXPORT + 0x0014;  ///< error in writing the file
 const quint32 EVENT_EXPORT_INDEX_IS_MATCHING                                = EVENT_GROUP_PLATFORM_EXPORT + 0x0015; ///< hash chain index and USB device indexes are matching
 const quint32 EVENT_EXPORT_KEY_SIZE_LESS                                    = EVENT_GROUP_PLATFORM_EXPORT + 0x0016; ///< key size is more by comparing with hash block size
 const quint32 EVENT_EXPORT_KEYDATA_SIZE_IS_NOT_MATCHING                     = EVENT_GROUP_PLATFORM_EXPORT + 0x0017; ///< key file size is not matching with the in-built key file size
@@ -100,7 +100,6 @@ const quint32 EVENT_EXPORT_HMAC_COMPUTATION_STARTED                         = EV
 const quint32 EVENT_EXPORT_ZIP_ERROR                                        = EVENT_GROUP_PLATFORM_EXPORT + 0x001E; ///< Unable to zip the files
 const quint32 EVENT_EXPORT_ZIP_COMMAND_NOT_FOUND                            = EVENT_GROUP_PLATFORM_EXPORT + 0x001F; ///< Zip command not found in the system
 const quint32 EVENT_EXPORT_ZIP_IS_TAKING_LONGTIME                           = EVENT_GROUP_PLATFORM_EXPORT + 0x0020; ///< zip is taking long time to complete the request
-
 
 
 } // end namespace Global

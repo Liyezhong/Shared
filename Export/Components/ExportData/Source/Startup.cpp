@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 
-namespace PlatformExport {
+namespace Export {
 
 /****************************************************************************/
 /*!
@@ -62,4 +62,4 @@ CStartup::~CStartup()
 {    
 }
 
-} // end namespace PlatformExport
+} // end namespace Export

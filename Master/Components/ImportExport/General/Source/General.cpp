@@ -214,7 +214,7 @@ QByteArray FailSafeOpen::read(int size)
 
         if(mp_fd->error() != QFile::NoError)
         {
-            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_UNABLE_TO_READ);
+            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ERROR_TO_READ);
         }
 
         if(mp_fd->atEnd())
@@ -269,7 +269,7 @@ void FailSafeOpen::write(QByteArray data)
 
         if(written == -1)
         {
-            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_UNABLE_TO_WRITE);
+            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ERROR_TO_WRITE);
         }
 
         data = data.mid(written);

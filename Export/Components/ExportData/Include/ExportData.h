@@ -17,8 +17,8 @@
  *
  */
 /****************************************************************************/
-#ifndef PLATFORMEXPORT_EXPORTDATA_H
-#define PLATFORMEXPORT_EXPORTDATA_H
+#ifndef EXPORT_EXPORTDATA_H
+#define EXPORT_EXPORTDATA_H
 
 #include "ImportExport/WriteArchive/Include/WriteArchive.h"
 #include "DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
@@ -28,7 +28,7 @@
 //lint -e429
 
 
-namespace PlatformExport {
+namespace Export {
 
 typedef QHash<QString, QStringList> FileList_t; ///< to store the archive file name and related file list to archive
 /****************************************************************************/
@@ -73,7 +73,7 @@ public:
 
 };
 
-} // end namespace PlatformExport
+} // end namespace Export
 
 
-#endif // PLATFORMEXPORT_EXPORTDATA_H
+#endif // EXPORT_EXPORTDATA_H

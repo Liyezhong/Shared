@@ -18,13 +18,13 @@
  */
 /****************************************************************************/
 
-#ifndef PLATFORMEXPORT_STARTUP_H
-#define PLATFORMEXPORT_STARTUP_H
+#ifndef EXPORT_STARTUP_H
+#define EXPORT_STARTUP_H
 
 #include "ExportData/Include/ExportData.h"
 
 
-namespace PlatformExport {
+namespace Export {
 
 /****************************************************************************/
 /*!
@@ -45,6 +45,6 @@ private:
     //CStartup();
 };
 
-} // end namespace PlatformExport
+} // end namespace Export
 
-#endif // PLATFORMEXPORT_STARTUP_H
+#endif // EXPORT_STARTUP_H

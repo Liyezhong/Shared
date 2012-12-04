@@ -7,7 +7,7 @@
 
 ################# override some pri settings #################
 TEMPLATE = app
-TARGET = PlatformExport
+TARGET = Export
 
 HEADERS += ../Include/Main.h # header file location
 SOURCES += ../Source/Main.cpp # source file location
