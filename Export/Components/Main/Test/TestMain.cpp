@@ -95,6 +95,6 @@ void TestMain::utTestMain() {
 
 } // end namespace PlatformExport
 
-QTEST_MAIN(PlatformExport::TestMain)
+QTEST_MAIN(Export::TestMain)
 
 #include "TestMain.moc"
