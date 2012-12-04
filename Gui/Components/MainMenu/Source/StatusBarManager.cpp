@@ -67,15 +67,10 @@ StatusBarManager::StatusBarManager(MainMenu::CMainWindow *p_MainWindow):mp_MainW
 void StatusBarManager::AddEventMessages(QDataStream &EventMsgStream)
 {
     quint32 EventType;
-    quint32 ButtonType;
-    quint64 EventId;
-    bool EventStatus;
-    bool StatusBarIcon;
     EventMsgStruct Msg;
-    EventMsgStream >> EventStatus >> EventType >> EventId;
-    qDebug() << "Event Message Stream" << EventStatus << EventType << EventId;
-    EventMsgStream >> Msg.EventString >> Msg.Time >> ButtonType >> StatusBarIcon;
-    Msg.ID = EventId;
+    EventMsgStream >> Msg.ID >> EventType >> Msg.EventString >> Msg.Time;
+    //EventMsgStream >> EventStatus >> EventType >> EventId;
+    //EventMsgStream >> Msg.EventString >> Msg.Time >> ButtonType >> StatusBarIcon;
     Msg.EventType = static_cast<Global::EventType>(EventType);
     if (Msg.EventType == Global::EVTTYPE_WARNING) {
         m_WarningIDMsgHash.insert(Msg.ID,Msg);
@@ -97,7 +92,7 @@ void StatusBarManager::AddEventMessages(QDataStream &EventMsgStream)
         ErrorMsgList(m_ErrorIDMsgHash);
         qDebug() << "Added in Error hash" ;
     }
-    qDebug() << "Event ID in message box is" << EventId;
+    qDebug() << "Event ID in message box is" << Msg.ID;
 }
 
 /****************************************************************************/
@@ -152,7 +147,8 @@ void StatusBarManager::ErrorMsgList(QHash <quint64, EventMsgStruct> ErrorIdMsgHa
     QStringList TimeList;
     for (ErrorList = ErrorIdMsgHash.constBegin(); ErrorList != ErrorIdMsgHash.constEnd(); ++ErrorList) {
         EventMsg = ErrorList.value();
-        EventIDList.append(QString::number(EventMsg.ID));
+        quint32 ID =  (EventMsg.ID & 0xffffffff00000000) >> 32;
+        EventIDList.append(QString::number(ID));
         ErrMsgList.append(EventMsg.EventString);
         TimeList.append(EventMsg.Time);
     }
@@ -175,7 +171,8 @@ void StatusBarManager::WarningMsgList(QHash <quint64, EventMsgStruct> WarningIdM
     QStringList TimeList;
     for (WarningList = WarningIdMsgHash.constBegin(); WarningList != WarningIdMsgHash.constEnd(); ++WarningList) {
         EventMsg = WarningList.value();
-        EventIDList.append(QString::number(EventMsg.ID));//at(count) = QString(EventMsg.ID);
+        quint32 ID =  (EventMsg.ID & 0xffffffff00000000) >> 32;
+        EventIDList.append(QString::number(ID));//at(count) = QString(EventMsg.ID);
         WarnMsgList.append(EventMsg.EventString);
         TimeList.append(EventMsg.Time);
     }

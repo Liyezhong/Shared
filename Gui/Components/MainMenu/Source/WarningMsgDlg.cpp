@@ -100,7 +100,7 @@ void CWarningMsgDlg::SetWarningMsgList(QStringList EventIdList,QStringList Event
 {
     QStringList WarningText;
     for (int EventID = 0;EventID < EventIdList.count();EventID++) {
-        WarningText.append(TimeStamp.at(EventID) + "\t" + EventMessage.at(EventID) + "\n");
+        WarningText.append(TimeStamp.at(EventID) + ";  "+EventIdList.at(EventID) +";  " + EventMessage.at(EventID)+"\n");
     }
     qDebug() << "Warning messages" << WarningText;
     SetText(WarningText);

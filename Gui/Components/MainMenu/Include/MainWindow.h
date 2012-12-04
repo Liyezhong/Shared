@@ -137,6 +137,8 @@ private:
     QLabel *mp_ErrorLabel;//!< Pointer to Error Label
     Status_t m_Status; //!< Informs Status of system
     static UserRole_t m_CurrentUserRole;//! < current user type
+    QPixmap *mp_ProcPixmap;
+    QPixmap *mp_RemotePixMap;
 
 private slots:
     void RefreshDateTime();

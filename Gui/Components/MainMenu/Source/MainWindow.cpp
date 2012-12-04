@@ -72,11 +72,6 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :
     mp_Ui->statusLabelWarn->setHidden(true);
     mp_Ui->statusLabelErr->installEventFilter(this);
     mp_Ui->statusLabelWarn->installEventFilter(this);
-   // mp_Ui->frame_2->setMaximumSize(mp_Ui->frame_2->sizeHint());
-   // mp_Ui->statusLabel1->setMaximumSize(mp_Ui->statusLabel1->sizeHint());
-    //mp_Ui->labelUser->setMaximumSize(mp_Ui->labelUser->sizeHint());
-    //mp_Ui->statusLabel2->setMaximumSize(mp_Ui->statusLabel2->sizeHint());
-    //mp_Ui->labelTime->setMaximumSize(mp_Ui->labelTime->sizeHint());
 }
 
 /****************************************************************************/
@@ -88,6 +83,8 @@ CMainWindow::~CMainWindow()
 {
     try {
         delete mp_Ui;
+        delete mp_ProcPixmap;
+        delete mp_RemotePixMap;
     }
     catch (...) {}
 }
@@ -249,9 +246,11 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
     case ProcessRunning:
         if (!m_ProcessRunning) {
             p_Label = mp_Ui->statusLabel1;
-            p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+            p_Label->setPixmap(*mp_ProcPixmap);
             p_Label->show();
             m_ProcessRunning = true;
+            //p_Label->pixmap.fill(Qt::transparent);
             //Inform widgets process is running.
             emit ProcessStateChanged();
             result = true;
@@ -260,7 +259,9 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
     case RemoteCare:
         if (!m_RemoteService) {
             p_Label = mp_Ui->statusLabel2;
-            p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_RemotePixMap = new QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+            p_Label->setPixmap(*mp_RemotePixMap);
+            //p_Label->pixmap.fill(Qt::transparent);
             p_Label->show();
             m_RemoteService = true;
             result = true;
@@ -300,7 +301,10 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
     switch (Status) {
     case ProcessRunning:
         if (m_ProcessRunning) {
-            mp_Ui->statusLabel1->hide();
+            //mp_Ui->statusLabel1->hide();
+            mp_ProcPixmap->fill(Qt::transparent);
+            mp_Ui->statusLabel1->setPixmap(*mp_ProcPixmap);
+            mp_Ui->statusLabel1->show();
             m_ProcessRunning = false;
             emit ProcessStateChanged();
             result = true;
@@ -308,7 +312,10 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
         break;
     case RemoteCare:
         if (m_RemoteService) {
-            mp_Ui->statusLabel2->hide();
+            //mp_Ui->statusLabel2->hide();
+            mp_RemotePixMap->fill(Qt::transparent);
+            mp_Ui->statusLabel2->setPixmap(*mp_ProcPixmap);
+            mp_Ui->statusLabel2->show();
             m_RemoteService= false;
             result = true;
         }

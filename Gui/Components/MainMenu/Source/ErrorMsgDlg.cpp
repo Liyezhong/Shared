@@ -101,7 +101,7 @@ void CErrorMsgDlg::SetErrorMsgList(QStringList EventIdList,QStringList EventMess
 {
     QStringList ErrorText;
     for (int EventID = 0;EventID < EventIdList.count();EventID++) {
-        ErrorText.append(TimeStamp.at(EventID) + "\t" + EventMessage.at(EventID) + "\n");
+        ErrorText.append(TimeStamp.at(EventID) + ";  "+EventIdList.at(EventID) +";  "+EventMessage.at(EventID)+"\n");
        // SetText(ErrorText);
     }
     qDebug() << "Error messages" << ErrorText;
