@@ -222,6 +222,8 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
             int ErrorNumber = WriteZipFile(ExportFile, KeyName, DateValue);
 
             if (ErrorNumber != 0) {
+                // if error then remove the lpkg file also
+                (void)QFile::remove(m_LPKGFileName);  //to avoid lint-534
                 return ErrorNumber;
             }
         }
@@ -235,8 +237,6 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
             (void)QFile::remove(ImportExport::Constants::counter); //to avoid lint-534
 
             if (ErrorNumber != 0) {
-                // remove files if it exists it
-                (void)QFile::remove(ImportExport::Constants::keyfile); //to avoid lint-534
                 return ErrorNumber;
             }
         }
@@ -404,10 +404,11 @@ int CExportData::WriteArchiveFile(const QString &KeyName, const QList<QByteArray
     try {
         // write the archive file
         ImportExport::WriteArchive(qPrintable(KeyName), Files, 1, Encryption, Compressed);
+        m_LPKGFileName = KeyName;
     }
     catch (ImportExport::ExceptionNumber ExNumber) {
         // if error then remove the file also
-        (void)QFile::remove(KeyName);
+        (void)QFile::remove(KeyName); //to avoid lint-534
 
         qint32 ExitCode = Global::EXIT_CODE_EXPORT_UNABLE_ARCHIVE_FILES;
 

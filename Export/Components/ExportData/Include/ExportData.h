@@ -39,6 +39,7 @@ typedef QHash<QString, QStringList> FileList_t; ///< to store the archive file n
 class CExportData {
 private:
     FileList_t m_PairList; ///< pair list for the strings
+    QString m_LPKGFileName; ///< to store lpkg file name
 
     /****************************************************************************/
     /*!
