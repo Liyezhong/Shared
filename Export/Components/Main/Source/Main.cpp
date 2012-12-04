@@ -30,7 +30,7 @@
 #include "Global/Include/SystemPaths.h"
 
 
-const static QString Version = "EXP_0.001";
+static const QString Version = "EXP_0.001"; ///< version string for the export component
 
 /****************************************************************************/
 /*!
