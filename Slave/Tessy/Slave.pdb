@@ -4,13 +4,13 @@ Backup Directory : "$(PROJECTROOT)\Tessy\backup"
 Configuration    : "$(PROJECTROOT)\Tessy\config\configuration.xml"
 Author           : "Martin Scherer"
 Created          : 06.12.2010 15:23
-Last Changed     : 03.12.2012 11:07
+Last Changed     : 04.12.2012 08:59
 Comment          : ""
 Project
    Name    : "Temperature"
    Module
       Name        : "fmTemperature"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1011,7 +1011,7 @@ Project
    End
    Module
       Name        : "fmTemperatureFan"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1085,7 +1085,7 @@ Project
    End
    Module
       Name        : "fmTemperatureHeater"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1213,7 +1213,7 @@ Project
    End
    Module
       Name        : "fmTemperaturePid"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1315,7 +1315,7 @@ Project
    End
    Module
       Name        : "fmTemperatureSensor"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1351,7 +1351,7 @@ Project
    End
    Module
       Name        : "fmTemperatureTime"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1451,7 +1451,7 @@ Project
    Name    : "AnalogInput"
    Module
       Name        : "fmAnalogInput"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -1657,7 +1657,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiModuleControl.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000010\aiModuleControl.cte"
             End
          End
       End
@@ -1673,7 +1673,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiModuleStatus.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000012\aiModuleStatus.cte"
             End
          End
       End
@@ -1684,7 +1684,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiModuleTask.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000013\aiModuleTask.cte"
             End
          End
       End
@@ -1695,7 +1695,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiGetFilteredInput.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000014\aiGetFilteredInput.cte"
             End
          End
       End
@@ -1706,7 +1706,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiMonitorLimits.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000015\aiMonitorLimits.cte"
             End
          End
       End
@@ -1717,7 +1717,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiSendInputValue.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000016\aiSendInputValue.cte"
             End
          End
       End
@@ -1733,7 +1733,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiReqInputValue.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000018\aiReqInputValue.cte"
             End
          End
       End
@@ -1744,7 +1744,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiConfigureInput.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000019\aiConfigureInput.cte"
             End
          End
       End
@@ -1755,7 +1755,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiConfigureLimit.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000001A\aiConfigureLimit.cte"
             End
          End
       End
@@ -1766,7 +1766,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_aiInitializeModule.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000001B\aiInitializeModule.cte"
             End
          End
       End
@@ -1776,7 +1776,7 @@ Project
    Name    : "AnalogOutput"
    Module
       Name        : "fmAnalogOutput"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -2167,7 +2167,7 @@ Project
    Name    : "DigitalInput"
    Module
       Name        : "fmDigitalInput"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -2184,7 +2184,7 @@ Project
             Property
                Name  : "Hide Functions"
                Type  : "Boolean"
-               Flags : 0xC0000049
+               Flags : 0xC0000001
                Value : "1"
             End
          End
@@ -2481,7 +2481,7 @@ Project
    Name    : "DigitalOutput"
    Module
       Name        : "fmDigitalOutput"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -2504,7 +2504,7 @@ Project
             Property
                Name  : "Hide Functions"
                Type  : "Boolean"
-               Flags : 0xC0000049
+               Flags : 0xC0000001
                Value : "1"
             End
          End
@@ -2894,7 +2894,7 @@ Project
    Name    : "Joystick"
    Module
       Name        : "fmJoystick"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -2935,7 +2935,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysModuleControl.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\joysModuleControl.cte"
             End
          End
       End
@@ -2946,7 +2946,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysResetPartition.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\joysResetPartition.cte"
             End
          End
       End
@@ -2957,7 +2957,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysModuleStatus.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\joysModuleStatus.cte"
             End
          End
       End
@@ -2968,7 +2968,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysModuleTask.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\joysModuleTask.cte"
             End
          End
       End
@@ -2979,7 +2979,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysHandleAxis.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\joysHandleAxis.cte"
             End
          End
       End
@@ -2990,7 +2990,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysSendDisplacement.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\joysSendDisplacement.cte"
             End
          End
       End
@@ -3001,7 +3001,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysContactCheck.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\joysContactCheck.cte"
             End
          End
       End
@@ -3012,7 +3012,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysSetConfiguration.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000008\joysSetConfiguration.cte"
             End
          End
       End
@@ -3039,7 +3039,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysSetMechOffset.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000B\joysSetMechOffset.cte"
             End
          End
       End
@@ -3050,7 +3050,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysGetDisplacement.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000C\joysGetDisplacement.cte"
             End
          End
       End
@@ -3061,7 +3061,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysGetMechOffset.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000D\joysGetMechOffset.cte"
             End
          End
       End
@@ -3083,7 +3083,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysVerifyPartition.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000F\joysVerifyPartition.cte"
             End
          End
       End
@@ -3094,7 +3094,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_joysInitializeModule.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000010\joysInitializeModule.cte"
             End
          End
       End
@@ -3465,7 +3465,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785ModuleControl.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000010\rfid11785ModuleControl.cte"
             End
          End
       End
@@ -3476,7 +3476,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785ModuleStatus.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000011\rfid11785ModuleStatus.cte"
             End
          End
       End
@@ -3487,7 +3487,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785ModuleTask.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000012\rfid11785ModuleTask.cte"
             End
          End
       End
@@ -3498,7 +3498,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785StartModOutput.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000013\rfid11785StartModOutput.cte"
             End
          End
       End
@@ -3553,7 +3553,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785RespondAck.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000018\rfid11785RespondAck.cte"
             End
          End
       End
@@ -3564,7 +3564,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785SetModOutput.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000019\rfid11785SetModOutput.cte"
             End
          End
       End
@@ -3575,7 +3575,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785SetDeviceSel.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000001A\rfid11785SetDeviceSel.cte"
             End
          End
       End
@@ -3586,7 +3586,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785SetConfig.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000001B\rfid11785SetConfig.cte"
             End
          End
       End
@@ -3597,7 +3597,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785SendLogin.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000001C\rfid11785SendLogin.cte"
             End
          End
       End
@@ -3619,7 +3619,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785WriteUserData.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000001E\rfid11785WriteUserData.cte"
             End
          End
       End
@@ -3641,7 +3641,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785WritePassword.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000020\rfid11785WritePassword.cte"
             End
          End
       End
@@ -3652,7 +3652,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785WriteConfig.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000021\rfid11785WriteConfig.cte"
             End
          End
       End
@@ -3663,7 +3663,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785ReadUserData.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000022\rfid11785ReadUserData.cte"
             End
          End
       End
@@ -3685,7 +3685,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785ReadUidNumber.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000024\rfid11785ReadUidNumber.cte"
             End
          End
       End
@@ -3696,7 +3696,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785InterruptHandler.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000025\rfid11785InterruptHandler.cte"
             End
          End
       End
@@ -3750,7 +3750,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785HandleOpen.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000002B\rfid11785HandleOpen.cte"
             End
          End
       End
@@ -3761,7 +3761,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_rfid11785InitializeModule.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000002C\rfid11785InitializeModule.cte"
             End
          End
       End
@@ -3801,7 +3801,7 @@ Project
    End
    Module
       Name        : "fmRfidIso11785Link"
-      State       : 0x00000004
+      State       : 0x0000000C
       Environment : "ARM RVDS Keil µVision (Default)"
       Properties
          Property
@@ -4007,7 +4007,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartModuleControl.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\uartModuleControl.cte"
             End
          End
       End
@@ -4018,7 +4018,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartModuleStatus.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\uartModuleStatus.cte"
             End
          End
       End
@@ -4029,7 +4029,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartModuleTask.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\uartModuleTask.cte"
             End
          End
       End
@@ -4040,7 +4040,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartDataWrite.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\uartDataWrite.cte"
             End
          End
       End
@@ -4051,7 +4051,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartSendAck.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\uartSendAck.cte"
             End
          End
       End
@@ -4062,7 +4062,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartDataRead.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\uartDataRead.cte"
             End
          End
       End
@@ -4073,7 +4073,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartSendData.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\uartSendData.cte"
             End
          End
       End
@@ -4084,7 +4084,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartSetConf.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\00000008\uartSetConf.cte"
             End
          End
       End
@@ -4106,7 +4106,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartSetData.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000A\uartSetData.cte"
             End
          End
       End
@@ -4117,7 +4117,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartGetData.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000B\uartGetData.cte"
             End
          End
       End
@@ -4139,7 +4139,7 @@ Project
                Name  : "CTE File"
                Type  : "File"
                Flags : 0x00000015
-               Value : "$(MODULEPATH)\ts_uartInitializeModule.cte"
+               Value : "$(MODULEPATH)\.database\.tdb\0000000D\uartInitializeModule.cte"
             End
          End
       End
