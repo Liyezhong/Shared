@@ -151,8 +151,12 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     mp_Configuring->addTransition(
         mp_Configuring, SIGNAL(finished()),
         mp_Configured );
-    //TODO: Configure Ack, Nack, DefaultNack
+    //TODO: Configure Nack, DefaultNack
  
+//    // Send Configure ACK
+//    mp_Configured->addTransition( new CDeviceTransition(
+//        mp_Configuring, SIGNAL(entered()),
+//        *this, &CDeviceBase::Configure_Ack) );
 
     // Handle 'Initialize' request
 
@@ -189,6 +193,22 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     connect(&m_Thread, SIGNAL(started()), this, SLOT(ThreadStarted()));
     moveToThread(&m_Thread);
     m_Thread.start();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief      To report completion of configuration.
+ *
+ *              Invoked when state Configuring is finished
+ *
+ *  \iparam     p_Event     Not used
+ */
+/****************************************************************************/
+bool CDeviceBase::Configure_Ack(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+    emit ReportConfigure(DCL_ERR_FCT_CALL_SUCCESS);
+    return true;
 }
 
 /****************************************************************************/
@@ -298,11 +318,17 @@ void CDeviceBase::ThreadStarted()
     /////////////////////////////////////////////////////////////////
 
     CState *ConfigStart = new CState("ConfigStart", mp_Configuring);
+    CState *ConfigDone= new CState("ConfigDone", mp_Configuring);
     QFinalState *ConfigEnd = new QFinalState(mp_Configuring);
     mp_Configuring->setInitialState(ConfigStart);
     // TODO: add configuration work
     ConfigStart->addTransition(new CDeviceTransition(ConfigStart, SIGNAL(entered()),
-                                                     *this, &CDeviceBase::Trans_Configure, ConfigEnd));
+                                                     *this, &CDeviceBase::Trans_Configure, ConfigDone));
+    // Send Configure ACK
+    ConfigDone->addTransition( new CDeviceTransition(
+        ConfigDone, SIGNAL(entered()),
+        *this, &CDeviceBase::Configure_Ack,
+        ConfigEnd));
 
     m_machine.start();
 }

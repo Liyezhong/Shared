@@ -213,6 +213,7 @@ protected:
     bool Trans_Initializing_Configured(QEvent *p_Event);
     bool Trans_Initializing_Working(QEvent *p_Event);
     bool Initialize_Nack(QEvent *p_Event);
+    bool Configure_Ack(QEvent *p_Event);
 
     quint32 GetModuleInstanceFromKey(const QString &Key);
 
