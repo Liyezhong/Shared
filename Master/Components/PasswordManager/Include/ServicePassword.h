@@ -146,14 +146,12 @@ public:
     /**
      * \brief Validates the authentication.
      *        This compares the PIN number with the existing data in the Servicekey.xml
-     *        file
-     *
-     * \oparam ServiceID - service ID number
+     *        file     
      *
      * \return On successful (true) or not (false)
      */
     /****************************************************************************/
-    bool ValidateAuthentication(const QString &ServiceID);
+    bool ValidateAuthentication();
 }; // end class of CServicePassword
 } // end name space of PasswordManager
 #endif // PASSWORDMANAGER_CSERVICEPASSWORD_H

@@ -26,6 +26,8 @@
 #include "PasswordManager/Include/ServicePassword.h"
 #include "DataManager/Helper/Include/Helper.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/EventObject.h"
+#include "PasswordManager/Include/PasswordManagerEventCodes.h"
 
 
 namespace PasswordManager {
@@ -77,6 +79,7 @@ bool CServicePassword::SearchAndMountTheDevice() {
     return true;
     // create the QProcess
     QProcess ProcToMountUSB;
+    bool DevicesExists = false;
     // set the working directory "/dev"
     (void)ProcToMountUSB.setWorkingDirectory(DIRECTORY_DEV); //to avoid lint-534
 
@@ -90,6 +93,7 @@ bool CServicePassword::SearchAndMountTheDevice() {
         // store all the device names from the standard input
         QString Devices(ProcToMountUSB.readAllStandardOutput());
         if (Devices.length() > 0) {
+            DevicesExists = true;
             if (Devices.split(STRING_NEWLINE).length() > 0) {
                 for (int DeviceCount = 0; DeviceCount < Devices.split(STRING_NEWLINE).length(); DeviceCount++) {
                     if (ProcToMountUSB.waitForFinished()) {
@@ -97,11 +101,17 @@ bool CServicePassword::SearchAndMountTheDevice() {
                         if (MountTheSpecificDevice(ProcToMountUSB, Devices.split(STRING_NEWLINE).value(DeviceCount))) {
                             return true;
                         }
-
                     }
                 }
             }
         }
+    }
+
+    if (!DevicesExists) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_NO_USB_DEVICE_EXISTS);
+    }
+    else {
+        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_KEY_FILE_NOT_FOUND);
     }
     return false;
 }
@@ -188,10 +198,11 @@ bool CServicePassword::CompareTheCheckSum() {
     QXmlStreamReader ServiceStreamReader(m_ServiceFileContent);
     (void)ServiceStreamReader.readElementText(QXmlStreamReader::IncludeChildElements); //lint -e534
     if (DataManager::Helper::ReadNode(ServiceStreamReader, XML_NODE_CHECK)) {
-        if (ServiceStreamReader.readElementText().toUpper().compare(ComputeCheckSum()) == 0) {
+        if (ServiceStreamReader.readElementText().toUpper().compare(ComputeCheckSum()) == 0) {            
             return true;
         }
     }
+    Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_CHECKSUM_NOT_MATCHED);
     return false;
 }
 
@@ -202,6 +213,7 @@ bool CServicePassword::ReadDeviceNameTagsExistence() {
 
     bool InstrumentNode = false;
     bool DeviceNameExists = false;
+    bool LogDeviveNameExistence = false;
 
     (void)ServiceStreamReader.readElementText(QXmlStreamReader::IncludeChildElements); //lint -e534
 
@@ -224,6 +236,7 @@ bool CServicePassword::ReadDeviceNameTagsExistence() {
                         // check the device name existence
                         if (ServiceStreamReader.readElementText().compare(m_DeviceName) == 0) {
                             DeviceNameExists = true;
+                            LogDeviveNameExistence = false;
                         }
                     }
                     if (DeviceNameExists) {
@@ -247,6 +260,13 @@ bool CServicePassword::ReadDeviceNameTagsExistence() {
         }
     }
 
+    if (LogDeviveNameExistence) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_DEVICENAME_NOT_EXISTS);
+    }
+    else {
+        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_BASIC_TAG_VALUE_IS_WRONG);
+    }
+
     return false;
 }
 
@@ -261,11 +281,11 @@ bool CServicePassword::CompareDate() {
         // always date is stored in the format of yyyyMMdd
         qint32 TimeDifference = ValidDateFromFile.toTime_t()
                 - Global::AdjustedTime::Instance().GetCurrentDateTime().toTime_t();
-        if (TimeDifference >= 0) {
+        if (TimeDifference >= 0) {            
             return true;
         }
     }
-
+    Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_DATE_IS_EXPIRED);
     return false;
 }
 
@@ -279,7 +299,7 @@ bool CServicePassword::CompareHash() {
             return true;
         }
     }
-
+    Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_HASH_NOT_MATCHED);
     return false;
 }
 
@@ -297,7 +317,7 @@ QString CServicePassword::ReadServiceID() {
 }
 
 /****************************************************************************/
-bool CServicePassword::ValidateAuthentication(const QString &ServiceID) {
+bool CServicePassword::ValidateAuthentication() {
 
     QFile ServiceFile(DIRECTORY_MNT + QDir::separator() + FILE_LBSACCESS);
 
@@ -320,8 +340,10 @@ bool CServicePassword::ValidateAuthentication(const QString &ServiceID) {
 
     if (CheckSumMatched && CompareDate()) {
         if (ReadDeviceNameTagsExistence()) {
-            // store the service ID
-            const_cast<QString&>(ServiceID)= ReadServiceID();
+            // log the service ID
+            Global::EventObject::Instance().RaiseEvent
+                    (EVENT_PASSWORDMANAGER_LOG_SERVICE_ID, Global::FmtArgs() << ReadServiceID(), true);
+
             return true;
         }
     }

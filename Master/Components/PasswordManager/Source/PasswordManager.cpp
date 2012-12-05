@@ -138,7 +138,7 @@ bool CPasswordManager::ServiceAuthentication(const QString &Password, const QStr
 
     CServicePassword ServiceUser(Password, DeviceName);
 
-    return ServiceUser.ValidateAuthentication(m_ServiceID);
+    return ServiceUser.ValidateAuthentication();
 }
 
 

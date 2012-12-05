@@ -6,4 +6,4 @@ TARGET = utTestPasswordManager
 
 SOURCES +=  TestPasswordManager.cpp
 
-UseLibs(DataManagement Global)
+UseLibs(DataManager Global)

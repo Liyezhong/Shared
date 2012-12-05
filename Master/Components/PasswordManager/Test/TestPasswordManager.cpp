@@ -19,11 +19,11 @@
 /****************************************************************************/
 
 #include <QTest>
-#include <DataManagement/Include/PasswordManager.h>
-#include <DataManagement/Include/DataManagementEventCodes.h>
+#include <PasswordManager/Include/PasswordManager.h>
+#include <DataManager/Helper/Include/DataManagerEventCodes.h>
 #include <Global/Include/Exception.h>
 
-namespace DataManager {
+namespace PasswordManager {
 
 /****************************************************************************/
 /**
@@ -114,13 +114,13 @@ void TestPasswordManager::cleanupTestCase() {
 /****************************************************************************/
 void TestPasswordManager::utConstructor() {
     // test constructor
-    PasswordManager Obj("MasterPasswordHash");
+    CPasswordManager Obj("MasterPasswordHash");
     QCOMPARE(Obj.m_Passwords.size(),    0);
 }
 
 /****************************************************************************/
 void TestPasswordManager::utClear() {
-    PasswordManager Obj("MasterPasswordHash");
+    CPasswordManager Obj("MasterPasswordHash");
     QCOMPARE(Obj.m_Passwords.size(),    0);
 
     // insert some values directly
@@ -137,7 +137,7 @@ void TestPasswordManager::utClear() {
 
 /****************************************************************************/
 void TestPasswordManager::utComputeHash() {
-    PasswordManager Obj("MasterPasswordHash");
+    CPasswordManager Obj("MasterPasswordHash");
     QCOMPARE(Obj.ComputeHash(""),                       QString("D41D8CD98F00B204E9800998ECF8427E"));
     QCOMPARE(Obj.ComputeHash("12345"),                  QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
     QCOMPARE(Obj.ComputeHash("1234512345"),             QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
@@ -152,7 +152,7 @@ void TestPasswordManager::utPasswordFormat() {
     QFETCH(QString, Password);
     QFETCH(bool, ExpectedResult);
 
-    QCOMPARE(PasswordManager::CheckPasswordFormat(Password), ExpectedResult);
+    QCOMPARE(CPasswordManager::CheckPasswordFormat(Password), ExpectedResult);
 }
 
 /****************************************************************************/
@@ -179,7 +179,7 @@ void TestPasswordManager::utPasswordFormat_data() {
 /****************************************************************************/
 void TestPasswordManager::utPasswords() {
     // start with empty test object
-    PasswordManager Obj("0DBCEC4A5FE4AE88C60B2DB1724563E2");
+    CPasswordManager Obj("0DBCEC4A5FE4AE88C60B2DB1724563E2");
 
     // check default administrator password
     QCOMPARE(Obj.CheckPassword("Administrator", "1234"),        false);
@@ -246,8 +246,8 @@ void TestPasswordManager::utPasswords() {
     }
 }
 
-} // end namespace DataManager
+} // end namespace PasswordManager
 
-QTEST_MAIN(DataManager::TestPasswordManager)
+QTEST_MAIN(PasswordManager::TestPasswordManager)
 
 #include "TestPasswordManager.moc"
