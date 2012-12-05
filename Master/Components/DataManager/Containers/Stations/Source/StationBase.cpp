@@ -39,7 +39,8 @@ namespace DataManager {
 CStationBase::CStationBase() :
     m_StationID("0"),
     m_StationTemp(0),
-    m_Defect(false)
+    m_Defect(false),
+    m_Disabled(false)
 {  
 }
 
@@ -53,7 +54,8 @@ CStationBase::CStationBase() :
 CStationBase::CStationBase(const QString ID) :
     m_StationID(ID),
     m_StationTemp(33),
-    m_Defect(false)
+    m_Defect(false),
+    m_Disabled(false)
 {
 }
 
@@ -78,6 +80,7 @@ void CStationBase::CopyFromOther(const CStationBase &Station)
     m_HeatingState = OtherStation.GetHeatingState();
     m_StationID = OtherStation.GetStationID();
     m_StationTemp = OtherStation.GetStationTemperature();
+    m_Disabled = OtherStation.IsStationDisabled();
 }
 
 /****************************************************************************/
@@ -104,11 +107,21 @@ bool CStationBase::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Comp
         // Need to work on the m_ReagentTemp
         XmlStreamWriter.writeAttribute("Temperature", QString::number(GetStationTemperature()));
         // Station is defect or not
-        if (IsStationDefect()) {
+        if (IsStationDefect())
+        {
             XmlStreamWriter.writeAttribute("Defect", "true");
         }
-        else {
+        else
+        {
             XmlStreamWriter.writeAttribute("Defect", "false");
+        }
+        if (IsStationDisabled())
+        {
+            XmlStreamWriter.writeAttribute("Disabled", "true");
+        }
+        else
+        {
+            XmlStreamWriter.writeAttribute("Disabled", "false");
         }
     }
     //======NODE=END====Temporary Data Variables=========================
@@ -155,7 +168,19 @@ bool CStationBase::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool Co
             if (XmlStreamReader.attributes().value("Defect").toString().toUpper() == "TRUE") {
                 Value = true;
             }
-            MarkStationDefect(Value);
+            SetStationDefect(Value);
+        }
+
+        //Disabled
+        if (!XmlStreamReader.attributes().hasAttribute("Disabled")) {
+            qDebug() << "### attribute <Disabled> is missing => abort reading";
+            return false;
+        } else {
+            bool Value = false;
+            if (XmlStreamReader.attributes().value("Disabled").toString().toUpper() == "TRUE") {
+                Value = true;
+            }
+            SetStationDisabled(Value);
         }
     }
     //======NODE=END====Temporary Data Variables=========================

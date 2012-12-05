@@ -51,6 +51,7 @@ protected:
     int m_StationTemp;                          //!< Station Temperature (current temperature)
     Global::HeatingState m_HeatingState;        //!< HeatingState of Heated Cuvette/Oven.
     bool m_Defect;                              //!< Whether the station is defect or not
+    bool m_Disabled;                            //!< Whether the station is disabled or not
 
 public:
     CStationBase();
@@ -142,7 +143,28 @@ public:
      *  \return
      */
     /****************************************************************************/
-    void MarkStationDefect(bool Defect) { m_Defect = Defect; }
+    void SetStationDefect(bool Defect) { m_Defect = Defect; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the Station Defect State
+     *
+     *  \return true or false
+     */
+    /****************************************************************************/
+    bool IsStationDisabled() { return m_Disabled; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Sets the Station Defect State
+     *
+     *  \iparam Defect = True or false, bool type
+     *
+     *  \return
+     */
+    /****************************************************************************/
+    void SetStationDisabled(bool Disabled) { m_Disabled = Disabled; }
+
 };
 
 } // namespace DataManager
