@@ -37,12 +37,13 @@ class CmdDataUpdate : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdDataUpdate &);
 public:
     static QString NAME;    ///< Command name.
+    QString m_RelatedClass;
     /****************************************************************************/
-    CmdDataUpdate(int Timeout, const QDataStream &StationUpdateDataStream);
+    CmdDataUpdate(int Timeout, const QDataStream &StationUpdateDataStream, QString relatedClass);
     CmdDataUpdate();
     ~CmdDataUpdate();
     virtual QString GetName() const;
-    QByteArray const & GetStationUpdateData() const { return m_DataUpdateByteArray;}
+    QByteArray const & GetDataUpdate() const { return m_DataUpdateByteArray;}
 private:
     CmdDataUpdate(const CmdDataUpdate &);                       ///< Not implemented.
     const CmdDataUpdate & operator = (const CmdDataUpdate &);   ///< Not implemented.
@@ -63,6 +64,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdDataUpdate &Cmd)
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
+    Stream << Cmd.m_RelatedClass;
     Stream << Cmd.m_DataUpdateByteArray;
     return Stream;
 }
@@ -81,6 +83,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdDataUpdate &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
+    Stream >> Cmd.m_RelatedClass;
     Stream >> Cmd.m_DataUpdateByteArray;
     return Stream;
 }

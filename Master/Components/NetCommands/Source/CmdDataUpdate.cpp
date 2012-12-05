@@ -33,8 +33,9 @@ QString CmdDataUpdate::NAME = "NetCommands::CmdDataUpdate";
  * \param[in]   Station     QByteArray containing station.
  */
 /****************************************************************************/
-CmdDataUpdate::CmdDataUpdate(int Timeout, const QDataStream &DataUpdateDataStream) :
-    Command(Timeout)
+CmdDataUpdate::CmdDataUpdate(int Timeout, const QDataStream &DataUpdateDataStream, QString relatedClass)
+    : Command(Timeout)
+    , m_RelatedClass(relatedClass)
 {
     m_DataUpdateByteArray = static_cast< QBuffer *>(DataUpdateDataStream.device())->data();
 }

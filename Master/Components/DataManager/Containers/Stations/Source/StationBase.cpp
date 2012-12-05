@@ -255,6 +255,12 @@ QDataStream& operator >>(QDataStream& InDataStream, CStationBase& Station)
     QXmlStreamReader XmlStreamReader;
     XmlStreamReader.setDevice(InDataStream.device());
 
+//    while (!XmlStreamReader.atEnd())
+//    {
+//        qDebug() << XmlStreamReader.name() << XmlStreamReader.tokenType();
+//        XmlStreamReader.readNext();
+//    }
+
     if (!DataManager::Helper::ReadNode(XmlStreamReader, QString("Station"))) {
         qDebug() << "CStationBase::Operator Streaming (DeSerializeContent) Node not found: Reagent";
         THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);

@@ -31,8 +31,8 @@
 
 namespace DataManager {
 
-const char LEICA_REAGENT_START_CHARACTER = 'L';     //!< Leica reagent start character
-const char SPECIAL_REAGENT_START_CHARACTER = 'S';   //!< Leica reagent start character
+//const char LEICA_REAGENT_START_CHARACTER = 'L';     //!< Leica reagent start character
+//const char SPECIAL_REAGENT_START_CHARACTER = 'S';   //!< Leica reagent start character
 
 /****************************************************************************/
 /*!
