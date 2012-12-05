@@ -278,8 +278,11 @@ bool CServicePassword::CompareDate() {
     if (DataManager::Helper::ReadNode(ServiceStreamReader, XML_NODE_VALIDTO)) {
         QString DateValue = ServiceStreamReader.readElementText();
         QDateTime ValidDateFromFile(QDate::fromString(DateValue, "yyyyMMdd"));
+        // add one day to consider proper time, because it considers time as 00:00:00 instead of 23:59:59
+        // for example if the date is 01.11.2012 then the date time will be '01.11.2012 00:00:00'
+        // but it should consider '01.11.2012 23:59:59'
         // always date is stored in the format of yyyyMMdd
-        qint32 TimeDifference = ValidDateFromFile.toTime_t()
+        qint32 TimeDifference = ValidDateFromFile.addDays(1).toTime_t()
                 - Global::AdjustedTime::Instance().GetCurrentDateTime().toTime_t();
         if (TimeDifference >= 0) {            
             return true;
