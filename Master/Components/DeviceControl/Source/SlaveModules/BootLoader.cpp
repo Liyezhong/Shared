@@ -129,7 +129,7 @@ ReturnCode_t CBootLoader::UpdateFirmware(const QString &FirmwarePath)
 {
     QMutexLocker Locker(&m_Mutex);
 
-    if (m_State == BOOTLOADER_FIRMWARE || m_State == BOOTLOADER_INFO) {
+    if (m_State != BOOTLOADER_ACTIVE) {
         return DCL_ERR_INVALID_STATE;
     }
 
@@ -138,10 +138,40 @@ ReturnCode_t CBootLoader::UpdateFirmware(const QString &FirmwarePath)
         return DCL_ERR_INVALID_PARAM;
     }
 
-    SetState(BOOTLOADER_FIRMWARE);
+    m_WaitForUpdate = true;
+    m_State = BOOTLOADER_FIRMWARE;
     m_Timer.start();
 
     return SendModeRequest(1);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  This initiates a firmware update
+ *
+ *  \iparam BootLoaderPath = The path to the boot loader image file
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed
+ *          in transmit queue, otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CBootLoader::UpdateBootLoader(const QString &BootLoaderPath)
+{
+    QMutexLocker Locker(&m_Mutex);
+
+    if (m_State != BOOTLOADER_IDLE) {
+        return DCL_ERR_INVALID_STATE;
+    }
+
+    m_FirmwareImage.setFileName(BootLoaderPath);
+    if (m_FirmwareImage.open(QIODevice::ReadOnly) == false) {
+        return DCL_ERR_INVALID_PARAM;
+    }
+
+    m_State = BOOTLOADER_BOOTLOADER;
+    m_Timer.start();
+
+    return SendHeader();
 }
 
 /****************************************************************************/
@@ -174,14 +204,12 @@ ReturnCode_t CBootLoader::BootFirmware()
 {
     QMutexLocker Locker(&m_Mutex);
 
+    m_WaitForUpdate = false;
+
     if (m_UpdateRequired == false) {
-        ReturnCode_t Result = SendModeRequest(false);
-        if (Result == DCL_ERR_FCT_CALL_SUCCESS) {
-            SetState(BOOTLOADER_IDLE);
-        }
-        return Result;
+        return DCL_ERR_FCT_CALL_SUCCESS;
     }
-    return (DCL_ERR_INVALID_STATE);
+    return DCL_ERR_INVALID_STATE;
 }
 
 /****************************************************************************/
@@ -231,7 +259,7 @@ ReturnCode_t CBootLoader::UpdateInfo(const quint8 *p_Info, quint32 Size, quint8 
         return DCL_ERR_INVALID_PARAM;
     }
 
-    if (m_State == BOOTLOADER_FIRMWARE || m_State == BOOTLOADER_INFO) {
+    if (m_State != BOOTLOADER_ACTIVE) {
         return DCL_ERR_INVALID_STATE;
     }
 
@@ -249,7 +277,7 @@ ReturnCode_t CBootLoader::UpdateInfo(const quint8 *p_Info, quint32 Size, quint8 
         quint32 Crc32 = CalculateCrc(mp_Info, Size-4);
         *((quint32*)(mp_Info + Size - 4)) = Crc32;
 
-        SetState(BOOTLOADER_INFO);
+        m_State = BOOTLOADER_INFO;
         m_Timer.start();
 
         return SendModeRequest(1);
@@ -310,6 +338,33 @@ ReturnCode_t CBootLoader::SendModeRequest(bool StartUpdate)
     CanMsg.can_id = m_CanIdUpdateModeRequest;
     CanMsg.can_dlc = 1;
     CanMsg.data[0] = StartUpdate;
+
+    return mp_CanCommunicator->SendCOB(CanMsg);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Sends an update header message to the node
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed
+ *          in transmit queue, otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CBootLoader::SendHeader()
+{
+    can_frame CanMsg;
+    quint32 FirmwareSize = m_FirmwareImage.size();
+
+    CanMsg.can_id = m_CanIdUpdateHeader;
+    CanMsg.can_dlc = 8;
+    CanMsg.data[0] = FirmwareSize >> 24;
+    CanMsg.data[1] = FirmwareSize >> 16;
+    CanMsg.data[2] = FirmwareSize >> 8;
+    CanMsg.data[3] = FirmwareSize;
+    CanMsg.data[4] = 0;
+    CanMsg.data[5] = 0;
+    CanMsg.data[6] = 0;
+    CanMsg.data[7] = 0;
 
     return mp_CanCommunicator->SendCOB(CanMsg);
 }
@@ -380,13 +435,21 @@ void CBootLoader::HandleCanMessage(const can_frame *p_CanFrame)
     }
 
     if (ReturnCode != DCL_ERR_FCT_CALL_SUCCESS) {
+        m_Timer.stop();
         if (m_State == BOOTLOADER_FIRMWARE) {
-            emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_FAILED);
+            m_State = BOOTLOADER_ACTIVE;
+            m_FirmwareImage.close();
+            emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), ReturnCode);
         }
         else if (m_State == BOOTLOADER_INFO) {
-            emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_FAILED);
+            m_State = BOOTLOADER_ACTIVE;
+            emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), ReturnCode);
         }
-        SetState(BOOTLOADER_ACTIVE);
+        else if (m_State == BOOTLOADER_BOOTLOADER) {
+            m_State = BOOTLOADER_IDLE;
+            m_FirmwareImage.close();
+            emit ReportUpdateBootLoader(mp_BaseModule->GetModuleHandle(), ReturnCode);
+        }
     }
 
     if (m_Timer.isActive() == true) {
@@ -396,16 +459,18 @@ void CBootLoader::HandleCanMessage(const can_frame *p_CanFrame)
 
 /****************************************************************************/
 /*!
- *  \brief  Sets the main state of this module
+ *  \brief  Sets the main state of the base module
  *
- *  \iparam State = The new state
+ *  \iparam Active = Boot loader is active
  */
 /****************************************************************************/
-void CBootLoader::SetState(State_t State)
+void CBootLoader::SetBaseModuleState(bool Active)
 {
-    if (State != m_State) {
-        m_State = State;
-        mp_BaseModule->BootLoaderUpdate(State);
+    if (Active == true) {
+        mp_BaseModule->m_mainState = CBaseModule::CN_MAIN_STATE_UPDATE;
+    }
+    else {
+        mp_BaseModule->m_mainState = CBaseModule::CN_MAIN_STATE_IDLE;
     }
 }
 
@@ -424,11 +489,13 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame
         m_UpdateRequired = p_CanFrame->data[0];
 
         if (!m_UpdateRequired && !m_WaitForUpdate) {
-            SetState(BOOTLOADER_IDLE);
+            m_State = BOOTLOADER_IDLE;
+            SetBaseModuleState(CBaseModule::CN_MAIN_STATE_INIT);
             ReturnCode = SendModeRequest(0);
         }
         else {
-            SetState(BOOTLOADER_ACTIVE);
+            m_State = BOOTLOADER_ACTIVE;
+            SetBaseModuleState(CBaseModule::CN_MAIN_STATE_UPDATE);
         }
     }
     else {
@@ -451,21 +518,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame)
 
     if (p_CanFrame->can_dlc == 0) {
         if (m_State == BOOTLOADER_FIRMWARE) {
-            can_frame CanMsg;
-            quint32 FirmwareSize = m_FirmwareImage.size();
-
-            CanMsg.can_id = m_CanIdUpdateHeader;
-            CanMsg.can_dlc = 8;
-            CanMsg.data[0] = FirmwareSize >> 24;
-            CanMsg.data[1] = FirmwareSize >> 16;
-            CanMsg.data[2] = FirmwareSize >> 8;
-            CanMsg.data[3] = FirmwareSize;
-            CanMsg.data[4] = 0;
-            CanMsg.data[5] = 0;
-            CanMsg.data[6] = 0;
-            CanMsg.data[7] = 0;
-
-            ReturnCode = mp_CanCommunicator->SendCOB(CanMsg);
+            ReturnCode = SendHeader();
         }
         else if (m_State == BOOTLOADER_INFO) {
             can_frame CanMsg;
@@ -597,11 +650,17 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateTrailerAck(const can_frame *p_CanFra
     ReturnCode_t ReturnCode = DCL_ERR_FCT_CALL_SUCCESS;
 
     if (p_CanFrame->can_dlc == 1) {
-        SetState(BOOTLOADER_ACTIVE);
         if (p_CanFrame->data[0] == 0) {
             m_UpdateRequired = false;
             m_Timer.stop();
-            emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
+            if (m_State == BOOTLOADER_BOOTLOADER) {
+                m_State = BOOTLOADER_IDLE;
+                emit ReportUpdateBootLoader(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
+            }
+            else {
+                m_State = BOOTLOADER_ACTIVE;
+                emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
+            }
         }
         else {
             ReturnCode = DCL_ERR_INTERNAL_ERR;
@@ -622,12 +681,19 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateTrailerAck(const can_frame *p_CanFra
 void CBootLoader::TimeoutHandler()
 {
     if (m_State == BOOTLOADER_FIRMWARE) {
+        m_State = BOOTLOADER_ACTIVE;
+        m_FirmwareImage.close();
         emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
     }
     else if (m_State == BOOTLOADER_INFO) {
+        m_State = BOOTLOADER_ACTIVE;
         emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
     }
-    SetState(BOOTLOADER_ACTIVE);
+    else if (m_State == BOOTLOADER_BOOTLOADER) {
+        m_State = BOOTLOADER_IDLE;
+        m_FirmwareImage.close();
+        emit ReportUpdateBootLoader(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
+    }
 }
 
 /****************************************************************************/
@@ -684,7 +750,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoAck(const can_frame *p_CanFrame)
     // Check if CRC failed or not
     else if (p_CanFrame->can_dlc == 1) {
         delete[] mp_Info;
-        SetState(BOOTLOADER_ACTIVE);
+        m_State = BOOTLOADER_ACTIVE;
         if (p_CanFrame->data[0] == 0) {
             emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
         }

@@ -23,8 +23,8 @@
  */
 /****************************************************************************/
 
-#include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
+#include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 #include "DeviceControl/Include/SlaveModules/AnalogInput.h"
@@ -33,7 +33,6 @@
 #include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 #include "DeviceControl/Include/SlaveModules/Rfid15693.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-#include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
 
@@ -1365,23 +1364,6 @@ void CBaseModule::HandleCommandRequestTask()
 CBootLoader *CBaseModule::GetBootLoader()
 {
     return mp_BootLoader;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Communicates the current boot loader state to the base module
- *
- *  \iparam State = Boot loader state
- */
-/****************************************************************************/
-void CBaseModule::BootLoaderUpdate(CBootLoader::State_t State)
-{
-    if (State == CBootLoader::BOOTLOADER_ACTIVE) {
-        m_mainState = CN_MAIN_STATE_UPDATE;
-    }
-    else if (State == CBootLoader::BOOTLOADER_IDLE) {
-        m_mainState = CN_MAIN_STATE_INIT;
-    }
 }
 
 /****************************************************************************/

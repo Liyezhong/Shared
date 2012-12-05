@@ -36,7 +36,6 @@
 namespace DeviceControl
 {
 
-class CBaseModule;
 class CANCommunicator;
 class CANMessageConfiguration;
 
@@ -68,7 +67,6 @@ public:
     void HandleCanMessage(can_frame* pCANframe);    //!< CAN message handing function
 
     CBootLoader *GetBootLoader();
-    void BootLoaderUpdate(CBootLoader::State_t State);
 
     //! Adds a function module to the internal module list
     void AddFunctionModule(CFunctionModule* pFctModule);
@@ -535,6 +533,8 @@ private:
 
     QMap<quint16, quint16> m_moduleSWVersion;   //!< software version of each module
 
+    // This boot loader function is able to change the main state
+    friend void CBootLoader::SetBaseModuleState(bool);
     CANNodeMainState_t m_mainState; //!< Main state
 
     // CAN communication, the following section declares the CAN message ID variables
