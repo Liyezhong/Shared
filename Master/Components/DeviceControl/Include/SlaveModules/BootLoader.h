@@ -60,7 +60,7 @@ public:
     void HandleCanMessage(const can_frame *p_CanFrame);
     void WaitForUpdate(bool Wait);
     ReturnCode_t BootFirmware();
-    void SetBaseModuleState(bool Active);
+    bool Active() const;
 
     //! Internal states of the boot loader module
     typedef enum {

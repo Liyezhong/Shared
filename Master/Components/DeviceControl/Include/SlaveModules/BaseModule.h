@@ -533,8 +533,6 @@ private:
 
     QMap<quint16, quint16> m_moduleSWVersion;   //!< software version of each module
 
-    // This boot loader function is able to change the main state
-    friend void CBootLoader::SetBaseModuleState(bool);
     CANNodeMainState_t m_mainState; //!< Main state
 
     // CAN communication, the following section declares the CAN message ID variables

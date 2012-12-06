@@ -477,6 +477,15 @@ ReturnCode_t CBaseModule::RegisterCANMessages()
 /****************************************************************************/
 void CBaseModule::HandleTasks()
 {
+    if (mp_BootLoader->Active())
+    {
+        m_mainState = CN_MAIN_STATE_UPDATE;
+    }
+    else if (m_mainState == CN_MAIN_STATE_UPDATE)
+    {
+        m_mainState = CN_MAIN_STATE_INIT;
+    }
+
     if(m_mainState == CN_MAIN_STATE_INIT)
     {
         HandleTaskInitialization(0);

@@ -214,6 +214,18 @@ ReturnCode_t CBootLoader::BootFirmware()
 
 /****************************************************************************/
 /*!
+ *  \brief  Returns if the boot loader is currently started
+ *
+ *  \return Active (true) or not (false)
+ */
+/****************************************************************************/
+bool CBootLoader::Active() const
+{
+    return (m_State != BOOTLOADER_IDLE && m_State != BOOTLOADER_BOOTLOADER);
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Sends a firmware data packet to the boot loader
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed
@@ -459,23 +471,6 @@ void CBootLoader::HandleCanMessage(const can_frame *p_CanFrame)
 
 /****************************************************************************/
 /*!
- *  \brief  Sets the main state of the base module
- *
- *  \iparam Active = Boot loader is active
- */
-/****************************************************************************/
-void CBootLoader::SetBaseModuleState(bool Active)
-{
-    if (Active == true) {
-        mp_BaseModule->m_mainState = CBaseModule::CN_MAIN_STATE_UPDATE;
-    }
-    else {
-        mp_BaseModule->m_mainState = CBaseModule::CN_MAIN_STATE_IDLE;
-    }
-}
-
-/****************************************************************************/
-/*!
  *  \brief  Handle the reception of a update required message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
@@ -490,12 +485,10 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame
 
         if (!m_UpdateRequired && !m_WaitForUpdate) {
             m_State = BOOTLOADER_IDLE;
-            SetBaseModuleState(CBaseModule::CN_MAIN_STATE_INIT);
             ReturnCode = SendModeRequest(0);
         }
         else {
             m_State = BOOTLOADER_ACTIVE;
-            SetBaseModuleState(CBaseModule::CN_MAIN_STATE_UPDATE);
         }
     }
     else {
