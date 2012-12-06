@@ -25,6 +25,8 @@
 #include "Global/Include/Commands/Command.h"
 
 namespace NetCommands {
+
+
 /****************************************************************************/
 /*!
  *  \brief  This class implements a CmdDataUpdate command.
@@ -36,10 +38,23 @@ class CmdDataUpdate : public Global::Command {
     friend QDataStream & operator << (QDataStream &, const CmdDataUpdate &);
     friend QDataStream & operator >> (QDataStream &, CmdDataUpdate &);
 public:
+    enum DataUpdateType {
+        UndefinedCmdType,
+        StationBase,
+        RackUpdateRequest,
+        Rack,
+        RackDurationRequest,
+        RackDuration
+    };
+
     static QString NAME;    ///< Command name.
-    QString m_RelatedClass;
+//    QString m_RelatedClass;
+    quint16 getXX() { return 16; }
+    DataUpdateType GetCmdType() { return (DataUpdateType)m_CmdType; }
+    void SetCmdType(DataUpdateType CmdType) { m_CmdType = (quint16)CmdType; }
+
     /****************************************************************************/
-    CmdDataUpdate(int Timeout, const QDataStream &StationUpdateDataStream, QString relatedClass);
+    CmdDataUpdate(int Timeout, const QDataStream &StationUpdateDataStream, DataUpdateType CmdType);
     CmdDataUpdate();
     ~CmdDataUpdate();
     virtual QString GetName() const;
@@ -48,6 +63,7 @@ private:
     CmdDataUpdate(const CmdDataUpdate &);                       ///< Not implemented.
     const CmdDataUpdate & operator = (const CmdDataUpdate &);   ///< Not implemented.
     QByteArray m_DataUpdateByteArray; //!< Contains station update
+    quint16 m_CmdType;
 }; // end class CmdDataUpdate
 
 /****************************************************************************/
@@ -64,7 +80,8 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdDataUpdate &Cmd)
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_RelatedClass;
+//    Stream << Cmd.m_RelatedClass;
+    Stream << Cmd.m_CmdType;
     Stream << Cmd.m_DataUpdateByteArray;
     return Stream;
 }
@@ -83,7 +100,8 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdDataUpdate &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
-    Stream >> Cmd.m_RelatedClass;
+//    Stream >> Cmd.m_RelatedClass;
+    Stream >> Cmd.m_CmdType;
     Stream >> Cmd.m_DataUpdateByteArray;
     return Stream;
 }
