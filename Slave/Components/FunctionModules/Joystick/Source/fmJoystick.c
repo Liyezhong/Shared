@@ -569,6 +569,7 @@ static Error_t joysSetVoltageRange (UInt16 Channel, CanMessage_t* Message)
         if (Error < NO_ERROR) {
             return (Error);
         }
+        return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
 }
