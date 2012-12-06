@@ -364,10 +364,10 @@ UInt32 bmGetBootLoaderSize(void)
 Error_t bmInitUpdate (void)
 {
     static bmCallbackEntry_t Commands[] = {
-        { MSG_ASM_UPDATE_HEADER_ACK,  bmUpdateHeader },
-        { MSG_ASM_UPDATE_ACK_0,       bmUpdateData0 },
-        { MSG_ASM_UPDATE_ACK_1,       bmUpdateData1 },
-        { MSG_ASM_UPDATE_TRAILER_ACK, bmUpdateTrailer }
+        { MSG_ASM_UPDATE_HEADER,    bmUpdateHeader },
+        { MSG_ASM_UPDATE_DATA_0,    bmUpdateData0 },
+        { MSG_ASM_UPDATE_DATA_1,    bmUpdateData1 },
+        { MSG_ASM_UPDATE_TRAILER,   bmUpdateTrailer }
     };
     Error_t Status;
 

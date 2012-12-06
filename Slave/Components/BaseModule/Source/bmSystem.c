@@ -221,7 +221,6 @@ bmNodeState_t bmProcessModeChange (void) {
         if (ModeRequest == NODE_STATE_SHUTDOWN) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
             bmSetGlobalControl (MODULE_CONTROL_SHUTDOWN);
-            bmSetNodeState (ModeRequest);
         }
         else if (ModeRequest == NODE_STATE_IDENTIFY) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
@@ -236,7 +235,6 @@ bmNodeState_t bmProcessModeChange (void) {
         else if (ModeRequest == NODE_STATE_ASSEMBLY) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
             bmSetGlobalControl (MODULE_CONTROL_RESET);
-            bmSetNodeState (NODE_STATE_STANDBY);
         }
         if (ModeRequest < NODE_STATE_SHUTDOWN) {
             if (OldState >= NODE_STATE_SHUTDOWN) {
