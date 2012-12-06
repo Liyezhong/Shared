@@ -192,17 +192,18 @@ protected:
 
     CommandRef_t  m_CommandRef[CMD_REF_CNT];   ///< command container array
 
-private:
+    //this is a quick solution to store the reftypes of incomming commands
+    // until they will be acknowledged
+    Global::tRefType   m_RefInitDCL;            ///< command reference of the initialisation command
+
     bool GetFreeCommandCtrlContainer(quint8& CmdIdx);
     bool GetCommandCtrlContainer(quint8& CmdIdx,
                                  DeviceControl::DevInstanceID_t InstanceID,
                                  QStringList& CommandNameList);
 
+private:
     ReturnCode_t ReqRFIDData(LoaderRFIDChannel_t RfidChannel);
 
-    //this is a quick solution to store the reftypes of incomming commands
-    // until they will be acknowledged
-    Global::tRefType   m_RefInitDCL;            ///< command reference of the initialisation command
 
 
     Global::tRefType   m_InLoaderChangedRef;     ///< Expected LoaderChanged acknowledge reference.
