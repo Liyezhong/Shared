@@ -87,21 +87,28 @@ void SimulationConnector::sendMessageToClient(QString message)
 
 //    qDebug() << "SimulationConnector::sendMessage" << message;
 
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << message;
-    m_clientConnection->write(block);
-    m_clientConnection->flush();
-
-    if (m_verbose)
+    try
     {
-        if (!message.contains("CurrentTime"))
+        QByteArray block;
+        QDataStream out(&block, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_0);
+        out << message;
+        m_clientConnection->write(block);
+        m_clientConnection->flush();
+
+        if (m_verbose)
         {
-            m_outStream << QDateTime::currentDateTime().toTime_t() << " SimulationConnector Send: " << message << "\n";
-            m_outStream.flush();
-            m_commfile->flush();
+            if (!message.contains("CurrentTime"))
+            {
+                m_outStream << QDateTime::currentDateTime().toTime_t() << " SimulationConnector Send: " << message << "\n";
+                m_outStream.flush();
+                m_commfile->flush();
+            }
         }
+    }
+    catch (...)
+    {
+        qDebug() << "!!!!!!! SimulationConnector::sendMessageToClient, Exception caught" << message;
     }
 }
 
