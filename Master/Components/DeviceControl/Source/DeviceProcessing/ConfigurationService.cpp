@@ -57,8 +57,8 @@ namespace DeviceControl
 /*!
  *  \brief  Constructor for the CConfigurationService
  *
- *  \iparam pDeviceProcessing = Pointer to DeviceProcessing
- *  \iparam pCANCommunicator = Pointer to communication interface
+ *  \iparam Processing = Device processing
+ *  \iparam Communicator = Communication interface
  */
 /****************************************************************************/
 CConfigurationService::CConfigurationService(DeviceProcessing &Processing, CANCommunicator &Communicator) :

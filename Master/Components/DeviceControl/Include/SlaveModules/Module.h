@@ -176,6 +176,13 @@ signals:
     void ReportDataResetAckn(quint32 InstanceID, ReturnCode_t HdlInfo);
 
 protected:
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the node ID of the function module's node
+     *
+     *  \return Node ID
+     */
+    /****************************************************************************/
     virtual quint32 GetNodeID() const = 0;
 
     ReturnCode_t SendCANMsgReqDataReset();  //!< Sends the can message 'ReqResetData'

@@ -923,7 +923,7 @@ CRfid15693::ModuleCommand_t *CRfid15693::SetModuleTask(CANRFIDModuleCmdType_t Co
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CRfid15693::ResetModuleCommand(CANRFIDModuleCmdType_t CommandType)

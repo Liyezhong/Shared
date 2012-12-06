@@ -516,7 +516,7 @@ CDigitalInput::ModuleCommand_t *CDigitalInput::SetModuleTask(CANDigitalInputModu
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CDigitalInput::ResetModuleCommand(CANDigitalInputModuleCmdType_t CommandType)

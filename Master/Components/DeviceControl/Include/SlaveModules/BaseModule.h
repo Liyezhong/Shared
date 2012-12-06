@@ -166,7 +166,7 @@ public:
     /*!
      *  \brief  Returns the software version (taken from SoftwareID-CAN-message)
      *
-     *  \moduleID = Module identifier
+     *  \iparam moduleID = Module identifier
      *
      *  \return Software version
      */

@@ -611,7 +611,7 @@ CAnalogInput::ModuleCommand_t *CAnalogInput::SetModuleTask(CANAnalogInputModuleC
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CAnalogInput::ResetModuleCommand(CANAnalogInputModuleCmdType_t CommandType)

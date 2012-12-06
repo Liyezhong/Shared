@@ -1376,6 +1376,8 @@ void CStepperMotor::HandleCANMsgRevolutionsData(can_frame* pCANframe)
 /*!
  *  \brief    Send the CAN message to set the motor state
  *
+ *  \iparam   MotorState = Enables or diables the motor current
+ *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
  *            otherwise the return code as returned from SendCOB(..)
  */
@@ -1485,8 +1487,8 @@ ReturnCode_t CStepperMotor::SendCANMsgTargetPosition(Position_t TargetPos,
  *             - Byte 0..3 : Target speed
  *             - Byte 4    : Movement profile
  *
- *  \param    TargetSpeed    = Position where the motor shall drive to
- *  \param    MotionProfile  = Motion profile for the movement
+ *  \param    TargetSpeed      = Position where the motor shall drive to
+ *  \param    MotionProfileIdx = Motion profile index for the movement
  *
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
@@ -1890,7 +1892,7 @@ CStepperMotor::ModuleCommand_t *CStepperMotor::SetModuleTask(CANStepperMotorMoti
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CStepperMotor::ResetModuleCommand(CANStepperMotorMotionCmdType_t CommandType)

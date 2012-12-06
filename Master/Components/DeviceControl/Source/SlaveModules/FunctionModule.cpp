@@ -60,6 +60,13 @@ CFunctionModule::~CFunctionModule()
     m_pParent = 0;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Returns the node ID of the function module's node
+ *
+ *  \return Node ID
+ */
+/****************************************************************************/
 quint32 CFunctionModule::GetNodeID() const
 {
     return m_pParent->GetNodeID();

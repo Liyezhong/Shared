@@ -568,13 +568,13 @@ ReturnCode_t CJoystick::SendCANMsgSetVoltageRange(qint16 MinX, qint16 MaxX, qint
  *  \return DCL_ERR_FCT_CALL_SUCCESS if successful, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CJoystick::SendCANMsgSetMechanicalOffset(quint32 MechanicalOffset)
+ReturnCode_t CJoystick::SendCANMsgSetMechanicalOffset(quint32 Offset)
 {
     ReturnCode_t RetVal;
     can_frame canmsg;
 
     canmsg.can_id = m_unCanIDMechOffsetSet;
-    SetCANMsgDataU32(&canmsg, MechanicalOffset, 0);
+    SetCANMsgDataU32(&canmsg, Offset, 0);
     canmsg.can_dlc = 4;
     RetVal = m_pCANCommunicator->SendCOB(canmsg);
 
@@ -795,7 +795,7 @@ CJoystick::ModuleCommand_t *CJoystick::SetModuleTask(CANJoystickModuleCmdType_t 
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CJoystick::ResetModuleCommand(CANJoystickModuleCmdType_t CommandType)

@@ -124,7 +124,7 @@ private:
     ReturnCode_t SendCANMsgSetConfig(bool Active, bool Scanning, bool SetCenter);
     ReturnCode_t SendCANMsgSetVoltageRange(qint16 MinX, qint16 MaxX, qint16 MinY, qint16 MaxY);
     ReturnCode_t SendCANMsgGetDisplacement();
-    ReturnCode_t SendCANMsgSetMechanicalOffset(quint32 MechanicalOffset);
+    ReturnCode_t SendCANMsgSetMechanicalOffset(quint32 Offset);
     ReturnCode_t SendCANMsgGetMechanicalOffset();
 
     void HandleCANMsgGetDisplacement(can_frame* pCANframe);
@@ -158,6 +158,7 @@ private:
     quint32 m_unCanIDMechOffsetReq;     //!< CAN-message id of 'JoystickMechOffsetReq' message
     quint32 m_unCanIDMechOffset;        //!< CAN-message id of 'JoystickMechOffset' message
 
+    /*! module command data, used for internal data transfer*/
     typedef struct {
         CANJoystickModuleCmdType_t Type;    //!< command type
         ModuleCmdState_t State;             //!< command state

@@ -728,7 +728,7 @@ CAnalogOutput::ModuleCommand_t *CAnalogOutput::SetModuleTask(CANAnalogOutputModu
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CAnalogOutput::ResetModuleCommand(CANAnalogOutputModuleCmdType_t CommandType)

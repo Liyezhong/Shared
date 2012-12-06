@@ -215,7 +215,7 @@ signals:
      *  \param   Speed      = Actual motor speed [half steps / sec]
      *
      ****************************************************************************/
-    void ReportSpeed(quint32 InstanCANStepperMotorceID, ReturnCode_t HdlInfo, qint16 Speed);
+    void ReportSpeed(quint32 InstanceID, ReturnCode_t HdlInfo, qint16 Speed);
 
     /****************************************************************************/
     /*!

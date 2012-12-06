@@ -761,7 +761,7 @@ CDigitalOutput::ModuleCommand_t *CDigitalOutput::SetModuleTask(CANDigitalOutputM
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 void CDigitalOutput::ResetModuleCommand(CANDigitalOutputModuleCmdType_t CommandType)

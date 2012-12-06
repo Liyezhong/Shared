@@ -1427,7 +1427,7 @@ CTemperatureControl::ModuleCommand_t *CTemperatureControl::SetModuleTask(CANTemp
 /*!
  *  \brief  Removes an existing command from the transmit queue
  *
- *  \iparam ModuleCommandType = Command of that type will be set to free
+ *  \iparam CommandType = Command of that type will be set to free
  */
 /****************************************************************************/
 bool CTemperatureControl::ResetModuleCommand(CANTempCtrlCmdType_t CommandType)
