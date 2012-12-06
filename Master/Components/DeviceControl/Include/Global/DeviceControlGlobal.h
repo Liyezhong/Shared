@@ -322,12 +322,12 @@ typedef enum {
     DEVICE_INSTANCE_ID_RACKTRANSFER   = 0x00008060,  //!< rack transfer
     DEVICE_INSTANCE_ID_EXHAUST        = 0x00008070,  //!< exhaust, includes fan control an supervision
     DEVICE_INSTANCE_ID_WATER          = 0x00008080,  //!< water, six valves and the liquid level sensor
-    DEVICE_INSTANCE_ID_INCLINOMETER   = 0x00008090,  //!< inclination
     DEVICE_INSTANCE_ID_COVERLINE_1    = 0x000080A0,  //!< cover line unit 1
     DEVICE_INSTANCE_ID_COVERLINE_2    = 0x000080A1,  //!< cover line unit 2
     DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0,  //!< rack handling
-    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,   //!< device cover (hood)
-    DEVICE_INSTANCE_ID_LIGHT          = 0x000080C1   //!< device Light
+    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,  //!< device cover (hood)
+    DEVICE_INSTANCE_ID_LIGHT          = 0x000080C1,  //!< device Light
+    DEVICE_INSTANCE_ID_SLIDE_ID       = 0x00008090   //!< Slide ID
 } DevInstanceID_t;
 
 
@@ -351,6 +351,7 @@ public:
     static const QString m_DevWaterKey;             //!< Water device key
     static const QString m_DevRackHandlingKey;      //!< Rack handling device key
     static const QString m_DevCoverLineKey;         //!< Cover line device key
+    static const QString m_DevSlideIdKey;           //!< Slide ID device key
     // Colorado base modules
     static const QString m_BaseAgitationKey;        //!< Agitation base module key
     static const QString m_BaseExhaustKey;          //!< Exhaust base module key
@@ -362,36 +363,41 @@ public:
     static const QString m_BaseOvenKey;             //!< Oven base module key
     static const QString m_BaseRackTransferKey;     //!< Rack transfer base module key
     static const QString m_BaseWaterKey;            //!< Water base module key
+    static const QString m_BaseSlideIdKey;          //!< Slide ID base module key
     // Colorado function modules
-    static const QString m_MotorAgitationKey;       //!< Motor agitation
-    static const QString m_FlowSensorKey;           //!< air flow sensor
-    static const QString m_CurrentFan1Key;          //!< current measurement fan 1
-    static const QString m_CurrentFan2Key;          //!< current measurement fan 2
-    static const QString m_MotorXAxisKey;           //!< Motor X-axis
-    static const QString m_MotorYAxisKey;           //!< Motor Y-axis
-    static const QString m_MotorZAxisKey;           //!< Motor Z-axis
-    static const QString m_GrapplerRFIDKey;         //!< RFID reader at grappler
-    static const QString m_GrapplerLiquidLevelKey;  //!< Liquid level sensor at grappler
-    static const QString m_TempCtrlVessel1Key;      //!< Temperature control cuvette 1
-    static const QString m_TempCtrlVessel2Key;      //!< Temperature control cuvette 2
-    static const QString m_TempCtrlVessel3Key;      //!< Temperature control cuvette 3
-    static const QString m_TempCtrlVessel4Key;      //!< Temperature control cuvette 4
-    static const QString m_InclinometerKey;         //!< Inclinometr
-    static const QString m_MotorDrawerKey;          //!< Drawer motor
-    static const QString m_DrawerRFIDKey;           //!< Drawer rfid module
-    static const QString m_DrawerButtonKey;         //!< Drawer button
-    static const QString m_DrawerLEDFreeKey;        //!< Drawer LED 'free' state
-    static const QString m_DrawerLEDBlockedKey;     //!< Drawer LED 'blocked' state
-    static const QString m_OvenCoverMotorKey;       //!< Motor oven cover
-    static const QString m_OvenTempCtrlKey;         //!< temperature control oven
-    static const QString m_RackTransferMotorKey;    //!< Motor rack transfer
-    static const QString m_WaterValve1Key;          //!< Water valve 1
-    static const QString m_WaterValve2Key;          //!< Water valve 2
-    static const QString m_WaterValve3Key;          //!< Water valve 3
-    static const QString m_WaterValve4Key;          //!< Water valve 4
-    static const QString m_WaterValve5Key;          //!< Water valve 5
-    static const QString m_WaterValve6Key;          //!< Water valve 6
-    static const QString m_WaterLiquidLevelKey;     //!< Liquid level sensor
+    static const QString m_MotorAgitationKey;           //!< Motor agitation
+    static const QString m_FlowSensorKey;               //!< air flow sensor
+    static const QString m_CurrentFan1Key;              //!< current measurement fan 1
+    static const QString m_CurrentFan2Key;              //!< current measurement fan 2
+    static const QString m_MotorXAxisKey;               //!< Motor X-axis
+    static const QString m_MotorYAxisKey;               //!< Motor Y-axis
+    static const QString m_MotorZAxisKey;               //!< Motor Z-axis
+    static const QString m_GrapplerRFIDKey;             //!< RFID reader at grappler
+    static const QString m_GrapplerLiquidLevelKey;      //!< Liquid level sensor at grappler
+    static const QString m_TempCtrlVessel1Key;          //!< Temperature control cuvette 1
+    static const QString m_TempCtrlVessel2Key;          //!< Temperature control cuvette 2
+    static const QString m_TempCtrlVessel3Key;          //!< Temperature control cuvette 3
+    static const QString m_TempCtrlVessel4Key;          //!< Temperature control cuvette 4
+    static const QString m_InclinometerKey;             //!< Inclinometr
+    static const QString m_MotorDrawerKey;              //!< Drawer motor
+    static const QString m_DrawerRFIDKey;               //!< Drawer rfid module
+    static const QString m_DrawerButtonKey;             //!< Drawer button
+    static const QString m_DrawerLEDFreeKey;            //!< Drawer LED 'free' state
+    static const QString m_DrawerLEDBlockedKey;         //!< Drawer LED 'blocked' state
+    static const QString m_OvenCoverMotorKey;           //!< Motor oven cover
+    static const QString m_OvenTempCtrlKey;             //!< temperature control oven
+    static const QString m_RackTransferMotorKey;        //!< Motor rack transfer
+    static const QString m_WaterValve1Key;              //!< Water valve 1
+    static const QString m_WaterValve2Key;              //!< Water valve 2
+    static const QString m_WaterValve3Key;              //!< Water valve 3
+    static const QString m_WaterValve4Key;              //!< Water valve 4
+    static const QString m_WaterValve5Key;              //!< Water valve 5
+    static const QString m_WaterValve6Key;              //!< Water valve 6
+    static const QString m_WaterLiquidLevelKey;         //!< Liquid level sensor
+    static const QString m_SlideIdPhotoDetectorKey;     //!< Slide ID photo detector
+    static const QString m_SlideIdTransmitControlKey;   //!< Slide ID transmit control
+    static const QString m_SlideIdTransmitCurrentKey;   //!< Slide ID transmit current
+    static const QString m_SlideIdReceiveCurrentKey;    //!< Slide ID receive current
     // Sepia function modules
     static const QString m_MotorCoverLineZAxisKey;      //!< Motor Z-axis (elevator)
     static const QString m_MotorCoverLineSlideKey;      //!< Motor slide shifter

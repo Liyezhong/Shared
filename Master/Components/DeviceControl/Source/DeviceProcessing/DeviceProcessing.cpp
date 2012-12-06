@@ -56,6 +56,7 @@ const QString CANObjectKeyLUT::m_DevRackTransferKey = "RackTransfer";
 const QString CANObjectKeyLUT::m_DevWaterKey = "WaterDevice";
 const QString CANObjectKeyLUT::m_DevRackHandlingKey = "RackHandling";
 const QString CANObjectKeyLUT::m_DevCoverLineKey = "CoverLine";
+const QString CANObjectKeyLUT::m_DevSlideIdKey = "SlideId";
 
 const QString CANObjectKeyLUT::m_BaseAgitationKey = "base_agitation";
 const QString CANObjectKeyLUT::m_BaseExhaustKey = "base_exhaust";
@@ -67,6 +68,7 @@ const QString CANObjectKeyLUT::m_BaseDrawerKey = "base_drawer";
 const QString CANObjectKeyLUT::m_BaseOvenKey = "base_oven";
 const QString CANObjectKeyLUT::m_BaseRackTransferKey = "base_rack_transfer";
 const QString CANObjectKeyLUT::m_BaseWaterKey = "base_water";
+const QString CANObjectKeyLUT::m_BaseSlideIdKey = "base_slide_id";
 
 const QString CANObjectKeyLUT::m_MotorAgitationKey = "motor_agitation";
 const QString CANObjectKeyLUT::m_FlowSensorKey = "flow_sensor";
@@ -97,6 +99,10 @@ const QString CANObjectKeyLUT::m_WaterValve4Key = "water_valve4";
 const QString CANObjectKeyLUT::m_WaterValve5Key = "water_valve5";
 const QString CANObjectKeyLUT::m_WaterValve6Key = "water_valve6";
 const QString CANObjectKeyLUT::m_WaterLiquidLevelKey = "collecting_tray_limit";
+const QString CANObjectKeyLUT::m_SlideIdPhotoDetectorKey = "photo_detector";
+const QString CANObjectKeyLUT::m_SlideIdTransmitControlKey = "transmit_control";
+const QString CANObjectKeyLUT::m_SlideIdTransmitCurrentKey = "transmit_current";
+const QString CANObjectKeyLUT::m_SlideIdReceiveCurrentKey = "receive_current";
 const QString CANObjectKeyLUT::m_MotorCoverLineZAxisKey = "motor_cl_elevator";
 const QString CANObjectKeyLUT::m_MotorCoverLineSlideKey = "motor_cl_slide_shift";
 const QString CANObjectKeyLUT::m_MotorCoverLineNeedleKey = "motor_cl_needle";

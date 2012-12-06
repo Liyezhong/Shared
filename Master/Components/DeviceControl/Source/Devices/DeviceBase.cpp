@@ -72,18 +72,18 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
                          DevInstanceID_t InstanceID) :
     m_machine(this), m_DeviceProcessing(DeviceProc), m_InstanceID(InstanceID), m_ModuleList(ModuleList)
 {
-    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_1] = "LeftXyz";
-    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_2] = "RightXyz";
-    m_DeviceName[DEVICE_INSTANCE_ID_LOADER]     = "Loader";
-    m_DeviceName[DEVICE_INSTANCE_ID_UNLOADER]   = "Unloader";
-    m_DeviceName[DEVICE_INSTANCE_ID_OVEN]       = "Oven";
-    m_DeviceName[DEVICE_INSTANCE_ID_HVESSELS]   = "HeatedCuvettes";
-    m_DeviceName[DEVICE_INSTANCE_ID_AGITATION]  = "Agitation";
-    m_DeviceName[DEVICE_INSTANCE_ID_RACKTRANSFER] = "RackTransfer";
-    m_DeviceName[DEVICE_INSTANCE_ID_EXHAUST]    = "Exhaust";
-    m_DeviceName[DEVICE_INSTANCE_ID_WATER]      = "Water";
-    m_DeviceName[DEVICE_INSTANCE_ID_HOOD]       = "Hood";
-    m_DeviceName[DEVICE_INSTANCE_ID_INCLINOMETER]   = "Unused";
+    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_1]     = "LeftXyz";
+    m_DeviceName[DEVICE_INSTANCE_ID_GRAPPLER_2]     = "RightXyz";
+    m_DeviceName[DEVICE_INSTANCE_ID_LOADER]         = "Loader";
+    m_DeviceName[DEVICE_INSTANCE_ID_UNLOADER]       = "Unloader";
+    m_DeviceName[DEVICE_INSTANCE_ID_OVEN]           = "Oven";
+    m_DeviceName[DEVICE_INSTANCE_ID_HVESSELS]       = "HeatedCuvettes";
+    m_DeviceName[DEVICE_INSTANCE_ID_AGITATION]      = "Agitation";
+    m_DeviceName[DEVICE_INSTANCE_ID_RACKTRANSFER]   = "RackTransfer";
+    m_DeviceName[DEVICE_INSTANCE_ID_EXHAUST]        = "Exhaust";
+    m_DeviceName[DEVICE_INSTANCE_ID_WATER]          = "Water";
+    m_DeviceName[DEVICE_INSTANCE_ID_HOOD]           = "Hood";
+    m_DeviceName[DEVICE_INSTANCE_ID_SLIDE_ID]       = "SlideId";
     m_DeviceName[DEVICE_INSTANCE_ID_COVERLINE_1]    = "Unused";
     m_DeviceName[DEVICE_INSTANCE_ID_COVERLINE_2]    = "Unused";
     m_DeviceName[DEVICE_INSTANCE_ID_RACK_HANDLING]  = "Unused";
