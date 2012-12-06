@@ -113,13 +113,13 @@ struct PositionXYZ
 };
 
 typedef enum {
-    XYZ_IDLE = 0,
-    XYZ_MOVE_EMPTY,
-    XYZ_MOVE_RACK,
-    XYZ_ATTACH,
-    XYZ_DETACH,
-    XYZ_LET_DOWN_RACK,
-    XYZ_PULL_UP_RACK
+    XYZ_STATE_IDLE = 0,
+    XYZ_STATE_MOVE_EMPTY,
+    XYZ_STATE_MOVE_RACK,
+    XYZ_STATE_ATTACH,
+    XYZ_STATE_DETACH,
+    XYZ_STATE_LET_DOWN_RACK,
+    XYZ_STATE_PULL_UP_RACK
 } XyzState_t;
 
 typedef enum {
@@ -144,7 +144,7 @@ signals:
     // Movement interface
     // Request interface to DCP
     void MoveEmptyTo(quint16 StationColumn, quint16 StationRow);
-    void TransportRackTo(quint16 StationColumn, quint16 StationRow);
+    void MoveRackTo(quint16 StationColumn, quint16 StationRow);
     void AttachRack();
     void DetachRack();
     void LetDownRack();
@@ -155,7 +155,7 @@ signals:
 
     // Response interface to DCP
     void ReportMoveEmptyTo(ReturnCode_t ReturnCode);
-    void ReportTransportRackTo(ReturnCode_t ReturnCode);
+    void ReportMoveRackTo(ReturnCode_t ReturnCode);
     void ReportAttachRack(ReturnCode_t ReturnCode);
     void ReportDetachRack(ReturnCode_t ReturnCode);
     void ReportLetDownRack(ReturnCode_t ReturnCode);
@@ -178,22 +178,24 @@ protected:
 
     // Idle -> Move State
     bool Trans_Idle_MoveEmpty(QEvent *p_Event);
-    bool Trans_Idle_TransportRack(QEvent *p_Event);
+    bool Trans_Idle_MoveRack(QEvent *p_Event);
     bool Trans_Idle_LetdownRack(QEvent *p_Event);
     bool Trans_Idle_PullupRack(QEvent *p_Event);
     bool Trans_Idle_AttachRack(QEvent *p_Event);
     bool Trans_Idle_DetachRack(QEvent *p_Event);
 
     // Move -> Idle State
+    // On Movement completion
     bool Trans_Move_Idle(QEvent *p_Event);
 
+    // On Abort request
     bool Trans_Abort_Idle(QEvent *p_Event);
 
     // Helper functions
-    void FillColumnRowPosition();
-
     void MoveNextStep();
     void DeletePrevStep();
+    void FillColumnRowPosition();
+    bool IsNewState(XyzState_t NewState, quint16 StationColumn, quint16 StationRow);
 
 private:
     // Function Modueles
@@ -210,6 +212,7 @@ private:
     quint8 m_TransportRackProfile[MAX_STEPPER_MOTORS];
 
     //
+    XyzState_t m_PrevState;
     XyzState_t m_CurrentState;
     bool m_RackAttached;
 

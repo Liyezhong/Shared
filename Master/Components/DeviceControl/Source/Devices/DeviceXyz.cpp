@@ -30,7 +30,7 @@ CDeviceXyz::CDeviceXyz(const DeviceProcessing &DeviceProc, const DeviceModuleLis
         m_TransportRackProfile[Index] = 2;
     }
 
-    m_CurrentState = XYZ_IDLE;
+    m_PrevState = m_CurrentState = XYZ_STATE_IDLE;
 
     m_RackAttached = false;
 
@@ -126,8 +126,8 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
     p_Idle->addTransition(new CXyzTransition(this, SIGNAL(MoveEmptyTo(quint16,quint16)),
                                                   *this, &CDeviceXyz::Trans_Idle_MoveEmpty, p_Move));
 
-    p_Idle->addTransition(new CXyzTransition(this, SIGNAL(TransportRackTo(quint16,quint16)),
-                                                  *this, &CDeviceXyz::Trans_Idle_TransportRack, p_Move));
+    p_Idle->addTransition(new CXyzTransition(this, SIGNAL(MoveRackTo(quint16,quint16)),
+                                                  *this, &CDeviceXyz::Trans_Idle_MoveRack, p_Move));
 
     p_Idle->addTransition(new CXyzTransition(this, SIGNAL(LetDownRack()),
                                                   *this, &CDeviceXyz::Trans_Idle_LetdownRack, p_Move));
@@ -164,8 +164,6 @@ bool CDeviceXyz::Trans_Idle_MoveEmpty(QEvent *p_Event)
     quint32 TargetPositionX;
     quint32 TargetPositionY;
 
-    m_CurrentState = XYZ_MOVE_EMPTY;
-
     if (!CXyzTransition::GetEventValue(p_Event, 0, StationColumn)) {
         return false;
     }
@@ -173,28 +171,26 @@ bool CDeviceXyz::Trans_Idle_MoveEmpty(QEvent *p_Event)
         return false;
     }
 
-    m_StationColumn = StationColumn;
-    m_StationRow = StationRow;
+    if (IsNewState(XYZ_STATE_MOVE_EMPTY, StationColumn, StationRow))
+    {
+        TargetPositionX = m_StaionPos[m_StationColumn][m_StationRow].PositionX;
+        TargetPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
 
-    TargetPositionX = m_StaionPos[m_StationColumn][m_StationRow].PositionX;
-    TargetPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
-
-    m_WayPoint.append(new CPoint(TargetPositionX, m_MoveEmptyProfile[X_AXIS],
-              TargetPositionY, m_MoveEmptyProfile[Y_AXIS]));
+        m_WayPoint.append(new CPoint(TargetPositionX, m_MoveEmptyProfile[X_AXIS],
+                                     TargetPositionY, m_MoveEmptyProfile[Y_AXIS]));
+    }
 
     MoveNextStep();
     return true;
 }
 
-bool CDeviceXyz::Trans_Idle_TransportRack(QEvent *p_Event)
+bool CDeviceXyz::Trans_Idle_MoveRack(QEvent *p_Event)
 {
     quint16 StationColumn;
     quint16 StationRow;
     quint32 TargetPositionX;
     quint32 TargetPositionY;
 
-    m_CurrentState = XYZ_MOVE_RACK;
-
     if (!CXyzTransition::GetEventValue(p_Event, 0, StationColumn)) {
         return false;
     }
@@ -202,14 +198,14 @@ bool CDeviceXyz::Trans_Idle_TransportRack(QEvent *p_Event)
         return false;
     }
 
-    m_StationColumn = StationColumn;
-    m_StationRow = StationRow;
+    if (IsNewState(XYZ_STATE_MOVE_RACK, StationColumn, StationRow))
+    {
+        TargetPositionX = m_StaionPos[m_StationColumn][m_StationRow].PositionX;
+        TargetPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
 
-    TargetPositionX = m_StaionPos[m_StationColumn][m_StationRow].PositionX;
-    TargetPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
-
-    m_WayPoint.append(new CPoint(TargetPositionX, m_TransportRackProfile[X_AXIS],
-              TargetPositionY, m_TransportRackProfile[Y_AXIS]));
+        m_WayPoint.append(new CPoint(TargetPositionX, m_TransportRackProfile[X_AXIS],
+                                     TargetPositionY, m_TransportRackProfile[Y_AXIS]));
+    }
 
     MoveNextStep();
     return true;
@@ -220,13 +216,14 @@ bool CDeviceXyz::Trans_Idle_LetdownRack(QEvent *p_Event)
     Q_UNUSED(p_Event);
     quint32 TargetPositionZ;
 
-    m_CurrentState = XYZ_LET_DOWN_RACK;
+    if (IsNewState(XYZ_STATE_LET_DOWN_RACK, m_StationColumn, m_StationRow))
+    {
+        TargetPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
 
-    TargetPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
-
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              NO_CHANGE, 0,
-              TargetPositionZ, m_TransportRackProfile[Z_AXIS]));
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     NO_CHANGE, 0,
+                                     TargetPositionZ, m_TransportRackProfile[Z_AXIS]));
+    }
 
     MoveNextStep();
     return true;
@@ -236,11 +233,12 @@ bool CDeviceXyz::Trans_Idle_PullupRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
 
-    m_CurrentState = XYZ_PULL_UP_RACK;
-
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              NO_CHANGE, 0,
-              Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
+    if (IsNewState(XYZ_STATE_PULL_UP_RACK, m_StationColumn, m_StationRow))
+    {
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     NO_CHANGE, 0,
+                                     Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
+    }
 
     MoveNextStep();
     return true;
@@ -250,22 +248,23 @@ bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
 
-    quint32 AttachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
-    quint32 AttachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
+    if (IsNewState(XYZ_STATE_ATTACH, m_StationColumn, m_StationRow))
+    {
+        quint32 AttachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
+        quint32 AttachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
 
-    m_CurrentState = XYZ_ATTACH;
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     NO_CHANGE, 0,
+                                     AttachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
 
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              NO_CHANGE, 0,
-              AttachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     AttachPositionY, m_TransportRackProfile[Y_AXIS],
+                                     NO_CHANGE, 0));
 
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              AttachPositionY, m_TransportRackProfile[Y_AXIS],
-              NO_CHANGE, 0));
-
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              NO_CHANGE, 0,
-              Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     NO_CHANGE, 0,
+                                     Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
+    }
 
     MoveNextStep();
     return true;
@@ -275,22 +274,23 @@ bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
 
-    quint32 DetachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
-    quint32 DetachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
+    if (IsNewState(XYZ_STATE_DETACH, m_StationColumn, m_StationRow))
+    {
+        quint32 DetachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
+        quint32 DetachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
 
-    m_CurrentState = XYZ_DETACH;
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     NO_CHANGE, 0,
+                                     DetachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
 
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              NO_CHANGE, 0,
-              DetachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     DetachPositionY, m_TransportRackProfile[Y_AXIS],
+                                     NO_CHANGE, 0));
 
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              DetachPositionY, m_TransportRackProfile[Y_AXIS],
-              NO_CHANGE, 0));
-
-    m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-              NO_CHANGE, 0,
-              Z_UP_WITHOUT_RACK, m_TransportRackProfile[Z_AXIS]));
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     NO_CHANGE, 0,
+                                     Z_UP_WITHOUT_RACK, m_TransportRackProfile[Z_AXIS]));
+    }
 
     MoveNextStep();
     return true;
@@ -304,40 +304,42 @@ bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
         return false;
     }
 
+    // Delete previous step from way point list
     DeletePrevStep();
 
+    // If list is empty, then last movement is executed. Hence emit acknowledgement.
     if(m_WayPoint.isEmpty())
     {
         switch(m_CurrentState)
         {
-        case XYZ_MOVE_EMPTY:
+        case XYZ_STATE_MOVE_EMPTY:
             ReportMoveEmptyTo(DCL_ERR_FCT_CALL_SUCCESS);
             break;
 
-        case XYZ_MOVE_RACK:
-            ReportTransportRackTo(DCL_ERR_FCT_CALL_SUCCESS);
+        case XYZ_STATE_MOVE_RACK:
+            ReportMoveRackTo(DCL_ERR_FCT_CALL_SUCCESS);
             break;
 
-        case XYZ_ATTACH:
+        case XYZ_STATE_ATTACH:
             m_RackAttached = true;
             ReportAttachRack(DCL_ERR_FCT_CALL_SUCCESS);
             break;
 
-        case XYZ_DETACH:
+        case XYZ_STATE_DETACH:
             m_RackAttached = false;
             ReportDetachRack(DCL_ERR_FCT_CALL_SUCCESS);
             break;
 
-        case XYZ_LET_DOWN_RACK:
+        case XYZ_STATE_LET_DOWN_RACK:
             ReportLetDownRack(DCL_ERR_FCT_CALL_SUCCESS);
             break;
 
-        case XYZ_PULL_UP_RACK:
+        case XYZ_STATE_PULL_UP_RACK:
             ReportPullUpRack(DCL_ERR_FCT_CALL_SUCCESS);
             break;
         }
 
-        m_CurrentState = XYZ_IDLE;
+        m_CurrentState = XYZ_STATE_IDLE;
 
         return true;
     }
@@ -353,7 +355,7 @@ bool CDeviceXyz::Trans_Abort_Idle(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CXyzTransition::GetEventValue(p_Event, 0);
 
-    m_CurrentState = XYZ_IDLE;
+    m_CurrentState = XYZ_STATE_IDLE;
 
     emit ReportAbort(ReturnCode);
 
@@ -362,7 +364,7 @@ bool CDeviceXyz::Trans_Abort_Idle(QEvent *p_Event)
 
 void CDeviceXyz::MoveNextStep()
 {
-    CPoint  *pTargetPoint;
+    CPoint *pTargetPoint;
 
     if(m_WayPoint.size())
     {
@@ -504,128 +506,42 @@ void CDeviceXyz::FillColumnRowPosition()
                 }
             }
 
-            qDebug() << StationRow << StationColumn << ": "
-                     << m_StaionPos[StationColumn][StationRow].PositionX
-                     << m_StaionPos[StationColumn][StationRow].PositionY
-                     << m_StaionPos[StationColumn][StationRow].PositionZ;
+//            qDebug() << StationRow << StationColumn << ": "
+//                     << m_StaionPos[StationColumn][StationRow].PositionX
+//                     << m_StaionPos[StationColumn][StationRow].PositionY
+//                     << m_StaionPos[StationColumn][StationRow].PositionZ;
+        }
+    }
+}
+
+bool CDeviceXyz::IsNewState(XyzState_t NewState, quint16 StationColumn, quint16 StationRow)
+{
+    bool isNewState = true;
+
+    // if previous movement was not completed and new command is same as previous command,
+    // then continue executing from where it was aborted previously.
+    // if not, clear way point list and treat as new command
+
+    if (m_WayPoint.size())
+    {
+        // Check if previous state & parameters are same as new state
+        if ((m_PrevState == NewState) &&
+                (m_StationColumn == StationColumn) &&
+                (m_StationRow == StationRow))
+        {
+            isNewState = false;
+        }
+        else
+        {
+            m_WayPoint.clear();
         }
     }
 
-//    // Calculating center position of each station
-//    for (StationRow = XYZ_ROW1; StationRow < XYZ_MAX_ROWS; StationRow++)
-//    {
-//        if (XYZ_ROW4 == StationRow)
-//        {
-//            PositionY += ROW4_Y_OFFSET;
-//        }
+    m_PrevState = m_CurrentState = NewState;
+    m_StationColumn = StationColumn;
+    m_StationRow = StationRow;
 
-//        if (m_InstanceID == DEVICE_INSTANCE_ID_GRAPPLER_1)
-//        {
-//            PositionX = X_START_LEFT;
-//        }
-//        else
-//        {
-//            PositionX = X_START_RIGHT;
-//        }
-
-//        for (StationColumn = XYZ_COL1; StationColumn < XYZ_MAX_COLS; StationColumn++)
-//        {
-//            // Define max Z position for each station
-
-//            PositionZ = Z_DOWN_POS_1;
-
-//            switch(StationRow)
-//            {
-//            case XYZ_ROW1:
-//                switch(StationColumn)
-//                {
-//                case XYZ_COL1:
-//                case XYZ_COL2:
-//                case XYZ_COL3:
-//                case XYZ_COL4:
-//                case XYZ_COL5:
-//                    PositionZ = Z_DOWN_POS_2;
-//                    break;
-
-//                case XYZ_COL18:
-//                    PositionZ = Z_ORIGIN;
-//                    break;
-//                }
-//                break;
-
-//            case XYZ_ROW2:
-//                switch(StationColumn)
-//                {
-//                case XYZ_COL1:
-//                case XYZ_COL2:
-//                case XYZ_COL3:
-//                case XYZ_COL4:
-//                case XYZ_COL5:
-//                    PositionZ = Z_DOWN_POS_2;
-//                    break;
-
-//                // Rack transfer
-//                case XYZ_COL18:
-//                    PositionZ = Z_DOWN_POS_3;
-//                    break;
-//                }
-//                break;
-
-//            case XYZ_ROW3:
-//                switch(StationColumn)
-//                {
-//                case XYZ_COL1:
-//                case XYZ_COL3:
-//                case XYZ_COL18:
-//                    PositionZ = Z_ORIGIN;
-//                    break;
-//                }
-//                break;
-
-//            case XYZ_ROW4:
-//                switch(StationColumn)
-//                {
-//                case XYZ_COL1:
-//                case XYZ_COL2:
-//                case XYZ_COL3:
-//                case XYZ_COL4:
-//                case XYZ_COL5:
-//                case XYZ_COL18:
-//                    PositionZ = Z_ORIGIN;
-//                    break;
-//                }
-//                break;
-//            }
-
-//            // Offset X position, from Oven to Bath layout
-//            if (XYZ_COL4 == StationColumn)
-//            {
-//                PositionX += COL4_X_OFFSET;
-//            }
-
-
-//            if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
-//            {
-//                m_StaionPos[StationColumn][StationRow].PositionX = (4315 + X_START_RIGHT) - PositionX;
-//            }
-//            else
-//            {
-//                m_StaionPos[StationColumn][StationRow].PositionX = PositionX;
-//            }
-
-//            m_StaionPos[StationColumn][StationRow].PositionY = PositionY;
-//            m_StaionPos[StationColumn][StationRow].PositionZ = PositionZ;
-
-//            qDebug() << StationRow << StationColumn << ": " << m_StaionPos[StationColumn][StationRow].PositionX
-//                     << PositionY << PositionZ;
-
-//            // Increment X to next station
-//            PositionX += RACK_X_OFFSET;
-//        }
-
-//        // Increment Y to next row
-//        PositionY += RACK_Y_OFFSET;
-//    }
+    return isNewState;
 }
 
 }

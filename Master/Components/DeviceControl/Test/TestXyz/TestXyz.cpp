@@ -24,12 +24,24 @@ private slots:
     void init();
     void cleanup();
 
-    void utTest();
-    void utTestAttachDetach();
+    void utTestMoveEmpty();
+    void utTestMoveRack();
+    void utTestAttachRack();
+    void utTestDetachRack();
+    void utTestLetDownRack();
+    void utTestPullupRack();
+
+    void utTestAbortMoveEmpty();
+    void utTestAbortMoveRack();
+    void utTestAbortAttachRack();
+    void utTestAbortDetachRack();
+    void utTestAbortLetDownRack();
+    void utTestAbortPullupRack();
 
 private:
     // Device
-    CDeviceXyz *mp_XyzDevice;
+    CDeviceXyz *mp_LeftXyzDevice;
+    CDeviceXyz *mp_RightXyzDevice;
 
     // Function Modules
     CStepperMotor m_XAxisMotor;
@@ -43,9 +55,11 @@ private:
 
     // Device Command Processor
     CMockDcp m_MockDcp;
+
+    void DeviceInit();
 };
 
-TestXyz::TestXyz() : mp_XyzDevice(NULL)
+TestXyz::TestXyz() : mp_LeftXyzDevice(NULL), mp_RightXyzDevice(NULL)
 {
     quint32 FctInstanceID;
 
@@ -71,26 +85,30 @@ TestXyz::~TestXyz()
 }
 
 void TestXyz::init()
-{  
+{
     m_XAxisMotor.Reset();
     m_YAxisMotor.Reset();
     m_ZAxisMotor.Reset();
     m_Rfid11785.Reset();
 
-    mp_XyzDevice = new CDeviceXyz(m_DeviceProcessing, m_DevFctModList, DEVICE_INSTANCE_ID_GRAPPLER_2);
+    mp_LeftXyzDevice = new CDeviceXyz(m_DeviceProcessing,
+                                      m_DevFctModList, DEVICE_INSTANCE_ID_GRAPPLER_1);
+
+    mp_RightXyzDevice = new CDeviceXyz(m_DeviceProcessing,
+                                       m_DevFctModList, DEVICE_INSTANCE_ID_GRAPPLER_1);
 
     if (!connect(&m_MockDcp, SIGNAL(Configure()), 
-                  mp_XyzDevice, SIGNAL(Configure()))) {
+                  mp_LeftXyzDevice, SIGNAL(Configure()))) {
         QFAIL("Cannot connect Configure signal.");
     }
 
     if (!connect(&m_MockDcp, SIGNAL(Initialize()), 
-                  mp_XyzDevice, SIGNAL(Initialize()))) {
+                  mp_LeftXyzDevice, SIGNAL(Initialize()))) {
         QFAIL("Cannot connect Initialize signal.");
     }
 
     if (!connect(&m_MockDcp, SIGNAL(Abort()),
-                  mp_XyzDevice, SIGNAL(Abort()))) {
+                  mp_LeftXyzDevice, SIGNAL(Abort()))) {
         QFAIL("Cannot connect Abort signal.");
     }
 
@@ -100,37 +118,37 @@ void TestXyz::init()
 //    }
 
     if (!connect(&m_MockDcp, SIGNAL(MoveEmptyTo(quint16,quint16)),
-                 mp_XyzDevice, SIGNAL(MoveEmptyTo(quint16,quint16))))
+                 mp_LeftXyzDevice, SIGNAL(MoveEmptyTo(quint16,quint16))))
     {
         QFAIL("Cannot connect MoveEmptyTo signal");
     }
 
-    if (!connect(&m_MockDcp, SIGNAL(TransportRackTo(quint16,quint16)),
-                 mp_XyzDevice, SIGNAL(TransportRackTo(quint16,quint16))))
+    if (!connect(&m_MockDcp, SIGNAL(MoveRackTo(quint16,quint16)),
+                 mp_LeftXyzDevice, SIGNAL(MoveRackTo(quint16,quint16))))
     {
         QFAIL("Cannot connect TransportRackTo signal");
     }
 
     if (!connect(&m_MockDcp, SIGNAL(AttachRack()),
-                 mp_XyzDevice, SIGNAL(AttachRack())))
+                 mp_LeftXyzDevice, SIGNAL(AttachRack())))
     {
         QFAIL("Cannot connect AttachRack signal");
     }
 
     if (!connect(&m_MockDcp, SIGNAL(DetachRack()),
-                 mp_XyzDevice, SIGNAL(DetachRack())))
+                 mp_LeftXyzDevice, SIGNAL(DetachRack())))
     {
         QFAIL("Cannot connect DetachRack signal");
     }
 
     if (!connect(&m_MockDcp, SIGNAL(LetDownRack()),
-                 mp_XyzDevice, SIGNAL(LetDownRack())))
+                 mp_LeftXyzDevice, SIGNAL(LetDownRack())))
     {
         QFAIL("Cannot connect LetDownRack signal");
     }
 
     if (!connect(&m_MockDcp, SIGNAL(PullUpRack()),
-                 mp_XyzDevice, SIGNAL(PullUpRack())))
+                 mp_LeftXyzDevice, SIGNAL(PullUpRack())))
     {
         QFAIL("Cannot connect PullUpRack signal");
     }
@@ -146,249 +164,555 @@ void TestXyz::cleanup()
 {  
     m_DeviceProcessing.EmitShutdown();
 
-    delete mp_XyzDevice;
+    delete mp_LeftXyzDevice;
 }
 
-void TestXyz::utTest()
+void TestXyz::DeviceInit()
 {
-    quint16 TestCount = 0;
-    //QSKIP("skipped", SkipAll);
-    QVERIFY( mp_XyzDevice->GetStates().contains("Start") );
-
+    QVERIFY( mp_LeftXyzDevice->GetStates().contains("Start") );
     m_MockDcp.EmitConfigure();
-    QVERIFY( mp_XyzDevice->GetStates().contains("Configured") );
+    QVERIFY( mp_LeftXyzDevice->GetStates().contains("Configured") );
 
-    // Simulate & verify Initilization completion
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify Initilization completion";
+    m_MockDcp.EmitInitialize();
+    QSignalSpy initSpy(mp_LeftXyzDevice, SIGNAL(ReportInitialize(ReturnCode_t)));
 
-        m_MockDcp.EmitInitialize();
-        QSignalSpy initSpy(mp_XyzDevice, SIGNAL(ReportInitialize(ReturnCode_t)));
+    m_ZAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
+    m_ZAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
 
-        m_ZAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
-        m_ZAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
+    m_YAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
+    m_YAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
 
-        m_YAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
-        m_YAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
+    m_XAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
+    m_XAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
 
-        m_XAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
-        m_XAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
+    QCOMPARE(initSpy.count(), 1);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Working"));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("MoveXyz"));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Navigator"));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("ReadRackRfid"));
+}
 
-        QCOMPARE(initSpy.count(), 1);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Working") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("MoveXyz") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Navigator") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("ReadRackRfid") );
-    }
+void TestXyz::utTestMoveEmpty()
+{
+    // Device Initilization
+    DeviceInit();
 
     // Simulate & verify MoveEmptyTo
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify MoveEmptyTo";
+    m_MockDcp.EmitMoveEmptyTo(4, 2);
+    QSignalSpy moveEmptyAck(mp_LeftXyzDevice, SIGNAL(ReportMoveEmptyTo(ReturnCode_t)));
 
-        m_MockDcp.EmitMoveEmptyTo(1, 2);
-        QSignalSpy moveEmptyAck(mp_XyzDevice, SIGNAL(ReportMoveEmptyTo(ReturnCode_t)));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move"));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_MOVE_EMPTY);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving"));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
 
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move"));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_MOVE_EMPTY);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving"));
-        QVERIFY(mp_XyzDevice->GetStates().contains("X") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Y") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Z") );
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(moveEmptyAck.count(), 1);
+    QCOMPARE(moveEmptyAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
 
-        QVERIFY((mp_XyzDevice->GetStates().contains("Move") == FALSE));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Idle") );
-        QCOMPARE(moveEmptyAck.count(), 1);
-        QCOMPARE(moveEmptyAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
-    }
+void TestXyz::utTestMoveRack()
+{
+    // Device Initilization
+    DeviceInit();
 
     // Simulate & verify TransportRackTo
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify TransportRackTo";
+    m_MockDcp.EmitMoveRack(5, 2);
+    QSignalSpy transportRackAck(mp_LeftXyzDevice, SIGNAL(ReportMoveRackTo(ReturnCode_t)));
 
-        m_MockDcp.EmitTransportRack(2, 2);
-        QSignalSpy transportRackAck(mp_XyzDevice, SIGNAL(ReportTransportRackTo(ReturnCode_t)));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_MOVE_RACK);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
 
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_MOVE_RACK);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("X") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Y") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Z") );
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move") == FALSE);
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Idle") );
-        QCOMPARE(transportRackAck.count(), 1);
-        QCOMPARE(transportRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
-    }
-
-    // Simulate & verify Abort
-    {
-        qDebug()  << endl << "Test " << ++TestCount << ": Simulate & verify Abort";
-
-        m_MockDcp.EmitTransportRack(2, 2);
-
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move") );
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_MOVE_RACK);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") );
-
-        m_MockDcp.EmitAbort();
-        QSignalSpy reportAbort(mp_XyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
-
-        QVERIFY(mp_XyzDevice->GetStates().contains("Aborting") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("X") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Y") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Z") );
-
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Aborting") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Idle") );
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-        QCOMPARE(reportAbort.count(), 1);
-        QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
-    }
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move") == FALSE);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(transportRackAck.count(), 1);
+    QCOMPARE(transportRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
 }
 
-void TestXyz::utTestAttachDetach()
+void TestXyz::utTestAttachRack()
 {
-    quint16 TestCount = 0;
-    //QSKIP("skipped", SkipAll);
-    QVERIFY( mp_XyzDevice->GetStates().contains("Start") );
+    // Device Initilization
+    DeviceInit();
 
-    m_MockDcp.EmitConfigure();
-    QVERIFY( mp_XyzDevice->GetStates().contains("Configured") );
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(3, 1);
 
-    // Simulate & verify Initilization completion
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify Initilization completion";
-
-        m_MockDcp.EmitInitialize();
-        QSignalSpy initSpy(mp_XyzDevice, SIGNAL(ReportInitialize(ReturnCode_t)));
-
-        m_ZAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
-        m_ZAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
-
-        m_YAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
-        m_YAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
-
-        m_XAxisMotor.EmitReportSetStateAckn(1234, DCL_ERR_FCT_CALL_SUCCESS);
-        m_XAxisMotor.EmitReportReferenceMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0);
-
-        QCOMPARE(initSpy.count(), 1);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Working") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("MoveXyz") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Navigator") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("ReadRackRfid") );
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-    }
-
-    // Simulate & verify MoveEmptyTo
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify MoveEmptyTo";
-
-        m_MockDcp.EmitMoveEmptyTo(1, 1);
-        QSignalSpy moveEmptyAck(mp_XyzDevice, SIGNAL(ReportMoveEmptyTo(ReturnCode_t)));
-
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move"));
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("X") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Y") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Z") );
-
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
-
-        QVERIFY((mp_XyzDevice->GetStates().contains("Move") == FALSE));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Idle") );
-        QCOMPARE(moveEmptyAck.count(), 1);
-        QCOMPARE(moveEmptyAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
-    }
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
 
     // Simulate & verify AttachRack
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify AttachRack";
+    m_MockDcp.EmitAttachRack();
+    QSignalSpy attachRackAck(mp_LeftXyzDevice, SIGNAL(ReportAttachRack(ReturnCode_t)));
 
-        m_MockDcp.EmitAttachRack();
-        QSignalSpy attachRackAck(mp_XyzDevice, SIGNAL(ReportAttachRack(ReturnCode_t)));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move"));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_ATTACH);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
 
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move"));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_ATTACH);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("X") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Y") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Z") );
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(attachRackAck.count(), 1);
+    QCOMPARE(attachRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
 
-        QVERIFY((mp_XyzDevice->GetStates().contains("Move") == FALSE));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Idle") );
-        QCOMPARE(attachRackAck.count(), 1);
-        QCOMPARE(attachRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
-    }
+void TestXyz::utTestDetachRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(3, 1);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Simulate AttachRack
+    m_MockDcp.EmitAttachRack();
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
 
     // Simulate & verify DetachRack
-    {
-        qDebug() << endl << "Test " << ++TestCount << ": Simulate & verify DetachRack";
+    m_MockDcp.EmitDetachRack();
+    QSignalSpy detachRackAck(mp_LeftXyzDevice, SIGNAL(ReportDetachRack(ReturnCode_t)));
 
-        m_MockDcp.EmitDetachRack();
-        QSignalSpy detachRackAck(mp_XyzDevice, SIGNAL(ReportDetachRack(ReturnCode_t)));
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move"));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_DETACH);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
 
-        QVERIFY(mp_XyzDevice->GetStates().contains("Move"));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_DETACH);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("X") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Y") );
-        QVERIFY(mp_XyzDevice->GetStates().contains("Z") );
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 120, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 50, 0);
 
-        m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
-        m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 50, 0);
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(detachRackAck.count(), 1);
+    QCOMPARE(detachRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
 
-        QVERIFY((mp_XyzDevice->GetStates().contains("Move") == FALSE));
-        QCOMPARE(mp_XyzDevice->GetCurrentstate(), XYZ_IDLE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Moving") == FALSE);
-        QVERIFY(mp_XyzDevice->GetStates().contains("Idle") );
-        QCOMPARE(detachRackAck.count(), 1);
-        QCOMPARE(detachRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
-    }
+void TestXyz::utTestLetDownRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(3, 1);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Simulate & verify LetDownrack
+    m_MockDcp.EmitLetDownRack();
+    QSignalSpy letDownAck(mp_LeftXyzDevice, SIGNAL(ReportLetDownRack(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move"));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_LET_DOWN_RACK);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(letDownAck.count(), 1);
+    QCOMPARE(letDownAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS);
+}
+
+void TestXyz::utTestPullupRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(4, 1);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Simulate & verify PullupRack
+    m_MockDcp.EmitPullupRack();
+    QSignalSpy pullUpAck(mp_LeftXyzDevice, SIGNAL(ReportPullUpRack(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move"));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_PULL_UP_RACK);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(pullUpAck.count(), 1);
+    QCOMPARE(pullUpAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
+
+void TestXyz::utTestAbortMoveEmpty()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(4, 2);
+    QSignalSpy moveEmptyAck(mp_LeftXyzDevice, SIGNAL(ReportMoveEmptyTo(ReturnCode_t)));
+
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_MOVE_EMPTY);
+
+    // Abort in between
+    m_MockDcp.EmitAbort();
+    QSignalSpy reportAbort(mp_LeftXyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("X") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Y") );
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Z") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QCOMPARE(reportAbort.count(), 1);
+    QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+
+    // Resend the same command
+    m_MockDcp.EmitMoveEmptyTo(4, 2);
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(moveEmptyAck.count(), 1);
+    QCOMPARE(moveEmptyAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
+
+void TestXyz::utTestAbortMoveRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveRackTo
+    m_MockDcp.EmitMoveRack(5, 2);
+    QSignalSpy transportRackAck(mp_LeftXyzDevice, SIGNAL(ReportMoveRackTo(ReturnCode_t)));
+
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_MOVE_RACK);
+
+    // Abort in between
+    m_MockDcp.EmitAbort();
+    QSignalSpy reportAbort(mp_LeftXyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") == FALSE);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QCOMPARE(reportAbort.count(), 1);
+    QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS);
+
+    // Resend same command
+    m_MockDcp.EmitMoveRack(5, 2);
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Move") == FALSE);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(transportRackAck.count(), 1);
+    QCOMPARE(transportRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS);
+}
+
+void TestXyz::utTestAbortAttachRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate Move Empty & Attach Rack
+    m_MockDcp.EmitMoveEmptyTo(4, 1);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_MOVE_EMPTY);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 1000, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 500, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    m_MockDcp.EmitAttachRack();
+    QSignalSpy attachRackAck(mp_LeftXyzDevice, SIGNAL(ReportAttachRack(ReturnCode_t)));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_ATTACH);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Abort
+    m_MockDcp.EmitAbort();
+    QSignalSpy reportAbort(mp_LeftXyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QCOMPARE(reportAbort.count(), 1);
+    QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+
+    // Resend Attach
+    m_MockDcp.EmitAttachRack();
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_ATTACH);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(attachRackAck.count(), 1);
+    QCOMPARE(attachRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
+
+void TestXyz::utTestAbortDetachRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate Move Empty
+    m_MockDcp.EmitMoveRack(4, 1);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_MOVE_RACK);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 1000, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 500, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Simulate & verify DetachRack -> Abort -> DetachRack
+    m_MockDcp.EmitDetachRack();
+    QSignalSpy detachRackAck(mp_LeftXyzDevice, SIGNAL(ReportDetachRack(ReturnCode_t)));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_DETACH);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Abort
+    m_MockDcp.EmitAbort();
+    QSignalSpy reportAbort(mp_LeftXyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QCOMPARE(reportAbort.count(), 1);
+    QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+
+    // Resend DetachRack
+    m_MockDcp.EmitDetachRack();
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_DETACH);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 200, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(detachRackAck.count(), 1);
+    QCOMPARE(detachRackAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
+}
+
+void TestXyz::utTestAbortLetDownRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(3, 1);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Simulate & verify LetDownrack -> Abort -> LetDownrack
+    m_MockDcp.EmitLetDownRack();
+    QSignalSpy letDownAck(mp_LeftXyzDevice, SIGNAL(ReportLetDownRack(ReturnCode_t)));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_LET_DOWN_RACK);
+
+    // Abort
+    m_MockDcp.EmitAbort();
+    QSignalSpy reportAbort(mp_LeftXyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") == FALSE);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QCOMPARE(reportAbort.count(), 1);
+    QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS);
+
+    // Resend
+    m_MockDcp.EmitLetDownRack();
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_LET_DOWN_RACK);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(letDownAck.count(), 1);
+    QCOMPARE(letDownAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS);
+}
+
+void TestXyz::utTestAbortPullupRack()
+{
+    // Device Initilization
+    DeviceInit();
+
+    // Simulate MoveEmptyTo
+    m_MockDcp.EmitMoveEmptyTo(4, 1);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    // Simulate & verify PullupRack -> Abort -> PullUpAck
+    m_MockDcp.EmitPullupRack();
+    QSignalSpy pullUpAck(mp_LeftXyzDevice, SIGNAL(ReportPullUpRack(ReturnCode_t)));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_PULL_UP_RACK);
+
+    // Abort
+    m_MockDcp.EmitAbort();
+    QSignalSpy reportAbort(mp_LeftXyzDevice, SIGNAL(ReportAbort(ReturnCode_t)));
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") );
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 0, 0);
+
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Aborting") == FALSE);
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QCOMPARE(reportAbort.count(), 1);
+    QCOMPARE(reportAbort.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS);
+
+    // Resend
+    m_MockDcp.EmitPullupRack();
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_PULL_UP_RACK);
+
+    m_XAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_YAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+    m_ZAxisMotor.EmitReportMovementAckn(1234, DCL_ERR_FCT_CALL_SUCCESS, 100, 0);
+
+    QVERIFY((mp_LeftXyzDevice->GetStates().contains("Move") == FALSE));
+    QCOMPARE(mp_LeftXyzDevice->GetCurrentstate(), XYZ_STATE_IDLE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Moving") == FALSE);
+    QVERIFY(mp_LeftXyzDevice->GetStates().contains("Idle") );
+    QCOMPARE(pullUpAck.count(), 1);
+    QCOMPARE(pullUpAck.at(0).at(0).value<ReturnCode_t>(), DCL_ERR_FCT_CALL_SUCCESS );
 }
 
 } // end namespace DeviceControl

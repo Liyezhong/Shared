@@ -40,11 +40,11 @@ public:
     
     // Xyz Device signals
     void EmitMoveEmptyTo(quint16 StationColumn, quint16 StationRow) {emit MoveEmptyTo(StationColumn, StationRow);   THREAD_PROCESS(); }
-    void EmitTransportRack(quint16 StationColumn, quint16 StationRow) {emit TransportRackTo(StationColumn, StationRow);   THREAD_PROCESS(); }
+    void EmitMoveRack(quint16 StationColumn, quint16 StationRow) 	{emit MoveRackTo(StationColumn, StationRow);   THREAD_PROCESS(); }
     void EmitAttachRack()   {emit AttachRack();     THREAD_PROCESS();   }
     void EmitDetachRack()   {emit DetachRack();     THREAD_PROCESS();   }
     void EmitLetDownRack()  {emit LetDownRack();    THREAD_PROCESS();   }
-    void EmitPullDownRack() {emit PullUpRack();     THREAD_PROCESS();   }
+    void EmitPullupRack()   {emit PullUpRack();     THREAD_PROCESS();   }
 
 Q_SIGNALS:
     void Configure();
@@ -72,7 +72,7 @@ Q_SIGNALS:
 
     // Xyz Device signals
     void MoveEmptyTo(quint16 StationColumn, quint16 StationRow);
-    void TransportRackTo(quint16 StationColumn, quint16 StationRow);
+    void MoveRackTo(quint16 StationColumn, quint16 StationRow);
     void AttachRack();
     void DetachRack();
     void LetDownRack();

@@ -22,7 +22,7 @@ DEFINES +=  DEVICECONTROL_FUNCTIONMODULEPRIVATE_H \
 
 DEFINES +=  Q_UNIT_TEST
 
-HEADERS +=  ../../Include/Devices/State.h \
+HEADERS +=  ../../Include/Devices/DeviceState.h \
             ../../Include/Devices/DeviceBase.h \
             ../../Include/Devices/FmStepperInit.h \
             ../../Include/Devices/FmStepperMove.h \
@@ -35,7 +35,7 @@ HEADERS +=  ../../Include/Devices/State.h \
     ../../Include/Devices/MoveAck.h
 
 SOURCES +=  \
-            ../../Source/Devices/State.cpp \
+            ../../Source/Devices/DeviceState.cpp \
             ../../Source/Devices/DeviceBase.cpp \
             ../../Source/Devices/DeviceXyz.cpp \
             ../../Source/Devices/FmStepperInit.cpp \
