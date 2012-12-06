@@ -430,7 +430,7 @@ static Error_t doModuleTask (UInt16 Instance) {
                 break;
         }
         if (Data->State == STATE_OUTPUT) {
-            doChangeOutput (Data, Data->NewValue);
+            Status = doChangeOutput (Data, Data->NewValue);
             if (Status < NO_ERROR) {
                 Data->State = STATE_IDLE;
                 return (Status);
