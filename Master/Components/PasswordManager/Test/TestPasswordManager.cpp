@@ -3,6 +3,10 @@
  *
  *  \brief Implementation file for class TestPasswordManager.
  *
+ *  \b Description:
+ *      Check the password format, computes the hash. Adds different users
+ *      and checks the password matches to the users
+ *
  *  $Version:   $ 0.1
  *  $Date:      $ 2010-09-10
  *  $Author:    $ J.Bugariu
@@ -240,7 +244,7 @@ void TestPasswordManager::utPasswords() {
         Obj.SetPassword("123", "123");
         QFAIL("You should never get here!");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_PASSWORD_FORMAT);
+        QCOMPARE(E.GetErrorCode(), DataManager::EVENT_DATAMANAGER_ERROR_PASSWORD_FORMAT);
     } catch (...) {
         QFAIL("You should never get here!");
     }

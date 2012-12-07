@@ -38,7 +38,8 @@ namespace PasswordManager {
  * \warning This class is not thread safe!
  */
 /****************************************************************************/
-class CServicePassword {
+class CServicePassword {    
+    friend class TestServicePassword; ///< this is to test the private functions of the class in unit test project
 private:
     QByteArray m_ServiceFileContent; ///< To store the servicekey.xml file information
     QString m_ServicePin;            ///< To store the service PIN

@@ -1,9 +1,7 @@
-!include("PasswordManager.pri") {
-    error("PasswordManager.pri not found")
-}
+# build all components recursive
 
-TARGET = utTestPasswordManager
+TEMPLATE = subdirs
+SUBDIRS =   TestPasswordManager.pro \
+            TestServicePassword.pro
 
-SOURCES +=  TestPasswordManager.cpp
-
-UseLibs(DataManager Global)
+CONFIG += ordered

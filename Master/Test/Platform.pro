@@ -9,6 +9,7 @@ SUBDIRS =   ../Components/Global/Test/Global.pro \
             ../Components/DeviceCommandProcessor/Test/DeviceCommandProcessor.pro \
             ../Components/StateMachines/Test/StateMachines.pro \
             ../Components/ImportExport/Test/ImportExport.pro \
+            ../Components/PasswordManager/Test/PasswordManager.pro \
             #../Components/ExternalProcessController/Test/ExternalProcessTest.pro \
             #../Components/DeviceControl/Test/DeviceControl.pro \
             #../Components/NetworkComponents/Test/NetworkComponentsTest.pro
