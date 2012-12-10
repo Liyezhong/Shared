@@ -1009,8 +1009,6 @@ ReturnCode_t CPressureControl::SendCANMsgSetPressure(qreal Pressure,
 #else
 ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime)
 {
-    CANFctModulePressureCtrl* pCANObjConfPressure;
-    pCANObjConfPressure= (CANFctModulePressureCtrl*) m_pCANObjectConfig;
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
 
