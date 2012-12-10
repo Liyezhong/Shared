@@ -42,11 +42,11 @@ bool StyleSize = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetSty
 CMainWindow::CMainWindow(QWidget *p_Parent) :
     QMainWindow(p_Parent),
     mp_Ui(new Ui::CMainWindow),
-    mTimeRefreshTimer(this)
+    mTimeRefreshTimer(this),
+    mp_RemotePixMap(NULL),
+    mp_ProcPixmap(NULL)
 {
     mp_Ui->setupUi(this);
-    m_StatusLabel1Free = true;
-    m_StatusLabel2Free = true;
     m_ProcessRunning = false;
     m_RemoteService = false;
     m_Error = false;
@@ -73,7 +73,6 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :
     mp_Ui->statusLabelErr->installEventFilter(this);
     mp_Ui->statusLabelWarn->installEventFilter(this);
 }
-
 /****************************************************************************/
 /*!
  *  \brief Destructor
@@ -246,6 +245,7 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
     case ProcessRunning:
         if (!m_ProcessRunning) {
             p_Label = mp_Ui->statusLabel1;
+            delete mp_ProcPixmap;
             mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
             p_Label->setPixmap(*mp_ProcPixmap);
             p_Label->show();
@@ -259,6 +259,7 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
     case RemoteCare:
         if (!m_RemoteService) {
             p_Label = mp_Ui->statusLabel2;
+            delete mp_RemotePixMap;
             mp_RemotePixMap = new QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
             p_Label->setPixmap(*mp_RemotePixMap);
             //p_Label->pixmap.fill(Qt::transparent);
