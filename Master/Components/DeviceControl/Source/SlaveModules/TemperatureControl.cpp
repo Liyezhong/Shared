@@ -680,8 +680,11 @@ void CTemperatureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         qreal ActTemperature;
-
+#ifdef PRE_ALFA_TEST
+        ActTemperature = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
+#else
         ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 1) / 100;
+#endif
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl Temperature received: " << ActTemperature;
         emit ReportActTemperature(GetModuleHandle(), hdlInfo, pCANframe->data[0], ActTemperature);
