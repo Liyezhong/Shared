@@ -45,7 +45,7 @@ typedef CSignalTransition<CDeviceSlideId> CSlideIdTransition;
 /****************************************************************************/
 CDeviceSlideId::CDeviceSlideId(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
                                DevInstanceID_t InstanceID) :
-    CDeviceBase(DeviceProc, ModuleList, InstanceID)
+    CDeviceBase(DeviceProc, ModuleList, InstanceID), m_SlideCounter(0)
 {
 
 }
@@ -111,14 +111,251 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     /////////////////////////////////////////////////////////////////
     // Initializing
     /////////////////////////////////////////////////////////////////
-    //lint -esym(429, Init_Start)
-    QFinalState *Init_Start = new QFinalState(mp_Initializing);
-    mp_Initializing->setInitialState(Init_Start);
+    CState *p_InitStart = new CState("InitStart", mp_Initializing);
+    CState *p_WaitForAck1 = new CState("WaitForAck1", mp_Initializing);
+    CState *p_WaitForAck2 = new CState("WaitForAck2", mp_Initializing);
+    CState *p_WaitForAck3 = new CState("WaitForAck3", mp_Initializing);
+    CState *p_WaitForValue = new CState("WaitForValue", mp_Initializing);
+    CState *p_WaitForAckOff = new CState("WaitForAckOff", mp_Initializing);
+    QFinalState *p_InitEnd = new QFinalState(mp_Initializing);
+    mp_Initializing->setInitialState(p_InitStart);
+
+    // Enable all analog outputs needed fo the photoelectric detector
+    p_InitStart->addTransition(new CSlideIdTransition(
+            p_InitStart, SIGNAL(entered()),
+            *this, &CDeviceSlideId::EnableSlideCounter, p_WaitForAck1));
+
+    // Any of the analog outputs is able to activate the transition
+    p_WaitForAck1->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_WaitForAck2));
+    p_WaitForAck1->addTransition(new CSlideIdTransition(
+            mp_TransmitCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_WaitForAck2));
+    p_WaitForAck1->addTransition(new CSlideIdTransition(
+            mp_ReceiveCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_WaitForAck2));
+
+    // Any of the analog outputs is able to activate the transition
+    p_WaitForAck2->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_WaitForAck3));
+    p_WaitForAck2->addTransition(new CSlideIdTransition(
+            mp_TransmitCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_WaitForAck3));
+    p_WaitForAck2->addTransition(new CSlideIdTransition(
+            mp_ReceiveCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_WaitForAck3));
+
+    // Any of the analog outputs is able to activate the transition
+    p_WaitForAck3->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForValue));
+    p_WaitForAck3->addTransition(new CSlideIdTransition(
+            mp_TransmitCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForValue));
+    p_WaitForAck3->addTransition(new CSlideIdTransition(
+            mp_ReceiveCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForValue));
+
+    // Read the value at the photoelectric detector
+    p_WaitForValue->addTransition(new CSlideIdTransition(
+            mp_PhotoDetector, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, qint16)),
+            *this, &CDeviceSlideId::OnActInputValue, p_WaitForAckOff));
+
+    // Disable the laser again
+    p_WaitForValue->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::NormalOutputValueAckn, p_InitEnd));
 
     /////////////////////////////////////////////////////////////////
     // Working composite states
     /////////////////////////////////////////////////////////////////
     mp_Working->setChildMode(QState::ParallelStates);
+    CState *p_SlideCounter = new CState("SlideCounter", mp_Working);
+    CState *p_Stopped = new CState("Stopped", p_SlideCounter);
+    CState *p_Started = new CState("Started", p_SlideCounter);
+    CState *p_Stopping = new CState("Stopping", p_SlideCounter);
+    CState *p_Starting = new CState("Starting", p_SlideCounter);
+    p_SlideCounter->setInitialState(p_Stopped);
+
+    // Default NACKs
+    p_SlideCounter->addTransition(new CSlideIdTransition(
+            this, SIGNAL(StartCounting()),
+            *this, &CDeviceSlideId::EnableLaser));
+    p_SlideCounter->addTransition(new CSlideIdTransition(
+            this, SIGNAL(StopCounting()),
+            *this, &CDeviceSlideId::DisableLaser));
+
+    // Start switching the state
+    p_Stopped->addTransition(new CSlideIdTransition(
+            this, SIGNAL(StartCounting()),
+            *this, &CDeviceSlideId::EnableLaser, p_Starting));
+    p_Started->addTransition(new CSlideIdTransition(
+            this, SIGNAL(StopCounting()),
+            *this, &CDeviceSlideId::DisableLaser, p_Stopping));
+
+    // Switch the state
+    p_Stopping->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::OnEnableLaser, p_Stopped));
+    p_Starting->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::OnDisableLaser, p_Started));
+
+    // Increment the slide counter
+    p_Started->addTransition(new CSlideIdTransition(
+            mp_PhotoDetector, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, qint16)),
+            *this, &CDeviceSlideId::CountSlide));
+
+    return true;
+}
+
+bool CDeviceSlideId::EnableSlideCounter(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+
+    ReturnCode_t ReturnCode = mp_TransmitControl->SetOutputValue(0x7FFF);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
+    }
+    ReturnCode = mp_TransmitCurrent->SetOutputValue(0);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
+    }
+    ReturnCode = mp_ReceiveCurrent->SetOutputValue(0xFFFF);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CDeviceSlideId::NormalOutputValueAckn(QEvent *p_Event)
+{
+    return OutputValueAckn(p_Event, false);
+}
+
+bool CDeviceSlideId::LastOutputValueAckn(QEvent *p_Event)
+{
+    return OutputValueAckn(p_Event, true);
+}
+
+bool CDeviceSlideId::OutputValueAckn(QEvent *p_Event, bool Last)
+{
+    ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
+    }
+
+    if (true == Last) {
+        ReturnCode = mp_PhotoDetector->ReqActInputValue();
+        if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+            emit NeedInitialize(ReturnCode);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CDeviceSlideId::OnActInputValue(QEvent *p_Event)
+{
+    qint16 Value;
+
+    ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
+    }
+    if (!CSlideIdTransition::GetEventValue(p_Event, 2, Value)) {
+        emit NeedInitialize(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (100 > Value) {
+        emit NeedInitialize(DCL_ERR_INTERNAL_ERR);
+        return false;
+    }
+    ReturnCode = mp_TransmitControl->SetOutputValue(0xFFFF);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CDeviceSlideId::NackStartCounting(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+    emit ReportStartCounting(DCL_ERR_INVALID_STATE);
+
+    return true;
+}
+
+bool CDeviceSlideId::NackStopCounting(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+    emit ReportStopCounting(DCL_ERR_INVALID_STATE, 0);
+
+    return true;
+}
+
+bool CDeviceSlideId::EnableLaser(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+
+    ReturnCode_t ReturnCode = mp_TransmitControl->SetOutputValue(0x7FFF);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportStartCounting(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CDeviceSlideId::DisableLaser(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+
+    ReturnCode_t ReturnCode = mp_TransmitControl->SetOutputValue(0xFFFF);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportStopCounting(ReturnCode, 0);
+        return false;
+    }
+
+    return true;
+}
+
+bool CDeviceSlideId::OnEnableLaser(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    m_SlideCounter = 0;
+    emit ReportStartCounting(ReturnCode);
+
+    return true;
+}
+
+bool CDeviceSlideId::OnDisableLaser(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    emit ReportStopCounting(ReturnCode, m_SlideCounter);
+
+    return true;
+}
+
+bool CDeviceSlideId::CountSlide(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        return false;
+    }
+    m_SlideCounter++;
 
     return true;
 }

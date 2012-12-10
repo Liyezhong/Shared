@@ -48,6 +48,13 @@ public:
                    DevInstanceID_t InstanceID);
 
 signals:
+    // command request interface to DCP
+    void StartCounting();
+    void StopCounting();
+
+    // command response interface to DCP
+    void ReportStartCounting(ReturnCode_t ReturnCode);
+    void ReportStopCounting(ReturnCode_t ReturnCode, quint8 Slides);
 
 protected:
     bool Trans_Configure(QEvent *p_Event);
@@ -55,14 +62,27 @@ protected:
 protected slots:
     virtual void ThreadStarted();
 
-private slots:
-
 private:
+    bool EnableSlideCounter(QEvent *p_Event);
+    bool NormalOutputValueAckn(QEvent *p_Event);
+    bool LastOutputValueAckn(QEvent *p_Event);
+    bool OutputValueAckn(QEvent *p_Event, bool Last);
+    bool OnActInputValue(QEvent *p_Event);
+    bool NackStartCounting(QEvent *p_Event);
+    bool NackStopCounting(QEvent *p_Event);
+    bool EnableLaser(QEvent *p_Event);
+    bool DisableLaser(QEvent *p_Event);
+    bool OnEnableLaser(QEvent *p_Event);
+    bool OnDisableLaser(QEvent *p_Event);
+    bool CountSlide(QEvent *p_Event);
+
     CBaseModule *mp_BaseModule;         //!< Base module of the slide ID
     CAnalogInput *mp_PhotoDetector;     //!< Signal from the photoelectric detector
     CAnalogOutput *mp_TransmitControl;  //!< Pulse generator for the transmitter
     CAnalogOutput *mp_TransmitCurrent;  //!< Controls the amplitude of the transmitter
     CAnalogOutput *mp_ReceiveCurrent;   //!< Controls the amplitude of the receiver
+
+    quint8 m_SlideCounter;
 };
 
 } //namespace

@@ -59,7 +59,7 @@ public:
     void HandleCanMessage(can_frame* pCANframe);
 
     //! Set output
-    ReturnCode_t SetOutputValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
+    ReturnCode_t SetOutputValue(quint16 OutputValue, quint16 Duration = 0, quint16 Delay = 0);
     //! Request actual output
     ReturnCode_t ReqOutputValue();
     //! Request life time data
