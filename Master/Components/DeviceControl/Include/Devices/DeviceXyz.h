@@ -20,7 +20,16 @@ typedef enum {
 } XyzCol_t;
 
 // General
-#define ATTACH_POSITION         65
+
+#define X_MOTOR_ROLLING_CIRCUMFERENCE   90  // in mm
+#define X_MOTOR_RESOLUTION              400 // in half-steps
+#define Y_MOTOR_ROLLING_CIRCUMFERENCE   60  // in mm
+#define Y_MOTOR_RESOLUTION              400 // in half-steps
+#define Z_MOTOR_ROLLING_CIRCUMFERENCE   60  // in mm
+#define Z_MOTOR_RESOLUTION              800 // in half-steps
+
+#define ATTACH_POSITION         70
+//#define ATTACH_POSITION         65
 
 #define Z_UP_WITH_RACK          0
 #define Z_UP_WITHOUT_RACK       1450
@@ -32,11 +41,16 @@ typedef enum {
 #define XYZ_OVEN_COL_START      XYZ_COL1
 #define XYZ_OVEN_COL_END        XYZ_COL3
 
-#define XYZ_OVEN_X_START        10
+#define XYZ_OVEN_X_START        20
+//#define XYZ_OVEN_X_START        10
 #define XYZ_OVEN_Y_START        0
 
-#define XYZ_OVEN_X_OFFSET       190
-#define XYZ_OVEN_Y_OFFSET       855
+#define XYZ_OVEN_X_DISTANCE     44          // in mm
+#define XYZ_OVEN_X_OFFSET       XYZ_OVEN_X_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
+//#define XYZ_OVEN_X_OFFSET       190
+#define XYZ_OVEN_Y_DISTANCE     143         // in mm
+#define XYZ_OVEN_Y_OFFSET       XYZ_OVEN_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
+//#define XYZ_OVEN_Y_OFFSET       855
 
 #define XYZ_OVEN_Z_DOWN_POS     1850        //! Oven Stations
 
@@ -47,17 +61,33 @@ typedef enum {
 #define XYZ_BL_COL_START        XYZ_COL4
 #define XYZ_BL_COL_END          XYZ_COL17
 
-#define XYZ_BL_X_START_LEFT     895
+#define XYZ_BL_X_LEFT_DISTANCE  201         // in mm
+#define XYZ_BL_X_START_LEFT     XYZ_BL_X_LEFT_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
+//#define XYZ_BL_X_START_LEFT     895
+//#define XYZ_BL_X_RIGHT_DISTANCE  75          // in mm
+//#define XYZ_BL_X_START_RIGHT    XYZ_BL_X_RIGHT_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
 #define XYZ_BL_X_START_RIGHT    110
-#define XYZ_BL_Y_START          90
+#define XYZ_BL_Y_START          80
+//#define XYZ_BL_Y_START          90
 
-#define XYZ_BL_X_OFFSET         245
-#define XYZ_BL_Y_OFFSET         980
+#define XYZ_BL_X_DISTANCE       55          // in mm
+#define XYZ_BL_X_OFFSET         XYZ_BL_X_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
+//#define XYZ_BL_X_OFFSET         245
+#define XYZ_BL_Y_DISTANCE       148         // in mm
+#define XYZ_BL_Y_OFFSET         XYZ_BL_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
+//#define XYZ_BL_Y_OFFSET         980
 
 #define XYZ_BL_Z_DOWN_POS       1900        //! Normal Station
 #define XYZ_HS_Z_DOWN_POS       1850        //! Heated Cuvettes
 
-#define ROW4_Y_OFFSET           60          //! Bath layout to Drawer Offset
+#define ROW4_Y_DISTANCE         (156-148)   // in mm
+#define ROW4_Y_OFFSET           ROW4_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
+//#define ROW4_Y_OFFSET           60          //! Bath layout to Drawer Offset
+
+#define ROW1_X_OFFSET           10
+#define ROW2_X_OFFSET           10
+#define ROW3_X_OFFSET           10
+#define ROW4_X_OFFSET           15
 
 // Rack Transfer
 #define XYZ_RTS_ROW             XYZ_ROW2
@@ -71,8 +101,10 @@ typedef enum {
 #define XYZ_SLIDE_COUNTER_ROW           XYZ_ROW3
 #define XYZ_SLIDE_COUNTER_COL           XYZ_COL2
 
-#define XYZ_SLIDE_COUNTER_X_POS         240
-#define XYZ_SLIDE_COUNTER_Y_START       1800
+//#define XYZ_SLIDE_COUNTER_X_POS         240
+#define XYZ_SLIDE_COUNTER_X_POS         260
+//#define XYZ_SLIDE_COUNTER_Y_START       1800
+#define XYZ_SLIDE_COUNTER_Y_START       2000
 #define XYZ_SLIDE_COUNTER_Y_END         (XYZ_SLIDE_COUNTER_Y_START + 680)
 
 #define XYZ_SLIDE_COUNTER_Z_DOWN_POS    1230        //! Slide counter

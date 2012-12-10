@@ -455,12 +455,30 @@ void CDeviceXyz::FillColumnRowPosition()
     PositionY = XYZ_BL_Y_START;
     for (StationRow = XYZ_BL_ROW_START; StationRow <= XYZ_BL_ROW_END; StationRow++)
     {
-        if (XYZ_ROW4 == StationRow)
-        {
-            PositionY += ROW4_Y_OFFSET;
-        }
-
         PositionX = XYZ_BL_X_START_LEFT;
+
+//        if (XYZ_ROW4 == StationRow)
+//        {
+//            PositionY += ROW4_Y_OFFSET;
+//        }
+        switch (StationRow)
+        {
+        case XYZ_ROW1:
+            PositionX += ROW1_X_OFFSET;
+            break;
+        case XYZ_ROW2:
+            PositionX += ROW2_X_OFFSET;
+            break;
+        case XYZ_ROW3:
+            PositionX += ROW3_X_OFFSET;
+            break;
+        case XYZ_ROW4:
+            PositionX += ROW4_X_OFFSET;
+            PositionY += ROW4_Y_OFFSET;
+            break;
+        default:
+            break;
+        }
 
         for (StationColumn = XYZ_BL_COL_START; StationColumn <= XYZ_BL_COL_END; StationColumn++)
         {

@@ -111,7 +111,9 @@ bool CDeviceAgitation::Trans_Configure(QEvent *p_Event)
             p_AgitationStepper,               SIGNAL(Abort()));
     connect(p_AgitationStepper,               SIGNAL(RotateAck()),
             this,                             SIGNAL(RotateAck()));
-	
+    connect(p_AgitationStepper,               SIGNAL(MoveAck()),
+            this,                             SIGNAL(RotateAck()));
+
 	return true;
 }
 

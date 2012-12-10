@@ -98,7 +98,7 @@ bool CReadRackRfid::SetState(QEvent *p_Event)
         return false;
     }
 
-    ReturnCode_t ReturnCode = mp_Rfid11785->SetState(true, (quint8)m_Channel - 1);
+    ReturnCode_t ReturnCode = mp_Rfid11785->SetState(true, (quint8)LOADER_ID_RFID_5 - (quint8)m_Channel);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         emit RfidError(ReturnCode);
         return false;
