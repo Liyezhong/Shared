@@ -50,7 +50,7 @@ private:
     /**
      * \brief Copy other instance to self.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     void CopyFrom(const DayEventLoggerConfig &rOther);
@@ -66,10 +66,10 @@ public:
     /**
      * \brief Default constructor.
      *
-     * \param[in]   OperatingMode       Operating mode as string.
-     * \param[in]   SerialNumber        Serial number
-     * \param[in]   Path                Absolute path in which log files must be written.
-     * \param[in]   MaxFileCount        Maximal file count. 0 means no maximal file count monitoring!
+     * \iparam   OperatingMode       Operating mode as string.
+     * \iparam   SerialNumber        Serial number
+     * \iparam   Path                Absolute path in which log files must be written.
+     * \iparam   MaxFileCount        Maximal file count. 0 means no maximal file count monitoring!
      */
     /****************************************************************************/
     DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,
@@ -80,7 +80,7 @@ public:
      *
      * Implemented due to signal / slot mechanism.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     DayEventLoggerConfig(const DayEventLoggerConfig &rOther);
@@ -94,7 +94,7 @@ public:
     /**
      * \brief Assignment operator.
      *
-     * \param[in]   rOther  Other instance
+     * \iparam   rOther  Other instance
      * \return              Const reference to self.
      */
     /****************************************************************************/

@@ -29,8 +29,7 @@ namespace PasswordManager {
 /****************************************************************************/
 CPasswordManager::CPasswordManager(const QString &MasterPasswordHash) :
     m_MasterPasswordHash(MasterPasswordHash),
-    m_FallbackPassword(false),
-    m_ServiceID("")
+    m_FallbackPassword(false)
 {
 }
 

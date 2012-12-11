@@ -23,6 +23,7 @@
 
 #include <Threads/Include/ThreadController.h>
 #include <DataLogging/Include/DayEventLogger.h>
+#include <DataLogging/Include/DayLogFileInformation.h>
 
 // DestroyObjects is the cleanup function for class DataLoggingThreadController,
 // so we inform lint about this.
@@ -58,6 +59,7 @@ private:
     DataLoggingThreadController();                                                          ///< Not implemented.
     DataLoggingThreadController(const DataLoggingThreadController &);                       ///< Not implemented.
     const DataLoggingThreadController & operator = (const DataLoggingThreadController &);   ///< Not implemented.
+
 protected:
     /****************************************************************************/
     /**
@@ -94,8 +96,8 @@ protected:
     /**
      * \brief Force caching.
      *
-     * \param[in]   Ref                 Command reference.
-     * \param[in]   Cmd                 Command.
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
      */
     /****************************************************************************/
     void OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd);
@@ -104,7 +106,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   TheHeartBeatSource    Logging source to be used.
+     * \iparam   TheHeartBeatSource    Logging source to be used.
      */
     /****************************************************************************/
     DataLoggingThreadController(Global::gSourceType TheHeartBeatSource, const QString& fileNamePrefix);
@@ -118,7 +120,7 @@ public:
     /**
      * \brief Set operating mode.
      *
-     * \param[in]   OperatingMode   OperatingMode.
+     * \iparam   OperatingMode   OperatingMode.
      */
     /****************************************************************************/
     inline void SetOperatingMode(const QString &OperatingMode) {
@@ -128,7 +130,7 @@ public:
     /**
      * \brief Set base of file name for even logging.
      *
-     * \param[in]   EventLoggerBaseFileName     Base of file name for even logging.
+     * \iparam   EventLoggerBaseFileName     Base of file name for even logging.
      */
     /****************************************************************************/
     inline void SetEventLoggerBaseFileName(const QString &EventLoggerBaseFileName) {
@@ -138,7 +140,7 @@ public:
     /**
      * \brief Set serial number.
      *
-     * \param[in]   SerialNumber    Serial number.
+     * \iparam   SerialNumber    Serial number.
      */
     /****************************************************************************/
     inline void SetSerialNumber(const QString &SerialNumber) {
@@ -149,7 +151,7 @@ public:
      * \brief Set maximal file size for event logger.
      *
      * 0 means no maximal file size monitoring!
-     * \param[in]   MaxFileSize     Max file size.
+     * \iparam   MaxFileSize     Max file size.
      */
     /****************************************************************************/
     inline void SetEventLoggerMaxFileSize(qint64 MaxFileSize) {
@@ -160,7 +162,7 @@ public:
      * \brief Set maximal file count for day operation logger.
      *
      * 0 means no maximal file count monitoring!
-     * \param[in]   MaxFileCount    Max file count.
+     * \iparam   MaxFileCount    Max file count.
      */
     /****************************************************************************/
     inline void SetDayEventLoggerMaxFileCount(int MaxFileCount) {
@@ -187,10 +189,51 @@ public slots:
      *
      * The DayEventEntry is forwarded to the day operation logger instance.
      *
-     * \param[in]   Entry   Day operation entry to log.
+     * \iparam   Entry   Day operation entry to log.
      */
     /****************************************************************************/
     void SendToDayEventLogger(const DataLogging::DayEventEntry &Entry);
+
+
+//    /****************************************************************************/
+//    /**
+//     * \brief Create and list the daily run log file names.
+//     *
+//     * \oparam   FileNames   List of file names.
+//     */
+//    /****************************************************************************/
+//    void CreateAndListDailyRunLogFileName(const QStringList &FileNames);
+
+
+//    /****************************************************************************/
+//    /**
+//     * \brief Create and list the daily run log file names.
+//     *        This creates the specified file in the data stream. And also translates the
+//     *        file content by using the language file
+//     *
+//     * \iparam   FileName          Name of the file.
+//     * \iparam   LanguageFilePath  Path of the language file and path of the file.
+//     * \oparam   FileContent       Content of the daily run log file.
+//     */
+//    /****************************************************************************/
+//    void CreateSpecificDailyRunLogFile(const QString &FileName, const QString &LanguageFilePath,
+//                                       const QDataStream &FileContent);
+
+//    /****************************************************************************/
+//    /**
+//     * \brief Create the daily run log files and updated the list with file names.
+//     *        This creates the files in the file system. And also translates the
+//     *        file content by using the language file
+//     *
+//     * \iparam    LanguageFilePath  Path of the language file and path of the file.
+//     * \oparam    FileNames         List of file names.
+//     */
+//    /****************************************************************************/
+//    void CreateDailyRunLogFiles(const QString &LanguageFilePath,
+//                                       const QStringList &FileNames);
+
+
+
 }; // end class DataLoggingThreadController
 
 } // end namespace DataLogging

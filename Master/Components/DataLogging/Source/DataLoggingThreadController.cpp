@@ -23,6 +23,7 @@
 #include <DataLogging/Include/Commands/CmdForceCaching.h>
 #include <Global/Include/SystemPaths.h>
 #include <Global/Include/Utils.h>
+#include <QXmlStreamReader>
 
 #include <QMetaType>
 
@@ -109,6 +110,10 @@ void DataLoggingThreadController::OnForceCaching(Global::tRefType Ref, const Cmd
     Q_UNUSED(Ref);
     Q_UNUSED(Cmd);
 }
+
+
+
+
 
 } // end namespace DataLogging
 

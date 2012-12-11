@@ -64,16 +64,10 @@ private slots:
     void cleanupTestCase();
     /****************************************************************************/
     /**
-     * \brief Test constructors.
+     * \brief Test service data.
      */
     /****************************************************************************/
-    void utConstructor();
-    /****************************************************************************/
-    /**
-     * \brief Test Clear method.
-     */
-    /****************************************************************************/
-    void utClear();
+    void utServiceData();
 
 }; // end class TestServicePassword
 
@@ -94,12 +88,53 @@ void TestServicePassword::cleanupTestCase() {
 }
 
 /****************************************************************************/
-void TestServicePassword::utConstructor() {    
+void TestServicePassword::utServiceData() {
+    CServicePassword Service("1234", "ST8200");
+    QDateTime Today;
 
-}
+    // check the date comaprision
+    Service.m_ServiceFileContent = "<validto>0000000</validto>";
+    QCOMPARE(Service.CompareDate(), false);
+    Service.m_ServiceFileContent.clear();
+    Service.m_ServiceFileContent.append(QString("<validto>" + Today.currentDateTime().toString("yyyyMMdd") + "</validto>"));
+    QCOMPARE(Service.CompareDate(), true);
 
-/****************************************************************************/
-void TestServicePassword::utClear() {
+    // check the service ID value
+    Service.m_ServiceFileContent.clear();
+    Service.m_ServiceFileContent = "<mobileID>123456</mobileID>";
+    QCOMPARE(Service.ReadServiceID(), QString("123456"));
+
+    Service.m_ServiceFileContent.clear();
+    Service.m_ServiceFileContent = "<mobileID>789654</mobileID>";
+    QCOMPARE(Service.ReadServiceID(), QString("789654"));
+
+    Service.m_ServiceFileContent.clear();
+    Service.m_ServiceFileContent = "<mobileID>00000000</mobileID>";
+    QCOMPARE(Service.ReadServiceID(), QString("00000000"));
+
+    // check the Device tag name existence
+    Service.m_ServiceFileContent.clear();
+    Service.m_DeviceName = "ST8200";
+    Service.m_ServiceFileContent = "<instruments><instrument><name>ST8200</name><basic>1</basic><advanced>0</advanced></instrument></instruments>";
+    QCOMPARE(Service.ReadDeviceNameTagsExistence(), true);
+
+    Service.m_DeviceName = "ST 8200";
+    QCOMPARE(Service.ReadDeviceNameTagsExistence(), false);
+
+    Service.m_ServiceFileContent.clear();
+    Service.m_DeviceName = "ST8200";
+    Service.m_ServiceFileContent = "<instruments><instrument><name>ST8200</name><basic>0</basic><advanced>0</advanced></instrument></instruments>";
+    QCOMPARE(Service.ReadDeviceNameTagsExistence(), false);
+
+    Service.m_ServiceFileContent.clear();
+    Service.m_DeviceName = "ST8200";
+    Service.m_ServiceFileContent = "<instruments><instrument><name>ST 8200</name><basic>1</basic><advanced>0</advanced></instrument></instruments>";
+    QCOMPARE(Service.ReadDeviceNameTagsExistence(), false);
+
+    Service.m_ServiceFileContent.clear();
+    Service.m_DeviceName = "ST8200";
+    Service.m_ServiceFileContent = "<instruments><instrument><name>ST 8200</name><basic>0</basic><advanced>0</advanced></instrument></instruments>";
+    QCOMPARE(Service.ReadDeviceNameTagsExistence(), false);
 
 }
 

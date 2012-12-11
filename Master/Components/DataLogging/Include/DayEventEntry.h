@@ -61,7 +61,7 @@ private:
     /**
      * \brief Copy other instance to self.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     void CopyFrom(const DayEventEntry &rOther);
@@ -83,7 +83,7 @@ public:
     /**
      * \brief Copy constructor.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     DayEventEntry(const DayEventEntry &rOther);
@@ -91,8 +91,8 @@ public:
     /**
      * \brief Constructor with a translatable string.
      *
-     * \param[in]   TimeStamp       Timestamp.
-     * \param[in]   String          The complete translatable string.
+     * \iparam   TimeStamp       Timestamp.
+     * \iparam   String          The complete translatable string.
      */
     /****************************************************************************/
     DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String);
@@ -108,7 +108,7 @@ public:
     /**
      * \brief Assignment operator.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     const DayEventEntry & operator = (const DayEventEntry &rOther);

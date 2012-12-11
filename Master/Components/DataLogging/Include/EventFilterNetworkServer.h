@@ -82,8 +82,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pParent     pointer to parent object.
-     * \param[in]   Port        Port to listen on.
+     * \iparam   pParent     pointer to parent object.
+     * \iparam   Port        Port to listen on.
      */
     /****************************************************************************/
     EventFilterNetworkServer(QObject *pParent, quint16 Port);

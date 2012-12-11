@@ -44,7 +44,6 @@ private:
     QString                     m_MasterPasswordHash;   ///< Hash for master password.
     QString                     m_NewPassword;          ///< New password for the current user
     bool                        m_FallbackPassword;     ///< Fallback password flag
-    QString                     m_ServiceID;            ///< store the service ID
     /****************************************************************************/
     CPasswordManager();                                              ///< Not implemented.
     CPasswordManager(const CPasswordManager &);                       ///< Not implemented.
@@ -223,16 +222,6 @@ public:
     /****************************************************************************/
     bool ServiceAuthentication(const QString &Password, const QString &DeviceName);
 
-    /****************************************************************************/
-    /**
-     * \brief Get service ID to log it in the log file.
-     *
-     * \return   Service ID number.
-     */
-    /****************************************************************************/
-    inline QString GetServiceID() {
-        return m_ServiceID;
-    }
 
 }; // end class CPasswordManager
 

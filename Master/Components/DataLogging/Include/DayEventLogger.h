@@ -81,8 +81,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pParent             Parent.
-     * \param[in]   TheLoggingSource    Source to set in log entry.
+     * \iparam   pParent             Parent.
+     * \iparam   TheLoggingSource    Source to set in log entry.
      */
     /****************************************************************************/
     DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& fileNamePrefix);
@@ -100,7 +100,7 @@ public:
      *
      * After the configuration is saved switch to new log file.
      *
-     * \param[in]   Config      New configuration for event logger.
+     * \iparam   Config      New configuration for event logger.
      */
     /****************************************************************************/
     void Configure(const DataLogging::DayEventLoggerConfig &Config);
@@ -113,7 +113,7 @@ public:
      * The string to log is created depending on Entry data and appended to the
      * log file. If date changed it will be switched to a new log file.
      *
-     * \param[in]   Entry   Event entry to log.
+     * \iparam   Entry   Event entry to log.
      */
     /****************************************************************************/
     void Log(const DataLogging::DayEventEntry &Entry);

@@ -136,7 +136,7 @@ protected:
      *
      * Create a new file using m_File. m_File remains open for writing.
      *
-     * \param[in]   FileName    New file name to use.
+     * \iparam   FileName    New file name to use.
      */
     /****************************************************************************/
     void CreateNewFile(const QString &FileName);
@@ -144,7 +144,7 @@ protected:
     /**
      * \brief Remove file.
      *
-     * \param[in]   FileName    File name.
+     * \iparam   FileName    File name.
      */
     /****************************************************************************/
     void RemoveFile(const QString &FileName) const;
@@ -155,7 +155,7 @@ protected:
      * m_File is closed, then openend in append mode.
      * If open fails, m_File remains closed.
      *
-     * \param[in]   FileName    File name.
+     * \iparam   FileName    File name.
      */
     /****************************************************************************/
     void OpenFileForAppend(const QString &FileName);
@@ -164,7 +164,7 @@ protected:
      * \brief Convert a timestamp to string for logging.
      *
      * The format used for conversion is "yyyy-MM-dd hh:mm:ss.zzz".
-     * \param[in]   TimeStamp   Time stamp to convert into string.
+     * \iparam   TimeStamp   Time stamp to convert into string.
      * \return                  Converted time stamp.
      */
     /****************************************************************************/
@@ -201,7 +201,7 @@ protected:
      *
      * Append a line to current open log file. The trailing "\n" is also appended.
      *
-     * \param[in]   Line    line to append (without trailing "\n")
+     * \iparam   Line    line to append (without trailing "\n")
      */
     /****************************************************************************/
     void AppendLine(QString Line);
@@ -210,9 +210,9 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pParent             Parent.
-     * \param[in]   TheLoggingSource    Source to set in log entry.
-     * \param[in]   FormatVersion       Format version for output file.
+     * \iparam   pParent             Parent.
+     * \iparam   TheLoggingSource    Source to set in log entry.
+     * \iparam   FormatVersion       Format version for output file.
      */
     /****************************************************************************/
     BaseLogger(Global::EventObject *pParent, const QString &TheLoggingSource, int FormatVersion);

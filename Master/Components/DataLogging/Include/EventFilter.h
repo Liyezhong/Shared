@@ -58,7 +58,7 @@ private:
         /**
          * \brief Check if a line is in the list of enabled lines.
          *
-         * \param[in]   Line    Line to insert.
+         * \iparam   Line    Line to insert.
          * \return              true if line in list.
          */
         /****************************************************************************/
@@ -70,7 +70,7 @@ private:
         /**
          * \brief Add line to list of enabled lines.
          *
-         * \param[in]   Line    Line to insert.
+         * \iparam   Line    Line to insert.
          */
         /****************************************************************************/
         inline void AddLine(int Line) {
@@ -80,8 +80,8 @@ private:
         /**
          * \brief Add line range to list of enabled lines.
          *
-         * \param[in]   LineStart   First line to insert.
-         * \param[in]   LineStop    Last line to insert.
+         * \iparam   LineStart   First line to insert.
+         * \iparam   LineStop    Last line to insert.
          */
         /****************************************************************************/
         inline void AddLineRange(int LineStart, int LineStop) {
@@ -104,7 +104,7 @@ private:
         /**
          * \brief Copy constructor.
          *
-         * \param[in]   rOther      Instance to copy from.
+         * \iparam   rOther      Instance to copy from.
          */
         /****************************************************************************/
         inline FileInfo(const FileInfo &rOther) {
@@ -141,7 +141,7 @@ private:
     /**
      * \brief Remove any path fragments from file name.
      *
-     * \param[in]   FileName    File name to be processed.
+     * \iparam   FileName    File name to be processed.
      * \return                  File name withouth path.
      */
     /****************************************************************************/
@@ -168,8 +168,8 @@ public:
     /**
      * \brief Add line to list of enabled lines for a specific file.
      *
-     * \param[in]   FileName    File name.
-     * \param[in]   Line        Line to insert.
+     * \iparam   FileName    File name.
+     * \iparam   Line        Line to insert.
      */
     /****************************************************************************/
     void AddLine(const QString &FileName, int Line);
@@ -177,9 +177,9 @@ public:
     /**
      * \brief Add line range to list of enabled lines for a specific file.
      *
-     * \param[in]   FileName    File name.
-     * \param[in]   LineStart   First line to insert.
-     * \param[in]   LineStop    Last line to insert.
+     * \iparam   FileName    File name.
+     * \iparam   LineStart   First line to insert.
+     * \iparam   LineStop    Last line to insert.
      */
     /****************************************************************************/
     void AddLineRange(const QString &FileName, int LineStart, int LineStop);
@@ -187,8 +187,8 @@ public:
     /**
      * \brief Check if it is allowed to send event.
      *
-     * \param[in]   FileName    File in which event occured.
-     * \param[in]   Line        Line in which event occured.
+     * \iparam   FileName    File in which event occured.
+     * \iparam   Line        Line in which event occured.
      * \return                  true if allowed.
      */
     /****************************************************************************/

@@ -53,7 +53,7 @@ private:
      *
      * Has an empty function body. Overwrite as needed in derived classes.
      *
-     * \param[in]   FileName    File name of file to backup.
+     * \iparam   FileName    File name of file to backup.
      */
     /****************************************************************************/
     virtual void BackupFile(const QString & FileName);
@@ -65,9 +65,9 @@ protected:
      * Set configuration data. It consists of the operating mode, the serial number
      * and the absolute path in which log files reside.
      *
-     * \param[in]   OperatingMode       Operating mode.
-     * \param[in]   SerialNumber        Serial number.
-     * \param[in]   Path                Absolute path.
+     * \iparam   OperatingMode       Operating mode.
+     * \iparam   SerialNumber        Serial number.
+     * \iparam   Path                Absolute path.
      */
     /****************************************************************************/
     void SetConfiguration(const QString &OperatingMode, const QString &SerialNumber, const QString &Path);
@@ -80,8 +80,8 @@ protected:
      * If reading the header or header information not OK, a backup of the file is done
      * (if BackupOldFile = true) and a new file is created, which remains open for appending data.
      *
-     * \param[in]   FileName        File name of file to switch to.
-     * \param[in]   BackupOldFile   If true, make a backup of old file
+     * \iparam   FileName        File name of file to switch to.
+     * \iparam   BackupOldFile   If true, make a backup of old file
      */
     /****************************************************************************/
     void SwitchToFile(const QString &FileName, bool BackupOldFile);
@@ -101,7 +101,7 @@ protected:
      * OK means: header information can be read and the expected and read
      * format version and serial number coincide.
      *
-     * \param[in]   FileName    File name.
+     * \iparam   FileName    File name.
      * \return                  true if header OK.
      */
     /****************************************************************************/
@@ -141,9 +141,9 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pParent             Parent.
-     * \param[in]   TheLoggingSource    Source to set in log entry.
-     * \param[in]   FormatVersion       Format version for output file.
+     * \iparam   pParent             Parent.
+     * \iparam   TheLoggingSource    Source to set in log entry.
+     * \iparam   FormatVersion       Format version for output file.
      */
     /****************************************************************************/
     BaseLoggerReusable(Global::EventObject *pParent, const QString &TheLoggingSource, int FormatVersion);

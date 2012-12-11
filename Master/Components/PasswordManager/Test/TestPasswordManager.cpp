@@ -97,6 +97,13 @@ private slots:
      */
     /****************************************************************************/
     void utPasswords();
+
+    /****************************************************************************/
+    /**
+     * \brief Test fallback password values.
+     */
+    /****************************************************************************/
+    void utFallbackPassword();
 }; // end class TestPasswordManager
 
 /****************************************************************************/
@@ -239,6 +246,11 @@ void TestPasswordManager::utPasswords() {
     QCOMPARE(Obj.CheckPassword("Name4", "password4"),   false);
     QCOMPARE(Obj.CheckPassword("Name4", "Password4"),   false);
 
+    Obj.SetNewPassword("123456");
+    QCOMPARE(Obj.GetNewPassword(), QString("123456"));
+    Obj.SetNewPassword("00000");
+    QCOMPARE(Obj.GetNewPassword(), QString("00000"));
+
     // invalid password
     try {
         Obj.SetPassword("123", "123");
@@ -248,6 +260,26 @@ void TestPasswordManager::utPasswords() {
     } catch (...) {
         QFAIL("You should never get here!");
     }
+}
+
+/****************************************************************************/
+void TestPasswordManager::utFallbackPassword() {
+    // start with empty test object
+    CPasswordManager Obj("0DBCEC4A5FE4AE88C60B2DB1724563E2");
+    QCOMPARE(Obj.CheckFallbackPassword(Obj.ComputeFallbackPassword()), true);
+
+    QCOMPARE(Obj.CheckFallbackPassword(123456789789456), false);
+    QCOMPARE(Obj.CheckFallbackPassword(12379464), false);
+    QCOMPARE(Obj.CheckFallbackPassword(000000), false);
+
+    QCOMPARE(Obj.CheckFallbackPassword(78945821), false);
+
+    Obj.SetFallbackPasswordFlag(true);
+    QCOMPARE(Obj.GetFallbackPasswordFlag(), true);
+
+    Obj.SetFallbackPasswordFlag(false);
+    QCOMPARE(Obj.GetFallbackPasswordFlag(), false);
+
 }
 
 } // end namespace PasswordManager
