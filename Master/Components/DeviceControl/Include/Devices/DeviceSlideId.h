@@ -74,6 +74,7 @@ private:
     bool DisableLaser(QEvent *p_Event);
     bool OnEnableLaser(QEvent *p_Event);
     bool OnDisableLaser(QEvent *p_Event);
+    bool ErrorSwitchLaser(QEvent *p_Event);
     bool CountSlide(QEvent *p_Event);
 
     CBaseModule *mp_BaseModule;         //!< Base module of the slide ID

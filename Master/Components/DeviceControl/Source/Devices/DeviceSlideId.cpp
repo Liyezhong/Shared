@@ -199,9 +199,15 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     p_Stopping->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
             *this, &CDeviceSlideId::OnEnableLaser, p_Stopped));
+    p_Stopping->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::ErrorSwitchLaser, p_Started));
     p_Starting->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
             *this, &CDeviceSlideId::OnDisableLaser, p_Started));
+    p_Starting->addTransition(new CSlideIdTransition(
+            mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
+            *this, &CDeviceSlideId::ErrorSwitchLaser, p_Stopped));
 
     // Increment the slide counter
     p_Started->addTransition(new CSlideIdTransition(
@@ -334,17 +340,39 @@ bool CDeviceSlideId::DisableLaser(QEvent *p_Event)
 
 bool CDeviceSlideId::OnEnableLaser(QEvent *p_Event)
 {
+    bool Success = true;
+
     ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
-    m_SlideCounter = 0;
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        Success = false;
+    }
+    else {
+        m_SlideCounter = 0;
+    }
     emit ReportStartCounting(ReturnCode);
 
-    return true;
+    return Success;
 }
 
 bool CDeviceSlideId::OnDisableLaser(QEvent *p_Event)
 {
+    bool Success = true;
+
     ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        Success = false;
+    }
     emit ReportStopCounting(ReturnCode, m_SlideCounter);
+
+    return Success;
+}
+
+bool CDeviceSlideId::ErrorSwitchLaser(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode) {
+        return false;
+    }
 
     return true;
 }
