@@ -25,6 +25,7 @@
 #include "TestStubDataManager/Containers/Racks/Include/Rack.h"
 
 
+
 namespace DataManager {
 
 /****************************************************************************/
@@ -33,7 +34,7 @@ namespace DataManager {
  */
 /****************************************************************************/
 CRack::CRack() :
-    m_RFIDUniqueID(0), m_RFIDUserData(0), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false),
+    m_RFIDUniqueID(0), m_RFIDUserData(0), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false), m_UseSepia(false),
     m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeColorado(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
     m_EndTimeStation(QDateTime::fromTime_t(0)), m_Color("white"), m_EndTimeSepia(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_Orientation(false),
     m_ActualSlideForecastValue(0), m_ActualSlides(0)
@@ -49,7 +50,7 @@ CRack::CRack() :
  */
 /****************************************************************************/
 CRack::CRack(const quint32 RFIDUniqueID, const quint32 RFIDUserData) :
-    m_RFIDUniqueID(RFIDUniqueID), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false),
+    m_RFIDUniqueID(RFIDUniqueID), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false), m_UseSepia(false),
     m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeColorado(QDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
     m_EndTimeStation(QDateTime::fromTime_t(0)), m_Color("white"), m_EndTimeSepia(QDateTime::fromTime_t(0)),
     m_ActualSlideForecastValue(0), m_ActualSlides(0)
@@ -102,7 +103,7 @@ void CRack::SetRFIDUserData(const quint32 RFIDUserData)
     int Value = (RFIDUserData >> 1) & 0x7F;
 
     // set color of the Rack
-    switch (Value) {        
+    switch (Value) {
         default:
         case WHITE:
             SetColor("white");
@@ -143,7 +144,7 @@ void CRack::SetRFIDUserData(const quint32 RFIDUserData)
  */
 /****************************************************************************/
 bool CRack::IsRack5()
-{    
+{
     // Move the bits to right upto 8 times them Mask the data with 0xFF
     // this gives the size of the rack
     quint32 Value = (GetRFIDUserData() >> 8) & 0xFF;
@@ -190,6 +191,15 @@ bool CRack::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool CompleteDat
     else {
         XmlStreamWriter.writeAttribute("SepiaStation", "false");
     }
+
+    // check for the Sepia usage
+    if (GetUseSepia()) {
+        XmlStreamWriter.writeAttribute("UseSepia", "true");
+    }
+    else {
+        XmlStreamWriter.writeAttribute("UseSepia", "false");
+    }
+
     XmlStreamWriter.writeAttribute("StartTime",GetStartTime().toString("'M'M'd'd'y'yyyyhh:mm:ss"));
     XmlStreamWriter.writeAttribute("EndTimeColorado", GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss"));
     XmlStreamWriter.writeAttribute("StationID", GetStationID());
@@ -264,6 +274,18 @@ bool CRack::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool CompleteD
     }
     else {
         SetSepiaStation(false);
+    }
+
+    // check Sepia usage
+    if (!XmlStreamReader.attributes().hasAttribute("UseSepia")) {
+        qDebug() << "### attribute <UseSepia> is missing => abort reading";
+        return false;
+    }
+    if (XmlStreamReader.attributes().value("UseSepia").toString() == "true") {
+        SetUseSepia(true);
+    }
+    else {
+        SetUseSepia(false);
     }
 
     // check Station time attribute
@@ -375,7 +397,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRack& Rack)
     }
 
     // write enddocument
-    XmlStreamWriter.writeEndDocument();    
+    XmlStreamWriter.writeEndDocument();
 
     return OutDataStream;
 }
@@ -446,7 +468,7 @@ CRack& CRack::operator=(const CRack& SourceRack)
         // read the data from data stream to destination object
         DataStream >> *this;
 
-        delete p_TempByteArray;       
+        delete p_TempByteArray;
     }
     return *this;
 }

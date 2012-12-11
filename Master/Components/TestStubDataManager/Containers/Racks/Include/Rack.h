@@ -45,6 +45,7 @@ protected:
     QString m_ProgramID;                    ///< Program ID
     bool m_Transported;                     ///< Rack mode (transport/station)
     bool m_SepiaStation;                    ///< Is the rack in Sepia?
+    bool m_UseSepia;                        ///< Is the rack relevant for Sepia ?
     QDateTime m_StartTime;                  ///< Scheduler claculation time
     QDateTime m_EndTimeColorado;            ///< End time Colorado
     QString m_StationID;                    ///< Station ID
@@ -136,6 +137,24 @@ public:
      */
     /****************************************************************************/
     void SetSepiaStation(const bool SepiaStation) { m_SepiaStation = SepiaStation; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get the whether it is relevant for Sepia
+     *
+     *  \return bool
+     */
+    /****************************************************************************/
+    bool GetUseSepia() { return m_UseSepia; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Set the Sepia relevance
+     *
+     *  \iparam UseSepia = Usage within Sepia
+     */
+    /****************************************************************************/
+    void SetUseSepia(const bool UseSepia) { m_UseSepia = UseSepia; }
 
     /****************************************************************************/
     /*!
