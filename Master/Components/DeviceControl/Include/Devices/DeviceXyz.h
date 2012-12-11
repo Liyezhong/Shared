@@ -154,7 +154,8 @@ typedef enum {
     XYZ_STATE_ATTACH,
     XYZ_STATE_DETACH,
     XYZ_STATE_LET_DOWN_RACK,
-    XYZ_STATE_PULL_UP_RACK
+    XYZ_STATE_PULL_UP_RACK,
+    XYZ_STATE_COUNT_SLIDES
 } XyzState_t;
 
 typedef enum {
@@ -184,6 +185,7 @@ signals:
     void DetachRack();
     void LetDownRack();
     void PullUpRack();
+    void CountSlides();
 
     void ReadRfid();
     void ReadLiquidLevel();
@@ -195,6 +197,7 @@ signals:
     void ReportDetachRack(ReturnCode_t ReturnCode);
     void ReportLetDownRack(ReturnCode_t ReturnCode);
     void ReportPullUpRack(ReturnCode_t ReturnCode);
+    void ReportCountSlides(ReturnCode_t ReturnCode);
 
     void ReportReadRfid(ReturnCode_t ReturnCode);
     void ReportReadLiquidLevel(ReturnCode_t ReturnCode);
@@ -218,6 +221,8 @@ protected:
     bool Trans_Idle_PullupRack(QEvent *p_Event);
     bool Trans_Idle_AttachRack(QEvent *p_Event);
     bool Trans_Idle_DetachRack(QEvent *p_Event);
+    bool Trans_Idle_CountSlides(QEvent *p_Event);
+
 
     // Move -> Idle State
     // On Movement completion

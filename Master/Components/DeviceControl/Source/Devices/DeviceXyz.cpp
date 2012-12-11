@@ -141,6 +141,9 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
     p_Idle->addTransition(new CXyzTransition(this, SIGNAL(DetachRack()),
                                                   *this, &CDeviceXyz::Trans_Idle_DetachRack, p_Move));
 
+    p_Idle->addTransition(new CXyzTransition(this, SIGNAL(CountSlides()),
+                                                  *this, &CDeviceXyz::Trans_Idle_CountSlides, p_Move));
+
     // Active -> Idle
     p_Move->addTransition(new CXyzTransition(mp_MoveXyz, SIGNAL(ReportMove(ReturnCode_t)),
                                                        *this, &CDeviceXyz::Trans_Move_Idle, p_Idle));
@@ -296,6 +299,23 @@ bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
     return true;
 }
 
+bool CDeviceXyz::Trans_Idle_CountSlides(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event);
+
+    if (IsNewState(XYZ_STATE_COUNT_SLIDES, m_StationColumn, m_StationRow))
+    {
+        quint32 Y = m_StaionPos[m_StationColumn][m_StationRow].PositionY + 600;
+
+        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                     Y, m_TransportRackProfile[Y_AXIS],
+                                     NO_CHANGE, 0));
+    }
+
+    MoveNextStep();
+    return true;
+}
+
 bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CXyzTransition::GetEventValue(p_Event, 0);
@@ -336,6 +356,10 @@ bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
 
         case XYZ_STATE_PULL_UP_RACK:
             ReportPullUpRack(DCL_ERR_FCT_CALL_SUCCESS);
+            break;
+
+        case XYZ_STATE_COUNT_SLIDES:
+            ReportCountSlides(DCL_ERR_FCT_CALL_SUCCESS);
             break;
         }
 
