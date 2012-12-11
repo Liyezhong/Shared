@@ -253,17 +253,17 @@ bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
         quint32 AttachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
         quint32 AttachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
 
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     NO_CHANGE, 0,
-                                     AttachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
+//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+//                                     NO_CHANGE, 0,
+//                                     AttachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
 
         m_WayPoint.append(new CPoint(NO_CHANGE, 0,
                                      AttachPositionY, m_TransportRackProfile[Y_AXIS],
                                      NO_CHANGE, 0));
 
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     NO_CHANGE, 0,
-                                     Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
+//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+//                                     NO_CHANGE, 0,
+//                                     Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
     }
 
     MoveNextStep();
@@ -279,17 +279,17 @@ bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
         quint32 DetachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
         quint32 DetachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
 
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     NO_CHANGE, 0,
-                                     DetachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
+//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+//                                     NO_CHANGE, 0,
+//                                     DetachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
 
         m_WayPoint.append(new CPoint(NO_CHANGE, 0,
                                      DetachPositionY, m_TransportRackProfile[Y_AXIS],
                                      NO_CHANGE, 0));
 
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     NO_CHANGE, 0,
-                                     Z_UP_WITHOUT_RACK, m_TransportRackProfile[Z_AXIS]));
+//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+//                                     NO_CHANGE, 0,
+//                                     Z_UP_WITHOUT_RACK, m_TransportRackProfile[Z_AXIS]));
     }
 
     MoveNextStep();
@@ -465,6 +465,7 @@ void CDeviceXyz::FillColumnRowPosition()
         {
         case XYZ_ROW1:
             PositionX += ROW1_X_OFFSET;
+            PositionY += ROW1_Y_OFFSET;
             break;
         case XYZ_ROW2:
             PositionX += ROW2_X_OFFSET;

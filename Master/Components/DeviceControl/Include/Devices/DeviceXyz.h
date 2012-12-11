@@ -67,7 +67,7 @@ typedef enum {
 //#define XYZ_BL_X_RIGHT_DISTANCE  75          // in mm
 //#define XYZ_BL_X_START_RIGHT    XYZ_BL_X_RIGHT_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
 #define XYZ_BL_X_START_RIGHT    110
-#define XYZ_BL_Y_START          80
+#define XYZ_BL_Y_START          70
 //#define XYZ_BL_Y_START          90
 
 #define XYZ_BL_X_DISTANCE       55          // in mm
@@ -77,17 +77,20 @@ typedef enum {
 #define XYZ_BL_Y_OFFSET         XYZ_BL_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
 //#define XYZ_BL_Y_OFFSET         980
 
-#define XYZ_BL_Z_DOWN_POS       1900        //! Normal Station
+//#define XYZ_BL_Z_DOWN_POS       1900        //! Normal Station
+#define XYZ_BL_Z_DOWN_POS       1870        //! Normal Station
 #define XYZ_HS_Z_DOWN_POS       1850        //! Heated Cuvettes
 
 #define ROW4_Y_DISTANCE         (156-148)   // in mm
 #define ROW4_Y_OFFSET           ROW4_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
 //#define ROW4_Y_OFFSET           60          //! Bath layout to Drawer Offset
 
-#define ROW1_X_OFFSET           10
+#define ROW1_X_OFFSET           5
+#define ROW1_Y_OFFSET           5
+
 #define ROW2_X_OFFSET           10
 #define ROW3_X_OFFSET           10
-#define ROW4_X_OFFSET           15
+#define ROW4_X_OFFSET           5
 
 // Rack Transfer
 #define XYZ_RTS_ROW             XYZ_ROW2
@@ -102,7 +105,7 @@ typedef enum {
 #define XYZ_SLIDE_COUNTER_COL           XYZ_COL2
 
 //#define XYZ_SLIDE_COUNTER_X_POS         240
-#define XYZ_SLIDE_COUNTER_X_POS         260
+#define XYZ_SLIDE_COUNTER_X_POS         255
 //#define XYZ_SLIDE_COUNTER_Y_START       1800
 #define XYZ_SLIDE_COUNTER_Y_START       2000
 #define XYZ_SLIDE_COUNTER_Y_END         (XYZ_SLIDE_COUNTER_Y_START + 680)

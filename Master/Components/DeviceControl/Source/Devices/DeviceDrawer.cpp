@@ -279,7 +279,7 @@ bool CDeviceDrawer::Trans_Configure(QEvent *p_Event)
 
     // Configure open close position & profile
     p_DrawerMotion->SetOpenPosition(2000);
-    p_DrawerMotion->SetClosePosition(10);
+    p_DrawerMotion->SetClosePosition(0);
     p_DrawerMotion->SetOpenProfile(0);
     p_DrawerMotion->SetCloseProfile(0);
 
