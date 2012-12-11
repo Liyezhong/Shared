@@ -164,7 +164,7 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
             *this, &CDeviceSlideId::OnActInputValue, p_WaitForAckOff));
 
     // Disable the laser again
-    p_WaitForValue->addTransition(new CSlideIdTransition(
+    p_WaitForAckOff->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
             *this, &CDeviceSlideId::NormalOutputValueAckn, p_InitEnd));
 
@@ -182,10 +182,10 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     // Default NACKs
     p_SlideCounter->addTransition(new CSlideIdTransition(
             this, SIGNAL(StartCounting()),
-            *this, &CDeviceSlideId::EnableLaser));
+            *this, &CDeviceSlideId::NackStartCounting));
     p_SlideCounter->addTransition(new CSlideIdTransition(
             this, SIGNAL(StopCounting()),
-            *this, &CDeviceSlideId::DisableLaser));
+            *this, &CDeviceSlideId::NackStopCounting));
 
     // Start switching the state
     p_Stopped->addTransition(new CSlideIdTransition(
@@ -198,13 +198,13 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     // Switch the state
     p_Stopping->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
-            *this, &CDeviceSlideId::OnEnableLaser, p_Stopped));
+            *this, &CDeviceSlideId::OnDisableLaser, p_Stopped));
     p_Stopping->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
             *this, &CDeviceSlideId::ErrorSwitchLaser, p_Started));
     p_Starting->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
-            *this, &CDeviceSlideId::OnDisableLaser, p_Started));
+            *this, &CDeviceSlideId::OnEnableLaser, p_Started));
     p_Starting->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
             *this, &CDeviceSlideId::ErrorSwitchLaser, p_Stopped));
