@@ -305,7 +305,7 @@ bool CDeviceXyz::Trans_Idle_CountSlides(QEvent *p_Event)
 
     if (IsNewState(XYZ_STATE_COUNT_SLIDES, m_StationColumn, m_StationRow))
     {
-        quint32 Y = m_StaionPos[m_StationColumn][m_StationRow].PositionY + 600;
+        quint32 Y = m_StaionPos[m_StationColumn][m_StationRow].PositionY + 500;
 
         m_WayPoint.append(new CPoint(NO_CHANGE, 0,
                                      Y, m_TransportRackProfile[Y_AXIS],
