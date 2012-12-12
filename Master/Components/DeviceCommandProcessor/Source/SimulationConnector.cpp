@@ -93,8 +93,11 @@ void SimulationConnector::sendMessageToClient(QString message)
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_0);
         out << message;
-        m_clientConnection->write(block);
-        m_clientConnection->flush();
+        if (m_clientConnection->isOpen())
+        {
+            m_clientConnection->write(block);
+            m_clientConnection->flush();
+        }
 
         if (m_verbose)
         {
