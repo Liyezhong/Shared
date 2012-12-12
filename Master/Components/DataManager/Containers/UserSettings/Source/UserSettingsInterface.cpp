@@ -228,7 +228,7 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
 
     XmlStreamWriter.setDevice(&IODevice);
     XmlStreamWriter.setAutoFormatting(true);
-    //XmlStreamWriter.setAutoFormattingIndent(4);
+
     // start the XML Document
     XmlStreamWriter.writeStartDocument();
 
@@ -302,6 +302,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
     QXmlStreamReader XmlStreamReader;
 
     XmlStreamReader.setDevice(&IODevice);
+
 
     if (!mp_UserSettings->DeserializeContent(XmlStreamReader, CompleteData)) {
         qDebug() << "CDataRackList::Read failed. Read Racks failed!";
@@ -386,7 +387,8 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
         //            m_VerifierList.append(p_VerifierInterface);
         //        }
     }
-
+    XmlStreamReader.device()->reset();
+    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
     return true;
 }
 
