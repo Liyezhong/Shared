@@ -136,6 +136,12 @@ void BaseThreadController::DoSendCommand(Global::tRefType Ref, const Global::Com
         if(Cmd->GetTimeout() != Global::Command::NOTIMEOUT) {
             // create descriptor
             Global::PendingCmdDescriptorShP_t PCDShP(new Global::PendingCmdDescriptor(this, Ref, Cmd->GetName(), Cmd->GetTimeout()));
+
+            if (this->thread() != PCDShP.GetPointerToUserData()->thread())
+            {
+                qDebug() << "BaseThreadController::DoSendCommand, current thread" << this->thread() << "PCDShP thread" << PCDShP.GetPointerToUserData()->thread();
+            }
+
             // connect descriptor to timeout slot
             CONNECTSIGNALSLOT(PCDShP.GetPointerToUserData(), TimeoutOccured(Global::tRefType, QString),
                               this, OnProcessTimeoutSlot(Global::tRefType, QString));

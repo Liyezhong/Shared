@@ -94,7 +94,7 @@ void ThreadController::DoSendDataChanged(const Global::CommandShPtr_t &Cmd) {
 void ThreadController::SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd)
 {
     // send command using own command channel
-    qDebug() << "++++ Threads::ThreadController::SendCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "Channel" << m_CommandChannel.m_channelName << "Timeout" << Cmd.GetPointerToUserData()->GetTimeout();
+    qDebug() << "++++ Threads::ThreadController::SendCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "Channel" << m_CommandChannel.m_channelName << "Timeout" << Cmd.GetPointerToUserData()->GetTimeout() << "Thread" << this->thread();
 
     DoSendCommand(Ref, Cmd, m_CommandChannel);
     // return computed Ref
