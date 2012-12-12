@@ -182,7 +182,16 @@ void CMessageDlg::HideButtons()
     mp_Ui->Button2->hide();
     mp_Ui->Button3->hide();
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Function to hide the center and Right corner Button
+ */
+/****************************************************************************/
+void CMessageDlg::HideButtonsOneAndTwo()
+{
+    mp_Ui->Button1->hide();
+    mp_Ui->Button2->hide();
+}
 /****************************************************************************/
 /*!
  *  \brief Slot for the show() functions of the dialog

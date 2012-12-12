@@ -59,6 +59,7 @@ public:
     void SetButtonText(qint32 ButtonNumber, QString ButtonText);
     void HideCenterButton();
     void HideButtons();
+    void HideButtonsOneAndTwo();
 
 public slots:
     void Show();
