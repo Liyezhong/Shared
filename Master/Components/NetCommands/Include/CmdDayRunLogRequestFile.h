@@ -36,18 +36,16 @@ class CmdDayRunLogRequestFile : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdDayRunLogRequestFile &);
 public:
     static QString NAME;    ///< Command name.
-    CmdDayRunLogRequestFile(int Timeout, const QString &FileName, const QString &LanguageName);
+    CmdDayRunLogRequestFile(int Timeout, const QString &FileName);
     CmdDayRunLogRequestFile();                                                    ///< Not implemented.
     ~CmdDayRunLogRequestFile();
     virtual QString GetName() const;
     QString GetFileName() const;
-    QString GetLanguageName() const;
 private:
     CmdDayRunLogRequestFile(const CmdDayRunLogRequestFile &);                       ///< Not implemented.
     const CmdDayRunLogRequestFile & operator = (const CmdDayRunLogRequestFile &);   ///< Not implemented.
 private:
     QString     m_FileName;      ///< file name of the Daily run log file.
-    QString     m_LanguageName;      ///< name of the current language.
 }; // end class CmdDayRunLogRequestFile
 
 /****************************************************************************/
@@ -64,7 +62,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdDayRunLogRequest
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_FileName << Cmd.m_LanguageName;
+    Stream << Cmd.m_FileName;
     return Stream;
 }
 
@@ -82,7 +80,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdDayRunLogRequestFile &
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
-    Stream >> Cmd.m_FileName >> Cmd.m_LanguageName;
+    Stream >> Cmd.m_FileName;
     return Stream;
 }
 

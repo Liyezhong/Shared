@@ -48,18 +48,6 @@ private:
 
     /****************************************************************************/
     /**
-     * \brief Reads the language file
-     *
-     * \iparam    LanguageEventStringFilePath  Path of the language event string
-     *                                         file and path of the file.
-     *
-     * \return    QHash
-     */
-    /****************************************************************************/
-    ListOfLanguageIDs_t ReadTheLanguageFile(const QString &LanguageEventStringFilePath);
-
-    /****************************************************************************/
-    /**
      * \brief Create the daily run log files and updated the list with file names.
      *        This creates the files in the file system. And also translates the
      *        file content by using the language file
@@ -75,6 +63,8 @@ public:
     /****************************************************************************/
     /**
      * \brief Constructor
+     *
+     * \iparam    FilePath  Path of the log file folder.
      */
     /****************************************************************************/
     DayLogFileInformation(QString FilePath);
@@ -104,13 +94,10 @@ public:
      *        file content by using the language file
      *
      * \iparam   FileName                     Name of the file.
-     * \iparam   LanguageEventStringFilePath  Path of the language event string
-     *                                        file and path of the file.
      * \oparam   FileContent                  Content of the daily run log file.
      */
     /****************************************************************************/
-    void CreateSpecificDailyRunLogFile(const QString &FileName, const QString &LanguageEventStringFilePath,
-                                       const QByteArray &FileContent);
+    void CreateSpecificDailyRunLogFile(const QString &FileName, const QByteArray &FileContent);
 
     /****************************************************************************/
     /**
@@ -118,13 +105,10 @@ public:
      *        This creates the files in the file system. And also translates the
      *        file content by using the language file
      *
-     * \iparam    LanguageEventStringFilePath  Path of the language event string
-     *                                         file and path of the file.
      * \oparam    FileNames                    List of file names.
      */
     /****************************************************************************/
-    void CreateDailyRunLogFiles(const QString &LanguageEventStringFilePath,
-                                       const QStringList &FileNames);
+    void CreateDailyRunLogFiles(const QStringList &FileNames);
 
 };// end class DayLogFileInformation
 

@@ -146,15 +146,8 @@ void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, cons
 
     QByteArray FileContent;
 
-    // get the lanagugae name in the format of de_DE
-    QString LanguageName(QLocale(Global::StringToLanguage(Cmd.GetLanguageName())).name());
-    // remove the DE
-    LanguageName.truncate(LanguageName.lastIndexOf('_'));
-    QString EventStringsFileName = "EventStrings_" + LanguageName + ".xml";
 
-    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(),
-                                                         Global::SystemPaths::Instance().GetTranslationsPath()
-                                                         + QDir::separator() + EventStringsFileName, FileContent);
+    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(), FileContent);
     // get the new command reference
     Global::tRefType NewRef = GetNewCommandRef();
     SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReplyFile(1000, FileContent)));

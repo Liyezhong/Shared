@@ -30,13 +30,11 @@ QString CmdDayRunLogRequestFile::NAME = "NetCommands::CmdDayRunLogRequestFile";
  *
  * \param[in]   Timeout         Timeout for command.
  * \param[in]   FileName        name of the file.
- * \param[in]   LanguageName    name of the current lanaguage.
  */
 /****************************************************************************/
-CmdDayRunLogRequestFile::CmdDayRunLogRequestFile(int Timeout, const QString &FileName, const QString &LanguageName) :
+CmdDayRunLogRequestFile::CmdDayRunLogRequestFile(int Timeout, const QString &FileName) :
     Command(Timeout),
-    m_FileName(FileName),
-    m_LanguageName(LanguageName)
+    m_FileName(FileName)
 {
 }
 
@@ -80,18 +78,6 @@ QString CmdDayRunLogRequestFile::GetName() const
 QString CmdDayRunLogRequestFile::GetFileName() const
 {
     return m_FileName;
-}
-
-/****************************************************************************/
-/*!
- *  \brief   This function returns the current language of the system
- *
- *  \return  Name of the language
- */
-/****************************************************************************/
-QString CmdDayRunLogRequestFile::GetLanguageName() const
-{
-    return m_LanguageName;
 }
 
 } // end namespace NetCommands

@@ -39,51 +39,6 @@ DayLogFileInformation::DayLogFileInformation(QString FilePath) :
 }
 
 /****************************************************************************/
-ListOfLanguageIDs_t DayLogFileInformation::ReadTheLanguageFile(const QString &LanguageEventStringFilePath) {
-
-    ListOfLanguageIDs_t LanguageIDs;
-
-    QFile LanguageFile(LanguageEventStringFilePath);
-    if (!LanguageFile.open(QIODevice::ReadOnly)) {
-        return LanguageIDs;
-    }
-
-    QXmlStreamReader LanguageXmlReader(&LanguageFile);
-
-    (void)LanguageXmlReader.readElementText(QXmlStreamReader::IncludeChildElements); //lint -e534
-
-    while (!LanguageXmlReader.atEnd()) {
-        if (LanguageXmlReader.readNext() == QXmlStreamReader::Invalid) {
-            qDebug() << "Reading " << LanguageXmlReader.name() << " at line number: " << LanguageXmlReader.lineNumber();
-            qDebug() << "Invalid Token. Error: " << LanguageXmlReader.errorString();
-        }
-        if (LanguageXmlReader.isStartElement()) {
-            // check for the node name <string>
-            if (LanguageXmlReader.name().compare("string") == 0) {
-                QString ID;
-                QString LanguageText;
-                // read the language id
-                if (LanguageXmlReader.attributes().hasAttribute("id")) {
-                    ID = LanguageXmlReader.attributes().value("id").toString();
-                }
-                // read the langugae text
-                if (LanguageXmlReader.attributes().hasAttribute("text")) {
-                    LanguageText = LanguageXmlReader.attributes().value("text").toString();
-                }
-                // check both are having data then only add to the hash table
-                if (ID.compare("") != 0 && LanguageText.compare("") != 0) {
-                    LanguageIDs.insert(ID, LanguageText);
-                }
-            }
-        }
-    }
-    LanguageFile.close();
-
-    return LanguageIDs;
-}
-
-
-/****************************************************************************/
 void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &ListLanguageIDs,
                                                                  const QString &FileName, const QByteArray &ByteArray) {
 
@@ -135,10 +90,10 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
 
 
 /****************************************************************************/
-void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileName, const QString &LanguageEventStringFilePath,
+void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileName,
                                    const QByteArray &FileContent) {
 
-    ListOfLanguageIDs_t LanguageFileDetails = ReadTheLanguageFile(LanguageEventStringFilePath);
+    ListOfLanguageIDs_t LanguageFileDetails;
 
     QDir LogDirectory(m_LogFilePath);
     QByteArray& FileData = const_cast<QByteArray&>(FileContent);
@@ -154,15 +109,14 @@ void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileNam
 }
 
 /****************************************************************************/
-void DayLogFileInformation::CreateDailyRunLogFiles(const QString &LanguageEventStringFilePath,
-                                   const QStringList &FileNames) {
+void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames) {
 
     // removes the constant cast
     QStringList& ListOfFile = const_cast<QStringList&>(FileNames);
     // set the current directory as log files
     QDir LogDirectory(m_LogFilePath);
     // read the language file
-    ListOfLanguageIDs_t LanguageFileDetails = ReadTheLanguageFile(LanguageEventStringFilePath);
+    ListOfLanguageIDs_t LanguageFileDetails;
 
     QProcess::execute("mkdir " + m_LogFilePath + QDir::separator() + "DailyRun");
 
