@@ -1009,7 +1009,7 @@ void CKeyBoard::ValidateString(QString InputString)
         MessageDlg.exec();
         m_EnteredCharsValid = false ;
     }
-    else if(InputString.at(0) == ' '){
+    else if(InputString.at(0) == ' ') {
         MessageDlg.SetText(QString(tr("The first character must not be a space")));
         MessageDlg.exec();
         m_EnteredCharsValid = false ;
@@ -1029,7 +1029,7 @@ void CKeyBoard::ValidateString(QString InputString)
          m_EnteredCharsValid = false ;
     }
     else {
-       switch(int (m_ValidationType)){
+       switch(int (m_ValidationType)) {
     case 1:
             if(EnteredCharLen >= 2){
                 if(InputString.at(1) == ' ') {
@@ -1085,8 +1085,6 @@ void CKeyBoard::ValidateString(QString InputString)
             m_EnteredCharsValid = true;
             NotifyObserver();
         }
-
-       // }
         break;
     default:
          m_EnteredCharsValid = true;
