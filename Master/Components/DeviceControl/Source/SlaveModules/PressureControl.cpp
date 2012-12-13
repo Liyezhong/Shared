@@ -60,7 +60,7 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     m_unCanIDServiceSensorReq(0), m_unCanIDServiceSensor(0),
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),m_unCanIDValveSet(0),
-    m_aktionTimespan(0)
+    m_unCanIDCalibration(0),m_aktionTimespan(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -153,6 +153,9 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
     //m_unCanIDValveSet           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlValveSet", bChannel, m_pParent->GetNodeID());
     m_unCanIDValveSet = 0x1098101F;
+
+    m_unCanIDCalibration      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlCalibration", bChannel, m_pParent->GetNodeID());
+
     //FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
     FILE_LOG_L(laINIT, llDEBUG) << "   EventWarning       : 0x" << std::hex << m_unCanIDEventWarning;
@@ -239,6 +242,11 @@ ReturnCode_t CPressureControl::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDValveSet, this);
     }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDCalibration, this);
+    }
+
     return RetVal;
 }
 
@@ -500,7 +508,18 @@ void CPressureControl::HandleCommandRequestTask()
                 //because there is no slave acknowledge, we send our own acknowldege
                 emit ReportRefValveState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].ValveIndex, m_ModuleCommand[idx].ValveState);
             }
+            else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_CALIBRATION)
+            {
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl Calibration";
 
+                //send the pressure ctrl status to the slave
+
+                RetVal = SendCANMsgCalibration(m_ModuleCommand[idx].EnableCalibration);
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+
+                //because there is no slave acknowledge, we send our own acknowldege
+                //emit ReportRefCalibration(GetModuleHandle(), RetVal, m_ModuleCommand[idx].EnableCalibration);
+            }
 
             //---------------------------
             //check for success
@@ -1045,11 +1064,25 @@ ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 NumberValve, quint8 fla
     canmsg.can_dlc = 2;
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
-    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetPressure: CanID: 0x" << std::hex << m_unCanIDPressureSet;
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetPressure: CanID: 0x" << std::hex << m_unCanIDValveSet;
 
     return retval;
 }
+ReturnCode_t CPressureControl::SendCANMsgCalibration(bool Enable)
+{
+    ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
+    can_frame canmsg;
 
+    canmsg.can_id = m_unCanIDCalibration;
+    canmsg.data[0] = (quint8)Enable;
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgCalibration: Data0: 0x" << std::hex << (quint8) canmsg.data[0];
+    canmsg.can_dlc = 1;
+    retval = m_pCANCommunicator->SendCOB(canmsg);
+
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetPressure: CanID: 0x" << std::hex << m_unCanIDCalibration;
+
+    return retval;
+}
 ///****************************************************************************/
 ///*!
 // *  \brief  Send the CAN message to request the 'Temperature' CAN-Message
@@ -1253,7 +1286,25 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
     return RetVal;
 }
 
+ReturnCode_t CPressureControl::SetCalibration(bool Enable)
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
+    if(SetModuleTask(FM_PRESSURE_CMD_TYPE_CALIBRATION, &CmdIndex))
+    {
+        m_ModuleCommand[CmdIndex].EnableCalibration = Enable;
+        FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Enable Calibration: " << Enable;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;
+    }
+
+    return RetVal;
+}
 ///****************************************************************************/
 ///*!
 // *  \brief  Request the actual temperature
