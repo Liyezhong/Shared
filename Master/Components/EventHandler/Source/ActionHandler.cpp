@@ -9,10 +9,6 @@ ActionHandler::ActionHandler(EventHandler::EventHandlerThreadController *p_Event
     mpEventHandlerThreadController = p_EventHandlerThreadController;
 }
 
-
-//ActionHandler::ActionHandler(){
-//}
-
 ActionHandler::~ActionHandler() {
 }
 

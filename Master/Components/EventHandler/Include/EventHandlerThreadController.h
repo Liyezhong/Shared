@@ -39,6 +39,7 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
+#include <EventHandler/Include/ActionHandler.h>
 
 
 
@@ -46,7 +47,14 @@ namespace NetCommands {
     class CmdAcknEventReport;
 }
 
+
+namespace EventHandler
+{
+class ActionHandler;
+}
 namespace EventHandler {
+
+
 
 /****************************************************************************/
 /**
@@ -202,7 +210,7 @@ private:
     const EventHandlerThreadController & operator = (const EventHandlerThreadController &);  ///< Not implemented.
 
     Platform::AlarmHandler *mpAlarmHandler;
-
+    EventHandler::ActionHandler * mpActionHandler;
     DataManager::CUserSettings *mpUserSettings;
 
 

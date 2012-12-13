@@ -598,6 +598,14 @@ void EventHandlerThreadController::CleanupAndDestroyObjects()
 /****************************************************************************/
 void EventHandlerThreadController::OnGoReceived()
 {
+    mpActionHandler = new ActionHandler((EventHandlerThreadController *)this);
+
+        CHECKPTR(mpActionHandler);
+       
+        CONNECTSIGNALSLOT(this, ForwardToErrorHandler(const DataLogging::DayEventEntry &, const quint32),
+                              mpActionHandler, ReceiveEvent(const DataLogging::DayEventEntry &, const quint32 ));
+
+
 }
 
 /****************************************************************************/

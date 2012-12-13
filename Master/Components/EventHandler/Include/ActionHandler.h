@@ -49,12 +49,17 @@
 
 #include <DataLogging/Include/DayEventEntry.h>
 
+namespace EventHandler
+{
+class EventHandlerThreadController;
+}
+
 namespace EventHandler {
 
 class ActionHandler : public  EventHandler::ErrorHandler {
     Q_OBJECT
 public:
-    ActionHandler(EventHandler::EventHandlerThreadController *p_EventHandlerThreadController);
+    ActionHandler(EventHandlerThreadController *p_EventHandlerThreadController);
     ~ActionHandler();
 private:
 
