@@ -42,6 +42,9 @@ DataLoggingThreadController::DataLoggingThreadController(Global::gSourceType The
     m_DayEventLogger(NULL, "DataLogging", fileNamePrefix),
     m_pEventFilterNetworkServer(NULL)
 {
+
+    qRegisterMetaType<DataLogging::DayEventEntry>("DataLogging::DayEventEntry");
+
 }
 
 /****************************************************************************/
