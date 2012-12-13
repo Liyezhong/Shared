@@ -155,7 +155,7 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
     XmlStreamWriter.writeEndElement();
     // write sound end
     XmlStreamWriter.writeEndElement();
-
+    qDebug()<<"Serialize Value List"<<m_ValueList;
     QHashIterator<QString, QString> i(m_ValueList);
     while (i.hasNext())
     {
@@ -174,51 +174,11 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
         }
     }
 
-
-//    // write agitation
-//    XmlStreamWriter.writeStartElement("Agitation");
-//    XmlStreamWriter.writeAttribute("Speed", QString::number(GetAgitationSpeed(), 10));
-//    XmlStreamWriter.writeEndElement();
-//    // write oven
-//    XmlStreamWriter.writeStartElement("Oven");
-//    XmlStreamWriter.writeAttribute("StartMode", Global::OvenStartModeToString(GetOvenStartMode()));
-//    XmlStreamWriter.writeAttribute("Temp", QString::number(GetOvenTemp(), 10));
-//    XmlStreamWriter.writeEndElement();
-//    // write rms
-//    XmlStreamWriter.writeStartElement("Rms");
-//    XmlStreamWriter.writeAttribute("State", Global::OnOffStateToString(GetRMSState()));
-//    XmlStreamWriter.writeEndElement();
-//    // write water
-//    XmlStreamWriter.writeStartElement("Water");
-//    XmlStreamWriter.writeAttribute("Type", Global::WaterTypeToString(GetWaterType()));
-//    XmlStreamWriter.writeEndElement();
-
-//    // write Leica programs attributes
-//    XmlStreamWriter.writeStartElement("Leica");
-//    XmlStreamWriter.writeAttribute("AgitationSpeed", QString::number(GetLeicaAgitationSpeed(), 10));
-//    XmlStreamWriter.writeAttribute("OvenTemp", QString::number(GetLeicaOvenTemp(), 10));
-//    XmlStreamWriter.writeEndElement();
-
-
-//    // write Loader
-//    XmlStreamWriter.writeStartElement("Loader");
-//    // store the loader reagents count
-//    XmlStreamWriter.writeAttribute("Reagent1", m_LoaderReagent1);
-//    XmlStreamWriter.writeAttribute("Reagent2", m_LoaderReagent2);
-//    XmlStreamWriter.writeAttribute("Reagent3", m_LoaderReagent3);
-//    XmlStreamWriter.writeAttribute("Reagent4", m_LoaderReagent4);
-//    XmlStreamWriter.writeAttribute("Reagent5", m_LoaderReagent5);
-//    //    for (int ReagentCount = 0; ReagentCount < m_LoaderReagents.count(); ReagentCount++) {
-//    //        // write the loader reagents
-//    //        XmlStreamWriter.writeAttribute("Reagent" + QString::number(ReagentCount + 1), m_LoaderReagents.value(ReagentCount));
-//    //    }
-
-//    XmlStreamWriter.writeEndElement();  // End Settings
-
     if (CompleteData) {
         // do nothing
     }
-
+    XmlStreamWriter.device()->reset();
+    qDebug()<<"Serializing User Settings"<<XmlStreamWriter.device()->readAll();
     return true;
 }
 
@@ -238,7 +198,6 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
            ((XmlStreamReader.name() != "ClassTemporaryData") || (XmlStreamReader.tokenType() != QXmlStreamReader::StartElement)))
     {
         XmlStreamReader.readNextStartElement();
-//        qDebug() << "CUserSettings::DeserializeContent, checking" << XmlStreamReader.name() << XmlStreamReader.tokenType();
 
         if (XmlStreamReader.tokenType() == QXmlStreamReader::StartElement)
         {
@@ -248,6 +207,7 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
                     qDebug() << "CUserSettings::DeserializeContent: Read localization is failed";
                     return false;
                 }
+                qDebug()<<GetDateFormat()<<GetTimeFormat()<<GetTemperatureFormat();
             }
             else if (XmlStreamReader.name() == "Sound")
             {
@@ -268,130 +228,12 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
         }
     }
 
-//    // Look for node <Localization>
-//    if (!Helper::ReadNode(XmlStreamReader, "Localization")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Localization";
-//        return false;
-//    }
-//    if (!ReadLocalization(XmlStreamReader)) {
-//        qDebug() << "CUserSettings::DeserializeContent: Read localization is failed";
-//        return false;
-//    }
-
-//    // Look for node <Sound>
-//    if (!Helper::ReadNode(XmlStreamReader, "Sound")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Sound";
-//        return false;
-//    }
-//    if (!ReadSoundSettings(XmlStreamReader)) {
-//        qDebug() << "CUserSettings::DeserializeContent: Read sound settings is failed";
-//        return false;
-//    }
-
-//    // read Agitation
-//    if (!Helper::ReadNode(XmlStreamReader, "Agitation")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Agitation";
-//        return false;
-//    }
-//    // read Agitation Speed
-//    if (!XmlStreamReader.attributes().hasAttribute("Speed")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <Speed> is missing => abort reading";
-//        return false;
-//    }
-//    SetAgitationSpeed(XmlStreamReader.attributes().value("Speed").toString().toInt());
-
-//    // read Oven
-//    if (!Helper::ReadNode(XmlStreamReader, "Oven")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Oven";
-//        return false;
-//    }
-//    // read start mode
-//    if (!XmlStreamReader.attributes().hasAttribute("StartMode")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <StartMode> is missing => abort reading";
-//        return false;
-//    }
-//    // read start mode
-//    QString StartModeStr = XmlStreamReader.attributes().value("StartMode").toString();
-//    Global::OvenStartMode  StartMode = Global::StringToOvenStartMode(StartModeStr, false);
-//    if(StartMode == Global::OVENSTART_UNDEFINED) {
-//        // wrong format. throw exception.
-//        //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_OVENSTARTMODE, StartModeStr);
-//    }
-//    SetOvenStartMode(StartMode);
-
-//    // read oven temp
-//    if (!XmlStreamReader.attributes().hasAttribute("Temp")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <Temp> is missing => abort reading";
-//        return false;
-//    }
-//    SetOvenTemp(XmlStreamReader.attributes().value("Temp").toString().toInt());
-
-//    // read rms
-//    if (!Helper::ReadNode(XmlStreamReader, "Rms")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Rms";
-//        return false;
-//    }
-
-//    // read rms state
-//    if (!XmlStreamReader.attributes().hasAttribute("State")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <State> is missing => abort reading";
-//        return false;
-//    }
-//    SetRMSState(Global::StringToOnOffState(XmlStreamReader.attributes().value("State").toString(), false));
-
-//    // read water
-//    if (!Helper::ReadNode(XmlStreamReader, "Water")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Water";
-//        return false;
-//    }
-//    // read water type
-//    if (!XmlStreamReader.attributes().hasAttribute("Type")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <Type> is missing => abort reading";
-//        return false;
-//    }
-//    SetWaterType(Global::StringToWaterType(XmlStreamReader.attributes().value("Type").toString(), false));
-
-//    // Read leica parameters and attributes
-//    if (!Helper::ReadNode(XmlStreamReader, "Leica")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Leica";
-//        return false;
-//    }
-
-//    // read Leica Agitation Speed
-//    if (!XmlStreamReader.attributes().hasAttribute("AgitationSpeed")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <AgitationSpeed> is missing => abort reading";
-//        return false;
-//    }
-//    SetLeicaAgitationSpeed(XmlStreamReader.attributes().value("AgitationSpeed").toString().toInt());
-
-//    // read oven temp
-//    if (!XmlStreamReader.attributes().hasAttribute("OvenTemp")) {
-//        qDebug() << "CUserSettings::DeserializeContent:### attribute <OvenTemp> is missing => abort reading";
-//        return false;
-//    }
-//    SetLeicaOvenTemp(XmlStreamReader.attributes().value("OvenTemp").toString().toInt());
-
-
-//    if (!ReadLoaderReagents(XmlStreamReader)) {
-//        qDebug() << "CUserSettings::DeserializeContent: Read localization is failed";
-//        return false;
-//    }
-
-
-//    //    for (int ReagentCount = 1; ReagentCount <= 5; ReagentCount++) {
-//    //        // read five reagents
-//    //        if (!XmlStreamReader.attributes().hasAttribute("Reagent" + QString::number(ReagentCount))) {
-
-//    //        }
-//    //        // append the string list with the reagents
-//    //        m_LoaderReagents.append(XmlStreamReader.attributes().value("Reagent" + QString::number(ReagentCount)).toString());
-
-//    //    }
-
     if (CompleteData) {
         // do nothing
     }
-
+    XmlStreamReader.device()->reset();
+    qDebug()<<"UserSettings Class";
+    qDebug()<<"UserSettings"<<XmlStreamReader.device()->readAll();
     return true;
 }
 
@@ -585,10 +427,12 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSe
     QIODevice* IODevice = OutDataStream.device();
 
     XmlStreamWriter.setDevice(IODevice);
-
+    XmlStreamWriter.setAutoFormatting(true);
     // start the XML Document
     XmlStreamWriter.writeStartDocument();
-
+    // write the documnet type declaration
+    XmlStreamWriter.writeDTD("<!DOCTYPE Settings>");
+    XmlStreamWriter.writeStartElement("Settings");
     if (!p_TempUserSettings->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CUserSettings::Operator Streaming (SerializeContent) failed.";
         // throws an exception
@@ -597,7 +441,8 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSe
 
     // write enddocument
     XmlStreamWriter.writeEndDocument();
-
+    qDebug()<<XmlStreamWriter.device()->reset();
+    qDebug()<<"Serialize User Settings"<< XmlStreamWriter.device()->readAll();
     return OutDataStream;
 }
 
@@ -625,7 +470,8 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserSettings& UserSettings)
         // throws an exception
         THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
-
+    XmlStreamReader.device()->reset();
+    qDebug()<<">> Stream OPERATOR "<<XmlStreamReader.device()->readAll();
     return InDataStream;
 }
 
