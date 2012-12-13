@@ -56,6 +56,7 @@ class CPressureControl : public CFunctionModule
     ReturnCode_t GetHardwareStatus();
 
     ReturnCode_t SetValve(quint8 ValveIndex, quint8 ValveState);
+    ReturnCode_t SetCalibration(bool Enable);
 signals:
 //    /****************************************************************************/
 //    /*!
@@ -189,7 +190,7 @@ signals:
     void ReportPressureRange(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qint8 Pressure);
 
     void ReportRefValveState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 ValveIndex, quint8 ValveState);
-
+  
 private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
@@ -226,6 +227,7 @@ private:
 
     ReturnCode_t SendCANMsgSetValve(quint8 NumberValve, quint8 flags);
 
+    ReturnCode_t SendCANMsgCalibration(bool Enable);
 
 
 //    //! handles the receipt of can response message 'ServiceSensor'
@@ -267,7 +269,8 @@ private:
         FM_PRESSURE_CMD_TYPE_REQ_OPTIME    = 8, //!< request operating time
         FM_PRESSURE_CMD_TYPE_REQ_FANSPEED  = 9, //!< request fan speed
         FM_PRESSURE_CMD_TYPE_REQ_HARDWARE  = 10, //!< request hardware status
-        FM_PRESSURE_CMD_TYPE_SET_VALVE  = 11
+        FM_PRESSURE_CMD_TYPE_SET_VALVE  = 11,
+        FM_PRESSURE_CMD_TYPE_CALIBRATION  = 12
     } CANPressureCtrlCmdType_t;
 
 //    /*! motor command data, used for internal data transfer*/
@@ -283,6 +286,7 @@ private:
         quint8 Index;                           //!< sensor, heater or fan index
         quint8 ValveIndex;                      // Valve index
         quint8 ValveState;                      // Valve State. 0: off, 1: on
+        bool EnableCalibration;
     } PressureCtrlCommand_t;
 
     PressureCtrlCommand_t m_ModuleCommand[MAX_PRESSURE_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -315,6 +319,7 @@ private:
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDValveSet;               //!< CAN-message id of 'TBD' message
+    quint32 m_unCanIDCalibration;
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
 };
