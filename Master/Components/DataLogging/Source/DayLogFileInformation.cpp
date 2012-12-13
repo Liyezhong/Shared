@@ -39,11 +39,11 @@ DayLogFileInformation::DayLogFileInformation(QString FilePath) :
 }
 
 /****************************************************************************/
-ListOfLanguageIDs_t DayLogFileInformation::ReadTheLanguageFile(const QString &LanguageFilePath) {
+ListOfLanguageIDs_t DayLogFileInformation::ReadTheLanguageFile(const QString &LanguageEventStringFilePath) {
 
     ListOfLanguageIDs_t LanguageIDs;
 
-    QFile LanguageFile(LanguageFilePath);
+    QFile LanguageFile(LanguageEventStringFilePath);
     if (!LanguageFile.open(QIODevice::ReadOnly)) {
         return LanguageIDs;
     }
@@ -135,10 +135,10 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
 
 
 /****************************************************************************/
-void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileName, const QString &LanguageFilePath,
+void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileName, const QString &LanguageEventStringFilePath,
                                    const QByteArray &FileContent) {
 
-    ListOfLanguageIDs_t LanguageFileDetails = ReadTheLanguageFile(LanguageFilePath);
+    ListOfLanguageIDs_t LanguageFileDetails = ReadTheLanguageFile(LanguageEventStringFilePath);
 
     QDir LogDirectory(m_LogFilePath);
     QByteArray& FileData = const_cast<QByteArray&>(FileContent);
@@ -154,7 +154,7 @@ void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileNam
 }
 
 /****************************************************************************/
-void DayLogFileInformation::CreateDailyRunLogFiles(const QString &LanguageFilePath,
+void DayLogFileInformation::CreateDailyRunLogFiles(const QString &LanguageEventStringFilePath,
                                    const QStringList &FileNames) {
 
     // removes the constant cast
@@ -162,7 +162,7 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QString &LanguageFilePa
     // set the current directory as log files
     QDir LogDirectory(m_LogFilePath);
     // read the language file
-    ListOfLanguageIDs_t LanguageFileDetails = ReadTheLanguageFile(LanguageFilePath);
+    ListOfLanguageIDs_t LanguageFileDetails = ReadTheLanguageFile(LanguageEventStringFilePath);
 
     QProcess::execute("mkdir " + m_LogFilePath + QDir::separator() + "DailyRun");
 

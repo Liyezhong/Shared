@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file CmdUserAuthenticationReply.h
+/*! \file CmdChangeUserLevelReply.h
  *
- *  \brief CmdUserAuthenticationReply command definition.
+ *  \brief CmdChangeUserLevelReply command definition.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 30.10.2012
@@ -18,8 +18,8 @@
  */
 /****************************************************************************/
 
-#ifndef NETCOMMANDS_CMDUSERAUTHENTICATIONREPLY_H
-#define NETCOMMANDS_CMDUSERAUTHENTICATIONREPLY_H
+#ifndef NETCOMMANDS_CmdChangeUserLevelReply_H
+#define NETCOMMANDS_CmdChangeUserLevelReply_H
 
 #include <Global/Include/Commands/Command.h>
 #include <Global/Include/GlobalDefines.h>
@@ -31,23 +31,23 @@ namespace NetCommands {
  *  \brief  This class implements a authenticated user levels.
  */
 /****************************************************************************/
-class CmdUserAuthenticationReply : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdUserAuthenticationReply &);
-    friend QDataStream & operator >> (QDataStream &, CmdUserAuthenticationReply &);
+class CmdChangeUserLevelReply : public Global::Command {
+    friend QDataStream & operator << (QDataStream &, const CmdChangeUserLevelReply &);
+    friend QDataStream & operator >> (QDataStream &, CmdChangeUserLevelReply &);
 public:
     static QString NAME;    ///< Command name.
-    CmdUserAuthenticationReply(int Timeout, const Global::GuiUserLevel &UserLevel);
-    CmdUserAuthenticationReply();
-    ~CmdUserAuthenticationReply();
+    CmdChangeUserLevelReply(int Timeout, const Global::GuiUserLevel &UserLevel);
+    CmdChangeUserLevelReply();
+    ~CmdChangeUserLevelReply();
     virtual QString GetName() const;
     Global::GuiUserLevel GetUserAuthenticatedLevel() const;
 private:
     
-    CmdUserAuthenticationReply(const CmdUserAuthenticationReply &);                       ///< Not implemented.
-    const CmdUserAuthenticationReply & operator = (const CmdUserAuthenticationReply &);   ///< Not implemented.
+    CmdChangeUserLevelReply(const CmdChangeUserLevelReply &);                       ///< Not implemented.
+    const CmdChangeUserLevelReply & operator = (const CmdChangeUserLevelReply &);   ///< Not implemented.
 private:
     Global::GuiUserLevel  m_UserLevel;      ///< Type of the user authenticated
-}; // end class CmdUserAuthenticationReply
+}; // end class CmdChangeUserLevelReply
 
 /****************************************************************************/
 /**
@@ -58,7 +58,7 @@ private:
      * \return                      Stream.
      */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdUserAuthenticationReply &Cmd)
+inline QDataStream & operator << (QDataStream &Stream, const CmdChangeUserLevelReply &Cmd)
 {
     // copy base class data
     Cmd.CopyToStream(Stream);
@@ -76,7 +76,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdUserAuthenticati
      * \return                      Stream.
      */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdUserAuthenticationReply &Cmd)
+inline QDataStream & operator >> (QDataStream &Stream, CmdChangeUserLevelReply &Cmd)
 {
     qint32 UserLevel;
     // copy base class data
@@ -88,4 +88,4 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdUserAuthenticationRepl
 
 } // end namespace NetCommands
 
-#endif // NETCOMMANDS_CMDUSERAUTHENTICATIONREPLY_H
+#endif // NETCOMMANDS_CmdChangeUserLevelReply_H

@@ -23,7 +23,7 @@
 #include <DataLogging/Include/Commands/CmdForceCaching.h>
 #include <Global/Include/SystemPaths.h>
 #include <Global/Include/Utils.h>
-#include <QXmlStreamReader>
+
 
 #include <QMetaType>
 
@@ -73,7 +73,13 @@ void DataLoggingThreadController::CreateAndInitializeObjects() {
                                                             m_DayEventLoggerMaxFileCount,
                                                             m_EventLoggerBaseFileName));
 
-    RegisterCommandForProcessing<DataLogging::CmdForceCaching, DataLoggingThreadController>(&DataLoggingThreadController::OnForceCaching, this);
+    RegisterCommandForProcessing<DataLogging::CmdForceCaching, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnForceCaching, this);
+    RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequest, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnRunLogRequest, this);
+    RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequestFile, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnRunLogRequestFile, this);
+
 }
 
 /****************************************************************************/
@@ -114,6 +120,45 @@ void DataLoggingThreadController::OnForceCaching(Global::tRefType Ref, const Cmd
     Q_UNUSED(Cmd);
 }
 
+
+/****************************************************************************/
+void DataLoggingThreadController::OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd) {
+
+    Q_UNUSED(Ref);
+    Q_UNUSED(Cmd);
+
+    // create object to create the file
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+
+    QStringList FileNames;
+    DayRunFilesInformation.CreateAndListDailyRunLogFileName(FileNames);
+    // get the new command reference
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReply(1000, FileNames)));
+}
+
+/****************************************************************************/
+void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequestFile &Cmd) {
+
+    Q_UNUSED(Ref);
+    // create object to create the file
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+
+    QByteArray FileContent;
+
+    // get the lanagugae name in the format of de_DE
+    QString LanguageName(QLocale(Global::StringToLanguage(Cmd.GetLanguageName())).name());
+    // remove the DE
+    LanguageName.truncate(LanguageName.lastIndexOf('_'));
+    QString EventStringsFileName = "EventStrings_" + LanguageName + ".xml";
+
+    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(),
+                                                         Global::SystemPaths::Instance().GetTranslationsPath()
+                                                         + QDir::separator() + EventStringsFileName, FileContent);
+    // get the new command reference
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReplyFile(1000, FileContent)));
+}
 
 
 

@@ -24,6 +24,10 @@
 #include <Threads/Include/ThreadController.h>
 #include <DataLogging/Include/DayEventLogger.h>
 #include <DataLogging/Include/DayLogFileInformation.h>
+#include <NetCommands/Include/CmdDayRunLogRequest.h>
+#include <NetCommands/Include/CmdDayRunLogRequestFile.h>
+#include <NetCommands/Include/CmdDayRunLogReply.h>
+#include <NetCommands/Include/CmdDayRunLogReplyFile.h>
 
 // DestroyObjects is the cleanup function for class DataLoggingThreadController,
 // so we inform lint about this.
@@ -101,6 +105,24 @@ protected:
      */
     /****************************************************************************/
     void OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd);
+    /****************************************************************************/
+    /**
+     * \brief Request for daily run log file names.
+     *
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     */
+    /****************************************************************************/
+    void OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd);
+    /****************************************************************************/
+    /**
+     * \brief Request for daily run log file content.
+     *
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     */
+    /****************************************************************************/
+    void OnRunLogRequestFile(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequestFile &Cmd);
 public:
     /****************************************************************************/
     /**

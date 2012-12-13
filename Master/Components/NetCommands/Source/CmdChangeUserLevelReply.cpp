@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file CmdUserAuthenticationReply.cpp
+/*! \file CmdChangeUserLevelReply.cpp
  *
- *  \brief CmdUserAuthenticationReply command implementation.
+ *  \brief CmdChangeUserLevelReply command implementation.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 30.10.2012
@@ -18,11 +18,11 @@
  */
 /****************************************************************************/
 
-#include <NetCommands/Include/CmdUserAuthenticationReply.h>
+#include <NetCommands/Include/CmdChangeUserLevelReply.h>
 
 namespace NetCommands {
 
-QString CmdUserAuthenticationReply::NAME = "NetCommands::CmdUserAuthenticationReply";
+QString CmdChangeUserLevelReply::NAME = "NetCommands::CmdChangeUserLevelReply";
 
 /****************************************************************************/
 /*!
@@ -32,7 +32,7 @@ QString CmdUserAuthenticationReply::NAME = "NetCommands::CmdUserAuthenticationRe
  * \param[in]   UserLevel   Type of the user
  */
 /****************************************************************************/
-CmdUserAuthenticationReply::CmdUserAuthenticationReply(int Timeout, const Global::GuiUserLevel &UserLevel) :
+CmdChangeUserLevelReply::CmdChangeUserLevelReply(int Timeout, const Global::GuiUserLevel &UserLevel) :
     Command(Timeout),
     m_UserLevel(UserLevel)
 {
@@ -43,7 +43,7 @@ CmdUserAuthenticationReply::CmdUserAuthenticationReply(int Timeout, const Global
  *  \brief   Constructor
  */
 /****************************************************************************/
-CmdUserAuthenticationReply::CmdUserAuthenticationReply() :
+CmdChangeUserLevelReply::CmdChangeUserLevelReply() :
     Command(0)
 {
 }
@@ -53,7 +53,7 @@ CmdUserAuthenticationReply::CmdUserAuthenticationReply() :
  *  \brief   Destructor
  */
 /****************************************************************************/
-CmdUserAuthenticationReply::~CmdUserAuthenticationReply()
+CmdChangeUserLevelReply::~CmdChangeUserLevelReply()
 {
 }
 
@@ -64,7 +64,7 @@ CmdUserAuthenticationReply::~CmdUserAuthenticationReply()
  *  \return  command name as string
  */
 /****************************************************************************/
-QString CmdUserAuthenticationReply::GetName() const
+QString CmdChangeUserLevelReply::GetName() const
 {
     return NAME;
 }
@@ -76,7 +76,7 @@ QString CmdUserAuthenticationReply::GetName() const
  *  \return  Authenticated user level
  */
 /****************************************************************************/
-Global::GuiUserLevel CmdUserAuthenticationReply::GetUserAuthenticatedLevel() const
+Global::GuiUserLevel CmdChangeUserLevelReply::GetUserAuthenticatedLevel() const
 {
     return m_UserLevel;
 }
