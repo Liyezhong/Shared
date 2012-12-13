@@ -40,7 +40,7 @@ SimulationConnector::SimulationConnector()
     : m_clientConnection(0)
     , m_commfile(new QFile("simulationInput.txt"))
     , m_outStream(m_commfile)
-    , m_verbose(true)
+    , m_verbose(false)
 {
 
     m_tcpServer = new QTcpServer(this);
@@ -93,6 +93,7 @@ void SimulationConnector::sendMessageToClient(QString message)
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_0);
         out << message;
+        out.device()->reset();
         if (m_clientConnection->isOpen())
         {
             m_clientConnection->write(block);
