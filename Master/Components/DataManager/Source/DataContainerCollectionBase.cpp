@@ -78,6 +78,7 @@ bool CDataContainerCollectionBase::DeinitContainers()
     }
     delete SettingsInterface;
     delete DeviceConfigurationInterface;
+    qDebug()<<"CDataContainerCollectionBase !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\n\n #####";
     return true;
 }
 

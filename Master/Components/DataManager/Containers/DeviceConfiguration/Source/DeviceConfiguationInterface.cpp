@@ -69,24 +69,19 @@ CDeviceConfigurationInterface::CDeviceConfigurationInterface(const CDeviceConfig
 /****************************************************************************/
 CDeviceConfigurationInterface::~CDeviceConfigurationInterface()
 {
-    if (mp_ReadWriteLock != NULL) {
-        try {
-            delete mp_ReadWriteLock;
-        }
-        catch(...) {
-            //to please PClint
-        }
-        mp_ReadWriteLock = NULL;
+    try {
+        delete mp_ReadWriteLock;
+    }
+    catch(...) {
+        //to please PClint
     }
     // clear the device configuration
-    if (mp_DeviceConfig != NULL) {
-        try {
-            delete mp_DeviceConfig;
-        }
-        catch(...) {
-            //to please PClint
-        }
-        mp_DeviceConfig = NULL;
+
+    try {
+        delete mp_DeviceConfig;
+    }
+    catch(...) {
+        //to please PClint
     }
 }
 
@@ -413,7 +408,7 @@ bool CDeviceConfigurationInterface::Read(QString FileName)
         QWriteLocker locker(mp_ReadWriteLock);
         m_FileName = "UNDEFINED";
         // clear content and add default values
-        SetDefaultAttributes();
+        //SetDefaultAttributes();
 
         // create the file
         QFile File(FileName);

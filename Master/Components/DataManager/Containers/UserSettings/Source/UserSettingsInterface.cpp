@@ -77,16 +77,15 @@ CUserSettingsInterface::~CUserSettingsInterface()
         }
         mp_ReadWriteLock = NULL;
     }
-    // clear the user settings
-    if (mp_UserSettings != NULL) {
-        try {
-            delete mp_UserSettings;
-        }
-        catch(...) {
-            //to please PClint
-        }
-        mp_UserSettings = NULL;
+
+    try {
+        delete mp_UserSettings;
     }
+    catch(...) {
+        //to please PClint
+    }
+    mp_UserSettings = NULL;
+
 }
 
 /****************************************************************************/
@@ -442,7 +441,7 @@ bool CUserSettingsInterface::Read(QString FileName)
         QWriteLocker locker(mp_ReadWriteLock);
 
         // clear content and add default values
-        SetDefaultAttributes();
+        //SetDefaultAttributes();
 
         // Initialise the m_Filename to a known string "UNDEFINED"
         m_FileName = "UNDEFINED";
