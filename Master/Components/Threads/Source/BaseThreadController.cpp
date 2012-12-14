@@ -139,7 +139,7 @@ void BaseThreadController::DoSendCommand(Global::tRefType Ref, const Global::Com
 
             if (this->thread() != PCDShP.GetPointerToUserData()->thread())
             {
-                qDebug() << "BaseThreadController::DoSendCommand" << Cmd.GetPointerToUserData()->GetName() << "current thread" << this->thread() << "PCDShP thread" << PCDShP.GetPointerToUserData()->thread();
+                qDebug() << "BaseThreadController::DoSendCommand, mismatch of threads" << Cmd.GetPointerToUserData()->GetName() << "current thread" << this->thread() << "PCDShP thread" << PCDShP.GetPointerToUserData()->thread();
             }
 
             // connect descriptor to timeout slot
