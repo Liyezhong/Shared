@@ -25,9 +25,9 @@
 #include <QLocale>
 #include <QXmlStreamReader>
 
-#include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
-#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/DataContainerBase.h"
 
 namespace DataManager {
 

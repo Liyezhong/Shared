@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QFile>
 
-#include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
+#include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
 
 
 

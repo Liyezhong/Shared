@@ -24,7 +24,7 @@
 #include <QFile>
 #include <QDomDocument>
 
-#include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
+#include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
 
 
 

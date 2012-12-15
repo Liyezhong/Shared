@@ -21,8 +21,8 @@
 #include <QDebug>
 #include <QFile>
 
-#include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h"
-#include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
+#include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h"
+#include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
 
 
 

@@ -23,8 +23,8 @@
 #include <QString>
 #include <QXmlStreamReader>
 
-#include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
 namespace DataManager {
 
