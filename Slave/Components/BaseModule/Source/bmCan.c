@@ -656,7 +656,7 @@ Error_t canInitializeLayer (void) {
     if ((Count = canSetupAcceptFilters (Filters, ELEMENTS(Filters))) < 0) {
         return (CanHandle);
     }
-    if ((CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, canHandleInterrupts)) < 0) {
+    if ((CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, canHandleInterrupts, TRUE)) < 0) {
         return (CanHandle);
     }
     if ((Status = halCanSetup(CanHandle, Filters, Count)) < 0) {
