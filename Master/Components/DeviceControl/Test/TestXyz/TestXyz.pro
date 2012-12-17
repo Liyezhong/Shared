@@ -2,7 +2,7 @@
     error("../DeviceControl.pri not found")
 }
 
-TARGET = utDrawer
+TARGET = utXyz
 
 TEMPLATE = app
 

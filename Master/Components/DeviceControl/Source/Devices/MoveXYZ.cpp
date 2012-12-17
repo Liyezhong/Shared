@@ -43,6 +43,15 @@ CMoveXYZ::CMoveXYZ(CStepperMotor &XAxisMotor, CStepperMotor &YAxisMotor, CSteppe
     connect(p_AbortingAckY, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionY(quint32)));
     connect(p_AbortingAckZ, SIGNAL(ReportPosition(quint32)), this, SLOT(SetPositionZ(quint32)));
 
+    // Connect Error signal
+    connect(p_MovingAckX, SIGNAL(MoveError(ReturnCode_t)), this, SLOT(MoveError(ReturnCode_t)));
+    connect(p_MovingAckY, SIGNAL(MoveError(ReturnCode_t)), this, SLOT(MoveError(ReturnCode_t)));
+    connect(p_MovingAckZ, SIGNAL(MoveError(ReturnCode_t)), this, SLOT(MoveError(ReturnCode_t)));
+
+    connect(p_AbortingAckX, SIGNAL(MoveError(ReturnCode_t)), this, SLOT(MoveError(ReturnCode_t)));
+    connect(p_AbortingAckY, SIGNAL(MoveError(ReturnCode_t)), this, SLOT(MoveError(ReturnCode_t)));
+    connect(p_AbortingAckZ, SIGNAL(MoveError(ReturnCode_t)), this, SLOT(MoveError(ReturnCode_t)));
+
     // State Transitions
     // Idle -> Moving
     p_Idle->addTransition(new CMoveXyzTransition(this, SIGNAL(Move(quint32,quint8,quint32,quint8,quint32,quint8)),
@@ -131,6 +140,8 @@ bool CMoveXYZ::Trans_Idle_Moving(QEvent *p_Event)
         return false;
     }
 
+    m_ReturnCode = DCL_ERR_FCT_CALL_SUCCESS;
+
     return true;
 }
 
@@ -140,7 +151,7 @@ bool CMoveXYZ::Trans_Moving_Idle(QEvent *p_Event)
 
     qDebug() << "Current:" << m_CurrentPositionX << m_CurrentPositionY << m_CurrentPositionZ;
 
-    emit ReportMove(DCL_ERR_FCT_CALL_SUCCESS);
+    emit ReportMove(m_ReturnCode);
     return true;
 }
 
@@ -168,6 +179,8 @@ bool CMoveXYZ::Trans_Moving_Aborting(QEvent *p_Event)
         return false;
     }
 
+    m_ReturnCode = DCL_ERR_FCT_CALL_SUCCESS;
+
     return true;
 }
 
@@ -175,7 +188,7 @@ bool CMoveXYZ::Trans_Aborting_Idle(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
 
-    ReportAbort(DCL_ERR_FCT_CALL_SUCCESS);
+    ReportAbort(m_ReturnCode);
 
     return true;
 }
@@ -209,6 +222,11 @@ quint32 CMoveXYZ::GetPositionY()
 quint32 CMoveXYZ::GetPositionZ()
 {
     return m_CurrentPositionZ;
+}
+
+void CMoveXYZ::MoveError(ReturnCode_t ReturnCode)
+{
+    m_ReturnCode = ReturnCode;
 }
 
 }

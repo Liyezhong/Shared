@@ -320,46 +320,47 @@ bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CXyzTransition::GetEventValue(p_Event, 0);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
-        emit MoveError(ReturnCode);
-        return false;
+        //! \todo To be decided whether to emit NeedInitialize() if axis movement failed
+//        emit NeedInitialize(ReturnCode);
     }
 
     // Delete previous step from way point list
     DeletePrevStep();
 
     // If list is empty, then last movement is executed. Hence emit acknowledgement.
-    if(m_WayPoint.isEmpty())
+	// or emit with return code on any unsuccessful movement
+    if(m_WayPoint.isEmpty() || (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode))
     {
         switch(m_CurrentState)
         {
         case XYZ_STATE_MOVE_EMPTY:
-            ReportMoveEmptyTo(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportMoveEmptyTo(ReturnCode);
             break;
 
         case XYZ_STATE_MOVE_RACK:
-            ReportMoveRackTo(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportMoveRackTo(ReturnCode);
             break;
 
         case XYZ_STATE_ATTACH:
             m_RackAttached = true;
-            ReportAttachRack(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportAttachRack(ReturnCode);
             break;
 
         case XYZ_STATE_DETACH:
             m_RackAttached = false;
-            ReportDetachRack(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportDetachRack(ReturnCode);
             break;
 
         case XYZ_STATE_LET_DOWN_RACK:
-            ReportLetDownRack(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportLetDownRack(ReturnCode);
             break;
 
         case XYZ_STATE_PULL_UP_RACK:
-            ReportPullUpRack(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportPullUpRack(ReturnCode);
             break;
 
         case XYZ_STATE_COUNT_SLIDES:
-            ReportCountSlides(DCL_ERR_FCT_CALL_SUCCESS);
+            ReportCountSlides(ReturnCode);
             break;
         }
 

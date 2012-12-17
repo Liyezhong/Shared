@@ -42,9 +42,6 @@ signals:
     void ReportAbort(ReturnCode_t ReturnCode);
     void ReportDisable(ReturnCode_t ReturnCode);
 
-    // Error Response
-    void StepperError(ReturnCode_t ReturnCode);
-
 protected:
     bool Trans_Idle_Moving(QEvent *p_Event);
     bool Trans_Moving_Idle(QEvent *p_Event);
@@ -58,6 +55,8 @@ private slots:
     void SetPositionY(quint32 Positon);
     void SetPositionZ(quint32 Positon);
 
+    void MoveError(ReturnCode_t ReturnCode);
+
 private:
     CStepperMotor &m_XAxisMotor;
     CStepperMotor &m_YAxisMotor;
@@ -66,6 +65,8 @@ private:
     quint32 m_CurrentPositionX;
     quint32 m_CurrentPositionY;
     quint32 m_CurrentPositionZ;
+
+    ReturnCode_t m_ReturnCode;
 };
 
 }
