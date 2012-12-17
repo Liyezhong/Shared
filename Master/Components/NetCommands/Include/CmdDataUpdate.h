@@ -44,12 +44,13 @@ public:
         RackUpdateRequest,
         Rack,
         RackDurationRequest,
-        RackDuration
+        RackDuration,
+        ParameterSetRequest,
+        ParameterSet
     };
 
     static QString NAME;    ///< Command name.
 //    QString m_RelatedClass;
-    quint16 getXX() { return 16; }
     DataUpdateType GetCmdType() { return (DataUpdateType)m_CmdType; }
     void SetCmdType(DataUpdateType CmdType) { m_CmdType = (quint16)CmdType; }
 
