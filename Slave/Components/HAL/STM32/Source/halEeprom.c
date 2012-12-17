@@ -146,8 +146,8 @@ Error_t halEepromRead (UInt32 Address, void *Buffer, UInt32 Count) {
                 return (Status);
             }
             // Wait until job is done
-            if ((Status = halI2cWait(I2cBus, 0)) < 0) {
-                return (Status);
+            if ((Status = halI2cWait(I2cBus, 1000)) < 0) {
+                return (E_STORAGE_READ_ERROR);
             }
             Status = LastError;
             if (Status < 0) {
@@ -225,8 +225,8 @@ Error_t halEepromWrite (UInt32 Address, void *Buffer, UInt32 Count) {
             if (Status < 0) {
                 return (Status);
             }
-            if ((Status = halI2cWait(I2cBus, 0)) < 0) {
-                return (Status);
+            if ((Status = halI2cWait(I2cBus, 1000)) < 0) {
+                return (E_STORAGE_WRITE_ERROR);
             }
         }
         Status = LastError;
@@ -420,7 +420,7 @@ Error_t halEepromInit (void) {
                 if (JobID < 0) {
                     return (JobID);
                 }
-                if ((Status = halI2cWait(I2cBus, 0)) < 0) {
+                if ((Status = halI2cWait(I2cBus, 1000)) < 0) {
                     return (Status);
                 }
                 Cache.Size = CacheSize;
