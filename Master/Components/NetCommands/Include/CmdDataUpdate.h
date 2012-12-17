@@ -46,7 +46,9 @@ public:
         RackDurationRequest,
         RackDuration,
         ParameterSetRequest,
-        ParameterSet
+        ParameterSet,
+        AllParameterSetsRequest,
+        AllParameterSets
     };
 
     static QString NAME;    ///< Command name.

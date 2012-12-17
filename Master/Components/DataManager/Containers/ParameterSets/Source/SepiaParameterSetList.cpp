@@ -348,12 +348,6 @@ bool CSepiaParameterSetList::DeserializeContent(QIODevice& IODevice, bool Comple
         return false;
     }
 
-    // NextProgramID
-    if (!XmlStreamReader.attributes().hasAttribute("NextProgramID")) {
-        qDebug() << "### attribute <NextProgramID> is missing => abort reading";
-        return false;
-    }
-
     Result = ReadAllPrograms(XmlStreamReader, CompleteData);
 
     //if completedata
@@ -399,17 +393,17 @@ bool CSepiaParameterSetList::SerializeContent(QIODevice& IODevice, bool Complete
     //XmlStreamWriter.setAutoFormattingIndent(4);
     XmlStreamWriter.writeStartDocument();
 
-    XmlStreamWriter.writeDTD("<!DOCTYPE StainingPrograms>");
-    XmlStreamWriter.writeStartElement("StainingPrograms");
+    XmlStreamWriter.writeDTD("<!DOCTYPE CoverslippingParameterSets>");
+    XmlStreamWriter.writeStartElement("CoverslippingParameterSets");
 
     // write attribute version
     (void)StringValue.setNum(GetVersion()); //to suppress lint-534
     XmlStreamWriter.writeAttribute("Version", StringValue);
 
     //=========================================================================================
-    // write section ProgramList
+    // write section ParameterSets
 
-    XmlStreamWriter.writeStartElement("ProgramList");
+    XmlStreamWriter.writeStartElement("ParameterSets");
 
     // write all programs
     QHashIterator<QString, CSepiaParameterSet*> i(m_ProgramList);
