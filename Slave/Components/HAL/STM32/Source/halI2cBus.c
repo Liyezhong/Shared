@@ -286,7 +286,7 @@ Error_t halI2cClose (Handle_t Handle) {
         if (--Data->UseCount == 0) {
             // Wait until all pending jobs are done
             if (halI2cWait (Handle, 1000) < 0) {
-                return (E_DEVICE_BUSY);
+                return (E_BUS_JOB_TIMEOUT);
             }
             Data->Flags &= ~HAL_OPEN_RW;
             Data->I2C->CR1 &= ~I2C_CR1_PE;
@@ -388,7 +388,7 @@ Error_t halI2cWait (Handle_t Handle, UInt32 Timeout) {
         while (DataTable[Index].Job != NULL) {
             if (Timeout) {
                 if (halSysTickRead() - StartTime > Timeout) {
-                    return (E_DEVICE_BUSY);
+                    return (E_BUS_JOB_TIMEOUT);
                 }
             }
         }
@@ -437,6 +437,10 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
     if (Index >= 0) {  
         I2cRegFile_t *I2C = DataTable[Index].I2C;
 
+        if (I2C->SR2 & I2C_SR2_BUSY) {
+            return (E_BUS_BUSY);
+        }
+
         if (Baudrate > MAX_RATE_FASTMODE || Baudrate < MIN_RATE_STDMODE) {
             return (E_BUS_ILLEGAL_BAUDRATE);
         }
@@ -446,7 +450,7 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
         }
         // Wait until all pending jobs are done
         if (halI2cWait (Handle, 1000) < 0) {
-            return (E_DEVICE_BUSY);
+            return (E_BUS_JOB_TIMEOUT);
         }
         Quantas  = (Baudrate > MAX_RATE_STDMODE) ? 3 : 2;
         Division = halGetPeripheralClockRate() / (Baudrate * Quantas);
@@ -504,23 +508,38 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
     if (Device->State == I2C_STATE_HEADER) {
     //------------------------------------------------------------
         // Transmit slave device address
-        if (I2C->SR1 & I2C_SR1_SB) {
+        UInt32 SR1 = I2C->SR1;
+        if (SR1 & I2C_SR1_SB) {
             if (Job->AddrLen) {
                 I2C->DR = Job->Header & ~I2C_DIR_READ; 
             }
             else {
                 I2C->DR = Job->Header;
             }
-        }                                                               
-        if (I2C->SR1 & I2C_SR1_ADDR) {
-            if (Job->AddrLen) {
-                I2C->CR2 |= I2C_CR2_ITBUFEN;
-                Device->State = I2C_STATE_ADDRESS;
+        }
+        else {
+            if (SR1 & I2C_SR1_ADDR) {
+                if (Job->AddrLen) {
+                    I2C->CR2 |= I2C_CR2_ITBUFEN;
+                    Device->State = I2C_STATE_ADDRESS;
+                }
+                else {
+                    Device->State = I2C_STATE_DATA;
+                }
+                I2C->SR2 = I2C->SR2;
             }
             else {
-                Device->State = I2C_STATE_DATA;
+                if (Job->AddrLen) {
+                    I2C->CR2 |= I2C_CR2_ITBUFEN;
+                    Device->State = I2C_STATE_ADDRESS;
+                }
+                else {
+                    if (!(SR1 & I2C_SR1_TxE)) {
+                        I2C->CR2 |= I2C_CR2_ITBUFEN;
+                        Device->State = I2C_STATE_DATA;
+                    }
+                }
             }
-            I2C->SR2 = I2C->SR2;
         }
     }
     //------------------------------------------------------------
@@ -958,7 +977,7 @@ Error_t halI2cInit (void) {
                 halInterruptEnable (Data->InterruptID+0, IRQ_PRIO_DEFAULT);
                 halInterruptEnable (Data->InterruptID+1, IRQ_PRIO_DEFAULT);
                 halPeripheralClockEnable (Data->PeripheralID, ON);
-    
+
                 Data->Flags = HAL_FLAG_INITZED;
             }
         }
