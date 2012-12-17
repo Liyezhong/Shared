@@ -48,7 +48,8 @@ public:
         ParameterSetRequest,
         ParameterSet,
         AllParameterSetsRequest,
-        AllParameterSets
+        AllParameterSets,
+        AssociateRackToParameterSet
     };
 
     static QString NAME;    ///< Command name.
