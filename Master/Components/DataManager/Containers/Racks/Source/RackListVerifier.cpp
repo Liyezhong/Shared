@@ -138,6 +138,7 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
                 VerifiedData = false;
             }
         }
+        delete p_Rack;
     }
 
     qDebug() << "Error Description" << ErrorDescription;
