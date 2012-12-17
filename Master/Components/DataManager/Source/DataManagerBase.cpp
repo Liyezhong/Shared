@@ -29,7 +29,7 @@ namespace DataManager {
 CDataManagerBase::CDataManagerBase(Threads::MasterThreadController *p_MasterThreadController)
     : QObject(0)
     , m_IsInitialized(false)
-    , mp_DataContainerCollectionBase(NULL)
+    , mp_DataContainerCollection(NULL)
     , mp_MasterThreadController(p_MasterThreadController)
     , mp_SettingsCommandInterface(NULL)
     , mp_DeviceConfigurationInterface(NULL)
@@ -40,7 +40,7 @@ CDataManagerBase::CDataManagerBase(Threads::MasterThreadController *p_MasterThre
 CDataManagerBase::CDataManagerBase(Threads::MasterThreadController *p_MasterThreadController, CDataContainerCollectionBase *containerCollection)
     : QObject(0)
     , m_IsInitialized(false)
-    , mp_DataContainerCollectionBase(containerCollection)
+    , mp_DataContainerCollection(containerCollection)
     , mp_MasterThreadController(p_MasterThreadController)
 {
 
@@ -63,32 +63,32 @@ quint32 CDataManagerBase::InitDataContainer()
     }
 
     QString FilenamePUserSettings = Global::SystemPaths::Instance().GetSettingsPath() + "/UserSettings.xml";
-    mp_DataContainerCollectionBase->SettingsInterface->SetDataVerificationMode(false);
-    if (!mp_DataContainerCollectionBase->SettingsInterface->Read(FilenamePUserSettings)) {
+    mp_DataContainerCollection->SettingsInterface->SetDataVerificationMode(false);
+    if (!mp_DataContainerCollection->SettingsInterface->Read(FilenamePUserSettings)) {
         return EVENT_DM_SETTINGS_XML_READ_FAILED;
     }
 
     QString FilenameDeviceConfiguration = Global::SystemPaths::Instance().GetSettingsPath() + "/DeviceConfiguration.xml";
-    mp_DataContainerCollectionBase->DeviceConfigurationInterface->SetDataVerificationMode(false);
-    if (!mp_DataContainerCollectionBase->DeviceConfigurationInterface->Read(FilenameDeviceConfiguration)) {
+    mp_DataContainerCollection->DeviceConfigurationInterface->SetDataVerificationMode(false);
+    if (!mp_DataContainerCollection->DeviceConfigurationInterface->Read(FilenameDeviceConfiguration)) {
         return EVENT_DM_DEVICE_CONFIG_XML_READ_FAILED;
     }
 
     // when all containers are loaded, activate verification mode and verify their initial content
-    mp_DataContainerCollectionBase->SettingsInterface->SetDataVerificationMode(true);
-    if (!mp_DataContainerCollectionBase->SettingsInterface->VerifyData()) {
+    mp_DataContainerCollection->SettingsInterface->SetDataVerificationMode(true);
+    if (!mp_DataContainerCollection->SettingsInterface->VerifyData()) {
         qDebug() << "CDataManagerBase::InitDataContainer failed, because User Settings Verification failed.";
         return EVENT_DM_SETTINGS_VERIFICATION_FAILED;
     }
-    mp_DataContainerCollectionBase->DeviceConfigurationInterface->SetDataVerificationMode(true);
+    mp_DataContainerCollection->DeviceConfigurationInterface->SetDataVerificationMode(true);
 
-    if (!mp_DataContainerCollectionBase->DeviceConfigurationInterface->VerifyData()) {
+    if (!mp_DataContainerCollection->DeviceConfigurationInterface->VerifyData()) {
         qDebug() << "CDataManagerBase::InitDataContainer failed, because mp_DataContainerCollectionBase->DeviceConfigurationInterface->VerifyData failed.";
         return EVENT_DM_DEVICE_CONFIG_VERIFICATION_FAILED;
     }
 
     //Command interface to handle Settings command
-    mp_SettingsCommandInterface = new CUserSettingsCommandInterface(this , mp_MasterThreadController, mp_DataContainerCollectionBase);
+    mp_SettingsCommandInterface = new CUserSettingsCommandInterface(this , mp_MasterThreadController, mp_DataContainerCollection);
 
     return INIT_OK;
 }
@@ -109,7 +109,7 @@ CUserSettingsInterface *CDataManagerBase::GetUserSettingsInterface()
         qDebug() << "CDataManagerBase::GetUserSettingsInterface failed. Not initialized!";
         return NULL;
     }
-    return mp_DataContainerCollectionBase->SettingsInterface;
+    return mp_DataContainerCollection->SettingsInterface;
 }
 
 CDeviceConfigurationInterface *CDataManagerBase::GetDeviceConfigurationInterface()
@@ -118,7 +118,7 @@ CDeviceConfigurationInterface *CDataManagerBase::GetDeviceConfigurationInterface
         qDebug() << "CDataManagerBase::GetDeviceConfigurationInterface failed. Not initialized!";
         return NULL;
     }
-    return mp_DataContainerCollectionBase->DeviceConfigurationInterface;
+    return mp_DataContainerCollection->DeviceConfigurationInterface;
 }
 
 } // namespace DataManager

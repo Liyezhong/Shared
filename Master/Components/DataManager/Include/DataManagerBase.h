@@ -38,7 +38,7 @@ class CDataManagerBase : public QObject
     Q_OBJECT
 protected:
     bool m_IsInitialized;
-    CDataContainerCollectionBase *mp_DataContainerCollectionBase;
+    CDataContainerCollectionBase *mp_DataContainerCollection;
     Threads::MasterThreadController *mp_MasterThreadController; //!< This is passed to DataContainer
     virtual bool DeinitDataContainer();
 
@@ -51,7 +51,7 @@ public:
     CDataManagerBase(Threads::MasterThreadController *p_MasterThreadController, CDataContainerCollectionBase *containerCollection);
     virtual ~CDataManagerBase();
 
-    virtual const CDataContainerCollectionBase* GetDataContainer() { return mp_DataContainerCollectionBase; }
+    virtual const CDataContainerCollectionBase* GetDataContainer() { return mp_DataContainerCollection; }
     virtual CUserSettingsInterface* GetUserSettingsInterface();
     virtual CDeviceConfigurationInterface* GetDeviceConfigurationInterface();
 
