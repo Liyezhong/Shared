@@ -56,6 +56,8 @@ private:
     MainMenu::CTextDialog *mp_Dialog;   //!< Text view in the dialog
     QStandardItemModel m_Model;             //!< Model for the table view
 
+    void AddEmptyRows();
+
 protected:
     void changeEvent(QEvent *p_Event);
 private slots:

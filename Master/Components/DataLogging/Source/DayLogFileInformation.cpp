@@ -56,12 +56,16 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &L
         if (ReadData.contains(";")) {
             if (ReadData.contains(";true;")) {
                 if (LanguageIDs.contains(ReadData.split(';').value(1))) {
-                    ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(ReadData.split(';').value(1)));
-                    FileData.append(ReadData);
+                    ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(ReadData.split(';').value(1)));                    
                 }
                 else {
-                    FileData.append(ReadData);
+                    // log the data
                 }
+                qint32 IndexValue = ReadData.indexOf(";true;");
+                if (IndexValue != -1)  {
+                    ReadData = ReadData.mid(0, IndexValue) + "\n";
+                }
+                FileData.append(ReadData);
             }
         }
         else {

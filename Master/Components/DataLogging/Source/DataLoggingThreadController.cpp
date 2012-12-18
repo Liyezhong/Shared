@@ -25,6 +25,7 @@
 #include <Global/Include/Utils.h>
 
 
+
 #include <QMetaType>
 
 namespace DataLogging {
@@ -124,9 +125,9 @@ void DataLoggingThreadController::OnForceCaching(Global::tRefType Ref, const Cmd
 /****************************************************************************/
 void DataLoggingThreadController::OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd) {
 
-    Q_UNUSED(Ref);
     Q_UNUSED(Cmd);
-
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
     // create object to create the file
     DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
 
@@ -140,12 +141,13 @@ void DataLoggingThreadController::OnRunLogRequest(Global::tRefType Ref, const Ne
 /****************************************************************************/
 void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequestFile &Cmd) {
 
-    Q_UNUSED(Ref);
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
+
     // create object to create the file
     DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
 
     QByteArray FileContent;
-
 
     DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(), FileContent);
     // get the new command reference

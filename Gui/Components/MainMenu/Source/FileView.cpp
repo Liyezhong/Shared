@@ -48,7 +48,11 @@ CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFile
     mp_TableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     mp_TableWidget->horizontalHeader()->resizeSection(0, 100);
+
     mp_Dialog = new MainMenu::CTextDialog(this);
+
+    // add empty items
+    AddEmptyRows();
 
     if (!connect(mp_Ui->pushButton, SIGNAL(clicked()), this, SLOT(OpenButtonClicked()))) {
         qDebug() << "CFileView: cannot connect 'clicked' signal";
@@ -162,6 +166,9 @@ void CFileView::DayRunLogFileNames(const QStringList &FileNames)
         // append the row in tables
         m_Model.appendRow(new QStandardItem("   " + FileNames.value(FileCount)));
     }
+    // add empty rows if required
+    AddEmptyRows();
+
     // check file name count
     if (FileNames.count() != 0) {
         if (m_Model.rowCount() > 1) {
@@ -199,4 +206,25 @@ void CFileView::DisableButton()
     mp_Ui->pushButton->setEnabled(false);
 }
 
+/****************************************************************************/
+/**
+ * \brief Add empty rows in the model
+ */
+/****************************************************************************/
+void CFileView::AddEmptyRows()
+{
+    if (m_Model.rowCount() < 9) {
+        // display all the file names
+        for (qint32 RowCount = m_Model.rowCount(); RowCount < 8; RowCount++) {
+            QStandardItem *p_Item = new QStandardItem();
+            p_Item->setSelectable(false);
+            // append the row in tables
+            m_Model.appendRow(p_Item);
+            QPalette Palette;
+            m_Model.setData(m_Model.index(RowCount, 0), Palette.color(QPalette::Window), Qt::BackgroundColorRole);
+        }
+    }
+}
+
 } // end namespace MainMenu
+
