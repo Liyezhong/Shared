@@ -77,7 +77,7 @@ namespace Ui {
 class CKeyBoard : public MainMenu::CDialogFrame
 {
     Q_OBJECT
-
+    friend class CTestKeyBoard;
 private:
     QSignalMapper *mp_ClickedMapper;    //! < Signal mapper element used to map keys from all buttons
     QSignalMapper *mp_PressedMapper;    //! < Signal mapper element used when a button is pressed
