@@ -88,7 +88,7 @@ private:
     Global::gSourceType                         m_HeartBeatSourceDataLogging;        ///< Heart Beat Source ID of the DataLogging component.
     DataLogging::DataLoggingThreadController    *mp_DataLoggingThreadController;    ///< Pointer to the DataLoggingComponent
     Global::gSourceType                         m_HeartBeatSourceEventHandler;      ///< Heart Beat Source ID of the Event Handler.
-    tControllerMap                              m_ControllerMap;
+
     // command executing stuff
     CommandExecuteFunctorAckHash_t              m_CommandExecuteFunctors;           ///< Functors of supported commands.
     CommandExecuteFunctorHash_t                 m_CommandExecuteWithoutAckFunctors; ///< Functors of commands without Ack.
@@ -116,14 +116,7 @@ private:
     MasterThreadController();                                                       ///< Not implemented.
     MasterThreadController(const MasterThreadController &);                         ///< Not implemented.
     const MasterThreadController & operator = (const MasterThreadController &);     ///< Not implemented.
-    /****************************************************************************/
-    /**
-     * \brief Initialize all controllers in the order they were created.
-     *
-     * Calls \ref CreateAndInitializeObjects for each.
-     */
-    /****************************************************************************/
-    void InitializeControllers(bool BasicThreadController = false);
+
     /****************************************************************************/
     /**
      * \brief Cleanup all controllers in the reverse order they were initialized.
@@ -132,12 +125,7 @@ private:
      */
     /****************************************************************************/
     void CleanupControllers(bool BasicThreadController = false);
-    /****************************************************************************/
-    /**
-     * \brief Attach controllers to corresponding threads and start threads.
-     */
-    /****************************************************************************/
-    void AttachControllersAndStartThreads(bool BasicController = false);
+
     /****************************************************************************/
     /**
      * \brief Wait for thread termination.
@@ -283,6 +271,7 @@ private slots:
     void ExternalMemShutdownCheck();
 
 protected:
+    tControllerMap                              m_ControllerMap;                    ///< Thread controller map.
     CommandChannel                              m_CommandChannelDataLogging;        ///< Command channel for DataLogging.
     CommandChannel                              m_CommandChannelEventThread;        ///< Command channel for EventHandler.
     EventHandler::EventHandlerThreadController  *mp_EventThreadController;          ///< Pointer to the system event handling object.
@@ -635,7 +624,32 @@ protected:
      * \brief Send DataContainers to scheduler
      *
      ****************************************************************************/
-    virtual void SendContainersToScheduler() {}
+    virtual void SendContainersToScheduler() = 0;
+
+    /****************************************************************************/
+    /**
+     * \brief Create GUI controllers, which inturn starts GUI process .
+     *
+     * \note All the XML files are sent to GUI.
+     */
+    /****************************************************************************/
+    virtual void InitializeGUI() = 0;
+
+    /****************************************************************************/
+    /**
+     * \brief Initialize all controllers in the order they were created.
+     *
+     * Calls \ref CreateAndInitializeObjects for each.
+     */
+    /****************************************************************************/
+    void InitializeControllers(bool BasicThreadController = false);
+    /****************************************************************************/
+    /**
+     * \brief Attach controllers to corresponding threads and start threads.
+     */
+    /****************************************************************************/
+    void AttachControllersAndStartThreads(bool BasicController = false);
+
 public:
     /****************************************************************************/
     /**

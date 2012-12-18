@@ -4,6 +4,6 @@
 
 TARGET = NetCommands
 
-HEADERS +=  ../Include/*.h \
-    ../Include/CmdProgramSequenceBlgTempFile.h
+HEADERS +=  ../Include/*.h
+
 SOURCES +=  ../Source/*.cpp

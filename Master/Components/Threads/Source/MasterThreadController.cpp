@@ -225,7 +225,6 @@ void MasterThreadController::CreateControllersAndThreads() {
     // Connect Remote Care related signals/slots:
     //MasterThreadController::SetRemoteCareConnection(pAxedaController);
     AddAndConnectController(pAxedaController, &m_CommandChannelAxeda, static_cast<int>(AXEDA_CONTROLLER_THREAD));
-
 }
 
 /****************************************************************************/
@@ -881,29 +880,32 @@ void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, 
     // signal/slot mechanism in this event loop.
     try {
         SendAcknowledgeOK(Ref, AckCommandChannel);
-        // first of all create controllers and threads
-        CreateControllersAndThreads();
 
-        // Initialize controllers
-        InitializeControllers();
+        //Initialize GUI
+        InitializeGUI();
+//        // first of all create controllers and threads
+//        CreateControllersAndThreads();
 
-        // now start threads
-        AttachControllersAndStartThreads();
+//        // Initialize controllers
+//        InitializeControllers();
 
-        // log current time offset as info
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_CURRENT_TIME_OFFSET,
-                  QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
-                  , Global::NO_NUMERIC_DATA, false);
+//        // now start threads
+//        AttachControllersAndStartThreads();
 
-        // send infos that state machine is starting
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
-                  , Global::NO_NUMERIC_DATA, false);
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_DEBUG, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
-                  , Global::NO_NUMERIC_DATA, false);
-        // start own statemachine
-        StartStatemachine();
-        //! \todo Move the below code out of platform code - N.Kamath
-        SendContainersToScheduler();
+//        // log current time offset as info
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_CURRENT_TIME_OFFSET,
+//                  QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
+//                  , Global::NO_NUMERIC_DATA, false);
+
+//        // send infos that state machine is starting
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
+//                  , Global::NO_NUMERIC_DATA, false);
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_DEBUG, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
+//                  , Global::NO_NUMERIC_DATA, false);
+//        // start own statemachine
+//        StartStatemachine();
+//        //! \todo Move the below code out of platform code - N.Kamath
+//        SendContainersToScheduler();
         qDebug()<<"OnSoftSwitchPressedAtStartup();";
     } catch(const Global::Exception &E) {
         // destroy controllers and threads
