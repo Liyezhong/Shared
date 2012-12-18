@@ -271,7 +271,7 @@ private slots:
     void ExternalMemShutdownCheck();
 
 protected:
-    tControllerMap                              m_ControllerMap;                    ///< Thread controller map.
+    tControllerMap                              m_ControllerMap;                    ///< Thread controller
     CommandChannel                              m_CommandChannelDataLogging;        ///< Command channel for DataLogging.
     CommandChannel                              m_CommandChannelEventThread;        ///< Command channel for EventHandler.
     EventHandler::EventHandlerThreadController  *mp_EventThreadController;          ///< Pointer to the system event handling object.
@@ -624,7 +624,7 @@ protected:
      * \brief Send DataContainers to scheduler
      *
      ****************************************************************************/
-    virtual void SendContainersToScheduler() = 0;
+    virtual void SendContainersToScheduler() {}
 
     /****************************************************************************/
     /**
