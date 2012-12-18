@@ -7,6 +7,7 @@ namespace EventHandler {
 
 ActionHandler::ActionHandler(EventHandler::EventHandlerThreadController *p_EventHandlerThreadController) {
     mpEventHandlerThreadController = p_EventHandlerThreadController;
+    setParent(mpEventHandlerThreadController);
 }
 
 ActionHandler::~ActionHandler() {
