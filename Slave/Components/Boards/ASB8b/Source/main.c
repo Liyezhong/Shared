@@ -237,6 +237,8 @@ int main (int argc, char **argv) {
         dbgPrintError (BASEMODULE_CHANNEL, Status, ON, 0);
     }
     dbgPrint ("Firmware stopped");
+
+    return Status;
 }
 
 //****************************************************************************/
