@@ -1137,8 +1137,9 @@ void MasterThreadController::StartSpecificThreadController(const int ControllerN
         ControllerPair.second = new QThread();
         m_ControllerMap.insert(ControllerNumber, ControllerPair);
         ControllerPair.first->moveToThread(ControllerPair.second);
+        CONNECTSIGNALSLOT(ControllerPair.second, started(), ControllerPair.first, Go());
         ControllerPair.second->start();
-        BasicThreadController ? (emit SendGoToBasicThreads()): (emit SendGo());
+        //BasicThreadController ? (emit SendGoToBasicThreads()): (emit SendGo());
     }
 }
 
