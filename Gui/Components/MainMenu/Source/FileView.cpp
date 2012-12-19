@@ -39,9 +39,12 @@ CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFile
     mp_Ui->setupUi(this);
 
     mp_TableWidget = new MainMenu::CBaseTable;
+    // fix the height of the Table widget so that it can display upto 8 r0ws
+    mp_TableWidget->SetVisibleRows(8);
+
+    mp_TableWidget->setModel(&m_Model);
     // Set horizontal header item
     m_Model.setHorizontalHeaderItem(0, new QStandardItem(tr("   File Name")));
-    mp_TableWidget->setModel(&m_Model);
     mp_TableWidget->horizontalHeader()->show();
     mp_TableWidget->selectRow(0);
     mp_Ui->widget->SetContent(mp_TableWidget);
