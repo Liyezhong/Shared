@@ -28,6 +28,7 @@
 #include "Global.h"
 #include "halConsole.h"
 #include "halCan.h"
+#include "bmCommon.h"
 #include "bmCan.h"
 #include "bmUtilities.h"
 
@@ -185,7 +186,19 @@ void _sys_exit (int ReturnCode) {
     };
     Handle_t CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, NULL, FALSE);
     CanMessage_t Message;
+
+    UInt16  NodeType  = 0;
+    UInt16  NodeIndex = 0;
+    bmBoardInfoBlock_t *BoardInfo =  bmGetBoardInfoBlock();
+    if (NULL != BoardInfo) {
+        UInt16  NodeType  = BoardInfo->NodeType;
+        UInt16  NodeIndex = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_NODE_INDEX, 0);
+    }
+
     Message.CanID = EventID[(((ReturnCode) & ERRCODE_MASK_CLASS)  >> 28)];
+    Message.CanID = (Message.CanID & ~CANiD_MASK_CHANNEL) |
+                    (((NodeType << 1) | (NodeIndex << 8)) & CANiD_MASK_ADDRESS) |
+                    (0 << CANiD_SHIFT_CHANNEL);
     Message.Length = 6;
     bmSetMessageItem (&Message, (((ReturnCode) & ERRCODE_MASK_MODULE) >> 16), 0, 2);
     bmSetMessageItem (&Message, ((ReturnCode) & ERRCODE_MASK_NUMBER), 2, 2);
