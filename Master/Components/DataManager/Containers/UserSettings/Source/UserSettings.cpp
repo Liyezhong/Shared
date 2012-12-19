@@ -44,18 +44,6 @@ CUserSettings::CUserSettings() :
     m_SoundLevelError(0),
     m_SoundNumberWarning(0),
     m_SoundLevelWarning(0)
-//    m_AgitationSpeed(0),
-//    m_OvenStartMode(Global::OVENSTART_UNDEFINED),
-//    m_OvenTemp(0),
-//    m_RMSState(Global::ONOFFSTATE_UNDEFINED),
-//    m_WaterType(Global::WATER_TYPE_UNDEFINED),
-//    m_LeicaAgitationSpeed(0),
-//    m_LeicaOvenTemp(0),
-//    m_LoaderReagent1(""),
-//    m_LoaderReagent2(""),
-//    m_LoaderReagent3(""),
-//    m_LoaderReagent4(""),
-//    m_LoaderReagent5("")
 {
     // set default values
     SetDefaultAttributes();
@@ -103,15 +91,6 @@ void CUserSettings::SetDefaultAttributes()
     m_SoundLevelError       = 6;
     m_SoundNumberWarning    = 1;
     m_SoundLevelWarning     = 6;
-//    m_AgitationSpeed        = 100;
-//    m_OvenStartMode         = Global::OVENSTART_BEFORE_PROGRAM;
-//    m_OvenTemp              = 70;
-//    m_RMSState              = Global::ONOFFSTATE_ON;
-//    m_WaterType             = Global::WATER_TYPE_TAP;
-//    m_LeicaAgitationSpeed   = 1;
-//    m_LeicaOvenTemp         = 45;
-    //    // clear all the loader reagents
-    //    m_LoaderReagents.clear();
 }
 
 
@@ -164,9 +143,16 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
         QStringList stringList = i.key().split("_",  QString::SkipEmptyParts);
         if (stringList.count() == 2)
         {
-            XmlStreamWriter.writeStartElement(stringList[0]);
-            XmlStreamWriter.writeAttribute(stringList[1], i.value());
-            XmlStreamWriter.writeEndElement();
+            if (CompleteData) {
+                XmlStreamWriter.writeStartElement(stringList[0]);
+                XmlStreamWriter.writeAttribute(stringList[1], i.value());
+                XmlStreamWriter.writeEndElement();
+            }
+            else if (!stringList.contains("CLASSTEMPORARYDATA")) {
+                XmlStreamWriter.writeStartElement(stringList[0]);
+                XmlStreamWriter.writeAttribute(stringList[1], i.value());
+                XmlStreamWriter.writeEndElement();
+            }
         }
         else
         {
@@ -214,7 +200,7 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
                     return false;
                 }
             }
-            else
+            else if ((!XmlStreamReader.name().contains("CLASSTEMPORARYDATA"))  || CompleteData)
             {
                 QXmlStreamAttributes attributes = XmlStreamReader.attributes();
                 foreach (QXmlStreamAttribute attribute, attributes)
@@ -352,59 +338,6 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
     return true;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief Reads the loader reagents from the file.
-// *
-// *  \iparam XmlStreamReader = Xmlfile reader pointer
-// *
-// *  \return On successful return True or False
-// */
-///****************************************************************************/
-//bool CUserSettings::ReadLoaderReagents(QXmlStreamReader& XmlStreamReader)
-//{
-//    // Look for node <Loader>
-//    if (!Helper::ReadNode(XmlStreamReader, "Loader")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Node not found: Loader";
-//        return false;
-//    }
-
-//    //    // clear all the reagents from the list
-//    //    m_LoaderReagents.clear();
-
-//    if (!XmlStreamReader.attributes().hasAttribute("Reagent1")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Attribute not found: Reagent1";
-//        return false;
-//    }
-//    SetLoaderReagent1(XmlStreamReader.attributes().value("Reagent1").toString());
-
-//    if (!XmlStreamReader.attributes().hasAttribute("Reagent2")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Attribute not found: Reagent2";
-//        return false;
-//    }
-//    SetLoaderReagent2(XmlStreamReader.attributes().value("Reagent2").toString());
-
-//    if (!XmlStreamReader.attributes().hasAttribute("Reagent3")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Attribute not found: Reagent3";
-//        return false;
-//    }
-//    SetLoaderReagent3(XmlStreamReader.attributes().value("Reagent3").toString());
-
-//    if (!XmlStreamReader.attributes().hasAttribute("Reagent4")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Attribute not found: Reagent4";
-//        return false;
-//    }
-//    SetLoaderReagent4(XmlStreamReader.attributes().value("Reagent4").toString());
-
-//    if (!XmlStreamReader.attributes().hasAttribute("Reagent5")) {
-//        qDebug() << "CUserSettings::DeserializeContent: abort reading. Attribute not found: Reagent5";
-//        return false;
-//    }
-//    SetLoaderReagent5(XmlStreamReader.attributes().value("Reagent5").toString());
-//    return true;
-//}
-
-
 /****************************************************************************/
 /*!
  *  \brief Output Stream Operator which streams data
@@ -439,8 +372,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSe
 
     // write enddocument
     XmlStreamWriter.writeEndDocument();
-    qDebug()<<XmlStreamWriter.device()->reset();
-    qDebug()<<"Serialize User Settings"<< XmlStreamWriter.device()->readAll();
     return OutDataStream;
 }
 
