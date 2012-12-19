@@ -57,6 +57,9 @@ typedef enum {
     AXEDA_CONTROLLER_THREAD = 101
 } PlatformThreads_t;
 
+enum CommandChannelSelector_t {
+    UNDEFINED = 100
+};
 typedef Global::SharedPointer<CommandExecuteFunctorAck>     CommandExecuteFunctorAckShPtr_t;    ///< Typedef or a shared pointer of CommandExecuteFunctor.
 typedef QHash<QString, CommandExecuteFunctorAckShPtr_t>     CommandExecuteFunctorAckHash_t;     ///< Typedef for the CommandExecuteFunctorShPtr_t functor hash.
 
@@ -822,7 +825,14 @@ public:
      */
     /****************************************************************************/
     virtual const DataManager::CDataManagerBase *GetDataManager() { return mp_DataManagerBase; }
-
+    /****************************************************************************/
+    /**
+     * \brief Return the command channel object requested
+     * \iparam CommandChannelSelector = Command channel to return
+     * \return CommandChannel object
+     */
+    /****************************************************************************/
+    //virtual Threads::CommandChannel & GetCommandChannel(CommandChannelSelector_t CommandChannelSelector) =0;
 public slots:
     /****************************************************************************/
     /**
