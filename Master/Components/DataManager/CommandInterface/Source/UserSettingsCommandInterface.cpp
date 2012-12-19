@@ -84,6 +84,7 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         }
         emit UserSettingsChanged();
         qDebug()<<"\n\n User Settings Update Success";
+        mp_DataContainer->SettingsInterface->Write();
     }
 }
 

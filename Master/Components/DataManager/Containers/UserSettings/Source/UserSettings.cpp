@@ -177,8 +177,6 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
     if (CompleteData) {
         // do nothing
     }
-    XmlStreamWriter.device()->reset();
-    qDebug()<<"Serializing User Settings"<<XmlStreamWriter.device()->readAll();
     return true;
 }
 

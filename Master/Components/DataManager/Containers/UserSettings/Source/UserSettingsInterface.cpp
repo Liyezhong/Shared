@@ -222,7 +222,7 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
     if (mp_UserSettings == NULL) {
         return false;
     }
-
+    qDebug()<<"COMPLETE DATA"<<CompleteData;
     QXmlStreamWriter XmlStreamWriter; ///< Xml stream writer object to write the Xml contents in a file
 
     XmlStreamWriter.setDevice(&IODevice);
