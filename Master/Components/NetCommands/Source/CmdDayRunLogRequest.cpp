@@ -3,6 +3,9 @@
  *
  *  \brief CmdDayRunLogRequest command implementation.
  *
+ *  \b Description:
+ *          Requests the number daily run log file names
+ *
  *   $Version: $ 0.1
  *   $Date:    $ 18.03.2010, 06.11.2012
  *   $Author:  $ Y.Novak, Raju
@@ -32,9 +35,8 @@ QString CmdDayRunLogRequest::NAME = "NetCommands::CmdDayRunLogRequest";
  * \param[in]   Request     request for the files.
  */
 /****************************************************************************/
-CmdDayRunLogRequest::CmdDayRunLogRequest(int Timeout, const bool &Request) :
-    Command(Timeout),
-    m_FileNameRequest(Request)
+CmdDayRunLogRequest::CmdDayRunLogRequest(int Timeout) :
+    Command(Timeout)
 {
 }
 
@@ -66,18 +68,6 @@ CmdDayRunLogRequest::~CmdDayRunLogRequest()
 QString CmdDayRunLogRequest::GetName() const
 {
     return NAME;
-}
-
-/****************************************************************************/
-/*!
- *  \brief   This function returns file request flag
- *
- *  \return  On success (true) or not (false)
- */
-/****************************************************************************/
-bool CmdDayRunLogRequest::GetFileNameRequest() const
-{
-    return m_FileNameRequest;
 }
 
 } // end namespace NetCommands

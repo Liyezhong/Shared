@@ -3,6 +3,9 @@
  *
  *  \brief CmdDayRunLogReply command implementation.
  *
+ *  \b Description:
+ *          Replies the number of day run log files to GUI
+ *
  *   $Version: $ 0.1
  *   $Date:    $ 06.11.2012
  *   $Author:  $ Raju

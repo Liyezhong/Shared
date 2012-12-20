@@ -1,13 +1,13 @@
 /****************************************************************************/
-/*! \file CmdDayRunLogReplyFile.cpp
+/*! \file CmdExportDayRunLogRequest.cpp
  *
- *  \brief CmdDayRunLogReplyFile command implementation.
+ *  \brief CmdExportDayRunLogRequest command implementation.
  *
  *  \b Description:
- *          Replies the data stream of the selected file content to GUI
+ *          Requests the number daily run log file names
  *
  *   $Version: $ 0.1
- *   $Date:    $ 06.11.2012
+ *   $Date:    $ 18.12.2012
  *   $Author:  $ Raju
  *
  *  \b Company:
@@ -21,24 +21,22 @@
  */
 /****************************************************************************/
 
-#include <NetCommands/Include/CmdDayRunLogReplyFile.h>
-#include <QBuffer>
+#include <NetCommands/Include/CmdExportDayRunLogRequest.h>
 
 namespace NetCommands {
 
-QString CmdDayRunLogReplyFile::NAME = "NetCommands::CmdDayRunLogReplyFile";
+QString CmdExportDayRunLogRequest::NAME = "NetCommands::CmdExportDayRunLogRequest";
 
 /****************************************************************************/
 /*!
  *  \brief   Constructor
  *
  * \param[in]   Timeout     Timeout for command.
- * \param[in]   FileData    Information of the file.
+ * \param[in]   Request     request for the files.
  */
 /****************************************************************************/
-CmdDayRunLogReplyFile::CmdDayRunLogReplyFile(int Timeout, const QDataStream &FileData) :
-    Command(Timeout),
-    m_FileData(static_cast<QBuffer *>(FileData.device())->data())
+CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(int Timeout) :
+    Command(Timeout)
 {
 }
 
@@ -47,7 +45,7 @@ CmdDayRunLogReplyFile::CmdDayRunLogReplyFile(int Timeout, const QDataStream &Fil
  *  \brief   Constructor
  */
 /****************************************************************************/
-CmdDayRunLogReplyFile::CmdDayRunLogReplyFile() : Command(0)
+CmdExportDayRunLogRequest::CmdExportDayRunLogRequest() : Command(0)
 {
 }
 
@@ -56,7 +54,7 @@ CmdDayRunLogReplyFile::CmdDayRunLogReplyFile() : Command(0)
  *  \brief   Destructor
  */
 /****************************************************************************/
-CmdDayRunLogReplyFile::~CmdDayRunLogReplyFile()
+CmdExportDayRunLogRequest::~CmdExportDayRunLogRequest()
 {
 }
 
@@ -67,21 +65,9 @@ CmdDayRunLogReplyFile::~CmdDayRunLogReplyFile()
  *  \return  command name as string
  */
 /****************************************************************************/
-QString CmdDayRunLogReplyFile::GetName() const
+QString CmdExportDayRunLogRequest::GetName() const
 {
     return NAME;
-}
-
-/****************************************************************************/
-/*!
- *  \brief   This function returns the file information
- *
- *  \return  Byte array
- */
-/****************************************************************************/
-QByteArray const& CmdDayRunLogReplyFile::GetFileData() const
-{
-    return m_FileData;
 }
 
 } // end namespace NetCommands

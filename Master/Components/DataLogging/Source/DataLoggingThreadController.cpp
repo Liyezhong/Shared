@@ -80,6 +80,8 @@ void DataLoggingThreadController::CreateAndInitializeObjects() {
             (&DataLoggingThreadController::OnRunLogRequest, this);
     RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequestFile, DataLoggingThreadController>
             (&DataLoggingThreadController::OnRunLogRequestFile, this);
+    RegisterCommandForProcessing<NetCommands::CmdExportDayRunLogRequest, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnExportDayRunLogRequest, this);
 
 }
 
@@ -155,8 +157,21 @@ void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, cons
     SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReplyFile(1000, FileContent)));
 }
 
+/****************************************************************************/
+void DataLoggingThreadController::OnExportDayRunLogRequest(Global::tRefType Ref, const NetCommands::CmdExportDayRunLogRequest &Cmd) {
 
+    Q_UNUSED(Cmd);
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
+    // create object to create the file
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
 
+    QStringList FileNames;
+    DayRunFilesInformation.CreateDailyRunLogFiles(FileNames);
+    // get the new command reference
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdExportDayRunLogReply(1000, FileNames)));
+}
 
 } // end namespace DataLogging
 

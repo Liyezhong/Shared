@@ -3,6 +3,9 @@
  *
  *  \brief CmdDayRunLogRequestFile command implementation.
  *
+ *  \b Description:
+ *          Requests the selected day run log file content from Main
+ *
  *   $Version: $ 0.1
  *   $Date:    $ 06.11.2012
  *   $Author:  $ Raju
