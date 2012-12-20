@@ -293,6 +293,7 @@ public:
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
     virtual bool ForwardMsgToRecepient(const QByteArray &bArr);
+    QString GetProcessName() { return m_ProcessName; }
 
 signals:
     void ProcessExited(const QString &, int);

@@ -358,8 +358,10 @@ void NetworkDevice::PeerConnected(const QString &name)
 void NetworkDevice::PeerDisconnected(const QString &name)
 {
     // stop periodic heartbeat timer:
+
     m_HeartBeatTimer.stop();
     qDebug() << "NetworkDevice: HeartBeat Timer stopped.";
+
     // inform whoever is interested in this event
     emit SigPeerDisconnected(name);
 }

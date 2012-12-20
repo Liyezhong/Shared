@@ -60,7 +60,7 @@ ExternalProcessController::ExternalProcessController(const QString &prname, Glob
     m_WaitState(NULL),
     m_RestartProcess(true)
 {
-    qDebug() << "xxxxxx ExternalProcessController::ExternalProcessController" << prname;
+    qDebug() << "ExternalProcessController::ExternalProcessController" << prname;
 }
 
 /****************************************************************************/

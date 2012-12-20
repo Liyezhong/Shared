@@ -228,6 +228,8 @@ private:
     QString m_authConf;
     /*!  authentication reply XML Element */
     QDomElement m_authReply;
+
+//    bool m_started;
 };
 
 } // end namespace NetworkBase

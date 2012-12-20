@@ -57,6 +57,7 @@ NetworkServer::NetworkServer(NetworkServerType_t type, QObject *pParent)
                     m_myType(type),
                     m_authReq(""),
                     m_authConf("")
+//                    m_started(false)
 {
     m_connectionsList.clear();
     m_registeredHandlersList.clear();
@@ -307,7 +308,7 @@ bool NetworkServer::RegisterMessageHandler(NetworkDevice *pH, const QString & cl
  ****************************************************************************/
 void NetworkServer::RegisterConnection(quint32 number, const QString &client)
 {
-    qDebug() << "xxxxxx NetworkServer::RegisterConnection" << this->m_myIp << this->m_myPort << client ;
+    qDebug() << "NetworkServer::RegisterConnection" << this->m_myIp << this->m_myPort << client ;
     // check if this type of connection is still available
     if (m_availableConnections.contains(client)) {
         //connect Connection Manager with Protocol Handler
@@ -496,6 +497,8 @@ NetworkServerErrorType_t NetworkServer::InitializeServer()
     // set all configuration parameters
     nstg.SetSettings(&m_myIp, &m_myPort, &m_authReq, &m_authReply, &m_authConf, &m_availableConnections);
 
+//    m_started = false;
+
     return NS_ALL_OK;
 }
 
@@ -512,6 +515,9 @@ NetworkServerErrorType_t NetworkServer::InitializeServer()
  ****************************************************************************/
 NetworkServerErrorType_t NetworkServer::StartServer()
 {
+//    if (m_started)
+//        return NS_ALL_OK;
+
     // try to listen to the specified IP/PORT
     if (!listen(QHostAddress(m_myIp), m_myPort.toInt())) {
         qDebug() << (QString)("NETSERVER: Listen to IP/PORT:  " + m_myIp + "/" + m_myPort + " failed !");
@@ -519,6 +525,8 @@ NetworkServerErrorType_t NetworkServer::StartServer()
     }
 
     qDebug() << (QString)("NETSERVER: Server listens to IP/PORT:  " + m_myIp + "/" + m_myPort);
+
+//    m_started = true;
 
     return NS_ALL_OK;
 }

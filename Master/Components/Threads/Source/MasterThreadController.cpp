@@ -961,6 +961,7 @@ void MasterThreadController::Shutdown() {
 
 /****************************************************************************/
 void MasterThreadController::HeartbeatCheck() {
+//    qDebug() << "MasterThreadController::HeartbeatCheck";
     // check if all registered controllers have send their heartbeat signal
     if(m_HeartbeatSources == m_ArrivedHeartbeats) {
         // everything OK

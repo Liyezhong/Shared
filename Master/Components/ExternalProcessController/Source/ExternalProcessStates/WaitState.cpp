@@ -59,7 +59,7 @@ WaitState::~WaitState()
 ****************************************************************************/
 bool WaitState::OnEntry(StateMachines::StateEvent et)
 {
-    qDebug() << "WaitState entered.";
+    qDebug() << "WaitState entered for process" << this->m_myController->GetProcessName();
 
     if (m_myController == NULL) {
         /// \todo log error
@@ -84,7 +84,7 @@ bool WaitState::OnEntry(StateMachines::StateEvent et)
 bool WaitState::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WaitState exited.";
+    qDebug() << "WaitState exited for process" << this->m_myController->GetProcessName();
     return true;
 }
 

@@ -407,6 +407,8 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
 {
     qDebug() << "EventHandlerThreadController::ProcessEvent" << EventID;
 
+//    return;
+
     m_EventIdKeyMap.insert(EventKey,EventID);
 
     // if eventList is not available yet, place event into pendingList

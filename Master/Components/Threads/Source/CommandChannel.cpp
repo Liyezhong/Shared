@@ -31,7 +31,7 @@ CommandChannel::CommandChannel(BaseThreadController *pParent, QString name) :
     m_pBaseThreadController(pParent),
     m_channelName(name)
 {
-    qDebug() << "xxxxxx CommandChannel::CommandChannel" << m_channelName << name;
+//    qDebug() << "xxxxxx CommandChannel::CommandChannel" << m_channelName << name;
     CHECKPTR(m_pBaseThreadController);
 }
 

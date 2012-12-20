@@ -245,11 +245,7 @@ bool CSepiaParameterSetList::DeleteAllPrograms()
 {
     bool Result = true;
 
-    while (m_ProgramList.size() > 0) {
-        if (DeleteProgram(0) == false) {
-            Result = false;
-        }
-    }
+    qDeleteAll(m_ProgramList);
 
     m_ProgramList.clear();
     return Result;
@@ -284,6 +280,7 @@ bool CSepiaParameterSetList::ReadAllPrograms(QXmlStreamReader& XmlStreamReader, 
                     qDebug() << "CProgram Deserialize failed!";
                     return false;
                 }
+
                 // Now add this ParameterSet
                 if (!AddParameterSet(Program)) {
                     qDebug() << "CProgramList::Add Program failed!";

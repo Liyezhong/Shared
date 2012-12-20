@@ -88,7 +88,7 @@ bool Working::OnEntry(StateMachines::StateEvent et)
 bool Working::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WorkingState exited.";
+    qDebug() << "WorkingState exited for process" << this->m_myController->GetProcessName();
     m_myController->OnStopWorking();
     return true;
 }
