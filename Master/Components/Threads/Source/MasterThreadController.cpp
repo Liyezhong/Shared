@@ -723,7 +723,7 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
     QSet<QLocale::Language> LanguageList;
     LanguageList << UserLanguage << FallbackLanguage;
     for(QSet<QLocale::Language>::const_iterator itl = LanguageList.constBegin(); itl != LanguageList.constEnd(); ++itl) {
-        const QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/UIStrings_" +
+        const QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/EventStrings_" +
                 Global::LanguageToLanguageCode(*itl) + ".xml";
         try {
             // read strings for specified language
