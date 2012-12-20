@@ -20,8 +20,8 @@
 
 #include <QDebug>
 
-#include "DataManager/Containers/Racks/Include/RackListVerifier.h"
-#include "DataManager/Containers/Racks/Include/RackList.h"
+#include "TestStubDataManager/Containers/Racks/Include/RackListVerifier.h"
+#include "TestStubDataManager/Containers/Racks/Include/RackList.h"
 
 namespace DataManager {
 
@@ -138,6 +138,7 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
                 VerifiedData = false;
             }
         }
+        delete p_Rack;
     }
 
     qDebug() << "Error Description" << ErrorDescription;

@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QFile>
 
-#include "DataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
+#include "TestStubDataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
 
 
 
@@ -77,16 +77,15 @@ CUserSettingsInterface::~CUserSettingsInterface()
         }
         mp_ReadWriteLock = NULL;
     }
-    // clear the user settings
-    if (mp_UserSettings != NULL) {
-        try {
-            delete mp_UserSettings;
-        }
-        catch(...) {
-            //to please PClint
-        }
-        mp_UserSettings = NULL;
+
+    try {
+        delete mp_UserSettings;
     }
+    catch(...) {
+        //to please PClint
+    }
+    mp_UserSettings = NULL;
+
 }
 
 /****************************************************************************/
@@ -223,12 +222,12 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
     if (mp_UserSettings == NULL) {
         return false;
     }
-
+    qDebug()<<"COMPLETE DATA"<<CompleteData;
     QXmlStreamWriter XmlStreamWriter; ///< Xml stream writer object to write the Xml contents in a file
 
     XmlStreamWriter.setDevice(&IODevice);
     XmlStreamWriter.setAutoFormatting(true);
-    //XmlStreamWriter.setAutoFormattingIndent(4);
+
     // start the XML Document
     XmlStreamWriter.writeStartDocument();
 
@@ -302,6 +301,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
     QXmlStreamReader XmlStreamReader;
 
     XmlStreamReader.setDevice(&IODevice);
+
 
     if (!mp_UserSettings->DeserializeContent(XmlStreamReader, CompleteData)) {
         qDebug() << "CDataRackList::Read failed. Read Racks failed!";
@@ -386,7 +386,8 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
         //            m_VerifierList.append(p_VerifierInterface);
         //        }
     }
-
+    XmlStreamReader.device()->reset();
+    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
     return true;
 }
 
@@ -440,7 +441,7 @@ bool CUserSettingsInterface::Read(QString FileName)
         QWriteLocker locker(mp_ReadWriteLock);
 
         // clear content and add default values
-        SetDefaultAttributes();
+        //SetDefaultAttributes();
 
         // Initialise the m_Filename to a known string "UNDEFINED"
         m_FileName = "UNDEFINED";

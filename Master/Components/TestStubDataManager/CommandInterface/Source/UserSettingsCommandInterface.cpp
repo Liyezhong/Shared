@@ -43,7 +43,6 @@ CUserSettingsCommandInterface::CUserSettingsCommandInterface(CDataManagerBase *p
  */
 /****************************************************************************/
 void CUserSettingsCommandInterface::RegisterCommands() {
-
     mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdChangeUserSettings, DataManager::CUserSettingsCommandInterface>
             (&CUserSettingsCommandInterface::SettingsUpdateHandler, this);
 }
@@ -85,6 +84,7 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         }
         emit UserSettingsChanged();
         qDebug()<<"\n\n User Settings Update Success";
+        mp_DataContainer->SettingsInterface->Write();
     }
 }
 

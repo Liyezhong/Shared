@@ -21,8 +21,8 @@
 #include <QDebug>
 #include <QFile>
 
-#include "DataManager/Containers/UserSettings/Include/UserSettingsVerifier.h"
-#include "DataManager/Containers/UserSettings/Include/UserSettings.h"
+#include "TestStubDataManager/Containers/UserSettings/Include/UserSettingsVerifier.h"
+#include "TestStubDataManager/Containers/UserSettings/Include/UserSettings.h"
 
 
 

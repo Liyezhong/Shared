@@ -25,7 +25,6 @@
 #include "TestStubDataManager/Containers/Racks/Include/Rack.h"
 
 
-
 namespace DataManager {
 
 /****************************************************************************/
@@ -103,7 +102,7 @@ void CRack::SetRFIDUserData(const quint32 RFIDUserData)
     int Value = (RFIDUserData >> 1) & 0x7F;
 
     // set color of the Rack
-    switch (Value) {
+    switch (Value) {        
         default:
         case WHITE:
             SetColor("white");
@@ -144,7 +143,7 @@ void CRack::SetRFIDUserData(const quint32 RFIDUserData)
  */
 /****************************************************************************/
 bool CRack::IsRack5()
-{
+{    
     // Move the bits to right upto 8 times them Mask the data with 0xFF
     // this gives the size of the rack
     quint32 Value = (GetRFIDUserData() >> 8) & 0xFF;
@@ -397,7 +396,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRack& Rack)
     }
 
     // write enddocument
-    XmlStreamWriter.writeEndDocument();
+    XmlStreamWriter.writeEndDocument();    
 
     return OutDataStream;
 }
@@ -468,7 +467,7 @@ CRack& CRack::operator=(const CRack& SourceRack)
         // read the data from data stream to destination object
         DataStream >> *this;
 
-        delete p_TempByteArray;
+        delete p_TempByteArray;       
     }
     return *this;
 }

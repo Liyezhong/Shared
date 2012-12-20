@@ -242,16 +242,15 @@ bool CRackList::DeserializeContent(QIODevice& p_Device, bool CompleteData)
                 // check the name of the XML tag value
                 if (XmlStreamReader.name() == "Rack") {
                     // create rack with default values
-                    CRack* p_Rack = CreateRack(0, 0); ///< Create new rack
+                    CRack Rack;
 
-                    if (!p_Rack->DeserializeContent(XmlStreamReader, CompleteData)) {
+                    if (!Rack.DeserializeContent(XmlStreamReader, CompleteData)) {
                         qDebug() << "CDataRackList::Read failed. Read Racks failed!";
                         return false;
                     }
                     // now add Rack to the list
-                    if (!AddRack(p_Rack)) {
+                    if (!AddRack(&Rack)) {
                         qDebug() << "CDataRackList::Add Rack failed!";
-                        delete p_Rack;
                         return false;
                     }
                 }
