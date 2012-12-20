@@ -191,8 +191,8 @@ void _sys_exit (int ReturnCode) {
     UInt16  NodeIndex = 0;
     bmBoardInfoBlock_t *BoardInfo =  bmGetBoardInfoBlock();
     if (NULL != BoardInfo) {
-        UInt16  NodeType  = BoardInfo->NodeType;
-        UInt16  NodeIndex = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_NODE_INDEX, 0);
+        NodeType  = BoardInfo->NodeType;
+        NodeIndex = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_NODE_INDEX, 0);
     }
 
     Message.CanID = EventID[(((ReturnCode) & ERRCODE_MASK_CLASS)  >> 28)];
