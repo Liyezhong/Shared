@@ -105,7 +105,7 @@ public:
      * \param[in]   pParent     Parent object.
      */
     /****************************************************************************/
-    CommandChannel(BaseThreadController *pParent, QString name);
+    CommandChannel(BaseThreadController *pParent, QString name, Global::EventSourceType componentType = Global::EVENTSOURCE_NONE);
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -116,6 +116,7 @@ public:
     }
 
     QString m_channelName;
+    Global::EventSourceType m_componentType;
 public slots:
     /****************************************************************************/
     /**

@@ -74,12 +74,12 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     m_ShutdownSharedMemName(ShutdownSharedMemName),
     m_ShutdownSharedMemTimer(this),
     mp_SoftSwitchManagerThreadController(NULL),
-    m_CommandChannelSoftSwitch(this, "SoftSwitch"),
-    m_CommandChannelDataLogging(this, "DataLogging"),
-    m_CommandChannelEventThread(this, "EventHandler"),
+    m_CommandChannelSoftSwitch(this, "SoftSwitch", Global::EVENTSOURCE_NONE),
+    m_CommandChannelDataLogging(this, "DataLogging", Global::EVENTSOURCE_DATALOGGER),
+    m_CommandChannelEventThread(this, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER),
     mp_EventThreadController(NULL),
     m_HeartBeatSourceSoftSwitch(100),
-    m_CommandChannelAxeda(this, "Axeda"),
+    m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
     m_HeartBeatSourceAxeda(101),
     mp_alarmHandler(new Platform::AlarmHandler(5000, "./")),
     mp_UserSettings(NULL),
@@ -496,6 +496,20 @@ CommandChannel *MasterThreadController::GetCommandRouteChannel(const QString &Co
     return m_TCCommandRoutes.value(CommandName);
 }
 
+CommandChannel *MasterThreadController::GetComponentRouteChannel(Global::EventSourceType component) const
+{
+    QHashIterator<QString, Threads::CommandChannel*> i(m_channelList);
+    while (i.hasNext())
+    {
+        i.next();
+        if (i.value()->m_componentType == component)
+        {
+            return i.value();
+        }
+    }
+    return NULL;
+}
+
 //lint -efunc(613, Threads::MasterThreadController::OnExecuteCommand)
 // JB: Since lint does not know that Cmd can not be "NULL" after checking it with IsNull
 // it will throw lots of 613 warnings when accessing Cmd, so we disable 613 for
@@ -504,7 +518,7 @@ CommandChannel *MasterThreadController::GetCommandRouteChannel(const QString &Co
 void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, Threads::CommandChannel &AckCommandChannel)
 {
     try {
-//        qDebug() << "MasterThreadController::OnExecuteCommand" << Ref << Cmd.GetPointerToUserData()->GetName();
+        qDebug() << "MasterThreadController::OnExecuteCommand" << Ref << Cmd.GetPointerToUserData()->GetName();
 
         if (!IsCommandAllowed(Cmd))
         {
@@ -520,7 +534,16 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
 //                   QString("Ref = ") + QString::number(Ref, 10) +
 //                   QString("Name = ") + Cmd->GetName());
         // check if this command should be routed
-        CommandChannel *pChannel = GetCommandRouteChannel(Cmd->GetName());
+        CommandChannel *pChannel;
+        if (Cmd->GetName().contains("CmdSystemAction"))
+        {
+            NetCommands::CmdSystemAction *actionCommand = (NetCommands::CmdSystemAction*)Cmd.GetPointerToUserData();
+            pChannel = GetComponentRouteChannel(actionCommand->GetSource());
+        }
+        else
+        {
+            pChannel = GetCommandRouteChannel(Cmd->GetName());
+        }
         if(pChannel != NULL) {
             // yes, we must route it
             // get new ref

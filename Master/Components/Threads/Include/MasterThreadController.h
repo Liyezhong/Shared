@@ -152,7 +152,7 @@ private:
     void ConnectDataLoggingSignals(const BaseThreadController *pController);
     /****************************************************************************/
     /**
-     * \brief Get command channel for routing by name.
+     * \brief Get command channel for routing by command name.
      *
      * Returns NULL if functor not found.
      * \param[in]   CommandName     Name of command.
@@ -160,6 +160,16 @@ private:
      */
     /****************************************************************************/
     CommandChannel *GetCommandRouteChannel(const QString &CommandName) const;
+    /****************************************************************************/
+    /**
+     * \brief Get command channel for routing by component type.
+     *
+     * Returns NULL if functor not found.
+     * \param[in]   component     Type of component.
+     * \return                      The command channels.
+     */
+    /****************************************************************************/
+    CommandChannel *GetComponentRouteChannel(Global::EventSourceType component) const;
     /****************************************************************************/
     /**
      * \brief Register commands.

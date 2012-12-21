@@ -510,37 +510,28 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
 
     if(Count <= EventEntry.GetRetryAttempts())
     {
+        //send -ve command action if defined.
+        NetCommands::CmdSystemAction *p_CmdSystemAction;
+        p_CmdSystemAction = new NetCommands::CmdSystemAction();
+        p_CmdSystemAction->SetRetryCount(Count);
+        EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
+        quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
+        p_CmdSystemAction->SetEventKey(EventKey);
+        p_CmdSystemAction->SetEventID(EventID);
+        p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
+        Global::tRefType NewRef = GetNewCommandRef();
+
         if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || (EventEntry.GetAckValue() ==  NetCommands::YES_BUTTON) || (EventEntry.GetAckValue() == NetCommands::CONTINUE_BUTTON))
         {
             //send +ve command action if defined.
-            NetCommands::CmdSystemAction *p_CmdSystemAction;           
-            p_CmdSystemAction = new NetCommands::CmdSystemAction();
-            Global::ActionType ActionType = EventEntry.GetActionPositive();
-            p_CmdSystemAction->SetAction(ActionType);
-            p_CmdSystemAction->SetRetryCount(Count);
-            EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
-            quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
-            p_CmdSystemAction->SetEventKey(EventKey);
-            p_CmdSystemAction->SetEventID(EventID);
-            Global::tRefType NewRef = GetNewCommandRef();
-            SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
+            p_CmdSystemAction->SetAction(EventEntry.GetActionPositive());
         }
         else
         {
             //send -ve command action if defined.
-            NetCommands::CmdSystemAction *p_CmdSystemAction;
-            p_CmdSystemAction = new NetCommands::CmdSystemAction();
-            Global::ActionType ActionType = EventEntry.GetActionNegative();
-            p_CmdSystemAction->SetAction(ActionType);
-            p_CmdSystemAction->SetRetryCount(Count);
-            EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
-            quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
-            p_CmdSystemAction->SetEventKey(EventKey);
-            p_CmdSystemAction->SetEventID(EventID);
-            Global::tRefType NewRef = GetNewCommandRef();
-            SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
+            p_CmdSystemAction->SetAction(EventEntry.GetActionNegative());
         }
-
+        SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
     }
     else
     {

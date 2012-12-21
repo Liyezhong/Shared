@@ -20,6 +20,7 @@ private:
     Global::ActionType m_Action; /// < Next Action , after retries are exhausted
     quint32  m_EventKey; //!< Unique Event Key
     quint32 m_EventID; //!< Event ID
+    Global::EventSourceType m_SourceComponent;
 public:
     static QString NAME;    ///< Command name.
     /****************************************************************************/
@@ -30,6 +31,16 @@ public:
     inline bool GetAckState() const {
         return m_Ack;
     }
+    inline Global::EventSourceType GetSource() const {
+        return m_SourceComponent;
+    }
+
+    inline void SetSource(Global::EventSourceType  sourceComponent) {
+        m_SourceComponent = sourceComponent;
+    }
+
+
+
     inline Global::ActionType GetAction() const {
         return m_Action;
     }
@@ -37,7 +48,6 @@ public:
     inline void SetAction(Global::ActionType  ActionType) {
         m_Action = ActionType;
     }
-
 
     inline bool GetMaxRetryAttempts() const {
         return m_MaxNumberofRetries;

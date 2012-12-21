@@ -26,10 +26,11 @@
 namespace Threads {
 
 /****************************************************************************/
-CommandChannel::CommandChannel(BaseThreadController *pParent, QString name) :
-    QObject(pParent),
-    m_pBaseThreadController(pParent),
-    m_channelName(name)
+CommandChannel::CommandChannel(BaseThreadController *pParent, QString name, Global::EventSourceType componentType)
+    : QObject(pParent)
+    , m_pBaseThreadController(pParent)
+    , m_channelName(name)
+    , m_componentType(componentType)
 {
 //    qDebug() << "xxxxxx CommandChannel::CommandChannel" << m_channelName << name;
     CHECKPTR(m_pBaseThreadController);
