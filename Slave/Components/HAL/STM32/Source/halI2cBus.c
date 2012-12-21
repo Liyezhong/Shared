@@ -533,12 +533,12 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
                     I2C->CR2 |= I2C_CR2_ITBUFEN;
                     Device->State = I2C_STATE_ADDRESS;
                 }
-                else {
-                    if (!(SR1 & I2C_SR1_TxE)) {
-                        I2C->CR2 |= I2C_CR2_ITBUFEN;
-                        Device->State = I2C_STATE_DATA;
-                    }
-                }
+//                else {
+//                    if (!(SR1 & I2C_SR1_TxE)) {
+//                        I2C->CR2 |= I2C_CR2_ITBUFEN;
+//                        Device->State = I2C_STATE_DATA;
+//                    }
+//                }
             }
         }
     }
