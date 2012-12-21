@@ -82,8 +82,8 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             p_AlarmHandler->setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
             p_AlarmHandler->setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
         }
-        emit UserSettingsChanged();
         qDebug()<<"\n\n User Settings Update Success";
+        emit UserSettingsChanged();
         mp_DataContainer->SettingsInterface->Write();
     }
 }
