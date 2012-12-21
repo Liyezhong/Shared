@@ -540,8 +540,8 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         NetCommands::CmdSystemAction *p_CmdSystemAction;
         p_CmdSystemAction = new NetCommands::CmdSystemAction();
         Global::ActionType ActionType = EventEntry.GetActionPositive();
-        p_CmdSystemAction->SetAckState(EventEntry.GetAckReqStatus())  ;
-         p_CmdSystemAction->SetEventSource(EventEntry.GetSourceComponent());
+       // p_CmdSystemAction->SetAckState(EventEntry.GetAckReqStatus())  ;
+         p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
         p_CmdSystemAction->SetAction(ActionType);
         Global::tRefType NewRef = GetNewCommandRef();
         p_CmdSystemAction->SetRetryCount(Count);
