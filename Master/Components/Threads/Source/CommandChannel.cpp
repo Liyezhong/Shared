@@ -41,7 +41,7 @@ void CommandChannel::EmitCommand(Global::tRefType Ref, const Global::CommandShPt
     // check if our signal is connected
     if(receivers(SIGNAL(CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &))) > 0)
     {
-//        qDebug() << "CommandChannel::EmitCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName << "receivers" << receivers(SIGNAL(CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &)));
+        qDebug() << "CommandChannel::EmitCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName << "receivers" << receivers(SIGNAL(CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &)));
         // signal connected.
         emit CommandChannelTx(Ref, Cmd);
     }
@@ -73,7 +73,7 @@ void CommandChannel::EmitAcknowledge(Global::tRefType Ref, const Global::Acknowl
 /****************************************************************************/
 void CommandChannel::CommandChannelRx(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd) {
     try  {
-//        qDebug() << "CommandChannel::CommandChannelRx" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName;
+        qDebug() << "CommandChannel::CommandChannelRx" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName;
 
         CHECKPTR(m_pBaseThreadController);
         // execute command
