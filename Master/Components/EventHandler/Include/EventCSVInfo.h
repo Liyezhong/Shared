@@ -43,10 +43,10 @@ protected:
     quint32                         m_EventCode;             ///< Event code/Event ID for event entry - Also used as String ID to get corresponding string for translation
     QString                         m_EventName;             ///< Name of event
     Global::EventType               m_EventType;             ///< Event type/level of event entry.
-    Global::ActionType              m_Action;                ///< Action type Positive
+    Global::ActionType              m_ActionPositive;                ///< Action type Positive
     qint8                           m_NumberOfRetries;       ///< Retry attempts for the action
     Global::ActionType              m_ActionNegative;        ///< Next Action type for Negative action
-    Global::ActionType              m_ActionPositive;        ///< Next Action type for Positive action
+    Global::ActionType              m_NextAction;        ///< Next Action type for Positive action
     bool                            m_ShowInRunLog;          ///< true - show in GUI its and daily run log, else dont show its error log.
     Global::LoggingSource           m_Source;                ///< Source for event entry.
     Global::EventLogLevel           m_LogLevel;              ///< Various log levels
@@ -160,11 +160,11 @@ public:
      */
     /****************************************************************************/
     inline Global::ActionType GetActionType() const {
-        return (Global::ActionType)m_Action;
+        return (Global::ActionType)m_ActionPositive;
     }
 
     inline Global::ActionType GetPositiveActionType() const {
-        return (Global::ActionType)m_ActionPositive;
+        return (Global::ActionType)m_NextAction;
     }
 
     inline Global::ActionType GetNegativeActionType() const {
@@ -284,7 +284,7 @@ public:
     }
 
     inline Global::ActionType GetNextAction() const{
-        return  m_ActionPositive;
+        return m_NextAction;
     }
 
     inline Global::ActionType GetActionPositive() const{
@@ -302,9 +302,9 @@ public:
     }
 
     inline void SetActionPositiveInfo(const Global::ActionType & ActionType, qint8 NumberAttempts = 0, const Global::ActionType & ActionTypeNext = Global::ACNTYPE_NONE) {
-        m_Action = ActionType;
+        m_ActionPositive = ActionType;
         m_NumberOfRetries = NumberAttempts;
-        m_ActionPositive = ActionTypeNext;
+        m_NextAction = ActionTypeNext;
 
     }
 
@@ -313,11 +313,11 @@ public:
     }
 
     inline void SetAction(const Global::ActionType & ActionType) {
-        m_Action = ActionType;
+        m_ActionPositive = ActionType;
     }
 
     inline void SetActionPositive(const Global::ActionType & ActionType) {
-        m_ActionPositive = ActionType;
+        m_NextAction = ActionType;
     }
 
     inline void SetActionNegative(const Global::ActionType & ActionType) {

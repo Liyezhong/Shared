@@ -21,6 +21,7 @@ private:
     quint32  m_EventKey; //!< Unique Event Key
     quint32 m_EventID; //!< Event ID
     Global::EventSourceType m_SourceComponent;
+    Global::tTranslatableStringList m_StringList;                ///< The translatable string.
 public:
     static QString NAME;    ///< Command name.
     /****************************************************************************/
@@ -32,14 +33,22 @@ public:
     inline bool GetAckState() const {
         return m_Ack;
     }
+
     inline Global::EventSourceType GetSource() const {
         return m_SourceComponent;
     }
 
-    inline void SetSource(Global::EventSourceType  sourceComponent) {
+    inline void SetSource(Global::EventSourceType sourceComponent) {
         m_SourceComponent = sourceComponent;
     }
 
+    inline Global::tTranslatableStringList GetStringList() const {
+        return m_StringList;
+    }
+
+    inline void SetStringList(Global::tTranslatableStringList stringList) {
+        m_StringList = stringList;
+    }
 
 
     inline Global::ActionType GetAction() const {

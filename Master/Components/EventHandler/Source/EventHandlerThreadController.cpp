@@ -520,6 +520,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         p_CmdSystemAction->SetEventKey(EventKey);
         p_CmdSystemAction->SetEventID(EventID);
         p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
+        p_CmdSystemAction->SetStringList(EventEntry.GetString());
         Global::tRefType NewRef = GetNewCommandRef();
 
         if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || (EventEntry.GetAckValue() ==  NetCommands::YES_BUTTON) || (EventEntry.GetAckValue() == NetCommands::CONTINUE_BUTTON))
@@ -539,7 +540,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         // if (second action )//second action
         NetCommands::CmdSystemAction *p_CmdSystemAction;
         p_CmdSystemAction = new NetCommands::CmdSystemAction();
-        Global::ActionType ActionType = EventEntry.GetActionPositive();
+        Global::ActionType ActionType = EventEntry.GetNextAction();
        // p_CmdSystemAction->SetAckState(EventEntry.GetAckReqStatus())  ;
          p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
         p_CmdSystemAction->SetAction(ActionType);

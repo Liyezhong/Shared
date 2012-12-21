@@ -41,9 +41,9 @@ EventCSVInfo::EventCSVInfo(const quint32 &EventCode, const Global::EventType &Ev
 
     m_EventCode(EventCode),
     m_EventType(EventType),
-    m_Action(ActionType),
+    m_ActionPositive(ActionType),
     m_NumberOfRetries(NumofAttempts),
-    m_ActionPositive(ActionTypePositive),
+    m_NextAction(ActionTypePositive),
     m_ActionNegative(ActionTypeNegative),
     m_ShowInRunLog(ShowInRunLog),
     m_Source(LoggingSource),
@@ -75,10 +75,10 @@ void EventCSVInfo::CopyFrom(const EventCSVInfo &rOther) {
     m_EventCode = rOther.m_EventCode;
     m_EventName = rOther.m_EventName;
     m_EventType = rOther.m_EventType;
-    m_Action = rOther.m_Action;
+    m_ActionPositive = rOther.m_ActionPositive;
     m_NumberOfRetries = rOther.m_NumberOfRetries;
     m_ActionNegative = rOther.m_ActionNegative;
-    m_ActionPositive = rOther.m_ActionPositive;
+    m_NextAction = rOther.m_NextAction;
     m_ShowInRunLog = rOther.m_ShowInRunLog;
     m_Source = rOther.m_Source;
     m_LogLevel = rOther.m_LogLevel;

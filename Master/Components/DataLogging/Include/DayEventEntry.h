@@ -185,33 +185,36 @@ public:
       }
 
       inline Global::EventLogLevel GetLogLevel() const {
-          m_EventCSVInfo.GetLogLevel();
+          return m_EventCSVInfo.GetLogLevel();
       }
       inline void SetEventCode(qint32 EventCode){
           m_EventCSVInfo.SetEventCode(EventCode);
       }
 
       inline bool GetAlarmStatus() const {
-          m_EventCSVInfo.GetAlarmStatus();
+          return m_EventCSVInfo.GetAlarmStatus();
       }
 
       inline int GetRetryAttempts() const {
-          m_EventCSVInfo.GetRetryAttempts();
+          return m_EventCSVInfo.GetRetryAttempts();
       }
 
       inline Global::ActionType GetActionNegative() const {
-          m_EventCSVInfo.GetActionNegative();
+          return m_EventCSVInfo.GetActionNegative();
       }
       inline Global::ActionType GetActionPositive() const {
-          m_EventCSVInfo.GetActionPositive();
+          return m_EventCSVInfo.GetActionPositive();
+      }
+      inline Global::ActionType GetNextAction() const {
+          return m_EventCSVInfo.GetNextAction();
       }
 
       inline bool GetStatusIcon() const {
-          m_EventCSVInfo.GetStatusIcon();
+          return m_EventCSVInfo.GetStatusIcon();
       }
 
       inline bool GetAckReqStatus() const {
-      m_EventCSVInfo.GetAckReqStatus();
+      return m_EventCSVInfo.GetAckReqStatus();
       }
 
       inline void SetAckReqStatus(bool Ack) {
