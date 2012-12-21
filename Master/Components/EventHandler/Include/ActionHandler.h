@@ -33,11 +33,6 @@
 #include <DataLogging/Include/DayEventEntry.h>
 #include <EventHandler/Include/ErrorHandler.h>
 #include <EventHandler/Include/EventHandlerThreadController.h>
-
-#include <NetCommands/Include/CmdSystemError.h>
-#include <NetCommands/Include/CmdSystemInfo.h>
-#include <NetCommands/Include/CmdSystemStop.h>
-#include <NetCommands/Include/CmdSystemWarning.h>
 #include <NetCommands/Include/CmdSystemAction.h>
 
 #include <QHash>
