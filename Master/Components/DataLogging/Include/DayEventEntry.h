@@ -41,20 +41,20 @@ namespace DataLogging {
  * \warning This class is not thread safe!
  */
 /****************************************************************************/
-class DayEventEntry : public EventHandler::EventCSVInfo {
+class DayEventEntry  {
     friend class TestDayOperationEntry;
 private:
 
+    EventHandler::EventCSVInfo m_EventCSVInfo;
     Global::tTranslatableStringList m_String;                ///< The translatable string.
     bool                            m_EventStatus;           ///< true/false - Set/Reset flag for the event
-    bool                            m_Active;		     ///< true - Error status is active
     Global::tRefType                m_Ref;                   ///< Ref for the acknowledgement received
     NetCommands::ClickedButton_t    m_AckType;               ///< Ack status received from GUI
 //    Global::AckOKNOK                m_AckValue;              ///< Ack value received from GUI
     quint32                         m_EventKey;              ///< Event Key for every event raised. NULL until raised.
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_count;                 ///< Number of times the event has occured
-    bool                            m_ShowInRunLogStatus;
+
 
 
     /****************************************************************************/
@@ -77,8 +77,8 @@ public:
     DayEventEntry();
 
     DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
-                                 bool Active,const Global::tTranslatableStringList &String, quint8 count,
-                                 NetCommands::ClickedButton_t ClickButton, /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref);
+                                const Global::tTranslatableStringList &String, quint8 count,
+                                 NetCommands::ClickedButton_t ClickButton, /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, EventHandler::EventCSVInfo CSVInfo);
     /****************************************************************************/
     /**
      * \brief Copy constructor.
@@ -167,14 +167,78 @@ public:
           m_String = EventStringList;
       }
 
-      bool GetShowInRunLogStatus() const{
-          return (GetRunLogStatus());
+       bool GetShowInRunLogStatus() const{
+          return (m_EventCSVInfo.GetRunLogStatus());
 
       }
 
+        Global::EventType GetEventType() const {
+          return m_EventCSVInfo.GetEventType();
+      }
 
+       quint32 GetEventCode () const{
+          return m_EventCSVInfo.GetEventCode();
+      }
 
-      void SetEventCSVInfo(EventCSVInfo CSVInfo) ;
+      inline QString GetEventName() const {
+          return m_EventCSVInfo.GetEventName();
+      }
+
+      inline Global::EventLogLevel GetLogLevel() const {
+          m_EventCSVInfo.GetLogLevel();
+      }
+      inline void SetEventCode(qint32 EventCode){
+          m_EventCSVInfo.SetEventCode(EventCode);
+      }
+
+      inline bool GetAlarmStatus() const {
+          m_EventCSVInfo.GetAlarmStatus();
+      }
+
+      inline int GetRetryAttempts() const {
+          m_EventCSVInfo.GetRetryAttempts();
+      }
+
+      inline Global::ActionType GetActionNegative() const {
+          m_EventCSVInfo.GetActionNegative();
+      }
+      inline Global::ActionType GetActionPositive() const {
+          m_EventCSVInfo.GetActionPositive();
+      }
+
+      inline bool GetStatusIcon() const {
+          m_EventCSVInfo.GetStatusIcon();
+      }
+
+      inline bool GetAckReqStatus() const {
+      m_EventCSVInfo.GetAckReqStatus();
+      }
+
+      inline void SetAckReqStatus(bool Ack) {
+          m_EventCSVInfo.SetAckRequired(Ack);
+      }
+
+      inline Global::ActionType GetActionType() const {
+          return m_EventCSVInfo.GetActionType();
+      }
+
+      inline Global::GuiButtonType GetButtonType() const {
+          return m_EventCSVInfo.GetButtonType();
+      }
+
+      inline Global::GuiButtonType GetGUIMessageBoxOptions() const {
+          return m_EventCSVInfo.GetGUIMessageBoxOptions();
+      }
+
+      inline Global::EventSourceType GetSourceComponent() const {
+          return m_EventCSVInfo.GetSourceComponent();
+      }
+
+      inline Global::LoggingSource GetSource() const {
+          return m_EventCSVInfo.GetSource();
+      }
+
+      void SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) ;
 
       /****************************************************************************/
       /**
@@ -184,7 +248,7 @@ public:
        */
       /****************************************************************************/
       inline bool IsEventActive() const {
-          return m_Active;
+          return m_EventStatus;
       }
 
     /****************************************************************************/
@@ -199,9 +263,7 @@ public:
           m_EventStatus = EventStatus;
       }
 
-   inline void SetActive(const bool & Active) {
-          m_Active = Active;
-      }
+
 
     /****************************************************************************/
       /**

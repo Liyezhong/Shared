@@ -69,13 +69,16 @@ void DayEventLogger::SwitchToNewFile() {
     SwitchToFile(FileName, true);
 }
 
+
+
 /****************************************************************************/
 void DayEventLogger::Log(const DayEventEntry &Entry) {
     try {
 
         // translate event type
         quint32 IDStrEvtType = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
-        switch(Entry.GetEventType()) {
+        const Global::EventType EventType = Entry.GetEventType();
+        switch(EventType) {
             case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
             case Global::EVTTYPE_FATAL_ERROR:   IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
             case Global::EVTTYPE_ERROR:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;

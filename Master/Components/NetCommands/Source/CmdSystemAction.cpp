@@ -37,14 +37,15 @@ QString CmdSystemAction::NAME = "NetCommands::CmdSystemAction";
  */
 /****************************************************************************/
 CmdSystemAction::CmdSystemAction(int Timeout, const QString &theStrErrorInfo, bool  Ack, qint8 NumberOfRetries,
-                                 bool UserRetryFlag, quint32 EventKey, quint32 EventID) :
+                                 bool UserRetryFlag, quint32 EventKey, quint32 EventID, Global::EventSourceType EventSource) :
     Command(Timeout),
     m_StrErrorInfo(theStrErrorInfo),
     m_Ack(Ack),
     m_MaxNumberofRetries (NumberOfRetries),
     m_UserRetry(UserRetryFlag),
     m_EventKey(EventKey),
-    m_EventID(EventID)
+    m_EventID(EventID),
+    m_SourceComponent(EventSource)
 {
 }
 

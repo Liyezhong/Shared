@@ -41,7 +41,7 @@ namespace DataManager {
 
 namespace EventHandler {
     class EventHandlerThreadController;
-    class ActionHandler;
+
 }
 namespace Threads {
 
@@ -450,7 +450,7 @@ protected:
     /****************************************************************************/
 
 
-    void AttachActionHandler(EventHandler::ActionHandler *pActionHandler);
+
     /**
      * \brief Set connection between EventHandler and RemoteCare Controller.
      *

@@ -61,13 +61,13 @@ EventCSVInfo::EventCSVInfo(const quint32 &EventCode, const Global::EventType &Ev
 EventCSVInfo::~EventCSVInfo() {
 }
 
-/****************************************************************************/
-const EventCSVInfo & EventCSVInfo::operator = (const EventCSVInfo &rOther) {
-    if(this != &rOther) {
-        CopyFrom(rOther);
-    }
-    return *this;
-}
+///****************************************************************************/
+//const EventCSVInfo & EventCSVInfo::operator = (const EventCSVInfo &rOther) {
+//    if(this != &rOther) {
+//        CopyFrom(rOther);
+//    }
+//    return *this;
+//}
 
 /****************************************************************************/
 void EventCSVInfo::CopyFrom(const EventCSVInfo &rOther) {

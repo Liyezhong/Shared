@@ -407,7 +407,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
 {
     qDebug() << "EventHandlerThreadController::ProcessEvent" << EventID;
 
-//    return;
+
 
     m_EventIdKeyMap.insert(EventKey,EventID);
 
@@ -429,7 +429,8 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     EventEntry.SetEventCSVInfo(EventInfo);
     EventEntry.SetTranslatableStringList(EventStringList);
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
-    EventEntry.SetActive(EventStatus);
+    
+    EventEntry.SetEventStatus(EventStatus);
     m_EventKeyDataMap.insert(EventKey, EventEntry);
 
 
@@ -539,6 +540,8 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         NetCommands::CmdSystemAction *p_CmdSystemAction;
         p_CmdSystemAction = new NetCommands::CmdSystemAction();
         Global::ActionType ActionType = EventEntry.GetActionPositive();
+        p_CmdSystemAction->SetAckState(EventEntry.GetAckReqStatus())  ;
+         p_CmdSystemAction->SetEventSource(EventEntry.GetSourceComponent());
         p_CmdSystemAction->SetAction(ActionType);
         Global::tRefType NewRef = GetNewCommandRef();
         p_CmdSystemAction->SetRetryCount(Count);

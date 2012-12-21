@@ -43,7 +43,6 @@
 #include <RemoteCareAgent/Include/Commands/CmdAxedaDataItem.h>
 #include <RemoteCareAgent/Include/Commands/CmdAxedaUpload.h>
 #include <EventHandler/Include/EventHandlerThreadController.h>
-#include <EventHandler/Include/ActionHandler.h>
 #include <QMetaType>
 #include <QSharedMemory>
 #include <QDebug>
@@ -285,7 +284,7 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
     try {
         AddAndConnectController(mp_EventThreadController, &m_CommandChannelEventThread,
                                 static_cast<int>(EVENT_HANDLER_THREAD), true);
-        AttachActionHandler(new EventHandler::ActionHandler(mp_EventThreadController));
+
     } catch(...) {
         // m_pEventThreadController was not added properly so delete all allocated stuff yourself!
         // delete m_pEventThreadController
@@ -317,15 +316,6 @@ void MasterThreadController::AttachErrorHandler(EventHandler::ErrorHandler *pErr
     // set ErrorHandler's parent that will move itself and the
     // ErrorHandler to a dedicated thread.
     pErrorHandler->setParent(mp_EventThreadController);
-}
-
-void MasterThreadController::AttachActionHandler(EventHandler::ActionHandler *pActionHandler) {
-    CHECKPTR(pActionHandler);
-    // set ErrorHandler's parent that will move itself and the
-    // ActionHandler to a dedicated thread.
-    CONNECTSIGNALSLOT(mp_EventThreadController, ForwardToErrorHandler(const DataLogging::DayEventEntry &, const quint32),
-                          pActionHandler, ReceiveEvent(const DataLogging::DayEventEntry &, const quint32 ));
-
 }
 
 /****************************************************************************/

@@ -25,6 +25,7 @@ public:
     static QString NAME;    ///< Command name.
     /****************************************************************************/
     CmdSystemAction(int Timeout, const QString &StrErrorInfo, bool  Ack, qint8 NumberOfRetries = 0, bool UserRetryFlag = false , quint32 EventKey = 0, quint32 EventID = 0);
+    CmdSystemAction(int Timeout, const QString &StrErrorInfo, bool  Ack, qint8 NumberOfRetries = 0, bool UserRetryFlag = false , quint32 EventKey = 0, quint32 EventID = 0, Global::EventSourceType EventSource = Global::EVENTSOURCE_NONE);
     ~CmdSystemAction();
     virtual QString GetName() const;
     QString GetErrorInfo() const;

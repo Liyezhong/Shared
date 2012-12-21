@@ -127,7 +127,7 @@ public:
      * \param[in]   rOther  Const reference to other instance.
      */
     /****************************************************************************/
-    const EventCSVInfo & operator = (const EventCSVInfo &rOther);
+  //  const EventCSVInfo & operator = (const EventCSVInfo &rOther);
     /****************************************************************************/
 
 
@@ -141,14 +141,14 @@ public:
      * \return      Event type.
      */
     /****************************************************************************/
-    inline Global::EventType GetEventType() const {
+    inline const Global::EventType GetEventType() const {
         return m_EventType;
     }
 
     inline void SetEventType(Global::EventType EventType) {
         m_EventType = EventType;
     }
-    inline const int GetRetryAttempts() {
+    inline  int GetRetryAttempts() const {
         return m_NumberOfRetries;
     }
 
@@ -233,6 +233,10 @@ public:
         return m_EventName;
     }
 
+    inline bool StatusBarIcon() const {
+        return m_StatusBarIcon;
+    }
+
     /****************************************************************************/
     /**
      * \brief Get the source of the event.
@@ -279,16 +283,16 @@ public:
         m_LogLevel = LogLevel;
     }
 
-    inline Global::ActionType GetNextAction() {
+    inline Global::ActionType GetNextAction() const{
         return  m_ActionPositive;
     }
 
-    inline Global::ActionType GetActionPositive() {
+    inline Global::ActionType GetActionPositive() const{
 
         return m_ActionPositive;
 
     }
-    inline Global::ActionType GetActionNegative() {
+    inline Global::ActionType GetActionNegative() const{
 
         return m_ActionNegative;
 

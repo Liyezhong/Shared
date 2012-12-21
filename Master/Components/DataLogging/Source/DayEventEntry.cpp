@@ -32,48 +32,46 @@ DayEventEntry::DayEventEntry(const DayEventEntry &rOther) {
 }
 
 /****************************************************************************/
-DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String) : EventCSVInfo(m_EventCode, m_EventType,  m_Action,
-         m_NumberOfRetries,  m_ActionPositive, m_ActionNegative,
-         m_ShowInRunLog,  m_Source,  m_LogLevel,
-         m_MessageType,  m_AckRequired,  m_AlarmRequired,  m_ButtonType,
-         m_StatusBarIcon, m_SourceComponent ),
+DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String):
     m_TimeStamp(TimeStamp),
     m_String(String)
 {
 }
 
 DayEventEntry::DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
-                             bool Active,const Global::tTranslatableStringList &String, quint8 count,
-                             NetCommands::ClickedButton_t ClickButton, /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref):
+                             const Global::tTranslatableStringList &String, quint8 count,
+                             NetCommands::ClickedButton_t ClickButton, /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, EventHandler::EventCSVInfo CSVInfo):
     m_TimeStamp(TimeStamp),
     m_EventKey(EventKey),
     m_EventStatus(EventStatus),
-    m_Active(Active),
     m_String(String),
     m_count(count),
     m_AckType(ClickButton),
-    m_Ref(Ref) {
+    m_Ref(Ref),
+    m_EventCSVInfo(CSVInfo)
+{
     //m_AckValue = AckValue.GetStatus();
 
 }
 
-void DayEventEntry::SetEventCSVInfo(EventCSVInfo CSVInfo) {
+void DayEventEntry::SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) {
 
-    SetEventCode(CSVInfo.GetEventCode());
-    SetEventType(CSVInfo.GetEventType());
-    SetAction(CSVInfo.GetActionType());
-    SetRetries(CSVInfo.GetRetryAttempts());
-    SetActionNegative(CSVInfo.GetActionNegative());
-    SetActionPositive(CSVInfo.GetActionPositive());
-    bool ShowInRunLog = CSVInfo.GetRunLogStatus();
-    SetRunLogStatus(ShowInRunLog);
-    SetLogLevel(CSVInfo.GetLogLevel());
-    SetMessageType(CSVInfo.GetMessageType());
-    SetAckRequired(CSVInfo.GetAckReqStatus());
-    SetAlarmStatus(CSVInfo.GetAlarmStatus());
-    SetButtonType(CSVInfo.GetButtonType());
-    SetStatusIcon(CSVInfo.GetStatusIcon());
-    SetEventSource(CSVInfo.GetEventSource());
+    m_EventCSVInfo = CSVInfo;
+//    m_EventCSVInfo.SetEventCode(CSVInfo.GetEventCode());
+//    m_EventCSVInfo.SetEventType(CSVInfo.GetEventType());
+//    m_EventCSVInfo.SetAction(CSVInfo.GetActionType());
+//    m_EventCSVInfo.SetRetries(CSVInfo.GetRetryAttempts());
+//    m_EventCSVInfo.SetActionNegative(CSVInfo.GetActionNegative());
+//    m_EventCSVInfo.SetActionPositive(CSVInfo.GetActionPositive());
+//    bool ShowInRunLog = CSVInfo.GetRunLogStatus();
+//    m_EventCSVInfo.SetRunLogStatus(ShowInRunLog);
+//    m_EventCSVInfo.SetLogLevel(CSVInfo.GetLogLevel());
+//    m_EventCSVInfo.SetMessageType(CSVInfo.GetMessageType());
+//    m_EventCSVInfo.SetAckRequired(CSVInfo.GetAckReqStatus());
+//    m_EventCSVInfo. SetAlarmStatus(CSVInfo.GetAlarmStatus());
+//    m_EventCSVInfo.SetButtonType(CSVInfo.GetButtonType());
+//    m_EventCSVInfo.SetStatusIcon(CSVInfo.GetStatusIcon());
+//    m_EventCSVInfo.SetEventSource(CSVInfo.GetEventSource());
 }
 /****************************************************************************/
 DayEventEntry::~DayEventEntry() {
@@ -93,23 +91,23 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_TimeStamp = rOther.m_TimeStamp;
     m_String = rOther.m_String;
     m_EventStatus = rOther.m_EventStatus;
-    m_Active = rOther.m_Active;
     m_EventKey = rOther.m_EventKey;
     m_Ref = rOther.m_Ref;
     m_count = rOther.m_count;
     m_AckType = rOther.m_AckType;
+    m_EventCSVInfo = rOther.m_EventCSVInfo;
 
 //    m_AckValue = rOther.m_AckValue;
 }
 
 /****************************************************************************/
 void DayEventEntry::DumpToConsole() const {
-    QString LoggingString = m_TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz") + ";" +
-            QString::number(m_Source.GetSource(), 10) + ";" +
-            QString::number(m_Source.GetSubComponent(), 10) + ";" +
-            QString::number(AsInt(m_EventType), 10) + ";" +
+    QString LoggingString = m_TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz") + ";"
+            /* + QString::number(m_EventCSVInfo.GetSource(), 10) +*/ ";" +
+            /*QString::number(m_EventCSVInfo.GetSubComponent(), 10)*/ + ";" +
+            QString::number(AsInt(m_EventCSVInfo.GetEventType()), 10) + ";" +
             //QString::number(AsInt(m_EventStatus), 10) + ";" +
-            QString::number(m_EventCode, 10);
+            QString::number(m_EventCSVInfo.GetEventCode(), 10);
     if(m_String.size() > 0) {
         LoggingString += ":";
     }
