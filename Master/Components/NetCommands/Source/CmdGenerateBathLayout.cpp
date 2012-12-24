@@ -19,6 +19,8 @@
 /****************************************************************************/
 
 #include <NetCommands/Include/CmdGenerateBathLayout.h>
+#include <QBuffer>
+
 
 namespace NetCommands {
 
@@ -31,8 +33,9 @@ QString CmdGenerateBathLayout::NAME = "NetCommands::CmdGenerateBathLayout";
  * \param[in]   Timeout     Timeout for command.
  */
 /****************************************************************************/
-CmdGenerateBathLayout::CmdGenerateBathLayout(int Timeout) :
-    Command(Timeout)
+CmdGenerateBathLayout::CmdGenerateBathLayout(int Timeout, const QDataStream &ProgramSequenceBlgTempFile) :
+    Command(Timeout),
+    m_ProgramSeqBlgTemp(static_cast<QBuffer *> (ProgramSequenceBlgTempFile.device())->data())
 {
 }
 
@@ -68,5 +71,15 @@ CmdGenerateBathLayout::CmdGenerateBathLayout() :
     Command(0)
 {
 }
-
+/****************************************************************************/
+/*!
+ *  \brief   This function returns the ProgramSequenceBlgTempFile.
+ *
+ *  \return  ProgramSequenceBlgTempFile
+ */
+/****************************************************************************/
+QByteArray const& CmdGenerateBathLayout::GetProgramSequenceBlgTempFile() const
+{
+    return m_ProgramSeqBlgTemp;
+}
 } // end namespace NetCommands

@@ -39,14 +39,17 @@ public:
     friend QDataStream & operator << (QDataStream &, const CmdGenerateBathLayout &);
     friend QDataStream & operator >> (QDataStream &, CmdGenerateBathLayout &);
     /****************************************************************************/
-    CmdGenerateBathLayout(int Timeout);
-    ~CmdGenerateBathLayout();
-    virtual QString GetName() const;
-
+    CmdGenerateBathLayout(int Timeout, const QDataStream &ProgramSequenceBlgTempFile);
     CmdGenerateBathLayout();
+    ~CmdGenerateBathLayout();
+    virtual QString GetName() const;    
+    QByteArray const& GetProgramSequenceBlgTempFile() const;
 private:
     CmdGenerateBathLayout(const CmdGenerateBathLayout &);                       ///< Not implemented.
     const CmdGenerateBathLayout & operator = (const CmdGenerateBathLayout &);   ///< Not implemented.
+
+private:
+    QByteArray      m_ProgramSeqBlgTemp;       ///< The ProgramSequenceBlgTempFile.
 }; // end class CmdGenerateBathLayout
 
 /****************************************************************************/
@@ -58,9 +61,11 @@ private:
  * \return                      Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdGenerateBathLayout &Cmd)
-{
-    Q_UNUSED(Cmd);
+inline QDataStream & operator << (QDataStream &Stream, const CmdGenerateBathLayout &Cmd) {
+    // copy base class data
+    Cmd.CopyToStream(Stream);
+    // copy internal data
+    Stream << Cmd.m_ProgramSeqBlgTemp;
     return Stream;
 }
 
@@ -73,9 +78,12 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdGenerateBathLayo
  * \return                      Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdGenerateBathLayout &Cmd)
-{
-    Q_UNUSED(Cmd);
+inline QDataStream & operator >> (QDataStream &Stream, CmdGenerateBathLayout &Cmd) {
+
+    // copy base class data
+    Cmd.CopyFromStream(Stream);
+    // copy internal data
+    Stream >> Cmd.m_ProgramSeqBlgTemp;
     return Stream;
 }
 
