@@ -27,7 +27,7 @@ namespace KeyBoard {
 
 /****************************************************************************/
 /**
- * \brief Test class for Program sequence class.
+ * \brief Test class for KeyBoard class.
  */
 /****************************************************************************/
 class CTestKeyBoard : public QObject {
@@ -98,7 +98,7 @@ void CTestKeyBoard::utTestKeyBoard() {
      QCOMPARE(p_KeyBoardWidget->GetLineEditString(), QString("Test"));
 }
 
-} // end namespace DataManager
+} // end namespace KeyBoard
 
 QTEST_MAIN(KeyBoard::CTestKeyBoard)
 #include "TestKeyBoard.moc"

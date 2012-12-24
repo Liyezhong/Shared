@@ -957,23 +957,6 @@ void CKeyBoard::OnOkClicked()
     ValidateString(EnteredText);
     MainMenu::CMessageDlg MessageDlg(this);
     MessageDlg.SetTitle(tr("Information Message"));
-
-//    if (EnteredCharLen < m_MinEnteredCharLen) {
-//        MessageDlg.SetText(QString(tr("The text you entered is too short. "
-//                                      "The length must be at least %1.")
-//                                   .arg(m_MinEnteredCharLen)));
-//    }
-//    else if (EnteredCharLen > m_MaxEnteredCharLen) {
-//        MessageDlg.SetText(QString(tr("The text you entered is too long. "
-//                                      "The length must not be greater than %1.")
-//                                   .arg(m_MaxEnteredCharLen)));
-//    }
-//    else {
- //       m_EnteredCharsValid = true;
- //       NotifyObserver();
- //       return;
- //  }
-
     MessageDlg.SetIcon(QMessageBox::Information);
     MessageDlg.SetButtonText(1, tr("Ok"));
     MessageDlg.HideButtons();

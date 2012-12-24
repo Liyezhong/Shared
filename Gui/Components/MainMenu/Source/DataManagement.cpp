@@ -178,7 +178,7 @@ void CDataManagement::ResetButtons()
         if ((m_CurrentUserRole == MainMenu::CMainWindow::Admin ||
              m_CurrentUserRole == MainMenu::CMainWindow::Service)) {
             mp_Ui->importButton->setEnabled(true);
-            mp_Ui->remoteSWUpdateButton->setEnabled(true);
+            mp_Ui->remoteSWUpdateButton->setEnabled(false);
             mp_Ui->softwareUpdateButton->setEnabled(true);
         }
         else {
