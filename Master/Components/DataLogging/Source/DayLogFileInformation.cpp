@@ -59,6 +59,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &L
                     ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(ReadData.split(';').value(1)));                    
                 }
                 else {
+
                     // log the data
                 }
                 qint32 IndexValue = ReadData.indexOf(";true;");
