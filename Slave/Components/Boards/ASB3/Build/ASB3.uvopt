@@ -2360,10 +2360,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>18</ColumnNumber>
+      <ColumnNumber>32</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>39</TopLine>
+      <CurrentLine>61</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotor.h</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotor.h</FilenameWithoutPath>
@@ -2537,8 +2537,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>1</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\dbStepperMotor.c</PathWithFileName>
       <FilenameWithoutPath>dbStepperMotor.c</FilenameWithoutPath>
@@ -2619,10 +2619,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>1</ColumnNumber>
+      <ColumnNumber>40</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>337</TopLine>
-      <CurrentLine>358</CurrentLine>
+      <CurrentLine>350</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorLimitSwitch.c</FilenameWithoutPath>
@@ -2724,10 +2724,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>52</ColumnNumber>
+      <ColumnNumber>30</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>260</TopLine>
+      <CurrentLine>273</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\..\..\common\Components\FunctionModules\defStepperMotor.h</PathWithFileName>
       <FilenameWithoutPath>defStepperMotor.h</FilenameWithoutPath>
@@ -3794,136 +3794,5 @@
       </Window>
     </View>
   </WinLayout>
-
-  <MDIGroups>
-    <Orientation>1</Orientation>
-    <ActiveMDIGroup>0</ActiveMDIGroup>
-    <MDIGroup>
-      <Size>100</Size>
-      <ActiveTab>0</ActiveTab>
-      <Documents>
-        <Doc>
-          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</Name>
-          <ColumnNumber>1</ColumnNumber>
-          <TopLine>337</TopLine>
-          <CurrentLine>358</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmError.c</Name>
-          <ColumnNumber>38</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>14</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\Source\halConfigure.c</Name>
-          <ColumnNumber>2</ColumnNumber>
-          <TopLine>115</TopLine>
-          <CurrentLine>115</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotor.h</Name>
-          <ColumnNumber>32</ColumnNumber>
-          <TopLine>39</TopLine>
-          <CurrentLine>61</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\HAL\STM32\Startup\Retarget.c</Name>
-          <ColumnNumber>32</ColumnNumber>
-          <TopLine>119</TopLine>
-          <CurrentLine>131</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\..\..\Common\Components\FunctionModules\defStepperMotor.h</Name>
-          <ColumnNumber>30</ColumnNumber>
-          <TopLine>260</TopLine>
-          <CurrentLine>273</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\FunctionModules\Temperature\Source\fmTemperatureHeater.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>319</TopLine>
-          <CurrentLine>326</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorCAN.c</Name>
-          <ColumnNumber>14</ColumnNumber>
-          <TopLine>284</TopLine>
-          <CurrentLine>299</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotor.c</Name>
-          <ColumnNumber>4</ColumnNumber>
-          <TopLine>426</TopLine>
-          <CurrentLine>426</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmSystem.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>146</TopLine>
-          <CurrentLine>162</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmMonitor.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>255</TopLine>
-          <CurrentLine>277</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmStorage.c</Name>
-          <ColumnNumber>62</ColumnNumber>
-          <TopLine>743</TopLine>
-          <CurrentLine>758</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\HAL\STM32\Source\halAnalog.c</Name>
-          <ColumnNumber>72</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>15</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\Source\main.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>64</TopLine>
-          <CurrentLine>64</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\FunctionModules\Temperature\Source\fmTemperature.c</Name>
-          <ColumnNumber>5</ColumnNumber>
-          <TopLine>632</TopLine>
-          <CurrentLine>652</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmUtilities.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>209</TopLine>
-          <CurrentLine>213</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\HAL\STM32\Include\halUtilities.h</Name>
-          <ColumnNumber>4</ColumnNumber>
-          <TopLine>38</TopLine>
-          <CurrentLine>44</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\HAL\STM32\Source\halUtilities.c</Name>
-          <ColumnNumber>47</ColumnNumber>
-          <TopLine>123</TopLine>
-          <CurrentLine>141</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmMain.c</Name>
-          <ColumnNumber>36</ColumnNumber>
-          <TopLine>127</TopLine>
-          <CurrentLine>139</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\..\BaseModule\Source\bmScheduler.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>1</CurrentLine>
-        </Doc>
-      </Documents>
-    </MDIGroup>
-  </MDIGroups>
 
 </ProjectOpt>
