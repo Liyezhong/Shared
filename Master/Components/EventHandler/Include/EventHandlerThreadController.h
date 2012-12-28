@@ -78,8 +78,6 @@ public:
     virtual void CleanupAndDestroyObjects();
     inline void SetAlarmHandler( Platform::AlarmHandler *pAlarmHandler) {//, DataManager::CUserSettings *pUserSettings){
         mpAlarmHandler = pAlarmHandler;      
-        mpAlarmHandler->setAlarm(1, Global::ALARM_ERROR, true);
-        mpAlarmHandler->setAlarm(1, Global::ALARM_WARNING, true);
     }
 
     Platform::AlarmHandler * GetAlarmSettings()

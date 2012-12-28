@@ -49,15 +49,16 @@ void AlarmHandler::onTimeout()
     m_mutex->lock();
 
     Global::AlarmType alarmType = Global::ALARM_NONE;
-    QHash<quint16, Global::AlarmType>::iterator i;
+    QHash<quint64, Global::AlarmType>::iterator i;
     for (i = m_errorList.begin(); i != m_errorList.end(); ++i)
     {
         if ((i.value() == Global::ALARM_ERROR) || ((i.value() == Global::ALARM_WARNING) && (alarmType != Global::ALARM_ERROR)))
         {
             alarmType = i.value();
+            emitAlarm(alarmType);
         }
     }
-    emitAlarm(alarmType);
+
 
     m_mutex->unlock();
     m_Timer->start();
@@ -106,7 +107,7 @@ void AlarmHandler::setSoundNumber(Global::AlarmType alarmType, int number)
 {
     Q_UNUSED(number);
     QString fileName = "";
-    m_soundPath="/mnt/hgfs/SVN_HOME/trunk/Colorado/ColoradoMain/Master/Components/Main/Build/bin_dbg/";
+   // m_soundPath="/mnt/hgfs/SVN_HOME/trunk/Colorado/ColoradoMain/Master/Components/Main/Build/bin_dbg/";
     if (alarmType == Global::ALARM_ERROR)
         fileName = m_soundPath + "SoundE" + QString::number(number) + ".wav";
     else
@@ -129,16 +130,16 @@ void AlarmHandler::setSoundFile(Global::AlarmType alarmType, QString fileName)
     m_mutex->unlock();
 }
 
-void AlarmHandler::setAlarm(quint16 eventId, Global::AlarmType alarmType, bool active)
+void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active)
 {
     m_mutex->lock();
     if (active)
     {
-        m_errorList.insert(eventId, alarmType);
+        m_errorList.insert(eventKey, alarmType);
     }
     else
     {
-        m_errorList.remove(eventId);
+        m_errorList.remove(eventKey);
     }
     m_mutex->unlock();
 }

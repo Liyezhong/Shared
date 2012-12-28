@@ -45,7 +45,7 @@ public:
     /**
       @brief Includes or removes an alarm into the queue of raised alarms
       */
-    void setAlarm(quint16 eventId, Global::AlarmType alarmType, bool active);
+    void setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active);
 
     /**
       @brief Removes all alarms from alarm queue
@@ -76,7 +76,7 @@ public:
     void setSoundNumber(Global::AlarmType alarmType, int number);
 
 private:
-    QHash<quint16, Global::AlarmType> m_errorList;
+    QHash<quint64, Global::AlarmType> m_errorList;
     QHash<Global::AlarmType, QString> m_soundList;
     QHash<Global::AlarmType, quint8> m_volumeList;
     QTimer* m_Timer;

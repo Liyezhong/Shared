@@ -180,6 +180,8 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
     // !\ #EventID,EventCODE,EventType,TargetComponent+,Action,SourceComponent,Yes/No,Error/High/Medium/Low/FatalError,Yes/No,True/False,EnglishString,Yes+No+Cancel,EventInfo,Yes/No
     // !\ #EventId (0),EventMacro (1),EventType(2),Target(3),MessageType(4),Source(5),UIAlarmTone(6),LogLevel(7),Ack(8),UserLog(9),
     //    EventString(10),GUIEvent(11),EventInfo(12),StatusBarIcon(13)
+
+    bool status = true;
     QFile file(filename);
     if (!file.open (QIODevice::ReadOnly | QIODevice::Text))
         return;
@@ -195,7 +197,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
         line = stream.readLine();
         if (line.left(1) != "#")
         {
-            qint8 NumOfAttempts = 1; // since at least one cycle is
+            qint8 NumOfAttempts = 1; // Minimum number of attempts is one for any event- action combination.
             QStringList textList = line.split(",");
             //! No of event fields from event conf file
             //if (textList.count() == NUM_FIELDS_EVENTCONF)
@@ -203,11 +205,16 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             //! \ Get EventId (0)
             EventHandler::EventCSVInfo EventCSVInfo;
 
+            //Get EventCode
             if (textList.count() > 0)
             {
-                EventCSVInfo.SetEventCode(textList.at(0).toInt()); // only int check, no other validations done
+                int EventCode = textList.at(0).toInt();
+                if(EventCode == 0)
+                    status = false;
+                EventCSVInfo.SetEventCode(EventCode); // only int check, no other validations done
             }
 
+            //Get EventMacro
             //! \ Get EventMacro (1)
             QString EventMacroName = "";
             if (textList.count() > 1)
@@ -218,6 +225,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             Q_UNUSED(EventMacroName);
 
 
+            //Get EventType
             //! \ Get EventType (2)
             if (textList.count() > 2)
             {
@@ -226,7 +234,10 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                                                                        trimmed().toUpper(),
                                                                        Global::EVTTYPE_UNDEFINED);
 
+
+
                 if(EventType == Global::EVTTYPE_UNDEFINED)  {
+                       status = false;
 #ifdef VALIDATE
                     return;// the field is mandatory & only the allowed types are acceptable
 #endif
@@ -234,6 +245,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                 EventCSVInfo.SetEventType(EventType);
             }
 
+            //Get ActionType
             //! \ Read ActionType(3) and Set Action / Positive ActionType(3)
 
             Global::ActionType ActionType = Global::ACNTYPE_NONE;;
@@ -245,12 +257,17 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                 ActionType = m_ActionTypeEnumMap.value(ActionInfo.at(0).
                                                        trimmed().toUpper(),
                                                        Global::ACNTYPE_NONE);
+                //No validation on Action Type
 
+                //Get Number of attempts
                 if(ActionInfo.count() >= 2)
                 {
                     NumOfAttempts = ActionInfo.at(1).toInt();//else , already initialized to 1!
+                    if(NumOfAttempts == 0)
+                        status = false;
                 }
 
+                //Get ActionPositive
                 if(ActionInfo.count() == 3)
                 {
                     ActionTypePositive = m_ActionTypeEnumMap.value(ActionInfo.at(2).
@@ -261,6 +278,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                 EventCSVInfo.SetActionInfo(ActionType, NumOfAttempts, ActionTypePositive);
 
                 if(ActionInfo.count() == 2) {
+                    status = false;
 
 #ifdef VALIDATE
                     return;// error , incomplete data
@@ -269,6 +287,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
             }
 
+            //Get ActionNegative
             QString ActionNegativeStr = "";
             Global::ActionType ActionNegative = Global::ACNTYPE_NONE;
             if (textList.count() > 4)
@@ -289,6 +308,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
                 EventCSVInfo.SetEventSource(m_EventSourceMap.value(Source.toUpper(),Global::EVENTSOURCE_NONE));
 
+                // Assumed Ack is required if source component name is set
                 if(Source.isEmpty())
                 {
                     EventCSVInfo.SetAckRequired(false);
@@ -305,7 +325,14 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
             if (textList.count() > 6)
             {
-                bool AlarmFlag = textList.at(6).toInt();
+                bool AlarmFlag = false;
+
+                if((textList.at(6).trimmed().toUpper() == "NO") || (textList.at(6).trimmed().toUpper() == ""))
+                    AlarmFlag = false;
+
+                if(textList.at(6).trimmed().toUpper() == "YES")
+                    AlarmFlag = true;
+
                 EventCSVInfo.SetAlarmStatus(AlarmFlag);
             }
 
@@ -433,11 +460,28 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     EventEntry.SetEventStatus(EventStatus);
     m_EventKeyDataMap.insert(EventKey, EventEntry);
 
+    Global::AlarmType alarm = Global::ALARM_NONE;
+    if(EventEntry.GetAlarmStatus())
+    {
+        if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
+                alarm = Global::ALARM_ERROR;
+            else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
+                alarm = Global::ALARM_WARNING;
+
+             mpAlarmHandler->setTimeout(1000);// to be set after final discussion with team / Michael
+             quint64 EventId64 = EventEntry.GetEventCode();
+             EventId64 = EventId64 << 32;
+             EventId64 = EventId64 | EventKey;
+             mpAlarmHandler->setAlarm(EventId64, alarm, EventStatus);
+
+    }
 
     /*! \todo  EventStatus is used to indicate whether Event is resolved or not. If Event is active
         * Event Status is true, when the event is reset, the EventStatus will be false
         *
      */
+
+
     UpdateEventKeyCountMap(EventKey, EventStatus);
     //Log if loglevel is not "NONE"
     if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
@@ -447,24 +491,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     }
 
 //    mpAlarmHandler->setSoundNumber(Global::ALARM_WARNING, mpUserSettings->GetSoundNumberWarning());
-    Global::AlarmType alarm= Global::ALARM_NONE;
-    if(EventEntry.GetAlarmStatus())
-    {
 
-        if(EventStatus) {
-
-            if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
-                alarm = Global::ALARM_ERROR;
-            else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
-                alarm = Global::ALARM_WARNING;
-
-             mpAlarmHandler->setTimeout(5);
-             mpAlarmHandler->setAlarm(1,alarm,true);
-        }
-        else
-            mpAlarmHandler->setAlarm(1,alarm, false);
-
-    }
 
     ForwardToErrorHandler(EventEntry, EventKey);// Send the Error for handling
     /// \todo this is a test of Axeda Remote Care error reporting:
@@ -503,12 +530,31 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         return;
     }
 
+
+
+    if(EventEntry.GetAlarmStatus())
+    {
+        mpAlarmHandler->setTimeout(1000);
+        Global::AlarmType alarm= Global::ALARM_NONE;
+
+
+                if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
+                    alarm = Global::ALARM_ERROR;
+                else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
+                    alarm = Global::ALARM_WARNING;
+
+                quint64 EventId64 = EventEntry.GetEventCode();
+                EventId64 = EventId64 << 32;
+                EventId64 = EventId64 | EventKey;
+                mpAlarmHandler->setAlarm(EventId64, alarm, false);
+        // the alarm required status is true & has to be removed since the same has been acknowledged by user
+         //mpAlarmHandler->setAlarm(EventID, alarm, false);
+    }
+
     bool IsActive = EventEntry.IsEventActive();
     if( IsActive == false) {
         return;
     }
-
-
     if(Count <= EventEntry.GetRetryAttempts())
     {
         //send -ve command action if defined.
