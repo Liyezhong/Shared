@@ -1,0 +1,383 @@
+File Version     : 4.30
+Directory        : "$(PROJECTROOT)\Tessy\AnalogOutput"
+Backup Directory : "$(PROJECTROOT)\Tessy\backup"
+Configuration    : "$(PROJECTROOT)\Tessy\config\configuration.xml"
+Author           : "Martin Scherer"
+Created          : 29.03.2011 13:23
+Last Changed     : 12.04.2011 15:07
+Comment          : ""
+Project
+   Name    : "AnalogOutput"
+   Module
+      Name        : "fmAnalogOutput"
+      State       : 0x00000004
+      Environment : "ARM RVDS Keil µVision (Default)"
+      Properties
+         Property
+            Name  : "Compiler Includes"
+            Type  : "Directory"
+            Flags : 0x90000049
+            Value : "C:\Keil\ARM\RV31\INC, $(PROJECTROOT)\..\..\BaseModule\Include, $(PROJECTROOT)\..\..\HAL\STM32\Include, $(PROJECTROOT)\Include"
+         End
+      End
+      Source File
+         Name : "fmAnaOutput.c"
+         Path : "$(PROJECTROOT)\Source\"
+         Properties
+         End
+      End
+      Source File
+         Name : "bmUtilities.c"
+         Path : "C:\svn\Colorado_Sepia\trunk\Platform\Slave\Components\BaseModule\Source\"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoModuleControl"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000001\aoModuleControl.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoFlushLifeTime"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000002\aoFlushLifeTime.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoResetPartition"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000003\aoResetPartition.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoModuleStatus"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000004\aoModuleStatus.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoGetModuleState"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000005\aoGetModuleState.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoModuleTask"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000006\aoModuleTask.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoGetTime"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000007\aoGetTime.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoTimeExpired"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000008\aoTimeExpired.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoChangeOutput"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000009\aoChangeOutput.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoSendNotification"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000A\aoSendNotification.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoCountLifeTime"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000B\aoCountLifeTime.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoSetOutputState"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000C\aoSetOutputState.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetMessageItem"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoConfigureOutput"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\0000000E\aoConfigureOutput.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmSetMessageItem"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoGetOutputState"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000010\aoGetOutputState.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoSendLifeTimeData"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000011\aoSendLifeTimeData.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoVerifyPartition"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000012\aoVerifyPartition.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "aoInitializeModule"
+         Properties
+            Property
+               Name  : "CTE File"
+               Type  : "File"
+               Flags : 0x00000015
+               Value : "$(MODULEPATH)\.database\.tdb\00000013\aoInitializeModule.cte"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetBoardOptions"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmSetBoardOptionBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmLocateBoardOptionBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmCalculateCrc"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetBoardInfoBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetLoaderInfoBlock"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetNodeAddress"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetCanIdField"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetPartitionID"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmGetDelta"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmCheckPassword"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+      TestObject
+         Name    : "bmInitUtilities"
+         Properties
+            Property
+               Name  : "Hide Functions"
+               Type  : "Boolean"
+               Flags : 0xC0000049
+               Value : "1"
+            End
+         End
+      End
+   End
+End

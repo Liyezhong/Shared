@@ -1,0 +1,129 @@
+FormatVersion=5.0
+Title="Symbols for RFID ISO/IEC 15693 Module"
+
+{ENUMS}
+
+
+{SENDRECEIVE}
+
+[$B::Msg15693SrvCfgStats@$I]
+ID=$MSG_RFID15693_SRV_CFG_STATISTICS	// Configure and request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[$B::Msg15693SrvReqResetData@$I]
+ID=$MSG_RFID15693_SRV_REQ_RESET_DATA	// Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[$B::Msg15693ProcConfigure@$I]
+ID=$MSG_RFID15693_PROC_CONFIGURE	// Configure process data 
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[$B::Msg15693ProcReqData@$I]
+ID=$MSG_RFID15693_PROC_REQ_DATA	// Request process data 
+Type=Extended
+DLC=0
+
+[$B::Msg15693SetConfig@$I]
+ID=$MSG_RFID15693_SET_CONFIG	// Activate / deactivate RFID communication
+Type=Extended
+DLC=1
+Var=Mode unsigned 0,8 -m /ln:"Mode of RFID module"
+
+[$B::Msg15693AcquireUid@$I]
+ID=$MSG_RFID15693_ACQUIRE_UID	// Acquire the UID from a RFID transponder
+Type=Extended
+DLC=0
+
+[$B::Msg15693SetUid@$I]
+ID=$MSG_RFID15693_SET_UID		// Set the UID in the function module
+Type=Extended
+DLC=8
+Var=UniqueId unsigned 0,64 -m /ln:"Unique ID of an RFID transponder"
+
+[$B::Msg15693ReqUid@$I]
+ID=$MSG_RFID15693_REQ_UID		// Request the UID from the function module
+Type=Extended
+DLC=0
+
+[$B::Msg15693ReadBlock@$I]
+ID=$MSG_RFID15693_READ_BLOCK	// Reads a memory block from the RFID transponder
+Type=Extended
+DLC=1
+Var=Address unsigned 0,8 -m /ln:"Address of the memory block"
+
+[$B::Msg15693WriteBlock@$I]
+ID=$MSG_RFID15693_WRITE_BLOCK	// Writes a memory block in the RFID transponder
+Type=Extended
+DLC=5
+Var=Address unsigned 0,8 -m /ln:"Address of the memory block"
+Var=Data unsigned 8,32 -m /ln:"Data written to the memory block"
+
+[$B::Msg15693LockBlock@$I]
+ID=$MSG_RFID15693_LOCK_BLOCK	// Locks a memory block in the RFID transponder
+Type=Extended
+DLC=1
+Var=Address unsigned 0,8 -m /ln:"Address of the memory block"
+
+{RECEIVE}
+
+[$B::Msg15693EventInfo@$I]
+ID=$MSG_RFID15693_EVENT_INFO	// Info message
+Type=Extended
+DLC=8
+Var=InfoCode unsigned 0,16 -m /ln:"Info code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::Msg15693EventWarning@$I]
+ID=$MSG_RFID15693_EVENT_WARNING	// Warning message
+Type=Extended
+DLC=8
+Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::Msg15693EventError@$I]
+ID=$MSG_RFID15693_EVENT_ERROR	// Error message
+Type=Extended
+DLC=8
+Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[$B::Msg15693SrvStatistics@$I]
+ID=$MSG_RFID15693_SRV_STATISTICS	// Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[$B::Msg15693SrvAckResetData@$I]
+ID=$MSG_RFID15693_SRV_ACK_RESET_DATA	// Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[$B::Msg15693ProcData@$I]
+ID=$MSG_RFID15693_PROC_DATA	// Process data of RFID module
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+
+[$B::Msg15693RespUid@$I]
+ID=$MSG_RFID15693_RESP_UID		// Responds the UID stored in the function module
+Type=Extended
+DLC=8
+Var=UniqueId unsigned 0,64 -m /ln:"Unique ID of an RFID transponder"

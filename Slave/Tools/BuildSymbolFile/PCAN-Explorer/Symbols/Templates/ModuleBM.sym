@@ -1,0 +1,545 @@
+FormatVersion=5.0
+Title="Symbols for Base Module"
+
+{ENUMS}
+
+enum EnumNodeStates(
+  0 = "UNDEFINED", 
+  1 = "BOOTING", 
+  2 = "STARTUP", 
+  3 = "IDENTIFY", 
+  4 = "CONFIGURE", 
+  5 = "NORMAL", 
+  6 = "DIAGNOSE", 
+  7 = "SHUTDOWN", 
+  8 = "STANDBY",
+  9 = "UPDATE")
+
+enum EnumPowerStatus(
+  0 = "GOOD", 
+  1 = "WARNING", 
+  2 = "FAILURE", 
+  9 = "UNKNOWN")
+
+enum EnumStopStatus(
+  0 = "INACTIVE", 
+  1 = "STOPPED BY SLAVE", 
+  2 = "STOPPED BY MASTER", 
+  3 = "STOPPED BY BOTH")
+
+enum EnumStatSelect(
+  0 = "NO DATA", 
+  1 = "RUNTIME", 
+  2 = "INTERVAL", 
+  3 = "RESERVED")
+
+enum EnumBoolean(
+  0 = "FALSE", 
+  1 = "TRUE")
+
+enum EnumBootLoaderMode(
+  0 = "START FIRMWARE",
+  1 = "START UPDATE")
+  
+enum EnumBootLoaderHeader(
+  0 = "READY",
+  1 = "IMAGE TOO LARGE",
+  2 = "OFFSET TOO LARGE")
+  
+enum EnumBootLoaderTrailer(
+  0 = "SUCCESSFUL",
+  1 = "CHECKSUM INVALID",
+  2 = "LENGTH INVALID")
+
+  
+{SENDRECEIVE}
+
+[$B::MsgSysAckHardwareID]
+ID=$MSG_SYS_ACK_HARDWARE_ID // Hardware-ID acknowledge
+Type=Extended
+DLC=0
+
+[$B::MsgSysReqConfiguration]
+ID=$MSG_SYS_REQ_CONFIGURATION   // System configuration request
+Type=Extended
+DLC=0
+
+[$B::MsgSysSetNodeState]
+ID=$MSG_SYS_SET_NODESTATE   // Change slave node state
+Type=Extended
+DLC=1
+Var=NodeState unsigned 0,8 -m /e:EnumNodeStates /ln:"Change node state of $B"
+
+[$B::MsgSysReqNodeState]
+ID=$MSG_SYS_REQ_NODESTATE   // Request slave node state
+Type=Extended
+DLC=0
+
+[$B::MsgSysMasterHeartBeat]
+ID=$MSG_SYS_MASTER_HEARTBEAT    // Slave Heartbeat
+Type=Extended
+DLC=0
+
+[$B::MsgSysCfgHeartBeat]
+ID=$MSG_SYS_CFG_HEARTBEAT   // Heartbeat configuration
+Type=Extended
+DLC=5
+Var=EnableSending unsigned 0,1 -m /ln:"Heartbeat mode"
+Var=EnableCheck unsigned 1,1 -m
+Var=Protection unsigned 5,1
+Var=Interval unsigned 8,16 -m /u:ms /ln:"Slave heartbeat interval time"
+Var=Timeout unsigned 24,16 -m /u:ms /ln:"Master heartbeat timeout"
+
+[$B::MsgSysSetRealTime]
+ID=$MSG_SYS_SET_REALTIME    // Time/date message
+Type=Extended
+DLC=8
+Var=Year unsigned 0,8 -m /o:2000 /ln:"Year"
+Var=Month unsigned 8,8 -m /ln:"Month"
+Var=Day unsigned 16,8 -m /ln:"Day"
+Var=Hour unsigned 24,8 -m /ln:"Hour"
+Var=Minute unsigned 32,8 -m /ln:"Minute"
+Var=Second unsigned 40,8 -m /ln:"Second"
+Var=Millisec unsigned 48,16 -m /ln:"Milli seconds"
+
+[$B::MsgSysSetSystemClock]
+ID=$MSG_SYS_SET_SYSCLOCK    // System clock
+Type=Extended
+DLC=2
+Var=Counter unsigned 0,16 -m /ln:"System clock count"
+
+[$B::MsgSysNotStop]
+ID=$MSG_SYS_NOTSTOP // Emergency stop
+Type=Extended
+DLC=1
+Var=Active unsigned 0,8 -m /ln:"Emergency stop state"
+
+[$B::MsgSysMasterPower]
+ID=$MSG_SYS_MASTER_POWER    // Send master power state
+Type=Extended
+DLC=1
+Var=PowerState unsigned 0,8 -m /e:EnumPowerStatus /ln:"Master power state"
+
+[$B::MsgSysNodeReset]
+ID=$MSG_SYS_RESET   // Send node reset command
+Type=Extended
+DLC=1
+Var=Pattern unsigned 0,8 -h -m /ln:"Security pattern to enable command"
+
+[$B::MsgSrvReqSerialNumber]
+ID=$MSG_SRV_REQ_SERIAL_NUMBER   // Request serial number
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqUniqueNumber]
+ID=$MSG_SRV_REQ_UNIQUE_NUMBER   // Request unique number
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqEndTestResult]
+ID=$MSG_SRV_REQ_ENDTEST_RESULT  // Request end-test results
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqHardwareInfo]
+ID=$MSG_SRV_REQ_HARDWARE_INFO   // Request hardware info
+Type=Extended
+DLC=5
+
+[$B::MsgSrvReqSoftwareInfo]
+ID=$MSG_SRV_REQ_SOFTWARE_INFO   // Request software info
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqLoaderInfo]
+ID=$MSG_SRV_REQ_LOADER_INFO // Request bootloader info
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqLifeCycleData]
+ID=$MSG_SRV_REQ_LIFECYCLE_DATA  // Request life cycle data
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqLaunchDate]
+ID=$MSG_SRV_REQ_LAUNCH_DATE // Reuest launch date
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqBoardName]
+ID=$MSG_SRV_REQ_BOARD_NAME  // Request board name
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqBoardOptions]
+ID=$MSG_SRV_REQ_BOARD_OPTIONS   // Request board options
+Type=Extended
+DLC=3
+Var=ModuleID unsigned 0,16 -h -m /ln:"Module ID"
+Var=InstanceNo unsigned 16,8 -m /ln:"Module instance number"
+
+[$B::MsgCfgVoltageMonitor]
+ID=$MSG_CFG_VOLTAGE_MONITOR // Configure voltage monitor
+Type=Extended
+DLC=7
+Var=Enable unsigned 0,1 -m /ln:"Enable voltage monitoring"
+Var=SampleCount unsigned 8,8 -m /ln:"Voltage sample count"
+Var=SampleRate unsigned 16,8 -m /u:ms /ln:"Voltage sample rate"
+Var=Threshold1 unsigned 24,16 -m /ln:"Voltage threshold 1"
+Var=Threshold2 unsigned 40,16 -m /ln:"Voltage threshold 2"
+
+[$B::MsgCfgSafeMonitor]
+ID=$MSG_CFG_SAFE_MONITOR // Configure safe voltage monitor
+Type=Extended
+DLC=7
+Var=Enable unsigned 0,1 -m /ln:"Enable safe voltage monitoring"
+Var=SampleCount unsigned 8,8 -m /ln:"Safe voltage sample count"
+Var=SampleRate unsigned 16,8 -m /u:ms /ln:"Safe voltage sample rate"
+Var=Threshold1 unsigned 24,16 -m /ln:"Safe voltage threshold 1"
+Var=Threshold2 unsigned 40,16 -m /ln:"Safe voltage threshold 2"
+
+[$B::MsgCfgCurrentMonitor]
+ID=$MSG_CFG_CURRENT_MONITOR // Configure current monitor
+Type=Extended
+DLC=7
+Var=Enable unsigned 0,1 -m /ln:"Enable current monitor"
+Var=SampleCount unsigned 8,8 -m /ln:"Current sample count"
+Var=SampleRate unsigned 16,8 -m /u:ms /ln:"Current sample rate"
+Var=Threshold1 unsigned 24,16 -m /ln:"Current threshold 1"
+Var=Threshold2 unsigned 40,16 -m /ln:"Current threshold 2"
+
+[$B::MsgSrvReqVoltageState]
+ID=$MSG_SRV_REQ_VOLTAGE_STATE   // Request voltage status
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqSafeState]
+ID=$MSG_SRV_REQ_SAFE_STATE   // Request safe voltage status
+Type=Extended
+DLC=0
+
+[$B::MsgSrvReqCurrentState]
+ID=$MSG_SRV_REQ_CURRENT_STATE   // Request current Status
+Type=Extended
+DLC=0
+
+[$B::MsgSrvCfgStatistics]
+ID=$MSG_SRV_CFG_STATISTICS  // Configure/Request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[$B::MsgSrvReqResetData]
+ID=$MSG_SRV_REQ_RESET_DATA  // Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[$B::MsgSrvReqMemoryFormat]
+ID=$MSG_SRV_REQ_MEMORY_FORMAT   // Request format non-volatile storage 
+Type=Extended
+DLC=3
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+Var=TableSize unsigned 16,8 -m /ln:"Partition table size"
+
+[$B::MsgSrvReqRealTime]
+ID=$MSG_SRV_REQ_REALTIME    // Request time/date
+Type=Extended
+DLC=0
+
+[$B::MsgProcConfigure@$I]
+ID=$MSG_PROC_CONFIGURE      // Configure process data of base module
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[$B::MsgProcReqData@$I]
+ID=$MSG_PROC_REQ_DATA   // Request process data of base module
+Type=Extended
+DLC=0
+
+[$B::MsgBlModeRequest]
+ID=$MSG_SYS_UPDATE_MODE_REQUEST // Update mode request message
+Type=Extended
+DLC=1
+Var=Mode unsigned 0,8 -m /e:EnumBootLoaderMode /ln:"Boot loader mode"
+
+[$B::MsgBlUpdateHeader]
+ID=$MSG_SYS_UPDATE_HEADER // Update header message
+Type=Extended
+DLC=8
+Var=Size unsigned 0,32 -m /ln:"Image size"
+Var=Offset unsigned 32,32 -m /ln:"Start address offset"
+
+[$B::MsgBlUpdateData0]
+ID=$MSG_SYS_UPDATE_DATA_0 // Update data message 0
+Type=Extended
+DLC=8
+Var=Data unsigned 0,64 -m /ln:"Firmware data"
+
+[$B::MsgBlUpdateData1]
+ID=$MSG_SYS_UPDATE_DATA_1 // Update data message 1
+Type=Extended
+DLC=8
+Var=Data unsigned 0,64 -m /ln:"Firmware data"
+
+[$B::MsgBlUpdateTrailer]
+ID=$MSG_SYS_UPDATE_TRAILER // Update trailer message
+Type=Extended
+DLC=4
+Var=CRC unsigned 0,32 -m /ln:"CRC checksum"
+
+
+{RECEIVE}
+
+[$B::MsgSysHardwareID]
+ID=$MSG_SYS_HARDWARE_ID // Hardware identification
+Type=Extended
+DLC=7
+Var=NodeClass unsigned 0,8 -m /ln:"NodeClass"
+Var=ProtocolVersion unsigned 8,8 -m /ln:"Version of CAN protocol"
+Var=HardwareVersion unsigned 16,16 -h -m /ln:"Hardware version number"
+Var=SoftwareVersion unsigned 32,16 -h -m /ln:"Software version number"
+Var=Channels unsigned 48,8 -m /ln:"Number of logical channels"
+
+[$B::MsgSysConfiguration]
+ID=$MSG_SYS_CONFIGURATION   // System configuration
+Type=Extended
+DLC=6
+Var=ModuleID unsigned 0,16 -h -m /ln:"Module ID"
+Var=Instance unsigned 16,8 -m /ln:"Instance of module"
+Var=ChannelID unsigned 24,8 -m /ln:"Logical channel ID"
+Var=ModuleVersion unsigned 32,16 -h -m /ln:"Module version number"
+
+[$B::MsgSysNodeState]
+ID=$MSG_SYS_NODESTATE   // Actual slave node state
+Type=Extended
+DLC=4
+Var=NodeState unsigned 0,8 -m /e:EnumNodeStates /ln:"Actual node state"
+Var=StopStatus unsigned 8,8 -m /e:EnumStopStatus( /ln:"Emergency stop status"
+Var=PowerState unsigned 16,8 -m /e:EnumPowerStatus /ln:"Power supply status"
+Var=SafeState unsigned 24,8 -m /e:EnumPowerStatus /ln:"Safe supply status"
+
+[$B::MsgSysSlaveHeartBeat]
+ID=$MSG_SYS_SLAVE_HEARTBEAT // Master heart beat 
+Type=Extended
+DLC=0
+
+[$B::MsgSysAbortedByNotStop]
+ID=$MSG_SYS_ABORTED_BY_NOTSTOP  // Aborted by emergency stop
+Type=Extended
+DLC=0
+
+[$B::MsgEventInfo]
+ID=$MSG_EVENT_INFO  // Info message
+Type=Extended
+DLC=6
+Var=ModuleId unsigned 0,16 -m /ln:"Module ID"
+Var=InfoCode unsigned 16,16 -m /ln:"Info code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
+
+[$B::MsgEventWarning]
+ID=$MSG_EVENT_WARNING   // Warning message
+Type=Extended
+DLC=6
+Var=ModuleId unsigned 0,16 -m /ln:"Module ID"
+Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
+
+[$B::MsgEventError]
+ID=$MSG_EVENT_ERROR // Error message
+Type=Extended
+DLC=6
+Var=ModuleId unsigned 0,16 -m /ln:"Module ID"
+Var=ErrorCode unsigned 16,16 -m /ln:"Error code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
+
+[$B::MsgSrvSerialNumber]
+ID=$MSG_SRV_SERIAL_NUMBER   // Serial number of slave board
+Type=Extended
+DLC=8
+Var=SequenceNo unsigned 0,8 -m /ln:"Packet sequence number"
+Var="Serial0" unsigned 8,8 -h -m /ln:"Serial number, byte 0"
+Var="Serial1" unsigned 16,8 -h -m /ln:"Serial number, byte 1"
+Var="Serial2" unsigned 24,8 -h -m /ln:"Serial number, byte 2"
+Var="Serial3" unsigned 32,8 -h -m /ln:"Serial number, byte 3"
+Var="Serial4" unsigned 40,8 -h -m /ln:"Serial number, byte 4"
+Var="Serial5" unsigned 48,8 -h -m /ln:"Serial number, byte 5"
+Var="Serial6" unsigned 56,8 -h -m /ln:"Serial number, byte 6"
+
+[$B::MsgSrvUniqueNumber]
+ID=$MSG_SRV_UNIQUE_NUMBER   // Unique number of slave board
+Type=Extended
+DLC=8
+Var=Length unsigned 0,8 -m /ln:"Total length of unique number"
+Var=SeqNum unsigned 8,8 -h -m /ln:"Message sequence number"
+Var=Number unsigned 16,48 -h -m /ln:"Unique number"
+
+[$B::MsgSrvEndTestResult]
+ID=$MSG_SRV_ENDTEST_RESULT  // End-test results
+Type=Extended
+DLC=4
+Var=Result unsigned 0,8 -m /ln:"End-test result"
+Var=Year unsigned 8,8 -m /o:2000 /ln:"Year of end-test"
+Var=Month unsigned 16,8 -m /ln:"Month of end-test"
+Var=Day unsigned 24,8 -m /ln:"Day of end-test"
+
+[$B::MsgSrvHardwareInfo]
+ID=$MSG_SRV_HARDWARE_INFO   // Hardware info message
+Type=Extended
+DLC=5
+Var=Version unsigned 0,16 -h -m /ln:"Hardware version number"
+Var=Year unsigned 16,8 -m /o:2000 /ln:"Year of production"
+Var=Month unsigned 24,8 -m /ln:"Month of production"
+Var=Day unsigned 32,8 -m /ln:"Day of production"
+
+[$B::MsgSrvSoftwareInfo]
+ID=$MSG_SRV_SOFTWARE_INFO   // Software info message
+Type=Extended
+DLC=5
+Var=Version unsigned 0,16 -h -m /ln:"Software version number"
+Var=Year unsigned 16,8 -m /o:2000 /ln:"Year of software creation"
+Var=Month unsigned 24,8 -m /ln:"Month of software creation"
+Var=Day unsigned 32,8 -m /ln:"Day of software creation"
+
+[$B::MsgSrvLoaderInfo]
+ID=$MSG_SRV_LOADER_INFO // Bootloader info message
+Type=Extended
+DLC=5
+Var=Version unsigned 0,16 -h -m /ln:"Bootloader version number"
+Var=Year unsigned 16,8 -m /o:2000 /ln:"Year of bootloader creation"
+Var=Month unsigned 24,8 -m /ln:"Month of bootloader creation"
+Var=Day unsigned 32,8 -m /ln:"Day of bootloader creation"
+
+[$B::MsgSrvLifeCycleData]
+ID=$MSG_SRV_LIFECYCLE_DATA  // Request life cycle data
+Type=Extended
+DLC=6
+Var=LifeTime unsigned 0,32 -m /u:min /ln:"Board life time"
+Var=Cycles unsigned 32,16 -m /ln:"Number of startup cycles"
+
+[$B::MsgSrvLaunchDate]
+ID=$MSG_SRV_LAUNCH_DATE // Launch date of slave board
+Type=Extended
+DLC=4
+Var=Launched unsigned 0,8 -m /e:EnumBoolean /ln:"Launch state"
+Var=Year unsigned 8,8 -m /o:2000 /ln:"Year of 1st start"
+Var=Month unsigned 16,8 -m /ln:"Month of 1st start"
+Var=Day unsigned 24,8 -m /ln:"Day of 1st start"
+
+[$B::MsgSrvBoardName]
+ID=$MSG_SRV_BOARD_NAME  // Board name of slave board
+Type=Extended
+Var=Name string 0,64 -h -m /ln:"Board name"
+
+[$B::MsgSrvBoardOptions]
+ID=$MSG_SRV_BOARD_OPTIONS   // Board option word
+Type=Extended
+DLC=8
+Var=ModuleID unsigned 0,16 -h -m /ln:"Module ID"
+Var=InstanceNo unsigned 16,8 -m /ln:"Module instance number"
+Var=Instances unsigned 24,8 -m /ln:"Number of module instances"
+Var=Options unsigned 32,32 -h -m /ln:"Module options"
+
+[$B::MsgSrvVoltageState]
+ID=$MSG_SRV_VOLTAGE_STATE   // Actual voltage status
+Type=Extended
+DLC=5
+Var=PowerState unsigned 0,8 -m /e:EnumPowerStatus /ln:"Board voltage status"
+Var=Voltage unsigned 8,16 -m /ln:"Actual voltage level"
+Var=Failures unsigned 24,16 -m /ln:"Number of failures"
+
+[$B::MsgSrvSafeState]
+ID=$MSG_SRV_SAFE_STATE   // Actual safe voltage status
+Type=Extended
+DLC=5
+Var=PowerState unsigned 0,8 -m /e:EnumPowerStatus /ln:"Board safe voltage status"
+Var=Voltage unsigned 8,16 -m /ln:"Actual safe voltage level"
+Var=Failures unsigned 24,16 -m /ln:"Number of failures"
+
+[$B::MsgSrvCurrentStatus]
+ID=$MSG_SRV_CURRENT_STATE   // Actual current status
+Type=Extended
+DLC=5
+Var=PowerState unsigned 0,8 -m /e:EnumPowerStatus /ln:"Board current status"
+Var=Current unsigned 8,16 -m /ln:"Actual current level"
+Var=Failures unsigned 24,16 -m /ln:"Number of failures"
+
+[$B::MsgSrvStatistics]
+ID=$MSG_SRV_STATISTICS  // Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[$B::MsgSrvAckResetData]
+ID=$MSG_SRV_ACK_RESET_DATA  // Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[$B::MsgSrvAckMemoryFormat]
+ID=$MSG_SRV_ACK_MEMORY_FORMAT   // Format non-volatile storage acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Formating storage successful"
+
+[$B::MsgSrvRealTime]
+ID=$MSG_SRV_REALTIME    // Time/date message
+Type=Extended
+DLC=8
+Var=Year unsigned 0,8 -m /o:2000 /ln:"Year"
+Var=Month unsigned 8,8 -m /ln:"Month"
+Var=Day unsigned 16,8 -m /ln:"Day"
+Var=Hour unsigned 24,8 -m /ln:"Hour"
+Var=Minute unsigned 32,8 -m /ln:"Minute"
+Var=Second unsigned 40,8 -m /ln:"Second"
+Var=Millisec unsigned 48,16 -m /ln:"Milli seconds"
+
+[$B::MsgProcData@$I]
+ID=$MSG_PROC_DATA   // Process data of based module 
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+
+[$B::MsgBlUpdateRequired]
+ID=$MSG_SYS_UPDATE_REQUIRED // Update required message
+Type=Extended
+DLC=5
+Var=State unsigned 0,8 -m /ln:"Firmware state"
+Var=Hardware unsigned 8,16 -m /ln:"Hardware version number"
+Var=Version unsigned 24,16 -m /ln:"Boot loader version number"
+
+[$B::MsgBlModeAck]
+ID=$MSG_SYS_UPDATE_MODE_ACK // Update mode acknowledgement
+Type=Extended
+DLC=0
+
+[$B::MsgBlUpdateHeaderAck]
+ID=$MSG_SYS_UPDATE_HEADER_ACK // Update header acknowledgement
+Type=Extended
+DLC=1
+Var=Result unsigned 0,8 -m /e:EnumBootLoaderHeader /ln:"Header result"
+
+[$B::MsgBlUpdateAck0]
+ID=$MSG_SYS_UPDATE_ACK_0 // Update data acknowledgement 0
+Type=Extended
+DLC=0
+
+[$B::MsgBlUpdateAck1]
+ID=$MSG_SYS_UPDATE_ACK_1 // Update data acknowledgement 1
+Type=Extended
+DLC=0
+
+[$B::MsgBlUpdateTrailerAck]
+ID=$MSG_SYS_UPDATE_TRAILER_ACK // Update trailer acknowledgement
+Type=Extended
+DLC=1
+Var=Result unsigned 0,8 -m /e:EnumBootLoaderTrailer /ln:"Trailer result"

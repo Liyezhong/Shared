@@ -1,0 +1,6 @@
+Dependencies for Project 'RfidIso11785', Target 'RfidIso11785': (DO NOT MODIFY !)
+F (..\Include\fmRfidIso11785.h)(0x4F6B2640)()
+F (..\Include\fmRfidIso11785Link.h)(0x4F6B2640)()
+F (..\Source\dbRfidIso11785.c)(0x4F6B2640)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbrfidiso11785.o" --omf_browse "..\Library\dbrfidiso11785.crf" --depend "..\Library\dbrfidiso11785.d")
+F (..\Source\fmRfidIso11785.c)(0x4FA8C697)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmrfidiso11785.o" --omf_browse "..\Library\fmrfidiso11785.crf" --depend "..\Library\fmrfidiso11785.d")
+F (..\Source\fmRfidIso11785Link.c)(0x4F6B2640)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmrfidiso11785link.o" --omf_browse "..\Library\fmrfidiso11785link.crf" --depend "..\Library\fmrfidiso11785link.d")

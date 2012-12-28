@@ -1,0 +1,21 @@
+; C:\Dokumente und Einstellungen\andreas menge\Eigene Dateien\PCAN-Explorer 5\Projects\AnalogInMessages.xmt
+; CAN messages saved by PCAN-Explorer 5.1.2
+;
+; Columns descriptions:
+; ~~~~~~~~~~~~~~~~~~~~~
+; +Message ID
+; |            +Cycle time in ms (0=manual)
+; |            |  +Length of message
+; |            |  |  +Frame type: D)ata or R)emote request
+; |            |  |  |  +Message data
+; |            |  |  |  |
+00100267h      0  1  D 06h
+00100267h      0  1  D 05h
+00000267h      0  0  D
+1C083267h      0  2  D 00h 63h
+18083267h      0  0  D
+10383267h      0  0  D
+18003267h      0  5  D 01h 00h 64h 00h 19h
+10303267h      0  8  D 31h 00h C8h 31h 03h 20h 00h 32h
+10283267h      0  5  D C0h 0Ah 0Ah 00h 00h
+1C003267h      0  1  D 81h

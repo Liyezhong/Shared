@@ -1,0 +1,4 @@
+Dependencies for Project 'DigitalInput', Target 'Tessy': (DO NOT MODIFY !)
+F (..\Include\fmDigiInput.h)(0x4F6B264A)()
+F (..\Source\dbDigiInput.c)(0x4F6B264A)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbdigiinput.o" --omf_browse "..\Library\dbdigiinput.crf" --depend "..\Library\dbdigiinput.d")
+F (..\Source\fmDigiInput.c)(0x4F6B264A)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmdigiinput.o" --omf_browse "..\Library\fmdigiinput.crf" --depend "..\Library\fmdigiinput.d")

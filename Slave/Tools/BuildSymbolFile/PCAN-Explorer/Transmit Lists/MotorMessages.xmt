@@ -1,0 +1,23 @@
+; C:\Dokumente und Einstellungen\andreas menge\Eigene Dateien\Slave Software\PCAN-Explorer 5\Transmit Lists\MotorMessages.xmt
+; CAN messages saved by PCAN-Explorer 5.1.2
+;
+; Columns descriptions:
+; ~~~~~~~~~~~~~~~~~~~~~
+; +Message ID
+; |            +Cycle time in ms (0=manual)
+; |            |  +Length of message
+; |            |  |  +Frame type: D)ata or R)emote request
+; |            |  |  |  +Message data
+; |            |  |  |  |
+10501123h      0  5  D 03h 00h 00h 00h 00h
+10501123h      0  6  D 01h 00h 00h 00h 00h 00h
+10501123h      0  6  D 02h 00h 00h 00h 00h 00h
+10501123h      0  6  D 04h 00h 00h 00h 00h 00h
+10501123h      0  8  D 05h 00h 00h 00h 00h 00h 00h 00h
+10501123h      0  8  D 06h 00h 00h 00h 00h 00h 00h 00h
+10501123h      0  7  D 07h 00h 00h 00h 00h 00h 00h
+10501123h      0  5  D 08h 00h 00h 00h 00h
+10501123h      0  8  D 09h 00h 00h 00h 00h 00h 00h 00h
+10501123h      0  8  D 0Ah 00h 00h 00h 00h 00h 00h 00h
+10581123h      0  8  D 00h 01h 00h 00h 00h 00h 00h 00h
+10581123h      0  8  D 00h 02h 00h 00h 00h 00h 00h 00h

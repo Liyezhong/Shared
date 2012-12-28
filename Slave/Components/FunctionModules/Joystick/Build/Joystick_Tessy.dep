@@ -1,0 +1,4 @@
+Dependencies for Project 'Joystick', Target 'Tessy': (DO NOT MODIFY !)
+F (..\Include\fmJoystick.h)(0x4F6B2634)()
+F (..\Source\dbJoystick.c)(0x4F6B2634)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbjoystick.o" --omf_browse "..\Library\dbjoystick.crf" --depend "..\Library\dbjoystick.d")
+F (..\Source\fmJoystick.c)(0x4F7D4143)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmjoystick.o" --omf_browse "..\Library\fmjoystick.crf" --depend "..\Library\fmjoystick.d")
