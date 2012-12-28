@@ -43,9 +43,9 @@
 #define MODULE_ID_RFID15693       10    //!< Module ID for RFID ISO 15693 transponders
 #define MODULE_ID_TEMPERATURE     11    //!< Module ID for temperature control
 #define MODULE_ID_UART            12    //!< Module ID for serial interface
-#if 1
-#define MODULE_ID_PRESSURE        13    //!< Module ID for serial interface
-#endif
+#define MODULE_ID_PRESSURE        13    //!< Module ID for pressure control
+
+
 #define MODULE_ID_SIMUALTION      0xFFF //!< Modules ID for test simulation
 
 //****************************************************************************/

@@ -89,6 +89,9 @@ typedef struct
 //! During a reference run the motor stopped at an unexpected limitswitch position
 #define E_SMOT_REFRUN_INVALID_LS            BUILD_SM_ERRCODE(ERRCLASS_ERROR, 12)
 
+//! all stepper operations stopped because of timer overload - BOARD RESTART NEEDED
+#define E_SMOT_TIMER_OVERLOAD               BUILD_SM_ERRCODE(ERRCLASS_ERROR, 13)
+
 //! position code from limitswitches is invalid
 #define E_SMOT_INVALID_POSCODE              BUILD_SM_ERRCODE(ERRCLASS_ERROR, 20)
 
@@ -104,8 +107,21 @@ typedef struct
 //! during a movement the motor stopped because actual position get off-limit
 #define E_SMOT_STOP_BY_OFFLIMIT             BUILD_SM_ERRCODE(ERRCLASS_ERROR, 24)
 
+//! during a movement the motor stopped because step difference between encoder and counter get's too big
+#define E_SMOT_STOP_BY_STEPDIFF             BUILD_SM_ERRCODE(ERRCLASS_ERROR, 25)
+
+//! during a movement the motor stopped because of too much lost steps
+#define E_SMOT_STOP_BY_STEPLOSS             BUILD_SM_ERRCODE(ERRCLASS_ERROR, 26)
+
 //! requested speed exceeds vMin/vMax of selected profile
 #define E_SMOT_MOTION_PROFILE_UNFIT         BUILD_SM_ERRCODE(ERRCLASS_ERROR, 30)
+
+
+//! during a movement step loss was detected
+#define W_SMOT_STEPLOSS                     BUILD_SM_ERRCODE(ERRCLASS_WARNING, 1)
+
+//! during a movement step difference was detected
+#define W_SMOT_STEPDIFF                     BUILD_SM_ERRCODE(ERRCLASS_WARNING, 2)
 
 //@} End of doxygen group
 
@@ -177,6 +193,25 @@ typedef struct
 #define MSG_SMOT_ACT_SPEED              BUILD_CAN_ID(CMD_CLASS_FUNCTION, 14, 0) // CAN-ID: 0x1070xxx0
 #define MSG_SMOT_ACT_SPEED_DLC          sizeof(Msg_SpeedData_t)
 
+//! Request motor operation time
+#define MSG_SMOT_OPTIME_REQ             BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 1) // CAN-ID: 0x1078xxx1 
+#define MSG_SMOT_OPTIME_REQ_DLC         0
+
+//! Motor life cycle data
+#define MSG_SMOT_OPTIME                 BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 0) // CAN-ID: 0x1078xxx1 
+#define MSG_SMOT_OPTIME_DLC             sizeof(Msg_OperationTimeData_t)
+                                                                
+//! Request motor revolution count
+#define MSG_SMOT_REVCOUNT_REQ           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 1) // CAN-ID: 0x1080xxx1 
+#define MSG_SMOT_REVCOUNT_REQ_DLC       0
+
+//! Motor life cycle data
+#define MSG_SMOT_REVCOUNT               BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 0) // CAN-ID: 0x1080xxx1 
+#define MSG_SMOT_REVCOUNT_DLC           sizeof(Msg_RevolutionsData_t)
+                                                                
+
+
+
 //! Debug message (motor movement data)
 #define MSG_SMOT_DEBUG                  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 18, 0) // CAN-ID: 0x1090xxx0
 #define MSG_SMOT_DEBUG_DLC              sizeof(Msg_DebugData_t)
@@ -194,8 +229,7 @@ typedef struct
     {
         UInt8  enable      			: 1;
         UInt8  dbg_skipRefRun   	: 1;
-        UInt8  dbg_sendMovementData	: 1;
-        UInt8  reserved				: 5;
+        UInt8  reserved				: 6;
     } __attribute__((packed)) Msg_EnableData_t;
 
 
@@ -264,15 +298,29 @@ typedef struct
     {
         Msg_DB4_t       pos;        // half-step position count
         UInt8           posCode;    // limit switch position code
-        SM_AckState_t   ack;        // status of finished movement
+        SM_AckState_t   ack;        // status of request results
     } __attribute__((packed)) Msg_PositionData_t;
 
 
     typedef struct
     {
-        Msg_DB2_t       speed;      // actual speed (half-step/sec?
-        SM_AckState_t   ack;        // status of finished movement
+        Msg_DB2_t       speed;      // actual speed (half-step/sec²)
+        SM_AckState_t   ack;        // status of request results
     } __attribute__((packed)) Msg_SpeedData_t;
+
+
+    typedef struct
+    {
+        Msg_DB4_t       hours;      // actual motor operation time (hours)
+        SM_AckState_t   ack;        // status of request results
+    } __attribute__((packed)) Msg_OperationTimeData_t;
+
+
+    typedef struct
+    {
+        Msg_DB4_t       count;      // actual motor revolutioncount
+        SM_AckState_t   ack;        // status of request results
+    } __attribute__((packed)) Msg_RevolutionsData_t;
 
 
 //@{**************************************************************************/
@@ -534,15 +582,13 @@ typedef struct
     {
         UInt8                       refRun_RefPos;      //!< the limit switch position code used as reference position
         Msg_DB4_t                   refRun_PosOffset;
-        Msg_DB2_t                   refRun_Timeout;     //!< maximum duration to perform each movement in ms
+        Msg_DB2_t               	refRun_Timeout;     //!< maximum duration to perform each movement in ms
     } __attribute__((packed)) ConfigData_REFRUN_P1_t;
 
 
     typedef struct
     {
-/*
-        UInt8                       refRun_RefPosSkip;
-*/
+        //UInt8                       refRun_RefPosSkip;
         Msg_DB4_t                   refRun_MaxDist;
         Msg_DB2_t                   refRun_HighSpeed;
     } __attribute__((packed)) ConfigData_REFRUN_P2_t;
@@ -571,14 +617,14 @@ typedef struct
 
     typedef struct
     {
-        Msg_DB2_t   acceleration;       //!<  acceleration ramp, half-steps/s?
+        Msg_DB2_t   acceleration;       //!<  acceleration ramp, half-steps/s²
         Msg_DB2_t   accJerkTime;        //!<  acceleration jerk phase time in ms
     } __attribute__((packed)) ProfileData_P2_t;
 
 
     typedef struct
     {
-        Msg_DB2_t   deceleration;       //!<  deceleration ramp, half-steps/sec?
+        Msg_DB2_t   deceleration;       //!<  deceleration ramp, half-steps/sec²
         Msg_DB2_t   decJerkTime;        //!<  deceleration jerk phase time in ms
 //        UInt8       rampType;           
     } __attribute__((packed)) ProfileData_P3_t;
