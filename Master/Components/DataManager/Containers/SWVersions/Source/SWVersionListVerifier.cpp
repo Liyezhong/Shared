@@ -93,22 +93,6 @@ bool CSWVersionListVerifier::VerifyData(CDataContainerBase* p_Configuration)
 
 /****************************************************************************/
 /*!
- *  \brief  Get the synchronous object
- *
- *  \iparam p_ReadWriteLock = Lock for the threads
- *
- *  \return Successful (true) or not (false)
- */
-/****************************************************************************/
-bool CSWVersionListVerifier::GetSyncObject(QReadWriteLock* p_ReadWriteLock)
-{
-    p_ReadWriteLock = NULL;
-    return true;
-}
-
-
-/****************************************************************************/
-/*!
  *  \brief  Gets the last errors which is done by verifier
  *
  *  \return QStringList - List of the errors occured

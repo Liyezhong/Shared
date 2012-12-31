@@ -45,8 +45,6 @@ public:
 
     bool VerifyData(CDataContainerBase* p_Configuration);  // use concrete class for concrete verifier
 
-    bool GetSyncObject(QReadWriteLock* p_ReadWriteLock);
-
     ErrorHash_t &GetErrors();
 
     void ResetLastErrors();

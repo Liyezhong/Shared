@@ -28,7 +28,9 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 #include <QProcess>
+#include "DataLogging/Include/DataLoggingEventCodes.h"
 #include "DataLogging/Include/DayLogFileInformation.h"
+#include "Global/Include/EventObject.h"
 
 namespace DataLogging {
 
@@ -59,8 +61,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &L
                     ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(ReadData.split(';').value(1)));                    
                 }
                 else {
-
-                    // log the data
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS, Global::FmtArgs() << ReadData.split(';').value(1), true);
                 }
                 qint32 IndexValue = ReadData.indexOf(";true;");
                 if (IndexValue != -1)  {
@@ -72,7 +73,6 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &L
         else {
             FileData.append(ReadData.replace("ColoradoEvents_", "DailyRunLog_"));
         }
-
     }
     LogFile.close();
 }
@@ -151,6 +151,10 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
                 while (LengthOfBytesWritten != FileData.count()) {
                    LengthOfBytesWritten = DailyRunLogFile.write(FileData.mid(LengthOfBytesWritten));
                 }
+            }
+            else {
+                Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN);
+                return;
             }
             DailyRunLogFile.close();
         }

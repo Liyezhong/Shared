@@ -167,22 +167,25 @@ bool CDataContainerBase::AddVerifier(IVerifierInterface* p_Verifier)
 
 /****************************************************************************/
 /*!
- *  \brief  Verifies on another rack list
+ *  \brief  Verifies the data present in the container
+ *
+ *  \iparam GroupVerification = Flag for the special verification
  *
  *  \return Successful (true) or not (false)
  */
 /****************************************************************************/
-bool CDataContainerBase::VerifyData()
+bool CDataContainerBase::VerifyData(bool GroupVerification)
 {
-    if (!DoLocalVerification(this))
-    {
+    if (!DoLocalVerification(this)) {
         qDebug() << "### CDataContainerBase::Local verifiaction failed";
         return false;
     }
-    if (!DoGroupVerification(this))
-    {
-        qDebug() << "### CDataContainerBase::Group verifiaction failed";
-        return false;
+
+    if (GroupVerification) {
+        if (!DoGroupVerification(this)) {
+            qDebug() << "### CDataContainerBase::Group verifiaction failed";
+            return false;
+        }
     }
 
     return true;

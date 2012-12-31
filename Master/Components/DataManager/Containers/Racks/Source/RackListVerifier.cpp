@@ -153,20 +153,6 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
 
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Get the synchronous object
- *
- *  \iparam p_ReadWriteLock = Lock for the threads
- *
- *  \return Successful (true) or not (false)
- */
-/****************************************************************************/
-bool CRackListVerifier::GetSyncObject(QReadWriteLock* p_ReadWriteLock)
-{
-    p_ReadWriteLock = NULL;
-    return true;
-}
 
 /****************************************************************************/
 /*!

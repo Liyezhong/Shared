@@ -815,6 +815,7 @@ bool MasterThreadController::ReadTimeOffsetFile() {
 bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateTime) {
     // check if inside limits
     int NewOffset = Global::AdjustedTime::ComputeOffsetSeconds(NewDateTime);
+
     if((m_MaxAdjustedTimeOffset != 0) && (abs(NewOffset) > m_MaxAdjustedTimeOffset)) {
         // offset must be checked and is outside allowed range.
         LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE, Global::tTranslatableStringList() <<
@@ -846,7 +847,7 @@ bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateT
         LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
-    return false;
+    return true;
 }
 
 /****************************************************************************/
