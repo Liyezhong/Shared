@@ -4,10 +4,6 @@
 
 TARGET = NetCommands
 
-HEADERS +=  ../Include/*.h \
-    ../Include/CmdExportDayRunLogRequest.h \
-    ../Include/CmdExportDayRunLogReply.h
+HEADERS +=  ../Include/*.h
+SOURCES +=  ../Source/*.cpp
 
-SOURCES +=  ../Source/*.cpp \
-    ../Source/CmdExportDayRunLogRequest.cpp \
-    ../Source/CmdExportDayRunLogReply.cpp

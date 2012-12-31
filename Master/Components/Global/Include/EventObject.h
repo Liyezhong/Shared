@@ -197,7 +197,7 @@ public:
     /****************************************************************************/
     inline void RaiseEvent(const quint32 EventCode,
                            const Global::tTranslatableStringList &EventStringList,
-                           const bool EventStatus
+                           const bool EventStatus = true
                            )  {
         quint32 EventKey = GetEventKey();
         emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey);

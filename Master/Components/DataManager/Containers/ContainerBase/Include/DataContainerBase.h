@@ -30,6 +30,7 @@
 #include "Global/Include/GlobalDefines.h"
 #include "DataManager/Helper/Include/Types.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "Global/Include/EventObject.h"
 
 namespace DataManager {
 /****************************************************************************/
