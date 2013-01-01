@@ -41,6 +41,7 @@ const quint32 EVENT_GROUP_PLATFORM_EXTERNALPROCESSCONTROL   = ((EVENT_GROUP_PLAT
 const quint32 EVENT_GROUP_PLATFORM_DEVICE_CONTROL_LAYER     = ((EVENT_GROUP_PLATFORM << 8) + 0x0F) << 16;   ///< adsa
 const quint32 EVENT_GROUP_PLATFORM_EXPORT                   = ((EVENT_GROUP_PLATFORM << 8) + 0x10) << 16;   ///< Event group for Export
 const quint32 EVENT_GROUP_PLATFORM_PASSWORDMANAGER          = ((EVENT_GROUP_PLATFORM << 8) + 0x11) << 16;   ///< Event group for Password manager
+const quint32 EVENT_GROUP_PLATFORM_DM_USERSETTINGS          = ((EVENT_GROUP_PLATFORM << 8) + 0x12) << 16;   ///< Event group for Usersettings Data container
 
 
 #endif // namespace PLATFORMEVENTCODES_H
