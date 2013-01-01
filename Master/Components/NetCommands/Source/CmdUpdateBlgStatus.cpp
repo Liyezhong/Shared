@@ -29,7 +29,7 @@ QString CmdUpdateBlgStatus::NAME = "NetCommands::CmdUpdateBlgStatus";
  *  \brief   Constructor
  *
  * \param[in]   Timeout     Timeout for command.
- * \param[in]   Bathlayout  The new bath layout.
+ * \param[in]   BlgStatusId  Status Id.
  */
 /****************************************************************************/
 CmdUpdateBlgStatus::CmdUpdateBlgStatus(int Timeout,const BlgStatus_t BlgStatusId) :

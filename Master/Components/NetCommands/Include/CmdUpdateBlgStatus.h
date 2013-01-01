@@ -46,19 +46,18 @@ typedef enum
 /****************************************************************************/
 class CmdUpdateBlgStatus : public Global::Command {
 public:
-    static QString NAME;    ///< Command name.
+    static QString NAME;    //!< Command name.
     friend QDataStream & operator << (QDataStream &, const CmdUpdateBlgStatus &);
     friend QDataStream & operator >> (QDataStream &, CmdUpdateBlgStatus &);
     /****************************************************************************/
     CmdUpdateBlgStatus(int Timeout,const BlgStatus_t BlgStatusId);
     ~CmdUpdateBlgStatus();
-    virtual QString GetName() const;
-    QString GetBathLayoutStatus() const;
+    virtual QString GetName() const;            //!< Command name.
     CmdUpdateBlgStatus();
-    BlgStatus_t GetBlgStatusMsgId() const;    
+    BlgStatus_t GetBlgStatusMsgId() const;      //!< Returns Blg status id (struct: BlgStatus_t).
 private:
-    CmdUpdateBlgStatus(const CmdUpdateBlgStatus &);                       ///< Not implemented.
-    const CmdUpdateBlgStatus & operator = (const CmdUpdateBlgStatus &);   ///< Not implemented.
+    CmdUpdateBlgStatus(const CmdUpdateBlgStatus &);                       //!< Not implemented.
+    const CmdUpdateBlgStatus & operator = (const CmdUpdateBlgStatus &);   //!< Not implemented.
 private:       
     BlgStatus_t m_BlgStatusId;     ///< BLG status message identifier
 }; // end class CmdUpdateBlgStatus
