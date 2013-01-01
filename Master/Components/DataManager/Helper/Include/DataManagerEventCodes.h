@@ -49,6 +49,23 @@ const quint32 EVENT_DM_DEVICE_CONFIG_XML_READ_FAILED                 = EVENT_GRO
 const quint32 EVENT_DM_SETTINGS_VERIFICATION_FAILED                  = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0011;
 const quint32 EVENT_DM_DEVICE_CONFIG_VERIFICATION_FAILED             = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0012;
 const quint32 EVENT_DM_INITIALIZATION_ERROR                          = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0013;
+const quint32 EVENT_DM_FILE_OPEN_FAILED                              = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0014;    ///< '%1' file open operation failed
+const quint32 EVENT_DM_FILE_WRITE_FAILED                             = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0015;    ///< '%1' file write operation failed
+const quint32 EVENT_DM_STREAMIN_FAILED                               = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0016;    ///< '%1' XML serialization failed
+const quint32 EVENT_DM_STREAMOUT_FAILED                              = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0017;    ///< '%1' XML Deserialization failed
+const quint32 EVENT_DM_USERSETTINGS_OBJ_INVALID                      = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0001; ///< UserSettings object is invalid
+const quint32 EVENT_DM_SETTINGS_FILE_NOT_EXISTS                      = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0002; ///< UserSettings XML file not exists
+const quint32 EVENT_DM_ERROR_NO_VALID_AGITAION                       = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0003; ///< '%1' is not a valid Agitation Speed
+const quint32 EVENT_DM_ERROR_NO_VALID_OVENTEMP                       = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0004; ///< '%1' is not a valid Oven temperature
+const quint32 EVENT_DM_ERROR_NO_VALID_WATERTYPE                      = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0005; ///< '%1' is not a valid Watertype
+const quint32 EVENT_DM_NO_VALID_LEICA_AGITAION                       = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0006; ///< '%1' is not a valid Leica Agitation Speed
+const quint32 EVENT_DM_NO_VALID_LEICA_OVENTEMP                       = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0007; ///< '%1' is not a valid Leica Oven temperature
+const quint32 EVENT_DM_NO_VALID_LOADER_REAGENTID                     = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0008; ///< No valid Reagent Id in Loader station '%1'
+const quint32 EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE               = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0009; ///< Error Sound Number values are Out Of Range
+const quint32 EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x000A; ///< Error Sound Level values are Out Of Range
+const quint32 EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x000B; ///< Warning Sound Number values are Out Of Range
+const quint32 EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE                 = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x000C; ///< Warning Sound Level values are Out Of Range
+const quint32 EVENT_DM_READ_SOUND_SETTING_FAILED                     = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x000D; ///< Read sound settings is failed
 } // end namespace DataManager
 
 #endif // DATAMANAGEMENT_DATAMANAGEMENTEVENTCODES_H
