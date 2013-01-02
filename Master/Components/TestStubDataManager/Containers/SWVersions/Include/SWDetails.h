@@ -22,8 +22,8 @@
 
 #include <QStringList>
 #include <QXmlStreamWriter>
-#include "DataManager/Helper/Include/Types.h"
-#include "DataManager/Helper/Include/Helper.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Helper/Include/Helper.h"
 
 
 namespace DataManager {

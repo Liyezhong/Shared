@@ -30,9 +30,9 @@
 #include "Global/Include/GlobalEventCodes.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-#include "DataManager/Helper/Include/Types.h"
-#include "DataManager/Helper/Include/Helper.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Helper/Include/Helper.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
 
 namespace DataManager {

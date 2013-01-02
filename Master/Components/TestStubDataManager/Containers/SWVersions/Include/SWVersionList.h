@@ -25,10 +25,10 @@
 #include <QXmlStreamReader>
 #include <QWriteLocker>
 
-#include "DataManager/Helper/Include/Types.h"
-#include "DataManager/Helper/Include/Helper.h"
-#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
-#include "DataManager/Containers/SWVersions/Include/SWDetails.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Helper/Include/Helper.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "TestStubDataManager/Containers/SWVersions/Include/SWDetails.h"
 
 //lint -sem(DataManager::CSWVersionList::AddSWDetails, custodial(1))
 

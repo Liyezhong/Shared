@@ -20,7 +20,7 @@
 /****************************************************************************/
 #include <QBuffer>
 
-#include "DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataExport.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Commands/Include/CmdDataExport.h"
 
 namespace MsgClasses {
 

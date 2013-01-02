@@ -21,7 +21,7 @@
 
 #include <QBuffer>
 
-#include "DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataImport.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Commands/Include/CmdDataImport.h"
 
 namespace MsgClasses {
 

@@ -24,9 +24,9 @@
 #include <QString>
 #include <QXmlStreamReader>
 
-#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
-#include "DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
 
 //lint -e1540
 namespace DataManager {

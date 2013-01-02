@@ -20,7 +20,7 @@
 
 #include <QBuffer>
 
-#include "DataManager/Containers/Racks/Commands/Include/CmdRackUpdate.h"
+#include "TestStubDataManager/Containers/Racks/Commands/Include/CmdRackUpdate.h"
 
 namespace MsgClasses {
 

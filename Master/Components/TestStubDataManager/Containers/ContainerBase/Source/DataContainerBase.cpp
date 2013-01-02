@@ -174,14 +174,16 @@ bool CDataContainerBase::AddVerifier(IVerifierInterface* p_Verifier)
  *  \return Successful (true) or not (false)
  */
 /****************************************************************************/
-bool CDataContainerBase::VerifyData(bool GroupVerification)
+bool CDataContainerBase::VerifyData(bool GroupVerification, bool VerifyAll)
 {
-    if (!DoLocalVerification(this)) {
-        qDebug() << "### CDataContainerBase::Local verifiaction failed";
-        return false;
+    if (!GroupVerification || VerifyAll) {
+        if (!DoLocalVerification(this)) {
+            qDebug() << "### CDataContainerBase::Local verifiaction failed";
+            return false;
+        }
     }
 
-    if (GroupVerification) {
+    if (GroupVerification || VerifyAll) {
         if (!DoGroupVerification(this)) {
             qDebug() << "### CDataContainerBase::Group verifiaction failed";
             return false;

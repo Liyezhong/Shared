@@ -21,7 +21,7 @@
 #ifndef DATAMANAGEMENT_XMLCONFIGFILESTRINGS_H
 #define DATAMANAGEMENT_XMLCONFIGFILESTRINGS_H
 
-#include <DataManager/Helper/Include/XmlConfigFile.h>
+#include <TestStubDataManager/Helper/Include/XmlConfigFile.h>
 #include <Global/Include/Translator.h>
 
 #include <QSet>

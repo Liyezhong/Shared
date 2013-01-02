@@ -29,7 +29,7 @@
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 
-#include "DataManager/Containers/ExportConfiguration/Include/ServiceConfiguration.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ServiceConfiguration.h"
 #include <Global/Include/EventObject.h>
 
 namespace DataManager {

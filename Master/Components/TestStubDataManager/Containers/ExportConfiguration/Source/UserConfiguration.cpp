@@ -28,7 +28,7 @@
 
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-#include "DataManager/Containers/ExportConfiguration/Include/UserConfiguration.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/UserConfiguration.h"
 #include <Global/Include/EventObject.h>
 
 namespace DataManager {

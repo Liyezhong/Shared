@@ -25,7 +25,7 @@
 #include <QDate>
 #include <QDateTime>
 #include <QXmlStreamReader>
-#include "DataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
 
 namespace DataManager {
 /****************************************************************************/

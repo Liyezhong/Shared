@@ -21,8 +21,8 @@
 #define USERCONFIGURATION_H
 
 #include "QXmlStreamWriter"
-#include "DataManager/Helper/Include/Helper.h"
-#include "DataManager/Containers/ExportConfiguration/Include/ConfigurationList.h"
+#include "TestStubDataManager/Helper/Include/Helper.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ConfigurationList.h"
 
 namespace DataManager {
 /******************************************************************************/

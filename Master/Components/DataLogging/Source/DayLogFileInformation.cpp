@@ -31,6 +31,8 @@
 #include "DataLogging/Include/DataLoggingEventCodes.h"
 #include "DataLogging/Include/DayLogFileInformation.h"
 #include "Global/Include/EventObject.h"
+#include "Global/Include/Translator.h"
+#include "Global/Include/UITranslator.h"
 
 namespace DataLogging {
 
@@ -41,10 +43,10 @@ DayLogFileInformation::DayLogFileInformation(QString FilePath) :
 }
 
 /****************************************************************************/
-void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &ListLanguageIDs,
-                                                                 const QString &FileName, const QByteArray &ByteArray) {
+void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, const QByteArray &ByteArray) {
 
-    ListOfLanguageIDs_t& LanguageIDs = const_cast<ListOfLanguageIDs_t&>(ListLanguageIDs);
+    Global::tTranslations Translations = Global::UITranslator::TranslatorInstance().GetTranslations();
+    Global::tLanguageData LanguageIDs = Translations.value(Global::UITranslator::TranslatorInstance().GetDefaultLanguage());
     QByteArray& FileData = const_cast<QByteArray&>(ByteArray);
 
     QFile LogFile(FileName);
@@ -57,8 +59,8 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const ListOfLanguageIDs_t &L
 
         if (ReadData.contains(";")) {
             if (ReadData.contains(";true;")) {
-                if (LanguageIDs.contains(ReadData.split(';').value(1))) {
-                    ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(ReadData.split(';').value(1)));                    
+                if (LanguageIDs.contains(QString(ReadData.split(';').value(1)).toInt())) {
+                    ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(QString(ReadData.split(';').value(1)).toInt()));
                 }
                 else {
                     Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS, Global::FmtArgs() << ReadData.split(';').value(1), true);
@@ -98,16 +100,12 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
 void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileName,
                                    const QByteArray &FileContent) {
 
-    ListOfLanguageIDs_t LanguageFileDetails;
-
     QDir LogDirectory(m_LogFilePath);
     QByteArray& FileData = const_cast<QByteArray&>(FileContent);
     // iterate each file and find whcih event log file it is referring to it
     foreach (QString LogFileName, LogDirectory.entryList(QStringList() << "ColoradoEvents_*.log")) {
         if (LogFileName.contains(FileName.split('_').value(FileName.split('_').count() - 1))) {
-            ReadAndTranslateTheFile(LanguageFileDetails,
-                                    m_LogFilePath
-                                    + QDir::separator() + LogFileName, FileData);
+            ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
             break;
         }
     }
@@ -120,8 +118,6 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
     QStringList& ListOfFile = const_cast<QStringList&>(FileNames);
     // set the current directory as log files
     QDir LogDirectory(m_LogFilePath);
-    // read the language file
-    ListOfLanguageIDs_t LanguageFileDetails;
 
     QProcess::execute("mkdir " + m_LogFilePath + QDir::separator() + "DailyRun");
 
@@ -139,9 +135,7 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
         // replace the .log extension and put the empty string
         ListOfFile.append(FullPatheOfTheFile);
         // translate the files
-        ReadAndTranslateTheFile(LanguageFileDetails,
-                                m_LogFilePath
-                                + QDir::separator() + LogFileName, FileData);
+        ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
         if (FileData.count() > 0) {
             // create the daily run log file
             QFile DailyRunLogFile(FullPatheOfTheFile);

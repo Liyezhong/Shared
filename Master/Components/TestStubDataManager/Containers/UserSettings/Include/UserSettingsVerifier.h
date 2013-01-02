@@ -23,8 +23,8 @@
 #include <QString>
 #include <QXmlStreamReader>
 
-#include "DataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "TestStubDataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
 //lint -e1540
 

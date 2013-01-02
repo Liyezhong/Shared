@@ -28,7 +28,7 @@
 
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-#include "DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
 
 
 namespace DataManager {

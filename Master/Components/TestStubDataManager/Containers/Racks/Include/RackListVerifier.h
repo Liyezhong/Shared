@@ -25,10 +25,10 @@
 #include <QStringList>
 #include <QXmlStreamReader>
 
-#include "DataManager/Containers/Racks/Include/RackList.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
-#include "DataManager/Helper/Include/Types.h"
-#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "TestStubDataManager/Containers/Racks/Include/RackList.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/DataContainerBase.h"
 
 namespace DataManager {
 

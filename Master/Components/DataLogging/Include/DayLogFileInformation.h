@@ -26,8 +26,6 @@
 
 namespace DataLogging {
 
-typedef QHash<QString, QString> ListOfLanguageIDs_t; ///< QHash for storing language Ids
-
 /****************************************************************************/
 /**
  * \brief Class used to get the daily run log file names and creating the files.
@@ -52,12 +50,11 @@ private:
      *        This creates the files in the file system. And also translates the
      *        file content by using the language file
      *
-     * \iparam    ListLanguageIDs  Path of the language file and path of the file.
      * \iparam    FileName         List of file names.
      * \oparam    ByteArray        File Data in bytes
      */
     /****************************************************************************/
-    void ReadAndTranslateTheFile(const ListOfLanguageIDs_t &ListLanguageIDs, const QString &FileName, const QByteArray &ByteArray);
+    void ReadAndTranslateTheFile(const QString &FileName, const QByteArray &ByteArray);
 
 public:
     /****************************************************************************/

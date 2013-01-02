@@ -29,9 +29,9 @@
 #include <QBuffer>
 #include <QStringList>
 
-#include "DataManager/Containers/Racks/Include/Rack.h"
-#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
-#include "DataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Containers/Racks/Include/Rack.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
 #include "Global/Include/GlobalDefines.h"
 
 //lint -sem(DataManager::CRackList::AddRack, custodial(1))

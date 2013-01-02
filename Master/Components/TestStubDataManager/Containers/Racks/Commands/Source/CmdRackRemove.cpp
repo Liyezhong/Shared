@@ -18,7 +18,7 @@
  */
 /****************************************************************************/
 
-#include "DataManager/Containers/Racks/Commands/Include/CmdRackRemove.h"
+#include "TestStubDataManager/Containers/Racks/Commands/Include/CmdRackRemove.h"
 
 namespace MsgClasses {
 

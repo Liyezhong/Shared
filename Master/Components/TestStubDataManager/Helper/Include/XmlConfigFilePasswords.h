@@ -21,7 +21,7 @@
 #ifndef DATAMANAGEMENT_XMLCONFIGFILEPASSWORDS_H
 #define DATAMANAGEMENT_XMLCONFIGFILEPASSWORDS_H
 
-#include <DataManager/Helper/Include/XmlConfigFile.h>
+#include <TestStubDataManager/Helper/Include/XmlConfigFile.h>
 #include <PasswordManager/Include/PasswordManager.h>
 
 namespace DataManager {

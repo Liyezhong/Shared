@@ -25,12 +25,12 @@
 #include <QXmlStreamReader>
 #include <QWriteLocker>
 
-#include "DataManager/Helper/Include/Types.h"
-#include "DataManager/Helper/Include/Helper.h"
-#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
-#include "DataManager/Containers/ExportConfiguration/Include/ImportExportTypes.h"
-#include "DataManager/Containers/ExportConfiguration/Include/ServiceConfiguration.h"
-#include "DataManager/Containers/ExportConfiguration/Include/UserConfiguration.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Helper/Include/Helper.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ImportExportTypes.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ServiceConfiguration.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/UserConfiguration.h"
 
 namespace DataManager {
 

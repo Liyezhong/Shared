@@ -21,7 +21,7 @@
 #ifndef DATAMANAGEMENT_XMLCONFIGFILETIMEOFFSET_H
 #define DATAMANAGEMENT_XMLCONFIGFILETIMEOFFSET_H
 
-#include <DataManager/Helper/Include/XmlConfigFile.h>
+#include <TestStubDataManager/Helper/Include/XmlConfigFile.h>
 
 namespace DataManager {
 

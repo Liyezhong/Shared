@@ -105,7 +105,7 @@ public:
     /*! \warning DON'T implement(override) in derived classes! */
     bool DoGroupVerification();
     /*! \warning DON'T implement(override) in derived classes! */
-    bool VerifyData(bool GroupVerification = false);
+    bool VerifyData(bool GroupVerification = false, bool VerifyAll = false);
 
     /*! \warning DON'T implement(override) in derived classes! */
     bool Write(QString Filename);
