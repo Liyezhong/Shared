@@ -1,8 +1,13 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <QDebug>
 #include "SoftSwitchManager/Include/GPIO.h"
 namespace SoftSwitchManager {
 
-const quint32 BUF_SIZE = 64;
-const QString SYSFS_GPIO_DIRECTORY = "/sys/class/gpio";
+#define BUF_SIZE 64
+#define SYSFS_GPIO_DIRECTORY "/sys/class/gpio"
 
 GPIOPin::GPIOPin(quint32 PinNumber, quint32 Direction, QObject *p_Parent)
   :QObject(p_Parent)
@@ -26,9 +31,9 @@ void GPIOPin::ExportGPIOPin()
     qint32 Length;
     char Buf[BUF_SIZE];
 
-    Fd = open(SYSFS_GPIO_DIRECTORY + "/export", O_WRONLY);
+    Fd = open(SYSFS_GPIO_DIRECTORY"/export", O_WRONLY);
     if (Fd != -1) {
-        Length = qsnprintf(Buf, sizeof(buf), "%d", m_PinNumber);
+        Length = qsnprintf(Buf, sizeof(Buf), "%d", m_PinNumber);
         write(Fd, Buf, Length);
         close(Fd);
     }
@@ -43,7 +48,7 @@ void GPIOPin::SetDirection(const bool Direction)
     qint32 Fd = -1;
     qint32 Length;
     char Buf[BUF_SIZE];
-    Length = qsnprintf(Buf, sizeof(buf), SYSFS_GPIO_DIRECTORY + "/gpio%d/direction", m_PinNumber);
+    Length = qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/direction", m_PinNumber);
     Fd = open(Buf, O_WRONLY);
     if (Fd != -1) {
         if (Direction) {
