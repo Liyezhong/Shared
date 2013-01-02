@@ -48,8 +48,8 @@ void CommandChannel::EmitCommand(Global::tRefType Ref, const Global::CommandShPt
     else
     {
         // signal is not connected. Send error.
-        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED,
-                  "CommandChannel::CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &))");
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED, Global::FmtArgs() << Cmd.GetPointerToUserData()->GetName() << this->m_channelName);
+//                  "CommandChannel::CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &))");
     }
 }
 
@@ -65,8 +65,8 @@ void CommandChannel::EmitAcknowledge(Global::tRefType Ref, const Global::Acknowl
     } else {
         qDebug() << "CommandChannel::EmitAcknowledge, Signal not connected" << Ref;
         // signal is not connected. Send error.
-        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED,
-                  "CommandChannel::CommandChannelRxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &))");
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED, Global::FmtArgs() << Ack.GetPointerToUserData()->GetName() << this->m_channelName);
+//                  "CommandChannel::CommandChannelRxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &))");
     }
 }
 
