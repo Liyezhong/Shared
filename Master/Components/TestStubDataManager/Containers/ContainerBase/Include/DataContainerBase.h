@@ -28,9 +28,9 @@
 #include <QDebug>
 
 #include "Global/Include/GlobalDefines.h"
-#include "DataManager/Helper/Include/Types.h"
-#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
-
+#include "TestStubDataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "Global/Include/EventObject.h"
 namespace DataManager {
 /****************************************************************************/
 /**
@@ -105,7 +105,7 @@ public:
     /*! \warning DON'T implement(override) in derived classes! */
     bool DoGroupVerification();
     /*! \warning DON'T implement(override) in derived classes! */
-    bool VerifyData();
+    bool VerifyData(bool GroupVerification = false);
 
     /*! \warning DON'T implement(override) in derived classes! */
     bool Write(QString Filename);

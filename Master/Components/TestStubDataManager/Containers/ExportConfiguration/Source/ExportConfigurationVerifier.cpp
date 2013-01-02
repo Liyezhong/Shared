@@ -21,8 +21,8 @@
 
 #include <QDebug>
 #include <QDir>
-#include "DataManager/Containers/ExportConfiguration/Include/ExportConfigurationVerifier.h"
-#include "DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ExportConfigurationVerifier.h"
+#include "TestStubDataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
 
 namespace DataManager {
 

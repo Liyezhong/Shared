@@ -24,7 +24,7 @@
 #include <QWriteLocker>
 #include <QReadWriteLock>
 #include <QStringList>
-#include "DataManager/Helper/Include/Types.h"
+#include "TestStubDataManager/Helper/Include/Types.h"
 
 namespace DataManager {
 
