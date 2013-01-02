@@ -115,11 +115,18 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
 
         QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
 
+        QString ParameterString = "";
+        foreach (Global::TranslatableString s, Entry.GetString())
+        {
+            ParameterString += s.GetString() +";";
+        }
+
         QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
                                 QString::number(Entry.GetEventCode(), 10) + ";" +
                                 TrEventType + ";" +
                                 TrEventMessage + ";" +
-                                ShowInRunLog + ";" + "\n";
+                                ShowInRunLog + ";" +
+                                ParameterString + "\n";
 
         // check if we must printout to console (because we sent it to the data logger
         // and we have to avoid a ping pong of error messages)
