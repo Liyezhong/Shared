@@ -72,6 +72,7 @@ protected:
 private:
     Q_DISABLE_COPY(SoftSwitchManagerThreadController) //!< Disable copy and assignment
     void RegisterCommands();
+    void OnAcknowledge(Global::tRefType, const Global::AckOKNOK &);
 };
 
 } // end namespace EventHandler

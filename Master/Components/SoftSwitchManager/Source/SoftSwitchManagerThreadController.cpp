@@ -63,9 +63,8 @@ SoftSwitchManagerThreadController::~SoftSwitchManagerThreadController()
  ****************************************************************************/
 void SoftSwitchManagerThreadController::CreateAndInitializeObjects()
 {
-
     // now register commands
-    //RegisterCommands();
+    RegisterCommands();
 }
 
 /****************************************************************************/
@@ -79,6 +78,16 @@ void SoftSwitchManagerThreadController::CreateAndInitializeObjects()
 /****************************************************************************/
 void SoftSwitchManagerThreadController::CleanupAndDestroyObjects()
 {
+}
+/****************************************************************************/
+/*!
+ *  \brief Register commands handled by thread Controller
+ *
+/****************************************************************************/
+void SoftSwitchManagerThreadController::RegisterCommands()
+{
+    RegisterAcknowledgeForProcessing<Global::AckOKNOK, SoftSwitchManagerThreadController>
+            (&SoftSwitchManagerThreadController::OnAcknowledge, this);
 }
 
 /****************************************************************************/
@@ -132,6 +141,11 @@ void SoftSwitchManagerThreadController::SendCommand(Global::tRefType Ref, const 
 Global::tRefType SoftSwitchManagerThreadController::GetNewCommandRef()
 {
     return Threads::ThreadController::GetNewCommandRef();
+}
+
+void SoftSwitchManagerThreadController::OnAcknowledge(Global::tRefType, const Global::AckOKNOK &)
+{
+
 }
 
 } //End Of namespace SoftSwitchManager
