@@ -33,6 +33,7 @@
 #include "Global/Include/EventObject.h"
 #include "Global/Include/Translator.h"
 #include "Global/Include/UITranslator.h"
+#include "Global/Include/EventTranslator.h"
 
 namespace DataLogging {
 
@@ -45,8 +46,6 @@ DayLogFileInformation::DayLogFileInformation(QString FilePath) :
 /****************************************************************************/
 void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, const QByteArray &ByteArray) {
 
-    Global::tTranslations Translations = Global::UITranslator::TranslatorInstance().GetTranslations();
-    Global::tLanguageData LanguageIDs = Translations.value(Global::UITranslator::TranslatorInstance().GetDefaultLanguage());
     QByteArray& FileData = const_cast<QByteArray&>(ByteArray);
 
     QFile LogFile(FileName);
@@ -59,8 +58,12 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
 
         if (ReadData.contains(";")) {
             if (ReadData.contains(";true;")) {
-                if (LanguageIDs.contains(QString(ReadData.split(';').value(1)).toInt())) {
-                    ReadData.replace(ReadData.split(';').value(3), LanguageIDs.value(QString(ReadData.split(';').value(1)).toInt()));
+                // translate the data
+                QString EventData = Global::EventTranslator::TranslatorInstance().Translate
+                        (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt()));
+
+                if (EventData.compare(ReadData.split(';').value(3)) != 0 && EventData.compare("") != 0) {
+                    ReadData.replace(ReadData.split(';').value(3), EventData);
                 }
                 else {
                     Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS, Global::FmtArgs() << ReadData.split(';').value(1), true);
@@ -70,10 +73,14 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                     ReadData = ReadData.mid(0, IndexValue) + "\n";
                 }
                 FileData.append(ReadData);
+                FileData.append("\n");
             }
         }
         else {
-            FileData.append(ReadData.replace("ColoradoEvents_", "DailyRunLog_"));
+            if (ReadData != "\n") {
+                FileData.append(ReadData.replace("ColoradoEvents_", "DailyRunLog_"));
+                FileData.append("\n");
+            }
         }
     }
     LogFile.close();

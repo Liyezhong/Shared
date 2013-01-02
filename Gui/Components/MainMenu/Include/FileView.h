@@ -52,9 +52,12 @@ public:
 
 private:
     Ui::CFileView *mp_Ui;                   //!< User interface
-    MainMenu::CBaseTable *mp_TableWidget;   //!< Table displaying logfiles
+    qint32 m_SelectableRows;                //!< Selectable rows
+    qint32 m_PreviousIndex;                //!< Previous index
+    MainMenu::CBaseTable *mp_TableWidget;   //!< Table displaying logfiles    
     MainMenu::CTextDialog *mp_Dialog;   //!< Text view in the dialog
     QStandardItemModel m_Model;             //!< Model for the table view
+
 
     void AddEmptyRows();
 
@@ -62,6 +65,7 @@ protected:
     void changeEvent(QEvent *p_Event);
 private slots:
     void OpenButtonClicked();
+    void ItemActivated(const QModelIndex& Index);
 signals:
     void GetFileContent(const QString &FileName);
 

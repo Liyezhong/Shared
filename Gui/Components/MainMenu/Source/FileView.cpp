@@ -34,7 +34,9 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFileView)
+CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFileView),
+    m_SelectableRows(0),
+    m_PreviousIndex(0)
 {
     mp_Ui->setupUi(this);
 
@@ -60,6 +62,13 @@ CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFile
     if (!connect(mp_Ui->pushButton, SIGNAL(clicked()), this, SLOT(OpenButtonClicked()))) {
         qDebug() << "CFileView: cannot connect 'clicked' signal";
     }
+
+
+    if (!connect(mp_TableWidget, SIGNAL(pressed(const QModelIndex&)), this, SLOT(ItemActivated(const QModelIndex&)))) {
+        qDebug() << "CFileView: cannot connect 'activate' signal";
+    }
+
+
 }
 
 /****************************************************************************/
@@ -124,6 +133,23 @@ void CFileView::OpenButtonClicked()
 
 /****************************************************************************/
 /*!
+ *  \brief Slot for the item activation
+ *
+ *  \iparam Index = Index of the row
+ */
+/****************************************************************************/
+void CFileView::ItemActivated(const QModelIndex &Index)
+{
+    if (Index.row() > (m_SelectableRows - 1)) {
+        mp_TableWidget->selectRow(m_PreviousIndex);
+    }
+    else {
+        m_PreviousIndex = mp_TableWidget->currentIndex().row();
+    }
+}
+
+/****************************************************************************/
+/*!
  *  \brief Day run log file content
  *
  *  \iparam DataStream = File stream
@@ -152,6 +178,7 @@ void CFileView::DayRunLogFileContent(const QDataStream &DataStream)
 /****************************************************************************/
 void CFileView::DayRunLogFileNames(const QStringList &FileNames)
 {   
+    m_SelectableRows = FileNames.count();
     // check the number of rows
     if (m_Model.rowCount() > 0) {
         // delete all the items in the table
