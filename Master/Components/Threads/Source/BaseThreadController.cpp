@@ -217,7 +217,7 @@ AcknowledgeProcessorFunctorShPtr_t BaseThreadController::GetAcknowledgeProcessor
     AcknowledgeProcessorFunctorHash_t::const_iterator it = m_AcknowledgeProcessorFunctors.find(AckName);
     if(it == m_AcknowledgeProcessorFunctors.constEnd())
     {
-        qDebug() << "... no functor found";
+        qDebug() << "BaseThreadController::GetAcknowledgeProcessorFunctor, no functor found for" << AckName;
         // functor not found
         // return NULL functor
         return NullAcknowledgeProcessorFunctor;

@@ -349,7 +349,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
             if (textList.count() > 8)
             {
-                bool UserLogFlag = textList.at(8).toInt();
+                bool UserLogFlag = ((textList.at(8).toUpper() == "TRUE") || (textList.at(8).toUpper() == "YES"));
                 EventCSVInfo.SetRunLogStatus(UserLogFlag);
             }
 
@@ -369,7 +369,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
             if (textList.count() > 11)
             {
-                bool StatusBarIconFlag = textList.at(11).toInt();
+                bool StatusBarIconFlag = ((textList.at(11).toUpper() == "TRUE") || (textList.at(11).toUpper() == "YES"));
                 EventCSVInfo.SetStatusBarIcon(StatusBarIconFlag);
             }
 
