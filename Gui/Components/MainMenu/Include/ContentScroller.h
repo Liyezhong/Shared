@@ -69,9 +69,12 @@ protected:
 
 private slots:
     void UpdateVerticalScrollBar();
-    void ScrollContent(int Direction);
+   // void ScrollContent(int Direction);
     void ScrollStep(const QVariant &Value);
     void ScrollRangeChanged();
+
+public slots:
+    void ScrollContent(int Direction);
 
 signals:
     void Scrolled();

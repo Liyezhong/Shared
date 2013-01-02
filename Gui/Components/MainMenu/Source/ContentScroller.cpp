@@ -202,7 +202,6 @@ void CContentScroller::ScrollContent(int Direction)
                 NewPosition = mp_Content->verticalScrollBar()->maximum();
                 break;
         }
-
         UpdateArrows(NewPosition);
         emit Scrolled();
         m_AnimationStep = 0;
