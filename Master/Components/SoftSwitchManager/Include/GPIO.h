@@ -1,6 +1,9 @@
 #ifndef GPIO_H
 #define GPIO_H
 #include <QObject>
+
+namespace SoftSwitchManager {
+
 class GPIOPin: public QObject {
 private:
     qint32  m_Fd; //!< File descriptor
@@ -20,4 +23,5 @@ public:
     quint32 GetValue() const;
 };
 
+} //End of namespace SoftSwitchManager
 #endif // GPIO_H
