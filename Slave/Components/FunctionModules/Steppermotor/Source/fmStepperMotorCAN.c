@@ -222,9 +222,16 @@ Error_t smReferenceRun(UInt16 Channel, CanMessage_t* Message)
     // if everything is ok then initiate the reference run
     if (SM_ACK == Ack)
     {
+        // skip ref-run movements if reference position is not defined
+        if (0 == Data->RefRun.Config.RefPos) {
+            Data->RefRun.State = SM_RRS_ASSIGN_OFFSET;
+        }
+        else {
+            Data->RefRun.State = SM_RRS_FAST_MOTION_START;
+        }
+
     // set stepper module state accordingly, to mark that reference run is active
     // inside "smRefRunTask" the final acknowledge message for the reference run will be sent to master
-        Data->RefRun.State = SM_RRS_FAST_MOTION_START;
         Data->State = SM_STATE_REFRUN;
     }
 

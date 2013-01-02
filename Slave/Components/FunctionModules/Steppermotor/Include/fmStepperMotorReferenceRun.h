@@ -39,6 +39,7 @@ typedef enum
     SM_RRS_REVERSE_MOTION,                  //!< reference run reverse motion is active
     SM_RRS_SLOW_MOTION_START,               //!< start reference run slow motion to limit switch
     SM_RRS_SLOW_MOTION,                     //!< reference run slow motion is active
+    SM_RRS_ASSIGN_OFFSET,                   //!< reference run done, assign offset value
     SM_RRS_FINISHED,                        //!< reference run sucessfully finished
 } smReferenceRunState_t;
 

@@ -171,11 +171,10 @@ Error_t smCheckReferenceRunConfig(smReferenceRun_t *RefRun, smLimitSwitches_t *L
     }
 
     // check if reference position is valid.
-    if (0 == RefRun->Config.RefPos) {
-        return E_SMOT_CONFIG_REFRUN;
-    }
-    if ((smPosCodeIsValid(LimitSwitches, RefRun->Config.RefPos) < 0)) {
-        return E_SMOT_CONFIG_REFRUN;
+    if (0 != RefRun->Config.RefPos) {
+        if ((smPosCodeIsValid(LimitSwitches, RefRun->Config.RefPos) < 0)) {
+            return E_SMOT_CONFIG_REFRUN;
+        }
     }
 
     // check if offset is valid
@@ -479,11 +478,8 @@ Error_t smReferenceRunTask(UInt16 Instance)
     case SM_RRS_REVERSE_MOTION_START:    //!< start reference run reverse motion
         // skip second run if slow speed is zero
         // or reverse distance is zero
-        if ((0 == RefRun->Config.ReverseDist) || (0 == RefRun->Config.SlowSpeed))      
-        {
-            // assign offset to actual position
-            Data->Motion.Pos = RefRun->Config.Offset;
-            RefRun->State = SM_RRS_FINISHED;
+        if ((0 == RefRun->Config.ReverseDist) || (0 == RefRun->Config.SlowSpeed)) {
+            RefRun->State = SM_RRS_ASSIGN_OFFSET;
         }
         else
         {
@@ -511,14 +507,17 @@ Error_t smReferenceRunTask(UInt16 Instance)
     case SM_RRS_SLOW_MOTION:    //!< reference run slow motion is active
         if ((RetCode = smCheckRefRunSpeedRequest (Data, &Done)) >= 0)
         {
-            if (Done)
-            {
-                // assign offset to actual position to initialize the reference framework
-                Data->Motion.Pos = RefRun->Config.Offset;
-                smInitEncoderPos(&Data->Encoder, Data->Motor.Config.Resolution, Data->Motion.Pos);
-                RefRun->State = SM_RRS_FINISHED;
+            if (Done) {
+                RefRun->State = SM_RRS_ASSIGN_OFFSET;
             }
         }
+        break;
+
+    case SM_RRS_ASSIGN_OFFSET:          //!< reference run done, assign offset value
+        // assign offset to actual position to initialize the reference framework
+        Data->Motion.Pos = RefRun->Config.Offset;
+        smInitEncoderPos(&Data->Encoder, Data->Motor.Config.Resolution, Data->Motion.Pos);
+        RefRun->State = SM_RRS_FINISHED;
         break;
 
     case SM_RRS_FINISHED:    //!< reference run sucessfully finished

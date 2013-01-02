@@ -373,11 +373,9 @@ Error_t smConfigIsValid(smData_t* Data)
         return E_SMOT_CONFIG_INCOMPLETE;
     }
 
-#ifndef SEPIA_GRABBER
     if ((RetCode = smCheckReferenceRunConfig(&Data->RefRun, &Data->LimitSwitches, &Data->Motor)) < 0) {
         return RetCode;
     }
-#endif
 
 // check if profiles are complete and valid
     if ((RetCode = smCheckProfilesConfig(&Data->Profiles)) < 0) {
