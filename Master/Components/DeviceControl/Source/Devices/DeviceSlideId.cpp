@@ -217,6 +217,15 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Enables all outputs required to switch on the laser
+ *
+ *  \iparam p_Event = Signal parameters (unused)
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::EnableSlideCounter(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
@@ -240,16 +249,44 @@ bool CDeviceSlideId::EnableSlideCounter(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Confirms that the output was enabled
+ *
+ *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::NormalOutputValueAckn(QEvent *p_Event)
 {
     return OutputValueAckn(p_Event, false);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Confirms that the last output was enabled
+ *
+ *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::LastOutputValueAckn(QEvent *p_Event)
 {
     return OutputValueAckn(p_Event, true);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Confirms that the output was enabled and requests the state
+ *
+ *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
+ *  \iparam Last = Indicates if this is the last acknowledge signal
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::OutputValueAckn(QEvent *p_Event, bool Last)
 {
     ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
@@ -269,6 +306,15 @@ bool CDeviceSlideId::OutputValueAckn(QEvent *p_Event, bool Last)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Called when an input value is received and checks it
+ *
+ *  \iparam p_Event = Parameters of the signal ReportActInputValue
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::OnActInputValue(QEvent *p_Event)
 {
     qint16 Value;
@@ -296,6 +342,15 @@ bool CDeviceSlideId::OnActInputValue(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Default transition for negative acks for start requests
+ *
+ *  \iparam p_Event = Signal parameters (unused)
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::NackStartCounting(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
@@ -304,6 +359,15 @@ bool CDeviceSlideId::NackStartCounting(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Default transition for negative acks for stop requests
+ *
+ *  \iparam p_Event = Signal parameters (unused)
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::NackStopCounting(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
@@ -312,6 +376,15 @@ bool CDeviceSlideId::NackStopCounting(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Sends an enable request to the laser control output
+ *
+ *  \iparam p_Event = Signal parameters (unused)
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::EnableLaser(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
@@ -325,6 +398,15 @@ bool CDeviceSlideId::EnableLaser(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Sends a disable request to the laser control output
+ *
+ *  \iparam p_Event = Signal parameters (unused)
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::DisableLaser(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
@@ -338,6 +420,15 @@ bool CDeviceSlideId::DisableLaser(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Receives the result of the activation of the laser
+ *
+ *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::OnEnableLaser(QEvent *p_Event)
 {
     bool Success = true;
@@ -354,6 +445,15 @@ bool CDeviceSlideId::OnEnableLaser(QEvent *p_Event)
     return Success;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Receives the result of the deactivation of the laser
+ *
+ *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::OnDisableLaser(QEvent *p_Event)
 {
     bool Success = true;
@@ -367,6 +467,15 @@ bool CDeviceSlideId::OnDisableLaser(QEvent *p_Event)
     return Success;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Performed when a negative ack is received from the laser output
+ *
+ *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::ErrorSwitchLaser(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
@@ -377,6 +486,15 @@ bool CDeviceSlideId::ErrorSwitchLaser(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Increases the slide counter, when something hits the laser
+ *
+ *  \iparam p_Event = Parameters of the signal ReportActInputValue
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
 bool CDeviceSlideId::CountSlide(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CSlideIdTransition::GetEventValue(p_Event, 1);
