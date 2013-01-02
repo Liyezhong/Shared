@@ -322,11 +322,7 @@ Error_t smTargetPosition(UInt16 Channel, CanMessage_t* Message)
     // if everything is ok then movement can start)
     if (SM_ACK == Ack)
     {
-        // start movement if requested position is different from actual postion
-        if (Position != Data->Motion.Pos) {
-            RetCode = smPositionRequest (Data->Instance, Position, ProfileIndex);
-        }
-        if (RetCode < 0)
+        if ((RetCode = smPositionRequest (Data->Instance, Position, ProfileIndex)) < 0)
         {
             SM_SIGNAL_EVENT (RetCode);
         }
@@ -422,7 +418,6 @@ Error_t smTargetSpeed(UInt16 Channel, CanMessage_t* Message)
     // if everything is ok then movement can start)
     if (SM_ACK == Ack)
     {
-        // start movement if requested position is different from actual postion
         if ((RetCode = smSpeedRequest (Data->Instance, Speed, ProfileIndex)) < 0)
         {
             SM_SIGNAL_EVENT (RetCode);

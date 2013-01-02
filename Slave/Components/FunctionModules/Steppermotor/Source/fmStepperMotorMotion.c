@@ -513,6 +513,12 @@ Error_t smNewPositionRequest (smData_t *Data, Int32 Position, Int8 ProfileIndex)
     Profile = &Data->Profiles.Set[ProfileIndex];
 
     Distance = Position - Data->Motion.Pos;
+    // don't start movement if requested position is same as actual postion
+    if (0 == Distance) {
+        Data->Motion.AtTargetPosition = TRUE;
+        return NO_ERROR;
+    }
+
     Distance = smCheckDirection(Data->Motor.InversePosCount, PtrParam, Distance); 
     PtrParam->dSteps = Profile->StepWidth;
 
