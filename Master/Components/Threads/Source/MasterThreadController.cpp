@@ -486,8 +486,7 @@ CommandChannel *MasterThreadController::GetCommandRouteChannel(const QString &Co
     return m_TCCommandRoutes.value(CommandName);
 }
 
-CommandChannel *MasterThreadController::GetComponentRouteChannel(Global::EventSourceType component) const
-{
+CommandChannel *MasterThreadController::GetComponentRouteChannel(Global::EventSourceType component) const {
     QHashIterator<QString, Threads::CommandChannel*> i(m_channelList);
     while (i.hasNext())
     {
@@ -551,7 +550,7 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
             }
             //Check if some processing must be done before sending it to the target channel
             CommandExecuteFunctorShPtr_t Functor = GetCommandExecuteFunctorWithoutAck(Cmd->GetName());
-            if(Functor == NullCommandExecuteFunctorWithouAck) {
+            if (Functor == NullCommandExecuteFunctorWithouAck) {
                 // and send command
                 DoSendCommand(NewRef, Cmd, *pChannel);
             }
