@@ -84,6 +84,7 @@ typedef enum
     EXPORT,
     DEVICECONFIGURATION,
     SWVERSION,
+    ADJUSTMENT,
     INVALID_CONTAINER_TYPE
 } DataContainerType_t;
 

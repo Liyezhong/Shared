@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE colorado_adjustment_data>
+<colorado_adjustment version="1">
+    <adjustment_data>
+        <grappler_left>
+            <row index="1">
+                <vessel pos="1" row="209" column="109" depth="959"/>
+                <vessel pos="2" row="10" column="11" depth="859"/>
+                <vessel pos="3" row="10" column="11" depth="859"/>
+                <vessel pos="4" row="10" column="11" depth="859"/>
+                <vessel pos="5" row="10" column="11" depth="859"/>
+                <vessel pos="6" row="10" column="11" depth="859"/>
+                <vessel pos="7" row="10" column="11" depth="859"/>
+                <vessel pos="8" row="10" column="11" depth="859"/>
+                <vessel pos="9" row="10" column="11" depth="859"/>
+                <vessel pos="10" row="10" column="11" depth="859"/>
+                <vessel pos="11" row="10" column="11" depth="859"/>
+                <vessel pos="12" row="10" column="11" depth="859"/>
+                <vessel pos="13" row="10" column="11" depth="859"/>
+                <vessel pos="14" row="10" column="11" depth="859"/>
+                <vessel pos="15" row="10" column="11" depth="859"/>
+                <vessel pos="16" row="10" column="11" depth="859"/>
+                <vessel pos="17" row="10" column="11" depth="859"/>
+                <vessel pos="18" row="10" column="11" depth="859"/>
+            </row>
+            <row index="2">
+                <vessel pos="1" row="10" column="11" depth="859"/>
+                <vessel pos="2" row="10" column="11" depth="859"/>
+                <vessel pos="3" row="10" column="11" depth="859"/>
+                <vessel pos="4" row="10" column="11" depth="859"/>
+                <vessel pos="5" row="10" column="11" depth="859"/>
+                <vessel pos="6" row="10" column="11" depth="859"/>
+                <vessel pos="7" row="10" column="11" depth="859"/>
+                <vessel pos="8" row="10" column="11" depth="859"/>
+                <vessel pos="9" row="10" column="11" depth="859"/>
+                <vessel pos="10" row="10" column="11" depth="859"/>
+                <vessel pos="11" row="10" column="11" depth="859"/>
+                <vessel pos="12" row="10" column="11" depth="859"/>
+                <vessel pos="13" row="10" column="11" depth="859"/>
+                <vessel pos="14" row="10" column="11" depth="859"/>
+                <vessel pos="15" row="10" column="11" depth="859"/>
+                <vessel pos="16" row="10" column="11" depth="859"/>
+                <vessel pos="17" row="10" column="11" depth="859"/>
+                <vessel pos="18" row="10" column="11" depth="859"/>
+            </row>
+            <row index="3">
+                <vessel pos="1" row="10" column="11" depth="859"/>
+                <vessel pos="2" row="10" column="11" depth="859"/>
+                <vessel pos="3" row="10" column="11" depth="859"/>
+                <vessel pos="4" row="10" column="11" depth="859"/>
+                <vessel pos="5" row="10" column="11" depth="859"/>
+                <vessel pos="6" row="10" column="11" depth="859"/>
+                <vessel pos="7" row="10" column="11" depth="859"/>
+                <vessel pos="8" row="10" column="11" depth="859"/>
+                <vessel pos="9" row="10" column="11" depth="859"/>
+                <vessel pos="10" row="10" column="11" depth="859"/>
+                <vessel pos="11" row="10" column="11" depth="859"/>
+                <vessel pos="12" row="10" column="11" depth="859"/>
+                <vessel pos="13" row="10" column="11" depth="859"/>
+                <vessel pos="14" row="10" column="11" depth="859"/>
+                <vessel pos="15" row="10" column="11" depth="859"/>
+                <vessel pos="16" row="10" column="11" depth="859"/>
+                <vessel pos="17" row="10" column="11" depth="859"/>
+                <vessel pos="18" row="10" column="11" depth="859"/>
+            </row>
+            <row index="4">
+                <vessel pos="1" row="10" column="11" depth="859"/>
+                <vessel pos="2" row="10" column="11" depth="859"/>
+                <vessel pos="3" row="10" column="11" depth="859"/>
+                <vessel pos="4" row="10" column="11" depth="859"/>
+                <vessel pos="5" row="10" column="11" depth="859"/>
+                <vessel pos="6" row="10" column="11" depth="859"/>
+                <vessel pos="7" row="10" column="11" depth="859"/>
+                <vessel pos="8" row="10" column="11" depth="859"/>
+                <vessel pos="9" row="10" column="11" depth="859"/>
+                <vessel pos="10" row="10" column="11" depth="859"/>
+                <vessel pos="11" row="10" column="11" depth="859"/>
+                <vessel pos="12" row="10" column="11" depth="859"/>
+                <vessel pos="13" row="9" column="9" depth="859"/>
+                <vessel pos="14" row="9" column="9" depth="859"/>
+                <vessel pos="15" row="9" column="9" depth="859"/>
+                <vessel pos="16" row="9" column="9" depth="859"/>
+                <vessel pos="17" row="9" column="9" depth="859"/>
+                <vessel pos="18" row="9" column="9" depth="859"/>
+            </row>
+        </grappler_left>
+        <grappler_right>
+            <row index="1">
+                <vessel pos="1" row="9" column="10" depth="858"/>
+                <vessel pos="2" row="9" column="10" depth="858"/>
+                <vessel pos="3" row="9" column="10" depth="858"/>
+                <vessel pos="4" row="9" column="10" depth="858"/>
+                <vessel pos="5" row="9" column="10" depth="858"/>
+                <vessel pos="6" row="9" column="10" depth="858"/>
+                <vessel pos="7" row="9" column="10" depth="858"/>
+                <vessel pos="8" row="9" column="10" depth="858"/>
+                <vessel pos="9" row="9" column="10" depth="858"/>
+                <vessel pos="10" row="9" column="10" depth="858"/>
+                <vessel pos="11" row="9" column="10" depth="858"/>
+                <vessel pos="12" row="9" column="10" depth="858"/>
+                <vessel pos="13" row="9" column="10" depth="858"/>
+                <vessel pos="14" row="9" column="10" depth="858"/>
+                <vessel pos="15" row="9" column="10" depth="858"/>
+                <vessel pos="16" row="9" column="10" depth="858"/>
+                <vessel pos="17" row="9" column="10" depth="858"/>
+                <vessel pos="18" row="9" column="10" depth="858"/>
+            </row>
+            <row index="2">
+                <vessel pos="1" row="8" column="8" depth="858"/>
+                <vessel pos="2" row="8" column="8" depth="858"/>
+                <vessel pos="3" row="8" column="8" depth="858"/>
+                <vessel pos="4" row="8" column="8" depth="858"/>
+                <vessel pos="5" row="8" column="8" depth="858"/>
+                <vessel pos="6" row="8" column="8" depth="858"/>
+                <vessel pos="7" row="8" column="8" depth="858"/>
+                <vessel pos="8" row="8" column="8" depth="858"/>
+                <vessel pos="9" row="8" column="8" depth="858"/>
+                <vessel pos="10" row="8" column="8" depth="858"/>
+                <vessel pos="11" row="9" column="10" depth="858"/>
+                <vessel pos="12" row="9" column="10" depth="858"/>
+                <vessel pos="13" row="9" column="10" depth="858"/>
+                <vessel pos="14" row="9" column="10" depth="858"/>
+                <vessel pos="15" row="9" column="10" depth="858"/>
+                <vessel pos="16" row="9" column="10" depth="858"/>
+                <vessel pos="17" row="9" column="10" depth="858"/>
+                <vessel pos="18" row="9" column="10" depth="858"/>
+            </row>
+            <row index="3">
+                <vessel pos="1" row="8" column="8" depth="858"/>
+                <vessel pos="2" row="8" column="8" depth="858"/>
+                <vessel pos="3" row="8" column="8" depth="858"/>
+                <vessel pos="4" row="8" column="8" depth="858"/>
+                <vessel pos="5" row="8" column="8" depth="858"/>
+                <vessel pos="6" row="8" column="8" depth="858"/>
+                <vessel pos="7" row="8" column="8" depth="858"/>
+                <vessel pos="8" row="8" column="8" depth="858"/>
+                <vessel pos="9" row="8" column="8" depth="858"/>
+                <vessel pos="10" row="8" column="8" depth="858"/>
+                <vessel pos="11" row="9" column="10" depth="858"/>
+                <vessel pos="12" row="9" column="10" depth="858"/>
+                <vessel pos="13" row="9" column="10" depth="858"/>
+                <vessel pos="14" row="9" column="10" depth="858"/>
+                <vessel pos="15" row="9" column="10" depth="858"/>
+                <vessel pos="16" row="9" column="10" depth="858"/>
+                <vessel pos="17" row="9" column="10" depth="858"/>
+                <vessel pos="18" row="9" column="10" depth="858"/>
+            </row>
+            <row index="4">
+                <vessel pos="1" row="8" column="8" depth="858"/>
+                <vessel pos="2" row="8" column="8" depth="858"/>
+                <vessel pos="3" row="8" column="8" depth="858"/>
+                <vessel pos="4" row="8" column="8" depth="858"/>
+                <vessel pos="5" row="8" column="8" depth="858"/>
+                <vessel pos="6" row="8" column="8" depth="858"/>
+                <vessel pos="7" row="8" column="8" depth="858"/>
+                <vessel pos="8" row="8" column="8" depth="858"/>
+                <vessel pos="9" row="8" column="8" depth="858"/>
+                <vessel pos="10" row="8" column="8" depth="858"/>
+                <vessel pos="11" row="9" column="10" depth="858"/>
+                <vessel pos="12" row="9" column="10" depth="858"/>
+                <vessel pos="13" row="9" column="10" depth="858"/>
+                <vessel pos="14" row="9" column="10" depth="858"/>
+                <vessel pos="15" row="9" column="10" depth="858"/>
+                <vessel pos="16" row="9" column="10" depth="858"/>
+                <vessel pos="17" row="9" column="10" depth="858"/>
+                <vessel pos="18" row="9" column="10" depth="858"/>
+            </row>
+        </grappler_right>
+    </adjustment_data>
+</colorado_adjustment>

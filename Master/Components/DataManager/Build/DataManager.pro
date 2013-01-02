@@ -16,8 +16,9 @@ HEADERS += ../Helper/Include/*.h \
  ../Containers/UserSettings/Include/*.h \
  ../Containers/UserSettings/Commands/Include/*.h \
  ../Containers/Stations/Include/*.h \
+ ../Containers/Adjustment/Include/*.h \
  ../CommandInterface/Include/*.h \
- ../Include/*.h
+ ../Include/*.h \
  
 SOURCES += ../Helper/Source/*.cpp \
  ../Containers/ContainerBase/Source/*.cpp \
@@ -31,5 +32,6 @@ SOURCES += ../Helper/Source/*.cpp \
  ../Containers/UserSettings/Source/*.cpp \
  ../Containers/UserSettings/Commands/Source/*.cpp \
  ../Containers/Stations/Source/*.cpp \
+ ../Containers/Adjustment/Source/*.cpp \
  ../CommandInterface/Source/*.cpp \
- ../Source/*.cpp
+ ../Source/*.cpp \
