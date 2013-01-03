@@ -108,22 +108,23 @@ void smInitLimitSwitches (smLimitSwitches_t *LimitSwitches)
  *      Configuration data received from master is applied to the limit switch.
  * 
  *  \iparam  LimitSwitches  = pointer to limit switches data
- *  \iparam  Index          = limit switch number
  *  \iparam  Param          = pointer to configuration data received from master
  * 
  *  \return  NO_ERROR or (negative) error code
  *
  ******************************************************************************/
-Error_t smConfigureLimitSwitch(smLimitSwitches_t* LimitSwitches, UInt8 Index, ConfigData_LS_t* Param)
+Error_t smConfigureLimitSwitches(smLimitSwitches_t* LimitSwitches, ConfigData_LS_t* Param)
 {
-    smLimitSwitch_t* LimitSwitch = &LimitSwitches->Device[Index];
+    LimitSwitches->Config.SampleRate = Param->sampleRate;
+    LimitSwitches->Config.Debounce   = Param->debounceCount;
 
-    LimitSwitch->Config.Exists      = Param->flag.exist;
-    LimitSwitch->Config.Polarity    = Param->flag.polarity;
- LimitSwitches->Config.SampleRate  = Param->sampleRate;
- LimitSwitches->Config.Debounce    = Param->debounceCount;
+    LimitSwitches->Device[0].Config.Exists   = Param->ls1.exist;
+    LimitSwitches->Device[0].Config.Polarity = Param->ls1.polarity;
+    LimitSwitches->ConfigMask |= BIT(0);
 
-    LimitSwitches->ConfigMask |= BIT(Index);
+    LimitSwitches->Device[1].Config.Exists   = Param->ls2.exist;
+    LimitSwitches->Device[1].Config.Polarity = Param->ls2.polarity;
+    LimitSwitches->ConfigMask |= BIT(1);
 
     return NO_ERROR;
 }

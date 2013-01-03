@@ -108,7 +108,7 @@ typedef struct
 
 #ifndef SIMULATION
 void smInitLimitSwitches (smLimitSwitches_t *LimitSwitches);
-Error_t smConfigureLimitSwitch(smLimitSwitches_t* LimitSwitches, UInt8 Index, ConfigData_LS_t* Param);
+Error_t smConfigureLimitSwitches(smLimitSwitches_t* LimitSwitches, ConfigData_LS_t* Param);
 Error_t smConfigurePosCode(smLimitSwitches_t* LimitSwitches, UInt8 Index, ConfigData_LSPOS_t* Param);
 Error_t smCheckLimitSwitchesConfig(smLimitSwitches_t *LimitSwitches);
 Error_t smOpenLimitSwitches (smLimitSwitches_t *LimitSwitches, UInt8 Instance);

@@ -73,31 +73,6 @@ Error_t smConfigTMC26x(smMotor_t *Motor, UInt32 RegVal, UInt8 Index, UInt8 Dlc)
 
 /******************************************************************************/
 /*! 
- *  \brief  Set limit switch configuration data
- *
- *      Configuration data received from master is applied to the appropriate
- *      limit switch instance.
- * 
- *  \iparam  LimitSwitches  = pointer to limit switches data
- *  \iparam  Index          = index number of limit switch
- *  \iparam  Param          = pointer to configuration data received from master
- *  \iparam  Dlc            = amount of CAN data bytes
- * 
- *  \return  NO_ERROR or (negative) error code
- *
- ******************************************************************************/
-Error_t smConfigureLimitSwitchParam(smLimitSwitches_t* LimitSwitches, UInt8 Index, ConfigData_LS_t* Param, UInt8 Dlc)
-{
-    if (Dlc != sizeof(ConfigData_LS_t) + sizeof(SubIndex_t)) {
-        return E_MISSING_PARAMETERS;
-    }
-
-    return smConfigureLimitSwitch(LimitSwitches, Index, Param);
-}
-
-
-/******************************************************************************/
-/*! 
  *  \brief  Set position code configuration data
  *
  *      Configuration data received from master is applied to the appropriate
@@ -141,13 +116,12 @@ Error_t smConfigureParam(smData_t *Data, ConfigData_Param_t *Param, UInt8 Dlc)
 
     switch (Param->index.param.index)
     {
-    case LS1:
-        // configuration data of limit switch 1
-        RetCode = smConfigureLimitSwitchParam(&Data->LimitSwitches, 0, &Param->part.ls1, Dlc);
-        break;
-    case LS2:
-        // configuration data of limit switch 2
-        RetCode = smConfigureLimitSwitchParam(&Data->LimitSwitches, 1, &Param->part.ls2, Dlc);
+    case LS:
+        // configuration data of limit switch 1 and 2
+        if (Dlc != sizeof(ConfigData_LS_t) + sizeof(SubIndex_t)) {
+            return E_MISSING_PARAMETERS;
+        }
+        RetCode = smConfigureLimitSwitches(&Data->LimitSwitches, &Param->part.ls);
         break;
     case POS1:
         // configuration data of limit switch position code 1
