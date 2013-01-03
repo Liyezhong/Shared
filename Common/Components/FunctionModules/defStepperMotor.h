@@ -400,19 +400,18 @@ typedef enum
 //! id's of standard parameter parts
 typedef enum
 {
-    LS1     = 1,                //!< limit switch 1 
-    LS2     = 2,                //!< limit switch 2
-    POS1    = 3,                //!< position code 1
-    POS2    = 4,                //!< position code 2
-    POS3    = 5,                //!< position code 3
-    ENC     = 6,                //!< encoder
-    MOT1    = 7,                //!< motor 1
-    MOT2    = 8,                //!< motor 2
-    MOT3    = 9,                //!< motor 3
+    LS      = 1,                //!< limit switches
+    POS1    = 2,                //!< position code 1
+    POS2    = 3,                //!< position code 2
+    POS3    = 4,                //!< position code 3
+    ENC     = 5,                //!< encoder
+    MOT1    = 6,                //!< motor 1
+    MOT2    = 7,                //!< motor 2
+    MOT3    = 8,                //!< motor 3
 
-    REFRUN1 = 10,               //!< reference run 1
-    REFRUN2 = 11,               //!< reference run 2
-    REFRUN3 = 12,               //!< reference run 3
+    REFRUN1 = 9,                //!< reference run 1
+    REFRUN2 = 10,               //!< reference run 2
+    REFRUN3 = 11,               //!< reference run 3
 
     TMC26x_DRVCONF  = 0x20,     //!< driver register 1
     TMC26x_SGCSCONF = 0x21,     //!< driver register 2
@@ -457,16 +456,17 @@ typedef struct
 {
     UInt8                       exist       : 1;    //!< limit switch does physically exist
     UInt8                       polarity    : 1;    //!< Logic level in 'not active' state
-    UInt8                       reserved    : 5;    //!< unused bits
+    UInt8                       reserved    : 6;    //!< unused bits
 } __attribute__((packed)) ConfigData_LS_Flag_t;
 
 
 //! limit switch configuration data
 typedef struct
 {
-    ConfigData_LS_Flag_t        flag;               //!< limit switch flags
-    UInt8                       sampleRate;         //!< Digital input's sample rate (ms) 
+    UInt8                       sampleRate;         //!< digital input's sample rate (ms) 
     UInt8                       debounceCount;      //!< number of samples for debounce
+    ConfigData_LS_Flag_t        ls1;                //!< limit switch 1 flags
+    ConfigData_LS_Flag_t        ls2;                //!< limit switch 2 flags
 } __attribute__((packed)) ConfigData_LS_t;
 
 
@@ -607,12 +607,11 @@ typedef struct
     SubIndex_t  index;                              //!< index of configuration data
     union
     {
-        ConfigData_LS_t         ls1;                //!< limit switch configuration data 1
-        ConfigData_LS_t         ls2;                //!< limit switch configuration data 2
+        ConfigData_LS_t         ls;                 //!< limit switch configuration data
         ConfigData_LSPOS_t      pos1;               //!< position code configuration data 1
         ConfigData_LSPOS_t      pos2;               //!< position code configuration data 2
         ConfigData_LSPOS_t      pos3;               //!< position code configuration data 3
-        ConfigData_ENC_t        enc;
+        ConfigData_ENC_t        enc;                //!< encoder configuration data
         ConfigData_MOT_P1_t     mot1;               //!< motor configuration data 1
         ConfigData_MOT_P2_t     mot2;               //!< motor configuration data 2
         ConfigData_MOT_P3_t     mot3;               //!< motor configuration data 3
