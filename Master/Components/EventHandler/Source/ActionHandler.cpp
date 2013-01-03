@@ -17,7 +17,7 @@ ActionHandler::~ActionHandler() {
 
 void ActionHandler::ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, const quint32 EventKey)
 {
-    if ((TheEvent.GetGUIMessageBoxOptions() != Global::NO_BUTTON))  // || (TheEvent.GetStatusIcon()))
+    if ((TheEvent.GetGUIMessageBoxOptions() != Global::NO_BUTTON) || (TheEvent.GetStatusIcon()))
     {
         NetCommands::EventReportDataStruct EventReportData;
         EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
