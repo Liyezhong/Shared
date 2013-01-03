@@ -190,6 +190,19 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     // Connect shutdown message
     connect(&m_DeviceProcessing, SIGNAL(DeviceShutdown()), this, SLOT(Shutdown()));
 
+    QMapIterator<QString, quint32> Iterator(m_ModuleList);
+    while (Iterator.hasNext()) {
+        Iterator.next();
+        CModule *p_Module = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(Iterator.key()));
+
+        if (p_Module == NULL) {
+            p_Module = m_DeviceProcessing.GetFunctionModule(GetModuleInstanceFromKey(Iterator.key()));
+        }
+        if (p_Module != NULL) {
+            m_ModuleMap[Iterator.key()] = p_Module;
+        }
+    }
+
     connect(&m_Thread, SIGNAL(started()), this, SLOT(ThreadStarted()));
     moveToThread(&m_Thread);
     m_Thread.start();

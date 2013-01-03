@@ -86,6 +86,15 @@ public:
 
     QStringList GetStates();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the list of slave modules assigned to the device
+     *
+     *  \return Map assigning slave module keys to the actual module
+     */
+    /****************************************************************************/
+    const QMap<QString, CModule *> &GetSlaveModules() const { return m_ModuleMap; }
+
     static QMap<DevInstanceID_t, QString> m_DeviceName;     ///< only for debug messages, not for any reference
 
 signals:
@@ -234,6 +243,7 @@ protected:
 
 private:
     const DeviceModuleList_t m_ModuleList;  ///< Contains module identifiers
+    QMap<QString, CModule *> m_ModuleMap;   ///< Maps keys to Slave module pointers
 };
 
 } //namespace
