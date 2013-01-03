@@ -1036,7 +1036,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     QString strStepsRev, strDirection, strPositionReset, strPositionMin, strPositionMax, strRunCurrent, strStopCurrent, strStopCurrentDelay;
     QString strRefRunRefPos, strRefRunMaxDistance, strRefRunTimeout, strRefRunReverseDist, strRefRunSlowSpeed, strRefRunHighSpeed, strRefPosOffset;
     QString strEncoderType, strEncoderRes;
-    QString strLSOrientation, strLSIndex;
+    QString strLSIndex;
     QString strPosCodeIndex;
     QString strProfileSpeedMin, strProfileSpeedMax, strProfileMicroSteps, strProfileRampSteps;
     QString strProfileAcc, strProfileDec, strProfileAccTime, strProfileDecTime;
@@ -1144,19 +1144,17 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     //##########################
     //  limit switches
     childLimitSwitches = childPosCoverage.firstChildElement("limitswitches");
+    QString strSampleRate, strDebounce;
+    strSampleRate = childLimitSwitches.attribute("sample_rate");
+    strDebounce = childLimitSwitches.attribute("debounce");
+    pCANFctModuleStepperMotor->bLSSampleRate = strSampleRate.toShort(&ok, 10);
+    pCANFctModuleStepperMotor->bLSDebounce = strDebounce.toShort(&ok, 10);
+
     childLimitSwitch = childLimitSwitches.firstChildElement("limitswitch");
     while (!childLimitSwitch.isNull()) {
         CANFctModuleLimitSwitch LimitSwitch = ParseLimitSwitch(childLimitSwitch);
 
-        strLSOrientation = childLimitSwitch.attribute("orientation");
         strLSIndex = childLimitSwitch.attribute("index");
-
-        if(strLSOrientation == "cw") {
-            LimitSwitch.bOrientation = 1;
-        }
-        else if(strLSOrientation == "ccw") {
-            LimitSwitch.bOrientation = 2;
-        }
 
         LimitSwitch.bIndex = strLSIndex.toShort(&ok, 10);
         if(LimitSwitch.bIndex == 0) {
@@ -1288,28 +1286,15 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
 CANFctModuleLimitSwitch HardwareConfiguration::ParseLimitSwitch(const QDomElement &element)
 {
     CANFctModuleLimitSwitch LimitSwitch;
-    QDomElement child;
-    QString strPolarity, strSampleRate, strDebounce;
+    QString strPolarity;
     bool ok;
 
-    child = element.firstChildElement("configuration");
-    if(child.isNull())
-    {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
-        return LimitSwitch;
-    }
-
-    strPolarity = child.attribute("polarity");
-    strSampleRate = child.attribute("sample_rate");
-    strDebounce = child.attribute("debounce");
+    strPolarity = element.attribute("polarity");
 
     LimitSwitch.bExists = 1;
     LimitSwitch.bPolarity = strPolarity.toShort(&ok, 10);
-    LimitSwitch.bSampleRate = strSampleRate.toShort(&ok, 10);
-    LimitSwitch.bDebounce = strDebounce.toShort(&ok, 10);
 
     return LimitSwitch;
-
 }
 
 /****************************************************************************/

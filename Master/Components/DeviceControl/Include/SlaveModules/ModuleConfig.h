@@ -220,18 +220,12 @@ public:
     CANFctModuleLimitSwitch() {
         bIndex = 0;
         bExists = 0;
-        bOrientation = 0;
         bPolarity = 0;
-        bSampleRate = 0;
-        bDebounce = 0;
     }
 
     quint8  bIndex;       //!< Index of the limit switch
     quint8  bExists;      //!< Flag to mark it as exists
-    quint8  bOrientation; //!< orientation how to run into the limit switch ( cw - ccw)
     quint8  bPolarity;    //!< input polarity
-    quint8  bSampleRate;  //!< sample rate
-    quint8  bDebounce;    //!< debounce counter
 };
 
 
@@ -348,6 +342,8 @@ public:
     RotationDir_t  bDirection;      //!< the motor's rotation dir (causes an increasing step counter)
     quint8         bEncoderType;    //!< encoder type
     quint16        sEncoderResolution;  //!< encoder resolution
+    quint8         bLSSampleRate;   //!< limit switches sample rate
+    quint8         bLSDebounce;     //!< limit switches debounce counter
     CANFctModuleLimitSwitch LimitSwitch1;   //!< limit switch 1
     CANFctModuleLimitSwitch LimitSwitch2;   //!< limit switch 2
 

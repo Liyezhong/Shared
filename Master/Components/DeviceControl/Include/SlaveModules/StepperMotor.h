@@ -245,7 +245,7 @@ private:
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
 
     void HandleConfigurationState();        //!< configuration task handling function
-    void SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_t &ls);    //! configure limit switch data
+    void SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_Flag_t &ls);    //! configure limit switch data
     void SetupPosCodeConfigData (CANFctModulePosCode &PosCode, ConfigData_LSPOS_t &pc);             //! configure position code data
     StepperMotorRotDir_t SetupRotationDir (CANFctModuleStepperMotor::RotationDir_t dir);            //! configure rotation dir
 

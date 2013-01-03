@@ -114,7 +114,7 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
     // configuration state
     m_subStateConfig  = FM_SM_SUB_STATE_CONFIG_INIT;
     m_subIndex.type.profileData = false;
-    m_subIndex.param.index      = LS1;
+    m_subIndex.param.index      = LS;
 
     // init event string list
     m_eventString[MSG_EVENT_ERROR | 1]  = "E_SMOT_INVALID_STATE: a command was received while the motor's state is not able to execute it";
@@ -389,13 +389,11 @@ StepperMotorRotDir_t CStepperMotor::SetupRotationDir (CANFctModuleStepperMotor::
 }
 
 
-void CStepperMotor::SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_t &ls)
+void CStepperMotor::SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_Flag_t &ls)
 {
-    ls.flag.exist = LimitSwitch.bExists;
-    ls.flag.polarity = LimitSwitch.bPolarity;   //limit switch logic level
-    ls.flag.reserved = 0;
-    ls.sampleRate = LimitSwitch.bSampleRate;
-    ls.debounceCount = LimitSwitch.bDebounce;
+    ls.exist = LimitSwitch.bExists;
+    ls.polarity = LimitSwitch.bPolarity;   //limit switch logic level
+    ls.reserved = 0;
 }
 
 
@@ -441,13 +439,12 @@ void CStepperMotor::HandleConfigurationState()
     {
         switch (m_subIndex.param.index)
         {
-        case LS1:
+        case LS:
             canmsg.can_dlc = sizeof(ConfigData_LS_t) + sizeof(SubIndex_t);
-            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch1, configData->part.ls1);
-            break;
-        case LS2:
-            canmsg.can_dlc = sizeof(ConfigData_LS_t) + sizeof(SubIndex_t);
-            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch2, configData->part.ls2);
+            configData->part.ls.sampleRate = pCANObjConfMotor->bLSSampleRate;
+            configData->part.ls.debounceCount = pCANObjConfMotor->bLSDebounce;
+            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch1, configData->part.ls.ls1);
+            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch2, configData->part.ls.ls2);
             break;
         case POS1:
             canmsg.can_dlc = sizeof(ConfigData_LSPOS_t) + sizeof(SubIndex_t);
@@ -694,7 +691,7 @@ void CStepperMotor::HandleConfigurationState()
     else
     {
         m_subIndex.type.profileData = false;
-        m_subIndex.param.index      = LS1;
+        m_subIndex.param.index      = LS;
         m_subStateConfig = FM_SM_SUB_STATE_CONFIG_INIT; // prepare state and index to run configuration again
 
         emit ReportConfigureDone(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
