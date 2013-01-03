@@ -148,7 +148,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
 
         mp_alarmHandler->setSoundNumber(Global::ALARM_ERROR, mp_UserSettings->GetSoundNumberError());
         mp_alarmHandler->setSoundNumber(Global::ALARM_WARNING, mp_UserSettings->GetSoundNumberWarning());
-        mp_alarmHandler->setVolume(Global::ALARM_ERROR, mp_UserSettings->GetSoundLevelError());
+        mp_alarmHandler->setVolume(Global::ALARM_ERROR,mp_UserSettings->GetSoundLevelError());
         mp_alarmHandler->setVolume(Global::ALARM_WARNING, mp_UserSettings->GetSoundLevelWarning());
     }
 
@@ -730,14 +730,37 @@ void MasterThreadController::ReadEventTranslations(QLocale::Language Language, Q
 void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, QLocale::Language FallbackLanguage) const {
     // cleanup translator strings. For UI strings.
     Global::UITranslator::TranslatorInstance().Reset();
+
+    // read all the languages which are available in the translations directory
+    QDir TheDir(Global::SystemPaths::Instance().GetTranslationsPath());
+    QStringList FileNames = TheDir.entryList(QStringList("Colorado_*.qm"));
+
     // Create list of used languages. Language and FallbackLanguage can be the same, since we are
     // working wit a QSet
     QSet<QLocale::Language> LanguageList;
+
     LanguageList << UserLanguage << FallbackLanguage;
+
+    for (int Counter = 0; Counter < FileNames.size(); ++Counter)
+    {
+        // get locale extracted by filename
+        QString Locale;
+        Locale = FileNames[Counter];                  // "Colorado_de.qm"
+        Locale.truncate(Locale.lastIndexOf('.'));   // "Colorado_de"
+        Locale.remove(0, Locale.indexOf('_') + 1);   // "de"
+        LanguageList << QLocale(Locale).language();
+    }
+
     for(QSet<QLocale::Language>::const_iterator itl = LanguageList.constBegin(); itl != LanguageList.constEnd(); ++itl) {
-        const QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/EventStrings_" +
-                Global::LanguageToLanguageCode(*itl) + ".xml";
-        try {
+        QString FileName;
+        if (*itl == QLocale::English) {
+            FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/EventStrings.xml";
+        }
+        else {
+            FileName = Global::SystemPaths::Instance().GetTranslationsPath() + "/EventStrings_" +
+                    Global::LanguageToLanguageCode(*itl) + ".xml";
+        }
+        try {            
             // read strings for specified language
             DataManager::XmlConfigFileStrings TranslatorDataFile;
             TranslatorDataFile.ReadStrings(FileName, QSet<QLocale::Language>() << *itl);

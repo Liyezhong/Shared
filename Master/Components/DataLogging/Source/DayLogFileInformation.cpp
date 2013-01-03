@@ -57,23 +57,32 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
         QString ReadData = LogFile.readLine();
 
         if (ReadData.contains(";")) {
-            if (ReadData.contains(";true;")) {
-                // translate the data
-                QString EventData = Global::EventTranslator::TranslatorInstance().Translate
-                        (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt()));
+            if (ReadData.split(';').count() > 4) {
+                if (QString(ReadData.split(';').value(4)).compare("true") == 0) {
 
-                if (EventData.compare(ReadData.split(';').value(3)) != 0 && EventData.compare("") != 0) {
-                    ReadData.replace(ReadData.split(';').value(3), EventData);
+                    Global::tTranslatableStringList TranslateStringList;
+
+                    for (int Counter = 5; Counter < ReadData.split(';').count(); Counter++) {
+                        TranslateStringList << ReadData.split(';').value(Counter);
+                    }
+
+                    // translate the data
+                    QString EventData = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(), TranslateStringList));
+
+                    if (!(EventData.compare(ReadData.split(';').value(3)) != 0 && EventData.compare("") != 0)) {
+                        EventData = Global::EventTranslator::TranslatorInstance().Translate
+                                                    (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(),
+                                                                                TranslateStringList));
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
+                                                                   Global::FmtArgs() << ReadData.split(';').value(1), true);
+                    }
+                    ReadData = QString(ReadData.split(';').value(0)) + ";" + QString(ReadData.split(';').value(1)) + ";" +
+                               QString(ReadData.split(';').value(2)) + ";" + EventData + "\n";
+
+                    FileData.append(ReadData);
+                    FileData.append("\n");
                 }
-                else {
-                    Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS, Global::FmtArgs() << ReadData.split(';').value(1), true);
-                }
-                qint32 IndexValue = ReadData.indexOf(";true;");
-                if (IndexValue != -1)  {
-                    ReadData = ReadData.mid(0, IndexValue) + "\n";
-                }
-                FileData.append(ReadData);
-                FileData.append("\n");
             }
         }
         else {
