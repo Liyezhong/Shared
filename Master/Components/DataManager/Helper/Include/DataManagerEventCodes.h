@@ -56,6 +56,8 @@ const quint32 EVENT_DM_STREAMOUT_FAILED                              = EVENT_GRO
 const quint32 EVENT_DM_XML_FILE_NOT_EXISTS                           = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0018;    ///< '%1' XML file not exists
 const quint32 EVENT_DM_XML_SERIALIZE_FAILED                          = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0019;    ///< '%1' XML Serialization failed
 const quint32 EVENT_DM_XML_DESERIALIZE_FAILED                        = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x001A;    ///< '%1' XML De Serialization failed
+const quint32 EVENT_DM_GV_FAILED                                     = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x001B;    ///< Group verification is failed
+
 const quint32 EVENT_DM_ERROR_INVALID_AGITAION_SPEED                  = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0001; ///< '%1' is not a valid Agitation Speed
 const quint32 EVENT_DM_ERROR_INVALID_OVENTEMP                        = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0002; ///< '%1' is not a valid Oven temperature
 const quint32 EVENT_DM_ERROR_INVALID_WATERTYPE                       = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0003; ///< '%1' is not a valid Watertype
@@ -66,6 +68,7 @@ const quint32 EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE               = EVENT_GRO
 const quint32 EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0008; ///< Error Sound Level values are Out Of Range
 const quint32 EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0009; ///< Warning Sound Number values are Out Of Range
 const quint32 EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE                 = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x000A; ///< Warning Sound Level values are Out Of Range
+
 } // end namespace DataManager
 
 #endif // DATAMANAGEMENT_DATAMANAGEMENTEVENTCODES_H

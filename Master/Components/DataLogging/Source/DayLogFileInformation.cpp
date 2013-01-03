@@ -73,10 +73,12 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                     QString EventData = Global::UITranslator::TranslatorInstance().Translate
                             (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(), TranslateStringList));
 
-                    if (!(EventData.compare(ReadData.split(';').value(3)) != 0 && EventData.compare("") != 0)) {
-                        EventData = Global::EventTranslator::TranslatorInstance().Translate
-                                                    (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(),
-                                                                                TranslateStringList));
+                    if (EventData.compare("") == 0 || EventData.contains("\"0\":") ||
+                          EventData.compare("\"" + QString(ReadData.split(';').value(1)) +"\":") == 0) {
+                        EventData = ReadData.split(';').value(3);
+//                        EventData = Global::EventTranslator::TranslatorInstance().Translate
+//                                                    (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(),
+//                                                                                TranslateStringList));
                         Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
                                                                    Global::FmtArgs() << ReadData.split(';').value(1), true);
                     }
@@ -118,6 +120,7 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
         // replace the .log extension and put the empty string
         ListOfFile.append("DailyRunLog_" + DateAndTimeValue.replace(".log", ""));
     }
+    qSort(ListOfFile.begin(), ListOfFile.end(), qGreater<QString>());
 }
 
 
@@ -153,7 +156,6 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
         // get the date time value from the event log file name
         QString DateAndTimeValue = LogFileName.split('_').value(LogFileName.split('_').count() - 1);
 
-
         QString FullPatheOfTheFile = m_LogFilePath + QDir::separator() + "DailyRun"
                 + QDir::separator() + "DailyRunLog_" + DateAndTimeValue;
 
@@ -177,6 +179,6 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
             }
             DailyRunLogFile.close();
         }
-    }
+    }    
 }
 }

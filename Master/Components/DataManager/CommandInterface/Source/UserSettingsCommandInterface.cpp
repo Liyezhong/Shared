@@ -18,6 +18,7 @@
  */
 /****************************************************************************/
 #include "DataManager/CommandInterface/Include/UserSettingsCommandInterface.h"
+#include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include <QDebug>
 
 namespace DataManager {
@@ -86,7 +87,7 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         qDebug()<<"\n\n User Settings Update Success";
         mp_DataContainer->SettingsInterface->Write();
         if (mp_DataContainer->SettingsInterface->VerifyData(true)) {
-            // log the event
+            Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_GV_FAILED);
         }
     }
 }
