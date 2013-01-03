@@ -55,7 +55,7 @@ public:
     virtual ~CUserSettingsVerifier() {}
 private:
     CUserSettingsInterface* mp_USettingsInterface;   ///< Local pointer to a rack list
-    ErrorHash_t m_ErrorsHash;          //!< To store Error ID and any arguments associated
+    ErrorHash_t m_ErrorHash;          //!< To store Error ID and any arguments associated
 
     bool CheckLoaderReagentID(QString LoaderReagentID);
     void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);

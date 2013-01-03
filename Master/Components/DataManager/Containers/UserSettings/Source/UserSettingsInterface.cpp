@@ -22,8 +22,11 @@
 #include <QWriteLocker>
 #include <QDebug>
 #include <QFile>
-
+#include "DataManager/Containers/UserSettings/Include/UserSettingsVerifier.h"
 #include "DataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
+#include "DataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/GlobalEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 
@@ -132,7 +135,17 @@ void CUserSettingsInterface::SetDefaultAttributes()
 /****************************************************************************/
 bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSettings)
 {
-    if (p_UserSettings == NULL) {
+//    if (p_UserSettings == NULL) {
+//        //m_ErrorHash.insert(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "");
+//        //Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
+//        return false;
+//    }
+
+    try {
+        CHECKPTR(p_UserSettings);
+    } catch(const Global::Exception &E) {
+        // and send error message
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     }
 
@@ -157,8 +170,14 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
             Result = p_USI_Verification->UpdateUserSettings(p_UserSettings);
 
             if (Result) {
-                // now check new content => call all active verifiers
-                Result = DoLocalVerification(p_USI_Verification);
+                ListOfErrors_t ErrorList = p_USI_Verification->GetErrorList();
+                if (!ErrorList.isEmpty()) {
+                    // If the control reaches here means Error hash is empty
+                    // Considering only the first element in Hash since
+                    // verfier can atmost add only one Hash has to the error list
+                    m_ErrorHash = *(ErrorList.first());
+                    SetErrorList(&m_ErrorHash);
+                }
             }
         }
         if (Result) {
@@ -191,9 +210,17 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
 /****************************************************************************/
 CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
 {
-    if (mp_UserSettings == NULL) {
-        qDebug() << "CUserSettingsInterface:GetUserSettings - User Settings are not created";
-        return NULL;
+//    if (mp_UserSettings == NULL) {
+//        qDebug() << "CUserSettingsInterface:GetUserSettings - User Settings are not created";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
+//        return NULL;
+//    }
+    try {
+        CHECKPTR(mp_UserSettings);
+    } catch(const Global::Exception &E) {
+        // and send error message
+        Global::EventObject::Instance().RaiseException(E);
+        return false;
     }
     if (!CopySettings) {
         return mp_UserSettings;
@@ -219,7 +246,15 @@ CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
 /****************************************************************************/
 bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool CompleteData)
 {
-    if (mp_UserSettings == NULL) {
+//    if (mp_UserSettings == NULL) {
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
+//        return false;
+//    }
+    try {
+        CHECKPTR(mp_UserSettings);
+    } catch(const Global::Exception &E) {
+        // and send error message
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     }
     qDebug()<<"COMPLETE DATA"<<CompleteData;
@@ -237,6 +272,7 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
 
     if (!mp_UserSettings->SerializeContent(XmlStreamWriter, CompleteData)) {
         qDebug() << "CDataRackList::Write failed. Write Racks failed!";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_XML_SERIALIZE_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
         return false;
     }
     // store the Class temporary data
@@ -295,7 +331,15 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
 /****************************************************************************/
 bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool CompleteData)
 {
-    if (mp_UserSettings == NULL) {
+//    if (mp_UserSettings == NULL) {
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
+//        return false;
+//    }
+    try {
+        CHECKPTR(mp_UserSettings);
+    } catch(const Global::Exception &E) {
+        // and send error message
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     }
     QXmlStreamReader XmlStreamReader;
@@ -305,6 +349,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
 
     if (!mp_UserSettings->DeserializeContent(XmlStreamReader, CompleteData)) {
         qDebug() << "CDataRackList::Read failed. Read Racks failed!";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_XML_DESERIALIZE_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
         return false;
     }
 
@@ -323,6 +368,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
                     // File name
                     if (!XmlStreamReader.attributes().hasAttribute("FileName")) {
                         qDebug() << "### attribute <FileName> is missing => abort reading";
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"FileName", true);
                         return false;
                     }
                     m_FileName = XmlStreamReader.attributes().value("FileName").toString();
@@ -330,6 +376,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
                     // WorkStation mode
                     if (!XmlStreamReader.attributes().hasAttribute("WorkStationMode")) {
                         qDebug() << "### attribute <WorkStationMode> is missing => abort reading";
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"WorkStationMode", true);
                         return false;
                     } else {
                         bool Value = false;
@@ -342,6 +389,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
                     // VerificationMode
                     if (!XmlStreamReader.attributes().hasAttribute("VerificationMode")) {
                         qDebug() << "### attribute <VerificationMode> is missing => abort reading";
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"VerificationMode", true);
                         return false;
                     } else {
                         bool Value = false;
@@ -404,6 +452,7 @@ bool CUserSettingsInterface::Read(QString FileName)
 {
     //check if file exists
     if (!QFile::exists(FileName)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_XML_FILE_NOT_EXISTS, Global::tTranslatableStringList() << "UserSettings", true);
         return false;
     }
 
@@ -421,6 +470,7 @@ bool CUserSettingsInterface::Read(QString FileName)
         Result = true;
         // read the data from the file
         if (!p_UserSettings_Verification->Read(FileName)){
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_XML_READ_FAILED, Global::tTranslatableStringList() << "", true);
             Result = false;
         }
         else {
@@ -431,6 +481,7 @@ bool CUserSettingsInterface::Read(QString FileName)
                 Result = true;
             }
             else {
+                Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_VERIFICATION_FAILED, Global::tTranslatableStringList() << "", true);
                 Result = false;
             }            
         }
@@ -450,6 +501,7 @@ bool CUserSettingsInterface::Read(QString FileName)
         QFile File(FileName);
         if (!File.open(QFile::ReadOnly | QFile::Text)) {
             qDebug() << "open file failed in Read: " << FileName;
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_FILE_OPEN_FAILED, Global::tTranslatableStringList() <<  "UserSettings XML", true);
             return false;
         }
 
@@ -609,8 +661,10 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettingsInterfac
     if (!p_TempUSInterface->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-    }
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        const_cast<CUserSettingsInterface &>(USInterface).m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
+      }
 
     return OutDataStream;
 }
@@ -631,7 +685,9 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserSettingsInterface& USIn
     if (!USInterface.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        USInterface.m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }
     return InDataStream;
 }

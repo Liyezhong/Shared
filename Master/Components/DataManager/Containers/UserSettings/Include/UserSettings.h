@@ -56,6 +56,8 @@ private:
     int                         m_SoundLevelError;      ///< Sound level for errors.
     int                         m_SoundNumberWarning;   ///< Sound number for warnings.
     int                         m_SoundLevelWarning;    ///< Sound level for warnings.
+    ErrorHash_t                 m_ErrorHash;            //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+
 //    int                         m_AgitationSpeed;       ///< Agitation speed.
 //    Global::OvenStartMode       m_OvenStartMode;        ///< Oven start mode.
 //    int                         m_OvenTemp;             ///< Oven temperature. in Celsius!
@@ -107,6 +109,9 @@ public:
     CUserSettings & operator = (const CUserSettings &);
 
     void SetDefaultAttributes();
+
+    ErrorHash_t &GetErrors();
+
 
     /****************************************************************************/
     /*!

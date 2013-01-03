@@ -54,6 +54,7 @@ private:
 
     bool SerializeContent(QIODevice& p_Device, bool CompleteData);
     bool DeserializeContent(QIODevice& p_Device, bool CompleteData);
+    ErrorHash_t m_ErrorHash;
 
 protected:
 public:

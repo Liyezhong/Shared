@@ -23,7 +23,8 @@
 
 #include "DataManager/Containers/UserSettings/Include/UserSettingsVerifier.h"
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
-
+#include "DataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 namespace DataManager {
@@ -87,6 +88,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Unsupported language is detected";
+        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() << UserSettings->GetLanguage());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() <<UserSettings->GetLanguage(), true);
         VerifiedData = false;
         break;
     }
@@ -100,6 +103,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Date format is not valid";
+        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NO_VALID_DATEFORMAT, Global::tTranslatableStringList() << UserSettings->GetDateFormat());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_DATEFORMAT, Global::tTranslatableStringList() << UserSettings->GetDateFormat(), true);
         VerifiedData = false;
         break;
     }
@@ -111,6 +116,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Time format is not valid";
+        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NO_VALID_TIMEFORMAT, Global::tTranslatableStringList() << UserSettings->GetTimeFormat());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_TIMEFORMAT, Global::tTranslatableStringList() <<UserSettings->GetTimeFormat(), true);
         VerifiedData = false;
         break;
     }
@@ -122,6 +129,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Tempeature format is not valid";
+        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NO_VALID_TEMPFORMAT, Global::tTranslatableStringList() << UserSettings->GetTemperatureFormat());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_TEMPFORMAT, Global::tTranslatableStringList() <<UserSettings->GetTemperatureFormat(), true);
         VerifiedData = false;
         break;
     }
@@ -131,6 +140,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
 
     if (!((UserSettings->GetValue("Agitation_Speed").toInt() >= MIN_AGITATION_SPEED) && (UserSettings->GetValue("Agitation_Speed").toInt() <= MAX_AGITATION_SPEED))) {
         qDebug() << "Speed of agitation is not defined";
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Agitation_Speed").toInt());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() <<UserSettings->GetValue("Agitation_Speed").toInt(), true);
         VerifiedData = false;
     }
 
@@ -140,7 +151,9 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     case Global::OVENSTART_BEFORE_PROGRAM:
         break;
     default:
-        qDebug() << "Tempeature format is not valid";
+        qDebug() << "Oven Start mode is not valid";
+        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NO_VALID_OVENSTARTMODE, Global::tTranslatableStringList() << Global::StringToOvenStartMode(UserSettings->GetValue("Oven_StartMode"), false));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_OVENSTARTMODE, Global::tTranslatableStringList() <<Global::StringToOvenStartMode(UserSettings->GetValue("Oven_StartMode"), false), true);
         VerifiedData = false;
         break;
     }
@@ -149,6 +162,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     qDebug() << "Value :: " << QString::number(UserSettings->GetValue("Oven_Temp").toInt() % OVEN_TEMP_STEP);
     if (!((UserSettings->GetValue("Oven_Temp").toInt() >= MIN_OVEN_TEMP) && (UserSettings->GetValue("Oven_Temp").toInt() <= MAX_OVEN_TEMP) && (UserSettings->GetValue("Oven_Temp").toInt() % OVEN_TEMP_STEP == 0))) {
         qDebug() << "Oven temperature values are not proper";
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_OVENTEMP, Global::tTranslatableStringList() << UserSettings->GetValue("Oven_Temp").toInt());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_OVENTEMP, Global::tTranslatableStringList() <<UserSettings->GetValue("Oven_Temp").toInt(), true);
         VerifiedData = false;
     }    
 
@@ -159,6 +174,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Rms state is not valid";
+        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NO_VALID_ONOFFSTATE, Global::tTranslatableStringList() << Global::StringToOnOffState(UserSettings->GetValue("Rms_State")));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_ONOFFSTATE, Global::tTranslatableStringList() <<Global::StringToOnOffState(UserSettings->GetValue("Rms_State")), true);
         VerifiedData = false;
         break;
     }
@@ -170,12 +187,16 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Water type is not valid";
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_WATERTYPE, Global::tTranslatableStringList() << Global::StringToWaterType(UserSettings->GetValue("Water_Type")));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_WATERTYPE, Global::tTranslatableStringList() <<Global::StringToWaterType(UserSettings->GetValue("Water_Type")), true);
         VerifiedData = false;
         break;
     }
 
     if (!((UserSettings->GetValue("Leica_AgitationSpeed").toInt() >= MIN_AGITATION_SPEED) && (UserSettings->GetValue("Leica_AgitationSpeed").toInt() <= MAX_AGITATION_SPEED))) {
         qDebug() << "Speed of agitation is not defined";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LEICA_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Leica_AgitationSpeed").toInt());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LEICA_AGITAION_SPEED, Global::tTranslatableStringList() <<UserSettings->GetValue("Leica_AgitationSpeed").toInt(), true);
         VerifiedData = false;
     }
 
@@ -183,6 +204,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     qDebug() << "Value :: " << QString::number(UserSettings->GetValue("Leica_OvenTemp").toInt() % OVEN_TEMP_STEP);
     if (!((UserSettings->GetValue("Leica_OvenTemp").toInt() >= MIN_OVEN_TEMP) && (UserSettings->GetValue("Leica_OvenTemp").toInt() <= MAX_OVEN_TEMP) && (UserSettings->GetValue("Leica_OvenTemp").toInt() % OVEN_TEMP_STEP == 0))) {
         qDebug() << "Oven temperature values are not proper";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LEICA_OVENTEMP, Global::tTranslatableStringList() << UserSettings->GetValue("Leica_OvenTemp").toInt());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LEICA_OVENTEMP, Global::tTranslatableStringList() <<UserSettings->GetValue("Leica_OvenTemp").toInt(), true);
         VerifiedData = false;
     }
 
@@ -203,7 +226,7 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
 ErrorHash_t& CUserSettingsVerifier::GetErrors()
 {
     // return the last error which is occured in the verifier
-    return m_ErrorsHash;
+    return m_ErrorHash;
 }
 
 /****************************************************************************/
@@ -213,7 +236,7 @@ ErrorHash_t& CUserSettingsVerifier::GetErrors()
 /****************************************************************************/
 void CUserSettingsVerifier::ResetLastErrors()
 {
-    m_ErrorsHash.clear();
+    m_ErrorHash.clear();
 }
 
 /****************************************************************************/
@@ -256,6 +279,7 @@ bool CUserSettingsVerifier::CheckLoaderReagentID(QString LoaderReagentID)
             VerifyLoaderReagentData = false;
         }
     }
+
     return VerifyLoaderReagentData;
 }
 
@@ -276,38 +300,47 @@ void CUserSettingsVerifier::CheckLoaderReagents(CUserSettings* UserSettings, boo
     if (!CheckLoaderReagentID (UserSettings->GetValue("Loader_Reagent1")))
     {
         qDebug() << "First loader reagent ID is not valid";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() << " 1");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() <<" 1", true);
         VerifiedData = false;
     }
 
-    // check the first loader reagent ID
+    // check the second loader reagent ID
     if (!CheckLoaderReagentID (UserSettings->GetValue("Loader_Reagent2")))
     {
         qDebug() << "Second loader reagent ID is not valid";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() << " 2");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() <<" 2", true);
         VerifiedData = false;
     }
 
-    // check the first loader reagent ID
+    // check the third loader reagent ID
     if (!CheckLoaderReagentID (UserSettings->GetValue("Loader_Reagent3")))
     {
         qDebug() << "Third loader reagent ID is not valid";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() << " 3");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() <<" 3", true);
         VerifiedData = false;
     }
 
-    // check the first loader reagent ID
+    // check the fourth loader reagent ID
     if (!CheckLoaderReagentID (UserSettings->GetValue("Loader_Reagent4")))
     {
         qDebug() << "Fourth loader reagent ID is not valid";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() << " 4");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() <<" 4", true);
         VerifiedData = false;
     }
 
-    // check the first loader reagent ID
+    // check the Fifth loader reagent ID
     if (!CheckLoaderReagentID (UserSettings->GetValue("Loader_Reagent5")))
     {
         qDebug() << "Fifth loader reagent ID is not valid";
+        m_ErrorHash.insert(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() << " 5");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LOADER_REAGENTID, Global::tTranslatableStringList() <<" 5", true);
         VerifiedData = false;
     }
 }
-
 /****************************************************************************/
 /*!
  *  \brief  check the sould level warnings
@@ -323,21 +356,29 @@ void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings,
     // check the error tones for the sound
     if (!((UserSettings->GetSoundNumberError() >= MIN_SOUND_NUMBER) && (UserSettings->GetSoundNumberError() <= MAX_SOUND_NUMBER))) {
         qDebug() << "Unknown error tone is detected for the sound";
+        m_ErrorHash.insert(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 
     if (!((UserSettings->GetSoundLevelError() >= MIN_SOUND_LEVEL) && (UserSettings->GetSoundLevelError() <= MAX_SOUND_LEVEL))) {
         qDebug() << "Unknown sound number error volume tone is detected";
+        m_ErrorHash.insert(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 
     if (!((UserSettings->GetSoundNumberWarning() >= MIN_SOUND_NUMBER) && (UserSettings->GetSoundNumberWarning() <= MAX_SOUND_NUMBER))) {
         qDebug() << "Unknown warning warning tone is detected for the sound";
+        m_ErrorHash.insert(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 
     if (!((UserSettings->GetSoundLevelWarning() >= MIN_SOUND_LEVEL) && (UserSettings->GetSoundLevelWarning() <= MAX_SOUND_LEVEL))) {
         qDebug() << "Unknown sound number warning volume tone is detected";
+        m_ErrorHash.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 }
