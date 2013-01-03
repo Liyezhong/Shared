@@ -5,7 +5,9 @@
 
 namespace EventHandler {
 
-ActionHandler::ActionHandler(EventHandler::EventHandlerThreadController *p_EventHandlerThreadController) {
+ActionHandler::ActionHandler(EventHandler::EventHandlerThreadController *p_EventHandlerThreadController)
+    : mGuiAvailable(false)
+{
     mpEventHandlerThreadController = p_EventHandlerThreadController;
     setParent(mpEventHandlerThreadController);
 }
@@ -23,14 +25,22 @@ void ActionHandler::ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, con
         quint64 reportId = TheEvent.GetEventCode();
         reportId = reportId << 32;
         EventReportData.ID = reportId | EventKey;
+        EventReportData.EventKey = EventKey;
         EventReportData.MsgString = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString())); //"Event String translated to the set langauge";
         EventReportData.Time = TheEvent.GetTimeStamp().toString();   // Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.BtnType = TheEvent.GetButtonType();
         EventReportData.StatusBarIcon = TheEvent.GetStatusIcon();   //true if GUI must set status bar icon.
 
-        Global::tRefType Ref = mpEventHandlerThreadController->GetNewCommandRef();
-        mpEventHandlerThreadController->SetEventKeyRefMap(Ref,EventKey);
-        mpEventHandlerThreadController->SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+        if (mGuiAvailable)
+        {
+            Global::tRefType Ref = mpEventHandlerThreadController->GetNewCommandRef();
+            mpEventHandlerThreadController->SetEventKeyRefMap(Ref,EventKey);
+            mpEventHandlerThreadController->SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+        }
+        else    // GUI is not around yet => remember data and send later
+        {
+            mPendingGuiEventList.push_back(EventReportData);
+        }
     }
 
     if ((TheEvent.GetActionType()== Global::ACNTYPE_BUSY) || (TheEvent.GetActionType()== Global::ACNTYPE_IDLE))
@@ -43,6 +53,23 @@ void ActionHandler::ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, con
     if (TheEvent.GetActionType() == Global::ACNTYPE_STOP)
     {
         EventHandler::StateHandler::Instance().setAvailability(TheEvent.IsEventActive(), TheEvent.GetEventCode());
+    }
+}
+
+void ActionHandler::SetGuiAvailable(bool active)
+{
+    qDebug() << "ActionHandler::SetGuiAvailable" << active;
+    mGuiAvailable = active;
+
+    if (active)
+    {
+        foreach(NetCommands::EventReportDataStruct EventReportData, mPendingGuiEventList)
+        {
+            Global::tRefType Ref = mpEventHandlerThreadController->GetNewCommandRef();
+            mpEventHandlerThreadController->SetEventKeyRefMap(Ref,EventReportData.EventKey);
+            mpEventHandlerThreadController->SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+        }
+        mPendingGuiEventList.clear();
     }
 }
 

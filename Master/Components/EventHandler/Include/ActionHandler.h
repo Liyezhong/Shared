@@ -41,12 +41,18 @@
 
 #include <QThread>
 #include <QDebug>
+#include <QVector>
 
 #include <DataLogging/Include/DayEventEntry.h>
 
 namespace EventHandler
 {
 class EventHandlerThreadController;
+}
+
+namespace NetCommands
+{
+    class EventReportDataStruct;
 }
 
 namespace EventHandler {
@@ -59,9 +65,12 @@ public:
 private:
 
     EventHandlerThreadController * mpEventHandlerThreadController;
+    QVector<NetCommands::EventReportDataStruct> mPendingGuiEventList;
+    bool mGuiAvailable;
 
 public slots:
     void ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, const quint32 EventKey);
+    void SetGuiAvailable(bool active);
 
 };
 }// end namespace EventHandler

@@ -34,6 +34,7 @@
 #include <NetCommands/Include/CmdSystemAction.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
 #include <EventHandler/Include/StateHandler.h>
+#include <EventHandler/Include/EventHandlerEventCodes.h>
 # include <Global/Include/EventObject.h>
 #include <QMetaType>
 #include <QThread>
@@ -366,7 +367,6 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             }
 
             //! \ Get StatusBarIcon(11) flag
-
             if (textList.count() > 11)
             {
                 bool StatusBarIconFlag = ((textList.at(11).toUpper() == "TRUE") || (textList.at(11).toUpper() == "YES"));
@@ -457,6 +457,11 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     
     EventEntry.SetEventStatus(EventStatus);
     m_EventKeyDataMap.insert(EventKey, EventEntry);
+
+    if (EventInfo.GetEventCode() == EVENT_GUI_AVAILABLE)
+    {
+        emit GuiAvailability(EventStatus);
+    }
 
     Global::AlarmType alarm = Global::ALARM_NONE;
     if(EventEntry.GetAlarmStatus())
@@ -646,6 +651,8 @@ void EventHandlerThreadController::OnGoReceived()
         CONNECTSIGNALSLOT(this, ForwardToErrorHandler(const DataLogging::DayEventEntry &, const quint32),
                               mpActionHandler, ReceiveEvent(const DataLogging::DayEventEntry &, const quint32 ));
 
+        connect(this, SIGNAL(GuiAvailability(bool)), mpActionHandler, SLOT(SetGuiAvailable(bool)));
+//                          mpActionHandler, SLOT(SetGuiAvailable(bool)) );
 
 }
 

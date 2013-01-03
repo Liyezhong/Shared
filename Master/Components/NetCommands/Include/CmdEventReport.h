@@ -30,6 +30,7 @@ namespace NetCommands {
 //!< Data Structure containing EventReportData
 struct EventReportDataStruct{
     quint64 ID; //!< Event ID
+    quint32 EventKey;
     QString MsgString;  //!< Event String
     bool EventStatus;  //!< True - event active , else inactive
     Global::EventType EventType; //!< EventType

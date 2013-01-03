@@ -285,6 +285,7 @@ public slots:
 signals:
     void LogEventEntry(const DataLogging::DayEventEntry &TheDayOperationEntry);
     void ForwardToErrorHandler(const DataLogging::DayEventEntry &TheDayOperationEntry, const quint32 EventKey);
+    void GuiAvailability(bool active);
 };
 
 } // end namespace EventHandler
