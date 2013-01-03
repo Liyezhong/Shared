@@ -34,7 +34,7 @@
 
 namespace DataManager {
 
-CAdjustment::CAdjustment() : m_Version(0)
+CAdjustment::CAdjustment() : m_Version(0), m_DataVerificationMode(true), m_Filename("")
 {
     Init();
 }
@@ -61,6 +61,8 @@ CAdjustment::~CAdjustment()
 /****************************************************************************/
 bool CAdjustment::Read(QString Filename)
 {
+    bool Result;
+
     //check if file exists
     if (!QFile::exists(Filename))
     {
@@ -68,31 +70,71 @@ bool CAdjustment::Read(QString Filename)
         return false;
     }
 
-//    QWriteLocker locker(mp_ReadWriteLock);
-
-    // clear content
-    Init();
-
-    m_Filename = "UNDEFINED";
-    QFile File (Filename);
-    if (!File.open(QFile::ReadOnly | QFile::Text))
+    if (m_DataVerificationMode)
     {
-        qDebug() << "open file failed in Read: " << Filename;
-        return false;
+        CAdjustment* p_AdjVerification = new CAdjustment();
+
+//        *p_AdjVerification = *this;
+
+        p_AdjVerification->SetDataVerificationMode(false);
+
+        Result = true;
+        if (!p_AdjVerification->Read(Filename))
+        {
+            qDebug() << "CAdjustment::Read - file read failed";
+            Result = false;
+        }
+        else
+        {
+            // now check new content => call all active verifiers
+            if (DoLocalVerification(p_AdjVerification))
+            {
+                qDebug() << "CAdjustment::Read - clone backwards";
+                // if content ok, clone backwards
+                *this = *p_AdjVerification;
+
+                //Now initialize the filename member since Read is succcess
+                m_Filename = Filename;
+
+                Result = true;
+            }
+            else
+            {
+                qDebug() << "CAdjustment::Read - verification failed";
+                Result = false;
+            }
+
+            delete p_AdjVerification;
+        }
+    }
+    else
+    {
+        // clear content
+        Init();
+
+        m_Filename = "UNDEFINED";
+        QFile File (Filename);
+        if (!File.open(QFile::ReadOnly | QFile::Text))
+        {
+            qDebug() << "CAdjustment::Read - file open failed :" << Filename;
+            return false;
+        }
+
+        if (!DeserializeContent(File, false))
+        {
+            qDebug() << "CAdjustment::Read - read failed: " << Filename;
+            return false;
+        }
+
+        File.close();
+
+        //Now initialize the filename member since Read is succcess
+        m_Filename = Filename;
+
+        Result = true;
     }
 
-    if (!DeserializeContent(File, false))
-    {
-        qDebug() << "### CAdjustment::Read failed for file: " << Filename;
-        return false;
-    }
-
-    File.close();
-
-    //Now initialize the filename member since Read is succcess
-    m_Filename = Filename;
-
-    return true;
+    return Result;
 }
 
 bool CAdjustment::SerializeContent(QIODevice &p_Device, bool CompleteData)
@@ -166,8 +208,7 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
 
     SetVersion(XmlStreamReader.attributes().value("version").toString().toInt());
 
-    Init();
-
+    // Read rest of fields & attributes
     Result = DeserializeXyzContent(XmlStreamReader, LEFT_XYZ);
 
     if (false == Result)

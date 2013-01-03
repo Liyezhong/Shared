@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QMap>
 #include "DataManager/Containers/Adjustment/Include/Adjustment.h"
+#include "DataManager/Containers/Adjustment/Include/AdjustmentVerifier.h"
 
 namespace DataManager {
 
@@ -94,9 +95,16 @@ void TestAdjustment::cleanupTestCase()
 void TestAdjustment::utTestReadWrite()
 {
     CAdjustment *p_AdjustmentSrc = new CAdjustment();
+    CAdjustmentVerifier *p_AdjustmentVerifier = new CAdjustmentVerifier();
+
     PositionXYZ Position_1;
 
-    p_AdjustmentSrc->Read("../../Resources/Adjustment.xml");
+    p_AdjustmentSrc->AddVerifier(p_AdjustmentVerifier);
+
+    if (p_AdjustmentSrc->Read("../../Resources/Adjustment.xml") == false)
+    {
+        QFAIL("Readind Adjustment.xml failed");
+    }
 
     QCOMPARE(p_AdjustmentSrc->GetVersion(), 1);
     QCOMPARE(p_AdjustmentSrc->GetDataContainerType(), ADJUSTMENT);

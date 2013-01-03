@@ -142,12 +142,15 @@ private:
     /****************************************************************************/
     void SetFilename(const QString Value)   {m_Filename = Value;}
 
+//    void SetDefaultAttributes();
+
     void Init();
 
     //
-    int m_Version;                  //!< version of the file read
-    bool m_DataVerificationMode;    //!< Verification mode flag , verify the Container
-    QString m_Filename;             //!< filename of the XML file to read
+    int m_Version;                      //!< version of the file read
+    bool m_DataVerificationMode;        //!< Verification mode flag , verify the Container
+    QString m_Filename;                 //!< filename of the XML file to read
+    QReadWriteLock m_ReadWriteLock;     //!< File read write protection
 
     //
     PositionXYZ m_StaionPosLeft[XYZ_MAX_COLS][XYZ_MAX_ROWS];
