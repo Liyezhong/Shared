@@ -61,9 +61,12 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                 if (QString(ReadData.split(';').value(4)).compare("true") == 0) {
 
                     Global::tTranslatableStringList TranslateStringList;
-
+                    // read all the parameters
                     for (int Counter = 5; Counter < ReadData.split(';').count(); Counter++) {
-                        TranslateStringList << ReadData.split(';').value(Counter);
+                        if (QString(ReadData.split(';').value(Counter)).compare("") != 0 &&
+                                QString(ReadData.split(';').value(Counter)).compare("\n") != 0) {
+                            TranslateStringList << ReadData.split(';').value(Counter);
+                        }
                     }
 
                     // translate the data
@@ -77,6 +80,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                         Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
                                                                    Global::FmtArgs() << ReadData.split(';').value(1), true);
                     }
+                    // join the required data
                     ReadData = QString(ReadData.split(';').value(0)) + ";" + QString(ReadData.split(';').value(1)) + ";" +
                                QString(ReadData.split(';').value(2)) + ";" + EventData + "\n";
 
@@ -87,7 +91,12 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
         }
         else {
             if (ReadData != "\n") {
-                FileData.append(ReadData.replace("ColoradoEvents_", "DailyRunLog_"));
+                if (ReadData.contains("ColoradoEvents_")) {
+                    ReadData = "FileName: DailyRunLog_" + ReadData.split('_').value(2);
+                }
+
+                FileData.append(ReadData);
+
                 FileData.append("\n");
             }
         }
