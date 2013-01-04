@@ -56,7 +56,7 @@ void CommandChannel::EmitCommand(Global::tRefType Ref, const Global::CommandShPt
 /****************************************************************************/
 void CommandChannel::EmitAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack)
 {
-//    qDebug() << "CommandChannel::EmitAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName() << "Channel" << m_channelName;
+    qDebug() << "CommandChannel::EmitAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName() << "Channel" << m_channelName;
     // check if our signal is connected
     if(receivers(SIGNAL(CommandChannelRxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &))) > 0) {
         // signal connected.
