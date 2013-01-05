@@ -4,18 +4,18 @@
  *  \brief
  *
  *   $Version: $ 0.1
- *   $Date:    $ 08.07.2010
- *   $Author:  $ Norbert Wiedmann
+ *   $Date:    $ 05.01.2013
+ *   $Author:  $ Albert Zhang
  *
  *  \b Description:
  *
- *       This module contains the implementation of the class CTemperatureControl
+ *       This module contains the implementation of the class CPressureControl
  *
- *  \b Company:
+*  \b Company:
  *
- *       Leica Biosystems Nussloch GmbH.
+ *       Leica Microsystems Ltd. Shanghai.
  *
- *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  (C) Copyright 2012 by Leica Microsystems Shanghai. All rights reserved.
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
@@ -53,10 +53,10 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL, p_MessageConfiguration, pCANCommunicator, pParentNode),
     m_unCanIDError(0), m_unCanIDErrorReq(0),
     m_unCanIDPressureSet(0), m_unCanIDFanWatchdogSet(0), m_unCanIDCurrentWatchdogSet(0),
-    m_unCanIDPIDParamSet(0), m_unCanIDHeaterTimeSet(0),
+    m_unCanIDPIDParamSet(0), m_unCanIDPumpTimeSet(0),
     m_unCanIDPressureReq(0), m_unCanIDPressure(0),
     m_unCanIDPIDParamReq(0), m_unCanIDPIDParam(0),
-    m_unCanIDHeaterTimeReq(0), m_unCanIDHeaterTime(0),
+    m_unCanIDPumpTimeReq(0), m_unCanIDPumpTime(0),
     m_unCanIDServiceSensorReq(0), m_unCanIDServiceSensor(0),
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),m_unCanIDValveSet(0),
@@ -135,13 +135,13 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     m_unCanIDFanWatchdogSet     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlFanWatchdogSet", bChannel, m_pParent->GetNodeID());
     m_unCanIDCurrentWatchdogSet = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlCurrentWatchdogSet", bChannel, m_pParent->GetNodeID());
     m_unCanIDPIDParamSet        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPIDParamSet", bChannel, m_pParent->GetNodeID());
-    m_unCanIDHeaterTimeSet      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlHeaterTimeSet", bChannel, m_pParent->GetNodeID());
+    m_unCanIDPumpTimeSet        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPumpTimeSet", bChannel, m_pParent->GetNodeID());
     m_unCanIDPressureReq        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPressureReq", bChannel, m_pParent->GetNodeID());
     m_unCanIDPressure           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPressure", bChannel, m_pParent->GetNodeID());
     m_unCanIDPIDParamReq        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPIDParamReq", bChannel, m_pParent->GetNodeID());
     m_unCanIDPIDParam           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPIDParam", bChannel, m_pParent->GetNodeID());
-    m_unCanIDHeaterTimeReq      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlHeaterTimeReq", bChannel, m_pParent->GetNodeID());
-    m_unCanIDHeaterTime         = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlHeaterTime", bChannel, m_pParent->GetNodeID());
+    m_unCanIDPumpTimeReq        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPumpTimeReq", bChannel, m_pParent->GetNodeID());
+    m_unCanIDPumpTime           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPumpTime", bChannel, m_pParent->GetNodeID());
     m_unCanIDServiceSensorReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlServiceSensorReq", bChannel, m_pParent->GetNodeID());
     m_unCanIDServiceSensor      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlServiceSensor", bChannel, m_pParent->GetNodeID());
     m_unCanIDServiceFanReq      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlServiceFanReq", bChannel, m_pParent->GetNodeID());
@@ -151,10 +151,8 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     m_unCanIDNotiAutoTune       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlNotiAutoTune", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiInRange        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlNotiInRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
-    //m_unCanIDValveSet           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlValveSet", bChannel, m_pParent->GetNodeID());
-    m_unCanIDValveSet = 0x1098101F;
-
-    m_unCanIDCalibration      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlCalibration", bChannel, m_pParent->GetNodeID());
+    m_unCanIDValveSet           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlValveSet", bChannel, m_pParent->GetNodeID());
+    m_unCanIDCalibration        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlCalibration", bChannel, m_pParent->GetNodeID());
 
     //FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
@@ -165,13 +163,13 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   FanWatchdogSet     : 0x" << std::hex << m_unCanIDFanWatchdogSet;
     FILE_LOG_L(laINIT, llDEBUG) << "   CurrentWatchdogSet : 0x" << std::hex << m_unCanIDCurrentWatchdogSet;
     FILE_LOG_L(laINIT, llDEBUG) << "   PIDParamSet        : 0x" << std::hex << m_unCanIDPIDParamSet;
-    FILE_LOG_L(laINIT, llDEBUG) << "   HeaterTimeSet      : 0x" << std::hex << m_unCanIDHeaterTimeSet;
+    FILE_LOG_L(laINIT, llDEBUG) << "   PumpTimeSet        : 0x" << std::hex << m_unCanIDPumpTimeSet;
     FILE_LOG_L(laINIT, llDEBUG) << "   PressureReq        : 0x" << std::hex << m_unCanIDPressureReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   Pressure           : 0x" << std::hex << m_unCanIDPressure;
     FILE_LOG_L(laINIT, llDEBUG) << "   PIDParamReq        : 0x" << std::hex << m_unCanIDPIDParamReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   PIDParam           : 0x" << std::hex << m_unCanIDPIDParam;
-    FILE_LOG_L(laINIT, llDEBUG) << "   HeaterTimeReq      : 0x" << std::hex << m_unCanIDHeaterTimeReq;
-    FILE_LOG_L(laINIT, llDEBUG) << "   HeaterTime         : 0x" << std::hex << m_unCanIDHeaterTime;
+    FILE_LOG_L(laINIT, llDEBUG) << "   PumpTimeReq        : 0x" << std::hex << m_unCanIDPumpTimeReq;
+    FILE_LOG_L(laINIT, llDEBUG) << "   PumpTime           : 0x" << std::hex << m_unCanIDPumpTime;
     FILE_LOG_L(laINIT, llDEBUG) << "   ServiceSensorReq   : 0x" << std::hex << m_unCanIDServiceSensorReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   ServiceSensor      : 0x" << std::hex << m_unCanIDServiceSensor;
     FILE_LOG_L(laINIT, llDEBUG) << "   ServiceFanReq      : 0x" << std::hex << m_unCanIDServiceFanReq;
@@ -216,7 +214,7 @@ ReturnCode_t CPressureControl::RegisterCANMessages()
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
-        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDHeaterTime, this);
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDPumpTime, this);
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
@@ -389,7 +387,7 @@ void CPressureControl::HandleCommandRequestTask()
 
                 //send the pressure ctrl operating mode to the slave
                // RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].Pressure, m_ModuleCommand[idx].PressureCtrlOpMode, m_ModuleCommand[idx].PressureCtrlState);
- RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
+                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowledge
                 emit ReportSetOperatingModeAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].PressureCtrlOpMode);
@@ -416,7 +414,7 @@ void CPressureControl::HandleCommandRequestTask()
 
                 //send the pressure ctrl status to the slave
                // RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].Pressure, m_ModuleCommand[idx].PressureCtrlOpMode, m_ModuleCommand[idx].PressureCtrlState);
- RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
+                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
                 emit ReportSetStatusAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].PressureCtrlState);
@@ -439,21 +437,21 @@ void CPressureControl::HandleCommandRequestTask()
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_RESET_OPTIME)
             {
-                FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl reset heater operating time";
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl reset pump operating time";
 
                 //send the reset command to the slave
-                RetVal = SendCANMsgHeaterTimeSet(m_ModuleCommand[idx].Index);
+                RetVal = SendCANMsgPumpTimeSet(m_ModuleCommand[idx].Index);
 
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
-                emit ReportResetHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index);
+                emit ReportResetPumpOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index);
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_OPTIME)
             {
                 //send the act pressure ctrl. get operating time request to the slave, this command
-                //will be acknowledged by the receiption of the m_unCanIDHeaterTime CAN-message
+                //will be acknowledged by the receiption of the m_unCanIDPumpTime CAN-message
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl send get operating time";
-                RetVal = SendCANMsgHeaterTimeReq(m_ModuleCommand[idx].Index);
+                RetVal = SendCANMsgPumpTimeReq(m_ModuleCommand[idx].Index);
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
                     m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
@@ -461,7 +459,7 @@ void CPressureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportPumpOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_FANSPEED)
@@ -563,7 +561,7 @@ void CPressureControl::HandleCommandRequestTask()
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
                                                   "': Operating time request timeout error.";
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
+                    emit ReportPumpOperatingTime(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
                 }
                 else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_FANSPEED)
                 {
@@ -624,9 +622,9 @@ void CPressureControl::HandleCanMessage(can_frame* pCANframe)
     {
         HandleCANMsgServiceSensor(pCANframe);
     }
-    else if(pCANframe->can_id == m_unCanIDHeaterTime)
+    else if(pCANframe->can_id == m_unCanIDPumpTime)
     {
-        HandleCANMsgHeaterTime(pCANframe);
+        HandleCANMsgPumpTime(pCANframe);
     }
     else if(pCANframe->can_id == m_unCanIDServiceFan)
     {
@@ -665,7 +663,6 @@ void CPressureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
     if(pCANframe->can_dlc == 3)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
-        //qint8 ActPressure = (qint8)pCANframe->data[1];
         qreal ActPressure = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANPressureControl Pressure received: " << ActPressure;
@@ -742,15 +739,15 @@ void CPressureControl::HandleCANMsgPressure(can_frame* pCANframe)
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Handles the 'HeaterTime' response CAN message
+// *  \brief  Handles the 'PumpTime' response CAN message
 // *
 // *      The message contains information to a operating time counter of a
-// *      heating element.
+// *      pump.
 // *
 // *  \iparam pCANframe = The received CAN message
 // */
 ///****************************************************************************/
-void CPressureControl::HandleCANMsgHeaterTime(can_frame* pCANframe)
+void CPressureControl::HandleCANMsgPumpTime(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
@@ -765,11 +762,11 @@ void CPressureControl::HandleCANMsgHeaterTime(can_frame* pCANframe)
         OperatingTime = GetCANMsgDataU32(pCANframe, 1);
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANPressureControl operating time received: " << OperatingTime;
-        emit ReportHeaterOperatingTime(GetModuleHandle(), hdlInfo, pCANframe->data[0], OperatingTime);
+        emit ReportPumpOperatingTime(GetModuleHandle(), hdlInfo, pCANframe->data[0], OperatingTime);
     }
     else
     {
-        emit ReportHeaterOperatingTime(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0);
+        emit ReportPumpOperatingTime(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0);
     }
 }
 
@@ -904,7 +901,7 @@ ReturnCode_t CPressureControl::SendCANMsgFanWatchdogSet()
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to set the heater current parameters
+// *  \brief  Send the CAN message to set the pump current parameters
 // *
 // *  \return The return value is set from SendCOB(can_frame)
 // */
@@ -922,8 +919,8 @@ ReturnCode_t CPressureControl::SendCANMsgCurrentWatchdogSet()
         FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration: 0x" << std::hex << m_unCanIDCurrentWatchdogSet;
         canmsg.can_id = m_unCanIDCurrentWatchdogSet;
         SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sCurrentGain, 0);
-        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sHeaterCurrent, 2);
-        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sHeaterThreshold, 4);
+        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sPumpCurrent, 2);
+        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sPumpThreshold, 4);
         canmsg.can_dlc = 6;
 
         RetVal = m_pCANCommunicator->SendCOB(canmsg);
@@ -940,7 +937,7 @@ ReturnCode_t CPressureControl::SendCANMsgCurrentWatchdogSet()
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to set the heater current parameters
+// *  \brief  Send the CAN message to set the pump current parameters
 // *
 // *  \iparam Index = Index of the PID controller
 // *
@@ -982,50 +979,17 @@ ReturnCode_t CPressureControl::SendCANMsgPidParametersSet(quint8 Index)
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to set a desired temperature
+// *  \brief  Send the CAN message to set a desired pressure
 // *
-// *  \iparam Temperature = Reference temperature in 0.1 °C steps
-// *  \iparam OperatingMode = Hold or heating phase
-// *  \iparam Status = Module on or off
+// *  \iparam flag = 1: Pressure 9: Vaccum
+// *  \iparam Pressure = Reference Pressure in 1 kpa steps
+// *  \iparam Tolerance = Pressure tolerance in 1 kpa
+// *  \iparam SamplingTime = sampleing time
+// *  \iparam DurationTime = duration time
 // *
 // *  \return The return value is set from SendCOB(can_frame)
 // */
 ///****************************************************************************/
-#if 0
-ReturnCode_t CPressureControl::SendCANMsgSetPressure(qreal Pressure,
-                                                           PressureCtrlOperatingMode_t OperatingMode, PressureCtrlStatus_t Status)
-{
-    CANFctModulePressureCtrl* pCANObjConfPressure;
-    pCANObjConfPressure= (CANFctModulePressureCtrl*) m_pCANObjectConfig;
-    ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
-    can_frame canmsg;
-
-    canmsg.can_id = m_unCanIDPressureSet;
-    canmsg.data[0] = 0;
-    if(Status == PRESSURECTRL_STATUS_ON) {
-        canmsg.data[0] = 0x01;
-    }
-    if(OperatingMode == PRESSURECTRL_OPMODE_HOLD) {
-        canmsg.data[0] |= 0x04;
-    }
-
-    canmsg.data[1] = Pressure;
-
-    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetPressure: Data0: 0x" << std::hex << (quint8) canmsg.data[0]
-                               << ", Data1: 0x" << std::hex << (quint8) canmsg.data[1];
-
-    canmsg.data[2] = pCANObjConfPressure->bPressureTolerance;
-    SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sSamplingPeriod, 3);
-    canmsg.data[5] = 0;
-    canmsg.data[6] = 0;
-    canmsg.can_dlc = 7;
-    retval = m_pCANCommunicator->SendCOB(canmsg);
-
-    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetPressure: CanID: 0x" << std::hex << m_unCanIDPressureSet;
-
-    return retval;
-}
-#else
 ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1047,16 +1011,25 @@ ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure
 
     return retval;
 }
-#endif
 
-ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 NumberValve, quint8 flags)
+///****************************************************************************/
+///*!
+// *  \brief  Send the CAN message to set valves' state
+// *
+// *  \iparam ValveIndex = index of the valves, start from 0
+// *  \iparam falgs = 0: close  1: open
+// *
+// *  \return The return value is set from SendCOB(can_frame)
+// */
+///****************************************************************************/
+ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 ValveIndex, quint8 flags)
 {
 
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
 
     canmsg.can_id = m_unCanIDValveSet;
-    canmsg.data[0] = NumberValve;
+    canmsg.data[0] = ValveIndex;
     canmsg.data[1] = flags;
 
     FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetValve: Data0: 0x" << std::hex << (quint8) canmsg.data[0]
@@ -1068,6 +1041,16 @@ ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 NumberValve, quint8 fla
 
     return retval;
 }
+
+///****************************************************************************/
+///*!
+// *  \brief  Send the CAN message to enable/disable calibration function.
+// *
+// *  \iparam Enabl= true: Enable  false: Disable
+// *
+// *  \return The return value is set from SendCOB(can_frame)
+// */
+///****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgCalibration(bool Enable)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1085,9 +1068,9 @@ ReturnCode_t CPressureControl::SendCANMsgCalibration(bool Enable)
 }
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to request the 'Temperature' CAN-Message
+// *  \brief  Send the CAN message to request the 'Pressure' CAN-Message
 // *
-// *      The 'Temperature' CAN-Message contains the reference temperature and
+// *      The 'Pressure' CAN-Message contains the reference pressure and
 // *      the operation mode.
 // *
 // *  \return The return value is set from SendCOB(can_frame)
@@ -1110,9 +1093,9 @@ ReturnCode_t CPressureControl::SendCANMsgPressureRequest()
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to request the 'HeaterTimeSet' CAN-Message
+// *  \brief  Send the CAN message to request the 'PumpTimeSet' CAN-Message
 // *
-// *      The 'ServiceSensor' CAN-Message contains the temperature measured by
+// *      The 'ServiceSensor' CAN-Message contains the pressure measured by
 // *      one of the sensors of the Slave module.
 // *
 // *  \iparam Index = Number of the sensor
@@ -1138,50 +1121,50 @@ ReturnCode_t CPressureControl::SendCANMsgServiceSensorRequest(quint8 Index)
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to reset the operating time of a heater
+// *  \brief  Send the CAN message to reset the operating time of a pump
 // *
-// *  \iparam Index = Number of the heater
+// *  \iparam Index = Number of the pump
 // *
 // *  \return The return value is set from SendCOB(can_frame)
 // */
 ///****************************************************************************/
-ReturnCode_t CPressureControl::SendCANMsgHeaterTimeSet(quint8 Index)
+ReturnCode_t CPressureControl::SendCANMsgPumpTimeSet(quint8 Index)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
 
-    canmsg.can_id = m_unCanIDHeaterTimeSet;
+    canmsg.can_id = m_unCanIDPumpTimeSet;
     canmsg.data[0] = Index;
     canmsg.can_dlc = 1;
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
-    FILE_LOG_L(laFCT, llDEBUG) << "   CPressureControl::SendCANMsgHeaterTimeSet canID: 0x"
-                               << std::hex << m_unCanIDHeaterTimeSet;
+    FILE_LOG_L(laFCT, llDEBUG) << "   CPressureControl::SendCANMsgPumpTimeSet canID: 0x"
+                               << std::hex << m_unCanIDPumpTimeSet;
 
     return retval;
 }
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Send the CAN message to get the operating time of a heater
+// *  \brief  Send the CAN message to get the operating time of a pump
 // *
-// *  \iparam Index = Number of the heater
+// *  \iparam Index = Number of the pump
 // *
 // *  \return The return value is set from SendCOB(can_frame)
 // */
 ///****************************************************************************/
-ReturnCode_t CPressureControl::SendCANMsgHeaterTimeReq(quint8 Index)
+ReturnCode_t CPressureControl::SendCANMsgPumpTimeReq(quint8 Index)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
 
-    canmsg.can_id = m_unCanIDHeaterTimeReq;
+    canmsg.can_id = m_unCanIDPumpTimeReq;
     canmsg.data[0] = Index;
     canmsg.can_dlc = 1;
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
-    FILE_LOG_L(laFCT, llDEBUG) << "   CPressureControl::SendCANMsgHeaterTimeReq canID: 0x"
-                               << std::hex << m_unCanIDHeaterTimeReq;
+    FILE_LOG_L(laFCT, llDEBUG) << "   CPressureControl::SendCANMsgPumpTimeReq canID: 0x"
+                               << std::hex << m_unCanIDPumpTimeReq;
 
     return retval;
 }
@@ -1235,9 +1218,10 @@ ReturnCode_t CPressureControl::SendCANMsgHardwareReq()
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Set the target temperature
+// *  \brief  Set the target pressure
 // *
-// *  \iparam Temperature = Reference temperature
+// *  \iparam flag = 1: Pressure, 9: Vaccum
+// *  \iparam Pressure = Reference pressure
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
@@ -1263,7 +1247,17 @@ ReturnCode_t CPressureControl::SetPressure(quint8 flag, qint8 Pressure)
 
     return RetVal;
 }
-
+///****************************************************************************/
+///*!
+// *  \brief  Set the valves' state
+// *
+// *  \iparam ValveIndex: Index of the valves, start from 0
+// *  \iparam ValveState = 0: close, 1: open
+// *
+// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+// *          otherwise an error code
+// */
+///****************************************************************************/
 ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1285,7 +1279,16 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
 
     return RetVal;
 }
-
+///****************************************************************************/
+///*!
+// *  \brief  Enable/Disable calibration function
+// *
+// *  \iparam Enable: true: Enable, false: Disbale
+// *
+// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+// *          otherwise an error code
+// */
+///****************************************************************************/
 ReturnCode_t CPressureControl::SetCalibration(bool Enable)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1307,9 +1310,9 @@ ReturnCode_t CPressureControl::SetCalibration(bool Enable)
 }
 ///****************************************************************************/
 ///*!
-// *  \brief  Request the actual temperature
+// *  \brief  Request the actual pressure
 // *
-// *  \iparam Index = Temperature sensor index
+// *  \iparam Index = Pressure sensor index
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
@@ -1337,9 +1340,9 @@ ReturnCode_t CPressureControl::ReqActPressure(quint8 Index)
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Set the temperature control's operation mode
+// *  \brief  Set the pressure control's operation mode
 // *
-// *  \iparam TempCtrlOpMode = Operation mode to set
+// *  \iparam PressureCtrlOpMode = Operation mode to set
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
@@ -1393,9 +1396,9 @@ ReturnCode_t CPressureControl::ReqOperatingMode()
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Set the temperature control's status
+// *  \brief  Set the pressure control's status
 // *
-// *  \iparam TempCtrlState = Status mode to set
+// *  \iparam PressureCtrlState = Status mode to set
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
@@ -1423,7 +1426,7 @@ ReturnCode_t CPressureControl::SetStatus(PressureCtrlStatus_t PressureCtrlState)
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Request the temp. control status
+// *  \brief  Request the pressure control status
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
@@ -1449,15 +1452,15 @@ ReturnCode_t CPressureControl::ReqStatus()
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Resets the operating time of a heater
+// *  \brief  Resets the operating time of a pump
 // *
-// *  \ipram  Index = Index of the heating element
+// *  \ipram  Index = Index of the pump element
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
 // */
 ///****************************************************************************/
-ReturnCode_t CPressureControl::ResetHeaterOperatingTime(quint8 Index)
+ReturnCode_t CPressureControl::ResetPumpOperatingTime(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1479,15 +1482,15 @@ ReturnCode_t CPressureControl::ResetHeaterOperatingTime(quint8 Index)
 
 ///****************************************************************************/
 ///*!
-// *  \brief  Gets the operating time of a heater
+// *  \brief  Gets the operating time of a pump
 // *
-// *  \ipram  Index = Index of the heating element
+// *  \ipram  Index = Index of the pump
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
 // *          otherwise an error code
 // */
 ///****************************************************************************/
-ReturnCode_t CPressureControl::GetHeaterOperatingTime(quint8 Index)
+ReturnCode_t CPressureControl::GetPumpOperatingTime(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1542,9 +1545,9 @@ ReturnCode_t CPressureControl::GetFanSpeed(quint8 Index)
 // *  \brief  Gets information of the hardware connected to the module
 // *
 // *      This method will return the following information from the
-// *      temperature control module on the Slave: number of temperature
-// *      sensors, number of ventilation fans, number of heaters, number of PID
-// *      controllers in the control loop, current through the heating circuit
+// *      pressure control module on the Slave: number of pressure
+// *      sensors, number of ventilation fans, number of pumps, number of PID
+// *      controllers in the control loop, current through the pump
 // *      in milliamperes.
 // *
 // *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted

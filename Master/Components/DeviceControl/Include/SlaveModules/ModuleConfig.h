@@ -566,16 +566,16 @@ public:
         sFanSpeed = 0;
         sFanThreshold = 0;
         sCurrentGain = 0;
-        sHeaterCurrent = 0;
-        sHeaterThreshold = 0;
+        sPumpCurrent = 0;
+        sPumpThreshold = 0;
     }
     quint8 bPressureTolerance;      //!<
     quint16 sSamplingPeriod;    //!< sampling period in hundredth of seconds
     quint16 sFanSpeed;          //!< fan speed in rotations per minute
     quint16 sFanThreshold;      //!< fan threshold in rotations per minute
     quint16 sCurrentGain;       //!< current sensor gain in mA/V
-    quint16 sHeaterCurrent;     //!< current through the heaters in mA
-    quint16 sHeaterThreshold;   //!< current threshold of the heaters in mA
+    quint16 sPumpCurrent;       //!< current through the pumps in mA
+    quint16 sPumpThreshold;     //!< current threshold of the pumps in mA
     QList<CANPressureFctPidController> listPidControllers;  //!< List of PID parameter sets
 };
 #endif
