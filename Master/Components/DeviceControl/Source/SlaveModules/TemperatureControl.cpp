@@ -649,6 +649,15 @@ void CTemperatureControl::HandleCanMessage(can_frame* pCANframe)
 #endif
 }
 #ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'LevelSensor' response CAN message
+ *
+ *      The message contains information to a level sensor's state.
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
 void CTemperatureControl::HandleCANMsgLevelSensorState(can_frame* pCANframe)
 {
     FILE_LOG_L(laFCT, llDEBUG) << "recerived level sensor state data";
@@ -998,6 +1007,18 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint8 Index)
 
 
 #ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to configure temperature PID control parameters
+ *
+ *  \iparam MaxTemperature = max temperature
+ *  \iparam ControllerGain = controller gain
+ *  \iparam ResetTime      = reset time
+ *  \iparam DerivativeTime = derivative time
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     CANFctModuleTempCtrl* pCANObjConfTemp;
@@ -1598,6 +1619,19 @@ void CTemperatureControl::ResetModuleCommand(CANTempCtrlCmdType_t ModuleCommandT
 }
 
 #ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Configure temperature PID control parameters
+ *
+ *  \iparam MaxTemperature = max temperature
+ *  \iparam ControllerGain = controller gain
+ *  \iparam ResetTime      = reset time
+ *  \iparam DerivativeTime = derivative time
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     QMutexLocker Locker(&m_Mutex);

@@ -501,7 +501,16 @@ StepperMotorRotDir_t CStepperMotor::SetupRotationDir (CANFctModuleStepperMotor::
     return rotDir;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief    Configure limit switch data.
+ *
+ *  \iparam   LimitSwitch = Data to configure the limit switch
+ *  \iparam   ls = configuration data
 
+ *  \return   void
+ */
+/****************************************************************************/
 void CStepperMotor::SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_t &ls)
 {
     ls.flag.exist = LimitSwitch.bExists;
@@ -511,7 +520,16 @@ void CStepperMotor::SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSw
     ls.debounceCount = LimitSwitch.bDebounce;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief    Configure position code.
+ *
+ *  \iparam   PosCode = Data to configure the position code
+ *  \iparam   pc = position code data
 
+ *  \return   void
+ */
+/****************************************************************************/
 void CStepperMotor::SetupPosCodeConfigData (CANFctModulePosCode &PosCode, ConfigData_LSPOS_t &pc)
 {
     pc.flag.valid   = PosCode.bValid;
@@ -664,11 +682,6 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_REFRUN_P2_t &refrun = configData.part.refRun2;
                 canmsg.can_dlc = sizeof(ConfigData_REFRUN_P2_t) + sizeof(SubIndex_t);
 
-/*
-#ifdef PRE_ALFA_TEST
-                refrun.refRun_RefPosSkip = pCANObjConfMotor->refRunRefPosSkip;
-#endif
-*/
                 refrun.refRun_MaxDist = ValToDB4(pCANObjConfMotor->lRefRunMaxDistance);
                 refrun.refRun_HighSpeed = ValToDB2(pCANObjConfMotor->sRefRunHighSpeed);
             }
@@ -1691,9 +1704,6 @@ void CStepperMotor::HandleCANMsgTargetPosCmdAckn(can_frame* pCANframe)
     {
         emit ReportMovementAckn(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0);
     }
-
-
-
 }
 
 /****************************************************************************/
