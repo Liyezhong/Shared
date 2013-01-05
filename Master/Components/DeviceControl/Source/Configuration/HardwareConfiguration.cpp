@@ -1466,7 +1466,7 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     QDomElement childPidControllers;
     QDomElement childPidController;
     QString strPressureTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
-            strCurrentGain, strHeaterCurrent, strHeaterThreshold;
+            strCurrentGain, strPumpCurrent, strPumpThreshold;
     QString strMaxPressure, strMinPressure, strControllerGain, strResetTime, strDerivativeTime;
     bool ok;
 
@@ -1482,8 +1482,8 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     strFanSpeed = child.attribute("fan_speed");
     strFanThreshold = child.attribute("fan_threshold");
     strCurrentGain = child.attribute("current_gain");
-    strHeaterCurrent = child.attribute("heater_current");
-    strHeaterThreshold = child.attribute("heater_threshold");
+    strPumpCurrent = child.attribute("pump_current");
+    strPumpThreshold = child.attribute("pump_threshold");
 
     pCANObjFctPressureCtrl = new CANFctModulePressureCtrl();
     pCANObjFctPressureCtrl->bPressureTolerance = strPressureTolerance.toShort(&ok, 10);
@@ -1491,8 +1491,8 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     pCANObjFctPressureCtrl->sFanSpeed = strFanSpeed.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sFanThreshold = strFanThreshold.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sCurrentGain = strCurrentGain.toShort(&ok, 10);
-    pCANObjFctPressureCtrl->sHeaterCurrent = strHeaterCurrent.toShort(&ok, 10);
-    pCANObjFctPressureCtrl->sHeaterThreshold = strHeaterThreshold.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sPumpCurrent = strPumpCurrent.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sPumpThreshold = strPumpThreshold.toShort(&ok, 10);
 
     //############################
     // PID controller parameters
