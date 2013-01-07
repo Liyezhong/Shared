@@ -20,8 +20,10 @@
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
+
 #include <QFinalState>
 #include "DeviceControl/Include/Devices/DeviceBase.h"
+#include "DeviceControl/Include/Devices/ServiceInformation.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 
 namespace DeviceControl
@@ -117,6 +119,19 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     // GetDeviceState: Shall always return state, always succeed
     // debugging: loop through all FM objects and log unexpected signals
 
+    QMapIterator<QString, quint32> Iterator(m_ModuleList);
+    while (Iterator.hasNext()) {
+        Iterator.next();
+        CModule *p_Module = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(Iterator.key()));
+
+        if (p_Module == NULL) {
+            p_Module = m_DeviceProcessing.GetFunctionModule(GetModuleInstanceFromKey(Iterator.key()));
+        }
+        if (p_Module != NULL) {
+            m_ModuleMap[Iterator.key()] = p_Module;
+        }
+    }
+
     /////////////////////////////////////////////////////////////////
     // Set up all states
     /////////////////////////////////////////////////////////////////
@@ -126,8 +141,15 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     m_machine.setInitialState(mp_All);
 
     mp_Init = new CState("Init", mp_All);
-    mp_Working = new CState("Working", mp_All);
+    mp_Operating = new CState("Operating", mp_All);
+    mp_Operating->setChildMode(QState::ParallelStates);
+    mp_Working = new CState("Working", mp_Operating);
+    mp_Service = new CServiceInformation(m_ModuleMap, "Service", mp_Operating);
     mp_All->setInitialState(mp_Init);
+
+    connect(this, SIGNAL(GetServiceInformation()), mp_Service, SIGNAL(GetServiceInformation()));
+    connect(mp_Service, SIGNAL(ReportGetServiceInformation(ReturnCode_t)),
+            this, SIGNAL(ReportGetServiceInformation(ReturnCode_t)));
 
     mp_Start = new CState("Start", mp_Init);
     mp_Configuring = new CState("Configuring", mp_Init);
@@ -166,8 +188,8 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
 
     mp_Initializing->addTransition( new CDeviceTransition(
         mp_Initializing, SIGNAL(finished()),
-        *this, &CDeviceBase::Trans_Initializing_Working,
-        mp_Working) );
+        *this, &CDeviceBase::Trans_Initializing_Operating,
+        mp_Operating) );
 
     // On error jump back to Configured
     mp_Initializing->addTransition( new CDeviceTransition(
@@ -176,7 +198,7 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
         mp_Configured) );
 
     // On serious error set from Working to Configured
-    mp_Working->addTransition( 
+    mp_Operating->addTransition(
         this, SIGNAL(NeedInitialize(ReturnCode_t)), mp_Configured);
 
     // Send Initialize NACKs by default
@@ -189,19 +211,6 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
 
     // Connect shutdown message
     connect(&m_DeviceProcessing, SIGNAL(DeviceShutdown()), this, SLOT(Shutdown()));
-
-    QMapIterator<QString, quint32> Iterator(m_ModuleList);
-    while (Iterator.hasNext()) {
-        Iterator.next();
-        CModule *p_Module = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(Iterator.key()));
-
-        if (p_Module == NULL) {
-            p_Module = m_DeviceProcessing.GetFunctionModule(GetModuleInstanceFromKey(Iterator.key()));
-        }
-        if (p_Module != NULL) {
-            m_ModuleMap[Iterator.key()] = p_Module;
-        }
-    }
 
     connect(&m_Thread, SIGNAL(started()), this, SLOT(ThreadStarted()));
     moveToThread(&m_Thread);
@@ -228,12 +237,12 @@ bool CDeviceBase::Configure_Ack(QEvent *p_Event)
 /*!
  *  \brief      To report completion of initialization.
  *
- *              Invoked when state changes from Initializing to Working
+ *              Invoked when state changes from Initializing to Operating
  *
  *  \iparam     p_Event     Not used
  */
 /****************************************************************************/
-bool CDeviceBase::Trans_Initializing_Working(QEvent *p_Event)
+bool CDeviceBase::Trans_Initializing_Operating(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
     emit ReportInitialize(DCL_ERR_FCT_CALL_SUCCESS);

@@ -42,6 +42,8 @@
 namespace DeviceControl
 {
 
+class CServiceInformation;
+
 typedef QList<CBaseModule*> DeviceBaseModList;
 
 /****************************************************************************/
@@ -145,6 +147,8 @@ signals:
     /****************************************************************************/
     void Disable();
 
+    void GetServiceInformation();
+
     // command response interface to DCP
     /****************************************************************************/
     /*! \brief  To acknowledge Configure() command
@@ -194,6 +198,8 @@ signals:
     /****************************************************************************/
     void ReportDisable(ReturnCode_t ReturnCode);
 
+    void ReportGetServiceInformation(ReturnCode_t ReturnCode);
+
     /****************************************************************************/
     /*! \brief  To report error to DCP
      */
@@ -220,7 +226,7 @@ protected slots:
 
 protected:
     bool Trans_Initializing_Configured(QEvent *p_Event);
-    bool Trans_Initializing_Working(QEvent *p_Event);
+    bool Trans_Initializing_Operating(QEvent *p_Event);
     bool Initialize_Nack(QEvent *p_Event);
     bool Configure_Ack(QEvent *p_Event);
 
@@ -234,7 +240,9 @@ protected:
     CState *mp_Configuring;
     CState *mp_Configured;
     CState *mp_Initializing;
-    CState *mp_Working;
+    CState *mp_Operating;       //!< Parallel state including working and service
+    CState *mp_Working;         //!< State for normal operation
+    CServiceInformation *mp_Service;    //!< Service functionality of the base device
 
     const DeviceProcessing &m_DeviceProcessing;
     const DevInstanceID_t m_InstanceID;     ///< Instance ID
