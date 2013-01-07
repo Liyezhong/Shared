@@ -349,7 +349,7 @@ static Error_t tempModuleTask (UInt16 Instance)
                 Data->State = STATE_CONTROL;
             }
             
-            //printf("I:%d ", Instance);           
+            printf("I:%d ", Instance);           
 
             // Read and check sensors
             Error = tempFetchCheck(Data, Instance, &Fail);
@@ -636,22 +636,16 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
     for (i = 0; i < Data->NumberSensors; i++) {
         if ((Error = tempSensorRead (Data->HandleTemp[i], Data->SensorType, Compensation, &Data->ServiceTemp[i])) < 0) {
             //return (Error);
+            printf("[%d]:E ", i);            
             Data->ServiceTemp[i] = TempPre[i];
-            //printf("[%d]:E ", i);
         }
         else {
-            //printf("[%d]:%d ", i, Data->ServiceTemp[i]);
-            /*
-            if (i==0 && Instance==0) {
-                printf("%d\n", Data->ServiceTemp[i]);
-            }
-            */
-            
+            printf("[%d]:%d ", i, Data->ServiceTemp[i]);            
             TempPre[i] = Data->ServiceTemp[i];
         }
     }
     
-    //printf("\n");
+    printf("\n");
 
 
 #if 0
@@ -741,8 +735,6 @@ static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus)
     Message.Length = 1;
     bmSetMessageItem (&Message, LevelStatus, 0, 1);
     return (canWriteMessage(Data->Channel, &Message));
-
-    //return (NO_ERROR);
 }
 
 
@@ -913,7 +905,7 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     //Data->SlopeTimeInterval = bmGetMessageItem(Message, 7, 1) * 1000;
     Data->SlopeTempChange = bmGetMessageItem(Message, 7, 1) * 100;
     
-    //printf("Temp Change:%d\n", Data->SlopeTempChange);
+    printf("Temp Change for slope detection:%d\n", Data->SlopeTempChange);
 
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
@@ -1659,6 +1651,9 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     ModuleIdentifier = ModuleID;
 
 
+
+// Initialization for non-IDENTIFICATION mode
+// Only for debug use
 #if 0
 
 // For level sensor

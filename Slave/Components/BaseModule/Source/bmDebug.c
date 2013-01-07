@@ -243,13 +243,6 @@ void dbgPrintCanMessage (CanMessage_t *Message, char Direction) {
     UInt16 Channel;
     UInt16 i;
 
-#if 0
-    if (Message->CanID == 0x380001 ||
-	    Message->CanID == 0x38001E ) {
-		    return;
-	}
-#endif
-
     Channel = (Message->CanID & CANiD_MASK_CHANNEL) >> CANiD_SHIFT_CHANNEL;
     MsgName = dbgSearchCanIdName(Message->CanID, Channel);
 

@@ -117,7 +117,7 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl1
     { PORT_D, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl2
 
-	// Only for the bad ASB board
+    // Only for the bad ASB board
 #if 0
     { PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl2
 #endif
@@ -182,7 +182,7 @@ const halPortDescriptor_t halPortDescriptors[] = {
 
     // Only for the bad ASB board
 #if 0
-	{ HAL_SPI_SELECT_0,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 11, 1, 0, 0 },
+    { HAL_SPI_SELECT_0,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 11, 1, 0, 0 },
     { HAL_TEMP_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  9, 1, 0, 0 },
     { HAL_TEMP_FANCONTROL_1,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 },
     { HAL_TEMP_MAINVOLTAGE_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  1, 1, 0, 0 },
