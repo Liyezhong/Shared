@@ -432,7 +432,7 @@ void EventHandlerThreadController::UpdateEventKeyCountMap(quint32 EventKey, bool
  ****************************************************************************/
 void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList, const bool EventStatus, const quint32 EventKey)
 {
-    qDebug() << "EventHandlerThreadController::ProcessEvent" << EventID;
+    qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey;
 
     m_EventIdKeyMap.insert(EventKey,EventID);
 
@@ -599,7 +599,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
         p_CmdSystemAction->SetEventKey(EventKey);
         p_CmdSystemAction->SetEventID(EventID);
-        qDebug() << "EventKEY: " << EventKey << "EventID: " <<EventID;
+        qDebug() << "EventHandlerThreadController::OnAcknowledge, EventKey=" << EventKey << "EventID=" <<EventID;
         SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
         DEBUGWHEREAMI;
 

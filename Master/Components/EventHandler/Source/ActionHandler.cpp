@@ -31,6 +31,8 @@ void ActionHandler::ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, con
         EventReportData.BtnType = TheEvent.GetButtonType();
         EventReportData.StatusBarIcon = TheEvent.GetStatusIcon();   //true if GUI must set status bar icon.
 
+        qDebug() << "ActionHandler::ReceiveEvent, EventID=" << TheEvent.GetEventCode() << "ID=" << EventReportData.ID;
+
         if (mGuiAvailable)
         {
             Global::tRefType Ref = mpEventHandlerThreadController->GetNewCommandRef();
