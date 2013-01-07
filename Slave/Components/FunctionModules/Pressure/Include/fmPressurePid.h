@@ -58,7 +58,7 @@ typedef struct {
     Int32 Integral; //!< Integral part accumulator
     Int32 Output;   //!< Output value of the PID controller
     Int32 MaxPress; //!< Maximal pressure in 1 Pa step
-	Int32 MinPress; //!< Minimal pressure in 1 Pa step
+    Int32 MinPress; //!< Minimal pressure in 1 Pa step
     Int32 Range;    //!< Output range of the PID controller
     PressAutoTune_t AutoTune; //!< Structure containing auto tuning information
 } PressPidParams_t;

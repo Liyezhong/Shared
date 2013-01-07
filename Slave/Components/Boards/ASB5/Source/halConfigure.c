@@ -236,7 +236,7 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
 
 #if 1
     // For wax bath
-	{ HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
 
@@ -245,7 +245,7 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
     { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  3, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_6,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
-	{ HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
     //{ HAL_TEMP_SENSOR_8,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
 #endif
 

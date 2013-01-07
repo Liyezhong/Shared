@@ -78,7 +78,7 @@ static const UInt32 TestOptionList[] = {
         
     // Function modules board options
     MODULE_ID_TEMPERATURE, 4, 0x011011, 0xF11012, 0x011012, 0x011012
-	//MODULE_ID_TEMPERATURE, 1, 0x1011012//, 0x011012
+    //MODULE_ID_TEMPERATURE, 1, 0x1011012//, 0x011012
     //MODULE_ID_TEMPERATURE, 2, 0x011011, 0xF11012,
 };
 

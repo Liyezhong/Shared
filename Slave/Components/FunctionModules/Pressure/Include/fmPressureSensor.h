@@ -35,11 +35,7 @@
 
 /*! Currently supported pressure sensor families */
 typedef enum {
-    TYPEK,      //!< Thermocouple of type K (IEC 584)
-    NTC10K3A1I, //!< Betatherm NTC 10K3A1I thermistor
-    AD595,      //!< Analog Devices AD595 thermocouple amplifier
-    TYPET,      //!< Thermocouple of type T (IEC 584)
-    PT1000      //!< PT1000 resistance thermometer
+    TYPE_UNDEF
 } PressSensorType_t;
 
 //****************************************************************************/

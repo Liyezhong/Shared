@@ -133,12 +133,6 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
         return (PressPumpMonitor.Handle);
     }
 
-//    // Open the heating element circuit switch
-//    PressPumpData.HandleSwitch = halPortOpen (SwitchChannel, HAL_OPEN_WRITE);
-//    if (PressPumpData.HandleSwitch < 0) {
-//        return (PressPumpData.HandleSwitch);
-//    }
-
     // Open pumping element control outputs
     for (i = 0; i < Instances; i++) {
         PressPumpData.HandleControl[i] = halPortOpen (ControlChannel + i, HAL_OPEN_WRITE);
@@ -147,11 +141,6 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
         }
     }
     
-//    // Set circuit to serial mode
-//    Error = pressPumpSwitch (PressPumpData.HandleSwitch, FALSE);
-//    if (Error < NO_ERROR) {
-//        return Error;
-//    }
     
     PressPumpData.Instances = Instances;
     PressPumpData.MinValue = MAX_INT16;
@@ -347,10 +336,10 @@ Error_t pressPumpCheck ()
     if (ActiveCount == 0) {
         if (PressPumpData.EffectiveCurrent > Params->DesiredCurThreshold) {
             PressPumpData.Failed = TRUE;
-			//printf("HEa*****************\n");
+            //printf("HEa*****************\n");
         }
     }
-    // Heating elements are switched serially
+    // Pumping elements are switched serially
     else if (PressPumpData.ParallelCircuit == FALSE) {
         Current = PressPumpData.EffectiveCurrent / ActiveCount;
         // Check if the current is out of range (200 - 240V)
@@ -360,18 +349,18 @@ Error_t pressPumpCheck ()
             if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent / 2 ||
                     Current > Params->DesiredCurrent / 2 + Params->DesiredCurThreshold) {
                 PressPumpData.Failed = TRUE;
-				//printf("HEA*****************, %d\n", Current);
+                //printf("HEA*****************, %d\n", Current);
             }
             else {
                 Error = pressPumpSwitch(PressPumpData.HandleSwitch, TRUE);
                 if (Error < 0) {
-				    //printf("HEB*****************\n");
+                    //printf("HEB*****************\n");
                     return (Error);
                 }
             }
         }
     }
-    // Heating elements are switched parallelly
+    // Pumping elements are switched parallelly
     else {
         Current = PressPumpData.EffectiveCurrent / ActiveCount;
         // Check if the current is out of range (100 - 127V)
@@ -379,10 +368,10 @@ Error_t pressPumpCheck ()
                 Current / 2 > Params->DesiredCurrent + Params->DesiredCurThreshold) {
             Error = pressPumpSwitch(PressPumpData.HandleSwitch, FALSE);
             if (Error < 0) {
-			    //printf("HEC*****************\n");
+                //printf("HEC*****************\n");
                 return (Error);
             }
-			//printf("HED*****************, %d\n", Current/2);
+            //printf("HED*****************, %d\n", Current/2);
             PressPumpData.Failed = TRUE;
         }
     }
@@ -447,10 +436,10 @@ Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance)
     //printf("o:%d\n", PressPumpData.OperatingTime[Instance]);
 
     if (PressPumpData.OperatingTime[Instance] == 0) {
-	    //printf("C:%d\n",bmGetTime());
+        //printf("C:%d\n",bmGetTime());
         return (halPortWrite (PressPumpData.HandleControl[Instance], 0));
     }
-	//printf("O:%d\n",bmGetTime());
+    //printf("O:%d\n",bmGetTime());
     //printf("O1:%d\n", PressPumpData.OperatingTime[Instance]);
     return (halPortWrite (PressPumpData.HandleControl[Instance], 1));
 }

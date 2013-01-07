@@ -32,10 +32,7 @@
 // Private Constants and Macros 
 //****************************************************************************/
 
-#define TEMP_SENSOR_MAX 120 //!< Maximal sensor pressure in degree Celsius 
-
-#define TEMP_SENSOR_VOLTAGE     3000  //!< ADC supply voltage used for the NTC 10K3A1I
-#define TEMP_SENSOR_RESISTANCE  10000 //!< Pullup resistance connected to NTC 10K3A1I
+#define PRESS_SENSOR_VOLTAGE     6000  //!< ADC supply voltage used for pressure sensor
 
 
 //****************************************************************************/
@@ -81,10 +78,10 @@ Error_t pressSensorRead (Handle_t Handle, PressSensorType_t Type, UInt16 Compens
     //printf("Ad:%d\n", AdcValue);
     
     // Voltage: 1-6V ==> 0.5-3V
-	//*Pressure = 103.42-40.944*(6-AdcValue*2);
-	*Pressure = 103420-41*(6000-AdcValue*2) - Compensation;
+    //*Pressure = 103.42-40.944*(6-AdcValue*2);
+    *Pressure = 103420-41*(PRESS_SENSOR_VOLTAGE-AdcValue*2) - Compensation;
 
-	return (NO_ERROR);
+    return (NO_ERROR);
 
 }
 
