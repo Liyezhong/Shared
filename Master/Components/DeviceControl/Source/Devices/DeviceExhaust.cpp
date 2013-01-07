@@ -18,8 +18,13 @@ typedef CSignalTransition<CDeviceExhaust> CExhaustTransition;
 /*!
  *  \brief      Constructor of class CDeviceHood
  *
- *  \iparam     fm      Function module pointer of Digital Input that signals
- *                      change in hood device.
+ *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
+ *              request & response signals
+ *
+ *  \iparam     FctModList Function module list of this device, to invoke
+ *              function module interface functions.
+ *
+ *  \iparam     InstanceID Device Instance ID
  */
 /****************************************************************************/
 CDeviceExhaust::CDeviceExhaust(const DeviceProcessing &DeviceProc, const DeviceModuleList_t& FctModList,

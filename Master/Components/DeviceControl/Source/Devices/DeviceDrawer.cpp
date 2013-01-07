@@ -52,12 +52,12 @@ typedef CSignalTransition<CDeviceDrawer> CDrawerTransition;
  *  \brief      Constructor of class CDeviceDrawer
  *
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
- *              resuqest & response signals
+ *              request & response signals
  *
- *              FctModList Function module list of this device, to invoke
+ *  \iparam     FctModList Function module list of this device, to invoke
  *              function module interface functions.
  *
- *              InstanceID Device Instance ID
+ *  \iparam     InstanceID Device Instance ID
  */
 /****************************************************************************/
 CDeviceDrawer::CDeviceDrawer(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,

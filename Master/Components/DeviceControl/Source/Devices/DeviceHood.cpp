@@ -44,10 +44,10 @@ typedef CSignalTransition<CDeviceHood> CHoodTransition;
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
  *              resuqest & response signals
  *
- *              FctModList Function module list of this device, to invoke
+ *  \iparam     FctModList Function module list of this device, to invoke
  *              function module interface functions.
  *
- *              InstanceID Device Instance ID.
+ *  \iparam     InstanceID Device Instance ID.
  */
 /****************************************************************************/
 CDeviceHood::CDeviceHood(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
@@ -121,9 +121,9 @@ bool CDeviceHood::GuardCheckClosed(QEvent *p_Event)
  *          state against expected value.
  *
  *  \iparam     p_Event refers to the arguements sent by signal (ReportActInputValue)
- *              0 - Device Instance
- *              1 - Return Code
- *              2 - Input Value
+ *              Arg 0 - Device Instance
+ *              Arg 1 - Return Code
+ *              Arg 2 - Input Value
  *
  *  \iparam     CheckValue  Expected value (Hood State)
  *

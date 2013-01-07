@@ -44,9 +44,9 @@ typedef CSignalTransition<CFmStepperInit> CFmSmInitTransition;
  *
  *  \iparam     p_StepperMotor  Stepper motor function module
  *
- *              Name            Name of the state
+ *  \iparam     Name            Name of the state
  *
- *              p_Parent        Parent of this state
+ *  \iparam     p_Parent        Parent of this state
  */
 /****************************************************************************/
 CFmStepperInit::CFmStepperInit(

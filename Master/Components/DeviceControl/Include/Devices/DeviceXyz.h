@@ -1,3 +1,21 @@
+/****************************************************************************/
+/*! \file   DeviceXyz.h
+ *
+ *  \brief  Definition file for class CDeviceXyz
+ *
+ *  \version  0.1
+ *  \date     2012-11-19
+ *  \author   Stalin
+ *
+ *  \b Company:
+ *
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
+ */
+/****************************************************************************/
 #ifndef DEVICEXYZ_H
 #define DEVICEXYZ_H
 
@@ -179,36 +197,168 @@ public:
 signals:
     // Movement interface
     // Request interface to DCP
+    /****************************************************************************/
+    /*! \brief  Interface to DCP to move the arm when empty
+     *
+     *  \iparam StationColumn   Target station column
+     *  \iparam StationRow      Target station row
+     */
+    /****************************************************************************/
     void MoveEmptyTo(quint16 StationColumn, quint16 StationRow);
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to move the arm when rack is attached
+     *
+     *  \iparam StationColumn   Target station column
+     *  \iparam StationRow      Target station row
+     */
+    /****************************************************************************/
     void MoveRackTo(quint16 StationColumn, quint16 StationRow);
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to attach rack
+     */
+    /****************************************************************************/
     void AttachRack();
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to detach Rack
+     */
+    /****************************************************************************/
     void DetachRack();
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to let the rack down
+     */
+    /****************************************************************************/
     void LetDownRack();
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to pull up the rack
+     */
+    /****************************************************************************/
     void PullUpRack();
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to count slides
+     */
+    /****************************************************************************/
     void CountSlides();
 
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to Read rfid id & data of the attached rack
+     */
+    /****************************************************************************/
     void ReadRfid();
+
+    /****************************************************************************/
+    /*! \brief Interface to DCP to liquid level of currently pointing station
+     */
+    /****************************************************************************/
     void ReadLiquidLevel();
 
     // Response interface to DCP
+    /****************************************************************************/
+    /*! \brief Response to MoveEmptyTo() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportMoveEmptyTo(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to MoveRackTo() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportMoveRackTo(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to AttachRack() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportAttachRack(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to DetachRack() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportDetachRack(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to LetDownRack() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportLetDownRack(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to PullUpRack() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportPullUpRack(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to CountSlides() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportCountSlides(ReturnCode_t ReturnCode);
 
+    /****************************************************************************/
+    /*! \brief Response to ReadRfid() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportReadRfid(ReturnCode_t ReturnCode);
+
+    /****************************************************************************/
+    /*! \brief Response to ReadLiquidLevel() request.
+     *
+     *  \iparam ReturnCode result code sent by FM layer
+     */
+    /****************************************************************************/
     void ReportReadLiquidLevel(ReturnCode_t ReturnCode);
 
+    /****************************************************************************/
+    /*! \brief Error Response to signal movement error
+     *
+     *  \iparam ReturnCode Reason for Failure / Error
+     */
+    /****************************************************************************/
     void MoveError(ReturnCode_t ReturnCode);
 
     // Internal signals
+    /****************************************************************************/
+    /*! \brief  Internal signal to initiate arm movement
+     *
+     *  \iparam PositionX   Target X position
+     *  \iparam ProfileX    Motion profile for X axis
+     *  \iparam PositionY   Target Y position
+     *  \iparam ProfileY    Motion profile for Y axis
+     *  \iparam PositionZ   Target Z position
+     *  \iparam ProfileZ    Motion profile for Z axis
+     */
+    /****************************************************************************/
     void Move(quint32 PositionX, quint8 ProfileX,
               quint32 PositionY, quint8 ProfileY,
               quint32 PositionZ = NO_CHANGE, quint8 ProfileZ = 0);
 
+    /****************************************************************************/
+    /*! \brief  Internal signal to abort movement in progress
+     */
+    /****************************************************************************/
     void MoveAbort();
 
 protected:

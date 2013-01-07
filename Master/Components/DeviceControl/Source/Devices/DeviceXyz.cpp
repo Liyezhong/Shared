@@ -1,3 +1,21 @@
+/****************************************************************************/
+/*! \file   DeviceXyz.cpp
+ *
+ *  \brief  Implementation file for class CDeviceXyz
+ *
+ *  \version  0.1
+ *  \date     2012-11-19
+ *  \author   Stalin
+ *
+ *  \b Company:
+ *
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
+ */
+/****************************************************************************/
 #include <QFinalState>
 #include <QDebug>
 
@@ -18,6 +36,19 @@ namespace DeviceControl
 /****************************************************************************/
 typedef CSignalTransition<CDeviceXyz> CXyzTransition;
 
+/****************************************************************************/
+/*!
+ *  \brief      Constructor of class CDeviceXyz
+ *
+ *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
+ *              request & response signals
+ *
+ *  \iparam     FctModList Function module list of this device, to invoke
+ *              function module interface functions.
+ *
+ *  \iparam     InstanceID Device Instance ID.
+ */
+/****************************************************************************/
 CDeviceXyz::CDeviceXyz(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
                                  DevInstanceID_t InstanceID) :
     CDeviceBase(DeviceProc, ModuleList, InstanceID)
@@ -160,6 +191,19 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
     return true;
 }
 
+
+/****************************************************************************/
+/*!
+ *  \brief      To initiate arm movement without rack to target station when
+ *              MoveEmptyTo() is triggered
+ *
+ *  \iparam     p_Event Refers to the arguements list sent by signal.
+ *              Arg 0 - Target Station Column
+ *              Arg 1 - Target Station Row
+ *
+ *  \return     true, if sucessful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_MoveEmpty(QEvent *p_Event)
 {
     quint16 StationColumn;
@@ -187,6 +231,18 @@ bool CDeviceXyz::Trans_Idle_MoveEmpty(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To initiate arm movement with rack to target station when
+ *              MoveRackTo() is triggered
+ *
+ *  \iparam     p_Event Refers to the arguements list sent by signal.
+ *              Arg 0 - Target Station Column
+ *              Arg 1 - Target Station Row
+ *
+ *  \return     true, if sucessful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_MoveRack(QEvent *p_Event)
 {
     quint16 StationColumn;
@@ -214,6 +270,16 @@ bool CDeviceXyz::Trans_Idle_MoveRack(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To let rack down to preset depth of the station when LetDownRacK()
+ *              is triggered
+ *
+ *  \iparam     p_Event unused
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_LetdownRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
@@ -232,6 +298,15 @@ bool CDeviceXyz::Trans_Idle_LetdownRack(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To pull rack up to preset height when LetDownRacK() is triggered
+ *
+ *  \iparam     p_Event unused
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_PullupRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
@@ -247,6 +322,15 @@ bool CDeviceXyz::Trans_Idle_PullupRack(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To attach rack
+ *
+ *  \iparam     p_Event unused
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
@@ -273,6 +357,15 @@ bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To Detach rack
+ *
+ *  \iparam     p_Event unused
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
@@ -299,6 +392,16 @@ bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To move to slide counter position and perform movement
+ *              for slide counting
+ *
+ *  \iparam     p_Event unused
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Idle_CountSlides(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
@@ -316,6 +419,17 @@ bool CDeviceXyz::Trans_Idle_CountSlides(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To move from active state (i.e. any movement state) to idle
+*               state if previous step was the last step of movement
+ *
+ *  \iparam     p_Event Refers to the arguements list sent by signal.
+ *              Arg 0 - Return Code
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CXyzTransition::GetEventValue(p_Event, 0);
@@ -327,8 +441,8 @@ bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
     // Delete previous step from way point list
     DeletePrevStep();
 
-    // If list is empty, then last movement is executed. Hence emit acknowledgement.
-	// or emit with return code on any unsuccessful movement
+    // If list is empty, then last movement has been executed. Hence emit acknowledgement.
+    // or emit with return code on any unsuccessful movement
     if(m_WayPoint.isEmpty() || (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode))
     {
         switch(m_CurrentState)
@@ -376,6 +490,16 @@ bool CDeviceXyz::Trans_Move_Idle(QEvent *p_Event)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To acknowledge & report aborted when movement abort is triggered
+ *
+ *  \iparam     p_Event Refers to the arguements list sent by signal.
+ *              Arg 0 - Return Code
+ *
+ *  \return     true, if successful, else false
+ */
+/****************************************************************************/
 bool CDeviceXyz::Trans_Abort_Idle(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode = CXyzTransition::GetEventValue(p_Event, 0);
@@ -387,6 +511,11 @@ bool CDeviceXyz::Trans_Abort_Idle(QEvent *p_Event)
     return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To fetch and trigger next movement if any
+ */
+/****************************************************************************/
 void CDeviceXyz::MoveNextStep()
 {
     CPoint *pTargetPoint;
@@ -401,6 +530,11 @@ void CDeviceXyz::MoveNextStep()
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To delete previous step
+ */
+/****************************************************************************/
 void CDeviceXyz::DeletePrevStep()
 {
     if(m_WayPoint.size())
@@ -411,6 +545,15 @@ void CDeviceXyz::DeletePrevStep()
 }
 
 // Getters & Setters
+/****************************************************************************/
+/*!
+ *  \brief      To set motion profile for movement without rack
+ *
+ *  \iparam     ProfileX X Axis motion profile
+ *  \iparam     ProfileY Y Axis motion profile
+ *  \iparam     ProfileZ Z Axis motion profile
+ */
+/****************************************************************************/
 void CDeviceXyz::SetMoveEmptyProfile(quint8 ProfileX, quint8 ProfileY, quint8 ProfileZ)
 {
     m_MoveEmptyProfile[X_AXIS] = ProfileX;
@@ -418,6 +561,15 @@ void CDeviceXyz::SetMoveEmptyProfile(quint8 ProfileX, quint8 ProfileY, quint8 Pr
     m_MoveEmptyProfile[Z_AXIS] = ProfileZ;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To set motion profile for movement with rack
+ *
+ *  \iparam     ProfileX X Axis motion profile
+ *  \iparam     ProfileY Y Axis motion profile
+ *  \iparam     ProfileZ Z Axis motion profile
+ */
+/****************************************************************************/
 void CDeviceXyz::SetTransposrtRackProfile(quint8 ProfileX, quint8 ProfileY, quint8 ProfileZ)
 {
     m_TransportRackProfile[X_AXIS] = ProfileX;
@@ -425,12 +577,63 @@ void CDeviceXyz::SetTransposrtRackProfile(quint8 ProfileX, quint8 ProfileY, quin
     m_TransportRackProfile[Z_AXIS] = ProfileZ;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief      To get current state
+ */
+/****************************************************************************/
 XyzState_t CDeviceXyz::GetCurrentstate()
 {
     return m_CurrentState;
 }
 
-// Helper Functions
+/****************************************************************************/
+/*!
+ *  \brief      To check if requested state (i.e. movement) is new or is is
+ *              resumed after stop
+ *
+ *  \iparam     NewState        Requested new state (movement)
+ *  \iparam     StationColumn   Target Station Column (Optional)
+ *  \iparam     StationRow      Target Station Row (Optional)
+ */
+/****************************************************************************/
+bool CDeviceXyz::IsNewState(XyzState_t NewState, quint16 StationColumn, quint16 StationRow)
+{
+    bool isNewState = true;
+
+    // if previous movement was not completed and new command is same as previous command,
+    // then continue executing from where it was aborted previously.
+    // if not, clear way point list and treat as new command
+
+    if (m_WayPoint.size())
+    {
+        // Check if previous state & parameters are same as new state
+        if ((m_PrevState == NewState) &&
+                (m_StationColumn == StationColumn) &&
+                (m_StationRow == StationRow))
+        {
+            isNewState = false;
+        }
+        else
+        {
+            m_WayPoint.clear();
+        }
+    }
+
+    m_PrevState = m_CurrentState = NewState;
+    m_StationColumn = StationColumn;
+    m_StationRow = StationRow;
+
+    return isNewState;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief      To statically fill position for each station. Temporary
+ *              arrangment for testing purpose only. Will be replaced with
+ *              adjusment data container
+ */
+/****************************************************************************/
 void CDeviceXyz::FillColumnRowPosition()
 {
     quint8 StationColumn;
@@ -556,36 +759,6 @@ void CDeviceXyz::FillColumnRowPosition()
 //                     << m_StaionPos[StationColumn][StationRow].PositionZ;
         }
     }
-}
-
-bool CDeviceXyz::IsNewState(XyzState_t NewState, quint16 StationColumn, quint16 StationRow)
-{
-    bool isNewState = true;
-
-    // if previous movement was not completed and new command is same as previous command,
-    // then continue executing from where it was aborted previously.
-    // if not, clear way point list and treat as new command
-
-    if (m_WayPoint.size())
-    {
-        // Check if previous state & parameters are same as new state
-        if ((m_PrevState == NewState) &&
-                (m_StationColumn == StationColumn) &&
-                (m_StationRow == StationRow))
-        {
-            isNewState = false;
-        }
-        else
-        {
-            m_WayPoint.clear();
-        }
-    }
-
-    m_PrevState = m_CurrentState = NewState;
-    m_StationColumn = StationColumn;
-    m_StationRow = StationRow;
-
-    return isNewState;
 }
 
 }

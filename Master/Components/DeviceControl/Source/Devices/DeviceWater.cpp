@@ -27,7 +27,7 @@ namespace DeviceControl
  *  \brief      Constructor of class CDeviceWater
  *
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
- *              resuqest & response signals
+ *              request & response signals
  *
  *  \iparam     ModuleList to invoke function module interface functions.
  *

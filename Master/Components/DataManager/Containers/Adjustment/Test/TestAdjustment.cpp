@@ -99,6 +99,7 @@ void TestAdjustment::utTestReadWrite()
 
     PositionXYZ Position_1;
 
+    // Add verifier before read
     p_AdjustmentSrc->AddVerifier(p_AdjustmentVerifier);
 
     if (p_AdjustmentSrc->Read("../../Resources/Adjustment.xml") == false)

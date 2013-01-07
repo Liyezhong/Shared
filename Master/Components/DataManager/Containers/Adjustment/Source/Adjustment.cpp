@@ -159,7 +159,7 @@ bool CAdjustment::SerializeContent(QIODevice &p_Device, bool CompleteData)
 
     XmlStreamWriter.writeStartElement("adjustment_data");
 
-//
+    // Serialize Left Xyz content
     Result = SerializeXyzContent(XmlStreamWriter, LEFT_XYZ);
 
     if (false == Result)
@@ -168,6 +168,7 @@ bool CAdjustment::SerializeContent(QIODevice &p_Device, bool CompleteData)
         return false;
     }
 
+    // Serialize Right Xyz content
     Result = SerializeXyzContent(XmlStreamWriter, RIGHT_XYZ);
 
     if (false == Result)
@@ -209,6 +210,7 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
     SetVersion(XmlStreamReader.attributes().value("version").toString().toInt());
 
     // Read rest of fields & attributes
+    // Deserialize Left Xyz content
     Result = DeserializeXyzContent(XmlStreamReader, LEFT_XYZ);
 
     if (false == Result)
@@ -217,6 +219,7 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
         return false;
     }
 
+    // Deserialize Right Xyz content
     Result = DeserializeXyzContent(XmlStreamReader, RIGHT_XYZ);
 
     if (false == Result)

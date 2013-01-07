@@ -40,7 +40,7 @@ typedef CSignalTransition<CDeviceRackTransfer> CRackTransition;
  *  \brief      Constructor of class CDeviceRackTransfer
  *
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
- *              resuqest & response signals
+ *              request & response signals
  *
  * \iparam      ModuleList to invoke function module interface functions.
  *

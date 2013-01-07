@@ -41,7 +41,7 @@ typedef CSignalTransition<CDeviceLight> CLightTransition;
  *  \brief      Constructor of class CDeviceLight
  *
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
- *              resuqest & response signals
+ *              request & response signals
  *
  *  \iparam     ModuleList to invoke function module interface functions.
  *

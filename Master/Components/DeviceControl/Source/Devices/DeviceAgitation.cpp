@@ -39,12 +39,12 @@ typedef CSignalTransition<CDeviceAgitation> CAgitationTransition;
  *  \brief      Constructor of class CDeviceAgitation
  *
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
- *              resuqest & response signals
+ *              request & response signals
  *
- *              DeviceModuleList of this device, to invoke
+ *  \iparam     DeviceModuleList of this device, to invoke
  *              function module interface functions.
  *
- *              InstanceID Device Instance ID.
+ *  \iparam     InstanceID Device Instance ID.
  */
 /****************************************************************************/
 CDeviceAgitation::CDeviceAgitation(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,

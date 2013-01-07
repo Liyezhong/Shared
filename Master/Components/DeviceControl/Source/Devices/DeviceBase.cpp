@@ -62,12 +62,12 @@ QStringList CDeviceBase::GetStates()
  *  \brief      Constructor of class CDeviceBase
  *
  *  \iparam     DeviceProc Reference of DeviceProcessing to connect required
- *              resuqest & response signals
+ *              request & response signals
  *
- *              FctModList Function module list of this device, to invoke
+ *  \iparam     FctModList Function module list of this device, to invoke
  *              function module interface functions.
  *
- *              InstanceID Device Instance ID
+ *  \iparam     InstanceID Device Instance ID
  */
 /****************************************************************************/
 CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
@@ -301,7 +301,7 @@ void CDeviceBase::OnMachineErrorEntered()
 /*!
  *  \brief   Returns the instance identifier of a module
  *
- *  \param   Key = Module key, as defined at the hardware specification file
+ *  \iparam  Key = Module key, as defined at the hardware specification file
  *
  *  \return  The instance ID of the module, or 0 if Key doesn't match
  */
@@ -358,7 +358,6 @@ void CDeviceBase::ThreadStarted()
 /****************************************************************************/
 /*!
  *  \brief   To exit thread when device shutdown event is triggered
- *
  */
 /****************************************************************************/
 void CDeviceBase::Shutdown()
@@ -369,6 +368,11 @@ void CDeviceBase::Shutdown()
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Destructor. Exit thread if its running
+ */
+/****************************************************************************/
 CDeviceBase::~CDeviceBase()
 {
     if (m_Thread.isRunning())
