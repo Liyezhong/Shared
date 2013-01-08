@@ -310,4 +310,22 @@ Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
     return Global::NO_BUTTON;
 }
 
+bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
+    if (DateToBeCompared.year() >= CurrentDate.year())
+    {
+        if (DateToBeCompared.month() >= CurrentDate.month())
+        {
+            if (DateToBeCompared.day() >= CurrentDate.day())
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+    else {
+        return false;
+    }
+}
 } // end namespace Global

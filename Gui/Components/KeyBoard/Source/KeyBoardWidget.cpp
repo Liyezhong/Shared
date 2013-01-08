@@ -689,7 +689,8 @@ void CKeyBoard::MoveCharacters(bool Checked) {
 /****************************************************************************/
 QString CKeyBoard::GetLineEditString()
 {
-    m_LineEditString = mp_LineEdit->text();
+    // Added simplified method to remove unnecessary spaces in the entered text.
+    m_LineEditString = mp_LineEdit->text().simplified();
     mp_LineEdit->clear();
     hide();
     KeyBoardReset();

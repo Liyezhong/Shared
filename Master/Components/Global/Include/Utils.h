@@ -326,6 +326,19 @@ TimeFormat StringToTimeFormat(const QString &TimeFormatString, bool CaseSensitiv
 
 /****************************************************************************/
 /**
+ * \brief Compares GivenDate with CurrentDate.
+ *
+ * If no match, \ref TIME_UNDEFINED is returned.
+ *
+ * \param[in]   CurrentDate = Current Date.
+ * \param[in]   DateToBeCompared = Date to be comapared.
+ * \return      Bool Type True(If DateToBeCompared is more than CurrentDate)
+ *              else False
+ */
+/****************************************************************************/
+bool CompareDate(QDate CurrentDate,QDate DateToBeCompared);
+/****************************************************************************/
+/**
  * \brief Convert from oven start mode enum to string.
  *
  * \param[in]   TheMode     The oven start mode to convert.
