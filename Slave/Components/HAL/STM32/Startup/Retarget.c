@@ -189,10 +189,15 @@ void _sys_exit (int ReturnCode) {
 
     UInt16  NodeType  = 0;
     UInt16  NodeIndex = 0;
+    //try to get node type and index
     bmBoardInfoBlock_t *BoardInfo =  bmGetBoardInfoBlock();
     if (NULL != BoardInfo) {
-        NodeType  = BoardInfo->NodeType;
-        NodeIndex = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_NODE_INDEX, 0);
+        Handle_t Handle;
+        NodeType = BoardInfo->NodeType;
+        // read-in dip switch to get node index
+        if ((Handle = halPortOpen (HAL_CAN_NODE_INDEX, HAL_OPEN_READ)) >= 0) {
+            halPortRead (Handle, &NodeIndex);
+        }
     }
 
     Message.CanID = EventID[(((ReturnCode) & ERRCODE_MASK_CLASS)  >> 28)];
