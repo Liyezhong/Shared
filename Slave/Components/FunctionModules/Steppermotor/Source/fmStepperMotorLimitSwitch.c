@@ -696,12 +696,8 @@ Error_t smSampleLimitSwitches(UInt16 Instance, Bool UseSampleRate)
         if (Value != Data->LimitSwitches.PosCode.Value) {   // if position code value have changed
             // emit stop signal if limit switch is configured to stop movement
             if (LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].Stop) {
-                // always stop if reference run is active
-                if (SM_STATE_REFRUN == Data->State) {
-                    Data->Motion.Stop = SM_SC_ALWAYS;
-                    bmSignalEvent(Data->Channel, E_SMOT_STOP_BY_POSCODE, TRUE, 0);
-                }
-                else {
+                // never stop if reference run is active
+                if (SM_STATE_REFRUN != Data->State) {
                     //  otherwise stop if motor is running in stop direction
                     if (SMOT_ROTDIR_CCW == LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].StopDir) {
                         Data->Motion.Stop = SM_SC_DIR_CCW;
