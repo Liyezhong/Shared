@@ -229,7 +229,7 @@ void CRackListVerifier::ValidateRackDateTime(CRack* p_Rack, bool& VerifiedData, 
         }
     }
     // compare the rack date time like colorado end time, Sepia end time and Station end time
-    CompareRackDataTime(p_Rack, CheckColoradoDateTime, VerifiedData, ErrorDescription);
+    //CompareRackDataTime(p_Rack, CheckColoradoDateTime, VerifiedData, ErrorDescription);
 
 }
 

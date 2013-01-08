@@ -124,7 +124,7 @@ Global::OnOffState XmlConfigFile::ReadAttributeOnOff(QXmlStreamReader &rReader, 
     Global::OnOffState Value = Global::StringToOnOffState(ValueStr, false);
     if(Value == Global::ONOFFSTATE_UNDEFINED) {
         // wrong value. throw exception
-        THROWARG(EVENT_DATAMANAGER_ERROR_NO_VALID_ONOFFSTATE, ValueStr);
+        THROWARG(EVENT_DM_INVALID_RMS_ONOFFSTATE, ValueStr);
     }
     return Value;
 }

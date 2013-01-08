@@ -42,6 +42,7 @@ enum ClickedButton_t {
 class CmdAcknEventReport : public Global::Acknowledge {
     friend QDataStream & operator << (QDataStream &, const CmdAcknEventReport &);
     friend QDataStream & operator >> (QDataStream &, CmdAcknEventReport &);
+
 private:
     /****************************************************************************/
 
@@ -122,7 +123,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdAcknEventReport 
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << (int)Cmd.m_ClickedButton << Cmd.m_EventKey;
+    Stream << static_cast<int>(Cmd.m_ClickedButton) << Cmd.m_EventKey;
     return Stream;
 }
 
@@ -139,8 +140,12 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdAcknEventReport &Cmd)
 {
     // copy base class data
     Cmd.CopyFromStream(Stream);
+    int ButtonType;
+    Stream >> ButtonType;
+    Cmd.m_ClickedButton = ClickedButton_t(ButtonType);
     // copy internal data
-    Stream >> (int &)Cmd.m_ClickedButton >> Cmd.m_EventKey;
+    Stream >> Cmd.m_EventKey;
+    //Stream >> (int &)Cmd.m_ClickedButton >> Cmd.m_EventKey;
     return Stream;
 }
 

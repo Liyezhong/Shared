@@ -249,7 +249,7 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     QString DateFormatStr = XmlStreamReader.attributes().value("DateFormat").toString();
     Global::DateFormat DF = Global::StringToDateFormat(DateFormatStr, false);
     if(DF == Global::DATE_UNDEFINED) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_DATEFORMAT, Global::tTranslatableStringList() << DF, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_DATEFORMAT, Global::tTranslatableStringList() << DF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_DATEFORMAT, DateFormatStr);
     }
@@ -264,7 +264,7 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     QString TimeFormatStr = XmlStreamReader.attributes().value("TimeFormat").toString();
     Global::TimeFormat TF = Global::StringToTimeFormat(TimeFormatStr, false);
     if(TF == Global::TIME_UNDEFINED) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_TIMEFORMAT, Global::tTranslatableStringList() << TF, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << TF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TIMEFORMAT, TimeFormatStr);
     }
@@ -279,7 +279,7 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     QString TempFormatStr = XmlStreamReader.attributes().value("TemperatureFormat").toString();
     Global::TemperatureFormat TempF = Global::StringToTemperatureFormat(TempFormatStr, false);
     if(TempF == Global::TEMP_FORMAT_UNDEFINED) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NO_VALID_TEMPFORMAT, Global::tTranslatableStringList() <<TempF, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<TempF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TEMPFORMAT, TempFormatStr);
     }

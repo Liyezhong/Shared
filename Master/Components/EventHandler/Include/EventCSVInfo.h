@@ -141,7 +141,7 @@ public:
      * \return      Event type.
      */
     /****************************************************************************/
-    inline const Global::EventType GetEventType() const {
+    inline Global::EventType GetEventType() const {
         return m_EventType;
     }
 

@@ -22,7 +22,7 @@
 #ifndef DATALOGGING_LOGGINGOBJECT_H
 #define DATALOGGING_LOGGINGOBJECT_H
 
-#include <DataLogging/Include/DayEventEntry.h>
+//#include <DataLogging/Include/DayEventEntry.h>
 #include <Global/Include/Exception.h>
 #include <Global/Include/FmtArgs.h>
 #include <Global/Include/RefManager.h>

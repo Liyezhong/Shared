@@ -21,6 +21,7 @@
 #ifndef DATALOGGING_DAYOPERATIONLOGGER_H
 #define DATALOGGING_DAYOPERATIONLOGGER_H
 
+#include <DataLogging/Include/DayEventEntry.h>
 #include <DataLogging/Include/BaseLoggerReusable.h>
 #include <DataLogging/Include/DayEventLoggerConfig.h>
 #include <Global/Include/EventObject.h>

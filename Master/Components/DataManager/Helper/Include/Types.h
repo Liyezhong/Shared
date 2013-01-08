@@ -64,7 +64,8 @@ typedef QHash<QString, StationsType_t> HashOfStationTypes_t;  // filled in CData
 typedef enum
 {
     AT_DEVICE_START,
-    AT_PROGRAM_START
+    AT_PROGRAM_START,
+    UNDEFINED
 } HeatingStartMode_t;
 const int NUMBER_OF_HEATING_START_MODES = 2;
 const QString NameOfHeatingStartModes[2] = {"AtDeviceStart", "AtProgramStart"};
