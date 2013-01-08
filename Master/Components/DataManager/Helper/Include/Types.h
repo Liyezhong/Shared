@@ -40,16 +40,6 @@ typedef enum
     UNDEFINED_REAGENT_TYPE
 } ReagentType_t;
 
-typedef enum
-{
-    GRAPPLERDEVICE,
-    AGITATIONDEVICE,
-    OVENDEVICE,
-    LOADERDEVICE,
-    RACKTRANSFERDEVICE,
-    UNDEFINED
-} DeviceType_t;
-
 // Types of stations
 typedef enum
 {
