@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file Adjustment.h
+/*! \file   Adjustment.h
  *
- *  \brief Definition file for class CAdjustment
+ *  \brief  Definition file for class CAdjustment
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-12-21
@@ -17,35 +17,18 @@
  *
  */
 /****************************************************************************/
-
 #include <QStringList>
 #include <QXmlStreamWriter>
 #include "DataManager/Helper/Include/Types.h"
 #include "DataManager/Helper/Include/Helper.h"
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "PositionXyz.h"
 
 #ifndef DATAMANAGER_ADJUSTMENT_H
 #define DATAMANAGER_ADJUSTMENT_H
 
 namespace DataManager
 {
-
-class PositionXYZ
-{
-public:
-    void Clear()
-    {
-        PositionX = 0;
-        PositionY = 0;
-        PositionZ = 0;
-    }
-
-    quint32 PositionX;
-    quint32 PositionY;
-    quint32 PositionZ;
-
-    bool Active;
-};
 
 typedef enum {
     LEFT_XYZ = 0, RIGHT_XYZ
@@ -61,6 +44,11 @@ typedef enum {
     XYZ_MAX_COLS
 } XyzCol_t;
 
+/****************************************************************************/
+/*!
+ *  \brief  This class implements container for Adjustment data
+ */
+/****************************************************************************/
 class CAdjustment : public CDataContainerBase
 {
 public:
@@ -113,9 +101,9 @@ public:
     /****************************************************************************/
     QString GetFilename () {return m_Filename;}
 
-    bool GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, PositionXYZ &Position);
+    bool GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz &Position);
 
-    bool SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, PositionXYZ Position);
+    bool SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz Position);
 
 private:
     bool SerializeContent(QIODevice& p_Device, bool CompleteData);
@@ -153,8 +141,8 @@ private:
     QReadWriteLock m_ReadWriteLock;     //!< File read write protection
 
     //
-    PositionXYZ m_StaionPosLeft[XYZ_MAX_COLS][XYZ_MAX_ROWS];
-    PositionXYZ m_StaionPosRight[XYZ_MAX_COLS][XYZ_MAX_ROWS];
+    CPositionXyz m_StaionPosLeft[XYZ_MAX_COLS][XYZ_MAX_ROWS];
+    CPositionXyz m_StaionPosRight[XYZ_MAX_COLS][XYZ_MAX_ROWS];
 };
 
 }

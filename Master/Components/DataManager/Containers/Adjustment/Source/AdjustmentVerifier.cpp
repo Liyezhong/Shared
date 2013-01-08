@@ -53,7 +53,7 @@ bool CAdjustmentVerifier::VerifyData(CDataContainerBase *p_Adjustment)
     {
         quint8 Row;
         quint8 Column;
-        PositionXYZ Position;
+        CPositionXyz Position;
 
         for (Row = 0; Row < XYZ_MAX_ROWS; Row++)
         {

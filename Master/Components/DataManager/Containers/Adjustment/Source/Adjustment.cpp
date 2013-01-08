@@ -233,9 +233,11 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
     return Result;
 }
 
-bool CAdjustment::GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, PositionXYZ &Position)
+bool CAdjustment::GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz &Position)
 {
     bool Result = true;
+
+    QReadLocker locker(&m_ReadWriteLock);
 
     // Check boundary conditions
     if ((Row > XYZ_MAX_ROWS) || (Column > XYZ_MAX_COLS))
@@ -261,9 +263,11 @@ bool CAdjustment::GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, PositionX
     return Result;
 }
 
-bool CAdjustment::SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, PositionXYZ Position)
+bool CAdjustment::SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz Position)
 {
     bool Result = true;
+
+    QWriteLocker locker(&m_ReadWriteLock);
 
     // Check boundary conditions
     if ((Row > XYZ_MAX_ROWS) || (Column > XYZ_MAX_COLS))
@@ -293,7 +297,7 @@ bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, Xyz_t X
 {
     quint8 RowIndex;
     quint8 ColumnIndex;
-    PositionXYZ Position;
+    CPositionXyz Position;
     QString StringValue;
 
     if (LEFT_XYZ == Xyz)
@@ -349,7 +353,7 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, Xyz_t
 
     quint8 RowIndex;
     quint8 ColumnIndex;
-    PositionXYZ Position;
+    CPositionXyz Position;
 
     if (LEFT_XYZ == Xyz)
     {
@@ -461,6 +465,8 @@ void CAdjustment::Init()
 {
     quint8 Row;
     quint8 Column;
+
+    QWriteLocker locker(&m_ReadWriteLock);
 
     for (Row = 0; Row < XYZ_MAX_ROWS; Row++)
     {
