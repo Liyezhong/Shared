@@ -26,6 +26,7 @@
 #include <QHash>
 #include "Global/Include/TranslatableString.h"
 typedef QList<QString> ListOfIDs_t;
+typedef QList<QString> ListOfKeys_t;
 typedef QHash<QString, int> ListOfForecastValues_t;
 typedef QHash<quint32, Global::tTranslatableStringList> ErrorHash_t; //!< Self Explaining.
 //!< List of hash tables with Error IDs
@@ -38,6 +39,16 @@ typedef enum
     USER_REAGENT,
     UNDEFINED_REAGENT_TYPE
 } ReagentType_t;
+
+typedef enum
+{
+    GRAPPLERDEVICE,
+    AGITATIONDEVICE,
+    OVENDEVICE,
+    LOADERDEVICE,
+    RACKTRANSFERDEVICE,
+    UNDEFINED
+} DeviceType_t;
 
 // Types of stations
 typedef enum
@@ -86,6 +97,7 @@ typedef enum
     DEVICECONFIGURATION,
     SWVERSION,
     ADJUSTMENT,
+    PARAMETER,
     INVALID_CONTAINER_TYPE
 } DataContainerType_t;
 
