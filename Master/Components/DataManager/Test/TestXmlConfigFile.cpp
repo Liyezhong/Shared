@@ -410,7 +410,7 @@ void TestXmlConfigFile::utTestReadAttributeOnOff() {
         QCOMPARE(Obj.ReadAttributeOnOff(Reader, "onoffattrib2"), Global::ONOFFSTATE_OFF);
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_NO_VALID_ONOFFSTATE);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_INVALID_RMS_ONOFFSTATE);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
