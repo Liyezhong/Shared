@@ -588,6 +588,11 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
             Data->Flags = bmGetMessageItem(Message, 0, 1);
             Data->DeviceSelect = (Data->Flags & 0x3C) >> 2;
 
+            // Set the antenna selection pins
+            if((Error = rfid11785SetDeviceSel(Data->HandleDevSelOut, Data->DeviceSelect, Data->AntennaNumber)) < 0) {
+                return (Error);
+            }
+
             // Activate or deactivate the shutdown signal to the RFID frontend IC
             if((Data->Flags & MODE_MODULE_ENABLE) != 0) {           
                 if((Error = halPortWrite(Data->HandleShdOut, 0)) < 0) {
@@ -598,11 +603,6 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
                 if((Error = halPortWrite(Data->HandleShdOut, 1)) < 0) {
                     return (Error);
                 }
-            }
-
-            // Set the antenna selection pins
-            if((Error = rfid11785SetDeviceSel(Data->HandleDevSelOut, Data->DeviceSelect, Data->AntennaNumber)) < 0) {
-                return (Error);
             }
 
             switch ((Data->Flags & 0xC0) >> 6) {
