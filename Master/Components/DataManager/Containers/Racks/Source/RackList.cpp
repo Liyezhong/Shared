@@ -510,7 +510,7 @@ bool CRackList::AddRack(const CRack* p_Rack)
     }
 
     // get the RF ID
-    quint32 RFID = const_cast<CRack*>(p_Rack)->GetRFIDUniqueID();
+    quint32 RFID = p_Rack->GetRFIDUniqueID();
     // check whether Hash table consists of RF ID or not
     if (m_RackList.contains(RFID)) {
         // there is already a rack with the given RackRFID
@@ -519,50 +519,43 @@ bool CRackList::AddRack(const CRack* p_Rack)
         return false;
     }
 
-    // Create clone and add it in temporary variable. Otherwise the
-    // local copy will be deleted, who is calling the function
-    CRack *p_TempRack = new CRack();
-    *p_TempRack = *p_Rack;
-
     // store the result flag
     bool Result = true;
     // check the verification flags
     if (m_DataVerificationMode) {
         ErrorHash_t ErrorHash;
         // create the temporary CDataRackList class object
-        CRackList* p_DRL_Verification = new CRackList();
+        CRackList DRL_Verification;
         // first lock current state for reading
         {   // code block defined for QReadLocker.
             QReadLocker locker(mp_ReadWriteLock);
 
             // create clone from current state
-            *p_DRL_Verification = *this;
+            DRL_Verification = *this;
 
             // disable verification in clone
-            p_DRL_Verification->SetDataVerificationMode(false);
+            DRL_Verification.SetDataVerificationMode(false);
 
             // execute required action (AddRack) in clone
-            Result = p_DRL_Verification->AddRack(p_TempRack);
+            Result = DRL_Verification.AddRack(p_Rack);
 
             if (Result) {
                 // now check new content => call all active verifiers
-                Result = DoLocalVerification(p_DRL_Verification);
+                Result = DoLocalVerification(&DRL_Verification);
             }
         }
 
         if (Result) {
             // if content ok, clone backwards
-            *this = *p_DRL_Verification;
+            *this = DRL_Verification;
             Result = true;
         }
-
-        delete p_TempRack;
-        // delete test clone
-        delete p_DRL_Verification;
-
     }
     else {
         QWriteLocker locker(mp_ReadWriteLock);
+        // Create Rack Object
+        CRack *p_TempRack = new CRack();
+        *p_TempRack = *p_Rack;
         // add the object into the hash table
         m_RackList.insert(RFID, p_TempRack);
         // add rack RF ID to the list
@@ -570,9 +563,6 @@ bool CRackList::AddRack(const CRack* p_Rack)
 
         Result = true;
     }
-
-    //delete p_TempRack;
-    //delete p_Rack;
 
     return Result;
 }
@@ -604,41 +594,41 @@ bool CRackList::UpdateRack(const CRack* p_Rack)
     if (m_DataVerificationMode) {
         ErrorHash_t ErrorHash;
         // create the temporary CDataRackList class object
-        CRackList* p_DRL_Verification = new CRackList();
+        CRackList DRL_Verification;
 
         // Create clone and add it in temporary variable. Otherwise the
         // local copy will be deleted, who is calling the function
-        CRack* p_TempRack = new CRack(RFID, const_cast<CRack*>(p_Rack)->GetRFIDUserData());
-        *p_TempRack = *p_Rack;
+        //CRack* p_TempRack = new CRack(RFID, const_cast<CRack*>(p_Rack)->GetRFIDUserData());
+        //*p_TempRack = *p_Rack;
 
         // first lock current state for reading
         {   // code block defined for QReadLocker.
             QReadLocker locker(mp_ReadWriteLock);
 
             // create clone from current state
-            *p_DRL_Verification = *this;
+            DRL_Verification = *this;
 
             // disable verification in clone
-            p_DRL_Verification->SetDataVerificationMode(false);
+            DRL_Verification.SetDataVerificationMode(false);
 
             // execute required action (UpdateRack) in clone
-            Result = p_DRL_Verification->UpdateRack(p_Rack);
+            Result = DRL_Verification.UpdateRack(p_Rack);
 
             if (Result) {                
                 // now check new content => call all active verifiers
-                Result = DoLocalVerification(p_DRL_Verification);
+                Result = DoLocalVerification(&DRL_Verification);
             }
         }
         if (Result) {
             // if content ok, clone backwards
-            *this = *p_DRL_Verification;
+            *this = DRL_Verification;
             Result = true;
         }
 
         // delete the temporary rack object
-        delete p_TempRack;
+        //delete p_TempRack;
         // delete test clone
-        delete p_DRL_Verification;
+        //delete p_DRL_Verification;
 
     }
     else {

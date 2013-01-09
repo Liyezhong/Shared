@@ -4,10 +4,7 @@
 
 TARGET = NetCommands
 
-HEADERS +=  ../Include/*.h \
-    ../Include/CmdRequestSepiaRack.h \
-    ../Include/CmdRequestSepiaParameterSet.h
-SOURCES +=  ../Source/*.cpp \
-    ../Source/CmdRequestSepiaRack.cpp \
-    ../Source/CmdRequestSepiaParameterSet.cpp
+HEADERS +=  ../Include/*.h
+SOURCES +=  ../Source/*.cpp
+
 

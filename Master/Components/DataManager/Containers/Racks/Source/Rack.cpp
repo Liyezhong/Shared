@@ -142,7 +142,7 @@ void CRack::SetRFIDUserData(const quint32 RFIDUserData)
  *  \return Successful (true) or not (false)
  */
 /****************************************************************************/
-bool CRack::IsRack5()
+bool CRack::IsRack5() const
 {    
     // Move the bits to right upto 8 times them Mask the data with 0xFF
     // this gives the size of the rack
@@ -455,19 +455,17 @@ CRack& CRack::operator=(const CRack& SourceRack)
     if (this != &SourceRack)
     {
         // create the byte array
-        QByteArray* p_TempByteArray = new QByteArray();
+        QByteArray TempByteArray;
         // create the data stream to write into a file
-        QDataStream DataStream(p_TempByteArray, QIODevice::ReadWrite);
+        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
         (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        p_TempByteArray->clear();
+        TempByteArray.clear();
         // write the data into data stream from source
         DataStream << SourceRack;
         // reset the IO device pointer to starting position
         (void)DataStream.device()->reset(); //to avoid lint-534
         // read the data from data stream to destination object
         DataStream >> *this;
-
-        delete p_TempByteArray;       
     }
     return *this;
 }

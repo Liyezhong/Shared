@@ -61,7 +61,7 @@ private:
     ErrorHash_t m_ErrorsHash;          //!< To store Error ID and any arguments associated
 
     bool CompareDateTime(QDateTime Source, QDateTime Destination);
-    void ValidateRackDateTime(CRack* p_Rack, bool& VerifiedData, QString& ErrorDescription);
+    void ValidateRackDateTime(const CRack *p_Rack, bool& VerifiedData, QString& ErrorDescription);
     void CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDateTime, bool& VerifiedData, QString& ErrorDescription);
 };
 

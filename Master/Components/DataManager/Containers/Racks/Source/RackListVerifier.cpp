@@ -69,9 +69,9 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
     //int NoOfRacks = static_cast<int>(mp_DRL->GetNumberOfRacks()); ///< To store the number of racks
 
     for (int RackCounter = 0; RackCounter < mp_DRL->GetNumberOfRacks(); RackCounter++) {
-        CRack *p_Rack = new CRack(0, 0); // Get the rack from the rack list
+        const CRack *p_Rack = mp_DRL->GetRack(RackCounter); // Get the rack from the rack list
         // get the rack from the rack list
-        if (mp_DRL->GetRack(RackCounter, p_Rack)) {
+        if (p_Rack) {
             // check for the RF ID length
             if (QString::number(p_Rack->GetRFIDUniqueID()).length() > RFID_LENGTH) {
                 ErrorDescription += "RF ID is too big (max 9999999999 allowed): "
@@ -138,10 +138,9 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
                 VerifiedData = false;
             }
         }
-        delete p_Rack;
     }
 
-    qDebug() << "Error Description" << ErrorDescription;
+    //qDebug() << "Error Description" << ErrorDescription;
 
     if (!VerifiedData) {
         // store error string with verification code
@@ -164,7 +163,7 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
  *
  */
 /****************************************************************************/
-void CRackListVerifier::ValidateRackDateTime(CRack* p_Rack, bool& VerifiedData, QString& ErrorDescription)
+void CRackListVerifier::ValidateRackDateTime(const CRack* p_Rack, bool& VerifiedData, QString& ErrorDescription)
 {
     bool CheckColoradoDateTime = true; ///< check whether colorado exists or not to validate date time
 

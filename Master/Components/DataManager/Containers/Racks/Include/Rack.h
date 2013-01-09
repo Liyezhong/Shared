@@ -73,7 +73,7 @@ public:
      *  \return integer
      */
     /****************************************************************************/
-    quint32 GetRFIDUniqueID() { return m_RFIDUniqueID; }
+    quint32 GetRFIDUniqueID() const { return m_RFIDUniqueID; }
 
     /****************************************************************************/
     /*!
@@ -82,7 +82,7 @@ public:
      *  \return integer
      */
     /****************************************************************************/
-    quint32 GetRFIDUserData() { return m_RFIDUserData; }
+    quint32 GetRFIDUserData() const { return m_RFIDUserData; }
 
     /****************************************************************************/
     /*!
@@ -91,7 +91,7 @@ public:
      *  \return string
      */
     /****************************************************************************/
-    QString GetProgramID() { return m_ProgramID; }
+    QString GetProgramID() const { return m_ProgramID; }
 
     /****************************************************************************/
     /*!
@@ -109,7 +109,7 @@ public:
      *  \return bool
      */
     /****************************************************************************/
-    bool GetTransported() { return m_Transported; }
+    bool GetTransported() const { return m_Transported; }
 
     /****************************************************************************/
     /*!
@@ -127,7 +127,7 @@ public:
      *  \return bool
      */
     /****************************************************************************/
-    bool GetSepiaStation() { return m_SepiaStation; }
+    bool GetSepiaStation() const { return m_SepiaStation; }
 
     /****************************************************************************/
     /*!
@@ -145,7 +145,7 @@ public:
      *  \return bool
      */
     /****************************************************************************/
-    bool GetUseSepia() { return m_UseSepia; }
+    bool GetUseSepia() const { return m_UseSepia; }
 
     /****************************************************************************/
     /*!
@@ -163,7 +163,7 @@ public:
      *  \return Datetime
      */
     /****************************************************************************/
-    QDateTime GetStartTime() { return m_StartTime; }
+    QDateTime GetStartTime() const { return m_StartTime; }
 
     /****************************************************************************/
     /*!
@@ -181,7 +181,7 @@ public:
      *  \return DateTime
      */
     /****************************************************************************/
-    QDateTime GetEndTimeColorado() { return m_EndTimeColorado; }
+    QDateTime GetEndTimeColorado() const { return m_EndTimeColorado; }
 
     /****************************************************************************/
     /*!
@@ -199,7 +199,7 @@ public:
      *  \return string
      */
     /****************************************************************************/
-    QString GetStationID() { return m_StationID; }
+    QString GetStationID() const { return m_StationID; }
 
     /****************************************************************************/
     /*!
@@ -217,7 +217,7 @@ public:
      *  \return unsigned integer
      */
     /****************************************************************************/
-    quint16 GetProgramStepIndex() { return m_ProgramStepIndex; }
+    quint16 GetProgramStepIndex() const { return m_ProgramStepIndex; }
 
     /****************************************************************************/
     /*!
@@ -235,7 +235,7 @@ public:
      *  \return Datetime
      */
     /****************************************************************************/
-    QDateTime GetEndTimeStation() { return m_EndTimeStation; }
+    QDateTime GetEndTimeStation() const { return m_EndTimeStation; }
 
     /****************************************************************************/
     /*!
@@ -253,7 +253,7 @@ public:
      *  \return string
      */
     /****************************************************************************/
-    QString GetColor() { return m_Color; }
+    QString GetColor() const { return m_Color; }
 
     /****************************************************************************/
     /*!
@@ -262,7 +262,7 @@ public:
      *  \return Datetime
      */
     /****************************************************************************/
-    QDateTime GetEndTimeSepia() { return m_EndTimeSepia; }
+    QDateTime GetEndTimeSepia() const { return m_EndTimeSepia; }
 
     /****************************************************************************/
     /*!
@@ -280,7 +280,7 @@ public:
      *  \return Successful (true) or not (false)
      */
     /****************************************************************************/
-    bool GetOrientation() { return m_Orientation; }
+    bool GetOrientation() const { return m_Orientation; }
 
     /****************************************************************************/
     /*!
@@ -298,7 +298,7 @@ public:
      *  \return ActualSlides
      */
     /****************************************************************************/
-    quint32 GetActualSlides() { return m_ActualSlides;}
+    quint32 GetActualSlides() const { return m_ActualSlides;}
 
     /****************************************************************************/
     /*!
@@ -316,10 +316,10 @@ public:
      *  \return forecast value
      */
     /****************************************************************************/
-    quint32 GetActualSlideForecast() { return m_ActualSlideForecastValue;}
+    quint32 GetActualSlideForecast() const { return m_ActualSlideForecastValue;}
 
 
-    bool IsRack5();
+    bool IsRack5() const;
 
 
 private:
