@@ -34,6 +34,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QDebug>
+#include <MainMenu/Include/MsgBoxManager.h>
 
 //namespace StatusBar {
 //    class CErrorMsgDlg;
@@ -47,17 +48,15 @@ class StatusBarManager : public QWidget {
 private:
     static StatusBarManager *mp_StatusBarMgrInstance; //!< Static instance
     StatusBarManager(const StatusBarManager &);   ///< Not implemented.
-    struct EventMsgStruct{
-        Global::EventType EventType; //!< EventType
-        QString Time; //!< Time at which event occured
-        quint64 ID; //!< Event ID
-        QString EventString;  //!< Event String
-    };
-    QHash <quint64, EventMsgStruct> m_ErrorIDMsgHash; //!< Hash for Error Messages
-    QHash <quint64, EventMsgStruct> m_WarningIDMsgHash; //!< Hash for Warning Messages
     CErrorMsgDlg *mp_ErrorMsgDlg; //!< Error Dialog instance
     CWarningMsgDlg *mp_WarningMsgDlg;//!< Warning Dialog Instance
     MainMenu::CMainWindow *mp_MainWindow;           //!< Main window of the GUI
+    DataManager::CUserSettingsInterface *mp_UsrSettingsInterface; //!< UserSettings interface pointer
+    //MainMenu::MsgData EventMsgStruct; //!< Event Message Structure
+    //QHash <quint64, MsgData> m_ErrorIDMsgHash; //!< Hash for Error Messages
+    //QHash <quint64, MsgData> m_WarningIDMsgHash; //!< Hash for Warning Messages
+    QList <MsgData> m_ErrorMsgList; //!< List for Error Messages Struct
+    QList <MsgData> m_WarningMsgList; //!< List for Warning Messages Struct
     /****************************************************************************/
     /**
      * \brief Constructor.
@@ -65,22 +64,6 @@ private:
     /****************************************************************************/
     StatusBarManager();
 
-    /****************************************************************************/
-    /**
-     * \brief Retriving the Event ID and Error Message from Error Message Hash
-     * \iparam  ErrorIdMsgHash = Hash with Error Id and Error Msg data
-     *
-     */
-    /****************************************************************************/
-    void ErrorMsgList(QHash <quint64, EventMsgStruct> ErrorIdMsgHash);
-    /****************************************************************************/
-    /**
-     * \brief Retriving the Event ID and Warning Message from Warning Message Hash
-     * \iparam  WarningIdMsgHash = Hash with Warning Id and Error Msg data
-     *
-     */
-    /****************************************************************************/
-    void WarningMsgList(QHash <quint64, EventMsgStruct> WarningIdMsgHash);//!< List object for Error Messages
 
 public:
 
@@ -97,7 +80,7 @@ public:
      * \brief Argumented constructor.
      */
     /****************************************************************************/
-    StatusBarManager(MainMenu::CMainWindow *p_Window);
+    StatusBarManager(MainMenu::CMainWindow *p_Window,DataManager::CUserSettingsInterface *p_UsrSettingsInterface);
 
     /****************************************************************************/
     /**
@@ -134,10 +117,10 @@ public:
      * \return      pointer to StatusBarManager instance.
      */
     /****************************************************************************/
-    static StatusBarManager *CreateInstance(MainMenu::CMainWindow *p_MainWindow) {
+    static StatusBarManager *CreateInstance(MainMenu::CMainWindow *p_MainWindow,DataManager::CUserSettingsInterface *p_UserSettingsInterface) {
 
         if (!mp_StatusBarMgrInstance) {
-            mp_StatusBarMgrInstance = new StatusBarManager(p_MainWindow);
+            mp_StatusBarMgrInstance = new StatusBarManager(p_MainWindow,p_UserSettingsInterface);
             return mp_StatusBarMgrInstance;
         }
         else

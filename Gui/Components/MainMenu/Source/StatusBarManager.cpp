@@ -47,10 +47,10 @@ StatusBarManager::StatusBarManager() :QWidget(NULL)
  * \brief Argumented constructor.
  */
 /****************************************************************************/
-StatusBarManager::StatusBarManager(MainMenu::CMainWindow *p_MainWindow):mp_MainWindow(p_MainWindow)
+StatusBarManager::StatusBarManager(MainMenu::CMainWindow *p_MainWindow,DataManager::CUserSettingsInterface *p_UsrSettingsInterface):mp_MainWindow(p_MainWindow),mp_UsrSettingsInterface(p_UsrSettingsInterface)
 {
-    mp_ErrorMsgDlg = new MainMenu::CErrorMsgDlg(this, mp_MainWindow);
-    mp_WarningMsgDlg = new MainMenu::CWarningMsgDlg(this,mp_MainWindow);
+    mp_ErrorMsgDlg = new MainMenu::CErrorMsgDlg(this, mp_MainWindow,mp_UsrSettingsInterface);
+    mp_WarningMsgDlg = new MainMenu::CWarningMsgDlg(this,mp_MainWindow,mp_UsrSettingsInterface);
     CONNECTSIGNALSIGNAL(mp_MainWindow,ShowErrorMsgDlg(),this,ShowErrorPopup());
     CONNECTSIGNALSIGNAL(mp_MainWindow,ShowWarningMsgDlg(),this,ShowWarningPopup());
     CONNECTSIGNALSLOT(this,ShowErrorPopup(),mp_ErrorMsgDlg,PopUp());
@@ -67,29 +67,37 @@ StatusBarManager::StatusBarManager(MainMenu::CMainWindow *p_MainWindow):mp_MainW
 void StatusBarManager::AddEventMessages(QDataStream &EventMsgStream)
 {
     quint32 EventType;
-    EventMsgStruct Msg;
-    EventMsgStream >> Msg.ID >> EventType >> Msg.EventString >> Msg.Time;
-    //EventMsgStream >> EventStatus >> EventType >> EventId;
-    //EventMsgStream >> Msg.EventString >> Msg.Time >> ButtonType >> StatusBarIcon;
+    MsgData Msg;
+    EventMsgStream >> Msg.ID >> EventType >> Msg.MsgString >> Msg.Time;
     Msg.EventType = static_cast<Global::EventType>(EventType);
     if (Msg.EventType == Global::EVTTYPE_WARNING) {
-        m_WarningIDMsgHash.insert(Msg.ID,Msg);
-        //Updating the Event Message data into a list
-        WarningMsgList(m_WarningIDMsgHash);
-        qDebug() << "warning ID hash"<<m_WarningIDMsgHash.count();
-        if (m_WarningIDMsgHash.count() > 0) {
+        m_WarningMsgList.append(Msg);
+        qDebug() << "warning ID hash"<<m_WarningMsgList.count();
+        if (m_WarningMsgList.count() > 0) {
+            //Displaying the message icon when the list count is morethan 0
             (void)mp_MainWindow->SetStatusIcons(MainMenu::CMainWindow::Warning);
         }
+        //We have to display only 10 latest entries so restricting the count to 10
+        if (m_WarningMsgList.count() >10) {
+            m_WarningMsgList.removeAt(0);
+        }
+        //Updating the Event Message data into a list
+        mp_WarningMsgDlg->WarningMsgList(m_WarningMsgList);
         qDebug() << "Added in Warning hash" ;
     }
     else if(Msg.EventType == Global::EVTTYPE_ERROR) {
-        m_ErrorIDMsgHash.insert(Msg.ID,Msg);
-        qDebug() << "Error ID hash"<<m_ErrorIDMsgHash.count();
-        if (m_ErrorIDMsgHash.count() > 0) {
+        m_ErrorMsgList.append(Msg);
+        qDebug() << "Error ID hash"<<m_ErrorMsgList.count();
+        if (m_ErrorMsgList.count() > 0) {
+            //Displaying the message icon when the list count is morethan 0
             (void)mp_MainWindow->SetStatusIcons(MainMenu::CMainWindow::Error);
         }
+        //We have to display only 10 latest entries so restricting the count to 10
+        if (m_ErrorMsgList.count() >10) {
+            m_ErrorMsgList.removeAt(0);
+        }
         //Updating the Event Message data into a list
-        ErrorMsgList(m_ErrorIDMsgHash);
+        mp_ErrorMsgDlg->ErrorMsgList(m_ErrorMsgList);
         qDebug() << "Added in Error hash" ;
     }
     qDebug() << "Event ID in message box is" << Msg.ID;
@@ -104,80 +112,55 @@ void StatusBarManager::AddEventMessages(QDataStream &EventMsgStream)
 /****************************************************************************/
 void StatusBarManager::RemoveEventMessages(Global::EventType EventType, quint64 EventID)
 {
-    if (m_WarningIDMsgHash.contains(EventID) || m_ErrorIDMsgHash.contains(EventID)) {
-        if (EventType == Global::EVTTYPE_WARNING) {
-            m_WarningIDMsgHash.remove(EventID);
-            //Updating the Event Message data into a list
-            WarningMsgList(m_WarningIDMsgHash);
-            if(m_WarningIDMsgHash.count() <= 0)
-            {
-                /// \todo: Unsetting the icon is not completed
-                (void)mp_MainWindow->UnsetStatusIcons(MainMenu::CMainWindow::Warning);
+
+    QList<MsgData>::Iterator ErrMsgIterator;
+    QList<MsgData>::Iterator WarnMsgIterator;
+    //Check for the Error type Message
+    if (EventType == Global::EVTTYPE_ERROR) {
+        int MsgCount=0;
+        //Iterate Through the List
+        for (ErrMsgIterator = m_ErrorMsgList.begin(); ErrMsgIterator!= m_ErrorMsgList.end();++ErrMsgIterator)
+        {
+            MsgData EventData = *ErrMsgIterator;
+            if (EventData.ID == EventID) {
+                //Remove the Element from the list which contain the EventID to be removed
+                m_ErrorMsgList.removeAt(MsgCount);
+                break;
             }
+            MsgCount++;
         }
-        else if(EventType == Global::EVTTYPE_ERROR) {
-            m_ErrorIDMsgHash.remove(EventID);
-            //Updating the Event Message data into a list
-            ErrorMsgList(m_ErrorIDMsgHash);
-            if(m_ErrorIDMsgHash.count()<= 0)
-            {
-                /// \todo: Unsetting the icon is not completed
-                (void)mp_MainWindow->UnsetStatusIcons(MainMenu::CMainWindow::Error);
+        //Set the Error messages List to the  Error messages dialog
+        mp_ErrorMsgDlg->ErrorMsgList(m_ErrorMsgList);
+        if (m_ErrorMsgList.count() <= 0) {
+            //Unsetting the Icon if the Error messages list count is 0
+            (void)mp_MainWindow->UnsetStatusIcons(MainMenu::CMainWindow::Error);
+        }
+    }
+    //Check for the Warning type Message
+    else if (EventType == Global::EVTTYPE_WARNING) {
+        int MsgCount=0;
+        //Iterate Through the List
+        for (WarnMsgIterator = m_WarningMsgList.begin(); WarnMsgIterator!= m_WarningMsgList.end();++WarnMsgIterator)
+        {
+            MsgData EventData = *WarnMsgIterator;
+            if (EventData.ID == EventID) {
+                //Remove the Element from the list which contain the EventID to be removed
+                m_WarningMsgList.removeAt(MsgCount);
+                break;
             }
+            MsgCount++;
         }
-        qDebug() << "Event MEssages removal" << EventID;
+        //Set the Error messages List to the  Error messages dialog
+        mp_WarningMsgDlg->WarningMsgList(m_WarningMsgList);
+        if (m_WarningMsgList.count() <= 0) {
+            //Unsetting the Icon if the Warningmessages list count is 0
+            (void)mp_MainWindow->UnsetStatusIcons(MainMenu::CMainWindow::Warning);
+        }
     }
-    else {
-        qDebug() << "Event ID is not present in the Event message Hash" ;
+    else
+    {
+        qDebug() << "Event ID is not present in the Event message List" ;
     }
-}
-/****************************************************************************/
-/**
- * \brief Retriving the Event ID and Error Message from Error Message Hash
- * \iparam  ErrorIdMsgHash = Hash with Error Id and Error Msg data
- *
- */
-/****************************************************************************/
-void StatusBarManager::ErrorMsgList(QHash <quint64, EventMsgStruct> ErrorIdMsgHash)
-{
-    QHash<quint64, EventMsgStruct>::const_iterator ErrorList = ErrorIdMsgHash.constBegin();
-    EventMsgStruct EventMsg;
-    QStringList ErrMsgList;
-    QStringList EventIDList;
-    QStringList TimeList;
-    for (ErrorList = ErrorIdMsgHash.constBegin(); ErrorList != ErrorIdMsgHash.constEnd(); ++ErrorList) {
-        EventMsg = ErrorList.value();
-        quint32 ID =  (EventMsg.ID & 0xffffffff00000000) >> 32;
-        EventIDList.append(QString::number(ID));
-        ErrMsgList.append(EventMsg.EventString);
-        TimeList.append(EventMsg.Time);
-    }
-    //Setting the EventID,Event messages list to the Model
-    mp_ErrorMsgDlg->SetErrorMsgList(EventIDList,ErrMsgList,TimeList);
-}
-/****************************************************************************/
-/**
- * \brief Retriving the Event ID and Warning Message from Warning Message Hash
- * \iparam  WarningIdMsgHash = Hash with Warning Id and Error Msg data
- *
- */
-/****************************************************************************/
-void StatusBarManager::WarningMsgList(QHash <quint64, EventMsgStruct> WarningIdMsgHash)
-{
-    QHash<quint64, EventMsgStruct>::const_iterator WarningList = WarningIdMsgHash.constBegin();
-    EventMsgStruct EventMsg;
-    QStringList WarnMsgList;
-    QStringList EventIDList;
-    QStringList TimeList;
-    for (WarningList = WarningIdMsgHash.constBegin(); WarningList != WarningIdMsgHash.constEnd(); ++WarningList) {
-        EventMsg = WarningList.value();
-        quint32 ID =  (EventMsg.ID & 0xffffffff00000000) >> 32;
-        EventIDList.append(QString::number(ID));//at(count) = QString(EventMsg.ID);
-        WarnMsgList.append(EventMsg.EventString);
-        TimeList.append(EventMsg.Time);
-    }
-    //Setting the EventID,Event messages list to the Model
-    mp_WarningMsgDlg->SetWarningMsgList(EventIDList,WarnMsgList,TimeList);
 }
 
 } // end namespace EventHandling

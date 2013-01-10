@@ -25,6 +25,7 @@
 #include "MainMenu/Include/DialogFrame.h"
 #include "MainMenu/Include/MainWindow.h"
 #include <QTextEdit>
+#include "MainMenu/Include/MsgBoxManager.h"
 
 
 
@@ -44,17 +45,27 @@ class CWarningMsgDlg : public MainMenu::CDialogFrame
     Q_OBJECT
 
 public:
-    explicit CWarningMsgDlg(QWidget *p_Parent = NULL , QWidget *p_MainWindow = NULL);
+    explicit CWarningMsgDlg(QWidget *p_Parent = NULL , QWidget *p_MainWindow = NULL,DataManager::CUserSettingsInterface *p_UserSettingsInterface=NULL);
     virtual ~CWarningMsgDlg();
     void SetCaption(QString Caption);
     void SetText(QStringList Text);
-    void SetWarningMsgList(QStringList,QStringList,QStringList);
+    void SetWarningMsgList();
     void RetranslateUI();
-
+    QString GetDateAndTime(QString);
+    /****************************************************************************/
+    /**
+     * \brief Retriving the Event ID and Warning Message from Warning Message Hash
+     * \iparam  WarningIdMsgHash = Hash with Warning Id and Error Msg data
+     *
+     */
+    /****************************************************************************/
+    void WarningMsgList(QList <MsgData> ErrorIDStructList);
 private:
     Ui::CWarningMsgDlg *mp_Ui; //!< User interface
     QTextEdit *mp_TextEdit; //!< Widget displaying a text file
     MainMenu::CMainWindow *mp_MainWidow;    //!< Pointer to  main window
+    QList <MsgData> m_WarnMsgList;   //!< List for warning messages
+    DataManager::CUserSettingsInterface *mp_SettingsInterface;  //!< UserSettings Interface
 
 
 private slots:

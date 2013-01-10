@@ -25,6 +25,9 @@
 #include "MainMenu/Include/DialogFrame.h"
 #include "MainMenu/Include/MainWindow.h"
 #include <QTextEdit>
+#include "MainMenu/Include/MsgBoxManager.h"
+#include "DataManager/Containers/UserSettings/Include/UserSettings.h"
+#include "DataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
 
 
 
@@ -44,17 +47,28 @@ class CErrorMsgDlg : public MainMenu::CDialogFrame
     Q_OBJECT
 
 public:
-    explicit CErrorMsgDlg(QWidget *p_Parent = NULL , QWidget *p_MainWindow = NULL);
+    explicit CErrorMsgDlg(QWidget *p_Parent = NULL , QWidget *p_MainWindow = NULL,DataManager::CUserSettingsInterface *p_UserSettingsInterface=NULL);
     virtual ~CErrorMsgDlg();
     void SetCaption(QString Caption);
     void SetText(QStringList Text);
-    void SetErrorMsgList(QStringList,QStringList,QStringList);
+    void SetErrorMsgList();
     void RetranslateUI();
+    QString GetDateAndTime(QString);
 
+    /****************************************************************************/
+    /**
+     * \brief Retriving the Event ID and Error Message from Error Message Hash
+     * \iparam  ErrorIdMsgHash = Hash with Error Id and Error Msg data
+     *
+     */
+    /****************************************************************************/
+    void ErrorMsgList(QList <MsgData> ErrorIDStructList);
 private:
     Ui::CErrorMsgDlg *mp_Ui; //!< User interface
     QTextEdit *mp_TextEdit; //!< Widget displaying a text file
     MainMenu::CMainWindow *mp_MainWidow;    //!< Pointer to  main window
+    QList <MsgData> m_ErrorMsgList;   //!< List for Error messages
+    DataManager::CUserSettingsInterface *mp_SettingsInterface;  //!< UserSettings Interface
 
 
 private slots:
