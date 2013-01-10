@@ -217,6 +217,14 @@ protected:
         Global::tRefType OldRef = m_RefMapper.value(Ref);
         // remove from list of references
         m_RefMapper.remove(Ref);
+        /* The below logic is added to prevent forwarding of Ack sent by main
+          to External Process controller Thread (Not to External Process)
+        */
+        if (m_RefInternalCommands.contains(Ref)) {
+            int Index = m_RefInternalCommands.indexOf(Ref);
+            m_RefInternalCommands.removeAt(Index);
+            return;
+        }
         SendMsgToExternalProcess<AckClass>(OldRef, Ack);
     }
 
@@ -235,21 +243,45 @@ protected:
     template<class CmdClass> void ForwardCmdFromExternalProcess(Global::tRefType Ref, CmdClass *pCmd) {
         LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
                   , Global::NO_NUMERIC_DATA, false);
+        SendCmd(Ref, pCmd);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Send Command to Main Controller
+     *
+     * \param[in]   Ref         Command reference.
+     * \param[in]   pCmd        Command to send.
+     * \param[in]   ExternalCmd True - Command was sent from External process,
+     *                          False - Locally created command
+     */
+    /****************************************************************************/
+    void SendCmd(Global::tRefType Ref, Global::Command *pCmd, bool ExternalCmd = true) {
         CHECKPTR(pCmd);
-        /// \todo JB: what about timeout and so on?
-        Global::tRefType NewRef = GetNewCommandRef();
+         /// \todo JB: what about timeout and so on?
+        Global::tRefType NewRef ;
+        if (ExternalCmd) {
+            NewRef = GetNewCommandRef();
+        }
+        else {
+            NewRef = Ref;
+        }
         if(m_RefMapper.contains(NewRef)) {
             // first insert then throw exeption
             /// \todo JB: insert and throw or just log error?
             m_RefMapper.insert(NewRef, Ref);
             LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_REFERENCE_ALREADY_REGISTERED, Global::tTranslatableStringList() <<
-                      QString::number(NewRef) << CmdClass::NAME);
+                      QString::number(NewRef));
         }
         // insert reference
         m_RefMapper.insert(NewRef, Ref);
+        // Create a list of commands which are sent by External process controller and
+        // not External Process. This will be used to prevent forwarding of Acks ment for
+        // External Process Controller to External Process.
+        if (!ExternalCmd) {
+            m_RefInternalCommands.append(Ref);
+        }
         SendCommand(NewRef, Global::CommandShPtr_t(pCmd));
-        //SEND_INFO(Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, QString("Ref = ")+ QString::number(Ref) + QString(" NewRef = ")+ QString::number(NewRef));
-        // insert references into reference mapper
     }
 
     /****************************************************************************/
@@ -326,6 +358,7 @@ private:
     WaitState                                   *m_WaitState;                   ///< State to wait for incoming connections
     CreatorFunctorHash_t                        m_CreatorFunctors;              ///< Creator functors.
     QHash<Global::tRefType, Global::tRefType>   m_RefMapper;                    ///< Mapper for references.
+    QList<Global::tRefType>                     m_RefInternalCommands;          ///< Reference of command sent from this thread controller to Main,not from external process
     bool                                        m_RestartProcess;               ///< Restart flag
 };
 
