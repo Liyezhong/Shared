@@ -461,6 +461,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     if (EventInfo.GetEventCode() == EVENT_GUI_AVAILABLE)
     {
         emit GuiAvailability(EventStatus);
+        return;
     }
 
     Global::AlarmType alarm = Global::ALARM_NONE;
@@ -533,23 +534,21 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         return;
     }
 
-
-
     if(EventEntry.GetAlarmStatus())
     {
         mpAlarmHandler->setTimeout(1000);
         Global::AlarmType alarm= Global::ALARM_NONE;
 
 
-                if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
-                    alarm = Global::ALARM_ERROR;
-                else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
-                    alarm = Global::ALARM_WARNING;
+        if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
+            alarm = Global::ALARM_ERROR;
+        else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
+            alarm = Global::ALARM_WARNING;
 
-                quint64 EventId64 = EventEntry.GetEventCode();
-                EventId64 = EventId64 << 32;
-                EventId64 = EventId64 | EventKey;
-                mpAlarmHandler->setAlarm(EventId64, alarm, false);
+        quint64 EventId64 = EventEntry.GetEventCode();
+        EventId64 = EventId64 << 32;
+        EventId64 = EventId64 | EventKey;
+        mpAlarmHandler->setAlarm(EventId64, alarm, false);
         // the alarm required status is true & has to be removed since the same has been acknowledged by user
          //mpAlarmHandler->setAlarm(EventID, alarm, false);
     }

@@ -20,11 +20,18 @@
 //QT Headers
 #include <QMetaType>
 #include <QDebug>
+//Std lib headers
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <poll.h>
 
 //Project Headers
 #include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
 #include <Global/Include/Utils.h>
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
+#include <SoftSwitchManager/Include/GPIO.h>
 
 namespace SoftSwitchManager {
 
@@ -101,6 +108,45 @@ void SoftSwitchManagerThreadController::RegisterCommands()
 /****************************************************************************/
 void SoftSwitchManagerThreadController::OnGoReceived()
 {
+    #if 0
+    struct pollfd fdset[1];
+    int NumbOfFileDesc = 1;
+    char *Buf[100];
+    while (1) {
+        memset((void*)fdset, 0, sizeof(fdset));
+        fdset[0].fd = STDIN_FILENO; //Standard input
+        fdset[0].events = POLLIN;
+        int TimeOut = -1; // Infinite Timeout
+        int  PollReturn = poll(fdset, NumbOfFileDesc, 5000);
+
+        if (PollReturn < 0) {
+            printf("\npoll() failed!\n");
+            return;
+        }
+
+        if (PollReturn == 0) {
+            printf(".");
+        }
+
+//        if (fdset[1].revents & POLLPRI) {
+//            int len = read(fdset[1].fd, Buf, MAX_BUF);
+//            printf("\npoll() GPIO %d interrupt occurred\n", gpio);
+//        }
+
+        if (fdset[0].revents & POLLIN) {
+            (void)read(fdset[0].fd, Buf, 1);
+            qDebug()<<"\npoll() stdin read:"<< (unsigned int) Buf[0];
+        }
+
+        fflush(stdin);
+        rewind(stdin);
+
+        Global::CmdSoftSwitchPressed *p_SoftSwitchPressedCommand = new Global::CmdSoftSwitchPressed();
+        p_SoftSwitchPressedCommand->PressedAtStartUp = true;
+        SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_SoftSwitchPressedCommand));
+
+    }
+    #endif
     Global::CmdSoftSwitchPressed *p_SoftSwitchPressedCommand = new Global::CmdSoftSwitchPressed();
     p_SoftSwitchPressedCommand->PressedAtStartUp = true;
     SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_SoftSwitchPressedCommand));

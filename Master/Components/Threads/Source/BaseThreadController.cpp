@@ -279,7 +279,7 @@ CmdDataChangedFunctorShPtr_t BaseThreadController::GetDataChangedProcessingFunct
 /****************************************************************************/
 void BaseThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack)
 {
-//    qDebug() << "BaseThreadController::OnProcessAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName();
+    qDebug() << "BaseThreadController::OnProcessAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName();
     try
     {
         if(Ack.IsNull()) {
