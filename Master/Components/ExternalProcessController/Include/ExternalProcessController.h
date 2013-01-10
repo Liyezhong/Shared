@@ -207,21 +207,17 @@ protected:
      */
     /****************************************************************************/
     template<class AckClass> void SendAckToExternalProcess(Global::tRefType Ref, const AckClass &Ack) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
-                  , Global::NO_NUMERIC_DATA, false);
         // check if we know Ref
         if(!m_RefMapper.contains(Ref)) {
             // error unknown reference
-            LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_UNKNOWN_REFERENCE, Global::tTranslatableStringList() <<
-                      QString::number(Ref) << AckClass::NAME);
+            LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_UNKNOWN_REFERENCE, QString::number(Ref));
+
         }
         // get old reference
         Global::tRefType OldRef = m_RefMapper.value(Ref);
         // remove from list of references
         m_RefMapper.remove(Ref);
         SendMsgToExternalProcess<AckClass>(OldRef, Ack);
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, QString("Ref = ")+ QString::number(Ref) + QString(" OldRef = ")+ QString::number(OldRef)
-                  , Global::NO_NUMERIC_DATA, false);
     }
 
     /****************************************************************************/

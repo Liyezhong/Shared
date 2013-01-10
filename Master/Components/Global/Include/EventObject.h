@@ -226,9 +226,9 @@ public:
     inline void RaiseException(const Global::Exception &TheException)
     {
         //! When exception is raised , Append Filename and line numbers into Argumentlist for logging purpose
-        Global::tTranslatableStringList stringList = TheException.GetAdditionalData();
-        stringList << TheException.GetFile() << TheException.GetLine();
-        RaiseEvent(TheException.GetErrorCode(), stringList, true);
+        Global::tTranslatableStringList StringList = TheException.GetAdditionalData();
+        StringList << TheException.GetFile() << TheException.GetLine();
+        RaiseEvent(TheException.GetErrorCode(), StringList, true);
     }
 
     /****************************************************************************/
