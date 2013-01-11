@@ -112,7 +112,7 @@ void CErrorMsgDlg::SetErrorMsgList()
         ErrorText.append(DateTimeStr + ";  "+QString::number(ID) +";  "+QString(tr("%1").arg(ErrorMsgStruct.MsgString))+"\n");
     }
     //Sorting the string list,Latest will be put at the Top
-    qSort(ErrorText.begin(), ErrorText.end(), qGreater<QString>());
+    //qSort(ErrorText.begin(), ErrorText.end(), qGreater<QString>());
     //Setting the Error Messages to Text Edit
     SetText(ErrorText);
 }
@@ -140,7 +140,7 @@ void CErrorMsgDlg::SetText(QStringList MsgList)
 {
     mp_TextEdit->clear();
     mp_TextEdit->setFontPointSize(11);
-    for (int Msg = 0;Msg <MsgList.count();Msg++) {
+    for (int Msg = MsgList.count()-1;Msg >=0;Msg--) {
         mp_TextEdit->append(tr("%1").arg(MsgList.at(Msg)));
     }
 }
@@ -213,12 +213,13 @@ QString CErrorMsgDlg::GetDateAndTime(QString DateTimeStr)
             Date = DateTime.date().toString("MM/dd/yyyy");
         }
 
-        if (TimeFmt == Global::TIME_24) {
+        Time = DateTime.time().toString("hh:mm");
+        /*if (TimeFmt == Global::TIME_24) {
             Time = DateTime.time().toString("hh:mm");
         }
         else {
             Time = DateTime.time().toString("hh:mm a");
-        }
+        }*/
     }
     //Caoncatenating the Date and Time Strings
     QString TimeStamp = Date + " " + Time;
