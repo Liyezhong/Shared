@@ -29,29 +29,29 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb4_0_motor_loader" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_loader" type="Stepper Motor" description="displayName">
 			<!-- SubModule[1...n] contains various sub components in the module type = Board/functionModule/MechanicalArm etc ... -->
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>
-			<SubModule name="asb4_0_btn_loader" type="Digital Input" description="displayName">
+			<SubModule name="btn_loader" type="Digital Input" description="displayName">
 			<!-- SubModule[1...n] contains various sub components in the module type = Board/functionModule/MechanicalArm etc ... -->
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 			</SubModule>
-			<SubModule name="asb4_0_led_red_loader" type="Digital Output" description="displayName">
+			<SubModule name="led_red_loader" type="Digital Output" description="displayName">
 			<!-- SubModule[1...n] contains various sub components in the module type = Board/functionModule/MechanicalArm etc ... -->
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb4_0_led_green_loader" type="Digital Output" description="displayName">
+			<SubModule name="led_green_loader" type="Digital Output" description="displayName">
 			<!-- SubModule[1...n] contains various sub components in the module type = Board/functionModule/MechanicalArm etc ... -->
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb4_0_rfid4" type="RFID ISO 11785" description="displayName">
+			<SubModule name="rfid_loader" type="RFID ISO 11785" description="displayName">
 			<!-- SubModule[1...n] contains various sub components in the module type = Board/functionModule/MechanicalArm etc ... -->
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>			
@@ -80,25 +80,25 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb4_1_motor_loader" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_unloader" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>
-			<SubModule name="asb4_1_btn_loader" type="Digital Input" description="displayName">
+			<SubModule name="btn_unloader" type="Digital Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 			</SubModule>
-			<SubModule name="asb4_1_led_red_loader" type="Digital Output" description="displayName">
+			<SubModule name="led_red_unloader" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb4_1_led_green_loader" type="Digital Output" description="displayName">
+			<SubModule name="led_green_unloader" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb4_1_rfid4" type="RFID ISO 11785" description="displayName">
+			<SubModule name="rfid_unloader" type="RFID ISO 11785" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
 		</Module>		
@@ -125,12 +125,12 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb3_0_motor_lid" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_oven" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>
-			<SubModule name="asb3_0_tempctrl" type="Temperature Control" description="displayName">
+			<SubModule name="tempctrl" type="Temperature Control" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OperatingTime" unit="seconds">SECS</parameter>
 			</SubModule>
@@ -158,23 +158,23 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb1_0_motor_z1" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_z1" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>
-			<SubModule name="asb1_0_rfid" type="RFID ISO 11785" description="displayName">
+			<SubModule name="rfid1" type="RFID ISO 11785" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="asb1_0_level_sensor_teach" type="Digital Output" description="displayName">
+			<SubModule name="lsensor_teach1" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb1_0_level_sensor" type="Analog Input" description="displayName">
+			<SubModule name="lsensor1" type="Analog Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="ASB2_0" type="Board" description="displayName">
+			<SubModule name="asb2_0" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
 				<parameter name="EndTestDate" unit="QDate">Date</parameter>
@@ -193,7 +193,7 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb2_0_motor_y1" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_y1" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
@@ -222,23 +222,23 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb1_1_motor_z2" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_z2" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>
-			<SubModule name="asb1_1_rfid" type="RFID ISO 11785" description="displayName">
+			<SubModule name="rfid2" type="RFID ISO 11785" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="asb1_1_level_sensor_teach" type="Digital Output" description="displayName">
+			<SubModule name="lsensor_teach2" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb1_1_level_sensor" type="Analog Input" description="displayName">
+			<SubModule name="lsensor2" type="Analog Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="ASB2_1" type="Board" description="displayName">
+			<SubModule name="asb2_1" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
 				<parameter name="EndTestDate" unit="QDate">Date</parameter>
@@ -257,7 +257,7 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb2_1_motor_y2" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_y2" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
@@ -267,12 +267,12 @@
 			<SerialNumber>SN_X_ARM_00001</SerialNumber>
 			<OperatingHours>Hrs</OperatingHours>
 			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb6_0_motor_x1" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_x1" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>
-			<SubModule name="asb7_0_motor_x2" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_x2" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
@@ -282,7 +282,7 @@
 			<SerialNumber>SN_Agitator_00001</SerialNumber>
 			<OperatingHours>Hrs</OperatingHours>
 			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb7_0_motor_agitator" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_agitation" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
@@ -311,7 +311,7 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb2_2_motor_transfer" type="Stepper Motor" description="displayName">
+			<SubModule name="motor_transfer" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
@@ -383,25 +383,25 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb12_PhotoDetector" type="AnalogIn" description="displayName">
+			<SubModule name="photo_detector" type="AnalogIn" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="asb12_camera_signal" type="Digital Output" description="displayName">
+			<SubModule name="camera_signal" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb12_transmitControl" type="Analog Output" description="displayName">
+			<SubModule name="transmit_control" type="Analog Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>	
-			<SubModule name="asb12_transmitCurrent" type="Analog Output" description="displayName">
+			<SubModule name="transmit_current" type="Analog Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb12_receiveCurrent" type="Analog Output" description="displayName">
+			<SubModule name="receive_current" type="Analog Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
@@ -430,19 +430,19 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb5_0_tempctrl" type="Temperature Control1" description="displayName">
+			<SubModule name="tempctrl1" type="Temperature Control1" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OperatingTime" unit="seconds">SECS</parameter>
 			</SubModule>
-			<SubModule name="asb5_0_tempctr2" type="Temperature Control2" description="displayName">
+			<SubModule name="tempctrl2" type="Temperature Control2" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OperatingTime" unit="seconds">SECS</parameter>
 			</SubModule>
-			<SubModule name="asb5_0_tempctr3" type="Temperature Control3" description="displayName">
+			<SubModule name="tempctrl3" type="Temperature Control3" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OperatingTime" unit="seconds">SECS</parameter>
 			</SubModule>
-			<SubModule name="asb5_0_tempctr4" type="Temperature Control4" description="displayName">
+			<SubModule name="tempctrl4" type="Temperature Control4" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OperatingTime" unit="seconds">SECS</parameter>
 			</SubModule>
@@ -451,32 +451,32 @@
 			<SerialNumber>SN_WATER_STNS_00001</SerialNumber>
 			<OperatingHours>Hrs</OperatingHours>
 			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb_6.0_ValveControl1" type="Digital Output" description="displayName">
+			<SubModule name="valve_control1" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb_6.0_ValveControl2" type="Digital Output" description="displayName">
+			<SubModule name="valve_control2" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb_6.0_ValveControl3" type="Digital Output" description="displayName">
+			<SubModule name="valve_control3" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb_6.0_ValveControl4" type="Digital Output" description="displayName">
+			<SubModule name="valve_control4" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb_6.0_ValveControl5" type="Digital Output" description="displayName">
+			<SubModule name="valve_control5" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb_6.0_ValveControl6" type="Digital Output" description="displayName">
+			<SubModule name="valve_control6" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
@@ -486,15 +486,15 @@
 			<SerialNumber>SN_EXHAUST_00001</SerialNumber>
 			<OperatingHours>Hrs</OperatingHours>
 			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb6_0_airFlowSwitch" type="Digital Input" description="displayName">
+			<SubModule name="airflow_switch" type="Digital Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="asb6_0_airFanControl1" type="Digital Output" description="displayName">
+			<SubModule name="airfan_control1" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-			<SubModule name="asb6_0_airFanControl2" type="Digital Output" description="displayName">
+			<SubModule name="airfan_control2" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
@@ -504,7 +504,7 @@
 			<SerialNumber>SN_DISPLAY_00001</SerialNumber>
 			<OperatingHours>Hrs</OperatingHours>
 			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb6_0_lightControl" type="Digital Output" description="displayName">
+			<SubModule name="light_control2" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
@@ -514,10 +514,10 @@
 			<SerialNumber>SN_DISPLAY_00001</SerialNumber>
 			<OperatingHours>Hrs</OperatingHours>
 			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb6_0_reedActive1" type="Digital Input" description="displayName">
+			<SubModule name="reed_active1" type="Digital Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
-			<SubModule name="asb6_0_reedActive2" type="Digital Input" description="displayName">
+			<SubModule name="reed_active2" type="Digital Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
 		</Module>
@@ -544,7 +544,7 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb11_0_joysticControl" type="Joystic Control" description="displayName">
+			<SubModule name="joystick" type="Joystic Control" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
 		</Module>
@@ -571,7 +571,7 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-			<SubModule name="asb13_0_RFIDConsumables" type="RFID ISO 15693" description="displayName">
+			<SubModule name="rfid_consumables" type="RFID ISO 15693" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
 		</Module>
