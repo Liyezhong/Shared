@@ -22,15 +22,14 @@
 #ifndef DATAMANAGER_MODULE_H
 #define DATAMANAGER_MODULE_H
 
-#include "Helper.h"
-
 #include <QString>
 #include <QDateTime>
 #include <QIODevice>
 #include <QHash>
-#include "SubModule.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+
+#include "DataManager/Containers/InstrumentHistory/Include/SubModule.h"
 
 namespace DataManager
 {
@@ -72,7 +71,7 @@ public:
      *  \return Module name
      */
     /****************************************************************************/
-    QString GetModuleName() { return m_ModuleName; }
+    QString GetModuleName() const { return m_ModuleName; }
 
     /****************************************************************************/
     /*!
@@ -88,7 +87,7 @@ public:
      *  \return Module Description
      */
     /****************************************************************************/
-    QString GetModuleDescription() { return m_ModuleDescription; }
+    QString GetModuleDescription() const { return m_ModuleDescription; }
 
     /****************************************************************************/
     /*!
@@ -104,7 +103,7 @@ public:
      *  \return Serial Number
      */
     /****************************************************************************/
-    QString GetSerialNumber() { return m_SerialNumber; }
+    QString GetSerialNumber() const { return m_SerialNumber; }
 
     /****************************************************************************/
     /*!
@@ -120,7 +119,7 @@ public:
      *  \return Date
      */
     /****************************************************************************/
-    QString GetDateOfProduction() { return m_DateOfProduction; }
+    QString GetDateOfProduction() const { return m_DateOfProduction; }
 
     /****************************************************************************/
     /*!
@@ -136,7 +135,7 @@ public:
      *  \return number of hours
      */
     /****************************************************************************/
-    QString GetOperatingHours() { return m_OperatingHours; }
+    QString GetOperatingHours() const { return m_OperatingHours; }
 
     /****************************************************************************/
     /*!
@@ -144,7 +143,7 @@ public:
      *  \return Number of SubModule
      */
     /****************************************************************************/
-    int GetNumberofSubModules() { return m_SubModuleList.count(); }
+    int GetNumberofSubModules() const { return m_SubModuleList.count(); }
 
     /****************************************************************************/
     /*!

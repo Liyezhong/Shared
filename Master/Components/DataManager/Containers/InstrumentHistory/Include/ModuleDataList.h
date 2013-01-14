@@ -23,14 +23,16 @@
 #ifndef DATAMANAGER_MODULEDATALIST_H
 #define DATAMANAGER_MODULEDATALIST_H
 
-#include "Module.h"
-#include "Helper.h"
-
 #include <QString>
 #include <QHash>
+#include <QReadWriteLock>
 #include <QDateTime>
 #include <QIODevice>
 #include <QList>
+
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
+#include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "DataManager/Helper/Include/Types.h"
 
 namespace DataManager
 {
@@ -45,7 +47,7 @@ typedef QList<QString> ListofOrderedModules_t; //!< List for module names
  *  Reading all Module information from XML and FunctionStoring in a Container
  */
 /****************************************************************************/
-class CModuleDataList
+class CModuleDataList : public CDataContainerBase
 {
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CModuleDataList&  ModuleList);
@@ -186,6 +188,8 @@ public:
     /****************************************************************************/
     bool GetDataVerificationMode() { return m_DataVerificationMode; }
 
+    bool UpdateModule(CModule const* p_Module);  // content of p_Module will be copied  => delete outside!
+
 
 private:
     QString m_InstrumentName;   //!< name of the Instrument
@@ -193,6 +197,9 @@ private:
     ListofModules_t m_ModuleList;   //!< Module List
     ListofOrderedModules_t m_ListofModules; //!< List of Module Names
     QString m_FileName; //!< XML file name
+
+    QReadWriteLock *mp_ReadWriteLock;
+    ErrorHash_t *m_ErrorHash;
 
     bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
 

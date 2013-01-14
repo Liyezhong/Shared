@@ -23,8 +23,6 @@
 #ifndef DATAMANAGER_BOARD_H
 #define DATAMANAGER_BOARD_H
 
-#include "Helper.h"
-
 #include <QString>
 #include <QIODevice>
 #include <QFile>

@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file ModuleDataListVerifier.h
  *
- *  \brief Definition for ModuleDataListVerifier class.
+ *  \brief Definition for CModuleDataListVerifier class.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2013-01-08
@@ -17,12 +17,14 @@
  *
  */
 /****************************************************************************/
-#ifndef MODULEDATALISTVERIFIER_H
-#define MODULEDATALISTVERIFIER_H
+#ifndef DATAMANAGER_MODULEDATALISTVERIFIER_H
+#define DATAMANAGER_MODULEDATALISTVERIFIER_H
 
-#include "ModuleDataList.h"
 #include <QStringList>
 #include <QDebug>
+
+#include "DataManager/Containers/InstrumentHistory/Include/ModuleDataList.h"
+#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
 namespace DataManager
 {
@@ -32,23 +34,29 @@ namespace DataManager
  *  \brief  This class implements Module List verifier
  */
 /****************************************************************************/
-class ModuleDataListVerifier
+class CModuleDataListVerifier :public IVerifierInterface
 {
 public:
-    ModuleDataListVerifier();
-
-    bool VerifyData(CModuleDataList* p_ModuleDataList);
-
+    CModuleDataListVerifier();
     /****************************************************************************/
     /*!
      *  \brief  Destructor
      */
     /****************************************************************************/
-    virtual ~ModuleDataListVerifier() {}
+    virtual ~CModuleDataListVerifier() {}
+
+    bool VerifyData(CModuleDataList* p_ModuleDataList);
+    ErrorHash_t &GetErrors();
+
+    void ResetLastErrors();
+
+    bool IsLocalVerifier();
 
 private:
-    CModuleDataList *mp_MDL; //!< Module List Container
+    CModuleDataList *mp_MDL;  //!< Module List Container
+    ErrorHash_t m_ErrorsHash; //!< To store Error ID and any arguments associated
+
 };
 
 }
-#endif // MODULEDATALISTVERIFIER_H
+#endif // DATAMANAGER_MODULEDATALISTVERIFIER_H
