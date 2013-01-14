@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file ModuleDataListVerifier.cpp
  *
- *  \brief ModuleDataListVerifier class implementation.
+ *  \brief CModuleDataListVerifier class implementation.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2013-01-08
@@ -28,7 +28,7 @@ namespace DataManager
  *  \brief Default Constructor
  */
 /****************************************************************************/
-ModuleDataListVerifier::ModuleDataListVerifier(): mp_MDL(NULL)
+CModuleDataListVerifier::CModuleDataListVerifier(): mp_MDL(NULL)
 {
 }
 
@@ -37,7 +37,7 @@ ModuleDataListVerifier::ModuleDataListVerifier(): mp_MDL(NULL)
  *  \brief Verifies the data present in the module list against constraints.
  */
 /****************************************************************************/
-bool ModuleDataListVerifier::VerifyData(CModuleDataList *p_ModuleDataList)
+bool CModuleDataListVerifier::VerifyData(CModuleDataList *p_ModuleDataList)
 {
     bool VerifiedData = true;
 
@@ -85,6 +85,39 @@ bool ModuleDataListVerifier::VerifyData(CModuleDataList *p_ModuleDataList)
     }
 
     return VerifiedData;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Gets the last errors which is done by verifier
+ *
+ *  \return QStringList - List of the errors occured
+ */
+/****************************************************************************/
+ErrorHash_t& CModuleDataListVerifier::GetErrors()
+{
+    // return the last error which is occured in the verifier
+    return m_ErrorsHash;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Resets the last error which is done by verifier
+ */
+/****************************************************************************/
+void CModuleDataListVerifier::ResetLastErrors()
+{
+    m_ErrorsHash.clear();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Resets the last error which is done by verifier
+ */
+/****************************************************************************/
+bool CModuleDataListVerifier::IsLocalVerifier()
+{
+    return true;
 }
 
 }
