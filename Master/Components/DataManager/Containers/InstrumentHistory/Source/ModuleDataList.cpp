@@ -102,6 +102,7 @@ CModuleDataList::~CModuleDataList()
 /****************************************************************************/
 bool CModuleDataList::ReadFile(const QString FileName)
 {
+
     SetFileName(FileName);
 
     QFile File(FileName);
@@ -110,48 +111,48 @@ bool CModuleDataList::ReadFile(const QString FileName)
         return false;
     }
 
-    bool Result = true;
+//    bool Result = true;
 
-    if (m_DataVerificationMode) {
-        //To make sure other threads cant write when reading is active
-        QWriteLocker locker(mp_ReadWriteLock);
+//    if (m_DataVerificationMode) {
+//        //To make sure other threads cant write when reading is active
+//        QWriteLocker locker(mp_ReadWriteLock);
 
-        // create instance of CModuleDataList for verification
-        CModuleDataList* p_MDL_Verification = new CModuleDataList();
+//        // create instance of CModuleDataList for verification
+//        CModuleDataList* p_MDL_Verification = new CModuleDataList();
 
-        // create clone from current state
-        *p_MDL_Verification = *this;
+//        // create clone from current state
+//        *p_MDL_Verification = *this;
 
-        // disable verification in clone
-        p_MDL_Verification->SetDataVerificationMode(false);
+//        // disable verification in clone
+//        p_MDL_Verification->SetDataVerificationMode(false);
 
-        // execute required action (Read) in clone
-        Result = true;
-        if (!p_MDL_Verification->ReadFile(FileName)) {
-            Result = false;
-        } else {
+//        // execute required action (Read) in clone
+//        Result = true;
+//        if (!p_MDL_Verification->ReadFile(FileName)) {
+//            Result = false;
+//        } else {
 
-            // now check new content => call all active verifiers
-            if (DoLocalVerification(p_MDL_Verification)) {
-                // if content ok, clone backwards
-                *this = *p_MDL_Verification;
-                Result = true;
-            }
-            else {
-                Result = false;
-            }
-        }
-        // delete test clone
-        delete p_MDL_Verification;
-    }
-    else {
-        QWriteLocker locker(mp_ReadWriteLock);
+//            // now check new content => call all active verifiers
+//            if (DoLocalVerification(p_MDL_Verification)) {
+//                // if content ok, clone backwards
+//                *this = *p_MDL_Verification;
+//                Result = true;
+//            }
+//            else {
+//                Result = false;
+//            }
+//        }
+//        // delete test clone
+//        delete p_MDL_Verification;
+//    }
+//    else {
+//        QWriteLocker locker(mp_ReadWriteLock);
 
-        // clear content
-        //Init();
+//        // clear content
+//        //Init();
 
-        // Initialise the m_Filename to a known string "UNDEFINED"
-        m_FileName = "UNDEFINED";
+//        // Initialise the m_Filename to a known string "UNDEFINED"
+//        m_FileName = "UNDEFINED";
 
 
         if (!File.open(QFile::ReadOnly | QFile::Text )) {
@@ -168,8 +169,7 @@ bool CModuleDataList::ReadFile(const QString FileName)
 
         File.close();
         return true;
-    }
-    return Result;
+
 }
 
 /****************************************************************************/
@@ -442,50 +442,50 @@ bool CModuleDataList::UpdateModule(CModule const* p_Module)
     bool Result = false;
     if (m_DataVerificationMode) {
 
-        CModuleDataList* p_MDL_Verification = new CModuleDataList();
+       // CModuleDataList* p_MDL_Verification = new CModuleDataList();
         CModule* p_ModuleData;
 
         QString SerialNumber = p_ModuleData->GetSerialNumber();
         QString DateOfProd = p_ModuleData->GetDateOfProduction();
         QString OperatingHrs = p_ModuleData->GetOperatingHours();
 
-        CHECKPTR(p_ModuleData);
-        // first lock current state for reading
-        {   // code block defined for QReadLocker.
-            QReadLocker locker(mp_ReadWriteLock);
+//        CHECKPTR(p_ModuleData);
+//        // first lock current state for reading
+//        {   // code block defined for QReadLocker.
+//            QReadLocker locker(mp_ReadWriteLock);
 
-            // create clone from current state
-            *p_MDL_Verification = *this;
+//            // create clone from current state
+//            *p_MDL_Verification = *this;
 
-            // disable verification in clone
-            p_MDL_Verification->SetDataVerificationMode(false);
+//            // disable verification in clone
+//            p_MDL_Verification->SetDataVerificationMode(false);
 
-            // execute required action (UpdateModule) in clone
-            Result = p_MDL_Verification->UpdateModule(p_Module);
+//            // execute required action (UpdateModule) in clone
+//            Result = p_MDL_Verification->UpdateModule(p_Module);
 
-            if (Result) {
-                // now check new content => call all active verifiers
-                Result = DoLocalVerification(p_MDL_Verification);
-                if (!Result) {
-                    //Store errors.
-                    // Since we are going to delete p_DPL_Verification
-                    // We need to store the errors generated by it.
-                    // For now Errors are not copied by assignment or copy constructors.
-                    ListOfErrors_t ErrorList = p_MDL_Verification->GetErrorList();
-                    if (!ErrorList.isEmpty()) {
-                        // Control reaches here means Error list is not empty.
-                        // Considering only the first element in list since
-                        // verfier can atmost add only one Hash has to the error list
-                        m_ErrorHash = *(ErrorList.first());
-                        SetErrorList(&m_ErrorHash);
-                    }
-                }
-            }
-        }
+//            if (Result) {
+//                // now check new content => call all active verifiers
+//                Result = DoLocalVerification(p_MDL_Verification);
+//                if (!Result) {
+//                    //Store errors.
+//                    // Since we are going to delete p_DPL_Verification
+//                    // We need to store the errors generated by it.
+//                    // For now Errors are not copied by assignment or copy constructors.
+//                    ListOfErrors_t ErrorList = p_MDL_Verification->GetErrorList();
+//                    if (!ErrorList.isEmpty()) {
+//                        // Control reaches here means Error list is not empty.
+//                        // Considering only the first element in list since
+//                        // verfier can atmost add only one Hash has to the error list
+//                        m_ErrorHash = *(ErrorList.first());
+//                        SetErrorList(&m_ErrorHash);
+//                    }
+//                }
+//            }
 
-        if (Result) {
-            *this = *p_MDL_Verification;
-        }
+
+//        if (Result) {
+//            *this = *p_MDL_Verification;
+//        }
 
         p_ModuleData = m_ModuleList.value(ModuleName, NULL);
         //int Index = m_ModuleList.
@@ -504,7 +504,7 @@ bool CModuleDataList::UpdateModule(CModule const* p_Module)
 
         *m_ModuleList.value(ModuleName) = *p_ModuleData;
 
-        delete p_MDL_Verification;
+       // delete p_MDL_Verification;
 
     } else {
         QWriteLocker locker(mp_ReadWriteLock);
