@@ -19,6 +19,7 @@
 /****************************************************************************/
 #include "DataManager/CommandInterface/Include/UserSettingsCommandInterface.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
+
 #include <QDebug>
 
 namespace DataManager {
@@ -46,6 +47,8 @@ CUserSettingsCommandInterface::CUserSettingsCommandInterface(CDataManagerBase *p
 void CUserSettingsCommandInterface::RegisterCommands() {
     mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdChangeUserSettings, DataManager::CUserSettingsCommandInterface>
             (&CUserSettingsCommandInterface::SettingsUpdateHandler, this);
+    mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdAlarmToneTest, DataManager::CUserSettingsCommandInterface>
+            (&CUserSettingsCommandInterface::AlarmTestToneHandler, this);
 }
 
 /****************************************************************************/
@@ -90,6 +93,27 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_GV_FAILED);
         }
     }
+}
+/****************************************************************************/
+/**
+ * \brief Function which handles CmdAlarmToneTest
+ *  \iparam Ref = Command reference
+ *  \iparam Cmd = Command
+ *  \AckCommandChannel = Command channel to send acknowledge
+ */
+/****************************************************************************/
+void CUserSettingsCommandInterface::AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel)
+{
+    qDebug()<<"Test tone handler"<<endl;
+    qDebug()<<"Alarm Test- Type:"<<Cmd.GetAlarmType() <<"Sound:"<< Cmd.GetSound()<<"Volume:" << Cmd.GetVolume();
+    mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
+    Platform::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
+//    if (p_AlarmHandler) {
+//        p_AlarmHandler->setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
+//        p_AlarmHandler->setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
+//        p_AlarmHandler->setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
+//        p_AlarmHandler->setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
+//    }
 }
 
 }// End of Namespace DataManager

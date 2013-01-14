@@ -22,6 +22,7 @@
 
 #include "CommandInterfaceBase.h"
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdChangeUserSettings.h"
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
 
 namespace DataManager {
 /****************************************************************************/
@@ -38,6 +39,7 @@ public:
 private:
     void RegisterCommands();
     void SettingsUpdateHandler(Global::tRefType, const MsgClasses::CmdChangeUserSettings &Cmd, Threads::CommandChannel &AckCommandChannel);
+    void AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel);
 signals:
     void UserSettingsChanged();
 };
