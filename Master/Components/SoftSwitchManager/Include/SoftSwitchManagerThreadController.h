@@ -37,7 +37,7 @@ namespace SoftSwitchManager {
  *        events.They include
  *        1) Manage LEDS
  *        2) Inform master thread to start initialization
- *        3) Manage the shutdown flow and inform master thread to shutdown
+ *        3) Initiate the shutdown flow and inform master thread to shutdown
  */
 /****************************************************************************/
 class SoftSwitchManagerThreadController : public Threads::ThreadController {
@@ -60,7 +60,7 @@ public:
       * \param[in]   Ref                 Command reference.
       * \param[in]   Cmd                 Command to send.
       */
-     /****************************************************************************/
+    /****************************************************************************/
     void SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
     Global::tRefType GetNewCommandRef();
 

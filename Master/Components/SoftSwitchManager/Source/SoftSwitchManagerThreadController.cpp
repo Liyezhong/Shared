@@ -86,6 +86,7 @@ void SoftSwitchManagerThreadController::CreateAndInitializeObjects()
 void SoftSwitchManagerThreadController::CleanupAndDestroyObjects()
 {
 }
+
 /****************************************************************************/
 /*!
  *  \brief Register commands handled by thread Controller
