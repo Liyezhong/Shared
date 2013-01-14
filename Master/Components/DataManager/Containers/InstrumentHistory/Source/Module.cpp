@@ -18,7 +18,7 @@
  */
 /****************************************************************************/
 
-#include "Module.h"
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include <QDebug>
 #include <QFile>
 #include <QBuffer>

@@ -40,8 +40,9 @@ typedef CSignalTransition<CServiceBaseModule> CServiceBaseModuleTransition;
  *  \iparam p_Parent = Parent state
  */
 /****************************************************************************/
-CServiceBaseModule::CServiceBaseModule(CBaseModule *p_BaseModule, const QString &Name, QState *p_Parent) :
-    CState(Name, p_Parent), mp_BaseModule(p_BaseModule)
+CServiceBaseModule::CServiceBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
+                                       const QString &Name, QState *p_Parent) :
+    CState(Name, p_Parent), mp_BaseModule(p_BaseModule), mp_SubModule(p_SubModule)
 {
     CState *p_Init = new CState("Init", this);
     CState *p_ReqSerialNumber = new CState("ReqSerialNumber", this);

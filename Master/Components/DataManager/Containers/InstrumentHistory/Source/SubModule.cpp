@@ -18,7 +18,7 @@
  */
 /****************************************************************************/
 
-#include "SubModule.h"
+#include "DataManager/Containers/InstrumentHistory/Include/SubModule.h"
 #include <QDebug>
 
 namespace DataManager

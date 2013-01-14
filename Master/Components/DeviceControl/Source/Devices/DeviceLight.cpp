@@ -49,7 +49,7 @@ typedef CSignalTransition<CDeviceLight> CLightTransition;
  */
 /****************************************************************************/
 CDeviceLight::CDeviceLight(const DeviceProcessing &DeviceProc,const DeviceModuleList_t &ModuleList, DevInstanceID_t InstanceID) :
-                                            CDeviceBase(DeviceProc, ModuleList, InstanceID)
+    CDeviceBase(DeviceProc, ModuleList, InstanceID)
 {
 
 }
@@ -58,7 +58,7 @@ CDeviceLight::CDeviceLight(const DeviceProcessing &DeviceProc,const DeviceModule
 /*!
  *  \brief      Invoked when its thread is started. All child objects of this
  *              devices shall instantiated after this event.
- *
+ */
 /****************************************************************************/
 void CDeviceLight::ThreadStarted()
 {

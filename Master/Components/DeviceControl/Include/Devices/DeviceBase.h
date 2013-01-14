@@ -29,6 +29,7 @@
 #include <QThread>
 #include <QDateTime>
 
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DeviceControl/Include/Devices/DeviceState.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
@@ -198,7 +199,7 @@ signals:
     /****************************************************************************/
     void ReportDisable(ReturnCode_t ReturnCode);
 
-    void ReportGetServiceInformation(ReturnCode_t ReturnCode);
+    void ReportGetServiceInformation(ReturnCode_t ReturnCode, DataManager::CModule ModuleInformation);
 
     /****************************************************************************/
     /*! \brief  To report error to DCP

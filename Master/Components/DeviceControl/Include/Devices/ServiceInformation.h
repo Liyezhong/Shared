@@ -26,6 +26,7 @@
 
 #include "DeviceState.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 
 #ifdef Q_UNIT_TEST
 #include "Simulator.h"
@@ -65,12 +66,14 @@ signals:
      *  \iparam ReturnCode = ReturnCode of Device Control Layer
      */
     /****************************************************************************/
-    void ReportGetServiceInformation(ReturnCode_t ReturnCode);
+    void ReportGetServiceInformation(ReturnCode_t ReturnCode, DataManager::CModule ModuleInformation);
 
     void OnReportError(ReturnCode_t ReturnCode);
 
 private:
     bool ReportSuccess(QEvent *p_Event);
+    bool ReportError(QEvent *p_Event);
+    DataManager::CModule m_ModuleInformation;
 };
 
 } //namespace

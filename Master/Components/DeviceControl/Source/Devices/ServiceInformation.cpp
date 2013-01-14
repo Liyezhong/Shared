@@ -49,7 +49,10 @@ CServiceInformation::CServiceInformation(QMap<QString, CModule *> &ModuleMap, co
     setInitialState(p_Idle);
 
     p_Idle->addTransition(this, SIGNAL(GetServiceInformation()), p_Active);
-    p_Active->addTransition(this, SIGNAL(OnReportError(ReturnCode_t)), p_Idle);
+    p_Active->addTransition(new CServiceInformationTransition(
+                                this, SIGNAL(OnReportError(ReturnCode_t)),
+                                *this, &CServiceInformation::ReportError,
+                                p_Idle));
 
     connect(this, SIGNAL(OnReportError(ReturnCode_t)), this, SIGNAL(ReportGetServiceInformation(ReturnCode_t)));
 
@@ -60,7 +63,10 @@ CServiceInformation::CServiceInformation(QMap<QString, CModule *> &ModuleMap, co
 
         CBaseModule *p_BaseModule = dynamic_cast<CBaseModule *>(Iterator.value());
         if(p_BaseModule != NULL) {
-            p_NewState = new CServiceBaseModule(p_BaseModule, "ServiceBaseModule", p_Active);
+            DataManager::CSubModule *p_SubModule = new DataManager::CSubModule();
+            m_ModuleInformation.AddSubModuleInfo(p_SubModule);
+
+            p_NewState = new CServiceBaseModule(p_BaseModule, p_SubModule, Iterator.key(), p_Active);
             connect(p_NewState, SIGNAL(ReportError(ReturnCode_t)), this, SIGNAL(OnReportError(ReturnCode_t)));
         }
 
@@ -84,7 +90,14 @@ CServiceInformation::CServiceInformation(QMap<QString, CModule *> &ModuleMap, co
 bool CServiceInformation::ReportSuccess(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
-    emit ReportGetServiceInformation(DCL_ERR_FCT_CALL_SUCCESS);
+    emit ReportGetServiceInformation(DCL_ERR_FCT_CALL_SUCCESS, m_ModuleInformation);
+    return true;
+}
+
+bool CServiceInformation::ReportError(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode = CServiceInformationTransition::GetEventValue(p_Event, 0);
+    emit ReportGetServiceInformation(ReturnCode, m_ModuleInformation);
     return true;
 }
 

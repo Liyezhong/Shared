@@ -31,6 +31,11 @@
 #include "Simulator.h"
 #endif
 
+namespace DataManager
+{
+    class CSubModule;
+}
+
 namespace DeviceControl
 {
 
@@ -46,7 +51,8 @@ class CServiceBaseModule : public CState
     Q_OBJECT
 
 public:
-    explicit CServiceBaseModule(CBaseModule *p_BaseModule, const QString &Name, QState *p_Parent = 0);
+    explicit CServiceBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
+                                const QString &Name, QState *p_Parent = 0);
 
 signals:
     void ReportError(ReturnCode_t ReturnCode);
@@ -56,6 +62,7 @@ private:
     bool ReqEndTestResult(QEvent *p_Event);
 
     CBaseModule *mp_BaseModule;
+    DataManager::CSubModule *mp_SubModule;
 };
 
 } //namespace

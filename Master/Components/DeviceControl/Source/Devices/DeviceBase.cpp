@@ -148,8 +148,8 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     mp_All->setInitialState(mp_Init);
 
     connect(this, SIGNAL(GetServiceInformation()), mp_Service, SIGNAL(GetServiceInformation()));
-    connect(mp_Service, SIGNAL(ReportGetServiceInformation(ReturnCode_t)),
-            this, SIGNAL(ReportGetServiceInformation(ReturnCode_t)));
+    connect(mp_Service, SIGNAL(ReportGetServiceInformation(ReturnCode_t, DataManager::CModule)),
+            this, SIGNAL(ReportGetServiceInformation(ReturnCode_t, DataManager::CModule)));
 
     mp_Start = new CState("Start", mp_Init);
     mp_Configuring = new CState("Configuring", mp_Init);
