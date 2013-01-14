@@ -18,13 +18,14 @@
  */
 /****************************************************************************/
 
-#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include <QDebug>
 #include <QFile>
 #include <QBuffer>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-//#include "ModuleDataList.h"
+
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
+#include "DataManager/Helper/Include/Helper.h"
 
 namespace DataManager
 {
