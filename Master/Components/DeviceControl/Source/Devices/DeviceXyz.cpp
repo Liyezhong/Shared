@@ -116,7 +116,7 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
 
     mp_Initializing->setInitialState(p_InitStepperZ);
 
-//    p_InitStepperZ->addTransition(p_InitStepperZ, SIGNAL(finished()), p_InitEnd);
+//    p_InitStepperZ->addTransition(p_InitStepperZ, SIGNAL(finished()), p_InitEnd);z
     p_InitStepperZ->addTransition(p_InitStepperZ, SIGNAL(finished()), p_ParallelInit);
     p_ParallelInit->addTransition(p_ParallelInit, SIGNAL(finished()), p_InitEnd);
 
@@ -653,7 +653,8 @@ void CDeviceXyz::FillColumnRowPosition()
     }
 
     // Oven Layout
-    if (DEVICE_INSTANCE_ID_GRAPPLER_1 == m_InstanceID)
+    //if (DEVICE_INSTANCE_ID_GRAPPLER_1 == m_InstanceID)
+    if (DEVICE_INSTANCE_ID_XYZ == m_InstanceID)
     {
         PositionY = XYZ_OVEN_Y_START;
         for (StationRow = XYZ_OVEN_ROW_START; StationRow <= XYZ_OVEN_ROW_END; StationRow++)
@@ -732,7 +733,8 @@ void CDeviceXyz::FillColumnRowPosition()
     }
 
     // Rack Transfer
-    if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
+    //if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
+    if (DEVICE_INSTANCE_ID_XYZ_2 == m_InstanceID)
     {
         m_StaionPos[XYZ_RTS_COL][XYZ_RTS_ROW].PositionX = XYZ_RTS_X_POS;
         m_StaionPos[XYZ_RTS_COL][XYZ_RTS_ROW].PositionY = XYZ_RTS_Y_POS;
@@ -744,7 +746,8 @@ void CDeviceXyz::FillColumnRowPosition()
         for (StationColumn = XYZ_COL1; StationColumn <= XYZ_COL18; StationColumn++)
         {
             // adjust bath layout coordinates for right grappler
-            if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
+            //if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
+            if (DEVICE_INSTANCE_ID_XYZ_2 == m_InstanceID)
             {
                 if (m_StaionPos[StationColumn][StationRow].PositionX != 0)
                 {
