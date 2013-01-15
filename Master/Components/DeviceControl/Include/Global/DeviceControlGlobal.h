@@ -312,8 +312,8 @@ typedef quint8 MotionProfileIdx_t; //!< stepper motor motion profile index
 typedef enum {
     DEVICE_INSTANCE_ID_UNDEFINED      = 0x00000000,  //!< undefine. used for initialization
     DEVICE_INSTANCE_ID_DEVPROC        = 0x00008000,  //!< the device processing itself
-    DEVICE_INSTANCE_ID_GRAPPLER_1     = 0x00008010,  //!< the left grappler
-    DEVICE_INSTANCE_ID_GRAPPLER_2     = 0x00008011,  //!< the right grappler
+  //  DEVICE_INSTANCE_ID_GRAPPLER_1     = 0x00008010,  //!< the left grappler
+  //  DEVICE_INSTANCE_ID_GRAPPLER_2     = 0x00008011,  //!< the right grappler
     DEVICE_INSTANCE_ID_LOADER         = 0x00008020,  //!< loader
     DEVICE_INSTANCE_ID_UNLOADER       = 0x00008021,  //!< unloader
     DEVICE_INSTANCE_ID_OVEN           = 0x00008030,  //!< oven
@@ -327,6 +327,8 @@ typedef enum {
     DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0,  //!< rack handling
     DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,  //!< device cover (hood)
     DEVICE_INSTANCE_ID_LIGHT          = 0x000080C1,  //!< device Light
+    DEVICE_INSTANCE_ID_XYZ            = 0x00008010,  //!< device XYZ
+    DEVICE_INSTANCE_ID_XYZ_2          = 0x00008011,  //!< device XYZ_2
     DEVICE_INSTANCE_ID_SLIDE_ID       = 0x00008090   //!< Slide ID
 } DevInstanceID_t;
 
@@ -352,6 +354,8 @@ public:
     static const QString m_DevRackHandlingKey;      //!< Rack handling device key
     static const QString m_DevCoverLineKey;         //!< Cover line device key
     static const QString m_DevSlideIdKey;           //!< Slide ID device key
+    static const QString m_DevHoodKey;              //!< Hood device key
+    static const QString m_DevLightKey;             //!< Hood device key
     // Colorado base modules
     static const QString m_BaseAgitationKey;        //!< Agitation base module key
     static const QString m_BaseExhaustKey;          //!< Exhaust base module key

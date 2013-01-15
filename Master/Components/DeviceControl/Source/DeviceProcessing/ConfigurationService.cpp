@@ -36,6 +36,10 @@
 #include "DeviceControl/Include/Devices/DeviceRackTransfer.h"
 #include "DeviceControl/Include/Devices/DeviceSlideId.h"
 #include "DeviceControl/Include/Devices/DeviceXyz.h"
+#include "DeviceControl/Include/Devices/DeviceExhaust.h"
+#include "DeviceControl/Include/Devices/DeviceWater.h"
+#include "DeviceControl/Include/Devices/DeviceLight.h"
+#include "DeviceControl/Include/Devices/DeviceHood.h"
 
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
@@ -388,6 +392,26 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
         else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevXyzTransportationKey)
         {
             pBaseDevice = new CDeviceXyz(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
+                                                  pBaseDeviceCfg->m_InstanceID);
+        }
+        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevWaterKey)
+        {
+            pBaseDevice = new CDeviceWater(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
+                                                  pBaseDeviceCfg->m_InstanceID);
+        }
+        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevHoodKey)
+        {
+            pBaseDevice = new CDeviceHood(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
+                                                  pBaseDeviceCfg->m_InstanceID);
+        }
+        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevLightKey)
+        {
+            pBaseDevice = new CDeviceLight(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
+                                                  pBaseDeviceCfg->m_InstanceID);
+        }
+        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevExhaustKey)
+        {
+            pBaseDevice = new CDeviceExhaust(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
                                                   pBaseDeviceCfg->m_InstanceID);
         }
         else

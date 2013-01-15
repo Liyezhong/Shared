@@ -53,10 +53,12 @@ const QString CANObjectKeyLUT::m_DevHeatedCuvettesKey = "HeatedCuvettes";
 const QString CANObjectKeyLUT::m_DevDrawerKey = "Drawer";
 const QString CANObjectKeyLUT::m_DevOvenKey = "Oven";
 const QString CANObjectKeyLUT::m_DevRackTransferKey = "RackTransfer";
-const QString CANObjectKeyLUT::m_DevWaterKey = "WaterDevice";
+const QString CANObjectKeyLUT::m_DevWaterKey = "Water";
 const QString CANObjectKeyLUT::m_DevRackHandlingKey = "RackHandling";
 const QString CANObjectKeyLUT::m_DevCoverLineKey = "CoverLine";
 const QString CANObjectKeyLUT::m_DevSlideIdKey = "SlideId";
+const QString CANObjectKeyLUT::m_DevHoodKey = "Hood";
+const QString CANObjectKeyLUT::m_DevLightKey= "Light";
 
 const QString CANObjectKeyLUT::m_BaseAgitationKey = "base_agitation";
 const QString CANObjectKeyLUT::m_BaseExhaustKey = "base_exhaust";
