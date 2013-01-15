@@ -355,7 +355,7 @@ public:
     static const QString m_DevCoverLineKey;         //!< Cover line device key
     static const QString m_DevSlideIdKey;           //!< Slide ID device key
     static const QString m_DevHoodKey;              //!< Hood device key
-    static const QString m_DevLightKey;             //!< Hood device key
+    static const QString m_DevLightKey;             //!< Light device key
     // Colorado base modules
     static const QString m_BaseAgitationKey;        //!< Agitation base module key
     static const QString m_BaseExhaustKey;          //!< Exhaust base module key
@@ -368,6 +368,7 @@ public:
     static const QString m_BaseRackTransferKey;     //!< Rack transfer base module key
     static const QString m_BaseWaterKey;            //!< Water base module key
     static const QString m_BaseSlideIdKey;          //!< Slide ID base module key
+    static const QString m_BaseHoodKey;             //!< Hood base module key
     // Colorado function modules
     static const QString m_MotorAgitationKey;           //!< Motor agitation
     static const QString m_FlowSensorKey;               //!< air flow sensor

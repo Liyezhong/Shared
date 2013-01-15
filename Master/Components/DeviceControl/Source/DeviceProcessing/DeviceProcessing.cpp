@@ -71,6 +71,7 @@ const QString CANObjectKeyLUT::m_BaseOvenKey = "base_oven";
 const QString CANObjectKeyLUT::m_BaseRackTransferKey = "base_rack_transfer";
 const QString CANObjectKeyLUT::m_BaseWaterKey = "base_water";
 const QString CANObjectKeyLUT::m_BaseSlideIdKey = "base_slide_id";
+const QString CANObjectKeyLUT::m_BaseHoodKey = "base_hood";
 
 const QString CANObjectKeyLUT::m_MotorAgitationKey = "motor_agitation";
 const QString CANObjectKeyLUT::m_FlowSensorKey = "flow_sensor";
@@ -123,7 +124,7 @@ const QString CANObjectKeyLUT::m_MotorRackHdlXAxisKey = "motor_rackhdl_x_axis";
 const QString CANObjectKeyLUT::m_MotorRackHdlYAxisKey = "motor_rackhdl_y_axis";
 const QString CANObjectKeyLUT::m_MotorRackHdlZAxisKey = "motor_rackhdl_z_axis";
 const QString CANObjectKeyLUT::m_MotorRackHdlGrabberKey = "motor_rackhdl_grab";
-const QString CANObjectKeyLUT::m_HoodSensorKey = "hood_open_sensor";
+const QString CANObjectKeyLUT::m_HoodSensorKey = "reed_active1";
 
 //QString DeviceProcessing::m_HWConfigFileName = "hw_specification_sepia.xml";
 QString DeviceProcessing::m_HWConfigFileName = "hw_specification.xml";
