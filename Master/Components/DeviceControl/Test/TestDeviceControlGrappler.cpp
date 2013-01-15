@@ -43,8 +43,8 @@ void TestDeviceControlGrappler::initTestCase()
 {
 
 
-    m_pIGrappler1 = m_pDeviceProcessingResponse->GetIDeviceProcessing()->GetIGrapplerDevice(DEVICE_INSTANCE_ID_GRAPPLER_1);
-    m_pIGrappler2 = m_pDeviceProcessingResponse->GetIDeviceProcessing()->GetIGrapplerDevice(DEVICE_INSTANCE_ID_GRAPPLER_2);
+    m_pIGrappler1 = m_pDeviceProcessingResponse->GetIDeviceProcessing()->GetIGrapplerDevice(DEVICE_INSTANCE_ID_XYZ);
+    m_pIGrappler2 = m_pDeviceProcessingResponse->GetIDeviceProcessing()->GetIGrapplerDevice(DEVICE_INSTANCE_ID_XYZ_2);
 
     connect(m_pDeviceProcessingResponse, SIGNAL(ReportGrapplerReferenceRunAckn(DevInstanceID_t, ReturnCode_t)), this, SLOT(OnGrapplerReferenceRunAckn(DevInstanceID_t, ReturnCode_t)));
     connect(m_pDeviceProcessingResponse, SIGNAL(ReportGrapplerPositioningAckn(DevInstanceID_t, ReturnCode_t)), this, SLOT(OnGrapplerPositioningAckn(DevInstanceID_t, ReturnCode_t)));
@@ -110,11 +110,11 @@ void TestDeviceControlGrappler::utTestReferenceRuns()
 
 void TestDeviceControlGrappler::OnGrapplerReferenceRunAckn(DevInstanceID_t InstanceID, ReturnCode_t HdlInfo)
 {
-    if(InstanceID == DEVICE_INSTANCE_ID_GRAPPLER_1)
+    if(InstanceID == DEVICE_INSTANCE_ID_XYZ)
     {
         m_HdlInfoReferenceRunGrappler1 = HdlInfo;
     }
-    else if(InstanceID == DEVICE_INSTANCE_ID_GRAPPLER_2)
+    else if(InstanceID == DEVICE_INSTANCE_ID_XYZ_2)
     {
         m_HdlInfoReferenceRunGrappler2 = HdlInfo;
     }
@@ -332,11 +332,11 @@ void TestDeviceControlGrappler::utTestGrapplerPositioningDetachRack()
 
 void TestDeviceControlGrappler::OnGrapplerPositioningAckn(DevInstanceID_t InstanceID, ReturnCode_t HdlInfo)
 {
-    if(InstanceID == DEVICE_INSTANCE_ID_GRAPPLER_1)
+    if(InstanceID == DEVICE_INSTANCE_ID_XYZ)
     {
         m_HdlInfoPositioningGrappler1 = HdlInfo;
     }
-    else if(InstanceID == DEVICE_INSTANCE_ID_GRAPPLER_2)
+    else if(InstanceID == DEVICE_INSTANCE_ID_XYZ_2)
     {
         m_HdlInfoPositioningGrappler2 = HdlInfo;
     }

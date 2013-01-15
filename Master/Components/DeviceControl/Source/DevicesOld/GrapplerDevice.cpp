@@ -70,8 +70,8 @@ CGrapplerDevice::CGrapplerDevice(DeviceProcessing* pDeviceProcessing, QString Ty
 
     m_instanceID = instanceID;
 
-    Q_ASSERT( ((m_instanceID == DEVICE_INSTANCE_ID_GRAPPLER_1) ||
-               (m_instanceID == DEVICE_INSTANCE_ID_GRAPPLER_2)) );
+    Q_ASSERT( ((m_instanceID == DEVICE_INSTANCE_ID_XYZ) ||
+               (m_instanceID == DEVICE_INSTANCE_ID_XYZ_2)) );
 
     for(int idxCol = 0; idxCol < 18; idxCol++)
     {
@@ -1757,7 +1757,7 @@ ReturnCode_t CGrapplerDevice::ReadAdjustment()
         short rowIndex, posIndex;;
         bool ok;
 
-        if(m_instanceID == DEVICE_INSTANCE_ID_GRAPPLER_1)
+        if(m_instanceID == DEVICE_INSTANCE_ID_XYZ)
         {
             FILE_LOG_L(laDEV, llDEBUG4) << " open grappler_left";
             nodeGrappler = child.firstChildElement("grappler_left");

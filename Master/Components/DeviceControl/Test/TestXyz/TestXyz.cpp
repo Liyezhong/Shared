@@ -94,10 +94,10 @@ void TestXyz::init()
     m_Rfid11785.Reset();
 
     mp_LeftXyzDevice = new CDeviceXyz(m_DeviceProcessing,
-                                      m_DevFctModList, DEVICE_INSTANCE_ID_GRAPPLER_1);
+                                      m_DevFctModList, DEVICE_INSTANCE_ID_XYZ);
 
     mp_RightXyzDevice = new CDeviceXyz(m_DeviceProcessing,
-                                       m_DevFctModList, DEVICE_INSTANCE_ID_GRAPPLER_1);
+                                       m_DevFctModList, DEVICE_INSTANCE_ID_XYZ);
 
     if (!connect(&m_MockDcp, SIGNAL(Configure()), 
                   mp_LeftXyzDevice, SIGNAL(Configure()))) {
