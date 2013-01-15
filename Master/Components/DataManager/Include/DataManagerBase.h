@@ -40,12 +40,12 @@ protected:
     bool m_IsInitialized;
     CDataContainerCollectionBase *mp_DataContainerCollection;
     Threads::MasterThreadController *mp_MasterThreadController; //!< This is passed to DataContainer
-    virtual bool DeinitDataContainer();
+    bool DeinitDataContainer();
 
 public:
     CUserSettingsCommandInterface *mp_SettingsCommandInterface; //!< Handles commands related to User Settings
     CDeviceConfigurationInterface *mp_DeviceConfigurationInterface; //!< Handles commands related to device configuration
-    virtual quint32 InitDataContainer();
+    quint32 InitDataContainer();
 
     CDataManagerBase(Threads::MasterThreadController *p_MasterThreadController);
     CDataManagerBase(Threads::MasterThreadController *p_MasterThreadController, CDataContainerCollectionBase *containerCollection);

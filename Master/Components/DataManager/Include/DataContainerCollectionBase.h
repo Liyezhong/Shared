@@ -41,8 +41,8 @@ private:
 
 protected:
     bool m_IsInitialized;
-    virtual bool InitContainers();
-    virtual bool DeinitContainers();
+    bool InitContainers();
+    bool DeinitContainers();
 
 public:
     CDataContainerCollectionBase(Threads::MasterThreadController *p_MasterThreadController);

@@ -33,9 +33,7 @@ CDataContainerCollectionBase::CDataContainerCollectionBase(Threads::MasterThread
     SettingsInterface(NULL),
     DeviceConfigurationInterface(NULL)
 {
-    if (!InitContainers()) {
-        qDebug() << "CDataContainer::Constructor / InitContainers failed";
-    }
+
 }
 
 CDataContainerCollectionBase::~CDataContainerCollectionBase()

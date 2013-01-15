@@ -171,7 +171,7 @@ qint32 GPIOPin::GetValue()
 /****************************************************************************/
 /*!
  *  \brief  Sets the Edge type
- *  \iparam p_Edge
+ *  \iparam p_Edge "falling" / "raising" / "both" / "none"
  *
  *  \return -1 for error , 0 for success.
  */

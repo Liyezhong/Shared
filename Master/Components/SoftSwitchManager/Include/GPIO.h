@@ -35,6 +35,9 @@ class GPIOPin: public QObject {
 private:
     qint32  m_Fd; //!< File descriptor
     qint32  m_CurrentValue; //!< Current Value of the pin
+    /*! GPIO number calculation
+     *  GPIO1_0 would be calculated as ( (1-1) * 32 + 0 )
+     */
     quint32 m_PinNumber; //!< GPIO number
     bool    m_Direction; //!< GPIO direction - In/ Out
 
