@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file   ServiceBaseModule.h
+/*! \file   InfoBaseModule.h
  *
- *  \brief  Definition file for class CServiceBaseModule
+ *  \brief  Definition file for class CInfoBaseModule
  *
  *  \version  0.1
  *  \date     2013-01-07
@@ -21,8 +21,8 @@
  */
 /****************************************************************************/
 
-#ifndef DEVICECONTROL_SERVICEBASEMODULE_H
-#define DEVICECONTROL_SERVICEBASEMODULE_H
+#ifndef DEVICECONTROL_INFOBASEMODULE_H
+#define DEVICECONTROL_INFOBASEMODULE_H
 
 #include "DeviceState.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
@@ -43,28 +43,35 @@ class CBaseModule;
 
 /****************************************************************************/
 /*!
- *  \brief
+ *  \brief  Fetches the service information from the base module
  */
 /****************************************************************************/
-class CServiceBaseModule : public CState
+class CInfoBaseModule : public CState
 {
     Q_OBJECT
 
 public:
-    explicit CServiceBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
+    explicit CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
                                 const QString &Name, QState *p_Parent = 0);
 
 signals:
+    /****************************************************************************/
+    /*!
+     *  \brief  Emitted when an error occurred during communication
+     *
+     *  \iparam ReturnCode = Error code
+     */
+    /****************************************************************************/
     void ReportError(ReturnCode_t ReturnCode);
 
 private:
     bool ReqSerialNumber(QEvent *p_Event);
     bool ReqEndTestResult(QEvent *p_Event);
 
-    CBaseModule *mp_BaseModule;
-    DataManager::CSubModule *mp_SubModule;
+    CBaseModule *mp_BaseModule;             //!< Base module used to get the information
+    DataManager::CSubModule *mp_SubModule;  //!< Data container in which the data is stored
 };
 
 } //namespace
 
-#endif // DEVICECONTROL_SERVICEBASEMODULE_H
+#endif // DEVICECONTROL_INFOBASEMODULE_H

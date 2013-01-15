@@ -128,7 +128,7 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
     m_eventString[MSG_EVENT_ERROR | 8]  = "E_SMOT_CONFIG_INVALID_PROFILE_VMIN: profile data for vMin/microsteps not compatible to timer reolution";
     m_eventString[MSG_EVENT_ERROR | 9]  = "E_SMOT_CONFIG_INVALID_PROFILE_VMAX: profile data for vMax/microsteps not compatible to interrupt timing";
 
-    m_eventString[MSG_EVENT_ERROR | 10] = "E_SMOT_REFRUN_TIMEOUT: during a reference run a timeout occured";
+    m_eventString[MSG_EVENT_ERROR | 10] = "E_SMOT_REFRUN_TIMEOUT: during a reference run a timeout occurred";
     m_eventString[MSG_EVENT_ERROR | 11] = "E_SMOT_REFRUN_MAXDISTANCE: during a reference run the max distance was exceeded";
     m_eventString[MSG_EVENT_ERROR | 12] = "E_SMOT_REFRUN_ERROR: during a reference run the motor stopped unexpectedly";
     m_eventString[MSG_EVENT_ERROR | 13] = "E_SMOT_TIMER_OVERLOAD: all stepper operations stopped because of timer overload - BOARD RESTART NEEDED";

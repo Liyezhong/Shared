@@ -107,7 +107,7 @@ private:
         FM_UART_SUB_STATE_CONFIG_START  = 0x01, //!< Start state, used to trigger the configuration transmission
         FM_UART_SUB_STATE_CONFIG_SEND   = 0x02, //!< Configuration is actually send
         FM_UART_SUB_STATE_CONFIG_FINISH = 0x03, //!< Configuration finished
-        FM_UART_SUB_STATE_CONFIG_ERROR  = 0x04  //!< Error occured while configuration procedure was done
+        FM_UART_SUB_STATE_CONFIG_ERROR  = 0x04  //!< Error occurred while configuration procedure was done
     } CANNodeSubStateConfig_t;
 
     CANNodeSubStateConfig_t m_subStateConfig;   //!< Sub state of the configuration task

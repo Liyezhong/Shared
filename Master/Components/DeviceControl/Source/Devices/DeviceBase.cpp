@@ -23,7 +23,7 @@
 
 #include <QFinalState>
 #include "DeviceControl/Include/Devices/DeviceBase.h"
-#include "DeviceControl/Include/Devices/ServiceInformation.h"
+#include "DeviceControl/Include/Devices/ServiceState.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 
 namespace DeviceControl
@@ -147,12 +147,16 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     mp_Operating = new CState("Operating", mp_All);
     mp_Operating->setChildMode(QState::ParallelStates);
     mp_Working = new CState("Working", mp_Operating);
-    mp_Service = new CServiceInformation(m_ModuleMap, "Service", mp_Operating);
+    mp_Service = new CServiceState(m_ModuleMap, "Service", mp_Operating);
     mp_All->setInitialState(mp_Init);
 
-    connect(this, SIGNAL(GetServiceInformation()), mp_Service, SIGNAL(GetServiceInformation()));
-    connect(mp_Service, SIGNAL(ReportGetServiceInformation(ReturnCode_t, DataManager::CModule)),
-            this, SIGNAL(ReportGetServiceInformation(ReturnCode_t, DataManager::CModule)));
+    connect(this, SIGNAL(GetServiceInfo()), mp_Service, SIGNAL(GetServiceInfo()));
+    connect(mp_Service, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule)),
+            this, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule)));
+
+    connect(this, SIGNAL(ResetServiceInfo()), mp_Service, SIGNAL(ResetServiceInfo()));
+    connect(mp_Service, SIGNAL(ReportResetServiceInfo(ReturnCode_t)),
+            this, SIGNAL(ReportResetServiceInfo(ReturnCode_t)));
 
     mp_Start = new CState("Start", mp_Init);
     mp_Configuring = new CState("Configuring", mp_Init);

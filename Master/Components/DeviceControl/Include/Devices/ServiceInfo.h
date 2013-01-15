@@ -1,10 +1,10 @@
 /****************************************************************************/
-/*! \file   ServiceInformation.h
+/*! \file   ServiceInfo.h
  *
- *  \brief  Definition file for class CServiceInformation
+ *  \brief  Definition file for class CServiceInfo
  *
  *  \version  0.1
- *  \date     2013-01-04
+ *  \date     2013-01-15
  *  \author   M.Scherer
  *
  *  \b Description:
@@ -21,8 +21,8 @@
  */
 /****************************************************************************/
 
-#ifndef DEVICECONTROL_SERVICEINFORMATION_H
-#define DEVICECONTROL_SERVICEINFORMATION_H
+#ifndef DEVICECONTROL_SERVICEINFO_H
+#define DEVICECONTROL_SERVICEINFO_H
 
 #include "DeviceState.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
@@ -39,43 +39,53 @@ class CModule;
 
 /****************************************************************************/
 /*!
- *  \brief
+ *  \brief  This class fetches the service information of a device
  */
 /****************************************************************************/
-class CServiceInformation : public CState
+class CServiceInfo : public CState
 {
     Q_OBJECT
 
 public:
-    explicit CServiceInformation(QMap<QString, CModule *> &ModuleMap, const QString &Name, QState *p_Parent = 0);
+    explicit CServiceInfo(QMap<QString, CModule *> &ModuleMap, const QString &Name, QState *p_Parent = 0);
 
 signals:
     // command request interface to DCP
     /****************************************************************************/
     /*!
-     *  \brief
+     *  \brief  Requests the service information from the device
      */
     /****************************************************************************/
-    void GetServiceInformation();
+    void GetServiceInfo();
 
     // command response interface to DCP
     /****************************************************************************/
     /*!
-     *  \brief
+     *  \brief  Returns the service information of the device
      *
      *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     *  \iparam ModuleInfo = Contains the service information
      */
     /****************************************************************************/
-    void ReportGetServiceInformation(ReturnCode_t ReturnCode, DataManager::CModule ModuleInformation);
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, DataManager::CModule ModuleInfo);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Emitted when an error occurred during communication
+     *
+     *  \iparam ReturnCode = Error code
+     */
+    /****************************************************************************/
     void OnReportError(ReturnCode_t ReturnCode);
 
 private:
     bool ReportSuccess(QEvent *p_Event);
     bool ReportError(QEvent *p_Event);
-    DataManager::CModule m_ModuleInformation;
+    bool ReportActive(QEvent *p_Event);
+
+    DataManager::CModule m_ModuleInformation;   //!< Contains the service information
 };
 
 } //namespace
 
-#endif // DEVICECONTROL_SERVICEINFORMATION_H
+#endif // DEVICECONTROL_SERVICEINFO_H

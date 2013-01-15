@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file   ServiceBaseModule.cpp
+/*! \file   InfoBaseModule.cpp
  *
- *  \brief  Implementaion file for class CServiceBaseModule
+ *  \brief  Implementaion file for class CInfoBaseModule
  *
  *  \version  0.1
  *  \date     2012-01-07
@@ -21,7 +21,7 @@
  */
 /****************************************************************************/
 
-#include "DeviceControl/Include/Devices/ServiceBaseModule.h"
+#include "DeviceControl/Include/Devices/InfoBaseModule.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include <QFinalState>
@@ -29,18 +29,20 @@
 namespace DeviceControl
 {
 
-//! Signal transition for CServiceBaseModule
-typedef CSignalTransition<CServiceBaseModule> CServiceBaseModuleTransition;
+//! Signal transition for CInfoBaseModule
+typedef CSignalTransition<CInfoBaseModule> CInfoBaseModuleTransition;
 
 /****************************************************************************/
 /*!
- *  \brief  Constructor of class CServiceBaseModule
+ *  \brief  Constructor of class CInfoBaseModule
  *
+ *  \iparam p_BaseModule = Base module used for communication
+ *  \iparam p_SubModule = The data is stored here
  *  \iparam Name = Name of the state for debugging outputs
  *  \iparam p_Parent = Parent state
  */
 /****************************************************************************/
-CServiceBaseModule::CServiceBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
+CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
                                        const QString &Name, QState *p_Parent) :
     CState(Name, p_Parent), mp_BaseModule(p_BaseModule), mp_SubModule(p_SubModule)
 {
@@ -50,17 +52,26 @@ CServiceBaseModule::CServiceBaseModule(CBaseModule *p_BaseModule, DataManager::C
     QFinalState *p_ReqEndTestResult = new QFinalState(this);
     setInitialState(p_Init);
 
-    p_Init->addTransition(new CServiceBaseModuleTransition(
+    p_Init->addTransition(new CInfoBaseModuleTransition(
         p_Init, SIGNAL(entered()),
-        *this, &CServiceBaseModule::ReqSerialNumber,
+        *this, &CInfoBaseModule::ReqSerialNumber,
         p_ReqSerialNumber));
-    p_ReqSerialNumber->addTransition(new CServiceBaseModuleTransition(
+    p_ReqSerialNumber->addTransition(new CInfoBaseModuleTransition(
         mp_BaseModule, SIGNAL(ReportSerialNumber(quint32, ReturnCode_t, QString)),
-        *this, &CServiceBaseModule::ReqEndTestResult,
+        *this, &CInfoBaseModule::ReqEndTestResult,
         p_ReqEndTestResult));
 }
 
-bool CServiceBaseModule::ReqSerialNumber(QEvent *p_Event)
+/****************************************************************************/
+/*!
+ *  \brief  Requests the serial number from the base module
+ *
+ *  \iparam p_Event = Unused
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
+bool CInfoBaseModule::ReqSerialNumber(QEvent *p_Event)
 {
     Q_UNUSED(p_Event)
 
@@ -73,11 +84,18 @@ bool CServiceBaseModule::ReqSerialNumber(QEvent *p_Event)
     return true;
 }
 
-bool CServiceBaseModule::ReqEndTestResult(QEvent *p_Event)
+/****************************************************************************/
+/*!
+ *  \brief  Requests the end test result from the base module
+ *
+ *  \iparam p_Event = Parameters of the signal ReportSerialNumber
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
+bool CInfoBaseModule::ReqEndTestResult(QEvent *p_Event)
 {
-    Q_UNUSED(p_Event)
-
-    ReturnCode_t ReturnCode = CServiceBaseModuleTransition::GetEventValue(p_Event, 1);
+    ReturnCode_t ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         emit ReportError(ReturnCode);
         return false;

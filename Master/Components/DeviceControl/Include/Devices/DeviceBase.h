@@ -43,7 +43,7 @@
 namespace DeviceControl
 {
 
-class CServiceInformation;
+class CServiceState;
 
 typedef QList<CBaseModule*> DeviceBaseModList;
 
@@ -148,7 +148,19 @@ signals:
     /****************************************************************************/
     void Disable();
 
-    void GetServiceInformation();
+    /****************************************************************************/
+    /*!
+     *  \brief  Requests the service information from the device
+     */
+    /****************************************************************************/
+    void GetServiceInfo();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Resets the service information of the device
+     */
+    /****************************************************************************/
+    void ResetServiceInfo();
 
     // command response interface to DCP
     /****************************************************************************/
@@ -199,13 +211,31 @@ signals:
     /****************************************************************************/
     void ReportDisable(ReturnCode_t ReturnCode);
 
-    void ReportGetServiceInformation(ReturnCode_t ReturnCode, DataManager::CModule ModuleInformation);
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the service information of a device
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     *  \iparam ModuleInfo = Contains the service information
+     */
+    /****************************************************************************/
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, DataManager::CModule ModuleInfo);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Acknowledges the reset of the service information of the device
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     */
+    /****************************************************************************/
+    void ReportResetServiceInfo(ReturnCode_t ReturnCode);
 
     /****************************************************************************/
     /*! \brief  To report error to DCP
      */
     /****************************************************************************/
-    void ReportError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    void ReportError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorCode,
+                     quint16 ErrorData, QDateTime ErrorTime);
 
     /****************************************************************************/
     /*! \brief  To request reinitilization of device
@@ -243,7 +273,7 @@ protected:
     CState *mp_Initializing;
     CState *mp_Operating;       //!< Parallel state including working and service
     CState *mp_Working;         //!< State for normal operation
-    CServiceInformation *mp_Service;    //!< Service functionality of the base device
+    CServiceState *mp_Service;    //!< Service functionality of the base device
 
     const DeviceProcessing &m_DeviceProcessing;
     const DevInstanceID_t m_InstanceID;     ///< Instance ID
