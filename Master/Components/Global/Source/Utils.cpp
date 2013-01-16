@@ -313,7 +313,11 @@ Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
 bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
     if (DateToBeCompared.year() >= CurrentDate.year())
     {
-        if (DateToBeCompared.month() >= CurrentDate.month())
+        if (DateToBeCompared.month() > CurrentDate.month())
+        {
+            return true;
+        }
+        else if (DateToBeCompared.month() == CurrentDate.month())
         {
             if (DateToBeCompared.day() >= CurrentDate.day())
             {
@@ -322,6 +326,9 @@ bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
             else {
                 return false;
             }
+        }
+        else {
+            return false;
         }
     }
     else {

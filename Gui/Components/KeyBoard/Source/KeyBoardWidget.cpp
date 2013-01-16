@@ -954,7 +954,6 @@ void CKeyBoard::OnOkClicked()
 {
   //  unsigned int EnteredCharLen = mp_LineEdit->text().length();
     QString EnteredText = mp_LineEdit->text();
-    EnteredText = EnteredText.simplified();
     ValidateString(EnteredText);
     MainMenu::CMessageDlg MessageDlg(this);
     MessageDlg.SetTitle(tr("Information Message"));

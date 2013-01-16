@@ -44,7 +44,13 @@ CUserSettings::CUserSettings() :
     m_SoundNumberError(0),
     m_SoundLevelError(0),
     m_SoundNumberWarning(0),
-    m_SoundLevelWarning(0)
+    m_SoundLevelWarning(0),
+    m_RemoteCare(Global::ONOFFSTATE_UNDEFINED),
+    m_DirectConnection(Global::ONOFFSTATE_UNDEFINED),
+    m_ProxyUserName(""),
+    m_ProxyPassword(""),
+    m_ProxyIPAddress("0000.0000.0000.0001"),
+    m_ProxyIPPort(1)
 {
     // set default values
     SetDefaultAttributes();
@@ -92,6 +98,12 @@ void CUserSettings::SetDefaultAttributes()
     m_SoundLevelError       = 6;
     m_SoundNumberWarning    = 1;
     m_SoundLevelWarning     = 6;
+    m_RemoteCare            = Global::ONOFFSTATE_ON;
+    m_DirectConnection      = Global::ONOFFSTATE_OFF;
+    m_ProxyUserName         = "Colorado";
+    m_ProxyPassword         = "Colorado";
+    m_ProxyIPAddress        = "0000.0000.0000.0001";
+    m_ProxyIPPort           = 1;
 }
 
 
@@ -135,12 +147,23 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
     XmlStreamWriter.writeEndElement();
     // write sound end
     XmlStreamWriter.writeEndElement();
+
+    //write network settings realted details
+    XmlStreamWriter.writeStartElement("Network");
+    XmlStreamWriter.writeAttribute("RemoteCare", Global::OnOffStateToString(GetRemoteCare()));
+    XmlStreamWriter.writeAttribute("DirectConnection", Global::OnOffStateToString(GetDirectConnection()));
+    XmlStreamWriter.writeAttribute("ProxyUserName", GetProxyUserName());
+    XmlStreamWriter.writeAttribute("ProxyPassword", GetProxyPassword());
+    XmlStreamWriter.writeAttribute("ProxyIPAddress", GetProxyIPAddress());
+    XmlStreamWriter.writeAttribute("ProxyIPPort", QString::number(GetProxyIPPort(), 10));
+    //write network end element
+    XmlStreamWriter.writeEndElement();
+
     qDebug()<<"Serialize Value List"<<m_ValueList;
     QHashIterator<QString, QString> i(m_ValueList);
     while (i.hasNext())
     {
         i.next();
-
         QStringList stringList = i.key().split("_",  QString::SkipEmptyParts);
         if (stringList.count() == 2)
         {
@@ -198,6 +221,13 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
             {
                 if (!ReadSoundSettings(XmlStreamReader)) {
                     qDebug() << "CUserSettings::DeserializeContent: Read sound settings is failed";
+                    return false;
+                }
+            }
+            else if (XmlStreamReader.name() == "Network")
+            {
+                if (!ReadNetworkSettings(XmlStreamReader)) {
+                    qDebug() << "CUserSettings::DeserializeContent: Read NetworkSettings is failed";
                     return false;
                 }
             }
@@ -345,6 +375,55 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
         }
     }
 
+    return true;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Reads the Network settings from the file.
+ *
+ *  \iparam XmlStreamReader = Xmlfile reader pointer
+ *
+ *  \return True or False
+ */
+/****************************************************************************/
+bool CUserSettings::ReadNetworkSettings(QXmlStreamReader& XmlStreamReader)
+{
+    if (!XmlStreamReader.attributes().hasAttribute("RemoteCare")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <RemoteCare> is missing => abort reading";
+        return false;
+    }
+    SetRemoteCare(Global::StringToOnOffState(XmlStreamReader.attributes().value("RemoteCare").toString(), false));
+
+    if (!XmlStreamReader.attributes().hasAttribute("DirectConnection")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <DirectConnection> is missing => abort reading";
+        return false;
+    }
+    SetDirectConnection(Global::StringToOnOffState(XmlStreamReader.attributes().value("DirectConnection").toString(), false));
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyUserName")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyUserName> is missing => abort reading";
+        return false;
+    }
+    SetProxyUserName(XmlStreamReader.attributes().value("ProxyUserName").toString());
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyPassword")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyPassword> is missing => abort reading";
+        return false;
+    }
+    SetProxyPassword(XmlStreamReader.attributes().value("ProxyPassword").toString());
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyIPAddress")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyIPAddress> is missing => abort reading";
+        return false;
+    }
+    SetProxyIPAddress(XmlStreamReader.attributes().value("ProxyIPAddress").toString());
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyIPPort")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyIPPort> is missing => abort reading";
+        return false;
+    }
+    SetProxyIPPort(XmlStreamReader.attributes().value("ProxyIPPort").toString().toInt());
     return true;
 }
 
