@@ -38,20 +38,20 @@ class CmdAlarmToneTest : public Global::Command {
 public:
     static QString NAME;    ///< Command name.
     /****************************************************************************/
-    CmdAlarmToneTest(int Timeout, int Sound, int Volume, bool AlarmType);
+    CmdAlarmToneTest(int Timeout, quint8 Sound, quint8 Volume, bool AlarmType);
     CmdAlarmToneTest();
     ~CmdAlarmToneTest();
     virtual QString GetName() const;
-    int GetSound() const;
-    int GetVolume() const;
+    quint8 GetSound() const;
+    quint8 GetVolume() const;
     bool GetAlarmType() const;
 private:
 
     CmdAlarmToneTest(const CmdAlarmToneTest &);                       ///< Not implemented.
     const CmdAlarmToneTest & operator = (const CmdAlarmToneTest &);   ///< Not implemented.
 private:
-    int    m_Sound;     ///< Sound Parameter.
-    int    m_Volume;    ///< Volume Parameter.
+    quint8    m_Sound;     ///< Sound Parameter.
+    quint8    m_Volume;    ///< Volume Parameter.
     bool   m_AlarmType; ///< AlaramType Parameter.
    }; // end class CmdAlarmToneTest
 /****************************************************************************/

@@ -104,16 +104,19 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
 /****************************************************************************/
 void CUserSettingsCommandInterface::AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel)
 {
+    CUserSettings Settings;
     qDebug()<<"Test tone handler"<<endl;
     qDebug()<<"Alarm Test- Type:"<<Cmd.GetAlarmType() <<"Sound:"<< Cmd.GetSound()<<"Volume:" << Cmd.GetVolume();
     mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
     Platform::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
-//    if (p_AlarmHandler) {
+
+//        if (p_AlarmHandler) {
 //        p_AlarmHandler->setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
 //        p_AlarmHandler->setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
 //        p_AlarmHandler->setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
 //        p_AlarmHandler->setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
 //    }
+    p_AlarmHandler->playTestTone(Cmd.GetAlarmType(), Cmd.GetVolume(), Cmd.GetSound());
 }
 
 }// End of Namespace DataManager

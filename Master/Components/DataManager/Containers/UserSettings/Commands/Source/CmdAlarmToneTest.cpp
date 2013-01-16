@@ -34,7 +34,7 @@ QString CmdAlarmToneTest::NAME = "MsgClasses::CmdAlarmToneTest";
  * \param[in]   AlarmType   Type for Alarm.True for NOTE.False for ERROR.
  */
 /****************************************************************************/
-CmdAlarmToneTest::CmdAlarmToneTest(int Timeout, int Sound, int Volume, bool AlarmType) :
+CmdAlarmToneTest::CmdAlarmToneTest(int Timeout, quint8 Sound, quint8 Volume, bool AlarmType) :
                                    Command(Timeout),
                                    m_Sound(Sound),
                                    m_Volume(Volume),
@@ -75,7 +75,7 @@ QString CmdAlarmToneTest::GetName() const
  *  \return  Sound
  */
 /****************************************************************************/
-int CmdAlarmToneTest::GetSound() const
+quint8 CmdAlarmToneTest::GetSound() const
 {
     return m_Sound;
 }
@@ -86,7 +86,7 @@ int CmdAlarmToneTest::GetSound() const
  *  \return  Volume
  */
 /****************************************************************************/
-int CmdAlarmToneTest::GetVolume() const
+quint8 CmdAlarmToneTest::GetVolume() const
 {
     return m_Volume;
 }

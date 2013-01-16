@@ -21,6 +21,7 @@
 #include <Global/Include/AlarmHandler.h>
 #include <QDebug>
 #include <QProcess>
+//#include <QSound>
 
 namespace Platform {
 
@@ -28,7 +29,9 @@ namespace Platform {
 AlarmHandler::AlarmHandler(quint16 timeout, QString soundPath)
     : m_volume(1)
     , m_soundPath(soundPath)
+    , m_process(NULL)
 {
+    //moveToThread( this );
     m_mutex = new QMutex();
 
     m_Timer = new QTimer();
@@ -47,43 +50,81 @@ void AlarmHandler::onTimeout()
 {
     m_Timer->stop();
     m_mutex->lock();
+   // MsgClasses::CmdAlarmToneTest Cmd;
+    quint8 Volume = 1;
+    QString Filename = QString("");
 
-    Global::AlarmType alarmType = Global::ALARM_NONE;
-    QHash<quint64, Global::AlarmType>::iterator i;
-    for (i = m_errorList.begin(); i != m_errorList.end(); ++i)
-    {
-        if ((i.value() == Global::ALARM_ERROR) || ((i.value() == Global::ALARM_WARNING) && (alarmType != Global::ALARM_ERROR)))
+    //Global::AlarmType alarmType = Global::ALARM_NONE;
+    Global::AlarmType alarmType;
+
+        QHash<quint64, Global::AlarmType>::iterator i;
+        for (i = m_errorList.begin(); i != m_errorList.end(); ++i)
         {
             alarmType = i.value();
             emitAlarm(alarmType);
         }
-    }
-
+        //QHash<quint64, Global::AlarmType>::iterator ;
+        for (i = m_warningList.begin(); i != m_warningList.end(); ++i)
+        {
+            alarmType = i.value();
+            emitAlarm(alarmType);
+        }
 
     m_mutex->unlock();
     m_Timer->start();
 }
 
-void AlarmHandler::emitAlarm(Global::AlarmType alarmType)
+void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString Filename, quint8 Volume  )
 {
-    if (alarmType == Global::ALARM_NONE)
-        return;
+    // alarmType = ((AlarmTypeFlag) ? Global::ALARM_WARNING : Global::ALARM_ERROR );
 
-    QString soundFile = m_soundList.value(alarmType, QString(""));
 
+    QString soundFile = ((Active) ? m_soundList.value(alarmType, QString("")) : Filename);
     if (soundFile.length() == 0)
     {
         qDebug() << "AlarmHandler::emitAlarm" << "No sound file defined for alarm type " << alarmType;
         return;
     }
 
-    double volumeLevel = 0.1 + 0.15*m_volume;   // m_volume=6 => volumeLevel=1
+    double volumeLevel = ((Active) ? ( 0.1 + 0.15*m_volume ) : (0.1 + 0.15*Volume ));   // m_volume=6 => volumeLevel=1
 
-    QProcess *process = new QProcess(this);
-//    qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-    QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-    process->start(program);
+    if( !m_process )
+    {
+        m_process = new QProcess();
+        qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
+        QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
+        m_process->start(program);
+    }
+    else
+    {
+        qDebug() << "Process is already running";
+    }
 }
+void AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound)
+{
+    //Q_UNUSED(number);
+    quint8 number=Sound;
+    QString FileName = QString("");
+    MsgClasses::CmdAlarmToneTest Cmd;
+    Global::AlarmType alarmType;
+    //Volume = Cmd.GetVolume();
+    //AlarmTypeFlag = Cmd.GetAlarmType();
+    if ( !AlarmTypeFlag )
+    {
+        alarmType == Global::ALARM_ERROR;
+        QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".wav";
+        qDebug() << FileName;
+        emitAlarm(Global::ALARM_ERROR, false, FileName, Volume);
+    }
+    else
+    {
+        alarmType == Global::ALARM_WARNING;
+        QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".wav";
+        qDebug() << FileName;
+        emitAlarm(Global::ALARM_WARNING, false, FileName, Volume);
+    }
+}
+
 
 void AlarmHandler::setTimeout(quint16 timeout)
 {
@@ -105,13 +146,15 @@ void AlarmHandler::setVolume(Global::AlarmType alarmType, quint8 volume)
 
 void AlarmHandler::setSoundNumber(Global::AlarmType alarmType, int number)
 {
+    //Global::SystemPaths SysPath;
     Q_UNUSED(number);
     QString fileName = "";
-   // m_soundPath="/mnt/hgfs/SVN_HOME/trunk/Colorado/ColoradoMain/Master/Components/Main/Build/bin_dbg/";
+   // m_soundPath="";
+   //m_soundPath="/mnt/hgfs/SVN_HOME/trunk/Colorado/ColoradoMain/Master/Components/Main/Build/bin_dbg/";
     if (alarmType == Global::ALARM_ERROR)
-        fileName = m_soundPath + "SoundE" + QString::number(number) + ".wav";
+        fileName = Global::SystemPaths::Instance().GetSoundPath() + "SoundE" + QString::number(number) + ".wav";
     else
-        fileName = m_soundPath + "SoundW" + QString::number(number) + ".wav";
+        fileName = Global::SystemPaths::Instance().GetSoundPath() + "SoundW" + QString::number(number) + ".wav";
 
     if (fileName.length() > 0)
         setSoundFile(alarmType, fileName);
@@ -139,7 +182,7 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
     }
     else
     {
-        m_errorList.remove(eventKey);
+        m_warningList.insert(eventKey, alarmType);
     }
     m_mutex->unlock();
 }

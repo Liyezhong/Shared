@@ -25,7 +25,11 @@
 #include <QHash>
 #include <QTimer>
 #include <QMutex>
+#include <QProcess>
 #include <Global/Include/GlobalDefines.h>
+
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
+#include <Global/Include/SystemPaths.h>
 
 namespace Platform {
 
@@ -74,14 +78,20 @@ public:
       @brief Specifies the sound-id related to a specific alarm type
       */
     void setSoundNumber(Global::AlarmType alarmType, int number);
+    void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
+    void playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
 
 private:
     QHash<quint64, Global::AlarmType> m_errorList;
+    QHash<quint64, Global::AlarmType> m_warningList;
     QHash<Global::AlarmType, QString> m_soundList;
     QHash<Global::AlarmType, quint8> m_volumeList;
     QTimer* m_Timer;
     QMutex* m_mutex;
-    void emitAlarm(Global::AlarmType alarmType);
+    QProcess* m_process;
+    void emitAlarm (Global::AlarmType alarmType, bool Active = true, QString Filename = "", quint8 Volume = 1);
+
+
 
     quint8 m_volume;
     QString m_soundPath;
