@@ -73,6 +73,9 @@ bool Command::isStateAllowed(QString state)
     if ((state == "IdleState") && (isIdleStateAllowed()))
         return true;
 
+    if ((state == "InitState"))
+        return true;
+
     return false;
 }
 

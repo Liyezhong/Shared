@@ -32,6 +32,7 @@
 #include <Global/Include/Utils.h>
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
 #include <SoftSwitchManager/Include/GPIO.h>
+#include <EventHandler/Include/StateHandler.h>
 
 namespace SoftSwitchManager {
 
@@ -42,8 +43,9 @@ namespace SoftSwitchManager {
  *  \return
  *
  ****************************************************************************/
-SoftSwitchManagerThreadController::SoftSwitchManagerThreadController(Global::gSourceType TheHeartBeatSource) :
-    Threads::ThreadController(TheHeartBeatSource, "SoftSwitchManager")
+SoftSwitchManagerThreadController::SoftSwitchManagerThreadController(Global::gSourceType TheHeartBeatSource)
+    :Threads::ThreadController(TheHeartBeatSource, "SoftSwitchManager")
+    ,m_SoftSwitchManager(this)
 {
 }
 
@@ -72,6 +74,9 @@ void SoftSwitchManagerThreadController::CreateAndInitializeObjects()
 {
     // now register commands
     RegisterCommands();
+    //Connect SoftSwitchManager to SoftSwitchPressed signal
+    CONNECTSIGNALSIGNAL(this, OnSoftSwitchPressed(), &m_SoftSwitchManager, OnSoftSwitchPressed());
+
 }
 
 /****************************************************************************/
@@ -91,6 +96,7 @@ void SoftSwitchManagerThreadController::CleanupAndDestroyObjects()
 /*!
  *  \brief Register commands handled by thread Controller
  *
+ */
 /****************************************************************************/
 void SoftSwitchManagerThreadController::RegisterCommands()
 {
@@ -109,48 +115,46 @@ void SoftSwitchManagerThreadController::RegisterCommands()
 /****************************************************************************/
 void SoftSwitchManagerThreadController::OnGoReceived()
 {
-    #if 0
-    struct pollfd fdset[1];
-    int NumbOfFileDesc = 1;
-    char *Buf[100];
-    while (1) {
-        memset((void*)fdset, 0, sizeof(fdset));
-        fdset[0].fd = STDIN_FILENO; //Standard input
-        fdset[0].events = POLLIN;
-        int TimeOut = -1; // Infinite Timeout
-        int  PollReturn = poll(fdset, NumbOfFileDesc, 5000);
+    CONNECTSIGNALSLOT(&m_SoftSwitchManager, SendSoftSwitchPressedCmd(), this , SendSoftSwitchPressedCmd());
+    qDebug()<<"Current Thread" << thread();
+    qDebug()<<"SoftSwitchMgr thread" <<m_SoftSwitchManager.thread();
+    struct pollfd fdset[2];
+    int NumbOfFileDesc = 2;
+    char *p_Buf[100];
+    Global::EventObject::Instance().RaiseEvent(EVENT_SOFTSWITCH_MONITOR_START);
+    EventHandler::StateHandler::Instance().setStateToSoftSwitchMonitorState();
+    emit OnSoftSwitchPressed();
+//    while (1) {
+//        memset((void*)fdset, 0, sizeof(fdset));
+//        fdset[0].fd = STDIN_FILENO; //Standard input
+//        fdset[0].events = POLLIN;
+//        int TimeOut = -1; // Infinite Timeout
+//        int  PollReturn = poll(fdset, NumbOfFileDesc, 5);
 
-        if (PollReturn < 0) {
-            printf("\npoll() failed!\n");
-            return;
-        }
-
-        if (PollReturn == 0) {
-            printf(".");
-        }
-
-//        if (fdset[1].revents & POLLPRI) {
-//            int len = read(fdset[1].fd, Buf, MAX_BUF);
-//            printf("\npoll() GPIO %d interrupt occurred\n", gpio);
+//        if (PollReturn < 0) {
+//            qDebug("\npoll() failed!\n");
+//            return;
 //        }
 
-        if (fdset[0].revents & POLLIN) {
-            (void)read(fdset[0].fd, Buf, 1);
-            qDebug()<<"\npoll() stdin read:"<< (unsigned int) Buf[0];
-        }
+//        if (PollReturn == 0) {
+//            qDebug(".");
+//        }
+//        //SoftSwitch GPIO
+//        if (fdset[1].revents & POLLPRI) {
+//            int len = read(fdset[1].fd, p_Buf, 100);
+//            qDebug()<<"\npoll() GPIO interrupt occurred\n";
+//            emit OnSoftSwitchPressed();
+//        }
 
-        fflush(stdin);
-        rewind(stdin);
+//        if (fdset[0].revents & POLLIN) {
+//            (void)read(fdset[0].fd, p_Buf, 1);
+//            qDebug()<<"\npoll() stdin read:"<< p_Buf[0];
+//            emit OnSoftSwitchPressed();
+//        }
 
-        Global::CmdSoftSwitchPressed *p_SoftSwitchPressedCommand = new Global::CmdSoftSwitchPressed();
-        p_SoftSwitchPressedCommand->PressedAtStartUp = true;
-        SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_SoftSwitchPressedCommand));
-
-    }
-    #endif
-    Global::CmdSoftSwitchPressed *p_SoftSwitchPressedCommand = new Global::CmdSoftSwitchPressed();
-    p_SoftSwitchPressedCommand->PressedAtStartUp = true;
-    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_SoftSwitchPressedCommand));
+//        fflush(stdin);
+//        rewind(stdin);
+//    }
 }
 
 /****************************************************************************/
@@ -193,6 +197,16 @@ Global::tRefType SoftSwitchManagerThreadController::GetNewCommandRef()
 void SoftSwitchManagerThreadController::OnAcknowledge(Global::tRefType, const Global::AckOKNOK &)
 {
 
+}
+
+void SoftSwitchManagerThreadController::SendSoftSwitchPressedCmd()
+{
+    qDebug()<<"Sending SoftSwitchPressed Cmd";
+    Global::EventObject::Instance().RaiseEvent(EVENT_SOFTSWITCH_PRESSED_FIRST_TIME);
+
+    Global::CmdSoftSwitchPressed *p_SoftSwitchPressedCommand = new Global::CmdSoftSwitchPressed();
+    p_SoftSwitchPressedCommand->PressedAtStartUp = true;
+    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_SoftSwitchPressedCommand));
 }
 
 } //End Of namespace SoftSwitchManager

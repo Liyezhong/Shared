@@ -26,7 +26,7 @@
 #include <Global/Include/GlobalDefines.h>
 #include <Threads/Include/ThreadController.h>
 #include <Global/Include/Commands/AckOKNOK.h>
-
+#include <SoftSwitchManager/Include/SoftSwitchManager.h>
 
 
 namespace SoftSwitchManager {
@@ -70,9 +70,15 @@ protected:
     virtual void OnPowerFail();
 
 private:
+    SoftSwitchMgr m_SoftSwitchManager;
     Q_DISABLE_COPY(SoftSwitchManagerThreadController) //!< Disable copy and assignment
     void RegisterCommands();
     void OnAcknowledge(Global::tRefType, const Global::AckOKNOK &);
+private slots:
+    void SendSoftSwitchPressedCmd();
+
+signals:
+    void OnSoftSwitchPressed();
 };
 
 } // end namespace EventHandler

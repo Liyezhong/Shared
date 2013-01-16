@@ -63,6 +63,9 @@ public:
 
     void setActivityUpdate(bool active, quint32 activityId);
 
+    void setInitState();
+    void setIdleState();
+    void setStateToSoftSwitchMonitorState();
     QString getCurrentOperationState();
     QString getCurrentAvailabilityState();
 
@@ -75,6 +78,9 @@ private:
     QStateMachine m_operationMachine;
     QStateMachine m_availabilityMachine;
 
+    QState *m_DefaultState;
+    QState *m_SoftSwitchMonitorState;
+    QState *m_InitState;
     QState *m_idleState;
     QState *m_busyState;
 
@@ -105,6 +111,9 @@ signals:
 
     void enterIdleState();
     void enterBusyState();
+    void softSwitchPressed();
+    void initComplete();
+    void softSwitchMonitorStart();
 
     void stateChanged(QString);
 

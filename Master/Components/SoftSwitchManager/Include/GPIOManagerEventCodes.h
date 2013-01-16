@@ -1,0 +1,5 @@
+#ifndef GPIOMANAGEREVENTCODES_H
+#define GPIOMANAGEREVENTCODES_H
+#include <../Include/PlatformEventCodes.h>
+//const quint32  EVENT_BASIC_INIT_COMPLETE
+#endif // GPIOMANAGEREVENTCODES_H

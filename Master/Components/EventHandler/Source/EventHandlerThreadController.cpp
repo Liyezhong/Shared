@@ -464,6 +464,19 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
         return;
     }
 
+    if (EventID == EVENT_SOFTSWITCH_MONITOR_START) {
+        StateHandler::Instance().setStateToSoftSwitchMonitorState();
+        return;
+    }
+    else if(EventID == EVENT_SYSTEM_INIT_COMPLETE) {
+        StateHandler::Instance().setIdleState();
+        return;
+    }
+    else if (EventID == EVENT_SOFTSWITCH_PRESSED_FIRST_TIME) {
+        StateHandler::Instance().setInitState();
+        return;
+    }
+
     Global::AlarmType alarm = Global::ALARM_NONE;
     if(EventEntry.GetAlarmStatus())
     {

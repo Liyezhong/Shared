@@ -32,6 +32,12 @@ StateHandler StateHandler::m_StateHandlerInstance; //!< The instance
 /****************************************************************************/
 StateHandler::StateHandler()
 {
+    m_DefaultState = new QState();
+    m_DefaultState->setObjectName("DefaultState");
+    m_SoftSwitchMonitorState = new QState();
+    m_SoftSwitchMonitorState->setObjectName("SoftSwitchMonitorState");
+    m_InitState = new QState();
+    m_InitState->setObjectName("InitState");
     m_idleState = new QState();
     m_idleState->setObjectName("IdleState");
     m_busyState = new QState();
@@ -42,6 +48,9 @@ StateHandler::StateHandler()
     m_normalState = new QState();
     m_normalState->setObjectName("NormalState");
 
+    m_operationMachine.addState(m_DefaultState);
+    m_operationMachine.addState(m_SoftSwitchMonitorState);
+    m_operationMachine.addState(m_InitState);
     m_operationMachine.addState(m_idleState);
     m_operationMachine.addState(m_busyState);
 
@@ -49,14 +58,16 @@ StateHandler::StateHandler()
     m_availabilityMachine.addState(m_normalState);
 
 //    QAbstractTransition *transition = m_idleState->addTransition(m_errorState);
-
+    m_DefaultState->addTransition(this, SIGNAL(softSwitchMonitorStart()), m_SoftSwitchMonitorState);
+    m_SoftSwitchMonitorState->addTransition(this, SIGNAL(softSwitchPressed()), m_InitState);
+    m_InitState->addTransition(this, SIGNAL(initComplete()), m_idleState);
     m_busyState->addTransition(this, SIGNAL(enterIdleState()), m_idleState);
     m_idleState->addTransition(this, SIGNAL(enterBusyState()), m_busyState);
 
     m_errorState->addTransition(this, SIGNAL(enterNormalState()), m_normalState);
     m_normalState->addTransition(this, SIGNAL(enterErrorState()), m_errorState);
 
-    m_operationMachine.setInitialState(m_idleState);
+    m_operationMachine.setInitialState(m_DefaultState);
     m_availabilityMachine.setInitialState(m_normalState);
 
 //    connect(m_idleState, SIGNAL(stateChanged()), this, SLOT(onStateChanged()));
@@ -85,6 +96,7 @@ bool StateHandler::isAllowed(Global::CommandShPtr_t command)
 
     foreach (QAbstractState* state, m_operationMachine.configuration())
     {
+        qDebug()<<"Current State" << state->objectName();
         if (!command.GetPointerToUserData()->isStateAllowed(state->objectName()))
             retVal = false;
     }
@@ -131,6 +143,29 @@ void StateHandler::setActivityUpdate(bool active, quint32 activityId)
         m_rackList.removeOne(activityId);
         if (m_rackList.count() == 0)
             emit enterIdleState();
+    }
+}
+
+
+void StateHandler::setInitState()
+{
+    if (getCurrentOperationState() == "SoftSwitchMonitorState") {
+        emit softSwitchPressed();
+    }
+    qDebug()<<"Current state" << getCurrentOperationState();
+}
+
+void StateHandler::setIdleState()
+{
+    if (getCurrentOperationState() == "InitState") {
+        emit initComplete();
+    }
+}
+
+void StateHandler::setStateToSoftSwitchMonitorState()
+{
+    if (getCurrentOperationState() == "DefaultState") {
+        emit softSwitchMonitorStart();
     }
 }
 

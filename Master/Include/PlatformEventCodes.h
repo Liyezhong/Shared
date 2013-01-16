@@ -38,10 +38,15 @@ const quint32 EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR   = ((EVENT_GROUP_PLAT
 const quint32 EVENT_GROUP_PLATFORM_STATEMACHINES            = ((EVENT_GROUP_PLATFORM << 8) + 0x09) << 16;   ///< Event group for state machines.
 const quint32 EVENT_GROUP_PLATFORM_XML_PARSER               = ((EVENT_GROUP_PLATFORM << 8) + 0x0A) << 16;   ///< Event group for XML parser.
 const quint32 EVENT_GROUP_PLATFORM_EXTERNALPROCESSCONTROL   = ((EVENT_GROUP_PLATFORM << 8) + 0x0B) << 16;   ///< Event group for external process control.
-const quint32 EVENT_GROUP_PLATFORM_DEVICE_CONTROL_LAYER     = ((EVENT_GROUP_PLATFORM << 8) + 0x0F) << 16;   ///< adsa
+const quint32 EVENT_GROUP_PLATFORM_DEVICE_CONTROL_LAYER     = ((EVENT_GROUP_PLATFORM << 8) + 0x0F) << 16;   ///< Event group for device control layer
 const quint32 EVENT_GROUP_PLATFORM_EXPORT                   = ((EVENT_GROUP_PLATFORM << 8) + 0x10) << 16;   ///< Event group for Export
 const quint32 EVENT_GROUP_PLATFORM_PASSWORDMANAGER          = ((EVENT_GROUP_PLATFORM << 8) + 0x11) << 16;   ///< Event group for Password manager
 const quint32 EVENT_GROUP_PLATFORM_DM_USERSETTINGS          = ((EVENT_GROUP_PLATFORM << 8) + 0x12) << 16;   ///< Event group for Usersettings Data container
+const quint32 EVENT_GROUP_PLATFORM_GPIO_MANAGER             = ((EVENT_GROUP_PLATFORM << 8) + 0x13) << 16;   ///< Event group for GPIO manager
+const quint32 EVENT_GROUP_PLATFORM_GENERIC_EVENTS           = ((EVENT_GROUP_PLATFORM << 8) + 0x14) << 16;   ///< Event group for generic events
 
-
+//!< Generic events
+const quint32 EVENT_SOFTSWITCH_MONITOR_START                = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x001; //!< Raised when basic system init is complete
+const quint32 EVENT_SOFTSWITCH_PRESSED_FIRST_TIME           = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x002; //!< Raised when basic system init is complete
+const quint32 EVENT_SYSTEM_INIT_COMPLETE                    = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x002; //!< Raised when basic system init is complete
 #endif // namespace PLATFORMEVENTCODES_H
