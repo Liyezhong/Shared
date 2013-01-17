@@ -482,6 +482,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame
 
     if (p_CanFrame->can_dlc == 5) {
         m_UpdateRequired = p_CanFrame->data[0];
+//        m_UpdateRequired = true;
 
         if (!m_UpdateRequired && !m_WaitForUpdate) {
             m_State = BOOTLOADER_IDLE;
