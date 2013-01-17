@@ -60,8 +60,8 @@ private:
     bool CheckLoaderReagentID(QString LoaderReagentID);
     void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
     void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
-    void CheckNetWorkSettings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
-    bool CheckProxyIPAddress(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
+    void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData, QString& ErrorDescription);
+    bool CheckProxyIPAddress(CUserSettings* p_UserSettings);
 };
 
 } // namespace DataManager

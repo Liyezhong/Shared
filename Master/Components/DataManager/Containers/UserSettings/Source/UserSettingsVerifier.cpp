@@ -397,55 +397,55 @@ void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings,
 /*!
  *  \brief  Check Network Settings.
  *
- *  \iparam UserSettings - Pointer to CUserSettings
+ *  \iparam p_UserSettings - Pointer to CUserSettings
  *  \iparam VerifiedData = verifier flag value
  *  \iparam ErrorDescription = Description of the error
  *
  */
 /****************************************************************************/
-void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription)
+void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData, QString& ErrorDescription)
 {
-    if (!((UserSettings->GetRemoteCare() == Global::ONOFFSTATE_ON || UserSettings->GetRemoteCare() == Global::ONOFFSTATE_OFF))) {
+    if (!((p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_ON || p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS REMOTE CONNECTION IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetRemoteCare());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetRemoteCare(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare(), true);
         VerifiedData = false;
     }
 
-    if (!((UserSettings->GetDirectConnection() == Global::ONOFFSTATE_ON || UserSettings->GetDirectConnection() == Global::ONOFFSTATE_OFF))) {
+    if (!((p_UserSettings->GetDirectConnection() == Global::ONOFFSTATE_ON || p_UserSettings->GetDirectConnection() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS DIRECT CONNECTION IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetDirectConnection());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetDirectConnection(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetDirectConnection());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetDirectConnection(), true);
         VerifiedData = false;
     }
 
-    if (!((UserSettings->GetProxyUserName() != " " || UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH ||
-           UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
+    if (!((p_UserSettings->GetProxyUserName() != " " || p_UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH ||
+           p_UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
         qDebug() << "PROXY USERNAME IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << UserSettings->GetProxyUserName());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << UserSettings->GetProxyUserName(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName(), true);
         VerifiedData = false;
     }
 
-    if (!((UserSettings->GetProxyPassword() != " " || UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH ||
-           UserSettings->GetProxyPassword().length() <= MAX_PROXY_PASSWORD_LENGTH))) {
+    if (!((p_UserSettings->GetProxyPassword() != " " || p_UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH ||
+           p_UserSettings->GetProxyPassword().length() <= MAX_PROXY_PASSWORD_LENGTH))) {
         qDebug() << "PROXY PASSWORD IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << UserSettings->GetProxyPassword());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << UserSettings->GetProxyPassword(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword(), true);
         VerifiedData = false;
     }
 
-    if (!((CheckProxyIPAddress(UserSettings, VerifiedData, ErrorDescription)))) {
-        qDebug() << "PROXY IP ADDRESS NOT IN RANGE";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() << UserSettings->GetProxyIPAddress());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() <<  UserSettings->GetProxyIPAddress(), true);
+    if (!((CheckProxyIPAddress(p_UserSettings)))) {
+        qDebug() << "PROXY IP ADDRESS NOT IS NOT VALID";
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPAddress());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() <<  p_UserSettings->GetProxyIPAddress(), true);
         VerifiedData = false;
     }
 
-    if (!(((UserSettings->GetProxyIPPort() >= MIN_PROXY_IP_PORT) && (UserSettings->GetProxyIPPort() <= MAX_PROXY_IP_PORT)))) {
+    if (!(((p_UserSettings->GetProxyIPPort() >= MIN_PROXY_IP_PORT) && (p_UserSettings->GetProxyIPPort() <= MAX_PROXY_IP_PORT)))) {
         qDebug() << "PROXY IP PORT NUMBER NOT IN RANGE";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << UserSettings->GetProxyIPPort());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << UserSettings->GetProxyIPPort(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPPort());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPPort(), true);
         VerifiedData = false;
     }
 
@@ -455,16 +455,14 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* UserSettings, bo
 /*!
  *  \brief Check Proxy IP Address of Network Settings.
  *
- *  \iparam UserSettings - Pointer to CUserSettings
- *  \iparam VerifiedData = verifier flag value
- *  \iparam ErrorDescription = Description of the error
- *
+ *  \iparam p_UserSettings - Pointer to CUserSettings
+ *  \return True - If IP address is valid else False
  */
 /****************************************************************************/
 
-bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription)
+bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings *p_UserSettings)
 {
-    QString ProxyIPAddress = UserSettings->GetProxyIPAddress();
+    QString ProxyIPAddress = p_UserSettings->GetProxyIPAddress();
     qDebug()<<"\n\n Count= "<< ProxyIPAddress.split(".").count();
     if (ProxyIPAddress.split(".").count() == 4) {
         for (int i = 0; i <= ProxyIPAddress.split(".").count(); i++)
@@ -473,22 +471,14 @@ bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings* UserSettings, boo
             int AddressNumber = AddressNumberString.toInt();
             qDebug()<<"\n\n AddressNumber ="<< AddressNumber;
             if (AddressNumber < 0 || AddressNumber > 255) {
-                VerifiedData = false;
-                return VerifiedData;
-                qDebug()<<" IP Address not in range";
-            }
-            else {
-                VerifiedData = true;
-            }
+                return false;
+            }            
         }
     }
     else {
-        qDebug()<<" IP Address not valid";
-        VerifiedData = false;
-        return VerifiedData;
+        return false;
     }
-    VerifiedData = true;
-    return VerifiedData;
+    return true;
 }
 }  // namespace DataManager
 

@@ -310,6 +310,7 @@ Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
     return Global::NO_BUTTON;
 }
 
+/****************************************************************************/
 bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
     if (DateToBeCompared.year() >= CurrentDate.year())
     {
