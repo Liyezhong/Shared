@@ -215,6 +215,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                 EventCSVInfo.SetEventCode(EventCode); // only int check, no other validations done
             }
 
+
             //Get EventMacro
             //! \ Get EventMacro (1)
             QString EventMacroName = "";
@@ -377,6 +378,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
         }
     }
+
     file.close();
 }
 /****************************************************************************/
@@ -450,9 +452,17 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
 
     EventCSVInfo EventInfo = m_eventList.value(EventID);
     DataLogging::DayEventEntry EventEntry;
-    EventEntry.SetEventCode(EventID);
+    if (EventInfo.GetEventCode() == 0)
+    {
+        EventInfo = m_eventList.value(EVENT_EVENT_ID_MISSING);
+        EventEntry.SetTranslatableStringList(Global::FmtArgs() << EventID);
+    }
+    else
+    {
+        EventEntry.SetTranslatableStringList(EventStringList);
+    }
+
     EventEntry.SetEventCSVInfo(EventInfo);
-    EventEntry.SetTranslatableStringList(EventStringList);
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
     
     EventEntry.SetEventStatus(EventStatus);
@@ -508,7 +518,6 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     }
 
 //    mpAlarmHandler->setSoundNumber(Global::ALARM_WARNING, mpUserSettings->GetSoundNumberWarning());
-
 
     ForwardToErrorHandler(EventEntry, EventKey);// Send the Error for handling
     /// \todo this is a test of Axeda Remote Care error reporting:
