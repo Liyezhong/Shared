@@ -28,7 +28,7 @@
 #include <QProcess>
 #include <Global/Include/GlobalDefines.h>
 
-#include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
+#include "TestStubDataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
 #include <Global/Include/SystemPaths.h>
 
 namespace Platform {
