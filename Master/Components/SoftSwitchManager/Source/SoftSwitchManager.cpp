@@ -9,36 +9,31 @@ const quint32 DIRECTION_IS_INPUT = 0;   //!< Value for input direction of GPIO
 
 SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
     :m_SoftSwitchGPIO(SOFT_SWITCH_GPIO_NUMBER, DIRECTION_IS_INPUT)
-    ,mp_SoftSwitchPressedInitTransition(NULL)
+    ,mp_DefaultToInitTransition(NULL)
 {
+    //!< This is required so that our object is on the right thread
     setParent(p_Parent);
     Init();
 }
 
 void SoftSwitchMgr::Init()
 {
+    //!< Create StateMachine
     mp_SoftSwitchStateMachine = new QStateMachine();
     mp_SoftSwitchStateMachine->setParent(this);
-    //mp_SoftSwitchStateMachine->moveToThread(this->thread());
     //!< Create States
     mp_DefaultState = new GenericStateTemplate(*this, &SoftSwitchMgr::OnDefaultStateEntered);
     mp_DefaultState->setParent(this);
-    //mp_DefaultState->moveToThread(this->thread());
     mp_PressedAtInitState = new GenericStateTemplate(*this, &SoftSwitchMgr::OnPressedAtInitStateEntered);
     mp_PressedAtInitState->setParent(this);
-    //mp_PressedAtInitState->moveToThread(this->thread());
     mp_PressedAtBusyState = new GenericStateTemplate(*this, &SoftSwitchMgr::OnPressedAtBusyStateEntered);
     mp_PressedAtBusyState->setParent(this);
-    //mp_PressedAtBusyState->moveToThread(this->thread());
     mp_PressedAtIdleState = new GenericStateTemplate(*this, &SoftSwitchMgr::OnPressedAtIdleStateEntered);
     mp_PressedAtIdleState->setParent(this);
-    //mp_PressedAtIdleState->moveToThread(this->thread());
     mp_CriticalActionState = new GenericStateTemplate(*this, &SoftSwitchMgr::OnCriticalActionStateEntered);
     mp_CriticalActionState->setParent(this);
-    //mp_CriticalActionState->moveToThread(this->thread());
     mp_ShutDownState = new GenericStateTemplate(*this, &SoftSwitchMgr::OnShutDownStateEntered);
     mp_ShutDownState->setParent(this);
-    //mp_ShutDownState->moveToThread(this->thread());
 
 
     //! Build the state machine
@@ -51,16 +46,19 @@ void SoftSwitchMgr::Init()
 
     mp_SoftSwitchStateMachine->setInitialState(mp_DefaultState);
     //!< Add Transition between states of the state machine
-    mp_SoftSwitchPressedInitTransition = new SoftSwitchStateTransition(this, SIGNAL(OnSoftSwitchPressed()),
-                                                                   *this, &SoftSwitchMgr::CheckIfDeviceIsInInit,
+    mp_DefaultToInitTransition = new SoftSwitchStateTransition(this, SIGNAL(OnSoftSwitchPressed()),
+                                                                   *this, &SoftSwitchMgr::IsSystemStateSoftSwitchMonitor,
                                                                    mp_PressedAtInitState);
-    mp_SoftSwitchPressedInitTransition->setParent(this);
-    //mp_SoftSwitchPressedInitTransition->moveToThread(this->thread());
-    mp_DefaultState->addTransition(mp_SoftSwitchPressedInitTransition);
+    mp_DefaultToInitTransition->setParent(this);
+    mp_DefaultState->addTransition(mp_DefaultToInitTransition);
+
+    mp_PressedAtInitState->addTransition(this, SIGNAL(SystemInitComplete()), mp_DefaultState);
+    //!< Finally ! start the StateMachine
     mp_SoftSwitchStateMachine->start();
     qDebug()<< "State Machine error " <<mp_SoftSwitchStateMachine->error();
     qDebug()<<"Running state" <<mp_SoftSwitchStateMachine->isRunning();
     qDebug()<<"SoftSwitchMgr::Init()" << mp_SoftSwitchStateMachine->thread();
+    CONNECTSIGNALSIGNAL(&EventHandler::StateHandler::Instance(), initComplete(), this, SystemInitComplete());
 
 }
 
@@ -72,18 +70,33 @@ SoftSwitchMgr::~SoftSwitchMgr()
      *  of scope qt's dynamic object management will take care of deleting
      *  child objects :)
      */
-
 }
 
 bool SoftSwitchMgr::CheckIfDeviceIsBusy(QEvent *p_Event) {
-    return false;
+    qDebug()<<"Testing If Device Is Busy";
+    QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
+    qDebug()<<"Device State" << CurrentSytemState;
+    if (QString::compare(CurrentSytemState, "BusyState") == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 bool SoftSwitchMgr::CheckIfDeviceIsIdle(QEvent *p_Event) {
-    return false;
+    qDebug()<<"Testing If Device Is Idle";
+    QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
+    qDebug()<<"Device State" << CurrentSytemState;
+    if (QString::compare(CurrentSytemState, "IdleState") == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
-bool SoftSwitchMgr::CheckIfDeviceIsInInit(QEvent *p_Event) {
+bool SoftSwitchMgr::IsSystemStateSoftSwitchMonitor(QEvent *p_Event) {
     qDebug()<<"Testing If Device Is In Init";
     QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
     qDebug()<<"Device State" << CurrentSytemState;
@@ -110,18 +123,24 @@ void SoftSwitchMgr::OnPressedAtInitStateEntered()
 
 void SoftSwitchMgr::OnPressedAtIdleStateEntered()
 {
+    qDebug()<<" SoftSwitch PressedAt Init State Entered \n \n";
 }
 
 void SoftSwitchMgr::OnPressedAtBusyStateEntered()
 {
+    qDebug()<<" SoftSwitch PressedAt Init State Entered \n \n";
 }
 
 void SoftSwitchMgr::OnCriticalActionStateEntered()
 {
+    qDebug()<<" SoftSwitch PressedAt Init State Entered \n \n";
 }
 
 void SoftSwitchMgr::OnShutDownStateEntered()
 {
+    qDebug()<<" SoftSwitch PressedAt Init State Entered \n \n";
 }
+
+
 
 }// End of namespace SoftSwitchManager

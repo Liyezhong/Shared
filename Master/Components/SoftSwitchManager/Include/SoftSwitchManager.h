@@ -32,11 +32,13 @@ private:
     GenericStateTemplate *mp_PressedAtBusyState;    //!< State when SoftSwitch is pressed at busy state of system.
     GenericStateTemplate *mp_ShutDownState;         //!< State to initiate shutdown procedure
     GenericStateTemplate *mp_CriticalActionState;   //!< State when a critical action is going on in the system
-    SoftSwitchStateTransition *mp_SoftSwitchPressedInitTransition;
+    SoftSwitchStateTransition *mp_DefaultToInitTransition; //!< Transition for Default->Init
+    SoftSwitchStateTransition *mp_InitToDefaultTransition; //!< Transition for Init->Default
+
 
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
-    bool CheckIfDeviceIsInInit(QEvent *p_Event);
+    bool IsSystemStateSoftSwitchMonitor(QEvent *p_Event);
     void OnDefaultStateEntered();
     void OnPressedAtInitStateEntered();
     void OnPressedAtIdleStateEntered();
@@ -47,6 +49,7 @@ private:
 signals:
     void OnSoftSwitchPressed();
     void SendSoftSwitchPressedCmd();
+    void SystemInitComplete();
 };
 }
 #endif // SOFTSWITCHMANAGER_H

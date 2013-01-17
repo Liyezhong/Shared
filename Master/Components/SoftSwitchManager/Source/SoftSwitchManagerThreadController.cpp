@@ -26,7 +26,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
-
 //Project Headers
 #include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
 #include <Global/Include/Utils.h>
