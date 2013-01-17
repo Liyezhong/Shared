@@ -52,25 +52,22 @@ void AlarmHandler::onTimeout()
 {
     m_Timer->stop();
     m_mutex->lock();
-   // MsgClasses::CmdAlarmToneTest Cmd;
-    quint8 Volume = 1;
-    QString Filename = QString("");
+    //quint8 Volume = 1;
+    //QString Filename = QString("");
 
     //Global::AlarmType alarmType = Global::ALARM_NONE;
     Global::AlarmType alarmType;
-
-        QHash<quint64, Global::AlarmType>::iterator i;
-        for (i = m_errorList.begin(); i != m_errorList.end(); ++i)
+    if (!(m_errorList.size() == 0))
+    {
+        emitAlarm(alarmType);
+    }
+    else
+    {
+        if (!(m_warningList.size() == 0))
         {
-            alarmType = i.value();
             emitAlarm(alarmType);
         }
-        //QHash<quint64, Global::AlarmType>::iterator ;
-        for (i = m_warningList.begin(); i != m_warningList.end(); ++i)
-        {
-            alarmType = i.value();
-            emitAlarm(alarmType);
-        }
+    }
 
     m_mutex->unlock();
     m_Timer->start();
@@ -79,7 +76,6 @@ void AlarmHandler::onTimeout()
 void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString Filename, quint8 Volume  )
 {
     // alarmType = ((AlarmTypeFlag) ? Global::ALARM_WARNING : Global::ALARM_ERROR );
-
 
     QString soundFile = ((Active) ? m_soundList.value(alarmType, QString("")) : Filename);
     if (soundFile.length() == 0)
@@ -90,27 +86,32 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
 
     double volumeLevel = ((Active) ? ( 0.1 + 0.15*m_volume ) : (0.1 + 0.15*Volume ));   // m_volume=6 => volumeLevel=1
 
-    if( !m_process )
+    if (!m_process)
     {
         m_process = new QProcess();
-        qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-        QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-        m_process->start(program);
+        qDebug() << "Creating a new Process";
     }
     else
     {
-        qDebug() << "Process is already running";
+        if (m_process->state() == QProcess::Running)
+        {
+            qDebug() << (m_process->state() == QProcess::Running);
+            m_process->terminate();
+        }
     }
+
+    qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
+    QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
+    m_process->start(program);
+
+
 }
 void AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound)
 {
     //Q_UNUSED(number);
     quint8 number=Sound;
     QString FileName = QString("");
-    MsgClasses::CmdAlarmToneTest Cmd;
     Global::AlarmType alarmType;
-    //Volume = Cmd.GetVolume();
-    //AlarmTypeFlag = Cmd.GetAlarmType();
     if ( !AlarmTypeFlag )
     {
         alarmType == Global::ALARM_ERROR;
@@ -180,11 +181,27 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
     m_mutex->lock();
     if (active)
     {
-        m_errorList.insert(eventKey, alarmType);
+        if (alarmType == Global::ALARM_ERROR)
+        {
+           m_errorList.insert(eventKey, alarmType);
+        }
+        else
+        {
+          m_warningList.insert(eventKey, alarmType);
+        }
+
     }
     else
     {
-        m_warningList.insert(eventKey, alarmType);
+        if (alarmType == Global::ALARM_ERROR)
+        {
+            m_errorList.remove(eventKey);
+        }
+        else
+        {
+           m_warningList.remove(eventKey);
+        }
+
     }
     m_mutex->unlock();
 }
