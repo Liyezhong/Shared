@@ -76,11 +76,11 @@ public:
     virtual ~EventHandlerThreadController();
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
-    inline void SetAlarmHandler( Global::AlarmHandler *pAlarmHandler) {//, DataManager::CUserSettings *pUserSettings){
+    inline void SetAlarmHandler( Platform::AlarmHandler *pAlarmHandler) {//, DataManager::CUserSettings *pUserSettings){
         mpAlarmHandler = pAlarmHandler;      
     }
 
-    Global::AlarmHandler * GetAlarmSettings()
+    Platform::AlarmHandler * GetAlarmSettings()
     {
         if(mpAlarmHandler)
             return mpAlarmHandler;
@@ -206,7 +206,7 @@ private:
     EventHandlerThreadController(const EventHandlerThreadController &);                      ///< Not implemented.
     const EventHandlerThreadController & operator = (const EventHandlerThreadController &);  ///< Not implemented.
 
-    Global::AlarmHandler *mpAlarmHandler;
+    Platform::AlarmHandler *mpAlarmHandler;
     EventHandler::ActionHandler * mpActionHandler;
     DataManager::CUserSettings *mpUserSettings;
 

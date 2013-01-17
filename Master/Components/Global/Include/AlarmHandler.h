@@ -31,7 +31,7 @@
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
 #include <Global/Include/SystemPaths.h>
 
-namespace Global {
+namespace Platform {
 
 /****************************************************************************/
 /**

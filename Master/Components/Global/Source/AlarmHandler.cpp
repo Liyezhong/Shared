@@ -23,7 +23,7 @@
 #include <QProcess>
 //#include <QSound>
 
-namespace Global {
+namespace Platform {
 
 /****************************************************************************/
 AlarmHandler::AlarmHandler(quint16 timeout, QString soundPath)
