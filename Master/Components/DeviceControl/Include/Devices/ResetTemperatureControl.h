@@ -25,7 +25,7 @@
 #define DEVICECONTROL_RESETTEMPERATURECONTROL_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 
 #ifdef Q_UNIT_TEST
 #include "Simulator.h"

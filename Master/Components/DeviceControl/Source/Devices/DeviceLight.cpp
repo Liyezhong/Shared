@@ -21,7 +21,7 @@
 #include "DeviceControl/Include/Devices/DeviceLight.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/Devices/SetDrawerLed.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 

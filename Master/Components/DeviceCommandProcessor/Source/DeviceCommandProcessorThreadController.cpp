@@ -61,11 +61,6 @@ DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(G
 //            this, SLOT(DevProcConfigurationAckn(ReturnCode_t)));
     connect(&m_DeviceProcessing, SIGNAL(ReportStartNormalOperationMode(ReturnCode_t)),
             this, SLOT(DevProcStartNormalOpModeAckn(ReturnCode_t)));
-
-    connect(&m_DeviceProcessing, SIGNAL(ReportError(DevInstanceID_t,quint32,quint32,quint16,QDateTime)),
-            this, SLOT(ThrowError(DevInstanceID_t,quint32,quint32,quint16,QDateTime)));
-    connect(&m_DeviceProcessing, SIGNAL(ReportErrorWithInfo(DevInstanceID_t,quint32,quint32,quint16,QDateTime,QString)),
-            this, SLOT(ThrowErrorWithInfo(DevInstanceID_t,quint32,quint32,quint16,QDateTime,QString)));
 }
 
 /****************************************************************************/
@@ -154,82 +149,6 @@ void DeviceCommandProcessorThreadController::OnDeviceProcessingCleanup(Global::t
 
     m_DeviceProcessing.Destroy();
     SendAcknowledgeOK(Ref);
-}
-
-
-/****************************************************************************/
-/*!
- *  \brief  Error notification from device control layer
- *
- *      All errors detected within the device control layer will be routed
- *      here.
- *
- *  \iparam InstanceID = device instance identifier
- *  \iparam ErrorGroup = Error group
- *  \iparam ErrorCode = Error code
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Error time
- */
-/****************************************************************************/
-void DeviceCommandProcessorThreadController::ThrowError(DevInstanceID_t InstanceID, quint32 ErrorGroup, quint32 ErrorCode, quint16 ErrorData,const QDateTime & ErrorTime)
-{
-    QString ErrorArgString = QString("InstanceID = 0x") + QString::number(Global::AsInt(InstanceID), 16).toUpper() + " " +
-                             QString("ErrorGroup = 0x") + QString::number(ErrorGroup, 16).toUpper() + " " +
-                             QString("ErrorCode = 0x") + QString::number(ErrorCode, 16).toUpper() + " " +
-                             QString("ErrorData = 0x") + QString::number(ErrorData, 16).toUpper() + " " +
-                             QString("ErrorTime = ") + ErrorTime.toString("yyyy-MM-dd hh:mm:ss.zzz");
-    //SEND_DEBUG(WHEREAMI + " " + ErrorArgString);
-
-    //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_ERROR_DEVCTRLLAYER, ErrorArgString);
-}
-
-void DeviceCommandProcessorThreadController::ThrowError(quint16 ErrorGroup, quint16 ErrorCode)
-{
-    quint32 eventCode = (ErrorGroup << 16) | ErrorCode;
-    Global::EventObject::Instance().RaiseEvent(eventCode);
-}
-
-void DeviceCommandProcessorThreadController::ThrowError(quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, const QDateTime & ErrorTime, QString ErrorInfo)
-{
-    bool active = true;
-
-    quint32 eventCode = (ErrorGroup << 16) | ErrorCode;
-    Global::tTranslatableStringList stringList;
-    stringList << QString::number(ErrorData);
-    stringList << ErrorTime.toString("yyyy-MM-dd hh:mm:ss.zzz");
-    stringList << ErrorInfo;
-
-    Global::EventObject::Instance().RaiseEvent(eventCode, stringList, active);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Error notification from device control layer
- *
- *      All errors detected within the device control layer will be routed
- *      here.
- *
- *  \iparam InstanceID = device instance identifier
- *  \iparam ErrorGroup = Error group
- *  \iparam ErrorCode = Error code
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Error time
- *  \iparam ErrorInfo = Additional Error Information in text
- */
-/****************************************************************************/
-void DeviceCommandProcessorThreadController::ThrowErrorWithInfo(DevInstanceID_t InstanceID, quint32 ErrorGroup,
-                                                                quint32 ErrorCode, quint16 ErrorData,
-                                                                const QDateTime & ErrorTime, QString ErrorInfo)
-{
-    QString ErrorArgString = QString("InstanceID = 0x") + QString::number(Global::AsInt(InstanceID), 16).toUpper() + " " +
-                             QString("ErrorGroup = 0x") + QString::number(ErrorGroup, 16).toUpper() + " " +
-                             QString("ErrorCode = 0x") + QString::number(ErrorCode, 16).toUpper() + " " +
-                             QString("ErrorData = 0x") + QString::number(ErrorData, 16).toUpper() + " " +
-                             QString("ErrorTime = ") + ErrorTime.toString("yyyy-MM-dd hh:mm:ss.zzz") +
-                             ErrorInfo;
-    //SEND_DEBUG(WHEREAMI + " " + ErrorArgString);
-
-    //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_ERROR_DEVCTRLLAYER, ErrorArgString);
 }
 
 /*****************************************************************************/

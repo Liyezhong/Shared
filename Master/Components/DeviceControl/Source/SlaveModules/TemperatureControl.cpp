@@ -564,7 +564,7 @@ void CTemperatureControl::HandleCanMessage(can_frame* pCANframe)
         HandleCANMsgError(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
             m_TempCtrlState = TEMPCTRL_STATUS_OFF;
-            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDTemperature)

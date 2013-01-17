@@ -29,7 +29,7 @@
 #include <QTextStream>
 
 #include "Global/Include/MonotonicTime.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/BootLoader.h"
 #include "DeviceControl/Include/SlaveModules/FunctionModule.h"
 

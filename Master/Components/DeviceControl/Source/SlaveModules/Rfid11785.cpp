@@ -510,7 +510,7 @@ void CRfid11785::HandleCanMessage(can_frame* pCANframe)
         }
 
         if (ModuleCommandType == FM_RFID_CMD_TYPE_UNDEF) {
-            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
         }
     }
 

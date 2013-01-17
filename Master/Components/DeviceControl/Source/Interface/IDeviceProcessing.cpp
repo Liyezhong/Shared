@@ -55,32 +55,11 @@ IDeviceProcessing::IDeviceProcessing() :
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
 
-    /* activate the logging */
-//    FILE* pFile = fopen("device_control.log", "w");
-//    Output2FILE::Stream() = pFile;
-
-//    mp_DevProc = new DeviceProcessing(this);
-
     moveToThread(&m_DevProcThread);
-
-//    CONNECTSIGNALSLOT(&m_DevProcTimer, timeout(), this, HandleTasks());
-//    m_DevProcTimer.start(10);
 
     //start the DeviceProcessing thread
     connect(&m_DevProcThread, SIGNAL(started()), this, SLOT(ThreadStarted()));
     m_DevProcThread.start();
-
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t), this, OnInitializationFinished(ReturnCode_t));
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t), this, OnConfigurationFinished(ReturnCode_t));
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportStartNormalOperationMode(ReturnCode_t), this, OnStartNormalOperationMode(ReturnCode_t));
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime),
-//                      this, OnError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString),
-//                      this, OnErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString));
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(ReturnCode_t), this, OnDiagnosticServiceClosed(ReturnCode_t));
-//    CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
-
-//    qDebug() << "IDeviceProcessing: " << thread() << m_DevProcThread.thread();
 }
 
 /****************************************************************************/
@@ -116,11 +95,11 @@ IDeviceProcessing::~IDeviceProcessing()
  *  \iparam TimeStamp  = Error time stamp
  */
 /****************************************************************************/
-void IDeviceProcessing::OnError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp)
+void IDeviceProcessing::OnEvent(quint32 EventCode, quint16 EventData, QDateTime TimeStamp)
 {
-    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::ThrowError (" << std::hex << (int) InstanceID << ", " <<
-                                      std::hex << ErrorGroup << ", " << std::hex << ErrorID << ", " << std::hex << ErrorData << ")";
-    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, TimeStamp);
+    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::OnEvent (" << EventCode << ", " << EventData << ", "
+                                   << TimeStamp.toString().constData() << ")";
+    emit ReportEvent(EventCode, EventData, TimeStamp);
 }
 
 /****************************************************************************/
@@ -135,12 +114,11 @@ void IDeviceProcessing::OnError(DevInstanceID_t InstanceID, quint16 ErrorGroup, 
  *  \iparam ErrorInfo  = Additional error information
  */
 /****************************************************************************/
-void IDeviceProcessing::OnErrorWithInfo(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp, QString ErrorInfo)
+void IDeviceProcessing::OnEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime TimeStamp, QString EventInfo)
 {
-    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing: emit event: " << std::hex << ErrorGroup << ", " <<
-                                                  std::hex << ErrorID << ", " <<
-                                                  ErrorData << ", '" << ErrorInfo.toStdString() << "'!";
-    emit ReportErrorWithInfo(InstanceID, ErrorGroup, ErrorID, ErrorData, TimeStamp, ErrorInfo);
+    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::OnEventWithInfo (" << EventCode << ", " << EventData << ", "
+                                   << TimeStamp.toString().constData() << ", " << EventInfo.constData() << ")";
+    emit ReportEventWithInfo(EventCode, EventData, TimeStamp, EventInfo);
 }
 
 /****************************************************************************/
@@ -190,8 +168,7 @@ void IDeviceProcessing::HandleTaskRequestState()
         else
         {
             QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_ACTIVATE_TASK_FAILED,
-                             (quint16) m_reqTaskID, errorTimeStamp);
+            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_ACTIVATE_TASK, (quint16)m_reqTaskID, errorTimeStamp);
         }
     }
 }
@@ -368,8 +345,7 @@ void IDeviceProcessing::OnDiagnosticServiceClosed(ReturnCode_t DiagnosticResult)
 
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing: emit i_diagnosticFinished";
 
-    emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_DIAG_FINISHED,
-                     (quint16) DiagnosticResult, errorTimeStamp);
+    emit ReportEvent(EVENT_DEVICECONTROL_ERROR_START_DIAG, (quint16)DiagnosticResult, errorTimeStamp);
 }
 
 /****************************************************************************/
@@ -541,15 +517,20 @@ void IDeviceProcessing::ThreadStarted()
 
     mp_DevProc = new DeviceProcessing(this);
 
-    CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t), this, OnInitializationFinished(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t), this, OnConfigurationFinished(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportStartNormalOperationMode(ReturnCode_t), this, OnStartNormalOperationMode(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime),
-                      this, OnError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString),
-                      this, OnErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(ReturnCode_t), this, OnDiagnosticServiceClosed(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
+    CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t),
+                      this, OnInitializationFinished(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t),
+                      this, OnConfigurationFinished(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportStartNormalOperationMode(ReturnCode_t),
+                      this, OnStartNormalOperationMode(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportEvent(quint32, quint16, QDateTime),
+                      this, OnEvent(quint32, quint16, QDateTime));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportEventWithInfo(quint32, quint16, QDateTime, QString),
+                      this, OnEventWithInfo(quint32, quint16, QDateTime, QString));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(ReturnCode_t),
+                      this, OnDiagnosticServiceClosed(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(),
+                      this, OnDestroyFinished());
 
     // Shutdown signal to device threads
     CONNECTSIGNALSIGNAL(this, DeviceShutdown(), mp_DevProc, DeviceShutdown());

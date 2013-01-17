@@ -27,6 +27,7 @@
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/EventObject.h"
 
 namespace DeviceControl
 {
@@ -276,10 +277,14 @@ ReturnCode_t CModule::SendCANMsgReqDataReset()
  *  \brief  Handles the reception of error-CAN message
  *
  *  \iparam pCANframe = struct contains the data of the received CAN message
+ *
+ *  \return Platform event code
  */
 /****************************************************************************/
-void CModule::HandleCANMsgError(can_frame* pCANframe)
+quint32 CModule::HandleCANMsgError(can_frame* pCANframe)
 {
+    quint32 EventCode = 0;
+
     if(pCANframe->can_dlc == 6)
     {
         QString Type;
@@ -320,7 +325,13 @@ void CModule::HandleCANMsgError(can_frame* pCANframe)
 
         // this error was reported from external (CAN-bus)
         m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_ERROR;
+
+        EventCode = BuildEventCode(m_lastErrorGroup, m_lastErrorCode, m_lastErrorHdlInfo);
+
+        Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName());
     }
+
+    return EventCode;
 }
 
 /****************************************************************************/
@@ -502,6 +513,67 @@ quint16 CModule::ComputePassword()
     QTime CurrentTime = CurrentDateTime.time();
 
     return ((CurrentDate.year() * CurrentDate.month() * CurrentDate.day()) + CurrentTime.hour()) ^ 0x8320u;
+}
+
+quint32 CModule::BuildEventCode(quint16 ModuleId, quint16 SlaveEventCode, ReturnCode_t EventClass)
+{
+    quint32 EventCode = 0;
+
+    switch (ModuleId) {
+        case MODULE_ID_BASEMODULE:
+            if (SlaveEventCode < 256) {
+                EventCode = EVENT_GROUP_PLATFORM_SLAVE_HAL;
+            }
+            else {
+                EventCode = EVENT_GROUP_PLATFORM_SLAVE_BASEMODULE;
+            }
+            break;
+        case MODULE_ID_DIGITAL_OUT:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_DIGITALOUTPUT;
+            break;
+        case MODULE_ID_DIGITAL_IN:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_DIGITALINPUT;
+            break;
+        case MODULE_ID_ANALOG_OUT:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_ANALOGOUTPUT;
+            break;
+        case MODULE_ID_ANALOG_IN:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_ANALOGINPUT;
+            break;
+        case MODULE_ID_STEPPER:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_STEPPERMOTOR;
+            break;
+        case MODULE_ID_JOYSTICK:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_JOYSTICK;
+            break;
+        case MODULE_ID_RFID11785:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_RFIDISO11785;
+            break;
+        case MODULE_ID_RFID15693:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_RFIDISO15693;
+            break;
+        case MODULE_ID_TEMPERATURE:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_TEMPERATURECONTROL;
+            break;
+        case MODULE_ID_UART:
+            EventCode = EVENT_GROUP_PLATFORM_SLAVE_UART;
+            break;
+    }
+
+    switch (EventClass) {
+        case DCL_ERR_EXTERNAL_WARNING:
+            EventCode += 1 << 12;
+            break;
+        case DCL_ERR_EXTERNAL_INFO:
+            EventCode += 2 << 12;
+            break;
+        default:
+            break;
+    }
+
+    EventCode += SlaveEventCode;
+
+    return EventCode;
 }
 
 } //namespace

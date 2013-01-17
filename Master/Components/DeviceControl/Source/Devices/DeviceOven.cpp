@@ -92,9 +92,6 @@ bool CDeviceOven::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
-    connect(mp_TempControl, SIGNAL(ReportError(quint32, quint32, quint32, quint16, QDateTime)),
-            this, SLOT(OnTempControlError(quint32, quint32, quint32, quint16, QDateTime)));
-
     /////////////////////////////////////////////////////////////////
     // Initializing
     /////////////////////////////////////////////////////////////////
@@ -188,24 +185,6 @@ bool CDeviceOven::Trans_Configure(QEvent *p_Event)
 
     // TODO Default Nacks for Stop Resume Abort in Base Device? plus helper method
     return true;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  This slot is called when an error was detected or received
- *
- *  \iparam InstanceID = Instance identifier of device
- *  \iparam ErrorGroup = Error group
- *  \iparam ErrorCode = Error code
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Error time
- */
-/****************************************************************************/
-void CDeviceOven::OnTempControlError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorCode, quint16 ErrorData,
-                                     QDateTime ErrorTime)
-{
-    Q_UNUSED(InstanceID)
-    emit ReportError(m_InstanceID, ErrorGroup, ErrorCode, ErrorData, ErrorTime);
 }
 
 } //namespace

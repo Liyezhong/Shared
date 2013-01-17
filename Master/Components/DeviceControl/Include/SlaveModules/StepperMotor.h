@@ -26,7 +26,7 @@
 #define DEVICECONTROL_STEPPERMOTORPRIVATE_H
 
 #include "DeviceControl/Include/SlaveModules/FunctionModule.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "Global/Include/MonotonicTime.h"
 
 typedef quint8 UInt8;

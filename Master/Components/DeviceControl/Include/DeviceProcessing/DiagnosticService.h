@@ -64,8 +64,6 @@ public:
     /****************************************************************************/
     DiagnosticServiceMainState_t GetState() { return m_MainState; }
 
-    void ThrowErrorSignal(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
-
 private:
     void HandleConfigurationTask();
     ReturnCode_t CheckNodeState();

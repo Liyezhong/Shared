@@ -204,23 +204,4 @@ ReturnCode_t CDiagnosticService::CheckNodeState()
     return RetVal;
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Forwards the error information from a function module to DeviceProcessing class
- *
- *      The function forwards the error information to the DeviceProcessing class
- *      (which finally throws the signal assigned to the errors)
- *
- *  \iparam InstanceID = The instance identifier of the module which brought up the error
- *  \iparam ErrorGroup = Error group ID of the thrown error
- *  \iparam ErrorID = Error ID of the thrown error
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Time of error detection
- */
-/****************************************************************************/
-void CDiagnosticService::ThrowErrorSignal(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
-{
-    m_pDeviceProcessing->ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
-}
-
 } //namespace

@@ -26,7 +26,7 @@
 #define DEVICECONTROL_BOOTLOADER_H
 
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include <QFile>
 #include <QThread>
 #include <QTimer>

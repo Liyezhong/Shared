@@ -32,7 +32,7 @@
 #include "DeviceControl/Include/Devices/FmStepperMove.h" //TODO
 #include "DeviceControl/Include/Devices/FmStepperInit.h"
 
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"

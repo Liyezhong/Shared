@@ -1,7 +1,7 @@
 #ifndef DEVICECONTROL_SIGNALTRANSITION_H
 #define DEVICECONTROL_SIGNALTRANSITION_H
 
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include <QSignalTransition>
 #include <QStateMachine>
 

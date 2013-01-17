@@ -27,7 +27,7 @@
 
 #include <QMap>
 #include <QString>
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
 
 class QDomElement;
@@ -70,7 +70,7 @@ public:
     static QString GetLabelFromObjectType(const CModuleConfig::CANObjectType_t eObjectType);
     static CANFctModuleStepperMotor::RotationDir_t GetRotationFromString(const QString &strRotDir);
 
-    void GetLastError(quint16& usErrorID, QString& strErrorInfo);
+    void GetLastError(quint32 &EventCode, QString &strErrorInfo);
 
 private:
     ReturnCode_t ParseSlaveElement(const QDomElement &element, short sOrderNrNode);
@@ -102,7 +102,7 @@ private:
     DeviceCfgList    m_DeviceCfgList;
 
     QString m_strErrorInfo; //!< Error information string
-    quint16 m_usErrorID;    //!< Error ID
+    quint32 m_EventCode;    //!< Event code
 };
 
 } //namespace

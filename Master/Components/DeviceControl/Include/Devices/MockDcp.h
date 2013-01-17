@@ -3,7 +3,7 @@
 
 //#include <QDateTime>
 #include <QObject>
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 
 namespace DeviceControl {
 

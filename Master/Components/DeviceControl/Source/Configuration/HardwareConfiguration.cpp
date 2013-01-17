@@ -39,7 +39,7 @@ namespace DeviceControl
 HardwareConfiguration::HardwareConfiguration()
 {
     m_strErrorInfo = "";
-    m_usErrorID = 0;
+    m_EventCode = 0;
 }
 
 /****************************************************************************/
@@ -69,10 +69,10 @@ HardwareConfiguration::~HardwareConfiguration()
  *  \oparam strErrorInfo = error information string
  */
 /****************************************************************************/
-void HardwareConfiguration::GetLastError(quint16& usErrorID, QString& strErrorInfo)
+void HardwareConfiguration::GetLastError(quint32 &EventCode, QString &strErrorInfo)
 {
-      strErrorInfo = m_strErrorInfo;
-      usErrorID = m_usErrorID;
+    strErrorInfo = m_strErrorInfo;
+    EventCode = m_EventCode;
 }
 
 /****************************************************************************/
@@ -111,7 +111,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
                                .arg(HWConfigFileName)
                                .arg(file.errorString());
             FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_OPEN_FAILED;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_OPEN_FAILED;
 
             return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -124,7 +124,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
                                  .arg(errorColumn)
                                  .arg(errorStr);
            FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-           m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_PARSE_ERROR;
+           m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_PARSE;
 
            return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -133,8 +133,8 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     if (root.tagName() != "hwconfig")
     {
         m_strErrorInfo = QObject::tr("The file is not a hardware config file. Tag 'hwconfig' missed");
-           FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-           m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR;
+        FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -142,8 +142,8 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
                && root.attribute("version") != "1.0")
     {
         m_strErrorInfo = QObject::tr("The hardware config files' version is not valid.");
-           FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-           m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_VERSION_ERROR;
+        FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_VERSION;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -154,7 +154,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     child = root.firstChildElement("parameter_slaves");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -176,7 +176,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     child = root.firstChildElement("devices");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -237,7 +237,7 @@ BaseDeviceConfiguration* HardwareConfiguration::ParseDeviceElement(const QDomEle
     child = element.firstChildElement("modules");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_DEV;
         return pDevConfig;
     }
 
@@ -290,7 +290,7 @@ ReturnCode_t HardwareConfiguration::ParseSlaveElement(const QDomElement &element
 
     if (m_CANObjectCfgList.contains(pCANObjCfgEntry->m_strKey))
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 /*lint -save -e534 */
@@ -303,7 +303,7 @@ ReturnCode_t HardwareConfiguration::ParseSlaveElement(const QDomElement &element
     child = element.firstChildElement("functionmodules");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -352,7 +352,7 @@ CModuleConfig* HardwareConfiguration::ParseCANNode(const QDomElement &element, c
     child = element.firstChildElement("nodetype");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjCfgEntry;
     }
     else
@@ -363,7 +363,7 @@ CModuleConfig* HardwareConfiguration::ParseCANNode(const QDomElement &element, c
     child = element.firstChildElement("nodeindex");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjCfgEntry;
     }
     else
@@ -411,7 +411,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
     if (m_CANObjectCfgList.contains(strCANFctModuleKey))
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -420,7 +420,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
     sIface = strCANFctModuleIface.toShort(&bOK, 10);
     if(!bOK)
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -447,7 +447,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -474,7 +474,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -502,7 +502,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -529,7 +529,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -555,7 +555,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -583,7 +583,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -611,7 +611,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -638,7 +638,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -666,7 +666,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -694,7 +694,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -722,7 +722,7 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctDigitInEntry;
     }
     strEnabled = child.attribute("enabled");
@@ -761,7 +761,7 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctDigitOutEntry;
     }
 
@@ -806,7 +806,7 @@ CANFctModuleAnalogInput* HardwareConfiguration::ParseAnalogInPort(const QDomElem
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctAnalogInEntry;
     }
 
@@ -820,7 +820,7 @@ CANFctModuleAnalogInput* HardwareConfiguration::ParseAnalogInPort(const QDomElem
     child = element.firstChildElement("limit_supervision");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctAnalogInEntry;
     }
 
@@ -840,86 +840,86 @@ CANFctModuleAnalogInput* HardwareConfiguration::ParseAnalogInPort(const QDomElem
 
     pCANObjFctAnalogInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_bFastSampling = strFastSampling.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_sLimitAutoSend = strLimitAutoSend.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_sInterval = strInterval.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_sDebounce = strDebounce.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
 
     pCANObjFctAnalogInEntry->m_bLimitValue1SendExceed = strValue1SendExceed.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_bLimitValue1SendBelow = strValue1SendBelow.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_bLimitValue1SendDataMsg = strValue1SendDataMsg.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_sLimitValue1 = strValue1.toShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_bLimitValue2SendExceed = strValue2SendExceed.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_bLimitValue2SendBelow = strValue2SendBelow.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_bLimitValue2SendDataMsg = strValue2SendDataMsg.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_sLimitValue2 = strValue2.toShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
     pCANObjFctAnalogInEntry->m_sHysteresis = strHysteresis.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogInEntry;
         return NULL;
     }
@@ -946,7 +946,7 @@ CANFctModuleAnalogOutput* HardwareConfiguration::ParseAnalogOutPort(const QDomEl
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctAnalogOutEntry;
     }
 
@@ -961,37 +961,37 @@ CANFctModuleAnalogOutput* HardwareConfiguration::ParseAnalogOutPort(const QDomEl
 
     pCANObjFctAnalogOutEntry->m_bEnabled = strEnabled.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogOutEntry;
         return NULL;
     }
     pCANObjFctAnalogOutEntry->m_bInaktivAtShutdown = strInactivShdw.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogOutEntry;
         return NULL;
     }
     pCANObjFctAnalogOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogOutEntry;
         return NULL;
     }
     pCANObjFctAnalogOutEntry->m_sBitCount = strResolution.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogOutEntry;
         return NULL;
     }
     pCANObjFctAnalogOutEntry->m_sOutvalInactiv = strOutvalInactiv.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogOutEntry;
         return NULL;
     }
     pCANObjFctAnalogOutEntry->m_sLivetimeLimit = strLivetimeLimit.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctAnalogOutEntry;
         return NULL;
     }
@@ -1008,7 +1008,7 @@ CANFctModuleAnalogOutput* HardwareConfiguration::ParseAnalogOutPort(const QDomEl
 /****************************************************************************/
 void HardwareConfiguration::ErrorCleanUp(CANFctModuleStepperMotor* pCANFctModuleStepperMotor)
 {
-    m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+    m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
     delete pCANFctModuleStepperMotor;
 }
 
@@ -1046,7 +1046,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     child = element.firstChildElement("rotation");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANFctModuleStepperMotor;
     }
 
@@ -1079,7 +1079,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     child = element.firstChildElement("reference_run");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
 
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
@@ -1106,7 +1106,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     childPosCoverage = element.firstChildElement("position_coverage");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
         return pCANFctModuleStepperMotor;
@@ -1117,7 +1117,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     child = childPosCoverage.firstChildElement("encoder");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
         return pCANFctModuleStepperMotor;
@@ -1228,7 +1228,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     childMotionProfiles = element.firstChildElement("motion_profiles");
     if(childMotionProfiles.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
 
@@ -1326,7 +1326,7 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
         PositionCode.bStopDir = 2;
     }
     else {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return PositionCode;
     }
     PositionCode.bValid = true;
@@ -1390,7 +1390,7 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctTempCtrl;
     } 
 
@@ -1405,20 +1405,20 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
     pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;
         return NULL;
     }
     pCANObjFctTempCtrl->sSamplingPeriod = strSamplingPeriod.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;
         return NULL;
     }
     if (!strFanSpeed.isEmpty()) {
         pCANObjFctTempCtrl->sFanSpeed = strFanSpeed.toUShort(&ok);
         if (!ok) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
             delete pCANObjFctTempCtrl;
             return NULL;
         }
@@ -1426,26 +1426,26 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     if (!strFanThreshold.isEmpty()) {
         pCANObjFctTempCtrl->sFanThreshold = strFanThreshold.toUShort(&ok);
         if (!ok) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
             delete pCANObjFctTempCtrl;
             return NULL;
         }
     }
     pCANObjFctTempCtrl->sCurrentGain = strCurrentGain.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;
         return NULL;
     }
     pCANObjFctTempCtrl->sHeaterCurrent = strHeaterCurrent.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;
         return NULL;
     }
     pCANObjFctTempCtrl->sHeaterThreshold = strHeaterThreshold.toUShort(&ok);
     if (!ok) {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;
         return NULL;
     }
@@ -1457,7 +1457,7 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     childPidControllers = element.firstChildElement("pid_controllers");
     if(childPidControllers.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;
         return NULL;
     }
@@ -1473,25 +1473,25 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
 
         PidController.sMaxTemperature = strMaxTemperature.toUShort(&ok);
         if (!ok) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
             delete pCANObjFctTempCtrl;
             return NULL;
         }
         PidController.sControllerGain = strControllerGain.toUShort(&ok);
         if (!ok) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
             delete pCANObjFctTempCtrl;
             return NULL;
         }
         PidController.sResetTime = strResetTime.toUShort(&ok);
         if (!ok) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
             delete pCANObjFctTempCtrl;
             return NULL;
         }
         PidController.sDerivativeTime = strDerivativeTime.toUShort(&ok);
         if (!ok) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
             delete pCANObjFctTempCtrl;
             return NULL;
         }
@@ -1521,7 +1521,7 @@ CANFctModuleJoystick* HardwareConfiguration::ParseJoystick(const QDomElement &el
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctJoystick;
     }
 
@@ -1550,12 +1550,11 @@ CANFctModuleUART* HardwareConfiguration::ParseUART(const QDomElement &element)
 {
     CANFctModuleUART* pCANObjFctUART = 0;
     QDomElement child;
-    QString strType, strProtocol;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         return pCANObjFctUART;
     }
 

@@ -31,7 +31,7 @@
 
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DeviceControl/Include/Devices/DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
@@ -234,8 +234,7 @@ signals:
     /*! \brief  To report error to DCP
      */
     /****************************************************************************/
-    void ReportError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorCode,
-                     quint16 ErrorData, QDateTime ErrorTime);
+    void ReportEvent(quint32 EventCode, quint16 ErrorData, QDateTime ErrorTime);
 
     /****************************************************************************/
     /*! \brief  To request reinitilization of device

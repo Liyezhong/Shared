@@ -133,8 +133,6 @@ protected slots:
 private slots:
     // These slots are for internal use only
     void SwitchOn(int Cuvette);
-    void OnTempControlError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorCode, quint16 ErrorData,
-                            QDateTime ErrorTime);
     void OnTemperatureRange0(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qreal Temperature);
     void OnTemperatureRange1(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qreal Temperature);
     void OnTemperatureRange2(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qreal Temperature);

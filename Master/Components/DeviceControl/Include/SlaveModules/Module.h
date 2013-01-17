@@ -163,7 +163,7 @@ signals:
      *  \iparam ErrorTime = Error time
      */
     /****************************************************************************/
-    void ReportError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
 
     /****************************************************************************/
     /*!
@@ -193,7 +193,7 @@ protected:
     //! Registers the can messages to communication layer
     ReturnCode_t RegisterEventCANMessages();
 
-    void HandleCANMsgError(can_frame* pCANframe);
+    quint32 HandleCANMsgError(can_frame* pCANframe);
     void HandleCANMsgAcknDataReset(can_frame* pCANframe);   //!< Handles the receipt of can message 'AcknDataReset'
 
     static void SetCANMsgDataU32(can_frame* pCANframe, quint32 msgData, quint8 offset);
@@ -205,6 +205,8 @@ protected:
     static quint64 GetCANMsgDataU64(can_frame* pCANframe);
 
     static quint16 ComputePassword();
+    static quint32 BuildEventCode(quint16 ModuleId, quint16 SlaveEventCode,
+                                  ReturnCode_t EventClass = DCL_ERR_EXTERNAL_ERROR);
 
     CANCommunicator* m_pCANCommunicator;                    //!< Communicator object
     const CANMessageConfiguration* mp_MessageConfiguration; //!< Message configuration

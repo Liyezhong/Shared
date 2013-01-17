@@ -39,7 +39,7 @@
 
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcTask.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 
 namespace DeviceControl
@@ -88,9 +88,8 @@ public:
     DeviceProcessing(QObject *p_Parent);
     virtual ~DeviceProcessing();
 
-    void ThrowError(DevInstanceID_t InstanceID, quint32 ErrorGroup, quint32 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
-    void ThrowError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
-    void ThrowErrorWithInfo(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorID, quint16 ErrorData, QDateTime ErrorTime, QString ErrorInfo);
+    void ThrowEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
+    void ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime EventTime, QString EventInfo);
 
     //! Return the hardware config file name
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
@@ -212,8 +211,7 @@ signals:
      *  \iparam timeStamp = Timestamp
      */
     /****************************************************************************/
-    void ReportError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData,
-                     QDateTime timeStamp);
+    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
 
     /****************************************************************************/
     /*!
@@ -227,8 +225,7 @@ signals:
      *  \iparam strErrorInfo = Error string
      */
     /****************************************************************************/
-    void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData,
-                             QDateTime timeStamp, QString strErrorInfo);
+    void ReportEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime EventTime, QString EventInfo);
 
     /****************************************************************************/
     /*!

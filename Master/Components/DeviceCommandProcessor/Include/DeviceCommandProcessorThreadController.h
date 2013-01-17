@@ -25,7 +25,7 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 
 //Adaption to device processing
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
 #include <QMutex>
@@ -155,18 +155,7 @@ public:
     /****************************************************************************/
     virtual void OnDeviceProcessingCleanup(Global::tRefType Ref, const CmdDeviceProcessingCleanup &Cmd);
 
-
-    //###################################################
-    void ThrowError(quint16 ErrorGroup, quint16 ErrorCode);
-    void ThrowError(quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, const QDateTime & ErrorTime, QString ErrorInfo);
-
-public slots:
-    //####################################################################
-    // Slots connected to signals from IDeviceProcessing
-    void ThrowError(DevInstanceID_t instanceID, quint32 usErrorGroup, quint32 usErrorID,
-                    quint16 usErrorData,const QDateTime & TimeStamp);
-    void ThrowErrorWithInfo(DevInstanceID_t InstanceID, quint32 ErrorGroup, quint32 ErrorCode,
-                            quint16 ErrorData, const QDateTime & ErrorTime, QString ErrorInfo);    
+public slots:  
     void DevProcInitialisationAckn(ReturnCode_t configResult);
     void DevProcConfigurationAckn(ReturnCode_t configResult);
     void DevProcStartNormalOpModeAckn(ReturnCode_t hdlInfo);

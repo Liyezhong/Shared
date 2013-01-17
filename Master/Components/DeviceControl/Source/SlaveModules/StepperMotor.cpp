@@ -996,7 +996,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
         FILE_LOG_L(laFCT, llERROR) << " " << eventString;
 
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
         }
     }
     else if(m_unCanIDAcknDataReset == pCANframe->can_id)

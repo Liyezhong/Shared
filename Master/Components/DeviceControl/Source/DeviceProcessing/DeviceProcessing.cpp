@@ -226,32 +226,11 @@ DeviceProcessing::~DeviceProcessing()
 
 /****************************************************************************/
 /*!
- *  \brief  Forwards the error information from a device to IDeviceProcessing
+ *  \brief  Forwards device control layer events
  *
- *      The function forwards the error information to the IDeviceProcessing interface class
- *      (which finally throws the signal assigned to the errors)
- *
- *  \iparam InstanceID = The instance identifier of the device class which brought up the error
- *  \iparam ErrorGroup = Error group ID of the thrown error
- *  \iparam ErrorID = Error ID of the thrown error
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Time of error detection
- */
-/****************************************************************************/
-void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint32 ErrorGroup, quint32 ErrorID,
-                                  quint16 ErrorData, QDateTime ErrorTime)
-{
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << (int) InstanceID <<
-                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Forwards the error information from a function module to IDeviceProcessing
- *
- *      The function forwards the error information to the IDeviceProcessing interface class
- *      (which finally throws the signal assigned to the errors)
+ *      The function forwards the error information to the IDeviceProcessing
+ *      interface class. (which finally throws the signal assigned to the
+ *      errors)
  *
  *  \iparam InstanceID = The instance identifier of the module which brought up the error
  *  \iparam ErrorGroup = Error group ID of the thrown error
@@ -260,20 +239,20 @@ void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint32 ErrorGroup
  *  \iparam ErrorTime  = Time of error detection
  */
 /****************************************************************************/
-void DeviceProcessing::ThrowError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorID,
-                                  quint16 ErrorData, QDateTime ErrorTime)
+void DeviceProcessing::ThrowEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime)
 {
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
-                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowEvent (" << EventCode << ", " << EventData << ", "
+                                   << EventTime.toString().constData() << ")";
+    emit ReportEvent(EventCode, EventData, EventTime);
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Forwards the error information from a function module to IDeviceProcessing
+ *  \brief  Forwards device control layer events
  *
- *      The function forwards the error information to the IDeviceProcessing interface class
- *      (which finally throws the signal assigned to the errors)
+ *      The function forwards the error information to the IDeviceProcessing
+ *      interface class. (which finally throws the signal assigned to the
+ *      errors)
  *
  *  \iparam InstanceID = The instance identifier of the module which brought up the error
  *  \iparam ErrorGroup = Error group ID of the thrown error
@@ -283,14 +262,11 @@ void DeviceProcessing::ThrowError(quint32 InstanceID, quint32 ErrorGroup, quint3
  *  \iparam ErrorInfo  = Error information string
  */
 /****************************************************************************/
-void DeviceProcessing::ThrowErrorWithInfo(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorID,
-                                          quint16 ErrorData, QDateTime ErrorTime, QString ErrorInfo)
+void DeviceProcessing::ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime EventTime, QString EventInfo)
 {
-    Q_UNUSED(ErrorInfo);
-
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
-                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowEventWithInfo (" << EventCode << ", " << EventData
+                                   << ", " << EventTime.toString().constData() << ", " << EventInfo.constData() << ")";
+    emit ReportEventWithInfo(EventCode, EventData, EventTime, EventInfo);
 }
 
 /****************************************************************************/
@@ -979,7 +955,7 @@ void DeviceProcessing::HandleTasks()
         QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANBUS_WRITE, error, errorTimeStamp);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
@@ -1145,7 +1121,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_BREAK_NORMAL_OP, 0, errorTimeStamp);
 
         return;
     }
@@ -1204,7 +1180,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
         QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_START_DIAG, 0, errorTimeStamp);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1420,7 +1396,7 @@ void DeviceProcessing::CheckMasterHeartbeat()
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
                 QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                ThrowError(0, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
+                ThrowEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT, 0, errorTimeStamp);
             }
         }
     }
@@ -1878,10 +1854,9 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
 /****************************************************************************/
 void DeviceProcessing::AddDevice(DevInstanceID_t InstanceId, CDeviceBase* pBaseDevice)
 {
-    connect(pBaseDevice, SIGNAL(ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime)),
-            this, SIGNAL(ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime)));
+    connect(pBaseDevice, SIGNAL(ReportEvent(quint32, quint16, QDateTime)),
+            this, SIGNAL(ReportEvent(quint32,quint16,QDateTime)));
     m_DeviceList[InstanceId] = pBaseDevice;
 }
-
 
 } //namespace

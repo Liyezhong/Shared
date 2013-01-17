@@ -69,8 +69,7 @@ CTemperatureState::CTemperatureState(CTemperatureControl *p_TemperatureControl, 
         *this, &CTemperatureState::TransOnOff,
         p_Off));
 
-    p_On->addTransition(mp_TemperatureControl, SIGNAL(ReportError(quint32, quint32, quint32, quint16, QDateTime)),
-                        p_Off);
+    p_On->addTransition(mp_TemperatureControl, SIGNAL(ReportEvent(quint32, quint16, QDateTime)), p_Off);
 
     p_On->addTransition(new CTemperatureTransition(
         this, SIGNAL(GetTemperature()),

@@ -118,10 +118,6 @@ private:
     // Function Modules
     CStepperMotor *mp_Motor;                //!< Oven cover stepper motor function module
     CTemperatureControl *mp_TempControl;    //!< Temperature control function module
-
-private slots:
-    void OnTempControlError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorCode, quint16 ErrorData,
-                            QDateTime ErrorTime);
 };
 
 } //namespace

@@ -111,15 +111,6 @@ bool CDeviceHeatedCuvettes::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
-    connect(mp_TempControl[0], SIGNAL(ReportError(quint32, quint32, quint32, quint16, QDateTime)),
-            this, SLOT(OnTempControlError(quint32, quint32, quint32, quint16, QDateTime)));
-    connect(mp_TempControl[1], SIGNAL(ReportError(quint32, quint32, quint32, quint16, QDateTime)),
-            this, SLOT(OnTempControlError(quint32, quint32, quint32, quint16, QDateTime)));
-    connect(mp_TempControl[2], SIGNAL(ReportError(quint32, quint32, quint32, quint16, QDateTime)),
-            this, SLOT(OnTempControlError(quint32, quint32, quint32, quint16, QDateTime)));
-    connect(mp_TempControl[3], SIGNAL(ReportError(quint32, quint32, quint32, quint16, QDateTime)),
-            this, SLOT(OnTempControlError(quint32, quint32, quint32, quint16, QDateTime)));
-
     connect(mp_TempControl[0], SIGNAL(ReportTemperatureRange(quint32, ReturnCode_t, bool, qreal)),
             this, SLOT(OnTemperatureRange0(quint32, ReturnCode_t, bool, qreal)));
     connect(mp_TempControl[1], SIGNAL(ReportTemperatureRange(quint32, ReturnCode_t, bool, qreal)),
@@ -302,7 +293,7 @@ void CDeviceHeatedCuvettes::SwitchOn(int Cuvette)
 /****************************************************************************/
 bool CDeviceHeatedCuvettes::TransSetTemperature(QEvent *p_Event)
 {
-    quint8 Cuvette;
+    quint8 Cuvette = 4;
     bool Enable;
     qreal Temperature;
 
@@ -342,7 +333,7 @@ bool CDeviceHeatedCuvettes::TransSetTemperature(QEvent *p_Event)
 /****************************************************************************/
 bool CDeviceHeatedCuvettes::TransFilterSetTemperature(QEvent *p_Event)
 {
-    quint8 Cuvette;
+    quint8 Cuvette = 4;
     bool Enable;
 
     if (!CHeatedCuvettesTransition::GetEventValue(p_Event, 0, Cuvette)) {
@@ -373,7 +364,7 @@ bool CDeviceHeatedCuvettes::TransFilterSetTemperature(QEvent *p_Event)
 /****************************************************************************/
 bool CDeviceHeatedCuvettes::TransGetTemperature(QEvent *p_Event)
 {
-    quint8 Cuvette;
+    quint8 Cuvette = 4;
 
     if (!CHeatedCuvettesTransition::GetEventValue(p_Event, 0, Cuvette)) {
         emit ReportGetTemperature(DCL_ERR_INVALID_PARAM, Cuvette, 0);
@@ -763,24 +754,6 @@ bool CDeviceHeatedCuvettes::TransSwitchOperatingMode(QEvent *p_Event, TempCtrlOp
 
     emit ReportSetOperatingMode(ReturnCode);
     return true;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  This slot is called when an error was detected or received
- *
- *  \iparam InstanceID = Instance identifier of device
- *  \iparam ErrorGroup = Error group
- *  \iparam ErrorCode = Error code
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Error time
- */
-/****************************************************************************/
-void CDeviceHeatedCuvettes::OnTempControlError(quint32 InstanceID, quint32 ErrorGroup, quint32 ErrorCode,
-                                               quint16 ErrorData, QDateTime ErrorTime)
-{
-    Q_UNUSED(InstanceID)
-    emit ReportError(m_InstanceID, ErrorGroup, ErrorCode, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/

@@ -127,8 +127,7 @@ signals:
      *  \iparam timeStamp = Timestamp
      */
     /****************************************************************************/
-    void ReportError(DevInstanceID_t instanceID, quint32 usErrorGroup, quint32 usErrorID,
-                     quint16 usErrorData, QDateTime timeStamp);
+    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime TimeStamp);
 
     /****************************************************************************/
     /*!
@@ -142,8 +141,7 @@ signals:
      *  \iparam strErrorInfo = Error string
      */
     /****************************************************************************/
-    void ReportErrorWithInfo(DevInstanceID_t instanceID, quint32 usErrorGroup, quint32 usErrorID,
-                             quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
+    void ReportEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime TimeStamp, QString EventInfo);
 
     /****************************************************************************/
     /*!
@@ -171,11 +169,9 @@ private slots:
     void OnStartNormalOperationMode(ReturnCode_t);
 
     //! Get error information from DeviceProcessing
-    void OnError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                 quint16 usErrorData, QDateTime timeStamp);
+    void OnEvent(quint32 EventCode, quint16 EventData, QDateTime TimeStamp);
     //! Get error information from DeviceProcessing
-    void OnErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                         quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
+    void OnEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime TimeStamp, QString EventInfo);
 
     //! Device control layer diagnostic service acknwoledge
     void OnDiagnosticServiceClosed(ReturnCode_t DiagnosticResult);

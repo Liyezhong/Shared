@@ -25,7 +25,7 @@
 #define DEVICECONTROL_DRAWERMOTION_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"

@@ -68,7 +68,6 @@ public:
     AdjustmentServiceMainState_t GetState() { return m_mainState; }
 
     void HandleTasks();
-    void ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo, quint16 usErrorGroup, quint16 usErrorID, qint16 sErrorData);
 
 private:
     void HandleInitializationState();

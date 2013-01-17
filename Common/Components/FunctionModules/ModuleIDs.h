@@ -35,8 +35,6 @@
 #define MODULE_ID_DIGITAL_IN      2     //!< Module ID for digital output
 #define MODULE_ID_ANALOG_OUT      3     //!< Module ID for analog input
 #define MODULE_ID_ANALOG_IN       4     //!< Module ID for analog output
-
-#define MODULE_ID_INCLINOMETER    5     //!< Module ID for inclinometer
 #define MODULE_ID_STEPPER         7     //!< Module ID for stepper motor
 #define MODULE_ID_JOYSTICK        8     //!< Module ID for adjustment joystick
 #define MODULE_ID_RFID11785       9     //!< Module ID for RFID ISO 11785 transponders

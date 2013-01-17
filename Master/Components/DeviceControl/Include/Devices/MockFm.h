@@ -3,7 +3,7 @@
 
 #include <QDateTime>
 #include <QObject>
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 
 namespace DeviceControl {
 
@@ -98,7 +98,7 @@ Q_SIGNALS:
 
     void ReportMovementAckn(quint32, ReturnCode_t, qint32, qint16);
 
-    void ReportError(quint32, quint16, quint16, quint16, QDateTime);
+    void ReportEvent(quint32, quint16, QDateTime);
     void Rotate(quint32, quint8);
     void ReportSpeedMovementCmdAckn(quint32 , ReturnCode_t);
     void ReportSpeed(quint32, ReturnCode_t, quint16);

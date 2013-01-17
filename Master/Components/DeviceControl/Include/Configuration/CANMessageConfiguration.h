@@ -28,7 +28,7 @@
 #include <QHash>
 #include <QDomNode>
 #include <QDomElement>
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 
 class QDomNode;
 
@@ -62,7 +62,7 @@ public:
     //! Return the CAN message ID from the specified parameters
     unsigned int GetCANMessageID(quint8 bModuleID, QString strMessageKey, quint8 bIfaceID, quint32 unNodeID) const;
 
-    void GetLastError(quint16& usErrorID, QString& strErrorInfo);
+    void GetLastError(quint32 &EventCode, QString& strErrorInfo);
 
 private:
     ReturnCode_t ParseCANMessageElement(const QDomNode &element, quint8 bFctModuleIfaceID);
@@ -70,7 +70,7 @@ private:
     CANMessageList m_CANMessageList;    //!< List of all CAN messages
 
     QString m_strErrorInfo; //!< Last error information string
-    quint16 m_usErrorID;    //!< Last error ID
+    quint32 m_EventCode;    //!< Last event code
 };
 
 } //namespace

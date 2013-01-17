@@ -140,25 +140,4 @@ void CAdjustmentService::HandleCANNodesTask()
     }
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Throws an error signal
- *
- *  \iparam usNodeID = Node ID
- *  \iparam ulModulInfo = Module ID
- *  \iparam usErrorGroup = Error group
- *  \iparam usErrorID = Error ID
- *  \iparam sErrorData = Error data
- */
-/****************************************************************************/
-void CAdjustmentService::ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo, quint16 usErrorGroup, quint16 usErrorID, qint16 sErrorData)
-{
-    Q_UNUSED(usNodeID);
-    Q_UNUSED(ulModulInfo);
-
-    quint32 ulModulHandle = 0;
-    QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-    m_pDeviceProcessing->ThrowError(ulModulHandle, usErrorGroup, usErrorID, sErrorData, errorTimeStamp);
-}
-
 } //namespace

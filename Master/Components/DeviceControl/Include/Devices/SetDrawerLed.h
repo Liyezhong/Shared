@@ -2,7 +2,7 @@
 #define DEVICECONTROL_SETDRAWERLED_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 
 #ifdef Q_UNIT_TEST

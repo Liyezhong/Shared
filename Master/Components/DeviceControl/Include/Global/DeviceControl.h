@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceControlGlobal.h
+/*! \file DeviceControl.h
  *
  *  \brief
  *
@@ -9,7 +9,7 @@
  *
  *  \b Description:
  *
- *       This module contains the global defines of the device control layer
+ *       This module contains the global defines of the device control layer.
  *
  *  \b Company:
  *
@@ -21,8 +21,8 @@
  *
  */
 /****************************************************************************/
-#ifndef DEVICE_CONTROL_GLOBAL_H
-#define DEVICE_CONTROL_GLOBAL_H
+#ifndef DEVICECONTROL_DEVICECONTROL_H
+#define DEVICECONTROL_DEVICECONTROL_H
 
 #include <QObject>
 #include <QMetaType>
@@ -433,4 +433,4 @@ Q_DECLARE_METATYPE(DeviceControl::TempCtrlStatus_t)
 Q_DECLARE_METATYPE(DeviceControl::TempCtrlOperatingMode_t)
 Q_DECLARE_METATYPE(DeviceControl::HeatedVesselID_t)
 
-#endif /* DEVICE_CONTROL_GLOBAL_H */
+#endif /* DEVICECONTROL_DEVICECONTROL_H */

@@ -25,7 +25,7 @@
 #define DEVICECONTROL_TEMPERATURESTATE_H
 
 #include "DeviceControl/Include/Devices/DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
 
 namespace DeviceControl
 {

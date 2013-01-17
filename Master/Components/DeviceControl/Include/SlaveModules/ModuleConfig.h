@@ -27,8 +27,8 @@
 
 #include <QMap>
 #include <QString>
-#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
-#include "DeviceControl/Include/Global/DeviceControlError.h"
+#include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/Global/DeviceControlEventCodes.h"
 
 #include "FunctionModules/ModuleIDs.h"
 
