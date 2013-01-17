@@ -40,10 +40,10 @@ const quint32 EVENT_DATAMANAGER_ERROR_UNSUPPORTED_VERSION            = EVENT_GRO
 const quint32 EVENT_DATAMANAGER_ERROR_LANG_NOT_FOUND                 = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0008;    ///< Translations for language '%1' not found.
 const quint32 EVENT_DATAMANAGER_ERROR_PASSWORD_FORMAT                = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0009;    ///< Password does not fit requirements.
 const quint32 EVENT_DATAMANAGER_ERROR_PASSWORD_SERIAL_NUMBER         = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000A;    ///< Serial number does not fit.
-const quint32 EVENT_DATAMANAGER_INVALID_DATEFORMAT            = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000B;    ///< '%1' is not a valid date format.
-const quint32 EVENT_DATAMANAGER_INVALID_TIMEFORMAT            = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000C;    ///< '%1' is not a valid time format.
-const quint32 EVENT_DATAMANAGER_INVALID_TEMPFORMAT            = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000D;    ///< '%1' is not a valid temperature format .
-const quint32 EVENT_DATAMANAGER_INVALID_OVENSTARTMODE         = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000E;    ///<  '%1' is not a valid oven start mode.
+const quint32 EVENT_DATAMANAGER_INVALID_DATEFORMAT                   = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000B;    ///< '%1' is not a valid date format.
+const quint32 EVENT_DATAMANAGER_INVALID_TIMEFORMAT                   = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000C;    ///< '%1' is not a valid time format.
+const quint32 EVENT_DATAMANAGER_INVALID_TEMPFORMAT                   = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000D;    ///< '%1' is not a valid temperature format .
+const quint32 EVENT_DATAMANAGER_INVALID_OVENSTARTMODE                = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000E;    ///<  '%1' is not a valid oven start mode.
 const quint32 EVENT_DM_SETTINGS_XML_READ_FAILED                      = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x000F;    ///< UserSettings XML File Read failed
 const quint32 EVENT_DM_DEVICE_CONFIG_XML_READ_FAILED                 = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0010;    ///< Device Config XML file Read failed
 const quint32 EVENT_DM_SETTINGS_VERIFICATION_FAILED                  = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0011;    ///< UserSettings Verification Failed
@@ -57,7 +57,6 @@ const quint32 EVENT_DM_XML_FILE_NOT_EXISTS                           = EVENT_GRO
 const quint32 EVENT_DM_XML_SERIALIZE_FAILED                          = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0019;    ///< '%1' XML Serialization failed
 const quint32 EVENT_DM_XML_DESERIALIZE_FAILED                        = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x001A;    ///< '%1' XML De Serialization failed
 const quint32 EVENT_DM_GV_FAILED                                     = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x001B;    ///< Group verification is failed
-
 const quint32 EVENT_DM_ERROR_INVALID_AGITAION_SPEED                  = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0001; ///< '%1' is not a valid Agitation Speed
 const quint32 EVENT_DM_ERROR_INVALID_OVENTEMP                        = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0002; ///< '%1' is not a valid Oven temperature
 const quint32 EVENT_DM_ERROR_INVALID_WATERTYPE                       = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0003; ///< '%1' is not a valid Watertype
@@ -68,6 +67,19 @@ const quint32 EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE               = EVENT_GRO
 const quint32 EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0008; ///< Error Sound Level values are Out Of Range
 const quint32 EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x0009; ///< Warning Sound Number values are Out Of Range
 const quint32 EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE                 = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0x000A; ///< Warning Sound Level values are Out Of Range
+const quint32 EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE           = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0X000B; ///< '%1' is not a valid RemoteCare on/off state.
+const quint32 EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE    = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0X000C; ///< '%1' is not a valid DirectConnection on/off state.
+const quint32 EVENT_DM_ERROR_INVALID_PROXY_USERNAME                  = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0X000D; ///< '%1' is not a valid Proxy UserName.
+const quint32 EVENT_DM_ERROR_INVALID_PROXY_PASSWORD                  = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0X000E; ///< '%1' is not a valid Proxy Password.
+const quint32 EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS                = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0X000F; ///< '%1' is not a valid Proxy IP Address.
+const quint32 EVENT_DM_ERROR_INVALID_PROXY_IP_PORT                   = EVENT_GROUP_PLATFORM_DM_USERSETTINGS + 0X0010; ///< '%1' is not a valid Proxy IP Port.
+const quint32 EVENT_DM_INVALID_DEVICE_NAME_CHAR_COUNT                = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0001; ///< Device name character count is Invalid.
+const quint32 EVENT_DM_INVALID_DEVICE_NUMBER_CHAR_COUNT              = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0002; ///< Device Number character count is Invalid.
+const quint32 EVENT_DM_INVALID_COVERSLIPPER_NAME_WIDTH               = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0003; ///< Cover Slipper device name character count is Invalid.
+const quint32 EVENT_DM_INVALID_WSMODE_DATA                           = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0004; ///< Work Station mode data is Invalid.
+const quint32 EVENT_DM_INVALID_HEATED_CUEVETTES_DATA                 = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0005; ///< Heated Cuevettes mode data is Invalid.
+const quint32 EVENT_DM_INVALID_CAMERA_SLIDEID_DATA                   = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0006; ///< Camera Slide Id data is Invalid.
+const quint32 EVENT_DM_INVALID_STAINER_DEV_NAME_WIDTH                = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0007; ///< Stainer Device name character count is Invalid.
 
 } // end namespace DataManager
 

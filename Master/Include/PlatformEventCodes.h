@@ -44,6 +44,7 @@ const quint32 EVENT_GROUP_PLATFORM_PASSWORDMANAGER          = ((EVENT_GROUP_PLAT
 const quint32 EVENT_GROUP_PLATFORM_DM_USERSETTINGS          = ((EVENT_GROUP_PLATFORM << 8) + 0x12) << 16;   ///< Event group for Usersettings Data container
 const quint32 EVENT_GROUP_PLATFORM_GPIO_MANAGER             = ((EVENT_GROUP_PLATFORM << 8) + 0x13) << 16;   ///< Event group for GPIO manager
 const quint32 EVENT_GROUP_PLATFORM_GENERIC_EVENTS           = ((EVENT_GROUP_PLATFORM << 8) + 0x14) << 16;   ///< Event group for generic events
+const quint32 EVENT_GROUP_PLATFORM_DM_DEVICECONFIG          = ((EVENT_GROUP_PLATFORM << 8) + 0x15) << 16;
 
 //!< Generic events
 const quint32 EVENT_SOFTSWITCH_MONITOR_START                = EVENT_GROUP_PLATFORM_GENERIC_EVENTS + 0x001; //!< Raised when basic system init is complete
