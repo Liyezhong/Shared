@@ -75,12 +75,12 @@ private:
 
     DiagnosticServiceMainState_t m_MainState;   //!< Main state
 
-    ReturnCode_t m_LastErrorHdlInfo;    //!< last errorcode, e.g. received by a fuction call
-    quint16      m_LastErrorGroup;      //!< last error's group id
-    quint16      m_LastErrorCode;       //!< last error's error code
-    quint16      m_LastErrorData;       //!< last error's data
-    QDateTime    m_LastErrorTime;       //!< last error's time
-    QString      m_LastErrorString;     //!< last error information string
+    ReturnCode_t m_lastEventHdlInfo;    //!< last errorcode, e.g. received by a fuction call
+    quint16      m_lastEventGroup;      //!< last error's group id
+    quint16      m_lastEventCode;       //!< last error's error code
+    quint16      m_lastEventData;       //!< last error's data
+    QDateTime    m_lastEventTime;       //!< last error's time
+    QString      m_lastEventString;     //!< last error information string
 };
 
 }  //namespace

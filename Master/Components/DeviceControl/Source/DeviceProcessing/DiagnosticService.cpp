@@ -50,7 +50,7 @@ CDiagnosticService::CDiagnosticService(DeviceProcessing* pDeviceProcessing,
                                        CANCommunicator* pCANCommunicator,
                                        ObjectTree* pObjectTree) :
     m_pDeviceProcessing(pDeviceProcessing), m_pCANCommunicator(pCANCommunicator), m_pObjectTree(pObjectTree),
-    m_LastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_LastErrorGroup(0), m_LastErrorCode(0), m_LastErrorData(0)
+    m_lastEventHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_lastEventGroup(0), m_lastEventCode(0), m_lastEventData(0)
 
 {
     m_MainState = DIAG_MAIN_STATE_INIT;
@@ -125,7 +125,7 @@ void CDiagnosticService::HandleConfigurationTask()
     {
         // at least one Node is in error mode
         FILE_LOG_L(laINIT, llINFO) << " Set CDiagnosticService main state to ERROR";
-        m_LastErrorHdlInfo = RetVal;
+        m_lastEventHdlInfo = RetVal;
         m_MainState = DIAG_MAIN_STATE_ERROR;
         //m_ErrSubState = CS_SUBSTATE_ERR_INIT;
     }

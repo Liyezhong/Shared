@@ -578,10 +578,10 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                 quint16 nAddData;
 
                 m_mainState = CN_MAIN_STATE_ERROR;
-                m_lastErrorTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                m_lastEventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
 
                 nAddData = (((m_FunctionModuleList.count() << 8) & 0xFF00) | (m_ChannelCount & 0x00FF));
-                emit ReportEvent(EVENT_DEVICECONTROL_ERROR_INIT_CHANNEL_COUNT, nAddData, m_lastErrorTime);
+                emit ReportEvent(EVENT_DEVICECONTROL_ERROR_INIT_CHANNEL_COUNT, nAddData, m_lastEventTime);
                 FILE_LOG_L(laINIT, llERROR) << "CANNode " << GetName().toStdString() << ": channel count not correct: "
                                             << (m_FunctionModuleList.count() + 1) << " - " << (int) m_ChannelCount;
             }
@@ -1908,9 +1908,9 @@ void CBaseModule::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        HandleCANMsgError(pCANframe);
+        HandleCANMsgEvent(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDHeartbeatSlave)

@@ -434,13 +434,13 @@ void CRfid15693::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        HandleCANMsgError(pCANframe);
+        HandleCANMsgEvent(pCANframe);
 
         if ((pCANframe->can_id == m_unCanIDEventError) ||  (pCANframe->can_id == m_unCanIDEventFatalError)) {
             hdlInfo = DCL_ERR_EXTERNAL_ERROR;
         }
 
-        if(m_lastErrorGroup == MODULE_ID_RFID15693)
+        if(m_lastEventGroup == MODULE_ID_RFID15693)
         {
             for(qint32 i = 0; i < m_ModuleCommand.size(); i++)
             {
@@ -452,7 +452,7 @@ void CRfid15693::HandleCanMessage(can_frame* pCANframe)
             }
         }
         else if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
         }
     }
 

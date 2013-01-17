@@ -982,21 +982,21 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        HandleCANMsgError(pCANframe);
+        HandleCANMsgEvent(pCANframe);
 
         // log event info string
         quint32 eventClass = (pCANframe->can_id & 0x1ff80000);  // unmask command class and code
         std::string eventString;
-        if (quint16(GetType()) == m_lastErrorGroup)
-            eventString = m_eventString[eventClass | m_lastErrorCode];
+        if (quint16(GetType()) == m_lastEventGroup)
+            eventString = m_eventString[eventClass | m_lastEventCode];
         else
-            eventString = m_pParent->m_eventString[m_lastErrorCode];
+            eventString = m_pParent->m_eventString[m_lastEventCode];
         if ("" == eventString)
             eventString = "unknown";
         FILE_LOG_L(laFCT, llERROR) << " " << eventString;
 
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
         }
     }
     else if(m_unCanIDAcknDataReset == pCANframe->can_id)

@@ -193,7 +193,7 @@ protected:
     //! Registers the can messages to communication layer
     ReturnCode_t RegisterEventCANMessages();
 
-    quint32 HandleCANMsgError(can_frame* pCANframe);
+    quint32 HandleCANMsgEvent(can_frame* pCANframe);
     void HandleCANMsgAcknDataReset(can_frame* pCANframe);   //!< Handles the receipt of can message 'AcknDataReset'
 
     static void SetCANMsgDataU32(can_frame* pCANframe, quint32 msgData, quint8 offset);
@@ -214,11 +214,11 @@ protected:
     CModuleConfig* m_pCANObjectConfig;  //!< Base class containing CAN object configuration
 
     // Variables for error handling
-    ReturnCode_t m_lastErrorHdlInfo;    //!< last errorcode, e.g. received by a fuction call
-    quint16 m_lastErrorGroup;           //!< last error's group id
-    quint16 m_lastErrorCode;            //!< last error's error code
-    quint16 m_lastErrorData;            //!< last error's data
-    QDateTime m_lastErrorTime;          //!< last error's time
+    ReturnCode_t m_lastEventHdlInfo;    //!< Last event code, e.g. received by a fuction call
+    quint16 m_lastEventGroup;           //!< Last event group ID
+    quint16 m_lastEventCode;            //!< Last Slave event code
+    quint16 m_lastEventData;            //!< Last event data
+    QDateTime m_lastEventTime;          //!< Last event time
 
     /* CAN-message IDs for event notification */
     quint32 m_unCanIDEventInfo;         //!< CAN-ID 'Event info' message */

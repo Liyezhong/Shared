@@ -341,9 +341,9 @@ void CAnalogInput::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgError(pCANframe);
+        quint32 EventCode = HandleCANMsgEvent(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDAnaInputState)

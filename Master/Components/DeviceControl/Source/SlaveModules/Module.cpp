@@ -44,7 +44,7 @@ namespace DeviceControl
 CModule::CModule(CModuleConfig::CANObjectType_t eObjectType, const CANMessageConfiguration *p_MessageConfiguration,
                  CANCommunicator* pCANCommunicator) :
     m_pCANCommunicator(pCANCommunicator), mp_MessageConfiguration(p_MessageConfiguration), m_pCANObjectConfig(0),
-    m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_lastErrorGroup(0), m_lastErrorCode(0), m_lastErrorData(0),
+    m_lastEventHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_lastEventGroup(0), m_lastEventCode(0), m_lastEventData(0),
     m_unCanIDEventInfo(0), m_unCanIDEventWarning(0), m_unCanIDEventError(0), m_unCanIDEventFatalError(0),
     m_unCanIDReqDataReset(0), m_unCanIDAcknDataReset(0),
     m_eObjectType(eObjectType), m_sOrderNr(0)
@@ -274,14 +274,14 @@ ReturnCode_t CModule::SendCANMsgReqDataReset()
 
 /****************************************************************************/
 /*!
- *  \brief  Handles the reception of error-CAN message
+ *  \brief  Handles the reception of an event CAN message
  *
  *  \iparam pCANframe = struct contains the data of the received CAN message
  *
  *  \return Platform event code
  */
 /****************************************************************************/
-quint32 CModule::HandleCANMsgError(can_frame* pCANframe)
+quint32 CModule::HandleCANMsgEvent(can_frame* pCANframe)
 {
     quint32 EventCode = 0;
 
@@ -290,43 +290,43 @@ quint32 CModule::HandleCANMsgError(can_frame* pCANframe)
         QString Type;
 
         // 16 Bit error group
-        m_lastErrorGroup = ((quint16) pCANframe->data[0]) << 8;
-        m_lastErrorGroup |= ((quint16) pCANframe->data[1]);
+        m_lastEventGroup = ((quint16) pCANframe->data[0]) << 8;
+        m_lastEventGroup |= ((quint16) pCANframe->data[1]);
         // 16 Bit error code (MSB shows active / inactive)
-        m_lastErrorCode = ((quint16) pCANframe->data[2]) << 8;
-        m_lastErrorCode |= ((quint16) pCANframe->data[3]);
+        m_lastEventCode = ((quint16) pCANframe->data[2]) << 8;
+        m_lastEventCode |= ((quint16) pCANframe->data[3]);
         // 16 Bit additional error data
-        m_lastErrorData = ((quint16) pCANframe->data[4]) << 8;
-        m_lastErrorData |= ((quint16) pCANframe->data[5]);
+        m_lastEventData = ((quint16) pCANframe->data[4]) << 8;
+        m_lastEventData |= ((quint16) pCANframe->data[5]);
 
         if(pCANframe->can_id == m_unCanIDEventInfo) {
             Type = "info";
-            m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_INFO;
+            m_lastEventHdlInfo = DCL_ERR_EXTERNAL_INFO;
         }
         else if(pCANframe->can_id == m_unCanIDEventWarning) {
             Type = "warning";
-            m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_WARNING;
+            m_lastEventHdlInfo = DCL_ERR_EXTERNAL_WARNING;
         }
         else if(pCANframe->can_id == m_unCanIDEventError) {
             Type = "error";
-            m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_ERROR;
+            m_lastEventHdlInfo = DCL_ERR_EXTERNAL_ERROR;
         }
         else {
             Type = "fatal error";
-            m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_ERROR;
+            m_lastEventHdlInfo = DCL_ERR_EXTERNAL_ERROR;
         }
 
         FILE_LOG_L(laFCT, llERROR) << " CModule: " << Type.toStdString() << " msg received:" <<
-                                      " group: 0x" << std::hex << m_lastErrorGroup <<
-                                      " code: 0x" << std::hex << m_lastErrorCode <<
-                                      " data: 0x" << std::hex << m_lastErrorData;
+                                      " group: 0x" << std::hex << m_lastEventGroup <<
+                                      " code: 0x" << std::hex << m_lastEventCode <<
+                                      " data: 0x" << std::hex << m_lastEventData;
 
-        m_lastErrorTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        m_lastEventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
 
         // this error was reported from external (CAN-bus)
-        m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_ERROR;
+        m_lastEventHdlInfo = DCL_ERR_EXTERNAL_ERROR;
 
-        EventCode = BuildEventCode(m_lastErrorGroup, m_lastErrorCode, m_lastErrorHdlInfo);
+        EventCode = BuildEventCode(m_lastEventGroup, m_lastEventCode, m_lastEventHdlInfo);
 
         Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName());
     }

@@ -216,7 +216,7 @@ void CUart::HandleTasks()
             else
             {
                 FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
-                m_lastErrorHdlInfo = DCL_ERR_FCT_CALL_FAILED;
+                m_lastEventHdlInfo = DCL_ERR_FCT_CALL_FAILED;
                 m_subStateConfig = FM_UART_SUB_STATE_CONFIG_ERROR;
                 m_mainState = FM_MAIN_STATE_ERROR;
             }
@@ -265,7 +265,7 @@ ReturnCode_t CUart::SendCANMessageConfiguration()
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_NULL_PTR_ACCESS;
     }
 
@@ -384,9 +384,9 @@ void CUart::HandleCanMessage(can_frame* pCANframe)
     FILE_LOG_L(laFCT, llDEBUG) << "  CANUART::HandleCanMessage 0x" << std::hex << pCANframe->can_id;
     if(pCANframe->can_id == m_unCanIDError)
     {
-        HandleCANMsgError(pCANframe);
+        HandleCANMsgEvent(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
         }
     }
     else if(m_unCanIDUARTDataAckn == pCANframe->can_id)

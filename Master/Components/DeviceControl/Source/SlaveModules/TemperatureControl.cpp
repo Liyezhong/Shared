@@ -561,10 +561,10 @@ void CTemperatureControl::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        HandleCANMsgError(pCANframe);
+        HandleCANMsgEvent(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
             m_TempCtrlState = TEMPCTRL_STATUS_OFF;
-            emit ReportEvent(BuildEventCode(m_lastErrorGroup, m_lastErrorCode), m_lastErrorData, m_lastErrorTime);
+            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDTemperature)
@@ -848,7 +848,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgFanWatchdogSet()
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -884,7 +884,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgCurrentWatchdogSet()
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -924,7 +924,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint8 Index)
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
