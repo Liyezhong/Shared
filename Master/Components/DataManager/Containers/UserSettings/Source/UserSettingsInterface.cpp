@@ -135,12 +135,6 @@ void CUserSettingsInterface::SetDefaultAttributes()
 /****************************************************************************/
 bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSettings)
 {
-//    if (p_UserSettings == NULL) {
-//        //m_ErrorHash.insert(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "");
-//        //Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
-//        return false;
-//    }
-
     try {
         CHECKPTR(p_UserSettings);
     } catch(const Global::Exception &E) {
@@ -170,6 +164,7 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
             Result = p_USI_Verification->UpdateUserSettings(p_UserSettings);
 
             if (Result) {
+                Result = DoLocalVerification(p_USI_Verification);
                 ListOfErrors_t ErrorList = p_USI_Verification->GetErrorList();
                 if (!ErrorList.isEmpty()) {
                     // If the control reaches here means Error hash is empty
@@ -210,11 +205,6 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
 /****************************************************************************/
 CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
 {
-//    if (mp_UserSettings == NULL) {
-//        qDebug() << "CUserSettingsInterface:GetUserSettings - User Settings are not created";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
-//        return NULL;
-//    }
     try {
         CHECKPTR(mp_UserSettings);
     } catch(const Global::Exception &E) {
@@ -246,10 +236,6 @@ CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
 /****************************************************************************/
 bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool CompleteData)
 {
-//    if (mp_UserSettings == NULL) {
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
-//        return false;
-//    }
     try {
         CHECKPTR(mp_UserSettings);
     } catch(const Global::Exception &E) {
@@ -331,10 +317,6 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
 /****************************************************************************/
 bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool CompleteData)
 {
-//    if (mp_UserSettings == NULL) {
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_USERSETTINGS_OBJ_INVALID, Global::tTranslatableStringList() << "", true);
-//        return false;
-//    }
     try {
         CHECKPTR(mp_UserSettings);
     } catch(const Global::Exception &E) {

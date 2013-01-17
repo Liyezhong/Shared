@@ -144,6 +144,9 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     // check the sound level warnings and errors
     CheckSoundLevelWarnings(UserSettings, VerifiedData, ErrorDescription);
 
+    // check network settings parameters
+    CheckNetWorkSettings(UserSettings, VerifiedData, ErrorDescription);
+
     if (!((UserSettings->GetValue("Agitation_Speed").toInt() >= MIN_AGITATION_SPEED) && (UserSettings->GetValue("Agitation_Speed").toInt() <= MAX_AGITATION_SPEED))) {
         qDebug() << "Speed of agitation is not defined";
         m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Agitation_Speed").toInt());
@@ -387,11 +390,12 @@ void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings,
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
+
 }
 
 /****************************************************************************/
 /*!
- *  \brief  check Network Settings.
+ *  \brief  Check Network Settings.
  *
  *  \iparam UserSettings - Pointer to CUserSettings
  *  \iparam VerifiedData = verifier flag value
@@ -403,45 +407,45 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* UserSettings, bo
 {
     if (!((UserSettings->GetRemoteCare() == Global::ONOFFSTATE_ON || UserSettings->GetRemoteCare() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS REMOTE CONNECTION IS NOT VALID";
-     //   m_ErrorHash.insert(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
-      //  Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetRemoteCare());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetRemoteCare(), true);
         VerifiedData = false;
     }
 
     if (!((UserSettings->GetDirectConnection() == Global::ONOFFSTATE_ON || UserSettings->GetDirectConnection() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS DIRECT CONNECTION IS NOT VALID";
-      //  m_ErrorHash.insert(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetDirectConnection());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << UserSettings->GetDirectConnection(), true);
         VerifiedData = false;
     }
 
-    if (!((UserSettings->GetProxyUserName() == " " || UserSettings->GetProxyUserName().length() < MIN_PROXY_USERNAME_LENGTH ||
-           UserSettings->GetProxyUserName().length() > MAX_PROXY_USERNAME_LENGTH))) {
+    if (!((UserSettings->GetProxyUserName() != " " || UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH ||
+           UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
         qDebug() << "PROXY USERNAME IS NOT VALID";
-      //  m_ErrorHash.insert(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
-      //  Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << UserSettings->GetProxyUserName());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << UserSettings->GetProxyUserName(), true);
         VerifiedData = false;
     }
 
-    if (!((UserSettings->GetProxyPassword() == " " || UserSettings->GetProxyPassword().length() < MIN_PROXY_PASSWORD_LENGTH ||
-           UserSettings->GetProxyPassword().length() > MAX_PROXY_PASSWORD_LENGTH))) {
+    if (!((UserSettings->GetProxyPassword() != " " || UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH ||
+           UserSettings->GetProxyPassword().length() <= MAX_PROXY_PASSWORD_LENGTH))) {
         qDebug() << "PROXY PASSWORD IS NOT VALID";
-      //  m_ErrorHash.insert(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
-      //  Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << UserSettings->GetProxyPassword());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << UserSettings->GetProxyPassword(), true);
         VerifiedData = false;
     }
 
     if (!((CheckProxyIPAddress(UserSettings, VerifiedData, ErrorDescription)))) {
         qDebug() << "PROXY IP ADDRESS NOT IN RANGE";
-     //   m_ErrorHash.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
-     //   Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() << UserSettings->GetProxyIPAddress());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() <<  UserSettings->GetProxyIPAddress(), true);
         VerifiedData = false;
     }
 
-    if (!((UserSettings->GetProxyIPPort() < MIN_PROXY_IP_PORT && UserSettings->GetProxyIPPort() > MAX_PROXY_IP_PORT))) {
+    if (!(((UserSettings->GetProxyIPPort() >= MIN_PROXY_IP_PORT) && (UserSettings->GetProxyIPPort() <= MAX_PROXY_IP_PORT)))) {
         qDebug() << "PROXY IP PORT NUMBER NOT IN RANGE";
-     //   m_ErrorHash.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
-     //   Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << UserSettings->GetProxyIPPort());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << UserSettings->GetProxyIPPort(), true);
         VerifiedData = false;
     }
 
