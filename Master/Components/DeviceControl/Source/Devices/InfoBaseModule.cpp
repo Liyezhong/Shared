@@ -21,6 +21,7 @@
  */
 /****************************************************************************/
 
+#include "DataManager/Containers/InstrumentHistory/Include/SubModule.h"
 #include "DeviceControl/Include/Devices/InfoBaseModule.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
@@ -42,9 +43,8 @@ typedef CSignalTransition<CInfoBaseModule> CInfoBaseModuleTransition;
  *  \iparam p_Parent = Parent state
  */
 /****************************************************************************/
-CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
-                                       const QString &Name, QState *p_Parent) :
-    CState(Name, p_Parent), mp_BaseModule(p_BaseModule), mp_SubModule(p_SubModule)
+CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule, QState *p_Parent) :
+    CState(p_SubModule->GetSubModuleName(), p_Parent), mp_BaseModule(p_BaseModule), mp_SubModule(p_SubModule)
 {
     CState *p_Init = new CState("Init", this);
     CState *p_ReqSerialNumber = new CState("ReqSerialNumber", this);

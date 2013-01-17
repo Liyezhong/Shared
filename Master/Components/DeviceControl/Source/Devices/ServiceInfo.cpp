@@ -66,12 +66,13 @@ CServiceInfo::CServiceInfo(QMap<QString, CModule *> &ModuleMap, const QString &N
 
         CBaseModule *p_BaseModule = dynamic_cast<CBaseModule *>(Iterator.value());
         if(p_BaseModule != NULL) {
-            DataManager::CSubModule *p_SubModule = new DataManager::CSubModule();
+            DataManager::CSubModule SubModule;
 
-            p_SubModule->SetSubModuleName(p_BaseModule->GetKey());
-            m_ModuleInformation.AddSubModuleInfo(p_SubModule);
+            SubModule.SetSubModuleName(p_BaseModule->GetKey());
+            m_ModuleInformation.AddSubModuleInfo(&SubModule);
 
-            p_NewState = new CInfoBaseModule(p_BaseModule, p_SubModule, p_BaseModule->GetKey(), p_Active);
+            p_NewState = new CInfoBaseModule(p_BaseModule, m_ModuleInformation.GetSubModuleInfo(p_BaseModule->GetKey()),
+                                             p_Active);
             connect(p_NewState, SIGNAL(ReportError(ReturnCode_t)), this, SIGNAL(OnReportError(ReturnCode_t)));
         }
 

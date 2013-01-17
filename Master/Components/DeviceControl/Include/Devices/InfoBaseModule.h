@@ -31,8 +31,7 @@
 #include "Simulator.h"
 #endif
 
-namespace DataManager
-{
+namespace DataManager {
     class CSubModule;
 }
 
@@ -51,8 +50,7 @@ class CInfoBaseModule : public CState
     Q_OBJECT
 
 public:
-    explicit CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule,
-                                const QString &Name, QState *p_Parent = 0);
+    explicit CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubModule *p_SubModule, QState *p_Parent = 0);
 
 signals:
     /****************************************************************************/

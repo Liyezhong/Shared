@@ -289,7 +289,7 @@ protected:
     CommandChannel                              m_CommandChannelEventThread;        ///< Command channel for EventHandler.
     EventHandler::EventHandlerThreadController  *mp_EventThreadController;          ///< Pointer to the system event handling object.
     QHash<QString, Threads::CommandChannel*>    m_channelList;                      ///< Hash of command channels connected related to its name
-    Platform::AlarmHandler                      *mp_alarmHandler;                       ///< The Alarm handler
+    Global::AlarmHandler                      *mp_alarmHandler;                       ///< The Alarm handler
     DataManager::CUserSettings                  *mp_UserSettings;                        ///< The user settings.
     DataManager::CDataManagerBase               *mp_DataManagerBase; //!< The DataManager.\warning Dont delete this, Pointer points to address in stack.
 
@@ -826,7 +826,7 @@ public:
     /****************************************************************************/
     Global::tRefType SendCommand(const Global::CommandShPtr_t &Cmd, CommandChannel &CmdChannel);
 
-    Platform::AlarmHandler* GetAlarmHandler() {return mp_alarmHandler; }
+    Global::AlarmHandler* GetAlarmHandler() {return mp_alarmHandler; }
 
     /****************************************************************************/
     /**

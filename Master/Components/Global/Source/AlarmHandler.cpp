@@ -23,7 +23,7 @@
 #include <QProcess>
 //#include <QSound>
 
-namespace Platform {
+namespace Global {
 
 /****************************************************************************/
 AlarmHandler::AlarmHandler(quint16 timeout, QString soundPath)
@@ -44,6 +44,8 @@ AlarmHandler::AlarmHandler(quint16 timeout, QString soundPath)
 /****************************************************************************/
 AlarmHandler::~AlarmHandler()
 {
+    delete m_Timer;
+    delete m_mutex;
 }
 
 void AlarmHandler::onTimeout()

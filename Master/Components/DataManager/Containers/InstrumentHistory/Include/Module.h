@@ -152,7 +152,7 @@ public:
      *  \return Pointer to SubModule
      */
     /****************************************************************************/
-    CSubModule const* GetSubMouleInfo(const QString SubModuleName) {return m_SubModuleList.value(SubModuleName, NULL);}
+    CSubModule* GetSubModuleInfo(const QString SubModuleName) const {return m_SubModuleList.value(SubModuleName, NULL);}
 
     /****************************************************************************/
     /*!
@@ -161,7 +161,7 @@ public:
      *  \return Pointer to SubModuleInfo
      */
     /****************************************************************************/
-    CSubModule* GetSubModuleInfo(const unsigned int Index); // uses order index
+    CSubModule* GetSubModuleInfo(const unsigned int Index) const; // uses order index
 
     /****************************************************************************/
     /*!

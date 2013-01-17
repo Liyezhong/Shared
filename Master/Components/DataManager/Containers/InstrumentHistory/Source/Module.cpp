@@ -312,7 +312,7 @@ bool CModule::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool CompleteD
  *  \return submodule associated with the index
  */
 /****************************************************************************/
-CSubModule* CModule::GetSubModuleInfo(const unsigned int Index)
+CSubModule* CModule::GetSubModuleInfo(const unsigned int Index) const
 {
     if (Index < (unsigned int)m_OrderedSubModuleList.count()) {
         QString Key = m_OrderedSubModuleList.value(Index);
