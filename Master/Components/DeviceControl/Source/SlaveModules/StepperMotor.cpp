@@ -982,7 +982,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        HandleCANMsgEvent(pCANframe);
+        quint32 EventCode = HandleCANMsgEvent(pCANframe);
 
         // log event info string
         quint32 eventClass = (pCANframe->can_id & 0x1ff80000);  // unmask command class and code
@@ -996,7 +996,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
         FILE_LOG_L(laFCT, llERROR) << " " << eventString;
 
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
+            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
         }
     }
     else if(m_unCanIDAcknDataReset == pCANframe->can_id)

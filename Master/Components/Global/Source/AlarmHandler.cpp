@@ -23,7 +23,7 @@
 #include <QProcess>
 //#include <QSound>
 
-namespace Platform {
+namespace Global {
 
 /****************************************************************************/
 AlarmHandler::AlarmHandler(quint16 timeout, QString soundPath)
@@ -213,4 +213,4 @@ void AlarmHandler::reset()
     m_mutex->unlock();
 }
 
-} // end namespace Colorado
+} // end namespace Global

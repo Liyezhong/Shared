@@ -31,7 +31,7 @@
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
 #include <Global/Include/SystemPaths.h>
 
-namespace Platform {
+namespace Global {
 
 /****************************************************************************/
 /**
@@ -101,6 +101,6 @@ private slots:
 
 }; // end class
 
-} // end namespace Platform
+} // end namespace Global
 
 #endif // GLOBAL_ALARMHANDLER_H

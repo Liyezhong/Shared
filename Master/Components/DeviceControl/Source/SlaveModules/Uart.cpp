@@ -384,9 +384,9 @@ void CUart::HandleCanMessage(can_frame* pCANframe)
     FILE_LOG_L(laFCT, llDEBUG) << "  CANUART::HandleCanMessage 0x" << std::hex << pCANframe->can_id;
     if(pCANframe->can_id == m_unCanIDError)
     {
-        HandleCANMsgEvent(pCANframe);
+        quint32 EventCode = HandleCANMsgEvent(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
+            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
         }
     }
     else if(m_unCanIDUARTDataAckn == pCANframe->can_id)

@@ -497,7 +497,7 @@ void CRfid11785::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        HandleCANMsgEvent(pCANframe);
+        quint32 EventCode = HandleCANMsgEvent(pCANframe);
         hdlInfo = DCL_ERR_EXTERNAL_ERROR;
 
         for(qint32 i = 0; i < m_ModuleCommand.size(); i++)
@@ -509,8 +509,9 @@ void CRfid11785::HandleCanMessage(can_frame* pCANframe)
             }
         }
 
-        if (ModuleCommandType == FM_RFID_CMD_TYPE_UNDEF) {
-            emit ReportEvent(BuildEventCode(m_lastEventGroup, m_lastEventCode), m_lastEventData, m_lastEventTime);
+        if (ModuleCommandType == FM_RFID_CMD_TYPE_UNDEF &&
+             (pCANframe->can_id == m_unCanIDEventError || pCANframe->can_id == m_unCanIDEventFatalError)) {
+            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
         }
     }
 

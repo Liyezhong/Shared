@@ -80,7 +80,7 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     m_HeartBeatSourceSoftSwitch(100),
     m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
     m_HeartBeatSourceAxeda(101),
-    mp_alarmHandler(new Platform::AlarmHandler(5000, "./")),
+    mp_alarmHandler(new Global::AlarmHandler(5000, "./")),
     mp_UserSettings(NULL),
     mp_DataManagerBase(NULL)
 {
