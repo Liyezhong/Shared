@@ -21,9 +21,6 @@
  */
 /****************************************************************************/
 
-#include <QFinalState>
-#include <QDebug>
-
 #include "DeviceControl/Include/Devices/DeviceDrawer.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/Devices/SetDrawerLed.h"
@@ -31,11 +28,16 @@
 #include "DeviceControl/Include/Devices/MoveOpenClosed.h"
 #include "DeviceControl/Include/Devices/FmStepperMove.h" //TODO
 #include "DeviceControl/Include/Devices/FmStepperInit.h"
-
 #include "DeviceControl/Include/Global/DeviceControl.h"
-
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
+#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include "DeviceControl/Include/SlaveModules/Rfid11785.h"
+#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
+
+#include <QDebug>
+#include <QFinalState>
 
 namespace DeviceControl
 {
@@ -134,6 +136,7 @@ bool CDeviceDrawer::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
+    mp_BaseModule = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseDrawerKey));
     mp_Motor = static_cast<CStepperMotor *>(m_DeviceProcessing.GetFunctionModule(
                                                 GetModuleInstanceFromKey(CANObjectKeyLUT::m_MotorDrawerKey)));
     mp_Rfid = static_cast<CRfid11785 *>(m_DeviceProcessing.GetFunctionModule(

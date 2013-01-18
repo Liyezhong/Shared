@@ -23,6 +23,7 @@
 #include "DeviceControl/Include/Devices/MoveXYZ.h"
 #include "DeviceControl/Include/Devices/MoveAck.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
+#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 
 namespace DeviceControl
 {

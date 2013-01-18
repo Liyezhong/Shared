@@ -22,10 +22,11 @@
 #define DEVICECONTROL_DEVICERACKTRANSFER_H
 
 #include "DeviceControl/Include/Devices/DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 
 namespace DeviceControl
 {
+
+class CStepperMotor;
 
 /****************************************************************************/
 /*! \brief Device class to handle RackTransfer device tasks
@@ -86,7 +87,8 @@ protected:
     bool Trans_Configure(QEvent *p_Event);
 
 private:
-    CStepperMotor *mp_Motor;			 ///< pointer to StepperMotor
+    CBaseModule *mp_BaseModule;
+    CStepperMotor *mp_Motor;    ///< pointer to StepperMotor
 
 };
 

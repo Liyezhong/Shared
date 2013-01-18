@@ -369,6 +369,7 @@ public:
     static const QString m_BaseWaterKey;            //!< Water base module key
     static const QString m_BaseSlideIdKey;          //!< Slide ID base module key
     static const QString m_BaseHoodKey;             //!< Hood base module key
+    static const QString m_BaseLightKey;            //!< Light base module key
     // Colorado function modules
     static const QString m_MotorAgitationKey;           //!< Motor agitation
     static const QString m_FlowSensorKey;               //!< air flow sensor
@@ -403,6 +404,8 @@ public:
     static const QString m_SlideIdTransmitControlKey;   //!< Slide ID transmit control
     static const QString m_SlideIdTransmitCurrentKey;   //!< Slide ID transmit current
     static const QString m_SlideIdReceiveCurrentKey;    //!< Slide ID receive current
+    static const QString m_HoodSensorKey;               //!< Hood open detection
+    static const QString m_LightControlKey;             //!< Light control
     // Sepia function modules
     static const QString m_MotorCoverLineZAxisKey;      //!< Motor Z-axis (elevator)
     static const QString m_MotorCoverLineSlideKey;      //!< Motor slide shifter
@@ -422,7 +425,6 @@ public:
     static const QString m_MotorRackHdlYAxisKey;        //!< Motor Y-axis rack handling
     static const QString m_MotorRackHdlZAxisKey;        //!< Motor Z-axis rack handling
     static const QString m_MotorRackHdlGrabberKey;      //!< Motor grabber rack handling
-    static const QString m_HoodSensorKey;               //!< Hood open detection
 };
 
 } //namespace

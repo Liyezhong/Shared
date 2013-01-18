@@ -112,6 +112,9 @@ const quint32 EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED         = EVENT_GROUP_PL
 //! a can message with invalid data length code was received ( <> expected)
 const quint32 EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC      = EVENT_GROUP_PLATFORM_DEVICECONTROL + 0x020D;
 
+//! Generic device error
+const quint32 EVENT_DEVICECONTROL_ERROR_DEVICE  = EVENT_GROUP_PLATFORM_DEVICECONTROL + 0x0301;
+
 } //namespace
 
 #endif /* DEVICECONTROL_DEVICECONTROLEVENTCODES_H */

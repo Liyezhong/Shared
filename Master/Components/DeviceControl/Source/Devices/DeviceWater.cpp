@@ -16,8 +16,11 @@
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
-#include <QFinalState>
+
 #include "DeviceControl/Include/Devices/DeviceWater.h"
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
+#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include <QFinalState>
 
 namespace DeviceControl
 {
@@ -64,24 +67,19 @@ bool CDeviceWater::Trans_Configure(QEvent *p_Event)
     }
 
     // Get function module instances
+    mp_BaseModule = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseWaterKey));
     m_pWaterValve[0] = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
                                                          GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterValve1Key)));
-
     m_pWaterValve[1] = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
                                                          GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterValve2Key)));
-
     m_pWaterValve[2] = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
                                                          GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterValve3Key)));
-
     m_pWaterValve[3] = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
                                                          GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterValve4Key)));
-
     m_pWaterValve[4] = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
                                                          GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterValve5Key)));
-
     m_pWaterValve[5] = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
                                                          GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterValve6Key)));
-
     m_pLiquidLevel = static_cast<CDigitalInput *>(m_DeviceProcessing.GetFunctionModule(
                                                       GetModuleInstanceFromKey(CANObjectKeyLUT::m_WaterLiquidLevelKey)));
 

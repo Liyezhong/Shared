@@ -20,8 +20,6 @@
 #define DEVICECONTROL_WATER_H
 
 #include "DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
-#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 
 namespace DeviceControl
 {
@@ -29,6 +27,9 @@ namespace DeviceControl
 #define BLOCKAGE_LEVEL		1           ///< To Blockage Levle Input value
 
 #define MAX_WATER_VALVES	6           ///< Number of Water Valves
+
+class CDigitalInput;
+class CDigitalOutput;
 
 /****************************************************************************/
 /*! \brief Device class to handle Water device tasks
@@ -136,10 +137,11 @@ private:
     WaterValveID_t GetValveIDFromIndex(quint8 valveID);
     quint8 GetValveIndexFromType(WaterValveID_t valveID);
 
-    CDigitalOutput *m_pWaterValve[MAX_WATER_VALVES]; 			///< Pointer for Six Water Valves.
-    CDigitalInput *m_pLiquidLevel;								///< Pointer for Liquid Level.
+    CBaseModule *mp_BaseModule;
+    CDigitalOutput *m_pWaterValve[MAX_WATER_VALVES];    ///< Pointer for Six Water Valves.
+    CDigitalInput *m_pLiquidLevel;						///< Pointer for Liquid Level.
 
-    bool m_CommandActive;									    ///< For Condition Check for Block and Level indicator.	
+    bool m_CommandActive;								///< For Condition Check for Block and Level indicator.
 };
 
 } //namespace

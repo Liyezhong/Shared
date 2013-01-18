@@ -16,14 +16,16 @@
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
-#include <QFinalState>
-#include <QDebug>
+
 #include "DeviceControl/Include/Devices/DeviceLight.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/Devices/SetDrawerLed.h"
 #include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
+#include <QDebug>
+#include <QFinalState>
 
 namespace DeviceControl
 {
@@ -188,17 +190,16 @@ bool CDeviceLight::Trans_Configure(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
 
-    if (m_Thread.isRunning() == false)
-    {
+    if (m_Thread.isRunning() == false) {
         return false;
     }
 
     // Get function module instances
+    mp_BaseModule = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseLightKey));
     mp_FmDoLed = static_cast<CDigitalOutput *>(m_DeviceProcessing.GetFunctionModule(
-                                                   GetModuleInstanceFromKey(CANObjectKeyLUT::m_DrawerLEDBlockedKey)));
+                                                   GetModuleInstanceFromKey(CANObjectKeyLUT::m_LightControlKey)));
 
-       if ( mp_FmDoLed == NULL )
-    {
+    if (mp_FmDoLed == NULL) {
         return false;
     }
 
@@ -216,7 +217,7 @@ bool CDeviceLight::Trans_Configure(QEvent *p_Event)
     CState *p_SwitchingOff = new CState("SwitchingOff", mp_Working);
 
     mp_Working->setInitialState(p_Start);
-   // p_Start->addTransition(p_LightOff);
+    //p_Start->addTransition(p_LightOff);
     p_Start->addTransition( new CLightTransition (
            p_Start, SIGNAL(entered()),
            *this, &CDeviceLight::Start,

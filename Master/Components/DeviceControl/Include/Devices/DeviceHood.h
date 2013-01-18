@@ -25,10 +25,11 @@
 #define DEVICECONTROL_HOOD_H
 
 #include "DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 
 namespace DeviceControl
 {
+
+class CDigitalInput;
 
 /****************************************************************************/
 /*! \brief Device class to handle Hood device tasks
@@ -96,6 +97,7 @@ protected:
     bool Trans_Configure(QEvent *p_Event);
 
 private:
+    CBaseModule *mp_BaseModule;
     CDigitalInput *mp_HoodSensor;
 
 };

@@ -35,6 +35,7 @@
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/EventObject.h"
 
 namespace DeviceControl
 {
@@ -578,10 +579,9 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                 quint16 nAddData;
 
                 m_mainState = CN_MAIN_STATE_ERROR;
-                m_lastEventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
-
                 nAddData = (((m_FunctionModuleList.count() << 8) & 0xFF00) | (m_ChannelCount & 0x00FF));
-                emit ReportEvent(EVENT_DEVICECONTROL_ERROR_INIT_CHANNEL_COUNT, nAddData, m_lastEventTime);
+
+                ThrowEvent(EVENT_DEVICECONTROL_ERROR_INIT_CHANNEL_COUNT, nAddData);
                 FILE_LOG_L(laINIT, llERROR) << "CANNode " << GetName().toStdString() << ": channel count not correct: "
                                             << (m_FunctionModuleList.count() + 1) << " - " << (int) m_ChannelCount;
             }
@@ -717,16 +717,12 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                 }
 
                 // throw error
-                QDateTime errorTimeStamp;
                 quint16 nAdditonalData = 0;
-
                 if(pFctModule)
                 {
                     nAdditonalData = ((quint16)pFctModule->GetType() << 8) | pFctModule->GetChannelNo();
                 }
-
-                errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                emit ReportEvent(EVENT_DEVICECONTROL_ERROR_TIMEOUT_CONFIG, nAdditonalData, errorTimeStamp);
+                ThrowEvent(EVENT_DEVICECONTROL_ERROR_TIMEOUT_CONFIG, nAdditonalData);
 
                 if(pFctModule)
                 {
@@ -820,14 +816,12 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                     // this must be treated as a fatal error and is caused by
                     //  -> firmware error (wrong version, incompatible function modules
                     //  -> master configuration file error
-                    QDateTime errorTimeStamp;
                     quint16 nAdditonalData;
 
                     nAdditonalData = ((quint16)sModuleIDMsg << 8) | bChannelMsg;
                     FILE_LOG_L(laCONFIG, llERROR) << "  Error: " << GetName().toStdString() << " fct not found type:" << sModuleIDMsg << " channel: " << (int) bChannelMsg;
 
-                    errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                    emit ReportEvent(EVENT_DEVICECONTROL_ERROR_CONFIG_INVALID_MODULE, nAdditonalData, errorTimeStamp);
+                    ThrowEvent(EVENT_DEVICECONTROL_ERROR_CONFIG_INVALID_MODULE, nAdditonalData);
 
                     m_mainState = CN_MAIN_STATE_ERROR;
                 }
@@ -841,12 +835,8 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                     }
                     else
                     {
-                        QDateTime errorTimeStamp;
-                        quint16 AdditonalData;
-                        AdditonalData = (quint16) RetVal;
-                        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                        emit ReportEvent(EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED, AdditonalData, errorTimeStamp);
-
+                        quint16 AdditonalData = (quint16) RetVal;
+                        ThrowEvent(EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED, AdditonalData);
                         m_mainState = CN_MAIN_STATE_ERROR;
                     }
                 }
@@ -878,12 +868,8 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                 }
                 else
                 {
-                    QDateTime errorTimeStamp;
-                    quint16 AdditonalData;
-                    AdditonalData = (quint16) RetVal;
-                    errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                    emit ReportEvent(EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED, AdditonalData, errorTimeStamp);
-
+                    quint16 AdditonalData = (quint16) RetVal;
+                    ThrowEvent(EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED, AdditonalData);
                     m_mainState = CN_MAIN_STATE_ERROR;
                 }
             }
@@ -903,9 +889,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
         }
         else
         {
-            QDateTime errorTimeStamp;
-            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_CONFIG_UNEXP_CANMSG, 0, errorTimeStamp);
+            ThrowEvent(EVENT_DEVICECONTROL_ERROR_CONFIG_UNEXP_CANMSG, 0);
         }
     }
 }
@@ -968,7 +952,6 @@ void CBaseModule::HandleTaskFctConfiguration()
         //there is at least one unconfigured function module left, check timeout
         if(GetTimeDelay() > CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES)
         {
-            QDateTime errorTimeStamp;
             quint16 nAdditonalData = 0;
             FILE_LOG_L(laFCT, llERROR) << " Error: " << GetName().toStdString() << " Timeout node fct configuration";
             FILE_LOG_L(laINIT, llERROR) << " Error: " << GetName().toStdString() << " Timeout node fct configuration";
@@ -991,8 +974,7 @@ void CBaseModule::HandleTaskFctConfiguration()
             }
 
             //throw error
-            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_TIMEOUT_FCT_CONFIG, nAdditonalData, errorTimeStamp);
+            ThrowEvent(EVENT_DEVICECONTROL_ERROR_TIMEOUT_FCT_CONFIG, nAdditonalData);
         }
     }
 }
@@ -2044,14 +2026,8 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
         {
             // Hardware ID CAN-message was received within the delay,
             // -> Are there two ore more nodes with same nodeId in the system?
-            QDateTime errorTimeStamp;
-            quint16 nAdditonalData = 0;
-
             FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " HardwareID received within delay (" << nMilliSeconds << "). 2 or more?";
-
-            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, nAdditonalData, errorTimeStamp);
-
+            ThrowEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, 0);
             m_bHardwareIDErrorState = 1;
         }
 
@@ -2071,13 +2047,8 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
             else
             {
                 // Pfui, da hat er ne HardwareID empfangen, reboot des Slaves?
-                QDateTime errorTimeStamp;
-
                 FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " HardwareID received. Reboot?" ;
-
-                errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                emit ReportEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, 0, errorTimeStamp);
-
+                ThrowEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, 0);
                 m_bHardwareIDErrorState = 0;
 
                 // Reset the state machine
@@ -2095,8 +2066,7 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
     }
     else
     {
-        QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        emit ReportEvent(EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC, ((quint16)(pCANframe->can_id >> 13)), errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC, ((quint16)(pCANframe->can_id >> 13)));
     }
 }
 
@@ -2122,18 +2092,13 @@ void CBaseModule::HandleCANMsgConfig(can_frame* pCANframe)
         {
             /// \todo
             //pfui, da hat er ne Configuration-message empfangen, evtl. wegen reboot des Slaves?
-            QDateTime errorTimeStamp;
-
-            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, (int) m_mainState, errorTimeStamp);
-
+            ThrowEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, (quint16) m_mainState);
             m_bHardwareIDErrorState = 2;
         }
     }
     else
     {
-        QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        emit ReportEvent(EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC, ((quint16)(pCANframe->can_id >> 13)), errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC, ((quint16)(pCANframe->can_id >> 13)));
     }
 }
 
@@ -3182,10 +3147,7 @@ void CBaseModule::CheckHeartbeat()
         if(nMilliSeconds > CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE && (m_bHBErrorState == 1))
         {
             FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " Heartbeat failed." ;
-
-            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT_TIMEOUT, 0,
-                             Global::AdjustedTime::Instance().GetCurrentDateTime());
-
+            ThrowEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT_TIMEOUT, 0);
             m_bHBErrorState = 2;
             m_mainState = CN_MAIN_STATE_INACTIVE;
         }
@@ -3365,6 +3327,14 @@ void CBaseModule::ResetModuleCommand(CANNodeModuleCmdType_t CommandType)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
+}
+
+void CBaseModule::ThrowEvent(quint32 EventCode, quint16 EventData)
+{
+    QDateTime EventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+
+    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName() << EventData);
+    emit ReportEvent(EventCode, EventData, EventTime);
 }
 
 QTextStream& operator<< (QTextStream& s, const NodeState_t &NodeState)

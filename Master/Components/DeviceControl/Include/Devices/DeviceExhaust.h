@@ -24,8 +24,6 @@
 #define DEVICEEXHAUST_H
 
 #include "DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
-#include "DeviceControl/Include/SlaveModules/AnalogInput.h"
 
 namespace DeviceControl
 {
@@ -34,6 +32,9 @@ namespace DeviceControl
 
 #define EXHAUST_FAN_1   1
 #define EXHAUST_FAN_2   2
+
+class CAnalogInput;
+class CDigitalInput;
 
 class CDeviceExhaust : public CDeviceBase
 {
@@ -72,6 +73,7 @@ protected slots:
     void Current2(quint32 InstanceID, ReturnCode_t HdlInfo, qint16 InputValue);
 
 private:
+    CBaseModule *mp_BaseModule;
     CDigitalInput *mp_FlowSensor;
     CAnalogInput *mp_CurrentConsumptionFan1;
     CAnalogInput *mp_CurrentConsumptionFan2;

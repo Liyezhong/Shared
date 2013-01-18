@@ -20,10 +20,8 @@
 #ifndef DEVICECONTROL_MOVEXYZ_H
 #define DEVICECONTROL_MOVEXYZ_H
 
+#include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceState.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
-#include "DeviceControl/Include/SlaveModules/Rfid11785.h"
-#include "DeviceControl/Include/SlaveModules/AnalogInput.h"
 
 #ifdef Q_UNIT_TEST
 #include "Simulator.h"
@@ -31,6 +29,8 @@
 
 namespace DeviceControl
 {
+
+class CStepperMotor;
 
 #define NO_CHANGE ((quint32)0xFFFFFFFF)
 

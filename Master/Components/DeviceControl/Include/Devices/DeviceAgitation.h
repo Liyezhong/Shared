@@ -22,10 +22,11 @@
 #define DEVICECONTROL_DEVICEAGITATION_H
 
 #include "DeviceControl/Include/Devices/DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 
 namespace DeviceControl
 {
+
+class CStepperMotor;
 
 /****************************************************************************/
 /*! \brief Device class to handle Agitation device tasks
@@ -72,6 +73,7 @@ protected:
     bool Trans_Configure(QEvent *p_Event);
 
 private:
+    CBaseModule *mp_BaseModule;
     CStepperMotor *mp_Motor;
 
 };

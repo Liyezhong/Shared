@@ -16,11 +16,13 @@
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
+
 #include "DeviceControl/Include/Devices/DeviceAgitation.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/Devices/MoveOpenClosed.h"
 #include "DeviceControl/Include/Devices/FmStepperMove.h"
 #include "DeviceControl/Include/Devices/FmStepperInit.h"
+#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 #include <QFinalState>
 
 namespace DeviceControl
@@ -73,6 +75,7 @@ bool CDeviceAgitation::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
+    mp_BaseModule = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseAgitationKey));
     mp_Motor = static_cast<CStepperMotor *>(m_DeviceProcessing.GetFunctionModule(
                                                 GetModuleInstanceFromKey(CANObjectKeyLUT::m_MotorAgitationKey)));
 

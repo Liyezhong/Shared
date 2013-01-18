@@ -328,7 +328,7 @@ quint32 CModule::HandleCANMsgEvent(can_frame* pCANframe)
 
         EventCode = BuildEventCode(m_lastEventGroup, m_lastEventCode, m_lastEventHdlInfo);
 
-        Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName());
+        Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName() << m_lastEventData);
     }
 
     return EventCode;

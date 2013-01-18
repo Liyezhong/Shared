@@ -205,8 +205,6 @@ protected:
     static quint64 GetCANMsgDataU64(can_frame* pCANframe);
 
     static quint16 ComputePassword();
-    static quint32 BuildEventCode(quint16 ModuleId, quint16 SlaveEventCode,
-                                  ReturnCode_t EventClass = DCL_ERR_EXTERNAL_ERROR);
 
     CANCommunicator* m_pCANCommunicator;                    //!< Communicator object
     const CANMessageConfiguration* mp_MessageConfiguration; //!< Message configuration
@@ -260,6 +258,9 @@ private:
 
     //! Idle taks handling function
     virtual void HandleIdleState() = 0;
+
+    static quint32 BuildEventCode(quint16 ModuleId, quint16 SlaveEventCode,
+                                  ReturnCode_t EventClass = DCL_ERR_EXTERNAL_ERROR);
 
     CModuleConfig::CANObjectType_t m_eObjectType;   ///< object type
     struct timeb m_tbTimeDelay;                     ///< time struct used for heart beat

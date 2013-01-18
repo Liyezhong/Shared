@@ -88,8 +88,8 @@ public:
     DeviceProcessing(QObject *p_Parent);
     virtual ~DeviceProcessing();
 
-    void ThrowEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
-    void ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime EventTime, QString EventInfo);
+    void ThrowEvent(quint32 EventCode, quint16 EventData);
+    void ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QString EventInfo);
 
     //! Return the hardware config file name
     static QString GetHWConfigFile() { return m_HWConfigFileName; }

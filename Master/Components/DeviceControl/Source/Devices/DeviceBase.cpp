@@ -21,10 +21,12 @@
  */
 /****************************************************************************/
 
-#include <QFinalState>
 #include "DeviceControl/Include/Devices/DeviceBase.h"
 #include "DeviceControl/Include/Devices/ServiceState.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
+#include "DeviceControl/Include/SlaveModules/BaseModule.h"
+#include "Global/Include/EventObject.h"
+#include <QFinalState>
 
 namespace DeviceControl
 {
@@ -132,6 +134,8 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
         }
         if (p_Module != NULL) {
             m_ModuleMap[Iterator.key()] = p_Module;
+            connect(p_Module, SIGNAL(ReportEvent(quint32, quint16, QDateTime)),
+                    this, SLOT(OnEvent(quint32, quint16, QDateTime)));
         }
     }
 
@@ -390,6 +394,16 @@ CDeviceBase::~CDeviceBase()
         m_Thread.wait(100);
     }
 }
+
+void CDeviceBase::OnEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime)
+{
+    Q_UNUSED(EventCode);
+
+    Global::EventObject::Instance().RaiseEvent(EVENT_DEVICECONTROL_ERROR_DEVICE,
+                                               Global::FmtArgs() << m_DeviceName[m_InstanceID] << EventData);
+    emit ReportEvent(EVENT_DEVICECONTROL_ERROR_DEVICE, EventData, EventTime);
+}
+
 
 } //namespace
 

@@ -25,7 +25,6 @@
 #include "DeviceControl/Include/Devices/SignalTransition.h"
 #include "DeviceControl/Include/Devices/TemperatureState.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-
 #include <QFinalState>
 
 namespace DeviceControl

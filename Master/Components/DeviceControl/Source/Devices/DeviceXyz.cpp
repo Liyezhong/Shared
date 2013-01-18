@@ -16,8 +16,6 @@
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
-#include <QFinalState>
-#include <QDebug>
 
 #include "DeviceControl/Include/Devices/DeviceXyz.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
@@ -25,6 +23,10 @@
 #include "DeviceControl/Include/Devices/MoveXYZ.h"
 #include "DeviceControl/Include/Devices/FmStepperMove.h"
 #include "DeviceControl/Include/Devices/FmStepperInit.h"
+#include "DeviceControl/Include/SlaveModules/Rfid11785.h"
+#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
+#include <QDebug>
+#include <QFinalState>
 
 namespace DeviceControl
 {
@@ -87,6 +89,9 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
+    mp_BaseModuleX = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseXAxisKey));
+    mp_BaseModuleY = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseYAxisKey));
+    mp_BaseModuleZ = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseZAxisKey));
     mp_XAxisMotor = static_cast<CStepperMotor *>(m_DeviceProcessing.GetFunctionModule(
                                                 GetModuleInstanceFromKey(CANObjectKeyLUT::m_MotorXAxisKey)));
     mp_YAxisMotor = static_cast<CStepperMotor *>(m_DeviceProcessing.GetFunctionModule(

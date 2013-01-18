@@ -21,11 +21,12 @@
 
 #include "DeviceBase.h"
 #include "MoveXYZ.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
-#include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 
 namespace DeviceControl
 {
+
+class CRfid11785;
+class CStepperMotor;
 
 typedef enum {
     XYZ_ROW1 = 0, XYZ_ROW2, XYZ_ROW3, XYZ_ROW4, XYZ_MAX_ROWS
@@ -389,6 +390,9 @@ protected:
 
 private:
     // Function Modueles
+    CBaseModule *mp_BaseModuleX;
+    CBaseModule *mp_BaseModuleY;
+    CBaseModule *mp_BaseModuleZ;
     CStepperMotor *mp_XAxisMotor;
     CStepperMotor *mp_YAxisMotor;
     CStepperMotor *mp_ZAxisMotor;

@@ -34,9 +34,10 @@
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 
 #include "DeviceControl/Include/Global/dcl_log.h"
-#include "Global/Include/SystemPaths.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/EventObject.h"
 #include "Global/Include/Exception.h"
+#include "Global/Include/SystemPaths.h"
 #include "Global/Include/Utils.h"
 
 #include <QMetaType>
@@ -72,6 +73,7 @@ const QString CANObjectKeyLUT::m_BaseRackTransferKey = "base_rack_transfer";
 const QString CANObjectKeyLUT::m_BaseWaterKey = "base_water";
 const QString CANObjectKeyLUT::m_BaseSlideIdKey = "base_slide_id";
 const QString CANObjectKeyLUT::m_BaseHoodKey = "base_hood";
+const QString CANObjectKeyLUT::m_BaseLightKey = "base_light";
 
 const QString CANObjectKeyLUT::m_MotorAgitationKey = "motor_agitation";
 const QString CANObjectKeyLUT::m_FlowSensorKey = "flow_sensor";
@@ -106,6 +108,9 @@ const QString CANObjectKeyLUT::m_SlideIdPhotoDetectorKey = "photo_detector";
 const QString CANObjectKeyLUT::m_SlideIdTransmitControlKey = "transmit_control";
 const QString CANObjectKeyLUT::m_SlideIdTransmitCurrentKey = "transmit_current";
 const QString CANObjectKeyLUT::m_SlideIdReceiveCurrentKey = "receive_current";
+const QString CANObjectKeyLUT::m_HoodSensorKey = "reed_active";
+const QString CANObjectKeyLUT::m_LightControlKey = "light_control";
+
 const QString CANObjectKeyLUT::m_MotorCoverLineZAxisKey = "motor_cl_elevator";
 const QString CANObjectKeyLUT::m_MotorCoverLineSlideKey = "motor_cl_slide_shift";
 const QString CANObjectKeyLUT::m_MotorCoverLineNeedleKey = "motor_cl_needle";
@@ -124,7 +129,6 @@ const QString CANObjectKeyLUT::m_MotorRackHdlXAxisKey = "motor_rackhdl_x_axis";
 const QString CANObjectKeyLUT::m_MotorRackHdlYAxisKey = "motor_rackhdl_y_axis";
 const QString CANObjectKeyLUT::m_MotorRackHdlZAxisKey = "motor_rackhdl_z_axis";
 const QString CANObjectKeyLUT::m_MotorRackHdlGrabberKey = "motor_rackhdl_grab";
-const QString CANObjectKeyLUT::m_HoodSensorKey = "reed_active1";
 
 //QString DeviceProcessing::m_HWConfigFileName = "hw_specification_sepia.xml";
 QString DeviceProcessing::m_HWConfigFileName = "hw_specification.xml";
@@ -239,10 +243,13 @@ DeviceProcessing::~DeviceProcessing()
  *  \iparam ErrorTime  = Time of error detection
  */
 /****************************************************************************/
-void DeviceProcessing::ThrowEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime)
+void DeviceProcessing::ThrowEvent(quint32 EventCode, quint16 EventData)
 {
+    QDateTime EventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowEvent (" << EventCode << ", " << EventData << ", "
                                    << EventTime.toString().constData() << ")";
+    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << EventData);
     emit ReportEvent(EventCode, EventData, EventTime);
 }
 
@@ -262,10 +269,13 @@ void DeviceProcessing::ThrowEvent(quint32 EventCode, quint16 EventData, QDateTim
  *  \iparam ErrorInfo  = Error information string
  */
 /****************************************************************************/
-void DeviceProcessing::ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime EventTime, QString EventInfo)
+void DeviceProcessing::ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QString EventInfo)
 {
+    QDateTime EventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowEventWithInfo (" << EventCode << ", " << EventData
                                    << ", " << EventTime.toString().constData() << ", " << EventInfo.constData() << ")";
+    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << EventData << EventInfo);
     emit ReportEventWithInfo(EventCode, EventData, EventTime, EventInfo);
 }
 
@@ -952,10 +962,8 @@ void DeviceProcessing::HandleTasks()
     error = m_canCommunicator.GetCommunicationError(errorAddInfo);
     if(error < 0)
     {
-        QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
-        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANBUS_WRITE, error, errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANBUS_WRITE, error);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
@@ -1116,12 +1124,9 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
 {
     if(pActiveTask->m_state == DeviceProcTask::TASK_STATE_ACTIVE_BRK)
     {
-        QDateTime errorTimeStamp;
-
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
-        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_BREAK_NORMAL_OP, 0, errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_BREAK_NORMAL_OP, 0);
 
         return;
     }
@@ -1177,10 +1182,8 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_CONFIG)
     {
-        QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
-        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_START_DIAG, 0, errorTimeStamp);
+        ThrowEvent(EVENT_DEVICECONTROL_ERROR_START_DIAG, 0);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1395,8 +1398,7 @@ void DeviceProcessing::CheckMasterHeartbeat()
 
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
-                QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                ThrowEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT, 0, errorTimeStamp);
+                ThrowEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT, 0);
             }
         }
     }
@@ -1854,8 +1856,6 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
 /****************************************************************************/
 void DeviceProcessing::AddDevice(DevInstanceID_t InstanceId, CDeviceBase* pBaseDevice)
 {
-    connect(pBaseDevice, SIGNAL(ReportEvent(quint32, quint16, QDateTime)),
-            this, SIGNAL(ReportEvent(quint32,quint16,QDateTime)));
     m_DeviceList[InstanceId] = pBaseDevice;
 }
 

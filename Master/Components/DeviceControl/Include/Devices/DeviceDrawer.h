@@ -25,13 +25,14 @@
 #define DEVICECONTROL_DRAWER_H
 
 #include "DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
-#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
-#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
-#include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 
 namespace DeviceControl
 {
+
+class CDigitalInput;
+class CDigitalOutput;
+class CRfid11785;
+class CStepperMotor;
 
 class CDeviceDrawer : public CDeviceBase
 {
@@ -139,6 +140,7 @@ protected:
     bool Trans_Configure(QEvent *p_Event);
 
 private:
+    CBaseModule *mp_BaseModule;
     CStepperMotor *mp_Motor;
     CRfid11785 *mp_Rfid;
     CDigitalInput *mp_Button;

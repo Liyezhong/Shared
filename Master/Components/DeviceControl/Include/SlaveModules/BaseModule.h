@@ -449,7 +449,8 @@ private:
     void HandleCANMsgUniqueNumber(can_frame* pCANframe);            //!< handles the receipt of can message 'UniqueNumber'
 
     //! Helper functions
-    void CalcTimeDiff(struct timeb tpTimeEnd, struct timeb tbTimeStart, qint16& nSeconds, qint16& nMilliSeconds);
+    static void CalcTimeDiff(struct timeb tpTimeEnd, struct timeb tbTimeStart, qint16& nSeconds, qint16& nMilliSeconds);
+    void ThrowEvent(quint32 EventCode, quint16 EventData);
 
     /*! Initialisation state type definition */
     typedef enum {

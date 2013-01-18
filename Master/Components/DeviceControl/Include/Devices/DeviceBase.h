@@ -24,17 +24,16 @@
 #ifndef DEVICECONTROL_BASE_H
 #define DEVICECONTROL_BASE_H
 
-#include <QStateMachine>
-#include <QStringList>
-#include <QThread>
-#include <QDateTime>
-
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
+#include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/Devices/DeviceState.h"
 #include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
-#include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
-#include "DeviceControl/Include/SlaveModules/BaseModule.h"
+
+#include <QDateTime>
+#include <QStateMachine>
+#include <QStringList>
+#include <QThread>
 
 #ifdef Q_UNIT_TEST
 #include "Simulator.h"
@@ -43,6 +42,7 @@
 namespace DeviceControl
 {
 
+class CBaseModule;
 class CServiceState;
 
 typedef QList<CBaseModule*> DeviceBaseModList;
@@ -278,6 +278,9 @@ protected:
     const DevInstanceID_t m_InstanceID;     ///< Instance ID
 
     QThread m_Thread;
+
+private slots:
+    void OnEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
 
 private:
     const DeviceModuleList_t m_ModuleList;  ///< Contains module identifiers

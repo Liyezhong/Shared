@@ -29,7 +29,6 @@
 #include "DeviceControl/Include/Devices/TemperatureState.h"
 #include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-
 #include <QFinalState>
 
 namespace DeviceControl
@@ -82,6 +81,7 @@ bool CDeviceOven::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
+    mp_BaseModule = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseOvenKey));
     mp_Motor = static_cast<CStepperMotor *>(
                 m_DeviceProcessing.GetFunctionModule(GetModuleInstanceFromKey(CANObjectKeyLUT::m_OvenCoverMotorKey)));
     mp_TempControl = static_cast<CTemperatureControl *>(

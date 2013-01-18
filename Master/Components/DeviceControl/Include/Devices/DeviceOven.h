@@ -116,6 +116,7 @@ protected:
 
 private:
     // Function Modules
+    CBaseModule *mp_BaseModule;
     CStepperMotor *mp_Motor;                //!< Oven cover stepper motor function module
     CTemperatureControl *mp_TempControl;    //!< Temperature control function module
 };

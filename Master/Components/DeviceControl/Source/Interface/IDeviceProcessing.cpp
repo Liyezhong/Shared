@@ -37,6 +37,7 @@
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/Devices/DeviceBase.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/EventObject.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 
@@ -168,6 +169,8 @@ void IDeviceProcessing::HandleTaskRequestState()
         else
         {
             QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            Global::EventObject::Instance().RaiseEvent(EVENT_DEVICECONTROL_ERROR_ACTIVATE_TASK,
+                                                       Global::FmtArgs() << (quint16)m_reqTaskID);
             emit ReportEvent(EVENT_DEVICECONTROL_ERROR_ACTIVATE_TASK, (quint16)m_reqTaskID, errorTimeStamp);
         }
     }

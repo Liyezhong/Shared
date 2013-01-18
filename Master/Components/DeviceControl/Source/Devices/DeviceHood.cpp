@@ -23,7 +23,7 @@
 
 #include "DeviceControl/Include/Devices/DeviceHood.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
-
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include <QFinalState>
 
 namespace DeviceControl
@@ -217,6 +217,7 @@ bool CDeviceHood::Trans_Configure(QEvent *p_Event)
     }
 
     // Get function module instances
+    mp_BaseModule = m_DeviceProcessing.GetNodeFromID(GetModuleInstanceFromKey(CANObjectKeyLUT::m_BaseHoodKey));
     mp_HoodSensor = static_cast<CDigitalInput *>(m_DeviceProcessing.GetFunctionModule(
                                                  GetModuleInstanceFromKey(CANObjectKeyLUT::m_HoodSensorKey)));
 

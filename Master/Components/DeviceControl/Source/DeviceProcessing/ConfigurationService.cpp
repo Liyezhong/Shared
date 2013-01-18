@@ -208,11 +208,9 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
     if (RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
         QString strErrorInfo;
         quint32 EventCode = 0;
-        QDateTime errorTimeStamp;
 
         Configuration.GetLastError(EventCode, strErrorInfo);
-        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        m_DeviceProcessing.ThrowEventWithInfo(EventCode, 0, errorTimeStamp, strErrorInfo);
+        m_DeviceProcessing.ThrowEventWithInfo(EventCode, 0, strErrorInfo);
         FILE_LOG_L(laINIT, llERROR) << "   CConfigurationService::ReadHWSpecification() " << strErrorInfo.toStdString();
     }
     else {
@@ -260,12 +258,10 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
         if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
         {
             quint32 EventCode = 0;
-            QDateTime errorTimeStamp;
             QString strErrorInfo;
 
             pHWConfiguration->GetLastError(EventCode, strErrorInfo);
-            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            m_DeviceProcessing.ThrowEventWithInfo(EventCode, 0, errorTimeStamp, strErrorInfo);
+            m_DeviceProcessing.ThrowEventWithInfo(EventCode, 0, strErrorInfo);
             FILE_LOG_L(laINIT, llERROR) << "   CConfigurationService::CANNode-Initialize() failed " << pCANObjectConfigNode->m_sCANNodeIndex;
             break;
         }

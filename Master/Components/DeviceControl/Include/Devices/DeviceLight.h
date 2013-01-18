@@ -23,10 +23,11 @@
 #define DEVICELIGHT_H
 
 #include "DeviceBase.h"
-#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 
 namespace DeviceControl
 {
+
+class CDigitalOutput;
 
 /****************************************************************************/
 /*! \brief Device class to handle Light device tasks
@@ -49,55 +50,55 @@ class CDeviceLight : public CDeviceBase
     Q_OBJECT
 
 public:
-   CDeviceLight(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
-                DevInstanceID_t InstanceID);
+    CDeviceLight(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
+                 DevInstanceID_t InstanceID);
 
 signals:
-   //command request interface to DCP
-   /****************************************************************************/
-   /*! \brief Interface to DCP to Set Light On.
-    */
-   /****************************************************************************/
-   void SetLightOn();
-   
+    //command request interface to DCP
     /****************************************************************************/
-   /*! \brief Interface to DCP to Set Light Off.
+    /*! \brief Interface to DCP to Set Light On.
     */
-   /****************************************************************************/
-   void SetLightOff();
-
-   // command response interface to DCP
-   /****************************************************************************/
-   /*! \brief Emits when LightOn is Set.
-    */
-   /****************************************************************************/
-   void LightOn(ReturnCode_t);
-   
-   /****************************************************************************/
-   /*! \brief Emits when LightOff is Set.
-    */
-   /****************************************************************************/
-   void LightOff(ReturnCode_t);
+    /****************************************************************************/
+    void SetLightOn();
 
     /****************************************************************************/
-   /*! \brief If Call to Function Module is unsuccessful, Emits Error Signal.
+    /*! \brief Interface to DCP to Set Light Off.
     */
-   /****************************************************************************/
-   void LedError(ReturnCode_t);
+    /****************************************************************************/
+    void SetLightOff();
+
+    // command response interface to DCP
+    /****************************************************************************/
+    /*! \brief Emits when LightOn is Set.
+    */
+    /****************************************************************************/
+    void LightOn(ReturnCode_t);
+
+    /****************************************************************************/
+    /*! \brief Emits when LightOff is Set.
+    */
+    /****************************************************************************/
+    void LightOff(ReturnCode_t);
+
+    /****************************************************************************/
+    /*! \brief If Call to Function Module is unsuccessful, Emits Error Signal.
+    */
+    /****************************************************************************/
+    void LedError(ReturnCode_t);
 
 private:
-   bool Trans_LightOff_SwitchingOn(QEvent *p_Event);
-   bool Trans_SwitchingOn_LightOn(QEvent *p_Event);
-   bool Trans_LightOn_SwitchingOff(QEvent *p_Event);
-   bool Trans_SwitchingOff_LightOff(QEvent *p_Event);
-   bool Trans_Configure(QEvent *p_Event);
-   bool Start(QEvent *p_Event);
+    bool Trans_LightOff_SwitchingOn(QEvent *p_Event);
+    bool Trans_SwitchingOn_LightOn(QEvent *p_Event);
+    bool Trans_LightOn_SwitchingOff(QEvent *p_Event);
+    bool Trans_SwitchingOff_LightOff(QEvent *p_Event);
+    bool Trans_Configure(QEvent *p_Event);
+    bool Start(QEvent *p_Event);
 
-   CDigitalOutput *mp_FmDoLed;  				///< pointer to LED
+    CBaseModule *mp_BaseModule;
+    CDigitalOutput *mp_FmDoLed;  ///< pointer to LED
 
 protected slots:
-   virtual void ThreadStarted();
-
+    virtual void ThreadStarted();
 };
 
 } //namespace
