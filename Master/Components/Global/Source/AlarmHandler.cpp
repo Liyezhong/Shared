@@ -95,8 +95,10 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
     {
         if (m_process->state() == QProcess::Running)
         {
-            qDebug() << (m_process->state() == QProcess::Running);
-            m_process->terminate();
+            qDebug() << "Process Running";
+            m_process->kill();
+            qDebug()<<"Process Killed";
+            m_process->waitForFinished();
         }
     }
 
