@@ -53,6 +53,19 @@ void SoftSwitchMgr::Init()
     mp_DefaultState->addTransition(mp_DefaultToInitTransition);
 
     mp_PressedAtInitState->addTransition(this, SIGNAL(SystemInitComplete()), mp_DefaultState);
+
+    mp_DefaultToIdleTransition = new SoftSwitchStateTransition(this, SIGNAL(OnSoftSwitchPressed()),
+                                                               *this, &SoftSwitchMgr::CheckIfDeviceIsIdle,
+                                                               mp_PressedAtIdleState);
+    mp_DefaultToIdleTransition->setParent(this);
+    mp_DefaultState->addTransition(mp_DefaultToIdleTransition);
+
+    mp_DefaultToBusyTransition = new SoftSwitchStateTransition(this, SIGNAL(OnSoftSwitchPressed()),
+                                                           *this, &SoftSwitchMgr::CheckIfDeviceIsBusy,
+                                                           mp_PressedAtBusyState);
+    mp_DefaultToBusyTransition->setParent(this);
+    mp_DefaultState->addTransition(mp_DefaultToBusyTransition);
+
     //!< Finally ! start the StateMachine
     mp_SoftSwitchStateMachine->start();
     qDebug()<< "State Machine error " <<mp_SoftSwitchStateMachine->error();

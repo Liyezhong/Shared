@@ -34,7 +34,8 @@ private:
     GenericStateTemplate *mp_CriticalActionState;   //!< State when a critical action is going on in the system
     SoftSwitchStateTransition *mp_DefaultToInitTransition; //!< Transition for Default->Init
     SoftSwitchStateTransition *mp_InitToDefaultTransition; //!< Transition for Init->Default
-
+    SoftSwitchStateTransition *mp_DefaultToIdleTransition; //!< Transition for Init->Idle
+    SoftSwitchStateTransition *mp_DefaultToBusyTransition; //!< Transition for Init->Busy
 
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
