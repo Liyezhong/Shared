@@ -73,7 +73,7 @@ void AlarmHandler::onTimeout()
     m_Timer->start();
 }
 
-void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString Filename, quint8 Volume  )
+void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString Filename, quint8 AlarmVolume  )
 {
     // alarmType = ((AlarmTypeFlag) ? Global::ALARM_WARNING : Global::ALARM_ERROR );
 
@@ -84,7 +84,7 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
         return;
     }
 
-    double volumeLevel = ((Active) ? ( 0.1 + 0.15*m_volume ) : (0.1 + 0.15*Volume ));   // m_volume=6 => volumeLevel=1
+    double volumeLevel = ((Active) ? ( 0.1 + 0.15*m_volume ) : (0.1 + 0.15*AlarmVolume ));   // m_volume=6 => volumeLevel=1
 
     if (!m_process)
     {
@@ -106,10 +106,10 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
 
 
 }
-void AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound)
+void AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 AlarmNumber, quint8 AlarmVolume)
 {
     //Q_UNUSED(number);
-    quint8 number=Sound;
+    quint8 number=AlarmNumber;
     QString FileName = QString("");
     Global::AlarmType alarmType;
     if ( !AlarmTypeFlag )
@@ -117,14 +117,14 @@ void AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound)
         alarmType == Global::ALARM_ERROR;
         QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".wav";
         qDebug() << FileName;
-        emitAlarm(Global::ALARM_ERROR, false, FileName, Volume);
+        emitAlarm(Global::ALARM_ERROR, false, FileName, AlarmVolume);
     }
     else
     {
         alarmType == Global::ALARM_WARNING;
         QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".wav";
         qDebug() << FileName;
-        emitAlarm(Global::ALARM_WARNING, false, FileName, Volume);
+        emitAlarm(Global::ALARM_WARNING, false, FileName, AlarmVolume);
     }
 }
 
