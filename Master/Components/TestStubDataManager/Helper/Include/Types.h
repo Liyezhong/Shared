@@ -26,6 +26,7 @@
 #include <QHash>
 #include "Global/Include/TranslatableString.h"
 typedef QList<QString> ListOfIDs_t;
+typedef QList<QString> ListOfKeys_t;
 typedef QHash<QString, int> ListOfForecastValues_t;
 typedef QHash<quint32, Global::tTranslatableStringList> ErrorHash_t; //!< Self Explaining.
 //!< List of hash tables with Error IDs
@@ -64,7 +65,8 @@ typedef QHash<QString, StationsType_t> HashOfStationTypes_t;  // filled in CData
 typedef enum
 {
     AT_DEVICE_START,
-    AT_PROGRAM_START
+    AT_PROGRAM_START,
+    UNDEFINED
 } HeatingStartMode_t;
 const int NUMBER_OF_HEATING_START_MODES = 2;
 const QString NameOfHeatingStartModes[2] = {"AtDeviceStart", "AtProgramStart"};
@@ -84,6 +86,8 @@ typedef enum
     EXPORT,
     DEVICECONFIGURATION,
     SWVERSION,
+    ADJUSTMENT,
+    PARAMETER,
     INVALID_CONTAINER_TYPE
 } DataContainerType_t;
 
