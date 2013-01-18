@@ -919,6 +919,8 @@ void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, 
 
         //Initialize GUI
         InitializeGUI();
+
+        qDebug() << "MasterThreadController::OnSoftSwitchPressedAtStartup" << EventHandler::StateHandler::Instance().getCurrentOperationState();
 //        // first of all create controllers and threads
 //        CreateControllersAndThreads();
 

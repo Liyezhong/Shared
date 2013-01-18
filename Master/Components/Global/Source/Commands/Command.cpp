@@ -76,6 +76,9 @@ bool Command::isStateAllowed(QString state)
     if ((state == "InitState"))
         return true;
 
+//    if ((state == "SoftSwitchMonitorState"))
+//        return true;
+
     return false;
 }
 
