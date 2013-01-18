@@ -28,7 +28,7 @@
 namespace DataManager {
 
 CDataContainerCollectionBase::CDataContainerCollectionBase(Threads::MasterThreadController *p_MasterThreadController) :
-    m_IsInitialized(false),
+    m_IsDeInitialised(false), m_IsInitialized(false),
     mp_MasterThreardController(p_MasterThreadController),
     SettingsInterface(NULL),
     DeviceConfigurationInterface(NULL)
@@ -38,7 +38,7 @@ CDataContainerCollectionBase::CDataContainerCollectionBase(Threads::MasterThread
 
 CDataContainerCollectionBase::~CDataContainerCollectionBase()
 {
-    if (!DeinitContainers()) {
+    if (!m_IsDeInitialised && !DeinitContainers()) {
         qDebug() << "CDataContainer::Destructor / DeinitContainers failed";
     }
 }
@@ -76,6 +76,7 @@ bool CDataContainerCollectionBase::DeinitContainers()
     }
     delete SettingsInterface;
     delete DeviceConfigurationInterface;
+    m_IsDeInitialised = true;
     qDebug()<<"CDataContainerCollectionBase !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\n\n #####";
     return true;
 }

@@ -75,7 +75,7 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         SettingsDataStream.device()->reset();
         mp_MasterThreadController->BroadcastCommand(Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)));
         // Set volume values for UserSettings
-        Platform::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
+        Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
         if (p_AlarmHandler) {
             p_AlarmHandler->setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
             p_AlarmHandler->setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());

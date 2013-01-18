@@ -36,6 +36,7 @@ class CDataContainerCollectionBase: public QObject
 {
     Q_OBJECT
 private:
+    bool m_IsDeInitialised;
     bool ResetDCUserSettings();
     bool ResetDCDeviceConfiguration();
 

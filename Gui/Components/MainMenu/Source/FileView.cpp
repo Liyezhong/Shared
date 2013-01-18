@@ -46,7 +46,7 @@ CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFile
 
     mp_TableWidget->setModel(&m_Model);
     // Set horizontal header item
-    m_Model.setHorizontalHeaderItem(0, new QStandardItem(tr("   File Name")));
+    m_Model.setHorizontalHeaderItem(0, new QStandardItem("   " + tr("File Name")));
     mp_TableWidget->horizontalHeader()->show();
     mp_TableWidget->selectRow(0);
     mp_Ui->widget->SetContent(mp_TableWidget);
@@ -188,7 +188,7 @@ void CFileView::DayRunLogFileNames(const QStringList &FileNames)
         //clear the table
         m_Model.clear();
         // Set horizontal header item
-        m_Model.setHorizontalHeaderItem(0, new QStandardItem(tr("   File Name")));
+        m_Model.setHorizontalHeaderItem(0, new QStandardItem("   " + tr("File Name")));
     }
 
     // display all the file names

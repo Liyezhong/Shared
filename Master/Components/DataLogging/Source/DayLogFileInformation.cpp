@@ -37,6 +37,20 @@
 
 namespace DataLogging {
 
+const char DELIMITER_SEMICOLON              = ';';///< Delimiter for semicolon
+const char DELIMITER_UNDERSCORE             = '_';///< Delimiter for underscore
+const QString USERLOG_VALUE                 = "true";///< user log flag value
+const QString EMPTY_STRING                  = "";///< empty string
+const QString STRING_NEWLINE                = "\n";///< new line
+const QString STRING_SEMICOLON              = ";";///< string for semicolon
+const QString TRANSLATE_RETURN_VALUE_1      = "\"0\":";///< translator return value
+const QString EVENTLOGFILE_STARTING_NAME    = "ColoradoEvents_";///< Start name of event log file
+const QString DAILYRUNLOG_FILE_FIRSTLINE    = "FileName: DailyRunLog_";///< Filrst line of the DailyRunLog file
+const QString DAILYRUNLOG_FILENAME          = "DailyRunLog_";///< DailyRunLog file name
+const QString FILEEXTENSION_LOG             = ".log";///< Extension for the log files
+const QString STRING_DAILYRUN               = "DailyRun";///< String for DailyRunLog
+const QString COLORADOEVENTS_MULTIPLEFILES  = "ColoradoEvents_*.log";///< Multiple log files string
+
 /****************************************************************************/
 DayLogFileInformation::DayLogFileInformation(QString FilePath) :
     m_LogFilePath(FilePath)
@@ -49,57 +63,62 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
     QByteArray& FileData = const_cast<QByteArray&>(ByteArray);
 
     QFile LogFile(FileName);
+    // check the file existence
     if (!LogFile.open(QIODevice::ReadOnly)) {
         return;
     }
-
+    // read entire file
     while (!LogFile.atEnd()) {
         QString ReadData = LogFile.readLine();
 
-        if (ReadData.contains(";")) {
-            if (ReadData.split(';').count() > 4) {
-                if (QString(ReadData.split(';').value(4)).compare("true") == 0) {
+        if (ReadData.contains(STRING_SEMICOLON)) {
+            if (ReadData.split(DELIMITER_SEMICOLON).count() > 4) {
+                if (QString(ReadData.split(DELIMITER_SEMICOLON).value(4)).compare("true") == 0) {
 
                     Global::tTranslatableStringList TranslateStringList;
                     // read all the parameters
-                    for (int Counter = 5; Counter < ReadData.split(';').count(); Counter++) {
-                        if (QString(ReadData.split(';').value(Counter)).compare("") != 0 &&
-                                QString(ReadData.split(';').value(Counter)).compare("\n") != 0) {
-                            TranslateStringList << ReadData.split(';').value(Counter);
+                    for (int Counter = 5; Counter < ReadData.split(DELIMITER_SEMICOLON).count(); Counter++) {
+                        if (QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).compare(EMPTY_STRING) != 0 &&
+                                QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).compare(STRING_NEWLINE) != 0) {
+                            TranslateStringList << ReadData.split(DELIMITER_SEMICOLON).value(Counter);
                         }
                     }
 
                     // translate the data
                     QString EventData = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(), TranslateStringList));
+                            (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(1)).toInt(),
+                                                        TranslateStringList));
 
-                    if (EventData.compare("") == 0 || EventData.contains("\"0\":") ||
-                          EventData.compare("\"" + QString(ReadData.split(';').value(1)) +"\":") == 0) {
-                        EventData = ReadData.split(';').value(3);
+                    if (EventData.compare(EMPTY_STRING) == 0 || EventData.contains(TRANSLATE_RETURN_VALUE_1) ||
+                          EventData.compare("\"" + QString(ReadData.split(DELIMITER_SEMICOLON).value(1)) +"\":") == 0) {
+                        EventData = ReadData.split(DELIMITER_SEMICOLON).value(3);
 //                        EventData = Global::EventTranslator::TranslatorInstance().Translate
-//                                                    (Global::TranslatableString(QString(ReadData.split(';').value(1)).toInt(),
+//                                                    (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(1)).toInt(),
 //                                                                                TranslateStringList));
-                        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
-                                                                   Global::FmtArgs() << ReadData.split(';').value(1), true);
+                        Global::EventObject::Instance().RaiseEvent
+                                (EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
+                                 Global::FmtArgs() << ReadData.split(DELIMITER_SEMICOLON).value(1), true);
                     }
                     // join the required data
-                    ReadData = QString(ReadData.split(';').value(0)) + ";" + QString(ReadData.split(';').value(1)) + ";" +
-                               QString(ReadData.split(';').value(2)) + ";" + EventData + "\n";
+                    ReadData = QString(ReadData.split(DELIMITER_SEMICOLON).value(0)) + STRING_SEMICOLON +
+                               QString(ReadData.split(DELIMITER_SEMICOLON).value(1)) + STRING_SEMICOLON +
+                               QString(ReadData.split(DELIMITER_SEMICOLON).value(2)) + STRING_SEMICOLON +
+                               EventData + STRING_NEWLINE;
 
                     FileData.append(ReadData);
-                    FileData.append("\n");
+                    FileData.append(STRING_NEWLINE);
                 }
             }
         }
         else {
-            if (ReadData != "\n") {
-                if (ReadData.contains("ColoradoEvents_")) {
-                    ReadData = "FileName: DailyRunLog_" + ReadData.split('_').value(2);
+            if (ReadData != STRING_NEWLINE) {
+                if (ReadData.contains(EVENTLOGFILE_STARTING_NAME)) {
+                    ReadData = DAILYRUNLOG_FILE_FIRSTLINE + ReadData.split(DELIMITER_UNDERSCORE).value(2);
                 }
 
                 FileData.append(ReadData);
 
-                FileData.append("\n");
+                FileData.append(STRING_NEWLINE);
             }
         }
     }
@@ -114,11 +133,12 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
 
     QDir LogDirectory(m_LogFilePath);
     // iterate each file and change the name to daily run log file
-    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << "ColoradoEvents_*.log")) {
+    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << COLORADOEVENTS_MULTIPLEFILES)) {
         // get the date time value from the event log file name
-        QString DateAndTimeValue = LogFileName.split('_').value(LogFileName.split('_').count() - 1);
+        QString DateAndTimeValue = LogFileName.split(DELIMITER_UNDERSCORE).value
+                (LogFileName.split(DELIMITER_UNDERSCORE).count() - 1);
         // replace the .log extension and put the empty string
-        ListOfFile.append("DailyRunLog_" + DateAndTimeValue.replace(".log", ""));
+        ListOfFile.append(DAILYRUNLOG_FILENAME + DateAndTimeValue.replace(FILEEXTENSION_LOG, EMPTY_STRING));
     }
     qSort(ListOfFile.begin(), ListOfFile.end(), qGreater<QString>());
 }
@@ -131,8 +151,9 @@ void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileNam
     QDir LogDirectory(m_LogFilePath);
     QByteArray& FileData = const_cast<QByteArray&>(FileContent);
     // iterate each file and find whcih event log file it is referring to it
-    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << "ColoradoEvents_*.log")) {
-        if (LogFileName.contains(FileName.split('_').value(FileName.split('_').count() - 1))) {
+    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << COLORADOEVENTS_MULTIPLEFILES)) {
+        if (LogFileName.contains(FileName.split(DELIMITER_UNDERSCORE).value
+                                 (FileName.split(DELIMITER_UNDERSCORE).count() - 1))) {
             ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
             break;
         }
@@ -147,17 +168,18 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
     // set the current directory as log files
     QDir LogDirectory(m_LogFilePath);
 
-    QProcess::execute("mkdir " + m_LogFilePath + QDir::separator() + "DailyRun");
+    QProcess::execute("mkdir " + m_LogFilePath + QDir::separator() + STRING_DAILYRUN);
 
     QByteArray FileData;
     // iterate each file and find whcih event log file it is referring to it
-    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << "ColoradoEvents_*.log")) {
+    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << COLORADOEVENTS_MULTIPLEFILES)) {
         FileData.clear();
         // get the date time value from the event log file name
-        QString DateAndTimeValue = LogFileName.split('_').value(LogFileName.split('_').count() - 1);
+        QString DateAndTimeValue = LogFileName.split(DELIMITER_UNDERSCORE).value
+                (LogFileName.split(DELIMITER_UNDERSCORE).count() - 1);
 
-        QString FullPatheOfTheFile = m_LogFilePath + QDir::separator() + "DailyRun"
-                + QDir::separator() + "DailyRunLog_" + DateAndTimeValue;
+        QString FullPatheOfTheFile = m_LogFilePath + QDir::separator() + STRING_DAILYRUN
+                + QDir::separator() + DAILYRUNLOG_FILENAME + DateAndTimeValue;
 
         // replace the .log extension and put the empty string
         ListOfFile.append(FullPatheOfTheFile);
