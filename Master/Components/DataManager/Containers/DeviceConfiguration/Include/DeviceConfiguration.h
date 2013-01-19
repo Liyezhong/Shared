@@ -56,6 +56,7 @@ private:
 //    bool                m_WorkStation;                  ///< Defines if the device is a workstation
 //    bool                m_HeatedCuevettesAvailable;     ///< Defines whether the heated cuvettes is available
 //    bool                m_CameraSlideIdAvailable;       ///< Defines whether the BarCode Camera is available
+    ErrorHash_t         m_ErrorHash;                     //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
 
     /****************************************************************************/
 

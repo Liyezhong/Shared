@@ -54,7 +54,7 @@ public:
 
 private:
     CDeviceConfigurationInterface* mp_DeviceConfigInterface;   ///< Local pointer to a DeviceConfig list
-    ErrorHash_t m_ErrorsHash;          //!< To store Error ID and any arguments associated
+    ErrorHash_t         m_ErrorHash;                     //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
 }; // CDeviceConfigurationVerifier
 
 } // namespace DataManager

@@ -24,7 +24,8 @@
 #include <QFile>
 
 #include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
-
+#include "DataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 namespace DataManager {
@@ -152,12 +153,14 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
     if (XmlStreamReader.name() != "Device")
     {
         qDebug() << "CDeviceConfiguration::DeserializeContent, DeviceConfiguration not found";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Device", true);
         return false;
     }
 
     // Read attribute Version
     if (!XmlStreamReader.attributes().hasAttribute("Version")) {
         qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Version", true);
         return false;
     }
     SetVersion(XmlStreamReader.attributes().value("Version").toString());
@@ -204,6 +207,7 @@ bool CDeviceConfiguration::ReadCompleteData(QXmlStreamReader& XmlStreamReader)
 
     if (!XmlStreamReader.attributes().hasAttribute("Languages")) {
         qDebug()<<"### attribute <Languages> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Languages", true);
         return false;
     }
     //retrieve station id list
@@ -238,7 +242,9 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfiguration&
     if (!p_TempDeviceConfig->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
     }
 
     // write enddocument
@@ -268,8 +274,10 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfiguration& Device
     // deserialize the content of the xml
     if (!DeviceConfig.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (DeSerializeContent) failed.";
+        DeviceConfig.m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
