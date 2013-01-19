@@ -22,8 +22,8 @@
 
 #include <QObject>
 #include <TestStubDataManager/Include/DataManagerBase.h>
-#include "../../../../../../Colorado/ColoradoMain/Gui/Test/Components/Threads/Include/MasterThreadController.h"
-#include "../../../../../../Colorado/ColoradoMain/Gui/Test/Components/Threads/Include/CommandChannel.h"
+#include "../../../../../../Colorado/ColoradoMain/Gui/GuiStub/Components/Threads/Include/MasterThreadController.h"
+#include "../../../../../../Colorado/ColoradoMain/Gui/GuiStub/Components/Threads/Include/CommandChannel.h"
 #include "TestStubDataManager/Include/DataManagerBase.h"
 
 namespace DataManager {
