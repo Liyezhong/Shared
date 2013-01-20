@@ -36,6 +36,8 @@
 
 #include <DeviceControl/Include/DeviceProcessing/DeviceProcessing.h>
 #include <EventHandler/Include/StateHandler.h>
+#include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
+#include <DataLogging/Include/DataLoggingThreadController.h>
 #include <AxedaController/Include/AxedaThreadController.h>
 /// Axeda commands (from Platform):
 #include <RemoteCareAgent/Include/Commands/CmdAxedaAlarm.h>
@@ -911,6 +913,7 @@ void MasterThreadController::OnGoReceived()
 
 void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, const Global::CmdSoftSwitchPressed &Cmd,
                                                           Threads::CommandChannel &AckCommandChannel) {
+    Q_UNUSED(Cmd);
     qDebug()<<"At Start OnSoftSwitchPressedAtStartup()";
     // all objects created from now on, live in this thread so they are served by the
     // signal/slot mechanism in this event loop.

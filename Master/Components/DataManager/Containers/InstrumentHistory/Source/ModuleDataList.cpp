@@ -189,6 +189,9 @@ bool CModuleDataList::WriteFile(const QString FileName)
             return false;
         }
     }
+    else {
+        return false;
+    }
 
     // create the file
     QFile File(FileName);
@@ -203,7 +206,7 @@ bool CModuleDataList::WriteFile(const QString FileName)
         return false;
     }
     File.close();
-
+    return true;
 }
 
 /****************************************************************************/
@@ -569,6 +572,10 @@ bool CModuleDataList::DeleteModule(const unsigned int Index)
             // IndexCount MUST never be -1
             Q_ASSERT(IndexCount != -1);
             m_ListofModules.removeAt(IndexCount);
+            return true;
+        }
+        else {
+            return false;
         }
     } else {
         return false;

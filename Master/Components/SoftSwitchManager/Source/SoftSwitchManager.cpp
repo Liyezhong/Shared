@@ -71,8 +71,15 @@ void SoftSwitchMgr::Init()
     qDebug()<< "State Machine error " <<mp_SoftSwitchStateMachine->error();
     qDebug()<<"Running state" <<mp_SoftSwitchStateMachine->isRunning();
     qDebug()<<"SoftSwitchMgr::Init()" << mp_SoftSwitchStateMachine->thread();
-    CONNECTSIGNALSIGNAL(&EventHandler::StateHandler::Instance(), initComplete(), this, SystemInitComplete());
 
+
+}
+
+void SoftSwitchMgr::ConnectSignals()
+{
+    EventHandler::StateHandler *p_StateHandler = &EventHandler::StateHandler::Instance();
+    connect(p_StateHandler, SIGNAL(initComplete()), this, SIGNAL(SystemInitComplete()));
+    connect(p_StateHandler, SIGNAL(initComplete()), this, SLOT(TempInitComplete()));
 }
 
 SoftSwitchMgr::~SoftSwitchMgr()
@@ -152,6 +159,11 @@ void SoftSwitchMgr::OnCriticalActionStateEntered()
 void SoftSwitchMgr::OnShutDownStateEntered()
 {
     qDebug()<<" SoftSwitch PressedAt Init State Entered \n \n";
+}
+
+void SoftSwitchMgr::TempInitComplete()
+{
+    qDebug()<<"INIT COMPLETE \n\n\n";
 }
 
 

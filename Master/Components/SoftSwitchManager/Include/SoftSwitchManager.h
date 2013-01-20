@@ -21,6 +21,7 @@ public:
     SoftSwitchMgr(QObject *p_Parent = 0);
     ~SoftSwitchMgr();
     void Init();
+    void ConnectSignals();
     Q_DISABLE_COPY(SoftSwitchMgr) //Disable copy and assignment
 
 private:
@@ -46,6 +47,9 @@ private:
     void OnPressedAtBusyStateEntered();
     void OnCriticalActionStateEntered();
     void OnShutDownStateEntered();
+
+private slots:
+    void TempInitComplete();
 
 signals:
     void OnSoftSwitchPressed();

@@ -35,9 +35,9 @@ const CmdDataChangedFunctorShPtr_t          NullDataChangedFunctor(NULL);       
 
 /****************************************************************************/
 BaseThreadController::BaseThreadController(Global::gSourceType TheHeartBeatSource) :
-    m_HeartBeatSource(TheHeartBeatSource),
     m_HeartbeatTimeout(0),
-    m_HeartbeatTimer(this)
+    m_HeartbeatTimer(this),
+    m_HeartBeatSource(TheHeartBeatSource)
 {
     // register commands and acknowledges
     qRegisterMetaType<Global::tRefType>("Global::tRefType");

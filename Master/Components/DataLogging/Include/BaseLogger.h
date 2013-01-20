@@ -21,10 +21,13 @@
 #ifndef DATALOGGING_BASELOGGER_H
 #define DATALOGGING_BASELOGGER_H
 
-#include <Global/Include/EventObject.h>
-#include "Global/Include/LoggingSource.h"
 #include <QFile>
 #include <QFileInfo>
+#include "Global/Include/LoggingSource.h"
+#include "Global/Include/AdjustedTime.h"
+namespace Global {
+ class EventObject;
+}
 
 namespace DataLogging {
 

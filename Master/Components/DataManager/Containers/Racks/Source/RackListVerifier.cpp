@@ -232,7 +232,7 @@ void CRackListVerifier::ValidateRackDateTime(const CRack* p_Rack, bool& Verified
 
 }
 
-
+#if 0
 /****************************************************************************/
 /*!
  *  \brief  Compares the date time of the rack like Colorado endtime, Sepia
@@ -247,7 +247,7 @@ void CRackListVerifier::ValidateRackDateTime(const CRack* p_Rack, bool& Verified
 /****************************************************************************/
 void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDateTime, bool& VerifiedData, QString& ErrorDescription)
 {
-#if 0
+
     // first check all the end times with start time of the rack.
     // Because end time cannot be less than start time
     //if (!CompareDateTime(p_Rack->GetStartTime(), p_Rack->GetEndTimeStation())) {
@@ -314,8 +314,8 @@ void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDat
             VerifiedData = false;
         }
     }
-#endif
 }
+#endif
 
 /****************************************************************************/
 /*!

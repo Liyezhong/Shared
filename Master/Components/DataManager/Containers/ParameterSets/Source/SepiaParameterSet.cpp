@@ -33,10 +33,10 @@ namespace DataManager {
  */
 /****************************************************************************/
 CSepiaParameterSet::CSepiaParameterSet(const QString ID)
-    : m_ID(ID)
-    , m_MountantName("")
+    : m_MountantName("")
     , m_CoverglassLength(0)
     , m_MountantVolume(0)
+    , m_ID(ID)
 {
 }
 
@@ -46,10 +46,10 @@ CSepiaParameterSet::CSepiaParameterSet(const QString ID)
  */
 /****************************************************************************/
 CSepiaParameterSet::CSepiaParameterSet()
-    : m_ID("")
-    , m_MountantName("")
+    : m_MountantName("")
     , m_CoverglassLength(0)
     , m_MountantVolume(0)
+    , m_ID("")
 {
 }
 
@@ -60,10 +60,10 @@ CSepiaParameterSet::CSepiaParameterSet()
  */
 /****************************************************************************/
 CSepiaParameterSet::CSepiaParameterSet(const QString ID, const QString MountantName, const quint16 CoverglassLength, const quint16 MountantVolume)
-    : m_ID(ID)
-    , m_MountantName(MountantName)
+    : m_MountantName(MountantName)
     , m_CoverglassLength(CoverglassLength)
     , m_MountantVolume(MountantVolume)
+    , m_ID(ID)
 {
 }
 
@@ -91,6 +91,7 @@ CSepiaParameterSet::~CSepiaParameterSet()
 /****************************************************************************/
 bool CSepiaParameterSet::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData)
 {
+    Q_UNUSED(CompleteData)
     //QReadLocker Locker(mp_ReadWriteLock);
     bool Result = true;
 
@@ -115,6 +116,7 @@ bool CSepiaParameterSet::SerializeContent(QXmlStreamWriter& XmlStreamWriter, boo
 /****************************************************************************/
 bool CSepiaParameterSet::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData)
 {
+    Q_UNUSED(CompleteData)
 //    QWriteLocker Locker(mp_ReadWriteLock);
     bool Result = true;
     // ID

@@ -20,8 +20,10 @@
 
 #include <DataLogging/Include/BaseLoggerReusable.h>
 #include <DataLogging/Include/DataLoggingEventCodes.h>
+#include <Global/Include/EventObject.h>
 #include <QDir>
 #include <QTextStream>
+
 
 namespace DataLogging {
 
@@ -57,8 +59,8 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
         CreateNewFile(CompleteFileName);
         WriteHeader();
         // trace that file was created.
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
-                  , Global::NO_NUMERIC_DATA, false);
+        //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
+          //        , Global::NO_NUMERIC_DATA, false);
     } else {
         // a file already exists.
 
@@ -77,8 +79,8 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
             CreateNewFile(CompleteFileName);
             WriteHeader();
             // trace that file was created.
-            LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
-                      , Global::NO_NUMERIC_DATA, false);
+            //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
+               //       , Global::NO_NUMERIC_DATA, false);
         } else {
             // file version and serial number seems to be ok
             OpenFileForAppend(CompleteFileName);

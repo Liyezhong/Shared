@@ -56,7 +56,7 @@ CDataManagerBase::~CDataManagerBase()
 //! DataManager InitDataContainer would have been called first, DataContainer is created and initialized there.
 quint32 CDataManagerBase::InitDataContainer()
 {
-    quint32 ReturnCode = INIT_OK;
+    //quint32 ReturnCode = INIT_OK;
     if (m_IsInitialized == true) {
         qDebug() << "CDataManagerBase::InitDataContainer was already called";
         return EVENT_DM_INITIALIZATION_ERROR;

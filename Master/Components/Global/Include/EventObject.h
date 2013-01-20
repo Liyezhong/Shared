@@ -214,6 +214,7 @@ public:
     {
         quint32 EventKey = GetEventKey();
         emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey);
+        qDebug()<<"EventObject Thread"<<this->thread();
     }
 
     /****************************************************************************/

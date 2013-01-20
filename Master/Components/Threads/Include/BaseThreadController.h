@@ -26,7 +26,6 @@
 #include <Global/Include/Commands/CmdPowerFail.h>
 #include <Global/Include/Commands/PendingCmdDescriptor.h>
 #include <Threads/Include/CommandFunctors.h>
-#include <Global/Include/EventObject.h>
 #include <QSet>
 
 #include <QThread>

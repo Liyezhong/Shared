@@ -142,10 +142,10 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     }
 
     // check the sound level warnings and errors
-    CheckSoundLevelWarnings(UserSettings, VerifiedData, ErrorDescription);
+    CheckSoundLevelWarnings(UserSettings, VerifiedData);
 
     // check network settings parameters
-    CheckNetWorkSettings(UserSettings, VerifiedData, ErrorDescription);
+    CheckNetWorkSettings(UserSettings, VerifiedData);
 
     if (!((UserSettings->GetValue("Agitation_Speed").toInt() >= MIN_AGITATION_SPEED) && (UserSettings->GetValue("Agitation_Speed").toInt() <= MAX_AGITATION_SPEED))) {
         qDebug() << "Speed of agitation is not defined";
@@ -219,7 +219,7 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     }
 
     // check the loader reagents
-    CheckLoaderReagents(UserSettings, VerifiedData, ErrorDescription);
+    CheckLoaderReagents(UserSettings, VerifiedData);
 
     return VerifiedData;
 
@@ -303,7 +303,7 @@ bool CUserSettingsVerifier::CheckLoaderReagentID(QString LoaderReagentID)
  *
  */
 /****************************************************************************/
-void CUserSettingsVerifier::CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription)
+void CUserSettingsVerifier::CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData)
 {
     // check the first loader reagent ID
     if (!CheckLoaderReagentID (UserSettings->GetValue("Loader_Reagent1")))
@@ -360,7 +360,7 @@ void CUserSettingsVerifier::CheckLoaderReagents(CUserSettings* UserSettings, boo
  *
  */
 /****************************************************************************/
-void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription)
+void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData)
 {
     // check the error tones for the sound
     if (!((UserSettings->GetSoundNumberError() >= MIN_SOUND_NUMBER) && (UserSettings->GetSoundNumberError() <= MAX_SOUND_NUMBER))) {
@@ -403,7 +403,7 @@ void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings,
  *
  */
 /****************************************************************************/
-void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData, QString& ErrorDescription)
+void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData)
 {
     if (!((p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_ON || p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS REMOTE CONNECTION IS NOT VALID";

@@ -38,7 +38,9 @@ namespace DataManager {
  */
 /****************************************************************************/
 CUserSettingsInterface::CUserSettingsInterface() :
-    m_DataVerificationMode(true), m_WorkStationMode(false), mp_ReadWriteLock(NULL)
+    mp_ReadWriteLock(NULL)
+    ,m_DataVerificationMode(true)
+    ,m_WorkStationMode(false)
 {
     // set default values
     SetDefaultAttributes();

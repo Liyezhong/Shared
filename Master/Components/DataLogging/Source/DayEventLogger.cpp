@@ -22,6 +22,7 @@
 #include <DataLogging/Include/DataLoggingEventCodes.h>
 #include <Global/Include/EventTranslator.h>
 #include <Global/Include/Utils.h>
+#include <Global/Include/EventObject.h>
 
 #include <QDirIterator>
 #include <QDebug>

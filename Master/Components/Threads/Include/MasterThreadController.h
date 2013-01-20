@@ -23,10 +23,10 @@
 
 #include <Threads/Include/BaseThreadController.h>
 #include <Threads/Include/CommandFunctors.h>
-#include <DataLogging/Include/DataLoggingThreadController.h>
+
 #include <EventHandler/Include/ErrorHandler.h>
 #include <EventHandler/Include/RemoteCareHandler.h>
-#include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
+
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
 #include <Global/Include/EventObject.h>
 #include <Global/Include/AlarmHandler.h>
@@ -42,6 +42,14 @@ namespace DataManager {
 namespace EventHandler {
     class EventHandlerThreadController;
 
+}
+
+namespace DataLogging {
+    class DataLoggingThreadController;
+}
+
+namespace SoftSwitchManager {
+    class SoftSwitchManagerThreadController;
 }
 namespace Threads {
 

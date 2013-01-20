@@ -36,7 +36,8 @@ CRack::CRack() :
     m_RFIDUniqueID(0), m_RFIDUserData(0), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false), m_UseSepia(false),
     m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeColorado(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
     m_EndTimeStation(QDateTime::fromTime_t(0)), m_Color("white"), m_EndTimeSepia(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_Orientation(false),
-    m_ActualSlideForecastValue(0), m_ActualSlides(0)
+    m_ActualSlides(0),
+    m_ActualSlideForecastValue(0)
 {
 }
 

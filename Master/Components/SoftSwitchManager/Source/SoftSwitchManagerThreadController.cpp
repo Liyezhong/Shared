@@ -117,9 +117,10 @@ void SoftSwitchManagerThreadController::OnGoReceived()
     CONNECTSIGNALSLOT(&m_SoftSwitchManager, SendSoftSwitchPressedCmd(), this , SendSoftSwitchPressedCmd());
     qDebug()<<"Current Thread" << thread();
     qDebug()<<"SoftSwitchMgr thread" <<m_SoftSwitchManager.thread();
-    struct pollfd fdset[2];
-    int NumbOfFileDesc = 2;
-    char *p_Buf[100];
+    m_SoftSwitchManager.ConnectSignals();
+    //struct pollfd fdset[2];
+    //int NumbOfFileDesc = 2;
+    //char *p_Buf[100];
     Global::EventObject::Instance().RaiseEvent(EVENT_SOFTSWITCH_MONITOR_START);
     EventHandler::StateHandler::Instance().setStateToSoftSwitchMonitorState();
     emit OnSoftSwitchPressed();
@@ -128,7 +129,7 @@ void SoftSwitchManagerThreadController::OnGoReceived()
 //        fdset[0].fd = STDIN_FILENO; //Standard input
 //        fdset[0].events = POLLIN;
 //        int TimeOut = -1; // Infinite Timeout
-//        int  PollReturn = poll(fdset, NumbOfFileDesc, 5);
+//        int  PollReturn = poll(fdset, NumbOfFileDesc, 4000);
 
 //        if (PollReturn < 0) {
 //            qDebug("\npoll() failed!\n");
@@ -206,6 +207,11 @@ void SoftSwitchManagerThreadController::SendSoftSwitchPressedCmd()
     Global::CmdSoftSwitchPressed *p_SoftSwitchPressedCommand = new Global::CmdSoftSwitchPressed();
     p_SoftSwitchPressedCommand->PressedAtStartUp = true;
     SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_SoftSwitchPressedCommand));
+}
+
+void SoftSwitchManagerThreadController::TempInitComplete()
+{
+    qDebug()<<"\n\n\n SoftSwitchManagerThreadController::TempInitComplete(); \n\n\n";
 }
 
 } //End Of namespace SoftSwitchManager

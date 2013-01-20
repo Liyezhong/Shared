@@ -289,6 +289,7 @@ bool CDataContainerBase::DoGroupVerification(CDataContainerBase* p_DCB_Verificat
 /****************************************************************************/
 void CDataContainerBase::WriteErrorList(QXmlStreamWriter& XmlStreamWriter)
 {
+    Q_UNUSED(XmlStreamWriter);
 //    if (m_LastErrors.count() > 0) {
 //        // start the special tag for error list to store
 //        XmlStreamWriter.writeStartElement("ErrorData");
@@ -314,6 +315,7 @@ void CDataContainerBase::WriteErrorList(QXmlStreamWriter& XmlStreamWriter)
 /****************************************************************************/
 void CDataContainerBase::ReadErrorList(QXmlStreamReader& XmlStreamReader)
 {
+    Q_UNUSED(XmlStreamReader)
     // clear the error list and start add the data which are read from the XML file
 //    m_LastErrors.clear();
 //    // check whether xml reader at end or not

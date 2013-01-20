@@ -94,7 +94,6 @@ private:
 private slots:
     void onAvailabilityStateChanged();
     void onOperationStateChanged();
-
 //    /**
 //      @brief Is called when error state is entered. Will inform GUI and scheduler about stopping the execution
 //      */
@@ -104,6 +103,7 @@ private slots:
 //      @brief Is called when normal state is entered, the system is error free. Will inform GUI and scheduler about resuming the execution
 //      */
 //    void onNormalState();
+
 
 signals:
     void enterErrorState();

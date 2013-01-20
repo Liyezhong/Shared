@@ -58,9 +58,9 @@ private:
     ErrorHash_t m_ErrorHash;          //!< To store Error ID and any arguments associated
 
     bool CheckLoaderReagentID(QString LoaderReagentID);
-    void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
-    void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
-    void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData, QString& ErrorDescription);
+    void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData);
+    void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData);
+    void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData);
     bool CheckProxyIPAddress(CUserSettings* p_UserSettings);
 };
 

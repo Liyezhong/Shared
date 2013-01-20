@@ -20,6 +20,7 @@
 
 #include <DataLogging/Include/BaseLogger.h>
 #include <DataLogging/Include/DataLoggingEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace DataLogging {
 

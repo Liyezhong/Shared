@@ -41,9 +41,9 @@ public:
         PositionZ = 0;
     }
 
-    quint32 PositionX;
-    quint32 PositionY;
-    quint32 PositionZ;
+    qint32 PositionX;
+    qint32 PositionY;
+    qint32 PositionZ;
 
     bool Active;
 };

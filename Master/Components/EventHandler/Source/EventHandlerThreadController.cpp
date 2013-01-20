@@ -36,6 +36,7 @@
 #include <EventHandler/Include/StateHandler.h>
 #include <EventHandler/Include/EventHandlerEventCodes.h>
 # include <Global/Include/EventObject.h>
+#include <Global/Include/SystemPaths.h>
 #include <QMetaType>
 #include <QThread>
 #include <QDebug>
@@ -86,11 +87,12 @@ EventHandlerThreadController::~EventHandlerThreadController()
  ****************************************************************************/
 void EventHandlerThreadController::CreateAndInitializeObjects()
 {
+    qDebug()<<"READING EVENT CONFIG \n\n\n";
     AddActionTypes();
     AddEventTypes();
     AddEventLogLevels();
     AddSourceComponents();
-    ReadConfigFile("../Settings/EventConfig.csv");
+    ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
 
     // now register commands
     RegisterCommands();
@@ -183,9 +185,12 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
     //    EventString(10),GUIEvent(11),EventInfo(12),StatusBarIcon(13)
 
     bool status = true;
+    qDebug()<<"EventConfig path"<<filename;
     QFile file(filename);
-    if (!file.open (QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open (QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug()<<"File Open Failed" << file.errorString();
         return;
+    }
 
     m_eventList.clear();
 
@@ -378,6 +383,7 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
         }
     }
+    qDebug()<<"READ EVENT CONFIG \n\n\n";
 
     file.close();
 }
@@ -441,6 +447,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     // if eventList is not available yet, place event into pendingList
     if (m_eventList.size() == 0)
     {
+        qDebug()<<"Event list not available \n\n\n";
         PendingEvent pe;
         pe.EventID = EventID;
         pe.EventStringList = EventStringList;
@@ -454,6 +461,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     DataLogging::DayEventEntry EventEntry;
     if (EventInfo.GetEventCode() == 0)
     {
+        qDebug()<<"Unknown Event ID \n\n\n";
         EventInfo = m_eventList.value(EVENT_EVENT_ID_MISSING);
         EventEntry.SetTranslatableStringList(Global::FmtArgs() << EventID);
     }
@@ -479,6 +487,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
         return;
     }
     else if(EventID == EVENT_SYSTEM_INIT_COMPLETE) {
+        qDebug()<<"EVENT_SYSTEM_INIT_COMPLETE \n\n\n\n\n";
         StateHandler::Instance().setIdleState();
         return;
     }

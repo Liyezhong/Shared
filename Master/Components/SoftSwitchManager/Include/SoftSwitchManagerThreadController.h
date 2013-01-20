@@ -76,9 +76,11 @@ private:
     void OnAcknowledge(Global::tRefType, const Global::AckOKNOK &);
 private slots:
     void SendSoftSwitchPressedCmd();
+    void TempInitComplete();
 
 signals:
     void OnSoftSwitchPressed();
+
 };
 
 } // end namespace EventHandler

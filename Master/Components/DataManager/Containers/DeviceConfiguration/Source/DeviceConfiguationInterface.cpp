@@ -38,7 +38,9 @@ namespace DataManager {
  */
 /****************************************************************************/
 CDeviceConfigurationInterface::CDeviceConfigurationInterface() :
-    m_DataVerificationMode(true),mp_ReadWriteLock(NULL),mp_DeviceConfig(NULL)
+    mp_ReadWriteLock(NULL)
+    ,m_DataVerificationMode(true)
+    ,mp_DeviceConfig(NULL)
 {
     // set default values
     SetDefaultAttributes();

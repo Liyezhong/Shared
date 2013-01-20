@@ -157,8 +157,11 @@ void StateHandler::setInitState()
 
 void StateHandler::setIdleState()
 {
+    qDebug()<<"Settin Idle state"<<getCurrentOperationState();
     if (getCurrentOperationState() == "InitState") {
         emit initComplete();
+        qDebug()<<"INIT COMPLETE RECEIVERS: "<<receivers(SIGNAL(initComplete()));
+        qDebug()<<"THREAD ID"<<this->thread();
     }
 }
 
