@@ -42,8 +42,8 @@ GPIOPin::GPIOPin(quint32 PinNumber, quint32 Direction, QObject *p_Parent)
   :QObject(p_Parent)
   , m_Fd(-1)
   , m_CurrentValue(100000)
-  , m_Direction(Direction)
   , m_PinNumber(PinNumber)
+  , m_Direction(Direction)
 {
     ExportGPIOPin();
     SetDirection(m_Direction);
@@ -95,9 +95,8 @@ void GPIOPin::ExportGPIOPin()
 void GPIOPin::SetDirection(const bool Direction)
 {
     qint32 Fd = -1;
-    qint32 Length;
     char Buf[BUF_SIZE];
-    Length = qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/direction", m_PinNumber);
+    (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/direction", m_PinNumber);
     Fd = open(Buf, O_WRONLY);
     if (Fd != -1) {
         if (Direction) {
@@ -121,9 +120,8 @@ void GPIOPin::SetDirection(const bool Direction)
 /****************************************************************************/
 void GPIOPin::Open()
 {
-    qint32 Length;
     char Buf[BUF_SIZE];
-    Length = qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/value", m_PinNumber);
+    (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/value", m_PinNumber);
 
     if ( 0 <= m_Fd ) {
         close(m_Fd );
@@ -178,9 +176,8 @@ qint32 GPIOPin::GetValue()
 /****************************************************************************/
 qint32 GPIOPin::SetEdge(const char *p_Edge)
 {
-    qint32 Length;
     char Buf[BUF_SIZE];
-    Length = qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/edge", m_PinNumber);
+    (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/edge", m_PinNumber);
 
     m_Fd = open(Buf, O_WRONLY);
 
