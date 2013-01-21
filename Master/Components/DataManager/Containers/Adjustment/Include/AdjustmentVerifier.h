@@ -29,16 +29,15 @@
 #include "Adjustment.h"
 
 namespace DataManager {
-// constraints
 
 const int MIN_X_AXIS_POS = 0;       //! Minimum position allowed in X Axis
-const int MAX_X_AXIS_POS = 5000;    //! Maximum position allowed in X Axis
+const int MAX_X_AXIS_POS = 4500;    //! Maximum position allowed in X Axis
 
 const int MIN_Y_AXIS_POS = 0;       //! Minimum position allowed in Y Axis
-const int MAX_Y_AXIS_POS = 5000;    //! Maximum position allowed in Y Axis
+const int MAX_Y_AXIS_POS = 3300;    //! Maximum position allowed in Y Axis
 
 const int MIN_Z_AXIS_POS = 0;       //! Minimum position allowed in Z Axis
-const int MAX_Z_AXIS_POS = 1000;    //! Maximum position allowed in Z Axis
+const int MAX_Z_AXIS_POS = 2000;    //! Maximum position allowed in Z Axis
 
 /****************************************************************************/
 /*!
@@ -52,7 +51,6 @@ public:
 
     bool VerifyData(CDataContainerBase* p_Adjustment);
 
-    /*! \todo complete implementation*/
     ErrorHash_t& GetErrors();
 
     void ResetLastErrors();

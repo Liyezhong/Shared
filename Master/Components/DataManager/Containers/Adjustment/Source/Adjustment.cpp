@@ -233,7 +233,7 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
     return Result;
 }
 
-bool CAdjustment::GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz &Position)
+bool CAdjustment::GetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPositionXyz &Position)
 {
     bool Result = true;
 
@@ -263,7 +263,7 @@ bool CAdjustment::GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPosition
     return Result;
 }
 
-bool CAdjustment::SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz Position)
+bool CAdjustment::SetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPositionXyz Position)
 {
     bool Result = true;
 
@@ -293,7 +293,7 @@ bool CAdjustment::SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPosition
     return Result;
 }
 
-bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, Xyz_t Xyz)
+bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, XyzType_t Xyz)
 {
     quint8 RowIndex;
     quint8 ColumnIndex;
@@ -347,7 +347,7 @@ bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, Xyz_t X
     return true;
 }
 
-bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, Xyz_t Xyz)
+bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzType_t Xyz)
 {
     bool Result = true;
 

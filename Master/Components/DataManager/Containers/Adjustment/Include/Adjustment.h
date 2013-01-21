@@ -32,7 +32,7 @@ namespace DataManager
 
 typedef enum {
     LEFT_XYZ = 0, RIGHT_XYZ
-} Xyz_t;
+} XyzType_t;
 
 typedef enum {
     XYZ_ROW1 = 0, XYZ_ROW2, XYZ_ROW3, XYZ_ROW4, XYZ_MAX_ROWS
@@ -101,16 +101,16 @@ public:
     /****************************************************************************/
     QString GetFilename () {return m_Filename;}
 
-    bool GetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz &Position);
+    bool GetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPositionXyz &Position);
 
-    bool SetXyzPosition(Xyz_t Xyz, quint8 Row, quint8 Column, CPositionXyz Position);
+    bool SetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPositionXyz Position);
 
 private:
     bool SerializeContent(QIODevice& p_Device, bool CompleteData);
     bool DeserializeContent(QIODevice& p_Device, bool CompleteData);
 
-    bool SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, Xyz_t Xyz);
-    bool DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, Xyz_t Xyz);
+    bool SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, XyzType_t Xyz);
+    bool DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzType_t Xyz);
 
     void ClearPositions();
 
