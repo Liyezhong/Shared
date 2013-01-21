@@ -78,7 +78,7 @@ public:
       @brief Specifies the sound-id related to a specific alarm type
       */
     void setSoundNumber(Global::AlarmType alarmType, int number);
-    void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
+    //void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
     void playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
 
 private:
@@ -89,15 +89,18 @@ private:
     QTimer* m_Timer;
     QMutex* m_mutex;
     QProcess* m_process;
+    QTimer *m_alarmToneTimer;
     void emitAlarm (Global::AlarmType alarmType, bool Active = true, QString Filename = "", quint8 Volume = 1);
 
 
 
     quint8 m_volume;
     QString m_soundPath;
+    //int m_id;
 
 private slots:
     void onTimeout();
+    void StopPlayAlarm();
 
 }; // end class
 
