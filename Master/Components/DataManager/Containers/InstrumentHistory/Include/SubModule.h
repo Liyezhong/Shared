@@ -60,6 +60,7 @@ class CSubModule
 
 public:
     CSubModule();
+    CSubModule(QString, QString, QString);
     CSubModule(const CSubModule&);
     ~CSubModule();
     CSubModule& operator=(const CSubModule&);
@@ -119,12 +120,15 @@ public:
      *  \iparam Value = Name and unit of Parameter
      */
     /****************************************************************************/
-    void SetParameterInfo(const QString name, const QString unit, const QString value)
+    void AddParameterInfo(const QString name, const QString unit, const QString value)
     {
         m_StructParameter.ParameterName = name;
         m_StructParameter.ParameterUnit = unit;
         m_StructParameter.ParameterValue = value;
-    }   
+
+        m_ParameterList.append(m_StructParameter);
+
+    }           
 
     /****************************************************************************/
     /*!
@@ -132,7 +136,18 @@ public:
      *  \return Parameter Struct
      */
     /****************************************************************************/
-    Parameter GetParameterInfo() { return m_StructParameter; }
+    Parameter GetParameterInfo() { return m_StructParameter; }    
+
+    /****************************************************************************/
+    /*!
+     *  \brief Returns number of parameters in the list
+     *  \return number of parameters in the list
+     */
+    /****************************************************************************/
+    int GetNumberOfParameters()
+    {
+        return m_ParameterList.count();
+    }
 
 private:
     QString m_SubModuleName;    //!< name of the SubModule

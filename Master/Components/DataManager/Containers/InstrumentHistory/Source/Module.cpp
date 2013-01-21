@@ -46,6 +46,20 @@ CModule::CModule() :m_ModuleName(""),
 
 /****************************************************************************/
 /*!
+ *  \brief Parameterized Constructor
+ */
+/****************************************************************************/
+CModule::CModule(QString ModuleName, QString Description, QString SerialNumber, QString OperatingHrs, QString DateOfProduction)
+{
+    m_ModuleName = ModuleName;
+    m_ModuleDescription = Description;
+    m_SerialNumber = SerialNumber;
+    m_OperatingHours = OperatingHrs;
+    m_DateOfProduction = DateOfProduction;
+}
+
+/****************************************************************************/
+/*!
  *  \brief Copy Constructor
  *
  *  \iparam Module = Instance of the Module class
@@ -181,6 +195,7 @@ bool CModule::DeleteSubModule(const unsigned int Index)
     else {
         return false;
     }
+    return true;
 }
 
 /****************************************************************************/

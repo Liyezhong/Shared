@@ -55,6 +55,7 @@ class CModuleDataList : public CDataContainerBase
 
 public:
     CModuleDataList();
+    CModuleDataList(QString TimeStamp);
     CModuleDataList(const CModuleDataList&);
     ~CModuleDataList();
     CModuleDataList& operator=(const CModuleDataList&);
@@ -117,6 +118,14 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief  To get module info using ModuleName
+     *  \return Module info
+     */
+    /****************************************************************************/
+    bool GetModule(const QString ModuleName, CModule& Module);
+
+    /****************************************************************************/
+    /*!
      *  \brief  To read XML file
      *  \return true on success, false on failure
      */
@@ -147,6 +156,15 @@ public:
      */
     /****************************************************************************/
     bool DeleteModule(const unsigned int Index);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Deletes the Module
+     *  \iparam ModuleName
+     *  \return true - delete success , false - delete failure
+     */
+    /****************************************************************************/
+    bool DeleteModule(const QString ModuleName);
 
     /****************************************************************************/
     /*!
@@ -199,7 +217,7 @@ private:
     QString m_FileName; //!< XML file name
 
     QReadWriteLock *mp_ReadWriteLock;
-    ErrorHash_t *m_ErrorHash;
+    ErrorHash_t m_ErrorHash;
 
     bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
 

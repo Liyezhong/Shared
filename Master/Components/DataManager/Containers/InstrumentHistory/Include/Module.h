@@ -52,6 +52,7 @@ class CModule
 
 public:
     CModule();
+    CModule(QString, QString, QString, QString, QString); //!< To Set ModuleName, Description, SerialNumber, Operating hrs and DateOfProduction
     CModule(const CModule&);
     ~CModule();
 

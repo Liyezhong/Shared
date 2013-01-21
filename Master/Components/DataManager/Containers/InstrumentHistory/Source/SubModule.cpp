@@ -37,7 +37,17 @@ CSubModule::CSubModule() :m_SubModuleName(""),
 {
 
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Parameterized Constructor
+ */
+/****************************************************************************/
+CSubModule::CSubModule(QString SubModuleName, QString SubModuleType, QString SubModuleDescription)
+{
+    m_SubModuleName = SubModuleName;
+    m_SubModuleType = SubModuleType;
+    m_SubModuleDescription = SubModuleDescription;
+}
 /****************************************************************************/
 /*!
  *  \brief Copy Constructor
@@ -151,8 +161,9 @@ bool CSubModule::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool Comp
                 }
                 QString ParamUnit = XmlStreamReader.attributes().value("unit").toString();
 
-                SetParameterInfo(ParamName, ParamUnit, XmlStreamReader.readElementText());
-                m_ParameterList.append(GetParameterInfo());
+                AddParameterInfo(ParamName, ParamUnit, XmlStreamReader.readElementText());
+                // m_ParameterList.append(GetParameterInfo());
+                // SetParamaterList(GetParameterInfo());
             }
         } // end of start element comparison
 
