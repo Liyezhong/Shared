@@ -41,6 +41,7 @@
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcTask.h"
 #include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
+#include "DataManager/Include/DataManager.h"
 
 namespace DeviceControl
 {
@@ -85,7 +86,7 @@ class DeviceProcessing : public QObject
     Q_OBJECT
 
 public:
-    DeviceProcessing(QObject *p_Parent);
+    DeviceProcessing(QObject *p_Parent, DataManager::CDataManager* pDataManager);
     virtual ~DeviceProcessing();
 
     void ThrowEvent(quint32 EventCode, quint16 EventData);
@@ -168,6 +169,9 @@ public:
     Position_t GetProcSettingPosition(QString Key);
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
+
+    //! Return Colorado Data Manager reference
+    DataManager::CDataManager* GetDataManager() const { return m_pDataManager; }
 
 signals:
     /****************************************************************************/
@@ -271,6 +275,8 @@ private:
     CANCommunicator m_canCommunicator;  //!< CAN bus communication class
 
     DeviceProcessingMainState_t m_MainState;    //!< The main state of the state machine
+
+    DataManager::CDataManager* m_pDataManager;
 
     /*! configuration sub state definitions */
     typedef enum {

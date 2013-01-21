@@ -28,6 +28,8 @@
 #include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
+#include "DataManager/Include/DataManager.h"
+
 #include <QMutex>
 
 using namespace DeviceControl;
@@ -113,9 +115,13 @@ public:
      * \brief Constructor.
      *
      * \param[in]   TheHeartBeatSource    Logging source to be used.
+     * \param[in]   pDataManager          Colorado data manager
+     * \param[in]   name                  Name of the Thread Controller
      */
     /****************************************************************************/
-    DeviceCommandProcessorThreadController(Global::gSourceType TheHeartBeatSource, QString name);
+    DeviceCommandProcessorThreadController(Global::gSourceType TheHeartBeatSource,
+                                           DataManager::CDataManager* pDataManager,
+                                           QString name);
     /****************************************************************************/
     /**
      * \brief Destructor.

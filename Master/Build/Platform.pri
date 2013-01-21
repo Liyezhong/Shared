@@ -23,6 +23,9 @@ CONFIG += debug_and_release
 INCLUDEPATH += ../..
 #INCLUDEPATH += ../../../../../Platform/Master/Components/
 #               ../../../../../Colorado/Shared/Master/Components/
+INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Master/Include
+INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Master/Components
+INCLUDEPATH += ../../../../../Colorado/Shared/Master/Components
 DEPENDPATH += ../..
 #              ../../../../../Platform/Master/Components/
 #              ../../../../../Colorado/Shared/Master/Components/

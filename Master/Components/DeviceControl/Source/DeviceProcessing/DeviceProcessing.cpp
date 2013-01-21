@@ -40,6 +40,9 @@
 #include "Global/Include/SystemPaths.h"
 #include "Global/Include/Utils.h"
 
+#include "DataManager/Containers/Adjustment/Include/Adjustment.h"
+#include "DataManager/Containers/Adjustment/Include/AdjustmentVerifier.h"
+
 #include <QMetaType>
 #include <QDebug>
 #include <cerrno>
@@ -145,9 +148,10 @@ QString DeviceProcessing::m_SerialNo = "";
  *  \iparam p_Parent = The parent object of this class.
  */
 /********************************************************************************/
-DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
+DeviceProcessing::DeviceProcessing(QObject *p_Parent, DataManager::CDataManager* p_DataManager) : QObject(p_Parent),
     m_pTaskConfig(0), m_pTaskNormalOperation(0), m_pTaskShutdown(0), m_pTaskDestroy(0),
-    m_pTaskDiagnostic(0), m_pTaskAdjustment(0), m_pTaskFirmwareUpdate(0)
+    m_pTaskDiagnostic(0), m_pTaskAdjustment(0), m_pTaskFirmwareUpdate(0),
+    m_pDataManager(p_DataManager)
 {
     qDebug() << "Device Processing" << thread();
 
