@@ -135,7 +135,7 @@ void CDataContainerBase::ResetLastErrors()
 {
     qint32 I = 0;
     while(!m_ListOfErrors.isEmpty()) {
-        const_cast<ErrorHash_t *>(m_ListOfErrors.at(I))->clear();
+        const_cast<ErrorHash_t *>(m_ListOfErrors.at(0))->clear();
         m_ListOfErrors.removeFirst();
         I++;
     }

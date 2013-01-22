@@ -49,7 +49,7 @@ CUserSettings::CUserSettings() :
     m_DirectConnection(Global::ONOFFSTATE_UNDEFINED),
     m_ProxyUserName(""),
     m_ProxyPassword(""),
-    m_ProxyIPAddress("0000.0000.0000.0001"),
+    m_ProxyIPAddress("000.000.000.001"),
     m_ProxyIPPort(1)
 {
     // set default values
@@ -102,7 +102,7 @@ void CUserSettings::SetDefaultAttributes()
     m_DirectConnection      = Global::ONOFFSTATE_OFF;
     m_ProxyUserName         = "Colorado";
     m_ProxyPassword         = "Colorado";
-    m_ProxyIPAddress        = "0000.0000.0000.0001";
+    m_ProxyIPAddress        = "000.000.000.001";
     m_ProxyIPPort           = 1;
 }
 

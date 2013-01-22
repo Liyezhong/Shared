@@ -132,7 +132,6 @@ void TestUserSettings::utTestUserSettings() {
     Settings1->SetProxyPassword("Colorado@1234");
     Settings1->SetProxyIPAddress("123.234.121.111");
     Settings1->SetProxyIPPort(8080);
-    //SettingsInterface.UpdateUserSettings(Settings);
 
     // now test settings
     QCOMPARE(Settings1->GetValue("Agitation_Speed").toInt(),      20);
@@ -230,7 +229,7 @@ void TestUserSettings::utTestWriteReadUserSettingsInterface() {
     QCOMPARE(Settings->GetDirectConnection(), Global::ONOFFSTATE_OFF);
     QCOMPARE(Settings->GetProxyUserName(), QString("Colorado"));
     QCOMPARE(Settings->GetProxyPassword(), QString("Colorado"));
-    QCOMPARE(Settings->GetProxyIPAddress(), QString("253.156.189.012"));
+    QCOMPARE(Settings->GetProxyIPAddress(), QString("123.145.046.60"));
     QCOMPARE(Settings->GetProxyIPPort(), 1234);
 
     // change all the settings
@@ -318,8 +317,8 @@ void TestUserSettings::utTestWriteReadUserSettingsInterface() {
     QCOMPARE(Settings->GetSoundNumberError(),    7);
     QCOMPARE(Settings->GetSoundNumberWarning(),  8);
     QCOMPARE(Settings->GetTimeFormat(),          Global::TIME_12);
-    QCOMPARE(Settings->GetRemoteCare(),  Global::ONOFFSTATE_OFF);
-    QCOMPARE(Settings->GetDirectConnection(), Global::ONOFFSTATE_ON);
+    QCOMPARE(Settings->GetRemoteCare(),  Global::ONOFFSTATE_ON);
+    QCOMPARE(Settings->GetDirectConnection(), Global::ONOFFSTATE_OFF);
     QCOMPARE(Settings->GetProxyUserName(), QString("Colorado"));
     QCOMPARE(Settings->GetProxyPassword(), QString("Colorado@1234"));
     QCOMPARE(Settings->GetProxyIPAddress(), QString("123.234.121.111"));
@@ -557,15 +556,15 @@ void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
 
     //********************* Oven start mode ********************
     // change to all supported oven start modes and verify it
-    Settings->SetValue("Oven_StartMode", Global::OVENSTART_AFTER_STARTUP);
- //   QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Oven_StartMode", Global::OVENSTART_BEFORE_PROGRAM);
- //   QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
+    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_AFTER_STARTUP));
+    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
+    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_BEFORE_PROGRAM));
+    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
 
     // change the oven start mode which is not supported by the application
-    Settings->SetValue("Oven_StartMode", Global::OVENSTART_UNDEFINED);
+    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_UNDEFINED));
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Oven_StartMode", (Global::OvenStartMode)8);
+    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString((Global::OvenStartMode)8));
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
 
     // data is modified, so reload the file from the resource
@@ -601,15 +600,15 @@ void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
 
     //********************* RMS State ********************
     // change to all supported RMS states and verify it
-    Settings->SetValue("RMS_State", Global::ONOFFSTATE_OFF);
+    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_OFF));
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("RMS_State", Global::ONOFFSTATE_ON);
+    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_ON));
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
 
     // change the RMS states which is not supported by the application
-    Settings->SetValue("RMS_State", Global::ONOFFSTATE_UNDEFINED);
+    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_UNDEFINED));
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("RMS_State", (Global::OnOffState)4);
+    Settings->SetValue("RMS_State", Global::OnOffStateToString((Global::OnOffState)4));
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
 
     // data is modified, so reload the file from the resource
@@ -754,7 +753,7 @@ void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
     // check Proxy UserName.
     Settings->SetProxyUserName("Colorado_Sepia");
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyUserName(" ");
+    Settings->SetProxyUserName("");
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
     Settings->SetProxyUserName("Colorado_Sepia1234");
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
@@ -766,7 +765,7 @@ void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
     // check Proxy Password.
     Settings->SetProxyPassword("Colorado");
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyPassword(" ");
+    Settings->SetProxyPassword("");
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
     Settings->SetProxyPassword("Col");
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
@@ -801,21 +800,22 @@ void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
     Settings->SetProxyIPPort(65535);
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
     Settings->SetProxyIPPort(65536);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
+    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
 
     // data is modified, so reload the file from the resource
     SettingsInterface.Read(RESOURCE_FILENAME);
     Settings = SettingsInterface.GetUserSettings();
 
     // checking some random scenarios
+
     Settings->SetValue("Agitation_Speed", 500);
     Settings->SetValue("Leica_AgitationSpeed", 250);
     Settings->SetDateFormat(Global::DATE_UNDEFINED);
     Settings->SetLanguage(QLocale::Japanese);
-    Settings->SetValue("Oven_StartMode", Global::OVENSTART_UNDEFINED);
+    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_UNDEFINED));
     Settings->SetValue("Oven_Temp", 500);
     Settings->SetValue("Leica_OvenTemp", 500);
-    Settings->SetValue("RMS_State", Global::ONOFFSTATE_UNDEFINED);
+    Settings->SetValue("RMS_State", Global::OnOffStateToString((Global::ONOFFSTATE_UNDEFINED)));
     Settings->SetSoundLevelError(98);
     Settings->SetSoundLevelWarning(78);
     Settings->SetSoundNumberError(98);
@@ -826,7 +826,7 @@ void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
     Settings->SetProxyUserName("      ");
     Settings->SetProxyPassword("");
     Settings->SetProxyIPAddress("123.234.121.111.122");
-    Settings->SetProxyIPPort(655123);
+    Settings->SetProxyIPPort(6556);
     SettingsInterface.UpdateUserSettings(Settings);
     // update the user settings in the wrapper class
     QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);

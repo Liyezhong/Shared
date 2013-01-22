@@ -419,15 +419,15 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
         VerifiedData = false;
     }
 
-    if (!((p_UserSettings->GetProxyUserName() != " " || p_UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH ||
-           p_UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
+    if (!((p_UserSettings->GetProxyUserName().isEmpty() != true  && p_UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH &&
+          p_UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
         qDebug() << "PROXY USERNAME IS NOT VALID";
         m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName(), true);
         VerifiedData = false;
     }
 
-    if (!((p_UserSettings->GetProxyPassword() != " " || p_UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH ||
+    if (!((p_UserSettings->GetProxyPassword().isEmpty() != true && p_UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH &&
            p_UserSettings->GetProxyPassword().length() <= MAX_PROXY_PASSWORD_LENGTH))) {
         qDebug() << "PROXY PASSWORD IS NOT VALID";
         m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword());
@@ -444,8 +444,8 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
 
     if (!(((p_UserSettings->GetProxyIPPort() >= MIN_PROXY_IP_PORT) && (p_UserSettings->GetProxyIPPort() <= MAX_PROXY_IP_PORT)))) {
         qDebug() << "PROXY IP PORT NUMBER NOT IN RANGE";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPPort());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPPort(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()), true);
         VerifiedData = false;
     }
 
