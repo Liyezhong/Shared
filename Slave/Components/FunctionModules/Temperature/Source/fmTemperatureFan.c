@@ -251,7 +251,7 @@ Error_t tempFanControl (UInt16 Instance, Bool Activate)
  *  \iparam  Fan = Number of the ventilation fan
  *  \oparam  Speed = Fan speed in revolutions per minute
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  One if the fan is at top speed or (negative) error code
  *
  ****************************************************************************/
 
@@ -261,14 +261,22 @@ Error_t tempFanSpeed (UInt16 Instance, UInt8 Fan, UInt16 *Speed)
     Error_t Status = TempFanTable[Instance].TopSpeed[Fan];
 
     if (Instance >= TempFanInstances) {
-        return E_PARAMETER_OUT_OF_RANGE;
+        return (E_PARAMETER_OUT_OF_RANGE);
     }
     if (Fan >= TempFanTable[Instance].CaptureNumber) {
-        return E_PARAMETER_OUT_OF_RANGE;
+        return (E_PARAMETER_OUT_OF_RANGE);
     }
 
+    Status = halCapComControl (TempFanTable[Instance].Handle, Fan, TIM_INTR_DISABLE);
+    if (Status < NO_ERROR) {
+        return (Status);
+    }
     Count = TempFanTable[Instance].CountDiff[Fan];
-    
+    Status = halCapComControl (TempFanTable[Instance].Handle, Fan, TIM_INTR_ENABLE);
+    if (Status < NO_ERROR) {
+        return (Status);
+    }
+
     if (Count != 0) {
         // Coumputing RPM: 60s * 100,000Hz / 2 / Count (two pulses per revolution)
         *Speed = 3000000 / Count;
@@ -276,8 +284,9 @@ Error_t tempFanSpeed (UInt16 Instance, UInt8 Fan, UInt16 *Speed)
     else {
         *Speed = 0;
     }
-    
+
     TempFanTable[Instance].TopSpeed[Fan] = TRUE;
+
     return (Status);
 }
 
@@ -302,7 +311,7 @@ static void tempFanInterrupt (UInt32 Channel, UInt32 IntrFlags)
     UInt32 CountNew;
     Error_t Error;
     TemperatureFan_t *TempFan = &TempFanTable[Channel];
-    
+
     // Looking for capture events
     for (i = 0; i < TempFan->CaptureNumber; i++) {
         // Get the captured counter value
@@ -316,7 +325,7 @@ static void tempFanInterrupt (UInt32 Channel, UInt32 IntrFlags)
             TempFan->CountOld[i] = CountNew;
         }
     }
-    
+
     return;
 }
 

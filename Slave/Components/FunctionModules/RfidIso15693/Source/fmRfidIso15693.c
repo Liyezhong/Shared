@@ -108,7 +108,8 @@ static Error_t rfid15693ModuleTask    (UInt16 Instance);
 
 static Error_t rfid15693OptionBitsInit (InstanceData_t* Data);
 static Error_t rfid15693StartCompare (InstanceData_t *Data, UInt16 Time);
-static Error_t rfid15693SendResponse(InstanceData_t* Data);
+static Error_t rfid15693SendResponse (InstanceData_t* Data);
+static Error_t rfid15693Complete (InstanceData_t* Data);
 
 static Error_t rfid15693SetConfig (UInt16 Channel, CanMessage_t* Message);
 static Error_t rfid15693AcquireUid (UInt16 Channel, CanMessage_t* Message);
@@ -254,24 +255,25 @@ static Error_t rfid15693ModuleTask (UInt16 Instance)
 {
     Error_t Error;
     InstanceData_t* Data = &DataTable[Instance];
-    
+
     // Control the option bits programming sequence
     Error = rfid15693OptionBitsInit (Data);
     if (Error < NO_ERROR) {
         bmSignalEvent (Data->Channel, Error, TRUE, 0);
         return ((Error_t) Data->ModuleState);
     }
-    
+
     if (Data->ModuleState == MODULE_STATE_BUSY && Data->InitState == STATE_INIT) {
+        Error = rfid15693Complete(Data);
         // Check for possible errors from the interrupt handlers
-        if (Data->IrqError < NO_ERROR) {
+        if (Error < NO_ERROR) {
             Data->ModuleState = MODULE_STATE_READY;
-            bmSignalEvent (Data->Channel, Data->IrqError, TRUE, Data->Stream.ReceiveState);
+            bmSignalEvent (Data->Channel, Error, TRUE, Data->Stream.ReceiveState);
             Data->IrqError = NO_ERROR;
             return ((Error_t) Data->ModuleState);
         }
         // Check for transaction completeness
-        else if (Data->Stream.ReceiveState == LINK_RXSTATE_EOF) {
+        else if (Error == 1) {
             Data->ModuleState = MODULE_STATE_READY;
             Error = rfid15693LinkCheckMessage(&Data->Stream);
             if (Error < NO_ERROR) {
@@ -288,14 +290,8 @@ static Error_t rfid15693ModuleTask (UInt16 Instance)
                 }
             }
         }
-        // Check for a transaction timeout
-        else if (bmTimeExpired(Data->StartTime) > RFID15693_TIMEOUT) {
-            Data->ModuleState = MODULE_STATE_READY;
-            bmSignalEvent (Data->Channel, E_RFID15693_TRANSACTION_TIMEOUT, TRUE, 0);
-            return ((Error_t) Data->ModuleState);
-        }
     }
-    
+
     return ((Error_t) Data->ModuleState);
 }
 
@@ -460,6 +456,37 @@ static Error_t rfid15693SendResponse(InstanceData_t* Data)
     return (canWriteMessage (Data->Channel, &Message));
 }
 
+
+/*****************************************************************************/
+/*! 
+ *  \brief   Checks an RFID transaction for completion
+ *
+ *      This method checks if an RFID transaction has completed successfully.
+ *      If this is the case, it will return TRUE.
+ * 
+ *  \iparam  Data = This structure contains the transaction state
+ * 
+ *  \return  1 when transaction complete, NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t rfid15693Complete (InstanceData_t* Data)
+{
+    // Check for possible errors from the interrupt handlers
+    if (Data->IrqError < NO_ERROR) {
+        return (Data->IrqError);
+    }
+    // Check for transaction completeness
+    else if (Data->Stream.ReceiveState == LINK_RXSTATE_EOF) {
+        return (1);
+    }
+    // Check for a transaction timeout
+    else if (bmTimeExpired(Data->StartTime) > RFID15693_TIMEOUT) {
+        return (E_RFID15693_TRANSACTION_TIMEOUT);
+    }
+
+    return 0;
+}
 
 /*****************************************************************************/
 /*! 

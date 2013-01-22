@@ -317,11 +317,17 @@ static Error_t aiGetFilteredInput (aiInstanceData_t *Data) {
     UInt16 i;
 
     if (Data->Flags.Bits.FastSampling == TRUE) {
+        if ((Status = halAnalogControl (Data->Handle, AIO_INTR_DISABLE)) < NO_ERROR) {
+            return (Status);
+        }
         Data->History[Data->NextIn] = Data->MaxValue - Data->MinValue;
         Data->MinValue = MAX_INT16;
         Data->MaxValue = MIN_INT16;
         Status = Data->InterruptError;
         Data->InterruptError = NO_ERROR;
+        if ((Status = halAnalogControl (Data->Handle, AIO_INTR_ENABLE)) < NO_ERROR) {
+            return (Status);
+        }
     }
     else {
         Status = halAnalogRead (Data->Handle, &Data->History[Data->NextIn]);
@@ -546,6 +552,7 @@ static Error_t aiReqInputValue (UInt16 Channel, CanMessage_t *Message) {
 static Error_t aiConfigureInput (UInt16 Channel, CanMessage_t *Message) {
 
     aiInstanceData_t *Data = &aiDataTable[bmGetInstance(Channel)];
+    Error_t Status;
 
     if (Data->Handle < 0) {
         return (E_MODULE_NOT_USEABLE);
@@ -569,8 +576,16 @@ static Error_t aiConfigureInput (UInt16 Channel, CanMessage_t *Message) {
             Data->SampleRate = AI_DEFAULT_SAMPLE_RATE;
         }
         Data->SampleTime = bmGetTime();
+
+        if ((Status = halAnalogControl (Data->Handle, AIO_INTR_DISABLE)) < NO_ERROR) {
+            return (Status);
+        }
         Data->MinValue = MAX_INT16;
         Data->MaxValue = MIN_INT16;
+        if ((Status = halAnalogControl (Data->Handle, AIO_INTR_ENABLE)) < NO_ERROR) {
+            return (Status);
+        }
+
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
