@@ -52,6 +52,7 @@ class CModule
 
 public:
     CModule();
+    CModule( QString );
     CModule(QString, QString, QString, QString, QString); //!< To Set ModuleName, Description, SerialNumber, Operating hrs and DateOfProduction
     CModule(const CModule&);
     ~CModule();
@@ -188,6 +189,17 @@ public:
      */
     /****************************************************************************/
     bool DeleteAllSubModule();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Deletes the SubModule
+     *  \iparam SubModuleName
+     *  \return true - delete success , false - delete failure
+     */
+    /****************************************************************************/
+    bool DeleteSubModule(const QString SubModuleName);
+
+    bool UpdateSubModule(const CSubModule* p_SubModule);
 
 private:
     QString m_ModuleName;   //!< name of the Module

@@ -37,11 +37,23 @@ namespace DataManager
 /****************************************************************************/
 CModule::CModule() :m_ModuleName(""),
     m_ModuleDescription(""),
-    m_SerialNumber(""),
-    m_DateOfProduction(""),
-    m_OperatingHours("")
+    m_SerialNumber(""),    
+    m_OperatingHours(""),
+    m_DateOfProduction("")
 {
 
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Parameterized Constructor
+ *
+ *  \iparam ModuleName
+ */
+/****************************************************************************/
+CModule::CModule(QString ModuleName)
+{
+    m_ModuleName = ModuleName;
 }
 
 /****************************************************************************/
@@ -170,27 +182,42 @@ bool CModule::DeleteSubModule(const unsigned int Index)
     if (Index < (unsigned int)m_OrderedSubModuleList.count()) {
 
         QString SubModuleName = m_OrderedSubModuleList.value(Index);
+        DeleteSubModule(SubModuleName);
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
-        if (m_SubModuleList.contains(SubModuleName)) {
-            //get Module from ModuleList and free memory
-            delete m_SubModuleList.value(SubModuleName);
+/****************************************************************************/
+/*!
+ *  \brief  Deletes the SubModule
+ *  \iparam SubModuleName
+ *  \return true - delete success , false - delete failure
+ */
+/****************************************************************************/
+bool CModule::DeleteSubModule(const QString SubModuleName)
+{
+    if (m_SubModuleList.contains(SubModuleName)) {
+        //get Module from ModuleList and free memory
+        delete m_SubModuleList.value(SubModuleName);
 
-            //remove pointer to Module from ModuleList
-            m_SubModuleList.remove(SubModuleName);
+        //remove pointer to Module from ModuleList
+        m_SubModuleList.remove(SubModuleName);
 
-            //remove Module from list
-            int IndexCount = -1;
-            for (int i=0; i<m_OrderedSubModuleList.count(); i++)
-            {
-                if (m_OrderedSubModuleList[i] == SubModuleName) {
-                    IndexCount = i;
-                    break;
-                }
+        //remove Module from list
+        int IndexCount = -1;
+        for (int i=0; i<m_OrderedSubModuleList.count(); i++)
+        {
+            if (m_OrderedSubModuleList[i] == SubModuleName) {
+                IndexCount = i;
+                break;
             }
-            // IndexCount MUST never be -1
-            Q_ASSERT(IndexCount != -1);
-            m_OrderedSubModuleList.removeAt(IndexCount);
         }
+        // IndexCount MUST never be -1
+        Q_ASSERT(IndexCount != -1);
+        m_OrderedSubModuleList.removeAt(IndexCount);
     }
     else {
         return false;
@@ -218,6 +245,39 @@ bool CModule::DeleteAllSubModule()
     m_SubModuleList.clear();
     m_OrderedSubModuleList.clear();
 
+    return Result;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Updates SubModule
+ *  \iparam p_SubModule = Sub Module which needs to be updated
+ *  \return true - update success, false - update failed
+ */
+/****************************************************************************/
+bool CModule::UpdateSubModule(const CSubModule* p_SubModule)
+{
+    bool Result = true;
+    QString Name = const_cast<CSubModule*>(p_SubModule)->GetSubModuleName();
+    CSubModule* p_CurrentSubModuleData = GetSubModuleInfo(Name);
+    CSubModule* p_SubModuleData = m_SubModuleList.value(Name, NULL);
+
+    if (QString::compare(p_SubModuleData->GetSubModuleName(), p_CurrentSubModuleData->GetSubModuleName()) == 0) {
+        *p_SubModuleData = *p_CurrentSubModuleData;
+
+        Result = true;
+        if (p_SubModuleData == NULL) {
+            return false;
+        }
+
+        if (m_SubModuleList.contains(Name)) {
+            m_SubModuleList.insert(Name, p_SubModuleData);
+            return Result;
+        }
+        else {
+            return false;
+        }
+    }
     return Result;
 }
 

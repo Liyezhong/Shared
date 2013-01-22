@@ -60,6 +60,7 @@ class CSubModule
 
 public:
     CSubModule();
+    CSubModule( QString );
     CSubModule(QString, QString, QString);
     CSubModule(const CSubModule&);
     ~CSubModule();

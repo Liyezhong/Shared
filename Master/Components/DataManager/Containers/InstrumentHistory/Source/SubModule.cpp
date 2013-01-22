@@ -37,6 +37,19 @@ CSubModule::CSubModule() :m_SubModuleName(""),
 {
 
 }
+
+/****************************************************************************/
+/*!
+ *  \brief Parameterized Constructor
+ *
+ *  \iparam SubModuleName
+ */
+/****************************************************************************/
+CSubModule::CSubModule(QString SubModuleName)
+{
+    m_SubModuleName = SubModuleName;
+}
+
 /****************************************************************************/
 /*!
  *  \brief Parameterized Constructor
@@ -173,6 +186,11 @@ bool CSubModule::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool Comp
         }
      } // end of while loop
     m_SubModuleList.append(this);
+
+    if (CompleteData) {
+    // Future use
+    }
+
     return Result;
 }
 
@@ -208,6 +226,10 @@ bool CSubModule::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool Comple
         XmlStreamWriter.writeEndElement();
     }
     XmlStreamWriter.writeEndElement();
+
+    if (CompleteData) {
+    // Future Use
+    }
 
     return Result;
 }
