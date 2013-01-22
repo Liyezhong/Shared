@@ -88,7 +88,8 @@ typedef enum
     SWVERSION,
     ADJUSTMENT,
     PARAMETER,
-    INVALID_CONTAINER_TYPE
+    INVALID_CONTAINER_TYPE,
+    INSTRUMENTHISTORY
 } DataContainerType_t;
 
 
