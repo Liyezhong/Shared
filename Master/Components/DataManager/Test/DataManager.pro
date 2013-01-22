@@ -12,5 +12,6 @@ SUBDIRS =   TestXmlConfigFile.pro \
             ../Containers/UserSettings/Test/TestUserSettings.pro \
             ../Containers/ExportConfiguration/Test/TestExportConfiguration.pro \
             ../Containers/SWVersions/Test/TestSWVersionList.pro \
-            ../Containers/DeviceConfiguration/Test/TestDeviceConfiguration.pro
+            ../Containers/DeviceConfiguration/Test/TestDeviceConfiguration.pro \
+            ../Containers/InstrumentHistory/Test/TestDataModuleList.pro
 #TestPasswordManager.pro \
