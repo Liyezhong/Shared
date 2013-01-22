@@ -1129,7 +1129,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     {
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_BREAK_NORMAL_OP, 0);
+        ThrowEvent(EVENT_DEVICECONTROL_INFO_BREAK_NORMAL_OP, 0);
 
         return;
     }

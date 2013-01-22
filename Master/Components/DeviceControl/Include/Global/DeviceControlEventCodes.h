@@ -34,7 +34,7 @@ namespace DeviceControl
 //! Event start service
 const quint32 EVENT_DEVICECONTROL_ERROR_START_DIAG      = EVENT_GROUP_PLATFORM_DEVICECONTROL + 0x0001;
 //! Event break normal operation mode
-const quint32 EVENT_DEVICECONTROL_ERROR_BREAK_NORMAL_OP = EVENT_GROUP_PLATFORM_DEVICECONTROL + 0x0002;
+const quint32 EVENT_DEVICECONTROL_INFO_BREAK_NORMAL_OP  = EVENT_GROUP_PLATFORM_DEVICECONTROL + 0x0002;
 //! Could not activate a device processing task
 const quint32 EVENT_DEVICECONTROL_ERROR_ACTIVATE_TASK   = EVENT_GROUP_PLATFORM_DEVICECONTROL + 0x0003;
 //! Problems with heartbeat distribution

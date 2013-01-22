@@ -323,9 +323,6 @@ quint32 CModule::HandleCANMsgEvent(can_frame* pCANframe)
 
         m_lastEventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
 
-        // this error was reported from external (CAN-bus)
-        m_lastEventHdlInfo = DCL_ERR_EXTERNAL_ERROR;
-
         EventCode = BuildEventCode(m_lastEventGroup, m_lastEventCode, m_lastEventHdlInfo);
 
         Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName() << m_lastEventData);
