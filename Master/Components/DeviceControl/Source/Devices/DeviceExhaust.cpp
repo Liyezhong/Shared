@@ -106,6 +106,8 @@ bool CDeviceExhaust::Trans_Configure(QEvent *p_Event)
 
     connect(mp_CurrentConsumptionFan2, SIGNAL(ReportActInputValue(quint32,ReturnCode_t,qint16)),
             this, SLOT(Current2(quint32,ReturnCode_t,qint16)));
+
+    return true;
 }
 
 void CDeviceExhaust::ActivateSlot()

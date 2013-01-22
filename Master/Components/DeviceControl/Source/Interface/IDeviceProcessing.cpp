@@ -49,9 +49,9 @@ namespace DeviceControl
  *  \brief  Constructor of the class IDeviceProcessing
  */
 /****************************************************************************/
-IDeviceProcessing::IDeviceProcessing(DataManager::CDataManager* pDataManager) :
+IDeviceProcessing::IDeviceProcessing() :
     m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
-    m_reqTaskParameter1(0), m_reqTaskParameter2(0), mp_DataManager(pDataManager)
+    m_reqTaskParameter1(0), m_reqTaskParameter2(0)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
@@ -518,7 +518,7 @@ void IDeviceProcessing::ThreadStarted()
     FILE* pFile = fopen("device_control.log", "w");
     Output2FILE::Stream() = pFile;
 
-    mp_DevProc = new DeviceProcessing(this, mp_DataManager);
+    mp_DevProc = new DeviceProcessing(this);
 
     CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t),
                       this, OnInitializationFinished(ReturnCode_t));

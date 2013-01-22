@@ -42,12 +42,11 @@ namespace DeviceCommandProcessor {
 
 /****************************************************************************/
 DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
-    Global::gSourceType TheHeartBeatSource, DataManager::CDataManager* pDataManager, QString name) :
+    Global::gSourceType TheHeartBeatSource, QString name) :
     Threads::ThreadController(TheHeartBeatSource, name),
     m_RefInitDCL(Global::RefManager<Global::tRefType>::INVALID),
     m_InLoaderChangedRef(Global::RefManager<Global::tRefType>::INVALID),
-    m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID),
-    m_DeviceProcessing(pDataManager)
+    m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID)
 {
     qRegisterMetaType<DevInstanceID_t>("DevInstanceID_t");
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");

@@ -115,12 +115,10 @@ public:
      * \brief Constructor.
      *
      * \param[in]   TheHeartBeatSource    Logging source to be used.
-     * \param[in]   pDataManager          Colorado data manager
      * \param[in]   name                  Name of the Thread Controller
      */
     /****************************************************************************/
     DeviceCommandProcessorThreadController(Global::gSourceType TheHeartBeatSource,
-                                           DataManager::CDataManager* pDataManager,
                                            QString name);
     /****************************************************************************/
     /**

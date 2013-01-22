@@ -40,8 +40,6 @@
 #include "DeviceControl/Include/SlaveModules/Rfid15693.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 
-#include "DataManager/Include/DataManager.h"
-
 namespace DeviceControl
 {
 
@@ -58,7 +56,7 @@ class IDeviceProcessing : public QObject
     Q_OBJECT
 
 public:
-    IDeviceProcessing(DataManager::CDataManager* pDataManager);
+    IDeviceProcessing();
     ~IDeviceProcessing();
 
     //! Emergency stop
@@ -189,8 +187,6 @@ private:
     DeviceProcessing *mp_DevProc;       //!< Device processing instance
     QThread m_DevProcThread;           //!< Device processing thread
     QTimer m_DevProcTimer;             //!< Device processing timer
-
-    DataManager::CDataManager* mp_DataManager;      //!< Colorado Data manager reference
 
     //! Task identifiers
     typedef enum {
