@@ -45,7 +45,7 @@ public:
     /****************************************************************************/
     virtual ~CModuleDataListVerifier() {}
 
-    bool VerifyData(CModuleDataList* p_ModuleDataList);
+    bool VerifyData(CDataContainerBase* p_ModuleDataList);
     ErrorHash_t &GetErrors();
 
     void ResetLastErrors();

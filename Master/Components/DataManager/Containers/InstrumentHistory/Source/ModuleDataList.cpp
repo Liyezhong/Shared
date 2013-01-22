@@ -21,6 +21,8 @@
 #include "DataManager/Containers/InstrumentHistory/Include/ModuleDataList.h"
 #include "DataManager/Helper/Include/Helper.h"
 #include "Global/Include/Utils.h"
+//#include "Global/Include/Exception.h"
+//#include "Global/Include/EventObject.h"
 
 #include <QDebug>
 #include <QFile>
@@ -115,55 +117,49 @@ bool CModuleDataList::ReadFile(const QString FileName)
 {
 
     SetFileName(FileName);
-
     QFile File(FileName);
-
     if (!QFile::exists(FileName)) {
         return false;
     }
 
-//    bool Result = true;
+    bool Result = true;
+    if (m_DataVerificationMode) {
+        //To make sure other threads cant write when reading is active
+        QWriteLocker locker(mp_ReadWriteLock);
 
-//    if (m_DataVerificationMode) {
-//        //To make sure other threads cant write when reading is active
-//        QWriteLocker locker(mp_ReadWriteLock);
+        // create instance of CModuleDataList for verification
+        CModuleDataList* p_MDL_Verification = new CModuleDataList();
 
-//        // create instance of CModuleDataList for verification
-//        CModuleDataList* p_MDL_Verification = new CModuleDataList();
+        // create clone from current state
+        *p_MDL_Verification = *this;
 
-//        // create clone from current state
-//        *p_MDL_Verification = *this;
+        // disable verification in clone
+        p_MDL_Verification->SetDataVerificationMode(false);
 
-//        // disable verification in clone
-//        p_MDL_Verification->SetDataVerificationMode(false);
+        // execute required action (Read) in clone
+        Result = true;
+        if (!p_MDL_Verification->ReadFile(FileName)) {
+            Result = false;
+        } else {
 
-//        // execute required action (Read) in clone
-//        Result = true;
-//        if (!p_MDL_Verification->ReadFile(FileName)) {
-//            Result = false;
-//        } else {
+            // now check new content => call all active verifiers
+            if (DoLocalVerification(p_MDL_Verification)) {
+                // if content ok, clone backwards
+                *this = *p_MDL_Verification;
+                Result = true;
+            }
+            else {
+                Result = false;
+            }
+        }
+        // delete test clone
+        delete p_MDL_Verification;
+    }
+    else {
+        QWriteLocker locker(mp_ReadWriteLock);
 
-//            // now check new content => call all active verifiers
-//            if (DoLocalVerification(p_MDL_Verification)) {
-//                // if content ok, clone backwards
-//                *this = *p_MDL_Verification;
-//                Result = true;
-//            }
-//            else {
-//                Result = false;
-//            }
-//        }
-//        // delete test clone
-//        delete p_MDL_Verification;
-//    }
-//    else {
-//        QWriteLocker locker(mp_ReadWriteLock);
-
-//        // clear content
-//        //Init();
-
-//        // Initialise the m_Filename to a known string "UNDEFINED"
-//        m_FileName = "UNDEFINED";
+        // Initialise the m_Filename to a known string "UNDEFINED"
+        m_FileName = "UNDEFINED";
 
 
         if (!File.open(QFile::ReadOnly | QFile::Text )) {
@@ -179,45 +175,8 @@ bool CModuleDataList::ReadFile(const QString FileName)
         m_FileName = FileName;
 
         File.close();
-        return true;
-
-}
-
-/****************************************************************************/
-/*!
- *  \brief Writes the data from the container to the file
- *
- *  \iparam Filename = name of the Output file
- *
- *  \return true on success, false on failure
- */
-/****************************************************************************/
-bool CModuleDataList::WriteFile(const QString FileName)
-{
-    if (QFile::exists(FileName)) {
-        if (!QFile::remove(FileName)) {
-            qDebug() << "File remove failed in Write: " << FileName;
-            return false;
-        }
     }
-    else {
-        return false;
-    }
-
-    // create the file
-    QFile File(FileName);
-    if (!File.open(QFile::WriteOnly | QFile::Text)) {
-        qDebug() << "open file failed in Write: " << FileName;
-        return false;
-    }
-
-    if (!SerializeContent(File, false)) {
-        qDebug() << " CModuledataList::Write failed for file: " << FileName;
-        File.close();
-        return false;
-    }
-    File.close();
-    return true;
+        return Result;
 }
 
 /****************************************************************************/
@@ -347,7 +306,7 @@ bool CModuleDataList::SerializeContent(QIODevice& IODevice, bool CompleteData)
             XmlStreamWriter.writeAttribute("VerificationMode", "false");
         }
 
-        XmlStreamWriter.writeAttribute("FileName", GetFileName());
+        XmlStreamWriter.writeAttribute("FileName", GetFilename());
         XmlStreamWriter.writeEndElement();
      }
 

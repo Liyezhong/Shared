@@ -37,7 +37,7 @@ CModuleDataListVerifier::CModuleDataListVerifier(): mp_MDL(NULL)
  *  \brief Verifies the data present in the module list against constraints.
  */
 /****************************************************************************/
-bool CModuleDataListVerifier::VerifyData(CModuleDataList *p_ModuleDataList)
+bool CModuleDataListVerifier::VerifyData(CDataContainerBase *p_ModuleDataList)
 {
     bool VerifiedData = true;
 

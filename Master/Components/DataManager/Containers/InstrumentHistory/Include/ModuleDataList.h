@@ -33,6 +33,10 @@
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
 #include "DataManager/Helper/Include/Types.h"
+#include "Global/Include/Translator.h"
+
+//#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+//#include "ColoradoDataManager/Templates/Include/ColoradoDataManagerEventCodes.h"
 
 namespace DataManager
 {
@@ -59,6 +63,14 @@ public:
     CModuleDataList(const CModuleDataList&);
     ~CModuleDataList();
     CModuleDataList& operator=(const CModuleDataList&);
+
+    /****************************************************************************/
+    /*!
+     *  \brief returns the  Data container type
+     *  \return Data container type
+     */
+    /****************************************************************************/
+    DataContainerType_t GetDataContainerType() {return INSTRUMENTHISTORY;}
 
     /****************************************************************************/
     /*!
@@ -134,14 +146,6 @@ public:
 
     /****************************************************************************/
     /*!
-     *  \brief  To write data to XML file
-     *  \return true on success, false on failure
-     */
-    /****************************************************************************/
-    bool WriteFile(const QString FileName);
-
-    /****************************************************************************/
-    /*!
      *  \brief  To writes data to container
      *  \return true on success, false on failure
      */
@@ -188,7 +192,7 @@ public:
      *  \return File name
      */
     /****************************************************************************/
-    QString GetFileName() {return m_FileName;}
+    QString GetFilename() {return m_FileName;}
 
     /****************************************************************************/
     /*!
