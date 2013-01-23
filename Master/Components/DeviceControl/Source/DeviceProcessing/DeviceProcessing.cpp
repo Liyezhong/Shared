@@ -80,6 +80,8 @@ const QString CANObjectKeyLUT::m_BaseLightKey = "base_light";
 
 const QString CANObjectKeyLUT::m_MotorAgitationKey = "motor_agitation";
 const QString CANObjectKeyLUT::m_FlowSensorKey = "flow_sensor";
+const QString CANObjectKeyLUT::m_ControlFan1Key = "control_fan1";
+const QString CANObjectKeyLUT::m_ControlFan2Key = "control_fan2";
 const QString CANObjectKeyLUT::m_CurrentFan1Key = "current_fan1";
 const QString CANObjectKeyLUT::m_CurrentFan2Key = "current_fan2";
 const QString CANObjectKeyLUT::m_MotorXAxisKey = "motor_x_axis";
@@ -91,7 +93,6 @@ const QString CANObjectKeyLUT::m_TempCtrlVessel1Key = "temp_ctrl1";
 const QString CANObjectKeyLUT::m_TempCtrlVessel2Key = "temp_ctrl2";
 const QString CANObjectKeyLUT::m_TempCtrlVessel3Key = "temp_ctrl3";
 const QString CANObjectKeyLUT::m_TempCtrlVessel4Key = "temp_ctrl4";
-const QString CANObjectKeyLUT::m_InclinometerKey = "inclinometer";
 const QString CANObjectKeyLUT::m_MotorDrawerKey = "motor_drawer";
 const QString CANObjectKeyLUT::m_DrawerRFIDKey = "rfid_drawer";
 const QString CANObjectKeyLUT::m_DrawerButtonKey = "diginp_button_drawer";

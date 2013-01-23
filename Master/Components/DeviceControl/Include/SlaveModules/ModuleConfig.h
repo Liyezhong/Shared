@@ -425,21 +425,6 @@ public:
     quint8 m_DataRate;  //!< data transmition rate in relation to RFID signal
 };
 
-/*! \brief This class transfers the CANInclinometer-Object configuration.
-*    The class contains configuration parameter of the CANInclinometer-Object
-*    The class is instanced while hw configuration is read. The class transfers
-*    the configuration parameters to the CAN-object classes, which will be created later.
-*
-*/
-class CANFctModuleInclinometer : public CModuleConfig
-{
-public:
-    CANFctModuleInclinometer() { m_bType = 0; };
-
-    quint8 m_bType;     //!< interface type
-
-};
-
 /*! \brief This class transfers the PID controller data
 *    The class contains the parameters of a temperature module's PID controller
 *    The class is instanced while hardware configuration is read. The class transfers

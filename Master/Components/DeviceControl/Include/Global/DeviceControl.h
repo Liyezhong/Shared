@@ -372,9 +372,11 @@ public:
     static const QString m_BaseLightKey;            //!< Light base module key
     // Colorado function modules
     static const QString m_MotorAgitationKey;           //!< Motor agitation
-    static const QString m_FlowSensorKey;               //!< air flow sensor
-    static const QString m_CurrentFan1Key;              //!< current measurement fan 1
-    static const QString m_CurrentFan2Key;              //!< current measurement fan 2
+    static const QString m_FlowSensorKey;               //!< Air flow sensor
+    static const QString m_ControlFan1Key;              //!< Control switch fan 1
+    static const QString m_ControlFan2Key;              //!< Control switch fan 2
+    static const QString m_CurrentFan1Key;              //!< Current measurement fan 1
+    static const QString m_CurrentFan2Key;              //!< Current measurement fan 2
     static const QString m_MotorXAxisKey;               //!< Motor X-axis
     static const QString m_MotorYAxisKey;               //!< Motor Y-axis
     static const QString m_MotorZAxisKey;               //!< Motor Z-axis
@@ -384,7 +386,6 @@ public:
     static const QString m_TempCtrlVessel2Key;          //!< Temperature control cuvette 2
     static const QString m_TempCtrlVessel3Key;          //!< Temperature control cuvette 3
     static const QString m_TempCtrlVessel4Key;          //!< Temperature control cuvette 4
-    static const QString m_InclinometerKey;             //!< Inclinometr
     static const QString m_MotorDrawerKey;              //!< Drawer motor
     static const QString m_DrawerRFIDKey;               //!< Drawer rfid module
     static const QString m_DrawerButtonKey;             //!< Drawer button
