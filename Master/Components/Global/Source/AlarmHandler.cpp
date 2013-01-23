@@ -57,8 +57,8 @@ AlarmHandler::~AlarmHandler()
 
 void AlarmHandler::onTimeout()
 {
-    m_Timer->stop();
     m_mutex->lock();
+    m_Timer->stop();
 
     if (!(m_errorList.size() == 0))
     {
@@ -107,7 +107,7 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
 
     qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
     QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-    connect(m_process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(StopPlayAlarm()));
+    connect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
     m_process->start(program);
 
 
@@ -149,6 +149,7 @@ void AlarmHandler::StopPlayAlarm()
 {
     if ( m_process->state() == QProcess::NotRunning)
     {
+        qDebug() << "Process completed...";
         m_alarmToneTimer->stop();
     }
     if (m_process->state() == QProcess::Running)
@@ -192,13 +193,18 @@ void AlarmHandler::setSoundNumber(Global::AlarmType alarmType, int number)
     QString fileName = "";
 
     if (alarmType == Global::ALARM_ERROR)
+    {
         fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".wav";
+    }
     else
+    {
         fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".wav";
-
+    }
     if (fileName.length() > 0)
+    {
         setSoundFile(alarmType, fileName);
         qDebug() << "AlarmHandler SoundFile is" << fileName;
+    }
 
 }
 
@@ -224,7 +230,7 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         {
            m_errorList.insert(eventKey, alarmType);
         }
-        else
+        else if (alarmType == Global::ALARM_WARNING)
         {
           m_warningList.insert(eventKey, alarmType);
         }
@@ -236,7 +242,7 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
         {
             m_errorList.remove(eventKey);
         }
-        else
+        else if (alarmType == Global::ALARM_WARNING)
         {
            m_warningList.remove(eventKey);
         }
