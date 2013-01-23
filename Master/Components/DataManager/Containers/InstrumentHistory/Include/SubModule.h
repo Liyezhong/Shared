@@ -29,6 +29,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QHash>
+#include <QDebug>
 
 namespace DataManager
 {
@@ -145,6 +146,30 @@ public:
 
         m_ParameterList.append(m_StructParameter);
 
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  To update SubModule's Parameter Info
+     *  \iparam Value = Name and value of Parameter
+     *  \return true if update is successful, false if unsuccessful
+     */
+    /****************************************************************************/
+    bool UpdateParameterInfo(const QString ParameterName, const QString ParameterValue)
+    {
+        bool Result = false;
+        for(int I=0; I<m_ParameterList.count(); I++)
+        {
+            Parameter Param = m_ParameterList.at(I);
+            if(QString::compare(Param.ParameterName, ParameterName) == 0) {
+                Param.ParameterValue = ParameterValue;
+                Result = true;
+                return Result;
+            }
+        }
+
+        qDebug() << "Parameter Name Doesnot exist" << endl;
+        return Result;
     }
 
     /****************************************************************************/
