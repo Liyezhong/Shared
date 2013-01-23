@@ -28,12 +28,12 @@ namespace SoftSwitchManager {
  *         following features are allowed:
  *         1)Setting direction
  *         2)Setting Edge
- *         3)Setting o/p value for the GPIO and retrieving the value.
+ *         3)Setting value for the GPIO and retrieving the value.
  */
 /****************************************************************************/
 class GPIOPin: public QObject {
 private:
-    qint32  m_Fd; //!< File descriptor
+    qint32  m_Fd;           //!< File descriptor
     qint32  m_CurrentValue; //!< Current Value of the pin
     /*! GPIO number calculation
      *  GPIO1_0 would be calculated as ( (1-1) * 32 + 0 )

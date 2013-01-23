@@ -10,20 +10,20 @@ class GenericState: public QState
     typedef void (T::*OnEntryCallBack_t)();
 public:
     GenericState(T &CallBackObject, OnEntryCallBack_t CallBackFunc)
-      :QState(0)
-      ,m_CallBackObject(CallBackObject)
-      ,m_CallBack(CallBackFunc)
-  {
+        :QState(0)
+        ,m_CallBackObject(CallBackObject)
+        ,m_CallBack(CallBackFunc)
+    {
 
-  }
+    }
   ~GenericState(){}
 
 protected:
     void onEntry(QEvent *event)
     {
-        //First call the base class call back
+        //!< First call the base class OnEntry function
         QState::onEntry(event);
-        //Now call the registered call back function
+        //!< Now call the registered call back function
         (m_CallBackObject.*m_CallBack)();
     }
 

@@ -3,14 +3,13 @@
 //Qt includes
 #include <QObject>
 #include <QStateMachine>
-
+#include <QTimer>
 //Project includes
 #include <SoftSwitchManager/Include/GPIO.h>
 #include <SoftSwitchManager/Include/GenericState.h>
 #include <Global/Include/SigTransition.h>
 
 namespace SoftSwitchManager {
-
 
 class SoftSwitchMgr : public QObject
 {
@@ -26,6 +25,8 @@ public:
 
 private:
     GPIOPin m_SoftSwitchGPIO;       //!< GPIO connected to the softswitch on EBox
+
+    // State machine attributes
     QStateMachine *mp_SoftSwitchStateMachine; //!< StateMachine managing SoftSwitch workflow
     GenericStateTemplate *mp_DefaultState;          //!< Default state for the statemachine.
     GenericStateTemplate *mp_PressedAtInitState;    //!< State when SoftSwitch is pressed during Main Init (or system init).
@@ -33,10 +34,14 @@ private:
     GenericStateTemplate *mp_PressedAtBusyState;    //!< State when SoftSwitch is pressed at busy state of system.
     GenericStateTemplate *mp_ShutDownState;         //!< State to initiate shutdown procedure
     GenericStateTemplate *mp_CriticalActionState;   //!< State when a critical action is going on in the system
+    GenericStateTemplate *mp_CriticalActionCheckState; //!< State which checks if there is a critical action going on.
     SoftSwitchStateTransition *mp_DefaultToInitTransition; //!< Transition for Default->Init
     SoftSwitchStateTransition *mp_InitToDefaultTransition; //!< Transition for Init->Default
     SoftSwitchStateTransition *mp_DefaultToIdleTransition; //!< Transition for Init->Idle
     SoftSwitchStateTransition *mp_DefaultToBusyTransition; //!< Transition for Init->Busy
+
+    QTimer *mp_Timer;   //!< Seven second timer. We reset to default state in statemachine on timeout.
+
 
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
@@ -45,16 +50,22 @@ private:
     void OnPressedAtInitStateEntered();
     void OnPressedAtIdleStateEntered();
     void OnPressedAtBusyStateEntered();
+    void OnCriticalActionCheckStateEntered();
     void OnCriticalActionStateEntered();
     void OnShutDownStateEntered();
 
 private slots:
-    void TempInitComplete();
+    void OnSoftSwitchPressed(int GpioFd);
+    void ResetStateMachine();
 
 signals:
-    void OnSoftSwitchPressed();
+    void SoftSwitchPressed();
     void SendSoftSwitchPressedCmd();
     void SystemInitComplete();
+    void TimerTimeOut();
+    void CriticalActionNotInProgress();
+    void CriticalActionInProgress();
+    void CriticalActionComplete();
 };
 }
 #endif // SOFTSWITCHMANAGER_H
