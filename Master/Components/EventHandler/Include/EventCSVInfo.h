@@ -26,6 +26,7 @@
 #include <Global/Include/Utils.h>
 #include <QStringList>
 
+
 namespace EventHandler{
 
 /****************************************************************************/
@@ -39,14 +40,18 @@ namespace EventHandler{
 /****************************************************************************/
 class EventCSVInfo {
 
+public:
+
+
+
 protected:
     quint32                         m_EventCode;             ///< Event code/Event ID for event entry - Also used as String ID to get corresponding string for translation
-    QString                         m_EventName;             ///< Name of event
+    QString                         m_EventMacroName;             ///< Name of event macro
     Global::EventType               m_EventType;             ///< Event type/level of event entry.
-    Global::ActionType              m_ActionPositive;                ///< Action type Positive
+    Global::ActionType              m_ActionPositive;                ///< Action type Positive ( action + retry + action pattern)
+    Global::ActionType              m_Action;                   /// < default action for event
     qint8                           m_NumberOfRetries;       ///< Retry attempts for the action
     Global::ActionType              m_ActionNegative;        ///< Next Action type for Negative action
-    Global::ActionType              m_NextAction;        ///< Next Action type for Positive action
     bool                            m_ShowInRunLog;          ///< true - show in GUI its and daily run log, else dont show its error log.
     Global::LoggingSource           m_Source;                ///< Source for event entry.
     Global::EventLogLevel           m_LogLevel;              ///< Various log levels
@@ -108,7 +113,7 @@ public:
      * \param[in]   SourceComponent       Source of event as string, read from EventConf file
      */
     /****************************************************************************/
-    EventCSVInfo(const quint32 &EventCode, const Global::EventType &EventType, const Global::ActionType &ActionType,
+    EventCSVInfo(const quint32 &EventCode, const QString &EventMacroName, const Global::EventType &EventType,  const Global::ActionType &ActionType,
                                  qint8 NumofAttempts, Global::ActionType &ActionTypePositive,Global::ActionType &ActionTypeNegative,
                                  const bool &ShowInRunLog, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
                                  const QString &MessageType, const bool &AckRequired, const bool &AlarmRequired, const Global::GuiButtonType &ButtonType,
@@ -160,21 +165,22 @@ public:
      */
     /****************************************************************************/
     inline Global::ActionType GetActionType() const {
-        return (Global::ActionType)m_ActionPositive;
+        return (Global::ActionType)m_Action;
     }
 
     inline Global::ActionType GetPositiveActionType() const {
-        return (Global::ActionType)m_NextAction;
+        return (Global::ActionType)m_ActionPositive;
     }
 
     inline Global::ActionType GetNegativeActionType() const {
         return (Global::ActionType)m_ActionNegative;
     }
 
-    //    inline void SetActionType(Global::ActionType ActionType, qint8 NumberOfAttempts = 0) {
-    //        m_ActionType = ActionType;
-    //        m_NumberOfRetryAttempts = NumberOfAttempts;
-    //    }
+    inline void SetActionInfo(Global::ActionType ActionType, qint8 NumberOfAttempts = 1, Global::ActionType ActionTypePositive = Global::ACNTYPE_NONE) {
+        m_Action = ActionType;
+        m_NumberOfRetries = NumberOfAttempts;
+        m_ActionPositive = ActionTypePositive;
+    }
 
     /****************************************************************************/
     /**
@@ -225,12 +231,14 @@ public:
     /****************************************************************************/
     /**
      * \brief Get the Name of the event.
-     *
-     * \return Event source.
      */
     /****************************************************************************/
     inline QString GetEventName() const {
-        return m_EventName;
+        return m_EventMacroName;
+    }
+
+    inline void SetEventName(QString EventName) {
+        m_EventMacroName = EventName;
     }
 
     inline bool StatusBarIcon() const {
@@ -252,6 +260,9 @@ public:
         return m_Source;
     }
 
+    inline  void SetSource( Global::LoggingSource Source)  {
+         m_Source = Source;
+    }
     /****************************************************************************/
     /**
      * \brief Get status of ShowInRunLogStatus
@@ -263,7 +274,7 @@ public:
         return m_ShowInRunLog;
     }
 
-    inline void SetRunLogStatus(bool & ShowInRunLog)  {
+    inline void SetRunLogStatus(bool  ShowInRunLog)  {
         m_ShowInRunLog = ShowInRunLog;
     }
 
@@ -281,11 +292,7 @@ public:
 
     inline void SetLogLevel(const Global::EventLogLevel & LogLevel) {
         m_LogLevel = LogLevel;
-    }
-
-    inline Global::ActionType GetNextAction() const{
-        return m_NextAction;
-    }
+    }    
 
     inline Global::ActionType GetActionPositive() const{
 
@@ -299,25 +306,14 @@ public:
     }
     inline void SetRetries(qint8 NumberOfRetries) {
         m_NumberOfRetries = NumberOfRetries;
-    }
-
-    inline void SetActionPositiveInfo(const Global::ActionType & ActionType, qint8 NumberAttempts = 0, const Global::ActionType & ActionTypeNext = Global::ACNTYPE_NONE) {
-        m_ActionPositive = ActionType;
-        m_NumberOfRetries = NumberAttempts;
-        m_NextAction = ActionTypeNext;
-
-    }
-
-    inline void SetActionInfo (const Global::ActionType & ActionType, qint8 NumberAttempts = 0, const Global::ActionType & ActionTypeNext = Global::ACNTYPE_NONE) {
-        SetActionPositiveInfo(ActionType, NumberAttempts, ActionTypeNext);
-    }
+    }   
 
     inline void SetAction(const Global::ActionType & ActionType) {
-        m_ActionPositive = ActionType;
+     m_Action = ActionType;
     }
 
     inline void SetActionPositive(const Global::ActionType & ActionType) {
-        m_NextAction = ActionType;
+        m_ActionPositive = ActionType;
     }
 
     inline void SetActionNegative(const Global::ActionType & ActionType) {
@@ -368,10 +364,6 @@ public:
     inline void SetMessageType(const QString & MessageType) {
         m_MessageType = MessageType;
     }
-
-
-
-
 
     inline void SetAckRequired(const bool AckReq) {
         m_AckRequired = AckReq;
@@ -432,7 +424,7 @@ public:
      */
     /****************************************************************************/
 
-    inline void SetGUIOptions(const Global::GuiButtonType & GUIOptions) {
+    inline void SetGUIOptions(const Global::GuiButtonType  GUIOptions) {
         m_ButtonType = GUIOptions;
     }
 

@@ -62,6 +62,10 @@ EventHandlerThreadController::EventHandlerThreadController(Global::gSourceType T
     //    CreateAndInitializeObjects();
     // Register LoggingSource Templates with moc
     qRegisterMetaType<Global::LoggingSource>("Global::LoggingSource");
+    AddActionTypes();
+    AddEventTypes();
+    AddEventLogLevels();
+    AddSourceComponents();
 }
 
 
@@ -88,10 +92,6 @@ EventHandlerThreadController::~EventHandlerThreadController()
 void EventHandlerThreadController::CreateAndInitializeObjects()
 {
     qDebug()<<"READING EVENT CONFIG \n\n\n";
-    AddActionTypes();
-    AddEventTypes();
-    AddEventLogLevels();
-    AddSourceComponents();
     ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
 
     // now register commands
@@ -240,7 +240,6 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                 Global::EventType EventType = m_EventTypeEnumMap.value(textList.at(2).
                                                                        trimmed().toUpper(),
                                                                        Global::EVTTYPE_UNDEFINED);
-
 
 
                 if(EventType == Global::EVTTYPE_UNDEFINED)  {
@@ -523,12 +522,12 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
     {
         qDebug()<< "Sending event to DataLogger";
-        LogEventEntry(EventEntry); //Log the event
+        emit LogEventEntry(EventEntry); //Log the event
     }
 
 //    mpAlarmHandler->setSoundNumber(Global::ALARM_WARNING, mpUserSettings->GetSoundNumberWarning());
 
-    ForwardToErrorHandler(EventEntry, EventKey);// Send the Error for handling
+    emit ForwardToErrorHandler(EventEntry, EventKey);// Send the Error for handling
     /// \todo this is a test of Axeda Remote Care error reporting:
     //emit ErrorHandler::SendErrorToRemoteCare(EventEntry);
 
@@ -567,9 +566,9 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
 
     if(EventEntry.GetAlarmStatus())
     {
+         // the alarm required status is true & has to be removed since the same has been acknowledged by user
         mpAlarmHandler->setTimeout(1000);
         Global::AlarmType alarm= Global::ALARM_NONE;
-
 
         if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
             alarm = Global::ALARM_ERROR;
@@ -580,8 +579,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         EventId64 = EventId64 << 32;
         EventId64 = EventId64 | EventKey;
         mpAlarmHandler->setAlarm(EventId64, alarm, false);
-        // the alarm required status is true & has to be removed since the same has been acknowledged by user
-         //mpAlarmHandler->setAlarm(EventID, alarm, false);
+
     }
 
     bool IsActive = EventEntry.IsEventActive();
@@ -619,7 +617,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         // if (second action )//second action
         NetCommands::CmdSystemAction *p_CmdSystemAction;
         p_CmdSystemAction = new NetCommands::CmdSystemAction();
-        Global::ActionType ActionType = EventEntry.GetNextAction();
+        Global::ActionType ActionType = EventEntry.GetActionPositive();
        // p_CmdSystemAction->SetAckState(EventEntry.GetAckReqStatus())  ;
          p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
         p_CmdSystemAction->SetAction(ActionType);
@@ -634,18 +632,6 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         DEBUGWHEREAMI;
 
     }
-
-
-
-    //    //p_CmdSystemAction->SetTargetComponents(TargetComponents);
-    //    p_CmdSystemAction->SetRetryCount(Count);
-    //     EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
-    //     quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
-    //    p_CmdSystemAction->SetEventKey(EventKey);
-    //    p_CmdSystemAction->SetEventID(EventID);
-    //    qDebug() << "EventKEY: " << EventKey << "EventID: " <<EventID;
-    //    SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
-    //    DEBUGWHEREAMI;
 }
 
 

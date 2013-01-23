@@ -35,17 +35,18 @@ EventCSVInfo::EventCSVInfo(const EventCSVInfo &rOther) {
 }
 
 /****************************************************************************/
-EventCSVInfo::EventCSVInfo(const quint32 &EventCode, const Global::EventType &EventType, const Global::ActionType &ActionType,
+EventCSVInfo::EventCSVInfo(const quint32 &EventCode,const QString &Eventname, const Global::EventType &EventType, const Global::ActionType &ActionType,
                              qint8 NumofAttempts, Global::ActionType &ActionTypePositive,Global::ActionType &ActionTypeNegative,
                              const bool &ShowInRunLog, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
                              const QString &MessageType, const bool &AckRequired, const bool &AlarmRequired, const Global::GuiButtonType &ButtonType,
                              const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent ) :
 
     m_EventCode(EventCode),
+    m_EventMacroName(Eventname),
     m_EventType(EventType),
-    m_ActionPositive(ActionType),
+    m_Action(ActionType),
     m_NumberOfRetries(NumofAttempts),
-    m_NextAction(ActionTypePositive),
+    m_ActionPositive(ActionTypePositive),
     m_ActionNegative(ActionTypeNegative),
     m_ShowInRunLog(ShowInRunLog),
     m_Source(LoggingSource),
@@ -75,12 +76,12 @@ EventCSVInfo::~EventCSVInfo() {
 void EventCSVInfo::CopyFrom(const EventCSVInfo &rOther) {
 
     m_EventCode = rOther.m_EventCode;
-    m_EventName = rOther.m_EventName;
+    m_EventMacroName = rOther.m_EventMacroName;
     m_EventType = rOther.m_EventType;
+    m_Action = rOther.m_Action;
     m_ActionPositive = rOther.m_ActionPositive;
     m_NumberOfRetries = rOther.m_NumberOfRetries;
-    m_ActionNegative = rOther.m_ActionNegative;
-    m_NextAction = rOther.m_NextAction;
+    m_ActionNegative = rOther.m_ActionNegative;   
     m_ShowInRunLog = rOther.m_ShowInRunLog;
     m_Source = rOther.m_Source;
     m_LogLevel = rOther.m_LogLevel;

@@ -70,6 +70,8 @@ class EventHandlerThreadController : public Threads::ThreadController {
 
 public:
 
+    friend class TestEventHandlerThreadController;
+
     EventHandlerThreadController(Global::gSourceType TheHeartBeatSource);
 
    // EventHandlerThreadController(Global::gSourceType TheHeartBeatSource);

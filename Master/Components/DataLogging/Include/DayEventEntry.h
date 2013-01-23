@@ -205,9 +205,9 @@ public:
       inline Global::ActionType GetActionPositive() const {
           return m_EventCSVInfo.GetActionPositive();
       }
-      inline Global::ActionType GetNextAction() const {
-          return m_EventCSVInfo.GetNextAction();
-      }
+//      inline Global::ActionType GetNextAction() const {
+//          return m_EventCSVInfo.GetNextAction();
+//      }
 
       inline bool GetStatusIcon() const {
           return m_EventCSVInfo.GetStatusIcon();
