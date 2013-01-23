@@ -151,6 +151,7 @@ private:
     void KeyBoardReset();
     void SetKeyBoardType(KeyBoard::KeyBoardType_t m_KeyBoardType);
     void NotifyObserver();
+    void NotifyObserverOnESCClicked();
     void changeEvent(QEvent *p_Event);
 
 public:

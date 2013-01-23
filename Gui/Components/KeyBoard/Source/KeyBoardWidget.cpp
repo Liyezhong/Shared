@@ -709,11 +709,24 @@ void CKeyBoard::EscClicked()
     if(m_ButtonList.at(30)->accessibleName() == "0x01000000") {
        mp_LineEdit->clear();
        hide();
+       NotifyObserverOnESCClicked();
        KeyBoardReset();
        AltToggled(false);
     }
 }
 
+
+/****************************************************************************/
+/*!
+ *  \brief This function is called to Notify the observers when ESC is clicked.
+ */
+/****************************************************************************/
+void CKeyBoard::NotifyObserverOnESCClicked()
+{
+    for(qint32 I = 0; I < mp_KeyBoardObserver.size(); I++) {
+        mp_KeyBoardObserver[I]->UpdateOnESC();
+    }
+}
 /****************************************************************************/
 /*!
  *  \brief This function sets the dialog title of the keyboard
