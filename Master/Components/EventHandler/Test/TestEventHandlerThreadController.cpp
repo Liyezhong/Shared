@@ -199,7 +199,7 @@ void TestEventHandlerThreadController::initTestCase() {
     m_EventLoggerBaseFileName = "Base";
     mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(m_HeartBeatSourceDataLogging, m_EventLoggerBaseFileName);
 
-    mp_alarmHandler = new Global::AlarmHandler(5000, "./");
+    mp_alarmHandler = new Global::AlarmHandler(5000);
 
     mp_EventHandlerThreadController = new EventHandler::EventHandlerThreadController(m_HeartBeatSourceEventHandler);
     mp_EventHandlerThreadController->SetAlarmHandler(mp_alarmHandler);
