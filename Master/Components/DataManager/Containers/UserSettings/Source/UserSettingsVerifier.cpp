@@ -44,7 +44,6 @@ const int MAX_PROXY_USERNAME_LENGTH = 16;///< Maximum length of Proxy UserName
 const int MIN_PROXY_USERNAME_LENGTH = 1; ///< Minimum length of Proxy UserName
 const int MAX_PROXY_PASSWORD_LENGTH = 16; ///< Maximum length of Proxy Password
 const int MIN_PROXY_PASSWORD_LENGTH = 4; ///< Minimum length of Proxy Password
-
 /****************************************************************************/
 /*!
  *  \brief Constructor
@@ -149,8 +148,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
 
     if (!((UserSettings->GetValue("Agitation_Speed").toInt() >= MIN_AGITATION_SPEED) && (UserSettings->GetValue("Agitation_Speed").toInt() <= MAX_AGITATION_SPEED))) {
         qDebug() << "Speed of agitation is not defined";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Agitation_Speed").toInt());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() <<UserSettings->GetValue("Agitation_Speed").toInt(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Agitation_Speed"));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_AGITAION_SPEED, Global::tTranslatableStringList() <<UserSettings->GetValue("Agitation_Speed"), true);
         VerifiedData = false;
     }
 
@@ -171,8 +170,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     qDebug() << "Value :: " << QString::number(UserSettings->GetValue("Oven_Temp").toInt() % OVEN_TEMP_STEP);
     if (!((UserSettings->GetValue("Oven_Temp").toInt() >= MIN_OVEN_TEMP) && (UserSettings->GetValue("Oven_Temp").toInt() <= MAX_OVEN_TEMP) && (UserSettings->GetValue("Oven_Temp").toInt() % OVEN_TEMP_STEP == 0))) {
         qDebug() << "Oven temperature values are not proper";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_OVENTEMP, Global::tTranslatableStringList() << UserSettings->GetValue("Oven_Temp").toInt());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_OVENTEMP, Global::tTranslatableStringList() <<UserSettings->GetValue("Oven_Temp").toInt(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_OVENTEMP, Global::tTranslatableStringList() << UserSettings->GetValue("Oven_Temp"));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_OVENTEMP, Global::tTranslatableStringList() <<UserSettings->GetValue("Oven_Temp"), true);
         VerifiedData = false;
     }    
 
@@ -204,8 +203,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
 
     if (!((UserSettings->GetValue("Leica_AgitationSpeed").toInt() >= MIN_AGITATION_SPEED) && (UserSettings->GetValue("Leica_AgitationSpeed").toInt() <= MAX_AGITATION_SPEED))) {
         qDebug() << "Speed of agitation is not defined";
-        m_ErrorHash.insert(EVENT_DM_INVALID_LEICA_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Leica_AgitationSpeed").toInt());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LEICA_AGITAION_SPEED, Global::tTranslatableStringList() <<UserSettings->GetValue("Leica_AgitationSpeed").toInt(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_LEICA_AGITAION_SPEED, Global::tTranslatableStringList() << UserSettings->GetValue("Leica_AgitationSpeed"));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LEICA_AGITAION_SPEED, Global::tTranslatableStringList() <<UserSettings->GetValue("Leica_AgitationSpeed"), true);
         VerifiedData = false;
     }
 
@@ -213,8 +212,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     qDebug() << "Value :: " << QString::number(UserSettings->GetValue("Leica_OvenTemp").toInt() % OVEN_TEMP_STEP);
     if (!((UserSettings->GetValue("Leica_OvenTemp").toInt() >= MIN_OVEN_TEMP) && (UserSettings->GetValue("Leica_OvenTemp").toInt() <= MAX_OVEN_TEMP) && (UserSettings->GetValue("Leica_OvenTemp").toInt() % OVEN_TEMP_STEP == 0))) {
         qDebug() << "Oven temperature values are not proper";
-        m_ErrorHash.insert(EVENT_DM_INVALID_LEICA_OVENTEMP, Global::tTranslatableStringList() << UserSettings->GetValue("Leica_OvenTemp").toInt());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LEICA_OVENTEMP, Global::tTranslatableStringList() <<UserSettings->GetValue("Leica_OvenTemp").toInt(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_LEICA_OVENTEMP, Global::tTranslatableStringList() << UserSettings->GetValue("Leica_OvenTemp"));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_LEICA_OVENTEMP, Global::tTranslatableStringList() <<UserSettings->GetValue("Leica_OvenTemp"), true);
         VerifiedData = false;
     }
 
@@ -386,7 +385,7 @@ void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* UserSettings,
 
     if (!((UserSettings->GetSoundLevelWarning() >= MIN_SOUND_LEVEL) && (UserSettings->GetSoundLevelWarning() <= MAX_SOUND_LEVEL))) {
         qDebug() << "Unknown sound number warning volume tone is detected";
-        m_ErrorHash.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        m_ErrorHash.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
