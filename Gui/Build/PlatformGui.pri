@@ -28,7 +28,7 @@ DEPENDPATH += ../.. \
               ../../../../../Colorado/ColoradoMain/Gui/Components \
               ../../../../../Colorado/Shared/Gui/Components
 
-QMAKE_CXXFLAGS += -Wall
+QMAKE_CXXFLAGS += -Wall -std=c++0x
 
 CONFIG(debug, debug|release) {
     CONFIG_SUFFIX = dbg
