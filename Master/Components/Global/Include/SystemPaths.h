@@ -56,7 +56,7 @@ private:
     QString                 m_TempPath;             ///< Folder for temporary files.
     QString                 m_RollbackPath;         ///< Folder for Rollback directory
     QString                 m_TranslationsPath;     ///< Translations path( qm files are placed here)
-    QString                 m_SoundPath;            ///< Sounds path( wav files are placed here)
+    QString                 m_SoundsPath;            ///< Sounds path( wav files are placed here)
     /****************************************************************************/
     SystemPaths(const SystemPaths &);                         ///< Not impemented.
     const SystemPaths & operator = (const SystemPaths &);     ///< Not implemented.
@@ -365,7 +365,7 @@ public:
     /****************************************************************************/
     inline QString GetSoundPath() const {
         QReadLocker RL(&m_SyncObject);
-        return m_SoundPath;
+        return m_SoundsPath;
     }
 
     /****************************************************************************/
@@ -380,7 +380,7 @@ public:
     /****************************************************************************/
     inline void SetSoundPath(const QString &SoundPath) {
         QWriteLocker WL(&m_SyncObject);
-        m_SoundPath = QDir::cleanPath(ComputePath() + "/" + SoundPath);
+        m_SoundsPath = QDir::cleanPath(ComputePath() + "/" + SoundPath);
     }
 
 

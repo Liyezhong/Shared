@@ -43,7 +43,7 @@ class AlarmHandler : public QObject
     Q_OBJECT
 
 public:
-    AlarmHandler(quint16 timeout, QString soundPath);
+    AlarmHandler(quint16 timeout);
     ~AlarmHandler();
 
     /**
@@ -79,24 +79,21 @@ public:
       */
     void setSoundNumber(Global::AlarmType alarmType, int number);
     //void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
-    void playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
+    bool playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
 
 private:
     QHash<quint64, Global::AlarmType> m_errorList;
     QHash<quint64, Global::AlarmType> m_warningList;
     QHash<Global::AlarmType, QString> m_soundList;
     QHash<Global::AlarmType, quint8> m_volumeList;
+    quint8 m_volume;
     QTimer* m_Timer;
     QMutex* m_mutex;
     QProcess* m_process;
     QTimer *m_alarmToneTimer;
+    //QString m_soundPath;
     void emitAlarm (Global::AlarmType alarmType, bool Active = true, QString Filename = "", quint8 Volume = 1);
 
-
-
-    quint8 m_volume;
-    QString m_soundPath;
-    //int m_id;
 
 private slots:
     void onTimeout();
