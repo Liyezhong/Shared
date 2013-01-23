@@ -89,6 +89,7 @@ const QString CANObjectKeyLUT::m_MotorYAxisKey = "motor_y_axis";
 const QString CANObjectKeyLUT::m_MotorZAxisKey = "motor_z_axis";
 const QString CANObjectKeyLUT::m_GrapplerRFIDKey = "grap_rfid_reader";
 const QString CANObjectKeyLUT::m_GrapplerLiquidLevelKey = "grap_liquid_level";
+const QString CANObjectKeyLUT::m_GrapplerSensorTeachKey = "grap_sensor_teach";
 const QString CANObjectKeyLUT::m_TempCtrlVessel1Key = "temp_ctrl1";
 const QString CANObjectKeyLUT::m_TempCtrlVessel2Key = "temp_ctrl2";
 const QString CANObjectKeyLUT::m_TempCtrlVessel3Key = "temp_ctrl3";

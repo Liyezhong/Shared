@@ -382,6 +382,7 @@ public:
     static const QString m_MotorZAxisKey;               //!< Motor Z-axis
     static const QString m_GrapplerRFIDKey;             //!< RFID reader at grappler
     static const QString m_GrapplerLiquidLevelKey;      //!< Liquid level sensor at grappler
+    static const QString m_GrapplerSensorTeachKey;      //!< Liquid level sensor teach-in
     static const QString m_TempCtrlVessel1Key;          //!< Temperature control cuvette 1
     static const QString m_TempCtrlVessel2Key;          //!< Temperature control cuvette 2
     static const QString m_TempCtrlVessel3Key;          //!< Temperature control cuvette 3
