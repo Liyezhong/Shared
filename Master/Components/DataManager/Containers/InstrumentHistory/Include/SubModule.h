@@ -118,7 +118,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To set SubModule's Paramter Info
-     *  \iparam Value = Name and unit of Parameter
+     *  \iparam Value = Name, unit and value of Parameter
      */
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString unit, const QString value)
@@ -130,6 +130,22 @@ public:
         m_ParameterList.append(m_StructParameter);
 
     }           
+
+    /****************************************************************************/
+    /*!
+     *  \brief  To set SubModule's Paramter Info
+     *  \iparam Value = Name and unit of Parameter
+     */
+    /****************************************************************************/
+    void AddParameterInfo(const QString name, const QString value)
+    {
+        m_StructParameter.ParameterName = name;
+        m_StructParameter.ParameterUnit = "";
+        m_StructParameter.ParameterValue = value;
+
+        m_ParameterList.append(m_StructParameter);
+
+    }
 
     /****************************************************************************/
     /*!
