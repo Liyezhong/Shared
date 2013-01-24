@@ -711,8 +711,8 @@ static Error_t halPinSetToDefault (void) {
     UInt32 i;
 
     for (i=0; i < PortCount; i++) {
-        GPIO[i].Mode[0]   = 0x80808080;
-        GPIO[i].Mode[1]   = 0x80808080;
+        GPIO[i].Mode[0]   = 0x44444444;
+        GPIO[i].Mode[1]   = 0x44444444;
         GPIO[i].Regs->BRR = MAX_UINT32;
     }
     return (NO_ERROR);

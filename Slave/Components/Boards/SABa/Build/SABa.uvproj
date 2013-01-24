@@ -78,7 +78,7 @@
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1063,6 +1063,11 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
+              <FileName>bmUpdate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
+            </File>
+            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -1705,14 +1710,19 @@
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorConfig.c</FilePath>
             </File>
             <File>
+              <FileName>fmStepperMotorDevice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorDevice.c</FilePath>
+            </File>
+            <File>
               <FileName>fmStepperMotorEncoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorEncoder.c</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorDevice.c</FileName>
+              <FileName>fmStepperMotorMemory.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorDevice.c</FilePath>
+              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</FilePath>
             </File>
             <File>
               <FileName>fmStepperMotorMotion.c</FileName>
@@ -2767,6 +2777,11 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
+              <FileName>bmUpdate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
+            </File>
+            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -2977,14 +2992,19 @@
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorConfig.c</FilePath>
             </File>
             <File>
+              <FileName>fmStepperMotorDevice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorDevice.c</FilePath>
+            </File>
+            <File>
               <FileName>fmStepperMotorEncoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorEncoder.c</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorDevice.c</FileName>
+              <FileName>fmStepperMotorMemory.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorDevice.c</FilePath>
+              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</FilePath>
             </File>
             <File>
               <FileName>fmStepperMotorMotion.c</FileName>
