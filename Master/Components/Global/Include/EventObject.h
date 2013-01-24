@@ -219,6 +219,20 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Raise Event
+     * \iparam EventCode   = 32 bit unique event code
+     * \iparam EventStatus = True -if event active, False - if event not active
+     */
+    /****************************************************************************/
+    inline void RaiseEvent(const quint32 EventCode, const bool EventStatus)
+    {
+        quint32 EventKey = GetEventKey();
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventStatus, EventKey);
+        qDebug()<<"EventObject Thread"<<this->thread();
+    }
+
+    /****************************************************************************/
+    /**
      * \brief Raise Exception.
      *
      *

@@ -29,7 +29,7 @@ private:
     // State machine attributes
     QStateMachine *mp_SoftSwitchStateMachine; //!< StateMachine managing SoftSwitch workflow
     GenericStateTemplate *mp_DefaultState;          //!< Default state for the statemachine.
-    GenericStateTemplate *mp_PressedAtInitState;    //!< State when SoftSwitch is pressed during Main Init (or system init).
+    GenericStateTemplate *mp_PressedAtSoftSwitchMonitorState;    //!< State when SoftSwitch is pressed during Main Init (or system init).
     GenericStateTemplate *mp_PressedAtIdleState;    //!< State when SoftSwitch is pressed at Idle state of system.
     GenericStateTemplate *mp_PressedAtBusyState;    //!< State when SoftSwitch is pressed at busy state of system.
     GenericStateTemplate *mp_ShutDownState;         //!< State to initiate shutdown procedure
@@ -41,7 +41,7 @@ private:
     SoftSwitchStateTransition *mp_DefaultToBusyTransition; //!< Transition for Init->Busy
 
     QTimer *mp_Timer;   //!< Seven second timer. We reset to default state in statemachine on timeout.
-
+    QString m_CurrentState; //!< Current state of the StateMachine
 
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
