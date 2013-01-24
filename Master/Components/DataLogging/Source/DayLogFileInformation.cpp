@@ -50,6 +50,14 @@ const QString DAILYRUNLOG_FILENAME          = "DailyRunLog_";///< DailyRunLog fi
 const QString FILEEXTENSION_LOG             = ".log";///< Extension for the log files
 const QString STRING_DAILYRUN               = "DailyRun";///< String for DailyRunLog
 const QString COLORADOEVENTS_MULTIPLEFILES  = "ColoradoEvents_*.log";///< Multiple log files string
+const QString COMMAND_RMDIR                 = "rmdir "; ///< constant string for the command 'rmdir'
+const QString COMMAND_ARGUMENT_C            = "-c"; ///< constant string for the command argument for shell '-c'
+const QString COMMAND_ARGUMENT_R            = "-rf"; ///< constant string for the command argument for recursive files '-r'
+const QString COMMAND_RM                    = "rm "; ///< constant string for the command 'rm'
+// constants for wildcharacters
+const QString WILDCHAR_ASTRIK               = "*"; ///< constant for wild char
+const QString DIRECTORY_SH                  = "/bin/sh"; ///< constant for the shell directory
+const QString STRING_SPACE                  = " "; ///< constant string for space
 
 /****************************************************************************/
 DayLogFileInformation::DayLogFileInformation(QString FilePath) :
@@ -167,6 +175,18 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
     QStringList& ListOfFile = const_cast<QStringList&>(FileNames);
     // set the current directory as log files
     QDir LogDirectory(m_LogFilePath);
+
+    // delete all the daily run log files before creating the new files
+    // otherwise old daily run log files will also be copied
+    QStringList Options;
+    // -c option for shell and remove directory
+    Options << COMMAND_ARGUMENT_C << COMMAND_RM + COMMAND_ARGUMENT_R + STRING_SPACE +
+               COMMAND_RM + LogDirectory.absolutePath() + QDir::separator() + STRING_DAILYRUN + QDir::separator() + WILDCHAR_ASTRIK;
+    // execute the process with "/bin/sh"
+    // remove all the files from the "rm -rf DailyRun/*"
+    if (QProcess::execute(DIRECTORY_SH, Options) >= 0) {
+        (void)QProcess::execute(COMMAND_RMDIR + LogDirectory.absolutePath());  //to avoid lint-534
+    }
 
     QProcess::execute("mkdir " + m_LogFilePath + QDir::separator() + STRING_DAILYRUN);
 

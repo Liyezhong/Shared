@@ -27,7 +27,8 @@ namespace DataLogging {
 /****************************************************************************/
 BaseLogger::BaseLogger(Global::EventObject *pParent, const QString & LoggingSource, int FormatVersion) :
     m_LoggingSource(LoggingSource),
-    m_FormatVersion(FormatVersion)
+    m_FormatVersion(FormatVersion),
+    m_LogFileError(false)
 {
 	Q_UNUSED(pParent);
 }
@@ -40,11 +41,9 @@ void BaseLogger::CreateNewFile(const QString &FileName) {
     m_File.setFileName(FileName);
     // and try to open
     if(!m_File.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-        // file open failed. Clean file name.
-        m_File.setFileName("");
-        // throw according exception
-        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_CREATE, Global::FmtArgs() << FileName, true);
     }
+    m_LogFileError = false;
     // do not log creation of file in here, since it may be the event log file and
     // the header is not created at this point!
 }
@@ -52,12 +51,8 @@ void BaseLogger::CreateNewFile(const QString &FileName) {
 /****************************************************************************/
 void BaseLogger::RemoveFile(const QString &FileName) const {
     if(!QFile::remove(FileName)) {
-        // removing file failed. throw according exception
-        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_REMOVE, FileName);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_REMOVE, Global::FmtArgs() << FileName, true);
     }
-    // trace that file was removed.
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_REMOVE, FileName
-              , Global::NO_NUMERIC_DATA, false);
 }
 
 /****************************************************************************/
@@ -68,21 +63,32 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
     m_File.setFileName(FileName);
     // and try to open
     if(!m_File.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        // file open failed. Clean file name.
-        m_File.setFileName("");
-        // throw according exception.
-        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
+        // check if the event log file name is "Colorado_Events_Tmp.log then raise an error and don't log anything
+        if (FileName.contains("Colorado_Events_Tmp.log")) {
+            m_LogFileError = true;
+            return;
+        }
+        else {
+            Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN, Global::FmtArgs() << FileName, true);
+        }
+//        // file open failed. Clean file name.
+//        m_File.setFileName("");
+//        // throw according exception.
+//        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
     }
-    // trace that file was opened.
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_OPEN, FileName
-              , Global::NO_NUMERIC_DATA, false);
+    m_LogFileError = false;
+
 }
 
 /****************************************************************************/
 void BaseLogger::AppendLine(QString Line) {
+    // log file is having some problem i writing the data
+    if (IsLogFileError()) {
+        return;
+    }
     if(!IsLogFileOpen()) {
-        // file not open. Throw according exception.
-        LOGANDTHROW(EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN, Global::FmtArgs() << m_File.fileName(), true);
+        return;
     }
 
     // append newline
@@ -93,15 +99,14 @@ void BaseLogger::AppendLine(QString Line) {
 
     // check if all data was written
     if(WrittenSize != WriteSize) {
-        // writing failed. throw according exception
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_FILE_WRITE, Global::tTranslatableStringList() << m_File.fileName() <<
-                  QString::number(WrittenSize, 10) << QString::number(WriteSize, 10));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_WRITE, Global::FmtArgs() << m_File.fileName(), true);
+//        // writing failed. throw according exception
+//        THROWARGS(Global::EVENT_GLOBAL_ERROR_FILE_WRITE, Global::tTranslatableStringList() << m_File.fileName() <<
+//                  QString::number(WrittenSize, 10) << QString::number(WriteSize, 10));
     }
-
     // now flush data to disk
     if(!m_File.flush()) {
-        // flush failed. throw according exception
-        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_FLUSH, m_File.fileName());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_FLUSH, Global::FmtArgs() << m_File.fileName(), true);
     }
 }
 

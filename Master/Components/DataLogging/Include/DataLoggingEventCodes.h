@@ -34,6 +34,10 @@ const quint32 EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN         = EVENT_GROUP_PLATFO
 const quint32 EVENT_DATALOGGING_ERROR_FILE_NOT_EXISTS       = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0002;    ///< Error file does not exist: %1.
 const quint32 EVENT_DATALOGGING_ERROR_FILE_WRONG_SUFFIX     = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0003;    ///< Error file has wrong suffix: %1. Expected: %2.
 const quint32 EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS   = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0004;    ///< Event Id %1 not exists in the event string xml file
+const quint32 EVENT_DATALOGGING_ERROR_FILE_CREATE           = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0005;    ///< Error file not open.
+const quint32 EVENT_DATALOGGING_ERROR_FILE_REMOVE           = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0006;    ///< Error file not open.
+const quint32 EVENT_DATALOGGING_ERROR_FILE_WRITE            = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0007;    ///< Error file not open.
+const quint32 EVENT_DATALOGGING_ERROR_FILE_FLUSH            = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0008;    ///< Error file not open.
 
 // now some string IDs
 const quint32 EVENT_DATALOGGING_INFO_FILE_CREATE            = EVENT_GROUP_PLATFORM_DATALOGGING + 0x1001;    ///< Created file %1.

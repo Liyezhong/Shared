@@ -46,6 +46,7 @@ private:
     QFile   m_File;                 ///< File in which logging is done.
     QString m_LoggingSource;        ///< DataLogger
     int     m_FormatVersion;        ///< Format version of data.
+    bool    m_LogFileError;         ///< Log file error
     /****************************************************************************/
     BaseLogger();                                           ///< Not implemented.
     BaseLogger(const BaseLogger &);                         ///< Not implemented.
@@ -83,6 +84,18 @@ protected:
     inline bool IsLogFileOpen() const {
         return m_File.isOpen();
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Check if log file is error.
+     *
+     * \return  true if file is having error.
+     */
+    /****************************************************************************/
+    inline bool IsLogFileError() const {
+        return m_LogFileError;
+    }
+
     /****************************************************************************/
     /**
      * \brief Get file size.
