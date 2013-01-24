@@ -352,7 +352,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
                     // File name
                     if (!XmlStreamReader.attributes().hasAttribute("FileName")) {
                         qDebug() << "### attribute <FileName> is missing => abort reading";
-                        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"FileName", true);
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"FileName", true);
                         return false;
                     }
                     m_FileName = XmlStreamReader.attributes().value("FileName").toString();
@@ -360,7 +360,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
                     // WorkStation mode
                     if (!XmlStreamReader.attributes().hasAttribute("WorkStationMode")) {
                         qDebug() << "### attribute <WorkStationMode> is missing => abort reading";
-                        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"WorkStationMode", true);
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"WorkStationMode", true);
                         return false;
                     } else {
                         bool Value = false;
@@ -373,7 +373,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
                     // VerificationMode
                     if (!XmlStreamReader.attributes().hasAttribute("VerificationMode")) {
                         qDebug() << "### attribute <VerificationMode> is missing => abort reading";
-                        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"VerificationMode", true);
+                        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() <<"VerificationMode", true);
                         return false;
                     } else {
                         bool Value = false;

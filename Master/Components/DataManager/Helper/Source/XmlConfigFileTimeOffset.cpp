@@ -53,7 +53,7 @@ void XmlConfigFileTimeOffset::ReadTimeOffset(const QString &FileName, int &rTime
             ReadTimeOffset_V1(Reader, rTimeOffset);
         } else {
             // not a supported version
-            THROWARG(EVENT_DATAMANAGER_ERROR_UNSUPPORTED_VERSION, Version);
+            THROWARG(EVENT_DM_ERROR_UNSUPPORTED_VERSION, Version);
         }
     } catch(...) {
         // reset data

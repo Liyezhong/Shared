@@ -266,20 +266,20 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     // read language
     if (!XmlStreamReader.attributes().hasAttribute("Language")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <Language> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Language", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Language", true);
         return false;
     }
     SetLanguage(Global::StringToLanguage(XmlStreamReader.attributes().value("Language").toString()));
     // read dateformat
     if (!XmlStreamReader.attributes().hasAttribute("DateFormat")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <DateFormat> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DateFormat", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DateFormat", true);
         return false;
     }
     QString DateFormatStr = XmlStreamReader.attributes().value("DateFormat").toString();
     Global::DateFormat DF = Global::StringToDateFormat(DateFormatStr, false);
     if(DF == Global::DATE_UNDEFINED) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_DATEFORMAT, Global::tTranslatableStringList() << DF, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << DF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_DATEFORMAT, DateFormatStr);
     }
@@ -288,13 +288,13 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     // read timeformat
     if (!XmlStreamReader.attributes().hasAttribute("TimeFormat")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <TimeFormat> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "TimeFormat", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "TimeFormat", true);
         return false;
     }
     QString TimeFormatStr = XmlStreamReader.attributes().value("TimeFormat").toString();
     Global::TimeFormat TF = Global::StringToTimeFormat(TimeFormatStr, false);
     if(TF == Global::TIME_UNDEFINED) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << TF, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << TF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TIMEFORMAT, TimeFormatStr);
     }
@@ -303,13 +303,13 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     // read temperatureformat
     if (!XmlStreamReader.attributes().hasAttribute("TemperatureFormat")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <TemperatureFormat> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "TemperatureFormat", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "TemperatureFormat", true);
         return false;
     }
     QString TempFormatStr = XmlStreamReader.attributes().value("TemperatureFormat").toString();
     Global::TemperatureFormat TempF = Global::StringToTemperatureFormat(TempFormatStr, false);
     if(TempF == Global::TEMP_FORMAT_UNDEFINED) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<TempF, true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<TempF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TEMPFORMAT, TempFormatStr);
     }
@@ -342,14 +342,14 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
                 // read number
                 if (!XmlStreamReader.attributes().hasAttribute("Number")) {
                     qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Number> is missing => abort reading";
-                    Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ErrorTone Number", true);
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ErrorTone Number", true);
                     return false;
                 }
                 SetSoundNumberError(XmlStreamReader.attributes().value("Number").toString().toInt());
 
                 // read level attribute
                 if (!XmlStreamReader.attributes().hasAttribute("Level")) {
-                    Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ErrorTone Level", true);
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ErrorTone Level", true);
                     return false;
                 }
                 SetSoundLevelError(XmlStreamReader.attributes().value("Level").toString().toInt());
@@ -359,7 +359,7 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
                 // read number
                 if (!XmlStreamReader.attributes().hasAttribute("Number")) {
                     qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Number> is missing => abort reading";
-                    Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WarningTone Number", true);
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WarningTone Number", true);
                     return false;
                 }
                 SetSoundNumberWarning(XmlStreamReader.attributes().value("Number").toString().toInt());
@@ -367,7 +367,7 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
                 // read level attribute
                 if (!XmlStreamReader.attributes().hasAttribute("Level")) {
                     qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Level> is missing => abort reading";
-                    Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WarningTone Level", true);
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WarningTone Level", true);
                     return false;
                 }
                 SetSoundLevelWarning(XmlStreamReader.attributes().value("Level").toString().toInt());

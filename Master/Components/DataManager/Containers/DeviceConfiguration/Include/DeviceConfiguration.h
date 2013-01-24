@@ -171,6 +171,27 @@ public:
     {
         return (m_ValueList.value(key.toUpper(), "").toUpper() == "YES") ? true : false;
     }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Get the Attribute value related to key
+     *
+     *  \return Value
+     */
+    /****************************************************************************/
+    quint32 GetAttributeValue(QString key) const
+    {
+        QString BoolVal = m_ValueList.value(key.toUpper(), "").toUpper();
+        if (BoolVal == "NO") {
+            return 0;
+        }
+        else if (BoolVal == "YES") {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
     /****************************************************************************/
 
 //    /*!

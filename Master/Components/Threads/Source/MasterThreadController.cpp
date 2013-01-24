@@ -710,7 +710,7 @@ void MasterThreadController::ReadEventTranslations(QLocale::Language Language, Q
         // Uh oh... some languages could not be read.
         // send some error messages.
         for(QSet<QLocale::Language>::const_iterator it = LanguageList.constBegin(); it != LanguageList.constEnd(); ++it) {
-            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, DataManager::EVENT_DATAMANAGER_ERROR_LANG_NOT_FOUND, Global::LanguageToString(*it)
+            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, DataManager::EVENT_DM_ERROR_LANG_NOT_FOUND, Global::LanguageToString(*it)
                       , Global::NO_NUMERIC_DATA, false);
         }
     }

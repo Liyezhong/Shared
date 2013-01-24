@@ -153,18 +153,53 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
     if (XmlStreamReader.name() != "Device")
     {
         qDebug() << "CDeviceConfiguration::DeserializeContent, DeviceConfiguration not found";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Device", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Device", true);
         return false;
     }
 
     // Read attribute Version
     if (!XmlStreamReader.attributes().hasAttribute("Version")) {
         qDebug() << "### attribute <Version> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Version", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Version", true);
         return false;
     }
     SetVersion(XmlStreamReader.attributes().value("Version").toString());
-
+    // Read attribute SLIDEIDCAMERA
+    if (!XmlStreamReader.attributes().hasAttribute("SLIDEIDCAMERA")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SLIDEIDCAMERA", true);
+        return false;
+    }
+    // Read attribute WORKSTATIONMODE
+    if (!XmlStreamReader.attributes().hasAttribute("WORKSTATIONMODE")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WORKSTATIONMODE", true);
+        return false;
+    }
+    // Read attribute DEVICENAME
+    if (!XmlStreamReader.attributes().hasAttribute("DEVICENAME")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DEVICENAME", true);
+        return false;
+    }
+    // Read attribute SERIALNUMBER
+    if (!XmlStreamReader.attributes().hasAttribute("SERIALNUMBER")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SERIALNUMBER", true);
+        return false;
+    }
+    // Read attribute COVERSLIPPERNAME
+    if (!XmlStreamReader.attributes().hasAttribute("COVERSLIPPERNAME")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "COVERSLIPPERNAME", true);
+        return false;
+    }
+    // Read attribute HEATEDCUEVETTES
+    if (!XmlStreamReader.attributes().hasAttribute("HEATEDCUEVETTES")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "HEATEDCUEVETTES", true);
+        return false;
+    }
     if (!XmlStreamReader.atEnd() && !XmlStreamReader.hasError())
     {
         QXmlStreamAttributes attributes = XmlStreamReader.attributes();
@@ -207,7 +242,7 @@ bool CDeviceConfiguration::ReadCompleteData(QXmlStreamReader& XmlStreamReader)
 
     if (!XmlStreamReader.attributes().hasAttribute("Languages")) {
         qDebug()<<"### attribute <Languages> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Languages", true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Languages", true);
         return false;
     }
     //retrieve station id list

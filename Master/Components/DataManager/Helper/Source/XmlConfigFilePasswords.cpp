@@ -48,14 +48,14 @@ void XmlConfigFilePasswords::ReadPasswords_V1(QXmlStreamReader &rReader, Passwor
     QString SerialNumber = rReader.readElementText();
     if(SerialNumber != m_ExpectedSerialNumber) {
         // serial number does not fit
-        THROW(EVENT_DATAMANAGER_ERROR_PASSWORD_SERIAL_NUMBER);
+        THROW(EVENT_DM_ERROR_PASSWORD_SERIAL_NUMBER);
     }
     while(rReader.readNextStartElement()) {
         if(rReader.name() == "password") {
             // Found a password. read it.
             ReadPassword_V1(rReader, rPasswordManager);
         } else {
-            THROWARG(EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
+            THROWARG(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
         }
     }
 }
@@ -76,7 +76,7 @@ void XmlConfigFilePasswords::ReadPasswords(const QString &FileName, PasswordMana
             ReadPasswords_V1(Reader, rPasswordManager);
         } else {
             // not a supported version
-            THROWARG(EVENT_DATAMANAGER_ERROR_UNSUPPORTED_VERSION, Version);
+            THROWARG(EVENT_DM_ERROR_UNSUPPORTED_VERSION, Version);
         }
     } catch(...) {
         // reset data

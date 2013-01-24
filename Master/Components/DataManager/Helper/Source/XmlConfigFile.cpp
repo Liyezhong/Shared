@@ -89,7 +89,7 @@ QString XmlConfigFile::ReadAttributeString(QXmlStreamReader &rReader, const QStr
     QXmlStreamAttributes Attr = rReader.attributes();
     if(!Attr.hasAttribute(AttributeName)) {
         // attribute not found. throw exception
-        THROWARG(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, AttributeName);
+        THROWARG(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, AttributeName);
     }
     // return attribute as string
     return Attr.value(AttributeName).toString();
@@ -102,7 +102,7 @@ quint32 XmlConfigFile::ReadAttributequint32(QXmlStreamReader &rReader, const QSt
     quint32 Value = ValueStr.toULongLong(&OK, 10);
     if(!OK) {
         // not a valid number
-        THROWARG(EVENT_DATAMANAGER_ERROR_NO_VALID_NUMBER, ValueStr);
+        THROWARG(EVENT_DM_ERROR_NO_VALID_NUMBER, ValueStr);
     }
     return Value;
 }
@@ -113,7 +113,7 @@ QLocale::Language XmlConfigFile::ReadAttributeLanguage(QXmlStreamReader &rReader
     QLocale::Language TheLanguage = Global::StringToLanguage(LangName);
     if(TheLanguage == QLocale::C) {
         // wrong value. throw exception
-        THROWARG(EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE, LangName);
+        THROWARG(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, LangName);
     }
     return TheLanguage;
 }
@@ -132,10 +132,10 @@ Global::OnOffState XmlConfigFile::ReadAttributeOnOff(QXmlStreamReader &rReader, 
 /****************************************************************************/
 void XmlConfigFile::ReadStartElement(QXmlStreamReader &rReader, const QString &ElementName) {
     if(!rReader.readNextStartElement()) {
-        THROWARG(EVENT_DATAMANAGER_ERROR_READING_XML_STARTELEMENT, ElementName);
+        THROWARG(EVENT_DM_ERROR_READING_XML_STARTELEMENT, ElementName);
     }
     if (rReader.name() != ElementName) {
-        THROWARGS(EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT,
+        THROWARGS(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT,
                   Global::tTranslatableStringList() << rReader.name().toString() << ElementName);
     }
 }

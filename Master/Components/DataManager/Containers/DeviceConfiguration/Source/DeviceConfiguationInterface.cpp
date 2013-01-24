@@ -364,7 +364,7 @@ bool CDeviceConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool
         // File name
         if (!XmlStreamReader.attributes().hasAttribute("FileName")) {
             qDebug() << "### attribute <FileName> is missing => abort reading";
-            Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "FileName", true);
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "FileName", true);
             return false;
         }
         m_FileName = XmlStreamReader.attributes().value("FileName").toString();
@@ -372,7 +372,7 @@ bool CDeviceConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool
          // VerificationMode
         if (!XmlStreamReader.attributes().hasAttribute("VerificationMode")) {
             qDebug() << "### attribute <VerificationMode> is missing => abort reading";
-            Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "VerificationMode", true);
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "VerificationMode", true);
             return false;
         } else {
             bool Value = false;

@@ -93,8 +93,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Unsupported language is detected";
-        m_ErrorHash.insert(EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() << UserSettings->GetLanguage());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() <<UserSettings->GetLanguage(), true);
+        m_ErrorHash.insert(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() << UserSettings->GetLanguage());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() <<UserSettings->GetLanguage(), true);
         VerifiedData = false;
         break;
     }
@@ -108,8 +108,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Date format is not valid";
-        m_ErrorHash.insert(EVENT_DATAMANAGER_INVALID_DATEFORMAT, Global::tTranslatableStringList() << UserSettings->GetDateFormat());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_DATEFORMAT, Global::tTranslatableStringList() << UserSettings->GetDateFormat(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << UserSettings->GetDateFormat());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << UserSettings->GetDateFormat(), true);
         VerifiedData = false;
         break;
     }
@@ -121,8 +121,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Time format is not valid";
-        m_ErrorHash.insert(EVENT_DATAMANAGER_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << UserSettings->GetTimeFormat());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_TIMEFORMAT, Global::tTranslatableStringList() <<UserSettings->GetTimeFormat(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << UserSettings->GetTimeFormat());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() <<UserSettings->GetTimeFormat(), true);
         VerifiedData = false;
         break;
     }
@@ -134,8 +134,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Tempeature format is not valid";
-        m_ErrorHash.insert(EVENT_DATAMANAGER_INVALID_TEMPFORMAT, Global::tTranslatableStringList() << UserSettings->GetTemperatureFormat());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<UserSettings->GetTemperatureFormat(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() << UserSettings->GetTemperatureFormat());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<UserSettings->GetTemperatureFormat(), true);
         VerifiedData = false;
         break;
     }
@@ -160,8 +160,8 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
         break;
     default:
         qDebug() << "Oven Start mode is not valid";
-        m_ErrorHash.insert(EVENT_DATAMANAGER_INVALID_OVENSTARTMODE, Global::tTranslatableStringList() << Global::StringToOvenStartMode(UserSettings->GetValue("Oven_StartMode"), false));
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATAMANAGER_INVALID_OVENSTARTMODE, Global::tTranslatableStringList() <<Global::StringToOvenStartMode(UserSettings->GetValue("Oven_StartMode"), false), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_OVENSTARTMODE, Global::tTranslatableStringList() << Global::StringToOvenStartMode(UserSettings->GetValue("Oven_StartMode"), false));
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_OVENSTARTMODE, Global::tTranslatableStringList() <<Global::StringToOvenStartMode(UserSettings->GetValue("Oven_StartMode"), false), true);
         VerifiedData = false;
         break;
     }
