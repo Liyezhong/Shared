@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE process_settings_layout>
+<process_settings version="1.0" >
+        <group key="GrapplerDevice">
+            <!-- x-axis speed with rack -->
+            <parameter key="x_axis_load_speed_motion_profile" DefaultValue="1"  />
+            <!-- x-axis speed without rack -->
+            <parameter key="x_axis_unload_speed_motion_profile" DefaultValue="1" />
+            <!-- y-axis speed with rack -->
+            <parameter key="y_axis_load_speed_motion_profile" DefaultValue="1" />
+            <!-- y-axis speed without rack -->
+            <parameter key="y_axis_unload_speed_motion_profile" DefaultValue="1" />
+            <!-- y-axis speed when grabbing/discarding a rack (small positon offset inside the vessel-->
+            <parameter key="y_axis_grab_speed_motion_profile" DefaultValue="1" />
+            <!-- z-axis motion profile when pulling a rack out of liquid (slow) -->
+            <parameter key="z_axis_pull_slow_speed_motion_profile" DefaultValue="1" />
+            <!-- z-axis motion profile when pulling a rack out of th vessel (high) -->
+            <parameter key="z_axis_pull_fast_speed_motion_profile" DefaultValue="1" />
+            <!-- position to change from low to high speed when pulling a rack -->
+            <parameter key="z_axis_pull_acc_position" DefaultValue="1" Offset="" />  
+            <!-- z-axis motion profile when moving up without rack -->
+            <parameter key="z_axis_pull_unload_motion_profile" DefaultValue="1" />  
+            <!-- z-axis motion profile when moving a rack into the vessel -->
+            <parameter key="z_axis_down_load_speed_motion_profile" DefaultValue="1" />
+            <!-- z-axis motion profile when moving without rack into the vessel -->
+            <parameter key="z_axis_down_unload_speed_motion_profile" DefaultValue="1" />
+            <!-- z-position when moving x-y loaded (with rack) -->
+            <parameter key="z_axis_load_transport_pos" DefaultValue="20" Offset="" />
+            <!-- z-position when moving x-y unloaded -->
+            <parameter key="z_axis_unload_transport_pos" DefaultValue="200" Offset=""/>
+            <!-- grapper 1 x-axis park position -->
+            <parameter key="x1_axis_park_position" DefaultValue="1" Offset=""/>
+            <!-- grapper 2 x-axis park position -->
+            <parameter key="x2_axis_park_position" DefaultValue="1" Offset="" />
+            <!-- grapper 1 y-axis park position -->
+            <parameter key="y1_axis_park_position" DefaultValue="1" Offset="" />
+            <!-- grapper 2 y-axis park position -->
+            <parameter key="y2_axis_park_position" DefaultValue="1" Offset="" />
+            <!-- grapper 1 z-axis park position -->
+            <parameter key="z1_axis_park_position" DefaultValue="1" Offset="" />
+            <!-- grapper 2 z-axis park position -->
+            <parameter key="z2_axis_park_position" DefaultValue="1" Offset="" />   
+            <!-- y-axis position offset to cuvette centre when grapper is attached to rack -->
+            <parameter key="y_axis_offset_rack_attached" DefaultValue="-20" Offset="" />
+            <!-- y-axis position offset to cuvette centre when grapper is detached to rack (moves empty up or down)-->
+            <parameter key="y_axis_offset_rack_detached" DefaultValue="50" Offset="" />
+            <!-- z-axis position when grapper moves unloaded (without rack) -->
+            <parameter key="z_axis_pos_transport_unload" DefaultValue="2200" Offset="" />
+            <!-- z-axis position when grapper moves loaded (with rack)  -->
+            <parameter key="z_axis_pos_transport_load" DefaultValue="100"  Offset=""/>
+            <!-- z-axis position when attaching or detaching a rack in cuvette  -->
+            <parameter key="z_axis_pos_cuvette" DefaultValue="2700" Offset="" />
+        </group>
+        <group key="AgitationDevice">
+            <!-- motion profile -->
+            <parameter key="agitation_motion_profile" DefaultValue="1" />        
+        </group>
+        <group key="OvenDevice">
+            <parameter key="cover_open_speed_motion_profile" DefaultValue="1" Offset="" />
+            <parameter key="cover_close_speed_motion_profile" DefaultValue="1" Offset="" />
+            <parameter key="cover_open_position" DefaultValue="1200" Offset="" />
+            <parameter key="cover_closed_position" DefaultValue="20" Offset="" />
+        </group>
+        <group key="LoaderDevice">
+            <parameter key="drawer_open_speed_motion_profile" DefaultValue="1" Offset="" />
+            <parameter key="drawer_close_speed_motion_profile" DefaultValue="1" Offset="" />
+            <parameter key="drawer_open_position" DefaultValue="800" Offset="" />
+            <parameter key="drawer_closed_position" DefaultValue="2" Offset="" />
+        </group>        
+        <group key="RackTransferDevice">
+            <parameter key="speed_motion_profile" DefaultValue="1" Offset="" />
+            <parameter key="load_position" DefaultValue="20" Offset="" />
+            <parameter key="transfer_position" DefaultValue="800" Offset="" />
+        </group>                
+   </process_settings>    
