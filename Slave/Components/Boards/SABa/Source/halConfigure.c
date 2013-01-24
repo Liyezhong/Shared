@@ -56,8 +56,8 @@ const UInt32 halRtcClockFrequency = 0;        //!< Real time crystal frequency [
 const UInt32 halProcessorVoltage  = 3300;     //!< Nominal processor voltage [mV]
 const UInt32 halWatchdogInterval  = 2000;     //!< Watchdog interval time [ms]
 
-const UInt32 halNonVolatileSize   = 256;      //!< Non volatile memory size
-const UInt32 halNonVolatileCache  = 256;      //!< Non volatile memory cache size
+const UInt32 halNonVolatileSize   = 512;      //!< Non volatile memory size
+const UInt32 halNonVolatileCache  = 512;      //!< Non volatile memory cache size
 
 
 /***********************************************************************************/
@@ -332,7 +332,7 @@ const UInt32 halStepperDescriptorCount = ELEMENTS(halStepperDescriptors);
 const halStorageDescriptor_t halStorageDescriptors[] = {
    { HAL_STORAGE_FLASH, MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x08000000, 0x20000 },
    { HAL_STORAGE_OTP,   MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x1FFFF000, 0x00800 },
-   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
+   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 512 }
 };
 const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
