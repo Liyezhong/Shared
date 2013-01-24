@@ -53,7 +53,7 @@ CRack::CRack(const quint32 RFIDUniqueID, const quint32 RFIDUserData) :
     m_RFIDUniqueID(RFIDUniqueID), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false), m_UseSepia(false),
     m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeColorado(QDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
     m_EndTimeStation(QDateTime::fromTime_t(0)), m_Color("white"), m_EndTimeSepia(QDateTime::fromTime_t(0)),
-    m_ActualSlideForecastValue(0), m_ActualSlides(0)
+    m_ActualSlides(0), m_ActualSlideForecastValue(0)
 {
     // sets the color, orientation and size of the rack
     SetRFIDUserData(RFIDUserData);

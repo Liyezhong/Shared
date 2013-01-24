@@ -343,19 +343,10 @@ bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
     if (IsNewState(XYZ_STATE_ATTACH, m_StationColumn, m_StationRow))
     {
         quint32 AttachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
-        quint32 AttachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
-
-//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-//                                     NO_CHANGE, 0,
-//                                     AttachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
 
         m_WayPoint.append(new CPoint(NO_CHANGE, 0,
                                      AttachPositionY, m_TransportRackProfile[Y_AXIS],
                                      NO_CHANGE, 0));
-
-//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-//                                     NO_CHANGE, 0,
-//                                     Z_UP_WITH_RACK, m_TransportRackProfile[Z_AXIS]));
     }
 
     MoveNextStep();
@@ -378,19 +369,10 @@ bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
     if (IsNewState(XYZ_STATE_DETACH, m_StationColumn, m_StationRow))
     {
         quint32 DetachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
-        quint32 DetachPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
-
-//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-//                                     NO_CHANGE, 0,
-//                                     DetachPositionZ, m_MoveEmptyProfile[Z_AXIS]));
 
         m_WayPoint.append(new CPoint(NO_CHANGE, 0,
                                      DetachPositionY, m_TransportRackProfile[Y_AXIS],
                                      NO_CHANGE, 0));
-
-//        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-//                                     NO_CHANGE, 0,
-//                                     Z_UP_WITHOUT_RACK, m_TransportRackProfile[Z_AXIS]));
     }
 
     MoveNextStep();
