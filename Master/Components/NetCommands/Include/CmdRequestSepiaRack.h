@@ -60,7 +60,7 @@ private:
 /****************************************************************************/
 inline QDataStream & operator << (QDataStream &Stream, const CmdRequestSepiaRack &Cmd)
 {
-    Q_UNUSED(Cmd);
+    Cmd.CopyToStream(Stream);
     return Stream;
 }
 
@@ -75,7 +75,8 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdRequestSepiaRack
 /****************************************************************************/
 inline QDataStream & operator >> (QDataStream &Stream, CmdRequestSepiaRack &Cmd)
 {
-    Q_UNUSED(Cmd);
+    // copy base class data
+    Cmd.CopyFromStream(Stream);
     return Stream;
 }
 
