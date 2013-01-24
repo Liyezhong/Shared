@@ -256,7 +256,7 @@ void TestPasswordManager::utPasswords() {
         Obj.SetPassword("123", "123");
         QFAIL("You should never get here!");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), DataManager::EVENT_DATAMANAGER_ERROR_PASSWORD_FORMAT);
+        QCOMPARE(E.GetErrorCode(), DataManager::EVENT_DM_ERROR_PASSWORD_FORMAT);
     } catch (...) {
         QFAIL("You should never get here!");
     }
