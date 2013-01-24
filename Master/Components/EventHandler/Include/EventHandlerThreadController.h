@@ -142,6 +142,8 @@ public:
     }
 
     inline void UpdateEventKeyRefMap(quint32  EventKey, Global::tRefType  Ref) {
+        Q_UNUSED(EventKey)
+        Q_UNUSED(Ref)
     }
 
     inline void ConnectToEventObject() {

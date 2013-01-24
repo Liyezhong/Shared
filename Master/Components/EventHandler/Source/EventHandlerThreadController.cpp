@@ -554,7 +554,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     EventEntry.SetAckValue(Ack);
     int Count = GetCountForEventKey(EventKey);
 
-    if(EventEntry.GetLogLevel() != NULL)
+    if(EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
     {
         LogEventEntry(EventEntry);
     }

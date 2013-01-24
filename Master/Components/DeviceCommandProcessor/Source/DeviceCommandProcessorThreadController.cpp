@@ -195,6 +195,7 @@ void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(ReturnCod
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode_t ConfigResult)
 {
+    Q_UNUSED(ConfigResult);
 }
 
 /*****************************************************************************/
@@ -280,9 +281,6 @@ bool DeviceCommandProcessorThreadController::GetFreeCommandCtrlContainer(quint8&
  bool DeviceCommandProcessorThreadController::GetCommandCtrlContainer(quint8& CmdIdx, DeviceControl::DevInstanceID_t InstanceID, QStringList& CommandNameList)
 {
     quint8 Idx;
-    quint8 CommandNameCnt = 0;
-
-    CommandNameCnt = CommandNameList.size();
 
     m_Mutex.lock();
     for(Idx = 0; Idx < CMD_REF_CNT; Idx++)
