@@ -202,7 +202,7 @@ void TestXmlConfigFile::utTestReadAttributeString() {
         QCOMPARE(Obj.ReadAttributeString(Reader, "attrib_notexisting"), QString("value1"));
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -244,7 +244,7 @@ void TestXmlConfigFile::utTestReadAttributequint32() {
         QCOMPARE(Obj.ReadAttributequint32(Reader, "numattrib_nothere"), quint32(66));
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -266,7 +266,7 @@ void TestXmlConfigFile::utTestReadAttributequint32() {
         QFAIL("You should never get here!");
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_NO_VALID_NUMBER);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_NO_VALID_NUMBER);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -312,7 +312,7 @@ void TestXmlConfigFile::utTestReadAttributeLanguage() {
         QCOMPARE(Obj.ReadAttributeLanguage(Reader, "langattrib_nothere"), QLocale::English);
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -335,7 +335,7 @@ void TestXmlConfigFile::utTestReadAttributeLanguage() {
         QCOMPARE(Obj.ReadAttributeLanguage(Reader, "langattrib2"), QLocale::English);
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -385,7 +385,7 @@ void TestXmlConfigFile::utTestReadAttributeOnOff() {
         QCOMPARE(Obj.ReadAttributeOnOff(Reader, "onoffattrib_nothere"), Global::ONOFFSTATE_OFF);
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -459,7 +459,7 @@ void TestXmlConfigFile::utTestReadStartElement() {
         Obj.ReadStartElement(Reader, "nothere");
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_READING_XML_STARTELEMENT);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_READING_XML_STARTELEMENT);
     } catch(...) {
         QFAIL("You should never get here!");
     }
@@ -477,7 +477,7 @@ void TestXmlConfigFile::utTestReadStartElement() {
         Obj.ReadStartElement(Reader, "subelement_nothere");
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT);
     } catch(...) {
         QFAIL("You should never get here!");
     }
@@ -505,7 +505,7 @@ void TestXmlConfigFile::utTestReadFormatVersion() {
         QCOMPARE(Obj.ReadFormatVersion(Reader, "therootelement"), QString("1"));
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -519,7 +519,7 @@ void TestXmlConfigFile::utTestReadFormatVersion() {
         QCOMPARE(Obj.ReadFormatVersion(Reader, "rootelement"), QString("1"));
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND);
+        QCOMPARE(E.GetErrorCode(), EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }

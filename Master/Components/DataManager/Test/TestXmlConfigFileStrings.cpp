@@ -144,13 +144,13 @@ void TestXmlConfigFileStrings::utTestReadStringsNOK_data() {
     QTest::addColumn<quint32>("ExpectedErrorCode");
 
     QTest::newRow("file not found")                             << "XmlConfigFileStringsNOKNotHere.xml" << Global::EVENT_GLOBAL_ERROR_FILE_OPEN;
-    QTest::newRow("buggy root element")                         << "XmlConfigFileStringsNOK1.xml"       << EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT;
-    QTest::newRow("unsupported format version")                 << "XmlConfigFileStringsNOK2.xml"       << EVENT_DATAMANAGER_ERROR_UNSUPPORTED_VERSION;
-    QTest::newRow("unexpected element instead of \"language\"") << "XmlConfigFileStringsNOK3.xml"       << EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT;
-    QTest::newRow("unexpected element instead of \"string\"")   << "XmlConfigFileStringsNOK4.xml"       << EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT;
-    QTest::newRow("attribute \"id\" not found")                 << "XmlConfigFileStringsNOK5.xml"       << EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND;
-    QTest::newRow("attribute \"text\" not found")               << "XmlConfigFileStringsNOK6.xml"       << EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND;
-    QTest::newRow("not supported language \"Chinese\"")         << "XmlConfigFileStringsNOK7.xml"       << EVENT_DATAMANAGER_ERROR_NOT_SUPPORTED_LANGUAGE;
+    QTest::newRow("buggy root element")                         << "XmlConfigFileStringsNOK1.xml"       << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
+    QTest::newRow("unsupported format version")                 << "XmlConfigFileStringsNOK2.xml"       << EVENT_DM_ERROR_UNSUPPORTED_VERSION;
+    QTest::newRow("unexpected element instead of \"language\"") << "XmlConfigFileStringsNOK3.xml"       << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
+    QTest::newRow("unexpected element instead of \"string\"")   << "XmlConfigFileStringsNOK4.xml"       << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
+    QTest::newRow("attribute \"id\" not found")                 << "XmlConfigFileStringsNOK5.xml"       << EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND;
+    QTest::newRow("attribute \"text\" not found")               << "XmlConfigFileStringsNOK6.xml"       << EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND;
+    QTest::newRow("not supported language \"Chinese\"")         << "XmlConfigFileStringsNOK7.xml"       << EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE;
 }
 
 } // end namespace DataLogging

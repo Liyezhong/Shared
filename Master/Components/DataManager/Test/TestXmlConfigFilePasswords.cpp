@@ -146,13 +146,13 @@ void TestXmlConfigFilePasswords::utTestReadPasswordsNOK_data() {
     QTest::addColumn<quint32>("ExpectedErrorCode");
 
     QTest::newRow("file not found")                                 << "XmlConfigFilePasswordsNOKNotHere.xml"   << Global::EVENT_GLOBAL_ERROR_FILE_OPEN;
-    QTest::newRow("buggy root element")                             << "XmlConfigFilePasswordsNOK1.xml"         << EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT;
-    QTest::newRow("unsupported format version")                     << "XmlConfigFilePasswordsNOK2.xml"         << EVENT_DATAMANAGER_ERROR_UNSUPPORTED_VERSION;
-    QTest::newRow("unexpected element instead of \"serialnumber\"") << "XmlConfigFilePasswordsNOK3.xml"         << EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT;
-    QTest::newRow("wrong serial number")                            << "XmlConfigFilePasswordsNOK4.xml"         << EVENT_DATAMANAGER_ERROR_PASSWORD_SERIAL_NUMBER;
-    QTest::newRow("unxpected element instead of \"password\"")      << "XmlConfigFilePasswordsNOK5.xml"         << EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT;
-    QTest::newRow("attribute \"name\" not found")                   << "XmlConfigFilePasswordsNOK6.xml"         << EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND;
-    QTest::newRow("attribute \"hash\" not found")                   << "XmlConfigFilePasswordsNOK7.xml"         << EVENT_DATAMANAGER_ERROR_XML_ATTRIBUTE_NOT_FOUND;
+    QTest::newRow("buggy root element")                             << "XmlConfigFilePasswordsNOK1.xml"         << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
+    QTest::newRow("unsupported format version")                     << "XmlConfigFilePasswordsNOK2.xml"         << EVENT_DM_ERROR_UNSUPPORTED_VERSION;
+    QTest::newRow("unexpected element instead of \"serialnumber\"") << "XmlConfigFilePasswordsNOK3.xml"         << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
+    QTest::newRow("wrong serial number")                            << "XmlConfigFilePasswordsNOK4.xml"         << EVENT_DM_ERROR_PASSWORD_SERIAL_NUMBER;
+    QTest::newRow("unxpected element instead of \"password\"")      << "XmlConfigFilePasswordsNOK5.xml"         << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
+    QTest::newRow("attribute \"name\" not found")                   << "XmlConfigFilePasswordsNOK6.xml"         << EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND;
+    QTest::newRow("attribute \"hash\" not found")                   << "XmlConfigFilePasswordsNOK7.xml"         << EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND;
 }
 
 /****************************************************************************/
