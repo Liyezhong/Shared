@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfiguration.h
+/*! \file DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h
  *
  *  \brief Definition file for class CDeviceConfiguration.
  *

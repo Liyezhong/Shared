@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfigurationVerifier.cpp
+/*! \file DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguationVerifier.cpp
  *
  *  \brief DeviceConfigurationVerifier class implementation.
  *

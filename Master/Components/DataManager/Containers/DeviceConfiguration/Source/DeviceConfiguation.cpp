@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfiguration.cpp
+/*! \file DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguation.cpp
  *
  *  \brief DeviceConfiguration class implementation.
  *
@@ -278,8 +278,8 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfiguration&
         qDebug() << "CDeviceConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
+        const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
     }
 
     // write enddocument
@@ -309,8 +309,8 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfiguration& Device
     // deserialize the content of the xml
     if (!DeviceConfig.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (DeSerializeContent) failed.";
-        DeviceConfig.m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
+        DeviceConfig.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }

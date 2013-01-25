@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfigurationInterface.cpp
+/*! \file DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguationInterface.cpp
  *
  *  \brief DeviceConfigurationInterface class implementation.
  *
@@ -176,7 +176,8 @@ bool CDeviceConfigurationInterface::UpdateDeviceConfiguration(const CDeviceConfi
 /****************************************************************************/
 /*!
  *  \brief Get the Device Configuration
- *
+ *  \iparam CopyConfiguration = Flag for copying Configuration
+
  *  \return DeviceConfiguration class
  */
 /****************************************************************************/
@@ -493,8 +494,8 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfigurationI
         qDebug() << "CDeviceConfigurationInterface::Operator Streaming (SerializeContent) failed.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        const_cast<CDeviceConfigurationInterface &>(DCInterface).m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
+        const_cast<CDeviceConfigurationInterface &>(DCInterface).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
 
     }
 
@@ -518,8 +519,8 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfigurationInterfac
         qDebug() << "CDeviceConfigurationInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        DCInterface.m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
+        DCInterface.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
 
     }
     return InDataStream;

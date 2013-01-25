@@ -391,36 +391,42 @@ bool CUserSettings::ReadNetworkSettings(QXmlStreamReader& XmlStreamReader)
 {
     if (!XmlStreamReader.attributes().hasAttribute("RemoteCare")) {
         qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <RemoteCare> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "RemoteCare", true);
         return false;
     }
     SetRemoteCare(Global::StringToOnOffState(XmlStreamReader.attributes().value("RemoteCare").toString(), false));
 
     if (!XmlStreamReader.attributes().hasAttribute("DirectConnection")) {
         qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <DirectConnection> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DirectConnection", true);
         return false;
     }
     SetDirectConnection(Global::StringToOnOffState(XmlStreamReader.attributes().value("DirectConnection").toString(), false));
 
     if (!XmlStreamReader.attributes().hasAttribute("ProxyUserName")) {
         qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyUserName> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyUserName", true);
         return false;
     }
     SetProxyUserName(XmlStreamReader.attributes().value("ProxyUserName").toString());
 
     if (!XmlStreamReader.attributes().hasAttribute("ProxyPassword")) {
         qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyPassword> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyPassword", true);
         return false;
     }
     SetProxyPassword(XmlStreamReader.attributes().value("ProxyPassword").toString());
 
     if (!XmlStreamReader.attributes().hasAttribute("ProxyIPAddress")) {
         qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyIPAddress> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyIPAddress", true);
         return false;
     }
     SetProxyIPAddress(XmlStreamReader.attributes().value("ProxyIPAddress").toString());
 
     if (!XmlStreamReader.attributes().hasAttribute("ProxyIPPort")) {
         qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyIPPort> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyIPPort", true);
         return false;
     }
     SetProxyIPPort(XmlStreamReader.attributes().value("ProxyIPPort").toString().toInt());
@@ -457,8 +463,8 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSe
         qDebug() << "CUserSettings::Operator Streaming (SerializeContent) failed.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        const_cast<CUserSettings &>(UserSettings).m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
+        const_cast<CUserSettings &>(UserSettings).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }
 
     // write enddocument
@@ -489,8 +495,8 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserSettings& UserSettings)
         qDebug() << "CUserSettings::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        UserSettings.m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings");
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
+        UserSettings.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }
     XmlStreamReader.device()->reset();
     qDebug()<<">> Stream OPERATOR "<<XmlStreamReader.device()->readAll();

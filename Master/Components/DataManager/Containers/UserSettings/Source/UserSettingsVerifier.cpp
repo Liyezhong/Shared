@@ -40,6 +40,8 @@ const int MAX_OVEN_TEMP       = 70; ///< Maximum value for oven temperature
 const int OVEN_TEMP_STEP      = 5; ///< Step/interval for the over temperature
 const int MIN_PROXY_IP_PORT   = 1; ///< Minimum value of IP Port
 const int MAX_PROXY_IP_PORT   = 65535; ///< Maximum value of IP Port
+const int MIN_IP_ADDRESS_NUMBER = 0;    ///< Minimum value of IP Address Number
+const int MAX_IP_ADDRESS_NUMBER = 255;  ///< Maximum value of IP Address Number
 const int MAX_PROXY_USERNAME_LENGTH = 16;///< Maximum length of Proxy UserName
 const int MIN_PROXY_USERNAME_LENGTH = 1; ///< Minimum length of Proxy UserName
 const int MAX_PROXY_PASSWORD_LENGTH = 16; ///< Maximum length of Proxy Password
@@ -407,7 +409,7 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
     if (!((p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_ON || p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS REMOTE CONNECTION IS NOT VALID";
         m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare(), true);
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare(), true);
         VerifiedData = false;
     }
 
@@ -421,16 +423,16 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
     if (!((p_UserSettings->GetProxyUserName().isEmpty() != true  && p_UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH &&
           p_UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
         qDebug() << "PROXY USERNAME IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_USERNAME, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_PROXY_USERNAME_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_PROXY_USERNAME_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName(), true);
         VerifiedData = false;
     }
 
     if (!((p_UserSettings->GetProxyPassword().isEmpty() != true && p_UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH &&
            p_UserSettings->GetProxyPassword().length() <= MAX_PROXY_PASSWORD_LENGTH))) {
         qDebug() << "PROXY PASSWORD IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword());
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_PASSWORD, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword(), true);
+        m_ErrorHash.insert(EVENT_DM_INVALID_PROXY_PASSWORD_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword());
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_PROXY_PASSWORD_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword(), true);
         VerifiedData = false;
     }
 
@@ -464,12 +466,12 @@ bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings *p_UserSettings)
     QString ProxyIPAddress = p_UserSettings->GetProxyIPAddress();
     qDebug()<<"\n\n Count= "<< ProxyIPAddress.split(".").count();
     if (ProxyIPAddress.split(".").count() == 4) {
-        for (int i = 0; i <= ProxyIPAddress.split(".").count(); i++)
+        for (int AddrCount = 0; AddrCount <= ProxyIPAddress.split(".").count(); AddrCount++)
         {
-            QString AddressNumberString = (ProxyIPAddress.split(".").value(i));
+            QString AddressNumberString = (ProxyIPAddress.split(".").value(AddrCount));
             int AddressNumber = AddressNumberString.toInt();
             qDebug()<<"\n\n AddressNumber ="<< AddressNumber;
-            if (AddressNumber < 0 || AddressNumber > 255) {
+            if (AddressNumber < MIN_IP_ADDRESS_NUMBER || AddressNumber > MAX_IP_ADDRESS_NUMBER) {
                 return false;
             }            
         }
