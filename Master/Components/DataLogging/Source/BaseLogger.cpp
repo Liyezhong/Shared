@@ -82,7 +82,7 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
 
 /****************************************************************************/
 void BaseLogger::AppendLine(QString Line) {
-    // log file is having some problem i writing the data
+    // log file is having some problem in writing the data
     if (IsLogFileError()) {
         return;
     }
@@ -106,8 +106,10 @@ void BaseLogger::AppendLine(QString Line) {
     }
     // now flush data to disk
     if(!m_File.flush()) {
+        qDebug() << "Flushhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  errorrrrrrrrrrrrrrrrrrrrrrr";
         Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_FLUSH, Global::FmtArgs() << m_File.fileName(), true);
     }
+    //Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_FLUSH, Global::FmtArgs() << m_File.fileName(), true);
 }
 
 } // end namespace DataLogging
