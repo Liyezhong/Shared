@@ -33,7 +33,7 @@ namespace DataLogging {
 const Global::gSubComponentType SUBCOMPONENT_EVENTLOGGER    = 0x0001;   ///< Subcomponent id for event logger.
 const Global::gSubComponentType SUBCOMPONENT_DAYOPLOGGER    = 0x0002;   ///< Subcomponent id for day operation logger.
 const Global::gSubComponentType SUBCOMPONENT_COMPTESTLOGGER = 0x0003;   ///< Subcomponent id for component test logger.
-const Global::gSourceType DUMMY =100;
+const Global::gSourceType DUMMY = 100;
 /****************************************************************************/
 DataLoggingThreadController::DataLoggingThreadController(Global::gSourceType TheHeartBeatSource, const QString& fileNamePrefix) :
     Threads::ThreadController(TheHeartBeatSource, "DataLogging"),

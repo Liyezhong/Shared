@@ -229,45 +229,6 @@ public slots:
     void SendToDayEventLogger(const DataLogging::DayEventEntry &Entry);
 
 
-//    /****************************************************************************/
-//    /**
-//     * \brief Create and list the daily run log file names.
-//     *
-//     * \oparam   FileNames   List of file names.
-//     */
-//    /****************************************************************************/
-//    void CreateAndListDailyRunLogFileName(const QStringList &FileNames);
-
-
-//    /****************************************************************************/
-//    /**
-//     * \brief Create and list the daily run log file names.
-//     *        This creates the specified file in the data stream. And also translates the
-//     *        file content by using the language file
-//     *
-//     * \iparam   FileName          Name of the file.
-//     * \iparam   LanguageFilePath  Path of the language file and path of the file.
-//     * \oparam   FileContent       Content of the daily run log file.
-//     */
-//    /****************************************************************************/
-//    void CreateSpecificDailyRunLogFile(const QString &FileName, const QString &LanguageFilePath,
-//                                       const QDataStream &FileContent);
-
-//    /****************************************************************************/
-//    /**
-//     * \brief Create the daily run log files and updated the list with file names.
-//     *        This creates the files in the file system. And also translates the
-//     *        file content by using the language file
-//     *
-//     * \iparam    LanguageFilePath  Path of the language file and path of the file.
-//     * \oparam    FileNames         List of file names.
-//     */
-//    /****************************************************************************/
-//    void CreateDailyRunLogFiles(const QString &LanguageFilePath,
-//                                       const QStringList &FileNames);
-
-
-
 }; // end class DataLoggingThreadController
 
 } // end namespace DataLogging
