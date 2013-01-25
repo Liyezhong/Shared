@@ -91,7 +91,6 @@ EventHandlerThreadController::~EventHandlerThreadController()
  ****************************************************************************/
 void EventHandlerThreadController::CreateAndInitializeObjects()
 {
-    qDebug()<<"READING EVENT CONFIG \n\n\n";
     ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
 
     // now register commands
@@ -115,7 +114,8 @@ void EventHandlerThreadController::CreateAndInitializeObjects()
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::AddEventTypes(){
+void EventHandlerThreadController::AddEventTypes()
+{
     //
     m_EventTypeEnumMap.insert( "INFO", Global::EVTTYPE_INFO);
     m_EventTypeEnumMap.insert("WARNING", Global::EVTTYPE_WARNING);
@@ -125,7 +125,8 @@ void EventHandlerThreadController::AddEventTypes(){
     m_EventTypeEnumMap.insert("DEBUG", Global::EVTTYPE_DEBUG);
 }
 
-void EventHandlerThreadController::AddEventLogLevels() {
+void EventHandlerThreadController::AddEventLogLevels()
+{
     m_EventLogLevelEnumMap.insert("NONE", Global::LOGLEVEL_NONE);
     m_EventLogLevelEnumMap.insert("MEDIUM", Global::LOGLEVEL_MEDIUM);
     m_EventLogLevelEnumMap.insert("LOW", Global::LOGLEVEL_LOW);
@@ -133,7 +134,8 @@ void EventHandlerThreadController::AddEventLogLevels() {
 
 }
 
-void EventHandlerThreadController::AddSourceComponents() {
+void EventHandlerThreadController::AddSourceComponents()
+{
     m_EventSourceMap.insert("SEPIA", Global::EVENTSOURCE_SEPIA);
     m_EventSourceMap.insert("DEVICECOMMANDPROCESSOR", Global::EVENTSOURCE_DEVICECOMMANDPROCESSOR);
     m_EventSourceMap.insert("MAIN", Global::EVENTSOURCE_MAIN);
@@ -144,6 +146,71 @@ void EventHandlerThreadController::AddSourceComponents() {
     m_EventSourceMap.insert("BLG", Global::EVENTSOURCE_BLG);
 }
 
+void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64)
+{
+    quint32 EventID = EventEntry.GetEventCode();
+    int EventOccurenceCount = m_EventIDCount.count(EventID);
+    if (EventOccurenceCount == 0) {
+        //This is a dummy event
+        //InformAlarmHandler(EventEntry, EventId64, false);
+        //We dont update data structures, because there is nothing to be removed.
+        return;
+    }
+    if (EventOccurenceCount == 1) {
+        //Previously this event had occured once and EventStatus was true for the event.
+        //We retrieve EventKey of that event.
+        quint32 PreviousEventKey = m_EventIDKeyHash.take(EventID);
+        qDebug()<<"Previous Event Key" << PreviousEventKey;
+        EventId64 = EventID;
+        EventId64 <<= 32;
+        EventId64 |= PreviousEventKey;
+        qDebug()<<"EventID64" << EventId64;
+    }
+    InformAlarmHandler(EventEntry, EventId64, false);
+    UpdateEventDataStructures(EventID, EventId64, EventEntry, true);
+}
+
+void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
+                                                    EventCSVInfo &EventInfo,
+                                                    const bool EventStatus,
+                                                    const quint32 EventID,
+                                                    const Global::tTranslatableStringList &EventStringList)
+{
+    if (EventInfo.GetEventCode() == 0)
+    {
+        qDebug()<<"Unknown Event ID \n\n\n";
+        EventInfo = m_eventList.value(EVENT_EVENT_ID_MISSING);
+        EventEntry.SetTranslatableStringList(Global::FmtArgs() << EventID);
+    }
+    else
+    {
+        EventEntry.SetTranslatableStringList(EventStringList);
+    }
+
+    EventEntry.SetEventCSVInfo(EventInfo);
+    EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
+
+    EventEntry.SetEventStatus(EventStatus);
+}
+
+void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm)
+{
+    Global::AlarmType AlarmType = Global::ALARM_NONE;
+    if (EventEntry.GetAlarmStatus())
+    {
+        //We need Alarm
+        if (EventEntry.GetEventType() == Global::EVTTYPE_ERROR ) {
+            AlarmType = Global::ALARM_ERROR;
+        }
+        else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING) {
+            AlarmType = Global::ALARM_WARNING;
+        }
+        mpAlarmHandler->setTimeout(1000);// to be set after final discussion with team / Michael
+
+        mpAlarmHandler->setAlarm(EventId64, AlarmType, StartAlarm);
+    }
+}
+
 /****************************************************************************/
 /*!
  *  \brief    Map action type enum to action ( Mesage Type) string
@@ -152,7 +219,8 @@ void EventHandlerThreadController::AddSourceComponents() {
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::AddActionTypes() {
+void EventHandlerThreadController::AddActionTypes()
+{
     m_ActionTypeEnumMap.insert("SHUTDOWN",Global::ACNTYPE_SHUTDOWN);
     m_ActionTypeEnumMap.insert("STOP",Global::ACNTYPE_STOP);
     m_ActionTypeEnumMap.insert("REBOOT",Global::ACNTYPE_REBOOT);
@@ -386,37 +454,47 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
 
     file.close();
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Hash Table update for the event count map
  *
- *
  *  \param    valid event & event status
- *
- *  \return
- *
- ****************************************************************************/
-
-
-void EventHandlerThreadController::UpdateEventKeyCountMap(quint32 EventKey, bool EventStatus) {
-
-    if( m_EventKeyCountMap.count(EventKey)) {
-        if(EventStatus == false) {
-            m_EventKeyDataMap.remove(EventKey);
-            m_EventKeyCountMap.remove(EventKey);
+ */
+/****************************************************************************/
+void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
+                                                             quint64 EventId64,
+                                                             const DataLogging::DayEventEntry &EventEntry,
+                                                             bool Remove,
+                                                             bool AckByGUI)
+{
+    quint32 EventKey = EventId64 >> 32;
+    if (Remove) {
+        if (EventEntry.GetGUIMessageBoxOptions() == Global::NO_BUTTON || AckByGUI) {
+            //We no longer need these data
+            m_EventKeyDataMap.remove(EventId64);
+            qint32 Index = m_EventIDCount.indexOf(EventID);
+            if (Index != -1) {
+                m_EventIDCount.removeAt(Index);
+            }
+            quint32 EventKey = static_cast<quint32>(EventId64 >> 32);
+            m_EventIDKeyHash.remove(EventID);
+            //Unblock this EventKey so that it can be reused.
             Global::EventObject::Instance().UnBlockEventKey(EventKey);
-        }
-        else {
-            //get the current count & increment by 1
-            int count = m_EventKeyCountMap[EventKey];
-            m_EventKeyCountMap[EventKey] = count + 1;
-        }
 
+            m_EventKeyIdMap.remove(EventKey);
+        }
     }
-    else
-    {
-        m_EventKeyCountMap.insert(EventKey, 1);
+    else {
+        //New event
+        m_EventIDCount.append(EventID);
+        m_EventKeyDataMap.insert(EventId64, EventEntry);
+        if (!m_EventIDKeyHash.contains(EventID)) {
+            m_EventIDKeyHash.insert(EventID, EventId64);
+        }
+        m_EventKeyIdMap.insert(EventKey, EventID);
     }
+    qDebug()<<"Event Entry status in UpdateEventDataStructures();"<<EventEntry.IsEventActive();
 }
 
 /****************************************************************************/
@@ -437,15 +515,13 @@ void EventHandlerThreadController::UpdateEventKeyCountMap(quint32 EventKey, bool
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList, const bool EventStatus, const quint32 EventKey)
+void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList,
+                                                const bool EventStatus, const quint32 EventKey)
 {
-    qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey;
-
-    m_EventIdKeyMap.insert(EventKey,EventID);
+    qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
     // if eventList is not available yet, place event into pendingList
-    if (m_eventList.size() == 0)
-    {
+    if (m_eventList.size() == 0) {
         qDebug()<<"Event list not available \n\n\n";
         PendingEvent pe;
         pe.EventID = EventID;
@@ -455,82 +531,84 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
         m_pendingEvents.push_back(pe);// These events, if any, are processed after successfully reading the EventConf file
         return;
     }
-
-    EventCSVInfo EventInfo = m_eventList.value(EventID);
-    DataLogging::DayEventEntry EventEntry;
-    if (EventInfo.GetEventCode() == 0)
+    else if (EventID == EVENT_GUI_AVAILABLE)
     {
-        qDebug()<<"Unknown Event ID \n\n\n";
-        EventInfo = m_eventList.value(EVENT_EVENT_ID_MISSING);
-        EventEntry.SetTranslatableStringList(Global::FmtArgs() << EventID);
-    }
-    else
-    {
-        EventEntry.SetTranslatableStringList(EventStringList);
-    }
-
-    EventEntry.SetEventCSVInfo(EventInfo);
-    EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
-    
-    EventEntry.SetEventStatus(EventStatus);
-    m_EventKeyDataMap.insert(EventKey, EventEntry);
-
-    if (EventInfo.GetEventCode() == EVENT_GUI_AVAILABLE)
-    {
-        emit GuiAvailability(EventStatus);
+        SetGuiAvailable(true);
+        //We dont need to log this particular event ,
+        //instead we log for eg.EVENT_PROCESS_COLORADO_GUI_CONNECTED
         return;
     }
+    else {
+        quint64 EventId64 = EventID;
+        EventId64 <<= 32;
+        EventId64 |= EventKey;
+        DataLogging::DayEventEntry EventEntry;
+        EventCSVInfo EventInfo = m_eventList.value(EventID);
+        //EventEntry encapsulates EventInfo. EventEntry is also
+        //passed to the logging component.
+        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList);
 
-    if (EventID == EVENT_SOFTSWITCH_MONITOR_START) {
-        StateHandler::Instance().setStateToSoftSwitchMonitorState();
-        return;
+        SetSystemStateMachine(EventEntry);
+        if (!EventStatus) {
+            HandleInactiveEvent(EventEntry, EventId64);
+        }
+        else {
+            InformAlarmHandler(EventEntry, EventId64, true);
+            UpdateEventDataStructures(EventID, EventId64, EventEntry, false);
+        }
+
+        //Log if loglevel is not "NONE"
+        if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
+        {
+            qDebug()<< "Sending event to DataLogger";
+            emit LogEventEntry(EventEntry); //Log the event
+        }
+        InformGUI(EventEntry, EventId64);// Send the Error for handling
+        /// \todo this is a test of Axeda Remote Care error reporting:
+        //emit ErrorHandler::SendErrorToRemoteCare(EventEntry);
     }
-    else if(EventID == EVENT_SYSTEM_INIT_COMPLETE) {
-        qDebug()<<"EVENT_SYSTEM_INIT_COMPLETE \n\n\n\n\n";
-        StateHandler::Instance().setIdleState();
-        return;
-    }
-    else if (EventID == EVENT_SOFTSWITCH_PRESSED_FIRST_TIME) {
-        StateHandler::Instance().setInitState();
-        return;
+}
+
+void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent)
+{
+    if ((TheEvent.GetActionType() == Global::ACNTYPE_BUSY)
+            || (TheEvent.GetActionType() == Global::ACNTYPE_IDLE)) {
+        if(TheEvent.GetString().count() > 0) { // e.g. Rack inserted
+            // TheEvent.GetString()).at(0).GetString().toInt() = RACK RFID
+            EventHandler::StateHandler::Instance().setActivityUpdate(true, (TheEvent.GetString()).at(0).GetString().toInt());
+        }
     }
 
-    Global::AlarmType alarm = Global::ALARM_NONE;
-    if(EventEntry.GetAlarmStatus())
+    if (TheEvent.GetActionType() == Global::ACNTYPE_STOP) {
+        EventHandler::StateHandler::Instance().setAvailability(TheEvent.IsEventActive(), TheEvent.GetEventCode());
+    }
+}
+
+void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64)
+{
+    if ((TheEvent.GetGUIMessageBoxOptions() != Global::NO_BUTTON) || (TheEvent.GetStatusIcon()))
     {
-        if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
-                alarm = Global::ALARM_ERROR;
-            else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
-                alarm = Global::ALARM_WARNING;
+        NetCommands::EventReportDataStruct EventReportData;
+        EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
+        EventReportData.EventType = TheEvent.GetEventType();  // Global::EVTTYPE_ERROR;
+        EventReportData.ID = EventId64;
+        EventReportData.EventKey = (quint32)(EventId64 >> 32);
+        EventReportData.MsgString = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString())); //"Event String translated to the set langauge";
+        EventReportData.Time = TheEvent.GetTimeStamp().toString();   // Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
+        EventReportData.BtnType = TheEvent.GetButtonType();
+        EventReportData.StatusBarIcon = TheEvent.GetStatusIcon();   //true if GUI must set status bar icon.
 
-             mpAlarmHandler->setTimeout(1000);// to be set after final discussion with team / Michael
-             quint64 EventId64 = EventEntry.GetEventCode();
-             EventId64 = EventId64 << 32;
-             EventId64 = EventId64 | EventKey;
-             mpAlarmHandler->setAlarm(EventId64, alarm, EventStatus);
-
+        if (m_GuiAvailable)
+        {
+            Global::tRefType Ref = GetNewCommandRef();
+            m_EventKeyRefMap.insert(Ref, EventReportData.EventKey);
+            SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+        }
+        else    // GUI is not around yet => remember data and send later
+        {
+            mPendingGuiEventList.push_back(EventReportData);
+        }
     }
-
-    /*! \todo  EventStatus is used to indicate whether Event is resolved or not. If Event is active
-        * Event Status is true, when the event is reset, the EventStatus will be false
-        *
-     */
-
-
-    UpdateEventKeyCountMap(EventKey, EventStatus);
-    //Log if loglevel is not "NONE"
-    if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
-    {
-        qDebug()<< "Sending event to DataLogger";
-        emit LogEventEntry(EventEntry); //Log the event
-    }
-
-//    mpAlarmHandler->setSoundNumber(Global::ALARM_WARNING, mpUserSettings->GetSoundNumberWarning());
-
-    emit ForwardToErrorHandler(EventEntry, EventKey);// Send the Error for handling
-    /// \todo this is a test of Axeda Remote Care error reporting:
-    //emit ErrorHandler::SendErrorToRemoteCare(EventEntry);
-
 
 
 }
@@ -547,15 +625,19 @@ void EventHandlerThreadController::RegisterCommands()
 void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const NetCommands::CmdAcknEventReport &Ack)
 {
     quint32 EventKey = m_EventKeyRefMap[Ref];
-    quint32 EventID = m_EventIdKeyMap.value(EventKey);
+    qDebug()<<"EventKey In Acknowledge" << EventKey;
+    quint32 EventID = m_EventKeyIdMap.value(EventKey);
+    qDebug()<<"Event ID In Acknowledge" << EventID;
     EventCSVInfo EventInfo = m_eventList.value(EventID);
     DataLogging::DayEventEntry EventEntry  = m_EventKeyDataMap.value(EventKey);
     EventEntry.SetEventCSVInfo(EventInfo);
-    EventEntry.SetAckValue(Ack);
+    EventEntry.SetAckValue(Ack);EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
+
     int Count = GetCountForEventKey(EventKey);
 
     if(EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
     {
+        qDebug()<<"OnAcknowledge() <<EventEntry" <<EventEntry.GetEventCode();
         LogEventEntry(EventEntry);
     }
 
@@ -564,24 +646,11 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         return;
     }
 
-    if(EventEntry.GetAlarmStatus())
-    {
-         // the alarm required status is true & has to be removed since the same has been acknowledged by user
-        mpAlarmHandler->setTimeout(1000);
-        Global::AlarmType alarm= Global::ALARM_NONE;
-
-        if(EventEntry.GetEventType() == Global::EVTTYPE_ERROR )
-            alarm = Global::ALARM_ERROR;
-        else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING)
-            alarm = Global::ALARM_WARNING;
-
-        quint64 EventId64 = EventEntry.GetEventCode();
-        EventId64 = EventId64 << 32;
-        EventId64 = EventId64 | EventKey;
-        mpAlarmHandler->setAlarm(EventId64, alarm, false);
-
-    }
-
+    quint64 EventId64 = EventEntry.GetEventCode();
+    EventId64 <<= 32;
+    EventId64 |= EventKey;
+    InformAlarmHandler(EventEntry, EventId64, false);
+    UpdateEventDataStructures(EventEntry.GetEventCode(), EventId64, EventEntry, true, true);
     bool IsActive = EventEntry.IsEventActive();
     if( IsActive == false) {
         return;
@@ -634,7 +703,22 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     }
 }
 
+void EventHandlerThreadController::SetGuiAvailable(const bool active)
+{
+    qDebug() << "ActionHandler::SetGuiAvailable" << active;
+    m_GuiAvailable = active;
 
+    if (active)
+    {
+        foreach(NetCommands::EventReportDataStruct EventReportData, mPendingGuiEventList)
+        {
+            Global::tRefType Ref = GetNewCommandRef();
+            m_EventKeyRefMap.insert(Ref,EventReportData.EventKey);
+            SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+        }
+        mPendingGuiEventList.clear();
+    }
+}
 
 /****************************************************************************/
 /*!
@@ -660,16 +744,6 @@ void EventHandlerThreadController::CleanupAndDestroyObjects()
 /****************************************************************************/
 void EventHandlerThreadController::OnGoReceived()
 {
-    mpActionHandler = new ActionHandler((EventHandlerThreadController *)this);
-
-        CHECKPTR(mpActionHandler);
-       
-        CONNECTSIGNALSLOT(this, ForwardToErrorHandler(const DataLogging::DayEventEntry &, const quint32),
-                              mpActionHandler, ReceiveEvent(const DataLogging::DayEventEntry &, const quint32 ));
-
-        connect(this, SIGNAL(GuiAvailability(bool)), mpActionHandler, SLOT(SetGuiAvailable(bool)));
-//                          mpActionHandler, SLOT(SetGuiAvailable(bool)) );
-
 }
 
 /****************************************************************************/

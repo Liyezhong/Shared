@@ -201,9 +201,11 @@ void SoftSwitchMgr::OnDefaultStateEntered()
      *  we have to close any msg boxes open in GUI.
      */
     if (m_CurrentState == PressedAtIdleState) {
+        mp_Timer->stop();
         Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN, false);
     }
     else if (m_CurrentState == PressedAtBusyState) {
+        mp_Timer->stop();
         Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN_WITH_WARNING, false);
     }
 

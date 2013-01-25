@@ -65,12 +65,12 @@ public:
 private:
 
     EventHandlerThreadController * mpEventHandlerThreadController;
-    QVector<NetCommands::EventReportDataStruct> mPendingGuiEventList;
+
     bool mGuiAvailable;
 
-public slots:
-    void ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, const quint32 EventKey);
-    void SetGuiAvailable(bool active);
+//public slots:
+//    void ReceiveEvent(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
+//    void SetGuiAvailable(bool active);
 
 };
 }// end namespace EventHandler

@@ -25,8 +25,6 @@
 #ifndef EVENTHANDLER_EVENTHANDLERTHREADCONTROLLER_H
 #define EVENTHANDLER_EVENTHANDLERTHREADCONTROLLER_H
 
-
-
 #include <QObject>
 #include <Global/Include/GlobalDefines.h>
 #include <DataLogging/Include/DayEventEntry.h>
@@ -41,20 +39,19 @@
 #include <NetCommands/Include/CmdAcknEventReport.h>
 #include <EventHandler/Include/ActionHandler.h>
 
-
-
 namespace NetCommands {
     class CmdAcknEventReport;
 }
 
-
-namespace EventHandler
-{
-class ActionHandler;
+namespace NetCommands {
+    class EventReportDataStruct;
 }
+
 namespace EventHandler {
+    class ActionHandler;
+}
 
-
+namespace EventHandler {
 
 /****************************************************************************/
 /**
@@ -103,9 +100,11 @@ public:
         LogEventEntry(TheEventEntry);
     }
 
-    void UpdateEventKeyCountMap(quint32 EventKey, bool EventStatus) ;
-
-
+    void UpdateEventDataStructures(quint32 EventID,
+                                   quint64 EventId64,
+                                   const DataLogging::DayEventEntry &EventEntry,
+                                   bool Remove,
+                                   bool AckByGUI = false) ;
 
     /****************************************************************************/
     /**
@@ -152,6 +151,7 @@ public:
                           this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32));
     }
 
+
 protected:
 
     void OnGoReceived();
@@ -188,23 +188,38 @@ private:
     qint64                                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
     int                                         m_MaxAdjustedTimeOffset;            ///< Max alowed offset to system time [seconds]. 0 means no check has to be done.
-
+    bool                                        m_GuiAvailable;
     QHash<quint32, EventHandler::EventCSVInfo> m_eventList;
-    QHash<quint32,quint32>m_EventIdKeyMap;
+    QHash<quint32,quint32>m_EventKeyIdMap; //!< Hash of Event Key and EventID as value.
+    QHash<quint32, quint32>m_EventIDKeyHash;
+
+    QHash<QString, Global::EventSourceType>m_EventSourceMap;
+    QHash<quint64,DataLogging::DayEventEntry>m_EventKeyDataMap;
+    QHash<quint32, qint8> m_EventKeyCountMap;
+    QVector<PendingEvent> m_pendingEvents;
+    QHash<Global::tRefType, quint32> m_EventKeyRefMap;
+    QVector<NetCommands::EventReportDataStruct> mPendingGuiEventList;
+    QList<quint32> m_EventIDCount;  //!< Keeps track of event occurence i.e.,the no. of times an event has occured.
+    QList<quint64> m_EventIdKeyCombinedList;
+
     QHash<QString, Global::EventType> m_EventTypeEnumMap;
     QHash<QString, Global::EventLogLevel> m_EventLogLevelEnumMap;
     QHash<QString, Global::ActionType>m_ActionTypeEnumMap;
-    QHash<Global::tRefType, quint32> m_EventKeyRefMap;
-    QHash<QString, Global::EventSourceType>m_EventSourceMap;
-    QHash<quint32,DataLogging::DayEventEntry>m_EventKeyDataMap;
-    QHash<quint32, qint8> m_EventKeyCountMap;
-    QVector<PendingEvent> m_pendingEvents;
     EventHandlerThreadController();                                          ///< Not implemented.
     void AddActionTypes();
     void AddEventTypes();
     void AddEventLogLevels();
     void AddSourceComponents();
-
+    void HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64);
+    void CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
+                          EventCSVInfo &EventInfo,
+                          const bool EventStatus,
+                          const quint32 EventID,
+                          const Global::tTranslatableStringList &EventStringList);
+    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
+    void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
+    void SetGuiAvailable(const bool active);
+    void InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
 
     // copy constructor & "=" operator
     EventHandlerThreadController(const EventHandlerThreadController &);                      ///< Not implemented.
@@ -257,7 +272,7 @@ private:
 public slots:
 
 
-    void ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList, const bool EventStatus, const quint32 EventKey);
+    void ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList, const bool EventStatus, const quint32 EventKeyRef);
 
 
     /****************************************************************************/
@@ -288,7 +303,7 @@ public slots:
 
 signals:
     void LogEventEntry(const DataLogging::DayEventEntry &TheDayOperationEntry);
-    void ForwardToErrorHandler(const DataLogging::DayEventEntry &TheDayOperationEntry, const quint32 EventKey);
+    void ForwardToErrorHandler(const DataLogging::DayEventEntry &TheDayOperationEntry, const quint64 EventKey);
     void GuiAvailability(bool active);
 };
 

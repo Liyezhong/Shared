@@ -126,10 +126,10 @@ void SoftSwitchManagerThreadController::OnGoReceived()
     Global::EventObject::Instance().RaiseEvent(EVENT_SOFTSWITCH_MONITOR_START);
     EventHandler::StateHandler::Instance().setStateToSoftSwitchMonitorState();
     emit OnSoftSwitchPressed();
-    //QFile *File = new QFile(this);
-    //File->open(stdin,QIODevice::ReadOnly);
-    //QSocketNotifier *notifier = new QSocketNotifier(File->handle(), QSocketNotifier::Read);
-    //CONNECTSIGNALSLOT(notifier, activated(int), &m_SoftSwitchManager, OnSoftSwitchPressed(int));
+    QFile *File = new QFile(this);
+    File->open(stdin,QIODevice::ReadOnly);
+    QSocketNotifier *notifier = new QSocketNotifier(File->handle(), QSocketNotifier::Read);
+    CONNECTSIGNALSLOT(notifier, activated(int), &m_SoftSwitchManager, OnSoftSwitchPressed(int));
 //    while (1) {
 //        memset((void*)fdset, 0, sizeof(fdset));
 //        fdset[0].fd = STDIN_FILENO; //Standard input
