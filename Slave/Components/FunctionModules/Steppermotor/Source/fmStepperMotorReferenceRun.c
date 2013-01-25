@@ -440,6 +440,10 @@ Error_t smReferenceRunTask(UInt16 Instance)
     switch (RefRun->State)
     {
     case SM_RRS_FAST_MOTION_START:       //!< start reference run fast motion to limit switch
+        // wait if stable position code is not available yet
+        if (POSCODE_UNDEFINED == Data->LimitSwitches.PosCode.Value)
+            break;
+
         Data->Motion.Pos = 0;
         smInitEncoderPos(&Data->Encoder, Data->Motor.Config.Resolution, Data->Motion.Pos);
 

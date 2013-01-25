@@ -66,7 +66,7 @@ void smInitLimitSwitches (smLimitSwitches_t *LimitSwitches)
 
     LimitSwitches->ConfigMask = 0;  // nothing configured
 
-    LimitSwitches->PosCode.Value = 0;
+    LimitSwitches->PosCode.Value = POSCODE_UNDEFINED;
     LimitSwitches->PosCode.ErrCode = NO_ERROR;
     LimitSwitches->PosCode.Position = 0;
     LimitSwitches->PosCode.Time = 0;

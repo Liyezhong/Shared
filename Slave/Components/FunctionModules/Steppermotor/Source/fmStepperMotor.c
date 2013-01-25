@@ -61,7 +61,7 @@
 // Private Constants and Macros 
 //****************************************************************************/
 
-#define MODULE_VERSION          60008   //!< Version number of module (above 60000 for test versions)
+#define MODULE_VERSION          60010   //!< Version number of module (above 60000 for test versions)
 
 
 //****************************************************************************/
@@ -714,7 +714,9 @@ Error_t smEnable(smData_t *Data, Bool SkipRefRun)
         smCloseDevices(Data);
         return RetCode;
     }
-    
+    // set position code value to undefined
+    Data->LimitSwitches.PosCode.Value = POSCODE_UNDEFINED;
+
     // set actual motor position to reference position offset
     Data->Motion.Pos = Data->RefRun.Config.Offset;
     smInitEncoderPos(&Data->Encoder, Data->Motor.Config.Resolution, Data->Motion.Pos);

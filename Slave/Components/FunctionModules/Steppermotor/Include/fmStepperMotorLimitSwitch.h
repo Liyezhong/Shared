@@ -38,8 +38,9 @@
 // Public Constants and Definitions
 //********************************************************************************/
 
-#define SM_NUM_OF_LIMIT_SWITCHES   2            //!< amount of supported limit switches
+#define SM_NUM_OF_LIMIT_SWITCHES    2           //!< amount of supported limit switches
 
+#define POSCODE_UNDEFINED           255         //!< position code value is undefined, because no stable value is sampled yet
 
 //****************************************************************************/
 // Public Type Definitions
