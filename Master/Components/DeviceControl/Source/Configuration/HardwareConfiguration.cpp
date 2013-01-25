@@ -732,11 +732,42 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     strDebounce = child.attribute("debounce");
 
     pCANObjFctDigitInEntry = new CANFctModuleDigitInput();
-    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_sSupervision = strSupervision.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_bInterval = strInterval.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitInEntry;
+        return NULL;
+    }
+    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitInEntry;
+        return NULL;
+    }
+    pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitInEntry;
+        return NULL;
+    }
+    pCANObjFctDigitInEntry->m_sSupervision = strSupervision.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitInEntry;
+        return NULL;
+    }
+    pCANObjFctDigitInEntry->m_bInterval = strInterval.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitInEntry;
+        return NULL;
+    }
+    pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitInEntry;
+        return NULL;
+    }
 
     return pCANObjFctDigitInEntry;
 
@@ -755,7 +786,7 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
 {
     CANFctModuleDigitOutput* pCANObjFctDigitOutEntry = 0;
     QDomElement child;
-    QString strEnabled, strInactivShdw, strInactivEmcy, strInactivStby, strPolarity, strOutvalInactiv, strLivetimeLimit;
+    QString strEnabled, strInactivShdw, strInactivEmcy, strPolarity, strOutvalInactiv, strLivetimeLimit;
     bool ok;
 
     child = element.firstChildElement("configuration");
@@ -774,12 +805,42 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
 
     pCANObjFctDigitOutEntry = new CANFctModuleDigitOutput();
 
-    pCANObjFctDigitOutEntry->m_bEnabled           = strEnabled.toShort(&ok, 10);
-    pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toShort(&ok, 10);
-    pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toShort(&ok, 10);
-    pCANObjFctDigitOutEntry->m_sPolarity          = strPolarity.toShort(&ok, 10);
-    pCANObjFctDigitOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toShort(&ok, 10);
-    pCANObjFctDigitOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitOutEntry;
+        return NULL;
+    }
+    pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitOutEntry;
+        return NULL;
+    }
+    pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitOutEntry;
+        return NULL;
+    }
+    pCANObjFctDigitOutEntry->m_sPolarity = strPolarity.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitOutEntry;
+        return NULL;
+    }
+    pCANObjFctDigitOutEntry->m_sOutvalInactiv = strOutvalInactiv.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitOutEntry;
+        return NULL;
+    }
+    pCANObjFctDigitOutEntry->m_sLivetimeLimit = strLivetimeLimit.toUShort(&ok, 10);
+    if (!ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctDigitOutEntry;
+        return NULL;
+    }
 
     return pCANObjFctDigitOutEntry;
 }
@@ -1517,6 +1578,7 @@ CANFctModuleJoystick* HardwareConfiguration::ParseJoystick(const QDomElement &el
     CANFctModuleJoystick* pCANObjFctJoystick = 0;
     QDomElement child;
     QString strSamplingRate, strUpperThreshold, strLowerThreshold;
+    bool Ok;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
@@ -1530,9 +1592,24 @@ CANFctModuleJoystick* HardwareConfiguration::ParseJoystick(const QDomElement &el
     strLowerThreshold = child.attribute("lower_threshold");
 
     pCANObjFctJoystick = new CANFctModuleJoystick();
-    pCANObjFctJoystick->m_SamplingRate = strSamplingRate.toShort();
-    pCANObjFctJoystick->m_UpperThreshold = strUpperThreshold.toShort();
-    pCANObjFctJoystick->m_LowerThreshold = strLowerThreshold.toShort();
+    pCANObjFctJoystick->m_SamplingRate = strSamplingRate.toUShort(&Ok);
+    if (!Ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctJoystick;
+        return NULL;
+    }
+    pCANObjFctJoystick->m_UpperThreshold = strUpperThreshold.toUShort(&Ok);
+    if (!Ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctJoystick;
+        return NULL;
+    }
+    pCANObjFctJoystick->m_LowerThreshold = strLowerThreshold.toUShort(&Ok);
+    if (!Ok) {
+        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        delete pCANObjFctJoystick;
+        return NULL;
+    }
 
     return pCANObjFctJoystick;
 }

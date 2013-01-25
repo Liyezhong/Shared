@@ -43,7 +43,7 @@ typedef CSignalTransition<CServiceInfo> CServiceInfoTransition;
 /****************************************************************************/
 CServiceInfo::CServiceInfo(QMap<QString, CModule *> &ModuleMap, const QString &Name, QState *p_Parent) :
     CState(Name, p_Parent)
-{
+{   
     CState *p_Idle = new CState("Idle", this);
     CState *p_Active = new CState("Active", this);
     CState *p_LastState = NULL;
@@ -66,11 +66,8 @@ CServiceInfo::CServiceInfo(QMap<QString, CModule *> &ModuleMap, const QString &N
 
         CBaseModule *p_BaseModule = dynamic_cast<CBaseModule *>(Iterator.value());
         if(p_BaseModule != NULL) {
-            DataManager::CSubModule SubModule;
-
-            SubModule.SetSubModuleName(p_BaseModule->GetKey());
+            DataManager::CSubModule SubModule(p_BaseModule->GetKey(), "Board", "");
             m_ModuleInformation.AddSubModuleInfo(&SubModule);
-
             p_NewState = new CInfoBaseModule(p_BaseModule, m_ModuleInformation.GetSubModuleInfo(p_BaseModule->GetKey()),
                                              p_Active);
             connect(p_NewState, SIGNAL(ReportError(ReturnCode_t)), this, SIGNAL(OnReportError(ReturnCode_t)));

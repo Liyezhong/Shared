@@ -74,7 +74,7 @@ signals:
      *  \iparam ModuleInfo = Contains the service information
      */
     /****************************************************************************/
-    void ReportGetServiceInfo(ReturnCode_t ReturnCode, DataManager::CModule ModuleInfo);
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo);
 
     /****************************************************************************/
     /*!

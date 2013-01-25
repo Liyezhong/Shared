@@ -65,6 +65,14 @@ signals:
 private:
     bool ReqSerialNumber(QEvent *p_Event);
     bool ReqEndTestResult(QEvent *p_Event);
+    bool ReqHWInfo(QEvent *p_Event);
+    bool ReqSWInfo(QEvent *p_Event);
+    bool ReqLoaderInfo(QEvent *p_Event);
+    bool ReqLifeCycleData(QEvent *p_Event);
+    bool ReqLaunchDate(QEvent *p_Event);
+    bool ReqBoardName(QEvent *p_Event);
+    bool ReqUniqueNumber(QEvent *p_Event);
+    bool Finished(QEvent *p_Event);
 
     CBaseModule *mp_BaseModule;             //!< Base module used to get the information
     DataManager::CSubModule *mp_SubModule;  //!< Data container in which the data is stored

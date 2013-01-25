@@ -436,5 +436,6 @@ Q_DECLARE_METATYPE(DeviceControl::LoaderRFIDChannel_t)
 Q_DECLARE_METATYPE(DeviceControl::TempCtrlStatus_t)
 Q_DECLARE_METATYPE(DeviceControl::TempCtrlOperatingMode_t)
 Q_DECLARE_METATYPE(DeviceControl::HeatedVesselID_t)
+Q_DECLARE_METATYPE(DeviceControl::TestResult_t)
 
 #endif /* DEVICECONTROL_DEVICECONTROL_H */

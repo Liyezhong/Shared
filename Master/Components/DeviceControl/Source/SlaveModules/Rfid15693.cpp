@@ -442,6 +442,10 @@ void CRfid15693::HandleCanMessage(can_frame* pCANframe)
 
         if(m_lastEventGroup == MODULE_ID_RFID15693)
         {
+            if (5 == m_lastEventCode) {
+                hdlInfo = DCL_ERR_FCT_CALL_FAILED;
+            }
+
             for(qint32 i = 0; i < m_ModuleCommand.size(); i++)
             {
                 if(m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND)

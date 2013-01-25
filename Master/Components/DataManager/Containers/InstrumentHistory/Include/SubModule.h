@@ -35,17 +35,16 @@ namespace DataManager
 {
 
 //!< Structure for Parameter list of Subsystem.
-struct Parameter
-{
+typedef struct {
     QString ParameterName;
     QString ParameterUnit;
     QString ParameterValue;
-};
+} Parameter_t;
+
 class CSubModule;
 
-typedef QList<CSubModule*> SubModulesList_t;   //!< QList for list of submodule.
-typedef QList<QString> ListOfParameterNames_t; //!< QList of ParameterNames.
-typedef QHash<QString, Parameter*> ListOfParameters_t; //!< QHash for List of Parameters.
+typedef QList<QString> ListOfParameterNames_t;              //!< QList of ParameterNames.
+typedef QHash<QString, Parameter_t*> ListOfParameters_t;    //!< QHash for List of Parameters.
 
 /****************************************************************************/
 /*!
@@ -55,19 +54,17 @@ typedef QHash<QString, Parameter*> ListOfParameters_t; //!< QHash for List of Pa
 /****************************************************************************/
 class CSubModule
 {
-
     friend class CModule;
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CSubModule&  SubModule);
     friend QDataStream& operator >>(QDataStream& InDataStream, CSubModule& SubModule);
 
 public:
     CSubModule();
-    CSubModule( QString );
+    CSubModule(QString);
     CSubModule(QString, QString, QString);
     CSubModule(const CSubModule&);
     ~CSubModule();
     CSubModule& operator=(const CSubModule&);
-
 
     /****************************************************************************/
     /*!
@@ -83,7 +80,7 @@ public:
      *  \return SubModule name
      */
     /****************************************************************************/
-    QString GetSubModuleName() { return m_SubModuleName; }
+    const QString &GetSubModuleName() const { return m_SubModuleName; }
 
     /****************************************************************************/
     /*!
@@ -99,7 +96,7 @@ public:
      *  \return SubModule type
      */
     /****************************************************************************/
-    QString GetSubModuleType() { return m_SubModuleType; }
+    const QString &GetSubModuleType() const { return m_SubModuleType; }
 
     /****************************************************************************/
     /*!
@@ -115,7 +112,7 @@ public:
      *  \return SubModule description
      */
     /****************************************************************************/
-    QString GetSubModuleDescription() { return m_SubModuleDescription; }
+    const QString &GetSubModuleDescription() const { return m_SubModuleDescription; }
 
     /****************************************************************************/
     /*!
@@ -125,14 +122,15 @@ public:
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString unit, const QString value)
     {
-        Parameter* StructParameter = new Parameter;
+        Parameter_t* StructParameter = new Parameter_t;
+
         StructParameter->ParameterName = name;
         StructParameter->ParameterUnit = unit;
         StructParameter->ParameterValue = value;
 
         m_ParameterNames.append(StructParameter->ParameterName);
         m_ListOfParameters.insert(StructParameter->ParameterName, StructParameter);
-    }
+    }           
 
     /****************************************************************************/
     /*!
@@ -142,7 +140,8 @@ public:
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString value)
     {
-        Parameter* StructParameter = new Parameter;
+        Parameter_t* StructParameter = new Parameter_t;
+
         StructParameter->ParameterName = name;
         StructParameter->ParameterUnit = "";
         StructParameter->ParameterValue = value;
@@ -163,14 +162,14 @@ public:
         bool Result = false;
 
         if (m_ListOfParameters.contains(ParameterName)) {
-            Parameter* Param = m_ListOfParameters.value(ParameterName);
+            Parameter_t* Param = m_ListOfParameters.value(ParameterName);
             Param->ParameterValue = ParameterValue;
             m_ListOfParameters.insert(ParameterName, Param);
             Result = true;
             return Result;
         }
 
-        qDebug() << "Parameter Name Doesnot exist" << endl;
+        qDebug() << "Parameter name does not exist." << endl;
         return Result;
     }
 
@@ -181,14 +180,13 @@ public:
      *  \return Parameter Struct
      */
     /****************************************************************************/
-    Parameter* GetParameterInfo(QString ParameterName)
+    Parameter_t* GetParameterInfo(QString ParameterName) const
     {
         if (m_ListOfParameters.contains(ParameterName)) {
-
-            Parameter* Param = m_ListOfParameters.value(ParameterName);
+            Parameter_t* Param = m_ListOfParameters.value(ParameterName);
             return Param;
-
         }
+        return NULL;
     }
 
     /****************************************************************************/
@@ -198,13 +196,14 @@ public:
      *  \return Parameter Struct
      */
     /****************************************************************************/
-    Parameter* GetParameterInfo(const unsigned int Index)
+    Parameter_t* GetParameterInfo(const unsigned int Index) const
     {
         QString ParameterName = m_ParameterNames.at(Index);
         if (m_ListOfParameters.contains(ParameterName))
         {
             return m_ListOfParameters.value(ParameterName);
         }
+        return NULL;
     }
 
     /****************************************************************************/
@@ -213,10 +212,7 @@ public:
      *  \return number of parameters in the list
      */
     /****************************************************************************/
-    int GetNumberOfParameters()
-    {
-        return m_ListOfParameters.count();
-    }
+    int GetNumberOfParameters() const { return m_ListOfParameters.count(); }
 
     /****************************************************************************/
     /*!
@@ -227,18 +223,17 @@ public:
     bool DeleteAllParameters();
 
 private:
-    QString m_SubModuleName;    //!< name of the SubModule
-    QString m_SubModuleType;    //!< Type of SubModule
+    QString m_SubModuleName;        //!< Name of the SubModule
+    QString m_SubModuleType;        //!< Type of SubModule
     QString m_SubModuleDescription; //!< Description of the SubModule
 
-    SubModulesList_t m_SubModuleList;    //!< List of SubModule
-    ListOfParameterNames_t m_ParameterNames; //!< List of Parameter Name;
-    ListOfParameters_t m_ListOfParameters; //!< Parameter Information in QHash
+    ListOfParameterNames_t m_ParameterNames;    //!< List of Parameter Name;
+    ListOfParameters_t m_ListOfParameters;      //!< Parameter Information in QHash
 
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
-
 };
 
-}   // namespace DataManager
+} // namespace DataManager
+
 #endif // DATAMANAGER_BOARD_H

@@ -48,8 +48,15 @@ CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubMod
 {
     CState *p_Init = new CState("Init", this);
     CState *p_ReqSerialNumber = new CState("ReqSerialNumber", this);
-    //CState *p_ReqEndTestResult = new CState("ReqEndTestResult", this);
-    QFinalState *p_ReqEndTestResult = new QFinalState(this);
+    CState *p_ReqEndTestResult = new CState("ReqEndTestResult", this);
+    CState *p_ReqHWInfo = new CState("ReqHWInfo", this);
+    CState *p_ReqSWInfo = new CState("ReqSWInfo", this);
+    CState *p_ReqLoaderInfo = new CState("ReqLoaderInfo", this);
+    CState *p_ReqLifeCycleData = new CState("ReqLifeCycleData", this);
+    CState *p_ReqLaunchDate = new CState("ReqLaunchDate", this);
+    CState *p_ReqBoardName = new CState("ReqBoardName", this);
+    CState *p_ReqUniqueNumber = new CState("ReqUniqueNumber", this);
+    QFinalState *p_Final = new QFinalState(this);
     setInitialState(p_Init);
 
     p_Init->addTransition(new CInfoBaseModuleTransition(
@@ -60,6 +67,56 @@ CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubMod
         mp_BaseModule, SIGNAL(ReportSerialNumber(quint32, ReturnCode_t, QString)),
         *this, &CInfoBaseModule::ReqEndTestResult,
         p_ReqEndTestResult));
+    p_ReqEndTestResult->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportEndTestResult(quint32, ReturnCode_t, TestResult_t, QDate)),
+        *this, &CInfoBaseModule::ReqHWInfo,
+        p_ReqHWInfo));
+    p_ReqHWInfo->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportHWInfo(quint32, ReturnCode_t, quint8, quint8 ,QDate)),
+        *this, &CInfoBaseModule::ReqSWInfo,
+        p_ReqSWInfo));
+    p_ReqSWInfo->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportSWInfo(quint32, ReturnCode_t, quint16, QDate)),
+        *this, &CInfoBaseModule::ReqLoaderInfo,
+        p_ReqLoaderInfo));
+    p_ReqLoaderInfo->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportLoaderInfo(quint32, ReturnCode_t, quint8, quint8, QDate)),
+        *this, &CInfoBaseModule::ReqLifeCycleData,
+        p_ReqLifeCycleData));
+    p_ReqLifeCycleData->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportLifeCycleData(quint32, ReturnCode_t, quint32, quint16)),
+        *this, &CInfoBaseModule::ReqLaunchDate,
+        p_ReqLaunchDate));
+    p_ReqLaunchDate->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportLaunchDate(quint32, ReturnCode_t, bool, QDate)),
+        *this, &CInfoBaseModule::ReqBoardName,
+        p_ReqBoardName));
+    p_ReqBoardName->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportBoardName(quint32, ReturnCode_t, QString)),
+        *this, &CInfoBaseModule::ReqUniqueNumber,
+        p_ReqUniqueNumber));
+    p_ReqUniqueNumber->addTransition(new CInfoBaseModuleTransition(
+        mp_BaseModule, SIGNAL(ReportUniqueNumber(quint32, ReturnCode_t, QByteArray)),
+        *this, &CInfoBaseModule::Finished,
+        p_Final));
+
+    mp_SubModule->AddParameterInfo("SerialNumber", QString());
+    mp_SubModule->AddParameterInfo("EndTestResult", QString());
+    mp_SubModule->AddParameterInfo("EndTestDate", QString());
+    mp_SubModule->AddParameterInfo("HardwareMajorVersion", QString());
+    mp_SubModule->AddParameterInfo("HardwareMinorVersion", QString());
+    mp_SubModule->AddParameterInfo("HardwareProductionDate", QString());
+    mp_SubModule->AddParameterInfo("SoftwareVersion", QString());
+    mp_SubModule->AddParameterInfo("SoftwareReleaseDate", QString());
+    mp_SubModule->AddParameterInfo("BootLoaderMajorVersion", QString());
+    mp_SubModule->AddParameterInfo("BootLoaderMinorVersion", QString());
+    mp_SubModule->AddParameterInfo("BootLoaderReleaseDate", QString());
+    mp_SubModule->AddParameterInfo("OperationTime", "minutes", QString());
+    mp_SubModule->AddParameterInfo("StartUpCycles", QString());
+    mp_SubModule->AddParameterInfo("LaunchedFlag", QString());
+    mp_SubModule->AddParameterInfo("FirstLaunchDate", QString());
+    mp_SubModule->AddParameterInfo("BoardName", QString());
+    mp_SubModule->AddParameterInfo("UniqueNumber", QString());
 }
 
 /****************************************************************************/
@@ -95,9 +152,325 @@ bool CInfoBaseModule::ReqSerialNumber(QEvent *p_Event)
 /****************************************************************************/
 bool CInfoBaseModule::ReqEndTestResult(QEvent *p_Event)
 {
-    ReturnCode_t ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    ReturnCode_t ReturnCode;
+    QString SerialNumber;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
     if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, SerialNumber)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("SerialNumber", SerialNumber)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqEndTestResult();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqHWInfo(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    TestResult_t TestResult;
+    QDate Date;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, TestResult)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 3, Date)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("EndTestResult", QString().setNum(TestResult))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("EndTestDate", Date.toString())) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqHWInfo();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqSWInfo(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    quint8 VersionMajor;
+    quint8 VersionMinor;
+    QDate Date;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, VersionMajor)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 3, VersionMinor)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 4, Date)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("HardwareMajorVersion", QString().setNum(VersionMajor))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("HardwareMinorVersion", QString().setNum(VersionMajor))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("HardwareProductionDate", Date.toString())) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqSWInfo();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqLoaderInfo(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    quint16 Version;
+    QDate Date;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, Version)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 3, Date)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("SoftwareVersion", QString().setNum(Version))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("SoftwareReleaseDate", Date.toString())) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqLoaderInfo();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqLifeCycleData(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    quint8 VersionMajor;
+    quint8 VersionMinor;
+    QDate Date;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, VersionMajor)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 3, VersionMinor)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 4, Date)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("BootLoaderMajorVersion", QString().setNum(VersionMajor))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("BootLoaderMinorVersion", QString().setNum(VersionMajor))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("BootLoaderReleaseDate", Date.toString())) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqLifeCycleData();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqLaunchDate(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    quint32 OperationTime;
+    quint16 StartupCycles;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, OperationTime)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 3, StartupCycles)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperationTime))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("StartUpCycles", QString().setNum(StartupCycles))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqLaunchDate();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqBoardName(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    bool Launched;
+    QDate Date;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, Launched)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 3, Date)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("LaunchedFlag", QString().setNum(Launched))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+    if (!mp_SubModule->UpdateParameterInfo("FirstLaunchDate", Date.toString())) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqBoardName();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::ReqUniqueNumber(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    QString BoardName;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, BoardName)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("BoardName", BoardName)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    ReturnCode = mp_BaseModule->ReqUniqueNumber();
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+
+    return true;
+}
+
+bool CInfoBaseModule::Finished(QEvent *p_Event)
+{
+    ReturnCode_t ReturnCode;
+    QByteArray UniqueNumber;
+
+    ReturnCode = CInfoBaseModuleTransition::GetEventValue(p_Event, 1);
+    if (DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit ReportError(ReturnCode);
+        return false;
+    }
+    if (!CInfoBaseModuleTransition::GetEventValue(p_Event, 2, UniqueNumber)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("UniqueNumber", UniqueNumber)) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
 

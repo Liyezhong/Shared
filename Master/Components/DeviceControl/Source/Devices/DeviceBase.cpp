@@ -101,6 +101,7 @@ CDeviceBase::CDeviceBase(const DeviceProcessing &DeviceProc, const DeviceModuleL
     // DeviceProcessing already provides a method for this.
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
+    qRegisterMetaType<DataManager::CModule>("DataManager::CModule");
 
     // Root states: All MachineError
     // All: Init Working 
