@@ -20,8 +20,8 @@
  */
 /****************************************************************************/
 
-#ifndef DATAMANAGER_BOARD_H
-#define DATAMANAGER_BOARD_H
+#ifndef DATAMANAGER_SUBMODULE_H
+#define DATAMANAGER_SUBMODULE_H
 
 #include <QString>
 #include <QIODevice>
@@ -44,7 +44,8 @@ struct Parameter
 class CSubModule;
 
 typedef QList<CSubModule*> SubModulesList_t;   //!< QList for list of submodule.
-typedef QList<Parameter> ParameterList_t; //!< QList for List of parameters.
+typedef QList<QString> ListOfParameterNames_t; //!< QList of ParameterNames.
+typedef QHash<QString, Parameter*> ListOfParameters_t; //!< QHash for List of Parameters.
 
 /****************************************************************************/
 /*!
@@ -118,34 +119,36 @@ public:
 
     /****************************************************************************/
     /*!
-     *  \brief  To set SubModule's Paramter Info
+     *  \brief  To set SubModule's Parameter Info
      *  \iparam Value = Name, unit and value of Parameter
      */
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString unit, const QString value)
     {
-        m_StructParameter.ParameterName = name;
-        m_StructParameter.ParameterUnit = unit;
-        m_StructParameter.ParameterValue = value;
+        Parameter* StructParameter = new Parameter;
+        StructParameter->ParameterName = name;
+        StructParameter->ParameterUnit = unit;
+        StructParameter->ParameterValue = value;
 
-        m_ParameterList.append(m_StructParameter);
-
-    }           
+        m_ParameterNames.append(StructParameter->ParameterName);
+        m_ListOfParameters.insert(StructParameter->ParameterName, StructParameter);
+    }
 
     /****************************************************************************/
     /*!
-     *  \brief  To set SubModule's Paramter Info
-     *  \iparam Value = Name and unit of Parameter
+     *  \brief  To set SubModule's Parameter Info
+     *  \iparam Value = Name and value of Parameter
      */
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString value)
     {
-        m_StructParameter.ParameterName = name;
-        m_StructParameter.ParameterUnit = "";
-        m_StructParameter.ParameterValue = value;
+        Parameter* StructParameter = new Parameter;
+        StructParameter->ParameterName = name;
+        StructParameter->ParameterUnit = "";
+        StructParameter->ParameterValue = value;
 
-        m_ParameterList.append(m_StructParameter);
-
+        m_ParameterNames.append(StructParameter->ParameterName);
+        m_ListOfParameters.insert(StructParameter->ParameterName, StructParameter);
     }
 
     /****************************************************************************/
@@ -158,14 +161,13 @@ public:
     bool UpdateParameterInfo(const QString ParameterName, const QString ParameterValue)
     {
         bool Result = false;
-        for(int I=0; I<m_ParameterList.count(); I++)
-        {
-            Parameter Param = m_ParameterList.at(I);
-            if(QString::compare(Param.ParameterName, ParameterName) == 0) {
-                Param.ParameterValue = ParameterValue;
-                Result = true;
-                return Result;
-            }
+
+        if (m_ListOfParameters.contains(ParameterName)) {
+            Parameter* Param = m_ListOfParameters.value(ParameterName);
+            Param->ParameterValue = ParameterValue;
+            m_ListOfParameters.insert(ParameterName, Param);
+            Result = true;
+            return Result;
         }
 
         qDebug() << "Parameter Name Doesnot exist" << endl;
@@ -175,10 +177,35 @@ public:
     /****************************************************************************/
     /*!
      *  \brief Returns the Parameter Information
+     *  \iparam Value = Name Parameter
      *  \return Parameter Struct
      */
     /****************************************************************************/
-    Parameter GetParameterInfo() { return m_StructParameter; }    
+    Parameter* GetParameterInfo(QString ParameterName)
+    {
+        if (m_ListOfParameters.contains(ParameterName)) {
+
+            Parameter* Param = m_ListOfParameters.value(ParameterName);
+            return Param;
+
+        }
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Retrieve a Parameter Info with the given index
+     *  \iparam Index
+     *  \return Parameter Struct
+     */
+    /****************************************************************************/
+    Parameter* GetParameterInfo(const unsigned int Index)
+    {
+        QString ParameterName = m_ParameterNames.at(Index);
+        if (m_ListOfParameters.contains(ParameterName))
+        {
+            return m_ListOfParameters.value(ParameterName);
+        }
+    }
 
     /****************************************************************************/
     /*!
@@ -188,8 +215,16 @@ public:
     /****************************************************************************/
     int GetNumberOfParameters()
     {
-        return m_ParameterList.count();
+        return m_ListOfParameters.count();
     }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Deletes all the Parameters in the list
+     *  \return true - delete success , false - delete failure
+     */
+    /****************************************************************************/
+    bool DeleteAllParameters();
 
 private:
     QString m_SubModuleName;    //!< name of the SubModule
@@ -197,8 +232,8 @@ private:
     QString m_SubModuleDescription; //!< Description of the SubModule
 
     SubModulesList_t m_SubModuleList;    //!< List of SubModule
-    ParameterList_t m_ParameterList; //!< List of parameters in the SubModule
-    Parameter m_StructParameter;    //!< Parameter Information
+    ListOfParameterNames_t m_ParameterNames; //!< List of Parameter Name;
+    ListOfParameters_t m_ListOfParameters; //!< Parameter Information in QHash
 
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);

@@ -33,7 +33,8 @@ namespace DataManager
  */
 /****************************************************************************/
 CSubModule::CSubModule() :m_SubModuleName(""),
-    m_SubModuleType("")
+    m_SubModuleType(""),
+    m_SubModuleDescription("")
 {
 
 }
@@ -81,13 +82,55 @@ CSubModule::CSubModule(const CSubModule& SubModuleInfo)
 /****************************************************************************/
 CSubModule::~CSubModule()
 {
+   // DeleteAllParameters();
     for(int i=0; i<m_SubModuleList.count(); i++)
     {
         m_SubModuleList.removeAt(i);
     }
-
     m_SubModuleList.clear();
-    m_ParameterList.clear();
+
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Deletes all the submodules in the list
+ *  \return true - delete success , false - delete failure
+ */
+/****************************************************************************/
+bool CSubModule::DeleteAllParameters()
+{
+    bool Result = true;
+    for(int i=0; i<m_ParameterNames.count(); i++)
+    {
+        QString ParameterName = m_ParameterNames.value(i);
+
+        if (m_ListOfParameters.contains(ParameterName)) {
+        //get Parameter from ParameterList and free memory
+        delete m_ListOfParameters.value(ParameterName);
+
+        //remove pointer to parameter struct from ParameterList
+        m_ListOfParameters.remove(ParameterName);
+
+        //remove parameter from list
+        int IndexCount = -1;
+        for (int i=0; i<m_ParameterNames.count(); i++)
+        {
+            if (m_ParameterNames[i] == ParameterName) {
+                IndexCount = i;
+                break;
+            }
+        }
+        Q_ASSERT(IndexCount != -1);
+        m_ParameterNames.removeAt(IndexCount);
+        }
+        else {
+            return false;
+        }
+    }
+    m_ListOfParameters.clear();
+    m_ParameterNames.clear();
+    //delete m_StructParameter;
+    return Result;
 }
 
 /****************************************************************************/
@@ -174,9 +217,7 @@ bool CSubModule::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool Comp
                 }
                 QString ParamUnit = XmlStreamReader.attributes().value("unit").toString();
 
-                AddParameterInfo(ParamName, ParamUnit, XmlStreamReader.readElementText());
-                // m_ParameterList.append(GetParameterInfo());
-                // SetParamaterList(GetParameterInfo());
+                AddParameterInfo(ParamName, ParamUnit, XmlStreamReader.readElementText());               
             }
         } // end of start element comparison
 
@@ -214,15 +255,15 @@ bool CSubModule::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool Comple
     XmlStreamWriter.writeAttribute("type", GetSubModuleType());
     XmlStreamWriter.writeAttribute("description", GetSubModuleDescription());
 
-
-    for(int i = 0; i<m_ParameterList.count(); i++)
+    QHash<QString, Parameter*>::const_iterator i;
+    for(i = m_ListOfParameters.constBegin(); i != m_ListOfParameters.constEnd(); ++i)
     {
         XmlStreamWriter.writeStartElement("parameter");
-        Parameter StructParam;
-        StructParam = m_ParameterList.at(i);
-        XmlStreamWriter.writeAttribute("name", StructParam.ParameterName);
-        XmlStreamWriter.writeAttribute("unit", StructParam.ParameterUnit);
-        XmlStreamWriter.writeCharacters(StructParam.ParameterValue);
+        Parameter* StructParam;
+        StructParam = i.value();
+        XmlStreamWriter.writeAttribute("name", StructParam->ParameterName);
+        XmlStreamWriter.writeAttribute("unit", StructParam->ParameterUnit);
+        XmlStreamWriter.writeCharacters(StructParam->ParameterValue);
         XmlStreamWriter.writeEndElement();
     }
     XmlStreamWriter.writeEndElement();
