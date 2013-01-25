@@ -713,6 +713,13 @@ void CDeviceXyz::FillColumnRowPosition()
                 m_StaionPos[StationColumn][StationRow].PositionZ = XYZ_BL_Z_DOWN_POS;
             }
 
+            // Check if dry stations
+            if ((XYZ_ROW4 == StationRow) &&
+                    ((XYZ_COL11 == StationColumn) || (XYZ_COL12 == StationColumn)))
+            {
+                m_StaionPos[StationColumn][StationRow].PositionZ = XYZ_DS_Z_DOWN_POS;
+            }
+
             PositionX += XYZ_BL_X_OFFSET;
         }
 

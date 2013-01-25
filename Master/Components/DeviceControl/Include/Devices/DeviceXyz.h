@@ -96,9 +96,10 @@ typedef enum {
 #define XYZ_BL_Y_OFFSET         XYZ_BL_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
 //#define XYZ_BL_Y_OFFSET         980
 
-//#define XYZ_BL_Z_DOWN_POS       1900        //! Normal Station
-#define XYZ_BL_Z_DOWN_POS       1870        //! Normal Station
+#define XYZ_BL_Z_DOWN_POS       1900        //! Normal Station
+//#define XYZ_BL_Z_DOWN_POS       1870        //! Normal Station
 #define XYZ_HS_Z_DOWN_POS       1850        //! Heated Cuvettes
+#define XYZ_DS_Z_DOWN_POS       1800        //! drying station
 
 #define ROW4_Y_DISTANCE         (156-148)   // in mm
 #define ROW4_Y_OFFSET           ROW4_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
