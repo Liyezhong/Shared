@@ -34,13 +34,14 @@ const QString DefaultState                      =   "DefaultState"; //!< Default
 const QString PressedAtSoftSwitchMonitorState   =   "PressedAtBasicInitState";
 const QString PressedAtIdleState                =   "PressedAtIdleState";
 const QString PressedAtBusyState                =   "PressedAtBusyState";
-const QString CriticalActionCheckState     =   "CriticalActionStateCheckState";
+const QString CriticalActionCheckState          =   "CriticalActionStateCheckState";
 const QString CriticalActionState               =   "CriticalActionState";
 const QString ShutdownState                     =   "ShutdownState";
 
 SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
     :m_SoftSwitchGPIO(SOFT_SWITCH_GPIO_NUMBER, DIRECTION_IS_INPUT)
     ,mp_DefaultToInitTransition(NULL)
+    ,mp_SoftSwitchPressedNotifier(NULL)
 {
     //!< This is required so that our object is on the right thread
     setParent(p_Parent);
@@ -49,10 +50,19 @@ SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
 
 void SoftSwitchMgr::Init()
 {
+    QFile *File = new QFile(this);
+    File->open(stdin,QIODevice::ReadOnly);
+    mp_SoftSwitchPressedNotifier = new QSocketNotifier(File->handle(), QSocketNotifier::Read);
+    mp_SoftSwitchPressedNotifier->setParent(this);
     //!< Create Seven Second timer
     mp_Timer = new QTimer(this);
     mp_Timer->setInterval(TIMER_INTERVAL);
     CONNECTSIGNALSLOT(mp_Timer, timeout(), this, ResetStateMachine());
+
+    //!< create poll timer
+    mp_PollTimer = new QTimer(this);
+    mp_PollTimer->setInterval(2000);
+    CONNECTSIGNALSLOT(mp_PollTimer, timeout(), this, ActivatePolling());
 
     //!< Create StateMachine
     mp_SoftSwitchStateMachine = new QStateMachine();
@@ -265,8 +275,12 @@ void SoftSwitchMgr::OnShutDownStateEntered()
 
 void SoftSwitchMgr::OnSoftSwitchPressed(int GpioFd)
 {
+    if (mp_SoftSwitchPressedNotifier) {
+        mp_SoftSwitchPressedNotifier->setEnabled(false);
+        mp_PollTimer->start();
+    }
     QTextStream qin(stdin);
-    QString line = qin.readLine();
+    qin.readLine();
     qDebug()<<"Soft Switch Pressed";
     emit SoftSwitchPressed();
 }
@@ -275,6 +289,14 @@ void SoftSwitchMgr::ResetStateMachine()
 {
     //!< This would put the system to default state.
     emit TimerTimeOut();
+}
+
+void SoftSwitchMgr::ActivatePolling()
+{
+    mp_PollTimer->stop();
+    if (mp_SoftSwitchPressedNotifier) {
+        mp_SoftSwitchPressedNotifier->setEnabled(true);
+    }
 }
 
 }// End of namespace SoftSwitchManager
