@@ -43,6 +43,8 @@ class CMoveAck : public CState
 public:
     CMoveAck(CStepperMotor &StepperMotor, const QString &Name, QState *p_Parent);
 
+    ~CMoveAck(){}
+
 signals:
     /****************************************************************************/
     /*! \brief Error Response to signal movement error

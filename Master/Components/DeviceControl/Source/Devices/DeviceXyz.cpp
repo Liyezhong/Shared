@@ -53,7 +53,11 @@ typedef CSignalTransition<CDeviceXyz> CXyzTransition;
 /****************************************************************************/
 CDeviceXyz::CDeviceXyz(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList,
                                  DevInstanceID_t InstanceID) :
-    CDeviceBase(DeviceProc, ModuleList, InstanceID)
+    CDeviceBase(DeviceProc, ModuleList, InstanceID),
+    mp_BaseModuleX(NULL),mp_BaseModuleY(NULL),mp_BaseModuleZ(NULL),
+    mp_XAxisMotor(NULL), mp_YAxisMotor(NULL), mp_ZAxisMotor(NULL),
+    mp_Rfid(NULL),
+    mp_Adjustment(NULL)
 {
     quint8 Index;
 
@@ -66,6 +70,15 @@ CDeviceXyz::CDeviceXyz(const DeviceProcessing &DeviceProc, const DeviceModuleLis
     m_PrevState = m_CurrentState = XYZ_STATE_IDLE;
 
     m_RackAttached = false;
+
+    if (DEVICE_INSTANCE_ID_XYZ_1 == InstanceID)
+    {
+        m_XyzType = DataManager::LEFT_XYZ;
+    }
+    else
+    {
+        m_XyzType = DataManager::RIGHT_XYZ;
+    }
 
     FillColumnRowPosition();
 }
@@ -86,6 +99,8 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
 
     if (m_Thread.isRunning() == false)
     {
+        //! \todo Log Thread start error
+        qDebug() << "Thread Start error";
         return false;
     }
 
@@ -101,8 +116,14 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
     mp_Rfid = static_cast<CRfid11785 *>(m_DeviceProcessing.GetFunctionModule(
                                             GetModuleInstanceFromKey(CANObjectKeyLUT::m_GrapplerRFIDKey)));
 
-    if (mp_XAxisMotor == NULL || mp_YAxisMotor == NULL || mp_ZAxisMotor == NULL || mp_Rfid == NULL)
+    // Get adjustment data container
+    mp_Adjustment = m_DeviceProcessing.GetAdjustmentList();
+
+    if (mp_XAxisMotor == NULL || mp_YAxisMotor == NULL || mp_ZAxisMotor == NULL || mp_Rfid == NULL ||
+            mp_Adjustment == NULL)
     {
+        //! \todo Log Device configuration failed
+        qDebug() << "Device configuration failed";
         return false;
     }
 
@@ -121,7 +142,6 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
 
     mp_Initializing->setInitialState(p_InitStepperZ);
 
-//    p_InitStepperZ->addTransition(p_InitStepperZ, SIGNAL(finished()), p_InitEnd);z
     p_InitStepperZ->addTransition(p_InitStepperZ, SIGNAL(finished()), p_ParallelInit);
     p_ParallelInit->addTransition(p_ParallelInit, SIGNAL(finished()), p_InitEnd);
 
@@ -184,9 +204,6 @@ bool CDeviceXyz::Trans_Configure(QEvent *p_Event)
     p_Move->addTransition(new CXyzTransition(mp_MoveXyz, SIGNAL(ReportMove(ReturnCode_t)),
                                                        *this, &CDeviceXyz::Trans_Move_Idle, p_Idle));
 
-//    p_Move->addTransition(new CGrapplerTransition(mp_MoveXyz, SIGNAL(ReportMove(ReturnCode_t)),
-//                                                       *this, &CDeviceXyz::Trans_Move));
-
     // Abort Active states
     p_Move->addTransition(new CXyzTransition(mp_MoveXyz, SIGNAL(ReportAbort(ReturnCode_t)),
                                              *this, &CDeviceXyz::Trans_Abort_Idle, p_Idle));
@@ -213,8 +230,7 @@ bool CDeviceXyz::Trans_Idle_MoveEmpty(QEvent *p_Event)
 {
     quint16 StationColumn;
     quint16 StationRow;
-    quint32 TargetPositionX;
-    quint32 TargetPositionY;
+    DataManager::CPositionXyz Position;
 
     if (!CXyzTransition::GetEventValue(p_Event, 0, StationColumn)) {
         return false;
@@ -225,11 +241,15 @@ bool CDeviceXyz::Trans_Idle_MoveEmpty(QEvent *p_Event)
 
     if (IsNewState(XYZ_STATE_MOVE_EMPTY, StationColumn, StationRow))
     {
-        TargetPositionX = m_StaionPos[m_StationColumn][m_StationRow].PositionX;
-        TargetPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
-
-        m_WayPoint.append(new CPoint(TargetPositionX, m_MoveEmptyProfile[X_AXIS],
-                                     TargetPositionY, m_MoveEmptyProfile[Y_AXIS]));
+        if (mp_Adjustment->GetXyzPosition(m_XyzType, m_StationRow, m_StationColumn, Position))
+        {
+            m_WayPoint.append(new CPoint(Position.PositionX, m_MoveEmptyProfile[X_AXIS],
+                                         Position.PositionY, m_MoveEmptyProfile[Y_AXIS]));
+        }
+        else
+        {
+//            emit MoveError(DCL_ERR_INVALID_PARAM);
+        }
     }
 
     MoveNextStep();
@@ -252,8 +272,7 @@ bool CDeviceXyz::Trans_Idle_MoveRack(QEvent *p_Event)
 {
     quint16 StationColumn;
     quint16 StationRow;
-    quint32 TargetPositionX;
-    quint32 TargetPositionY;
+    DataManager::CPositionXyz Position;
 
     if (!CXyzTransition::GetEventValue(p_Event, 0, StationColumn)) {
         return false;
@@ -264,11 +283,17 @@ bool CDeviceXyz::Trans_Idle_MoveRack(QEvent *p_Event)
 
     if (IsNewState(XYZ_STATE_MOVE_RACK, StationColumn, StationRow))
     {
-        TargetPositionX = m_StaionPos[m_StationColumn][m_StationRow].PositionX;
-        TargetPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
+        if (mp_Adjustment->GetXyzPosition(m_XyzType, m_StationRow, m_StationColumn, Position))
+        {
+            Position.PositionY -= ATTACH_POSITION;
 
-        m_WayPoint.append(new CPoint(TargetPositionX, m_TransportRackProfile[X_AXIS],
-                                     TargetPositionY, m_TransportRackProfile[Y_AXIS]));
+            m_WayPoint.append(new CPoint(Position.PositionX, m_TransportRackProfile[X_AXIS],
+                                         Position.PositionY, m_TransportRackProfile[Y_AXIS]));
+        }
+        else
+        {
+//            emit MoveError(DCL_ERR_INVALID_PARAM);
+        }
     }
 
     MoveNextStep();
@@ -288,15 +313,20 @@ bool CDeviceXyz::Trans_Idle_MoveRack(QEvent *p_Event)
 bool CDeviceXyz::Trans_Idle_LetdownRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
-    quint32 TargetPositionZ;
+    DataManager::CPositionXyz Position;
 
     if (IsNewState(XYZ_STATE_LET_DOWN_RACK, m_StationColumn, m_StationRow))
     {
-        TargetPositionZ = m_StaionPos[m_StationColumn][m_StationRow].PositionZ;
-
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     NO_CHANGE, 0,
-                                     TargetPositionZ, m_TransportRackProfile[Z_AXIS]));
+        if (mp_Adjustment->GetXyzPosition(m_XyzType, m_StationRow, m_StationColumn, Position))
+        {
+            m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                         NO_CHANGE, 0,
+                                         Position.PositionZ, m_TransportRackProfile[Z_AXIS]));
+        }
+        else
+        {
+//            emit MoveError(DCL_ERR_INVALID_PARAM);
+        }
     }
 
     MoveNextStep();
@@ -339,14 +369,18 @@ bool CDeviceXyz::Trans_Idle_PullupRack(QEvent *p_Event)
 bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
+    DataManager::CPositionXyz Position;
 
     if (IsNewState(XYZ_STATE_ATTACH, m_StationColumn, m_StationRow))
     {
-        quint32 AttachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY - ATTACH_POSITION;
+        if (mp_Adjustment->GetXyzPosition(m_XyzType, m_StationRow, m_StationColumn, Position))
+        {
+            Position.PositionY -= ATTACH_POSITION;
 
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     AttachPositionY, m_TransportRackProfile[Y_AXIS],
-                                     NO_CHANGE, 0));
+            m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                         Position.PositionY, m_TransportRackProfile[Y_AXIS],
+                                         NO_CHANGE, 0));
+        }
     }
 
     MoveNextStep();
@@ -365,14 +399,16 @@ bool CDeviceXyz::Trans_Idle_AttachRack(QEvent *p_Event)
 bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
+    DataManager::CPositionXyz Position;
 
     if (IsNewState(XYZ_STATE_DETACH, m_StationColumn, m_StationRow))
     {
-        quint32 DetachPositionY = m_StaionPos[m_StationColumn][m_StationRow].PositionY;
-
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     DetachPositionY, m_TransportRackProfile[Y_AXIS],
-                                     NO_CHANGE, 0));
+        if (mp_Adjustment->GetXyzPosition(m_XyzType, m_StationRow, m_StationColumn, Position))
+        {
+            m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                         Position.PositionY, m_TransportRackProfile[Y_AXIS],
+                                         NO_CHANGE, 0));
+        }
     }
 
     MoveNextStep();
@@ -392,14 +428,18 @@ bool CDeviceXyz::Trans_Idle_DetachRack(QEvent *p_Event)
 bool CDeviceXyz::Trans_Idle_CountSlides(QEvent *p_Event)
 {
     Q_UNUSED(p_Event);
+    DataManager::CPositionXyz Position;
 
     if (IsNewState(XYZ_STATE_COUNT_SLIDES, m_StationColumn, m_StationRow))
     {
-        quint32 Y = m_StaionPos[m_StationColumn][m_StationRow].PositionY + 500;
+        if (mp_Adjustment->GetXyzPosition(m_XyzType, m_StationRow, m_StationColumn, Position))
+        {
+            Position.PositionY += 500;
 
-        m_WayPoint.append(new CPoint(NO_CHANGE, 0,
-                                     Y, m_TransportRackProfile[Y_AXIS],
-                                     NO_CHANGE, 0));
+            m_WayPoint.append(new CPoint(NO_CHANGE, 0,
+                                         Position.PositionY, m_TransportRackProfile[Y_AXIS],
+                                         NO_CHANGE, 0));
+        }
     }
 
     MoveNextStep();
@@ -640,8 +680,7 @@ void CDeviceXyz::FillColumnRowPosition()
     }
 
     // Oven Layout
-    //if (DEVICE_INSTANCE_ID_GRAPPLER_1 == m_InstanceID)
-    if (DEVICE_INSTANCE_ID_XYZ == m_InstanceID)
+    if (DEVICE_INSTANCE_ID_XYZ_1 == m_InstanceID)
     {
         PositionY = XYZ_OVEN_Y_START;
         for (StationRow = XYZ_OVEN_ROW_START; StationRow <= XYZ_OVEN_ROW_END; StationRow++)
@@ -727,7 +766,6 @@ void CDeviceXyz::FillColumnRowPosition()
     }
 
     // Rack Transfer
-    //if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
     if (DEVICE_INSTANCE_ID_XYZ_2 == m_InstanceID)
     {
         m_StaionPos[XYZ_RTS_COL][XYZ_RTS_ROW].PositionX = XYZ_RTS_X_POS;
@@ -740,7 +778,6 @@ void CDeviceXyz::FillColumnRowPosition()
         for (StationColumn = XYZ_COL1; StationColumn <= XYZ_COL18; StationColumn++)
         {
             // adjust bath layout coordinates for right grappler
-            //if (DEVICE_INSTANCE_ID_GRAPPLER_2 == m_InstanceID)
             if (DEVICE_INSTANCE_ID_XYZ_2 == m_InstanceID)
             {
                 if (m_StaionPos[StationColumn][StationRow].PositionX != 0)

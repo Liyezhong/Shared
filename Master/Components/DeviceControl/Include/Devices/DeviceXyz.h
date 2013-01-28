@@ -16,11 +16,14 @@
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
-#ifndef DEVICEXYZ_H
-#define DEVICEXYZ_H
+#ifndef DEVICECONTROL_DEVICEXYZ_H
+#define DEVICECONTROL_DEVICEXYZ_H
 
 #include "DeviceBase.h"
 #include "MoveXYZ.h"
+
+#include "DataManager/Containers/Adjustment/Include/Adjustment.h"
+#include "DataManager/Containers/Adjustment/Include/AdjustmentVerifier.h"
 
 namespace DeviceControl
 {
@@ -143,7 +146,14 @@ public:
     quint8 m_ProfileY;
     quint8 m_ProfileZ;
 
-    CPoint(){}
+    CPoint() : m_PositionX(0),
+        m_PositionY(0),
+        m_PositionZ(0),
+        m_ProfileX(0),
+        m_ProfileY(0),
+        m_ProfileZ(0)
+    {
+    }
 
     CPoint(quint32 PositionX, quint8 ProfileX,
            quint32 PositionY, quint8 ProfileY,
@@ -417,10 +427,14 @@ private:
     //
     QList<CPoint*> m_WayPoint;
 
-    //
+    // Data structure to store Station Positions
     PositionXYZ m_StaionPos[XYZ_MAX_COLS][XYZ_MAX_ROWS];
+
+    // Adjustment data container
+    DataManager::CAdjustment *mp_Adjustment;
+    DataManager::XyzType_t m_XyzType;
 };
 
 }
 
-#endif // DEVICEXYZ_H
+#endif // DEVICECONTROL_DEVICEXYZ_H

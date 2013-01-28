@@ -51,7 +51,8 @@ namespace DeviceControl
 /****************************************************************************/
 IDeviceProcessing::IDeviceProcessing() :
     m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
-    m_reqTaskParameter1(0), m_reqTaskParameter2(0)
+    m_reqTaskParameter1(0), m_reqTaskParameter2(0),
+    mp_DevProc(NULL)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
@@ -406,6 +407,14 @@ CBaseModule* IDeviceProcessing::GetNode(bool First)
 {
     QMutexLocker locker(&m_Mutex);
     return mp_DevProc->GetCANNodeFromObjectTree(First);
+}
+
+void IDeviceProcessing::SetAdjustmentList(DataManager::CAdjustment AdjustmentList)
+{
+    if (mp_DevProc != NULL)
+    {
+        mp_DevProc->SetAdjustmentList(AdjustmentList);
+    }
 }
 
 /****************************************************************************/

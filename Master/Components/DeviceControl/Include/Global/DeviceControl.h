@@ -173,7 +173,8 @@ typedef enum {
     STATION_ACTION_REFERENCE_RUN        = 0x08,  //!< execute reference run
     STATION_ACTION_MOTOR_POSITION_REQ   = 0x09,  //!< internal use only (request motor position)
     STATION_ACTION_ADJUSTMENT           = 0x0a,  //!< internal use only (run adjustment cycle)
-    STATION_ACTION_UNDEF                = 0x0b   //!< undefined
+    STATION_ACTION_COUNT_SLIDES         = 0x0b,  //!< to count slides present in the rack
+    STATION_ACTION_UNDEF                = 0x0c   //!< undefined
 } StationAction_t;
 
 /*! requested action for station positioning */
@@ -312,8 +313,8 @@ typedef quint8 MotionProfileIdx_t; //!< stepper motor motion profile index
 typedef enum {
     DEVICE_INSTANCE_ID_UNDEFINED      = 0x00000000,  //!< undefine. used for initialization
     DEVICE_INSTANCE_ID_DEVPROC        = 0x00008000,  //!< the device processing itself
-  //  DEVICE_INSTANCE_ID_GRAPPLER_1     = 0x00008010,  //!< the left grappler
-  //  DEVICE_INSTANCE_ID_GRAPPLER_2     = 0x00008011,  //!< the right grappler
+    DEVICE_INSTANCE_ID_XYZ_1            = 0x00008010,  //!< device XYZ left
+    DEVICE_INSTANCE_ID_XYZ_2          = 0x00008011,  //!< device XYZ right
     DEVICE_INSTANCE_ID_LOADER         = 0x00008020,  //!< loader
     DEVICE_INSTANCE_ID_UNLOADER       = 0x00008021,  //!< unloader
     DEVICE_INSTANCE_ID_OVEN           = 0x00008030,  //!< oven
@@ -327,8 +328,6 @@ typedef enum {
     DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0,  //!< rack handling
     DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,  //!< device cover (hood)
     DEVICE_INSTANCE_ID_LIGHT          = 0x000080C1,  //!< device Light
-    DEVICE_INSTANCE_ID_XYZ            = 0x00008010,  //!< device XYZ
-    DEVICE_INSTANCE_ID_XYZ_2          = 0x00008011,  //!< device XYZ_2
     DEVICE_INSTANCE_ID_SLIDE_ID       = 0x00008090   //!< Slide ID
 } DevInstanceID_t;
 

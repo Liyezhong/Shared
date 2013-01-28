@@ -85,6 +85,8 @@ public:
     //! Return the pointer to the CBaseModule which is next in list
     CBaseModule* GetNode(bool First);
 
+    void SetAdjustmentList(DataManager::CAdjustment AdjustmentList);
+
 signals:
     /****************************************************************************/
     /*!

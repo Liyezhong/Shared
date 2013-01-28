@@ -42,6 +42,9 @@
 #include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 
+#include "DataManager/Containers/Adjustment/Include/Adjustment.h"
+#include "DataManager/Containers/Adjustment/Include/AdjustmentVerifier.h"
+
 namespace DeviceControl
 {
 
@@ -168,6 +171,9 @@ public:
     Position_t GetProcSettingPosition(QString Key);
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
+
+    void SetAdjustmentList(DataManager::CAdjustment AdjustmentList);
+    DataManager::CAdjustment* GetAdjustmentList() const;
 
 signals:
     /****************************************************************************/
@@ -384,6 +390,9 @@ private:
 
     static QString m_HWConfigFileName;  //!< Config file name
     static QString m_SerialNo;          //!< Serial number, read from config file
+
+    //!< Data Containers
+    DataManager::CAdjustment *m_pAdjustment;
 };
 
 } // namespace

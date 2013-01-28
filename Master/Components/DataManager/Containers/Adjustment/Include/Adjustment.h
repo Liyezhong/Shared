@@ -141,8 +141,8 @@ private:
     QReadWriteLock m_ReadWriteLock;     //!< File read write protection
 
     //
-    CPositionXyz m_StaionPosLeft[XYZ_MAX_COLS][XYZ_MAX_ROWS];
-    CPositionXyz m_StaionPosRight[XYZ_MAX_COLS][XYZ_MAX_ROWS];
+    CPositionXyz m_StaionPosLeft[XYZ_MAX_ROWS][XYZ_MAX_COLS];
+    CPositionXyz m_StaionPosRight[XYZ_MAX_ROWS][XYZ_MAX_COLS];
 };
 
 }

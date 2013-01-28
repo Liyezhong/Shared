@@ -34,7 +34,10 @@
 
 namespace DataManager {
 
-CAdjustment::CAdjustment() : m_Version(0), m_DataVerificationMode(true), m_Filename("")
+CAdjustment::CAdjustment() : CDataContainerBase(),
+    m_Version(0),
+    m_DataVerificationMode(true),
+    m_Filename("")
 {
     Init();
 }
@@ -103,9 +106,9 @@ bool CAdjustment::Read(QString Filename)
                 qDebug() << "CAdjustment::Read - verification failed";
                 Result = false;
             }
-
-            delete p_AdjVerification;
         }
+
+        delete p_AdjVerification;
     }
     else
     {
@@ -248,11 +251,11 @@ bool CAdjustment::GetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPosi
 
     if (LEFT_XYZ == Xyz)
     {
-        Position = m_StaionPosLeft[Column][Row];
+        Position = m_StaionPosLeft[Row][Column];
     }
     else if (RIGHT_XYZ == Xyz)
     {
-        Position = m_StaionPosRight[Column][Row];
+        Position = m_StaionPosRight[Row][Column];
     }
     else
     {
@@ -278,11 +281,11 @@ bool CAdjustment::SetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPosi
 
     if (LEFT_XYZ == Xyz)
     {
-        m_StaionPosLeft[Column][Row] = Position;
+        m_StaionPosLeft[Row][Column] = Position;
     }
     else if (RIGHT_XYZ == Xyz)
     {
-        m_StaionPosRight[Column][Row] = Position;
+        m_StaionPosRight[Row][Column] = Position;
     }
     else
     {
@@ -320,7 +323,7 @@ bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, XyzType
         // write all vessel positions
         for (ColumnIndex = 0; ColumnIndex < XYZ_MAX_COLS; ColumnIndex++)
         {
-            GetXyzPosition(Xyz, RowIndex, ColumnIndex, Position);
+            (void)GetXyzPosition(Xyz, RowIndex, ColumnIndex, Position);
 
             XmlStreamWriter.writeStartElement("vessel");
 
@@ -440,7 +443,7 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzTy
 
                     Position.PositionZ = XmlStreamReader.attributes().value("depth").toString().toUInt();
 
-                    SetXyzPosition(Xyz, RowIndex-1, ColumnIndex-1, Position);
+                    (void)SetXyzPosition(Xyz, RowIndex-1, ColumnIndex-1, Position);
 
 //                    qDebug() << Xyz << RowIndex - 1 << ColumnIndex - 1 << Position.PositionX
 //                             << Position.PositionY << Position.PositionZ;
@@ -472,8 +475,8 @@ void CAdjustment::Init()
     {
         for (Column = 0; Column < XYZ_MAX_COLS; Column++)
         {
-            m_StaionPosLeft[Column][Row].Clear();
-            m_StaionPosRight[Column][Row].Clear();
+            m_StaionPosLeft[Row][Column].Clear();
+            m_StaionPosRight[Row][Column].Clear();
         }
     }
 
