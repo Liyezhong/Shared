@@ -127,7 +127,7 @@ void TestDataModuleList::utTestSubModule()
 
 
     CSubModule *p_SubModule3 = new CSubModule();
-    p_SubModule3 = p_SubModule2;
+    *p_SubModule3 = *p_SubModule2;
     delete p_SubModule2;
 
     //Test Getters
@@ -170,7 +170,7 @@ void TestDataModuleList::utTestModule()
     QCOMPARE(p_Module1->GetOperatingHours(),QString(tr("Hrs")));
     QCOMPARE(p_Module1->GetDateOfProduction(),QString(tr("DATE2")));
 
-    /*
+
     CModule *p_Module2 = new CModule(*p_Module1);
     delete p_Module1;
 
@@ -181,11 +181,10 @@ void TestDataModuleList::utTestModule()
     QCOMPARE(p_Module2->GetOperatingHours(),QString(tr("Hrs")));
     QCOMPARE(p_Module2->GetDateOfProduction(),QString(tr("DATE2")));
 
-    */
 
     CModule* p_Module3 = new CModule();
-    *p_Module3 = *p_Module1;
-    delete p_Module1;
+    *p_Module3 = *p_Module2;
+    delete p_Module2;
 
     //Test Getters
     QCOMPARE(p_Module3->GetModuleName(),QString(tr("Drawer Left")));
