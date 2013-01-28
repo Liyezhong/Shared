@@ -436,14 +436,14 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
         VerifiedData = false;
     }
 
-    if (!((CheckProxyIPAddress(p_UserSettings)))) {
+    if (!(CheckProxyIPAddress(p_UserSettings))) {
         qDebug() << "PROXY IP ADDRESS NOT IS NOT VALID";
         m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPAddress());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() <<  p_UserSettings->GetProxyIPAddress(), true);
         VerifiedData = false;
     }
 
-    if (!(((p_UserSettings->GetProxyIPPort() >= MIN_PROXY_IP_PORT) && (p_UserSettings->GetProxyIPPort() <= MAX_PROXY_IP_PORT)))) {
+    if (!(CheckProxyIPPort(p_UserSettings))) {
         qDebug() << "PROXY IP PORT NUMBER NOT IN RANGE";
         m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()));
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()), true);
@@ -465,21 +465,72 @@ bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings *p_UserSettings)
 {
     QString ProxyIPAddress = p_UserSettings->GetProxyIPAddress();
     qDebug()<<"\n\n Count= "<< ProxyIPAddress.split(".").count();
+    bool VerifiedIPAddress = false;
     if (ProxyIPAddress.split(".").count() == 4) {
-        for (int AddrCount = 0; AddrCount <= ProxyIPAddress.split(".").count(); AddrCount++)
+        for (int SplitCount = 0; SplitCount < ProxyIPAddress.split(".").count(); SplitCount++)
         {
-            QString AddressNumberString = (ProxyIPAddress.split(".").value(AddrCount));
-            int AddressNumber = AddressNumberString.toInt();
-            qDebug()<<"\n\n AddressNumber ="<< AddressNumber;
-            if (AddressNumber < MIN_IP_ADDRESS_NUMBER || AddressNumber > MAX_IP_ADDRESS_NUMBER) {
-                return false;
-            }            
+            QString AddressNumberString = (ProxyIPAddress.split(".").value(SplitCount));
+            if (AddressNumberString.length() <= 3) {
+                bool Result = false;
+                int AddressNumber = AddressNumberString.toInt(&Result, 10);
+                if (Result) {
+                    qDebug()<<"\n\n AddressNumber ="<< AddressNumber;
+                    if (AddressNumber < MIN_IP_ADDRESS_NUMBER || AddressNumber > MAX_IP_ADDRESS_NUMBER || AddressNumberString == "") {
+                        return false;
+                    }
+                    else if (SplitCount == 3) {
+                        if (AddressNumber == 0) {
+                            return false;
+                        }
+                        else {
+                            VerifiedIPAddress = true;
+                        }
+                    }
+                    else {
+                        VerifiedIPAddress = true;
+                    }
+                }
+                else {
+                    VerifiedIPAddress = false;
+                    return VerifiedIPAddress;
+                }
+            }
+            else {
+                VerifiedIPAddress = false;
+                return VerifiedIPAddress;
+            }
+        }
+    }
+    else {
+        VerifiedIPAddress = false;
+    }
+    return VerifiedIPAddress;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Check Proxy IP Port of Network Settings.
+ *
+ *  \iparam p_UserSettings - Pointer to CUserSettings
+ *  \return True - If IP address is valid else False
+ */
+/****************************************************************************/
+bool CUserSettingsVerifier::CheckProxyIPPort(CUserSettings *p_UserSettings)
+{
+    bool Result = false;
+    QString IPPort = QString::number(p_UserSettings->GetProxyIPPort());
+    int PortNumber = IPPort.toInt(&Result, 10);
+    if (Result) {
+        if (PortNumber < MIN_PROXY_IP_PORT || PortNumber > MAX_PROXY_IP_PORT) {
+            return false;
+        }
+        else {
+            return true;
         }
     }
     else {
         return false;
     }
-    return true;
 }
 }  // namespace DataManager
 

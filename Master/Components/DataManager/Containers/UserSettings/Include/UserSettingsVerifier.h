@@ -62,6 +62,7 @@ private:
     void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData);
     void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData);
     bool CheckProxyIPAddress(CUserSettings* p_UserSettings);
+    bool CheckProxyIPPort(CUserSettings *p_UserSettings);
 };
 
 } // namespace DataManager
