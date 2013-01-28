@@ -212,6 +212,13 @@ public:
     /****************************************************************************/
     bool DeleteSubModule(const QString SubModuleName);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Updates SubModule
+     *  \iparam p_SubModule = Sub Module which needs to be updated
+     *  \return true - update success, false - update failed
+     */
+    /****************************************************************************/
     bool UpdateSubModule(const CSubModule* p_SubModule);
 
 
