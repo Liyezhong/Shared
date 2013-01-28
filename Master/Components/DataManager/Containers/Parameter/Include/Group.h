@@ -24,7 +24,7 @@
 #include <QString>
 #include <QHash>
 
-#include "ColoradoDataManager/Containers/Parameter/Include/Parameter.h"
+#include "DataManager/Containers/Parameter/Include/Parameter.h"
 
 namespace DataManager {
 

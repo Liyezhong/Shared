@@ -24,7 +24,7 @@
 #include <QXmlStreamReader>
 
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
-#include "ColoradoDataManager/Containers/Parameter/Include/GroupList.h"
+#include "DataManager/Containers/Parameter/Include/GroupList.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
 namespace DataManager {

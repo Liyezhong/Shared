@@ -37,7 +37,7 @@
 #include "Global/Include/Translator.h"
 #include "DataManager/Helper/Include/Types.h"
 #include "DataManager/Helper/Include/Helper.h"
-#include "ColoradoDataManager/Containers/Parameter/Include/Group.h"
+#include "DataManager/Containers/Parameter/Include/Group.h"
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 #include "ColoradoDataManager/Templates/Include/ColoradoDataManagerEventCodes.h"

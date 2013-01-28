@@ -20,7 +20,7 @@
 
 #include <QBuffer>
 
-#include "ColoradoDataManager/Containers/Parameter/Commands/Include/CmdAddParameterOffset.h"
+#include "DataManager/Containers/Parameter/Commands/Include/CmdAddParameterOffset.h"
 
 
 namespace MsgClasses {

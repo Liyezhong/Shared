@@ -25,7 +25,7 @@
 
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-#include "ColoradoDataManager/Containers/Parameter/Include/Parameter.h"
+#include "DataManager/Containers/Parameter/Include/Parameter.h"
 
 namespace DataManager {
 

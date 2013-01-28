@@ -20,7 +20,7 @@
 
 #include <QDebug>
 
-#include "ColoradoDataManager/Containers/Parameter//Include/Group.h"
+#include "DataManager/Containers/Parameter/Include/Group.h"
 
 namespace DataManager {
 

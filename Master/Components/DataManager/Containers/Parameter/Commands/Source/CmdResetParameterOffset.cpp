@@ -18,7 +18,7 @@
  */
 /****************************************************************************/
 
-#include "ColoradoDataManager/Containers/Parameter/Commands/Include/CmdResetParameterOffset.h"
+#include "DataManager/Containers/Parameter/Commands/Include/CmdResetParameterOffset.h"
 
 namespace MsgClasses {
 

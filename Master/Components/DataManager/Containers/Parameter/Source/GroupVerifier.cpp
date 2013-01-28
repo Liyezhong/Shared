@@ -21,9 +21,9 @@
 #include <QFile>
 #include <QStringList>
 
-#include "ColoradoDataManager/Containers/Parameter/Include/GroupVerifier.h"
-#include "ColoradoDataManager/Containers/Parameter/Include/GroupList.h"
-#include "ColoradoDataManager/Containers/Parameter/Include/Parameter.h"
+#include "DataManager/Containers/Parameter/Include/GroupVerifier.h"
+#include "DataManager/Containers/Parameter/Include/GroupList.h"
+#include "DataManager/Containers/Parameter/Include/Parameter.h"
 #include "Global/Include/EventObject.h"
 
 namespace DataManager {
