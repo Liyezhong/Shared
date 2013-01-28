@@ -42,7 +42,7 @@ private:
     bool    m_Direction; //!< GPIO direction - In/ Out
 
     void SetDirection(const bool Direction);
-    void Open();
+
     void ExportGPIOPin();
 
 public:
@@ -52,6 +52,8 @@ public:
     qint32 SetEdge(const char *p_Edge);
     qint32 SetValue(const qint32 Value);
     qint32 GetValue();
+    qint32 GetGpioFd() { return m_Fd;}
+    qint32 Open();
 };
 
 } //End of namespace SoftSwitchManager

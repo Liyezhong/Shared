@@ -5,6 +5,7 @@
 #include <QStateMachine>
 #include <QTimer>
 #include <QSocketNotifier>
+#include <QFile>
 //Project includes
 #include <SoftSwitchManager/Include/GPIO.h>
 #include <SoftSwitchManager/Include/GenericState.h>
@@ -46,6 +47,7 @@ private:
     QTimer *mp_PollTimer; //!< This timer when timed out would activate the polling of SoftSwitch GPIO.
     QString m_CurrentState; //!< Current state of the StateMachine
     QSocketNotifier *mp_SoftSwitchPressedNotifier;
+    QFile *mp_File;
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
     bool IsSystemStateSoftSwitchMonitor(QEvent *p_Event);

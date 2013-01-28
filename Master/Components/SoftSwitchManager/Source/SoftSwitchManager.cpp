@@ -50,9 +50,11 @@ SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
 
 void SoftSwitchMgr::Init()
 {
-    QFile *File = new QFile(this);
-    File->open(stdin,QIODevice::ReadOnly);
-    mp_SoftSwitchPressedNotifier = new QSocketNotifier(File->handle(), QSocketNotifier::Read);
+    QFile *mp_File = new QFile(this);
+    //File->open(stdin,QIODevice::ReadOnly);
+    m_SoftSwitchGPIO.Open();
+    mp_File->open(m_SoftSwitchGPIO.GetGpioFd(), QIODevice::ReadOnly);
+    mp_SoftSwitchPressedNotifier = new QSocketNotifier(mp_File->handle(), QSocketNotifier::Read);
     mp_SoftSwitchPressedNotifier->setParent(this);
     //!< Create Seven Second timer
     mp_Timer = new QTimer(this);
@@ -210,6 +212,7 @@ void SoftSwitchMgr::OnDefaultStateEntered()
     /*!< When we enter Default state , first check we came here as a result of timeout, if so
      *  we have to close any msg boxes open in GUI.
      */
+    qDebug()<<"Entered Default state , Previous state was" << m_CurrentState<<"\n\n\n";
     if (m_CurrentState == PressedAtIdleState) {
         mp_Timer->stop();
         Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN, false);
@@ -279,10 +282,11 @@ void SoftSwitchMgr::OnSoftSwitchPressed(int GpioFd)
         mp_SoftSwitchPressedNotifier->setEnabled(false);
         mp_PollTimer->start();
     }
-    QTextStream qin(stdin);
-    qin.readLine();
-    qDebug()<<"Soft Switch Pressed";
-    emit SoftSwitchPressed();
+    QTextStream qin(mp_File);
+    qDebug()<<"Soft Switch Pressed" << qin.readLine().simplified();
+    if (qin.readLine().simplified() == QString("0")) {
+        emit SoftSwitchPressed();
+    }
 }
 
 void SoftSwitchMgr::ResetStateMachine()

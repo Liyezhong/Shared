@@ -118,7 +118,7 @@ void GPIOPin::SetDirection(const bool Direction)
  *  \brief  Opens the sysfs file for the required GPIO
  */
 /****************************************************************************/
-void GPIOPin::Open()
+qint32 GPIOPin::Open()
 {
     char Buf[BUF_SIZE];
     (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/value", m_PinNumber);
@@ -135,6 +135,7 @@ void GPIOPin::Open()
     if( 0 > m_Fd ){
         qDebug()<<" GPIOPin::Open() File Open failed";
     }
+    return m_Fd;
 }
 
 /****************************************************************************/

@@ -131,7 +131,7 @@ void SoftSwitchManagerThreadController::OnGoReceived()
     CONNECTSIGNALSLOT(p_SoftSwitchNotifier, activated(int), &m_SoftSwitchManager, OnSoftSwitchPressed(int));
 //    while (1) {
 //        memset((void*)fdset, 0, sizeof(fdset));
-//        fdset[0].fd = STDIN_FILENO; //Standard input
+        //fdset[0].fd = STDIN_FILENO; //Standard input
 //        fdset[0].events = POLLIN;
 //        int TimeOut = -1; // Infinite Timeout
 //        int  PollReturn = poll(fdset, NumbOfFileDesc, 4000);
