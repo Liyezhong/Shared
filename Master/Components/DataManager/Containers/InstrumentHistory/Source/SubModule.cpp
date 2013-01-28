@@ -72,7 +72,27 @@ CSubModule::CSubModule(QString SubModuleName, QString SubModuleType, QString Sub
 /****************************************************************************/
 CSubModule::CSubModule(const CSubModule& SubModuleInfo)
 {
-    *this = SubModuleInfo;
+    QString Name = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleName();
+    QString Unit = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleType();
+    QString Type = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleDescription();
+
+    m_SubModuleName = Name;
+    m_SubModuleType = Unit;
+    m_SubModuleDescription = Type;
+
+    int Count = const_cast<CSubModule&>(SubModuleInfo).GetNumberOfParameters();
+
+    for(size_t  i=0; i<Count; i++)
+    {
+        Parameter_t* StructParameter = new Parameter_t;
+
+        StructParameter->ParameterName = SubModuleInfo.GetParameterInfo(i)->ParameterName;
+        StructParameter->ParameterUnit = SubModuleInfo.GetParameterInfo(i)->ParameterUnit;
+        StructParameter->ParameterValue = SubModuleInfo.GetParameterInfo(i)->ParameterValue;
+
+        m_ParameterNames.append(StructParameter->ParameterName);
+        m_ListOfParameters.insert(StructParameter->ParameterName, StructParameter);
+    }
 }
 
 /****************************************************************************/
@@ -139,17 +159,26 @@ bool CSubModule::DeleteAllParameters()
 CSubModule& CSubModule::operator=(const CSubModule& SubModuleInfo)
 {
     if(this != &SubModuleInfo) {
-        QByteArray TempByteArray;
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-        TempByteArray.clear();
 
-        //Serialize
-        DataStream << SubModuleInfo;
-        (void)DataStream.device()->reset();
+        this->DeleteAllParameters();
 
-        //Deserialize
-        DataStream >> *this;
+        QString Name = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleName();
+        QString Unit = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleType();
+        QString Type = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleDescription();
+
+        this-> SetSubModuleName(Name);
+        this-> SetSubModuleType(Unit);
+        this-> SetSubModuleDescription(Type);
+
+        int Count = const_cast<CSubModule&>(SubModuleInfo).GetNumberOfParameters();
+
+        for(size_t  i=0; i<Count; i++)
+        {
+            QString PName = SubModuleInfo.GetParameterInfo(i)->ParameterName;
+            QString PUnit = SubModuleInfo.GetParameterInfo(i)->ParameterUnit;
+            QString PValue = SubModuleInfo.GetParameterInfo(i)->ParameterValue;
+            this->AddParameterInfo(PName, PUnit, PValue);
+        }
     }
     return *this;
 }
