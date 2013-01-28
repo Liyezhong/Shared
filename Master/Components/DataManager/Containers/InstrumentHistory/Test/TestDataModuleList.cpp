@@ -71,28 +71,92 @@ private slots:
 
 void TestDataModuleList::utTestSubModule()
 {
+
     CSubModule *p_SubModule1 = new CSubModule();
 
     p_SubModule1->SetSubModuleName("asb4_0");
     p_SubModule1->SetSubModuleType("Board");
     p_SubModule1->SetSubModuleDescription("DisplayName");
-   //p_SubModule1->SetParameterInfo("SerialNumber", "QString", "SN");
+
+    p_SubModule1->AddParameterInfo("SerialNumber","SN");
+    p_SubModule1->AddParameterInfo("EndTestResult","TestRes");
+    p_SubModule1->AddParameterInfo("EndTestDate","Date");
+    p_SubModule1->AddParameterInfo("HardwareMajorVersion","HardwareVer");
 
     //Test Getters
     QCOMPARE(p_SubModule1->GetSubModuleName(), QString(tr("asb4_0")));
     QCOMPARE(p_SubModule1->GetSubModuleType(), QString(tr("Board")));
     QCOMPARE(p_SubModule1->GetSubModuleDescription(), QString(tr("DisplayName")));
 
-    CSubModule p_SubModule(*p_SubModule1);
+    QCOMPARE(p_SubModule1->GetNumberOfParameters(),4);
+
+    QCOMPARE(p_SubModule1->GetParameterInfo(0)->ParameterName, QString(tr("SerialNumber")));
+    QCOMPARE(p_SubModule1->GetParameterInfo(0)->ParameterValue, QString(tr("SN")));
+
+    QCOMPARE(p_SubModule1->GetParameterInfo(1)->ParameterName, QString(tr("EndTestResult")));
+    QCOMPARE(p_SubModule1->GetParameterInfo(1)->ParameterValue, QString(tr("TestRes")));
+
+    QCOMPARE(p_SubModule1->GetParameterInfo(2)->ParameterName, QString(tr("EndTestDate")));
+    QCOMPARE(p_SubModule1->GetParameterInfo(2)->ParameterValue, QString(tr("Date")));
+
+    QCOMPARE(p_SubModule1->GetParameterInfo(3)->ParameterName, QString(tr("HardwareMajorVersion")));
+    QCOMPARE(p_SubModule1->GetParameterInfo(3)->ParameterValue, QString(tr("HardwareVer")));
+
+
+    CSubModule *p_SubModule2 = new CSubModule(*p_SubModule1);
+    delete p_SubModule1;
+
     //Test Getters
-    QCOMPARE(p_SubModule.GetSubModuleName(), QString(tr("asb4_0")));
-    QCOMPARE(p_SubModule.GetSubModuleType(), QString(tr("Board")));
-    QCOMPARE(p_SubModule.GetSubModuleDescription(), QString(tr("DisplayName")));
+    QCOMPARE(p_SubModule2->GetSubModuleName(),QString(tr("asb4_0")));
+    QCOMPARE(p_SubModule2->GetSubModuleType(),QString(tr("Board")));
+    QCOMPARE(p_SubModule2->GetSubModuleDescription(),QString(tr("DisplayName")));
+
+    QCOMPARE(p_SubModule2->GetNumberOfParameters(),4);
+
+    QCOMPARE(p_SubModule2->GetParameterInfo(0)->ParameterName, QString(tr("SerialNumber")));
+    QCOMPARE(p_SubModule2->GetParameterInfo(0)->ParameterValue, QString(tr("SN")));
+
+    QCOMPARE(p_SubModule2->GetParameterInfo(1)->ParameterName, QString(tr("EndTestResult")));
+    QCOMPARE(p_SubModule2->GetParameterInfo(1)->ParameterValue, QString(tr("TestRes")));
+
+    QCOMPARE(p_SubModule2->GetParameterInfo(2)->ParameterName, QString(tr("EndTestDate")));
+    QCOMPARE(p_SubModule2->GetParameterInfo(2)->ParameterValue, QString(tr("Date")));
+
+    QCOMPARE(p_SubModule2->GetParameterInfo(3)->ParameterName, QString(tr("HardwareMajorVersion")));
+    QCOMPARE(p_SubModule2->GetParameterInfo(3)->ParameterValue, QString(tr("HardwareVer")));
+
+
+    CSubModule *p_SubModule3 = new CSubModule();
+    p_SubModule3 = p_SubModule2;
+    delete p_SubModule2;
+
+    //Test Getters
+    QCOMPARE(p_SubModule3->GetSubModuleName(),QString(tr("asb4_0")));
+    QCOMPARE(p_SubModule3->GetSubModuleType(),QString(tr("Board")));
+    QCOMPARE(p_SubModule3->GetSubModuleDescription(),QString(tr("DisplayName")));
+
+    QCOMPARE(p_SubModule3->GetNumberOfParameters(),4);
+
+    QCOMPARE(p_SubModule3->GetParameterInfo(0)->ParameterName, QString(tr("SerialNumber")));
+    QCOMPARE(p_SubModule3->GetParameterInfo(0)->ParameterValue, QString(tr("SN")));
+
+    QCOMPARE(p_SubModule3->GetParameterInfo(1)->ParameterName, QString(tr("EndTestResult")));
+    QCOMPARE(p_SubModule3->GetParameterInfo(1)->ParameterValue, QString(tr("TestRes")));
+
+    QCOMPARE(p_SubModule3->GetParameterInfo(2)->ParameterName, QString(tr("EndTestDate")));
+    QCOMPARE(p_SubModule3->GetParameterInfo(2)->ParameterValue, QString(tr("Date")));
+
+    QCOMPARE(p_SubModule3->GetParameterInfo(3)->ParameterName, QString(tr("HardwareMajorVersion")));
+    QCOMPARE(p_SubModule3->GetParameterInfo(3)->ParameterValue, QString(tr("HardwareVer")));
+
+    delete p_SubModule3;
 }
 
 void TestDataModuleList::utTestModule()
 {
+
     CModule *p_Module1 = new CModule();
+
     p_Module1->SetModuleName(QString(tr("Drawer Left")));
     p_Module1->SetModuleDescription(QString(tr("Loader")));
     p_Module1->SetSerialNumber(QString(tr("SN_LOADER_00001")));
@@ -100,23 +164,42 @@ void TestDataModuleList::utTestModule()
     p_Module1->SetDateOfProduction(QString(tr("DATE2")));
 
     //Test Getters
-    QCOMPARE(p_Module1->GetModuleName(), QString(tr("Drawer Left")));
-    QCOMPARE(p_Module1->GetModuleDescription(), QString(tr("Loader")));
-    QCOMPARE(p_Module1->GetSerialNumber(), QString(tr("SN_LOADER_00001")));
-    QCOMPARE(p_Module1->GetOperatingHours(), QString(tr("Hrs")));
-    QCOMPARE(p_Module1->GetDateOfProduction(), QString(tr("DATE2")));
+    QCOMPARE(p_Module1->GetModuleName(),QString(tr("Drawer Left")));
+    QCOMPARE(p_Module1->GetModuleDescription(),QString(tr("Loader")));
+    QCOMPARE(p_Module1->GetSerialNumber(),QString(tr("SN_LOADER_00001")));
+    QCOMPARE(p_Module1->GetOperatingHours(),QString(tr("Hrs")));
+    QCOMPARE(p_Module1->GetDateOfProduction(),QString(tr("DATE2")));
 
-    CModule p_Module(*p_Module1);
+    /*
+    CModule *p_Module2 = new CModule(*p_Module1);
+    delete p_Module1;
+
     //Test Getters
-    QCOMPARE(p_Module.GetModuleName(), QString(tr("Drawer Left")));
-    QCOMPARE(p_Module.GetModuleDescription(), QString(tr("Loader")));
-    QCOMPARE(p_Module.GetSerialNumber(), QString(tr("SN_LOADER_00001")));
-    QCOMPARE(p_Module.GetOperatingHours(), QString(tr("Hrs")));
-    QCOMPARE(p_Module.GetDateOfProduction(), QString(tr("DATE2")));
+    QCOMPARE(p_Module2->GetModuleName(),QString(tr("Drawer Left")));
+    QCOMPARE(p_Module2->GetModuleDescription(),QString(tr("Loader")));
+    QCOMPARE(p_Module2->GetSerialNumber(),QString(tr("SN_LOADER_00001")));
+    QCOMPARE(p_Module2->GetOperatingHours(),QString(tr("Hrs")));
+    QCOMPARE(p_Module2->GetDateOfProduction(),QString(tr("DATE2")));
+
+    */
+
+    CModule* p_Module3 = new CModule();
+    *p_Module3 = *p_Module1;
+    delete p_Module1;
+
+    //Test Getters
+    QCOMPARE(p_Module3->GetModuleName(),QString(tr("Drawer Left")));
+    QCOMPARE(p_Module3->GetModuleDescription(),QString(tr("Loader")));
+    QCOMPARE(p_Module3->GetSerialNumber(),QString(tr("SN_LOADER_00001")));
+    QCOMPARE(p_Module3->GetOperatingHours(),QString(tr("Hrs")));
+    QCOMPARE(p_Module3->GetDateOfProduction(),QString(tr("DATE2")));
+
+    delete p_Module3;
 
 }
 void TestDataModuleList::utTestDataModuleList()
 {
+
 
     CModuleDataList* p_ModuleList = new CModuleDataList("2012-08-12 09:19:49.611");
 
@@ -162,10 +245,12 @@ void TestDataModuleList::utTestDataModuleList()
     delete p_Module;
     delete p_ModuleList;
 
+
 }
 
 void TestDataModuleList::utTestDataModuleListVerifier()
 {
+
     CModuleDataList *p_ModuleList = new CModuleDataList();
     CModuleDataListVerifier *p_ModuleListVerifier = new CModuleDataListVerifier();
     p_ModuleList->AddVerifier(p_ModuleListVerifier);
@@ -185,6 +270,7 @@ void TestDataModuleList::utTestDataModuleListVerifier()
 
     QCOMPARE(p_Module1->AddSubModuleInfo(p_SubModule), true);
     QCOMPARE(p_ModuleList->AddModule(p_Module1), false);
+
 
 }
 
