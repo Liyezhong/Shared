@@ -119,9 +119,14 @@ void TestAdjustment::utTestReadWrite()
         {
             p_AdjustmentSrc->GetXyzPosition(LEFT_XYZ, Row, Column, Position);
 
-            Position.PositionX += 1;
-            Position.PositionY += 1;
-            Position.PositionZ += 1;
+            qDebug() << Row << Column << ": "
+                     << Position.PositionX
+                     << Position.PositionY
+                     << Position.PositionZ;
+
+//            Position.PositionX -= 1;
+//            Position.PositionY -= 1;
+//            Position.PositionZ -= 1;
 
             p_AdjustmentSrc->SetXyzPosition(LEFT_XYZ, Row, Column, Position);
         }
@@ -134,9 +139,14 @@ void TestAdjustment::utTestReadWrite()
         {
             p_AdjustmentSrc->GetXyzPosition(RIGHT_XYZ, Row, Column, Position);
 
-            Position.PositionX += 1;
-            Position.PositionY += 1;
-            Position.PositionZ += 1;
+            qDebug() << Row << Column << ": "
+                     << Position.PositionX
+                     << Position.PositionY
+                     << Position.PositionZ;
+
+//            Position.PositionX -= 1;
+//            Position.PositionY -= 1;
+//            Position.PositionZ -= 1;
 
             p_AdjustmentSrc->SetXyzPosition(RIGHT_XYZ, Row, Column, Position);
         }
@@ -159,6 +169,19 @@ void TestAdjustment::utTestAssignment()
 
     // Verify assignment operator
     *p_AdjustmentCpy = *p_AdjustmentSrc;
+
+    for (quint8 Row = 0; Row < XYZ_MAX_ROWS; Row++)
+    {
+        for (quint8 Column = 0; Column < XYZ_MAX_COLS; Column++)
+        {
+            p_AdjustmentSrc->GetXyzPosition(LEFT_XYZ, Row, Column, PositionSrc);
+            p_AdjustmentCpy->GetXyzPosition(LEFT_XYZ, Row, Column, PositionCpy);
+
+            QCOMPARE(PositionSrc.PositionX, PositionCpy.PositionX);
+            QCOMPARE(PositionSrc.PositionY, PositionCpy.PositionY);
+            QCOMPARE(PositionSrc.PositionZ, PositionCpy.PositionZ);
+        }
+    }
 
     for (quint8 Row = 0; Row < XYZ_MAX_ROWS; Row++)
     {
@@ -188,6 +211,19 @@ void TestAdjustment::utTestCopyConstructor()
     QCOMPARE(p_AdjustmentSrc->GetDataContainerType(), ADJUSTMENT);
 
     // Verify copy constructor
+    for (quint8 Row = 0; Row < XYZ_MAX_ROWS; Row++)
+    {
+        for (quint8 Column = 0; Column < XYZ_MAX_COLS; Column++)
+        {
+            p_AdjustmentSrc->GetXyzPosition(LEFT_XYZ, Row, Column, PositionSrc);
+            p_AdjustmentCpy->GetXyzPosition(LEFT_XYZ, Row, Column, PositionCpy);
+
+            QCOMPARE(PositionSrc.PositionX, PositionCpy.PositionX);
+            QCOMPARE(PositionSrc.PositionY, PositionCpy.PositionY);
+            QCOMPARE(PositionSrc.PositionZ, PositionCpy.PositionZ);
+        }
+    }
+
     for (quint8 Row = 0; Row < XYZ_MAX_ROWS; Row++)
     {
         for (quint8 Column = 0; Column < XYZ_MAX_COLS; Column++)
