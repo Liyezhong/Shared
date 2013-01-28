@@ -54,6 +54,28 @@ typedef QList<QString> ListofOrderedModules_t; //!< List for module names
 class CModuleDataList : public CDataContainerBase
 {
 
+    QString m_InstrumentName;   //!< name of the Instrument
+    QString m_ModuleTimeStamp;  //!< Time Stamp of the Module
+    ListofModules_t m_ModuleList;   //!< Module List
+    ListofOrderedModules_t m_ListofModules; //!< List of Module Names
+    QString m_FileName; //!< XML file name
+
+    QReadWriteLock *mp_ReadWriteLock;
+    ErrorHash_t m_ErrorHash;
+
+    bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
+
+    bool SerializeContent(QIODevice& IODevice, bool CompleteData);
+    bool DeserializeContent(QIODevice& IODevice, bool CompleteData);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  To read module info from xml
+     *  \return true on success, false on failure
+     */
+    /****************************************************************************/
+    bool ReadModules(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CModuleDataList&  ModuleList);
     friend QDataStream& operator >>(QDataStream& InDataStream, CModuleDataList& ModuleList);
 
@@ -212,31 +234,7 @@ public:
 
     bool UpdateModule(CModule const* p_Module);  // content of p_Module will be copied  => delete outside!
 
-
-private:
-    QString m_InstrumentName;   //!< name of the Instrument
-    QString m_ModuleTimeStamp;  //!< Time Stamp of the Module
-    ListofModules_t m_ModuleList;   //!< Module List
-    ListofOrderedModules_t m_ListofModules; //!< List of Module Names
-    QString m_FileName; //!< XML file name
-
-    QReadWriteLock *mp_ReadWriteLock;
-    ErrorHash_t m_ErrorHash;
-
-    bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
-
-    bool SerializeContent(QIODevice& IODevice, bool CompleteData);
-    bool DeserializeContent(QIODevice& IODevice, bool CompleteData);   
-
-    /****************************************************************************/
-    /*!
-     *  \brief  To read module info from xml
-     *  \return true on success, false on failure
-     */
-    /****************************************************************************/
-    bool ReadModules(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 };
-
 
 }   // namespace DataManager
 
