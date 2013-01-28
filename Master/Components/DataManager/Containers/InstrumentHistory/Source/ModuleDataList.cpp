@@ -95,7 +95,7 @@ CModuleDataList::~CModuleDataList()
 
     if (mp_ReadWriteLock != NULL) {
        try {
-           delete mp_ReadWriteLock;
+           //delete mp_ReadWriteLock;
        }
        catch(...) {
            //to please PClint
@@ -431,7 +431,7 @@ bool CModuleDataList::AddModule(CModule const* p_Module)
         delete p_MDL_Verification;
 
     } else {
-        QWriteLocker locker(mp_ReadWriteLock);
+        //QWriteLocker locker(mp_ReadWriteLock);
         m_ModuleList.insert(p_TempModule->GetModuleName(), p_TempModule);
         m_ListofModules.append(p_TempModule->GetModuleName());
 
