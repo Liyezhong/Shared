@@ -34,7 +34,6 @@
 namespace DataManager
 {
 
-
 typedef QHash<QString, CSubModule*> ListofSubModule_t; //!< Hash Table for list of SubModules
 typedef QList<QString> SubModuleList_t; //!< List of SubModule Names
 
@@ -46,6 +45,20 @@ typedef QList<QString> SubModuleList_t; //!< List of SubModule Names
 /****************************************************************************/
 class CModule
 {
+    QString m_ModuleName;   //!< name of the Module
+    QString m_ModuleDescription; //!< Description of the Module
+    QString m_SerialNumber; //!< Serial Number of the Module
+    QString m_OperatingHours; //!< Operating Hours
+    QString m_DateOfProduction; //!< Date of production
+
+    ListofSubModule_t m_SubModuleList; //!< List of SubModules
+    SubModuleList_t m_OrderedSubModuleList; //!< List of SubModule Names
+
+    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
+    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+
+    bool ReadSubModuleInfo(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+
     friend class CModuleDataList;
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CModule&  Module);
     friend QDataStream& operator >>(QDataStream& InDataStream, CModule& Module);
@@ -201,20 +214,6 @@ public:
 
     bool UpdateSubModule(const CSubModule* p_SubModule);
 
-private:
-    QString m_ModuleName;   //!< name of the Module
-    QString m_ModuleDescription; //!< Description of the Module
-    QString m_SerialNumber; //!< Serial Number of the Module    
-    QString m_OperatingHours; //!< Operating Hours
-    QString m_DateOfProduction; //!< Date of production   
-
-    ListofSubModule_t m_SubModuleList; //!< List of SubModules
-    SubModuleList_t m_OrderedSubModuleList; //!< List of SubModule Names
-
-    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
-
-    bool ReadSubModuleInfo(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
 };
 

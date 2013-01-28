@@ -54,6 +54,17 @@ typedef QHash<QString, Parameter_t*> ListOfParameters_t;    //!< QHash for List 
 /****************************************************************************/
 class CSubModule
 {
+
+    QString m_SubModuleName;        //!< Name of the SubModule
+    QString m_SubModuleType;        //!< Type of SubModule
+    QString m_SubModuleDescription; //!< Description of the SubModule
+
+    ListOfParameterNames_t m_ParameterNames;    //!< List of Parameter Name;
+    ListOfParameters_t m_ListOfParameters;      //!< Parameter Information in QHash
+
+    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
+    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+
     friend class CModule;
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CSubModule&  SubModule);
     friend QDataStream& operator >>(QDataStream& InDataStream, CSubModule& SubModule);
@@ -222,16 +233,6 @@ public:
     /****************************************************************************/
     bool DeleteAllParameters();
 
-private:
-    QString m_SubModuleName;        //!< Name of the SubModule
-    QString m_SubModuleType;        //!< Type of SubModule
-    QString m_SubModuleDescription; //!< Description of the SubModule
-
-    ListOfParameterNames_t m_ParameterNames;    //!< List of Parameter Name;
-    ListOfParameters_t m_ListOfParameters;      //!< Parameter Information in QHash
-
-    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 };
 
 } // namespace DataManager
