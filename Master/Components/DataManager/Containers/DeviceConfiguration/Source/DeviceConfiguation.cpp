@@ -166,37 +166,37 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
     SetVersion(XmlStreamReader.attributes().value("Version").toString());
     // Read attribute SLIDEIDCAMERA
     if (!XmlStreamReader.attributes().hasAttribute("SLIDEIDCAMERA")) {
-        qDebug() << "### attribute <Version> is missing => abort reading";
+        qDebug() << "### attribute <SLIDEIDCAMERA> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SLIDEIDCAMERA", true);
         return false;
     }
     // Read attribute WORKSTATIONMODE
     if (!XmlStreamReader.attributes().hasAttribute("WORKSTATIONMODE")) {
-        qDebug() << "### attribute <Version> is missing => abort reading";
+        qDebug() << "### attribute <WORKSTATIONMODE> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WORKSTATIONMODE", true);
         return false;
     }
     // Read attribute DEVICENAME
     if (!XmlStreamReader.attributes().hasAttribute("DEVICENAME")) {
-        qDebug() << "### attribute <Version> is missing => abort reading";
+        qDebug() << "### attribute <DEVICENAME> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DEVICENAME", true);
         return false;
     }
     // Read attribute SERIALNUMBER
     if (!XmlStreamReader.attributes().hasAttribute("SERIALNUMBER")) {
-        qDebug() << "### attribute <Version> is missing => abort reading";
+        qDebug() << "### attribute <SERIALNUMBER> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SERIALNUMBER", true);
         return false;
     }
     // Read attribute COVERSLIPPERNAME
     if (!XmlStreamReader.attributes().hasAttribute("COVERSLIPPERNAME")) {
-        qDebug() << "### attribute <Version> is missing => abort reading";
+        qDebug() << "### attribute <COVERSLIPPERNAME> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "COVERSLIPPERNAME", true);
         return false;
     }
     // Read attribute HEATEDCUEVETTES
     if (!XmlStreamReader.attributes().hasAttribute("HEATEDCUEVETTES")) {
-        qDebug() << "### attribute <Version> is missing => abort reading";
+        qDebug() << "### attribute <HEATEDCUEVETTES> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "HEATEDCUEVETTES", true);
         return false;
     }
