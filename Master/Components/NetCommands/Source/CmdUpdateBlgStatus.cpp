@@ -42,9 +42,6 @@ CmdUpdateBlgStatus::CmdUpdateBlgStatus(int Timeout,const BlgStatus_t BlgStatusId
 /****************************************************************************/
 /*!
  *  \brief   Constructor
- *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   Bathlayout  The new bath layout.
  */
 /****************************************************************************/
 CmdUpdateBlgStatus::CmdUpdateBlgStatus() :
