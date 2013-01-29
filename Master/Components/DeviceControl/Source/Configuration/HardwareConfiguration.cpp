@@ -1443,7 +1443,7 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     QDomElement child;
     QDomElement childPidControllers;
     QDomElement childPidController;
-    QString strTempTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
+    QString strTempTolerance, strTempRange, strSamplingPeriod, strFanSpeed, strFanThreshold,
             strCurrentGain, strHeaterCurrent, strHeaterThreshold;
     QString strMaxTemperature, strControllerGain, strResetTime, strDerivativeTime;
     bool ok;
@@ -1455,7 +1455,10 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
         return pCANObjFctTempCtrl;
     } 
 
+    pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
+
     strTempTolerance = child.attribute("temp_tolerance");
+    strTempRange = child.attribute("temp_range");
     strSamplingPeriod = child.attribute("sampling_period");
     strFanSpeed = child.attribute("fan_speed");
     strFanThreshold = child.attribute("fan_threshold");
@@ -1463,8 +1466,15 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     strHeaterCurrent = child.attribute("heater_current");
     strHeaterThreshold = child.attribute("heater_threshold");
 
-    pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
-    pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toUShort(&ok);
+    if (!strTempTolerance.isEmpty()) {
+        pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toUShort(&ok);
+        if (!ok) {
+            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+            delete pCANObjFctTempCtrl;
+            return NULL;
+        }
+    }
+    pCANObjFctTempCtrl->bTempRange = strTempRange.toUShort(&ok);
     if (!ok) {
         m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
         delete pCANObjFctTempCtrl;

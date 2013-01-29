@@ -650,7 +650,7 @@ void CTemperatureControl::HandleCANMsgTemperature(can_frame* pCANframe)
     TempCtrlOperatingMode_t TempCtrlOpMode = TEMPCTRL_OPMODE_FULL;
     TempCtrlMainsVoltage_t TempCtrlVoltage = TEMPCTRL_VOLTAGE_220V;
 
-    if(pCANframe->can_dlc == 7)
+    if(pCANframe->can_dlc == 8)
     {
         //determine the temperature control status
         if(pCANframe->data[0] & (1 << TEMP_CTRL_ACTIVE_BITPOS))
@@ -967,7 +967,8 @@ ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature()
     SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sSamplingPeriod, 3);
     canmsg.data[5] = 0;
     canmsg.data[6] = 0;
-    canmsg.can_dlc = 7;
+    canmsg.data[7] = pCANObjConfTemp->bTempRange;
+    canmsg.can_dlc = 8;
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
     FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: CanID: 0x" << std::hex << m_unCanIDTemperatureSet;

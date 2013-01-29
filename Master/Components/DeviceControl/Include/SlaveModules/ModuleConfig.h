@@ -457,6 +457,7 @@ class CANFctModuleTempCtrl : public CModuleConfig
 public:
     CANFctModuleTempCtrl() {
         bTempTolerance = 0;
+        bTempRange = 0;
         sSamplingPeriod = 0;
         sFanSpeed = 0;
         sFanThreshold = 0;
@@ -465,6 +466,7 @@ public:
         sHeaterThreshold = 0;
     }
     quint8 bTempTolerance;      //!< temperature tolerance in degree Celsius
+    quint8 bTempRange;          //!< desired temperature range in degree Celsius
     quint16 sSamplingPeriod;    //!< sampling period in hundredth of seconds
     quint16 sFanSpeed;          //!< fan speed in rotations per minute
     quint16 sFanThreshold;      //!< fan threshold in rotations per minute
