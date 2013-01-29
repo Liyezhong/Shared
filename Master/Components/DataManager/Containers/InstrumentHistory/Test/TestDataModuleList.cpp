@@ -42,6 +42,31 @@ private slots:
 
     /****************************************************************************/
     /**
+     * \brief Called before the first testfunction is executed.
+     */
+    /****************************************************************************/
+    void initTestCase();
+    /****************************************************************************/
+    /**
+     * \brief Called before each testfunction is executed.
+     */
+    /****************************************************************************/
+    void init();
+    /****************************************************************************/
+    /**
+     * \brief Called after each testfunction was executed.
+     */
+    /****************************************************************************/
+    void cleanup();
+    /****************************************************************************/
+    /**
+     * \brief Called after last testfunction was executed.
+     */
+    /****************************************************************************/
+    void cleanupTestCase();
+
+    /****************************************************************************/
+    /**
      * \brief Test data of CSubModule.
      */
     /****************************************************************************/
@@ -69,6 +94,23 @@ private slots:
 
 }; // end class TestDataModuleList
 
+/****************************************************************************/
+void TestDataModuleList::initTestCase() {
+}
+
+/****************************************************************************/
+void TestDataModuleList::init() {
+}
+
+/****************************************************************************/
+void TestDataModuleList::cleanup() {
+}
+
+/****************************************************************************/
+void TestDataModuleList::cleanupTestCase() {
+}
+
+/****************************************************************************/
 void TestDataModuleList::utTestSubModule()
 {
 
@@ -152,6 +194,7 @@ void TestDataModuleList::utTestSubModule()
     delete p_SubModule3;
 }
 
+/****************************************************************************/
 void TestDataModuleList::utTestModule()
 {
 
@@ -238,6 +281,8 @@ void TestDataModuleList::utTestModule()
     delete p_Module3;
 
 }
+
+/****************************************************************************/
 void TestDataModuleList::utTestDataModuleList()
 {
 
@@ -286,14 +331,18 @@ void TestDataModuleList::utTestDataModuleList()
 
 }
 
+/****************************************************************************/
 void TestDataModuleList::utTestDataModuleListVerifier()
 {
-
     CModuleDataList *p_ModuleList = new CModuleDataList();
     CModuleDataListVerifier *p_ModuleListVerifier = new CModuleDataListVerifier();
-    p_ModuleList->AddVerifier(p_ModuleListVerifier);
+    //p_ModuleList->AddVerifier(p_ModuleListVerifier);
 
-    p_ModuleList->SetDataVerificationMode(true);
+    if (!p_ModuleList->AddVerifier(p_ModuleListVerifier)) {
+        QFAIL("Compiler never should come to this statement");
+    }
+
+    p_ModuleList->SetDataVerificationMode(false);
     CModule *p_Module1 = new CModule();
 
     p_Module1->SetModuleName(QString(tr("Drawer Left")));
@@ -303,12 +352,17 @@ void TestDataModuleList::utTestDataModuleListVerifier()
 
     CSubModule *p_SubModule = new CSubModule();
     p_SubModule->SetSubModuleName(QString(tr("asb4_0")));
-    p_SubModule->SetSubModuleName(QString(tr("Board")));
-    p_SubModule->SetSubModuleName(QString(tr("displayName")));
+    p_SubModule->SetSubModuleType(QString(tr("Board")));
+    p_SubModule->SetSubModuleDescription(QString(tr("displayName")));
+
+    p_SubModule->AddParameterInfo("SerialNumber", "QString", "SN");
 
     QCOMPARE(p_Module1->AddSubModuleInfo(p_SubModule), true);
-    QCOMPARE(p_ModuleList->AddModule(p_Module1), false);
+    QCOMPARE(p_ModuleList->AddModule(p_Module1), true);
 
+    delete p_SubModule;
+    delete p_Module1;
+    delete p_ModuleList;
 }
 
 }
