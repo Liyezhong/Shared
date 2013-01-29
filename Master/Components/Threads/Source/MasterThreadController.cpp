@@ -754,14 +754,10 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
     }
 
     for(QSet<QLocale::Language>::const_iterator itl = LanguageList.constBegin(); itl != LanguageList.constEnd(); ++itl) {
-        QString FileName;
-        if (*itl == QLocale::English) {
-            FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/EventStrings.xml";
-        }
-        else {
-            FileName = Global::SystemPaths::Instance().GetTranslationsPath() + "/EventStrings_" +
-                    Global::LanguageToLanguageCode(*itl) + ".xml";
-        }
+
+        QString FileName = Global::SystemPaths::Instance().GetTranslationsPath() + "/EventStrings_" +
+                Global::LanguageToLanguageCode(*itl) + ".xml";
+
         try {            
             // read strings for specified language
             DataManager::XmlConfigFileStrings TranslatorDataFile;
