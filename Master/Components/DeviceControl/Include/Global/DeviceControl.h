@@ -224,6 +224,12 @@ typedef enum {
     LOADER_ID_RFID_5     = 0x05    //!< vessel 5
 } LoaderRFIDChannel_t;
 
+typedef enum {
+    STATION_RFID_EMPTY      = 0x00,
+    STATION_RFID_OK         = 0x01,
+    STATION_RFID_UNKNOWN    = 0x02
+} DrawerRFIDState_t;
+
 /*! predefined agitation speeds */
 typedef enum {
     AGITATION_SPEED_UNDEF = 0x00,  //!< undefined
