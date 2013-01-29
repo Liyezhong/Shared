@@ -266,14 +266,21 @@ static Error_t aiModuleTask (UInt16 Instance)
             }
             Delta = Status;
 
-            if (Data->Threshold) {
-                if (Delta >= Data->Threshold) {
-                    DataRequest = TRUE;
+            if (Data->InCount >= Data->Filter+1) {
+                if (Data->Threshold) {
+                    if (Delta >= Data->Threshold) {
+                        if (Data->InCount > Data->Filter+1) {
+                            DataRequest = TRUE;
+                        }
+                        else {
+                            Data->OldValue = Data->CurValue;
+                        }
+                    }
                 }
-            }
-            if (Data->CheckLimits == TRUE) {
-                if (aiMonitorLimits (Data)) {
-                    DataRequest = TRUE;
+                if (Data->CheckLimits == TRUE) {
+                    if (aiMonitorLimits (Data)) {
+                        DataRequest = TRUE;
+                    }
                 }
             }
             if (Data->Flags.Bits.UseTimestamp == TRUE) {
@@ -449,7 +456,6 @@ static Error_t aiSendInputValue (aiInstanceData_t *Data) {
     bmSetMessageItem (&Message, Data->CurValue, 0, 2);
 
     if (Data->Flags.Bits.UseTimestamp == TRUE) {
-
         bmSetMessageItem (&Message, Data->TimeStamp, 2, 4);
         Message.Length = 6;
     }
@@ -558,6 +564,7 @@ static Error_t aiConfigureInput (UInt16 Channel, CanMessage_t *Message) {
         return (E_MODULE_NOT_USEABLE);
     }
     if (Message->Length == 5) {
+        Bool ModuleEnableOld = Data->Flags.Bits.ModuleEnable;
         Bool FastSamplingOld = Data->Flags.Bits.FastSampling;
 
         Data->Flags.Byte = bmGetMessageItem(Message, 0, 1);
@@ -575,7 +582,9 @@ static Error_t aiConfigureInput (UInt16 Channel, CanMessage_t *Message) {
         if (!Data->SampleRate) {
             Data->SampleRate = AI_DEFAULT_SAMPLE_RATE;
         }
-        Data->SampleTime = bmGetTime();
+        if (Data->Flags.Bits.ModuleEnable == TRUE && ModuleEnableOld == FALSE) {
+            Data->SampleTime = bmGetTime();
+        }
 
         if ((Status = halAnalogControl (Data->Handle, AIO_INTR_DISABLE)) < NO_ERROR) {
             return (Status);

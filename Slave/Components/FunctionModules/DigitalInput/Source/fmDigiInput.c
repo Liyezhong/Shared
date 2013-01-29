@@ -82,6 +82,7 @@ typedef struct {
     UInt16 Channel;                 //!< Logical CAN channel
     diInstanceFlags_t Flags;        //!< Mode control flag bits
     Bool CheckLimits;               //!< Limit check enable
+    Bool OldValueValid;             //!< Old value valid flag
 
     UInt32 SampleRate;              //!< Sample rate (ms)
     UInt32 SampleTime;              //!< Time of last sampling
@@ -268,7 +269,13 @@ static Error_t diModuleTask (UInt16 Instance) {
                 // debouncing done; take over new value
                 if (Data->Threshold) {
                     if (Delta >= Data->Threshold) {
-                        DataRequests++;
+                        if (Data->OldValueValid == TRUE) {
+                            DataRequests++;
+                        }
+                        else {
+                            Data->OldValue = Data->CurValue;
+                            Data->OldValueValid = TRUE;
+                        }
                     }
                 }
                 if (Data->CheckLimits == TRUE) {
@@ -427,6 +434,7 @@ static Error_t diSendInputValue (diInstanceData_t *Data) {
         Message.Length = 2;
     }
     Data->OldValue = Data->CurValue;
+    Data->OldValueValid = TRUE;
 
     return (canWriteMessage(Data->Channel, &Message));
 }
@@ -492,6 +500,8 @@ static Error_t diConfigureInput (UInt16 Channel, CanMessage_t *Message) {
         return (E_MODULE_NOT_USEABLE);
     }
     if (Message->Length == 7) {
+        Bool ModuleEnableOld = Data->Flags.Bits.ModuleEnable;
+
         Data->Flags.Byte = bmGetMessageItem(Message, 0, 1);
         Data->Polarity   = bmGetMessageItem(Message, 1, 2);
         Data->Threshold  = bmGetMessageItem(Message, 3, 2);
@@ -500,9 +510,13 @@ static Error_t diConfigureInput (UInt16 Channel, CanMessage_t *Message) {
 
         if (Data->Flags.Bits.ModuleEnable == FALSE) {
             Data->SampleCount = DI_DEFAULT_SAMPLE_COUNT;
+            Data->OldValueValid = FALSE;
         }
         if (!Data->SampleRate) {
             Data->SampleRate = DI_DEFAULT_SAMPLE_RATE;
+        }
+        if (Data->Flags.Bits.ModuleEnable == TRUE && ModuleEnableOld == FALSE) {
+            Data->SampleTime = bmGetTime();
         }
         return (NO_ERROR);
     }
@@ -589,6 +603,7 @@ static void diResetInstanceData(UInt16 Instance) {
     Data->ModuleState = MODULE_STATE_READY;
     Data->Flags.Byte = 0;
     Data->CheckLimits = FALSE;
+    Data->OldValueValid = FALSE;
 
     Data->SampleRate = DI_DEFAULT_SAMPLE_RATE;
     Data->SampleTime = 0;
