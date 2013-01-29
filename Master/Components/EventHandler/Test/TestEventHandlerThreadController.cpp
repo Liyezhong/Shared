@@ -35,16 +35,14 @@
 #include <DataLogging/Include/DayEventEntry.h>
 #include <Threads/Include/ThreadController.h>
 #include <DataLogging/Include/DataLoggingThreadController.h>
-#include <EventHandler/Include/ErrorHandler.h>
 #include <Global/Include/AlarmHandler.h>
 #include <Global/Include/EventTranslator.h>
 #include <Global/Include/UITranslator.h>
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
-#include <EventHandler/Include/ActionHandler.h>
 
-#include <Threads/Include/CommandChannel.h>
+
 #include <Threads/Include/MasterThreadController.h>
 #include <Global/Include/AlarmHandler.h>
 
