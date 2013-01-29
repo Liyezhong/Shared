@@ -108,6 +108,9 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
         return false;
     }
 
+    m_Timer.setInterval(10);
+    m_Timer.setSingleShot(true);
+
     /////////////////////////////////////////////////////////////////
     // Initializing
     /////////////////////////////////////////////////////////////////
@@ -115,6 +118,7 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     CState *p_WaitForAck1 = new CState("WaitForAck1", mp_Initializing);
     CState *p_WaitForAck2 = new CState("WaitForAck2", mp_Initializing);
     CState *p_WaitForAck3 = new CState("WaitForAck3", mp_Initializing);
+    CState *p_WaitForTimer = new CState("WaitForTimer", mp_Initializing);
     CState *p_WaitForValue = new CState("WaitForValue", mp_Initializing);
     CState *p_WaitForAckOff = new CState("WaitForAckOff", mp_Initializing);
     QFinalState *p_InitEnd = new QFinalState(mp_Initializing);
@@ -150,13 +154,18 @@ bool CDeviceSlideId::Trans_Configure(QEvent *p_Event)
     // Any of the analog outputs is able to activate the transition
     p_WaitForAck3->addTransition(new CSlideIdTransition(
             mp_TransmitControl, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
-            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForValue));
+            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForTimer));
     p_WaitForAck3->addTransition(new CSlideIdTransition(
             mp_TransmitCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
-            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForValue));
+            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForTimer));
     p_WaitForAck3->addTransition(new CSlideIdTransition(
             mp_ReceiveCurrent, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
-            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForValue));
+            *this, &CDeviceSlideId::LastOutputValueAckn, p_WaitForTimer));
+
+    // Timer waiting until the laser output is stable
+    p_WaitForTimer->addTransition(new CSlideIdTransition(
+            &m_Timer, SIGNAL(timeout()),
+            *this, &CDeviceSlideId::Timeout, p_WaitForValue));
 
     // Read the value at the photoelectric detector
     p_WaitForValue->addTransition(new CSlideIdTransition(
@@ -235,7 +244,7 @@ bool CDeviceSlideId::EnableSlideCounter(QEvent *p_Event)
         emit NeedInitialize(ReturnCode);
         return false;
     }
-    ReturnCode = mp_TransmitCurrent->SetOutputValue(0);
+    ReturnCode = mp_TransmitCurrent->SetOutputValue(0xAFFF);
     if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
         emit NeedInitialize(ReturnCode);
         return false;
@@ -279,7 +288,7 @@ bool CDeviceSlideId::LastOutputValueAckn(QEvent *p_Event)
 
 /****************************************************************************/
 /*!
- *  \brief  Confirms that the output was enabled and requests the state
+ *  \brief  Confirms that the output was enabled and starts a timer
  *
  *  \iparam p_Event = Parameters of the signal ReportOutputValueAckn
  *  \iparam Last = Indicates if this is the last acknowledge signal
@@ -296,11 +305,29 @@ bool CDeviceSlideId::OutputValueAckn(QEvent *p_Event, bool Last)
     }
 
     if (true == Last) {
-        ReturnCode = mp_PhotoDetector->ReqActInputValue();
-        if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
-            emit NeedInitialize(ReturnCode);
-            return false;
-        }
+        m_Timer.start();
+    }
+
+    return true;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Waits until the laser is stable and requests the state
+ *
+ *  \iparam p_Event = Signal parameters (unused)
+ *
+ *  \return Transition should be performed or not.
+ */
+/****************************************************************************/
+bool CDeviceSlideId::Timeout(QEvent *p_Event)
+{
+    Q_UNUSED(p_Event)
+
+    ReturnCode_t ReturnCode = mp_PhotoDetector->ReqActInputValue();
+    if(DCL_ERR_FCT_CALL_SUCCESS != ReturnCode) {
+        emit NeedInitialize(ReturnCode);
+        return false;
     }
 
     return true;
@@ -329,7 +356,7 @@ bool CDeviceSlideId::OnActInputValue(QEvent *p_Event)
         return false;
     }
 
-    if (100 > Value) {
+    if (1000 > Value) {
         emit NeedInitialize(DCL_ERR_INTERNAL_ERR);
         return false;
     }

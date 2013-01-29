@@ -67,6 +67,7 @@ private:
     bool NormalOutputValueAckn(QEvent *p_Event);
     bool LastOutputValueAckn(QEvent *p_Event);
     bool OutputValueAckn(QEvent *p_Event, bool Last);
+    bool Timeout(QEvent *p_Event);
     bool OnActInputValue(QEvent *p_Event);
     bool NackStartCounting(QEvent *p_Event);
     bool NackStopCounting(QEvent *p_Event);
@@ -84,6 +85,7 @@ private:
     CAnalogOutput *mp_ReceiveCurrent;   //!< Controls the amplitude of the receiver
 
     quint8 m_SlideCounter;
+    QTimer m_Timer;
 };
 
 } //namespace
