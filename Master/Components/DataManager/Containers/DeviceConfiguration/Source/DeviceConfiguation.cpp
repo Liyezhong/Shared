@@ -113,7 +113,7 @@ bool CDeviceConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, b
 {
     // write the document type declaration
     XmlStreamWriter.writeStartElement("Device");
-    XmlStreamWriter.writeAttribute("Version", GetVersion());
+//    XmlStreamWriter.writeAttribute("Version", GetVersion());
 
     QHashIterator<QString, QString> i(m_ValueList);
     while (i.hasNext())
@@ -158,12 +158,12 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
     }
 
     // Read attribute Version
-    if (!XmlStreamReader.attributes().hasAttribute("Version")) {
+    if (!XmlStreamReader.attributes().hasAttribute("VERSION")) {
         qDebug() << "### attribute <Version> is missing => abort reading";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Version", true);
         return false;
     }
-    SetVersion(XmlStreamReader.attributes().value("Version").toString());
+    SetVersion(XmlStreamReader.attributes().value("VERSION").toString());
     // Read attribute SLIDEIDCAMERA
     if (!XmlStreamReader.attributes().hasAttribute("SLIDEIDCAMERA")) {
         qDebug() << "### attribute <SLIDEIDCAMERA> is missing => abort reading";

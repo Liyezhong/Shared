@@ -271,54 +271,6 @@ bool CDeviceConfigurationInterface::SerializeContent(QIODevice& IODevice, bool C
     // write enddocument
     XmlStreamWriter.writeEndDocument();
 
-//    file.close();
-
-//    QFile* file2 = new QFile("TestDevice2.xml");
-//    file2->open(QIODevice::ReadOnly);
-//    QXmlStreamReader xml;   //(file2);
-//    xml.setDevice(file2);
-
-////    while(!xml.atEnd() && !xml.hasError())
-//    xml.readNextStartElement();
-//    for (int i=0; i<12; i++)
-//    {
-//        qDebug() << xml.tokenType() << xml.name();
-//        xml.readNext();
-//    }
-//    file2->close();
-
-//    QDomDocument doc("TestDevice2");
-//    QFile file3("TestDevice2.xml");
-//    if (!file3.open(QIODevice::ReadOnly))
-//        return false;
-//    if (!doc.setContent(&file3)) {
-//        file3.close();
-//        return false;
-//    }
-//    file3.close();
-
-//    // print out the element names of all elements that are direct children
-//    // of the outermost element.
-//    QDomElement docElem = doc.documentElement();
-
-//    QDomNode n = docElem.firstChild();
-//    while(!n.isNull()) {
-//        QDomElement e = n.toElement(); // try to convert the node to an element.
-//        if(!e.isNull())
-//        {
-//            qDebug() << qPrintable(e.tagName()) << endl; // the node really is an element.
-//            if (e.hasAttributes())
-//            {
-////                foreach (QDomAttr attr, e.attributes())
-//                for (int i = 0; i < e.attributes().count(); i++)
-//                {
-//                    QDomNode attr = e.attributes().item(i);
-//                    qDebug() << "..." << attr.toAttr().name() << attr.toAttr().value();
-//                }
-//            }
-//        }
-//        n = n.nextSibling();
-//    }
 
 
     return true;
