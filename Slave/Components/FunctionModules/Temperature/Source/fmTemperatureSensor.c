@@ -34,8 +34,8 @@
 
 #define TEMP_SENSOR_MAX 126 //!< Maximal sensor temperature in degree Celsius 
 
-#define TEMP_SENSOR_VOLTAGE     3000  //!< ADC supply voltage used for the NTC 10K3A1I
-#define TEMP_SENSOR_RESISTANCE  10000 //!< Pullup resistance connected to NTC 10K3A1I
+#define TEMP_SENSOR_VOLTAGE     3000 //!< ADC supply voltage used for the NTC 10K3A1I
+#define TEMP_SENSOR_RESISTANCE  2700 //!< Pullup resistance connected to NTC 10K3A1I
 
 /*! Conversion table for a thermocouple of type K (IEC 584) in microvolts */
 static Int16 tempSensorTableTypeK[TEMP_SENSOR_MAX] = {
