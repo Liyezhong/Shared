@@ -671,18 +671,39 @@ bool CModuleDataList::DeleteAllModules()
 /****************************************************************************/
 CModuleDataList& CModuleDataList::operator=(const CModuleDataList& ListofModules)
 {
-    if(this != &ListofModules) {
-        QByteArray TempByteArray;
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-        TempByteArray.clear();
+//    if(this != &ListofModules) {
+//        QByteArray TempByteArray;
+//        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
+//        DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
+//        TempByteArray.clear();
 
-        //Serialize
-        DataStream << ListofModules;
-        (void)DataStream.device()->reset();
+//        //Serialize
+//        DataStream << ListofModules;
+//        (void)DataStream.device()->reset();
 
-        //Deserialize
-        DataStream >> *this;
+//        //Deserialize
+//        DataStream >> *this;
+//    }
+
+    if (this != &ListofModules) {
+
+        this->DeleteAllModules();
+
+        QString InstrumentName = const_cast<CModuleDataList&>(ListofModules).GetInstrumentName();
+        QString TimeStamp = const_cast<CModuleDataList&>(ListofModules).GetModuleTimeStamp();
+        bool VerificationMode = const_cast<CModuleDataList&>(ListofModules).GetDataVerificationMode();
+
+        this->SetInstrumentName(InstrumentName);
+        this->SetModuleTimeStamp(TimeStamp);
+        this->SetDataVerificationMode(VerificationMode);
+
+        int Count = const_cast<CModuleDataList&>(ListofModules).GetNumberofModules();
+
+        for(size_t i=0; i<Count; i++)
+        {
+            CModule* Module = const_cast<CModuleDataList&>(ListofModules).GetModule(i);
+            this->AddModule(Module);
+        }
     }
     return *this;
 }
