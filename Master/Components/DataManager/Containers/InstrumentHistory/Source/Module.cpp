@@ -409,17 +409,28 @@ CSubModule* CModule::GetSubModuleInfo(const unsigned int Index) const
 CModule& CModule::operator=(const CModule& ModuleInfo)
 {
     if(this != &ModuleInfo) {
-        QByteArray TempByteArray;
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-        TempByteArray.clear();
 
-        //Serialize
-        DataStream << ModuleInfo;
-        (void)DataStream.device()->reset();
+        this->DeleteAllSubModule();
 
-        //Deserialize
-        DataStream >> *this;
+        QString Name = const_cast<CModule&>(ModuleInfo).GetModuleName();
+        QString Description = const_cast<CModule&>(ModuleInfo).GetModuleDescription();
+        QString SerialNumber = const_cast<CModule&>(ModuleInfo).GetSerialNumber();
+        QString OpHrs = const_cast<CModule&>(ModuleInfo).GetOperatingHours();
+        QString DateOProd = const_cast<CModule&>(ModuleInfo).GetDateOfProduction();
+
+        this->SetModuleName(Name);
+        this->SetModuleDescription(Description);
+        this->SetSerialNumber(SerialNumber);
+        this->SetOperatingHours(OpHrs);
+        this->SetDateOfProduction(DateOProd);
+
+        int Count = const_cast<CModule&>(ModuleInfo).GetNumberofSubModules();
+
+        for(size_t i=0; i<Count; i++)
+        {
+            CSubModule *SubModule = const_cast<CModule&>(ModuleInfo).GetSubModuleInfo(i);
+            this->AddSubModuleInfo(SubModule);
+        }
     }
     return *this;
 }
