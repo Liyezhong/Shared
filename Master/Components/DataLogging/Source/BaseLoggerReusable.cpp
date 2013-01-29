@@ -50,6 +50,7 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
     CloseFile();
     // compute new file name
     QDir Dir(m_Path);
+
     QString CompleteFileName(QDir::cleanPath(Dir.absoluteFilePath(FileName)));
     // check if the file exists.
     if(!QFile::exists(CompleteFileName)) {

@@ -104,11 +104,17 @@ void BaseLogger::AppendLine(QString Line) {
 //        THROWARGS(Global::EVENT_GLOBAL_ERROR_FILE_WRITE, Global::tTranslatableStringList() << m_File.fileName() <<
 //                  QString::number(WrittenSize, 10) << QString::number(WriteSize, 10));
     }
+    bool FlushError = false;
     // now flush data to disk
     if(!m_File.flush()) {
-        qDebug() << "Flushhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  errorrrrrrrrrrrrrrrrrrrrrrr";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_FLUSH, Global::FmtArgs() << m_File.fileName(), true);
+        FlushError = true;
     }
+
+    if (FlushError) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_FLUSH, Global::FmtArgs() << m_File.fileName(), true);
+        qDebug() << "Flushhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  errorrrrrrrrrrrrrrrrrrrrrrr";
+    }
+
     //Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_FLUSH, Global::FmtArgs() << m_File.fileName(), true);
 }
 

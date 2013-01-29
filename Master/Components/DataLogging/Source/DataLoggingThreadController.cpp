@@ -68,6 +68,16 @@ void DataLoggingThreadController::CreateAndInitializeObjects() {
     m_pEventFilterNetworkServer = new EventFilterNetworkServer(this, 9876);
 #endif
 
+    QDir Directory(Global::SystemPaths::Instance().GetLogfilesPath());
+    // check the path of the log directory
+    if (!Directory.exists()) {
+        if (!Directory.mkdir(Directory.absolutePath())) {
+            /// \todo Raise a exception
+            // return from the function, there is no point configure the logger
+            return;
+        }
+    }
+
     m_DayEventLogger.Configure(DayEventLoggerConfig(m_OperatingMode,
                                                             m_SerialNumber,
                                                             Global::SystemPaths::Instance().GetLogfilesPath(),
