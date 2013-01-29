@@ -107,7 +107,6 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
 
     qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
     QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-    connect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
     m_process->start(program);
 
 
@@ -121,7 +120,7 @@ bool AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 AlarmNumber, quint8 A
     }
 
     else
-    {
+    {   connect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
         m_alarmToneTimer->start(3000);
 
         quint8 number=AlarmNumber;
@@ -151,8 +150,9 @@ void AlarmHandler::StopPlayAlarm()
     {
         qDebug() << "Process completed...";
         m_alarmToneTimer->stop();
+        disconnect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
     }
-    if (m_process->state() == QProcess::Running)
+    else if (m_process->state() == QProcess::Running)
     {
 
         qDebug() << "Process Running...";
@@ -160,6 +160,7 @@ void AlarmHandler::StopPlayAlarm()
         qDebug()<<"Process Killed....";
         m_process->waitForFinished();
         m_alarmToneTimer->stop();
+        disconnect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
 
     }
 
