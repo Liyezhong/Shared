@@ -25,7 +25,6 @@
 
 #include <NetCommands/Include/CmdSystemAction.h>
 #include<NetCommands/Include/CmdEventReport.h>
-#include <EventHandler/Include/ErrorHandler.h>
 #include <EventHandler/Include/EventHandlerThreadController.h>
 #include <Global/Include/Utils.h>
 #include <DataLogging/Include/DayEventEntry.h>
@@ -40,6 +39,8 @@
 #include <QMetaType>
 #include <QThread>
 #include <QDebug>
+
+//#define VALIDATE
 
 
 /****************************************************************************/
@@ -91,7 +92,16 @@ EventHandlerThreadController::~EventHandlerThreadController()
  ****************************************************************************/
 void EventHandlerThreadController::CreateAndInitializeObjects()
 {
-    ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
+    bool ret =  ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
+
+    Q_UNUSED(ret);
+#ifdef VALIDATE
+    if(!ret)
+    {
+        qDebug()<<"Event Configuration file data verifcation failed";
+         return;
+    }
+#endif
 
     // now register commands
     RegisterCommands();
@@ -114,8 +124,7 @@ void EventHandlerThreadController::CreateAndInitializeObjects()
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::AddEventTypes()
-{
+void EventHandlerThreadController::AddEventTypes(){
     //
     m_EventTypeEnumMap.insert( "INFO", Global::EVTTYPE_INFO);
     m_EventTypeEnumMap.insert("WARNING", Global::EVTTYPE_WARNING);
@@ -125,17 +134,16 @@ void EventHandlerThreadController::AddEventTypes()
     m_EventTypeEnumMap.insert("DEBUG", Global::EVTTYPE_DEBUG);
 }
 
-void EventHandlerThreadController::AddEventLogLevels()
-{
+void EventHandlerThreadController::AddEventLogLevels() {
     m_EventLogLevelEnumMap.insert("NONE", Global::LOGLEVEL_NONE);
     m_EventLogLevelEnumMap.insert("MEDIUM", Global::LOGLEVEL_MEDIUM);
     m_EventLogLevelEnumMap.insert("LOW", Global::LOGLEVEL_LOW);
     m_EventLogLevelEnumMap.insert("HIGH", Global::LOGLEVEL_HIGH);
+    m_EventLogLevelEnumMap.insert("",Global::LOGLEVEL_NONE);
 
 }
 
-void EventHandlerThreadController::AddSourceComponents()
-{
+void EventHandlerThreadController::AddSourceComponents() {
     m_EventSourceMap.insert("SEPIA", Global::EVENTSOURCE_SEPIA);
     m_EventSourceMap.insert("DEVICECOMMANDPROCESSOR", Global::EVENTSOURCE_DEVICECOMMANDPROCESSOR);
     m_EventSourceMap.insert("MAIN", Global::EVENTSOURCE_MAIN);
@@ -144,6 +152,7 @@ void EventHandlerThreadController::AddSourceComponents()
     m_EventSourceMap.insert("EXPORT", Global::EVENTSOURCE_EXPORT);
     m_EventSourceMap.insert("IMPORTEXPORT", Global::EVENTSOURCE_IMPORTEXPORT);
     m_EventSourceMap.insert("BLG", Global::EVENTSOURCE_BLG);
+    m_EventSourceMap.insert("",Global::EVENTSOURCE_NONE);
 }
 
 void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64)
@@ -196,18 +205,21 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
 void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm)
 {
     Global::AlarmType AlarmType = Global::ALARM_NONE;
-    if (EventEntry.GetAlarmStatus())
-    {
-        //We need Alarm
-        if (EventEntry.GetEventType() == Global::EVTTYPE_ERROR ) {
-            AlarmType = Global::ALARM_ERROR;
-        }
-        else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING) {
-            AlarmType = Global::ALARM_WARNING;
-        }
-        mpAlarmHandler->setTimeout(1000);// to be set after final discussion with team / Michael
 
-        mpAlarmHandler->setAlarm(EventId64, AlarmType, StartAlarm);
+    if((EventEntry.GetEventType() == Global::EVTTYPE_ERROR || EventEntry.GetEventType() == Global::EVTTYPE_WARNING)) {
+        if (EventEntry.GetAlarmStatus())
+        {
+            //We need Alarm
+            if (EventEntry.GetEventType() == Global::EVTTYPE_ERROR ) {
+                AlarmType = Global::ALARM_ERROR;
+            }
+            else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING) {
+                AlarmType = Global::ALARM_WARNING;
+            }
+            mpAlarmHandler->setTimeout(1000);// to be set after final discussion with team / Michael
+
+            mpAlarmHandler->setAlarm(EventId64, AlarmType, StartAlarm);
+        }
     }
 }
 
@@ -232,6 +244,7 @@ void EventHandlerThreadController::AddActionTypes()
     m_ActionTypeEnumMap.insert("IDLE",Global::ACNTYPE_IDLE);
     m_ActionTypeEnumMap.insert("REMOVEALLRACKS",Global::ACNTYPE_REMOVEALLRACKS);
     m_ActionTypeEnumMap.insert("REMOVERACK",Global::ACNTYPE_REMOVERACK);
+    m_ActionTypeEnumMap.insert("", Global::ACNTYPE_NONE);
 }
 
 
@@ -245,19 +258,19 @@ void EventHandlerThreadController::AddActionTypes()
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::ReadConfigFile(QString filename)
+bool EventHandlerThreadController::ReadConfigFile(QString filename)
 {
     // !\ Read
     // !\ #EventID,EventCODE,EventType,TargetComponent+,Action,SourceComponent,Yes/No,Error/High/Medium/Low/FatalError,Yes/No,True/False,EnglishString,Yes+No+Cancel,EventInfo,Yes/No
     // !\ #EventId (0),EventMacro (1),EventType(2),Target(3),MessageType(4),Source(5),UIAlarmTone(6),LogLevel(7),Ack(8),UserLog(9),
     //    EventString(10),GUIEvent(11),EventInfo(12),StatusBarIcon(13)
 
-    bool status = true;
+    bool ret = false;
     qDebug()<<"EventConfig path"<<filename;
     QFile file(filename);
     if (!file.open (QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug()<<"File Open Failed" << file.errorString();
-        return;
+        return false;
     }
 
     m_eventList.clear();
@@ -283,8 +296,16 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             if (textList.count() > 0)
             {
                 int EventCode = textList.at(0).toInt();
-                if(EventCode == 0)
-                    status = false;
+
+                ret = VerifyEventIDs(EventCode) ;
+
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+
                 EventCSVInfo.SetEventCode(EventCode); // only int check, no other validations done
             }
 
@@ -295,10 +316,14 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             if (textList.count() > 1)
             {
                 EventMacroName = textList.at(1).trimmed(); // No validations required
-                //DayEventEntry.SetEventName(EventMacroName);
+                ret = VerifyEventMacro(EventMacroName);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
             }
-            Q_UNUSED(EventMacroName);
-
 
             //Get EventType
             //! \ Get EventType (2)
@@ -308,58 +333,71 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
                 Global::EventType EventType = m_EventTypeEnumMap.value(textList.at(2).
                                                                        trimmed().toUpper(),
                                                                        Global::EVTTYPE_UNDEFINED);
-
-
-                if(EventType == Global::EVTTYPE_UNDEFINED)  {
-                       status = false;
+                ret = VerifyEventType(EventType);
 #ifdef VALIDATE
-                    return;// the field is mandatory & only the allowed types are acceptable
-#endif
+                if(!ret)
+                {
+                    return ret;
                 }
+#endif
                 EventCSVInfo.SetEventType(EventType);
             }
 
             //Get ActionType
-            //! \ Read ActionType(3) and Set Action / Positive ActionType(3)
-
-            Global::ActionType ActionType = Global::ACNTYPE_NONE;;
-            Global::ActionType ActionTypePositive = Global::ACNTYPE_NONE;
+            //! \ Read ActionType(3) and Set Action / Positive ActionType
+            Global::ActionType ActionType = Global::ACNTYPE_UNEXPECTED;
+            Global::ActionType ActionTypePositive = Global::ACNTYPE_UNEXPECTED;
             if (textList.count() > 3)
             {
                 QStringList ActionInfo = textList.at(3).split("+");
 
+                ActionTypePositive = Global::ACNTYPE_NONE;
+
                 ActionType = m_ActionTypeEnumMap.value(ActionInfo.at(0).
                                                        trimmed().toUpper(),
-                                                       Global::ACNTYPE_NONE);
-                //No validation on Action Type
-
-                //Get Number of attempts
-                if(ActionInfo.count() >= 2)
+                                                       Global::ACNTYPE_UNEXPECTED);
+                if(ActionInfo.count() == 1) {
+                    ret = VerifyAction(ActionType);
+#ifdef VALIDATE
+                if(!ret)
                 {
-                    NumOfAttempts = ActionInfo.at(1).toInt();//else , already initialized to 1!
-                    if(NumOfAttempts == 0)
-                        status = false;
+                    return ret;
                 }
+#endif
 
-                //Get ActionPositive
-                if(ActionInfo.count() == 3)
+                    EventCSVInfo.SetAction((ActionType, 1, Global::ACNTYPE_NONE));
+
+                }
+                else
                 {
-                    ActionTypePositive = m_ActionTypeEnumMap.value(ActionInfo.at(2).
-                                                                   trimmed().toUpper(),
-                                                                   Global::ACNTYPE_NONE);
-                }
 
+                    //Get Number of attempts
+                    if(ActionInfo.count() >= 2)
+                    {
+                        NumOfAttempts = ActionInfo.at(1).toInt();//else , already initialized to 1!
+                    }
+
+
+                    //Get ActionPositive
+                    if(ActionInfo.count() == 3)
+                    {
+                        ActionTypePositive = m_ActionTypeEnumMap.value(ActionInfo.at(2).
+                                                                       trimmed().toUpper(),
+                                                                       Global::ACNTYPE_UNEXPECTED);
+                    }
+                    ret = VerifyActionTypePositivePattern( ActionType, NumOfAttempts, ActionTypePositive);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+
+                }
+                }
                 EventCSVInfo.SetActionInfo(ActionType, NumOfAttempts, ActionTypePositive);
 
-                if(ActionInfo.count() == 2) {
-                    status = false;
 
-#ifdef VALIDATE
-                    return;// error , incomplete data
-#endif
-                }
-
-            }
 
             //Get ActionNegative
             QString ActionNegativeStr = "";
@@ -368,11 +406,17 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             {
                 ActionNegativeStr = textList.at(4).trimmed();
                 ActionNegative = m_ActionTypeEnumMap.value(ActionNegativeStr.trimmed().toUpper(),
-                                                           Global::ACNTYPE_NONE);
-
+                                                           Global::ACNTYPE_UNEXPECTED);
+                ret = VerifyAction(ActionNegative);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+                //update
+                EventCSVInfo.SetActionNegative(ActionNegative);
             }
-            //update
-            EventCSVInfo.SetActionNegative(ActionNegative); // no checks
 
             //! \ Get Source(5) component name & Set
 
@@ -380,10 +424,23 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             {
                 QString Source = textList.at(5).trimmed();
 
-                EventCSVInfo.SetEventSource(m_EventSourceMap.value(Source.toUpper(),Global::EVENTSOURCE_NONE));
+                Global::EventSourceType EventSourceType = Global::EVENTSOURCE_NOTEXIST;
+
+                EventSourceType = m_EventSourceMap.value(Source.toUpper(),Global::EVENTSOURCE_NOTEXIST);
+
+                ret = VerifySource(EventSourceType);
+
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+
+                EventCSVInfo.SetEventSource(EventSourceType);
 
                 // Assumed Ack is required if source component name is set
-                if(Source.isEmpty())
+                if(EventSourceType == Global::EVENTSOURCE_NONE)
                 {
                     EventCSVInfo.SetAckRequired(false);
 
@@ -395,17 +452,26 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             }
 
 
+
             //! \ Get AlarmTone(6) flag
 
             if (textList.count() > 6)
             {
                 bool AlarmFlag = false;
 
-                if((textList.at(6).trimmed().toUpper() == "NO") || (textList.at(6).trimmed().toUpper() == ""))
+                if((textList.at(6).trimmed().toUpper() == "NO") || (textList.at(6).trimmed().toUpper() == "")) {
                     AlarmFlag = false;
+                }
 
-                if(textList.at(6).trimmed().toUpper() == "YES")
+                else if(textList.at(6).trimmed().toUpper() == "YES") {
                     AlarmFlag = true;
+                }
+                else
+                {
+#ifdef VALIDATE
+                    return false;
+# endif
+                }
 
                 EventCSVInfo.SetAlarmStatus(AlarmFlag);
             }
@@ -416,43 +482,243 @@ void EventHandlerThreadController::ReadConfigFile(QString filename)
             if (textList.count() > 7)
             {
 
-                EventCSVInfo.SetLogLevel(m_EventLogLevelEnumMap.value(textList.at(7).toUpper(),Global::LOGLEVEL_HIGH));
+                Global::EventLogLevel EventLogLevel = Global::LOGLEVEL_UNEXPECTED;
+                EventLogLevel = m_EventLogLevelEnumMap.value(textList.at(7).toUpper());
+                ret = VerifyLogLevel(EventLogLevel);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+                EventCSVInfo.SetLogLevel(EventLogLevel);
             }
 
             //! \ Get UserLog(8) flag
 
             if (textList.count() > 8)
             {
-                bool UserLogFlag = ((textList.at(8).toUpper() == "TRUE") || (textList.at(8).toUpper() == "YES"));
+                bool UserLogFlag = false;
+                QString strUserLog = textList.at(8).toUpper();
+                ret = VerifyBoolean(strUserLog);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+                UserLogFlag = ((textList.at(8).toUpper() == "TRUE") || (textList.at(8).toUpper() == "YES"));
+
                 EventCSVInfo.SetRunLogStatus(UserLogFlag);
             }
 
             //! \ Get EventString(9)
 
-            // ! \ EventString comes from the RaiseEvent call.
+               if (textList.count() > 9)
+               {
+                    // ! \ EventString comes from the RaiseEvent call, just verify the data is not empty
+                    QString EventString = textList.at(9);
+                    ret = VerifyStringList(EventString);
+               }
 
 
             //! \ Get GUIEvent(10) list
 
             if (textList.count() > 10)
             {
-                EventCSVInfo.SetButtonType(Global::StringToGuiButtonType(textList.at(10).toUpper()));
+
+                Global::GuiButtonType BtnType;
+                BtnType = Global::StringToGuiButtonType(textList.at(10).toUpper());
+                ret = VerifyGuiButtonType(BtnType);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+                EventCSVInfo.SetButtonType(BtnType);
             }
 
             //! \ Get StatusBarIcon(11) flag
             if (textList.count() > 11)
             {
-                bool StatusBarIconFlag = ((textList.at(11).toUpper() == "TRUE") || (textList.at(11).toUpper() == "YES"));
-                EventCSVInfo.SetStatusBarIcon(StatusBarIconFlag);
+
+                bool StatusIconFlag = false;
+                QString strStatusIcon = textList.at(11).toUpper();
+                ret = VerifyBoolean(strStatusIcon);
+#ifdef VALIDATE
+                if(!ret)
+                {
+                    return ret;
+                }
+#endif
+                StatusIconFlag = ((textList.at(8).toUpper() == "TRUE") || (textList.at(8).toUpper() == "YES"));
+
+                EventCSVInfo.SetStatusBarIcon(StatusIconFlag);
             }
 
             m_eventList.insert(EventCSVInfo.GetEventCode(), EventCSVInfo);
 
+ //! \ validate dependencies between the values corresponding to an event.
+
+           ret = VerifyUserLogGUIOptionDependency( EventCSVInfo);
+
+#ifdef VALIDATE
+
+           if(!ret)
+           {
+               return ret;
+           }
+#endif
+           ret = VerifySourceComponentGUIOptionsDependency(EventCSVInfo);
+
+#ifdef VALIDATE
+
+           if(!ret)
+           {
+               return ret;
+           }
+#endif
+           ret = VerifyActionGUIOptionsDependency(EventCSVInfo);
+
+#ifdef VALIDATE
+
+           if(!ret)
+           {
+               return ret;
+           }
+#endif
+
+           ret = VerifyAlarmGUIOptionsDependency(EventCSVInfo);
+
+#ifdef VALIDATE
+
+           if(!ret)
+           {
+               return ret;
+           }
+#endif
+
+           ret = VerifyAlarmEventTypeDependency(EventCSVInfo);
+#ifdef VALIDATE
+
+           if(!ret)
+           {
+               return ret;
+           }
+#endif
+           ret = VerifyStatusbarGUIOptionDependency(EventCSVInfo);
+#ifdef VALIDATE
+
+           if(!ret)
+           {
+               return ret;
+           }
+#endif
+
+
         }
     }
-    qDebug()<<"READ EVENT CONFIG \n\n\n";
+#ifdef VALIDATE
+    qDebug()<<"Reading event configuration file & data verification successful \n\n\n";
+#elseif
+    qDebug()<<"Reading event configuration verification disabled, end of ReadConfigFile reached \n\n\n";
+#endif
+
+
+
 
     file.close();
+}
+
+bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo ) {
+
+    if((EventCSVInfo.GetRunLogStatus() == true) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON)) {
+
+        qDebug()<< "Invalid UserLog - GUIOption combination set" << EventCSVInfo.GetEventCode()<<"\t"
+                <<EventCSVInfo.GetRunLogStatus()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+        return false;
+
+    }
+    return true;
+
+
+}
+
+bool EventHandlerThreadController::VerifySourceComponentGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
+
+    if((EventCSVInfo.GetSourceComponent() != Global::EVENTSOURCE_NONE) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON )) {
+
+        qDebug()<< "Invalid SourceComponent - GUIOption combination set"<< EventCSVInfo.GetEventCode()<<"\t"<<
+                                EventCSVInfo.GetSourceComponent()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions();
+        return false;
+
+    }
+    return true;
+
+}
+
+bool EventHandlerThreadController::VerifyActionGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
+    //ActionNegative the action taken on negative acknowledgement by the user ,which means guiOption
+    //is has to be filled properly with valid button type other than GUI:NO_BUTTON
+
+
+    Global::ActionType Acn = EventCSVInfo.GetActionNegative();
+    if(VerifyAction(Acn) && (Acn != Global::ACNTYPE_NONE) && (EventCSVInfo.GetButtonType() == Global::NO_BUTTON)) {
+        /// > This condition implies that there is  positive or negative action, however no GUIMessage, which is not expected.
+
+        qDebug()<< "Invalid ActionNegative - GUIOption combination set" <<EventCSVInfo.GetEventCode()<<"\t"
+                <<Acn<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+        return false;
+    }
+
+    Acn = EventCSVInfo.GetActionPositive();
+    if(VerifyAction(Acn)&& (Acn != Global::ACNTYPE_NONE) && (EventCSVInfo.GetButtonType() == Global::NO_BUTTON)) {
+        /// > This condition implies that there is  positive or negative action, however no GUIMessage, which is not expected.
+
+        qDebug()<< "Invalid ActionPositive - GUIOption combination set" <<EventCSVInfo.GetEventCode()<<"\t"
+                <<Acn<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool EventHandlerThreadController::VerifyAlarmGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
+     /// < If alarm is set then GUIOptions has to be set with a valid value.
+
+    if((EventCSVInfo.GetAlarmStatus() == true) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON))
+    {
+        qDebug()<< "Invalid Alarm - GUIOption combination set"<<EventCSVInfo.GetEventCode()<<"\t"
+                <<EventCSVInfo.GetAlarmStatus()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+        return false;
+    }
+    return true;
+}
+
+bool EventHandlerThreadController::VerifyAlarmEventTypeDependency(EventHandler::EventCSVInfo EventCSVInfo) {
+
+    //            1 . alarm should not be set if event type is info.
+
+        if((EventCSVInfo.GetEventType() == Global::EVTTYPE_INFO) && (EventCSVInfo.GetAlarmStatus() == true)) {
+             qDebug()<< "Invalid Alarm - EventType combination set"<<EventCSVInfo.GetEventCode()<<"\t"
+                     <<EventCSVInfo.GetEventType()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions();
+                return false;
+        }
+
+            return true;
+
+}
+
+bool EventHandlerThreadController::VerifyStatusbarGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo) {
+
+       if((EventCSVInfo.GetStatusBarIcon() == true) && EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON)
+       {
+           qDebug()<< "Invalid StatusBar icon GUIOption combination set"<<EventCSVInfo.GetEventCode()<<"\t"
+                   <<EventCSVInfo.GetStatusBarIcon()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+           return false;
+       }
+       return true;
 }
 
 /****************************************************************************/
@@ -519,6 +785,13 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
                                                 const bool EventStatus, const quint32 EventKey)
 {
     qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
+
+
+    if(!m_eventList.contains(EventID))
+        return;
+
+   // m_EventIdKeyMap.insert(EventKey,EventID);
+
 
     // if eventList is not available yet, place event into pendingList
     if (m_eventList.size() == 0) {
@@ -789,6 +1062,210 @@ void EventHandlerThreadController::SendCommand(Global::tRefType Ref, const Globa
 Global::tRefType EventHandlerThreadController::GetNewCommandRef()
 {
     return Threads::ThreadController::GetNewCommandRef();
+}
+
+bool EventHandlerThreadController::VerifyEventConfigCSV(QString filename) {
+
+    return(VerifyEventCSVFilenameExists(filename));
+
+
+}
+
+bool EventHandlerThreadController::VerifyEventCSVFilenameExists(QString strFilename) {
+
+    if(strFilename.isEmpty())
+    {
+         QFile file (strFilename);
+        if (!file.open (QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug()<<"File Open Failed" << file.errorString();
+            return false;
+        }
+        file.close();
+
+        return true;
+    }
+    else
+        return false;
+}
+
+//void EventHandlerThreadController::InitVerificationData() {
+
+//    bool ret = false;
+//    mp_stream  = new QTextStream(mp_file );
+//    mp_line = new QString(mp_stream);
+//    // skip 1st two lines ( which start with #) & ignore the data.
+//    mp_line = mp_stream->readLine();
+//    mp_line = mp_stream->readLine();
+
+//    //required once the event is in table, even if nothing is specified in the required column
+//    while( !stream.atEnd() )
+//    {
+//        if (line.left(1) != "#")
+//        {
+//            QStringList textList = line.split(",");
+//            if (textList.count() > 0)
+//            {
+//                int EventCode = textList.at(0).toInt();
+
+
+//                QString EventMacroName = "";
+//                if (textList.count() > 1)
+//                {
+//                    EventMacroName = textList.at(1).trimmed();
+//
+//                }
+
+
+
+//            }
+//        }
+//    }
+
+//}
+
+bool EventHandlerThreadController::VerifyEventIDs(quint32 EventId) {
+
+    /// < Only check on EventID as of now
+    if(EventId <= 0)
+    {
+        return false;
+
+    }
+     return true;
+}
+
+bool EventHandlerThreadController::VerifyEventMacro(QString EventMacroName) {
+
+    /// < Only check on EventMacroName as of now
+    if(EventMacroName.isEmpty())
+    {
+        return false;
+
+    }
+     return true;
+}
+
+bool EventHandlerThreadController::VerifyEventType(Global::EventType EventType) {
+
+    /// < Should be one of -  “ERROR”, ”Info”, “WARNING” else raise an error
+
+    switch (EventType)
+    {
+    case Global::EVTTYPE_ERROR:
+    case Global::EVTTYPE_WARNING:
+    case Global::EVTTYPE_INFO:
+        return true;
+    default:
+        return false;
+    }
+
+}
+
+bool EventHandlerThreadController::VerifyAction(Global::ActionType ActionType) {
+
+    switch (ActionType)
+    {
+    case Global::ACNTYPE_ERROR:
+    case Global::ACNTYPE_RETRY:
+    case Global::ACNTYPE_INFO:
+    case Global::ACNTYPE_SHUTDOWN:
+    case Global::ACNTYPE_STOP:
+    case Global::ACNTYPE_REBOOT:
+    case Global::ACNTYPE_WARNING:
+    case Global::ACNTYPE_BUSY:
+    case Global::ACNTYPE_IDLE:
+    case Global::ACNTYPE_REMOVEALLRACKS:
+    case Global::ACNTYPE_REMOVERACK:
+    case Global::ACNTYPE_NONE:
+    return true;
+   case Global::ACNTYPE_UNEXPECTED:
+    default:
+        return false;
+    }
+}
+
+
+bool EventHandlerThreadController::VerifyActionTypePositivePattern (Global::ActionType ActionType,  qint8 NumOfAttempts, Global::ActionType ActionTypePositive)
+{
+
+    bool ret = VerifyAction(ActionType);
+
+    if(!ret)
+       return false;
+
+    if(NumOfAttempts <= 0)
+    {
+        return false;
+    }
+
+    ret = VerifyAction(ActionTypePositive);
+    if(!ret)
+       return false;
+
+    return true;
+}
+
+bool EventHandlerThreadController::VerifySource(Global::EventSourceType EventSourceType) {
+
+    switch (EventSourceType)
+    {
+    case Global::EVENTSOURCE_MAIN:
+    case Global::EVENTSOURCE_DEVICECOMMANDPROCESSOR:
+    case Global::EVENTSOURCE_SCHEDULER:
+    case Global::EVENTSOURCE_EXPORT:
+    case Global::EVENTSOURCE_IMPORTEXPORT:
+    case Global::EVENTSOURCE_BLG:
+    case Global::EVENTSOURCE_EVENTHANDLER:
+    case Global::EVENTSOURCE_SEPIA:
+    case Global::EVENTSOURCE_NONE:
+    case Global::EVENTSOURCE_DATALOGGER:
+        return true;
+    case Global::EVENTSOURCE_NOTEXIST:
+    default:
+        return false;
+    }
+}
+
+bool EventHandlerThreadController::VerifyLogLevel(Global::EventLogLevel EventLogLevel) {
+
+    switch(EventLogLevel) {
+    case Global::LOGLEVEL_NONE:
+    case Global::LOGLEVEL_LOW:
+    case Global::LOGLEVEL_MEDIUM:
+    case Global::LOGLEVEL_HIGH:
+        return true;
+    case Global::LOGLEVEL_UNEXPECTED:
+    default:
+        return false;
+    }
+}
+
+bool EventHandlerThreadController::VerifyBoolean(QString UserText) {
+
+    return((UserText == "TRUE") || (UserText == "YES") || (UserText == "FALSE") || (UserText == "NO") || (UserText.isEmpty() ));
+
+}
+
+bool EventHandlerThreadController::VerifyGuiButtonType(Global::GuiButtonType GuiButtonType ) {
+
+    switch(GuiButtonType) {
+    case Global::OK:
+    case Global::OK_CANCEL:
+    case Global::YES_NO:
+    case Global::CONTINUE_STOP:
+    case Global::NO_BUTTON:
+        return true;
+    default:
+        return false;
+    }
+
+}
+
+bool EventHandlerThreadController::VerifyStringList(QString EventString) {
+
+    if(EventString.isEmpty())
+        return false;
+    return true;
 }
 
 } // end namespace EventHandler

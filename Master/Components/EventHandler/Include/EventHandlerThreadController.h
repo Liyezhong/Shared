@@ -30,14 +30,13 @@
 #include <DataLogging/Include/DayEventEntry.h>
 #include <Threads/Include/ThreadController.h>
 #include <DataLogging/Include/DataLoggingThreadController.h>
-#include <EventHandler/Include/ErrorHandler.h>
 #include <Global/Include/AlarmHandler.h>
 #include <Global/Include/EventTranslator.h>
 #include <Global/Include/UITranslator.h>
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
-#include <EventHandler/Include/ActionHandler.h>
+
 
 namespace NetCommands {
     class CmdAcknEventReport;
@@ -47,9 +46,7 @@ namespace NetCommands {
     class EventReportDataStruct;
 }
 
-namespace EventHandler {
-    class ActionHandler;
-}
+
 
 namespace EventHandler {
 
@@ -188,10 +185,12 @@ private:
     qint64                                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
     int                                         m_MaxAdjustedTimeOffset;            ///< Max alowed offset to system time [seconds]. 0 means no check has to be done.
+
     bool                                        m_GuiAvailable;
     QHash<quint32, EventHandler::EventCSVInfo> m_eventList;
     QHash<quint32,quint32>m_EventKeyIdMap; //!< Hash of Event Key and EventID as value.
     QHash<quint32, quint32>m_EventIDKeyHash;
+
 
     QHash<QString, Global::EventSourceType>m_EventSourceMap;
     QHash<quint64,DataLogging::DayEventEntry>m_EventKeyDataMap;
@@ -226,7 +225,7 @@ private:
     const EventHandlerThreadController & operator = (const EventHandlerThreadController &);  ///< Not implemented.
 
     Global::AlarmHandler *mpAlarmHandler;
-    EventHandler::ActionHandler * mpActionHandler;
+
     DataManager::CUserSettings *mpUserSettings;
 
 
@@ -260,14 +259,50 @@ private:
      * \param[in]  pErrorHandler = pointer to the system's ErrorHandler object
      */
     /****************************************************************************/
-    void AttachErrorHandler(ErrorHandler *pErrorHandler);
+    //void AttachErrorHandler(ErrorHandler *pErrorHandler);
 
     /**
       @brief Reads event definition from file
       */
-    void ReadConfigFile(QString fileName);
+    bool ReadConfigFile(QString fileName);
+
+    bool VerifyEventConfigCSV(QString filename);
+
+    bool VerifyEventIDs(quint32 EventId);
+
+    bool VerifyEventMacro(QString EventMacroName);
+
+    bool VerifyEventType(Global::EventType EventType);
+
+    bool VerifyAction(Global::ActionType ActionType);
+
+    bool VerifyActionTypePositivePattern(Global::ActionType ActionType,  qint8 NumOfAttempts, Global::ActionType ActionTypePositive);
+
+    bool VerifySource(Global::EventSourceType);
+
+    bool VerifyLogLevel(Global::EventLogLevel EventLogLevel);
+
+    bool VerifyBoolean(QString strValue);
+
+    bool VerifyGuiButtonType(Global::GuiButtonType GuiButtonType);
+
+    bool VerifyStringList(QString EventString);
+
+    bool VerifyAlarmEventTypeDependency(EventHandler::EventCSVInfo EventInfo);
 
     void RegisterCommands();
+
+    bool VerifyEventCSVFilenameExists(QString filename);
+
+    bool VerifyAlarmGUIOptionsDependency(EventHandler::EventCSVInfo EventInfo);
+
+    bool VerifyStatusbarGUIOptionDependency( EventHandler::EventCSVInfo EventInfo);
+
+    bool VerifySourceComponentGUIOptionsDependency(EventHandler::EventCSVInfo EventInfo);
+
+    bool VerifyActionGUIOptionsDependency(EventHandler::EventCSVInfo EventInfo);
+
+    bool VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo );
 
 public slots:
 

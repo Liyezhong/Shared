@@ -71,7 +71,8 @@ enum EventLogLevel {
     LOGLEVEL_NONE,
     LOGLEVEL_LOW,
     LOGLEVEL_MEDIUM,
-    LOGLEVEL_HIGH
+    LOGLEVEL_HIGH,
+    LOGLEVEL_UNEXPECTED
 };
 
 /****************************************************************************/
@@ -92,7 +93,8 @@ enum ActionType {
     ACNTYPE_IDLE,       ///< TBD
     ACNTYPE_NONE,        ///< No action, just log
     ACNTYPE_REMOVEALLRACKS,
-    ACNTYPE_REMOVERACK
+    ACNTYPE_REMOVERACK,
+    ACNTYPE_UNEXPECTED        /// < Unexpected text in action column, raise an error
 };
 
 enum EventSourceType {
@@ -105,8 +107,8 @@ enum EventSourceType {
     EVENTSOURCE_EVENTHANDLER,
     EVENTSOURCE_SEPIA,
     EVENTSOURCE_NONE,
-    EVENTSOURCE_DATALOGGER
-
+    EVENTSOURCE_DATALOGGER,
+    EVENTSOURCE_NOTEXIST
 };
 
 /****************************************************************************/

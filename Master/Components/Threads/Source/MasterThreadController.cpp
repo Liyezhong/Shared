@@ -312,13 +312,13 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
 
 }
 
-/****************************************************************************/
-void MasterThreadController::AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler) {
-    CHECKPTR(pErrorHandler);
-    // set ErrorHandler's parent that will move itself and the
-    // ErrorHandler to a dedicated thread.
-    pErrorHandler->setParent(mp_EventThreadController);
-}
+///****************************************************************************/
+//void MasterThreadController::AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler) {
+//    CHECKPTR(pErrorHandler);
+//    // set ErrorHandler's parent that will move itself and the
+//    // ErrorHandler to a dedicated thread.
+//    pErrorHandler->setParent(mp_EventThreadController);
+//}
 
 /****************************************************************************/
 void MasterThreadController::SetRemoteCareConnection(const EventHandler::RemoteCareHandler *pRemoteCareHandler) const {

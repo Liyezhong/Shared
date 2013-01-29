@@ -24,7 +24,8 @@
 #include <Threads/Include/BaseThreadController.h>
 #include <Threads/Include/CommandFunctors.h>
 
-#include <EventHandler/Include/ErrorHandler.h>
+#include <NetCommands/Include/CmdSystemAction.h>
+
 #include <EventHandler/Include/RemoteCareHandler.h>
 
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
@@ -454,7 +455,7 @@ protected:
      * \param[in]  pErrorHandler = pointer to the system's ErrorHandler object
      */
     /****************************************************************************/
-    void AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler);
+   // void AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler);
     /****************************************************************************/
 
 

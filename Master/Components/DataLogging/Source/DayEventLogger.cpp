@@ -110,7 +110,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
     if (!Entry.IsEventActive())
     {
-        TrEventMessage = "Resolved:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
+        TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
     }
 
     QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
