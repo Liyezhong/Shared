@@ -81,6 +81,7 @@ typedef struct {
 
     UInt16 DesiredTemp;          //!< Desired temperature (in 0.01 degree Celsius steps)
     UInt16 ToleranceTemp;        //!< Temperature tolerance (in 0.01 degree Celsius steps)
+    UInt16 DesiredRangeTemp;     //!< Desired temperature range (in 0.01 degree Celsius steps)
 
     UInt16* ServiceTemp;         //!< Temperature a certain sensor in 0.01 degree Celsius steps     
     UInt16* ServiceFan;          //!< Speed of the fans in rotations per minute
@@ -530,8 +531,8 @@ static Error_t tempNotifRange (InstanceData_t *Data)
     CanMessage_t Message;
 
     // Temperature curve leaves desired range
-    if (Data->ServiceTemp[0] + Data->ToleranceTemp < Data->DesiredTemp ||
-        Data->ServiceTemp[0] > Data->DesiredTemp + Data->ToleranceTemp) {
+    if (Data->ServiceTemp[0] + Data->DesiredRangeTemp < Data->DesiredTemp ||
+        Data->ServiceTemp[0] > Data->DesiredTemp + Data->DesiredRangeTemp) {
         if (Data->InRange == TRUE) {
             Data->InRange = FALSE;
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
@@ -676,7 +677,7 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
 
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
-    if (Message->Length != 7) {
+    if (Message->Length != 8) {
         return (E_MISSING_PARAMETERS);
     }
 
@@ -693,6 +694,7 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     Data->ToleranceTemp = bmGetMessageItem(Message, 2, 1) * 100;
     TempSamplingTime = bmGetMessageItem(Message, 3, 2) * 10;
     Data->AutoTuneDuration = bmGetMessageItem(Message, 5, 2) * 1000;
+    Data->DesiredRangeTemp = bmGetMessageItem(Message, 7, 1) * 100;
 
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
@@ -940,7 +942,8 @@ static Error_t tempGetTemperature (UInt16 Channel, CanMessage_t* Message)
     bmSetMessageItem (&RespMessage, Data->ToleranceTemp / 100, 2, 1);
     bmSetMessageItem (&RespMessage, TempSamplingTime / 10, 3, 2);
     bmSetMessageItem (&RespMessage, Data->AutoTuneDuration / 1000, 5, 2);
-    RespMessage.Length = 7;
+    bmSetMessageItem (&RespMessage, Data->DesiredRangeTemp / 100, 7, 1);
+    RespMessage.Length = 8;
 
     return (canWriteMessage(Data->Channel, &RespMessage));
 }
