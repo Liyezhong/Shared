@@ -822,22 +822,20 @@ static Error_t aoFlushLifeTime (aoInstanceData_t *Data, UInt16 Interval) {
     Error_t Status2 = NO_ERROR;
 
     if (bmTimeExpired(LifeTime->Interval) >= Interval) {
-
+        if (LifeTime->Running) {
+            LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
+            LifeTime->StartTime = bmGetTime();
+        }
         // update life time on/off cycles in non-volatile storage
         if (LifeTime->Counter) {
-
-            Status1 = bmIncStorageItem (
-                Data->Memory, AO_PARAM_LIFE_CYCLES, LifeTime->Counter);
-
+            Status1 = bmIncStorageItem (Data->Memory, AO_PARAM_LIFE_CYCLES, LifeTime->Counter);
             if (Status1 == NO_ERROR) {
                 LifeTime->Counter = 0;
             }
         }
         // update life time duration in non-volatile storage
         if (LifeTime->Duration) {
-            Status2 = bmIncStorageItem (
-                Data->Memory, AO_PARAM_LIFE_TIME, LifeTime->Duration / 1000);
-
+            Status2 = bmIncStorageItem (Data->Memory, AO_PARAM_LIFE_TIME, LifeTime->Duration / 1000);
             if (Status2 == NO_ERROR) {
                 LifeTime->Duration %= 1000;
             }

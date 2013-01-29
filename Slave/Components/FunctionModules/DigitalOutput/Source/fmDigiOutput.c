@@ -984,6 +984,10 @@ static Error_t doFlushLifeTime (doInstanceData_t *Data, UInt16 Interval) {
     Error_t Status2 = NO_ERROR;
 
     if (bmTimeExpired(LifeTime->Interval) >= Interval) {
+        if (LifeTime->Running) {
+            LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
+            LifeTime->StartTime = bmGetTime();
+        }
         // update life time on/off cycles in non-volatile storage
         if (LifeTime->Counter) {
             Status1 = bmIncStorageItem (Data->Memory, DO_PARAM_LIFE_CYCLES, LifeTime->Counter);
