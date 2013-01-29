@@ -928,21 +928,23 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     if( IsActive == false) {
         return;
     }
+
+    NetCommands::CmdSystemAction *p_CmdSystemAction;
+    p_CmdSystemAction = new NetCommands::CmdSystemAction();
+    EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
+    EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
+    p_CmdSystemAction->SetEventKey(EventKey);
+    p_CmdSystemAction->SetEventID(EventID);
+    p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
+    p_CmdSystemAction->SetRetryCount(Count);
+    p_CmdSystemAction->SetStringList(EventEntry.GetString());
+    Global::tRefType NewRef = GetNewCommandRef();
+
+
     if(Count <= EventEntry.GetRetryAttempts())
     {
         //send -ve command action if defined.
-        NetCommands::CmdSystemAction *p_CmdSystemAction;
-        p_CmdSystemAction = new NetCommands::CmdSystemAction();
-        p_CmdSystemAction->SetRetryCount(Count);
-        EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
-        quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
-        p_CmdSystemAction->SetEventKey(EventKey);
-        p_CmdSystemAction->SetEventID(EventID);
-        p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
-        p_CmdSystemAction->SetStringList(EventEntry.GetString());
-        Global::tRefType NewRef = GetNewCommandRef();
-
-        if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || (EventEntry.GetAckValue() ==  NetCommands::YES_BUTTON) || (EventEntry.GetAckValue() == NetCommands::CONTINUE_BUTTON))
+       if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || (EventEntry.GetAckValue() ==  NetCommands::YES_BUTTON) || (EventEntry.GetAckValue() == NetCommands::CONTINUE_BUTTON))
         {
             //send +ve command action if defined.
             p_CmdSystemAction->SetAction(EventEntry.GetActionPositive());
@@ -951,29 +953,18 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         {
             //send -ve command action if defined.
             p_CmdSystemAction->SetAction(EventEntry.GetActionNegative());
-        }
-        SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
+        }       
     }
     else
     {
         // if (second action )//second action
-        NetCommands::CmdSystemAction *p_CmdSystemAction;
-        p_CmdSystemAction = new NetCommands::CmdSystemAction();
-        Global::ActionType ActionType = EventEntry.GetActionPositive();
-       // p_CmdSystemAction->SetAckState(EventEntry.GetAckReqStatus())  ;
-         p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
-        p_CmdSystemAction->SetAction(ActionType);
-        Global::tRefType NewRef = GetNewCommandRef();
-        p_CmdSystemAction->SetRetryCount(Count);
-        EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
-        quint32 EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
-        p_CmdSystemAction->SetEventKey(EventKey);
-        p_CmdSystemAction->SetEventID(EventID);
-        qDebug() << "EventHandlerThreadController::OnAcknowledge, EventKey=" << EventKey << "EventID=" <<EventID;
-        SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
-        DEBUGWHEREAMI;
+        p_CmdSystemAction->SetAction(EventEntry.GetActionPositive());
 
     }
+
+    qDebug() << "EventHandlerThreadController::OnAcknowledge, EventKey=" << EventKey << "EventID=" <<EventID;
+    SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
+    DEBUGWHEREAMI;
 }
 
 void EventHandlerThreadController::SetGuiAvailable(const bool active)
@@ -1088,40 +1079,6 @@ bool EventHandlerThreadController::VerifyEventCSVFilenameExists(QString strFilen
         return false;
 }
 
-//void EventHandlerThreadController::InitVerificationData() {
-
-//    bool ret = false;
-//    mp_stream  = new QTextStream(mp_file );
-//    mp_line = new QString(mp_stream);
-//    // skip 1st two lines ( which start with #) & ignore the data.
-//    mp_line = mp_stream->readLine();
-//    mp_line = mp_stream->readLine();
-
-//    //required once the event is in table, even if nothing is specified in the required column
-//    while( !stream.atEnd() )
-//    {
-//        if (line.left(1) != "#")
-//        {
-//            QStringList textList = line.split(",");
-//            if (textList.count() > 0)
-//            {
-//                int EventCode = textList.at(0).toInt();
-
-
-//                QString EventMacroName = "";
-//                if (textList.count() > 1)
-//                {
-//                    EventMacroName = textList.at(1).trimmed();
-//
-//                }
-
-
-
-//            }
-//        }
-//    }
-
-//}
 
 bool EventHandlerThreadController::VerifyEventIDs(quint32 EventId) {
 
