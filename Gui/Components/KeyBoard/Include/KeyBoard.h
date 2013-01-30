@@ -236,8 +236,28 @@ public:
     void Attach(KeyBoard::CKeyBoardObserver *p_KeyBoardObserver);
     void Detach();
 
-    void ValidateString(QString m_Name);
-   
+    void ValidateString(QString m_Name);    
+
+    /****************************************************************************/
+    /*!
+     *  \brief This function is used to set input mask for the line edit
+     *  \iparam  InputMask
+     */
+    /****************************************************************************/
+    void SetLineEditInputMask(const QString& InputMask) {
+        mp_LineEdit->setInputMask(InputMask);
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief This function is used to set validation for the entered text for the
+     *         line edit widget
+     *  \iparam  ValidateString
+     */
+    /****************************************************************************/
+    void SetLineEditValidator(const QValidator* ValidateString) {
+        mp_LineEdit->setValidator(ValidateString);
+    }
 
 private slots:
     void BtnClicked(int Btn);

@@ -153,7 +153,8 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     mp_LineEdit->setEchoMode(QLineEdit::Password);
     mp_LineEdit->setTextMargins(13, 0, 0, 0);
     //mp_LineEdit->setFocusPolicy(Qt::NoFocus);
-    mp_LineEdit->setFrame(false);
+    mp_LineEdit->setFrame(false);    
+
     QFont LineEditFont = font();
     LineEditFont.setPointSize(CKeyBoardButton::m_FontSize);
     mp_LineEdit->setFont(LineEditFont);
@@ -944,6 +945,9 @@ void CKeyBoard::Detach()
             mp_KeyBoardObserver.pop_back();
         }
     }
+    // reset all the validations and input masks
+    mp_LineEdit->setInputMask("");
+    mp_LineEdit->setValidator(NULL);
 }
 
 /****************************************************************************/
