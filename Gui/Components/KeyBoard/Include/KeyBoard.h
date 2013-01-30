@@ -33,6 +33,7 @@
 #include <QPainter>
 #include <QLineEdit>
 #include <QVector>
+#include <QRegExpValidator>
 
 namespace KeyBoard {
 //! < Forward Declarations
@@ -140,6 +141,7 @@ private:
     bool m_EnteredCharsValid;           //! < True if entered char is valid.
     QString m_EnteredString;
     bool m_EnteredStringValidation;     //! <True for LongName validation and False for ShortName validation
+    QRegExpValidator* mp_RegValidator;              //!< To store the validator
     ValidationType_t m_ValidationType;
 
     CKeyBoardButton *CreateNewKey(QString IconType, QString BtnText1,
@@ -255,8 +257,19 @@ public:
      *  \iparam  ValidateString
      */
     /****************************************************************************/
-    void SetLineEditValidator(const QValidator* ValidateString) {
-        mp_LineEdit->setValidator(ValidateString);
+    void SetLineEditValidatorExpression(const QString& ValidateString) {
+        // "^[0-9]*$'
+        // ^ and $ is used for any character. * is used to enter multiple characters
+        // [0-9] is used to allow user to enter only 0 to 9 digits
+
+        // check wether validator is created or not
+        if (mp_RegValidator == NULL) {
+            mp_RegValidator = new QRegExpValidator(QRegExp(ValidateString), this);
+        }
+        else {
+            mp_RegValidator->setRegExp(QRegExp(ValidateString));
+        }
+        mp_LineEdit->setValidator(mp_RegValidator);
     }
 
 private slots:

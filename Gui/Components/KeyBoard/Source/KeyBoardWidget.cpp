@@ -54,6 +54,7 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     m_MaxEnteredCharLen = 32;
     m_MinEnteredCharLen = 1;
     m_EnteredStringValidation = true ;
+    mp_RegValidator = NULL;
 
     this->move(35,100);
     SetDialogTitle(tr("Dummy"));
@@ -228,6 +229,7 @@ CKeyBoard::~CKeyBoard()
         while(!m_ButtonList.isEmpty()) {
             delete m_ButtonList.takeFirst();
         }
+        delete mp_RegValidator;
         delete mp_EscLayout;
         delete mp_ZxcdLayout;
         delete mp_AsdfLayout;
@@ -238,7 +240,7 @@ CKeyBoard::~CKeyBoard()
         delete mp_KeyTrayBackGround;
         delete mp_LineEditLayout;
         delete mp_LineEditWidget;
-        delete mp_KeyBoardBaseLayout;
+        delete mp_KeyBoardBaseLayout;        
         Detach();
     }
     catch (...) {
