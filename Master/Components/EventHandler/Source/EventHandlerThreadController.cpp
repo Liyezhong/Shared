@@ -736,7 +736,7 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
 {
     quint32 EventKey = EventId64 >> 32;
     if (Remove) {
-        if (EventEntry.GetGUIMessageBoxOptions() == Global::NO_BUTTON || AckByGUI) {
+        if (AckByGUI) {
             qDebug()<<"Removing EventId 64"<< EventId64;
             qDebug()<<"Removing Event Key:" <<EventKey << "\n\n";
             //We no longer need these data
@@ -754,15 +754,17 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
         }
     }
     else {
-        //New event
-        m_EventIDCount.append(EventID);
-        m_EventKeyDataMap.insert(EventId64, EventEntry);
-        if (!m_EventIDKeyHash.contains(EventID)) {
-            m_EventIDKeyHash.insert(EventID, EventId64);
+        //New event, add only if the event has to be sent to GUI
+        if(EventEntry.GetGUIMessageBoxOptions() != Global::NO_BUTTON) {
+            m_EventIDCount.append(EventID);
+            m_EventKeyDataMap.insert(EventId64, EventEntry);
+            if (!m_EventIDKeyHash.contains(EventID)) {
+                m_EventIDKeyHash.insert(EventID, EventId64);
+            }
+            m_EventKeyIdMap.insert(EventKey, EventID);
         }
-        m_EventKeyIdMap.insert(EventKey, EventID);
+        qDebug()<<"Event Entry status in UpdateEventDataStructures();"<<EventEntry.IsEventActive();
     }
-    qDebug()<<"Event Entry status in UpdateEventDataStructures();"<<EventEntry.IsEventActive();
 }
 
 /****************************************************************************/
@@ -789,8 +791,13 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
     qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
 
-    if(!m_eventList.contains(EventID))
+    if(!m_eventList.contains(EventID)){
+
+        qDebug()<<"Error in processing Event : " << EventID << "\t doesn't exist \n";
+
         return;
+
+    }
 
    // m_EventIdKeyMap.insert(EventKey,EventID);
 
@@ -821,6 +828,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
         EventCSVInfo EventInfo = m_eventList.value(EventID);
         //EventEntry encapsulates EventInfo. EventEntry is also
         //passed to the logging component.
+
         CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList);
 
         SetSystemStateMachine(EventEntry);
