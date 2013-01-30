@@ -21,11 +21,7 @@
 #include <QMetaType>
 #include <QDebug>
 //Std lib headers
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <poll.h>
+
 #include <QSocketNotifier>
 //Project Headers
 #include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
@@ -59,7 +55,7 @@ SoftSwitchManagerThreadController::SoftSwitchManagerThreadController(Global::gSo
  ****************************************************************************/
 SoftSwitchManagerThreadController::~SoftSwitchManagerThreadController()
 {
-
+    delete mp_PollingThread;
 }
 
 /****************************************************************************/
@@ -115,51 +111,12 @@ void SoftSwitchManagerThreadController::RegisterCommands()
 /****************************************************************************/
 void SoftSwitchManagerThreadController::OnGoReceived()
 {
-    CONNECTSIGNALSLOT(&m_SoftSwitchManager, SendSoftSwitchPressedCmd(), this , SendSoftSwitchPressedCmd());
-    CONNECTSIGNALSIGNAL(this, OnSoftSwitchPressed(), &m_SoftSwitchManager, SoftSwitchPressed());
-    qDebug()<<"Current Thread" << thread();
-    qDebug()<<"SoftSwitchMgr thread" <<m_SoftSwitchManager.thread();
     m_SoftSwitchManager.ConnectSignals();
-    //struct pollfd fdset[2];
-    //int NumbOfFileDesc = 2;
-    //char *p_Buf[100];
+    CONNECTSIGNALSLOT(&m_SoftSwitchManager, SendSoftSwitchPressedCmd(), this , SendSoftSwitchPressedCmd());
+    EventHandler::StateHandler *p_StateHandler = &EventHandler::StateHandler::Instance();
+    connect(p_StateHandler, SIGNAL(enteredSoftSwitchMonitorState()), this, SLOT(StartGPIOPolling()));
     Global::EventObject::Instance().RaiseEvent(EVENT_SOFTSWITCH_MONITOR_START);
     EventHandler::StateHandler::Instance().setStateToSoftSwitchMonitorState();
-    emit OnSoftSwitchPressed();
-
-    QSocketNotifier* p_SoftSwitchNotifier = m_SoftSwitchManager.getSoftSwitchPressedNotifier();
-    CONNECTSIGNALSLOT(p_SoftSwitchNotifier, activated(int), &m_SoftSwitchManager, OnSoftSwitchPressed(int));
-//    while (1) {
-//        memset((void*)fdset, 0, sizeof(fdset));
-        //fdset[0].fd = STDIN_FILENO; //Standard input
-//        fdset[0].events = POLLIN;
-//        int TimeOut = -1; // Infinite Timeout
-//        int  PollReturn = poll(fdset, NumbOfFileDesc, 4000);
-
-//        if (PollReturn < 0) {
-//            qDebug("\npoll() failed!\n");
-//            return;
-//        }
-
-//        if (PollReturn == 0) {
-//            qDebug(".");
-//        }
-//        //SoftSwitch GPIO
-//        if (fdset[1].revents & POLLPRI) {
-//            int len = read(fdset[1].fd, p_Buf, 100);
-//            qDebug()<<"\npoll() GPIO interrupt occurred\n";
-//            emit OnSoftSwitchPressed();
-//        }
-
-//        if (fdset[0].revents & POLLIN) {
-//            (void)read(fdset[0].fd, p_Buf, 1);
-//            qDebug()<<"\npoll() stdin read:"<< p_Buf[0];
-//            emit OnSoftSwitchPressed();
-//        }
-
-//        fflush(stdin);
-//        rewind(stdin);
-//    }
 }
 
 /****************************************************************************/
@@ -217,6 +174,19 @@ void SoftSwitchManagerThreadController::SendSoftSwitchPressedCmd()
 void SoftSwitchManagerThreadController::TempInitComplete()
 {
     qDebug()<<"\n\n\n SoftSwitchManagerThreadController::TempInitComplete(); \n\n\n";
+}
+
+void SoftSwitchManagerThreadController::StartGPIOPolling()
+{
+    qDebug()<<"Current Thread" << thread();
+    qDebug()<<"SoftSwitchMgr thread" <<m_SoftSwitchManager.thread();
+    mp_PollingThread = new QThread();
+    mp_GpioPoller = new GpioPoller();
+    mp_GpioPoller->moveToThread(mp_PollingThread);
+    CONNECTSIGNALSIGNAL(mp_GpioPoller, OnSoftSwitchPressed(), &m_SoftSwitchManager, SoftSwitchPressed());
+    connect(mp_PollingThread, SIGNAL(started()), mp_GpioPoller, SLOT(Run()));
+    connect(mp_PollingThread, SIGNAL(finished()), mp_GpioPoller, SLOT(deleteLater()));
+    mp_PollingThread->start();
 }
 
 } //End Of namespace SoftSwitchManager

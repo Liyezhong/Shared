@@ -1,3 +1,22 @@
+/****************************************************************************/
+/*! \file SoftSwitchManager.h
+ *
+ *  \brief  Definition of class SoftSwitchManager
+ *
+ *  Version:    0.1
+ *  Date:       2012-11-15
+ *  Author:     N.Kamath
+ *
+ *  \b Company:
+ *
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
+ *
+ */
+/****************************************************************************/
 #ifndef SOFTSWITCHMANAGER_H
 #define SOFTSWITCHMANAGER_H
 //Qt includes
@@ -6,6 +25,7 @@
 #include <QTimer>
 #include <QSocketNotifier>
 #include <QFile>
+#include <QFileSystemWatcher>
 //Project includes
 #include <SoftSwitchManager/Include/GPIO.h>
 #include <SoftSwitchManager/Include/GenericState.h>
@@ -24,8 +44,8 @@ public:
     void Init();
     void ConnectSignals();
     Q_DISABLE_COPY(SoftSwitchMgr) //Disable copy and assignment
-    QSocketNotifier* getSoftSwitchPressedNotifier() { return mp_SoftSwitchPressedNotifier;}
-
+//    QSocketNotifier* getSoftSwitchPressedNotifier() { return mp_SoftSwitchPressedNotifier;}
+//    QFileSystemWatcher* GetFileWatcher() { return mp_FileSysWatcher;}
 private:
     GPIOPin m_SoftSwitchGPIO;       //!< GPIO connected to the softswitch on EBox
 
@@ -42,15 +62,19 @@ private:
     SoftSwitchStateTransition *mp_InitToDefaultTransition; //!< Transition for Init->Default
     SoftSwitchStateTransition *mp_DefaultToIdleTransition; //!< Transition for Init->Idle
     SoftSwitchStateTransition *mp_DefaultToBusyTransition; //!< Transition for Init->Busy
+    SoftSwitchStateTransition *mp_IdleToShutDownTransition; //!< Transition for Idle->Shutdown
+    SoftSwitchStateTransition *mp_CriticalCheckToShutDownTransition; //!< Transition for CriticalAction->Shutdown
 
     QTimer *mp_Timer;   //!< Seven second timer. We reset to default state in statemachine on timeout.
     QTimer *mp_PollTimer; //!< This timer when timed out would activate the polling of SoftSwitch GPIO.
     QString m_CurrentState; //!< Current state of the StateMachine
-    QSocketNotifier *mp_SoftSwitchPressedNotifier;
+//    QSocketNotifier *mp_SoftSwitchPressedNotifier;
+//    QFileSystemWatcher *mp_FileSysWatcher;
     QFile *mp_File;
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
     bool IsSystemStateSoftSwitchMonitor(QEvent *p_Event);
+    bool CheckShutDownTransition(QEvent *p_Event);
     void OnDefaultStateEntered();
     void OnPressedAtInitStateEntered();
     void OnPressedAtIdleStateEntered();
@@ -60,7 +84,7 @@ private:
     void OnShutDownStateEntered();
 
 private slots:
-    void OnSoftSwitchPressed(int GpioFd);
+    void OnSoftSwitchPressed();
     void ResetStateMachine();
     void ActivatePolling();
 

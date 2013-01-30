@@ -70,6 +70,8 @@ StateHandler::StateHandler()
     m_operationMachine.setInitialState(m_DefaultState);
     m_availabilityMachine.setInitialState(m_normalState);
 
+    connect(m_SoftSwitchMonitorState, SIGNAL(entered()), this, SLOT(onSoftSwitchMonitorStateEntered()));
+    connect(m_InitState, SIGNAL(entered()), this, SLOT(onInitStateEntered()));
 //    connect(m_idleState, SIGNAL(stateChanged()), this, SLOT(onStateChanged()));
 //    connect(m_busyState, SIGNAL(stateChanged()), this, SLOT(onStateChanged()));
 
@@ -205,6 +207,17 @@ void StateHandler::onOperationStateChanged()
     QString state = getCurrentOperationState();
     emit stateChanged(state);
 }
+
+void StateHandler::onInitStateEntered()
+{
+    emit enteredInitState();
+}
+
+void StateHandler::onSoftSwitchMonitorStateEntered()
+{
+    emit enteredSoftSwitchMonitorState();
+}
+
 
 //void StateHandler::onNormalState()
 //{

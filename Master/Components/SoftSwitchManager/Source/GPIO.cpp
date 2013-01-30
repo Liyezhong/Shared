@@ -122,7 +122,6 @@ qint32 GPIOPin::Open()
 {
     char Buf[BUF_SIZE];
     (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/value", m_PinNumber);
-
     if ( 0 <= m_Fd ) {
         close(m_Fd );
     }
@@ -135,6 +134,7 @@ qint32 GPIOPin::Open()
     if( 0 > m_Fd ){
         qDebug()<<" GPIOPin::Open() File Open failed";
     }
+    qDebug()<<"GPIO Value file Opened with Fd"<<m_Fd;
     return m_Fd;
 }
 
@@ -146,23 +146,23 @@ qint32 GPIOPin::Open()
 /****************************************************************************/
 qint32 GPIOPin::GetValue()
 {
-    if( !m_Direction){
-        if ( 0 > m_Fd ) {
-            Open();
-        }
+    if (!m_Direction) {
         if ( 0 > m_Fd ) {
             return -1;
         }
+	qDebug()<<"Fd in GetValue()"<< m_Fd;
         char Ch;
-
-        read(m_Fd, &Ch, 1);
-
+        int Return = read(m_Fd, &Ch, 1);
+	if (Return < 0) {
+	  perror("Read Error");
+	}
+	qDebug()<<"Length" << Return;
+	qDebug()<<"GetValue() "<<Ch;
         if ( Ch != '0' ) {
             return (m_CurrentValue = 1);
         } else {
             return (m_CurrentValue = 0);
         }
-
     }
     return -1;
 }
@@ -180,15 +180,15 @@ qint32 GPIOPin::SetEdge(const char *p_Edge)
     char Buf[BUF_SIZE];
     (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/edge", m_PinNumber);
 
-    m_Fd = open(Buf, O_WRONLY);
+    int Fd = open(Buf, O_WRONLY);
 
-    if( m_Fd < 0 ){
+    if( Fd < 0 ){
         return -1;
     }
 
-    write(m_Fd, p_Edge, strlen(p_Edge) + 1);
+    write(Fd, p_Edge, strlen(p_Edge) + 1);
 
-    close(m_Fd);
+    close(Fd);
     return 0;
 }
 

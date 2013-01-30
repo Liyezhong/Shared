@@ -54,6 +54,7 @@ public:
     qint32 GetValue();
     qint32 GetGpioFd() { return m_Fd;}
     qint32 Open();
+    void CloseGPIOFd() { close(m_Fd); m_Fd = -1;}
 };
 
 } //End of namespace SoftSwitchManager

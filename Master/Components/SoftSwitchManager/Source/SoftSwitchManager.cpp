@@ -20,7 +20,7 @@
 #include <SoftSwitchManager/Include/SoftSwitchManager.h>
 #include <EventHandler/Include/StateHandler.h>
 #include <SoftSwitchManager/Include/GPIOManagerEventCodes.h>
-
+#include <Global/Include/Utils.h>
 #include <unistd.h> //Provides STDIN_FILENO
 #include <QTextStream>
 
@@ -41,7 +41,6 @@ const QString ShutdownState                     =   "ShutdownState";
 SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
     :m_SoftSwitchGPIO(SOFT_SWITCH_GPIO_NUMBER, DIRECTION_IS_INPUT)
     ,mp_DefaultToInitTransition(NULL)
-    ,mp_SoftSwitchPressedNotifier(NULL)
 {
     //!< This is required so that our object is on the right thread
     setParent(p_Parent);
@@ -50,12 +49,15 @@ SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
 
 void SoftSwitchMgr::Init()
 {
-    QFile *mp_File = new QFile(this);
-    //File->open(stdin,QIODevice::ReadOnly);
-    m_SoftSwitchGPIO.Open();
-    mp_File->open(m_SoftSwitchGPIO.GetGpioFd(), QIODevice::ReadOnly);
-    mp_SoftSwitchPressedNotifier = new QSocketNotifier(mp_File->handle(), QSocketNotifier::Read);
+//    QFile *mp_File = new QFile(this);
+//    mp_File->open(stdin,QIODevice::ReadOnly);
+    //m_SoftSwitchGPIO.Open();
+    //mp_File->open(m_SoftSwitchGPIO.GetGpioFd(), QIODevice::ReadOnly);
+    /*mp_SoftSwitchPressedNotifier = new QSocketNotifier(mp_File->handle(), QSocketNotifier::Read);
     mp_SoftSwitchPressedNotifier->setParent(this);
+
+    mp_FileSysWatcher = new QFileSystemWatcher(this);
+    mp_FileSysWatcher->addPath("/sys/class/gpio/gpio0/value");*/
     //!< Create Seven Second timer
     mp_Timer = new QTimer(this);
     mp_Timer->setInterval(TIMER_INTERVAL);
@@ -133,9 +135,17 @@ void SoftSwitchMgr::Init()
     mp_DefaultToBusyTransition->setParent(this);
     mp_DefaultState->addTransition(mp_DefaultToBusyTransition);
 
-    mp_PressedAtIdleState->addTransition(this, SIGNAL(SoftSwitchPressed()), mp_ShutDownState);
+    mp_IdleToShutDownTransition = new SoftSwitchStateTransition(this, SIGNAL(SoftSwitchPressed()),
+                                                                *this, &SoftSwitchMgr::CheckShutDownTransition,
+                                                                mp_ShutDownState);
+    mp_IdleToShutDownTransition->setParent(this);
+    mp_PressedAtIdleState->addTransition(mp_IdleToShutDownTransition);
     mp_PressedAtBusyState->addTransition(this, SIGNAL(SoftSwitchPressed()), mp_CriticalActionCheckState);
-    mp_CriticalActionCheckState->addTransition(this, SIGNAL(CriticalActionNotInProgress()), mp_ShutDownState);
+    mp_CriticalCheckToShutDownTransition = new SoftSwitchStateTransition(this, SIGNAL(SoftSwitchPressed()),
+                                                                         *this, &SoftSwitchMgr::CheckShutDownTransition,
+                                                                         mp_ShutDownState);
+    mp_CriticalCheckToShutDownTransition->setParent(this);
+    mp_CriticalActionCheckState->addTransition(mp_CriticalCheckToShutDownTransition);
     mp_CriticalActionCheckState->addTransition(this, SIGNAL(CriticalActionInProgress()), mp_CriticalActionState);
     mp_CriticalActionState->addTransition(this, SIGNAL(CriticalActionComplete()), mp_ShutDownState);
 
@@ -159,6 +169,7 @@ void SoftSwitchMgr::ConnectSignals()
 {
     EventHandler::StateHandler *p_StateHandler = &EventHandler::StateHandler::Instance();
     connect(p_StateHandler, SIGNAL(initComplete()), this, SIGNAL(SystemInitComplete()));
+    CONNECTSIGNALSIGNAL(p_StateHandler, enteredInitState(), this, SendSoftSwitchPressedCmd());
 }
 
 SoftSwitchMgr::~SoftSwitchMgr()
@@ -207,6 +218,19 @@ bool SoftSwitchMgr::IsSystemStateSoftSwitchMonitor(QEvent *p_Event) {
     }
 }
 
+bool SoftSwitchMgr::CheckShutDownTransition(QEvent *p_Event)
+{
+    qDebug()<<"Checking if previous state is Idle or Critical Action Check state";
+    if (QString::compare(m_CurrentState, PressedAtIdleState) == 0
+        || QString::compare(m_CurrentState, CriticalActionCheckState) == 0 ) {
+
+        return true;
+    }
+    else {
+        false;
+    }
+}
+
 void SoftSwitchMgr::OnDefaultStateEntered()
 {
     /*!< When we enter Default state , first check we came here as a result of timeout, if so
@@ -232,7 +256,6 @@ void SoftSwitchMgr::OnPressedAtInitStateEntered()
     qDebug()<<" SoftSwitch PressedAt Init State Entered \n \n";
     qDebug()<<"State thread" << mp_PressedAtSoftSwitchMonitorState->thread();
     EventHandler::StateHandler::Instance().setInitState();
-    emit SendSoftSwitchPressedCmd();
 }
 
 void SoftSwitchMgr::OnPressedAtIdleStateEntered()
@@ -253,6 +276,13 @@ void SoftSwitchMgr::OnPressedAtBusyStateEntered()
     qDebug()<<" SoftSwitch PressedAt Busy State Entered \n \n";
 }
 
+/****************************************************************************/
+/**
+ * \brief This function is called when softswitch is pressed when critical
+ *        action is going on. Waits for the critical action to complete and
+ *        then informs statemachine to put system to shutdown state.
+ */
+/****************************************************************************/
 void SoftSwitchMgr::OnCriticalActionCheckStateEntered()
 {
     //! Start timer. Will internally check if timer is already running,if so will stop and restarts the timer.
@@ -261,6 +291,13 @@ void SoftSwitchMgr::OnCriticalActionCheckStateEntered()
     qDebug()<<"CriticalActionCheckState Entered \n\n";
 }
 
+/****************************************************************************/
+/**
+ * \brief This function is called when softswitch is pressed when critical
+ *        action is going on. Waits for the critical action to complete and
+ *        then informs statemachine to put system to shutdown state.
+ */
+/****************************************************************************/
 void SoftSwitchMgr::OnCriticalActionStateEntered()
 {
     //! Start timer. Will internally check if timer is already running,if so will stop and restarts the timer.
@@ -270,37 +307,47 @@ void SoftSwitchMgr::OnCriticalActionStateEntered()
     qDebug()<<" SoftSwitch PressedAt Critical State Entered \n \n";
 }
 
+/****************************************************************************/
+/**
+ * \brief Initiates shutdown process of the software
+ *
+ */
+/****************************************************************************/
 void SoftSwitchMgr::OnShutDownStateEntered()
 {
     m_CurrentState = ShutdownState;
     qDebug()<<" SoftSwitch PressedAt Shutdown State Entered \n \n";
 }
 
-void SoftSwitchMgr::OnSoftSwitchPressed(int GpioFd)
+void SoftSwitchMgr::OnSoftSwitchPressed()
 {
-    if (mp_SoftSwitchPressedNotifier) {
-        mp_SoftSwitchPressedNotifier->setEnabled(false);
-        mp_PollTimer->start();
-    }
-    QTextStream qin(mp_File);
+    QTextStream qin(stdin);
     qDebug()<<"Soft Switch Pressed" << qin.readLine().simplified();
-    if (qin.readLine().simplified() == QString("0")) {
-        emit SoftSwitchPressed();
-    }
+    emit SoftSwitchPressed();
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  This slot is called to put the statemachine into default state
+ */
+/****************************************************************************/
 void SoftSwitchMgr::ResetStateMachine()
 {
     //!< This would put the system to default state.
     emit TimerTimeOut();
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Activates the polling of the softswitch GPIO.
+ */
+/****************************************************************************/
 void SoftSwitchMgr::ActivatePolling()
 {
     mp_PollTimer->stop();
-    if (mp_SoftSwitchPressedNotifier) {
-        mp_SoftSwitchPressedNotifier->setEnabled(true);
-    }
+//    if (mp_SoftSwitchPressedNotifier) {
+//        mp_SoftSwitchPressedNotifier->setEnabled(true);
+//    }
 }
 
 }// End of namespace SoftSwitchManager

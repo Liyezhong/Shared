@@ -21,7 +21,11 @@
 #define SOFTSWITCHMANAGERTHREADCONTROLLER_H
 //QT Headers
 #include <QObject>
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <poll.h>
 //Project Headers
 #include <Global/Include/GlobalDefines.h>
 #include <Threads/Include/ThreadController.h>
@@ -29,8 +33,9 @@
 #include <SoftSwitchManager/Include/SoftSwitchManager.h>
 
 
-namespace SoftSwitchManager {
 
+namespace SoftSwitchManager {
+class GpioPoller;
 /****************************************************************************/
 /**
  * \brief This Class shall be responsible to manage the softswitch related
@@ -70,14 +75,65 @@ protected:
     virtual void OnPowerFail();
 
 private:
+    QThread *mp_PollingThread;
     SoftSwitchMgr m_SoftSwitchManager;
+    GpioPoller *mp_GpioPoller;
     Q_DISABLE_COPY(SoftSwitchManagerThreadController) //!< Disable copy and assignment
     void RegisterCommands();
     void OnAcknowledge(Global::tRefType, const Global::AckOKNOK &);
 private slots:
     void SendSoftSwitchPressedCmd();
     void TempInitComplete();
+    void StartGPIOPolling();
+};
 
+
+class GpioPoller:public QObject
+{
+    Q_OBJECT
+public:
+    GpioPoller() {
+        NumbOfFileDesc = 2;
+    }
+private:
+    struct pollfd fdset[2];
+    int NumbOfFileDesc;
+    char Buf[100];
+private slots:
+    void Run() {
+        emit OnSoftSwitchPressed();
+        while (1) {
+
+            memset((void*)fdset, 0, sizeof(fdset));
+            fdset[0].fd = STDIN_FILENO; //Standard input
+            fdset[0].events = POLLIN;
+            int TimeOut = -1; // Infinite Timeout
+            int  PollReturn = poll(fdset, NumbOfFileDesc, TimeOut);
+
+            if (PollReturn < 0) {
+                qDebug("\npoll() failed!\n");
+                return;
+            }
+
+            if (PollReturn == 0) {
+                qDebug(".");
+            }
+            //SoftSwitch GPIO
+            if (fdset[1].revents & POLLPRI) {
+                int len = read(fdset[1].fd, &Buf, 100);
+                qDebug()<<"\npoll() GPIO interrupt occurred\n";
+                emit OnSoftSwitchPressed();
+            }
+
+            if (fdset[0].revents & POLLIN) {
+                (void)read(fdset[0].fd, &Buf, 1);
+                qDebug()<<"\npoll() stdin read:"<< Buf[0];
+                emit OnSoftSwitchPressed();
+            }
+
+            fflush(stdout);
+        }
+    }
 signals:
     void OnSoftSwitchPressed();
 

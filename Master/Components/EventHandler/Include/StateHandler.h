@@ -94,6 +94,9 @@ private:
 private slots:
     void onAvailabilityStateChanged();
     void onOperationStateChanged();
+    void onInitStateEntered();
+    void onSoftSwitchMonitorStateEntered();
+
 //    /**
 //      @brief Is called when error state is entered. Will inform GUI and scheduler about stopping the execution
 //      */
@@ -116,7 +119,8 @@ signals:
     void softSwitchMonitorStart();
 
     void stateChanged(QString);
-
+    void enteredInitState();
+    void enteredSoftSwitchMonitorState();
 }; // end class
 
 } // end namespace EventHandler
