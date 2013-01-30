@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfigurationVerifier.h
+/*! \file DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h
  *
  *  \brief DeviceConfigurationVerifier definition.
  *

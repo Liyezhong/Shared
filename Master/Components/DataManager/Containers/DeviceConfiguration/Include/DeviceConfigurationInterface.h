@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfigurationInterface.h
+/*! \file DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h
  *
  *  \brief DeviceConfigurationInterface definition.
  *
