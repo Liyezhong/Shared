@@ -176,7 +176,7 @@ void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntr
         qDebug()<<"EventID64" << EventId64;
     }
     InformAlarmHandler(EventEntry, EventId64, false);
-    UpdateEventDataStructures(EventID, EventId64, EventEntry, true);
+    UpdateEventDataStructures(EventID, EventId64, EventEntry, true, (EventOccurenceCount == 1) ? true : false);
 }
 
 void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
@@ -737,6 +737,8 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
     quint32 EventKey = EventId64 >> 32;
     if (Remove) {
         if (EventEntry.GetGUIMessageBoxOptions() == Global::NO_BUTTON || AckByGUI) {
+            qDebug()<<"Removing EventId 64"<< EventId64;
+            qDebug()<<"Removing Event Key:" <<EventKey << "\n\n";
             //We no longer need these data
             m_EventKeyDataMap.remove(EventId64);
             qint32 Index = m_EventIDCount.indexOf(EventID);
