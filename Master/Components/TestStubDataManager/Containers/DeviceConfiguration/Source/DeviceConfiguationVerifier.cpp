@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfigurationVerifier.cpp
+/*! \file TestStubDataManager/Containers/DeviceConfiguration/Source/DeviceConfigurationVerifier.cpp
  *
  *  \brief DeviceConfigurationVerifier class implementation.
  *
@@ -23,7 +23,8 @@
 
 #include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h"
 #include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
-
+#include "TestStubDataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 namespace DataManager {
@@ -34,8 +35,8 @@ const int MIN_STAINER_DEVNAME_CHAR_COUNT    = 1;        ///< Minimum character w
 const int MAX_STAINER_DEVNAME_CHAR_COUNT    = 32;       ///< Maximum character width of device name
 const int MIN_CSLIPPER_DEVNAME_CHAR_COUNT   = 1;        ///< Minimum character width of coverslipper name
 const int MAX_CSLIPPER_DEVNAME_CHAR_COUNT   = 32;       ///< Maximum character width of coverslipper name
-const bool MODULE_AVAILABILITY_YES          = true;     ///< Module availability
-const bool MODULE_AVAILABILITY_NO           = false;    ///< Module Non-Availability
+const int MODULE_AVAILABILITY_YES          = 1;     	///< Module availability
+const int MODULE_AVAILABILITY_NO           = 0;    		///< Module Non-Availability
 /****************************************************************************/
 /*!
  *  \brief Constructor
@@ -57,6 +58,8 @@ CDeviceConfigurationVerifier::CDeviceConfigurationVerifier() : mp_DeviceConfigIn
 /****************************************************************************/
 bool CDeviceConfigurationVerifier::VerifyData(CDataContainerBase* p_DeviceConfigInterface)
 {
+    // by default make the verification flag to true
+    bool VerifiedData = true;
     // assign pointer to member variable
     mp_DeviceConfigInterface = static_cast<CDeviceConfigurationInterface*>(p_DeviceConfigInterface);
 
@@ -71,58 +74,69 @@ bool CDeviceConfigurationVerifier::VerifyData(CDataContainerBase* p_DeviceConfig
     LanguageList = DeviceConfig->GetLanguageList();
     if(!LanguageList.isEmpty()) {
         for (qint32 I = 0; I < LanguageList.count(); I++) {
-           Languages = LanguageList.at(I);
-           //Need to implement a method to verify the language list
+            Languages = LanguageList.at(I);
+            //Need to implement a method to verify the language list
         }
-         //need to return false once the language list verification method is freezed
+        //need to return false once the language list verification method is freezed
     }
 
     // check the error for device name
     if (!((DeviceConfig->GetValue("DeviceName").count() >= MIN_STAINER_DEVNAME_CHAR_COUNT) && (DeviceConfig->GetValue("DeviceName").count() <= MAX_STAINER_DEVNAME_CHAR_COUNT))) {
-         qDebug() << "Stainer device name width is not proper";
-        return false;
+        qDebug() << "Stainer device name width is not proper";
+        m_ErrorHash.insert(EVENT_DM_INVALID_DEVICE_NAME_CHAR_COUNT, Global::tTranslatableStringList() << "");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DEVICE_NAME_CHAR_COUNT, Global::tTranslatableStringList() <<"", true);
+        VerifiedData = false;
     }
 
     // check the error for serial number
     if (!((DeviceConfig->GetValue("SerialNumber").count() >= MIN_SERIAL_CHAR_COUNT) && (DeviceConfig->GetValue("SerialNumber").count() <= MAX_SERIAL_CHAR_COUNT))) {
-         qDebug() << "Stainer serial number width is not proper";
-        return false;
+        qDebug() << "Stainer serial number width is not proper";
+        m_ErrorHash.insert(EVENT_DM_INVALID_DEVICE_NUMBER_CHAR_COUNT, Global::tTranslatableStringList() << "");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DEVICE_NUMBER_CHAR_COUNT, Global::tTranslatableStringList() <<"", true);
+        VerifiedData = false;
     }
 
-    // todo: generalize the following checks
-    if (DeviceConfig->GetValue("DeviceName") == "ST 8020")
+    // todo: generalize the following checks (Mantis 3723)
+    if (DeviceConfig->GetValue("DeviceName") == "ST 8200")
     {
         // check the error for Coverslipper device name
         if (!((DeviceConfig->GetValue("CoverslipperName").count() >= MIN_CSLIPPER_DEVNAME_CHAR_COUNT) && (DeviceConfig->GetValue("CoverslipperName").count() <= MAX_CSLIPPER_DEVNAME_CHAR_COUNT))) {
-             qDebug() << "Coverslipper device name width is not proper";
-            return false;
+            qDebug() << "Coverslipper device name width is not proper";
+            m_ErrorHash.insert(EVENT_DM_INVALID_COVERSLIPPER_NAME_WIDTH, Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_COVERSLIPPER_NAME_WIDTH, Global::tTranslatableStringList() <<"", true);
+            VerifiedData = false;
         }
 
-        switch(DeviceConfig->GetBoolValue("WorkstationMode")) {
-            case MODULE_AVAILABILITY_YES:
-            case MODULE_AVAILABILITY_NO:
+        switch(DeviceConfig->GetAttributeValue("WorkstationMode")) {
+        case MODULE_AVAILABILITY_YES:
+        case MODULE_AVAILABILITY_NO:
             break;
         default:
             qDebug() << "Workstation mode data is not proper";
-           return false;
+            m_ErrorHash.insert(EVENT_DM_INVALID_WSMODE_DATA, Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_WSMODE_DATA, Global::tTranslatableStringList() <<"", true);
+            VerifiedData = false;
         }
-
-        switch(DeviceConfig->GetBoolValue("HeatedCuevettes")) {
-            case MODULE_AVAILABILITY_YES:
-            case MODULE_AVAILABILITY_NO:
+        switch(DeviceConfig->GetAttributeValue("HeatedCuevettes")) {
+        case MODULE_AVAILABILITY_YES:
+        case MODULE_AVAILABILITY_NO:
             break;
         default:
+            m_ErrorHash.insert(EVENT_DM_INVALID_HEATED_CUEVETTES_DATA, Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_HEATED_CUEVETTES_DATA, Global::tTranslatableStringList() <<"", true);
             qDebug() << "Heated cuevettes mode is not proper";
-           return false;
+            VerifiedData = false;
         }
 
-        switch(DeviceConfig->GetBoolValue("SlideIdCamera")) {
-            case MODULE_AVAILABILITY_YES:
-            case MODULE_AVAILABILITY_NO:
+        switch(DeviceConfig->GetAttributeValue("SlideIdCamera")) {
+        case MODULE_AVAILABILITY_YES:
+        case MODULE_AVAILABILITY_NO:
             break;
         default:
             qDebug() << "Camera slide id availability data is not proper";
-           return false;
+            m_ErrorHash.insert(EVENT_DM_INVALID_CAMERA_SLIDEID_DATA, Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_CAMERA_SLIDEID_DATA, Global::tTranslatableStringList() <<"", true);
+            VerifiedData = false;
         }
     }
 
@@ -130,36 +144,25 @@ bool CDeviceConfigurationVerifier::VerifyData(CDataContainerBase* p_DeviceConfig
     {
         // check the error for Stainer device name
         if (!((DeviceConfig->GetValue("StainerName").count() >= MIN_CSLIPPER_DEVNAME_CHAR_COUNT) && (DeviceConfig->GetValue("StainerName").count() <= MAX_CSLIPPER_DEVNAME_CHAR_COUNT))) {
-             qDebug() << "Stainer device name width is not proper";
-            return false;
+            qDebug() << "Stainer device name width is not proper";
+            m_ErrorHash.insert(EVENT_DM_INVALID_STAINER_DEV_NAME_WIDTH, Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_STAINER_DEV_NAME_WIDTH, Global::tTranslatableStringList() <<"", true);
+            VerifiedData = false;
         }
 
-        switch(DeviceConfig->GetBoolValue("WorkstationMode")) {
-            case MODULE_AVAILABILITY_YES:
-            case MODULE_AVAILABILITY_NO:
+        switch(DeviceConfig->GetAttributeValue("WorkstationMode")) {
+        case MODULE_AVAILABILITY_YES:
+        case MODULE_AVAILABILITY_NO:
             break;
         default:
             qDebug() << "Workstation mode data is not proper";
-           return false;
+            m_ErrorHash.insert(EVENT_DM_INVALID_WSMODE_DATA, Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_WSMODE_DATA, Global::tTranslatableStringList() <<"", true);
+            VerifiedData = false;
         }
     }
 
-    return true;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Get the synchronous object
- *
- *  \iparam p_ReadWriteLock = Lock for the threads
- *
- *  \return Successful (true) or not (false)
- */
-/****************************************************************************/
-bool CDeviceConfigurationVerifier::GetSyncObject(QReadWriteLock* p_ReadWriteLock)
-{
-    p_ReadWriteLock = NULL;
-    return true;
+    return VerifiedData;
 }
 
 /****************************************************************************/
@@ -172,7 +175,7 @@ bool CDeviceConfigurationVerifier::GetSyncObject(QReadWriteLock* p_ReadWriteLock
 ErrorHash_t& CDeviceConfigurationVerifier::GetErrors()
 {
     // return the last error which is occured in the verifier
-    return m_ErrorsHash;
+    return m_ErrorHash;
 }
 
 /****************************************************************************/
@@ -182,7 +185,7 @@ ErrorHash_t& CDeviceConfigurationVerifier::GetErrors()
 /****************************************************************************/
 void CDeviceConfigurationVerifier::ResetLastErrors()
 {
-    m_ErrorsHash.clear();
+    m_ErrorHash.clear();
 }
 
 /****************************************************************************/
@@ -198,5 +201,8 @@ bool CDeviceConfigurationVerifier::IsLocalVerifier()
 }
 
 }  // namespace DataManager
+
+
+
 
 

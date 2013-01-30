@@ -56,7 +56,7 @@ void XmlConfigFileStrings::ReadLanguage_V1(QXmlStreamReader &rReader, QSet<QLoca
                 // Found a string. Read it.
                 ReadStringEntry_V1(rReader, LanguageData);
             } else {
-                THROWARG(EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
+                THROWARG(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
             }
         }
         // append language data to result
@@ -74,7 +74,7 @@ void XmlConfigFileStrings::ReadStrings_V1(QXmlStreamReader &rReader, QSet<QLocal
             // Found a language.
             ReadLanguage_V1(rReader, rLanguageList);
         } else {
-            THROWARG(EVENT_DATAMANAGER_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
+            THROWARG(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
         }
     }
 }
@@ -96,7 +96,7 @@ void XmlConfigFileStrings::ReadStrings(const QString &FileName, QSet<QLocale::La
             ReadStrings_V1(rReader, rLanguageList);
         } else {
             // not a supported version
-            THROWARG(EVENT_DATAMANAGER_ERROR_UNSUPPORTED_VERSION, Version);
+            THROWARG(EVENT_DM_ERROR_UNSUPPORTED_VERSION, Version);
         }
     } catch(...) {
         // reset data

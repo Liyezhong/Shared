@@ -42,8 +42,6 @@ public:
 
     bool VerifyData(CDataContainerBase* p_DataRackList);  // use concrete class for concrete verifier
 
-    bool GetSyncObject(QReadWriteLock* p_ReadWriteLock);
-
     ErrorHash_t &GetErrors();
 
     void ResetLastErrors();
@@ -57,11 +55,14 @@ public:
     virtual ~CUserSettingsVerifier() {}
 private:
     CUserSettingsInterface* mp_USettingsInterface;   ///< Local pointer to a rack list
-    ErrorHash_t m_ErrorsHash;          //!< To store Error ID and any arguments associated
+    ErrorHash_t m_ErrorHash;          //!< To store Error ID and any arguments associated
 
     bool CheckLoaderReagentID(QString LoaderReagentID);
-    void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
-    void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData, QString& ErrorDescription);
+    void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData);
+    void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData);
+    void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData);
+    bool CheckProxyIPAddress(CUserSettings* p_UserSettings);
+    bool CheckProxyIPPort(CUserSettings *p_UserSettings);
 };
 
 } // namespace DataManager

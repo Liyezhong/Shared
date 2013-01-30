@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfiguration.cpp
+/*! \file TestStubDataManager/Containers/DeviceConfiguration/Source/DeviceConfiguration.cpp
  *
  *  \brief DeviceConfiguration class implementation.
  *
@@ -24,7 +24,8 @@
 #include <QFile>
 
 #include "TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h"
-
+#include "TestStubDataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 namespace DataManager {
@@ -111,10 +112,8 @@ void CDeviceConfiguration::SetDefaultAttributes()
 bool CDeviceConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData)
 {
     // write the document type declaration
-
     XmlStreamWriter.writeStartElement("Device");
-
-    XmlStreamWriter.writeAttribute("Version", GetVersion());
+//    XmlStreamWriter.writeAttribute("Version", GetVersion());
 
     QHashIterator<QString, QString> i(m_ValueList);
     while (i.hasNext())
@@ -124,47 +123,12 @@ bool CDeviceConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, b
     }
     XmlStreamWriter.writeEndElement();
 
-//    // write Device Serial number and Name
-//    XmlStreamWriter.writeStartElement("Device");
-//    XmlStreamWriter.writeAttribute("Name", GetStainerDeviceName());
-//    XmlStreamWriter.writeAttribute("SerialNumber", GetStainerSerialNumber());
-//    XmlStreamWriter.writeEndElement();
-
-//    // write Coverslipper name
-//    XmlStreamWriter.writeStartElement("Coverslipper ");
-//    XmlStreamWriter.writeAttribute("Name", GetCoverSlipperDeviceName());
-//    XmlStreamWriter.writeEndElement();
-
-//    // write workstation mode
-//    XmlStreamWriter.writeStartElement("Workstation ");
-//    XmlStreamWriter.writeAttribute("Mode", Global::BoolToStringYesNo(GetWorkStation()));
-//    XmlStreamWriter.writeEndElement();
-
-//    // write Heated cuvettes availability
-//    XmlStreamWriter.writeStartElement("Heated");
-//    XmlStreamWriter.writeAttribute("Cuevettes", Global::BoolToStringYesNo(GetHeatedCuevettesAvailable()));
-//    XmlStreamWriter.writeEndElement();
-
-//    // write Camera slide id
-//    XmlStreamWriter.writeStartElement("SlideId");
-//    XmlStreamWriter.writeAttribute("Camera", Global::BoolToStringYesNo(GetCameraSlideIdAvailable()));
-//    XmlStreamWriter.writeEndElement();
-
     if (CompleteData) {
         // write Language list
         XmlStreamWriter.writeStartElement("LanguageList");
-//        QString Languages;
-//        for (qint32 I = 0; I < m_LanguageList.count(); I++) {
-//            Languages.append(m_LanguageList.at(I));
-//            Languages.append(",");
-//        }
         XmlStreamWriter.writeAttribute("Languages", m_LanguageList.join(","));
         XmlStreamWriter.writeEndElement();
     }
-//    XmlStreamWriter.writeEndElement();
-
-
-//    file.close();
 
     return true;
 }
@@ -189,16 +153,54 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
     if (XmlStreamReader.name() != "Device")
     {
         qDebug() << "CDeviceConfiguration::DeserializeContent, DeviceConfiguration not found";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Device", true);
         return false;
     }
 
     // Read attribute Version
-    if (!XmlStreamReader.attributes().hasAttribute("Version")) {
+    if (!XmlStreamReader.attributes().hasAttribute("VERSION")) {
         qDebug() << "### attribute <Version> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Version", true);
         return false;
     }
-    SetVersion(XmlStreamReader.attributes().value("Version").toString());
-
+    SetVersion(XmlStreamReader.attributes().value("VERSION").toString());
+    /// \todo: Commented below code to avoid Sepia Data manager verfication fail
+//    // Read attribute SLIDEIDCAMERA
+//    if (!XmlStreamReader.attributes().hasAttribute("SLIDEIDCAMERA")) {
+//        qDebug() << "### attribute <SLIDEIDCAMERA> is missing => abort reading";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SLIDEIDCAMERA", true);
+//        return false;
+//    }
+//    // Read attribute WORKSTATIONMODE
+//    if (!XmlStreamReader.attributes().hasAttribute("WORKSTATIONMODE")) {
+//        qDebug() << "### attribute <WORKSTATIONMODE> is missing => abort reading";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WORKSTATIONMODE", true);
+//        return false;
+//    }
+//    // Read attribute DEVICENAME
+//    if (!XmlStreamReader.attributes().hasAttribute("DEVICENAME")) {
+//        qDebug() << "### attribute <DEVICENAME> is missing => abort reading";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DEVICENAME", true);
+//        return false;
+//    }
+//    // Read attribute SERIALNUMBER
+//    if (!XmlStreamReader.attributes().hasAttribute("SERIALNUMBER")) {
+//        qDebug() << "### attribute <SERIALNUMBER> is missing => abort reading";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SERIALNUMBER", true);
+//        return false;
+//    }
+//    // Read attribute COVERSLIPPERNAME
+//    if (!XmlStreamReader.attributes().hasAttribute("COVERSLIPPERNAME")) {
+//        qDebug() << "### attribute <COVERSLIPPERNAME> is missing => abort reading";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "COVERSLIPPERNAME", true);
+//        return false;
+//    }
+//    // Read attribute HEATEDCUEVETTES
+//    if (!XmlStreamReader.attributes().hasAttribute("HEATEDCUEVETTES")) {
+//        qDebug() << "### attribute <HEATEDCUEVETTES> is missing => abort reading";
+//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "HEATEDCUEVETTES", true);
+//        return false;
+//    }
     if (!XmlStreamReader.atEnd() && !XmlStreamReader.hasError())
     {
         QXmlStreamAttributes attributes = XmlStreamReader.attributes();
@@ -241,6 +243,7 @@ bool CDeviceConfiguration::ReadCompleteData(QXmlStreamReader& XmlStreamReader)
 
     if (!XmlStreamReader.attributes().hasAttribute("Languages")) {
         qDebug()<<"### attribute <Languages> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Languages", true);
         return false;
     }
     //retrieve station id list
@@ -275,7 +278,9 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfiguration&
     if (!p_TempDeviceConfig->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
     }
 
     // write enddocument
@@ -305,8 +310,10 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfiguration& Device
     // deserialize the content of the xml
     if (!DeviceConfig.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (DeSerializeContent) failed.";
+        DeviceConfig.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;

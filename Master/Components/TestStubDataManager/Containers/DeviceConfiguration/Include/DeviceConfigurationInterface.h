@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DeviceConfigurationInterface.h
+/*! \file TestStubDataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h
  *
  *  \brief DeviceConfigurationInterface definition.
  *
@@ -45,6 +45,8 @@ private:
     bool                        m_DataVerificationMode; ///< Store the Data verification mode flag
     CDeviceConfiguration*       mp_DeviceConfig;        ///< Store the Device Configurationl settings
     QString                     m_FileName;             ///< Store the file name    
+    ErrorHash_t                 m_ErrorHash;            //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+
     /****************************************************************************/
 
 

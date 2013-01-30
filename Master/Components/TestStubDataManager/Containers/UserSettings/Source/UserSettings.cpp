@@ -24,7 +24,8 @@
 #include <QFile>
 
 #include "TestStubDataManager/Containers/UserSettings/Include/UserSettings.h"
-
+#include "TestStubDataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 namespace DataManager {
@@ -43,7 +44,13 @@ CUserSettings::CUserSettings() :
     m_SoundNumberError(0),
     m_SoundLevelError(0),
     m_SoundNumberWarning(0),
-    m_SoundLevelWarning(0)
+    m_SoundLevelWarning(0),
+    m_RemoteCare(Global::ONOFFSTATE_UNDEFINED),
+    m_DirectConnection(Global::ONOFFSTATE_UNDEFINED),
+    m_ProxyUserName(""),
+    m_ProxyPassword(""),
+    m_ProxyIPAddress("000.000.000.001"),
+    m_ProxyIPPort(1)
 {
     // set default values
     SetDefaultAttributes();
@@ -91,6 +98,12 @@ void CUserSettings::SetDefaultAttributes()
     m_SoundLevelError       = 6;
     m_SoundNumberWarning    = 1;
     m_SoundLevelWarning     = 6;
+    m_RemoteCare            = Global::ONOFFSTATE_ON;
+    m_DirectConnection      = Global::ONOFFSTATE_OFF;
+    m_ProxyUserName         = "Colorado";
+    m_ProxyPassword         = "Colorado";
+    m_ProxyIPAddress        = "000.000.000.001";
+    m_ProxyIPPort           = 1;
 }
 
 
@@ -134,12 +147,23 @@ bool CUserSettings::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Com
     XmlStreamWriter.writeEndElement();
     // write sound end
     XmlStreamWriter.writeEndElement();
+
+    //write network settings realted details
+    XmlStreamWriter.writeStartElement("Network");
+    XmlStreamWriter.writeAttribute("RemoteCare", Global::OnOffStateToString(GetRemoteCare()));
+    XmlStreamWriter.writeAttribute("DirectConnection", Global::OnOffStateToString(GetDirectConnection()));
+    XmlStreamWriter.writeAttribute("ProxyUserName", GetProxyUserName());
+    XmlStreamWriter.writeAttribute("ProxyPassword", GetProxyPassword());
+    XmlStreamWriter.writeAttribute("ProxyIPAddress", GetProxyIPAddress());
+    XmlStreamWriter.writeAttribute("ProxyIPPort", QString::number(GetProxyIPPort(), 10));
+    //write network end element
+    XmlStreamWriter.writeEndElement();
+
     qDebug()<<"Serialize Value List"<<m_ValueList;
     QHashIterator<QString, QString> i(m_ValueList);
     while (i.hasNext())
     {
         i.next();
-
         QStringList stringList = i.key().split("_",  QString::SkipEmptyParts);
         if (stringList.count() == 2)
         {
@@ -200,6 +224,13 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
                     return false;
                 }
             }
+            else if (XmlStreamReader.name() == "Network")
+            {
+                if (!ReadNetworkSettings(XmlStreamReader)) {
+                    qDebug() << "CUserSettings::DeserializeContent: Read NetworkSettings is failed";
+                    return false;
+                }
+            }
             else if ((!XmlStreamReader.name().contains("CLASSTEMPORARYDATA"))  || CompleteData)
             {
                 QXmlStreamAttributes attributes = XmlStreamReader.attributes();
@@ -232,21 +263,23 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
 /****************************************************************************/
 bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
 {
-    // read language    
+    // read language
     if (!XmlStreamReader.attributes().hasAttribute("Language")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <Language> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "Language", true);
         return false;
-    }    
+    }
     SetLanguage(Global::StringToLanguage(XmlStreamReader.attributes().value("Language").toString()));
-
     // read dateformat
     if (!XmlStreamReader.attributes().hasAttribute("DateFormat")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <DateFormat> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DateFormat", true);
         return false;
     }
     QString DateFormatStr = XmlStreamReader.attributes().value("DateFormat").toString();
     Global::DateFormat DF = Global::StringToDateFormat(DateFormatStr, false);
     if(DF == Global::DATE_UNDEFINED) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << DF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_DATEFORMAT, DateFormatStr);
     }
@@ -255,11 +288,13 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     // read timeformat
     if (!XmlStreamReader.attributes().hasAttribute("TimeFormat")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <TimeFormat> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "TimeFormat", true);
         return false;
     }
     QString TimeFormatStr = XmlStreamReader.attributes().value("TimeFormat").toString();
     Global::TimeFormat TF = Global::StringToTimeFormat(TimeFormatStr, false);
     if(TF == Global::TIME_UNDEFINED) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << TF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TIMEFORMAT, TimeFormatStr);
     }
@@ -268,11 +303,13 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     // read temperatureformat
     if (!XmlStreamReader.attributes().hasAttribute("TemperatureFormat")) {
         qDebug() << "CUserSettings::ReadLocalization:### attribute <TemperatureFormat> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "TemperatureFormat", true);
         return false;
     }
     QString TempFormatStr = XmlStreamReader.attributes().value("TemperatureFormat").toString();
     Global::TemperatureFormat TempF = Global::StringToTemperatureFormat(TempFormatStr, false);
     if(TempF == Global::TEMP_FORMAT_UNDEFINED) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<TempF, true);
         // wrong format. throw exception.
         //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TEMPFORMAT, TempFormatStr);
     }
@@ -305,13 +342,14 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
                 // read number
                 if (!XmlStreamReader.attributes().hasAttribute("Number")) {
                     qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Number> is missing => abort reading";
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ErrorTone Number", true);
                     return false;
                 }
                 SetSoundNumberError(XmlStreamReader.attributes().value("Number").toString().toInt());
 
                 // read level attribute
                 if (!XmlStreamReader.attributes().hasAttribute("Level")) {
-                    qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Level> is missing => abort reading";
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ErrorTone Level", true);
                     return false;
                 }
                 SetSoundLevelError(XmlStreamReader.attributes().value("Level").toString().toInt());
@@ -321,6 +359,7 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
                 // read number
                 if (!XmlStreamReader.attributes().hasAttribute("Number")) {
                     qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Number> is missing => abort reading";
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WarningTone Number", true);
                     return false;
                 }
                 SetSoundNumberWarning(XmlStreamReader.attributes().value("Number").toString().toInt());
@@ -328,6 +367,7 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
                 // read level attribute
                 if (!XmlStreamReader.attributes().hasAttribute("Level")) {
                     qDebug() << "CUserSettings::ReadSoundSettings:### attribute <Level> is missing => abort reading";
+                    Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WarningTone Level", true);
                     return false;
                 }
                 SetSoundLevelWarning(XmlStreamReader.attributes().value("Level").toString().toInt());
@@ -335,6 +375,61 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
         }
     }
 
+    return true;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Reads the Network settings from the file.
+ *
+ *  \iparam XmlStreamReader = Xmlfile reader pointer
+ *
+ *  \return True or False
+ */
+/****************************************************************************/
+bool CUserSettings::ReadNetworkSettings(QXmlStreamReader& XmlStreamReader)
+{
+    if (!XmlStreamReader.attributes().hasAttribute("RemoteCare")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <RemoteCare> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "RemoteCare", true);
+        return false;
+    }
+    SetRemoteCare(Global::StringToOnOffState(XmlStreamReader.attributes().value("RemoteCare").toString(), false));
+
+    if (!XmlStreamReader.attributes().hasAttribute("DirectConnection")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <DirectConnection> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DirectConnection", true);
+        return false;
+    }
+    SetDirectConnection(Global::StringToOnOffState(XmlStreamReader.attributes().value("DirectConnection").toString(), false));
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyUserName")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyUserName> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyUserName", true);
+        return false;
+    }
+    SetProxyUserName(XmlStreamReader.attributes().value("ProxyUserName").toString());
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyPassword")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyPassword> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyPassword", true);
+        return false;
+    }
+    SetProxyPassword(XmlStreamReader.attributes().value("ProxyPassword").toString());
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyIPAddress")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyIPAddress> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyIPAddress", true);
+        return false;
+    }
+    SetProxyIPAddress(XmlStreamReader.attributes().value("ProxyIPAddress").toString());
+
+    if (!XmlStreamReader.attributes().hasAttribute("ProxyIPPort")) {
+        qDebug() << "CUserSettings::ReadNetworkSettings:### attribute <ProxyIPPort> is missing => abort reading";
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "ProxyIPPort", true);
+        return false;
+    }
+    SetProxyIPPort(XmlStreamReader.attributes().value("ProxyIPPort").toString().toInt());
     return true;
 }
 
@@ -367,7 +462,9 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSe
     if (!p_TempUserSettings->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CUserSettings::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        const_cast<CUserSettings &>(UserSettings).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }
 
     // write enddocument
@@ -397,7 +494,9 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserSettings& UserSettings)
     if (!UserSettings.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CUserSettings::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        UserSettings.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings");
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }
     XmlStreamReader.device()->reset();
     qDebug()<<">> Stream OPERATOR "<<XmlStreamReader.device()->readAll();
@@ -449,4 +548,16 @@ QString CUserSettings::GetValue(QString key)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Gets the last errors which is done by verifier
+ *
+ *  \return QStringList - List of the errors occured
+ */
+/****************************************************************************/
+ErrorHash_t& CUserSettings::GetErrors()
+{
+    // return the last error which is occured in the verifier
+    return m_ErrorHash;
+}
 } // end namespace DataManager

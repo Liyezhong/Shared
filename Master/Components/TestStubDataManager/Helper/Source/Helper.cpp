@@ -25,6 +25,7 @@
 #include "Global/Include/GlobalDefines.h"
 #include "Global/Include/UITranslator.h"
 #include "TestStubDataManager/Helper/Include/Helper.h"
+#include <qdatetime.h>
 
 namespace DataManager {
 
@@ -232,8 +233,7 @@ QDateTime Helper::ConvertDateTimeStringToQDateTime(QString DateTime)
         second = Temp6.toInt(&Ok);
     }
     QTime Time(hour, minute, second);
-    QDateTime Result(Date, Time);
-
+    QDateTime Result(Date, Time, Qt::UTC);   
     return Result;
 }
 
@@ -302,3 +302,4 @@ void Helper::ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString)
 }
 
 }  // namespace DataManager
+

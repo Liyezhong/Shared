@@ -56,6 +56,14 @@ private:
     int                         m_SoundLevelError;      ///< Sound level for errors.
     int                         m_SoundNumberWarning;   ///< Sound number for warnings.
     int                         m_SoundLevelWarning;    ///< Sound level for warnings.
+    ErrorHash_t                 m_ErrorHash;            //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+    Global::OnOffState          m_RemoteCare;           ///< True(On) if RemoteCare software is used else False(Off).
+    Global::OnOffState          m_DirectConnection;     ///< True(On) if the device is directly connected esle False(Off).
+    QString                     m_ProxyUserName;        ///< ProxyUserName
+    QString                     m_ProxyPassword;        ///< ProxyPassword
+    QString                     m_ProxyIPAddress;       ///< ProxyIPAddress
+    int                         m_ProxyIPPort;          ///< ProxyIPPort
+
 //    int                         m_AgitationSpeed;       ///< Agitation speed.
 //    Global::OvenStartMode       m_OvenStartMode;        ///< Oven start mode.
 //    int                         m_OvenTemp;             ///< Oven temperature. in Celsius!
@@ -77,6 +85,7 @@ private:
 
     bool ReadSoundSettings(QXmlStreamReader& XmlStreamReader);
     bool ReadLocalization(QXmlStreamReader& XmlStreamReader);
+    bool ReadNetworkSettings(QXmlStreamReader& XmlStreamReader);
 //    bool ReadLoaderReagents(QXmlStreamReader& XmlStreamReader);
 
     /****************************************************************************/
@@ -107,6 +116,9 @@ public:
     CUserSettings & operator = (const CUserSettings &);
 
     void SetDefaultAttributes();
+
+    ErrorHash_t &GetErrors();
+
 
     /****************************************************************************/
     /*!
@@ -343,6 +355,162 @@ public:
     void SetValue(QString key, qint32 value)
     {
         SetValue(key, QString::number(value));
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the use of Remote Care Software to operate the device.
+     *
+     *  \return RemoteCare value.
+     */
+    /****************************************************************************/
+    Global::OnOffState GetRemoteCare()
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        return m_RemoteCare;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Set the use of Remote Care Software to operate the device.
+     *
+     *  \iparam RemoteCareOnOffState = On if Remote Care Software is used to operate the
+     *          device else Off.
+     */
+    /****************************************************************************/
+    void SetRemoteCare(Global::OnOffState RemoteCareOnOffState)
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        m_RemoteCare = RemoteCareOnOffState;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the DirectConnection value.
+     *
+     *  \return DirectConnection value.
+     */
+    /****************************************************************************/
+     Global::OnOffState GetDirectConnection()
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        return m_DirectConnection;
+    }
+    /****************************************************************************/
+    /*!
+     *  \brief Set the Device Direct Connection.
+     *
+     *  \iparam DeviceConnected = On if Device is directly connected else Off.
+     */
+    /****************************************************************************/
+    void SetDirectConnection( Global::OnOffState DeviceConnected)
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        m_DirectConnection = DeviceConnected;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the Network Settings Proxy UserName.
+     *
+     *  \return Proxy UserName.
+     */
+    /****************************************************************************/
+    QString GetProxyUserName()
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        return m_ProxyUserName;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Set the Proxy UserName
+     *
+     *  \iparam ProxyUserName = Proxy UserName
+     */
+    /****************************************************************************/
+    void SetProxyUserName(QString ProxyUserName)
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        m_ProxyUserName = ProxyUserName;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the Network Settings Proxy Password.
+     *
+     *  \return Proxy Password.
+     */
+    /****************************************************************************/
+    QString GetProxyPassword()
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        return m_ProxyPassword;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Set Proxy Password.
+     *
+     *  \iparam ProxyPassword = Proxy Password.
+     */
+    /****************************************************************************/
+    void SetProxyPassword(QString ProxyPassword)
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        m_ProxyPassword = ProxyPassword;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the Network Settings Proxy IP Address.
+     *
+     *  \return Proxy IP Address.
+     */
+    /****************************************************************************/
+    QString GetProxyIPAddress()
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        return m_ProxyIPAddress;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Set the Proxy IP Address.
+     *
+     *  \iparam ProxyIPAddress = Proxy IP Address
+     */
+    /****************************************************************************/
+    void SetProxyIPAddress(QString ProxyIPAddress)
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        m_ProxyIPAddress = ProxyIPAddress;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Gets the Network Settings Proxy IP Port.
+     *
+     *  \return Proxy IP Port.
+     */
+    /****************************************************************************/
+    int GetProxyIPPort()
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        return m_ProxyIPPort;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Set the Proxy IP Port number.
+     *
+     *  \iparam ProxyIPPort = Proxy IP Port number
+     */
+    /****************************************************************************/
+    void SetProxyIPPort(int ProxyIPPort)
+    {
+        //QWriteLocker locker(mp_ReadWriteLock);
+        m_ProxyIPPort = ProxyIPPort;
     }
 
 //    /****************************************************************************/
@@ -651,3 +819,4 @@ public:
 } // end namespace DataManager
 
 #endif // DATAMANAGEMENT_CUserSettings_H
+
