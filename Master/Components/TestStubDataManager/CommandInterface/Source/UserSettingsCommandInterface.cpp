@@ -66,9 +66,13 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
     bool Result = true;
     Result = mp_DataContainer->SettingsInterface->UpdateUserSettings(&Settings);
     if (!Result) {
-        //! \todo If error occurs , get errors and send errors to GUI
+        // If error occurs , get errors and send errors to GUI
+        ListOfErrors_t &ErrorList = mp_DataContainer->SettingsInterface->GetErrorList();
+        QString ErrorString;
+        DataManager::Helper::ErrorIDToString(ErrorList, ErrorString);
+        // If error occurs , get errors and send errors to GUI
         qDebug()<<"\n\n\nSettings Update Failed";
-        mp_MasterThreadController->SendAcknowledgeNOK(Ref, AckCommandChannel);
+        mp_MasterThreadController->SendAcknowledgeNOK(Ref, AckCommandChannel, ErrorString, Global::GUIMSGTYPE_INFO);
     }
     else {
         mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
