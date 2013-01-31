@@ -767,7 +767,7 @@ CDigitalOutput::ModuleCommand_t *CDigitalOutput::SetModuleTask(CANDigitalOutputM
 void CDigitalOutput::ResetModuleCommand(CANDigitalOutputModuleCmdType_t CommandType)
 {
     for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType && m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND) {
+        if (m_ModuleCommand[i]->Type == CommandType) {
             delete m_ModuleCommand.takeAt(i);
             break;
         }

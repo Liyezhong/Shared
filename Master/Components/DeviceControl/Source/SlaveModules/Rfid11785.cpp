@@ -1219,7 +1219,7 @@ CRfid11785::ModuleCommand_t *CRfid11785::SetModuleTask(CANRFIDModuleCmdType_t Co
 void CRfid11785::ResetModuleCommand(CANRFIDModuleCmdType_t CommandType)
 {
     for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType && m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND) {
+        if (m_ModuleCommand[i]->Type == CommandType) {
             delete m_ModuleCommand.takeAt(i);
             break;
         }

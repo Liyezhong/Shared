@@ -192,7 +192,6 @@ void CAnalogInput::HandleTasks()
             if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
                 m_SubStateConfig = FM_AINP_SUB_STATE_CONFIG_FINISHED;
-                m_TaskID = MODULE_TASKID_FREE;
                 m_mainState = FM_MAIN_STATE_IDLE;
 
                 FILE_LOG_L(laCONFIG, llDEBUG) << " AnalogInput " << GetName().toStdString() << ": change to FM_MAIN_STATE_IDLE";
@@ -218,10 +217,7 @@ void CAnalogInput::HandleTasks()
 /****************************************************************************/
 void CAnalogInput::HandleIdleState()
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        HandleCommandRequestTask();
-    }
+    HandleCommandRequestTask();
 }
 
 /****************************************************************************/
@@ -311,11 +307,6 @@ void CAnalogInput::HandleCommandRequestTask()
             Iterator.remove();
         }
     }
-
-    if(m_ModuleCommand.isEmpty())
-    {
-        m_TaskID = MODULE_TASKID_FREE;
-    }
 }
 
 /****************************************************************************/
@@ -334,7 +325,7 @@ void CAnalogInput::HandleCanMessage(can_frame* pCANframe)
     QMutexLocker Locker(&m_Mutex);
 
     FILE_LOG_L(laFCT, llDEBUG) << "  AnalogInput::HandleCanMessage: 0x" << std::hex << pCANframe->can_id;
-    FILE_LOG_L(laFCT, llDEBUG) << "                  dlc:" << (int) pCANframe->can_dlc << " Task:" << (int) m_TaskID;
+    FILE_LOG_L(laFCT, llDEBUG) << "                  dlc:" << (int) pCANframe->can_dlc;
 
     if((pCANframe->can_id == m_unCanIDEventInfo) ||
        (pCANframe->can_id == m_unCanIDEventWarning) ||
@@ -361,10 +352,7 @@ void CAnalogInput::HandleCanMessage(can_frame* pCANframe)
 /****************************************************************************/
 void CAnalogInput::HandleCANMsgAnalogInputState(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        ResetModuleCommand(FM_AI_CMD_TYPE_ACTVALUE_REQ);
-    }
+    ResetModuleCommand(FM_AI_CMD_TYPE_ACTVALUE_REQ);
 
     if(pCANframe->can_dlc == 2)
     {
@@ -375,7 +363,6 @@ void CAnalogInput::HandleCANMsgAnalogInputState(can_frame* pCANframe)
         FILE_LOG_L(laFCT, llINFO) << "  AnalogInput: Input value received: " << std::hex << ActInputValue;
 
         emit ReportActInputValue(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, ActInputValue);
-
     }
     else
     {
@@ -537,7 +524,7 @@ ReturnCode_t CAnalogInput::ReqActInputValue()
     if(p_ModuleCommand == NULL)
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString();
     }
 
     return RetVal;
@@ -570,7 +557,7 @@ ReturnCode_t CAnalogInput::SetState(bool Enable)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString();
     }
 
     return RetVal;
@@ -587,24 +574,18 @@ ReturnCode_t CAnalogInput::SetState(bool Enable)
 /****************************************************************************/
 CAnalogInput::ModuleCommand_t *CAnalogInput::SetModuleTask(CANAnalogInputModuleCmdType_t CommandType)
 {
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
-            }
+    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
+        if (m_ModuleCommand[i]->Type == CommandType) {
+            return NULL;
         }
-
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
     }
 
-    return NULL;
+    ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
+    p_ModuleCommand->Type = CommandType;
+    p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
+    m_ModuleCommand.append(p_ModuleCommand);
+
+    return p_ModuleCommand;
 }
 
 /****************************************************************************/
@@ -617,15 +598,10 @@ CAnalogInput::ModuleCommand_t *CAnalogInput::SetModuleTask(CANAnalogInputModuleC
 void CAnalogInput::ResetModuleCommand(CANAnalogInputModuleCmdType_t CommandType)
 {
     for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType && m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND) {
+        if (m_ModuleCommand[i]->Type == CommandType) {
             delete m_ModuleCommand.takeAt(i);
             break;
         }
-    }
-
-    if(m_ModuleCommand.isEmpty())
-    {
-        m_TaskID = MODULE_TASKID_FREE;
     }
 }
 

@@ -801,7 +801,7 @@ CJoystick::ModuleCommand_t *CJoystick::SetModuleTask(CANJoystickModuleCmdType_t 
 void CJoystick::ResetModuleCommand(CANJoystickModuleCmdType_t CommandType)
 {
     for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType && m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND) {
+        if (m_ModuleCommand[i]->Type == CommandType) {
             delete m_ModuleCommand.takeAt(i);
             break;
         }
