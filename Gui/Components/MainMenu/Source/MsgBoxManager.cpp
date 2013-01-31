@@ -204,11 +204,11 @@ void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgD
     //Add EventID to Priority Queue & EventId Hash
     m_PriorityQueue.Push(static_cast<int>(CurrentMsgData.EventType), CurrentMsgData.ID);
     m_EventIDMsgDataHash.insert(CurrentMsgData.ID, CurrentMsgData);
-    //Msg Box will be poped up only after 3 seconds.
+    //Msg Box will be poped up only after 1 seconds.
     //This is done so that, if GUI receives numerous events
     //at a time, then we prevent Msg Box creation overload
     if (!m_PopupTimer.isActive()) {
-        m_PopupTimer.start(3000);
+        m_PopupTimer.start(1000);
     }
     qDebug()<<"Added Msg Box to Queue" << CurrentMsgData.MsgString;
 }

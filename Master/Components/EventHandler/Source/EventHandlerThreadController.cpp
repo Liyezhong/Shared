@@ -176,7 +176,7 @@ void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntr
         qDebug()<<"EventID64" << EventId64;
     }
     InformAlarmHandler(EventEntry, EventId64, false);
-    UpdateEventDataStructures(EventID, EventId64, EventEntry, true);
+    UpdateEventDataStructures(EventID, EventId64, EventEntry, true, (EventOccurenceCount== 1) ? true : false);
 }
 
 void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
@@ -816,10 +816,11 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
 
 void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent)
 {
-    if ((TheEvent.GetActionType() == Global::ACNTYPE_BUSY)
-            || (TheEvent.GetActionType() == Global::ACNTYPE_IDLE)) {
+    if ((TheEvent.GetActionPositive() == Global::ACNTYPE_BUSY)
+            || (TheEvent.GetActionPositive() == Global::ACNTYPE_IDLE)) {
         if(TheEvent.GetString().count() > 0) { // e.g. Rack inserted
             // TheEvent.GetString()).at(0).GetString().toInt() = RACK RFID
+            qDebug()<<"Setting Statemachine";
             EventHandler::StateHandler::Instance().setActivityUpdate(true, (TheEvent.GetString()).at(0).GetString().toInt());
         }
     }
