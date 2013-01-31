@@ -98,7 +98,7 @@ void EventHandlerThreadController::CreateAndInitializeObjects()
 #ifdef VALIDATE
     if(!ret)
     {
-        qDebug()<<"Event Configuration file data verifcation failed";
+        qDebug()<<"Event Configuration file data verification failed";
          return;
     }
 #endif
@@ -286,12 +286,7 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
         line = stream.readLine();
         if (line.left(1) != "#")
         {
-            qint8 NumOfAttempts = 1; // Minimum number of attempts is one for any event- action combination.
             QStringList textList = line.split(",");
-            //! No of event fields from event conf file
-            //if (textList.count() == NUM_FIELDS_EVENTCONF)
-            //{
-            //! \ Get EventId (0)
             EventHandler::EventCSVInfo EventCSVInfo;
 
             //Get EventCode
@@ -346,82 +341,52 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
             }
 
             //Get ActionType
-            //! \ Read ActionType(3) and Set Action / Positive ActionType
-            Global::ActionType ActionType = Global::ACNTYPE_UNEXPECTED;
-            Global::ActionType ActionTypePositive = Global::ACNTYPE_UNEXPECTED;
             if (textList.count() > 3)
             {
                 QStringList ActionInfo = textList.at(3).split("+");
 
-                ActionTypePositive = Global::ACNTYPE_NONE;
+                EventCSVInfo.SetActionPositive(m_ActionTypeEnumMap.value(ActionInfo.at(0).trimmed().toUpper(), Global::ACNTYPE_UNEXPECTED));
 
-                ActionType = m_ActionTypeEnumMap.value(ActionInfo.at(0).
-                                                       trimmed().toUpper(),
-                                                       Global::ACNTYPE_UNEXPECTED);
-                if(ActionInfo.count() == 1) {
-                    ret = VerifyAction(ActionType);
-#ifdef VALIDATE
-                if(!ret)
-                {
-                    return ret;
-                }
-#endif
+                if (ActionInfo.count() > 1) { // we have a second action in case the first one fails
+                    EventCSVInfo.SetRetries(ActionInfo.at(1).trimmed().toInt());
 
-                    EventCSVInfo.SetAction((ActionType, 1, Global::ACNTYPE_NONE));
-
-                }
-                else
-                {
-
-                    //Get Number of attempts
-                    if(ActionInfo.count() >= 2)
-                    {
-                        NumOfAttempts = ActionInfo.at(1).toInt();//else , already initialized to 1!
+                    if (ActionInfo.count() > 2) {
+                        EventCSVInfo.SetFinalAction(m_ActionTypeEnumMap.value(ActionInfo.at(0).trimmed().toUpper(), Global::ACNTYPE_UNEXPECTED));
                     }
+                }
 
-
-                    //Get ActionPositive
-                    if(ActionInfo.count() == 3)
-                    {
-                        ActionTypePositive = m_ActionTypeEnumMap.value(ActionInfo.at(2).
-                                                                       trimmed().toUpper(),
-                                                                       Global::ACNTYPE_UNEXPECTED);
+                if (ActionInfo.count() >= 1) {
+                    ret = (VerifyAction(EventCSVInfo.GetActionPositive()) && VerifyAction(EventCSVInfo.GetFinalAction()));
+                    if (ret) {
+                        if ((EventCSVInfo.GetFinalAction() != Global::ACNTYPE_NONE) && (EventCSVInfo.GetRetryAttempts() <= 0)) {
+                            ret = false;
+                        }
                     }
-                    ret = VerifyActionTypePositivePattern( ActionType, NumOfAttempts, ActionTypePositive);
 #ifdef VALIDATE
-                if(!ret)
-                {
-                    return ret;
-                }
+                    if (!ret) {
+                        return ret;
+                    }
 #endif
-
                 }
-                }
-                EventCSVInfo.SetActionInfo(ActionType, NumOfAttempts, ActionTypePositive);
-
-
+            }
 
             //Get ActionNegative
-            QString ActionNegativeStr = "";
-            Global::ActionType ActionNegative = Global::ACNTYPE_NONE;
             if (textList.count() > 4)
             {
-                ActionNegativeStr = textList.at(4).trimmed();
-                ActionNegative = m_ActionTypeEnumMap.value(ActionNegativeStr.trimmed().toUpper(),
-                                                           Global::ACNTYPE_UNEXPECTED);
-                ret = VerifyAction(ActionNegative);
+                QStringList ActionInfo = textList.at(4).split("+");
+
+                EventCSVInfo.SetActionNegative(m_ActionTypeEnumMap.value(ActionInfo.at(0).trimmed().toUpper(), Global::ACNTYPE_UNEXPECTED));
+
+                ret = VerifyAction(EventCSVInfo.GetActionNegative());
 #ifdef VALIDATE
                 if(!ret)
                 {
                     return ret;
                 }
 #endif
-                //update
-                EventCSVInfo.SetActionNegative(ActionNegative);
             }
 
             //! \ Get Source(5) component name & Set
-
             if (textList.count() > 5)
             {
                 QString Source = textList.at(5).trimmed();
@@ -445,7 +410,6 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
                 if(EventSourceType == Global::EVENTSOURCE_NONE)
                 {
                     EventCSVInfo.SetAckRequired(false);
-
                 }
                 else
                 {
@@ -631,6 +595,8 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
 
 
     file.close();
+
+    return true;
 }
 
 bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo ) {
@@ -889,8 +855,6 @@ void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &T
             mPendingGuiEventList.push_back(EventReportData);
         }
     }
-
-
 }
 
 void EventHandlerThreadController::RegisterCommands()
@@ -951,7 +915,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     NetCommands::CmdSystemAction *p_CmdSystemAction;
     p_CmdSystemAction = new NetCommands::CmdSystemAction();
     EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
-    EventID = (Ack.GetEventKey() & 0xffffffff00000000) >> 32 ;
+    EventID = (quint32)((Ack.GetEventKey() & 0xffffffff00000000) >> 32) ;
     p_CmdSystemAction->SetEventKey(EventKey);
     p_CmdSystemAction->SetEventID(EventID);
     p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
@@ -1158,27 +1122,6 @@ bool EventHandlerThreadController::VerifyAction(Global::ActionType ActionType) {
     default:
         return false;
     }
-}
-
-
-bool EventHandlerThreadController::VerifyActionTypePositivePattern (Global::ActionType ActionType,  qint8 NumOfAttempts, Global::ActionType ActionTypePositive)
-{
-
-    bool ret = VerifyAction(ActionType);
-
-    if(!ret)
-       return false;
-
-    if(NumOfAttempts <= 0)
-    {
-        return false;
-    }
-
-    ret = VerifyAction(ActionTypePositive);
-    if(!ret)
-       return false;
-
-    return true;
 }
 
 bool EventHandlerThreadController::VerifySource(Global::EventSourceType EventSourceType) {

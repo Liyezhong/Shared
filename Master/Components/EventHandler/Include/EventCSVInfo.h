@@ -49,7 +49,7 @@ protected:
     QString                         m_EventMacroName;             ///< Name of event macro
     Global::EventType               m_EventType;             ///< Event type/level of event entry.
     Global::ActionType              m_ActionPositive;                ///< Action type Positive ( action + retry + action pattern)
-    Global::ActionType              m_Action;                   /// < default action for event
+    Global::ActionType              m_FinalAction;                   /// < default action for event
     qint8                           m_NumberOfRetries;       ///< Retry attempts for the action
     Global::ActionType              m_ActionNegative;        ///< Next Action type for Negative action
     bool                            m_ShowInRunLog;          ///< true - show in GUI its and daily run log, else dont show its error log.
@@ -165,7 +165,7 @@ public:
      */
     /****************************************************************************/
     inline Global::ActionType GetActionType() const {
-        return (Global::ActionType)m_Action;
+        return (Global::ActionType)m_FinalAction;
     }
 
     inline Global::ActionType GetPositiveActionType() const {
@@ -174,12 +174,6 @@ public:
 
     inline Global::ActionType GetNegativeActionType() const {
         return (Global::ActionType)m_ActionNegative;
-    }
-
-    inline void SetActionInfo(Global::ActionType ActionType, qint8 NumberOfAttempts = 1, Global::ActionType ActionTypePositive = Global::ACNTYPE_NONE) {
-        m_Action = ActionType;
-        m_NumberOfRetries = NumberOfAttempts;
-        m_ActionPositive = ActionTypePositive;
     }
 
     /****************************************************************************/
@@ -294,22 +288,23 @@ public:
         m_LogLevel = LogLevel;
     }    
 
-    inline Global::ActionType GetActionPositive() const{
-
-        return m_ActionPositive;
-
+    inline Global::ActionType GetFinalAction() const{
+        return m_FinalAction;
     }
+
+    inline Global::ActionType GetActionPositive() const{
+        return m_ActionPositive;
+    }
+
     inline Global::ActionType GetActionNegative() const{
-
         return m_ActionNegative;
-
     }
     inline void SetRetries(qint8 NumberOfRetries) {
         m_NumberOfRetries = NumberOfRetries;
     }   
 
-    inline void SetAction(const Global::ActionType & ActionType) {
-     m_Action = ActionType;
+    inline void SetFinalAction(const Global::ActionType & ActionType) {
+        m_FinalAction = ActionType;
     }
 
     inline void SetActionPositive(const Global::ActionType & ActionType) {

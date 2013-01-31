@@ -26,6 +26,10 @@ namespace EventHandler {
 /****************************************************************************/
 EventCSVInfo::EventCSVInfo()
     : m_EventCode(0)
+    , m_ActionPositive(Global::ACNTYPE_NONE)
+    , m_FinalAction(Global::ACNTYPE_NONE)
+    , m_NumberOfRetries(0)
+    , m_ActionNegative(Global::ACNTYPE_NONE)
 {
 }
 
@@ -44,9 +48,9 @@ EventCSVInfo::EventCSVInfo(const quint32 &EventCode,const QString &Eventname, co
     m_EventCode(EventCode),
     m_EventMacroName(Eventname),
     m_EventType(EventType),
-    m_Action(ActionType),
-    m_NumberOfRetries(NumofAttempts),
     m_ActionPositive(ActionTypePositive),
+    m_FinalAction(ActionType),
+    m_NumberOfRetries(NumofAttempts),
     m_ActionNegative(ActionTypeNegative),
     m_ShowInRunLog(ShowInRunLog),
     m_Source(LoggingSource),
@@ -78,7 +82,7 @@ void EventCSVInfo::CopyFrom(const EventCSVInfo &rOther) {
     m_EventCode = rOther.m_EventCode;
     m_EventMacroName = rOther.m_EventMacroName;
     m_EventType = rOther.m_EventType;
-    m_Action = rOther.m_Action;
+    m_FinalAction = rOther.m_FinalAction;
     m_ActionPositive = rOther.m_ActionPositive;
     m_NumberOfRetries = rOther.m_NumberOfRetries;
     m_ActionNegative = rOther.m_ActionNegative;   

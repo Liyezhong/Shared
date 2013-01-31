@@ -277,8 +277,6 @@ private:
 
     bool VerifyAction(Global::ActionType ActionType);
 
-    bool VerifyActionTypePositivePattern(Global::ActionType ActionType,  qint8 NumOfAttempts, Global::ActionType ActionTypePositive);
-
     bool VerifySource(Global::EventSourceType);
 
     bool VerifyLogLevel(Global::EventLogLevel EventLogLevel);
