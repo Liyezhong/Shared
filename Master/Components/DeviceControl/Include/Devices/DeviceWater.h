@@ -125,6 +125,7 @@ signals:
      */
     /****************************************************************************/
     void WaterBlockage();
+    void NoWaterBlockage();
 
 protected slots:
     void SetValveAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 OutputValue);

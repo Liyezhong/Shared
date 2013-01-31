@@ -1333,6 +1333,7 @@ void DeviceProcessing::RegisterMetaTypes()
     qRegisterMetaType<TempCtrlMainsVoltage_t>("TempCtrlMainsVoltage_t");
     qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
     qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
+    qRegisterMetaType<FanID_t>("FanID_t");
 }
 
 /****************************************************************************/

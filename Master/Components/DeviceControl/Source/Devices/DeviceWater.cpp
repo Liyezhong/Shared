@@ -225,6 +225,10 @@ void CDeviceWater::LiquidLevelStatus(quint32 InstanceID, ReturnCode_t HdlInfo, q
     {
         emit WaterBlockage();                           ///< Signal to report Water blockage.
     }
+     else
+     {
+         emit NoWaterBlockage();
+     }
 
     m_CommandActive = false;
 }

@@ -258,6 +258,12 @@ typedef enum {
     WATER_VALVE_ID_ALL   = 0x07    //!< all water valve (e.g for new state)
 } WaterValveID_t;
 
+/*! Fan identification */
+typedef enum {
+    FAN_ID_UNDEF    = 0x00,   //!< undefined
+    FAN_ID_1        = 0x01,   //!< Fan 1
+    FAN_ID_2        = 0x02    //!< Fan 2
+} FanID_t;
 /*! oven cover position */
 typedef enum {
     OVEN_COVER_UNDEF   = 0x00,  //!< undefined
