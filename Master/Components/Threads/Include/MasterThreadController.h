@@ -403,17 +403,6 @@ protected:
     void DestroyControllersAndThreads(const bool BasicThreadController = false);
     /****************************************************************************/
     /**
-     * \brief Shutdown.
-     *
-     * Try to shutdown in a graceful way: call stop on all threads, terminate them
-     * and wait for their termination. After that we call out own Stop method
-     * and send a terminate request.
-     * \warning  Other termination tasks should have been done already!
-     */
-    /****************************************************************************/
-    void Shutdown();
-    /****************************************************************************/
-    /**
      * \brief Initiate the shutdown process.
      *
      * Initiate the shutdown process. Make some project specific tasks the call
@@ -754,6 +743,19 @@ public:
         m_DayEventLoggerMaxFileCount = MaxFileCount;
     }
     /****************************************************************************/
+
+    /**
+     * \brief Shutdown.
+     *
+     * Try to shutdown in a graceful way: call stop on all threads, terminate them
+     * and wait for their termination. After that we call out own Stop method
+     * and send a terminate request.
+     * \warning  Other termination tasks should have been done already!
+     */
+    /****************************************************************************/
+    void Shutdown();
+    /****************************************************************************/
+
     /**
      * \brief Set max alowed offset to system time.
      *

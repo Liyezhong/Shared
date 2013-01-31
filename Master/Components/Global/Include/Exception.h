@@ -170,6 +170,16 @@ public:
     inline QString GetLine() const {
         return m_Line;
     }
+
+    inline QString what() const {
+        return "File: " + m_File +
+                ", Line: " + m_Line;
+//                "\nTime: " + m_TimeStamp.toString();
+    }
+
+//    inline std::string what() const {
+//        return toString().toStdString();
+//    }
     /****************************************************************************/
     /**
      * \brief Get timestamp at which exception occured.

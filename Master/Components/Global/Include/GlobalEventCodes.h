@@ -49,6 +49,8 @@ const quint32 EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE      = EVENT_GROUP_PLATFO
 const quint32 EVENT_GLOBAL_ERROR_READING_SERIAL_NUMBER      = EVENT_GROUP_PLATFORM_GLOBAL + 0x0015; ///< Error reading serial number.
 const quint32 EVENT_GLOBAL_ERROR_COMPUTING_NEW_REF          = EVENT_GROUP_PLATFORM_GLOBAL + 0x0016; ///< Unable to compute new command ref.
 const quint32 EVENT_GLOBAL_ERROR_SIGNAL_RECEIVED            = EVENT_GROUP_PLATFORM_GLOBAL + 0x0017; ///< We have an unexpected signal (possibly crash)
+const quint32 EVENT_GLOBAL_UNCAUGHT_EXCEPTION               = EVENT_GROUP_PLATFORM_GLOBAL + 0x0018; ///< We have an unexpected signal (possibly crash)
+
 const quint32 EVENT_GLOBAL_DUMMY_ERROR                      = EVENT_GROUP_PLATFORM_GLOBAL + 0xFFFE; ///< Dummy error. Should be replaced by correct error. File: %1 line: %2.
 
 // now some string IDs
