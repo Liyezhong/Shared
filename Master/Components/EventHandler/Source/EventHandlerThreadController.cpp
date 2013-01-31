@@ -176,14 +176,15 @@ void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntr
         qDebug()<<"EventID64" << EventId64;
     }
     InformAlarmHandler(EventEntry, EventId64, false);
-    UpdateEventDataStructures(EventID, EventId64, EventEntry, true, (EventOccurenceCount == 1) ? true : false);
+    UpdateEventDataStructures(EventID, EventId64, EventEntry, true);
 }
 
 void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
                                                     EventCSVInfo &EventInfo,
                                                     const bool EventStatus,
                                                     const quint32 EventID,
-                                                    const Global::tTranslatableStringList &EventStringList)
+                                                    const Global::tTranslatableStringList &EventStringList,
+                                                    const quint32 EventKey)
 {
     if (EventInfo.GetEventCode() == 0)
     {
@@ -196,6 +197,7 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
         EventEntry.SetTranslatableStringList(EventStringList);
     }
 
+    EventEntry.SetEventKey(EventKey);
     EventEntry.SetEventCSVInfo(EventInfo);
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
 
@@ -734,18 +736,17 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
                                                              bool Remove,
                                                              bool AckByGUI)
 {
-    quint32 EventKey = EventId64 >> 32;
+//    quint32 EventKey = (quint32)EventId64 >> 32;
+    quint32 EventKey = (quint32)(EventId64 & 0x00000000FFFFFFFF);
     if (Remove) {
         if (AckByGUI) {
-            qDebug()<<"Removing EventId 64"<< EventId64;
-            qDebug()<<"Removing Event Key:" <<EventKey << "\n\n";
             //We no longer need these data
             m_EventKeyDataMap.remove(EventId64);
             qint32 Index = m_EventIDCount.indexOf(EventID);
             if (Index != -1) {
                 m_EventIDCount.removeAt(Index);
             }
-            quint32 EventKey = static_cast<quint32>(EventId64 >> 32);
+            //quint32 EventKey = static_cast<quint32>(EventId64 >> 32);
             m_EventIDKeyHash.remove(EventID);
             //Unblock this EventKey so that it can be reused.
             Global::EventObject::Instance().UnBlockEventKey(EventKey);
@@ -759,12 +760,12 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
             m_EventIDCount.append(EventID);
             m_EventKeyDataMap.insert(EventId64, EventEntry);
             if (!m_EventIDKeyHash.contains(EventID)) {
-                m_EventIDKeyHash.insert(EventID, EventId64);
+                m_EventIDKeyHash.insert(EventID, EventKey);
             }
             m_EventKeyIdMap.insert(EventKey, EventID);
         }
-        qDebug()<<"Event Entry status in UpdateEventDataStructures();"<<EventEntry.IsEventActive();
     }
+    qDebug()<<"Event Entry status in UpdateEventDataStructures();"<<EventEntry.IsEventActive();
 }
 
 /****************************************************************************/
@@ -790,13 +791,9 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
 {
     qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
-
     if(!m_eventList.contains(EventID)){
-
         qDebug()<<"Error in processing Event : " << EventID << "\t doesn't exist \n";
-
         return;
-
     }
 
    // m_EventIdKeyMap.insert(EventKey,EventID);
@@ -828,8 +825,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
         EventCSVInfo EventInfo = m_eventList.value(EventID);
         //EventEntry encapsulates EventInfo. EventEntry is also
         //passed to the logging component.
-
-        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList);
+        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList, EventKey);
 
         SetSystemStateMachine(EventEntry);
         if (!EventStatus) {
@@ -875,7 +871,8 @@ void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &T
         EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
         EventReportData.EventType = TheEvent.GetEventType();  // Global::EVTTYPE_ERROR;
         EventReportData.ID = EventId64;
-        EventReportData.EventKey = (quint32)(EventId64 >> 32);
+//        EventReportData.EventKey = (quint32)(EventId64 >> 32);
+        EventReportData.EventKey = (quint32)(EventId64 & 0x00000000FFFFFFFF);
         EventReportData.MsgString = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString())); //"Event String translated to the set langauge";
         EventReportData.Time = TheEvent.GetTimeStamp().toString();   // Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.BtnType = TheEvent.GetButtonType();
@@ -912,9 +909,21 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     quint32 EventID = m_EventKeyIdMap.value(EventKey);
     qDebug()<<"Event ID In Acknowledge" << EventID;
     EventCSVInfo EventInfo = m_eventList.value(EventID);
-    DataLogging::DayEventEntry EventEntry  = m_EventKeyDataMap.value(EventKey);
+
+    quint64 EventId64 = EventID;
+    EventId64 <<= 32;
+    EventId64 |= EventKey;
+
+    DataLogging::DayEventEntry EventEntry = m_EventKeyDataMap.value(EventId64);
+
+    if (EventEntry.GetEventKey() == 0) {
+        qDebug() << "EventHandlerThreadController::OnAcknowledge, couldn't find Event" << EventId64 << EventID;
+        return;
+    }
+
     EventEntry.SetEventCSVInfo(EventInfo);
-    EventEntry.SetAckValue(Ack);EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
+    EventEntry.SetAckValue(Ack);
+    EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
 
     int Count = GetCountForEventKey(EventKey);
 
@@ -929,9 +938,9 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         return;
     }
 
-    quint64 EventId64 = EventEntry.GetEventCode();
-    EventId64 <<= 32;
-    EventId64 |= EventKey;
+//    quint64 EventId64 = EventEntry.GetEventCode();
+//    EventId64 <<= 32;
+//    EventId64 |= EventKey;
     InformAlarmHandler(EventEntry, EventId64, false);
     UpdateEventDataStructures(EventEntry.GetEventCode(), EventId64, EventEntry, true, true);
     bool IsActive = EventEntry.IsEventActive();
