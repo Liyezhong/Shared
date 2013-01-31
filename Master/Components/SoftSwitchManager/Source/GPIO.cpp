@@ -150,14 +150,13 @@ qint32 GPIOPin::GetValue()
         if ( 0 > m_Fd ) {
             return -1;
         }
-	qDebug()<<"Fd in GetValue()"<< m_Fd;
+        lseek(m_Fd, 0, SEEK_SET); /* Start of file */
         char Ch;
         int Return = read(m_Fd, &Ch, 1);
-	if (Return < 0) {
-	  perror("Read Error");
-	}
-	qDebug()<<"Length" << Return;
-	qDebug()<<"GetValue() "<<Ch;
+        if (Return < 0) {
+            perror("Read Error");
+        }
+        qDebug()<<"GetValue() "<<Ch;
         if ( Ch != '0' ) {
             return (m_CurrentValue = 1);
         } else {

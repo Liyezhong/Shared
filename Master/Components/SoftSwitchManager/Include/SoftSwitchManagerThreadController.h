@@ -92,21 +92,28 @@ class GpioPoller:public QObject
 {
     Q_OBJECT
 public:
-    GpioPoller() {
+    GpioPoller(qint32 Fd) {
         NumbOfFileDesc = 2;
+        m_SoftSwitchFd = Fd;
     }
 private:
     struct pollfd fdset[2];
     int NumbOfFileDesc;
     char Buf[100];
+    qint32 m_SoftSwitchFd;
+
 private slots:
     void Run() {
-        emit OnSoftSwitchPressed();
+         #if !defined(__arm__) || !defined(__TARGET_ARCH_ARM) || !defined(_M_ARM)
+            emit OnSoftSwitchPressed();
+         #endif
         while (1) {
-
             memset((void*)fdset, 0, sizeof(fdset));
             fdset[0].fd = STDIN_FILENO; //Standard input
             fdset[0].events = POLLIN;
+            fdset[1].fd = m_SoftSwitchFd; //Soft Switch
+            fdset[1].events = POLLPRI;
+
             int TimeOut = -1; // Infinite Timeout
             int  PollReturn = poll(fdset, NumbOfFileDesc, TimeOut);
 

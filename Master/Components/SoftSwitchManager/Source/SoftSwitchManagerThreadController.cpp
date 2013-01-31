@@ -181,9 +181,9 @@ void SoftSwitchManagerThreadController::StartGPIOPolling()
     qDebug()<<"Current Thread" << thread();
     qDebug()<<"SoftSwitchMgr thread" <<m_SoftSwitchManager.thread();
     mp_PollingThread = new QThread();
-    mp_GpioPoller = new GpioPoller();
+    mp_GpioPoller = new GpioPoller(m_SoftSwitchManager.GetSoftSwitchFd());
     mp_GpioPoller->moveToThread(mp_PollingThread);
-    CONNECTSIGNALSIGNAL(mp_GpioPoller, OnSoftSwitchPressed(), &m_SoftSwitchManager, SoftSwitchPressed());
+    CONNECTSIGNALSLOT(mp_GpioPoller, OnSoftSwitchPressed(), &m_SoftSwitchManager, OnSoftSwitchPressed());
     connect(mp_PollingThread, SIGNAL(started()), mp_GpioPoller, SLOT(Run()));
     connect(mp_PollingThread, SIGNAL(finished()), mp_GpioPoller, SLOT(deleteLater()));
     mp_PollingThread->start();

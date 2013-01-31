@@ -49,24 +49,12 @@ SoftSwitchMgr::SoftSwitchMgr(QObject *p_Parent)
 
 void SoftSwitchMgr::Init()
 {
-//    QFile *mp_File = new QFile(this);
-//    mp_File->open(stdin,QIODevice::ReadOnly);
-    //m_SoftSwitchGPIO.Open();
-    //mp_File->open(m_SoftSwitchGPIO.GetGpioFd(), QIODevice::ReadOnly);
-    /*mp_SoftSwitchPressedNotifier = new QSocketNotifier(mp_File->handle(), QSocketNotifier::Read);
-    mp_SoftSwitchPressedNotifier->setParent(this);
-
-    mp_FileSysWatcher = new QFileSystemWatcher(this);
-    mp_FileSysWatcher->addPath("/sys/class/gpio/gpio0/value");*/
+    m_Fd = m_SoftSwitchGPIO.Open();
+    m_SoftSwitchGPIO.SetEdge("rising");
     //!< Create Seven Second timer
     mp_Timer = new QTimer(this);
     mp_Timer->setInterval(TIMER_INTERVAL);
     CONNECTSIGNALSLOT(mp_Timer, timeout(), this, ResetStateMachine());
-
-    //!< create poll timer
-    mp_PollTimer = new QTimer(this);
-    mp_PollTimer->setInterval(2000);
-    CONNECTSIGNALSLOT(mp_PollTimer, timeout(), this, ActivatePolling());
 
     //!< Create StateMachine
     mp_SoftSwitchStateMachine = new QStateMachine();
@@ -135,17 +123,21 @@ void SoftSwitchMgr::Init()
     mp_DefaultToBusyTransition->setParent(this);
     mp_DefaultState->addTransition(mp_DefaultToBusyTransition);
 
+#if 0
     mp_IdleToShutDownTransition = new SoftSwitchStateTransition(this, SIGNAL(SoftSwitchPressed()),
                                                                 *this, &SoftSwitchMgr::CheckShutDownTransition,
                                                                 mp_ShutDownState);
     mp_IdleToShutDownTransition->setParent(this);
-    mp_PressedAtIdleState->addTransition(mp_IdleToShutDownTransition);
+#endif
+    mp_PressedAtIdleState->addTransition(this, SIGNAL(SoftSwitchPressed()), mp_ShutDownState);
     mp_PressedAtBusyState->addTransition(this, SIGNAL(SoftSwitchPressed()), mp_CriticalActionCheckState);
+#if 0
     mp_CriticalCheckToShutDownTransition = new SoftSwitchStateTransition(this, SIGNAL(SoftSwitchPressed()),
                                                                          *this, &SoftSwitchMgr::CheckShutDownTransition,
                                                                          mp_ShutDownState);
     mp_CriticalCheckToShutDownTransition->setParent(this);
-    mp_CriticalActionCheckState->addTransition(mp_CriticalCheckToShutDownTransition);
+#endif
+    mp_CriticalActionCheckState->addTransition(this, SIGNAL(CriticalActionNotInProgress()), mp_ShutDownState);
     mp_CriticalActionCheckState->addTransition(this, SIGNAL(CriticalActionInProgress()), mp_CriticalActionState);
     mp_CriticalActionState->addTransition(this, SIGNAL(CriticalActionComplete()), mp_ShutDownState);
 
@@ -321,9 +313,13 @@ void SoftSwitchMgr::OnShutDownStateEntered()
 
 void SoftSwitchMgr::OnSoftSwitchPressed()
 {
-    QTextStream qin(stdin);
-    qDebug()<<"Soft Switch Pressed" << qin.readLine().simplified();
-    emit SoftSwitchPressed();
+    #if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM)
+    if (m_SoftSwitchGPIO.GetValue() == 0) {
+          emit SoftSwitchPressed();
+    }
+    #else
+       emit SoftSwitchPressed();
+    #endif
 }
 
 /****************************************************************************/
@@ -335,19 +331,6 @@ void SoftSwitchMgr::ResetStateMachine()
 {
     //!< This would put the system to default state.
     emit TimerTimeOut();
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Activates the polling of the softswitch GPIO.
- */
-/****************************************************************************/
-void SoftSwitchMgr::ActivatePolling()
-{
-    mp_PollTimer->stop();
-//    if (mp_SoftSwitchPressedNotifier) {
-//        mp_SoftSwitchPressedNotifier->setEnabled(true);
-//    }
 }
 
 }// End of namespace SoftSwitchManager

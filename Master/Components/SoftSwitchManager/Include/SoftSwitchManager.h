@@ -35,17 +35,17 @@ namespace SoftSwitchManager {
 
 class SoftSwitchMgr : public QObject
 {
+    Q_OBJECT
     typedef Global::CSignalTransition<SoftSwitchMgr> SoftSwitchStateTransition;
     typedef GenericState<SoftSwitchMgr> GenericStateTemplate;
-    Q_OBJECT
 public:
     SoftSwitchMgr(QObject *p_Parent = 0);
     ~SoftSwitchMgr();
+    Q_DISABLE_COPY(SoftSwitchMgr) //Disable copy and assignment
     void Init();
     void ConnectSignals();
-    Q_DISABLE_COPY(SoftSwitchMgr) //Disable copy and assignment
-//    QSocketNotifier* getSoftSwitchPressedNotifier() { return mp_SoftSwitchPressedNotifier;}
-//    QFileSystemWatcher* GetFileWatcher() { return mp_FileSysWatcher;}
+    qint32 GetSoftSwitchFd() {return m_Fd;}
+
 private:
     GPIOPin m_SoftSwitchGPIO;       //!< GPIO connected to the softswitch on EBox
 
@@ -66,11 +66,9 @@ private:
     SoftSwitchStateTransition *mp_CriticalCheckToShutDownTransition; //!< Transition for CriticalAction->Shutdown
 
     QTimer *mp_Timer;   //!< Seven second timer. We reset to default state in statemachine on timeout.
-    QTimer *mp_PollTimer; //!< This timer when timed out would activate the polling of SoftSwitch GPIO.
     QString m_CurrentState; //!< Current state of the StateMachine
-//    QSocketNotifier *mp_SoftSwitchPressedNotifier;
-//    QFileSystemWatcher *mp_FileSysWatcher;
     QFile *mp_File;
+    qint32 m_Fd;
     bool CheckIfDeviceIsIdle(QEvent *p_Event);
     bool CheckIfDeviceIsBusy(QEvent *p_Event);
     bool IsSystemStateSoftSwitchMonitor(QEvent *p_Event);
@@ -86,7 +84,6 @@ private:
 private slots:
     void OnSoftSwitchPressed();
     void ResetStateMachine();
-    void ActivatePolling();
 
 signals:
     void SoftSwitchPressed();

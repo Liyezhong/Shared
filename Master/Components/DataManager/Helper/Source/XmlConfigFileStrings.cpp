@@ -34,7 +34,7 @@ void XmlConfigFileStrings::ResetData() {
 /****************************************************************************/
 void XmlConfigFileStrings::ReadStringEntry_V1(QXmlStreamReader &rReader, Global::tLanguageData &rLanguageData) {
     quint32 ID   = ReadAttributequint32(rReader, "id");
-    QString Text = ReadAttributeString(rReader, "text");
+    QString Text = ReadAttributeString(rReader, "text1");
     rLanguageData.insert(ID, Text);
     // read until end of element
     rReader.skipCurrentElement();
