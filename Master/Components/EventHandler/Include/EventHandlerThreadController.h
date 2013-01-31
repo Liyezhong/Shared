@@ -214,7 +214,8 @@ private:
                           EventCSVInfo &EventInfo,
                           const bool EventStatus,
                           const quint32 EventID,
-                          const Global::tTranslatableStringList &EventStringList);
+                          const Global::tTranslatableStringList &EventStringList,
+                          const quint32 EventKey);
     void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
     void SetGuiAvailable(const bool active);
