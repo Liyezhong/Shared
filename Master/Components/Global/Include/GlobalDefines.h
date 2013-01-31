@@ -288,6 +288,20 @@ enum GuiUserLevel{
     SERVICE   //!< Service user
 };
 
+/****************************************************************************/
+/**
+ * \brief Enum for using Alternate EventStrings
+ */
+/****************************************************************************/
+enum AlternateEventStringUsage {
+    NOT_APPLICABLE,
+    GUI_MSG_BOX,
+    USER_RESPONSE,
+    LOGGING,
+    GUI_MSG_BOX_AND_USER_RESPONSE,
+    GUI_MSG_BOX_AND_LOGGING,
+    GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE
+};
 } // end namespace Global
 
 #endif // GLOBAL_GLOBALDEFINES_H

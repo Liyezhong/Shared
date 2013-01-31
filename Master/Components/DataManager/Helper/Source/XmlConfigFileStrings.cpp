@@ -23,6 +23,7 @@
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
 
+#include <QStringList>
 
 namespace DataManager {
 
@@ -34,8 +35,15 @@ void XmlConfigFileStrings::ResetData() {
 /****************************************************************************/
 void XmlConfigFileStrings::ReadStringEntry_V1(QXmlStreamReader &rReader, Global::tLanguageData &rLanguageData) {
     quint32 ID   = ReadAttributequint32(rReader, "id");
-    QString Text = ReadAttributeString(rReader, "text1");
-    rLanguageData.insert(ID, Text);
+    QStringList TextList;
+    TextList << ReadAttributeString(rReader, "text1");
+    QString Text2 = ReadAttributeString(rReader, "text2").simplified();
+    if (Text2.isEmpty()) {
+        Text2 = TextList.at(0);
+    }
+    TextList << Text2;
+
+    rLanguageData.insert(ID, TextList);
     // read until end of element
     rReader.skipCurrentElement();
 }

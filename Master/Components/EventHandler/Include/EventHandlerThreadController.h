@@ -215,7 +215,8 @@ private:
                           const bool EventStatus,
                           const quint32 EventID,
                           const Global::tTranslatableStringList &EventStringList,
-                          const quint32 EventKey);
+                          const quint32 EventKey,
+                          const Global::AlternateEventStringUsage AltStringUsuage = Global::NOT_APPLICABLE);
     void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
     void SetGuiAvailable(const bool active);
@@ -305,8 +306,10 @@ private:
 
 public slots:
 
-
-    void ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList, const bool EventStatus, const quint32 EventKeyRef);
+    void ProcessEvent(const quint32 EventID,
+                      const Global::tTranslatableStringList &EventStringList,
+                      const bool EventStatus, const quint32 EventKeyRef,
+                      const Global::AlternateEventStringUsage AltStringUsuage = Global::NOT_APPLICABLE);
 
 
     /****************************************************************************/

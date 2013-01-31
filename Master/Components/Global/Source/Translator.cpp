@@ -161,7 +161,7 @@ QString Translator::GenerateMinimalString(quint32 StringID) const {
 }
 
 /****************************************************************************/
-QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String) const {
+QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString) const {
     QString Result;
     // check if String is plain string
     if(String.IsString()) {
@@ -202,7 +202,10 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
                 // translation for EVENT_GLOBAL_UNKNOWN_STRING_ID found. Insert StringID
                 QStringList tmp;
                 tmp << QString::number(StringID, 10);
-                Result = *it2;
+                QStringList StringList = *it2;
+                if (StringList.size() >= 1) {
+                    Result = StringList.at(0);
+                }
                 InsertArguments(Result, tmp);
             }
             // now append arguments
@@ -212,7 +215,18 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
             }
         } else {
             // string found
-            Result = *it2;
+            QStringList StringList = *it2;
+            if (StringList.size() == 2) {
+                if (UseAlternateString) {
+                    Result = StringList.at(1);
+                }
+                else {
+                    Result = StringList.at(0);
+                }
+            }
+            else {
+                Result = GenerateMinimalString(StringID);
+            }
             // now insert arguments
             QStringList Arguments;
             for(tTranslatableStringList::const_iterator its = ArgumentList.constBegin(); its != ArgumentList.constEnd(); ++its) {
@@ -227,10 +241,10 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
 }
 
 /****************************************************************************/
-QString Translator::Translate(const TranslatableString &String) const {
+QString Translator::Translate(const TranslatableString &String, const bool UseAlternateString) const {
     QReadLocker WL(&m_SyncObject);
     // translate into the default language
-    return TranslateToLanguage(m_DefaultLanguage, String);
+    return TranslateToLanguage(m_DefaultLanguage, String, UseAlternateString);
 }
 
 /****************************************************************************/

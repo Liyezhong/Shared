@@ -184,7 +184,7 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
                                                     const bool EventStatus,
                                                     const quint32 EventID,
                                                     const Global::tTranslatableStringList &EventStringList,
-                                                    const quint32 EventKey)
+                                                    const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage)
 {
     if (EventInfo.GetEventCode() == 0)
     {
@@ -202,6 +202,7 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
 
     EventEntry.SetEventStatus(EventStatus);
+    EventEntry.SetAltStringUsage(AltStringUsage);
 }
 
 void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm)
@@ -752,8 +753,11 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Global::tTranslatableStringList &EventStringList,
-                                                const bool EventStatus, const quint32 EventKey)
+void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
+                                                const Global::tTranslatableStringList &EventStringList,
+                                                const bool EventStatus,
+                                                const quint32 EventKey,
+                                                const Global::AlternateEventStringUsage AltStringUsuage)
 {
     qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
@@ -791,7 +795,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID, const Glo
         EventCSVInfo EventInfo = m_eventList.value(EventID);
         //EventEntry encapsulates EventInfo. EventEntry is also
         //passed to the logging component.
-        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList, EventKey);
+        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList, EventKey, AltStringUsuage);
 
         SetSystemStateMachine(EventEntry);
         if (!EventStatus) {
@@ -838,9 +842,17 @@ void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &T
         EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
         EventReportData.EventType = TheEvent.GetEventType();  // Global::EVTTYPE_ERROR;
         EventReportData.ID = EventId64;
-//        EventReportData.EventKey = (quint32)(EventId64 >> 32);
         EventReportData.EventKey = (quint32)(EventId64 & 0x00000000FFFFFFFF);
-        EventReportData.MsgString = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString())); //"Event String translated to the set langauge";
+
+        const Global::AlternateEventStringUsage AltStringUsage = TheEvent.GetAltStringUsageType();
+        bool UseAltEventString = false;
+        if (AltStringUsage == Global::GUI_MSG_BOX ||
+            AltStringUsage == Global::GUI_MSG_BOX_AND_LOGGING ||
+            AltStringUsage == Global::GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE) {
+                UseAltEventString = true;
+        }
+        EventReportData.MsgString = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString()),
+                                                                                            UseAltEventString); //"Event String translated to the set langauge";
         EventReportData.Time = TheEvent.GetTimeStamp().toString();   // Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.BtnType = TheEvent.GetButtonType();
         EventReportData.StatusBarIcon = TheEvent.GetStatusIcon();   //true if GUI must set status bar icon.

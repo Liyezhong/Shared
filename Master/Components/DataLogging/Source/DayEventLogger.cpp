@@ -89,9 +89,18 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
     QString TrEventType = Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType);
 
-
+    const Global::AlternateEventStringUsage AltStringUsage = Entry.GetAltStringUsageType();
+    bool UseAltEventString = false;
+    if (AltStringUsage == Global::LOGGING ||
+        AltStringUsage == Global::GUI_MSG_BOX_AND_USER_RESPONSE ||
+        AltStringUsage == Global::GUI_MSG_BOX_AND_LOGGING ||
+        AltStringUsage == Global::GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE ||
+        AltStringUsage == Global::USER_RESPONSE) {
+            UseAltEventString = true;
+    }
     // translate message
-    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventCode(), Entry.GetString()));
+    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventCode(), Entry.GetString()),
+                                                                                      AltStringUsage);
     if (TrEventMessage.length() == 0)
     {
         TrEventMessage = Entry.GetEventName();

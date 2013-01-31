@@ -54,7 +54,7 @@ private:
     quint32                         m_EventKey;              ///< Event Key for every event raised. NULL until raised.
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_count;                 ///< Number of times the event has occured
-
+    Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
 
 
     /****************************************************************************/
@@ -121,6 +121,16 @@ public:
      */
     /****************************************************************************/
     void DumpToConsole() const;
+
+    inline void SetAltStringUsage(const Global::AlternateEventStringUsage AltStringUsage) {
+        m_AltEventStringUsage = AltStringUsage;
+    }
+
+    inline Global::AlternateEventStringUsage GetAltStringUsageType() const {
+        return m_AltEventStringUsage;
+    }
+
+    /****************************************************************************/
     /**
        * \brief Get the timestamp.
        *

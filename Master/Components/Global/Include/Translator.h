@@ -27,10 +27,11 @@
 #include <QHash>
 #include <QReadWriteLock>
 #include <QLocale>
+#include <QStringList>
 
 namespace Global {
 
-typedef QHash<quint32,  QString>                tLanguageData;  ///< Typedef for translations for one language.
+typedef QHash<quint32,  QStringList>            tLanguageData;  ///< Typedef for translations for one language.
 typedef QHash<QLocale::Language, tLanguageData> tTranslations;  ///< Typedef for translations for all data.
 
 /****************************************************************************/
@@ -110,7 +111,7 @@ private:
      * \return                      The translation.
      */
     /****************************************************************************/
-    QString TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String) const;
+    QString TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString = false) const;
 protected:
 public:
     /****************************************************************************/
@@ -208,7 +209,7 @@ public:
      * \return                      The translation.
      */
     /****************************************************************************/
-    QString Translate(const TranslatableString &String) const;
+    QString Translate(const TranslatableString &String, const bool UseAlternateString = false) const;
     /****************************************************************************/
     /**
      * \brief Get languages.

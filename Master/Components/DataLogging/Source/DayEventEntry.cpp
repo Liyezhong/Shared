@@ -99,6 +99,7 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_count = rOther.m_count;
     m_AckType = rOther.m_AckType;
     m_EventCSVInfo = rOther.m_EventCSVInfo;
+    m_AltEventStringUsage = rOther.m_AltEventStringUsage;
 
 //    m_AckValue = rOther.m_AckValue;
 }
