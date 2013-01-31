@@ -103,7 +103,7 @@ void TestEventCSVInfo::initTestCase() {
     m_EventCSVInfo.SetEventType(Global::EVTTYPE_ERROR);
     m_EventCSVInfo.SetLogLevel(Global::LOGLEVEL_LOW);
     m_EventCSVInfo.SetMessageType("Error");
-    m_EventCSVInfo.SetAction(Global::ACNTYPE_NONE);
+    m_EventCSVInfo.SetFinalAction(Global::ACNTYPE_NONE);
     m_EventCSVInfo.SetRetries(1);
     m_EventCSVInfo.SetRunLogStatus(false);
     m_EventCSVInfo.SetEventSource(Global::EVENTSOURCE_EXPORT);
