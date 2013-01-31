@@ -119,7 +119,7 @@ CMoveOpenClosed::CMoveOpenClosed(
         p_Opening ));
     p_Closed->addTransition( new CDrawerMotionTransition(
         this, SIGNAL(Close()),
-        *this, &CMoveOpenClosed::DefaultNackClose));
+        *this, &CMoveOpenClosed::Trans_Open_Closing_Command));
 
     p_Open->addTransition( new CDrawerMotionTransition(
         this, SIGNAL(Close()),

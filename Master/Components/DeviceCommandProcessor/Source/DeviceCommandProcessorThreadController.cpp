@@ -58,8 +58,8 @@ DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
 
     connect(&m_DeviceProcessing, SIGNAL(ReportInitializationFinished(ReturnCode_t)),
             this, SLOT(DevProcInitialisationAckn(ReturnCode_t)));
-//    connect(&m_DeviceProcessing, SIGNAL(ReportConfigurationFinished(ReturnCode_t)),
-//            this, SLOT(DevProcConfigurationAckn(ReturnCode_t)));
+    connect(&m_DeviceProcessing, SIGNAL(ReportConfigurationFinished(ReturnCode_t)),
+            this, SLOT(DevProcConfigurationAckn(ReturnCode_t)));
     connect(&m_DeviceProcessing, SIGNAL(ReportStartNormalOperationMode(ReturnCode_t)),
             this, SLOT(DevProcStartNormalOpModeAckn(ReturnCode_t)));
 }
@@ -195,8 +195,19 @@ void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(ReturnCod
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode_t ConfigResult)
 {
-    Q_UNUSED(ConfigResult);
+    //! \todo added DCL_ERR_TIMEOUT, as it was always returning DCL_ERR_TIMEOUT. It was the same way in ProtoTest.
+    if(ConfigResult == DCL_ERR_FCT_CALL_SUCCESS || ConfigResult == DCL_ERR_TIMEOUT)
+    {
+    }
+    else
+    {
+        // log error
+        //SEND_FATAL_ERROR(EVENT_ColoradoDeviceCommandProcessor_ERROR_COMMAND_FAILED, EVENT_ColoradoDeviceCommandProcessor_STRING_CONFIGURATION);
+        // send negative acknowledge back.
+        SendAcknowledgeNOK(m_RefInitDCL);
+    }
 }
+
 
 /*****************************************************************************/
 /**
@@ -207,8 +218,27 @@ void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(ReturnCode_t HdlInfo)
 {
-    Q_UNUSED(HdlInfo);
+    try {
+
+        if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS) {
+            ConnectDevices();
+            // log success
+            //SEND_INFO(EVENT_ColoradoDeviceCommandProcessor_INFO_COMMAND_FINISHED, EVENT_ColoradoDeviceCommandProcessor_STRING_CONFIGURATION);
+            // send positive acknowledge back.
+            SendAcknowledgeOK(m_RefInitDCL);
+        }
+        else {
+            // log error
+            //SEND_FATAL_ERROR(EVENT_ColoradoDeviceCommandProcessor_ERROR_COMMAND_FAILED, EVENT_ColoradoDeviceCommandProcessor_STRING_CONFIGURATION);
+            // send negative acknowledge back.
+            SendAcknowledgeNOK(m_RefInitDCL);
+        }
+    }
+    catch(...) {
+        SendAcknowledgeNOK(m_RefInitDCL);
+    }
 }
+
 
 /*****************************************************************************/
 /**
