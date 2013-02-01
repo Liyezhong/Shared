@@ -7,4 +7,3 @@ TARGET = NetCommands
 HEADERS +=  ../Include/*.h
 SOURCES +=  ../Source/*.cpp
 
-
