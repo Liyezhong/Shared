@@ -806,7 +806,9 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                         }
                         // detect if any function module left unconfirmed
                         if(pFctModule->GetMainState() != CFunctionModule::FM_MAIN_STATE_CONFIRMED)
+                        {
                             bFctModuleUnconfirmed = true;
+                        }
                     }
                 }
 

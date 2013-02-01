@@ -21,10 +21,19 @@
  */
 /****************************************************************************/
 
+#include "DeviceControl/Include/Devices/InfoAnalogOutput.h"
 #include "DeviceControl/Include/Devices/InfoBaseModule.h"
+#include "DeviceControl/Include/Devices/InfoDigitalOutput.h"
+#include "DeviceControl/Include/Devices/InfoFunctionModule.h"
+#include "DeviceControl/Include/Devices/InfoStepperMotor.h"
+#include "DeviceControl/Include/Devices/InfoTemperatureControl.h"
 #include "DeviceControl/Include/Devices/ServiceInfo.h"
 #include "DeviceControl/Include/Devices/SignalTransition.h"
+#include "DeviceControl/Include/SlaveModules/AnalogOutput.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
+#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
+#include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 
 namespace DeviceControl
 {
@@ -64,16 +73,57 @@ CServiceInfo::CServiceInfo(QMap<QString, CModule *> &ModuleMap, const QString &N
         CState *p_NewState = NULL;
         Iterator.next();
 
-        CBaseModule *p_BaseModule = dynamic_cast<CBaseModule *>(Iterator.value());
-        if(p_BaseModule != NULL) {
-            DataManager::CSubModule SubModule(p_BaseModule->GetKey(), "Board", "");
-            m_ModuleInformation.AddSubModuleInfo(&SubModule);
-            p_NewState = new CInfoBaseModule(p_BaseModule, m_ModuleInformation.GetSubModuleInfo(p_BaseModule->GetKey()),
-                                             p_Active);
-            connect(p_NewState, SIGNAL(ReportError(ReturnCode_t)), this, SIGNAL(OnReportError(ReturnCode_t)));
+        switch (Iterator.value()->GetType()) {
+            case CModuleConfig::CAN_OBJ_TYPE_NODE:
+                p_NewState = CreateInfoModule<CInfoBaseModule>(dynamic_cast<CBaseModule *>(Iterator.value()),
+                                                               QString("Board"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
+                p_NewState = CreateInfoModule<CInfoDigitalOutput>(dynamic_cast<CDigitalOutput *>(Iterator.value()),
+                                                                  QString("Digital Output"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
+                p_NewState = CreateInfoModule<CInfoFunctionModule>(dynamic_cast<CFunctionModule *>(Iterator.value()),
+                                                                   QString("Digital Input"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
+                p_NewState = CreateInfoModule<CInfoAnalogOutput>(dynamic_cast<CAnalogOutput *>(Iterator.value()),
+                                                                 QString("Analog Output"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
+                p_NewState = CreateInfoModule<CInfoFunctionModule>(dynamic_cast<CFunctionModule *>(Iterator.value()),
+                                                                   QString("Analog Input"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
+                p_NewState = CreateInfoModule<CInfoStepperMotor>(dynamic_cast<CStepperMotor *>(Iterator.value()),
+                                                                 QString("Stepper Motor"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
+                p_NewState = CreateInfoModule<CInfoFunctionModule>(dynamic_cast<CFunctionModule *>(Iterator.value()),
+                                                                   QString("Joystick"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
+                p_NewState = CreateInfoModule<CInfoFunctionModule>(dynamic_cast<CFunctionModule *>(Iterator.value()),
+                                                                   QString("RFID ISO 11785"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
+                p_NewState = CreateInfoModule<CInfoFunctionModule>(dynamic_cast<CFunctionModule *>(Iterator.value()),
+                                                                   QString("RFID ISO 15693"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
+                p_NewState = CreateInfoModule<CInfoTemperatureControl>(dynamic_cast<CTemperatureControl *>(Iterator.value()),
+                                                                       QString("Temperature Control"), p_Active);
+                break;
+            case CModuleConfig::CAN_OBJ_TYPE_UART:
+                p_NewState = CreateInfoModule<CInfoFunctionModule>(dynamic_cast<CFunctionModule *>(Iterator.value()),
+                                                                   QString("UART"), p_Active);
+                break;
+            default:
+                break;
         }
 
         if (p_NewState != NULL) {
+            connect(p_NewState, SIGNAL(ReportError(ReturnCode_t)), this, SIGNAL(OnReportError(ReturnCode_t)));
             if (p_LastState == NULL) {
                 p_Active->setInitialState(p_NewState);
             }
@@ -88,6 +138,32 @@ CServiceInfo::CServiceInfo(QMap<QString, CModule *> &ModuleMap, const QString &N
         p_LastState, SIGNAL(finished()),
         *this, &CServiceInfo::ReportSuccess,
         p_Idle));
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief  Creates a state fetching the service info of a module
+ *
+ *  \iparam p_Module = The slave module
+ *  \iparam Name = Name for the target data container
+ *  \iparam p_Parent = Parent state
+ *
+ *  \return State that can be added to the state machine
+ */
+/****************************************************************************/
+template <class TInfoModule, class TModule>
+CState *CServiceInfo::CreateInfoModule(TModule *p_Module, const QString &Name, CState *p_Parent)
+{
+    CState *p_State = NULL;
+
+    if (p_Module != NULL) {
+        DataManager::CSubModule SubModule(p_Module->GetKey(), Name, "");
+        m_ModuleInformation.AddSubModuleInfo(&SubModule);
+        p_State = new TInfoModule(p_Module, m_ModuleInformation.GetSubModuleInfo(p_Module->GetKey()), p_Parent);
+    }
+
+    return p_State;
 }
 
 /****************************************************************************/

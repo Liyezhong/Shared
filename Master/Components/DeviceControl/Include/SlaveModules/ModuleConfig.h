@@ -57,11 +57,9 @@ public:
         m_sOrderNr = 0;
     }
 
-    virtual ~CModuleConfig() { pParent = NULL; }
-
     /*! enum defines for all CANObject Templates  */
     typedef enum {
-        CAN_OBJ_TYPE_NODE             = MODULE_ID_BASEMODULE,   ///< CAN node (basis module)
+        CAN_OBJ_TYPE_NODE             = MODULE_ID_BASEMODULE,   ///< base module
         CAN_OBJ_TYPE_DIGITAL_OUT_PORT = MODULE_ID_DIGITAL_OUT,  ///< digital output
         CAN_OBJ_TYPE_DIGITAL_IN_PORT  = MODULE_ID_DIGITAL_IN,   ///< digital input
         CAN_OBJ_TYPE_ANALOG_OUT_PORT  = MODULE_ID_ANALOG_OUT,   ///< analog output
@@ -72,7 +70,6 @@ public:
         CAN_OBJ_TYPE_RFID15693        = MODULE_ID_RFID15693,    ///< RFID reader
         CAN_OBJ_TYPE_TEMPERATURE_CTL  = MODULE_ID_TEMPERATURE,  ///< temperature control
         CAN_OBJ_TYPE_UART             = MODULE_ID_UART,         ///< serial interface UART
-        CAN_OBJ_TYPE_DEVICEMNG        = 98,                     ///< Device processing
         CAN_OBJ_TYPE_UNDEF            = 99                      ///< undefined type
     } CANObjectType_t;
 
@@ -521,11 +518,7 @@ public:
     quint16 m_sBaudrate;              //!< Baudrate
 };
 
-/*! \brief This class keeps the configuration data of the base device class.
-*
-*
-*/
-/*! fuction module list, assignment between function module key and it's identifier */
+/*! Fuction module list, assignment between function module key and its identifier */
 typedef QMap<QString, quint32> DeviceModuleList_t;
 
 /****************************************************************************/

@@ -35,7 +35,7 @@ class CANCommunicator;
 
 /****************************************************************************/
 /*!
- *  \brief Analog input function module class
+ *  \brief Analog output function module class
  *
  *      This class implements the functionality to configure and control a
  *      slave's 'analog output' function module.

@@ -79,6 +79,9 @@ signals:
     void OnReportError(ReturnCode_t ReturnCode);
 
 private:
+    template <class TInfoModule, class TModule>
+    CState *CreateInfoModule(TModule *p_Module, const QString &Name, CState *p_Parent);
+
     bool ReportSuccess(QEvent *p_Event);
     bool ReportError(QEvent *p_Event);
     bool ReportActive(QEvent *p_Event);

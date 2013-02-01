@@ -96,6 +96,15 @@ public:
     /****************************************************************************/
     void Confirm() { m_mainState = FM_MAIN_STATE_CONFIRMED; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the base module of the function module
+     *
+     *  \return Pointer to the base module
+     */
+    /****************************************************************************/
+    const CBaseModule *GetBaseModule() const { return m_pParent; }
+
 protected:
     CANFctModMainState_t m_mainState;   //!< Main state
     CBaseModule* m_pParent;             //!< Pointer to CANNode this module is assigned to
