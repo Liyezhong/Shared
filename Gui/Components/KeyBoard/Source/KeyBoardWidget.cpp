@@ -241,6 +241,9 @@ CKeyBoard::~CKeyBoard()
         delete mp_LineEditLayout;
         delete mp_LineEditWidget;
         delete mp_KeyBoardBaseLayout;        
+        /// Please don't delete the below statement
+        /// this check is required in the Detach() function
+        mp_LineEditLayout = NULL;
         Detach();
     }
     catch (...) {
@@ -947,9 +950,14 @@ void CKeyBoard::Detach()
             mp_KeyBoardObserver.pop_back();
         }
     }
-    // reset all the validations and input masks
-    mp_LineEdit->setInputMask("");
-    mp_LineEdit->setValidator(NULL);
+
+    /// Destructor deletes the line edit control and then detaches.
+    /// So to avoid memory voialation below statement is required
+    if (mp_LineEditLayout) {
+        // reset all the validations and input masks
+        mp_LineEdit->setInputMask("");
+        mp_LineEdit->setValidator(NULL);
+    }
 }
 
 /****************************************************************************/
