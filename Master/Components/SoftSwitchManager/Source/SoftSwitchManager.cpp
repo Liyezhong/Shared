@@ -231,11 +231,11 @@ void SoftSwitchMgr::OnDefaultStateEntered()
     qDebug()<<"Entered Default state , Previous state was" << m_CurrentState<<"\n\n\n";
     if (m_CurrentState == PressedAtIdleState) {
         mp_Timer->stop();
-        Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN, false);
+        Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN, false, Global::LOGGING);
     }
     else if (m_CurrentState == PressedAtBusyState) {
         mp_Timer->stop();
-        Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN_WITH_WARNING, false);
+        Global::EventObject::Instance().RaiseEvent(EVENT_PRESS_SOFTSWITCH_TO_SHUTDOWN_WITH_WARNING, false, Global::LOGGING);
     }
 
     m_CurrentState = DefaultState;

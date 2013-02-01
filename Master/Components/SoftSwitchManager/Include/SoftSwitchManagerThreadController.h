@@ -109,14 +109,14 @@ private slots:
          #endif
         while (1) {
             memset((void*)fdset, 0, sizeof(fdset));
-            fdset[0].fd = STDIN_FILENO; //Standard input
-            fdset[0].events = POLLIN;
+//            fdset[0].fd = STDIN_FILENO; //Standard input
+//            fdset[0].events = POLLIN;
             fdset[1].fd = m_SoftSwitchFd; //Soft Switch
             fdset[1].events = POLLPRI;
 
             int TimeOut = -1; // Infinite Timeout
             int  PollReturn = poll(fdset, NumbOfFileDesc, TimeOut);
-
+            qDebug()<<"Poll returned";
             if (PollReturn < 0) {
                 qDebug("\npoll() failed!\n");
                 return;

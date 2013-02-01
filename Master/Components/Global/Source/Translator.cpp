@@ -218,6 +218,7 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
             QStringList StringList = *it2;
             if (StringList.size() == 2) {
                 if (UseAlternateString) {
+                    qDebug()<<"Translator:Alternate String \n\n\n";
                     Result = StringList.at(1);
                 }
                 else {

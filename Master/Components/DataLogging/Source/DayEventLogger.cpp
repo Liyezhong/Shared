@@ -98,6 +98,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         AltStringUsage == Global::USER_RESPONSE) {
             UseAltEventString = true;
     }
+    qDebug()<<"\n\n\nUse Alternate Strings" << UseAltEventString;
     // translate message
     QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventCode(), Entry.GetString()),
                                                                                       AltStringUsage);
