@@ -106,14 +106,7 @@ void EventHandlerThreadController::CreateAndInitializeObjects()
     // now register commands
     RegisterCommands();
 
-    // process pending events
-    if (m_eventList.size() > 0)
-    {
-        foreach (PendingEvent pe, m_pendingEvents)
-        {
-            ProcessEvent(pe.EventID, pe.EventStringList, pe.EventStatus, pe.EventKey);
-        }
-    }
+
 }
 
 /****************************************************************************/
@@ -184,9 +177,9 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
                                                     const bool EventStatus,
                                                     const quint32 EventID,
                                                     const Global::tTranslatableStringList &EventStringList,
-                                                    const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage)
+                                                    const quint32 EventKey/*, const Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE*/)
 {
-    if (EventInfo.GetEventCode() == 0)
+    if (EventInfo.GetEventCode() == 0 || !m_eventList.contains(EventInfo.GetEventCode()))
     {
         qDebug()<<"Unknown Event ID \n\n\n";
         EventInfo = m_eventList.value(EVENT_EVENT_ID_MISSING);
@@ -202,7 +195,7 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
 
     EventEntry.SetEventStatus(EventStatus);
-    EventEntry.SetAltStringUsage(AltStringUsage);
+    //EventEntry.SetAltStringUsage(AltStringUsage);
 }
 
 void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm)
@@ -756,35 +749,28 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
 void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
                                                 const Global::tTranslatableStringList &EventStringList,
                                                 const bool EventStatus,
-                                                const quint32 EventKey,
-                                                const Global::AlternateEventStringUsage AltStringUsuage)
+                                                const quint32 EventKey/*,
+                                                const Global::AlternateEventStringUsage AltStringUsuage*/)
 {
     qDebug() << "EventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
-    if(!m_eventList.contains(EventID)){
-        qDebug()<<"Error in processing Event : " << EventID << "\t doesn't exist \n";
-        return;
-    }
-
-   // m_EventIdKeyMap.insert(EventKey,EventID);
-
-
     // if eventList is not available yet, place event into pendingList
-    if (m_eventList.size() == 0) {
+    if (EventID == EVENT_GUI_AVAILABLE) {
+            SetGuiAvailable(true);
+            //We dont need to log this particular event ,
+            //instead we log for eg.EVENT_PROCESS_COLORADO_GUI_CONNECTED
+            return;
+    }
+#if 1
+    else if (m_eventList.size() == 0) {
         qDebug()<<"Event list not available \n\n\n";
         PendingEvent pe;
         pe.EventID = EventID;
         pe.EventStringList = EventStringList;
         pe.EventKey = EventKey;
         pe.EventStatus = EventStatus;
+        //pe.AltStringUsuage = AltStringUsuage;
         m_pendingEvents.push_back(pe);// These events, if any, are processed after successfully reading the EventConf file
-        return;
-    }
-    else if (EventID == EVENT_GUI_AVAILABLE)
-    {
-        SetGuiAvailable(true);
-        //We dont need to log this particular event ,
-        //instead we log for eg.EVENT_PROCESS_COLORADO_GUI_CONNECTED
         return;
     }
     else {
@@ -795,7 +781,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         EventCSVInfo EventInfo = m_eventList.value(EventID);
         //EventEntry encapsulates EventInfo. EventEntry is also
         //passed to the logging component.
-        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList, EventKey, AltStringUsuage);
+        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList, EventKey/*, AltStringUsuage*/);
 
         SetSystemStateMachine(EventEntry);
         if (!EventStatus) {
@@ -816,6 +802,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         /// \todo this is a test of Axeda Remote Care error reporting:
         //emit ErrorHandler::SendErrorToRemoteCare(EventEntry);
     }
+#endif
 }
 
 void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent)
@@ -1004,6 +991,14 @@ void EventHandlerThreadController::CleanupAndDestroyObjects()
 /****************************************************************************/
 void EventHandlerThreadController::OnGoReceived()
 {
+    // process pending events
+    if (m_eventList.size() > 0)
+    {
+        foreach (PendingEvent pe, m_pendingEvents)
+        {
+            ProcessEvent(pe.EventID, pe.EventStringList, pe.EventStatus, pe.EventKey/*, pe.AltStringUsuage*/);
+        }
+    }
 }
 
 /****************************************************************************/

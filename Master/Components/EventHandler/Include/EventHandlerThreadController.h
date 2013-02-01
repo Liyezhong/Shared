@@ -144,8 +144,8 @@ public:
 
     inline void ConnectToEventObject() {
         Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
-        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32),
-                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32));
+        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32/*, const Global::AlternateEventStringUsage*/),
+                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32/*, const Global::AlternateEventStringUsage*/));
     }
 
 
@@ -177,6 +177,7 @@ private:
         Global::tTranslatableStringList EventStringList;
         bool EventStatus;
         quint32 EventKey;
+        Global::AlternateEventStringUsage AltStringUsuage;
     };
 
     QString                                     m_OperatingMode;                    ///< Operating mode.
@@ -215,8 +216,8 @@ private:
                           const bool EventStatus,
                           const quint32 EventID,
                           const Global::tTranslatableStringList &EventStringList,
-                          const quint32 EventKey,
-                          const Global::AlternateEventStringUsage AltStringUsuage = Global::NOT_APPLICABLE);
+                          const quint32 EventKey/*,
+                          const Global::AlternateEventStringUsage AltStringUsuage = Global::NOT_APPLICABLE */);
     void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
     void SetGuiAvailable(const bool active);
@@ -308,8 +309,7 @@ public slots:
 
     void ProcessEvent(const quint32 EventID,
                       const Global::tTranslatableStringList &EventStringList,
-                      const bool EventStatus, const quint32 EventKeyRef,
-                      const Global::AlternateEventStringUsage AltStringUsuage = Global::NOT_APPLICABLE);
+                      const bool EventStatus, const quint32 EventKeyRef);
 
 
     /****************************************************************************/

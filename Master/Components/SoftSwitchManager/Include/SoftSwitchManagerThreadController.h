@@ -132,11 +132,11 @@ private slots:
                 emit OnSoftSwitchPressed();
             }
 
-            if (fdset[0].revents & POLLIN) {
-                (void)read(fdset[0].fd, &Buf, 1);
-                qDebug()<<"\npoll() stdin read:"<< Buf[0];
-                emit OnSoftSwitchPressed();
-            }
+//            if (fdset[0].revents & POLLIN) {
+//                (void)read(fdset[0].fd, &Buf, 1);
+//                qDebug()<<"\npoll() stdin read:"<< Buf[0];
+//                emit OnSoftSwitchPressed();
+//            }
 
             fflush(stdout);
         }
