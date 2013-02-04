@@ -30,6 +30,7 @@
 #include <SoftSwitchManager/Include/GPIO.h>
 #include <SoftSwitchManager/Include/GenericState.h>
 #include <Global/Include/SigTransition.h>
+#include <NetCommands/Include/CmdCriticalActionStatus.h>
 
 namespace SoftSwitchManager {
 
@@ -84,6 +85,7 @@ private:
 private slots:
     void OnSoftSwitchPressed();
     void ResetStateMachine();
+    void CriticalActionStatusCheck(NetCommands::CriticalActionStatus_t CriticalActionStatus);
 
 signals:
     void SoftSwitchPressed();
@@ -93,6 +95,7 @@ signals:
     void CriticalActionNotInProgress();
     void CriticalActionInProgress();
     void CriticalActionComplete();
+    void SendCricitalActionCheck();
 };
 }
 #endif // SOFTSWITCHMANAGER_H

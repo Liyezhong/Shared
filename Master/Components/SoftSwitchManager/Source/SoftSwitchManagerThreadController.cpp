@@ -29,6 +29,8 @@
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
 #include <SoftSwitchManager/Include/GPIO.h>
 #include <EventHandler/Include/StateHandler.h>
+#include <NetCommands/Include/CmdCriticalActionCheck.h>
+
 
 namespace SoftSwitchManager {
 
@@ -43,6 +45,7 @@ SoftSwitchManagerThreadController::SoftSwitchManagerThreadController(Global::gSo
     :Threads::ThreadController(TheHeartBeatSource, "SoftSwitchManager")
     ,m_SoftSwitchManager(this)
 {
+    qRegisterMetaType<NetCommands::CriticalActionStatus_t>("NetCommands::CritcalActionStatus_t");
 }
 
 
@@ -98,6 +101,8 @@ void SoftSwitchManagerThreadController::RegisterCommands()
 {
     RegisterAcknowledgeForProcessing<Global::AckOKNOK, SoftSwitchManagerThreadController>
             (&SoftSwitchManagerThreadController::OnAcknowledge, this);
+    RegisterCommandForProcessing<NetCommands::CmdCriticalActionStatus>
+            (&SoftSwitchManagerThreadController::OnCmdCriticalActionStatus, this);
 }
 
 /****************************************************************************/
@@ -113,6 +118,9 @@ void SoftSwitchManagerThreadController::OnGoReceived()
 {
     m_SoftSwitchManager.ConnectSignals();
     CONNECTSIGNALSLOT(&m_SoftSwitchManager, SendSoftSwitchPressedCmd(), this , SendSoftSwitchPressedCmd());
+    CONNECTSIGNALSLOT(&m_SoftSwitchManager, SendCricitalActionCheck(), this , SendCriticalActionCheckCmd());
+    CONNECTSIGNALSLOT(this, CritcalActionStatus(NetCommands::CriticalActionStatus_t), &m_SoftSwitchManager, CriticalActionStatusCheck(NetCommands::CriticalActionStatus_t));
+
     EventHandler::StateHandler *p_StateHandler = &EventHandler::StateHandler::Instance();
     connect(p_StateHandler, SIGNAL(enteredSoftSwitchMonitorState()), this, SLOT(StartGPIOPolling()));
     Global::EventObject::Instance().RaiseEvent(EVENT_SOFTSWITCH_MONITOR_START);
@@ -161,6 +169,12 @@ void SoftSwitchManagerThreadController::OnAcknowledge(Global::tRefType, const Gl
 
 }
 
+void SoftSwitchManagerThreadController::OnCmdCriticalActionStatus(Global::tRefType Ref, const NetCommands::CmdCriticalActionStatus &Cmd)
+{
+    SendAcknowledgeOK(Ref);
+    emit CritcalActionStatus(Cmd.m_CriticalActionStatus);
+}
+
 void SoftSwitchManagerThreadController::SendSoftSwitchPressedCmd()
 {
     qDebug()<<"Sending SoftSwitchPressed Cmd";
@@ -188,5 +202,14 @@ void SoftSwitchManagerThreadController::StartGPIOPolling()
     connect(mp_PollingThread, SIGNAL(finished()), mp_GpioPoller, SLOT(deleteLater()));
     mp_PollingThread->start();
 }
+
+void SoftSwitchManagerThreadController::SendCriticalActionCheckCmd()
+{
+    qDebug()<<"Sending Critical Action Check to Scheduler";
+    NetCommands::CmdCriticalActionCheck *p_CriticalActionCheck = new NetCommands::CmdCriticalActionCheck();
+    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_CriticalActionCheck));
+}
+
+
 
 } //End Of namespace SoftSwitchManager

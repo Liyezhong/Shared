@@ -280,6 +280,7 @@ void SoftSwitchMgr::OnCriticalActionCheckStateEntered()
     //! Start timer. Will internally check if timer is already running,if so will stop and restarts the timer.
     mp_Timer->start();
     m_CurrentState = CriticalActionCheckState;
+    emit SendCricitalActionCheck();
     qDebug()<<"CriticalActionCheckState Entered \n\n";
 }
 
@@ -331,6 +332,20 @@ void SoftSwitchMgr::ResetStateMachine()
 {
     //!< This would put the system to default state.
     emit TimerTimeOut();
+}
+
+void SoftSwitchMgr::CriticalActionStatusCheck(NetCommands::CriticalActionStatus_t CriticalActionStatus)
+{
+    qDebug()<<"Critical Action Status: " << CriticalActionStatus;
+    if (CriticalActionStatus == NetCommands::NO_CRITICAL_ACTION) {
+        emit CriticalActionNotInProgress();
+    }
+    else if (CriticalActionStatus == NetCommands::CRITICAL_ACTION_IN_PROGRESS) {
+        emit CriticalActionInProgress();
+    }
+    else {
+        emit CriticalActionComplete();
+    }
 }
 
 }// End of namespace SoftSwitchManager

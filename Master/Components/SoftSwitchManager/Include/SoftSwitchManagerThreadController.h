@@ -31,7 +31,7 @@
 #include <Threads/Include/ThreadController.h>
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <SoftSwitchManager/Include/SoftSwitchManager.h>
-
+#include <NetCommands/Include/CmdCriticalActionStatus.h>
 
 
 namespace SoftSwitchManager {
@@ -81,10 +81,16 @@ private:
     Q_DISABLE_COPY(SoftSwitchManagerThreadController) //!< Disable copy and assignment
     void RegisterCommands();
     void OnAcknowledge(Global::tRefType, const Global::AckOKNOK &);
+    void OnCmdCriticalActionStatus(Global::tRefType, const NetCommands::CmdCriticalActionStatus &Cmd);
+
 private slots:
     void SendSoftSwitchPressedCmd();
     void TempInitComplete();
     void StartGPIOPolling();
+    void SendCriticalActionCheckCmd();
+
+signals:
+    void CritcalActionStatus(NetCommands::CriticalActionStatus_t CriticalActionStatusType);
 };
 
 
@@ -127,7 +133,7 @@ private slots:
             }
             //SoftSwitch GPIO
             if (fdset[1].revents & POLLPRI) {
-                int len = read(fdset[1].fd, &Buf, 100);
+                read(fdset[1].fd, &Buf, 100);
                 qDebug()<<"\npoll() GPIO interrupt occurred\n";
                 emit OnSoftSwitchPressed();
             }
