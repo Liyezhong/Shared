@@ -513,7 +513,7 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
                     return ret;
                 }
 #endif
-                StatusIconFlag = ((textList.at(8).toUpper() == "TRUE") || (textList.at(8).toUpper() == "YES"));
+                StatusIconFlag = ((textList.at(12).toUpper() == "TRUE") || (textList.at(12).toUpper() == "YES"));
 
                 EventCSVInfo.SetStatusBarIcon(StatusIconFlag);
             }
