@@ -30,6 +30,7 @@
 namespace DataLogging {
 
 static const int DAYEVENTLOGGER_FORMAT_VERSION = 1;     ///< Format version.
+const QString EVENTLOG_TEMP_FILE_NAME = "Colorado_Events_Tmp.log"; ///< Event log temporary file name
 
 /****************************************************************************/
 DayEventLogger::DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& fileNamePrefix)
@@ -124,6 +125,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
 
     QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
+    QString AlternateString = UseAltEventString ? "true" : "false";
 
     QString ParameterString = "";
     foreach (Global::TranslatableString s, Entry.GetString())
@@ -136,6 +138,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
                             TrEventType + ";" +
                             TrEventMessage + ";" +
                             ShowInRunLog + ";" +
+                            /*AlternateString + ";" +*/
                             ParameterString + "\n";
 
     // check if we must printout to console (because we sent it to the data logger
@@ -168,17 +171,23 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         {
             // compute new file name
             QDir Dir(GetPath());
-            QString CompleteFileName(QDir::cleanPath(Dir.absoluteFilePath("Colorado_Events_Tmp.log")));
+            QString CompleteFileName(QDir::cleanPath(Dir.absoluteFilePath(EVENTLOG_TEMP_FILE_NAME)));
+            bool WriteHeaderInFile = true;
+            // check the file existence
+            if (QFile::exists(CompleteFileName)) {
+                WriteHeaderInFile = false;
+            }
             //always try to create the file in append mode
             OpenFileForAppend(CompleteFileName);
-            // write the header of the file
-            WriteHeader();
+            if (WriteHeaderInFile) {
+                // write the header of the file
+                WriteHeader();
+            }
         }
         // append data to file and flush
         //qDebug() << "DayEventLogger::Log" << LoggingString;
         AppendLine(LoggingString);
     }
-
 
 }
 

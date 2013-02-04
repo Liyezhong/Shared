@@ -27,6 +27,8 @@
 #include <PasswordManager/Include/ServicePassword.h>
 #include <DataManager/Helper/Include/DataManagerEventCodes.h>
 #include <Global/Include/Exception.h>
+#include <QProcess>
+#include <QDebug>
 
 namespace PasswordManager {
 
@@ -92,6 +94,11 @@ void TestServicePassword::utServiceData() {
     CServicePassword Service("1234", "ST8200");
     QDateTime Today;
 
+    QCOMPARE(Service.SearchAndMountTheDevice(), false);
+
+    QProcess Process;
+    QCOMPARE(Service.MountTheSpecificDevice(Process, "Some device"), false);
+
     // check the date comaprision
     Service.m_ServiceFileContent = "<validto>0000000</validto>";
     QCOMPARE(Service.CompareDate(), false);
@@ -135,6 +142,16 @@ void TestServicePassword::utServiceData() {
     Service.m_DeviceName = "ST8200";
     Service.m_ServiceFileContent = "<instruments><instrument><name>ST 8200</name><basic>0</basic><advanced>0</advanced></instrument></instruments>";
     QCOMPARE(Service.ReadDeviceNameTagsExistence(), false);
+
+    Service.m_ServiceFileContent.clear();
+    Service.m_ServiceFileContent = "<validto>0000000</validto><mobileID>123456</mobileID><instruments><instrument><name>ST8200</name><basic>1</basic><advanced>0</advanced></instrument></instruments>";
+    QCOMPARE(Service.CompareHash(), false);
+    QCOMPARE(Service.CompareTheCheckSum(), false);
+    Service.m_ServiceFileContent.insert(0, "<accessfile>");
+    Service.m_ServiceFileContent.append("<hash>B8B30AC3F96D8EC6CBD1FAD60AE7EB48</hash><check>E1529539963C6A2F91144962CEF86B04</check></accessfile>");
+    QCOMPARE(Service.CompareHash(), true);
+    QCOMPARE(Service.CompareTheCheckSum(), true);
+
 
 }
 

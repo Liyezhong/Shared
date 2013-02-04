@@ -75,8 +75,7 @@ CServicePassword::CServicePassword(const QString &PinValue, const QString &Devic
 }
 
 /****************************************************************************/
-bool CServicePassword::SearchAndMountTheDevice() {
-    return true;
+bool CServicePassword::SearchAndMountTheDevice() {    
     // create the QProcess
     QProcess ProcToMountUSB;
     bool DevicesExists = false;
@@ -118,9 +117,7 @@ bool CServicePassword::SearchAndMountTheDevice() {
 
 /****************************************************************************/
 bool CServicePassword::MountTheSpecificDevice(const QProcess &Process,
-                                                          QString DeviceName) {
-    /// uncomment the first line of the code to test in VMWare
-    return true;
+                                                          QString DeviceName) {    
     bool ReadTheFile = false;
     QProcess& ProcToMount = const_cast<QProcess&>(Process);
     // remove the const cast

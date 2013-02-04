@@ -39,7 +39,7 @@ namespace DataLogging {
 
 const char DELIMITER_SEMICOLON              = ';';///< Delimiter for semicolon
 const char DELIMITER_UNDERSCORE             = '_';///< Delimiter for underscore
-const QString USERLOG_VALUE                 = "true";///< user log flag value
+const QString FLAG_VALUE                    = "true";///< user log flag value
 const QString EMPTY_STRING                  = "";///< empty string
 const QString STRING_NEWLINE                = "\n";///< new line
 const QString STRING_SEMICOLON              = ";";///< string for semicolon
@@ -58,6 +58,14 @@ const QString COMMAND_RM                    = "rm "; ///< constant string for th
 const QString WILDCHAR_ASTRIK               = "*"; ///< constant for wild char
 const QString DIRECTORY_SH                  = "/bin/sh"; ///< constant for the shell directory
 const QString STRING_SPACE                  = " "; ///< constant string for space
+
+const qint32 EVENTSTRING_TIMESTAMP          = 0; ///< event log timestamp number if the event is splitted
+const qint32 EVENTSTRING_EVENTID            = 1; ///< event log event ID number if the event is splitted
+const qint32 EVENTSTRING_EVENTTYPE          = 2; ///< event log event type number if the event is splitted
+const qint32 EVENTSTRING_EVENTSTRING        = 3; ///< event log event string number if the event is splitted
+const qint32 EVENTSTRING_USERLOG            = 4; ///< event log user log flag number if the event is splitted
+const qint32 EVENTSTRING_ALTERNATETEXT      = 5; ///< event log alternate text flag number if the event is splitted
+const qint32 EVENTSTRING_PARAMETERS         = 5; ///< event log parameters number if the event is splitted
 
 /****************************************************************************/
 DayLogFileInformation::DayLogFileInformation(QString FilePath) :
@@ -80,38 +88,50 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
         QString ReadData = LogFile.readLine();
 
         if (ReadData.contains(STRING_SEMICOLON)) {
-            if (ReadData.split(DELIMITER_SEMICOLON).count() > 4) {
-                if (QString(ReadData.split(DELIMITER_SEMICOLON).value(4)).compare("true") == 0) {
+            if (ReadData.split(DELIMITER_SEMICOLON).count() > EVENTSTRING_USERLOG) {
+                if (QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_USERLOG)).compare(FLAG_VALUE) == 0) {
 
                     Global::tTranslatableStringList TranslateStringList;
                     // read all the parameters
-                    for (int Counter = 5; Counter < ReadData.split(DELIMITER_SEMICOLON).count(); Counter++) {
+                    for (int Counter = EVENTSTRING_PARAMETERS; Counter < ReadData.split(DELIMITER_SEMICOLON).count();
+                         Counter++) {
                         if (QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).compare(EMPTY_STRING) != 0 &&
-                                QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).compare(STRING_NEWLINE) != 0) {
+                                QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).
+                                compare(STRING_NEWLINE) != 0) {
                             TranslateStringList << ReadData.split(DELIMITER_SEMICOLON).value(Counter);
                         }
                     }
+//                    // used for alternate text
+//                    bool UseAlternateText = false;
+//                    if (QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_ALTERNATETEXT)).
+//                            compare(FLAG_VALUE) == 0) {
+//                        UseAlternateText = true;
+//                    }
 
                     // translate the data
                     QString EventData = Global::UITranslator::TranslatorInstance().Translate
                             (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(1)).toInt(),
-                                                        TranslateStringList));
+                                                        TranslateStringList)/*, UseAlternateText*/);
 
                     if (EventData.compare(EMPTY_STRING) == 0 || EventData.contains(TRANSLATE_RETURN_VALUE_1) ||
-                          EventData.compare("\"" + QString(ReadData.split(DELIMITER_SEMICOLON).value(1)) +"\":") == 0) {
-                        EventData = ReadData.split(DELIMITER_SEMICOLON).value(3);
+                          EventData.compare("\"" + QString(ReadData.split(DELIMITER_SEMICOLON).
+                                                           value(EVENTSTRING_EVENTID)) +"\":") == 0) {
+                        EventData = ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTSTRING);
 //                        EventData = Global::EventTranslator::TranslatorInstance().Translate
 //                                                    (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(1)).toInt(),
 //                                                                                TranslateStringList));
                         Global::EventObject::Instance().RaiseEvent
                                 (EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
-                                 Global::FmtArgs() << ReadData.split(DELIMITER_SEMICOLON).value(1), true);
+                                 Global::FmtArgs() << ReadData.split(DELIMITER_SEMICOLON).value
+                                 (EVENTSTRING_EVENTID), true);
                     }
                     // join the required data
-                    ReadData = QString(ReadData.split(DELIMITER_SEMICOLON).value(0)) + STRING_SEMICOLON +
-                               QString(ReadData.split(DELIMITER_SEMICOLON).value(1)) + STRING_SEMICOLON +
-                               QString(ReadData.split(DELIMITER_SEMICOLON).value(2)) + STRING_SEMICOLON +
-                               EventData + STRING_NEWLINE;
+                    ReadData = QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_TIMESTAMP))
+                               + STRING_SEMICOLON +
+                               QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTID))
+                               + STRING_SEMICOLON +
+                               QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTTYPE))
+                               + STRING_SEMICOLON + EventData + STRING_NEWLINE;
 
                     FileData.append(ReadData);
                     FileData.append(STRING_NEWLINE);

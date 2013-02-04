@@ -39,6 +39,7 @@ const quint32 EVENT_DATALOGGING_ERROR_FILE_REMOVE                       = EVENT_
 const quint32 EVENT_DATALOGGING_ERROR_FILE_WRITE                        = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0007;    ///< Error file not open.
 const quint32 EVENT_DATALOGGING_ERROR_FILE_FLUSH                        = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0008;    ///< Error file not open.
 const quint32 EVENT_DATALOGGING_ERROR_UNABLE_TO_CREATE_LOG_DIRECTORY    = EVENT_GROUP_PLATFORM_DATALOGGING + 0x0009;    ///< Error unable to create log directory.
+const quint32 EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED             = EVENT_GROUP_PLATFORM_DATALOGGING + 0x000A;    ///< Data logging is disabled.
 
 
 
