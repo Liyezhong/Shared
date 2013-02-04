@@ -601,11 +601,8 @@ bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandle
         qDebug()<< "Invalid UserLog - GUIOption combination set" << EventCSVInfo.GetEventCode()<<"\t"
                 <<EventCSVInfo.GetRunLogStatus()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
         return false;
-
     }
     return true;
-
-
 }
 
 bool EventHandlerThreadController::VerifySourceComponentGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
@@ -615,10 +612,8 @@ bool EventHandlerThreadController::VerifySourceComponentGUIOptionsDependency(Eve
         qDebug()<< "Invalid SourceComponent - GUIOption combination set"<< EventCSVInfo.GetEventCode()<<"\t"<<
                                 EventCSVInfo.GetSourceComponent()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions();
         return false;
-
     }
     return true;
-
 }
 
 bool EventHandlerThreadController::VerifyActionGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {

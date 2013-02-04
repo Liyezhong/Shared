@@ -78,7 +78,7 @@ bool Ack::SendAcknowledge(NetworkDevice *pNd, const QString &Ref, const QString 
  ****************************************************************************/
 bool Ack::Execute()
 {
-    qDebug() << (QString)"Ack: Execute Incoming called !";
+//    qDebug() << (QString)"Ack: Execute Incoming called !";
 
     if (m_myDevice == NULL) {
         qDebug() << (QString)"Ack: ERROR -> m_myDevice = NULL !";

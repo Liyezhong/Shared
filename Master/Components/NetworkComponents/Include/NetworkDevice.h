@@ -255,7 +255,7 @@ protected:
           qDebug() << (QString)("T_ProtocolCommand (incoming) " + cmdname + " was NOT created !");
           return NULL;
         }
-        qDebug() << (QString)("T_ProtocolCommand created (incoming) : " + cmdname);
+//        qDebug() << (QString)("T_ProtocolCommand created (incoming) : " + cmdname);
         // init the incoming command
         if (!pC->Initialize(cmdname, domD, this)) {
             qDebug() << (QString)("T_ProtocolCommand (incoming) " + cmdname + " cannot be initialized !");
