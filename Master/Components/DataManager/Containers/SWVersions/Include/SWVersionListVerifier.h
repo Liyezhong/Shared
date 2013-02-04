@@ -63,6 +63,6 @@ private:
     ErrorHash_t m_ErrorsHash;            //!< To store Error ID and any arguments associated
 };
 
-} // namespace ColoradoDataManager
+} // namespace ColoradoDataContainer
 
 #endif // DATAMANAGER_SWVERSIONLISTVERIFIER_H

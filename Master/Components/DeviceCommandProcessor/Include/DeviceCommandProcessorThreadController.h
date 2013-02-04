@@ -28,7 +28,7 @@
 #include "DeviceControl/Include/Global/DeviceControl.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
-#include "DataManager/Include/DataManager.h"
+#include "ColoradoDataManager/Include/DataManager.h"
 
 #include <QMutex>
 

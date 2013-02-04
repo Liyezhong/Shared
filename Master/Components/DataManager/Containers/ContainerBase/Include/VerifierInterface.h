@@ -27,7 +27,6 @@
 #include "DataManager/Helper/Include/Types.h"
 
 namespace DataManager {
-
 class CDataContainerBase;
 
 /****************************************************************************/
@@ -75,7 +74,9 @@ public:
      *  \brief  Virtual destructor
      */
     /****************************************************************************/
-    virtual ~IVerifierInterface() { }
+    virtual ~IVerifierInterface() {}
+
+protected:
 
 };
 } // namespace DataManager
