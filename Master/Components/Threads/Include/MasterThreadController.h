@@ -117,9 +117,7 @@ private:
     QSet<Global::gSourceType>                   m_ArrivedHeartbeats;                ///< All logging sources for which we received a heartbeat.
     QString                                     m_ShutdownSharedMemName;            ///< Name of shared memory for inducing a system shutdown. Will work only in debug mode!
     QTimer                                      m_ShutdownSharedMemTimer;           ///< Timer for checking external request for system shutdown. Will work only in debug mode!
-    SoftSwitchManager::SoftSwitchManagerThreadController    *mp_SoftSwitchManagerThreadController; //!< Thread controller to monitor softswitch
-    CommandChannel                              m_CommandChannelSoftSwitch;         //!< Command channel for SoftSwitch Manager
-    Global::gSourceType                         m_HeartBeatSourceSoftSwitch;        //!< Heart beat source of softswitch
+
     tControllerMap                              m_BasicControllersMap;              //!< Basic thread controllers; Key- Controller number, value- tControllerPair
     Threads::CommandChannel                     m_CommandChannelAxeda;                  ///< Command channel for Axeda thread controller.
     Global::gSourceType                         m_HeartBeatSourceAxeda;             //!< Heart Beat source of Axeda Thread Controller
@@ -301,7 +299,9 @@ protected:
     Global::AlarmHandler                        *mp_alarmHandler;               ///< The Alarm handler
     DataManager::CUserSettings                  *mp_UserSettings;               ///< The user settings.
     DataManager::CDataManagerBase               *mp_DataManagerBase; //!< The DataManager.\warning Dont delete this, Pointer points to address in stack.
-
+    SoftSwitchManager::SoftSwitchManagerThreadController    *mp_SoftSwitchManagerThreadController; //!< Thread controller to monitor softswitch
+    CommandChannel                              m_CommandChannelSoftSwitch;         //!< Command channel for SoftSwitch Manager
+    Global::gSourceType                         m_HeartBeatSourceSoftSwitch;        //!< Heart beat source of softswitch
     /****************************************************************************/
     /**
      * \brief Get serial number.
