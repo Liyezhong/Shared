@@ -25,6 +25,8 @@
 #include "Global/Include/GlobalDefines.h"
 #include "Global/Include/UITranslator.h"
 #include "DataManager/Helper/Include/Helper.h"
+#include <ColoradoDataContainer/Templates/Include/ColoradoDataManagerEventCodes.h>
+#include <Global/Include/EventObject.h>
 #include <qdatetime.h>
 
 namespace DataManager {
@@ -283,13 +285,14 @@ bool Helper::ReadNode(QXmlStreamReader& XmlStreamReader, QString NodeName)
 
 void Helper::ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString)
 {
+
     while(!ErrorList.isEmpty()) {
         ErrorHash_t *p_ErrorHash = ErrorList.first();
         QHashIterator<quint32, Global::tTranslatableStringList> It(*p_ErrorHash);
         while(It.hasNext()) {
             //this is Java style iterator , hence points inbetween items in list!
             It.next();
-            ErrorString += Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(It.key(), It.value()));
+            ErrorString += Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(It.key(), It.value()), true);
             ErrorString += "\n";
         }
         // clear the hash
