@@ -279,6 +279,9 @@ bool CConfigurationList::ReadFileList(QXmlStreamReader& XmlStreamReader)
                 if(XmlStreamReader.attributes().hasAttribute("Path")) {
                     m_FileList.append(XmlStreamReader.attributes().value("Path").toString());
                 }
+                else {
+                    return false;
+                }
             }
             // read the group tag value
             else if (XmlStreamReader.name().compare("Group") == 0) {
@@ -288,8 +291,7 @@ bool CConfigurationList::ReadFileList(QXmlStreamReader& XmlStreamReader)
                     SetGroupFileName(XmlStreamReader.attributes().value("File").toString());
                 }
                 else {
-                    // set the group list flag value
-                    SetGroupListFlag(false);
+                    return false;
                 }
             }
             else {
