@@ -17,7 +17,7 @@
  *      functions, using the slave handle returned by the open function.
  *      Asynchronous means, that the function returns immediately, w/o
  *      waiting for the completion of the transaction. When the operation
- *      has finished, a user function is called to notify the caller. 
+ *      has finished, a user function is called to notify the caller.
  *      The user can supply this callback function when opening the I2C
  *      interface for a slave. Each slave can have its own callback.
  *
@@ -166,7 +166,7 @@ typedef struct {
     I2cQueue_t Queue;       //!< Queue of jobs
     I2cCallback_t *Notifier; //!< Callback pointer array
 } I2cDevice_t;
-            
+
 //****************************************************************************/
 // Private Variables
 //****************************************************************************/
@@ -204,13 +204,13 @@ static I2cJob_t* halI2cGetJob (I2cDevice_t *Data);
  *      function to be called when a transmission (read or write) has been
  *      finished. The callback function receives the job ID and a status
  *      value indicating if the transmission succeeded or failed for some
- *      reason. The job ID identifies a certain transfer job and is returned 
- *      by the read/write functions. It allows to identify the related 
+ *      reason. The job ID identifies a certain transfer job and is returned
+ *      by the read/write functions. It allows to identify the related
  *      transaction in cases where more than one transfer is outstanding.
  *
  *  \iparam  DeviceID = I2C bus device ID
  *  \iparam  Channel  = Channel number (slave number)
- *  \iparam  Callback = Callback function pointer 
+ *  \iparam  Callback = Callback function pointer
  *
  *  \return  Handle or (negative) error code
  *
@@ -258,7 +258,7 @@ Error_t halI2cOpen (Device_t DeviceID, UInt8 Channel, I2cCallback_t Callback) {
  *
  *      Closes an open I2C bus channel. Since several channels may be opened
  *      on the bus at the same time, this function must be called for each
- *      channel separately. The bus itself is disabled not until the last 
+ *      channel separately. The bus itself is disabled not until the last
  *      channel is closed.
  *
  *      If there is still any jobs in the queue the function waits until all
@@ -279,7 +279,7 @@ Error_t halI2cClose (Handle_t Handle) {
         I2cDevice_t *Data = &DataTable[Index];
 
         if (~Data->OpenFlag & BIT(Handle & 0x0F)) {
-            return (E_DEVICE_NOT_OPEN);                           
+            return (E_DEVICE_NOT_OPEN);
         }
         Data->OpenFlag &= ~BIT(Handle & 0x0F);
 
@@ -301,13 +301,13 @@ Error_t halI2cClose (Handle_t Handle) {
 /*!
  *  \brief   Exchange data with I2C slave
  *
- *      Exchange data with the slave identified by Handle on the I2C bus. 
+ *      Exchange data with the slave identified by Handle on the I2C bus.
  *      Buffer must point to the data array. Count gives the number of bytes
- *      to exchange. The transaction is performed asynchronously. That means, 
- *      that the function returns immediately. After data is exchanged the 
+ *      to exchange. The transaction is performed asynchronously. That means,
+ *      that the function returns immediately. After data is exchanged the
  *      registered callback function is called to notify the caller that the
- *      buffer can be released now. 
- * 
+ *      buffer can be released now.
+ *
  *      A job ID is returned, to allow the callback function to identify
  *      which job has finished in cases where more than one transaction
  *      is outstanding. The same JobID is passed to the user callback
@@ -323,7 +323,7 @@ Error_t halI2cClose (Handle_t Handle) {
  *
  ****************************************************************************/
 
-Error_t halI2cExchange (Handle_t Handle, 
+Error_t halI2cExchange (Handle_t Handle,
           UInt32 Address, UInt8 *Buffer, UInt16 Count, Bool Direction) {
 
     const Int32 Index = halI2cGetIndex(Handle);
@@ -332,7 +332,7 @@ Error_t halI2cExchange (Handle_t Handle,
     if (Index >= 0) {
         UInt32 AddrLen = halGetHighestBitSet(Address) / 8;
 
-        if (!Address) {                                      
+        if (!Address) {
             return (E_BUS_INVALID_ADDRESS);
         }
         NewJob.Header = (Address >> (AddrLen * 8)) << 1;
@@ -347,7 +347,7 @@ Error_t halI2cExchange (Handle_t Handle,
         NewJob.JobID   = ++JobCount;
 
         // Sort out general call and 11 bit header pattern
-        if ((NewJob.Header & I2C_MASK_BROADCAST) == I2C_ADDR_BROADCAST || 
+        if ((NewJob.Header & I2C_MASK_BROADCAST) == I2C_ADDR_BROADCAST ||
             (NewJob.Header & I2C_MASK_ADDRESS11) == I2C_ADDR_ADDRESS11) {
             return (E_BUS_INVALID_ADDRESS);
         }
@@ -368,7 +368,7 @@ Error_t halI2cExchange (Handle_t Handle,
 /*!
  *  \brief   Wait until all jobs done
  *
- *      Wait until all queued transactions are processed or the given 
+ *      Wait until all queued transactions are processed or the given
  *      timeout expires. If Timeout is 0, wait time is unlimited.
  *
  *  \iparam  Handle  = Handle of I2C bus channel
@@ -434,12 +434,8 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
     UInt32 RealRate;
     UInt32 Quantas;
 
-    if (Index >= 0) {  
+    if (Index >= 0) {
         I2cRegFile_t *I2C = DataTable[Index].I2C;
-
-        if (I2C->SR2 & I2C_SR2_BUSY) {
-            return (E_BUS_BUSY);
-        }
 
         if (Baudrate > MAX_RATE_FASTMODE || Baudrate < MIN_RATE_STDMODE) {
             return (E_BUS_ILLEGAL_BAUDRATE);
@@ -447,10 +443,6 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
         Frequency = halGetPeripheralClockRate() / 1000000;
         if (Frequency < 2 || Frequency > 36) {
             return (E_BUS_ILLEGAL_CLOCKRATE);
-        }
-        // Wait until all pending jobs are done
-        if (halI2cWait (Handle, 1000) < 0) {
-            return (E_BUS_JOB_TIMEOUT);
         }
         Quantas  = (Baudrate > MAX_RATE_STDMODE) ? 3 : 2;
         Division = halGetPeripheralClockRate() / (Baudrate * Quantas);
@@ -462,6 +454,14 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
         }
         if (!RiseTime) {
             RiseTime = (Baudrate > MAX_RATE_STDMODE) ? 300 : 1000;
+        }
+
+        // Reset the controller
+        I2C->CR1 |= I2C_CR1_SWRST;
+        I2C->CR1 &= ~I2C_CR1_SWRST;
+        // Check that the bus is free
+        if (I2C->SR2 & I2C_SR2_BUSY) {
+            return (E_BUS_BUSY);
         }
         I2C->CR1 &= ~I2C_CR1_PE;
         I2C->CR2  = Frequency & I2C_CR2_FREQ;
@@ -499,7 +499,7 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
  *
  ****************************************************************************/
 
-static Error_t halI2cProtocol (I2cDevice_t *Device) {                
+static Error_t halI2cProtocol (I2cDevice_t *Device) {
 
     I2cRegFile_t *I2C = Device->I2C;
     I2cJob_t *Job = Device->Job;
@@ -511,7 +511,7 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
         UInt32 SR1 = I2C->SR1;
         if (SR1 & I2C_SR1_SB) {
             if (Job->AddrLen) {
-                I2C->DR = Job->Header & ~I2C_DIR_READ; 
+                I2C->DR = Job->Header & ~I2C_DIR_READ;
             }
             else {
                 I2C->DR = Job->Header;
@@ -545,16 +545,16 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
     //------------------------------------------------------------
     if (Device->State == I2C_STATE_ADDRESS) {
     //------------------------------------------------------------
-        // Transmit extended slave address 
+        // Transmit extended slave address
         if ((I2C->SR1 & I2C_SR1_TxE)) {
-            if (Job->AddrLen) {  
+            if (Job->AddrLen) {
                 I2C->DR = Job->Address >> (--Job->AddrLen * 8);
             }
         }
-        if (!Job->AddrLen) {  
+        if (!Job->AddrLen) {
             if (Job->Header & I2C_DIR_READ) {
-                I2C->CR1 |= I2C_CR1_START; 
-                Device->State = I2C_STATE_HEADER;                
+                I2C->CR1 |= I2C_CR1_START;
+                Device->State = I2C_STATE_HEADER;
             }
             else {
                 Device->State = I2C_STATE_DATA;
@@ -568,12 +568,12 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
         // Initiate data transfer using DMA
         if (Job->Count) {
             if (Job->Count == 1) {
-                I2C->CR1 &= ~I2C_CR1_ACKN;                  
+                I2C->CR1 &= ~I2C_CR1_ACKN;
             }
             if (Job->Header & I2C_DIR_READ) {
                 halDmaRead (Device->DmaNo+1, Job->Buffer, Job->Count);
                 if (Job->Count == 1) {
-                    I2C->CR1 |= I2C_CR1_STOP; 
+                    I2C->CR1 |= I2C_CR1_STOP;
                 }
             }
             else {
@@ -589,17 +589,17 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
     //------------------------------------------------------------
         // Stop when data transmission done
         if (!Job->Count) {
-            if ((I2C->SR1 & (I2C_SR1_BTF | I2C_SR1_ERRORS)) || 
-               (~I2C->SR2 &  I2C_SR2_TRA)) {                 
+            if ((I2C->SR1 & (I2C_SR1_BTF | I2C_SR1_ERRORS)) ||
+               (~I2C->SR2 &  I2C_SR2_TRA)) {
 
-                I2C->CR1 |= I2C_CR1_STOP; 
+                I2C->CR1 |= I2C_CR1_STOP;
                 if (Job->Header & I2C_DIR_READ) {
                     halDmaCancel (Device->DmaNo+1);
                 }
                 else {
                     halDmaCancel (Device->DmaNo);
                 }
-                halI2cNotifyCaller (Job, I2C->SR1);                                    
+                halI2cNotifyCaller (Job, I2C->SR1);
                 while (I2C->CR1 & I2C_CR1_STOP);
                 Device->State = I2C_STATE_START;
                 Device->Job = NULL;
@@ -620,7 +620,7 @@ static Error_t halI2cProtocol (I2cDevice_t *Device) {
         }
         if (Device->Job != NULL) {
             I2C->SR1 &= ~I2C_SR1_ERRORS;
-            I2C->CR1 |= I2C_CR1_ACKN | I2C_CR1_START; 
+            I2C->CR1 |= I2C_CR1_ACKN | I2C_CR1_START;
             Device->State = I2C_STATE_HEADER;
         }
     }
@@ -657,7 +657,7 @@ void halI2cInterruptHandler (UInt32 Channel) {
             }
             Data->State = I2C_STATE_STOP;
         }
-        halI2cProtocol(Data);    
+        halI2cProtocol(Data);
     }
 }
 
@@ -668,7 +668,7 @@ void halI2cInterruptHandler (UInt32 Channel) {
  *
  *      This function will be called by the vectored interrupt controller
  *      in case of a DMA terminal count interrupt, which indicates that the
- *      pending DMA transfer has finished. Channel is the I2C bus number. 
+ *      pending DMA transfer has finished. Channel is the I2C bus number.
  *      When the DMA has finished the transfer, the count member of the
  *      actual transaction is set to 0 and the I2C state maschine called.
  *      The state maschine evaluates the count variable and recognizes
@@ -696,13 +696,13 @@ void halI2cInterruptXferDone (UInt32 Channel, UInt32 IntrFlags) {
 /*!
  *  \brief   Call user notification function
  *
- *      Each time an I2C transaction terminates, this function is called. 
+ *      Each time an I2C transaction terminates, this function is called.
  *      It analyzes the I2C status register to see if the transaction
  *      succeeded or failed for some reason and then calls the user
  *      notification function registered when opening the channel. The
  *      determined transaction status and the JobID is passed to the user
  *      notification function as parameters. This allows the callback to
- *      find out which job has terminated and if the transaction was 
+ *      find out which job has terminated and if the transaction was
  *      successful or failed. The passed status is NO_ERROR in case of
  *      successful termination, or an error code in case of failure.
  *
@@ -745,10 +745,10 @@ static Error_t halI2cNotifyCaller (I2cJob_t *Job, UInt16 ErrFlags) {
 /*!
  *  \brief   Get next job from queue
  *
- *      Returns the next job from the job queue or NULL if no more jobs 
- *      are in the queue. 
+ *      Returns the next job from the job queue or NULL if no more jobs
+ *      are in the queue.
  *
- *  \iparam  Device = I2C device data 
+ *  \iparam  Device = I2C device data
  *
  *  \return  Pointer to next job or NULL
  *
@@ -756,7 +756,7 @@ static Error_t halI2cNotifyCaller (I2cJob_t *Job, UInt16 ErrFlags) {
 
 static I2cJob_t* halI2cGetJob (I2cDevice_t *Device) {
 
-    I2cQueue_t *Queue = &Device->Queue; 
+    I2cQueue_t *Queue = &Device->Queue;
 
     if (Queue->Count) {
         I2cJob_t *Job = &Queue->Jobs[Queue->NextOut];
@@ -781,7 +781,7 @@ static I2cJob_t* halI2cGetJob (I2cDevice_t *Device) {
  *      Inserts new job at the end of the job queue and returns a pointer
  *      to the job or NULL if the queue is full.
  *
- *  \iparam  Device = I2C device data 
+ *  \iparam  Device = I2C device data
  *  \iparam  NewJob = Job to enqueue
  *
  *  \return  Pointer to new job or NULL
@@ -851,8 +851,8 @@ static Error_t halI2cGetIndex (Handle_t Handle) {
  *
  *      Searches the I2C descriptor table for the asked DeviceID. If found,
  *      the index of the entry into the descriptor table is returned. If
- *      the DeviceID is not found, an error is returned. An error is also 
- *      returned if the Channel number is greater than the number ob bus 
+ *      the DeviceID is not found, an error is returned. An error is also
+ *      returned if the Channel number is greater than the number ob bus
  *      members defined in the descriptor or the module is not initialized.
  *
  *  \iparam  DeviceID = Logical I2C bus device ID
@@ -888,7 +888,7 @@ static Error_t halI2cFindDevice (Device_t DeviceID, UInt8 Channel) {
                     return (E_DEVICE_UNCONFIGURED);
                 }
                 if (DataTable[UnitNo].OpenFlag & BIT(Channel)) {
-                    return (E_DEVICE_ALREADY_OPEN);                                            
+                    return (E_DEVICE_ALREADY_OPEN);
                 }
                 return (Index);
             }
@@ -924,13 +924,13 @@ Error_t halI2cInit (void) {
 
     if (halGetInitState() == INIT_IN_PROGRESS) {
         halPeripheralClockEnable (PERIPHERAL_DMA1, ON);
-    
+
         for (i=0; i < halSerialDescriptorCount; i++) {
             const UInt32 UnitNo  = halSerialDescriptors[i].UnitNo;
-    
+
             if (halSerialDescriptors[i].BusType == SIO_TYPE_I2C) {
                 I2cDevice_t *Data = &DataTable[UnitNo];
-    
+
                 // Check if port number is legal
                 if (UnitNo >= SupportedI2Cs) {
                     return (E_PORT_NOT_EXISTS);
@@ -959,9 +959,9 @@ Error_t halI2cInit (void) {
                 Status = halDmaSetup (Data->DmaNo, &Data->I2C->DR, I2C_DMA_MODE);
                 if (Status != NO_ERROR) {
                     return (Status);
-                }          
+                }
                 halDmaControl (Data->DmaNo, DMA_INTR_COMPLETE, ON);
-    
+
                 // Setup DMA for I2C reception
                 if ((Status = halDmaOpen (
                        Data->DmaNo+1, UnitNo, halI2cInterruptXferDone)) < 0) {
@@ -972,7 +972,7 @@ Error_t halI2cInit (void) {
                     return (Status);
                 }
                 halDmaControl (Data->DmaNo+1, DMA_INTR_COMPLETE, ON);
-    
+
                 // Enable clocks and interrupts
                 halInterruptEnable (Data->InterruptID+0, IRQ_PRIO_DEFAULT);
                 halInterruptEnable (Data->InterruptID+1, IRQ_PRIO_DEFAULT);
