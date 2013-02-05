@@ -251,6 +251,10 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
     CONNECTSIGNALSLOT(mp_EventThreadController, LogEventEntry(const DataLogging::DayEventEntry &),
                       mp_DataLoggingThreadController, SendToDayEventLogger(const DataLogging::DayEventEntry &));
 
+    // this will check whether logging is enabled or not and the same can inform to GUI
+    CONNECTSIGNALSLOT(this, CheckLoggingEnabled(),
+                      mp_DataLoggingThreadController, CheckLoggingEnabled());
+
     //EventHandler shall have knowledge of alarm handler to initiate alarms
     mp_EventThreadController->SetAlarmHandler(mp_alarmHandler);
 
@@ -837,7 +841,7 @@ bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateT
     // check if inside limits
     int NewOffset = Global::AdjustedTime::ComputeOffsetSeconds(NewDateTime);
 
-    if((m_MaxAdjustedTimeOffset != 0) && (abs(NewOffset) > m_MaxAdjustedTimeOffset)) {
+    if(((m_MaxAdjustedTimeOffset != 0) && (abs(NewOffset) > m_MaxAdjustedTimeOffset)) || NewOffset < 0) {
         // offset must be checked and is outside allowed range.
         LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE, Global::tTranslatableStringList() <<
                   QString::number(NewOffset, 10) <<

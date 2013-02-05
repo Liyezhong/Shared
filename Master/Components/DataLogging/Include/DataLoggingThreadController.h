@@ -228,6 +228,14 @@ public slots:
     /****************************************************************************/
     void SendToDayEventLogger(const DataLogging::DayEventEntry &Entry);
 
+    /****************************************************************************/
+    /**
+     * \brief Checks whether data logging enabled. If not enabled then it raises
+     *        event to GUI
+     */
+    /****************************************************************************/
+    void CheckLoggingEnabled();
+
 
 }; // end class DataLoggingThreadController
 

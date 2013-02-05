@@ -208,4 +208,14 @@ void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
 
 }
 
+/****************************************************************************/
+void DayEventLogger::CheckLoggingEnabled() {
+
+    if (IsLogFileError()) {
+        // don't log the data - disable permanently
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED);
+    }
+
+}
+
 } // end namespace DataLogging

@@ -127,6 +127,11 @@ void DataLoggingThreadController::SendToDayEventLogger(const DayEventEntry &Entr
 }
 
 /****************************************************************************/
+void DataLoggingThreadController::CheckLoggingEnabled() {
+    m_DayEventLogger.CheckLoggingEnabled();
+}
+
+/****************************************************************************/
 void DataLoggingThreadController::OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd) {
     /// \todo implement
     Q_UNUSED(Ref);

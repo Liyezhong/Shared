@@ -275,6 +275,14 @@ signals:
     /****************************************************************************/
     void CreateExportProcess(QString);
 
+    /****************************************************************************/
+    /**
+     * \brief Emit this signal whenever the Main connects to GUI. If logging failed
+     *        then GUI should be informed by Main
+     */
+    /****************************************************************************/
+    void CheckLoggingEnabled();
+
 private slots:
     /****************************************************************************/
     /**
