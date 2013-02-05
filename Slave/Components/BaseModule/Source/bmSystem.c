@@ -166,10 +166,10 @@ bmNodeState_t bmSetNodeState (bmNodeState_t NewState) {
             bmWriteProtectStorage(PROTECT_BY_NODE_STATE, FALSE);
         }
         NodeState = NewState;
-
-        dbgPrintNodeState (NewState);
-        bmNotifyNodeState();
     }
+    dbgPrintNodeState (NewState);
+    bmNotifyNodeState();
+
     return (OldState);
 }
 
@@ -268,7 +268,7 @@ static Error_t bmRequestModeChange (UInt16 Channel, CanMessage_t *Message) {
     if (Message->Length >= 1) {
 
         bmNodeState_t NewState = (bmNodeState_t) Message->Data[0];
-                        
+
         // Check if requested state is a valid state
         if (NewState >= NUMBER_OF_NODE_STATES || 
             NewState == NODE_STATE_UNDEFINED) {
@@ -279,7 +279,7 @@ static Error_t bmRequestModeChange (UInt16 Channel, CanMessage_t *Message) {
             return (E_ILLEGAL_MODE_CHANGE);
         }
         // Change to update mode is allowed only out of standby mode
-        if (NewState == NODE_STATE_ASSEMBLY && NodeState < NODE_STATE_STANDBY) {
+        if (NewState == NODE_STATE_ASSEMBLY && NodeState < NODE_STATE_ASSEMBLY) {
             return (E_ILLEGAL_MODE_CHANGE);
         }
         // Standby/startup state can't be entered directly
