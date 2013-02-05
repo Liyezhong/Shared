@@ -119,14 +119,12 @@ void TestAdjustment::utTestReadWrite()
         {
             p_AdjustmentSrc->GetXyzPosition(LEFT_XYZ, Row, Column, Position);
 
-            qDebug() << Row << Column << ": "
-                     << Position.PositionX
-                     << Position.PositionY
-                     << Position.PositionZ;
+//            qDebug() << Row << Column << ": "
+//                     << Position.m_PositionX
+//                     << Position.m_PositionY
+//                     << Position.m_PositionZ;
 
-//            Position.PositionX -= 1;
-//            Position.PositionY -= 1;
-//            Position.PositionZ -= 1;
+            qDebug() << Row << Column << ": " << Position.m_Active;
 
             p_AdjustmentSrc->SetXyzPosition(LEFT_XYZ, Row, Column, Position);
         }
@@ -139,14 +137,12 @@ void TestAdjustment::utTestReadWrite()
         {
             p_AdjustmentSrc->GetXyzPosition(RIGHT_XYZ, Row, Column, Position);
 
-            qDebug() << Row << Column << ": "
-                     << Position.PositionX
-                     << Position.PositionY
-                     << Position.PositionZ;
+//            qDebug() << Row << Column << ": "
+//                     << Position.m_PositionX
+//                     << Position.m_PositionY
+//                     << Position.m_PositionZ;
 
-//            Position.PositionX -= 1;
-//            Position.PositionY -= 1;
-//            Position.PositionZ -= 1;
+            qDebug() << Row << Column << ": " << Position.m_Active;
 
             p_AdjustmentSrc->SetXyzPosition(RIGHT_XYZ, Row, Column, Position);
         }
@@ -177,9 +173,9 @@ void TestAdjustment::utTestAssignment()
             p_AdjustmentSrc->GetXyzPosition(LEFT_XYZ, Row, Column, PositionSrc);
             p_AdjustmentCpy->GetXyzPosition(LEFT_XYZ, Row, Column, PositionCpy);
 
-            QCOMPARE(PositionSrc.PositionX, PositionCpy.PositionX);
-            QCOMPARE(PositionSrc.PositionY, PositionCpy.PositionY);
-            QCOMPARE(PositionSrc.PositionZ, PositionCpy.PositionZ);
+            QCOMPARE(PositionSrc.m_PositionX, PositionCpy.m_PositionX);
+            QCOMPARE(PositionSrc.m_PositionY, PositionCpy.m_PositionY);
+            QCOMPARE(PositionSrc.m_PositionZ, PositionCpy.m_PositionZ);
         }
     }
 
@@ -190,9 +186,9 @@ void TestAdjustment::utTestAssignment()
             p_AdjustmentSrc->GetXyzPosition(RIGHT_XYZ, Row, Column, PositionSrc);
             p_AdjustmentCpy->GetXyzPosition(RIGHT_XYZ, Row, Column, PositionCpy);
 
-            QCOMPARE(PositionSrc.PositionX, PositionCpy.PositionX);
-            QCOMPARE(PositionSrc.PositionY, PositionCpy.PositionY);
-            QCOMPARE(PositionSrc.PositionZ, PositionCpy.PositionZ);
+            QCOMPARE(PositionSrc.m_PositionX, PositionCpy.m_PositionX);
+            QCOMPARE(PositionSrc.m_PositionY, PositionCpy.m_PositionY);
+            QCOMPARE(PositionSrc.m_PositionZ, PositionCpy.m_PositionZ);
         }
     }
 }
@@ -218,9 +214,9 @@ void TestAdjustment::utTestCopyConstructor()
             p_AdjustmentSrc->GetXyzPosition(LEFT_XYZ, Row, Column, PositionSrc);
             p_AdjustmentCpy->GetXyzPosition(LEFT_XYZ, Row, Column, PositionCpy);
 
-            QCOMPARE(PositionSrc.PositionX, PositionCpy.PositionX);
-            QCOMPARE(PositionSrc.PositionY, PositionCpy.PositionY);
-            QCOMPARE(PositionSrc.PositionZ, PositionCpy.PositionZ);
+            QCOMPARE(PositionSrc.m_PositionX, PositionCpy.m_PositionX);
+            QCOMPARE(PositionSrc.m_PositionY, PositionCpy.m_PositionY);
+            QCOMPARE(PositionSrc.m_PositionZ, PositionCpy.m_PositionZ);
         }
     }
 
@@ -231,9 +227,9 @@ void TestAdjustment::utTestCopyConstructor()
             p_AdjustmentSrc->GetXyzPosition(RIGHT_XYZ, Row, Column, PositionSrc);
             p_AdjustmentCpy->GetXyzPosition(RIGHT_XYZ, Row, Column, PositionCpy);
 
-            QCOMPARE(PositionSrc.PositionX, PositionCpy.PositionX);
-            QCOMPARE(PositionSrc.PositionY, PositionCpy.PositionY);
-            QCOMPARE(PositionSrc.PositionZ, PositionCpy.PositionZ);
+            QCOMPARE(PositionSrc.m_PositionX, PositionCpy.m_PositionX);
+            QCOMPARE(PositionSrc.m_PositionY, PositionCpy.m_PositionY);
+            QCOMPARE(PositionSrc.m_PositionZ, PositionCpy.m_PositionZ);
         }
     }
 }

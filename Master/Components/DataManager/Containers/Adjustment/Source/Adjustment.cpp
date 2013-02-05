@@ -23,7 +23,6 @@
 #include <QWriteLocker>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-#include <QList>
 
 #include "Global/Include/GlobalEventCodes.h"
 #include "Global/Include/Exception.h"
@@ -37,7 +36,8 @@ namespace DataManager {
 CAdjustment::CAdjustment() : CDataContainerBase(),
     m_Version(0),
     m_DataVerificationMode(true),
-    m_Filename("")
+    m_Filename(""),
+    m_ReadWriteLock(QReadWriteLock::Recursive)
 {
     Init();
 }
@@ -77,7 +77,7 @@ bool CAdjustment::Read(QString Filename)
     {
         CAdjustment* p_AdjVerification = new CAdjustment();
 
-//        *p_AdjVerification = *this;
+        *p_AdjVerification = *this;
 
         p_AdjVerification->SetDataVerificationMode(false);
 
@@ -153,21 +153,21 @@ bool CAdjustment::SerializeContent(QIODevice &p_Device, bool CompleteData)
     XmlStreamWriter.setAutoFormatting(true);
     XmlStreamWriter.writeStartDocument();
 
-    XmlStreamWriter.writeDTD("<!DOCTYPE colorado_adjustment_data>");
-    XmlStreamWriter.writeStartElement("colorado_adjustment");
+    XmlStreamWriter.writeDTD("<!DOCTYPE ColoradoAdjustment>");
+    XmlStreamWriter.writeStartElement("ColoradoAdjustment");
 
     // write attribute version
     (void)StringValue.setNum(GetVersion()); //to suppress lint-534
-    XmlStreamWriter.writeAttribute("version", StringValue);
+    XmlStreamWriter.writeAttribute("Version", StringValue);
 
-    XmlStreamWriter.writeStartElement("adjustment_data");
+    XmlStreamWriter.writeStartElement("AdjustmentData");
 
     // Serialize Left Xyz content
     Result = SerializeXyzContent(XmlStreamWriter, LEFT_XYZ);
 
     if (false == Result)
     {
-        qDebug() << "SerializeContent: abort reading. writing failed: grappler_left";
+        qDebug() << "SerializeContent: abort reading. writing failed: GrapplerLeft";
         return false;
     }
 
@@ -176,11 +176,11 @@ bool CAdjustment::SerializeContent(QIODevice &p_Device, bool CompleteData)
 
     if (false == Result)
     {
-        qDebug() << "SerializeContent: abort reading. writing failed: grappler_right";
+        qDebug() << "SerializeContent: abort reading. writing failed: GrapplerRight";
         return false;
     }
 
-    XmlStreamWriter.writeEndElement();  // <adjustment_data>
+    XmlStreamWriter.writeEndElement();  // </AdjustmentData>
 
     XmlStreamWriter.writeEndDocument(); // End of Document
 
@@ -197,20 +197,20 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
     XmlStreamReader.setDevice(&p_Device);
 
     // look for node <colorado_adjustment>
-    if (!Helper::ReadNode(XmlStreamReader, "colorado_adjustment"))
+    if (!Helper::ReadNode(XmlStreamReader, "ColoradoAdjustment"))
     {
         qDebug() << "DeserializeContent: abort reading. Node not found: colorado_adjustment";
         return false;
     }
 
     // Read attribute Version
-    if (!XmlStreamReader.attributes().hasAttribute("version"))
+    if (!XmlStreamReader.attributes().hasAttribute("Version"))
     {
         qDebug() << "### attribute <Version> is missing => abort reading";
         return false;
     }
 
-    SetVersion(XmlStreamReader.attributes().value("version").toString().toInt());
+    SetVersion(XmlStreamReader.attributes().value("Version").toString().toInt());
 
     // Read rest of fields & attributes
     // Deserialize Left Xyz content
@@ -218,7 +218,7 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
 
     if (false == Result)
     {
-        qDebug() << "DeserializeContent: abort reading. Parsing failed: grappler_left";
+        qDebug() << "DeserializeContent: abort reading. Parsing failed: GrapplerLeft";
         return false;
     }
 
@@ -227,7 +227,7 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
 
     if (false == Result)
     {
-        qDebug() << "DeserializeContent: abort reading. Parsing failed: grappler_right";
+        qDebug() << "DeserializeContent: abort reading. Parsing failed: GrapplerRight";
         return false;
     }
 
@@ -260,6 +260,12 @@ bool CAdjustment::GetXyzPosition(XyzType_t Xyz, quint8 Row, quint8 Column, CPosi
     else
     {
         // Error
+        Result = false;
+    }
+
+    // return false if the station is not active
+    if (Position.m_Active == false)
+    {
         Result = false;
     }
 
@@ -305,11 +311,11 @@ bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, XyzType
 
     if (LEFT_XYZ == Xyz)
     {
-        XmlStreamWriter.writeStartElement("grappler_left");
+        XmlStreamWriter.writeStartElement("GrapplerLeft");
     }
     else
     {
-        XmlStreamWriter.writeStartElement("grappler_right");
+        XmlStreamWriter.writeStartElement("GrapplerRight");
     }
 
     for (RowIndex = 0; RowIndex < XYZ_MAX_ROWS; RowIndex++)
@@ -323,23 +329,24 @@ bool CAdjustment::SerializeXyzContent(QXmlStreamWriter &XmlStreamWriter, XyzType
         // write all vessel positions
         for (ColumnIndex = 0; ColumnIndex < XYZ_MAX_COLS; ColumnIndex++)
         {
-            (void)GetXyzPosition(Xyz, RowIndex, ColumnIndex, Position);
+            if (GetXyzPosition(Xyz, RowIndex, ColumnIndex, Position))
+            {
+                XmlStreamWriter.writeStartElement("vessel");
 
-            XmlStreamWriter.writeStartElement("vessel");
+                (void)StringValue.setNum(ColumnIndex + 1);
+                XmlStreamWriter.writeAttribute("pos", StringValue);
 
-            (void)StringValue.setNum(ColumnIndex + 1);
-            XmlStreamWriter.writeAttribute("pos", StringValue);
+                (void)StringValue.setNum(Position.m_PositionY);
+                XmlStreamWriter.writeAttribute("row", StringValue);
 
-            (void)StringValue.setNum(Position.PositionY);
-            XmlStreamWriter.writeAttribute("row", StringValue);
+                (void)StringValue.setNum(Position.m_PositionX);
+                XmlStreamWriter.writeAttribute("column", StringValue);
 
-            (void)StringValue.setNum(Position.PositionX);
-            XmlStreamWriter.writeAttribute("column", StringValue);
+                (void)StringValue.setNum(Position.m_PositionZ);
+                XmlStreamWriter.writeAttribute("depth", StringValue);
 
-            (void)StringValue.setNum(Position.PositionZ);
-            XmlStreamWriter.writeAttribute("depth", StringValue);
-
-            XmlStreamWriter.writeEndElement();  // <\vessel>
+                XmlStreamWriter.writeEndElement();  // <\vessel>
+            }
         }
 
         XmlStreamWriter.writeEndElement();      // <\row>
@@ -360,19 +367,19 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzTy
 
     if (LEFT_XYZ == Xyz)
     {
-        // Look for node <grappler_left>
-        if (!Helper::ReadNode(XmlStreamReader, "grappler_left"))
+        // Look for node <GrapplerLeft>
+        if (!Helper::ReadNode(XmlStreamReader, "GrapplerLeft"))
         {
-            qDebug() << "DeserializeContent: abort reading. Node not found: grappler_left";
+            qDebug() << "DeserializeContent: abort reading. Node not found: GrapplerLeft";
             return false;
         }
     }
     else
     {
-        // Look for node <grappler_right>
-        if (!Helper::ReadNode(XmlStreamReader, "grappler_right"))
+        // Look for node <GrapplerRight>
+        if (!Helper::ReadNode(XmlStreamReader, "GrapplerRight"))
         {
-            qDebug() << "DeserializeContent: abort reading. Node not found: grappler_right";
+            qDebug() << "DeserializeContent: abort reading. Node not found: GrapplerRight";
             return false;
         }
     }
@@ -423,7 +430,7 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzTy
                         return false;
                     }
 
-                    Position.PositionY = XmlStreamReader.attributes().value("row").toString().toUInt();
+                    Position.m_PositionY = XmlStreamReader.attributes().value("row").toString().toUInt();
 
                     // column (x position)
                     if (!XmlStreamReader.attributes().hasAttribute("column"))
@@ -432,7 +439,7 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzTy
                         return false;
                     }
 
-                    Position.PositionX = XmlStreamReader.attributes().value("column").toString().toUInt();
+                    Position.m_PositionX = XmlStreamReader.attributes().value("column").toString().toUInt();
 
                     // depth (z position)
                     if (!XmlStreamReader.attributes().hasAttribute("depth"))
@@ -441,12 +448,14 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzTy
                         return false;
                     }
 
-                    Position.PositionZ = XmlStreamReader.attributes().value("depth").toString().toUInt();
+                    Position.m_PositionZ = XmlStreamReader.attributes().value("depth").toString().toUInt();
 
+                    // Activate station as it is present in XML
+                    Position.m_Active = true;
                     (void)SetXyzPosition(Xyz, RowIndex-1, ColumnIndex-1, Position);
 
-//                    qDebug() << Xyz << RowIndex - 1 << ColumnIndex - 1 << Position.PositionX
-//                             << Position.PositionY << Position.PositionZ;
+//                    qDebug() << Xyz << RowIndex - 1 << ColumnIndex - 1 << Position.m_PositionX
+//                             << Position.m_PositionY << Position.m_PositionZ;
                 }
                 else if (XmlStreamReader.isEndElement() && XmlStreamReader.name().toString() == "row")
                 {
@@ -454,7 +463,7 @@ bool CAdjustment::DeserializeXyzContent(QXmlStreamReader &XmlStreamReader, XyzTy
                 }
             }
         }
-        else if (XmlStreamReader.isEndElement() && XmlStreamReader.name().toString() == "grappler_left")
+        else if (XmlStreamReader.isEndElement() && XmlStreamReader.name().toString() == "GrapplerLeft")
         {
             //qDebug() << "It has reached the end of the particular Node , Stop reading for this Reagent";
             break; // exit from while loop

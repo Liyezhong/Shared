@@ -36,16 +36,18 @@ class CPositionXyz
 public:
     void Clear()
     {
-        PositionX = 0;
-        PositionY = 0;
-        PositionZ = 0;
+        m_PositionX = 0;
+        m_PositionY = 0;
+        m_PositionZ = 0;
+
+        m_Active = false;
     }
 
-    qint32 PositionX;
-    qint32 PositionY;
-    qint32 PositionZ;
+    qint32 m_PositionX;
+    qint32 m_PositionY;
+    qint32 m_PositionZ;
 
-    bool Active;
+    bool m_Active;
 };
 
 }

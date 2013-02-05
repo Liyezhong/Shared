@@ -37,7 +37,7 @@
 #include "DataManager/Helper/Include/Helper.h"
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
-#include "DataManager/Containers/Parameter/Include/Parameter.h"
+#include "DataManager/Containers/Parameter/Include/PositionParameter.h"
 
 namespace DataManager
 {

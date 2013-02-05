@@ -59,30 +59,26 @@ bool CAdjustmentVerifier::VerifyData(CDataContainerBase *p_Adjustment)
         {
             for (Column = 0; Column < XYZ_MAX_COLS; Column++)
             {
-                // Verify Left side values
-                if (mp_Adjusment->GetXyzPosition(LEFT_XYZ, Row, Column, Position) == false)
+                // Verify Left side active positions
+                if (mp_Adjusment->GetXyzPosition(LEFT_XYZ, Row, Column, Position))
                 {
-                    return false;
+                    if ((Position.m_PositionX < MIN_X_AXIS_POS || Position.m_PositionX > MAX_X_AXIS_POS) ||
+                            (Position.m_PositionY < MIN_Y_AXIS_POS || Position.m_PositionY > MAX_Y_AXIS_POS) ||
+                            (Position.m_PositionZ < MIN_Z_AXIS_POS || Position.m_PositionZ > MAX_Z_AXIS_POS))
+                    {
+                        return false;
+                    }
                 }
 
-                if ((Position.PositionX < MIN_X_AXIS_POS || Position.PositionX > MAX_X_AXIS_POS) ||
-                        (Position.PositionY < MIN_Y_AXIS_POS || Position.PositionY > MAX_Y_AXIS_POS) ||
-                        (Position.PositionZ < MIN_Z_AXIS_POS || Position.PositionZ > MAX_Z_AXIS_POS))
+                // Verify Right side active positions
+                if (mp_Adjusment->GetXyzPosition(RIGHT_XYZ, Row, Column, Position))
                 {
-                    return false;
-                }
-
-                // Verify Right side values
-                if (mp_Adjusment->GetXyzPosition(RIGHT_XYZ, Row, Column, Position) == false)
-                {
-                    return false;
-                }
-
-                if ((Position.PositionX < MIN_X_AXIS_POS || Position.PositionX > MAX_X_AXIS_POS) ||
-                        (Position.PositionY < MIN_Y_AXIS_POS || Position.PositionY > MAX_Y_AXIS_POS) ||
-                        (Position.PositionZ < MIN_Z_AXIS_POS || Position.PositionZ > MAX_Z_AXIS_POS))
-                {
-                    return false;
+                    if ((Position.m_PositionX < MIN_X_AXIS_POS || Position.m_PositionX > MAX_X_AXIS_POS) ||
+                            (Position.m_PositionY < MIN_Y_AXIS_POS || Position.m_PositionY > MAX_Y_AXIS_POS) ||
+                            (Position.m_PositionZ < MIN_Z_AXIS_POS || Position.m_PositionZ > MAX_Z_AXIS_POS))
+                    {
+                        return false;
+                    }
                 }
             }
         }

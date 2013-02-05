@@ -24,7 +24,7 @@
 
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-#include "DataManager/Containers/Parameter/Include/Parameter.h"
+#include "DataManager/Containers/Parameter/Include/PositionParameter.h"
 
 namespace DataManager {
 

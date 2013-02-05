@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE colorado_adjustment_data>
-<colorado_adjustment version="1">
-    <adjustment_data>
-        <grappler_left>
+<!DOCTYPE ColoradoAdjustment>
+<ColoradoAdjustment Version="1">
+    <AdjustmentData>
+        <GrapplerLeft>
             <row index="1">
                 <vessel pos="1" row="0" column="20" depth="1850"/>
                 <vessel pos="2" row="0" column="215" depth="1850"/>
@@ -21,7 +21,6 @@
                 <vessel pos="15" row="75" column="3582" depth="1900"/>
                 <vessel pos="16" row="75" column="3826" depth="1900"/>
                 <vessel pos="17" row="75" column="4070" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
             </row>
             <row index="2">
                 <vessel pos="1" row="953" column="20" depth="1850"/>
@@ -41,12 +40,9 @@
                 <vessel pos="15" row="1061" column="3587" depth="1900"/>
                 <vessel pos="16" row="1061" column="3831" depth="1900"/>
                 <vessel pos="17" row="1061" column="4075" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
             </row>
             <row index="3">
-                <vessel pos="1" row="0" column="0" depth="0"/>
                 <vessel pos="2" row="2000" column="255" depth="1230"/>
-                <vessel pos="3" row="0" column="0" depth="0"/>
                 <vessel pos="4" row="2047" column="903" depth="1900"/>
                 <vessel pos="5" row="2047" column="1147" depth="1900"/>
                 <vessel pos="6" row="2047" column="1391" depth="1900"/>
@@ -61,13 +57,9 @@
                 <vessel pos="15" row="2047" column="3587" depth="1900"/>
                 <vessel pos="16" row="2047" column="3831" depth="1900"/>
                 <vessel pos="17" row="2047" column="4075" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
             </row>
             <row index="4">
-                <vessel pos="1" row="0" column="0" depth="0"/>
-                <vessel pos="2" row="0" column="0" depth="0"/>
-                <vessel pos="3" row="0" column="0" depth="0"/>
-                <vessel pos="4" row="3086" column="898" depth="1900"/>
+                <vessel pos="1" row="3086" column="20" depth="0"/>
                 <vessel pos="5" row="3086" column="1142" depth="1900"/>
                 <vessel pos="6" row="3086" column="1386" depth="1900"/>
                 <vessel pos="7" row="3086" column="1630" depth="1900"/>
@@ -81,14 +73,10 @@
                 <vessel pos="15" row="3086" column="3582" depth="1900"/>
                 <vessel pos="16" row="3086" column="3826" depth="1900"/>
                 <vessel pos="17" row="3086" column="4070" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
             </row>
-        </grappler_left>
-        <grappler_right>
+        </GrapplerLeft>
+        <GrapplerRight>
             <row index="1">
-                <vessel pos="1" row="0" column="0" depth="0"/>
-                <vessel pos="2" row="0" column="0" depth="0"/>
-                <vessel pos="3" row="0" column="0" depth="0"/>
                 <vessel pos="4" row="75" column="3527" depth="1850"/>
                 <vessel pos="5" row="75" column="3283" depth="1850"/>
                 <vessel pos="6" row="75" column="3039" depth="1900"/>
@@ -103,12 +91,9 @@
                 <vessel pos="15" row="75" column="843" depth="1900"/>
                 <vessel pos="16" row="75" column="599" depth="1900"/>
                 <vessel pos="17" row="75" column="355" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
+                <vessel pos="18" row="75" column="110" depth="0"/>
             </row>
             <row index="2">
-                <vessel pos="1" row="0" column="0" depth="0"/>
-                <vessel pos="2" row="0" column="0" depth="0"/>
-                <vessel pos="3" row="0" column="0" depth="0"/>
                 <vessel pos="4" row="1061" column="3522" depth="1850"/>
                 <vessel pos="5" row="1061" column="3278" depth="1850"/>
                 <vessel pos="6" row="1061" column="3034" depth="1900"/>
@@ -126,9 +111,6 @@
                 <vessel pos="18" row="140" column="110" depth="1600"/>
             </row>
             <row index="3">
-                <vessel pos="1" row="0" column="0" depth="0"/>
-                <vessel pos="2" row="0" column="0" depth="0"/>
-                <vessel pos="3" row="0" column="0" depth="0"/>
                 <vessel pos="4" row="2047" column="3522" depth="1900"/>
                 <vessel pos="5" row="2047" column="3278" depth="1900"/>
                 <vessel pos="6" row="2047" column="3034" depth="1900"/>
@@ -143,12 +125,8 @@
                 <vessel pos="15" row="2047" column="838" depth="1900"/>
                 <vessel pos="16" row="2047" column="594" depth="1900"/>
                 <vessel pos="17" row="2047" column="350" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
             </row>
             <row index="4">
-                <vessel pos="1" row="0" column="0" depth="0"/>
-                <vessel pos="2" row="0" column="0" depth="0"/>
-                <vessel pos="3" row="0" column="0" depth="0"/>
                 <vessel pos="4" row="3086" column="3527" depth="1900"/>
                 <vessel pos="5" row="3086" column="3283" depth="1900"/>
                 <vessel pos="6" row="3086" column="3039" depth="1900"/>
@@ -163,8 +141,7 @@
                 <vessel pos="15" row="3086" column="843" depth="1900"/>
                 <vessel pos="16" row="3086" column="599" depth="1900"/>
                 <vessel pos="17" row="3086" column="355" depth="1900"/>
-                <vessel pos="18" row="0" column="0" depth="0"/>
             </row>
-        </grappler_right>
-    </adjustment_data>
-</colorado_adjustment>
+        </GrapplerRight>
+    </AdjustmentData>
+</ColoradoAdjustment>
