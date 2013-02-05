@@ -89,7 +89,8 @@ private:
     quint8 m_volume;
     QTimer* m_Timer;
     QMutex* m_mutex;
-    QProcess* m_process;
+    QProcess* m_processPlay;
+    QProcess* m_processSetVolume;
     QTimer *m_alarmToneTimer;
     //QString m_soundPath;
     void emitAlarm (Global::AlarmType alarmType, bool Active = true, QString Filename = "", quint8 Volume = 1);

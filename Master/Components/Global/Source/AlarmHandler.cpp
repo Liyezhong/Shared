@@ -28,7 +28,8 @@ namespace Global {
 /****************************************************************************/
 AlarmHandler::AlarmHandler(quint16 timeout)
     : m_volume(1)
-    , m_process(NULL)
+    , m_processPlay(NULL)
+    , m_processSetVolume(NULL)
     , m_alarmToneTimer(NULL)
 {
 
@@ -87,27 +88,30 @@ void AlarmHandler::emitAlarm (Global::AlarmType alarmType, bool Active, QString 
         return;
     }
 
-    double volumeLevel = ((Active) ? ( 0.1 + 0.15*m_volume ) : (0.1 + 0.15*AlarmVolume ));   // m_volume=6 => volumeLevel=1
+    double volumeLevel = ((Active) ? (( 0.1 + 0.15*m_volume )*100) : ((0.1 + 0.15*AlarmVolume )*100));   // m_volume=6 => volumeLevel=1
 
-    if (!m_process)
+    if (!m_processPlay)
     {
-        m_process = new QProcess();
+        m_processPlay = new QProcess();
         qDebug() << "Creating a new Process";
     }
     else
     {
-        if (m_process->state() == QProcess::Running)
+        if (m_processPlay->state() == QProcess::Running)
         {
             qDebug() << "Process Running";
-            m_process->kill();
+            m_processPlay->kill();
             qDebug()<<"Process Killed";
-            m_process->waitForFinished();
+            m_processPlay->waitForFinished();
         }
     }
 
-    qDebug() << "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-    QString program = "play -v " + QString::number(volumeLevel, 'g', 1) + " " + soundFile;
-    m_process->start(program);
+    qDebug() << "ogg123" + /*QString::number(volumeLevel, 'g', 1) + " " +*/ soundFile;
+    QString SetVolume= "amixer sset 'PCM',0 " + QString::number(volumeLevel) +"%";
+    m_processSetVolume = new QProcess();
+    m_processSetVolume->start(SetVolume);
+    QString program = "ogg123 " + /*QString::number(volumeLevel, 'g', 1) + " " +*/ soundFile;
+    m_processPlay->start(program);
 
 
 }
@@ -120,7 +124,7 @@ bool AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 AlarmNumber, quint8 A
     }
 
     else
-    {   connect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
+    {   connect(m_processPlay,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
         m_alarmToneTimer->start(3000);
 
         quint8 number=AlarmNumber;
@@ -128,13 +132,13 @@ bool AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 AlarmNumber, quint8 A
 
         if ( !AlarmTypeFlag )
         {
-            QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".wav";
+            QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".ogg";
             qDebug() << FileName;
             emitAlarm(Global::ALARM_ERROR, false, FileName, AlarmVolume);
         }
         else
         {
-            QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".wav";
+            QString FileName = Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".ogg";
             qDebug() << FileName;
             emitAlarm(Global::ALARM_WARNING, false, FileName, AlarmVolume);
         }
@@ -146,21 +150,21 @@ bool AlarmHandler::playTestTone(bool AlarmTypeFlag, quint8 AlarmNumber, quint8 A
 
 void AlarmHandler::StopPlayAlarm()
 {
-    if ( m_process->state() == QProcess::NotRunning)
+    if ( m_processPlay->state() == QProcess::NotRunning)
     {
         qDebug() << "Process completed...";
         m_alarmToneTimer->stop();
-        disconnect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
+        disconnect(m_processPlay,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
     }
-    else if (m_process->state() == QProcess::Running)
+    else if (m_processPlay->state() == QProcess::Running)
     {
 
         qDebug() << "Process Running...";
-        m_process->kill();
+        m_processPlay->kill();
         qDebug()<<"Process Killed....";
-        m_process->waitForFinished();
+        m_processPlay->waitForFinished();
         m_alarmToneTimer->stop();
-        disconnect(m_process,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
+        disconnect(m_processPlay,SIGNAL(finished(int)),this,SLOT(StopPlayAlarm()));
 
     }
 
@@ -195,11 +199,11 @@ void AlarmHandler::setSoundNumber(Global::AlarmType alarmType, int number)
 
     if (alarmType == Global::ALARM_ERROR)
     {
-        fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".wav";
+        fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Alarm" + QString::number(number) + ".ogg";
     }
     else
     {
-        fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".wav";
+        fileName =  Global::SystemPaths::Instance().GetSoundPath() + "/Note" + QString::number(number) + ".ogg";
     }
     if (fileName.length() > 0)
     {
