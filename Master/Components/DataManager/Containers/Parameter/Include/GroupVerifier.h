@@ -39,7 +39,6 @@ public:
     CGroupVerifier();
 
     bool VerifyData(CDataContainerBase* p_ParameterList);  // use concrete class for concrete verifier
-    void CheckParameterStep(CGroup* p_Group, int ParameterCount, bool &VerifiedData);
     bool GetSyncObject(QReadWriteLock* p_ReadWriteLock);
 
     /*! \todo complete implementation*/

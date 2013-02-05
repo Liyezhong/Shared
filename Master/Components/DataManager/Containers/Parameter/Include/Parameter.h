@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file Parameter.h
+/*! \file PositionParameter.h
  *
- *  \brief Definition file for class CParameter.
+ *  \brief Definition file for class PositionParameter.
  *  This class provides functions to read Parameter attributes
  *  from the XML and writing data to the XML
  *
@@ -20,111 +20,61 @@
  */
 /****************************************************************************/
 
-#ifndef DATAMANAGER_PARAMETER_H
-#define DATAMANAGER_PARAMETER_H
+#ifndef DATAMANAGER_POSITIONPARAMETER_H
+#define DATAMANAGER_POSITIONPARAMETER_H
 
 #include "DataManager/Helper/Include/Types.h"
 #include "DataManager/Helper/Include/Helper.h"
 
-#include <QString>
-#include <QStringList>
-#include <QIODevice>
-#include <QFile>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-
 namespace DataManager
 {
-
+class CProcessSettings;
 
 /****************************************************************************/
 /*!
- *  \brief  This class implements Parameter
- *  Reads and Writes Parameter information to XML
+ *  \brief  This class implements CPositionParameter to store positional parameters of
+ *          devices
  */
 /****************************************************************************/
-class CParameter
+class CPositionParameter
 {
-
-    friend class CGroup;
+    friend class CProcessSettings;
 
 private:
-    QString m_ParameterKey;              //!< Key of the Parameter
-    int m_ParameterDefaultValue;         //!< DefaultValue of Parameter
-    int m_ParameterOffset;               //!< Offset of Parameter
-    int m_NumberOfSteps;                 //!< Number of Parameter
-    QStringList m_ParameterKeyList;      //!< Parameter Keys list
-
-    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+    qint16 m_Value;        //!< Default Value of Parameter
+    qint16 m_Offset;       //!< Offset of Parameter
 
 public:
-    CParameter();
-    CParameter(const QString ParameterKey);
-    CParameter(const QString ParameterKey, const int ParameterDefaultValue, const int ParameterOffset);
-    CParameter(const CParameter&);
-    ~CParameter();
-
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CParameter&  Parameter);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CParameter& Parameter);
-    CParameter& operator = (const CParameter&);
+    CPositionParameter(qint16 Value = 0, qint16 Offset = 0);
+    ~CPositionParameter();
 
     /****************************************************************************/
     /*!
-     *  \brief  to set Parameter Key
-     *  \iparam ParameterKey = Key to set
+     *  \brief  To get position value (default value + offset)
+     *  \return Parameter Value
      */
     /****************************************************************************/
-     void SetParameterKey(const QString ParameterKey) { m_ParameterKey =ParameterKey; }
+     qint32 GetPosition() { return m_Value + m_Offset; }
 
     /****************************************************************************/
     /*!
-     *  \brief returns the Key of the Parameter
-     *  \return Parameter Key
+     *  \brief  To set position value. Adjusts offset only.
+     *  \iparam Parameter Value.
      */
     /****************************************************************************/
-     QString GetParameterKey() const { return m_ParameterKey; }
+     void SetPosition(qint32 Position) { m_Offset = Position - m_Value; }
 
-    /****************************************************************************/
-    /*!
-     *  \brief  to set Default Value's of Paramter Info
-     *  \iparam Parameter Default Value.
-     */
-    /****************************************************************************/
-     void SetParameterDefaultValue(int ParameterDefaultValue) { m_ParameterDefaultValue = ParameterDefaultValue ;}
-    
-    /****************************************************************************/
-    /*!
-     *  \brief returns the Parameter Default Value the Parameter
-     *  \return Parameter DefaultValue
-     */
-    /****************************************************************************/
-     int GetParameterDefaultValue() { return m_ParameterDefaultValue; }
 	/****************************************************************************/
 	/*!
-     *  \brief  to set Parameter Offset Info
-     *  \iparam Value = Offset of Parameter
+     *  \brief  To reset parameter offset
      */
     /****************************************************************************/
-     void SetParameterOffset(int ParameterOffset) { m_ParameterOffset = ParameterOffset ;}
-    
-    /****************************************************************************/
-    /*!
-     *  \brief returns the Offset of the Parameter
-     *  \return Offset
-     */
-    /****************************************************************************/
-     int GetParameterOffset() { return m_ParameterOffset; }
+     void ResetOffset() { m_Offset = 0; }
 
-    /****************************************************************************/
-    /*!
-     *  \brief Retrieves Number of Parameter of the Group
-     *
-     *  \return Number of Parameter
-     */
-    /****************************************************************************/
-     int GetNumberOfSteps() const {return m_NumberOfSteps;}
+private:
+     qint16 GetValue() { return m_Value; }
 
+     qint16 GetOffsetValue() { return m_Offset; }
 };
 
 }   // namespace DataManager
