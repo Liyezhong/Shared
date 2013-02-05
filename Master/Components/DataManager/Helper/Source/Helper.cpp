@@ -25,7 +25,7 @@
 #include "Global/Include/GlobalDefines.h"
 #include "Global/Include/UITranslator.h"
 #include "DataManager/Helper/Include/Helper.h"
-#include <ColoradoDataContainer/Templates/Include/ColoradoDataManagerEventCodes.h>
+#include <ColoradoDataManager/Include/ColoradoDataManagerEventCodes.h>
 #include <Global/Include/EventObject.h>
 #include <qdatetime.h>
 

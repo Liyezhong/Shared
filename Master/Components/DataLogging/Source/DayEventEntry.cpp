@@ -106,11 +106,8 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
 
 /****************************************************************************/
 void DayEventEntry::DumpToConsole() const {
-    QString LoggingString = m_TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz") + ";"
-            /* + QString::number(m_EventCSVInfo.GetSource(), 10) +*/ ";" +
-            /*QString::number(m_EventCSVInfo.GetSubComponent(), 10)*/ + ";" +
+    QString LoggingString = m_TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz") + ";" +
             QString::number(AsInt(m_EventCSVInfo.GetEventType()), 10) + ";" +
-            //QString::number(AsInt(m_EventStatus), 10) + ";" +
             QString::number(m_EventCSVInfo.GetEventCode(), 10);
     if(m_String.size() > 0) {
         LoggingString += ":";

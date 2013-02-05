@@ -32,7 +32,6 @@ namespace DataManager {
 class CUserSettingsCommandInterface;
 
 static const quint32 INIT_OK = 0; //!< Return code
-static const quint32 INIT_NOK = -1; //!< Return code
 class CDataManagerBase : public QObject
 {
     Q_OBJECT
