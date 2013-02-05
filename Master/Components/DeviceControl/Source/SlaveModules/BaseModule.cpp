@@ -2132,16 +2132,13 @@ void CBaseModule::HandleCANMsgNodeState(can_frame* pCANframe)
         {
             HandleTaskConfiguration(pCANframe);
         }
-        else
+        else if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
         {
-            if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-            {
-                ResetModuleCommand(CN_CMD_SET_NODE_STATE);
-                ResetModuleCommand(CN_CMD_REQ_NODE_STATE);
-            }
-            emit ReportNodeState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_NodeState,
-                                 EmergencyStopState, PowerSupplyState);
+            ResetModuleCommand(CN_CMD_SET_NODE_STATE);
+            ResetModuleCommand(CN_CMD_REQ_NODE_STATE);
         }
+        emit ReportNodeState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_NodeState,
+                             EmergencyStopState, PowerSupplyState);
     }
     else
     {
