@@ -173,32 +173,32 @@ public:
     /****************************************************************************/
     quint16 GetModuleSWVersion(CModuleConfig::CANObjectType_t moduleID) const { return m_moduleSWVersion[quint16(moduleID)]; }
 
-    ReturnCode_t SetNodeState(NodeState_t);   //!< Set node state
-    ReturnCode_t ReqNodeState();              //!< Request actual node state
+    ReturnCode_t SetNodeState(NodeState_t); //!< Set node state
+    ReturnCode_t ReqNodeState();            //!< Request actual node state
 
-    ReturnCode_t EnterEmcyStop();             //!< enter emergency stop state
-    ReturnCode_t ExitEmcyStop();              //!< exit emergency stop state
-    ReturnCode_t ReqReset();                  //!< Request the node's reset
+    ReturnCode_t EnterEmcyStop();           //!< enter emergency stop state
+    ReturnCode_t ExitEmcyStop();            //!< exit emergency stop state
+    ReturnCode_t ReqReset();                //!< Request the node's reset
 
-    ReturnCode_t ConfigureStatistics();       //!< Configure statistics
-    ReturnCode_t ReqDataReset();              //!< Request data reset
-    ReturnCode_t ReqFormatMemory(quint8 PartitionTableSize);    //!< Request formatting memory
-    ReturnCode_t ReqSerialNumber();           //!< Request serial number
-    ReturnCode_t ReqEndTestResult();          //!< Request end test result
-    ReturnCode_t ReqHWInfo();                 //!< Request hardware information
-    ReturnCode_t ReqSWInfo();                 //!< Request software information
-    ReturnCode_t ReqLoaderInfo();             //!< Request bootloader information
-    ReturnCode_t ReqLifeCycleData();          //!< Request live cylce data
-    ReturnCode_t ReqLaunchDate();             //!< Request launch date
-    ReturnCode_t ReqBoardName();              //!< Request board name
-    ReturnCode_t ReqBoardOptions();           //!< Request board options
+    ReturnCode_t ConfigureStatistics();     //!< Configure statistics
+    ReturnCode_t ReqDataReset();            //!< Request data reset
+    ReturnCode_t ReqFormatMemory();         //!< Request formatting memory
+    ReturnCode_t ReqSerialNumber();         //!< Request serial number
+    ReturnCode_t ReqEndTestResult();        //!< Request end test result
+    ReturnCode_t ReqHWInfo();               //!< Request hardware information
+    ReturnCode_t ReqSWInfo();               //!< Request software information
+    ReturnCode_t ReqLoaderInfo();           //!< Request bootloader information
+    ReturnCode_t ReqLifeCycleData();        //!< Request live cylce data
+    ReturnCode_t ReqLaunchDate();           //!< Request launch date
+    ReturnCode_t ReqBoardName();            //!< Request board name
+    ReturnCode_t ReqBoardOptions();         //!< Request board options
     ReturnCode_t ConfigureVoltageMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
                                          quint16 GoodThreshold, quint16 FailThreshold);
-    ReturnCode_t ReqVoltageState();           //!< Request voltage monitor status
+    ReturnCode_t ReqVoltageState();         //!< Request voltage monitor status
     ReturnCode_t ConfigureCurrentMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
                                          quint16 GoodThreshold, quint16 FailThreshold);
-    ReturnCode_t ReqCurrentState();           //!< Request current monitor status
-    ReturnCode_t ReqUniqueNumber();           //!< Request unique number
+    ReturnCode_t ReqCurrentState();         //!< Request current monitor status
+    ReturnCode_t ReqUniqueNumber();         //!< Request unique number
 
     static QMap<quint32, std::string> m_eventString;    //!< list with info strings for CAN events
 
@@ -413,7 +413,7 @@ private:
     ReturnCode_t SendCANMsgEmgcyStop(bool enter);       //!< sends the can message 'EmergencyStop'
     ReturnCode_t SendCANMsgReset();                     //!< sends the can message 'NodeReset'
     ReturnCode_t SendCANMsgConfStatistics();            //!< sends the can message 'CfgStatistics'
-    ReturnCode_t SendCANMsgReqFormatMemory(quint8 PartitionTableSize);  //!< sends the can message 'm_unCanIDReqMemoryFormat'
+    ReturnCode_t SendCANMsgReqFormatMemory();           //!< sends the can message 'm_unCanIDReqMemoryFormat'
     ReturnCode_t SendCANMsgReqSerialNumber();           //!< sends the can message 'm_unCanIDReqSerialNumber'
     ReturnCode_t SendCANMsgReqEndTestResult();          //!< sends the can message 'm_unCanIDReqEndTestResult'
     ReturnCode_t SendCANMsgReqHWInfo();                 //!< sends the can message 'm_unCanIDReqHWInfo'
@@ -512,7 +512,6 @@ private:
         CANNodeModuleCmdType_t Type;        //!< command type
         ModuleCmdState_t State;             //!< command state
         NodeState_t NodeState;              //!< Target node state
-        quint8 PartitionTableSize;          //!< Used by the format memory command
         Global::MonotonicTime ReqSendTime;  //!< time the command was executed
         qint32 Timeout;                     //!< timeout in ms
     } ModuleCommand_t;

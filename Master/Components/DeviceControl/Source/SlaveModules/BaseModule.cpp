@@ -1082,7 +1082,7 @@ void CBaseModule::HandleCommandRequestTask()
             }
             else if(p_ModuleCommand->Type == CN_CMD_REQ_FORMAT_MEM)
             {
-                RetVal = SendCANMsgReqFormatMemory(p_ModuleCommand->PartitionTableSize);
+                RetVal = SendCANMsgReqFormatMemory();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
                     p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_MEMORY_OPERATION;
                 }
@@ -1558,7 +1558,9 @@ ReturnCode_t CBaseModule::SendCANMsgReset()
 
     if((RetVal = m_pCANCommunicator->SendCOB(canmsg)) == DCL_ERR_FCT_CALL_SUCCESS) {
         canmsg.data[0] = 0xE7;
-        RetVal = m_pCANCommunicator->SendCOB(canmsg);
+        if((RetVal = m_pCANCommunicator->SendCOB(canmsg)) == DCL_ERR_FCT_CALL_SUCCESS) {
+            m_TaskID = MODULE_TASKID_INIT;
+        }
     }
 
     return RetVal;
@@ -1594,7 +1596,7 @@ ReturnCode_t CBaseModule::SendCANMsgConfStatistics()
  *          otherwise the return code from SendCOB(..)
  */
 /****************************************************************************/
-ReturnCode_t CBaseModule::SendCANMsgReqFormatMemory(quint8 PartitionTableSize)
+ReturnCode_t CBaseModule::SendCANMsgReqFormatMemory()
 {
     can_frame CanFrame;
 
@@ -1604,7 +1606,7 @@ ReturnCode_t CBaseModule::SendCANMsgReqFormatMemory(quint8 PartitionTableSize)
     CanFrame.can_id = m_unCanIDReqMemoryFormat;
     CanFrame.can_dlc = 3;
     SetCANMsgDataU16(&CanFrame, ComputePassword(), 0);
-    CanFrame.data[2] = PartitionTableSize;
+    CanFrame.data[2] = m_FunctionModuleList.count() + 1;
 
     return m_pCANCommunicator->SendCOB(CanFrame);
 }
@@ -2733,17 +2735,13 @@ ReturnCode_t CBaseModule::ReqDataReset()
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
  */
 /****************************************************************************/
-ReturnCode_t CBaseModule::ReqFormatMemory(quint8 PartitionTableSize)
+ReturnCode_t CBaseModule::ReqFormatMemory()
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
     ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_FORMAT_MEM);
-    if(p_ModuleCommand != NULL)
-    {
-        p_ModuleCommand->PartitionTableSize = PartitionTableSize;
-    }
-    else
+    if(p_ModuleCommand == NULL)
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
