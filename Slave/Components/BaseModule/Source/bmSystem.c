@@ -772,7 +772,7 @@ static Error_t bmProcessNodeReset (UInt16 Channel, CanMessage_t *Message) {
             canFlushMessages (1000);
 
             // Do hardware reset (should never return)
-            halHardwareReset();         
+            halHardwareReset();
             PatternIndex = 0;
 
             return (E_HARDWARE_RESET_FAILED);

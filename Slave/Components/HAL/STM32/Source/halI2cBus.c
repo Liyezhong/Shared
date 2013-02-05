@@ -456,6 +456,10 @@ Error_t halI2cSetup (Handle_t Handle, UInt32 Baudrate, UInt32 RiseTime) {
             RiseTime = (Baudrate > MAX_RATE_STDMODE) ? 300 : 1000;
         }
 
+        // Wait until all pending jobs are done
+        if (halI2cWait (Handle, 1000) < 0) {
+            return (E_BUS_JOB_TIMEOUT);
+        }
         // Reset the controller
         I2C->CR1 |= I2C_CR1_SWRST;
         I2C->CR1 &= ~I2C_CR1_SWRST;

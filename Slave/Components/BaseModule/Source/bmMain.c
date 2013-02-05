@@ -497,8 +497,7 @@ static Error_t bmBaseModuleControl (UInt16 Instance, bmModuleControlID_t Control
 
         case MODULE_CONTROL_SHUTDOWN:
             ModuleState = MODULE_STATE_STANDBY;
-            bmFlushPartitions();
-            break;
+            return (bmFlushPartitions());
 
         case MODULE_CONTROL_WAKEUP:
             ModuleState = MODULE_STATE_READY;
@@ -511,9 +510,7 @@ static Error_t bmBaseModuleControl (UInt16 Instance, bmModuleControlID_t Control
             return (bmResetPartition());
 
         case MODULE_CONTROL_RESET:
-            // TODO: Alle BM-Funktionen deaktivieren (diese 
-            // Funktion wird bisher noch nicht benutzt
-            break;
+            return (bmFlushPartitions());
     }
     return (NO_ERROR);
 }

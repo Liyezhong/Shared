@@ -428,11 +428,11 @@ static Error_t aoChangeOutput (aoInstanceData_t *Data, UInt16 Value) {
 
     Error_t Status;
 
-    if ((Status = halAnalogWrite (Data->Port, Value << Data->BitShift)) < NO_ERROR) {
+    if ((Status = halAnalogWrite (Data->Port, Value * AO_MAX_PORT_VALUE / Data->MaxValue)) < NO_ERROR) {
         return Status;
-    } 
+    }
     Data->CurValue = Value;
-        
+
     if (Data->Options & OPTION_LIFETIME_DATA) {
         aoCountLifeTime (Data, Value > Data->OffLimit);
     }

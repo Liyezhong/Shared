@@ -435,11 +435,10 @@ Error_t bmClosePartition (Handle_t Handle) {
 
 Error_t bmFlushPartitions (void) {
 
-    Error_t Status = NO_ERROR;
     Handle_t Handle;
 
     if (UpdateChecksumOnWrite) {
-        return (NO_ERROR);
+        return (halStorageWait (Handle));
     }
     if (WriteProtected) {
         return (E_STORAGE_PROTECTED);
@@ -452,12 +451,12 @@ Error_t bmFlushPartitions (void) {
             UInt16 CheckSum = bmCalculateChecksum(Handle);
 
             if (bmWritePartitionChecksum(Handle, CheckSum) < 0) {
-                Status = E_CHECKSUM_WRITE_ERROR;
+                return (E_CHECKSUM_WRITE_ERROR);
             }
             Partitions[Handle].Mode &= ~FLAG_MODIFIED;
         }
     }
-    return (Status);
+    return (halStorageWait (Handle));
 }
 
 
