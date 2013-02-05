@@ -387,7 +387,8 @@ Error_t halStorageProtect (Handle_t Handle, Bool State) {
  ****************************************************************************/
 
 Error_t halStorageWait (Handle_t Handle) {
-    const Int32 Index = halStorageGetIndex(Handle, HAL_OPEN_WRITE);
+
+    const Int32 Index = halStorageGetIndex (Handle, HAL_OPEN_WRITE);
 
     if (Index >= 0) {
         switch (halStorageDescriptors[Index].Class) {

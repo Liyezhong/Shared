@@ -196,7 +196,7 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
     { HAL_SUPPLY_CURRENT,  DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
     { HAL_STEPPER1_PHASEA, DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,  3000, 0 },
     { HAL_STEPPER1_PHASEB, DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
-    { HAL_FILL_LEVEL,      DIR_INPUT, BUS_TYPE_INTERN, 12, 10, 6, 13218, 0 }    // 10000 equals 2.267V
+    { HAL_FILL_LEVEL,      DIR_INPUT, BUS_TYPE_INTERN, 12, 10, 6, 13231, 0 }    // 10000 equals 2.267V
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 
