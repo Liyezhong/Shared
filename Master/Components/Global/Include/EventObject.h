@@ -237,7 +237,6 @@ public:
     /**
      * \brief Raise Exception.
      *
-     *
      */
     /****************************************************************************/
     inline void RaiseException(const Global::Exception &TheException)

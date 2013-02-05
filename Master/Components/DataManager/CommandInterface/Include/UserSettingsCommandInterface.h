@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file UserSettingsCommandInterfaceBase.h
+/*! \file /DataManager/CommandInterface/Include/UserSettingsCommandInterfaceBase.h
  *
  *  \brief Command Interface definition
  *
