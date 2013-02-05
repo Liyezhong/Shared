@@ -241,7 +241,7 @@ static Error_t bmSetMasterPowerState (UInt16 Channel, CanMessage_t *Message) {
 static Error_t bmMonitorSupplyVoltageIndex (UInt8 Index) {
 
     if (Voltage[Index].Enabled || Voltage[Index].ErrFlag) {
-        if (bmTimeExpired(Voltage[Index].SampleTime) > Voltage[Index].SampleRate) {
+        if (bmTimeExpired(Voltage[Index].SampleTime) >= Voltage[Index].SampleRate) {
 
             bmPowerState_t State =
                 Voltage[Index].Enabled ? bmGetSupplyVoltageState(Index) : POWER_GOOD;
@@ -353,7 +353,7 @@ Error_t bmMonitorSupplySafe (void) {
 Error_t bmMonitorSupplyCurrent (void) {
 
     if (Current.Enabled || Current.ErrFlag) {
-        if (bmTimeExpired(Current.SampleTime) > Current.SampleRate) {
+        if (bmTimeExpired(Current.SampleTime) >= Current.SampleRate) {
 
             bmPowerState_t State =
                 Current.Enabled ? bmGetSupplyCurrentState() : POWER_GOOD;
@@ -414,9 +414,9 @@ Error_t bmMonitorSupplyCurrent (void) {
 static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
 
     if (Voltage[Index].Handle >= 0) {
+        Error_t Status = bmGetFilteredInput(&Voltage[Index]);
 
-        if (bmGetFilteredInput(&Voltage[Index]) == NO_ERROR) {
-
+        if (Status > NO_ERROR) {
             if (Voltage[Index].Value >= Voltage[Index].Threshold2) {
                 return (POWER_GOOD);
             }
@@ -424,6 +424,9 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
                 return (POWER_FAILED);
             }
             return (POWER_WARNING);
+        }
+        else if (Status == NO_ERROR) {
+            return (POWER_GOOD);
         }
     }
     return (POWER_UNKNOWN);
@@ -452,8 +455,9 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
 static bmPowerState_t bmGetSupplyCurrentState (void) {
 
     if (Current.Handle >= 0) {
-        if (bmGetFilteredInput(&Current) == NO_ERROR) {
+        Error_t Status = bmGetFilteredInput(&Current);
 
+        if (Status > NO_ERROR) {
             if (Current.Value <= Current.Threshold1) {
                 return (POWER_GOOD);
             }
@@ -461,6 +465,9 @@ static bmPowerState_t bmGetSupplyCurrentState (void) {
                 return (POWER_FAILED);
             }
             return (POWER_WARNING);
+        }
+        else if (Status == NO_ERROR) {
+            return (POWER_GOOD);
         }
     }
     return (POWER_UNKNOWN);
@@ -479,7 +486,7 @@ static bmPowerState_t bmGetSupplyCurrentState (void) {
  *
  *  \iparam  Monitor = Pointer to power monitor data structure
  *
- *  \return  Filtered analog input value
+ *  \return  Filter state (1 = ready) or negative error code
  *
  *****************************************************************************/
 
@@ -517,6 +524,7 @@ static Error_t bmGetFilteredInput (bmPowerMonitorState_t *Monitor) {
         if (Count) {
             Monitor->Value = Average / Count;
         }
+        return (Monitor->Filter < Monitor->InCount);
     }
     return (Status);
 }
