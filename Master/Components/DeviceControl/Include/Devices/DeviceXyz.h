@@ -19,6 +19,8 @@
 #ifndef DEVICECONTROL_DEVICEXYZ_H
 #define DEVICECONTROL_DEVICEXYZ_H
 
+#include <QTimer>
+
 #include "DeviceBase.h"
 #include "MoveXYZ.h"
 
@@ -30,110 +32,21 @@ namespace DeviceControl
 
 class CRfid11785;
 class CStepperMotor;
+class CAnalogInput;
+class CDigitalOutput;
 
-typedef enum {
-    XYZ_ROW1 = 0, XYZ_ROW2, XYZ_ROW3, XYZ_ROW4, XYZ_MAX_ROWS
-} XyzRow_t;
+#define ATTACH_POSITION             70
 
-typedef enum {
-    XYZ_COL1 = 0, XYZ_COL2, XYZ_COL3, XYZ_COL4, XYZ_COL5, XYZ_COL6, XYZ_COL7, XYZ_COL8, XYZ_COL9,
-    XYZ_COL10, XYZ_COL11, XYZ_COL12, XYZ_COL13, XYZ_COL14, XYZ_COL15, XYZ_COL16, XYZ_COL17, XYZ_COL18,
-    XYZ_MAX_COLS
-} XyzCol_t;
+#define Z_MOVE_UP_SLOW_WITH_RACK    1000
+#define Z_MOVE_UP_FAST_WITH_RACK    0
+#define Z_MOVE_UP_WITHOUT_RACK      1450
 
-// General
+#define LIQUID_LEVEL_X_OFFSET       200
 
-#define X_MOTOR_ROLLING_CIRCUMFERENCE   90  // in mm
-#define X_MOTOR_RESOLUTION              400 // in half-steps
-#define Y_MOTOR_ROLLING_CIRCUMFERENCE   60  // in mm
-#define Y_MOTOR_RESOLUTION              400 // in half-steps
-#define Z_MOTOR_ROLLING_CIRCUMFERENCE   60  // in mm
-#define Z_MOTOR_RESOLUTION              800 // in half-steps
+#define SLIDE_COUNT_MOVE_POS        500
 
-#define ATTACH_POSITION         70
-//#define ATTACH_POSITION         65
-
-#define Z_UP_WITH_RACK          0
-#define Z_UP_WITHOUT_RACK       1450
-
-// Oven
-#define XYZ_OVEN_ROW_START      XYZ_ROW1
-#define XYZ_OVEN_ROW_END        XYZ_ROW2
-
-#define XYZ_OVEN_COL_START      XYZ_COL1
-#define XYZ_OVEN_COL_END        XYZ_COL3
-
-#define XYZ_OVEN_X_START        20
-//#define XYZ_OVEN_X_START        10
-#define XYZ_OVEN_Y_START        0
-
-#define XYZ_OVEN_X_DISTANCE     44          // in mm
-#define XYZ_OVEN_X_OFFSET       XYZ_OVEN_X_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
-//#define XYZ_OVEN_X_OFFSET       190
-#define XYZ_OVEN_Y_DISTANCE     143         // in mm
-#define XYZ_OVEN_Y_OFFSET       XYZ_OVEN_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
-//#define XYZ_OVEN_Y_OFFSET       855
-
-#define XYZ_OVEN_Z_DOWN_POS     1850        //! Oven Stations
-
-// Bath Layout
-#define XYZ_BL_ROW_START        XYZ_ROW1
-#define XYZ_BL_ROW_END          XYZ_ROW4
-
-#define XYZ_BL_COL_START        XYZ_COL4
-#define XYZ_BL_COL_END          XYZ_COL17
-
-#define XYZ_BL_X_LEFT_DISTANCE  201         // in mm
-#define XYZ_BL_X_START_LEFT     XYZ_BL_X_LEFT_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
-//#define XYZ_BL_X_START_LEFT     895
-//#define XYZ_BL_X_RIGHT_DISTANCE  75          // in mm
-//#define XYZ_BL_X_START_RIGHT    XYZ_BL_X_RIGHT_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
-#define XYZ_BL_X_START_RIGHT    110
-#define XYZ_BL_Y_START          70
-//#define XYZ_BL_Y_START          90
-
-#define XYZ_BL_X_DISTANCE       55          // in mm
-#define XYZ_BL_X_OFFSET         XYZ_BL_X_DISTANCE * X_MOTOR_RESOLUTION / X_MOTOR_ROLLING_CIRCUMFERENCE
-//#define XYZ_BL_X_OFFSET         245
-#define XYZ_BL_Y_DISTANCE       148         // in mm
-#define XYZ_BL_Y_OFFSET         XYZ_BL_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
-//#define XYZ_BL_Y_OFFSET         980
-
-#define XYZ_BL_Z_DOWN_POS       1900        //! Normal Station
-//#define XYZ_BL_Z_DOWN_POS       1870        //! Normal Station
-#define XYZ_HS_Z_DOWN_POS       1850        //! Heated Cuvettes
-#define XYZ_DS_Z_DOWN_POS       1800        //! drying station
-
-#define ROW4_Y_DISTANCE         (156-148)   // in mm
-#define ROW4_Y_OFFSET           ROW4_Y_DISTANCE * Y_MOTOR_RESOLUTION / Y_MOTOR_ROLLING_CIRCUMFERENCE
-//#define ROW4_Y_OFFSET           60          //! Bath layout to Drawer Offset
-
-#define ROW1_X_OFFSET           5
-#define ROW1_Y_OFFSET           5
-
-#define ROW2_X_OFFSET           10
-#define ROW3_X_OFFSET           10
-#define ROW4_X_OFFSET           5
-
-// Rack Transfer
-#define XYZ_RTS_ROW             XYZ_ROW2
-#define XYZ_RTS_COL             XYZ_COL18
-
-#define XYZ_RTS_X_POS           4315
-#define XYZ_RTS_Y_POS           140
-#define XYZ_RTS_Z_DOWN_POS      1600        //! Rack Transfer
-
-// Slide counter
-#define XYZ_SLIDE_COUNTER_ROW           XYZ_ROW3
-#define XYZ_SLIDE_COUNTER_COL           XYZ_COL2
-
-//#define XYZ_SLIDE_COUNTER_X_POS         240
-#define XYZ_SLIDE_COUNTER_X_POS         255
-//#define XYZ_SLIDE_COUNTER_Y_START       1800
-#define XYZ_SLIDE_COUNTER_Y_START       2000
-#define XYZ_SLIDE_COUNTER_Y_END         (XYZ_SLIDE_COUNTER_Y_START + 680)
-
-#define XYZ_SLIDE_COUNTER_Z_DOWN_POS    1230        //! Slide counter
+//!< Sensor teach duration in milli seconds
+#define SENSOR_TEACH_DURATION       2500
 
 class CPoint
 {
@@ -169,14 +82,6 @@ public:
     }
 };
 
-struct PositionXYZ
-{
-    quint32 PositionX;
-    quint32 PositionY;
-    quint32 PositionZ;
-    bool Active;
-};
-
 typedef enum {
     XYZ_STATE_IDLE = 0,
     XYZ_STATE_MOVE_EMPTY,
@@ -185,12 +90,10 @@ typedef enum {
     XYZ_STATE_DETACH,
     XYZ_STATE_LET_DOWN_RACK,
     XYZ_STATE_PULL_UP_RACK,
-    XYZ_STATE_COUNT_SLIDES
+    XYZ_STATE_COUNT_SLIDES,
+    XYZ_STATE_READ_LIQUID_LEVEL,
+    XYZ_STATE_TEACH_SENSOR
 } XyzState_t;
-
-typedef enum {
-    X_AXIS = 0, Y_AXIS, Z_AXIS, MAX_STEPPER_MOTORS
-} StepperMotorAxis_t;
 
 class CDeviceXyz : public CDeviceBase
 {
@@ -199,9 +102,7 @@ class CDeviceXyz : public CDeviceBase
 public:
     CDeviceXyz(const DeviceProcessing &DeviceProc, const DeviceModuleList_t &ModuleList, DevInstanceID_t InstanceID);
 
-    // Setter
-    void SetMoveEmptyProfile(quint8 ProfileX, quint8 ProfileY, quint8 ProfileZ);
-    void SetTransposrtRackProfile(quint8 ProfileX, quint8 ProfileY, quint8 ProfileZ);
+    ~CDeviceXyz();
 
     // Getter
     XyzState_t GetCurrentstate();
@@ -257,7 +158,6 @@ signals:
     /****************************************************************************/
     void CountSlides();
 
-
     /****************************************************************************/
     /*! \brief Interface to DCP to Read rfid id & data of the attached rack
      */
@@ -268,7 +168,12 @@ signals:
     /*! \brief Interface to DCP to liquid level of currently pointing station
      */
     /****************************************************************************/
-    void ReadLiquidLevel();
+    void ReadLiquidLevel(quint16 StationColumn, quint16 StationRow);
+
+    void TeachLevelSensor(quint16 MinStationColumn, quint16 MinStationRow,
+                          quint16 MaxStationColumn, quint16 MaxStationRow);
+    void TeachLevelSensorMin(quint16 StationColumn, quint16 StationRow);
+    void TeachLevelSensorMax(quint16 StationColumn, quint16 StationRow);
 
     // Response interface to DCP
     /****************************************************************************/
@@ -338,10 +243,18 @@ signals:
     /****************************************************************************/
     /*! \brief Response to ReadLiquidLevel() request.
      *
-     *  \iparam ReturnCode result code sent by FM layer
+     *  \iparam ReturnCode result code
      */
     /****************************************************************************/
-    void ReportReadLiquidLevel(ReturnCode_t ReturnCode);
+    void ReportReadLiquidLevel(ReturnCode_t ReturnCode, qint16 LiquidLevel);
+
+    /****************************************************************************/
+    /*! \brief Response to TeachLevelSensor() request.
+     *
+     *  \iparam ReturnCode result code
+     */
+    /****************************************************************************/
+    void ReportTeachSensor(ReturnCode_t ReturnCode);
 
     /****************************************************************************/
     /*! \brief Error Response to signal movement error
@@ -355,7 +268,7 @@ signals:
     /****************************************************************************/
     /*! \brief  Internal signal to initiate arm movement
      *
-     *  \iparam PositionX   Target X position
+     *  \iparam m_PositionX   Target X position
      *  \iparam ProfileX    Motion profile for X axis
      *  \iparam PositionY   Target Y position
      *  \iparam ProfileY    Motion profile for Y axis
@@ -363,7 +276,7 @@ signals:
      *  \iparam ProfileZ    Motion profile for Z axis
      */
     /****************************************************************************/
-    void Move(quint32 PositionX, quint8 ProfileX,
+    void Move(quint32 m_PositionX, quint8 ProfileX,
               quint32 PositionY, quint8 ProfileY,
               quint32 PositionZ = NO_CHANGE, quint8 ProfileZ = 0);
 
@@ -373,10 +286,10 @@ signals:
     /****************************************************************************/
     void MoveAbort();
 
-protected:
+private:
     bool Trans_Configure(QEvent *p_Event);
 
-    // Idle -> Move State
+    // Idle -> Active State
     bool Trans_Idle_MoveEmpty(QEvent *p_Event);
     bool Trans_Idle_MoveRack(QEvent *p_Event);
     bool Trans_Idle_LetdownRack(QEvent *p_Event);
@@ -385,10 +298,17 @@ protected:
     bool Trans_Idle_DetachRack(QEvent *p_Event);
     bool Trans_Idle_CountSlides(QEvent *p_Event);
 
+    bool Trans_Idle_MoveLiquidLevelPos(QEvent *p_Event);
+    bool Trans_MoveLiquidLevel_Read(QEvent *p_Event);
+    bool Trans_ReadLiquidLevel_Idle(QEvent *p_Event);
 
-    // Move -> Idle State
+    bool Trans_Idle_MoveTeachSensorPos(QEvent *p_Event);
+    bool Trans_Move_TeachSensor(QEvent *p_Event);
+    bool Trans_TeachSensor_Idle(QEvent *p_Event);
+
+    // Active -> Idle State
     // On Movement completion
-    bool Trans_Move_Idle(QEvent *p_Event);
+    bool Trans_Active_Idle(QEvent *p_Event);
 
     // On Abort request
     bool Trans_Abort_Idle(QEvent *p_Event);
@@ -396,11 +316,11 @@ protected:
     // Helper functions
     void MoveNextStep();
     void DeletePrevStep();
-    void FillColumnRowPosition();
-    bool IsNewState(XyzState_t NewState, quint16 StationColumn, quint16 StationRow);
 
-private:
-    // Function Modueles
+    bool IsNewState(XyzState_t NewState, quint16 StationColumn, quint16 StationRow);
+    void ReportStatus(ReturnCode_t ReturnCode);
+
+    // Function Modules
     CBaseModule *mp_BaseModuleX;
     CBaseModule *mp_BaseModuleY;
     CBaseModule *mp_BaseModuleZ;
@@ -408,31 +328,42 @@ private:
     CStepperMotor *mp_YAxisMotor;
     CStepperMotor *mp_ZAxisMotor;
     CRfid11785 *mp_Rfid;
+    CAnalogInput *mp_LevelSensor;
+    CDigitalOutput *mp_LevelSensorTeach;
+
+    QTimer m_Timer;
 
     //
     CMoveXYZ *mp_MoveXyz;
-
-    // Motion Profiles
-    quint8 m_MoveEmptyProfile[MAX_STEPPER_MOTORS];
-    quint8 m_TransportRackProfile[MAX_STEPPER_MOTORS];
 
     //
     XyzState_t m_PrevState;
     XyzState_t m_CurrentState;
     bool m_RackAttached;
+    qint16 m_LiquidLevel;
 
     quint16 m_StationColumn;
     quint16 m_StationRow;
 
-    //
+    // Way point list
     QList<CPoint*> m_WayPoint;
-
-    // Data structure to store Station Positions
-    PositionXYZ m_StaionPos[XYZ_MAX_COLS][XYZ_MAX_ROWS];
 
     // Adjustment data container
     DataManager::CAdjustment *mp_Adjustment;
     DataManager::XyzType_t m_XyzType;
+
+    // Speed profiles & positions
+    quint8 m_Prof_X_Move_Empty;
+    quint8 m_Prof_X_Move_With_Rack;
+
+    quint8 m_Prof_Y_Move_Empty;
+    quint8 m_Prof_Y_Move_With_Rack;
+    quint8 m_Prof_Y_Attach_Detach_Rack;
+
+    quint8 m_Prof_Z_Move_Empty;
+    quint8 m_Prof_Z_Move_Down_With_Rack;
+    quint8 m_Prof_Z_Move_Up_Slow;
+    quint8 m_Prof_Z_Move_Up_Fast;
 };
 
 }
