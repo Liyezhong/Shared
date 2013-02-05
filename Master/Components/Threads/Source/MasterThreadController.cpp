@@ -695,7 +695,8 @@ void MasterThreadController::SendAcknowledgeNOK(Global::tRefType Ref, CommandCha
 
 /****************************************************************************/
 void MasterThreadController::ReadEventTranslations(QLocale::Language Language, QLocale::Language FallbackLanguage) const {
-    const QString StringsFileName = Global::SystemPaths::Instance().GetSettingsPath() + "/EventStrings.xml";
+    const QString StringsFileName = Global::SystemPaths::Instance().GetTranslationsPath()
+            + "/EventStrings_" + Global::LanguageToLanguageCode(Language) + ".xml";
     // cleanup translator strings. For event strings.
     Global::EventTranslator::TranslatorInstance().Reset();
     // read strings
