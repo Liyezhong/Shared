@@ -59,6 +59,8 @@ public:
     IDeviceProcessing();
     ~IDeviceProcessing();
 
+    //! Start device control layer thread
+    void Start();
     //! Emergency stop
     void EmergencyStop();   // should be called if the device's cover was opened by the user
     //! Shutdown the device
@@ -186,7 +188,7 @@ private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
 
-    DeviceProcessing *mp_DevProc;       //!< Device processing instance
+    DeviceProcessing m_DevProc;        //!< Device processing instance
     QThread m_DevProcThread;           //!< Device processing thread
     QTimer m_DevProcTimer;             //!< Device processing timer
 

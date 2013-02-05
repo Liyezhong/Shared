@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <DeviceCommandProcessor/Include/DeviceCommandProcessorThreadController.h>
 //#include <DeviceCommandProcessor/Include/DeviceCommandProcessorEventCodes.h>
+#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
 #include <DeviceCommandProcessor/Include/Commands/CmdDeviceProcessingInit.h>
 #include <DeviceCommandProcessor/Include/Commands/CmdDeviceProcessingCleanup.h>
@@ -47,6 +48,7 @@ DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
     m_RefInitDCL(Global::RefManager<Global::tRefType>::INVALID),
     m_InLoaderChangedRef(Global::RefManager<Global::tRefType>::INVALID),
     m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID)
+  , m_pDeviceProcessing(NULL)
 {
     qRegisterMetaType<DevInstanceID_t>("DevInstanceID_t");
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
@@ -56,12 +58,6 @@ DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
         m_CommandRef[Idx].m_State = DCP_TC_CMD_STATE_FREE;
     }
 
-    connect(&m_DeviceProcessing, SIGNAL(ReportInitializationFinished(ReturnCode_t)),
-            this, SLOT(DevProcInitialisationAckn(ReturnCode_t)));
-    connect(&m_DeviceProcessing, SIGNAL(ReportConfigurationFinished(ReturnCode_t)),
-            this, SLOT(DevProcConfigurationAckn(ReturnCode_t)));
-    connect(&m_DeviceProcessing, SIGNAL(ReportStartNormalOperationMode(ReturnCode_t)),
-            this, SLOT(DevProcStartNormalOpModeAckn(ReturnCode_t)));
 }
 
 /****************************************************************************/
@@ -78,6 +74,17 @@ DeviceCommandProcessorThreadController::~DeviceCommandProcessorThreadController(
 void DeviceCommandProcessorThreadController::CreateAndInitializeObjects()
 {
     qDebug() << "DeviceCommandProcessorThreadController::CreateAndInitializeObjects";
+
+    m_pDeviceProcessing = new IDeviceProcessing();
+
+    if (m_pDeviceProcessing) {
+        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportInitializationFinished(ReturnCode_t),
+                          this, DevProcInitialisationAckn(ReturnCode_t));
+        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportConfigurationFinished(ReturnCode_t),
+                          this, DevProcConfigurationAckn(ReturnCode_t));
+        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportStartNormalOperationMode(ReturnCode_t),
+                          this, DevProcStartNormalOpModeAckn(ReturnCode_t));
+    }
 
     // register init and cleanup functions
     RegisterCommandForProcessing<DeviceCommandProcessor::CmdDeviceProcessingInit, DeviceCommandProcessorThreadController>(
@@ -107,7 +114,9 @@ void DeviceCommandProcessorThreadController::DestroyObjects()
 
 /****************************************************************************/
 void DeviceCommandProcessorThreadController::OnGoReceived() {
-    /// \todo implement
+    if (m_pDeviceProcessing) {
+        m_pDeviceProcessing->Start();
+    }
 }
 
 /****************************************************************************/
@@ -148,7 +157,7 @@ void DeviceCommandProcessorThreadController::OnDeviceProcessingCleanup(Global::t
     DEBUGWHEREAMI;
     Q_UNUSED(Cmd);
 
-    m_DeviceProcessing.Destroy();
+    m_pDeviceProcessing->Destroy();
     SendAcknowledgeOK(Ref);
 }
 
@@ -168,7 +177,7 @@ void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(ReturnCod
 
         // log start of command
         //SEND_INFO(EVENT_DEVICECOMMANDPROCESSOR_INFO_COMMAND_STARTED, EVENT_DEVICECOMMANDPROCESSOR_STRING_CONFIGURATION);
-        ReturnCode_t RetVal = m_DeviceProcessing.StartConfigurationService();
+        ReturnCode_t RetVal = m_pDeviceProcessing->StartConfigurationService();
 
         if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
         {

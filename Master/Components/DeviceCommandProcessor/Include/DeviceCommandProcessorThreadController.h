@@ -26,7 +26,7 @@
 
 //Adaption to device processing
 #include "DeviceControl/Include/Global/DeviceControl.h"
-#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
+//#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
 //#include "ColoradoDataManager/Include/DataManager.h"
 
@@ -38,12 +38,16 @@ using namespace DeviceControl;
 // so we inform lint about this.
 //lint -sem(DeviceCommandProcessor::DeviceCommandProcessorThreadController::DestroyObjects, cleanup)
 
+namespace DeviceControl {
+
+    class IDeviceProcessing;
+}
+
 namespace DeviceCommandProcessor {
 
 class CmdDeviceProcessingInit;
 class CmdDeviceProcessingCleanup;
 
-class IDeviceProcessing;
 
 #define CMD_REF_CNT  25   ///< array size of the command date buffer
 
@@ -169,7 +173,7 @@ public slots:
     void DevProcModeChangeInfo(ReturnCode_t mode, quint8 newState);
 
 protected:
-    DeviceControl::IDeviceProcessing m_DeviceProcessing;    //!< Device processing instance
+    DeviceControl::IDeviceProcessing *m_pDeviceProcessing;    //!< Device processing instance
 
     /*! command state definition*/
     typedef enum {

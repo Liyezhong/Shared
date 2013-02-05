@@ -50,17 +50,16 @@ namespace DeviceControl
  */
 /****************************************************************************/
 IDeviceProcessing::IDeviceProcessing() :
-    mp_DevProc(NULL), m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
+    m_DevProc(this),
+    m_DevProcThread(this),
+    m_DevProcTimer(this),
+    m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
     m_reqTaskParameter1(0), m_reqTaskParameter2(0)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
 
     moveToThread(&m_DevProcThread);
-
-    //start the DeviceProcessing thread
-    connect(&m_DevProcThread, SIGNAL(started()), this, SLOT(ThreadStarted()));
-    m_DevProcThread.start();
 }
 
 /****************************************************************************/
@@ -78,12 +77,44 @@ IDeviceProcessing::~IDeviceProcessing()
             LOGANDTHROW(EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR);
         }
 
-        delete mp_DevProc;
+//        delete mp_DevProc;
     }
     catch (...)
     {
     }
 }
+
+
+void IDeviceProcessing::Start()
+{
+
+    /* activate the logging */
+    FILE* pFile = fopen("device_control.log", "w");
+    Output2FILE::Stream() = pFile;
+
+    CONNECTSIGNALSLOT(&m_DevProc, ReportInitializationFinished(ReturnCode_t),
+                      this, OnInitializationFinished(ReturnCode_t));
+    CONNECTSIGNALSLOT(&m_DevProc, ReportConfigurationFinished(ReturnCode_t),
+                      this, OnConfigurationFinished(ReturnCode_t));
+    CONNECTSIGNALSLOT(&m_DevProc, ReportStartNormalOperationMode(ReturnCode_t),
+                      this, OnStartNormalOperationMode(ReturnCode_t));
+    CONNECTSIGNALSLOT(&m_DevProc, ReportEvent(quint32, quint16, QDateTime),
+                      this, OnEvent(quint32, quint16, QDateTime));
+    CONNECTSIGNALSLOT(&m_DevProc, ReportEventWithInfo(quint32, quint16, QDateTime, QString),
+                      this, OnEventWithInfo(quint32, quint16, QDateTime, QString));
+    CONNECTSIGNALSLOT(&m_DevProc, ReportDiagnosticServiceClosed(ReturnCode_t),
+                      this, OnDiagnosticServiceClosed(ReturnCode_t));
+    CONNECTSIGNALSLOT(&m_DevProc, ReportDestroyFinished(),
+                      this, OnDestroyFinished());
+
+    // Shutdown signal to device threads
+    CONNECTSIGNALSIGNAL(this, DeviceShutdown(), &m_DevProc, DeviceShutdown());
+
+    //start the DeviceProcessing thread
+    CONNECTSIGNALSLOT(&m_DevProcThread, started(), this, ThreadStarted());
+    m_DevProcThread.start();
+}
+
 
 /****************************************************************************/
 /*!
@@ -135,7 +166,7 @@ void IDeviceProcessing::HandleTasks()
     }
 
     m_Mutex.lock();
-    mp_DevProc->HandleTasks();
+    m_DevProc.HandleTasks();
     m_Mutex.unlock();
 }
 
@@ -159,7 +190,7 @@ void IDeviceProcessing::HandleTaskRequestState()
     {
         FILE_LOG_L(laDEVPROC, llINFO) << " HandleTaskRequestState - AddTask";
         m_Mutex.lock();
-        retCode = mp_DevProc->ActivateTask(m_reqTaskID, m_reqTaskParameter1, m_reqTaskParameter2);
+        retCode = m_DevProc.ActivateTask(m_reqTaskID, m_reqTaskParameter1, m_reqTaskParameter2);
         m_Mutex.unlock();
         if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
         {
@@ -196,7 +227,7 @@ ReturnCode_t IDeviceProcessing::StartConfigurationService()
 
     FILE_LOG_L(laCONFIG, llDEBUG) << " IDeviceProcessing::StartConfigurationService";
     m_Mutex.lock();
-    DeviceProcessing::DeviceProcessingMainState_t State = mp_DevProc->GetState();
+    DeviceProcessing::DeviceProcessingMainState_t State = m_DevProc.GetState();
     m_Mutex.unlock();
     if(State < DeviceProcessing::DP_MAIN_STATE_WAIT_FOR_CONFIG)
     {
@@ -234,7 +265,7 @@ ReturnCode_t IDeviceProcessing::StartConfigurationService()
 ReturnCode_t IDeviceProcessing::RestartConfigurationService()
 {
     m_Mutex.lock();
-    mp_DevProc->Initialize();
+    m_DevProc.Initialize();
     m_Mutex.unlock();
     return StartConfigurationService();
 }
@@ -387,7 +418,7 @@ ReturnCode_t IDeviceProcessing::StartAdjustmentService()
 CDeviceBase* IDeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 {
     QMutexLocker locker(&m_Mutex);
-    return mp_DevProc->GetDevice(InstanceID);
+    return m_DevProc.GetDevice(InstanceID);
 }
 
 /****************************************************************************/
@@ -405,15 +436,13 @@ CDeviceBase* IDeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 CBaseModule* IDeviceProcessing::GetNode(bool First)
 {
     QMutexLocker locker(&m_Mutex);
-    return mp_DevProc->GetCANNodeFromObjectTree(First);
+    return m_DevProc.GetCANNodeFromObjectTree(First);
 }
 
 void IDeviceProcessing::SetAdjustmentList(DataManager::CAdjustment AdjustmentList)
 {
-    if (mp_DevProc != NULL)
-    {
-        mp_DevProc->SetAdjustmentList(AdjustmentList);
-    }
+    QMutexLocker locker(&m_Mutex);
+    m_DevProc.SetAdjustmentList(AdjustmentList);
 }
 
 /****************************************************************************/
@@ -522,34 +551,8 @@ void IDeviceProcessing::OnDestroyFinished()
 
 void IDeviceProcessing::ThreadStarted()
 {
-    /* activate the logging */
-    FILE* pFile = fopen("device_control.log", "w");
-    Output2FILE::Stream() = pFile;
-
-    mp_DevProc = new DeviceProcessing(this);
-
-    CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t),
-                      this, OnInitializationFinished(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t),
-                      this, OnConfigurationFinished(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportStartNormalOperationMode(ReturnCode_t),
-                      this, OnStartNormalOperationMode(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportEvent(quint32, quint16, QDateTime),
-                      this, OnEvent(quint32, quint16, QDateTime));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportEventWithInfo(quint32, quint16, QDateTime, QString),
-                      this, OnEventWithInfo(quint32, quint16, QDateTime, QString));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(ReturnCode_t),
-                      this, OnDiagnosticServiceClosed(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(),
-                      this, OnDestroyFinished());
-
-    // Shutdown signal to device threads
-    CONNECTSIGNALSIGNAL(this, DeviceShutdown(), mp_DevProc, DeviceShutdown());
-
     CONNECTSIGNALSLOT(&m_DevProcTimer, timeout(), this, HandleTasks());
     m_DevProcTimer.start(10);
-
-    qDebug() << "IDeviceProcessing: " << thread() << m_DevProcThread.thread();
 }
 
 } // namespace
