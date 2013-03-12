@@ -74,7 +74,7 @@ DayLogFileInformation::DayLogFileInformation(QString FilePath) :
 }
 
 /****************************************************************************/
-void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, const QByteArray &ByteArray) {
+void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, Global::GuiUserLevel UserRole, const QByteArray &ByteArray) {
 
     QByteArray& FileData = const_cast<QByteArray&>(ByteArray);
 
@@ -89,8 +89,17 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
 
         if (ReadData.contains(STRING_SEMICOLON)) {
             if (ReadData.split(DELIMITER_SEMICOLON).count() > EVENTSTRING_USERLOG) {
-                if (QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_USERLOG)).compare(FLAG_VALUE) == 0) {
-
+                //if (QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_USERLOG)).compare(FLAG_VALUE) == 0) {
+                bool acceptIt = false;
+                QString authrityType = ReadData.split(DELIMITER_SEMICOLON).value(4);
+                if (Global::OPERATOR == UserRole && authrityType.compare("1") == 0)
+                    acceptIt = true;
+                else if (Global::ADMIN == UserRole && (authrityType.compare("1") == 0
+                                                       || authrityType.compare("2") == 0))
+                    acceptIt = true;
+                else if (Global::SERVICE == UserRole && authrityType.toInt() >= 1)
+                    acceptIt = true;
+                if (acceptIt) {
                     Global::tTranslatableStringList TranslateStringList;
                     // read all the parameters
                     for (int Counter = EVENTSTRING_PARAMETERS; Counter < ReadData.split(DELIMITER_SEMICOLON).count();
@@ -174,6 +183,7 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
 
 /****************************************************************************/
 void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileName,
+                                                          Global::GuiUserLevel UserRole,
                                    const QByteArray &FileContent) {
 
     QDir LogDirectory(m_LogFilePath);
@@ -182,14 +192,14 @@ void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileNam
     foreach (QString LogFileName, LogDirectory.entryList(QStringList() << HIMALAYAEVENTS_MULTIPLEFILES)) {
         if (LogFileName.contains(FileName.split(DELIMITER_UNDERSCORE).value
                                  (FileName.split(DELIMITER_UNDERSCORE).count() - 1))) {
-            ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
+            ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, UserRole, FileData);
             break;
         }
     }
 }
 
 /****************************************************************************/
-void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames) {
+void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames, Global::GuiUserLevel CurrenUserRole) {
 
     // removes the constant cast
     QStringList& ListOfFile = const_cast<QStringList&>(FileNames);
@@ -224,7 +234,7 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
         // replace the .log extension and put the empty string
         ListOfFile.append(FullPatheOfTheFile);
         // translate the files
-        ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
+        ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, CurrenUserRole, FileData);
         if (FileData.count() > 0) {
             // create the daily run log file
             QFile DailyRunLogFile(FullPatheOfTheFile);

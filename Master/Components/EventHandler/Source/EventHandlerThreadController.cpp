@@ -58,7 +58,7 @@ namespace EventHandler {
  *
  ****************************************************************************/
 EventHandlerThreadController::EventHandlerThreadController(Global::gSourceType TheHeartBeatSource) :
-    Threads::ThreadController(TheHeartBeatSource, "EventHandler")
+    Threads::ThreadController(TheHeartBeatSource, "EventHandler"), m_UserRole(Global::OPERATOR)
 {
     //    CreateAndInitializeObjects();
     // Register LoggingSource Templates with moc
@@ -93,6 +93,10 @@ EventHandlerThreadController::~EventHandlerThreadController()
  ****************************************************************************/
 void EventHandlerThreadController::CreateAndInitializeObjects()
 {
+    AddAlarmPosTypes();
+    AddLogAuthorityTypes();
+    AddResponseTypes();
+    AddResponseRecoveryTypes();
     bool ret =  ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
 
     Q_UNUSED(ret);
@@ -126,6 +130,9 @@ void EventHandlerThreadController::AddEventTypes(){
     m_EventTypeEnumMap.insert("FATAL ERROR", Global::EVTTYPE_FATAL_ERROR);
     m_EventTypeEnumMap.insert("UNDEFINED", Global::EVTTYPE_UNDEFINED);
     m_EventTypeEnumMap.insert("DEBUG", Global::EVTTYPE_DEBUG);
+    m_EventTypeEnumMap.insert("L_ERROR", Global::EVTTYPE_SYS_ERROR);
+    m_EventTypeEnumMap.insert("L_WARNING", Global::EVTTYPE_SYS_WARNING);
+    m_EventTypeEnumMap.insert("L_HINT", Global::EVTTYPE_SYS_HINT);
 }
 
 void EventHandlerThreadController::AddEventLogLevels() {
@@ -142,11 +149,46 @@ void EventHandlerThreadController::AddSourceComponents() {
     m_EventSourceMap.insert("DEVICECOMMANDPROCESSOR", Global::EVENTSOURCE_DEVICECOMMANDPROCESSOR);
     m_EventSourceMap.insert("MAIN", Global::EVENTSOURCE_MAIN);
     m_EventSourceMap.insert("SCHEDULER", Global::EVENTSOURCE_SCHEDULER);
+    m_EventSourceMap.insert("SCHEDULERMAIN", Global::EVENTSOURCE_SCHEDULER_MAIN);
     m_EventSourceMap.insert("EVENTHANDLER", Global::EVENTSOURCE_EVENTHANDLER);
     m_EventSourceMap.insert("EXPORT", Global::EVENTSOURCE_EXPORT);
     m_EventSourceMap.insert("IMPORTEXPORT", Global::EVENTSOURCE_IMPORTEXPORT);
     m_EventSourceMap.insert("BLG", Global::EVENTSOURCE_BLG);
     m_EventSourceMap.insert("",Global::EVENTSOURCE_NONE);
+}
+
+void EventHandlerThreadController::AddLogAuthorityTypes() {
+    m_LogAuthorityTypeEnumMap.insert("TRUE",Global::LOGAUTHTYPE_USER);
+    m_LogAuthorityTypeEnumMap.insert("AUTH_USER",Global::LOGAUTHTYPE_USER);
+    m_LogAuthorityTypeEnumMap.insert("AUTH_ADMIN",Global::LOGAUTHTYPE_ADMIN);
+    m_LogAuthorityTypeEnumMap.insert("AUTH_SERVICE",Global::LOGAUTHTYPE_SERVICE);
+}
+
+void EventHandlerThreadController::AddAlarmPosTypes() {
+    m_AlarmPosTypeEnumMap.insert("YES", Global::ALARMPOS_DEVICE);
+    m_AlarmPosTypeEnumMap.insert("AL_DEVICE", Global::ALARMPOS_DEVICE);
+    m_AlarmPosTypeEnumMap.insert("AL_LOCAL", Global::ALARMPOS_LOCAL);
+    m_AlarmPosTypeEnumMap.insert("AL_REMOTE", Global::ALARMPOS_REMOTE);
+}
+
+void EventHandlerThreadController::AddResponseTypes() {
+    m_ResponseTypeEnumMap.insert("RS_RESET",Global::RESTYPE_RS_RESET);
+    m_ResponseTypeEnumMap.insert("RS_STOPLATER",Global::RESTYPE_RS_STOPLATER);
+    m_ResponseTypeEnumMap.insert("RS_STOPATONCE",Global::RESTYPE_RS_STOPATONCE);
+    m_ResponseTypeEnumMap.insert("RS_PAUSE",Global::RESTYPE_RS_PAUSE);
+    m_ResponseTypeEnumMap.insert("RS_DRAINATONCE",Global::RESTYPE_RS_DRAINATONCE);
+    m_ResponseTypeEnumMap.insert("RS_DRAINATONCE_T",Global::RESTYPE_RS_DRAINATONCE_T);
+    m_ResponseTypeEnumMap.insert("RS_TISSUE_PROTECT",Global::RESTYPE_RS_TISSUE_PROTECT);
+    m_ResponseTypeEnumMap.insert("RS_CHECK_BLOCKAGE",Global::RESTYPE_RS_CHECK_BLOCKAGE);
+    m_ResponseTypeEnumMap.insert("RS_AIRSYSTEM_CLEANING",Global::RESTYPE_RS_AIRSYSTEM_CLEANING);
+}
+
+void EventHandlerThreadController::AddResponseRecoveryTypes() {
+    m_ResponseRecoveryTypeEnumMap.insert("RR_ONLY_REC", Global::RESRECTYPE_ONLY_RECOVERY);
+    m_ResponseRecoveryTypeEnumMap.insert("RR_RES_REC", Global::RESRECTYPE_RESPONSE_RECOVERY);
+    m_ResponseRecoveryTypeEnumMap.insert("RR_RES_RESULT_REC", Global::RESRECTYPE_RES_RESULT_RECOVERY);
+    m_ResponseRecoveryTypeEnumMap.insert("RR_ONLY_RES", Global::RESRECTYPE_ONLY_RESPONSE);
+    m_ResponseRecoveryTypeEnumMap.insert("RR_NO_ACTION", Global::RESRECTYPE_NO_ACTION);
 }
 
 void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64)
@@ -176,6 +218,7 @@ void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntr
 void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
                                                     EventCSVInfo &EventInfo,
                                                     const bool EventStatus,
+                                                    const bool IsPostProcess,
                                                     const quint32 EventID,
                                                     const Global::tTranslatableStringList &EventStringList,
                                                     const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage)
@@ -194,7 +237,7 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
     EventEntry.SetEventKey(EventKey);
     EventEntry.SetEventCSVInfo(EventInfo);
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
-
+    EventEntry.IsPostProcess(IsPostProcess);
     EventEntry.SetEventStatus(EventStatus);
     EventEntry.SetAltStringUsage(AltStringUsage);
 }
@@ -204,18 +247,20 @@ void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEven
     Global::AlarmType AlarmType = Global::ALARM_NONE;
 
     if((EventEntry.GetEventType() == Global::EVTTYPE_ERROR || EventEntry.GetEventType() == Global::EVTTYPE_WARNING)) {
-        if (EventEntry.GetAlarmStatus())
+        if (EventEntry.GetAlarmPosType() != Global::ALARMPOS_NONE)
         {
             //We need Alarm
-            if (EventEntry.GetEventType() == Global::EVTTYPE_ERROR ) {
+            if ((EventEntry.GetEventType() == Global::EVTTYPE_ERROR) ||
+                    (EventEntry.GetEventType() == Global::EVTTYPE_SYS_ERROR)) {
                 AlarmType = Global::ALARM_ERROR;
             }
-            else if ( EventEntry.GetEventType() == Global::EVTTYPE_WARNING) {
+            else if ( (EventEntry.GetEventType() == Global::EVTTYPE_WARNING) ||
+                      (EventEntry.GetEventType() == Global::EVTTYPE_SYS_WARNING)) {
                 AlarmType = Global::ALARM_WARNING;
             }
-            mpAlarmHandler->setTimeout(1000);// to be set after final discussion with team / Michael
+            mpAlarmHandler->emitSetTimeout(1000);// to be set after final discussion with team / Michael
 
-            mpAlarmHandler->setAlarm(EventId64, AlarmType, StartAlarm);
+            mpAlarmHandler->setAlarm(EventId64, AlarmType, EventEntry.GetAlarmPosType(), StartAlarm);
         }
     }
 }
@@ -242,6 +287,11 @@ void EventHandlerThreadController::AddActionTypes()
     m_ActionTypeEnumMap.insert("REMOVEALLRACKS",Global::ACNTYPE_REMOVEALLRACKS);
     m_ActionTypeEnumMap.insert("REMOVERACK",Global::ACNTYPE_REMOVERACK);
     m_ActionTypeEnumMap.insert("", Global::ACNTYPE_NONE);
+    m_ActionTypeEnumMap.insert("RC_INIT_ROTARYVALVE", Global::ACNTYPE_INIT_ROTARYVALVE);
+    m_ActionTypeEnumMap.insert("RC_BOTTLECHECK_I", Global::ACNTYPE_BOTTLECHECK_I);
+    m_ActionTypeEnumMap.insert("RC_BUILD_PRESSURE", Global::ACNTYPE_BUILD_PRESSURE);
+    m_ActionTypeEnumMap.insert("RC_BUILD_VACUUM", Global::ACNTYPE_BUILD_VACUUM);
+    m_ActionTypeEnumMap.insert("RC_Maintenance_Airsystem", Global::ACNTYPE_MAINTENANCE_AIRSYSTEM);
 }
 
 
@@ -282,6 +332,10 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
         if (line.left(1) != "#")
         {
             QStringList textList = line.split(",");
+
+            if(textList.at(0).isEmpty())
+            continue;
+
             EventHandler::EventCSVInfo EventCSVInfo;
 
             //Get EventCode
@@ -413,28 +467,11 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
             }
 
 
-
-            //! \ Get AlarmTone(6) flag
+            //! \ Get alarmPosType (6) flag
 
             if (textList.count() > 6)
             {
-                bool AlarmFlag = false;
-
-                if((textList.at(6).trimmed().toUpper() == "NO") || (textList.at(6).trimmed().toUpper() == "")) {
-                    AlarmFlag = false;
-                }
-
-                else if(textList.at(6).trimmed().toUpper() == "YES") {
-                    AlarmFlag = true;
-                }
-                else
-                {
-#ifdef VALIDATE
-                    return false;
-# endif
-                }
-
-                EventCSVInfo.SetAlarmStatus(AlarmFlag);
+                EventCSVInfo.SetAlarmPosType(m_AlarmPosTypeEnumMap.value(textList.at(6).trimmed().toUpper(),Global::ALARMPOS_NONE));
             }
 
 
@@ -444,7 +481,7 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
             {
 
                 Global::EventLogLevel EventLogLevel = Global::LOGLEVEL_UNEXPECTED;
-                EventLogLevel = m_EventLogLevelEnumMap.value(textList.at(7).toUpper());
+                EventLogLevel = m_EventLogLevelEnumMap.value(textList.at(7).trimmed().toUpper());
                 ret = VerifyLogLevel(EventLogLevel);
 #ifdef VALIDATE
                 if(!ret)
@@ -459,18 +496,7 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
 
             if (textList.count() > 8)
             {
-                bool UserLogFlag = false;
-                QString strUserLog = textList.at(8).toUpper();
-                ret = VerifyBoolean(strUserLog);
-#ifdef VALIDATE
-                if(!ret)
-                {
-                    return ret;
-                }
-#endif
-                UserLogFlag = ((textList.at(8).toUpper() == "TRUE") || (textList.at(8).toUpper() == "YES"));
-
-                EventCSVInfo.SetRunLogStatus(UserLogFlag);
+                EventCSVInfo.SetLogAuthorityType(m_LogAuthorityTypeEnumMap.value(textList.at(8).trimmed().toUpper(), Global::LOGAUTHTYPE_NO_SHOW));
             }
 
             //! \ Get EventString(9)
@@ -513,9 +539,28 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
                     return ret;
                 }
 #endif
-                StatusIconFlag = ((textList.at(12).toUpper() == "TRUE") || (textList.at(12).toUpper() == "YES"));
+
+                StatusIconFlag = ((textList.at(11).toUpper() == "TRUE") || (textList.at(11).toUpper() == "YES"));
 
                 EventCSVInfo.SetStatusBarIcon(StatusIconFlag);
+            }
+
+            //! \ Get EventInfo/outline Ids(12) flag
+            if (textList.count() > 13)
+            {
+                EventCSVInfo.SetErrorOutline(textList.at(12).trimmed());
+            }
+
+            //! \ Get ResponseType(13) flag
+            if (textList.count() > 14)
+            {
+                EventCSVInfo.SetResponseType(m_ResponseTypeEnumMap.value(textList.at(13).trimmed().toUpper(), Global::RESTYPE_RS_NO_ACTION));
+            }
+
+            //! \ Get ResponseRecoveryType(15) flag
+            if (textList.count() > 16)
+            {
+                EventCSVInfo.SetResponseRecoveryType(m_ResponseRecoveryTypeEnumMap.value(textList.at(15).trimmed().toUpper(), Global::RESRECTYPE_NO_ACTION));
             }
 
             m_eventList.insert(EventCSVInfo.GetEventCode(), EventCSVInfo);
@@ -596,10 +641,10 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
 
 bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo ) {
 
-    if((EventCSVInfo.GetRunLogStatus() == true) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON)) {
+    if((EventCSVInfo.GetLogAuthorityType() != Global::LOGAUTHTYPE_NO_SHOW) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON)) {
 
         qDebug()<< "Invalid UserLog - GUIOption combination set" << EventCSVInfo.GetEventCode()<<"\t"
-                <<EventCSVInfo.GetRunLogStatus()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+                <<EventCSVInfo.GetLogAuthorityType()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
         return false;
     }
     return true;
@@ -645,10 +690,10 @@ bool EventHandlerThreadController::VerifyActionGUIOptionsDependency(EventHandler
 bool EventHandlerThreadController::VerifyAlarmGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
      /// < If alarm is set then GUIOptions has to be set with a valid value.
 
-    if((EventCSVInfo.GetAlarmStatus() == true) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON))
+    if((EventCSVInfo.GetAlarmPosType() != Global::ALARMPOS_NONE) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON))
     {
         qDebug()<< "Invalid Alarm - GUIOption combination set"<<EventCSVInfo.GetEventCode()<<"\t"
-                <<EventCSVInfo.GetAlarmStatus()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
+                <<EventCSVInfo.GetAlarmPosType()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions()<<"\n";
         return false;
     }
     return true;
@@ -658,7 +703,7 @@ bool EventHandlerThreadController::VerifyAlarmEventTypeDependency(EventHandler::
 
     //            1 . alarm should not be set if event type is info.
 
-        if((EventCSVInfo.GetEventType() == Global::EVTTYPE_INFO) && (EventCSVInfo.GetAlarmStatus() == true)) {
+        if((EventCSVInfo.GetEventType() == Global::EVTTYPE_INFO) && (EventCSVInfo.GetAlarmPosType() != Global::ALARMPOS_NONE)) {
              qDebug()<< "Invalid Alarm - EventType combination set"<<EventCSVInfo.GetEventCode()<<"\t"
                      <<EventCSVInfo.GetEventType()<<"\t"<<EventCSVInfo.GetGUIMessageBoxOptions();
                 return false;
@@ -746,7 +791,8 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
                                                 const Global::tTranslatableStringList &EventStringList,
                                                 const bool EventStatus,
                                                 const quint32 EventKey,
-                                                const Global::AlternateEventStringUsage AltStringUsuage)
+                                                const Global::AlternateEventStringUsage AltStringUsuage,
+                                                bool IsResolved, bool IsPostProcess)
 {
     qDebug() << "\n\n\n\nEventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
@@ -764,11 +810,20 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         pe.EventStringList = EventStringList;
         pe.EventKey = EventKey;
         pe.EventStatus = EventStatus;
+        pe.IsResolved = IsResolved;
+        pe.IsPostProcess= IsPostProcess;
         pe.AltStringUsuage = AltStringUsuage;
         m_pendingEvents.push_back(pe);// These events, if any, are processed after successfully reading the EventConf file
         return;
     }
     else {
+        QHash<quint32, EventHandler::EventCSVInfo>::iterator i = m_eventList.find(EventID);
+        if (i == m_eventList.end())
+        {
+                qDebug()<< "\n The event item: "<< EventID<< " has not been appended into the config table!";
+                return;
+        }
+
         quint64 EventId64 = EventID;
         EventId64 <<= 32;
         EventId64 |= EventKey;
@@ -776,7 +831,47 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         EventCSVInfo EventInfo = m_eventList.value(EventID);
         //EventEntry encapsulates EventInfo. EventEntry is also
         //passed to the logging component.
-        CreateEventEntry(EventEntry, EventInfo, EventStatus, EventID, EventStringList, EventKey, AltStringUsuage);
+        CreateEventEntry(EventEntry, EventInfo, EventStatus, IsPostProcess, EventID, EventStringList, EventKey, AltStringUsuage);
+
+        //Log if loglevel is not "NONE"
+        if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
+        {
+            qDebug()<< "Sending event to DataLogger";
+            emit LogEventEntry(EventEntry); //Log the event
+        }
+
+        //Process the response action immediately
+          if (!IsPostProcess)
+          {
+              if (Global::RESRECTYPE_RESPONSE_RECOVERY == EventInfo.GetResponseRecoveryType() ||
+                      Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType() ||
+                         Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
+              {
+                  NetCommands::CmdSystemAction *p_CmdSystemAction;
+                  p_CmdSystemAction = new NetCommands::CmdSystemAction();
+                  p_CmdSystemAction->SetRetryCount(0);
+                  p_CmdSystemAction->SetEventKey(EventKey);
+                  p_CmdSystemAction->SetEventID(EventInfo.GetEventCode());
+                  p_CmdSystemAction->SetSource(EventInfo.GetSourceComponent());
+                  p_CmdSystemAction->SetStringList(EventStringList);
+                  Global::tRefType NewRef = this->GetNewCommandRef();
+
+                  p_CmdSystemAction->SetResponse(EventInfo.GetResponseType());
+                  this->SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));//response
+                  return;
+              }
+          }
+          else
+          {
+              if (Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType())
+              {
+                  if(IsResolved)
+                      return;
+              }
+
+              if(Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
+                  return;
+          }
 
         SetSystemStateMachine(EventEntry);
         if (!EventStatus) {
@@ -787,12 +882,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
             UpdateEventDataStructures(EventID, EventId64, EventEntry, false);
         }
 
-        //Log if loglevel is not "NONE"
-        if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
-        {
-            qDebug()<< "Sending event to DataLogger";
-            emit LogEventEntry(EventEntry); //Log the event
-        }
+
         InformGUI(EventEntry, EventId64);// Send the Error for handling
         /// \todo this is a test of Axeda Remote Care error reporting:
         //emit ErrorHandler::SendErrorToRemoteCare(EventEntry);
@@ -817,7 +907,20 @@ void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayE
 
 void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64)
 {
-    if ((TheEvent.GetGUIMessageBoxOptions() != Global::NO_BUTTON) || (TheEvent.GetStatusIcon()))
+    Global::GuiUserLevel userLevel = Global::OPERATOR;
+    Global::LogAuthorityType logAuth = TheEvent.GetLogAuthorityType();
+    if (Global::LOGAUTHTYPE_ADMIN == logAuth)
+    {
+        userLevel = Global::ADMIN;
+    } else if (Global::LOGAUTHTYPE_USER == logAuth)
+    {
+        userLevel = Global::OPERATOR;
+    } else if (Global::LOGAUTHTYPE_SERVICE == logAuth)
+    {
+        userLevel = Global::SERVICE;
+    }
+
+    if ((m_UserRole >= userLevel) && ((TheEvent.GetGUIMessageBoxOptions() != Global::NO_BUTTON) || (TheEvent.GetStatusIcon())))
     {
         NetCommands::EventReportDataStruct EventReportData;
         EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
@@ -858,6 +961,16 @@ void EventHandlerThreadController::RegisterCommands()
     RegisterAcknowledgeForProcessing<
             NetCommands::CmdAcknEventReport, EventHandlerThreadController
             >(&EventHandlerThreadController::OnAcknowledge, this);
+    RegisterCommandForProcessing<
+            NetCommands::CmdChangeUserLevel, EventHandlerThreadController
+            >(&EventHandlerThreadController::OnUserRoleChanged, this);
+
+}
+
+void EventHandlerThreadController::OnUserRoleChanged(Global::tRefType Ref, const NetCommands::CmdChangeUserLevel& cmd)
+{
+    if (cmd.GetUserLevel() != m_UserRole)
+        m_UserRole = cmd.GetUserLevel();
 }
 
 void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const NetCommands::CmdAcknEventReport &Ack)
@@ -921,7 +1034,10 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     if(Count <= EventEntry.GetRetryAttempts())
     {
         //send -ve command action if defined.
-       if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || (EventEntry.GetAckValue() ==  NetCommands::YES_BUTTON) || (EventEntry.GetAckValue() == NetCommands::CONTINUE_BUTTON))
+       if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || 
+                (EventEntry.GetAckValue() ==  NetCommands::YES_BUTTON) || 
+                (EventEntry.GetAckValue() == NetCommands::CONTINUE_BUTTON) ||
+                (EventEntry.GetAckValue() == NetCommands::RECOVERYNOW))
         {
             //send +ve command action if defined.
             p_CmdSystemAction->SetAction(EventEntry.GetActionPositive());
@@ -990,7 +1106,7 @@ void EventHandlerThreadController::OnGoReceived()
     {
         foreach (PendingEvent pe, m_pendingEvents)
         {
-            ProcessEvent(pe.EventID, pe.EventStringList, pe.EventStatus, pe.EventKey, pe.AltStringUsuage);
+            ProcessEvent(pe.EventID, pe.EventStringList, pe.EventStatus, pe.EventKey, pe.AltStringUsuage, pe.IsPostProcess);
         }
     }
 }

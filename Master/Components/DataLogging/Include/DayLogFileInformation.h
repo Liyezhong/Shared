@@ -23,6 +23,7 @@
 
 #include <QString>
 #include <QHash>
+#include <Global/Include/GlobalDefines.h>
 
 namespace DataLogging {
 
@@ -51,10 +52,11 @@ private:
      *        file content by using the language file
      *
      * \iparam    FileName         List of file names.
+     * \iparam    UserRole         the current user role
      * \oparam    ByteArray        File Data in bytes
      */
     /****************************************************************************/
-    void ReadAndTranslateTheFile(const QString &FileName, const QByteArray &ByteArray);
+    void ReadAndTranslateTheFile(const QString &FileName, Global::GuiUserLevel UserRole, const QByteArray &ByteArray);
 
 public:
     /****************************************************************************/
@@ -91,10 +93,11 @@ public:
      *        file content by using the language file
      *
      * \iparam   FileName                     Name of the file.
+     * \iparam    UserRole         the current user role
      * \oparam   FileContent                  Content of the daily run log file.
      */
     /****************************************************************************/
-    void CreateSpecificDailyRunLogFile(const QString &FileName, const QByteArray &FileContent);
+    void CreateSpecificDailyRunLogFile(const QString &FileName, Global::GuiUserLevel UserRole, const QByteArray &FileContent);
 
     /****************************************************************************/
     /**
@@ -105,7 +108,7 @@ public:
      * \oparam    FileNames                    List of file names.
      */
     /****************************************************************************/
-    void CreateDailyRunLogFiles(const QStringList &FileNames);
+    void CreateDailyRunLogFiles(const QStringList &FileNames, Global::GuiUserLevel CurrentUserRole);
 
 };// end class DayLogFileInformation
 

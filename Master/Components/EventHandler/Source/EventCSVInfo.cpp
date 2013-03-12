@@ -41,9 +41,12 @@ EventCSVInfo::EventCSVInfo(const EventCSVInfo &rOther) {
 /****************************************************************************/
 EventCSVInfo::EventCSVInfo(const quint32 &EventCode,const QString &Eventname, const Global::EventType &EventType, const Global::ActionType &ActionType,
                              qint8 NumofAttempts, Global::ActionType &ActionTypePositive,Global::ActionType &ActionTypeNegative,
-                             const bool &ShowInRunLog, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
-                             const QString &MessageType, const bool &AckRequired, const bool &AlarmRequired, const Global::GuiButtonType &ButtonType,
-                             const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent ) :
+                             Global::LogAuthorityType LogAuthorityType, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
+                             const QString &MessageType, const bool &AckRequired, Global::AlarmPosType AlarmPosType, const Global::GuiButtonType &ButtonType,
+                             const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent,
+                             const QString& ErrorOutline, Global::ResponseType ResponseType,
+                             const QString& DetailForRD,
+                             Global::ResponseRecoveryType& ResponseRecoveryType ) :
 
     m_EventCode(EventCode),
     m_EventMacroName(Eventname),
@@ -52,15 +55,20 @@ EventCSVInfo::EventCSVInfo(const quint32 &EventCode,const QString &Eventname, co
     m_FinalAction(ActionType),
     m_NumberOfRetries(NumofAttempts),
     m_ActionNegative(ActionTypeNegative),
-    m_ShowInRunLog(ShowInRunLog),
+    m_LogAuthorityType(LogAuthorityType),
     m_Source(LoggingSource),
     m_LogLevel(LogLevel),
     m_MessageType(MessageType),
     m_AckRequired(AckRequired),
-    m_AlarmRequired(AlarmRequired),
+    m_AlarmPosType(AlarmPosType),
     m_ButtonType(ButtonType),
     m_StatusBarIcon(StatusBarIcon),
-    m_SourceComponent(SourceComponent) {
+    m_SourceComponent(SourceComponent),
+    m_ErrorOutline(ErrorOutline),
+    m_ResponseType(ResponseType),
+    m_DetailForRD(DetailForRD),
+    m_ResponseRecoveryType(ResponseRecoveryType)
+{
 }
 
 
@@ -86,16 +94,19 @@ void EventCSVInfo::CopyFrom(const EventCSVInfo &rOther) {
     m_ActionPositive = rOther.m_ActionPositive;
     m_NumberOfRetries = rOther.m_NumberOfRetries;
     m_ActionNegative = rOther.m_ActionNegative;   
-    m_ShowInRunLog = rOther.m_ShowInRunLog;
+    m_LogAuthorityType = rOther.m_LogAuthorityType;
     m_Source = rOther.m_Source;
     m_LogLevel = rOther.m_LogLevel;
     m_MessageType = rOther.m_MessageType;
     m_AckRequired = rOther.m_AckRequired;
-    m_AlarmRequired = rOther.m_AlarmRequired;
+    m_AlarmPosType = rOther.m_AlarmPosType;
     m_ButtonType = rOther.m_ButtonType;
     m_StatusBarIcon = rOther.m_StatusBarIcon;
     m_SourceComponent = rOther.m_SourceComponent;
-
+    m_ErrorOutline = rOther.m_ErrorOutline;
+    m_ResponseType = rOther.m_ResponseType;
+    m_DetailForRD = rOther.m_DetailForRD;
+    m_ResponseRecoveryType = rOther.m_ResponseRecoveryType;
 }
 
 

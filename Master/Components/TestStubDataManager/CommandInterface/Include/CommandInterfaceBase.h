@@ -22,8 +22,8 @@
 
 #include <QObject>
 #include <TestStubDataManager/Include/DataManagerBase.h>
-#include "../../../../../../Himalaya/HimalayaMain/Gui/GuiStub/Components/Threads/Include/MasterThreadController.h"
-#include "../../../../../../Himalaya/HimalayaMain/Gui/GuiStub/Components/Threads/Include/CommandChannel.h"
+//#include "../../../../../../Himalaya/HimalayaMain/Gui/GuiStub/Components/Threads/Include/MasterThreadController.h"
+//#include "../../../../../../Himalaya/HimalayaMain/Gui/GuiStub/Components/Threads/Include/CommandChannel.h"
 #include "TestStubDataManager/Include/DataManagerBase.h"
 
 namespace DataManager {

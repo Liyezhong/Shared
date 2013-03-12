@@ -70,7 +70,7 @@ void StatusBarManager::AddEventMessages(QDataStream &EventMsgStream)
     MsgData Msg;
     EventMsgStream >> Msg.ID >> EventType >> Msg.MsgString >> Msg.Time;
     Msg.EventType = static_cast<Global::EventType>(EventType);
-    if (Msg.EventType == Global::EVTTYPE_WARNING) {
+    if (Msg.EventType == Global::EVTTYPE_WARNING || Msg.EventType == Global::EVTTYPE_SYS_WARNING) {
         m_WarningMsgList.append(Msg);
         qDebug() << "warning ID hash"<<m_WarningMsgList.count();
         if (m_WarningMsgList.count() > 0) {
@@ -85,7 +85,7 @@ void StatusBarManager::AddEventMessages(QDataStream &EventMsgStream)
         mp_WarningMsgDlg->WarningMsgList(m_WarningMsgList);
         qDebug() << "Added in Warning hash" ;
     }
-    else if(Msg.EventType == Global::EVTTYPE_ERROR) {
+    else if(Msg.EventType == Global::EVTTYPE_ERROR|| Msg.EventType == Global::EVTTYPE_SYS_ERROR) {
         m_ErrorMsgList.append(Msg);
         qDebug() << "Error ID hash"<<m_ErrorMsgList.count();
         if (m_ErrorMsgList.count() > 0) {
@@ -116,7 +116,7 @@ void StatusBarManager::RemoveEventMessages(Global::EventType EventType, quint64 
     QList<MsgData>::Iterator ErrMsgIterator;
     QList<MsgData>::Iterator WarnMsgIterator;
     //Check for the Error type Message
-    if (EventType == Global::EVTTYPE_ERROR) {
+    if (EventType == Global::EVTTYPE_ERROR || EventType == Global::EVTTYPE_SYS_ERROR) {
         int MsgCount=0;
         //Iterate Through the List
         for (ErrMsgIterator = m_ErrorMsgList.begin(); ErrMsgIterator!= m_ErrorMsgList.end();++ErrMsgIterator)
@@ -137,7 +137,7 @@ void StatusBarManager::RemoveEventMessages(Global::EventType EventType, quint64 
         }
     }
     //Check for the Warning type Message
-    else if (EventType == Global::EVTTYPE_WARNING) {
+    else if (EventType == Global::EVTTYPE_WARNING|| EventType == Global::EVTTYPE_SYS_WARNING) {
         int MsgCount=0;
         //Iterate Through the List
         for (WarnMsgIterator = m_WarningMsgList.begin(); WarnMsgIterator!= m_WarningMsgList.end();++WarnMsgIterator)

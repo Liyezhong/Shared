@@ -80,7 +80,7 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     m_HeartBeatSourceSoftSwitch(100),
     m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
     m_HeartBeatSourceAxeda(101),
-    mp_alarmHandler(new Global::AlarmHandler(5000)),
+    mp_alarmHandler(NULL),
     mp_UserSettings(NULL),
     mp_DataManagerBase(NULL)
 {
@@ -109,6 +109,11 @@ MasterThreadController::~MasterThreadController() {
         m_TCCommandRoutes.clear();
     } catch(...) {
     }
+}
+
+void MasterThreadController::CreateAlarmHandler()
+{
+    mp_alarmHandler = new Global::AlarmHandler(5000, this);
 }
 
 /****************************************************************************/
@@ -247,7 +252,7 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
     // this will check whether logging is enabled or not and the same can inform to GUI
     CONNECTSIGNALSLOT(this, CheckLoggingEnabled(),
                       mp_DataLoggingThreadController, CheckLoggingEnabled());
-
+    CreateAlarmHandler();
     //EventHandler shall have knowledge of alarm handler to initiate alarms
     mp_EventThreadController->SetAlarmHandler(mp_alarmHandler);
 

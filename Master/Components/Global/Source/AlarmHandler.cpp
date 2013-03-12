@@ -26,8 +26,9 @@
 namespace Global {
 
 /****************************************************************************/
-AlarmHandler::AlarmHandler(quint16 timeout)
-    : m_volume(1)
+AlarmHandler::AlarmHandler(quint16 timeout, QObject *parent)
+    :QObject(parent)
+    , m_volume(1)
     , m_processPlay(NULL)
     , m_processSetVolume(NULL)
     , m_alarmToneTimer(NULL)
@@ -184,6 +185,11 @@ void AlarmHandler::setTimeout(quint16 timeout)
     m_Timer->start();
 }
 
+void AlarmHandler::emitSetTimeout(quint16 timeout)
+{
+    setTimeout(timeout);
+}
+
 void AlarmHandler::setVolume(Global::AlarmType alarmType, quint8 volume)
 {
     m_mutex->lock();
@@ -254,6 +260,38 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
 
     }
     m_mutex->unlock();
+}
+
+void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, Global::AlarmPosType alarmPosType, bool active)
+{
+    Q_UNUSED(alarmPosType);
+    m_mutex->lock();
+    if (active)
+    {
+        if (alarmType == Global::ALARM_ERROR)
+        {
+           m_errorList.insert(eventKey, alarmType);
+        }
+        else if (alarmType == Global::ALARM_WARNING)
+        {
+          m_warningList.insert(eventKey, alarmType);
+        }
+
+    }
+    else
+    {
+        if (alarmType == Global::ALARM_ERROR)
+        {
+            m_errorList.remove(eventKey);
+        }
+        else if (alarmType == Global::ALARM_WARNING)
+        {
+           m_warningList.remove(eventKey);
+        }
+
+    }
+    m_mutex->unlock();
+
 }
 
 void AlarmHandler::reset()

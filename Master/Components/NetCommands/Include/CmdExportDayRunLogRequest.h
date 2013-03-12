@@ -22,6 +22,7 @@
 #define NETCOMMANDS_CMDEXPORTDAYRUNLOGREQUEST_H
 
 #include <Global/Include/Commands/Command.h>
+#include <Global/Include/GlobalDefines.h>
 
 namespace NetCommands {
 
@@ -37,13 +38,15 @@ class CmdExportDayRunLogRequest : public Global::Command {
 public:
     static QString NAME;    ///< Command name.
     CmdExportDayRunLogRequest(int Timeout);
-    CmdExportDayRunLogRequest();
+    CmdExportDayRunLogRequest(Global::GuiUserLevel m_CurrentUserRole);
     ~CmdExportDayRunLogRequest();
     virtual QString GetName() const;
+    Global::GuiUserLevel GetCurrenUserRole() const;
 private:
 
     CmdExportDayRunLogRequest(const CmdExportDayRunLogRequest &);                       ///< Not implemented.
     const CmdExportDayRunLogRequest & operator = (const CmdExportDayRunLogRequest &);   ///< Not implemented.
+    Global::GuiUserLevel m_CurrentUserRole;
 }; // end class CmdExportDayRunLogRequest
 
 /****************************************************************************/
@@ -59,6 +62,8 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdExportDayRunLogR
 {
     // copy base class data
     Cmd.CopyToStream(Stream);
+    quint8 intTemp = Cmd.m_CurrentUserRole;
+    Stream << intTemp;
     return Stream;
 }
 
@@ -75,6 +80,9 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdExportDayRunLogRequest
 {
     // copy base class data
     Cmd.CopyFromStream(Stream);
+    quint8 intTemp;
+    Stream >> intTemp;
+    Cmd.m_CurrentUserRole = (Global::GuiUserLevel)intTemp;
     return Stream;
 }
 

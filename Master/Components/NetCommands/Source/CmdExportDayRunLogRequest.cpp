@@ -45,7 +45,9 @@ CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(int Timeout) :
  *  \brief   Constructor
  */
 /****************************************************************************/
-CmdExportDayRunLogRequest::CmdExportDayRunLogRequest() : Command(0)
+CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(Global::GuiUserLevel CurrentUserRole) :
+    m_CurrentUserRole(m_CurrentUserRole),
+    Command(0)
 {
 }
 
@@ -68,6 +70,11 @@ CmdExportDayRunLogRequest::~CmdExportDayRunLogRequest()
 QString CmdExportDayRunLogRequest::GetName() const
 {
     return NAME;
+}
+
+Global::GuiUserLevel CmdExportDayRunLogRequest::GetCurrenUserRole() const
+{
+    return m_CurrentUserRole;
 }
 
 } // end namespace NetCommands

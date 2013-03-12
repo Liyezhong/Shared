@@ -24,7 +24,7 @@ namespace DataLogging {
 
 /****************************************************************************/
 DayEventEntry::DayEventEntry()
-    : m_EventKey(0)
+    : m_EventKey(0),m_AckType(NetCommands::No_Set)
 {
 }
 
@@ -43,7 +43,10 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslat
 
 DayEventEntry::DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
                              const Global::tTranslatableStringList &String, quint8 count,
-                             NetCommands::ClickedButton_t ClickButton, /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, EventHandler::EventCSVInfo CSVInfo):
+                             NetCommands::ClickedButton_t ClickButton, 
+                             /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, 
+                             EventHandler::EventCSVInfo CSVInfo,
+                             bool IsPostProcess):
     m_EventCSVInfo(CSVInfo),
     m_String(String),
     m_EventStatus(EventStatus),
@@ -51,7 +54,8 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &E
     m_AckType(ClickButton),
     m_EventKey(EventKey),
     m_TimeStamp(TimeStamp),
-    m_count(count)
+    m_count(count),
+    m_IsPostProcess(IsPostProcess)
 {
     //m_AckValue = AckValue.GetStatus();
 
@@ -100,7 +104,7 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_AckType = rOther.m_AckType;
     m_EventCSVInfo = rOther.m_EventCSVInfo;
     m_AltEventStringUsage = rOther.m_AltEventStringUsage;
-
+    m_IsPostProcess = rOther.m_IsPostProcess;
 //    m_AckValue = rOther.m_AckValue;
 }
 

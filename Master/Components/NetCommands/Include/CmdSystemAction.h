@@ -18,6 +18,7 @@ private:
     bool m_UserRetry;
     qint8 m_CountRetires;
     Global::ActionType m_Action; /// < Next Action , after retries are exhausted
+    Global::ResponseType m_Response;
     quint32  m_EventKey; //!< Unique Event Key
     quint32 m_EventID; //!< Event ID
     Global::EventSourceType m_SourceComponent;
@@ -57,6 +58,14 @@ public:
 
     inline void SetAction(Global::ActionType  ActionType) {
         m_Action = ActionType;
+    }
+
+    inline Global::ResponseType GetResponse() const {
+        return m_Response;
+    }
+
+    inline void SetResponse(Global::ResponseType  ResponseType) {
+        m_Response = ResponseType;
     }
 
     inline bool GetMaxRetryAttempts() const {

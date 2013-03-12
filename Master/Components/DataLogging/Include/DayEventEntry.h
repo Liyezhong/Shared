@@ -55,6 +55,7 @@ private:
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_count;                 ///< Number of times the event has occured
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
+    bool                            m_IsPostProcess;         ///< After process "Response", the ProcessEvent will be called again, maybe it will process "Recovery".
 
 
     /****************************************************************************/
@@ -78,7 +79,10 @@ public:
 
     DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
                                 const Global::tTranslatableStringList &String, quint8 count,
-                                 NetCommands::ClickedButton_t ClickButton, /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, EventHandler::EventCSVInfo CSVInfo);
+                                 NetCommands::ClickedButton_t ClickButton, 
+                                /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, 
+                                EventHandler::EventCSVInfo CSVInfo,
+                                 bool IsPostProcess);
     /****************************************************************************/
     /**
      * \brief Copy constructor.
@@ -177,8 +181,8 @@ public:
           m_String = EventStringList;
       }
 
-       bool GetShowInRunLogStatus() const{
-          return (m_EventCSVInfo.GetRunLogStatus());
+      Global::LogAuthorityType GetLogAuthorityType() const{
+          return (m_EventCSVInfo.GetLogAuthorityType());
 
       }
 
@@ -201,8 +205,8 @@ public:
           m_EventCSVInfo.SetEventCode(EventCode);
       }
 
-      inline bool GetAlarmStatus() const {
-          return m_EventCSVInfo.GetAlarmStatus();
+      inline Global::AlarmPosType GetAlarmPosType() const {
+          return m_EventCSVInfo.GetAlarmPosType();
       }
 
       inline int GetRetryAttempts() const {
@@ -233,6 +237,14 @@ public:
 
       inline Global::ActionType GetActionType() const {
           return m_EventCSVInfo.GetActionType();
+      }
+
+      inline Global::ResponseRecoveryType GetResponseRecoveryType() const {
+          return m_EventCSVInfo.GetResponseRecoveryType();
+      }
+
+      inline Global::ResponseType GetResponseType() const {
+          return m_EventCSVInfo.GetResponseType();
       }
 
       inline Global::GuiButtonType GetButtonType() const {
@@ -276,7 +288,13 @@ public:
           m_EventStatus = EventStatus;
       }
 
+      inline void IsPostProcess(const bool & IsPostProcess) {
+          m_IsPostProcess = IsPostProcess;
+      }
 
+      inline bool IsPostProcess() const{
+          return m_IsPostProcess;
+      }
 
     /****************************************************************************/
       /**
@@ -299,7 +317,10 @@ public:
 
       inline void SetAckValue(const NetCommands::CmdAcknEventReport & AckVal) {
           m_AckType = AckVal.GetButtonClicked();
+      }
 
+      inline void SetAckValue(NetCommands::ClickedButton_t & AckVal) {
+          m_AckType = AckVal;
       }
 
 }; // end class DayEventEntry

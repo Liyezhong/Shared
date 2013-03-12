@@ -81,9 +81,13 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         const Global::EventType EventType = Entry.GetEventType();
         switch(EventType) {
             case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
-            case Global::EVTTYPE_FATAL_ERROR:   IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
+            case Global::EVTTYPE_FATAL_ERROR:
+            case Global::EVTTYPE_SYS_ERROR:
+                                                IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
             case Global::EVTTYPE_ERROR:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
-            case Global::EVTTYPE_WARNING:       IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
+            case Global::EVTTYPE_WARNING:
+            case Global::EVTTYPE_SYS_WARNING:                                                
+                                                IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
             case Global::EVTTYPE_INFO:          IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
             case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
             default:                            break;
@@ -124,9 +128,13 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
         }
 
-        QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
-    QString AlternateString = UseAltEventString ? "true" : "false";
+        if (Entry.IsPostProcess())
+        {
+            TrEventMessage = "PostProcess: " + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
+         }
 
+        TrEventMessage = "AckValue:" + QString::number(Entry.GetAckValue(), 10) + " "+ TrEventMessage;
+        QString AlternateString = UseAltEventString ? "true" : "false";
         QString ParameterString = "";
         foreach (Global::TranslatableString s, Entry.GetString())
         {
@@ -137,7 +145,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
                                 QString::number(Entry.GetEventCode(), 10) + ";" +
                                 TrEventType + ";" +
                                 TrEventMessage + ";" +
-                                ShowInRunLog + ";" +
+                                QString::number(AsInt(Entry.GetLogAuthorityType()), 10) + ";" +
                             /*AlternateString + ";" +*/
                                 ParameterString + "\n";
 

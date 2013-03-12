@@ -37,7 +37,7 @@ class SimulationConnector : public QObject
     Q_OBJECT
 
 public:
-    SimulationConnector();
+    SimulationConnector(QObject* pParent);
 
     /**
       @brief Reads a XML structure out of a file

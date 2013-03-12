@@ -24,12 +24,15 @@
 
 namespace NetCommands {
 enum ClickedButton_t {
-    OK_BUTTON,
+    No_Set = -1,
+    OK_BUTTON = 0,
     YES_BUTTON,
     CONTINUE_BUTTON,
     NO_BUTTON,
     CANCEL_BUTTON,
-    STOP_BUTTON
+    STOP_BUTTON,
+    RECOVERYLATER,
+    RECOVERYNOW
 };
 
 /****************************************************************************/

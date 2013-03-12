@@ -43,13 +43,18 @@ class AlarmHandler : public QObject
     Q_OBJECT
 
 public:
-    AlarmHandler(quint16 timeout);
+    AlarmHandler(quint16 timeout, QObject *parent);
     ~AlarmHandler();
 
     /**
       @brief Includes or removes an alarm into the queue of raised alarms
       */
     void setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active);
+
+    /**
+      @brief Includes or removes an alarm into the queue of raised alarms
+      */
+    void setAlarm(quint64 eventKey, Global::AlarmType alarmType, Global::AlarmPosType alarmPosType, bool active);
 
     /**
       @brief Removes all alarms from alarm queue
@@ -60,6 +65,11 @@ public:
       @brief Specifies the timeout, i.e. the time interval inbetween two alarm sounds
       */
     void setTimeout(quint16 timeout);
+
+    /**
+      @brief in non-MasterThreadController, this function should be called
+     */
+    void emitSetTimeout(quint16 timeout);
 
     /**
       @brief Specifies the alarm volume related to a specific alarm type

@@ -713,6 +713,16 @@ public:
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Create and initialize used objects.
+     *
+     * We try to read the hardware configuration file.
+     */
+    /****************************************************************************/
+    virtual void CreateAlarmHandler();
+
     /****************************************************************************/
     /**
      * \brief Create and initialize used objects.

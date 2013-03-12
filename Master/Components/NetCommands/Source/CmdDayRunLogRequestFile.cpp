@@ -35,9 +35,11 @@ QString CmdDayRunLogRequestFile::NAME = "NetCommands::CmdDayRunLogRequestFile";
  * \param[in]   FileName        name of the file.
  */
 /****************************************************************************/
-CmdDayRunLogRequestFile::CmdDayRunLogRequestFile(int Timeout, const QString &FileName) :
+CmdDayRunLogRequestFile::CmdDayRunLogRequestFile(int Timeout, const QString &FileName,
+                                                 Global::GuiUserLevel CurrentUserRole) :
     Command(Timeout),
-    m_FileName(FileName)
+    m_FileName(FileName),
+    m_CurrentUserRole(CurrentUserRole)
 {
 }
 
@@ -81,6 +83,18 @@ QString CmdDayRunLogRequestFile::GetName() const
 QString CmdDayRunLogRequestFile::GetFileName() const
 {
     return m_FileName;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   This function returns the current user role
+ *
+ *  \return  the current user role
+ */
+/****************************************************************************/
+Global::GuiUserLevel CmdDayRunLogRequestFile::GetCurrentUserRole() const
+{
+    return m_CurrentUserRole;
 }
 
 } // end namespace NetCommands

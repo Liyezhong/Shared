@@ -44,7 +44,8 @@ ExternalProcessDevice::ExternalProcessDevice(NetworkBase::NetworkServerType_t se
         NetworkServerDevice::NetworkServerDevice(server, client, path, pParent),
         m_RemoteLoginEnabled("No"),
         m_RemoteLoginTimeout(-1),
-        m_myController(pController)
+        m_myController(pController),
+        m_LoginTimer(this)
 {
     this->setParent(pParent);
 }

@@ -64,7 +64,10 @@ enum EventType {
     EVTTYPE_INFO,           ///< Info.
     EVTTYPE_WARNING,        ///< Warning.
     EVTTYPE_ERROR,          ///< "Normal" error.
-    EVTTYPE_FATAL_ERROR    ///< Fatal error.
+    EVTTYPE_FATAL_ERROR,    ///< Fatal error.
+    EVTTYPE_SYS_ERROR,      ///< Hardware system error
+    EVTTYPE_SYS_WARNING,    ///< Hardware system warning
+    EVTTYPE_SYS_HINT        ///< Hardware system hint
 };
 
 enum EventLogLevel {
@@ -94,13 +97,19 @@ enum ActionType {
     ACNTYPE_NONE,        ///< No action, just log
     ACNTYPE_REMOVEALLRACKS,
     ACNTYPE_REMOVERACK,
-    ACNTYPE_UNEXPECTED        /// < Unexpected text in action column, raise an error
+    ACNTYPE_UNEXPECTED,        /// < Unexpected text in action column, raise an error
+    ACNTYPE_INIT_ROTARYVALVE,
+    ACNTYPE_BOTTLECHECK_I,           ///< Please check the reagent bottle first and then click Recovery!
+    ACNTYPE_BUILD_PRESSURE,          ///< Please check the Retort Lid first and then click Recovery!
+    ACNTYPE_BUILD_VACUUM,            ///< Please check the Retort Lid first and then click Recovery!
+    ACNTYPE_MAINTENANCE_AIRSYSTEM    ///< Please confirm there is no Tissue & Reagent in Retort and Cleaning-Xylene Bottle is not empty!
 };
 
 enum EventSourceType {
     EVENTSOURCE_MAIN,
     EVENTSOURCE_DEVICECOMMANDPROCESSOR,
     EVENTSOURCE_SCHEDULER,
+    EVENTSOURCE_SCHEDULER_MAIN,
     EVENTSOURCE_EXPORT,
     EVENTSOURCE_IMPORTEXPORT,
     EVENTSOURCE_BLG,
@@ -109,6 +118,61 @@ enum EventSourceType {
     EVENTSOURCE_NONE,
     EVENTSOURCE_DATALOGGER,
     EVENTSOURCE_NOTEXIST
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum containing all alarm position Types.
+ */
+/****************************************************************************/
+enum AlarmPosType {
+    ALARMPOS_NONE,          ///< No alarm
+    ALARMPOS_DEVICE,        ///< only device alarm .
+    ALARMPOS_LOCAL,         ///< alarm includes device and local
+    ALARMPOS_REMOTE         ///< alarm includes device, local and remote site
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum containing all log authority Types.
+ */
+/****************************************************************************/
+enum LogAuthorityType {
+    LOGAUTHTYPE_NO_SHOW,     ///< Not Show the log item in the Event View
+    LOGAUTHTYPE_USER,        ///< only general user can see the log item.
+    LOGAUTHTYPE_ADMIN,       ///< genaral user and administrator can see the log item
+    LOGAUTHTYPE_SERVICE      ///< all user can see the log item
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum containing all Response Types.
+ */
+/****************************************************************************/
+enum ResponseType {
+    RESTYPE_RS_NO_ACTION,
+    RESTYPE_RS_RESET,    ///< sequence/protocols-Pump/Valves Reset,Release P/V, Register clear-up;
+    RESTYPE_RS_STOPLATER,///< sequence/protocols-Stop after the running/current protocol finished, Stop=Pump/Valves Reset,Release P/V;
+    RESTYPE_RS_STOPATONCE,///< sequence/protocols-Stop at once, Stop=Pump/Valves Reset,Release P/V; Remember current status of protocol
+    RESTYPE_RS_PAUSE,     ///< sequence/protocols-Paused, keep status; Remember current status of protocol;
+    RESTYPE_RS_DRAINATONCE,///< Drain at once if overflow
+    RESTYPE_RS_DRAINATONCE_T,///< Drain at once for certain time if overflow
+    RESTYPE_RS_TISSUE_PROTECT,///< Change the tissue to Formalin or some safety reagent when Err happened(Such as.: Draining Xylene, Sucking Formalin -- TBD)
+    RESTYPE_RS_CHECK_BLOCKAGE,///< Bulid Pressure to attempt to recovery from Blockage automaticly
+    RESTYPE_RS_AIRSYSTEM_CLEANING ///< AirSystem(Pump/Valve/Tube) do a series of action to get recovery from potential blockage in Airsystem(Just air no Xylene this)
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum containing all ResponseRecovery Types.
+ */
+/****************************************************************************/
+enum ResponseRecoveryType {
+    RESRECTYPE_ONLY_RECOVERY = 0,
+    RESRECTYPE_RESPONSE_RECOVERY,
+    RESRECTYPE_RES_RESULT_RECOVERY,
+    RESRECTYPE_ONLY_RESPONSE,
+    RESRECTYPE_NO_ACTION,
 };
 
 /****************************************************************************/
@@ -274,7 +338,8 @@ enum GuiButtonType {
     OK,             //!< Msg Box with Ok
     YES_NO,         //!< Msg Box with Yes and No
     CONTINUE_STOP,  //!< Msg Box with Continue and Stop
-    OK_CANCEL       //!< Msg Box with Ok and Cancel
+    OK_CANCEL,       //!< Msg Box with Ok and Cancel
+    RECOVERYLATER_RECOVERYNOW //!< Msg Box with Recovery Later and Recovery Now
 };
 
 /****************************************************************************/
@@ -283,8 +348,8 @@ enum GuiButtonType {
  */
 /****************************************************************************/
 enum GuiUserLevel{
+    OPERATOR = 0, //!< Operator (normal user)
     ADMIN,    //!< Admin user
-    OPERATOR, //!< Operator (normal user)
     SERVICE   //!< Service user
 };
 

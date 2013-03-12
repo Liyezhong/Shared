@@ -394,7 +394,6 @@ bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
             return true;
         }
     }
-    return QMainWindow::eventFilter(Obj, p_Event);
 }
 
 } // end namespace MainMenu

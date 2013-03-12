@@ -33,7 +33,8 @@ namespace ExternalProcessControl {
 ****************************************************************************/
 ExtProcessStartRetry::ExtProcessStartRetry(ExternalProcessController *wObj) :
         State::State("ExtProcessStartRetry", wObj),
-        m_myController(wObj)
+        m_myController(wObj),
+        m_myTimer(this)
 {
 }
 

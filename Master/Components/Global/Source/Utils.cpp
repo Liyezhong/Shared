@@ -285,6 +285,7 @@ quint32 GetButtonCountFromButtonType(GuiButtonType ButtonType) {
         case Global::OK_CANCEL:
         case Global::YES_NO:
         case Global::CONTINUE_STOP:
+        case Global::RECOVERYLATER_RECOVERYNOW:
             return 2;
         default:
             return 1;
@@ -306,6 +307,9 @@ Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
     }
     else if (ButtonTypeString == "OK") {
         return Global::OK;
+    }
+    else if (ButtonTypeString == "RECOVERYLATER+RECOVERYNOW") {
+        return Global::RECOVERYLATER_RECOVERYNOW;
     }
     return Global::NO_BUTTON;
 }

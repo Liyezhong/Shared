@@ -166,7 +166,7 @@ void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, cons
 
     QByteArray FileContent;
 
-    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(), FileContent);
+    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(), Cmd.GetCurrentUserRole(), FileContent);
     // get the new command reference
     Global::tRefType NewRef = GetNewCommandRef();
     SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReplyFile(1000, FileContent)));
@@ -182,7 +182,7 @@ void DataLoggingThreadController::OnExportDayRunLogRequest(Global::tRefType Ref,
     DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
 
     QStringList FileNames;
-    DayRunFilesInformation.CreateDailyRunLogFiles(FileNames);
+    DayRunFilesInformation.CreateDailyRunLogFiles(FileNames, Cmd.GetCurrenUserRole());
     // get the new command reference
     Global::tRefType NewRef = GetNewCommandRef();
     SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdExportDayRunLogReply(1000, FileNames)));

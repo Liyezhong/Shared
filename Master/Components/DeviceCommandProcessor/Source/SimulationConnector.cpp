@@ -36,8 +36,9 @@ namespace DeviceCommandProcessor {
 
 //const NetworkBase::NetworkServerType_t MY_CLIENT_TYPE3 = NetworkBase::NSE_TYPE_SEPIA;
 
-SimulationConnector::SimulationConnector()
-    : m_clientConnection(0)
+SimulationConnector::SimulationConnector(QObject* pParent)
+    :QObject(pParent)
+    ,m_clientConnection(0)
     , m_commfile(new QFile("simulationInput.txt"))
     , m_outStream(m_commfile)
     , m_verbose(false)

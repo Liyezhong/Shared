@@ -52,16 +52,19 @@ protected:
     Global::ActionType              m_FinalAction;                   /// < default action for event
     qint8                           m_NumberOfRetries;       ///< Retry attempts for the action
     Global::ActionType              m_ActionNegative;        ///< Next Action type for Negative action
-    bool                            m_ShowInRunLog;          ///< true - show in GUI its and daily run log, else dont show its error log.
+    Global::LogAuthorityType        m_LogAuthorityType;      ///< users in different authority, they can review the different content in logView of GUI
     Global::LoggingSource           m_Source;                ///< Source for event entry.
     Global::EventLogLevel           m_LogLevel;              ///< Various log levels
     QString                         m_MessageType;           ///< Error/Info/Warning/Reboot/Retry
     bool                            m_AckRequired;           ///< true - Needs acknowledge
-    bool                            m_AlarmRequired;         ///< true - fire alarm
+    Global::AlarmPosType            m_AlarmPosType;          ///< No/device/local/remote site
     Global::GuiButtonType           m_ButtonType;            ///< One of the valid options
     bool                            m_StatusBarIcon;         ///< true - Display icon in status bar
     Global::EventSourceType         m_SourceComponent;       ///< SourceComponent that raises the event
-
+    QString                         m_ErrorOutline;          ///< Error Outline
+    Global::ResponseType            m_ResponseType;          ///< Response Type
+    QString                         m_DetailForRD;           ///< the detailed information for RD&Service
+    Global::ResponseRecoveryType    m_ResponseRecoveryType;  ///< ResponseRecovery Type
 
     /****************************************************************************/
     /**
@@ -115,9 +118,10 @@ public:
     /****************************************************************************/
     EventCSVInfo(const quint32 &EventCode, const QString &EventMacroName, const Global::EventType &EventType,  const Global::ActionType &ActionType,
                                  qint8 NumofAttempts, Global::ActionType &ActionTypePositive,Global::ActionType &ActionTypeNegative,
-                                 const bool &ShowInRunLog, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
-                                 const QString &MessageType, const bool &AckRequired, const bool &AlarmRequired, const Global::GuiButtonType &ButtonType,
-                                 const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent ) ;
+                                 Global::LogAuthorityType LogAuthorityType, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
+                                 const QString &MessageType, const bool &AckRequired, Global::AlarmPosType AlarmPosType, const Global::GuiButtonType &ButtonType,
+                                 const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent, const QString& ErrorOutline,
+                                 Global::ResponseType ResponseType, const QString &DetailForRD, Global::ResponseRecoveryType& ResponseRecoveryType);
 
     /****************************************************************************/
     /**
@@ -166,6 +170,14 @@ public:
     /****************************************************************************/
     inline Global::ActionType GetActionType() const {
         return (Global::ActionType)m_FinalAction;
+    }
+
+  inline Global::ResponseRecoveryType GetResponseRecoveryType() const {
+        return m_ResponseRecoveryType;
+    }
+
+    inline Global::ResponseType GetResponseType() const {
+        return m_ResponseType;
     }
 
     inline Global::ActionType GetPositiveActionType() const {
@@ -257,19 +269,20 @@ public:
     inline  void SetSource( Global::LoggingSource Source)  {
          m_Source = Source;
     }
+
     /****************************************************************************/
     /**
-     * \brief Get status of ShowInRunLogStatus
+     * \brief Get log authority Type
      *
-     * \return ShowInRunLog flag.
+     * \return log authority Type.
      */
     /****************************************************************************/
-    inline bool GetRunLogStatus() const {
-        return m_ShowInRunLog;
+    inline Global::LogAuthorityType GetLogAuthorityType() const {
+        return m_LogAuthorityType;
     }
 
-    inline void SetRunLogStatus(bool  ShowInRunLog)  {
-        m_ShowInRunLog = ShowInRunLog;
+    inline void SetLogAuthorityType(Global::LogAuthorityType LogAuthorityType)  {
+        m_LogAuthorityType = LogAuthorityType;
     }
 
     /****************************************************************************/
@@ -379,25 +392,25 @@ public:
 
     /****************************************************************************/
     /**
-     * \brief Get the Alarm Status
+     * \brief Get the Alarm position type
      *
-     * \return Alarm Status as const ref.
+     * \return Alarm position types as const ref.
      */
     /****************************************************************************/
-    inline bool GetAlarmStatus() const {
-        return m_AlarmRequired;
+    inline Global::AlarmPosType GetAlarmPosType() const {
+        return m_AlarmPosType;
     }
 
     /****************************************************************************/
     /**
-     * \brief Set Alarm Status
+     * \brief Set Alarm position type
      *
-     * param[in] const ref to Alarm Status
+     * param[in] ref to Alarm position type
      */
     /****************************************************************************/
 
-    inline void SetAlarmStatus(const bool & AlarmRequired) {
-        m_AlarmRequired = AlarmRequired;
+    inline void SetAlarmPosType(Global::AlarmPosType AlarmPosType) {
+        m_AlarmPosType = AlarmPosType;
     }
 
     /****************************************************************************/
@@ -446,6 +459,49 @@ public:
         m_StatusBarIcon = StatusBarIcon;
     }
 
+    /****************************************************************************/
+    /**
+     * \brief Set the outline of the error
+     *
+     */
+    /****************************************************************************/
+    inline void SetErrorOutline(const QString & ErrorOutline) {
+        m_ErrorOutline = ErrorOutline;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set Response type
+     *
+     * param[in] const ref to Response type flag
+     */
+    /****************************************************************************/
+    inline void SetResponseType(Global::ResponseType ResponseType) {
+        m_ResponseType = ResponseType;
+    }
+
+
+    /****************************************************************************/
+    /**
+     * \brief Set ResponseRecovery type
+     *
+     * param[in] const ref to ResponseRecovery type flag
+     */
+    /****************************************************************************/
+    inline void SetResponseRecoveryType(Global::ResponseRecoveryType ResponseRecoveryType) {
+        m_ResponseRecoveryType = ResponseRecoveryType;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set the detailed error information for RD&Service
+     *
+     * param[in] const ref to the detailed error information
+     */
+    /****************************************************************************/
+    inline void SetDetailForRD(const QString & DetailInfor) {
+        m_DetailForRD = DetailInfor;
+    }
 
 }; // end class EventCSVInfo
 

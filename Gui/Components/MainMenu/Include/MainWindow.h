@@ -46,8 +46,8 @@ class CMainWindow : public QMainWindow
 public:
     //!< The role of the GUI user
     typedef enum {
-        Admin,
-        Operator,
+        Operator = 0,
+        Admin = 1,
         Service
     } UserRole_t;
 

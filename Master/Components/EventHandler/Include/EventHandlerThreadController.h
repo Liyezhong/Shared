@@ -36,7 +36,7 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
-
+#include <NetCommands/Include/CmdChangeUserLevel.h>
 
 namespace NetCommands {
     class CmdAcknEventReport;
@@ -144,8 +144,8 @@ public:
 
     inline void ConnectToEventObject() {
         Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
-        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage),
-                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage));
+        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, bool, bool),
+                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, bool, bool));
     }
 
 
@@ -164,6 +164,7 @@ protected:
      */
     /****************************************************************************/
     void OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack);
+    void OnUserRoleChanged(Global::tRefType ref, const NetCommands::CmdChangeUserLevel& cmd);
 
 
 private:
@@ -178,6 +179,8 @@ private:
         bool EventStatus;
         quint32 EventKey;
         Global::AlternateEventStringUsage AltStringUsuage;
+        bool IsResolved;
+        bool IsPostProcess;
     };
 
     QString                                     m_OperatingMode;                    ///< Operating mode.
@@ -202,6 +205,10 @@ private:
     QList<quint32> m_EventIDCount;  //!< Keeps track of event occurence i.e.,the no. of times an event has occured.
     QList<quint64> m_EventIdKeyCombinedList;
 
+    QHash<QString, Global::LogAuthorityType> m_LogAuthorityTypeEnumMap;
+    QHash<QString, Global::AlarmPosType> m_AlarmPosTypeEnumMap;
+    QHash<QString, Global::ResponseType> m_ResponseTypeEnumMap;
+    QHash<QString, Global::ResponseRecoveryType> m_ResponseRecoveryTypeEnumMap;
     QHash<QString, Global::EventType> m_EventTypeEnumMap;
     QHash<QString, Global::EventLogLevel> m_EventLogLevelEnumMap;
     QHash<QString, Global::ActionType>m_ActionTypeEnumMap;
@@ -210,10 +217,15 @@ private:
     void AddEventTypes();
     void AddEventLogLevels();
     void AddSourceComponents();
+    void AddAlarmPosTypes();
+    void AddLogAuthorityTypes();
+    void AddResponseTypes();
+    void AddResponseRecoveryTypes();
     void HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64);
     void CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
                           EventCSVInfo &EventInfo,
                           const bool EventStatus,
+                          const bool IsPostProcess,
                           const quint32 EventID,
                           const Global::tTranslatableStringList &EventStringList,
                           const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE);
@@ -229,6 +241,7 @@ private:
     Global::AlarmHandler *mpAlarmHandler;
 
     DataManager::CUserSettings *mpUserSettings;
+    Global::GuiUserLevel        m_UserRole;
 
 
     /****************************************************************************/
@@ -308,7 +321,7 @@ public slots:
 
     void ProcessEvent(const quint32 EventID,
                       const Global::tTranslatableStringList &EventStringList,
-                      const bool EventStatus, const quint32 EventKeyRef, const Global::AlternateEventStringUsage AltStringUsuage);
+                      const bool EventStatus, const quint32 EventKeyRef, const Global::AlternateEventStringUsage AltStringUsuage, bool IsResolve = false, bool IsPostProcess = false);
 
 
     /****************************************************************************/
@@ -341,6 +354,8 @@ signals:
     void LogEventEntry(const DataLogging::DayEventEntry &TheDayOperationEntry);
     void ForwardToErrorHandler(const DataLogging::DayEventEntry &TheDayOperationEntry, const quint64 EventKey);
     void GuiAvailability(bool active);
+    void GuiMsgHint(bool active);
+
 };
 
 } // end namespace EventHandler

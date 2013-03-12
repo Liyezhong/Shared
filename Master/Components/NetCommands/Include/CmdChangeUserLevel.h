@@ -45,8 +45,8 @@ public:
 	QString GetPassword() const;
 private:
     
-    CmdChangeUserLevel(const CmdChangeUserLevel &);                       ///< Not implemented.
-    const CmdChangeUserLevel & operator = (const CmdChangeUserLevel &);   ///< Not implemented.
+    //CmdChangeUserLevel(const CmdChangeUserLevel &);                       ///< Not implemented.
+    //const CmdChangeUserLevel & operator = (const CmdChangeUserLevel &);   ///< Not implemented.
 private:
     Global::GuiUserLevel  m_UserLevel;      ///< Type of the user
     QString         m_Password;	   ///< password

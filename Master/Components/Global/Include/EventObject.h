@@ -184,9 +184,11 @@ public:
                            const Global::tTranslatableStringList &EventStringList,
                            const bool EventStatus,
                            const quint32 EventKey,
-                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
+                           bool IsResolved = false,
+                           bool IsPostProcess = false
                            )  {
-        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage);
+        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage, IsResolved, IsPostProcess);
     }
 
     /****************************************************************************/
@@ -199,10 +201,12 @@ public:
     inline void RaiseEvent(const quint32 EventCode,
                            const Global::tTranslatableStringList &EventStringList,
                            const bool EventStatus = true,
-                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
+                           bool IsResolved = false,
+                           bool IsPostProcess = false
                            )  {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage);
+        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage, IsResolved, IsPostProcess);
     }
 
     /****************************************************************************/
@@ -212,10 +216,11 @@ public:
      * \return
      */
     /****************************************************************************/
-    inline void RaiseEvent(const quint32 EventCode,  Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE)
+    inline void RaiseEvent(const quint32 EventCode,  Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
+                            bool IsResolved = false, bool IsPostProcess = false)
     {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey, AltStringUsage);
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey, AltStringUsage, IsResolved, IsPostProcess);
         qDebug()<<"EventObject Thread"<<this->thread();
     }
 
@@ -226,10 +231,12 @@ public:
      * \iparam EventStatus = True -if event active, False - if event not active
      */
     /****************************************************************************/
-    inline void RaiseEvent(const quint32 EventCode, const bool EventStatus, Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE)
+    inline void RaiseEvent(const quint32 EventCode, const bool EventStatus,
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
+                           bool IsResolved = false, bool IsPostProcess = false)
     {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventStatus, EventKey, AltStringUsage);
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventStatus, EventKey, AltStringUsage, IsResolved, IsPostProcess);
         qDebug()<<"EventObject Thread"<<this->thread();
     }
 
@@ -296,7 +303,7 @@ signals:
      *        controller
      */
     /****************************************************************************/
-    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage);
+    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, bool, bool);
 
 }; // end class EventObject
 

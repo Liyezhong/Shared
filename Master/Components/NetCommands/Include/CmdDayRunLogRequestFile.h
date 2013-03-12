@@ -22,7 +22,7 @@
 #define NETCOMMANDS_CMDDAYRUNLOGREQUESTFILE_H
 
 #include <Global/Include/Commands/Command.h>
-
+#include <Global/Include/GlobalDefines.h>
 namespace NetCommands {
 
 /****************************************************************************/
@@ -36,16 +36,18 @@ class CmdDayRunLogRequestFile : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdDayRunLogRequestFile &);
 public:
     static QString NAME;    ///< Command name.
-    CmdDayRunLogRequestFile(int Timeout, const QString &FileName);
+    CmdDayRunLogRequestFile(int Timeout, const QString &FileName, Global::GuiUserLevel CurrentUserRole);
     CmdDayRunLogRequestFile();                                                    ///< Not implemented.
     ~CmdDayRunLogRequestFile();
     virtual QString GetName() const;
     QString GetFileName() const;
+    Global::GuiUserLevel GetCurrentUserRole() const;
 private:
     CmdDayRunLogRequestFile(const CmdDayRunLogRequestFile &);                       ///< Not implemented.
     const CmdDayRunLogRequestFile & operator = (const CmdDayRunLogRequestFile &);   ///< Not implemented.
 private:
     QString     m_FileName;      ///< file name of the Daily run log file.
+    Global::GuiUserLevel m_CurrentUserRole;
 }; // end class CmdDayRunLogRequestFile
 
 /****************************************************************************/
@@ -63,6 +65,8 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdDayRunLogRequest
     Cmd.CopyToStream(Stream);
     // copy internal data
     Stream << Cmd.m_FileName;
+    quint8 intTemp = Cmd.m_CurrentUserRole;
+    Stream << intTemp;
     return Stream;
 }
 
@@ -81,6 +85,9 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdDayRunLogRequestFile &
     Cmd.CopyFromStream(Stream);
     // copy internal data
     Stream >> Cmd.m_FileName;
+    quint8 intTemp;
+    Stream >> intTemp;
+    Cmd.m_CurrentUserRole = (Global::GuiUserLevel)intTemp;
     return Stream;
 }
 
