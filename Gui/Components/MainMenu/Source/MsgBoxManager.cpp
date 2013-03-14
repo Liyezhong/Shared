@@ -74,16 +74,19 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
         //Set Title
         switch (MsgDataStruct.EventType) {
             case Global::EVTTYPE_INFO:
+            case Global::EVTTYPE_SYS_HINT:
                 mp_MessageDlg->SetTitle(tr("Information Message"));
                 //Also set Msg Box Icon
                 mp_MessageDlg->SetIcon(QMessageBox::Information);
                 break;
             case Global::EVTTYPE_WARNING:
+            case Global::EVTTYPE_SYS_WARNING:
                 mp_MessageDlg->SetTitle(tr("Warning Message"));
                 mp_MessageDlg->SetIcon(QMessageBox::Warning);
                 break;
             case Global::EVTTYPE_FATAL_ERROR:
             case Global::EVTTYPE_ERROR:
+            case Global::EVTTYPE_SYS_ERROR:
                 mp_MessageDlg->SetTitle(tr("Error Message"));
                 mp_MessageDlg->SetIcon(QMessageBox::Critical);
                 break;
@@ -110,6 +113,11 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
             case Global::CONTINUE_STOP:
                 mp_MessageDlg->SetButtonText(1, tr("Continue"));
                 mp_MessageDlg->SetButtonText(3, tr("Stop"));
+                mp_MessageDlg->HideCenterButton();
+                break;
+            case Global::RECOVERYLATER_RECOVERYNOW:
+                mp_MessageDlg->SetButtonText(1, tr("Recovery Later"));
+                mp_MessageDlg->SetButtonText(3, tr("Recovery Now"));
                 mp_MessageDlg->HideCenterButton();
                 break;
             case Global::OK_CANCEL:
@@ -226,6 +234,9 @@ void CMsgBoxManager::ButtonLeftClicked()
     if (m_CurrentMsgData.BtnType == Global::OK_CANCEL) {
         emit EventReportAck(NetCommands::CANCEL_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
+    else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
+           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
+       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::STOP_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
@@ -260,6 +271,9 @@ void CMsgBoxManager::ButtonRightClicked()
     Global::tRefType CmdRef = m_EvenIDCmdRefHash.value(m_CurrentMsgData.ID);
     if (m_CurrentMsgData.BtnType == Global::OK_CANCEL) {
         emit EventReportAck(NetCommands::OK_BUTTON, CmdRef, m_CurrentMsgData.ID);
+    }
+    else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
+          emit EventReportAck(NetCommands::RECOVERYLATER, CmdRef, m_CurrentMsgData.ID);
     }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::CONTINUE_BUTTON, CmdRef, m_CurrentMsgData.ID);

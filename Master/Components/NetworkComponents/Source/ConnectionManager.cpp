@@ -55,7 +55,8 @@ ConnectionManager::ConnectionManager(QHash<QString, QString> hash,
                                      m_authRequest(req),
                                      m_authConfirm(conf),
                                      m_replySection(d),
-                                     m_connectionState(CM_NOT_AUTHENTICATED)
+                                     m_connectionState(CM_NOT_AUTHENTICATED),
+                                     m_timer(this)
 
 {
 }

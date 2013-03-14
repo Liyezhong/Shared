@@ -47,7 +47,8 @@ NetworkDevice::NetworkDevice(MessageLoaderType_t ptype, const QString &path, QOb
         m_myMessageChecker(NULL),
         m_myType(ptype),
         m_myPath(path),
-        m_cmdRef(0)
+        m_cmdRef(0),
+        m_HeartBeatTimer(this)
 {
     RunningCommands.clear();
     switch (ptype) {
