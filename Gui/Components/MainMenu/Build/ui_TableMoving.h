@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'TableMoving.ui'
 **
-** Created: Sun Jan 6 10:16:49 2013
+** Created: Fri Mar 15 03:54:29 2013
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -41,7 +41,7 @@ public:
         beginButton->setObjectName(QString::fromUtf8("beginButton"));
         beginButton->setMinimumSize(QSize(0, 62));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/Large/Icons/Move/Icon_Move_Up_End.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/HimalayaImages/Icons/Move/Icon_Move_Up_End.png"), QSize(), QIcon::Normal, QIcon::Off);
         beginButton->setIcon(icon);
         beginButton->setIconSize(QSize(71, 62));
 
@@ -51,7 +51,7 @@ public:
         upButton->setObjectName(QString::fromUtf8("upButton"));
         upButton->setMinimumSize(QSize(0, 62));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/Large/Icons/Move/Icon_Move_Up.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/HimalayaImages/Icons/Move/Icon_Move_Up.png"), QSize(), QIcon::Normal, QIcon::Off);
         upButton->setIcon(icon1);
         upButton->setIconSize(QSize(71, 62));
 
@@ -61,7 +61,7 @@ public:
         downButton->setObjectName(QString::fromUtf8("downButton"));
         downButton->setMinimumSize(QSize(0, 62));
         QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/Large/Icons/Move/Icon_Move_Down.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon2.addFile(QString::fromUtf8(":/HimalayaImages/Icons/Move/Icon_Move_Down.png"), QSize(), QIcon::Normal, QIcon::Off);
         downButton->setIcon(icon2);
         downButton->setIconSize(QSize(71, 62));
 
@@ -71,7 +71,7 @@ public:
         endButton->setObjectName(QString::fromUtf8("endButton"));
         endButton->setMinimumSize(QSize(0, 62));
         QIcon icon3;
-        icon3.addFile(QString::fromUtf8(":/Large/Icons/Move/Icon_Move_Down_End.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon3.addFile(QString::fromUtf8(":/HimalayaImages/Icons/Move/Icon_Move_Down_End.png"), QSize(), QIcon::Normal, QIcon::Off);
         endButton->setIcon(icon3);
         endButton->setIconSize(QSize(71, 62));
 
