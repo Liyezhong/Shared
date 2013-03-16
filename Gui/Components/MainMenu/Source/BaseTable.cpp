@@ -4,8 +4,8 @@
  *  \brief BaseTable implementation.
  *
  *   $Version: $ 0.1
- *   $Date:    $ 2011-07-08
- *   $Author:  $ M.Scherer
+ *   $Date:    $ 2011-07-08 , 2013-02-27
+ *   $Author:  $ M.Scherer ,Swati Tiwari
  *
  *  \b Company:
  *
@@ -60,12 +60,16 @@ CBaseTable::CBaseTable(QWidget *p_Parent) : QTableView(p_Parent)
 /*!
  *  \brief Sets the height of the table in rows
  *
- *  \iparam Rows = Number of rows
+ *  \iparam Rows = Number of rows.
+ *  \iparam HeaderHeight = Default value is 28 require to decide height of the Table.
+ *  \iparam RowHeight = Default value is 40. Multiplied With Number of
+ *   Rows decide height of the Table.
+ *
  */
 /****************************************************************************/
-void CBaseTable::SetVisibleRows(qint32 Rows)
+void CBaseTable::SetVisibleRows(qint32 Rows , qint32 HeaderHeight ,qint32 RowHeight)
 {
-    setFixedHeight(28 + 40 * Rows);
+    setFixedHeight(HeaderHeight + RowHeight * Rows);
 }
 
 } // end namespace MainMenu

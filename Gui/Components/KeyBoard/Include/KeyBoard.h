@@ -40,7 +40,7 @@ namespace KeyBoard {
 class CSubSpeller;
 class CKeyBoardButton;
 //! < Used to set resolution depending on whether model is SIZE_1 or SIZE_2
-//eg. Colorado SIZE_1 , Sepia SIZE_2
+//eg. Himalaya SIZE_1 , Sepia SIZE_2
 typedef enum {
     SIZE_1 = 1,
     SIZE_2,
@@ -141,8 +141,8 @@ private:
     bool m_EnteredCharsValid;           //! < True if entered char is valid.
     QString m_EnteredString;
     bool m_EnteredStringValidation;     //! <True for LongName validation and False for ShortName validation
-    QRegExpValidator* mp_RegValidator;              //!< To store the validator
     ValidationType_t m_ValidationType;
+    QRegExpValidator* mp_RegValidator;  //!< To store the validator
 
     CKeyBoardButton *CreateNewKey(QString IconType, QString BtnText1,
                                   QString BtnText2,bool IconPresent,qint32 ButtonType);

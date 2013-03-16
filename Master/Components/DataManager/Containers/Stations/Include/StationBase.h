@@ -41,7 +41,7 @@ namespace DataManager {
 /****************************************************************************/
 class CStationBase
 {
-    friend class CDataStationList;
+    friend class CDashboardDataStationList;
 private:
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);

@@ -4,8 +4,8 @@
  *  \brief ContentScroller implementation.
  *
  *   $Version: $ 0.1
- *   $Date:    $ 2011-05-31
- *   $Author:  $ M.Scherer
+ *   $Date:    $ 2011-05-31 , 2013-02-28
+ *   $Author:  $ M.Scherer , Swati Tiwati 
  *
  *  \b Company:
  *
@@ -22,6 +22,7 @@
 #include "ui_ContentScroller.h"
 #include <QDebug>
 #include <QScrollBar>
+#include "MainMenu/Include/BaseTable.h"
 
 namespace MainMenu {
 
@@ -167,6 +168,10 @@ void CContentScroller::ScrollStep(const QVariant &Value)
 {
     if (m_AnimationStep % 2) {
         mp_Content->verticalScrollBar()->setValue(Value.toInt());
+    }
+    if(Application::CLeicaStyle::GetProjectId() == Application::HIMALAYA_PROJECT) {
+        CBaseTable *pCBaseTable = dynamic_cast<CBaseTable*> (mp_Content);
+        pCBaseTable->clearSelection();
     }
     m_AnimationStep++;
 }

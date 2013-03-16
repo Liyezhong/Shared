@@ -1104,4 +1104,6 @@ void CKeyBoard::ValidateString(QString InputString)
  }
 }
 
+
+/*****************************************************************************/
 } // End of namespace KeyBoard

@@ -531,7 +531,7 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
                         return QSize(ContentsSize.width() + 18, 48);
                     }
                     else {
-                        return QSize(79, 112);
+                        return QSize(79, 111);
                     }
                 }
                 break;
