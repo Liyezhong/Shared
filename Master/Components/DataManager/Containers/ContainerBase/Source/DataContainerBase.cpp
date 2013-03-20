@@ -396,6 +396,7 @@ void CDataContainerBase::ReadVerifierList(QXmlStreamReader& XmlStreamReader)
 CDataContainerBase::~CDataContainerBase()
 {
     // delete all the local verifiers from the list
+/*
     for(int ListCount = 0; ListCount < m_VerifierList.count(); ListCount++) {
         IVerifierInterface* p_Verifier = m_VerifierList.value(ListCount, NULL);
         if (p_Verifier != NULL) {
@@ -408,6 +409,7 @@ CDataContainerBase::~CDataContainerBase()
     m_VerifierList.clear();
     // reset the error list
     ResetLastErrors();
+*/
 }
 
 } // end of namespace datamanager
