@@ -169,10 +169,7 @@ void CContentScroller::ScrollStep(const QVariant &Value)
     if (m_AnimationStep % 2) {
         mp_Content->verticalScrollBar()->setValue(Value.toInt());
     }
-    if(Application::CLeicaStyle::GetProjectId() == Application::HIMALAYA_PROJECT) {
-        CBaseTable *pCBaseTable = dynamic_cast<CBaseTable*> (mp_Content);
-        pCBaseTable->clearSelection();
-    }
+
     m_AnimationStep++;
 }
 

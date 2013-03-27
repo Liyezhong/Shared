@@ -156,5 +156,8 @@
         <file>HimalayaImages/ComboButton/ComboButton_List_Item_Selected.png</file>
         <file>HimalayaImages/ComboButton/ComboButton_List_Seperator_Horizontal.png</file>
         <file>HimalayaImages/ComboButton/ComboButton_List_Seperator_Horizontal_Selected.png</file>
+        <file>HimalayaImages/LongButton/LongButton_Disabled.png</file>
+        <file>HimalayaImages/LongButton/LongButton_Enabled.png</file>
+        <file>HimalayaImages/LongButton/LongButton_Pressed.png</file>
     </qresource>
 </RCC>
