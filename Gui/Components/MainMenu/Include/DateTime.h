@@ -52,6 +52,7 @@ public:
     QDateTime &GetDateTime();
     void SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow);
     void ResetButtons();
+    void DisableApplyButton();
 
 signals:
     /****************************************************************************/

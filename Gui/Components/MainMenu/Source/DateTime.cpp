@@ -239,6 +239,12 @@ void CDateTime::ResetButtons()
     }
 }
 
+void CDateTime::DisableApplyButton()
+{
+    mp_Ui->pushButton->setVisible(false);
+    mp_Ui->pushButton->setEnabled(false);
+}
+
 /****************************************************************************/
 /*!
  *  \brief Used to set pointer to mainwindow, used to retreive user role and
