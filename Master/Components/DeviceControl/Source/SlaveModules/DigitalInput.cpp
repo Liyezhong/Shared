@@ -33,13 +33,13 @@ namespace DeviceControl
 
 /****************************************************************************/
 /*!
- *  \brief  Constructor for the CANDigitalInput
+ *  \brief    Constructor for the CANDigitalInput
  *
- *  \iparam p_MessageConfiguration = Message configuration
- *  \iparam pCANCommunicator = pointer to communication class
- *  \iparam pParentNode = pointer to base module this module is assigned to
- */
-/****************************************************************************/
+ *  \param    p_MessageConfiguration = Message configuration
+ *  \param    pCANCommunicator = pointer to communication class
+ *  \param    pParentNode = pointer to base module, where this module is assigned to
+ *
+ ****************************************************************************/
 CDigitalInput::CDigitalInput(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                              CBaseModule* pParentNode) :
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT, p_MessageConfiguration, pCANCommunicator, pParentNode),
@@ -47,13 +47,20 @@ CDigitalInput::CDigitalInput(const CANMessageConfiguration* p_MessageConfigurati
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
     m_SubStateConfig = FM_DINP_SUB_STATE_CONFIG_INIT;
+
+    //module command array initialisation
+    for(quint8 idx = 0; idx < MAX_DINP_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+    }
+
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Destructor of CANDigitalInput
- */
-/****************************************************************************/
+ *  \brief    Destructor of CANDigitalInput
+ *
+ ****************************************************************************/
 CDigitalInput::~CDigitalInput()
 {
 }
@@ -239,21 +246,16 @@ void CDigitalInput::HandleIdleState()
 void CDigitalInput::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < MAX_DINP_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ)
         {
             // forward the module command to the function module on slave side by sending
             // the corresponding CAN-message
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
-
-            if(p_ModuleCommand->Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].m_Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
             {
                 //send the value request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDAnaInputState CAN-message
@@ -262,7 +264,8 @@ void CDigitalInput::HandleCommandRequestTask()
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_DINP_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_DINP_TIMEOUT_READ_REQ;
                 }
                 else
                 {
@@ -270,35 +273,36 @@ void CDigitalInput::HandleCommandRequestTask()
                 }
             }
 
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
-                RemoveCommand = true;
+                //trigger timeout supervision
+                m_ModuleCommand[idx].m_ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ_SEND)
         {
             // check avtive motor commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
-                RemoveCommand = true;
+                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
 
-                if(p_ModuleCommand->Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
+                if(m_ModuleCommand[idx].m_Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
                 {
                     FILE_LOG_L(laFCT, llERROR) << "  CANDigitalInput:: '" << GetKey().toStdString() << "': input value req. timeout";
-                    emit ReportActInputValue(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    emit ReportActInputValue(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
             }
         }
-
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
-        }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
@@ -324,9 +328,9 @@ void CDigitalInput::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDDigInputState)
@@ -406,9 +410,7 @@ void CDigitalInput::HandleCANMsgDigInputState(can_frame* pCANframe)
 ReturnCode_t CDigitalInput::SendCANMessageConfiguration()
 {
     CANFctModuleDigitInput* pCANObjConfDigInpPort;
-
     pCANObjConfDigInpPort = (CANFctModuleDigitInput*) m_pCANObjectConfig;
-
     can_frame canmsg;
     ReturnCode_t RetVal;
     quint8 dataByte = 0;
@@ -421,6 +423,10 @@ ReturnCode_t CDigitalInput::SendCANMessageConfiguration()
     if(pCANObjConfDigInpPort->m_bEnabled)
     {
         dataByte = 0x80;
+    }
+    if(pCANObjConfDigInpPort->m_bTimeStamp)
+    {
+        dataByte |= 0x40;
     }
     canmsg.data[0] = dataByte;
 
@@ -471,8 +477,11 @@ ReturnCode_t CDigitalInput::ReqActInputValue()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_DI_CMD_TYPE_ACTVALUE_REQ);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_DI_CMD_TYPE_ACTVALUE_REQ))
+    {
+        FILE_LOG_L(laDEV, llINFO) << " CANDigitalInput";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANDigitalInput invalid state: " << (int) m_TaskID;
@@ -483,52 +492,71 @@ ReturnCode_t CDigitalInput::ReqActInputValue()
 
 /****************************************************************************/
 /*!
- *  \brief  Adds a new command to the transmit queue
+ *  \brief   Helper function, sets a free module command to the given command type
  *
- *  \iparam CommandType = Command type to set
+ *  \iparam   CommandType = command type to set
+ *  \iparam   pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
  *
- *  \return Module command, if the command type can be placed, otherwise NULL
- */
-/****************************************************************************/
-CDigitalInput::ModuleCommand_t *CDigitalInput::SetModuleTask(CANDigitalInputModuleCmdType_t CommandType)
+ *  \return  true, if the command type can be placed, otherwise false
+ *
+ ****************************************************************************/
+bool CDigitalInput::SetModuleTask(CANDigitalInputModuleCmdType_t CommandType, quint8* pCmdIndex)
 {
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
+    bool CommandAdded = false;
+
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
+    {
+        for(quint8 idx = 0; idx < MAX_DINP_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].m_Type = CommandType;
+
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
+
+                FILE_LOG_L(laFCT, llINFO) << " CANTemperatureControl:  task " << (int) idx << " request.";
+                break;
             }
         }
-
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
     }
 
-    return NULL;
+    return CommandAdded;
 }
 
 /****************************************************************************/
-/*!
- *  \brief  Removes an existing command from the transmit queue
+/**
+ *  \brief      Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command of that type will be set to free
+ *  \param      ModuleCommandType = ModuleCommands having this command type will be set to free
+
+ *  \return     void
  */
 /****************************************************************************/
-void CDigitalInput::ResetModuleCommand(CANDigitalInputModuleCmdType_t CommandType)
+void CDigitalInput::ResetModuleCommand(CANDigitalInputModuleCmdType_t ModuleCommandType)
 {
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            break;
+    bool ActiveCommandFound = false;
+
+    for(quint8 idx = 0; idx < MAX_DINP_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].m_Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+        }
+
+        if(m_ModuleCommand[idx].m_State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }

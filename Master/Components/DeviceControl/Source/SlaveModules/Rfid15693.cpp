@@ -48,6 +48,12 @@ CRfid15693::CRfid15693(const CANMessageConfiguration *p_MessageConfiguration, CA
     m_unCanIDRespWriteBlock(0), m_unCanIDLockBlock(0), m_unCanIDRespLockBlock(0)
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
+
+    //module command array initialisation
+    for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+    }
 }
 
 /****************************************************************************/
@@ -268,34 +274,30 @@ void CRfid15693::HandleIdleState()
 void CRfid15693::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ)
         {
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
-
-            if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_SET_CONFIG)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_SET_CONFIG)
             {
                 // This command will be acknowledged on receiption
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID15693: Sending 'set config' message";
-                RetVal = SendCANMsgSetConfig(p_ModuleCommand->Enabled);
+                RetVal = SendCANMsgSetConfig(m_ModuleCommand[idx].m_Enabled);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportSetConfig(GetModuleHandle(), RetVal);
                 }
             }
-            else  if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_ACQUIRE_UID)
+            else  if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_ACQUIRE_UID)
             {
                 // This command will be acknowledged on receiption
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID15693: Sending 'acquire UID' message";
@@ -303,52 +305,56 @@ void CRfid15693::HandleCommandRequestTask()
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportAcquireUid(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_READ_BLOCK)
+            else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_READ_BOCK)
             {
                 // This command will be acknowledged on receiption
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID15693: Sending 'read block' message";
-                RetVal = SendCANMsgReadBlock(p_ModuleCommand->Address);
+                RetVal = SendCANMsgReadBlock(m_ModuleCommand[idx].m_Address);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportReadBlock(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_WRITE_BLOCK)
+            else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_WRITE_BOCK)
             {
                 // This command will be acknowledged on receiption
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID15693: Sending 'write block' message";
-                RetVal = SendCANMsgWriteBlock(p_ModuleCommand->Address, p_ModuleCommand->Data);
+                RetVal = SendCANMsgWriteBlock(m_ModuleCommand[idx].m_Address, m_ModuleCommand[idx].m_Data);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportWriteBlock(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_LOCK_BLOCK)
+            else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_LOCK_BOCK)
             {
                 // This command will be acknowledged on receiption
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID15693: Sending 'lock block' message";
-                RetVal = SendCANMsgLockBlock(p_ModuleCommand->Address);
+                RetVal = SendCANMsgLockBlock(m_ModuleCommand[idx].m_Address);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
@@ -356,55 +362,56 @@ void CRfid15693::HandleCommandRequestTask()
                 }
             }
 
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
-                RemoveCommand = true;
+                //trigger timeout supervision
+                m_ModuleCommand[idx].m_ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ_SEND)
         {
-            // check active module commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            // check avtive motor commands for timeout
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
-                RemoveCommand = true;
+                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
 
-                if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_SET_CONFIG)
+                if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_SET_CONFIG)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID15693:: '" << GetKey().toStdString() << "': set config timeout";
-                    emit ReportSetConfig(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportSetConfig(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_ACQUIRE_UID)
+                else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_ACQUIRE_UID)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID15693:: '" << GetKey().toStdString() << "': acquire UID timeout";
-                    emit ReportAcquireUid(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    emit ReportAcquireUid(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_READ_BLOCK)
+                else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_READ_BOCK)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID15693:: '" << GetKey().toStdString() << "': read block timeout";
-                    emit ReportReadBlock(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    emit ReportReadBlock(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_WRITE_BLOCK)
+                else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_WRITE_BOCK)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID15693:: '" << GetKey().toStdString() << "': write block timeout";
-                    emit ReportWriteBlock(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportWriteBlock(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_LOCK_BLOCK)
+                else if(m_ModuleCommand[idx].m_Type == FM_RFID_CMD_TYPE_LOCK_BOCK)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID15693:: '" << GetKey().toStdString() << "': lock block timeout";
-                    emit ReportLockBlock(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportLockBlock(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
             }
-        }
-
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
@@ -412,13 +419,15 @@ void CRfid15693::HandleCommandRequestTask()
 
 /****************************************************************************/
 /*!
- *  \brief  Handle the reception of a CAN message
+ *  \brief    Handle the reception of a CAN message
  *
- *      The function is called from communication layer if a CAN message,
- *      which was registered to this class instance, was received. The
- *      message will be forwarded to the specialized function.
+ *   The function is called from communication layer if a CAN message, which
+ *   was registered to this class instance, was received.
+ *   The message will be forwarded to the specialized function.
  *
- *  \iparam pCANframe = struct contains the data of the receipt CAN message
+ *  \iparam   pCANframe = struct contains the data of the receipt CAN message
+ *
+ *  \return   void
  */
 /****************************************************************************/
 void CRfid15693::HandleCanMessage(can_frame* pCANframe)
@@ -434,29 +443,24 @@ void CRfid15693::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
 
         if ((pCANframe->can_id == m_unCanIDEventError) ||  (pCANframe->can_id == m_unCanIDEventFatalError)) {
             hdlInfo = DCL_ERR_EXTERNAL_ERROR;
         }
 
-        if(m_lastEventGroup == MODULE_ID_RFID15693)
+        if(m_lastErrorGroup == MODULE_ID_RFID15693)
         {
-            if (5 == m_lastEventCode) {
-                hdlInfo = DCL_ERR_FCT_CALL_FAILED;
-            }
-
-            for(qint32 i = 0; i < m_ModuleCommand.size(); i++)
+            for(quint8 i = 0; i < MAX_RFID_CMD_IDX; i++)
             {
-                if(m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND)
+                if(m_ModuleCommand[i].m_State == MODULE_CMD_STATE_REQ_SEND)
                 {
-                    ModuleCommandType = m_ModuleCommand[i]->Type;
-                    break;
+                    ModuleCommandType = m_ModuleCommand[i].m_Type;
                 }
             }
         }
         else if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
 
@@ -468,15 +472,15 @@ void CRfid15693::HandleCanMessage(can_frame* pCANframe)
     {
         HandleCANMsgRespAcquireUid(pCANframe, hdlInfo);
     }
-    else if(m_unCanIDRespReadBlock == pCANframe->can_id || FM_RFID_CMD_TYPE_READ_BLOCK == ModuleCommandType)
+    else if(m_unCanIDRespReadBlock == pCANframe->can_id || FM_RFID_CMD_TYPE_READ_BOCK == ModuleCommandType)
     {
         HandleCANMsgReadBlock(pCANframe, hdlInfo);
     }
-    else if(m_unCanIDRespWriteBlock == pCANframe->can_id || FM_RFID_CMD_TYPE_WRITE_BLOCK == ModuleCommandType)
+    else if(m_unCanIDRespWriteBlock == pCANframe->can_id || FM_RFID_CMD_TYPE_WRITE_BOCK == ModuleCommandType)
     {
         HandleCANMsgWriteBlock(pCANframe, hdlInfo);
     }
-    else if(m_unCanIDRespLockBlock == pCANframe->can_id || FM_RFID_CMD_TYPE_LOCK_BLOCK == ModuleCommandType)
+    else if(m_unCanIDRespLockBlock == pCANframe->can_id || FM_RFID_CMD_TYPE_LOCK_BOCK == ModuleCommandType)
     {
         HandleCANMsgLockBlock(pCANframe, hdlInfo);
     }
@@ -567,7 +571,7 @@ void CRfid15693::HandleCANMsgReadBlock(can_frame* pCANframe, ReturnCode_t hdlInf
 
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
-        ResetModuleCommand(FM_RFID_CMD_TYPE_READ_BLOCK);
+        ResetModuleCommand(FM_RFID_CMD_TYPE_READ_BOCK);
     }
     emit ReportReadBlock(GetModuleHandle(), hdlInfo, Data);
 }
@@ -594,7 +598,7 @@ void CRfid15693::HandleCANMsgWriteBlock(can_frame* pCANframe, ReturnCode_t hdlIn
 
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
-        ResetModuleCommand(FM_RFID_CMD_TYPE_WRITE_BLOCK);
+        ResetModuleCommand(FM_RFID_CMD_TYPE_WRITE_BOCK);
     }
     emit ReportWriteBlock(GetModuleHandle(), hdlInfo);
 }
@@ -621,7 +625,7 @@ void CRfid15693::HandleCANMsgLockBlock(can_frame* pCANframe, ReturnCode_t hdlInf
 
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
-        ResetModuleCommand(FM_RFID_CMD_TYPE_LOCK_BLOCK);
+        ResetModuleCommand(FM_RFID_CMD_TYPE_LOCK_BOCK);
     }
     emit ReportLockBlock(GetModuleHandle(), hdlInfo);
 }
@@ -753,11 +757,11 @@ ReturnCode_t CRfid15693::SetConfig(bool Enabled)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_SET_CONFIG);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_SET_CONFIG, &CmdIndex))
     {
-        p_ModuleCommand->Enabled = Enabled;
+        m_ModuleCommand[CmdIndex].m_Enabled = Enabled;
         FILE_LOG_L(laDEV, llINFO) << " CANRFID15693, Enabled: " << (int) Enabled;
     }
     else
@@ -784,8 +788,11 @@ ReturnCode_t CRfid15693::AcquireUid()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_ACQUIRE_UID);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_ACQUIRE_UID))
+    {
+        FILE_LOG_L(laDEV, llINFO) << " CANRFID15693";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANRFID15693 invalid state: " << (int) m_TaskID;
@@ -810,11 +817,11 @@ ReturnCode_t CRfid15693::ReadBlock(quint8 Address)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_READ_BLOCK);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_READ_BOCK, &CmdIndex))
     {
-        p_ModuleCommand->Address = Address;
+        m_ModuleCommand[CmdIndex].m_Address = Address;
         FILE_LOG_L(laDEV, llINFO) << " CANRFID15693, Address: " << (int) Address;
     }
     else
@@ -843,12 +850,12 @@ ReturnCode_t CRfid15693::WriteBlock(quint8 Address, quint32 Data)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_WRITE_BLOCK);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_WRITE_BOCK, &CmdIndex))
     {
-        p_ModuleCommand->Address = Address;
-        p_ModuleCommand->Data = Data;
+        m_ModuleCommand[CmdIndex].m_Address = Address;
+        m_ModuleCommand[CmdIndex].m_Data = Data;
         FILE_LOG_L(laDEV, llINFO) << " CANRFID15693, Address: " << (int) Address << ", Data: " << Data;
     }
     else
@@ -867,6 +874,7 @@ ReturnCode_t CRfid15693::WriteBlock(quint8 Address, quint32 Data)
  *      The task will be acknowledged by sending the signal ReportLockBlock
  *
  *  \iparam Address = Block address
+ *  \iparam Data = Data to be written
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise DCL_ERR_INVALID_STATE
@@ -876,11 +884,11 @@ ReturnCode_t CRfid15693::LockBlock(quint8 Address)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_LOCK_BLOCK);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_LOCK_BOCK, &CmdIndex))
     {
-        p_ModuleCommand->Address = Address;
+        m_ModuleCommand[CmdIndex].m_Address = Address;
         FILE_LOG_L(laDEV, llINFO) << " CANRFID15693, Address: " << (int) Address;
     }
     else
@@ -894,52 +902,69 @@ ReturnCode_t CRfid15693::LockBlock(quint8 Address)
 
 /****************************************************************************/
 /*!
- *  \brief  Adds a new command to the transmit queue
+ *  \brief  Helper function, sets a free module command to the given command type
  *
- *  \iparam CommandType = Command type to set
+ *  \iparam CommandType = command type to set
+ *  \iparam pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
  *
- *  \return Module command, if the command type can be placed, otherwise NULL
+ *  \return true, if the command type can be placed, otherwise false
  */
 /****************************************************************************/
-CRfid15693::ModuleCommand_t *CRfid15693::SetModuleTask(CANRFIDModuleCmdType_t CommandType)
+bool CRfid15693::SetModuleTask(CANRFIDModuleCmdType_t CommandType, quint8* pCmdIndex)
 {
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
+    bool CommandAdded = false;
+
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
+    {
+        for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].m_Type = CommandType;
+
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
+
+                FILE_LOG_L(laFCT, llINFO) << " CANRFID15693:  task " << (int) idx << " request.";
+                break;
             }
         }
-
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
     }
 
-    return NULL;
+    return CommandAdded;
 }
 
 /****************************************************************************/
-/*!
- *  \brief  Removes an existing command from the transmit queue
+/**
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command of that type will be set to free
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
  */
 /****************************************************************************/
-void CRfid15693::ResetModuleCommand(CANRFIDModuleCmdType_t CommandType)
+void CRfid15693::ResetModuleCommand(CANRFIDModuleCmdType_t ModuleCommandType)
 {
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            break;
+    bool ActiveCommandFound = false;
+
+    for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].m_Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+        }
+
+        if(m_ModuleCommand[idx].m_State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }

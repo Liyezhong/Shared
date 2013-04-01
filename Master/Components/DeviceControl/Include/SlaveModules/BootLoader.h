@@ -26,7 +26,7 @@
 #define DEVICECONTROL_BOOTLOADER_H
 
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
-#include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include <QFile>
 #include <QThread>
 #include <QTimer>
@@ -52,23 +52,20 @@ class CBootLoader : public QObject
     Q_OBJECT
 
 public:   
-    CBootLoader(const CANMessageConfiguration *p_CanMsgConfig, const quint32 CanNodeId,
-                CANCommunicator *p_CanCommunicator, CBaseModule *p_BaseModule);
+    CBootLoader(const DeviceControl::CANMessageConfiguration *p_CanMsgConfig, const quint32 CanNodeId,
+                DeviceControl::CANCommunicator *p_CanCommunicator, DeviceControl::CBaseModule *p_BaseModule);
     ReturnCode_t UpdateFirmware(const QString &FirmwarePath);
     ReturnCode_t UpdateInfo(const quint8 *p_Info, quint32 Size, quint8 UpdateType);
-    ReturnCode_t UpdateBootLoader(const QString &BootLoaderPath);
     void HandleCanMessage(const can_frame *p_CanFrame);
     void WaitForUpdate(bool Wait);
     ReturnCode_t BootFirmware();
-    bool Active() const;
 
     //! Internal states of the boot loader module
     typedef enum {
-        BOOTLOADER_IDLE,        //!< Default or init state
-        BOOTLOADER_ACTIVE,      //!< The boot loader is running
-        BOOTLOADER_FIRMWARE,    //!< Firmware update active
-        BOOTLOADER_INFO,        //!< Info block update active
-        BOOTLOADER_BOOTLOADER   //!< Boot loader update active
+        IDLE,       //!< Default or init state
+        ACTIVE,     //!< The boot loader is running
+        FIRMWARE,   //!< Firmware update active
+        INFO        //!< Info block update active
     } State_t;
 
 signals:
@@ -94,22 +91,11 @@ signals:
     /****************************************************************************/
     void ReportUpdateInfo(quint32 InstanceID, ReturnCode_t HdlInfo);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  This signal is emitted to report the end of a boot loader update
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the
-     *                    error code
-     */
-    /****************************************************************************/
-    void ReportUpdateBootLoader(quint32 InstanceID, ReturnCode_t HdlInfo);
-
 private:
+    void SetState(State_t State);
     ReturnCode_t SendData();
     ReturnCode_t SendModeRequest(bool StartUpdate);
     ReturnCode_t SendInfo();
-    ReturnCode_t SendHeader();
     quint32 CalculateCrc(const quint8 *p_Data, quint32 DataSize);
     ReturnCode_t HandleCanMsgUpdateRequired(const can_frame *p_CanFrame);
     ReturnCode_t HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame);
@@ -135,8 +121,8 @@ private:
     quint32 m_CanIdUpdateInfo;          //!< CAN-ID 'UpdateInfo'
     quint32 m_CanIdUpdateInfoAck;       //!< CAN-ID 'UpdateInfoAck'
 
-    CANCommunicator *mp_CanCommunicator;    //!< Communicator object
-    CBaseModule *mp_BaseModule; //!< Base module assigned to the boot loader
+    DeviceControl::CANCommunicator *mp_CanCommunicator; //!< Communicator object
+    CBaseModule *mp_BaseModule;  //!< Base module assigned to the boot loader
     QFile m_FirmwareImage;  //!< Firmware image file to be programmed
     bool m_UpdateRequired;  //!< Indicates if an update is required or not
     bool m_WaitForUpdate;   //!< Set to wait for an update

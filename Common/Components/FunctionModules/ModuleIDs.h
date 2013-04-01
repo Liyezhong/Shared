@@ -42,6 +42,8 @@
 #define MODULE_ID_TEMPERATURE     11    //!< Module ID for temperature control
 #define MODULE_ID_UART            12    //!< Module ID for serial interface
 
+#define MODULE_ID_PRESSURE        13    //!< Module ID for serial interface
+
 #define MODULE_ID_SIMUALTION      0xFFF //!< Modules ID for test simulation
 
 //****************************************************************************/

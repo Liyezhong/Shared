@@ -33,13 +33,13 @@ namespace DeviceControl
 
 /****************************************************************************/
 /*!
- *  \brief  Constructor for the CAnalogOutput
+ *  \brief    Constructor for the CAnalogOutput
  *
- *  \iparam p_MessageConfiguration = Message configuration
- *  \iparam pCANCommunicator = pointer to communication class
- *  \iparam pParentNode = pointer to base module, where this module is assigned to
- */
-/****************************************************************************/
+ *  \param    p_MessageConfiguration = Message configuration
+ *  \param    pCANCommunicator = pointer to communication class
+ *  \param    pParentNode = pointer to base module, where this module is assigned to
+ *
+ ****************************************************************************/
 CAnalogOutput::CAnalogOutput(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                              CBaseModule* pParentNode) :
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT , p_MessageConfiguration, pCANCommunicator, pParentNode),
@@ -48,26 +48,32 @@ CAnalogOutput::CAnalogOutput(const CANMessageConfiguration* p_MessageConfigurati
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
     m_SubStateConfig = FM_AOUTP_SUB_STATE_CONFIG_INIT;
+
+    //module command array initialisation
+    for(quint8 idx = 0; idx < MAX_AOUTP_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+    }
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Destructor of CANAnalogOutput
- */
-/****************************************************************************/
+ *  \brief    Destructor of CANAnalogOutput
+ *
+ ****************************************************************************/
 CAnalogOutput::~CAnalogOutput()
 {
+
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Initialize this function module
+ *  \brief    Initialize this function module
  *
- *      The CAN-IDs are read from the CAN-Message configuration class, and
- *      the CAN-ID are composed. Receiveable CAN-message are registered to
- *      the communication layer.
+ *   The CAN-IDs are read from the CAN-Message configuration class, and the CAN-ID are composed
+ *   Receiveable CAN-message are registered to the communication layer
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
 ReturnCode_t CAnalogOutput::Initialize()
@@ -90,13 +96,13 @@ ReturnCode_t CAnalogOutput::Initialize()
 
 /****************************************************************************/
 /*!
- *  \brief  Initialize the module's CAN message IDs
+ *  \brief    Initialize the module's CAN message IDs
  *
- *      The CAN-IDs are read from the CAN-Message configuration class. The
- *      CAN-ID is composed by the message key, the function module's channel
- *      and the node id of the CANNode this fct-module is assigned to.
+ *   The CAN-IDs are read from the CAN-Message configuration class.
+ *   The CAN-ID is composed by the message key, the function
+ *   module's channel and the node id of the CANNode this fct-module is assigned to.
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
 ReturnCode_t CAnalogOutput::InitializeCANMessages()
@@ -133,14 +139,13 @@ ReturnCode_t CAnalogOutput::InitializeCANMessages()
 
 /****************************************************************************/
 /*!
- *  \brief  Register the receive CAN-messages to communication layer
+ *  \brief    Register the receive CAN-messages to communication layer
  *
- *      Each receiveable CAN-message must be registered to the communication
- *      layer. This enables the communication layer to call the
- *      'HandleCANMessage(..)' function of this instance after receiption of
- *      the message.
+ *   Each receiveable CAN-message must be registered to the communication layer.
+ *   This enables the communication layer to call the 'HandelCANMessage(..)' function of this
+ *   instance after receiption of the message.
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
 ReturnCode_t CAnalogOutput::RegisterCANMessages()
@@ -162,10 +167,11 @@ ReturnCode_t CAnalogOutput::RegisterCANMessages()
 
 /****************************************************************************/
 /*!
- *  \brief  Handles the function module's state machine
+ *  \brief    Handles the function module's state machine
  *
- *      Depending on the active main state, the appropriate task function
- *      will be called.
+ *   Depending on the active main state, the appropriate task function will be called.
+ *
+ *  \return   void
  */
 /****************************************************************************/
 void CAnalogOutput::HandleTasks()
@@ -209,10 +215,11 @@ void CAnalogOutput::HandleTasks()
 
 /****************************************************************************/
 /*!
- *  \brief  Handles the function module's state machine in idle main state
+ *  \brief    Handles the function module's state machine in idle main state
  *
- *      Depending on the active task ID, the appropriate task function will
- *      be called.
+ *   Depending on the active task ID, the appropriate task function will be called.
+ *
+ *  \return   void
  */
 /****************************************************************************/
 void CAnalogOutput::HandleIdleState()
@@ -245,32 +252,27 @@ void CAnalogOutput::HandleIdleState()
 void CAnalogOutput::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < MAX_AOUTP_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ)
         {
             // forward the module command to the function module on slave side by sending
             // the corresponding CAN-message
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
-
-            if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_SET_OUTP)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].m_Type == FM_AO_CMD_TYPE_SET_OUTP)
             {
                 //send the requested output value to the slave by sending the CAN message
                 FILE_LOG_L(laFCT, llINFO) << " CANAnalogOutput: Set output state.";
-                RetVal = SendCANMsgAnalogOutputStateSet(p_ModuleCommand->OutputValue,
-                                                        p_ModuleCommand->Duration,
-                                                        p_ModuleCommand->Delay);
+                RetVal = SendCANMsgAnalogOutputStateSet(m_ModuleCommand[idx].m_OutputValue,
+                                                        m_ModuleCommand[idx].m_Duration,
+                                                        m_ModuleCommand[idx].m_Delay);
 
-                RemoveCommand = true;
-                emit ReportOutputValueAckn(GetModuleHandle(), RetVal, p_ModuleCommand->OutputValue);
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+                emit ReportOutputValueAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].m_OutputValue);
             }
-            else if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_REQ_ACTVALUE)
+            else if(m_ModuleCommand[idx].m_Type == FM_AO_CMD_TYPE_REQ_ACTVALUE)
             {
                 //send the value request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDAnaInputState CAN-message
@@ -279,14 +281,15 @@ void CAnalogOutput::HandleCommandRequestTask()
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_AOUTP_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_AOUTP_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportActOutputValue(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_REQ_LIFECYCLE)
+            else if(m_ModuleCommand[idx].m_Type == FM_AO_CMD_TYPE_REQ_LIFECYCLE)
             {
                 //send the value request to the slave, this command will be acknowledged by the receiption
                 // of the LivetimeData CAN-message
@@ -295,63 +298,50 @@ void CAnalogOutput::HandleCommandRequestTask()
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_AOUTP_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_AOUTP_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportLifeTimeData(GetModuleHandle(), RetVal, 0, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_REQ_DATA_RESET)
-            {
-                RetVal = SendCANMsgReqDataReset();
-                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_AOUTP_TIMEOUT_READ_REQ;
-                }
-                else {
-                    emit ReportDataResetAckn(GetModuleHandle(), RetVal);
-                }
-            }
 
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
-                RemoveCommand = true;
+                //trigger timeout supervision
+                m_ModuleCommand[idx].m_ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ_SEND)
         {
-            // check active module commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            // check avtive module commands for timeout
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
-                RemoveCommand = true;
+                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
 
-                if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_REQ_ACTVALUE)
+                if(m_ModuleCommand[idx].m_Type == FM_AO_CMD_TYPE_REQ_ACTVALUE)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANAnalogOutput:: '" << GetKey().toStdString() << "': output value req. timeout";
-                    emit ReportActOutputValue(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    emit ReportActOutputValue(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_REQ_LIFECYCLE)
+                else if(m_ModuleCommand[idx].m_Type == FM_AO_CMD_TYPE_REQ_LIFECYCLE)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANAnalogOutput:: '" << GetKey().toStdString() << "': life time data req. timeout";
-                    emit ReportLifeTimeData(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0);
-                }
-                else if(p_ModuleCommand->Type == FM_AO_CMD_TYPE_REQ_DATA_RESET)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANAnalogOutput:: '" << GetKey().toStdString() << "': ReqDataReset timeout error.";
-                    emit ReportDataResetAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportLifeTimeData(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0);
                 }
             }
-        }
-
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
@@ -379,15 +369,10 @@ void CAnalogOutput::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
-    }
-    else if(pCANframe->can_id == m_unCanIDAcknDataReset)
-    {
-        ResetModuleCommand(FM_AO_CMD_TYPE_REQ_DATA_RESET);
-        HandleCANMsgAcknDataReset(pCANframe);
     }
     else if(pCANframe->can_id == m_unCanIDAnaOutputState)
     {
@@ -416,12 +401,12 @@ void CAnalogOutput::HandleCANMsgAnalogOutputState(can_frame* pCANframe)
         ResetModuleCommand(FM_AO_CMD_TYPE_REQ_ACTVALUE);
     }
 
-    if(pCANframe->can_dlc == 7)
+    if(pCANframe->can_dlc == 8)
     {
         quint16 OutputValue;
 
-        OutputValue = (quint16) pCANframe->data[1] << 8;
-        OutputValue |= (quint16) pCANframe->data[2];
+        OutputValue = (quint16) pCANframe->data[0] << 8;
+        OutputValue |= (quint16) pCANframe->data[1];
         FILE_LOG_L(laFCT, llINFO) << "  CANAnalogOutput: act. output state: " << (int) OutputValue;
 
         emit ReportActOutputValue(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, OutputValue);
@@ -451,11 +436,17 @@ void CAnalogOutput::HandleCANMsgAnalogOutputLifetime(can_frame* pCANframe)
 
     if(pCANframe->can_dlc == 8)
     {
-        quint32 LifeTime;
-        quint32 LifeCycles;
+        quint32 LifeTime, LifeCycles;
 
-        LifeTime = GetCANMsgDataU32(pCANframe, 0);
-        LifeCycles = GetCANMsgDataU32(pCANframe, 4);
+        LifeTime = (((quint32) pCANframe->data[0]) << 24);
+        LifeTime |= (((quint32) pCANframe->data[1]) << 16);
+        LifeTime |= (((quint32) pCANframe->data[2]) << 8);
+        LifeTime |= ((quint32) pCANframe->data[3]);
+
+        LifeCycles = (((quint32) pCANframe->data[0]) << 24);
+        LifeCycles |= (((quint32) pCANframe->data[1]) << 16);
+        LifeCycles |= (((quint32) pCANframe->data[2]) << 8);
+        LifeCycles |= ((quint32) pCANframe->data[3]);
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANAnalogOutput: " << (int) LifeTime << ", " << (int) LifeCycles;
 
@@ -481,15 +472,13 @@ void CAnalogOutput::HandleCANMsgAnalogOutputLifetime(can_frame* pCANframe)
 ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
 {
     CANFctModuleAnalogOutput* pCANObjConfAnaOutPort;
-
     pCANObjConfAnaOutPort = (CANFctModuleAnalogOutput*) m_pCANObjectConfig;
-
     can_frame canmsg;
     ReturnCode_t RetVal;
 
     FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration (I/O-dir): 0x" << std::hex << m_unCanIDAnaOutputConfigOutput;
     canmsg.can_id = m_unCanIDAnaOutputConfigOutput;
-    canmsg.can_dlc = 6;
+    canmsg.can_dlc = 7;
 
     canmsg.data[0] = 0;
     if(pCANObjConfAnaOutPort->m_bEnabled)
@@ -505,9 +494,9 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
         canmsg.data[0] |= 0x20;
     }
 
-    canmsg.data[1] = pCANObjConfAnaOutPort->m_sBitCount;
-    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sOutvalInactiv, 2);
-    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sLivetimeLimit, 4);
+    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sBitCount, 1);
+    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sOutvalInactiv, 3);
+    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sLivetimeLimit, 5);
 
     RetVal = m_pCANCommunicator->SendCOB(canmsg);
 
@@ -516,13 +505,10 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
 
 /****************************************************************************/
 /*!
- *  \brief  Send the CAN-message 'OutputStateSet' to set output state
+ *  \brief    Send the CAN-message 'OutputStateSet' to set output state
  *
- *  \iparam OutputValue = Target value of the analog output
- *  \iparam Duration = Duration the value is active in milliseconds
- *  \iparam Delay = Time after that the value gets active in milliseconds
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */
 /****************************************************************************/
 ReturnCode_t CAnalogOutput::SendCANMsgAnalogOutputStateSet(quint16 OutputValue, quint16 Duration, quint16 Delay)
@@ -588,30 +574,27 @@ ReturnCode_t CAnalogOutput::SendCANMsgLifeTimeDataReq()
 
 /****************************************************************************/
 /*!
- *  \brief  Set the analog output value
+ *  \brief    Set the analog output value
  *
- *      The task will be acknowledged by sending the signal
- *      ReportActOutputValue.
+ *            The task will be acknowledged by sending the signal ReportActOutputValue
  *
- *  \iparam OutputValue = Target value of the analog output
- *  \iparam Duration = Duration the value is active in milliseconds
- *  \iparam Delay = Time after that the value gets active in milliseconds
+ *  \iparam   OutputValue     Analog output value to set
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted,
- *          otherwise DCL_ERR_INVALID_STATE
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *            otherwise DCL_ERR_INVALID_STATE
  */
 /****************************************************************************/
 ReturnCode_t CAnalogOutput::SetOutputValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_AO_CMD_TYPE_SET_OUTP);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_AO_CMD_TYPE_SET_OUTP, &CmdIndex))
     {
-        p_ModuleCommand->OutputValue = OutputValue;
-        p_ModuleCommand->Duration = Duration;
-        p_ModuleCommand->Delay = Delay;
+        m_ModuleCommand[CmdIndex].m_OutputValue = OutputValue;
+        m_ModuleCommand[CmdIndex].m_Duration = Duration;
+        m_ModuleCommand[CmdIndex].m_Delay = Delay;
         FILE_LOG_L(laDEV, llINFO) << " CAnalogOutput, Value: " << (int) OutputValue;
     }
     else
@@ -637,8 +620,11 @@ ReturnCode_t CAnalogOutput::ReqOutputValue()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_AO_CMD_TYPE_REQ_ACTVALUE);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_AO_CMD_TYPE_REQ_ACTVALUE))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANAnalogOutput";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANAnalogOutput invalid state: " << (int) m_TaskID;
@@ -661,8 +647,11 @@ ReturnCode_t CAnalogOutput::ReqLifeTimeData()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_AO_CMD_TYPE_REQ_LIFECYCLE);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_AO_CMD_TYPE_REQ_LIFECYCLE))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANAnalogOutput";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANAnalogOutput invalid state: " << (int) m_TaskID;
@@ -673,74 +662,69 @@ ReturnCode_t CAnalogOutput::ReqLifeTimeData()
 
 /****************************************************************************/
 /*!
- *  \brief  Request a data reset
+ *  \brief  Helper function, sets a free module command to the given command type
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
+ *  \iparam CommandType = command type to set
+ *  \iparam pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
+ *
+ *  \return true, if the command type can be placed, otherwise false
  */
 /****************************************************************************/
-ReturnCode_t CAnalogOutput::ReqDataReset()
+bool CAnalogOutput::SetModuleTask(CANAnalogOutputModuleCmdType_t CommandType, quint8* pCmdIndex)
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    bool CommandAdded = false;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_AO_CMD_TYPE_REQ_DATA_RESET);
-    if(p_ModuleCommand == NULL)
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CAnalogOutput '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+        for(quint8 idx = 0; idx < MAX_AOUTP_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].m_Type = CommandType;
 
-    return RetVal;
-}
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
 
-/****************************************************************************/
-/*!
- *  \brief  Adds a new command to the transmit queue
- *
- *  \iparam CommandType = Command type to set
- *
- *  \return Module command, if the command type can be placed, otherwise NULL
- */
-/****************************************************************************/
-CAnalogOutput::ModuleCommand_t *CAnalogOutput::SetModuleTask(CANAnalogOutputModuleCmdType_t CommandType)
-{
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
+                FILE_LOG_L(laFCT, llINFO) << " CANAnalogOutput:  task " << (int) idx << " request.";
+                break;
             }
         }
-
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
     }
 
-    return NULL;
+    return CommandAdded;
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Removes an existing command from the transmit queue
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command of that type will be set to free
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
  */
 /****************************************************************************/
-void CAnalogOutput::ResetModuleCommand(CANAnalogOutputModuleCmdType_t CommandType)
+void CAnalogOutput::ResetModuleCommand(CANAnalogOutputModuleCmdType_t ModuleCommandType)
 {
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            break;
+    bool ActiveCommandFound = false;
+
+    for(quint8 idx = 0; idx < MAX_AOUTP_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].m_Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].m_State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+        }
+
+        if(m_ModuleCommand[idx].m_State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }

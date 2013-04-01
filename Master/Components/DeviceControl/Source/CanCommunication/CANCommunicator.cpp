@@ -61,8 +61,6 @@ CANCommunicator::CANCommunicator() :
     m_nInstanceNo = m_nInstanceCnt_s++;
     m_nErrorCode = ERR_COMM_NONE;
     errorUntransmitted = 0;
-
-    m_pCANInterface = new CANInterface();
 }
 
 /****************************************************************************/
@@ -74,7 +72,6 @@ CANCommunicator::~CANCommunicator()
 {
     try
     {
-        delete m_pCANInterface;
         delete m_pClient;
     }
     catch (...)
@@ -181,7 +178,7 @@ ReturnCode_t CANCommunicator::StopComm()
 
     if(!m_bUseTcp)
     {
-        if((m_pCANReceiveThread == 0))
+        if((m_pCANReceiveThread == 0)  || (m_pCANInterface == 0))
         {
             RetCode = DCL_ERR_NULL_PTR_ACCESS;
             return RetCode;
@@ -205,6 +202,8 @@ ReturnCode_t CANCommunicator::StopComm()
             m_pCANReceiveThread = NULL;
             delete m_pCANTransmitThread;
             m_pCANTransmitThread = NULL;
+            delete m_pCANInterface;
+            m_pCANInterface = NULL;
         }
     }
     else
@@ -229,9 +228,16 @@ ReturnCode_t CANCommunicator::StopComm()
 /****************************************************************************/
 qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
 {
-    qint16 sRetval = m_pCANInterface->Open(ifaceCAN);
+    qint16 sRetval = 0;
 
-    FILE_LOG_L(laINIT, llDEBUG) << " can open returns " <<  sRetval;
+    m_pCANInterface = new CANInterface();
+
+    if(m_pCANInterface)
+    {
+        /// \todo open with iface
+        sRetval = m_pCANInterface->Open(ifaceCAN);
+        FILE_LOG_L(laINIT, llDEBUG) << " can open returns " <<  sRetval;
+    }
 
     return sRetval;
 }
@@ -515,7 +521,7 @@ can_frame CANCommunicator::PopPendingOutMessage()
 
     m_mutexCOB.lock();
 
-    std::deque<can_frame>::iterator iterSendQueue;
+    std::deque <can_frame> :: iterator iterSendQueue;
     iterSendQueue = m_SendQueue.begin();
     canmsg = *iterSendQueue;
     m_SendQueue.pop_front();

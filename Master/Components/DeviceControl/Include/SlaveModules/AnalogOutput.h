@@ -33,9 +33,11 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_AOUTP_CMD_IDX 2 ///< up to 2 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
- *  \brief Analog output function module class
+ *  \brief Analog input function module class
  *
  *      This class implements the functionality to configure and control a
  *      slave's 'analog output' function module.
@@ -59,13 +61,11 @@ public:
     void HandleCanMessage(can_frame* pCANframe);
 
     //! Set output
-    ReturnCode_t SetOutputValue(quint16 OutputValue, quint16 Duration = 0, quint16 Delay = 0);
+    ReturnCode_t SetOutputValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
     //! Request actual output
     ReturnCode_t ReqOutputValue();
     //! Request life time data
     ReturnCode_t ReqLifeTimeData();
-    //! Request data reset
-    ReturnCode_t ReqDataReset();
 
 signals:
     /****************************************************************************/
@@ -107,6 +107,9 @@ private:
     ReturnCode_t InitializeCANMessages();
     //! registers the CAN messages to communication layer
     ReturnCode_t RegisterCANMessages();
+
+    //! configuration task handling function
+    void SendConfiguration();
 
     //! Idle taks handling function
     void HandleIdleState();
@@ -152,25 +155,24 @@ private:
         FM_AO_CMD_TYPE_UNDEF          = 0x00,  //!< undefined movement type
         FM_AO_CMD_TYPE_SET_OUTP       = 0x02,  //!< set output value
         FM_AO_CMD_TYPE_REQ_ACTVALUE   = 0x03,  //!< actual value request
-        FM_AO_CMD_TYPE_REQ_LIFECYCLE  = 0x04,  //!< request life cycle data
-        FM_AO_CMD_TYPE_REQ_DATA_RESET = 0x05   //!< data reset
+        FM_AO_CMD_TYPE_REQ_LIFECYCLE  = 0x04   //!< request life cycle data
     } CANAnalogOutputModuleCmdType_t;
 
     /*! module command data, used for internal data transfer*/
     typedef struct {
-        CANAnalogOutputModuleCmdType_t Type;    //!< command type
-        ModuleCmdState_t State;                 //!< command state
-        Global::MonotonicTime ReqSendTime;      //!< time the command was executed
-        qint32 Timeout;                         //!< timeout in ms
-        quint16 OutputValue;                    //!< requested output value
-        quint16 Duration;                       //!< Time the ouptput is on
-        quint16 Delay;                          //!< Time before the output is on
+        CANAnalogOutputModuleCmdType_t m_Type;  //!< command type
+        ModuleCmdState_t m_State;               //!< command state
+        Global::MonotonicTime m_ReqSendTime;    //!< time the command was executed
+        qint32 m_Timeout;                       //!< timeout in ms
+        quint16 m_OutputValue;                  //!< requested output value
+        quint16 m_Duration;                     //!< Time the ouptput is on
+        quint16 m_Delay;                        //!< Time before the output is on
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    ModuleCommand_t m_ModuleCommand[MAX_AOUTP_CMD_IDX];  //!<  array of module commands for simultaneously execution
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANAnalogOutputModuleCmdType_t CommandType);
+    //! Set the module command type to free entry within array
+    bool SetModuleTask(CANAnalogOutputModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
     //! Clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANAnalogOutputModuleCmdType_t CommandType);
 };

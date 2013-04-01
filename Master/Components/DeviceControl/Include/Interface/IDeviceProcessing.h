@@ -59,8 +59,9 @@ public:
     IDeviceProcessing();
     ~IDeviceProcessing();
 
-    //! Start device control layer thread
-    void Start();
+    //! Returns the serial number from config file
+    static bool GetSerialNumber(QString& SerialNo);
+
     //! Emergency stop
     void EmergencyStop();   // should be called if the device's cover was opened by the user
     //! Shutdown the device
@@ -83,83 +84,26 @@ public:
     ReturnCode_t StartAdjustmentService();
 
     //! Returns Device derived class pointer specified by instanceID
-    CDeviceBase* GetDevice(DevInstanceID_t InstanceID);
+    CBaseDevice* GetDevice(DevInstanceID_t InstanceID);
     //! Return the pointer to the CBaseModule which is next in list
     CBaseModule* GetNode(bool First);
 
-    void SetAdjustmentList(DataManager::CAdjustment AdjustmentList);
-
 signals:
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward the 'intitialisation finished' notification
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportInitializationFinished(ReturnCode_t ReturnCode);
+    //! Forward the 'intitialisation finished' notification
+    void ReportInitializationFinished(DevInstanceID_t, ReturnCode_t);
+    //! Forward the 'configuration finished' notification
+    void ReportConfigurationFinished(DevInstanceID_t, ReturnCode_t);
+    //! Forward the 'normal operation mode started' notification
+    void ReportStartNormalOperationMode(DevInstanceID_t, ReturnCode_t);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward the 'configuration finished' notification
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportConfigurationFinished(ReturnCode_t ReturnCode);
+    //! Forward error information
+    void ReportError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                     quint16 usErrorData, QDateTime timeStamp);
+    //! Forward error information
+    void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                             quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward the 'normal operation mode started' notification
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportStartNormalOperationMode(ReturnCode_t ReturnCode);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward error information
-     *
-     *  \iparam instanceID = Source of the error
-     *  \iparam usErrorGroup = Error group
-     *  \iparam usErrorID = Error ID
-     *  \iparam usErrorData = Error data
-     *  \iparam timeStamp = Timestamp
-     */
-    /****************************************************************************/
-    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime TimeStamp);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward error information
-     *
-     *  \iparam instanceID = Source of the error
-     *  \iparam usErrorGroup = Error group
-     *  \iparam usErrorID = Error ID
-     *  \iparam usErrorData = Error data
-     *  \iparam timeStamp = Timestamp
-     *  \iparam strErrorInfo = Error string
-     */
-    /****************************************************************************/
-    void ReportEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime TimeStamp, QString EventInfo);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Reports that the device control layer is stopped
-     */
-    /****************************************************************************/
     void ReportDestroyFinished();
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Emitted when all devices should shut down
-     */
-    /****************************************************************************/
-    void DeviceShutdown();
 
 private slots:
     //! Task handling
@@ -173,26 +117,25 @@ private slots:
     void OnStartNormalOperationMode(ReturnCode_t);
 
     //! Get error information from DeviceProcessing
-    void OnEvent(quint32 EventCode, quint16 EventData, QDateTime TimeStamp);
+    void OnError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                 quint16 usErrorData, QDateTime timeStamp);
     //! Get error information from DeviceProcessing
-    void OnEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime TimeStamp, QString EventInfo);
+    void OnErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                         quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
     //! Device control layer diagnostic service acknwoledge
-    void OnDiagnosticServiceClosed(ReturnCode_t DiagnosticResult);
+    void OnDiagnosticServiceClosed(qint16 DiagnosticResult);
 
     void OnDestroyFinished();
-
-    void ThreadStarted();
 
 private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
 
-    DeviceProcessing m_DevProc;        //!< Device processing instance
-    QThread m_DevProcThread;           //!< Device processing thread
-    QTimer m_DevProcTimer;             //!< Device processing timer
+    DeviceProcessing *mp_DevProc;   //!< Device processing instance
+    QThread m_DevProcThread;        //!< Device processing thread
+    QTimer m_DevProcTimer;          //!< Device processing timer
 
-    //! Task identifiers
     typedef enum {
         IDEVPROC_TASKID_INIT     = 0x00,    //!< Initialisation
         IDEVPROC_TASKID_FREE     = 0x01,    //!< Task free, nothing to do
@@ -200,7 +143,6 @@ private:
         IDEVPROC_TASKID_REQ_TASK = 0x03     //!< A reqest is active
     } IDeviceProcessingTaskID_t;
 
-    //! Task states
     typedef enum {
         IDEVPROC_TASK_STATE_FREE     = 0x00,    //!< Task state free, ready for action request
         IDEVPROC_TASK_STATE_REQ      = 0x01,    //!< An action was requested, next step will be to forward the command
@@ -215,6 +157,9 @@ private:
     DeviceProcTask::TaskPrio_t m_reqTaskPriority;   //!< Task priority
     quint16 m_reqTaskParameter1;    //!< Task parameter 1
     quint16 m_reqTaskParameter2;    //!< Task parameter 2
+
+    DevInstanceID_t m_instanceID;   //!< Instance identification
+
 
     QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing

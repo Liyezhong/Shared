@@ -33,13 +33,13 @@ namespace DeviceControl
 
 /****************************************************************************/
 /*!
- *  \brief  Constructor for the CRfid11785
+ *  \brief    Constructor for the CRfid11785
  *
- *  \iparam p_MessageConfiguration = Message configuration
- *  \iparam pCANCommunicator = pointer to communication class
- *  \iparam pParentNode = Base module this module is assigned to
- */
-/****************************************************************************/
+ *  \param    p_MessageConfiguration = Message configuration
+ *  \param    pCANCommunicator = pointer to communication class
+ *  \param    pParentNode = pointer to CANNode, where this module is assigned to
+ *
+ ****************************************************************************/
 CRfid11785::CRfid11785(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                        CBaseModule* pParentNode) :
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_RFID11785, p_MessageConfiguration, pCANCommunicator, pParentNode),
@@ -50,6 +50,12 @@ CRfid11785::CRfid11785(const CANMessageConfiguration *p_MessageConfiguration, CA
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
 
+    //module command array initialisation
+    for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+    }
+
     m_ConfigurationState.Enabled = 0;
     // For now the data rate will always be RF/32
     m_ConfigurationState.DataRate = 1;
@@ -58,13 +64,23 @@ CRfid11785::CRfid11785(const CANMessageConfiguration *p_MessageConfiguration, CA
 
 /****************************************************************************/
 /*!
- *  \brief  Initialize this function module
+ *  \brief    Destructor of CRfid11785
  *
- *      The CAN-IDs are read from the CAN-Message configuration class, and
- *      the CAN-ID are composed. Receiveable CAN-message are registered to
- *      the communication layer.
+ ****************************************************************************/
+CRfid11785::~CRfid11785()
+{
+    /// \todo Auto-generated destructor stub
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief    Initialize this function module
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ *   The CAN-IDs are read from the CAN-Message configuration class, and the CAN-ID are composed
+ *   Receiveable CAN-message are registered to the communication layer
+ *
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
 ReturnCode_t CRfid11785::Initialize()
@@ -95,13 +111,13 @@ ReturnCode_t CRfid11785::Initialize()
 
 /****************************************************************************/
 /*!
- *  \brief  Initialize the module's CAN message IDs
+ *  \brief    Initialize the module's CAN message IDs
  *
- *      The CAN-IDs are read from the CAN-Message configuration class. The
- *      CAN-ID is composed by the message key, the function module's channel
- *      and the node id of the CANNode this fct-module is assigned to.
+ *   The CAN-IDs are read from the CAN-Message configuration class.
+ *   The CAN-ID is composed by the message key, the function
+ *   module's channel and the node id of the CANNode this fct-module is assigned to.
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
 ReturnCode_t CRfid11785::InitializeCANMessages()
@@ -124,9 +140,9 @@ ReturnCode_t CRfid11785::InitializeCANMessages()
     m_unCanIDWriteUserData     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WriteUserData", bChannel, m_pParent->GetNodeID());
     m_unCanIDWriteUserDataAckn = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WriteUserDataAckn", bChannel, m_pParent->GetNodeID());
     m_unCanIDWritePassword     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WritePassword", bChannel, m_pParent->GetNodeID());
-    m_unCanIDWritePasswordAckn = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WritePasswordAckn", bChannel, m_pParent->GetNodeID());
+    m_unCanIDWritePasswordAckn = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WritePassword", bChannel, m_pParent->GetNodeID());
     m_unCanIDWriteConfig       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WriteConfig", bChannel, m_pParent->GetNodeID());
-    m_unCanIDWriteConfigAckn   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WriteConfigAckn", bChannel, m_pParent->GetNodeID());
+    m_unCanIDWriteConfigAckn   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785WriteConfig", bChannel, m_pParent->GetNodeID());
     m_unCanIDUserDataReq       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785UserDataReq", bChannel, m_pParent->GetNodeID());
     m_unCanIDUserData          = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785UserData", bChannel, m_pParent->GetNodeID());
     m_unCanIDUIDReq            = mp_MessageConfiguration->GetCANMessageID(ModuleID, "RFID11785UIDNumberReq", bChannel, m_pParent->GetNodeID());
@@ -157,14 +173,13 @@ ReturnCode_t CRfid11785::InitializeCANMessages()
 
 /****************************************************************************/
 /*!
- *  \brief  Register the receive CAN-messages to communication layer
+ *  \brief    Register the receive CAN-messages to communication layer
  *
- *      Each receiveable CAN-message must be registered to the communication
- *      layer. This enables the communication layer to call the
- *      'HandelCANMessage(..)' function of this instance after receiption of
- *      the message.
+ *   Each receiveable CAN-message must be registered to the communication layer.
+ *   This enables the communication layer to call the 'HandelCANMessage(..)' function of this
+ *   instance after receiption of the message.
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
 ReturnCode_t CRfid11785::RegisterCANMessages()
@@ -281,125 +296,120 @@ void CRfid11785::HandleIdleState()
 void CRfid11785::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ)
         {
             // forward the module command to the function module on slave side by sending
             // the corresponding CAN-message
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
-
-            if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_SET_CONFIG)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_SET_CONFIG)
             {
-                //send the configuration data to the slave, this command will be acknowledged by reception
+                //send the configuration data to the slave, this command will not be acknowledged
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: 'Set configuration' send";
                 RetVal = SendCANMessageConfiguration();
 
-                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-                {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
-                }
-                else
-                {
-                    emit ReportStateAckn(GetModuleHandle(), RetVal);
-                }
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                emit ReportStateAckn(GetModuleHandle(), RetVal);
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_LOGIN)
+            else  if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_LOGIN)
             {
-                //send the value request to the slave, this command will be acknowledged by reception
+                //send the value request to the slave, this command will not acknowledged by receiption
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: Login send";
-                RetVal = SendCANMsgLogin(p_ModuleCommand->Password);
+                RetVal = SendCANMsgLogin(m_ModuleCommand[idx].Password);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportLoginAckn(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_USER_DATA_REQ)
+            else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_USER_DATA_REQ)
             {
-                //send the value request to the slave, this command will be acknowledged by reception
+                //send the value request to the slave, this command will be acknowledged by receiption
                 // of the m_unCanIDUserData CAN-message
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: Read user data: send request.";
-                RetVal = SendCANMsgReadUserData(p_ModuleCommand->UserDataAddress);
+                RetVal = SendCANMsgReadUserData(m_ModuleCommand[idx].UserDataAddress);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportUserData(GetModuleHandle(), RetVal, 0, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_USER_DATA_WRITE)
+            else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_USER_DATA_WRITE)
             {
-                //send the value request to the slave, this command will be acknowledged by reception
+                //send the value request to the slave, this command will be acknowledged by receiption
                 // of the m_unCanIDWriteData CAN-message
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: Write user data: send request.";
-                RetVal = SendCANMsgWriteUserData(p_ModuleCommand->UserDataAddress, p_ModuleCommand->UserData);
+                RetVal = SendCANMsgWriteUserData(m_ModuleCommand[idx].UserDataAddress, m_ModuleCommand[idx].UserData);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportWriteData(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_UID_REQ)
+            else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_UID_REQ)
             {
-                //send the value request to the slave, this command will be acknowledged by the reception
+                //send the value request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDUID CAN-message
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: Read UID: send request.";
                 RetVal = SendCANMsgReadUID();
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportUID(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_PASSWORD_WRITE)
+            else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_PASSWORD_WRITE)
             {
-                //send the value request to the slave, this command will be acknowledged by reception
+                //send the value request to the slave, this command will be acknowledged by receiption
                 // of the m_unCanIDWritePassword CAN-message
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: Write password: send request.";
-                RetVal = SendCANMsgWritePassword(p_ModuleCommand->Password);
+                RetVal = SendCANMsgWritePassword(m_ModuleCommand[idx].Password);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportWritePassword(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_CONGIG_WRITE)
+            else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_CONGIG_WRITE)
             {
                 //send the value request to the slave, this command will be acknowledged by receiption
                 // of the m_unCanIDWriteConfig CAN-message
                 FILE_LOG_L(laFCT, llINFO) << " CANRFID11785: Write password: send request.";
-                RetVal = SendCANMsgWriteConfig(p_ModuleCommand->ReadLogin, p_ModuleCommand->WriteLogin,
-                                               p_ModuleCommand->ReaderTalkFirst);
+                RetVal = SendCANMsgWriteConfig(m_ModuleCommand[idx].ReadLogin, m_ModuleCommand[idx].WriteLogin,
+                                               m_ModuleCommand[idx].ReaderTalkFirst);
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_RFID_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_RFID_TIMEOUT_READ_REQ;
                 }
                 else
                 {
@@ -407,65 +417,51 @@ void CRfid11785::HandleCommandRequestTask()
                 }
             }
 
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
-                RemoveCommand = true;
+                //trigger timeout supervision
+                m_ModuleCommand[idx].ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND)
         {
             // check avtive motor commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
-                RemoveCommand = true;
+                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
 
-                if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_SET_CONFIG)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': set config req. timeout";
-                    emit ReportStateAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
-                }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_LOGIN)
+                if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_LOGIN)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': login req. timeout";
-                    emit ReportLoginAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportLoginAckn(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_USER_DATA_REQ)
+                else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_USER_DATA_REQ)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': user data req. timeout";
-                    emit ReportUserData(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0);
+                    emit ReportUserData(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_USER_DATA_WRITE)
+                else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_USER_DATA_WRITE)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': write data req. timeout";
-                    emit ReportWriteData(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    emit ReportWriteData(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_UID_REQ)
+                else if(m_ModuleCommand[idx].Type == FM_RFID_CMD_TYPE_UID_REQ)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': UID req. timeout";
-                    emit ReportUID(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
-                }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_PASSWORD_WRITE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': write password timeout";
-                    emit ReportWritePassword(GetModuleHandle(), DCL_ERR_TIMEOUT);
-                }
-                else if(p_ModuleCommand->Type == FM_RFID_CMD_TYPE_CONGIG_WRITE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANRFID11785:: '" << GetKey().toStdString() << "': write config timeout";
-                    emit ReportWriteConfiguration(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportUID(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
             }
-        }
-
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
@@ -497,29 +493,24 @@ void CRfid11785::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
         hdlInfo = DCL_ERR_EXTERNAL_ERROR;
-
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++)
+        if(m_lastErrorGroup == MODULE_ID_RFID11785)
         {
-            if(m_ModuleCommand[i]->State == MODULE_CMD_STATE_REQ_SEND)
+            for(quint8 i = 0; i < MAX_RFID_CMD_IDX; i++)
             {
-                ModuleCommandType = m_ModuleCommand[i]->Type;
-                break;
+                if(m_ModuleCommand[i].State == MODULE_CMD_STATE_REQ_SEND)
+                {
+                    ModuleCommandType = m_ModuleCommand[i].Type;
+                }
             }
         }
-
-        if (ModuleCommandType == FM_RFID_CMD_TYPE_UNDEF &&
-             (pCANframe->can_id == m_unCanIDEventError || pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+        else if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
 
-    if(m_unCanIDConfigAckn == pCANframe->can_id || FM_RFID_CMD_TYPE_SET_CONFIG == ModuleCommandType)
-    {
-        HandleCANMsgConfigAckn(pCANframe, hdlInfo);
-    }
-    else if(m_unCanIDLoginAckn == pCANframe->can_id || FM_RFID_CMD_TYPE_LOGIN == ModuleCommandType)
+    if(m_unCanIDLoginAckn == pCANframe->can_id || FM_RFID_CMD_TYPE_LOGIN == ModuleCommandType)
     {
         HandleCANMsgLoginAckn(pCANframe, hdlInfo);
     }
@@ -535,11 +526,11 @@ void CRfid11785::HandleCanMessage(can_frame* pCANframe)
     {
         HandleCANMsgUID(pCANframe, hdlInfo);
     }
-    else if(m_unCanIDWritePasswordAckn == pCANframe->can_id || FM_RFID_CMD_TYPE_PASSWORD_WRITE == ModuleCommandType)
+    else if(m_unCanIDUID == pCANframe->can_id || FM_RFID_CMD_TYPE_PASSWORD_WRITE == ModuleCommandType)
     {
         HandleCANMsgWritePassword(pCANframe, hdlInfo);
     }
-    else if(m_unCanIDWriteConfigAckn == pCANframe->can_id || FM_RFID_CMD_TYPE_CONGIG_WRITE == ModuleCommandType)
+    else if(m_unCanIDUID == pCANframe->can_id || FM_RFID_CMD_TYPE_CONGIG_WRITE == ModuleCommandType)
     {
         HandleCANMsgWriteConfig(pCANframe, hdlInfo);
     }
@@ -548,33 +539,6 @@ void CRfid11785::HandleCanMessage(can_frame* pCANframe)
 /****************************************************************************/
 /*!
  *  \brief  Handle the reception of the 'SetConfiguration' CAN message
- *
- *  \iparam pCANframe = struct contains the data of the receipt CAN message
- *  \iparam hdlInfo = Indicates if the message was received successfully
- */
-/****************************************************************************/
-void CRfid11785::HandleCANMsgConfigAckn(can_frame* pCANframe, ReturnCode_t hdlInfo)
-{
-    FILE_LOG_L(laFCT, llINFO) << " CANRFID";
-
-    if(hdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-    {
-        if(pCANframe->can_dlc != 0)
-        {
-            hdlInfo = DCL_ERR_CANMSG_INVALID;
-        }
-    }
-
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        ResetModuleCommand(FM_RFID_CMD_TYPE_SET_CONFIG);
-    }
-    emit ReportStateAckn(GetModuleHandle(), hdlInfo);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Handle the reception of the 'Login' CAN message
  *
  *  \iparam pCANframe = struct contains the data of the receipt CAN message
  *  \iparam hdlInfo = Indicates if the message was received successfully
@@ -594,7 +558,7 @@ void CRfid11785::HandleCANMsgLoginAckn(can_frame* pCANframe, ReturnCode_t hdlInf
 
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
-        ResetModuleCommand(FM_RFID_CMD_TYPE_LOGIN);
+        ResetModuleCommand(FM_RFID_CMD_TYPE_USER_DATA_REQ);
     }
     emit ReportLoginAckn(GetModuleHandle(), hdlInfo);
 }
@@ -660,7 +624,7 @@ void CRfid11785::HandleCANMsgWriteData(can_frame* pCANframe, ReturnCode_t hdlInf
 
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
-        ResetModuleCommand(FM_RFID_CMD_TYPE_USER_DATA_WRITE);
+        ResetModuleCommand(FM_RFID_CMD_TYPE_USER_DATA_REQ);
     }
     emit ReportWriteData(GetModuleHandle(), hdlInfo, RFIDAddress);
 }
@@ -676,13 +640,13 @@ void CRfid11785::HandleCANMsgWriteData(can_frame* pCANframe, ReturnCode_t hdlInf
 void CRfid11785::HandleCANMsgUID(can_frame* pCANframe, ReturnCode_t hdlInfo)
 {
     FILE_LOG_L(laFCT, llINFO) << " CANRFID";
-    quint32 RFIDUID = 0;
+    quint32 RDIDUID = 0;
 
     if(hdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
     {
         if(pCANframe->can_dlc == 4)
         {
-            RFIDUID = GetCANMsgDataU32(pCANframe, 0);
+            RDIDUID = GetCANMsgDataU32(pCANframe, 0);
         }
         else
         {
@@ -694,7 +658,7 @@ void CRfid11785::HandleCANMsgUID(can_frame* pCANframe, ReturnCode_t hdlInfo)
     {
         ResetModuleCommand(FM_RFID_CMD_TYPE_UID_REQ);
     }
-    emit ReportUID(GetModuleHandle(), hdlInfo, RFIDUID);
+    emit ReportUID(GetModuleHandle(), hdlInfo, RDIDUID);
 }
 
 /****************************************************************************/
@@ -773,8 +737,7 @@ ReturnCode_t CRfid11785::SendCANMessageConfiguration()
     canmsg.data[0] |= ((quint8)(m_ConfigurationState.DataRate << 6));
     canmsg.can_dlc = 1;
 
-    FILE_LOG_L(laCONFIG, llDEBUG) << " " << GetName().toStdString() << ": CANRFID11785: data[0]: 0x" <<
-                                     std::hex << (int) canmsg.data[0];
+    FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": CANRFID11785: data[0]: 0x" << std::hex << canmsg.data[0];
 
     RetVal = m_pCANCommunicator->SendCOB(canmsg);
 
@@ -787,8 +750,7 @@ ReturnCode_t CRfid11785::SendCANMessageConfiguration()
  *
  *      The RFID login password will be sent via CAN-Bus to the slave.
  *
- *  \iparam Password = Password to unlock the RFID tag
- *
+ *  \iparam MotionCmdIdx = Command index
  *  \return DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */
 /****************************************************************************/
@@ -914,9 +876,7 @@ ReturnCode_t CRfid11785::SendCANMsgWritePassword(quint32 Password)
  *
  *      A configuration write request will be sent via CAN-Bus to the slave.
  *
- *  \iparam ReadLogin = Needs a login before a read access
- *  \iparam WriteLogin = Needs a login before a write access
- *  \iparam ReaderTalkFirst = Tag only sends data when asked by the reader
+ *  \iparam Password = Password to be written
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */
@@ -964,13 +924,9 @@ ReturnCode_t CRfid11785::SetState(bool Enabled, quint8 Antenna)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
 
-    if (Antenna >= 16) {
-        return DCL_ERR_INVALID_PARAM;
-    }
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_SET_CONFIG);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_SET_CONFIG, &CmdIndex))
     {
         m_ConfigurationState.Enabled = Enabled;
         m_ConfigurationState.Antenna = Antenna;
@@ -1001,11 +957,11 @@ ReturnCode_t CRfid11785::SetLogin(quint32 Password)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_LOGIN);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_SET_CONFIG, &CmdIndex))
     {
-        p_ModuleCommand->Password = Password;
+        m_ModuleCommand[CmdIndex].Password = Password;
         FILE_LOG_L(laDEV, llINFO) << " CANRFID11785";
     }
     else
@@ -1032,8 +988,11 @@ ReturnCode_t CRfid11785::ReqUID()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_UID_REQ);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_UID_REQ))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << (int) m_TaskID;
@@ -1058,17 +1017,17 @@ ReturnCode_t CRfid11785::ReqUserData(quint8 Address)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_REQ);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_REQ), &CmdIndex)
     {
-        p_ModuleCommand->UserDataAddress = Address;
+        m_ModuleCommand[CmdIndex].UserDataAddress = Address;
         FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << (quint32)m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
     }
 
     return RetVal;
@@ -1091,18 +1050,18 @@ ReturnCode_t CRfid11785::WriteUserData(quint8 Address, quint32 Data)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_WRITE);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_WRITE), &CmdIndex)
     {
-        p_ModuleCommand->UserDataAddress = Address;
-        p_ModuleCommand->UserData = Data;
+        m_ModuleCommand[CmdIndex].UserDataAddress = Address;
+        m_ModuleCommand[CmdIndex].UserData = Data;
         FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << (quint32)m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
     }
 
     return RetVal;
@@ -1125,17 +1084,17 @@ ReturnCode_t CRfid11785::WritePassword(quint32 Password)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_PASSWORD_WRITE);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_PASSWORD_WRITE), &CmdIndex)
     {
-        p_ModuleCommand->Password = Password;
+        m_ModuleCommand[CmdIndex].Password = Password;
         FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << (quint32)m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
     }
 
     return RetVal;
@@ -1160,19 +1119,19 @@ ReturnCode_t CRfid11785::WriteConfiguration(bool ReadLogin, bool WriteLogin, boo
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_RFID_CMD_TYPE_CONGIG_WRITE);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_CONGIG_WRITE), &CmdIndex)
     {
-        p_ModuleCommand->ReadLogin = ReadLogin;
-        p_ModuleCommand->WriteLogin = WriteLogin;
-        p_ModuleCommand->ReaderTalkFirst = ReaderTalkFirst;
+        m_ModuleCommand[CmdIndex].ReadLogin = ReadLogin;
+        m_ModuleCommand[CmdIndex].WriteLogin = WriteLogin;
+        m_ModuleCommand[CmdIndex].ReaderTalkFirst = ReaderTalkFirst;
         FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << (quint32)m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
     }
 
     return RetVal;
@@ -1180,52 +1139,69 @@ ReturnCode_t CRfid11785::WriteConfiguration(bool ReadLogin, bool WriteLogin, boo
 
 /****************************************************************************/
 /*!
- *  \brief  Adds a new command to the transmit queue
+ *  \brief  Helper function, sets a free module command to the given command type
  *
- *  \iparam CommandType = Command type to set
+ *  \iparam CommandType = command type to set
+ *  \iparam pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
  *
- *  \return Module command, if the command type can be placed, otherwise NULL
+ *  \return true, if the command type can be placed, otherwise false
  */
 /****************************************************************************/
-CRfid11785::ModuleCommand_t *CRfid11785::SetModuleTask(CANRFIDModuleCmdType_t CommandType)
+bool CRfid11785::SetModuleTask(CANRFIDModuleCmdType_t CommandType, quint8* pCmdIndex)
 {
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
+    bool CommandAdded = false;
+
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
+    {
+        for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].Type = CommandType;
+
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
+
+                FILE_LOG_L(laFCT, llINFO) << " CANRFID11785:  task " << (int) idx << " request.";
+                break;
             }
         }
-
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
     }
 
-    return NULL;
+    return CommandAdded;
 }
 
 /****************************************************************************/
-/*!
- *  \brief  Removes an existing command from the transmit queue
+/**
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command of that type will be set to free
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
  */
 /****************************************************************************/
-void CRfid11785::ResetModuleCommand(CANRFIDModuleCmdType_t CommandType)
+void CRfid11785::ResetModuleCommand(CANRFIDModuleCmdType_t ModuleCommandType)
 {
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            break;
+    bool ActiveCommandFound = false;
+
+    for(quint8 idx = 0; idx < MAX_RFID_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+        }
+
+        if(m_ModuleCommand[idx].State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }

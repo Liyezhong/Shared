@@ -51,7 +51,9 @@ class CRfid11785;
 class CRfid15693;
 class CUart;
 class CTemperatureControl;
-
+#ifdef PRE_ALFA_TEST
+class CPressureControl;
+#endif
 /****************************************************************************/
 /*!
  *  \brief This class implements the functionality to configure the complete
@@ -61,7 +63,7 @@ class CTemperatureControl;
 class CConfigurationService
 {
 public:
-    CConfigurationService(DeviceProcessing &Processing, CANCommunicator &Communicator);
+    CConfigurationService(DeviceProcessing* pDeviceProcessing, CANCommunicator* pCANCommunicator);
     virtual ~CConfigurationService();
 
     void HandleTasks();
@@ -94,6 +96,7 @@ public:
     /****************************************************************************/
     ConfigServiceMainState_t GetState() { return m_MainState; }
 
+    void ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo, quint16 usErrorGroup, quint16 usErrorID, qint16 sErrorData);
     bool ConfigurationComplete();
 
 private:
@@ -105,9 +108,16 @@ private:
     ReturnCode_t IsCANNodesStateIdle();
     ReturnCode_t CreateDiscoveredHWConfiguration();
 
+    void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
+
     CBaseModule* CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex);
     template <class TFunctionModule>
     void CreateAndAddFunctionModule(CBaseModule* pCANNode, CModuleConfig* pCANObjectConfigFct);
+
+    template <class TDevice>
+    TDevice* CreateAndGetDevice(BaseDeviceConfiguration* pBaseDeviceCfg);
+    template <class TDevice>
+    TDevice* CreateAndGetIndexedDevice(BaseDeviceConfiguration* pBaseDeviceCfg);
 
     /// Configuration error sub state definitions
     typedef enum  {
@@ -119,8 +129,14 @@ private:
     ConfigServiceMainState_t   m_MainState;     ///< main state
     ConfigServiceErrSubState_t m_ErrSubState;   ///< error sub state
 
-    DeviceProcessing &m_DeviceProcessing;   ///< Device processing instance
-    CANCommunicator &m_CANCommunicator;     ///< CAN communicator
+    DeviceProcessing* m_pDeviceProcessing;  ///< pointer to the device processing instance
+    CANCommunicator*  m_pCANCommunicator;   ///< pointer to the CAN communicator
+
+    ReturnCode_t m_lastErrorHdlInfo;    ///< return value after a failed function call
+    quint16      m_lastErrorGroup;      ///< error group of the error causing functionality
+    quint16      m_lastErrorCode;       ///< error code of the error causing functionality
+    quint16      m_lastErrorData;       ///< additional error data, filled by the error causing functionality
+    QDateTime    m_lastErrorTime;       ///< time of error detection
 
     Global::MonotonicTime m_stateTimer; ///< timer for timeout observation
     qint16 m_stateTimespan;             ///< max. time delay of current active timeout observation

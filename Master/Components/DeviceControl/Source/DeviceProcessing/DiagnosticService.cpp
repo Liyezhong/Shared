@@ -50,7 +50,7 @@ CDiagnosticService::CDiagnosticService(DeviceProcessing* pDeviceProcessing,
                                        CANCommunicator* pCANCommunicator,
                                        ObjectTree* pObjectTree) :
     m_pDeviceProcessing(pDeviceProcessing), m_pCANCommunicator(pCANCommunicator), m_pObjectTree(pObjectTree),
-    m_lastEventHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_lastEventGroup(0), m_lastEventCode(0), m_lastEventData(0)
+    m_LastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_LastErrorGroup(0), m_LastErrorCode(0), m_LastErrorData(0)
 
 {
     m_MainState = DIAG_MAIN_STATE_INIT;
@@ -84,7 +84,7 @@ void CDiagnosticService::HandleTasks()
     if(m_MainState == DIAG_MAIN_STATE_INIT)
     {
         FILE_LOG_L(laDIAG, llINFO) << " CDiagnosticService, m_MainState == DIAG_MAIN_STATE_INIT";
-        RetVal = RequestNodeStateAssembly();
+        RetVal = RequestNodeStateService();
         if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
         {
             FILE_LOG_L(laDIAG, llERROR) << " CDiagnosticService, switch to error mode";
@@ -125,7 +125,7 @@ void CDiagnosticService::HandleConfigurationTask()
     {
         // at least one Node is in error mode
         FILE_LOG_L(laINIT, llINFO) << " Set CDiagnosticService main state to ERROR";
-        m_lastEventHdlInfo = RetVal;
+        m_LastErrorHdlInfo = RetVal;
         m_MainState = DIAG_MAIN_STATE_ERROR;
         //m_ErrSubState = CS_SUBSTATE_ERR_INIT;
     }
@@ -133,12 +133,12 @@ void CDiagnosticService::HandleConfigurationTask()
 
 /****************************************************************************/
 /*!
- *  \brief  Set the node state of all CAN-nodes in object tree to NODE_STATE_ASSEMBLY
+ *  \brief  Set the node state of all CAN-nodes in object tree to NODE_STATE_SERVICE
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS in successfully read, otherwise error code
  */
 /****************************************************************************/
-ReturnCode_t CDiagnosticService::RequestNodeStateAssembly()
+ReturnCode_t CDiagnosticService::RequestNodeStateService()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     CBaseModule* pCANNode;
@@ -147,10 +147,10 @@ ReturnCode_t CDiagnosticService::RequestNodeStateAssembly()
     while (pCANNode)
     {
 
-        RetVal = pCANNode->SetNodeState(NODE_STATE_ASSEMBLY);
+        RetVal = pCANNode->SetNodeState(NODE_STATE_SERVICE);
         if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
         {
-            FILE_LOG_L(laDIAG, llERROR) << " CDiagnosticService, SetNodeState to NODE_STATE_ASSEMBLY failed; " << pCANNode->GetKey().toStdString();
+            FILE_LOG_L(laDIAG, llERROR) << " CDiagnosticService, SetNodeState to NODE_STATE_SERVICE failed; " << pCANNode->GetKey().toStdString();
             return RetVal;
         }
         pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(false);
@@ -179,7 +179,7 @@ ReturnCode_t CDiagnosticService::CheckNodeState()
     while (pCANNode)
     {
         NodeState = pCANNode->GetNodeState();
-        if(NodeState != NODE_STATE_ASSEMBLY)
+        if(NodeState != NODE_STATE_SERVICE)
         {
             //there is at least one node not in service state, set this node to the exchange variable
             RetVal = DCL_ERR_INVALID_STATE;
@@ -188,10 +188,12 @@ ReturnCode_t CDiagnosticService::CheckNodeState()
             {
                 if(pCANNode)
                 {
+                    //SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_NODE_IDLE_TIMEOUT, (quint16) pCANNodeWait->GetModuleHandle());
                     FILE_LOG_L(laDIAG, llWARNING) << "  At least " <<  pCANNode->GetKey().toStdString() << " not idle, state: " << (int) pCANNode->GetMainState();
                 }
                 else
                 {
+                    //SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_NODE_IDLE_TIMEOUT, 4711);
                     FILE_LOG_L(laDIAG, llWARNING) << "  At least 'unknown node'' not idle";
                 }
                 Counter = 0;
@@ -202,6 +204,25 @@ ReturnCode_t CDiagnosticService::CheckNodeState()
     }
 
     return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Forwards the error information from a function module to DeviceProcessing class
+ *
+ *      The function forwards the error information to the DeviceProcessing class
+ *      (which finally throws the signal assigned to the errors)
+ *
+ *  \iparam InstanceID = The instance identifier of the module which brought up the error
+ *  \iparam ErrorGroup = Error group ID of the thrown error
+ *  \iparam ErrorID = Error ID of the thrown error
+ *  \iparam ErrorData = Additional error information
+ *  \iparam ErrorTime = Time of error detection
+ */
+/****************************************************************************/
+void CDiagnosticService::ThrowErrorSignal(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
+{
+    m_pDeviceProcessing->ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 } //namespace

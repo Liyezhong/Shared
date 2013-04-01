@@ -33,29 +33,35 @@ namespace DeviceControl
 
 /****************************************************************************/
 /*!
- *  \brief  Constructor for the CAnalogInput
+ *  \brief    Constructor for the CAnalogInput
  *
- *  \iparam p_MessageConfiguration = Message configuration
- *  \iparam pCANCommunicator = pointer to communication class
- *  \iparam pParentNode = pointer to base module this module is assigned to
- */
-/****************************************************************************/
+ *  \param    p_MessageConfiguration = Message configuration
+ *  \param    pCANCommunicator = pointer to communication class
+ *  \param    pParentNode = pointer to base module, where this module is assigned to
+ *
+ ****************************************************************************/
 CAnalogInput::CAnalogInput(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                            CBaseModule* pParentNode) :
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT, p_MessageConfiguration, pCANCommunicator, pParentNode),
     m_unCanIDAnaInputConfigInput(0), m_unCanIDAnaInputConfigLimits(0), m_unCanIDAnaInputStateReq(0),
-    m_unCanIDAnaInputState(0)
+    m_unCanIDAnaInputState(0), m_ActInputValue(0)
 {
     /// \todo Auto-generated constructor stub
     m_mainState = FM_MAIN_STATE_BOOTUP;
     m_SubStateConfig = FM_AINP_SUB_STATE_CONFIG_INIT;
+
+    //module command array initialisation
+    for(quint8 idx = 0; idx < MAX_MODULE_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+    }
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Destructor of CANAnalogInput
- */
-/****************************************************************************/
+ *  \brief    Destructor of CANAnalogInput
+ *
+ ****************************************************************************/
 CAnalogInput::~CAnalogInput()
 {
 }
@@ -192,6 +198,7 @@ void CAnalogInput::HandleTasks()
             if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
                 m_SubStateConfig = FM_AINP_SUB_STATE_CONFIG_FINISHED;
+                m_TaskID = MODULE_TASKID_FREE;
                 m_mainState = FM_MAIN_STATE_IDLE;
 
                 FILE_LOG_L(laCONFIG, llDEBUG) << " AnalogInput " << GetName().toStdString() << ": change to FM_MAIN_STATE_IDLE";
@@ -217,7 +224,10 @@ void CAnalogInput::HandleTasks()
 /****************************************************************************/
 void CAnalogInput::HandleIdleState()
 {
-    HandleCommandRequestTask();
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        HandleCommandRequestTask();
+    }
 }
 
 /****************************************************************************/
@@ -241,21 +251,16 @@ void CAnalogInput::HandleIdleState()
 void CAnalogInput::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < MAX_MODULE_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ)
         {
-            // forward the module command to the function module on slave side by sending
+            // forward the motor command to the motor function module on slave side by sending
             // the corresponding CAN-message
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
-
-            if(p_ModuleCommand->Type == FM_AI_CMD_TYPE_ACTVALUE_REQ)
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].Type == FM_AI_CMD_TYPE_ACTVALUE_REQ)
             {
                 //send the value request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDAnaInputState CAN-message
@@ -264,48 +269,54 @@ void CAnalogInput::HandleCommandRequestTask()
 
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_AINP_TIMEOUT_READ_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_AINP_TIMEOUT_READ_REQ;
                 }
                 else
                 {
                     emit ReportActInputValue(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_AI_CMD_TYPE_CONFIG_INPUT)
+            else if(m_ModuleCommand[idx].Type == FM_AI_CMD_TYPE_CONFIG_INPUT)
             {
                 FILE_LOG_L(laFCT, llINFO) << "   AnalogInput:: input set state: send request.";
-                RetVal = SendCANMessageConfiguration(p_ModuleCommand->Enable);
+                RetVal = SendCANMessageConfiguration(m_ModuleCommand[idx].Enable);
 
-                RemoveCommand = true;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 emit ReportSetState(GetModuleHandle(), RetVal);
             }
 
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
-                RemoveCommand = true;
+                //trigger timeout supervision
+                m_ModuleCommand[idx].ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND)
         {
-            // check active module commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            // check avtive motor commands for timeout
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
-                RemoveCommand = true;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
 
-                if(p_ModuleCommand->Type == FM_AI_CMD_TYPE_ACTVALUE_REQ)
+                if(m_ModuleCommand[idx].Type == FM_AI_CMD_TYPE_ACTVALUE_REQ)
                 {
                     FILE_LOG_L(laFCT, llERROR) << "  CANAnalogInput:: '" << GetKey().toStdString() << "': input value req. timeout";
                     emit ReportActInputValue(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
                 }
             }
         }
+    }
 
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
-        }
+    if(ActiveCommandFound == false)
+    {
+        m_TaskID = MODULE_TASKID_FREE;
     }
 }
 
@@ -325,16 +336,16 @@ void CAnalogInput::HandleCanMessage(can_frame* pCANframe)
     QMutexLocker Locker(&m_Mutex);
 
     FILE_LOG_L(laFCT, llDEBUG) << "  AnalogInput::HandleCanMessage: 0x" << std::hex << pCANframe->can_id;
-    FILE_LOG_L(laFCT, llDEBUG) << "                  dlc:" << (int) pCANframe->can_dlc;
+    FILE_LOG_L(laFCT, llDEBUG) << "                  dlc:" << (int) pCANframe->can_dlc << " Task:" << (int) m_TaskID;
 
     if((pCANframe->can_id == m_unCanIDEventInfo) ||
        (pCANframe->can_id == m_unCanIDEventWarning) ||
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDAnaInputState)
@@ -352,17 +363,19 @@ void CAnalogInput::HandleCanMessage(can_frame* pCANframe)
 /****************************************************************************/
 void CAnalogInput::HandleCANMsgAnalogInputState(can_frame* pCANframe)
 {
-    ResetModuleCommand(FM_AI_CMD_TYPE_ACTVALUE_REQ);
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        ResetModuleCommand(FM_AI_CMD_TYPE_ACTVALUE_REQ);
+    }
 
     if(pCANframe->can_dlc == 2)
     {
-        qint16 ActInputValue;
+        m_ActInputValue = ((qint16) pCANframe->data[0]) << 8;
+        m_ActInputValue |= ((qint16) pCANframe->data[1]);
+        FILE_LOG_L(laFCT, llINFO) << "  AnalogInput: Input value received: " << std::hex << m_ActInputValue;
 
-        ActInputValue = ((qint16) pCANframe->data[0]) << 8;
-        ActInputValue |= ((qint16) pCANframe->data[1]);
-        FILE_LOG_L(laFCT, llINFO) << "  AnalogInput: Input value received: " << std::hex << ActInputValue;
+        emit ReportActInputValue(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_ActInputValue);
 
-        emit ReportActInputValue(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, ActInputValue);
     }
     else
     {
@@ -404,6 +417,10 @@ ReturnCode_t CAnalogInput::SendCANMessageConfiguration(bool Enable)
     {
         canmsg.data[0] = 0x80;
     }
+    if(pCANObjConfAnaInPort->m_bTimeStamp)
+    {
+        canmsg.data[0] |= 0x40;
+    }
     if(pCANObjConfAnaInPort->m_bFastSampling)
     {
         canmsg.data[0] |= 0x20;
@@ -429,11 +446,15 @@ ReturnCode_t CAnalogInput::SendCANMessageConfiguration(bool Enable)
         {
             canmsg.data[0] |= 0x02;
         }
+        if(pCANObjConfAnaInPort->m_bLimitValue1SendWarnMsg)
+        {
+            canmsg.data[0] |= 0x10;
+        }
         if(pCANObjConfAnaInPort->m_bLimitValue1SendDataMsg)
         {
             canmsg.data[0] |= 0x20;
         }
-        SetCANMsgDataS16(&canmsg, pCANObjConfAnaInPort->m_sLimitValue1, 1);
+        SetCANMsgDataU16(&canmsg, pCANObjConfAnaInPort->m_sLimitValue1, 1);
 
         canmsg.data[3] = 0;
         if(pCANObjConfAnaInPort->m_bLimitValue2SendExceed)
@@ -444,11 +465,15 @@ ReturnCode_t CAnalogInput::SendCANMessageConfiguration(bool Enable)
         {
             canmsg.data[3] |= 0x02;
         }
+        if(pCANObjConfAnaInPort->m_bLimitValue2SendWarnMsg)
+        {
+            canmsg.data[3] |= 0x10;
+        }
         if(pCANObjConfAnaInPort->m_bLimitValue2SendDataMsg)
         {
             canmsg.data[3] |= 0x20;
         }
-        SetCANMsgDataS16(&canmsg, pCANObjConfAnaInPort->m_sLimitValue2, 4);
+        SetCANMsgDataU16(&canmsg, pCANObjConfAnaInPort->m_sLimitValue2, 4);
 
         SetCANMsgDataU16(&canmsg, pCANObjConfAnaInPort->m_sHysteresis, 6);
 
@@ -456,6 +481,7 @@ ReturnCode_t CAnalogInput::SendCANMessageConfiguration(bool Enable)
     }
 
     return RetVal;
+
 }
 
 /****************************************************************************/
@@ -519,12 +545,12 @@ ReturnCode_t CAnalogInput::ReqActInputValue()
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_AI_CMD_TYPE_ACTVALUE_REQ);
-    if(p_ModuleCommand == NULL)
+    if (!SetModuleTask(FM_AI_CMD_TYPE_ACTVALUE_REQ, &CmdIndex))
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString();
+        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
     }
 
     return RetVal;
@@ -537,8 +563,6 @@ ReturnCode_t CAnalogInput::ReqActInputValue()
  *      The class acknowledges this request by sending the signal
  *      ReportSetState.
  *
- *  \iparam Enable = Enables (true) or disables (false) the module
- *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise DCL_ERR_INVALID_STATE
  */
@@ -547,61 +571,90 @@ ReturnCode_t CAnalogInput::SetState(bool Enable)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_AI_CMD_TYPE_CONFIG_INPUT);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_AI_CMD_TYPE_CONFIG_INPUT, &CmdIndex))
     {
-        p_ModuleCommand->Enable = Enable;
-        FILE_LOG_L(laDEV, llINFO) << " CAnalogInput, State: " << Enable;
+        m_ModuleCommand[CmdIndex].Enable = Enable;
+        FILE_LOG_L(laDEV, llINFO) << " CAnalogInput, State: " << (int) Enable;
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString();
+        FILE_LOG_L(laFCT, llERROR) << "   CAnalogInput '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
     }
 
     return RetVal;
 }
 
+
 /****************************************************************************/
 /*!
- *  \brief  Adds a new command to the transmit queue
+ *  \brief  Helper function, sets a free module command to the given command type
  *
- *  \iparam CommandType = Command type to set
+ *  \iparam CommandType = command type to set
+ *  \iparam pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
  *
- *  \return Module command, if the command type can be placed, otherwise NULL
+ *  \return true, if the command type can be placed, otherwise false
  */
 /****************************************************************************/
-CAnalogInput::ModuleCommand_t *CAnalogInput::SetModuleTask(CANAnalogInputModuleCmdType_t CommandType)
+bool CAnalogInput::SetModuleTask(CANAnalogInputModuleCmdType_t CommandType, quint8* pCmdIndex)
 {
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            return NULL;
+    bool CommandAdded = false;
+
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
+    {
+        for(quint8 idx = 0; idx < MAX_MODULE_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].Type = CommandType;
+
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
+
+                FILE_LOG_L(laFCT, llINFO) << " CANAnalogOutput:  task " << (int) idx << " request.";
+                break;
+            }
         }
     }
 
-    ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-    p_ModuleCommand->Type = CommandType;
-    p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-    m_ModuleCommand.append(p_ModuleCommand);
-
-    return p_ModuleCommand;
+    return CommandAdded;
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Removes an existing command from the transmit queue
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command of that type will be set to free
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
  */
 /****************************************************************************/
-void CAnalogInput::ResetModuleCommand(CANAnalogInputModuleCmdType_t CommandType)
+void CAnalogInput::ResetModuleCommand(CANAnalogInputModuleCmdType_t ModuleCommandType)
 {
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            break;
+    bool ActiveCommandFound = false;
+
+    for(quint8 idx = 0; idx < MAX_MODULE_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
         }
+
+        if(m_ModuleCommand[idx].State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
+        }
+    }
+
+    if(ActiveCommandFound == false)
+    {
+        m_TaskID = MODULE_TASKID_FREE;
     }
 }
 

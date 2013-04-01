@@ -33,6 +33,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_RFID_CMD_IDX  2   ///< up to 2 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
 *   \brief This class implements the functionality to configure and control a
@@ -172,26 +174,27 @@ public:
         FM_RFID_CMD_TYPE_UNDEF       = 0,   //!< Undefined command type
         FM_RFID_CMD_TYPE_SET_CONFIG  = 1,   //!< Set configuration (on/off)
         FM_RFID_CMD_TYPE_ACQUIRE_UID = 2,   //!< Acquire UID from RFID tag
-        FM_RFID_CMD_TYPE_READ_BLOCK  = 3,   //!< Read data block from tag
-        FM_RFID_CMD_TYPE_WRITE_BLOCK = 4,   //!< Write data block to tag
-        FM_RFID_CMD_TYPE_LOCK_BLOCK  = 5    //!< Lock data block on tag
+        FM_RFID_CMD_TYPE_READ_BOCK   = 3,   //!< Read data block from tag
+        FM_RFID_CMD_TYPE_WRITE_BOCK  = 4,   //!< Write data block to tag
+        FM_RFID_CMD_TYPE_LOCK_BOCK   = 5    //!< Lock data block on tag
     } CANRFIDModuleCmdType_t;
 
     /*! module command data, used for internal data transfer*/
     typedef struct {
-        CANRFIDModuleCmdType_t Type;        //!< Command type
-        ModuleCmdState_t State;             //!< Command state
-        Global::MonotonicTime ReqSendTime;  //!< Time the command was executed
-        qint32 Timeout;                     //!< Timeout in ms
-        quint8 Enabled;                     //!< Module enabled bit
-        quint8 Address;                     //!< Block address
-        quint32 Data;                       //!< Write data
+        CANRFIDModuleCmdType_t m_Type;          //!< Command type
+        ModuleCmdState_t m_State;               //!< Command state
+        Global::MonotonicTime m_ReqSendTime;    //!< Time the command was executed
+        qint32 m_Timeout;                       //!< Timeout in ms
+        quint8 m_Enabled;                       //!< Module enabled bit
+        quint8 m_Address;                       //!< Block address
+        quint32 m_Data;                         //!< Write data
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    //! Array of module commands for simultaneously execution
+    ModuleCommand_t m_ModuleCommand[MAX_RFID_CMD_IDX];
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANRFIDModuleCmdType_t CommandType);
+    //! Set the module command type to free entry within array
+    bool SetModuleTask(CANRFIDModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
     //! Clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANRFIDModuleCmdType_t CommandType);
 };

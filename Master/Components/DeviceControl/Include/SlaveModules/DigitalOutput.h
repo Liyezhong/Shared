@@ -33,6 +33,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_DOUTP_CMD_IDX  2   ///< up to 2 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
 *   \brief This class implements the functionality to configure and control a
@@ -48,82 +50,83 @@ public:
                    CBaseModule* pParentNode);
     ~CDigitalOutput();
 
-    //! Module initialisation
+    //!< Module initialisation
     ReturnCode_t Initialize();
 
-    //! Task handling function
+    //!< Task handling function
     void HandleTasks();
-    //! CAN-message handling function
+    //!< CAN-message handling function
     void HandleCanMessage(can_frame* pCANframe);
 
-    //! Set output
+    //!< Set output
     ReturnCode_t SetOutputValue(quint16 OutputValue, quint16 Duration = 0, quint16 Delay = 0);
-    //! Request actual output
+    //!< Request actual output
     ReturnCode_t ReqOutputValue();
-    //! Request life time data
+    //!< Request life time data
     ReturnCode_t ReqLifeTimeData();
-    //! Request data reset
-    ReturnCode_t ReqDataReset();
 
 signals:
     /****************************************************************************/
     /*!
-     *  \brief  Emitted to acknowledge the setting of the requested output value
+     *  \brief    This signal is emitted to acknowledge the setting of the last requested output value
      *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam OutputValue = Output value recently set
-     */
-    /****************************************************************************/
+     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \param   OutputValue = Output value recently set
+     *
+     ****************************************************************************/
     void ReportOutputValueAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 OutputValue);
 
     /****************************************************************************/
     /*!
-     *  \brief  This signal is emitted to report the  value
+     *  \brief    This signal is emitted to report the  value
      *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam OutputValue = Actual output value
-     */
-    /****************************************************************************/
+     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \param   OutputValue = Actual output value
+     *
+     ****************************************************************************/
     void ReportActOutputValue(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 OutputValue);
 
     /****************************************************************************/
     /*!
-     *  \brief  This signal is emitted to report the live time data
+     *  \brief    This signal is emitted to report the live time data
      *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam LifeTime   = Total on-times (minutes)
-     *  \iparam LifeCycles = Number of off-to-on transitions
-     */
-    /****************************************************************************/
+     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \param   LifeTime   = Total on-times (minutes)
+     *  \param   LifeCycles = Number of off-to-on transitions
+     *
+     ****************************************************************************/
     void ReportLifeTimeData(quint32 InstanceID, ReturnCode_t HdlInfo, quint32 LifeTime, quint32 LifeCycles);
 
 private:
-    //! CAN message ID initialization
+    //!< CAN message ID initialization
     ReturnCode_t InitializeCANMessages();
-    //! registers the CAN messages to communication layer
+    //!< registers the CAN messages to communication layer
     ReturnCode_t RegisterCANMessages();
 
-    //! Idle taks handling function
+    //!< configuration task handling function
+    void SendConfiguration();
+
+    //!< Idle taks handling function
     void HandleIdleState();
 
-    //! sends the configuration CAN messages
+    //!< sends the configuration CAN messages
     ReturnCode_t SendCANMessageConfiguration();
-    //! send the 'OutputStateSet' CAN messages
+    //!< send the 'OutputStateSet' CAN messages
     ReturnCode_t SendCANMsgDigOutputDataSet(quint16 OutputValue, quint16 Duration, quint16 Delay);
-    //! send the 'OutputStateReq' CAN messages
+    //!< send the 'OutputStateReq' CAN messages
     ReturnCode_t SendCANMsgDigOutputDataReq();
-    //! send the 'LivetimeDataReq' CAN messages
+    //!< send the 'LivetimeDataReq' CAN messages
     ReturnCode_t SendCANMsgLifeTimeDataReq();
 
-    //! handles the receipt of can message 'OutputState'
+    //!< handles the receipt of can message 'OutputState'
     void HandleCANMsgOutputState(can_frame* pCANframe);
-    //! handles the receipt of can message 'LivetimeData'
+    //!< handles the receipt of can message 'LivetimeData'
     void HandleCANMsgLifeTimeData(can_frame* pCANframe);
 
-    //! command handling function
+    //!< command handling function
     void HandleCommandRequestTask();
 
     /*! configuration sub states */
@@ -150,27 +153,26 @@ private:
         FM_DO_CMD_TYPE_UNDEF          = 0x00,  //!< undefined command type
         FM_DO_CMD_TYPE_SET_OUTP       = 0x02,  //!< set output value
         FM_DO_CMD_TYPE_REQ_ACTVALUE   = 0x03,  //!< actual value request
-        FM_DO_CMD_TYPE_REQ_LIFECYCLE  = 0x04,  //!< request life cycle data
-        FM_DO_CMD_TYPE_REQ_DATA_RESET = 0x05   //!< data reset
+        FM_DO_CMD_TYPE_REQ_LIFECYCLE  = 0x04   //!< request life cycle data
     } CANDigitalOutputModuleCmdType_t;
 
     /*! module command data, used for internal data transfer*/
     typedef struct {
-        CANDigitalOutputModuleCmdType_t  Type;  //!< command type
-        ModuleCmdState_t State;                 //!< command state
-        Global::MonotonicTime ReqSendTime;      //!< time the command was executed
-        qint32 Timeout;                         //!< timeout in ms
-        quint16 OutputValue;                    //!< requested output value
-        quint16 Duration;                       //!< Time the ouptput is on
-        quint16 Delay;                          //!< Time before the output is on
+        CANDigitalOutputModuleCmdType_t  m_Type;    //!< command type
+        ModuleCmdState_t m_State;                   //!< command state
+        Global::MonotonicTime m_ReqSendTime;        //!< time the command was executed
+        qint32 m_Timeout;                           //!< timeout in ms
+        quint16 m_OutputValue;                      //!< requested output value
+        quint16 m_Duration;                         //!< Time the ouptput is on
+        quint16 m_Delay;                            //!< Time before the output is on
 
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    ModuleCommand_t m_ModuleCommand[MAX_DOUTP_CMD_IDX];  //!<  array of module commands for simultaneously execution
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANDigitalOutputModuleCmdType_t CommandType);
-    //! Clears all entrys with the specified module command type to free
+    //!< set the module command type to free entry within array
+    bool SetModuleTask(CANDigitalOutputModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
+    //!< clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANDigitalOutputModuleCmdType_t CommandType);
 };
 

@@ -60,82 +60,72 @@ public:
     //! Task handling function
     virtual void HandleTasks() = 0;
 
+    //pure virtual method for can message receive
     /****************************************************************************/
-    /*!
-     *  \brief  Request a data reset
+    /**
+     * \brief   CAN message receiption handler
      *
-     *      Default implementation for this function. Can be overridden by
-     *      modules that actually need it.
-     *
-     *  \return Returns DCL_ERR_FCT_NOT_IMPLEMENTED
-     */
-    /****************************************************************************/
-    virtual ReturnCode_t ReqDataReset() { return DCL_ERR_FCT_NOT_IMPLEMENTED; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief  CAN message receiption handler
-     *
-     *  \iparam pCANframe = CAN-message to handle
+     * \param   pCANframe = CAN-message to handle
      */
     /****************************************************************************/
     virtual void HandleCanMessage(can_frame* pCANframe) = 0;
 
     /****************************************************************************/
-    /*!
-     *  \brief  Initialisation
+    /**
+     * \brief   Initialisation
      *
-     *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted,
+     * \return  DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
      *          otherwise DCL_ERR_INVALID_STATE
      */
     /****************************************************************************/
     virtual ReturnCode_t Initialize() = 0;
 
     /****************************************************************************/
-    /*!
-     *  \brief  Pass the Configuration to the instance
+    /**
+     * \brief   Pass the Configuration to the instance
      *
-     *  \iparam pCANObjectConfig = Pointer to configuration object
+     * \param   pCANObjectConfig = Pointer to configuration object
      */
     /****************************************************************************/
     void SetCANConfiguration(CModuleConfig* pCANObjectConfig) { m_pCANObjectConfig = pCANObjectConfig; }
 
     /****************************************************************************/
-    /*!
-     *  \brief  Set the name attribut
+    /**
+     * \brief Set the name attribut
      *
-     *  \iparam CANObjectName = Name attribut of this CAN object
+     * \param   CANObjectName = Name attribut of this CAN object
      */
     /****************************************************************************/
     void SetName(QString CANObjectName) { m_pCANObjectConfig->m_strName = CANObjectName; }
 
     /****************************************************************************/
     /**
-     *  \brief  Return the name attribut
+     * \brief Return the name attribut
      *
-     *  \return Name attribut
+     * \return   Name attribut
      */
     /****************************************************************************/
     QString GetName() const { return m_pCANObjectConfig->m_strName; }
 
     /****************************************************************************/
-    /*!
-     *  \brief  Set the key attribut
+    /**
+     * \brief Set the key attribut
      *
-     *  \iparam CANObjectKey = Key attribut of this CAN object
+     * \param   CANObjectKey = Key attribut of this CAN object
      */
     /****************************************************************************/
     void SetKey(QString CANObjectKey) { m_pCANObjectConfig->m_strKey = CANObjectKey; }
 
     /****************************************************************************/
-    /*!
-     *  \brief  Return the key attribut
+    /**
+     * \brief Return the key attribut
      *
-     *  \return Key attribut
+     * \return   Key attribut
      */
     /****************************************************************************/
     QString GetKey() const { return m_pCANObjectConfig->m_strKey; }
 
+    /// \todo rename to InstanceID
     quint32 GetModuleHandle();
 
     /****************************************************************************/
@@ -163,69 +153,39 @@ signals:
      *  \iparam ErrorTime = Error time
      */
     /****************************************************************************/
-    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the data reset acknowledge
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     */
-    /****************************************************************************/
-    void ReportDataResetAckn(quint32 InstanceID, ReturnCode_t HdlInfo);
+    void ReportError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
 
 protected:
-    /****************************************************************************/
-    /*!
-     *  \brief  Returns the node ID of the function module's node
-     *
-     *  \return Node ID
-     */
-    /****************************************************************************/
-    virtual quint32 GetNodeID() const = 0;
-
-    ReturnCode_t SendCANMsgReqDataReset();  //!< Sends the can message 'ReqResetData'
-
-    //! Initialisation of event CAN message IDs
-    ReturnCode_t InitializeEventCANMessages(quint8 ModuleID);
-
-    //! Registers the can messages to communication layer
-    ReturnCode_t RegisterEventCANMessages();
-
-    quint32 HandleCANMsgEvent(can_frame* pCANframe);
-    void HandleCANMsgAcknDataReset(can_frame* pCANframe);   //!< Handles the receipt of can message 'AcknDataReset'
+    void HandleCANMsgError(can_frame* pCANframe);
 
     static void SetCANMsgDataU32(can_frame* pCANframe, quint32 msgData, quint8 offset);
     static void SetCANMsgDataS32(can_frame* pCANframe, qint32 msgData, quint8 offset);
     static void SetCANMsgDataU16(can_frame* pCANframe, quint16 msgData, quint8 offset);
     static void SetCANMsgDataS16(can_frame* pCANframe, qint16 msgData, quint8 offset);
     static quint16 GetCANMsgDataU16(can_frame* pCANframe, quint8 offset);
+#ifdef PRE_ALFA_TEST
+    static qint16 GetCANMsgDataS16(can_frame* pCANframe, quint8 offset);
+#endif
     static quint32 GetCANMsgDataU32(can_frame* pCANframe, quint8 offset);
     static quint64 GetCANMsgDataU64(can_frame* pCANframe);
-
-    static quint16 ComputePassword();
 
     CANCommunicator* m_pCANCommunicator;                    //!< Communicator object
     const CANMessageConfiguration* mp_MessageConfiguration; //!< Message configuration
 
     CModuleConfig* m_pCANObjectConfig;  //!< Base class containing CAN object configuration
 
-    // Variables for error handling
-    ReturnCode_t m_lastEventHdlInfo;    //!< Last event code, e.g. received by a fuction call
-    quint16 m_lastEventGroup;           //!< Last event group ID
-    quint16 m_lastEventCode;            //!< Last Slave event code
-    quint16 m_lastEventData;            //!< Last event data
-    QDateTime m_lastEventTime;          //!< Last event time
+    // variables for error handling
+    ReturnCode_t m_lastErrorHdlInfo;    //!< last errorcode, e.g. received by a fuction call
+    quint16 m_lastErrorGroup;           //!< last error's group id
+    quint16 m_lastErrorCode;            //!< last error's error code
+    quint16 m_lastErrorData;            //!< last error's data
+    QDateTime m_lastErrorTime;          //!< last error's time
 
     /* CAN-message IDs for event notification */
     quint32 m_unCanIDEventInfo;         //!< CAN-ID 'Event info' message */
     quint32 m_unCanIDEventWarning;      //!< CAN-ID 'Event Warning' message */
     quint32 m_unCanIDEventError;        //!< CAN-ID 'Error' message */
     quint32 m_unCanIDEventFatalError;   //!< CAN-ID 'FatalError' message */
-
-    quint32 m_unCanIDReqDataReset;      /*!< CAN-ID 'ReqDataReset' message */
-    quint32 m_unCanIDAcknDataReset;     /*!< CAN-ID 'AcknDataReset' message */
 
     /*! Node command state */
     typedef enum {
@@ -247,24 +207,21 @@ protected:
     QMutex m_Mutex; //!< Protects the task handling thread from request functions
 
 private:
-    CModule();                                      ///< Not implemented.
-    CModule(const CModule &);                       ///< Not implemented.
-    const CModule & operator = (const CModule &);   ///< Not implemented.
+    CModule();                                    ///< Not implemented.
+    CModule(const CModule &);                     ///< Not implemented.
+    const CModule & operator = (const CModule &); ///< Not implemented.
 
-    //! CAN message ID initialization
+    //!< CAN message ID initialization
     virtual ReturnCode_t InitializeCANMessages() = 0;
-    //! Registers the CAN messages to communication layer
+    //!< registers the CAN messages to communication layer
     virtual ReturnCode_t RegisterCANMessages() = 0;
 
-    //! Idle taks handling function
+    //!< Idle taks handling function
     virtual void HandleIdleState() = 0;
 
-    static quint32 BuildEventCode(quint16 ModuleId, quint16 SlaveEventCode,
-                                  ReturnCode_t EventClass = DCL_ERR_EXTERNAL_ERROR);
-
     CModuleConfig::CANObjectType_t m_eObjectType;   ///< object type
-    struct timeb m_tbTimeDelay;                     ///< time struct used for heart beat
-    quint8 m_sOrderNr;                              ///< order nr for gui lists
+    struct timeb m_tbTimeDelay;   ///< time struct used for heart beat
+    quint8 m_sOrderNr;            ///< order nr for gui lists
 
     /*! timer state */
     typedef enum {

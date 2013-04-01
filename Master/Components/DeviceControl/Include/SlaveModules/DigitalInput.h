@@ -33,6 +33,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_DINP_CMD_IDX  2   ///< up to 2 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
 *   \brief This class implements the functionality to configure and control a
@@ -48,47 +50,50 @@ public:
                   CBaseModule* pParentNode);
     ~CDigitalInput();
 
-    //! Module initialisation
+    //!< Module initialisation
     ReturnCode_t Initialize();
 
-    //! Task handling function
+    //!< Task handling function
     void HandleTasks();
-    //! CAN-message handling function
+    //!< CAN-message handling function
     void HandleCanMessage(can_frame* pCANframe);
 
-    //! Request actual input
+    //!< Request actual input
     ReturnCode_t ReqActInputValue();
 
 signals:
     /****************************************************************************/
     /*!
-     *  \brief  This signal is emitted to report the actual input value
+     *  \brief    This signal is emitted to report the actual input value
      *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam InputValue = Actual input value
-     */
-    /****************************************************************************/
+     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \param   InputValue = Actual input value
+     *
+     ****************************************************************************/
     void ReportActInputValue(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 InputValue);
 
 private:
-    //! CAN message ID initialization
+    //!< CAN message ID initialization
     ReturnCode_t InitializeCANMessages();
-    //! registers the CAN messages to communication layer
+    //!< registers the CAN messages to communication layer
     ReturnCode_t RegisterCANMessages();
 
-    //! Idle taks handling function
+    //!< configuration task handling function
+    void SendConfiguration();
+
+    //!< Idle taks handling function
     void HandleIdleState();
 
-    //! sends the configuration CAN messages
+    //!< sends the configuration CAN messages
     ReturnCode_t SendCANMessageConfiguration();
-    //! sends the CAN message 'InputStateReq'
+    //!< sends the CAN message 'InputStateReq'
     ReturnCode_t SendCANMsgDigInputValueReq();
 
-    //! handles the receipt of can message 'InputState'
+    //!< handles the receipt of can message 'InputState'
     void HandleCANMsgDigInputState(can_frame* pCANframe);
 
-    //! command handling function
+    //!< command handling function
     void HandleCommandRequestTask();
 
     /*! configuration sub states */
@@ -113,19 +118,19 @@ private:
         FM_DI_CMD_TYPE_ACTVALUE_REQ     = 0x01   //!< actual value request
     } CANDigitalInputModuleCmdType_t;
 
-    /*! Module command data, used for internal data transfer*/
+    /*! motor command data, used for internal data transfer*/
     typedef struct {
-        CANDigitalInputModuleCmdType_t Type;    //!< command type
-        ModuleCmdState_t State;                 //!< command state
-        Global::MonotonicTime ReqSendTime;      //!< time the command was executed
-        qint32 Timeout;                         //!< timeout in ms
+        CANDigitalInputModuleCmdType_t m_Type;  //!< command type
+        ModuleCmdState_t m_State;               //!< command state
+        Global::MonotonicTime m_ReqSendTime;    //!< time the command was executed
+        qint32 m_Timeout;                       //!< timeout in ms
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    ModuleCommand_t m_ModuleCommand[MAX_DINP_CMD_IDX];  //!< // array of module commands for simultaneously execution
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANDigitalInputModuleCmdType_t CommandType);
-    //! Clears all entrys with the specified module command type to free
+    //!< set the module command type to free entry within array
+    bool SetModuleTask(CANDigitalInputModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
+    //!< clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANDigitalInputModuleCmdType_t CommandType);
 };
 

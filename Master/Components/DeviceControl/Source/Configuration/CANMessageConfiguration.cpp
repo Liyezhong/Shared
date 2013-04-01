@@ -24,7 +24,7 @@
 
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
-#include "DeviceControl/Include/Global/DeviceControlEventCodes.h"
+#include "DeviceControl/Include/Global/DeviceControlError.h"
 #include "Global/Include/SystemPaths.h"
 
 #include <QDomDocument>
@@ -38,7 +38,7 @@ namespace DeviceControl
  *  \brief  Constructor
  */
 /****************************************************************************/
-CANMessageConfiguration::CANMessageConfiguration() : m_EventCode(0)
+CANMessageConfiguration::CANMessageConfiguration() : m_usErrorID(0)
 {
 }
 
@@ -50,10 +50,10 @@ CANMessageConfiguration::CANMessageConfiguration() : m_EventCode(0)
  *  \xparam strErrorInfo = error information string
  */
 /****************************************************************************/
-void CANMessageConfiguration::GetLastError(quint32 &EventCode, QString& strErrorInfo)
+void CANMessageConfiguration::GetLastError(quint16& usErrorID, QString& strErrorInfo)
 {
     strErrorInfo = m_strErrorInfo;
-    EventCode = m_EventCode;
+    usErrorID = m_usErrorID;
 }
 
 /****************************************************************************/
@@ -87,7 +87,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                                                      .arg(file.errorString());
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_OPEN_FAILED;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_OPEN_FAILED;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -99,26 +99,26 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                                                          .arg(errorStr);
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_PARSE;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_PARSE_ERROR;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
     QDomElement root = domDocument.documentElement();
-    if (root.tagName() != "himalaya_fct_module_spec")
+    if (root.tagName() != "colorado_fct_module_spec")
     {
-        errorMsg = QObject::tr("The file is not a himalaya function module specification file. Tag 'himalaya_fct_module_spec' missed!");
+        errorMsg = QObject::tr("The file is not a colorado function module specification file. Tag 'colorado_fct_module_spec' missed!");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR;
         return DCL_ERR_FCT_CALL_FAILED;
     }
     else if (root.hasAttribute("version")
                        && root.attribute("version") != "1.0")
     {
-        errorMsg = QObject::tr("The himalaya hardware config files' version is not valid.");
+        errorMsg = QObject::tr("The colorado hardware config files' version is not valid.");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_VERSION;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_VERSION_ERROR;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -131,7 +131,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
         errorMsg = QObject::tr("  child 'base_modules' not found.");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_BASE;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_BASE;
         return DCL_ERR_FCT_CALL_FAILED;
     }
     else
@@ -151,7 +151,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                     RetCode = ParseCANMessageElement(node2, 0);
                     if(RetCode != DCL_ERR_FCT_CALL_SUCCESS)
                     {
-                        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_MSG;
+                        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_MSG;
                         return DCL_ERR_FCT_CALL_FAILED;
                     }
                     node2 = node2.nextSiblingElement("CAN_message");
@@ -162,7 +162,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                 errorMsg = QObject::tr("  child 'CAN_messages' not found.");
                 FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-                m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_MSG;
+                m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_MSG;
                 return DCL_ERR_FCT_CALL_FAILED;
             }
         }
@@ -171,7 +171,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
             errorMsg = QObject::tr("  child 'base_module' not found.");
             FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_BASE;
+            m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_BASE;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -184,7 +184,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
         errorMsg = QObject::tr("  child 'function_modules' not found.");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_FCT;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_FCT;
         return DCL_ERR_FCT_CALL_FAILED;
     }
     else
@@ -219,7 +219,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                         RetCode = ParseCANMessageElement(node2, bModuleID);
                         if(RetCode != DCL_ERR_FCT_CALL_SUCCESS)
                         {
-                            m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_MSG;
+                            m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_MSG;
                             return DCL_ERR_FCT_CALL_FAILED;
                         }
                         node2 = node2.nextSiblingElement("CAN_message");
@@ -230,7 +230,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                     errorMsg = QObject::tr("  child 'CAN_messages' not found.");
                     FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-                    m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_MSG;
+                    m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_MSG;
                     return DCL_ERR_FCT_CALL_FAILED;
                 }
             }
@@ -239,7 +239,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
                 errorMsg = QObject::tr("  child 'function_module' not found.");
                 FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
-                m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_FCT;
+                m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_FCT;
                 return DCL_ERR_FCT_CALL_FAILED;
             }
             nodeFctModule = nodeFctModule.nextSiblingElement("function_module");
@@ -300,7 +300,7 @@ ReturnCode_t CANMessageConfiguration::ParseCANMessageElement(const QDomNode &ele
     //check for conversation errors
     if(bOK == false)
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT_MSG;
+        m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR_MSG;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 

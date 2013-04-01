@@ -33,6 +33,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_TEMP_MODULE_CMD_IDX 4   ///< up to 4 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
  *  \brief This class implements the functionality to configure and control a
@@ -53,10 +55,12 @@ class CTemperatureControl : public CFunctionModule
     void HandleTasks(); ///< Task handling function
     void HandleCanMessage(can_frame* pCANframe);    ///< CAN-message handling function
 
+    //! Set reference temperature
+    ReturnCode_t SetTemperature(qreal Temperature, quint8 SlopeTempChange=0);
     //! Request actual temperature
     ReturnCode_t ReqActTemperature(quint8 Index);
-    //! Set temperature ctrl. status and set point temperature
-    ReturnCode_t SetStatus(TempCtrlStatus_t TempCtrlState, qreal Temperature);
+    //! Set temperature ctrl. status
+    ReturnCode_t SetStatus(TempCtrlStatus_t TempCtrlState);
     //! Request temperature ctrl. status
     ReturnCode_t ReqStatus();
     //! Set temperature ctrl. operating mode
@@ -71,6 +75,10 @@ class CTemperatureControl : public CFunctionModule
     ReturnCode_t GetFanSpeed(quint8 Index);
     //! Get the hardware status
     ReturnCode_t GetHardwareStatus();
+#ifdef PRE_ALFA_TEST
+    //! Set temperature ctrl. status
+    ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+#endif
 
 signals:
     /****************************************************************************/
@@ -78,21 +86,31 @@ signals:
      *  \brief  This signal reports the actual temperature
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam Index = Index of the temperature sensor
      *  \iparam Temperature = Actual temperature
+     *
+     ****************************************************************************/
+    void ReportActTemperature(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index, qreal Temperature);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  This signal reports the actual reference temperature
+     *
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam Temperature = Reference temperature
      */
     /****************************************************************************/
-    void ReportActTemperature(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index, qreal Temperature);
+    void ReportRefTemperature(quint32 InstanceID, ReturnCode_t HdlInfo, qreal Temperature);
 
     /****************************************************************************/
     /*!
      *  \brief  This signal reports the actual temperature ctrl. status
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam Status = Temperature control status
-     *  \iparam Voltage = Mains voltage domain (220V, 110V)
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam TempCtrlStatus = Temperature ctrl. status
      */
     /****************************************************************************/
     void ReportActStatus(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status, TempCtrlMainsVoltage_t Voltage);
@@ -103,19 +121,18 @@ signals:
      *          Report Acknowlege for SetStatus(..) - request
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam Status = Temperature ctrl. status
-     *  \iparam Temperature = Set point temperature in °C
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam OperatingMode = Temperature ctrl. status
      */
     /****************************************************************************/
-    void ReportSetStatusAckn(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status, qreal Temperature);
+    void ReportSetStatusAckn(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status);
 
     /****************************************************************************/
     /*!
      *  \brief  This signal reports the actual operation mode
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam OperatingMode = Operation mode
      */
     /****************************************************************************/
@@ -127,7 +144,7 @@ signals:
      *          Report Acknowlege for SetOperatingMode(..) - request
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam OperatingMode = Operation mode
      */
     /****************************************************************************/
@@ -138,8 +155,7 @@ signals:
      *  \brief  Acknwoledgement for reseting the heater operating time
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam Index = Index of the heating element
+     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      */
     /****************************************************************************/
     void ReportResetHeaterOperatingTime(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index);
@@ -149,7 +165,7 @@ signals:
      *  \brief  This signal reports the operating time of a heating elmenent
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam Index = Index of the heating element
      *  \iparam OperatingTime = Heater operating time in seconds
      */
@@ -161,7 +177,7 @@ signals:
      *  \brief  This signal reports the operating time of a heating elmenent
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam Index = Index of the ventilation fan
      *  \iparam FanSpeed = Fan speed in revelations per minute
      */
@@ -173,7 +189,7 @@ signals:
      *  \brief  This signal reports the operating time of a heating elmenent
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam Sensors = Number of temperature sensors connected to the board
      *  \iparam Fans = Number of ventilation fans connected to the board
      *  \iparam Heaters = Number of heating elements connected to the board
@@ -189,18 +205,23 @@ signals:
      *  \brief  This signal reports the operating time of a heating elmenent
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam InRange = Indicates if the temperature is in range or not
      *  \iparam Temperature = Temperature in °C
      */
     /****************************************************************************/
     void ReportTemperatureRange(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qreal Temperature);
+#ifdef PRE_ALFA_TEST
+    void ReportLevelSensorState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 State);
+    void ReportSetPidAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+#endif
 
  private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
 
-    void HandleIdleState(); //!< idle task handling function
+    void SendConfiguration();   //!< configuration task handling function
+    void HandleIdleState();     //!< idle task handling function
 
     //! sends the can message 'FanWatchdog'
     ReturnCode_t SendCANMsgFanWatchdogSet();
@@ -208,8 +229,11 @@ signals:
     ReturnCode_t SendCANMsgCurrentWatchdogSet();
     //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
+#ifdef PRE_ALFA_TEST
+    ReturnCode_t SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+#endif
     //! sends the can set message 'Temperature'
-    ReturnCode_t SendCANMsgSetTemperature();
+    ReturnCode_t SendCANMsgSetTemperature(qreal Temperature, TempCtrlOperatingMode_t OperatingMode, TempCtrlStatus_t Status, quint8 SlopeTempChange=0);
     //! sends the can request message 'Temperature'
     ReturnCode_t SendCANMsgTemperatureRequest();
     //! sends the can request message 'ServiceSensor'
@@ -235,7 +259,9 @@ signals:
     void HandleCANMsgHardware(can_frame* pCANframe);
     //! handles the receipt of can response message 'NotiInRange'
     void HandleCANMsgNotiRange(can_frame* pCANframe, bool InRange);
-
+#ifdef PRE_ALFA_TEST
+    void HandleCANMsgLevelSensorState(can_frame* pCANframe);
+#endif
     //! command handling function
     void HandleCommandRequestTask();
 
@@ -252,36 +278,47 @@ signals:
     /*! module command type definitions */
     typedef enum {
         FM_TEMP_CMD_TYPE_UNDEF         = 0, //!< undefined module cmd type
-        FM_TEMP_CMD_TYPE_REQ_ACTTEMP   = 1, //!< request actual temperature
-        FM_TEMP_CMD_TYPE_SET_OPMODE    = 2, //!< set operating mode
-        FM_TEMP_CMD_TYPE_REQ_ACTOPMODE = 3, //!< request operating mode
-        FM_TEMP_CMD_TYPE_SET_STATUS    = 4, //!< set status (on/off)
-        FM_TEMP_CMD_TYPE_REQ_ACTSTATUS = 5, //!< request status
-        FM_TEMP_CMD_TYPE_RESET_OPTIME  = 6, //!< reset heater operating time
-        FM_TEMP_CMD_TYPE_REQ_OPTIME    = 7, //!< request operating time
-        FM_TEMP_CMD_TYPE_REQ_FANSPEED  = 8, //!< request fan speed
-        FM_TEMP_CMD_TYPE_REQ_HARDWARE  = 9  //!< request hardware status
+        FM_TEMP_CMD_TYPE_SET_TEMP      = 1, //!< set reference temperature
+        FM_TEMP_CMD_TYPE_REQ_ACTTEMP   = 2, //!< request actual temperature
+        FM_TEMP_CMD_TYPE_SET_OPMODE    = 3, //!< set operating mode
+        FM_TEMP_CMD_TYPE_REQ_ACTOPMODE = 4, //!< request operating mode
+        FM_TEMP_CMD_TYPE_SET_STATUS    = 5, //!< set status (on/off)
+        FM_TEMP_CMD_TYPE_REQ_ACTSTATUS = 6, //!< request status
+        FM_TEMP_CMD_TYPE_RESET_OPTIME  = 7, //!< reset heater operating time
+        FM_TEMP_CMD_TYPE_REQ_OPTIME    = 8, //!< request operating time
+        FM_TEMP_CMD_TYPE_REQ_FANSPEED  = 9, //!< request fan speed
+        FM_TEMP_CMD_TYPE_REQ_HARDWARE  = 10,//!< request hardware status
+#ifdef PRE_ALFA_TEST
+        FM_TEMP_CMD_TYPE_SET_PID       = 11 //!< set PID parameters
+#endif
     } CANTempCtrlCmdType_t;
 
     /*! motor command data, used for internal data transfer*/
     typedef struct {
         CANTempCtrlCmdType_t Type;              //!< command type
         ModuleCmdState_t State;                 //!< command state
+        qreal Temperature;                      //!< temperature
+        TempCtrlStatus_t TempCtrlState;         //!< temperature control state
+        TempCtrlOperatingMode_t TempCtrlOpMode; //!< temperature control operating mode
         Global::MonotonicTime ReqSendTime;      //!< time the command was executed
         qint32 Timeout;                         //!< timeout in ms
         quint8 Index;                           //!< sensor, heater or fan index
-    } ModuleCommand_t;
+#ifdef PRE_ALFA_TEST
+        quint8 SlopeTimeInterval;
+        quint8 SlopeTempChange;
+        quint16 MaxTemperature;
+        quint16 ControllerGain;
+        quint16 ResetTime;
+        quint16 DerivativeTime;
+#endif
+    } TempCtrlCommand_t;
 
-    qreal m_Temperature;                        //!< temperature
-    TempCtrlStatus_t m_TempCtrlState;           //!< temperature control state
-    TempCtrlOperatingMode_t m_TempCtrlOpMode;   //!< temperature control operating mode
+    TempCtrlCommand_t m_ModuleCommand[MAX_TEMP_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
-
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANTempCtrlCmdType_t CommandType);
-    //! Clears all entrys with the specified module command type to free
-    bool ResetModuleCommand(CANTempCtrlCmdType_t CommandType);
+    //! set the module command type to free entry within array
+    bool SetModuleTask(CANTempCtrlCmdType_t CommandType, quint8* pCmdIndex = 0);
+    //! clears all entrys with the specified module command type to free
+    void ResetModuleCommand(CANTempCtrlCmdType_t);
 
     quint32 m_unCanIDError;                 //!< CAN message 'Error'
     quint32 m_unCanIDErrorReq;              //!< CAN message 'Request error'
@@ -305,7 +342,9 @@ signals:
     quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
-
+#ifdef PRE_ALFA_TEST
+    quint32 m_unCanIDLevelSensorState;
+#endif
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
 };

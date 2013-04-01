@@ -28,19 +28,12 @@
 
 #include "DeviceControl/Include/DeviceProcessing/ConfigurationService.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
-#include "DeviceControl/Include/Devices/DeviceAgitation.h"
-#include "DeviceControl/Include/Devices/DeviceBase.h"
-#include "DeviceControl/Include/Devices/DeviceDrawer.h"
-#include "DeviceControl/Include/Devices/DeviceHeatedCuvettes.h"
-#include "DeviceControl/Include/Devices/DeviceOven.h"
-#include "DeviceControl/Include/Devices/DeviceRackTransfer.h"
-#include "DeviceControl/Include/Devices/DeviceSlideId.h"
-#include "DeviceControl/Include/Devices/DeviceXyz.h"
-#include "DeviceControl/Include/Devices/DeviceExhaust.h"
-#include "DeviceControl/Include/Devices/DeviceWater.h"
-#include "DeviceControl/Include/Devices/DeviceLight.h"
-#include "DeviceControl/Include/Devices/DeviceHood.h"
-
+#include "DeviceControl/Include/Devices/BaseDevice.h"
+#include "DeviceControl/Include/Devices/RotaryValveDevice.h"
+#include "DeviceControl/Include/Devices/AirLiquidDevice.h"
+#include "DeviceControl/Include/Devices/RetortDevice.h"
+#include "DeviceControl/Include/Devices/OvenDevice.h"
+#include "DeviceControl/Include/Devices/PeripheryDevice.h"
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 #include "DeviceControl/Include/SlaveModules/AnalogInput.h"
@@ -51,6 +44,7 @@
 #include "DeviceControl/Include/SlaveModules/Uart.h"
 #include "DeviceControl/Include/SlaveModules/Joystick.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
+#include "DeviceControl/Include/SlaveModules/PressureControl.h"
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
@@ -62,12 +56,21 @@ namespace DeviceControl
 /*!
  *  \brief  Constructor for the CConfigurationService
  *
- *  \iparam Processing = Device processing
- *  \iparam Communicator = Communication interface
+ *  \iparam pDeviceProcessing = Pointer to DeviceProcessing
+ *  \iparam pCANCommunicator = Pointer to communication interface
+ *  \iparam pObjectTree = Pointer to CAN-object container
  */
 /****************************************************************************/
-CConfigurationService::CConfigurationService(DeviceProcessing &Processing, CANCommunicator &Communicator) :
-    m_DeviceProcessing(Processing), m_CANCommunicator(Communicator), m_stateTimespan(0), m_ConfigurationComplete(false)
+CConfigurationService::CConfigurationService(DeviceProcessing* pDeviceProcessing,
+                                             CANCommunicator* pCANCommunicator) :
+        m_pDeviceProcessing(pDeviceProcessing),
+        m_pCANCommunicator(pCANCommunicator),
+        m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS),
+        m_lastErrorGroup(0),
+        m_lastErrorCode(0),
+        m_lastErrorData(0),
+        m_stateTimespan(0),
+        m_ConfigurationComplete(false)
 {
     m_MainState = CS_MAIN_STATE_INIT;
     m_ErrSubState = CS_SUBSTATE_ERR_UNDEF;
@@ -80,6 +83,28 @@ CConfigurationService::CConfigurationService(DeviceProcessing &Processing, CANCo
 /****************************************************************************/
 CConfigurationService::~CConfigurationService()
 {
+    m_pDeviceProcessing = 0;
+    m_pCANCommunicator = 0;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Throws an error signal
+ *
+ *  \iparam usNodeID = Node ID
+ *  \iparam ulModulInfo = Module ID
+ *  \iparam usErrorGroup = Error group
+ *  \iparam usErrorID = Error ID
+ *  \iparam sErrorData = Error data
+ */
+/****************************************************************************/
+void CConfigurationService::ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo, quint16 usErrorGroup, quint16 usErrorID, qint16 sErrorData)
+{
+    Q_UNUSED(usNodeID);
+    Q_UNUSED(ulModulInfo);
+    Q_UNUSED(usErrorGroup);
+    Q_UNUSED(usErrorID);
+    Q_UNUSED(sErrorData);
 }
 
 /****************************************************************************/
@@ -101,12 +126,13 @@ void CConfigurationService::HandleTasks()
         RetVal = CreateDeviceComponents();
         if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
         {
-            m_DeviceProcessing.LogObjectTree(0);
+            m_pDeviceProcessing->LogObjectTree(0);
             m_MainState = CS_MAIN_STATE_CONFIG_WAIT_CANOBJECTS;
         }
         else
         {
             FILE_LOG_L(laINIT, llINFO) << " CreateDeviceComponents returns error: " << (int) RetVal;
+            m_lastErrorHdlInfo = RetVal;
             m_MainState = CS_MAIN_STATE_ERROR;
         }
     }
@@ -127,6 +153,7 @@ void CConfigurationService::HandleTasks()
         else if (RetVal == DCL_ERR_INTERNAL_ERR) {
             // At least one node is in error mode
             FILE_LOG_L(laINIT, llINFO) << " Set ConfigurationService main state to ERROR";
+            m_lastErrorHdlInfo = RetVal;
             m_MainState = CS_MAIN_STATE_ERROR;
             m_ErrSubState = CS_SUBSTATE_ERR_INIT;
             m_ConfigurationComplete = false;
@@ -161,7 +188,7 @@ void CConfigurationService::HandleTasks()
     {
         if(m_ErrSubState == CS_SUBSTATE_ERR_IDLE)
         {
-           ;
+            ;
         }
         else if(m_ErrSubState == CS_SUBSTATE_ERR_INIT)
         {
@@ -179,11 +206,11 @@ void CConfigurationService::HandleCANNodesTask()
 {
     CBaseModule* pCANNode;
 
-    pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(true);
+    pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(true);
     while (pCANNode)
     {
         pCANNode->HandleTasks();
-        pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(false);
+        pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(false);
     }
 }
 
@@ -195,7 +222,7 @@ void CConfigurationService::HandleCANNodesTask()
  *      HardwareConfiguration, which, on her part, reads the hardware
  *      configuration of the full equipped system from xml file.
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if successful, otherwise an error code
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CConfigurationService::CreateDeviceComponents()
@@ -207,10 +234,12 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
 
     if (RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
         QString strErrorInfo;
-        quint32 EventCode = 0;
+        quint16 usErrorID = 0;
+        QDateTime errorTimeStamp;
 
-        Configuration.GetLastError(EventCode, strErrorInfo);
-        m_DeviceProcessing.ThrowEventWithInfo(EventCode, 0, strErrorInfo);
+        Configuration.GetLastError(usErrorID, strErrorInfo);
+        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        m_pDeviceProcessing->ThrowErrorWithInfo(0, EVENT_GRP_DCL_CONFIGURATION, usErrorID, 0, errorTimeStamp, strErrorInfo);
         FILE_LOG_L(laINIT, llERROR) << "   CConfigurationService::ReadHWSpecification() " << strErrorInfo.toStdString();
     }
     else {
@@ -232,7 +261,7 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
  *
  *  \iparam pHWConfiguration = Pointer to hardware configuration object
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if successful, otherwise an error code
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWConfiguration)
@@ -257,16 +286,17 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
         RetVal = pCANNode->Initialize();
         if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
         {
-            quint32 EventCode = 0;
+            quint16 usErrorID = 0;
+            QDateTime errorTimeStamp;
             QString strErrorInfo;
 
-            pHWConfiguration->GetLastError(EventCode, strErrorInfo);
-            m_DeviceProcessing.ThrowEventWithInfo(EventCode, 0, strErrorInfo);
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            m_pDeviceProcessing->ThrowErrorWithInfo(0, EVENT_GRP_DCL_CONFIGURATION, usErrorID, 0, errorTimeStamp, strErrorInfo);
             FILE_LOG_L(laINIT, llERROR) << "   CConfigurationService::CANNode-Initialize() failed " << pCANObjectConfigNode->m_sCANNodeIndex;
             break;
         }
 
-        m_DeviceProcessing.InsertCANNodeToObjectTree(pCANNode);
+        m_pDeviceProcessing->InsertCANNodeToObjectTree(pCANNode);
         FILE_LOG_L(laINIT, llDEBUG1) << "  ConfigService: created node " << pCANNode->GetName().toStdString();
 
         //determine the first function module assigned to the CANNode
@@ -277,59 +307,64 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
             //CAN node's function module list
             switch(pCANObjectConfigFct->m_ObjectType)
             {
-                case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
-                {
-                    CreateAndAddFunctionModule<CDigitalInput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
-                {
-                    CreateAndAddFunctionModule<CDigitalOutput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
-                {
-                    CreateAndAddFunctionModule<CAnalogInput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
-                {
-                    CreateAndAddFunctionModule<CAnalogOutput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
-                {
-                    CreateAndAddFunctionModule<CStepperMotor>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
-                {
-                    CreateAndAddFunctionModule<CRfid11785>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
-                {
-                    CreateAndAddFunctionModule<CRfid15693>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
-                {
-                    CreateAndAddFunctionModule<CTemperatureControl>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
-                {
-                    CreateAndAddFunctionModule<CJoystick>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_UART:
-                {
-                    CreateAndAddFunctionModule<CUart>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                default:
-                    //pfui, undefined CAN object type
-                    break;
+            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
+            {
+                CreateAndAddFunctionModule<CDigitalInput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
+            {
+                CreateAndAddFunctionModule<CDigitalOutput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
+            {
+                CreateAndAddFunctionModule<CAnalogInput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
+            {
+                CreateAndAddFunctionModule<CAnalogOutput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
+            {
+                CreateAndAddFunctionModule<CStepperMotor>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
+            {
+                CreateAndAddFunctionModule<CRfid11785>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
+            {
+                CreateAndAddFunctionModule<CRfid15693>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
+            {
+                CreateAndAddFunctionModule<CTemperatureControl>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
+            {
+                CreateAndAddFunctionModule<CJoystick>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_UART:
+            {
+                CreateAndAddFunctionModule<CUart>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL:
+            {
+                CreateAndAddFunctionModule<CPressureControl>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            default:
+                //pfui, undefined CAN object type
+                break;
             }
             pCANObjectConfigFct = pHWConfiguration->GetCANFctModule(pCANObjectConfigNode, pCANObjectConfigFct);
         }
@@ -345,89 +380,112 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
  *
  *  \iparam pHWConfiguration = Pointer to hardware configuration object
  *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if successful, otherwise an error code
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConfiguration)
 {
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+
     BaseDeviceConfiguration* pBaseDeviceCfg;
-    CDeviceBase* pBaseDevice = 0;
+    CBaseDevice* pBaseDevice = 0;
 
     pBaseDeviceCfg = pHWConfiguration->GetDevice(0);
     while(pBaseDeviceCfg != 0)
     {
-        if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevAgitationKey)
+        ReturnCode_t RetValCANNode = DCL_ERR_FCT_CALL_SUCCESS;
+
+        if(pBaseDeviceCfg->m_Type == "RotaryValveDevice")
         {
-            pBaseDevice = new CDeviceAgitation(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                               pBaseDeviceCfg->m_InstanceID);
+            pBaseDevice = CreateAndGetDevice<CRotaryValveDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevDrawerKey)
+        else if(pBaseDeviceCfg->m_Type == "AirLiquidDevice")
         {
-            pBaseDevice = new CDeviceDrawer(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                            pBaseDeviceCfg->m_InstanceID);
+            pBaseDevice = CreateAndGetDevice<CAirLiquidDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevHeatedCuvettesKey)
+        else if(pBaseDeviceCfg->m_Type == "RetortDevice")
         {
-            pBaseDevice = new CDeviceHeatedCuvettes(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                    pBaseDeviceCfg->m_InstanceID);
+            pBaseDevice = CreateAndGetDevice<CRetortDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevOvenKey)
+        else if(pBaseDeviceCfg->m_Type == "OvenDevice")
         {
-            pBaseDevice = new CDeviceOven(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                          pBaseDeviceCfg->m_InstanceID);
+            pBaseDevice = CreateAndGetDevice<COvenDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevRackTransferKey)
+        else if(pBaseDeviceCfg->m_Type == "PeripheryDevice")
         {
-            pBaseDevice = new CDeviceRackTransfer(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                  pBaseDeviceCfg->m_InstanceID);
-        }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevSlideIdKey)
-        {
-            pBaseDevice = new CDeviceSlideId(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                             pBaseDeviceCfg->m_InstanceID);
-        }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevXyzTransportationKey)
-        {
-            pBaseDevice = new CDeviceXyz(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                  pBaseDeviceCfg->m_InstanceID);
-        }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevWaterKey)
-        {
-            pBaseDevice = new CDeviceWater(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                  pBaseDeviceCfg->m_InstanceID);
-        }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevHoodKey)
-        {
-            pBaseDevice = new CDeviceHood(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                  pBaseDeviceCfg->m_InstanceID);
-        }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevLightKey)
-        {
-            pBaseDevice = new CDeviceLight(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                  pBaseDeviceCfg->m_InstanceID);
-        }
-        else if(pBaseDeviceCfg->m_Key == CANObjectKeyLUT::m_DevExhaustKey)
-        {
-            pBaseDevice = new CDeviceExhaust(m_DeviceProcessing, pBaseDeviceCfg->m_ModuleList,
-                                                  pBaseDeviceCfg->m_InstanceID);
+            pBaseDevice = CreateAndGetDevice<CPeripheryDevice>(pBaseDeviceCfg);
         }
         else
         {
-            pBaseDevice = NULL;
             m_MainState = CS_MAIN_STATE_ERROR;
+            SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_DEVICE_TYPE_INVALID, (quint16) pBaseDeviceCfg->m_OrderNr);
+        }
+
+        if(RetValCANNode != DCL_ERR_FCT_CALL_SUCCESS)
+        {
+            quint16 usErrorID = 0;
+            QDateTime errorTimeStamp;
+            QString strErrorInfo;
+
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            m_pDeviceProcessing->ThrowErrorWithInfo(0, EVENT_GRP_DCL_CONFIGURATION, usErrorID, 0, errorTimeStamp, strErrorInfo);
+            //FILE_LOG_L(laINIT, llERROR) << "   CConfigurationService::CANNode-Initialize() failed " << pCANObjectConfigNode->m_sCANNodeIndex;
+            break;
         }
 
         if(pBaseDevice)
         {
-            m_DeviceProcessing.AddDevice(pBaseDeviceCfg->m_InstanceID, pBaseDevice);
-            FILE_LOG_L(laINIT, llDEBUG1) << " CConfigurationService - Device created.";
+            m_pDeviceProcessing->AddDevice(pBaseDevice);
+            pBaseDevice->SetTypeKey(pBaseDeviceCfg->m_Type);
+
+            FILE_LOG_L(laINIT, llDEBUG1) << " CConfigurationService - Device " << pBaseDevice->GetType().toStdString() << " created.";
         }
 
         // get next device from configuration file, if any
         pBaseDeviceCfg = pHWConfiguration->GetDevice(pBaseDeviceCfg);
     }
 
-    return DCL_ERR_FCT_CALL_SUCCESS;
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Create a device object
+ *
+ *  \iparam pBaseDeviceCfg = Pointer to configuration data container
+ *
+ *  \return Pointer to the new device instance
+ */
+/****************************************************************************/
+template <class TDevice>
+TDevice* CConfigurationService::CreateAndGetDevice(BaseDeviceConfiguration* pBaseDeviceCfg)
+{
+    TDevice* pDevice;
+
+    pDevice = new TDevice(m_pDeviceProcessing, pBaseDeviceCfg->m_Type);
+    pDevice->SetFunctionModuleList(pBaseDeviceCfg->m_DevFctModList);
+
+    return pDevice;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Create a device object that requires an index
+ *
+ *  \iparam pBaseDeviceCfg = Pointer to configuration data container
+ *
+ *  \return Pointer to the new device instance
+ */
+/****************************************************************************/
+template <class TDevice>
+TDevice* CConfigurationService::CreateAndGetIndexedDevice(BaseDeviceConfiguration* pBaseDeviceCfg)
+{
+    TDevice* pDevice;
+
+    pDevice = new TDevice(m_pDeviceProcessing, pBaseDeviceCfg->m_Type, pBaseDeviceCfg->m_InstanceID);
+    pDevice->SetFunctionModuleList(pBaseDeviceCfg->m_DevFctModList);
+
+    return pDevice;
 }
 
 /****************************************************************************/
@@ -443,7 +501,7 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
 CBaseModule* CConfigurationService::CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex)
 {
     CBaseModule* pCANNode = 0;
-    pCANNode = new CBaseModule(m_DeviceProcessing.GetMessageConfig(), &m_CANCommunicator, sCANNodeType, sCANNodeIndex);
+    pCANNode = new CBaseModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, sCANNodeType, sCANNodeIndex);
     return pCANNode;
 }
 
@@ -462,16 +520,16 @@ void CConfigurationService::CreateAndAddFunctionModule(CBaseModule* pCANNode, CM
 {
     ReturnCode_t RetValFctModule;
     TFunctionModule* pFunctionModule = 0;
-    pFunctionModule = new TFunctionModule(m_DeviceProcessing.GetMessageConfig(), &m_CANCommunicator, pCANNode);
+    pFunctionModule = new TFunctionModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, pCANNode);
 
     pFunctionModule->SetCANConfiguration(pCANObjectConfigFct);
     RetValFctModule = pFunctionModule->Initialize();
 
     if(RetValFctModule == DCL_ERR_FCT_CALL_SUCCESS) {
         FILE_LOG_L(laINIT, llDEBUG1) << "   Function Module: " << pFunctionModule->GetKey().toStdString() <<
-                //"  Type:  0x" << std::hex << pFunctionModule->m_sCANNodeType <<
-                //"  Index: 0x" << std::hex << pFunctionModule->m_sCANNodeIndex <<
-                "  Node:  0x" << std::hex << pCANNode->GetNodeID();
+                                        //"  Type:  0x" << std::hex << pFunctionModule->m_sCANNodeType <<
+                                        //"  Index: 0x" << std::hex << pFunctionModule->m_sCANNodeIndex <<
+                                        "  Node:  0x" << std::hex << pCANNode->GetNodeID();
         pCANNode->AddFunctionModule(pFunctionModule);
         FILE_LOG_L(laINIT, llDEBUG1) << "   created fct " << pFunctionModule->GetName().toStdString() << " ModuleID: "  << (int) pFunctionModule->GetChannelNo();
     }
@@ -498,12 +556,12 @@ ReturnCode_t CConfigurationService::CreateDiscoveredHWConfiguration()
     QDomDocument DocHwDescr;
     QDomNode ResultNode;
     //pDocHwDescr = new QDomDocument();
-    QDomElement root = DocHwDescr.createElement("himalaya_hwconfig");
+    QDomElement root = DocHwDescr.createElement("colorado_hwconfig");
 
     ResultNode = DocHwDescr.appendChild(root);
     if(ResultNode.isNull())
     {
-        FILE_LOG_L(laCONFIG, llERROR) << " append 'himalaya_hwconfig'' node failed.";
+        FILE_LOG_L(laCONFIG, llERROR) << " append 'colorado_hwconfig'' node failed.";
         return  DCL_ERR_FCT_CALL_SUCCESS;
     }
 
@@ -519,7 +577,7 @@ ReturnCode_t CConfigurationService::CreateDiscoveredHWConfiguration()
 
     QDomElement slave, fctmodules, fctmodule;
 
-    pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(true);
+    pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(true);
     while(pCANNode)
     {
         FILE_LOG_L(laCONFIG, llDEBUG1) << "  " <<  pCANNode->GetKey().toStdString() << ": " << (int) pCANNode->GetType() << " " << pCANNode->GetName().toStdString();
@@ -566,10 +624,10 @@ ReturnCode_t CConfigurationService::CreateDiscoveredHWConfiguration()
             fctmodule.setAttribute("channel", QString("%1").arg(pFctModuleBase->GetChannelNo()));
             pFctModuleBase = pCANNode->GetFunctionModuleFromList(pFctModuleBase);
         }
-        pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(false);
+        pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(false);
     }
 
-    m_DeviceProcessing.SetXML_HWDescription(DocHwDescr);
+    m_pDeviceProcessing->SetXML_HWDescription(DocHwDescr);
 
     // this is for testing and should be removed
     QFile file("text.xml");
@@ -599,9 +657,11 @@ ReturnCode_t CConfigurationService::IsCANNodesStateIdle()
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     CBaseModule* pCANNode;
 
-    pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(true);
+    pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(true);
     while (pCANNode) {
         if (pCANNode->GetMainState() == CBaseModule::CN_MAIN_STATE_ERROR) {
+            SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_NODE_ERROR,
+                              (quint16) pCANNode->GetModuleHandle());
             FILE_LOG_L(laINIT, llINFO) << " CheckCANNodeStates found at least one node in error state: " <<
                                           pCANNode->GetKey().toStdString();
             retCode = DCL_ERR_INTERNAL_ERR;
@@ -616,26 +676,45 @@ ReturnCode_t CConfigurationService::IsCANNodesStateIdle()
         else {
 
         }
-        pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(false);
+        pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(false);
     }
 
     counter++;
     if (counter > 1000) {
         counter = 0;
-        pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(true);
+        pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(true);
         while(pCANNode) {
             if (pCANNode->GetMainState() != CBaseModule::CN_MAIN_STATE_IDLE &&
-                    pCANNode->GetMainState() != CBaseModule::CN_MAIN_STATE_UPDATE ) {
+                            pCANNode->GetMainState() != CBaseModule::CN_MAIN_STATE_UPDATE ) {
+                SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_NODE_IDLE_TIMEOUT,
+                                  (quint16) pCANNode->GetModuleHandle());
                 FILE_LOG_L(laCONFIG, llWARNING) << pCANNode->GetKey().toStdString() << " not idle, state: " <<
                                                    (int) pCANNode->GetMainState();
                 pCANNode->SetStateInactive();
             }
-            pCANNode = m_DeviceProcessing.GetCANNodeFromObjectTree(false);
+            pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(false);
         }
         retCode = DCL_ERR_TIMEOUT;
     }
 
     return retCode;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Set the error parameter of the class, and error time to current time
+ *
+ *  \iparam errorGroup = Error group
+ *  \iparam errorCode = Error code
+ *  \iparam errorData = Error data
+ */
+/****************************************************************************/
+void CConfigurationService::SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData)
+{
+    m_lastErrorTime  = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    m_lastErrorGroup = errorGroup;
+    m_lastErrorCode  = errorCode;
+    m_lastErrorData  = errorData;
 }
 
 /****************************************************************************/

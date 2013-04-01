@@ -5,7 +5,7 @@
  *
  *   $Version: $ 0.1
  *   $Date:    $ 02.12.2011
- *   $Author:  $ M.Scherer
+ *   $Author:  $ Martin Scherer
  *
  *  \b Description:
  *
@@ -85,8 +85,6 @@ public:
     /****************************************************************************/
     CANFctModMainState_t GetMainState() const { return m_mainState; }
 
-    quint32 GetNodeID() const;
-
     /****************************************************************************/
     /*!
      *  \brief  Set the main state to 'confirmed'
@@ -96,16 +94,13 @@ public:
     /****************************************************************************/
     void Confirm() { m_mainState = FM_MAIN_STATE_CONFIRMED; }
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Returns the base module of the function module
-     *
-     *  \return Pointer to the base module
-     */
-    /****************************************************************************/
-    const CBaseModule *GetBaseModule() const { return m_pParent; }
-
 protected:
+    //!< Initialisation of event CAN message IDs
+    ReturnCode_t InitializeEventCANMessages(quint8 ModuleID);
+
+    //!< Registers the can messages to communication layer
+    ReturnCode_t RegisterEventCANMessages();
+
     CANFctModMainState_t m_mainState;   //!< Main state
     CBaseModule* m_pParent;             //!< Pointer to CANNode this module is assigned to
 

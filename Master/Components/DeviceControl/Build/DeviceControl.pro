@@ -4,6 +4,8 @@
 
 TARGET = DeviceControl
 
+DEFINES += PRE_ALFA_TEST
+
 INCLUDEPATH += ../../../../Common/Components
 
 HEADERS +=  ../Include/CanCommunication/*.h \
@@ -23,3 +25,4 @@ SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/DeviceProcessing/*.cpp \
             ../Source/Devices/*.cpp \
             ../Source/Interface/*.cpp
+

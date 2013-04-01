@@ -26,21 +26,23 @@
 #define DEVICECONTROL_BASEMODULEPRIVATE_H
 
 #include <QList>
-#include <QTextStream>
 
 #include "Global/Include/MonotonicTime.h"
-#include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/SlaveModules/BootLoader.h"
 #include "DeviceControl/Include/SlaveModules/FunctionModule.h"
 
 namespace DeviceControl
 {
 
+class CBaseModule;
 class CANCommunicator;
 class CANMessageConfiguration;
 
 //! List of all function modules assigned to the node
 typedef QList<CFunctionModule*> FctModuleList;
+
+#define CN_MAX_MODULE_CMD_IDX 4 //!< up to 4 module commands can be handled simultaneously
 
 /****************************************************************************/
 /*!
@@ -67,6 +69,7 @@ public:
     void HandleCanMessage(can_frame* pCANframe);    //!< CAN message handing function
 
     CBootLoader *GetBootLoader();
+    void BootLoaderUpdate(CBootLoader::State_t State);
 
     //! Adds a function module to the internal module list
     void AddFunctionModule(CFunctionModule* pFctModule);
@@ -137,15 +140,6 @@ public:
 
     /****************************************************************************/
     /*!
-     *  \brief  Returns the CAN protocol version (taken from HardwareID-CAN-message)
-     *
-     *  \return CAN protocol version
-     */
-    /****************************************************************************/
-    quint16 GetCANVersion() const { return m_ProtocolVersion; }
-
-    /****************************************************************************/
-    /*!
      *  \brief  Returns the hardware version (taken from HardwareID-CAN-message)
      *
      *  \return Hardware version
@@ -162,43 +156,32 @@ public:
     /****************************************************************************/
     quint16 GetSWVersion() const { return m_SWVersion; }
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Returns the software version (taken from SoftwareID-CAN-message)
-     *
-     *  \iparam moduleID = Module identifier
-     *
-     *  \return Software version
-     */
-    /****************************************************************************/
-    quint16 GetModuleSWVersion(CModuleConfig::CANObjectType_t moduleID) const { return m_moduleSWVersion[quint16(moduleID)]; }
+    //! Set the node's heartbet configuration
+    ReturnCode_t SetHeartbeatConfiguration();
 
-    ReturnCode_t SetNodeState(NodeState_t); //!< Set node state
-    ReturnCode_t ReqNodeState();            //!< Request actual node state
+    ReturnCode_t SetNodeState(NodeState_t);   //!< Set node state
+    ReturnCode_t ReqNodeState();              //!< Request actual node state
 
-    ReturnCode_t EnterEmcyStop();           //!< enter emergency stop state
-    ReturnCode_t ExitEmcyStop();            //!< exit emergency stop state
-    ReturnCode_t ReqReset();                //!< Request the node's reset
+    ReturnCode_t ReqEmcyStop();               //!< Request emergency stop
+    ReturnCode_t ReqReset();                  //!< Request the node's reset
 
-    ReturnCode_t ConfigureStatistics();     //!< Configure statistics
-    ReturnCode_t ReqDataReset();            //!< Request data reset
-    ReturnCode_t ReqFormatMemory();         //!< Request formatting memory
-    ReturnCode_t ReqSerialNumber();         //!< Request serial number
-    ReturnCode_t ReqEndTestResult();        //!< Request end test result
-    ReturnCode_t ReqHWInfo();               //!< Request hardware information
-    ReturnCode_t ReqSWInfo();               //!< Request software information
-    ReturnCode_t ReqLoaderInfo();           //!< Request bootloader information
-    ReturnCode_t ReqLifeCycleData();        //!< Request live cylce data
-    ReturnCode_t ReqLaunchDate();           //!< Request launch date
-    ReturnCode_t ReqBoardName();            //!< Request board name
-    ReturnCode_t ReqBoardOptions();         //!< Request board options
-    ReturnCode_t ConfigureVoltageMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
-                                         quint16 GoodThreshold, quint16 FailThreshold);
-    ReturnCode_t ReqVoltageState();         //!< Request voltage monitor status
-    ReturnCode_t ConfigureCurrentMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
-                                         quint16 GoodThreshold, quint16 FailThreshold);
-    ReturnCode_t ReqCurrentState();         //!< Request current monitor status
-    ReturnCode_t ReqUniqueNumber();         //!< Request unique number
+    ReturnCode_t ConfigureStatistics();       //!< Configure statistics
+    ReturnCode_t ReqDataReset();              //!< Request data reset
+    ReturnCode_t ReqFormatMemory();           //!< Request formatting memory
+    ReturnCode_t ReqSerialNumber();           //!< Request serial number
+    ReturnCode_t ReqEndTestResult();          //!< Request end test result
+    ReturnCode_t ReqHWInfo();                 //!< Request hardware information
+    ReturnCode_t ReqSWInfo();                 //!< Request software information
+    ReturnCode_t ReqLoaderInfo();             //!< Request bootloader information
+    ReturnCode_t ReqLifeCycleData();          //!< Request live cylce data
+    ReturnCode_t ReqLaunchDate();             //!< Request launch date
+    ReturnCode_t ReqBoardName();              //!< Request board name
+    ReturnCode_t ReqBoardOptions();           //!< Request board options
+    ReturnCode_t ConfigureVoltageMonitor();   //!< Configure voltage monitor
+    ReturnCode_t ReqVoltageState();           //!< Request voltage monitor status
+    ReturnCode_t ConfigureCurrentMonitor();   //!< Configure current monitor
+    ReturnCode_t ReqCurrentState();           //!< Request current monitor status
+    ReturnCode_t ReqUniqueNumber();           //!< Request unique number
 
     static QMap<quint32, std::string> m_eventString;    //!< list with info strings for CAN events
 
@@ -208,177 +191,59 @@ signals:
      *  \brief  This signal is emitted when the node state has changed
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \iparam NodeState  = Node state
-     *  \iparam EmergencyStopReason = No stop, heartbeat, master
-     *  \iparam VoltageState = Good, warning, failed, unknown
      */
     /****************************************************************************/
-    void ReportNodeState(quint32 InstanceID, ReturnCode_t HdlInfo, NodeState_t NodeState,
-                         EmergencyStopReason_t EmergencyStopReason, PowerState_t VoltageState);
+    void ReportNodeState(quint32 InstanceID, ReturnCode_t HdlInfo, NodeState_t NodeState);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  This signal is emitted to report the emergency stop
+     *
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     */
+    /****************************************************************************/
+    void ReportEmcyStop(quint32 InstanceID, ReturnCode_t HdlInfo);
 
     /****************************************************************************/
     /*!
      *  \brief  This signal is emitted to report the node's reset
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      */
     /****************************************************************************/
     void ReportReset(quint32 InstanceID, ReturnCode_t HdlInfo);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the format memory acknowledge
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     */
-    /****************************************************************************/
+    //!< report the data reset acknowledge
+    void ReportDataResetAckn(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report the format memory acknowledge
     void ReportFormatMemoryAckn(quint32 InstanceID, ReturnCode_t HdlInfo);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the serial number
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam serialNb = Serial number string
-     */
-    /****************************************************************************/
+    //!< report the serial number
     void ReportSerialNumber(quint32 InstanceID, ReturnCode_t HdlInfo, QString serialNb);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the end test result
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam Result = Open, passed, failed
-     *  \iparam Date = End test date
-     */
-    /****************************************************************************/
-    void ReportEndTestResult(quint32 InstanceID, ReturnCode_t HdlInfo, TestResult_t Result, QDate Date);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the hardware information
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam VersionMajor = Major version number
-     *  \iparam VersionMinor = Minor version number
-     *  \iparam Date = Production date
-     */
-    /****************************************************************************/
-    void ReportHWInfo(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 VersionMajor, quint8 VersionMinor, QDate Date);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the software information
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam Version = Software version number
-     *  \iparam Date = Software release date
-     */
-    /****************************************************************************/
-    void ReportSWInfo(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Version, QDate Date);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the bootloader information
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam VersionMajor = Boot loader major version number
-     *  \iparam VersionMinor = Boot loader minor version number
-     *  \iparam Date = Boot loader release date
-     */
-    /****************************************************************************/
-    void ReportLoaderInfo(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 VersionMajor, quint8 VersionMinor, QDate Date);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report life cycle data
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam OperationTime = Total microcontroller uptime in minutes
-     *  \iparam StartupCycles = Number of times the microcontroller was started
-     */
-    /****************************************************************************/
-    void ReportLifeCycleData(quint32 InstanceID, ReturnCode_t HdlInfo, quint32 OperationTime, quint16 StartupCycles);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the first launch date
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam Launched = Launched or not launched
-     *  \iparam Date = Launch date
-     */
-    /****************************************************************************/
-    void ReportLaunchDate(quint32 InstanceID, ReturnCode_t HdlInfo, bool Launched, QDate Date);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the board name
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam BoardName = Board name string
-     */
-    /****************************************************************************/
-    void ReportBoardName(quint32 InstanceID, ReturnCode_t HdlInfo, QString BoardName);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the board options
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     */
-    /****************************************************************************/
+    //!< report the end test result
+    void ReportEndTestResult(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 TestResult, quint8 TestYear, quint8 TestMonth, quint8 TestDay);
+    //!< report the hardware information
+    void ReportHWInfo(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 VersionMajor, quint8 VersionMinor, quint8 Year, quint8 Month, quint8 Day);
+    //!< report the software information
+    void ReportSWInfo(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Version, quint8 Year, quint8 Month, quint8 Day);
+    //!< report the bootloader information
+    void ReportLoaderInfo(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report life cycle data
+    void ReportLifeCycleData(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report the launch date
+    void ReportLaunchDate(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report the board name
+    void ReportBoardName(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report the board options
     void ReportBoardOptions(quint32 InstanceID, ReturnCode_t HdlInfo);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the voltage state
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam State = Good, warning, failed, unknown
-     *  \iparam Value = Voltage measured in millivolts
-     *  \iparam Failures = Number of voltage failures
-     */
-    /****************************************************************************/
-    void ReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the current state
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam State = Good, warning, failed, unknow
-     *  \iparam Value = Current measured in milliamperes
-     *  \iparam Failures = Number of current failures
-     */
-    /****************************************************************************/
-    void ReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Report the unique number
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam UniqueNumber = Byte array of the unique number
-     */
-    /****************************************************************************/
-    void ReportUniqueNumber(quint32 InstanceID, ReturnCode_t HdlInfo, QByteArray UniqueNumber);
+    //!< report the voltage state
+    void ReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report the current state
+    void ReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo);
+    //!< report the unique number
+    void ReportUniqueNumber(quint32 InstanceID, ReturnCode_t HdlInfo);
 
 private:
     CBaseModule();   ///< Not implemented.
@@ -391,7 +256,7 @@ private:
     //void Prepare4Configuration();
     ReturnCode_t SendConfigurationRequest();    //!< Sends the CAN message 'ConfigurationRequest'
 
-    void SetHeartbeatSupervision(bool bHBSupervisionState); //!< (De-)activates the supervision of the slave's heartbeat
+    void SetHeartbeatSupervision(quint8 bHBSupervisionState);   //!< (De-)activates the supervision of the slave's heartbeat
     void CheckHeartbeat();                      //!< Supervision of the slave's heartbeat
 
     void CallHandleTaskFctModules();            //!< call all function modules task function
@@ -410,9 +275,10 @@ private:
 
     ReturnCode_t SendCANMsgSetNodeState(NodeState_t);   //!< sends the can message 'SetNodeState'
     ReturnCode_t SendCANMsgReqNodeState();              //!< sends the can message 'ReqNodeState'
-    ReturnCode_t SendCANMsgEmgcyStop(bool enter);       //!< sends the can message 'EmergencyStop'
+    ReturnCode_t SendCANMsgEmgcyStop();                 //!< sends the can message 'EmergencyStop'
     ReturnCode_t SendCANMsgReset();                     //!< sends the can message 'NodeReset'
     ReturnCode_t SendCANMsgConfStatistics();            //!< sends the can message 'CfgStatistics'
+    ReturnCode_t SendCANMsgReqDataReset();              //!< sends the can message 'ReqResetData'
     ReturnCode_t SendCANMsgReqFormatMemory();           //!< sends the can message 'm_unCanIDReqMemoryFormat'
     ReturnCode_t SendCANMsgReqSerialNumber();           //!< sends the can message 'm_unCanIDReqSerialNumber'
     ReturnCode_t SendCANMsgReqEndTestResult();          //!< sends the can message 'm_unCanIDReqEndTestResult'
@@ -423,7 +289,9 @@ private:
     ReturnCode_t SendCANMsgReqLaunchData();             //!< sends the can message 'RequestLaunchData'
     ReturnCode_t SendCANMsgReqBoardName();              //!< sends the can message 'RequestBoardName'
     ReturnCode_t SendCANMsgReqBoardOptions();           //!< sends the can message 'RequestBoardOptions'
+    ReturnCode_t SendCANMsgConfVoltageMon();            //!< sends the can message 'ConfigVoltageMonitor'
     ReturnCode_t SendCANMsgReqVoltageState();           //!< sends the can message 'RequestVoltageState'
+    ReturnCode_t SendCANMsgConfCurrentMon();            //!< sends the can message 'ConfigCurrentMonitor'
     ReturnCode_t SendCANMsgReqCurrentState();           //!< sends the can message 'CurrentState'
     ReturnCode_t SendCANMsgReqUniqueNumber();           //!< sends the can message 'RequestUniqueNumber'
 
@@ -434,6 +302,7 @@ private:
     void HandleCANMsgNodeState(can_frame* pCANframe);               //!< handles the receipt of can message 'NodeState'
     void HandleCANMsgAbortedByEmgcyStop(can_frame* pCANframe);      //!< handles the receipt of can message 'AbortByEmgcyStop'
     void HandleCANMsgStatistics(can_frame* pCANframe);              //!< handles the receipt of can message 'Statistics'
+    void HandleCANMsgAcknDataReset(can_frame* pCANframe);           //!< handles the receipt of can message 'AcknDataReset'
     void HandleCANMsgAcknMemoryFormat(can_frame* pCANframe);        //!< handles the receipt of can message 'AcknMemoryFormat'
     void HandleCANMsgSerialNumber(can_frame* pCANframe);            //!< handles the receipt of can message 'SerialNumber'
     void HandleCANMsgEndTestResult(can_frame* pCANframe);           //!< handles the receipt of can message 'EndTestResult'
@@ -444,13 +313,14 @@ private:
     void HandleCANMsgLaunchData(can_frame* pCANframe);              //!< handles the receipt of can message 'LaunchData'
     void HandleCANMsgBoardName(can_frame* pCANframe);               //!< handles the receipt of can message 'BoardName'
     void HandleCANMsgBoardOptions(can_frame* pCANframe);            //!< handles the receipt of can message 'BoardOptions'
+    //void HandleCANMsgConfigVoltageMonitor(can_frame* pCANframe);  //!< handles the receipt of can message 'ConfigVoltageMonitor'
     void HandleCANMsgVoltageState(can_frame* pCANframe);            //!< handles the receipt of can message 'VoltageState'
+    //void HandleCANMsgConfigCurrentMonitor(can_frame* pCANframe);  //!< handles the receipt of can message 'ConfigCurrentMonitor'
     void HandleCANMsgCurrentState(can_frame* pCANframe);            //!< handles the receipt of can message 'CurrentState'
     void HandleCANMsgUniqueNumber(can_frame* pCANframe);            //!< handles the receipt of can message 'UniqueNumber'
 
     //! Helper functions
-    static void CalcTimeDiff(struct timeb tpTimeEnd, struct timeb tbTimeStart, qint16& nSeconds, qint16& nMilliSeconds);
-    void ThrowEvent(quint32 EventCode, quint16 EventData);
+    void CalcTimeDiff(struct timeb tpTimeEnd, struct timeb tbTimeStart, qint16& nSeconds, qint16& nMilliSeconds);
 
     /*! Initialisation state type definition */
     typedef enum {
@@ -490,6 +360,8 @@ private:
     typedef enum {
         CN_CMD_SET_NODE_STATE,      //!< set node state
         CN_CMD_REQ_NODE_STATE,      //!< request node state
+        CN_CMD_REQ_EMCY_STOP,       //!< request emergency stop
+        CN_CMD_REQ_RESET,           //!< request reset
         CN_CMD_CONF_STATISTICS,     //!< configure statistics
         CN_CMD_REQ_DATA_RESET,      //!< request data reset
         CN_CMD_REQ_FORMAT_MEM,      //!< request formatting memory
@@ -502,38 +374,43 @@ private:
         CN_CMD_REQ_LAUNCH_DATE,     //!< request launch date
         CN_CMD_REQ_BOARD_NAME,      //!< request board name
         CN_CMD_REQ_BOARD_OPTIONS,   //!< request board options
+        CN_CMD_CONF_VOLTAGE_MON,    //!< configure voltage monitoring
         CN_CMD_REQ_VOLTAGE_STATE,   //!< change node state
+        CN_CMD_CONF_CURRENT_MON,    //!< configure current monitoring
         CN_CMD_REQ_CURRENT_STATE,   //!< request current state
         CN_CMD_REQ_UNIQUE_NUMBER    //!< request unique number
     } CANNodeModuleCmdType_t;
 
     /*! Module command data, used for internal data transfer*/
     typedef struct {
-        CANNodeModuleCmdType_t Type;        //!< command type
-        ModuleCmdState_t State;             //!< command state
-        NodeState_t NodeState;              //!< Target node state
+        CANNodeModuleCmdType_t Type;    //!< command type
+        ModuleCmdState_t State;         //!< command state
+        quint16 Data;                   //!< data transfer
+        quint32 DataU32;                //!< data transfer 32 bit
+        NodeState_t NodeState;          //!< node state
         Global::MonotonicTime ReqSendTime;  //!< time the command was executed
-        qint32 Timeout;                     //!< timeout in ms
+        qint32 Timeout;                 //!< timeout in ms
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    ModuleCommand_t m_ModuleCommand[CN_MAX_MODULE_CMD_IDX]; //!< Module command array
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANNodeModuleCmdType_t CommandType);
+    //! Set the module command type to free entry within array
+    bool SetModuleTask(CANNodeModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
     //! Clears all entrys with the specified module command type to free
-    void ResetModuleCommand(CANNodeModuleCmdType_t CommandType);
+    void ResetModuleCommand(CANNodeModuleCmdType_t);
+
+    //! Returns the array index from the selected module command type
+    quint8 GetModuleCmdIndexFromType(CANNodeModuleCmdType_t);
 
     FctModuleList m_FunctionModuleList; //!< List of function modules assigned to this node
 
-    quint8  m_NodeClass;        //!< Node class received by the harwdare ID message
+    quint8  m_NodeClass;
     quint8  m_ProtocolVersion;  //!< CAN protocoll version
     quint16 m_HWVersion;        //!< hardware version, received with CAN message HardwareID
     quint16 m_SWVersion;        //!< software version, received with CAN message HardwareID
     quint8  m_ChannelCount;     //!< number of channels, including base module
 
-    QMap<quint16, quint16> m_moduleSWVersion;   //!< software version of each module
-
-    CANNodeMainState_t m_mainState; //!< Main state
+    CANNodeMainState_t  m_mainState;    //!< Main state
 
     // CAN communication, the following section declares the CAN message ID variables
     quint32 m_ulCANNodeID;                  //!< Node ID, composed by node index and node type
@@ -561,6 +438,8 @@ private:
 
     quint32 m_unCanIDStatistics;            /*!< CAN-ID 'Statistics' message */
     quint32 m_unCanIDCfgStatistics;         /*!< CAN-ID 'CfgStatistics' message */
+    quint32 m_unCanIDReqDataReset;          /*!< CAN-ID 'ReqDataReset' message */
+    quint32 m_unCanIDAcknDataReset;         /*!< CAN-ID 'AcknDataReset' message */
 
     quint32 m_unCanIDReqMemoryFormat;       //!< CAN-ID 'Request formating memory'
     quint32 m_unCanIDAcknMemoryFormat;      //!< CAN-ID 'AcknMemoryFormat'
@@ -605,12 +484,7 @@ private:
 
     NodeState_t m_NodeState;    //!< Actual node state
     CBootLoader *mp_BootLoader; //!< Handles boot loader state and messages
-
-    QString m_SerialNumber;     //!< Serial number of the slave
-    QByteArray m_UniqueNumber;  //!< Unique number of the slave
 };
-
-QTextStream& operator<< (QTextStream& s, const NodeState_t &NodeState); //!< convert NodeState_t to string
 
 } //namespace
 

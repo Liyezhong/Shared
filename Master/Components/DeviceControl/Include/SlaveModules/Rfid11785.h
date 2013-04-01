@@ -33,6 +33,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_RFID_CMD_IDX 2  ///< up to 2 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
  *  \brief  This class implements the functionality to configure and control
@@ -46,6 +48,7 @@ class CRfid11785 : public CFunctionModule
 public:
     CRfid11785(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                CBaseModule* pParentNode);
+    ~CRfid11785();
 
     //! Module initialisation
     ReturnCode_t Initialize();
@@ -171,8 +174,6 @@ public:
     ReturnCode_t SendCANMsgWriteConfig(bool ReadLogin, bool WriteLogin, bool ReaderTalkFirst);
 
     //! handles the receipt of can message 'SetConfiguration'
-    void HandleCANMsgConfigAckn(can_frame* pCANframe, ReturnCode_t hdlInfo);
-    //! handles the receipt of can message 'Login'
     void HandleCANMsgLoginAckn(can_frame* pCANframe, ReturnCode_t hdlInfo);
     //! handles the receipt of can message 'UserData'
     void HandleCANMsgUserData(can_frame* pCANframe, ReturnCode_t hdlInfo);
@@ -189,7 +190,7 @@ public:
     void HandleCommandRequestTask();
 
     quint32 m_unCanIDConfig;               //!< CAN-message id of 'SetConfiguration' message
-    quint32 m_unCanIDConfigAckn;           //!< CAN-message id of 'SetConfigurationAckn' message
+    quint32 m_unCanIDConfigAckn;           //!< CAN-message id of 'SetConfigurationackn' message
     quint32 m_unCanIDLogin;                //!< CAN-message id of 'Login' message
     quint32 m_unCanIDLoginAckn;            //!< CAN-message id of 'LoginAckn' message
     quint32 m_unCanIDWriteUserData;        //!< CAN-message id of 'WriteUserData' message
@@ -229,11 +230,12 @@ public:
         bool ReaderTalkFirst;               //!< RTF bit of the tag
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    //! array of module commands for simultaneously execution
+    ModuleCommand_t m_ModuleCommand[MAX_RFID_CMD_IDX];
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANRFIDModuleCmdType_t CommandType);
-    //! Clears all entrys with the specified module command type to free
+    //! set the module command type to free entry within array
+    bool SetModuleTask(CANRFIDModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
+    //! clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANRFIDModuleCmdType_t CommandType);
 
     /*! configuration state parameter definition, this variables buffer the

@@ -4,10 +4,6 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS +=  TestOven/TestOven.pro \
-            TestDrawer/TestDrawer.pro \
-            TestRackTransfer/TestRackTransfer.pro \
-            TestAgitation/TestAgitation.pro \
-            TestHood/TestHood.pro
+SUBDIRS += TestDeviceControl.pro
 
 CONFIG += ordered

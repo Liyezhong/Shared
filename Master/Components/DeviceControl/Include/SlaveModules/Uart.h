@@ -63,9 +63,9 @@ public:
     ReturnCode_t ReqReceivedData();
 
 signals:
-    //! report data
+    //!< report data
     void ReportReadData(quint32 InstanceID, ReturnCode_t hdlInfo, quint32 rfidDataMSB, quint32 rfidDataLSB);
-    //! report a write operation acknowledge
+    //!< report a write operation acknowledge
     void ReportWriteAckn(quint32 InstanceID, ReturnCode_t hdlInfo);
 
 private:
@@ -73,6 +73,9 @@ private:
     ReturnCode_t InitializeCANMessages();
     /// Register receive CAN messages
     ReturnCode_t RegisterCANMessages();
+
+    /// Configuration parameter transfer
+    void SendConfiguration();
 
     /// Handle the configuration state
     void HandleConfigurationState();
@@ -101,13 +104,13 @@ private:
     /// Reset the task state machine
     void ResetTask();
 
-    //! configuration state defines
+    //!< configuration state defines
     typedef enum {
         FM_UART_SUB_STATE_CONFIG_INIT   = 0x00, //!< Configuration initial state
         FM_UART_SUB_STATE_CONFIG_START  = 0x01, //!< Start state, used to trigger the configuration transmission
         FM_UART_SUB_STATE_CONFIG_SEND   = 0x02, //!< Configuration is actually send
         FM_UART_SUB_STATE_CONFIG_FINISH = 0x03, //!< Configuration finished
-        FM_UART_SUB_STATE_CONFIG_ERROR  = 0x04  //!< Error occurred while configuration procedure was done
+        FM_UART_SUB_STATE_CONFIG_ERROR  = 0x04  //!< Error occured while configuration procedure was done
     } CANNodeSubStateConfig_t;
 
     CANNodeSubStateConfig_t m_subStateConfig;   //!< Sub state of the configuration task

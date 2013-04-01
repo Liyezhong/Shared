@@ -23,8 +23,8 @@
  */
 /****************************************************************************/
 
-#include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
+#include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 #include "DeviceControl/Include/SlaveModules/AnalogInput.h"
@@ -33,9 +33,9 @@
 #include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 #include "DeviceControl/Include/SlaveModules/Rfid15693.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
+#include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
-#include "Global/Include/EventObject.h"
 
 namespace DeviceControl
 {
@@ -71,7 +71,7 @@ CBaseModule::CBaseModule(const CANMessageConfiguration *p_MessageConfiguration, 
     m_unCanIDRealTime(0), m_unCanIDSysClock(0),
     m_unCanIDHearbeatCfg(0), m_unCanIDHeartbeatSlave(0), m_unCanIDHeartbeatMaster(0),
     m_unCanIDEmgcyStop(0), m_unCanIDAbortedByEmgcyStop(0), m_unCanIDMasterPower(0), m_unCanIDReset(0), m_unCanIDAcknReset(0),
-    m_unCanIDStatistics(0), m_unCanIDCfgStatistics(0),
+    m_unCanIDStatistics(0), m_unCanIDCfgStatistics(0), m_unCanIDReqDataReset(0), m_unCanIDAcknDataReset(0),
     m_unCanIDReqMemoryFormat(0), m_unCanIDAcknMemoryFormat(0), m_unCanIDReqSerialNumber(0), m_unCanIDSerialNumber(0),
     m_unCanIDReqEndTestResult(0), m_unCanIDEndTestResult(0),
     m_unCanIDReqHWInfo(0), m_unCanIDHWInfo(0), m_unCanIDReqSWInfo(0), m_unCanIDSWInfo(0),
@@ -89,6 +89,12 @@ CBaseModule::CBaseModule(const CANMessageConfiguration *p_MessageConfiguration, 
 
     //initialization of the state machine
     m_mainState = CN_MAIN_STATE_INIT;
+
+    //module command  array initialisation
+    for(quint8 idx = 0; idx < CN_MAX_MODULE_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+    }
 
     m_NodeClass =  0;
     m_ProtocolVersion = 0;
@@ -244,7 +250,6 @@ ReturnCode_t CBaseModule::InitializeCANMessages()
     if(mp_MessageConfiguration)
     {
         const quint8 ModuleID = MODULE_ID_BASEMODULE;
-        RetVal = InitializeEventCANMessages(ModuleID);
 
         // CAN-IDs for System Messages
         m_unCanIDHardwareID = mp_MessageConfiguration->GetCANMessageID(ModuleID, "HardwareID", 0, m_ulCANNodeID);
@@ -266,9 +271,17 @@ ReturnCode_t CBaseModule::InitializeCANMessages()
         m_unCanIDReset = mp_MessageConfiguration->GetCANMessageID(ModuleID, "Reset", 0, m_ulCANNodeID);
         m_unCanIDAcknReset = mp_MessageConfiguration->GetCANMessageID(ModuleID, "AcknReset", 0, m_ulCANNodeID);
 
+        // CAN-IDs for Error/Warning/Info Messages
+        m_unCanIDEventInfo       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventInfo", 0, m_ulCANNodeID);
+        m_unCanIDEventWarning    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventWarning", 0, m_ulCANNodeID);
+        m_unCanIDEventError      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventError", 0, m_ulCANNodeID);
+        m_unCanIDEventFatalError = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventFatal", 0, m_ulCANNodeID);
+
         // CAN-IDs for Service/Diagnostics Messages
         m_unCanIDCfgStatistics =    mp_MessageConfiguration->GetCANMessageID(ModuleID, "CfgStatistics", 0, m_ulCANNodeID);
         m_unCanIDStatistics =       mp_MessageConfiguration->GetCANMessageID(ModuleID, "Statistics", 0, m_ulCANNodeID);
+        m_unCanIDReqDataReset =     mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqDataReset", 0, m_ulCANNodeID);
+        m_unCanIDAcknDataReset =    mp_MessageConfiguration->GetCANMessageID(ModuleID, "AcknDataReset", 0, m_ulCANNodeID);
         m_unCanIDReqMemoryFormat =  mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqMemoryFormat", 0, m_ulCANNodeID);
         m_unCanIDAcknMemoryFormat = mp_MessageConfiguration->GetCANMessageID(ModuleID, "AcknMemoryFormat", 0, m_ulCANNodeID);
         m_unCanIDReqSerialNumber =  mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqSerialNumber", 0, m_ulCANNodeID);
@@ -380,7 +393,6 @@ ReturnCode_t CBaseModule::RegisterCANMessages()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    RetVal = RegisterEventCANMessages();
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDHardwareID, this);
@@ -407,7 +419,27 @@ ReturnCode_t CBaseModule::RegisterCANMessages()
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventInfo, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventWarning, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventError, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventFatalError, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDStatistics, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDAcknDataReset, this);
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
@@ -469,24 +501,15 @@ ReturnCode_t CBaseModule::RegisterCANMessages()
 /*!
  *  \brief  Task handling funktion
  *
- *      This function must be called cyclically to ensure the classes tasks
- *      execution. This is done from the DeviceControl class. The main state
- *      will be handled here, corresponding to its value. The appropriate
- *      state handling function will be called. Additionally, the HandleTasks
- *      function of the assigned interface class will be called.
+ *      This function must be called cyclically to ensure the classes
+ *      tasks execution, this is done from DeviceControl-class
+ *      The main state will be handled here, coressponding to its value,
+ *      the appropriate state handling functin will be called.
+ *      Additionally, the HandleTasks-function of the assigned interface class will be called
  */
 /****************************************************************************/
 void CBaseModule::HandleTasks()
 {
-    if (mp_BootLoader->Active())
-    {
-        m_mainState = CN_MAIN_STATE_UPDATE;
-    }
-    else if (m_mainState == CN_MAIN_STATE_UPDATE)
-    {
-        m_mainState = CN_MAIN_STATE_INIT;
-    }
-
     if(m_mainState == CN_MAIN_STATE_INIT)
     {
         HandleTaskInitialization(0);
@@ -503,17 +526,13 @@ void CBaseModule::HandleTasks()
     {
         HandleIdleState();
     }
-    else if(m_mainState == CN_MAIN_STATE_INACTIVE)
-    {
-        HandleIdleState();
-    }
     else if(m_mainState >= CN_MAIN_STATE_UNDEF)
     {
         FILE_LOG_L(laFCT, llERROR) << "  CANNode: Invalid CANNode main state.";
         m_mainState = CN_MAIN_STATE_ERROR;
     }
 
-    if (m_mainState == CN_MAIN_STATE_IDLE && m_NodeState == NODE_STATE_NORMAL)
+    if(m_mainState != CN_MAIN_STATE_UPDATE)
     {
         CheckHeartbeat();
     }
@@ -542,13 +561,12 @@ void CBaseModule::CallHandleTaskFctModules()
 /*!
  *  \brief  Handles the main state CN_MAIN_TASK_INIT.
  *
- *      While this state is active, the program waits for the CAN message
- *      HardwareID and, if received, acknowledges it. A timeout will be
- *      supervised as well.
+ *      While this state is active, the program waits for the CAN message HardwareID and,
+ *      if received, acknowledges it. A timeout will be supervised as well.
  *
- *      If the HardwareID message was received, the function will be called
- *      from HandleCANMsgHardwareID(..). It will be called from HandleTasks,
- *      if CN_MAIN_TASK_INIT is active. In this case, pCANframe is set to 0,
+ *      If the HardwareID message was received, the function will be called from
+ *      HandleCANMsgHardwareID(..).
+ *      It will be called from HandleTasks, if CN_MAIN_TASK_INIT is active. In this case, pCANframe is set to 0,
  *      and the function checks the timeout
  *
  *  \iparam pCANframe = the can frame if the HardwareID msg, or 0, if called from HandleTasks
@@ -579,9 +597,11 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                 quint16 nAddData;
 
                 m_mainState = CN_MAIN_STATE_ERROR;
-                nAddData = (((m_FunctionModuleList.count() << 8) & 0xFF00) | (m_ChannelCount & 0x00FF));
+                m_lastErrorTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
 
-                ThrowEvent(EVENT_DEVICECONTROL_ERROR_INIT_CHANNEL_COUNT, nAddData);
+                nAddData = (((m_FunctionModuleList.count() << 8) & 0xFF00) | (m_ChannelCount & 0x00FF));
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_INIT_WRONG_CHANNEL_COUNT,
+                                 nAddData, m_lastErrorTime);
                 FILE_LOG_L(laINIT, llERROR) << "CANNode " << GetName().toStdString() << ": channel count not correct: "
                                             << (m_FunctionModuleList.count() + 1) << " - " << (int) m_ChannelCount;
             }
@@ -600,7 +620,7 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                                                 << std::hex << m_unCanIDAcknHardwareID;
 
                     //after sending the 'HardwareIDAckn'-message, activate heartbeat supervision
-                    SetHeartbeatSupervision(true);
+                    SetHeartbeatSupervision(1);
 
                     // start the timer used to delay the configuration request some milliseconds
                     StartTimeDelay();
@@ -669,6 +689,7 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
     if(m_mainState != CN_MAIN_STATE_CONFIG)
     {
         FILE_LOG_L(laFCT, llERROR) << " invalid state: " << (int) m_mainState;
+        Q_ASSERT(m_mainState == CN_MAIN_STATE_CONFIG);
     }
 
     if(m_SubStateConfig == CN_SUB_STATE_CONFIG_START)
@@ -717,12 +738,17 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
                 }
 
                 // throw error
+                QDateTime errorTimeStamp;
                 quint16 nAdditonalData = 0;
+
                 if(pFctModule)
                 {
                     nAdditonalData = ((quint16)pFctModule->GetType() << 8) | pFctModule->GetChannelNo();
                 }
-                ThrowEvent(EVENT_DEVICECONTROL_ERROR_TIMEOUT_CONFIG, nAdditonalData);
+
+                errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, ERROR_DCL_NODE_TIMEOUT_CONFIG,
+                                 nAdditonalData, errorTimeStamp);
 
                 if(pFctModule)
                 {
@@ -740,107 +766,108 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
         else
         {
             // this function was called from HandleCANMsgConfig(..), the 'Configuration' CAN-message was received
-            if (pCANframe->can_id != m_unCanIDConfig)
+            Q_ASSERT(pCANframe->can_id == m_unCanIDConfig);
+
+            CFunctionModule* pFctModule = 0;
+            QListIterator<CFunctionModule*> iterFctMod(m_FunctionModuleList);
+            quint16   sModuleIDMsg;
+            //quint8    bModuleInstance;
+            quint8    bChannelMsg;
+            //quint16   sModuleVersion;
+            quint8    bFctModuleFound = false;       // indicates that the function module assigned to the 'Configuration CAN-Message was found
+                                                     // if not, an error will be thrown
+            quint8    bFctModuleUnconfirmed = false; // indicates a unconfirmed function module was found. If not, the state will be finished (-> all confirmed)
+
+            //Read the can message's data
+            //  0-1 - ModulID         // function module type
+            //  2   - ModulInstanz    // internal number to separate similar function modules
+            //  3   - ChannelID       // channel, the channel is used to address the function module via can messages
+            //  4-5 - Modulversion    //
+
+            sModuleIDMsg    = ((quint16) pCANframe->data[0]) << 8 | pCANframe->data[1];
+            //bModuleInstance = pCANframe->data[2];
+            bChannelMsg     = pCANframe->data[3];
+            //sModuleVersion    = ((quint16) pCANframe->data[4]) << 8 | pCANframe->data[5];
+
+            FILE_LOG_L(laCONFIG, llDEBUG1) << " --------------------";
+            FILE_LOG_L(laCONFIG, llDEBUG1) << " Node: " << GetName().toStdString();
+            FILE_LOG_L(laCONFIG, llDEBUG1) << " Try to figure out the module with ID:" << sModuleIDMsg << " , ch:" << std::hex << (int)bChannelMsg;
+
+            //figure out the function module
+            if(bChannelMsg == 0)
             {
-                m_mainState = CN_MAIN_STATE_ERROR;
-            }
-            else
-            {
-                CFunctionModule* pFctModule = 0;
-                QListIterator<CFunctionModule*> iterFctMod(m_FunctionModuleList);
-                quint16   sModuleIDMsg;
-                //quint8    bModuleInstance;
-                quint8    bChannelMsg;
-                //quint16   sModuleVersion;
-                quint8    bFctModuleFound = false;       // indicates that the function module assigned to the 'Configuration CAN-Message was found
-                                                         // if not, an error will be thrown
-                quint8    bFctModuleUnconfirmed = false; // indicates a unconfirmed function module was found. If not, the state will be finished (-> all confirmed)
-
-                //Read the can message's data
-                //  0-1 - ModulID         // function module type
-                //  2   - ModulInstanz    // internal number to separate similar function modules
-                //  3   - ChannelID       // channel, the channel is used to address the function module via can messages
-                //  4-5 - Modulversion    //
-
-                sModuleIDMsg    = ((quint16) pCANframe->data[0]) << 8 | pCANframe->data[1];
-                //bModuleInstance = pCANframe->data[2];
-                bChannelMsg     = pCANframe->data[3];
-                m_moduleSWVersion[sModuleIDMsg] = ((quint16) pCANframe->data[4]) << 8 | pCANframe->data[5];
-
-                FILE_LOG_L(laCONFIG, llDEBUG1) << " --------------------";
-                FILE_LOG_L(laCONFIG, llDEBUG1) << " Node: " << GetName().toStdString();
-                FILE_LOG_L(laCONFIG, llDEBUG1) << " Try to figure out the module with ID:" << sModuleIDMsg << " , ch:" << std::hex << (int)bChannelMsg;
-
-                //figure out the function module
-                if(bChannelMsg == 0)
+                //this is the base module, simply confirm it
+                bFctModuleFound = true;
+                if(m_FunctionModuleList.count() > 0)
                 {
-                    //this is the base module, simply confirm it
-                    bFctModuleFound = true;
-                    if(m_FunctionModuleList.count() > 0)
-                    {
-                        bFctModuleUnconfirmed = true;
-                    }
-                    else
-                    {
-                        bFctModuleUnconfirmed = false;
-                    }
-                    m_SubStateConfig = CN_SUB_STATE_CONFIG_REC;
+                    bFctModuleUnconfirmed = true;
                 }
                 else
                 {
-                    iterFctMod.toFront();
-                    while (iterFctMod.hasNext())
-                    {
-                        //loop through the function module list and confirm the one which's data have been received
-                        pFctModule = iterFctMod.next();
-
-                        quint8 bChannel = pFctModule->GetChannelNo();
-
-                        FILE_LOG_L(laCONFIG, llDEBUG1) << " test fct: " << pFctModule->GetName().toStdString() << " Ch: " << std::hex << (int)bChannel << " , Type: " << (int) pFctModule->GetType() << " State: " << (int)pFctModule->GetMainState();
-                        if((bChannel == bChannelMsg) && (((quint16)pFctModule->GetType()) == sModuleIDMsg))  //check matching module type and interface id
-                        {
-                            pFctModule->Confirm();
-                            FILE_LOG_L(laCONFIG, llDEBUG1) << "  confirm " << pFctModule->GetName().toStdString() << " channel: " << std::hex << (int) bChannel;
-                            bFctModuleFound = true;
-                            m_SubStateConfig = CN_SUB_STATE_CONFIG_REC;
-                        }
-                        // detect if any function module left unconfirmed
-                        if(pFctModule->GetMainState() != CFunctionModule::FM_MAIN_STATE_CONFIRMED)
-                        {
-                            bFctModuleUnconfirmed = true;
-                        }
-                    }
+                    bFctModuleUnconfirmed = false;
                 }
-
-                if(bFctModuleFound != true)
+                m_SubStateConfig = CN_SUB_STATE_CONFIG_REC;
+            }
+            else
+            {
+                iterFctMod.toFront();
+                while (iterFctMod.hasNext())
                 {
-                    //we received a configuration message with an invalid channel number
-                    // this must be treated as a fatal error and is caused by
-                    //  -> firmware error (wrong version, incompatible function modules
-                    //  -> master configuration file error
-                    quint16 nAdditonalData;
+                    //loop through the function module list and confirm the one which's data have been received
+                    pFctModule = iterFctMod.next();
 
-                    nAdditonalData = ((quint16)sModuleIDMsg << 8) | bChannelMsg;
-                    FILE_LOG_L(laCONFIG, llERROR) << "  Error: " << GetName().toStdString() << " fct not found type:" << sModuleIDMsg << " channel: " << (int) bChannelMsg;
+                    quint8 bChannel = pFctModule->GetChannelNo();
 
-                    ThrowEvent(EVENT_DEVICECONTROL_ERROR_CONFIG_INVALID_MODULE, nAdditonalData);
+                    FILE_LOG_L(laCONFIG, llDEBUG1) << " test fct: " << pFctModule->GetName().toStdString() << " Ch: " << std::hex << (int)bChannel << " , Type: " << (int) pFctModule->GetType() << " State: " << (int)pFctModule->GetMainState();
+                    if((bChannel == bChannelMsg) && (((quint16)pFctModule->GetType()) == sModuleIDMsg))  //check matching module type and interface id
+                    {
+                        pFctModule->Confirm();
+                        FILE_LOG_L(laCONFIG, llDEBUG1) << "  confirm " << pFctModule->GetName().toStdString() << " channel: " << std::hex << (int) bChannel;
+                        bFctModuleFound = true;
+                        m_SubStateConfig = CN_SUB_STATE_CONFIG_REC;
+                    }
+                    // detect if any function module left unconfirmed
+                    if(pFctModule->GetMainState() != CFunctionModule::FM_MAIN_STATE_CONFIRMED)
+                        bFctModuleUnconfirmed = true;
+                }
+            }
+
+            if(bFctModuleFound != true)
+            {
+                //we received a configuration message with an invalid channel number
+                // this must be treated as a fatal error and is caused by
+                //  -> firmware error (wrong version, incompatible function modules
+                //  -> master configuration file error
+                QDateTime errorTimeStamp;
+                quint16 nAdditonalData;
+
+                nAdditonalData = ((quint16)sModuleIDMsg << 8) | bChannelMsg;
+                FILE_LOG_L(laCONFIG, llERROR) << "  Error: " << GetName().toStdString() << " fct not found type:" << sModuleIDMsg << " channel: " << (int) bChannelMsg;
+
+                errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CONFIG_INVALID_MODULE,
+                                 nAdditonalData, errorTimeStamp);
+
+                m_mainState = CN_MAIN_STATE_ERROR;
+            }
+            else if(bFctModuleUnconfirmed == false)
+            {
+                //all function modules in the list have been confirmed, next set node state to 'normal'
+                RetVal = SendCANMsgSetNodeState(NODE_STATE_NORMAL);
+                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    m_SubStateConfig = CN_SUB_STATE_CONFIG_REAL_TIME;
+                }
+                else
+                {
+                    QDateTime errorTimeStamp;
+                    quint16 AdditonalData;
+                    AdditonalData = (quint16) RetVal;
+                    errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                    emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_FCT_CALL_FAILED,
+                                     AdditonalData, errorTimeStamp);
 
                     m_mainState = CN_MAIN_STATE_ERROR;
-                }
-                else if(bFctModuleUnconfirmed == false)
-                {
-                    //all function modules in the list have been confirmed, next set node state to 'normal'
-                    RetVal = SendCANMsgSetNodeState(NODE_STATE_NORMAL);
-                    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        m_SubStateConfig = CN_SUB_STATE_CONFIG_REAL_TIME;
-                    }
-                    else
-                    {
-                        quint16 AdditonalData = (quint16) RetVal;
-                        ThrowEvent(EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED, AdditonalData);
-                        m_mainState = CN_MAIN_STATE_ERROR;
-                    }
                 }
             }
         }
@@ -857,26 +884,26 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
         }
         else
         {
-            if (pCANframe->can_id == m_unCanIDNodeState) {
-                RetVal = SendCANMsgRealTime();
-                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-                {
-                    RetVal = SendCANMsgHeartbeatConfig();
-                }
+            Q_ASSERT(pCANframe->can_id == m_unCanIDNodeState);
+            RetVal = SendCANMsgRealTime();
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+            {
+                RetVal = SendCANMsgHeartbeatConfig();
+            }
 
-                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-                {
-                    m_SubStateConfig = CN_SUB_STATE_CONFIG_FCT_CONFIRMED;
-                }
-                else
-                {
-                    quint16 AdditonalData = (quint16) RetVal;
-                    ThrowEvent(EVENT_DEVICECONTROL_ERROR_FCT_CALL_FAILED, AdditonalData);
-                    m_mainState = CN_MAIN_STATE_ERROR;
-                }
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+            {
+                m_SubStateConfig = CN_SUB_STATE_CONFIG_FCT_CONFIRMED;
             }
             else
             {
+                QDateTime errorTimeStamp;
+                quint16 AdditonalData;
+                AdditonalData = (quint16) RetVal;
+                errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_FCT_CALL_FAILED,
+                                 AdditonalData, errorTimeStamp);
+
                 m_mainState = CN_MAIN_STATE_ERROR;
             }
         }
@@ -891,7 +918,9 @@ void CBaseModule::HandleTaskConfiguration(can_frame* pCANframe)
         }
         else
         {
-            ThrowEvent(EVENT_DEVICECONTROL_ERROR_CONFIG_UNEXP_CANMSG, 0);
+            QDateTime errorTimeStamp;
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CONFIG_UNEXP_CANMSG, 0, errorTimeStamp);
         }
     }
 }
@@ -940,9 +969,9 @@ void CBaseModule::HandleTaskFctConfiguration()
     if(bNonIdleFctFound == false)
     {
         //all function modules are idle
-        m_Mutex.lock();
         m_SubStateInitFct = CN_SUB_STATE_INIT_FCT_FINISH;
         m_mainState = CN_MAIN_STATE_IDLE;
+        m_Mutex.lock();
         m_TaskID = MODULE_TASKID_FREE;
         m_Mutex.unlock();
 
@@ -954,6 +983,7 @@ void CBaseModule::HandleTaskFctConfiguration()
         //there is at least one unconfigured function module left, check timeout
         if(GetTimeDelay() > CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES)
         {
+            QDateTime errorTimeStamp;
             quint16 nAdditonalData = 0;
             FILE_LOG_L(laFCT, llERROR) << " Error: " << GetName().toStdString() << " Timeout node fct configuration";
             FILE_LOG_L(laINIT, llERROR) << " Error: " << GetName().toStdString() << " Timeout node fct configuration";
@@ -976,7 +1006,9 @@ void CBaseModule::HandleTaskFctConfiguration()
             }
 
             //throw error
-            ThrowEvent(EVENT_DEVICECONTROL_ERROR_TIMEOUT_FCT_CONFIG, nAdditonalData);
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, ERROR_DCL_NODE_TIMEOUT_FCT_CONFIG,
+                             nAdditonalData, errorTimeStamp);
         }
     }
 }
@@ -1015,327 +1047,370 @@ void CBaseModule::HandleIdleState()
 void CBaseModule::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < CN_MAX_MODULE_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ)
         {
             //General:
             // Forward the module command request to the slave side by sending
             // the corresponding CAN-message
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
+            ActiveCommandFound = true;
 
-            FILE_LOG_L(laFCT, llDEBUG) << " CANNode: forward request of command type " << (int) p_ModuleCommand->Type;
-            if(p_ModuleCommand->Type == CN_CMD_SET_NODE_STATE)
+            FILE_LOG_L(laFCT, llDEBUG) << " CANNode: forward request of command type " << (int) m_ModuleCommand[idx].Type;
+            if(m_ModuleCommand[idx].Type == CN_CMD_SET_NODE_STATE)
             {
-                RetVal = SendCANMsgSetNodeState(p_ModuleCommand->NodeState);
+                RetVal = SendCANMsgSetNodeState(m_ModuleCommand[idx].NodeState);
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    if (p_ModuleCommand->NodeState == NODE_STATE_BOOTING) {
-                        RemoveCommand = true;
-                        emit ReportNodeState(GetModuleHandle(), RetVal, p_ModuleCommand->NodeState,
-                                             RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    if (m_ModuleCommand[idx].NodeState == NODE_STATE_BOOTING ||
+                            m_ModuleCommand[idx].NodeState == NODE_STATE_UPDATE) {
+                        m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                        emit ReportNodeState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].NodeState);
                     }
                     else {
-                        p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_SETINITOPDATA;
+                        m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                        m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_SETINITOPDATA;
                     }
                 }
                 else {
-                    emit ReportNodeState(GetModuleHandle(), RetVal, NODE_STATE_UNDEFINED,
-                                         RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    emit ReportNodeState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].NodeState);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_NODE_STATE)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_NODE_STATE)
             {
                 RetVal = SendCANMsgReqNodeState();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportNodeState(GetModuleHandle(), RetVal, NODE_STATE_UNDEFINED,
-                                         RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    emit ReportNodeState(GetModuleHandle(), RetVal, NODE_STATE_UNDEFINED);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_CONF_STATISTICS)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_EMCY_STOP)
+            {
+                RetVal = SendCANMsgEmgcyStop();
+                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                }
+                else {
+                    emit ReportEmcyStop(GetModuleHandle(), RetVal);
+                }
+            }
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_RESET)
+            {
+                RetVal = SendCANMsgReset();
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                emit ReportReset(GetModuleHandle(), RetVal);
+            }
+            else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_STATISTICS)
             {
                 RetVal = SendCANMsgConfStatistics();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
                     //! \todo Signal missing
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_DATA_RESET)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_DATA_RESET)
             {
                 RetVal = SendCANMsgReqDataReset();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_MEMORY_OPERATION;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_MEMORY_OPERATION;
                 }
                 else {
                     emit ReportDataResetAckn(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_FORMAT_MEM)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_FORMAT_MEM)
             {
                 RetVal = SendCANMsgReqFormatMemory();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_MEMORY_OPERATION;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_MEMORY_OPERATION;
                 }
                 else {
                     emit ReportFormatMemoryAckn(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_SERIAL_NB)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_SERIAL_NB)
             {
                 RetVal = SendCANMsgReqSerialNumber();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportSerialNumber(GetModuleHandle(), RetVal, QString());
+                    emit ReportSerialNumber(GetModuleHandle(), RetVal, "");
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_END_TEST_RESULT)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_END_TEST_RESULT)
             {
                 RetVal = SendCANMsgReqEndTestResult();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportEndTestResult(GetModuleHandle(), RetVal, TEST_OPEN, QDate());
+                    emit ReportEndTestResult(GetModuleHandle(), RetVal, 0, 0, 0, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_HW_INFO)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_HW_INFO)
             {
                 RetVal = SendCANMsgReqHWInfo();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportHWInfo(GetModuleHandle(), RetVal, 0, 0, QDate());
+                    emit ReportHWInfo(GetModuleHandle(), RetVal, 0, 0, 0, 0, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_SW_INFO)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_SW_INFO)
             {
                 RetVal = SendCANMsgReqSWInfo();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportSWInfo(GetModuleHandle(), RetVal, 0, QDate());
+                    emit ReportSWInfo(GetModuleHandle(), RetVal, 0, 0, 0, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_LOADER_INFO)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_LOADER_INFO)
             {
                 RetVal = SendCANMsgReqLoaderInfo();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportLoaderInfo(GetModuleHandle(), RetVal, 0, 0, QDate());
+                    emit ReportLoaderInfo(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_LIFE_CYCLE_DATA)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_LIFE_CYCLE_DATA)
             {
                 RetVal = SendCANMsgReqLifeCycleData();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0);
+                    emit ReportLifeCycleData(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_LAUNCH_DATE)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_LAUNCH_DATE)
             {
                 RetVal = SendCANMsgReqLaunchData();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportLaunchDate(GetModuleHandle(), RetVal, false, QDate());
+                    emit ReportLaunchDate(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_NAME)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_BOARD_NAME)
             {
                 RetVal = SendCANMsgReqBoardName();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportBoardName(GetModuleHandle(), RetVal, QString());
+                    emit ReportBoardName(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_OPTIONS)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_BOARD_OPTIONS)
             {
                 RetVal = SendCANMsgReqBoardOptions();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
                     emit ReportBoardOptions(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_VOLTAGE_STATE)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_VOLTAGE_MON)
+            {
+                RetVal = SendCANMsgConfVoltageMon();
+                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                }
+                else {
+                    emit ReportVoltageState(GetModuleHandle(), RetVal);
+                }
+            }
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_VOLTAGE_STATE)
             {
                 RetVal = SendCANMsgReqVoltageState();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportVoltageState(GetModuleHandle(), RetVal, POWER_UNKNOWN, 0, 0);
+                    emit ReportVoltageState(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_CURRENT_STATE)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_CURRENT_MON)
+            {
+                RetVal = SendCANMsgConfCurrentMon();
+                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                }
+                else {
+                    emit ReportCurrentState(GetModuleHandle(), RetVal);
+                }
+            }
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_CURRENT_STATE)
             {
                 RetVal = SendCANMsgReqCurrentState();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportCurrentState(GetModuleHandle(), RetVal, POWER_UNKNOWN, 0, 0);
+                    emit ReportCurrentState(GetModuleHandle(), RetVal);
                 }
             }
-            else if(p_ModuleCommand->Type == CN_CMD_REQ_UNIQUE_NUMBER)
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_UNIQUE_NUMBER)
             {
                 RetVal = SendCANMsgReqUniqueNumber();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-                    p_ModuleCommand->Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportUniqueNumber(GetModuleHandle(), RetVal, QByteArray());
+                    emit ReportUniqueNumber(GetModuleHandle(), RetVal);
                 }
             }
 
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS && m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ)
             {
-                RemoveCommand = true;
+                //trigger timeout supervision
+                m_ModuleCommand[idx].ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND)
         {
-            // check active device commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            // check avtive device commands for timeout
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
-                RemoveCommand = true;
-
                 //timeout detected, forward the error information to logging and emit the command signal with error information.
-                if(p_ModuleCommand->Type == CN_CMD_SET_NODE_STATE)
+                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+
+                if(m_ModuleCommand[idx].Type == CN_CMD_SET_NODE_STATE)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': SetNodeState timeout error.";
-                    emit ReportNodeState(GetModuleHandle(), DCL_ERR_TIMEOUT, NODE_STATE_UNDEFINED,
-                                         RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': SetNodeState timeout error.";
+                    emit ReportNodeState(GetModuleHandle(), m_lastErrorHdlInfo, NODE_STATE_UNDEFINED);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_NODE_STATE)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_NODE_STATE)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqNodeState timeout error.";
-                    emit ReportNodeState(GetModuleHandle(), DCL_ERR_TIMEOUT, NODE_STATE_UNDEFINED,
-                                         RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqNodeState timeout error.";
+                    emit ReportNodeState(GetModuleHandle(), m_lastErrorHdlInfo, NODE_STATE_UNDEFINED);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_CONF_STATISTICS)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_EMCY_STOP)
+                {
+                    emit ReportEmcyStop(GetModuleHandle(), m_lastErrorHdlInfo);
+                }
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_RESET)
+                {
+                    emit ReportReset(GetModuleHandle(), m_lastErrorHdlInfo);
+                }
+                else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_STATISTICS)
                 {
                     //! \todo Signal missing
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_DATA_RESET)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_DATA_RESET)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqDataReset timeout error.";
-                    emit ReportDataResetAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqDataReset timeout error.";
+                    emit ReportDataResetAckn(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_FORMAT_MEM)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_FORMAT_MEM)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqFormatMemory timeout error.";
-                    emit ReportFormatMemoryAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqFormatMemory timeout error.";
+                    emit ReportFormatMemoryAckn(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_SERIAL_NB)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_SERIAL_NB)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqSerialNumber timeout error.";
-                    emit ReportSerialNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, QString());
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqSerialNumber timeout error.";
+                    emit ReportSerialNumber(GetModuleHandle(), m_lastErrorHdlInfo, "");
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_END_TEST_RESULT)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_END_TEST_RESULT)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqTestResult timeout error.";
-                    emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_TIMEOUT, TEST_OPEN, QDate());
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqTestResult timeout error.";
+                    emit ReportEndTestResult(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_HW_INFO)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_HW_INFO)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqHWInfo timeout error.";
-                    emit ReportHWInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, QDate());
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqHWInfo timeout error.";
+                    emit ReportHWInfo(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0, 0);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_SW_INFO)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_SW_INFO)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqSWInfo timeout error.";
-                    emit ReportSWInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, QDate());
+                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': ReqSWInfo timeout error.";
+                    emit ReportSWInfo(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_LOADER_INFO)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_LOADER_INFO)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqLoaderInfo timeout error.";
-                    emit ReportLoaderInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, QDate());
+                    emit ReportLoaderInfo(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_LIFE_CYCLE_DATA)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_LIFE_CYCLE_DATA)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqLifeCycleData timeout error.";
-                    emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0);
+                    emit ReportLifeCycleData(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_LAUNCH_DATE)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_LAUNCH_DATE)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqLaunchDate timeout error.";
-                    emit ReportLaunchDate(GetModuleHandle(), DCL_ERR_TIMEOUT, false, QDate());
+                    emit ReportLaunchDate(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_NAME)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_BOARD_NAME)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqBoardName timeout error.";
-                    emit ReportBoardName(GetModuleHandle(), DCL_ERR_TIMEOUT, QString());
+                    emit ReportBoardName(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_OPTIONS)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_BOARD_OPTIONS)
                 {
-                    emit ReportBoardOptions(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    emit ReportBoardOptions(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_VOLTAGE_STATE)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_VOLTAGE_MON)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqVoltageState timeout error.";
-                    emit ReportVoltageState(GetModuleHandle(), DCL_ERR_TIMEOUT, POWER_UNKNOWN, 0, 0);
+                    //emit ReportVoltageState(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_CURRENT_STATE)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_VOLTAGE_STATE)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqCurrentState timeout error.";
-                    emit ReportCurrentState(GetModuleHandle(), DCL_ERR_TIMEOUT, POWER_UNKNOWN, 0, 0);
+                    emit ReportVoltageState(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_UNIQUE_NUMBER)
+                else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_CURRENT_MON)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqUniqueNumber timeout error.";
-                    emit ReportUniqueNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, QByteArray());
+                    //emit ReportCurrentState(GetModuleHandle(), m_lastErrorHdlInfo);
+                }
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_CURRENT_STATE)
+                {
+                    emit ReportCurrentState(GetModuleHandle(), m_lastErrorHdlInfo);
+                }
+                else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_UNIQUE_NUMBER)
+                {
+                    emit ReportUniqueNumber(GetModuleHandle(), m_lastErrorHdlInfo);
                 }
             }
         }
-
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
-        }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
@@ -1351,6 +1426,23 @@ void CBaseModule::HandleCommandRequestTask()
 CBootLoader *CBaseModule::GetBootLoader()
 {
     return mp_BootLoader;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Communicates the current boot loader state to the base module
+ *
+ *  \iparam Boot loader state
+ */
+/****************************************************************************/
+void CBaseModule::BootLoaderUpdate(CBootLoader::State_t State)
+{
+    if (State == CBootLoader::ACTIVE) {
+        m_mainState = CN_MAIN_STATE_UPDATE;
+    }
+    else if (State == CBootLoader::IDLE) {
+        m_mainState = CN_MAIN_STATE_INIT;
+    }
 }
 
 /****************************************************************************/
@@ -1519,21 +1611,17 @@ ReturnCode_t CBaseModule::SendCANMsgReqNodeState()
 /*!
  *  \brief  Send the CAN message to
  *
- *  \iparam enter = Enter (true) or leave (false) the emergency stop mode
- *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
  *          otherwise the return code from SendCOB(..)
  */
 /****************************************************************************/
-ReturnCode_t CBaseModule::SendCANMsgEmgcyStop(bool enter)
+ReturnCode_t CBaseModule::SendCANMsgEmgcyStop()
 {
     ReturnCode_t RetVal;
     can_frame canmsg;
 
     canmsg.can_id = m_unCanIDEmgcyStop;
-    canmsg.can_id &= 0x1ff80001;        // make it a broadcast msg by setting node type, node index and channel to zero
-    canmsg.data[0] = (enter ? 1 : 0);
-    canmsg.can_dlc = 1;
+    canmsg.can_dlc = 0;
     RetVal = m_pCANCommunicator->SendCOB(canmsg);
 
     return RetVal;
@@ -1558,9 +1646,7 @@ ReturnCode_t CBaseModule::SendCANMsgReset()
 
     if((RetVal = m_pCANCommunicator->SendCOB(canmsg)) == DCL_ERR_FCT_CALL_SUCCESS) {
         canmsg.data[0] = 0xE7;
-        if((RetVal = m_pCANCommunicator->SendCOB(canmsg)) == DCL_ERR_FCT_CALL_SUCCESS) {
-            m_TaskID = MODULE_TASKID_INIT;
-        }
+        RetVal = m_pCANCommunicator->SendCOB(canmsg);
     }
 
     return RetVal;
@@ -1585,12 +1671,37 @@ ReturnCode_t CBaseModule::SendCANMsgConfStatistics()
 
     return RetVal;
 }
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to request the data reset
+ *
+ *      The request will be acknowledge from slave by sending the CAN message 'm_unCanIDAcknPartitionDataReset'
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
+ *          otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CBaseModule::SendCANMsgReqDataReset()
+{
+    ReturnCode_t result;
+    can_frame canmsg;
+    quint8 PartitionTableSize = 0;
+
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send partition data reset req.: 0x" << std::hex << m_unCanIDReqDataReset;
+
+    canmsg.can_id = m_unCanIDReqDataReset;
+    canmsg.can_dlc = 3;
+    canmsg.data[0] = 0x23;  //password HSB
+    canmsg.data[1] = 0x45;  //password LSB
+    canmsg.data[2] = PartitionTableSize;
+    result = m_pCANCommunicator->SendCOB(canmsg);
+
+    return result;
+}
 
 /****************************************************************************/
 /*!
  *  \brief  Send the CAN message to request formating the memory
- *
- *  \iparam PartitionTableSize = Number of permanent storage partitions
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
  *          otherwise the return code from SendCOB(..)
@@ -1598,17 +1709,16 @@ ReturnCode_t CBaseModule::SendCANMsgConfStatistics()
 /****************************************************************************/
 ReturnCode_t CBaseModule::SendCANMsgReqFormatMemory()
 {
-    can_frame CanFrame;
+    ReturnCode_t result;
+    can_frame canmsg;
 
-    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send format memory req.: 0x"
-                                 << std::hex << m_unCanIDReqMemoryFormat;
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send format memory req.: 0x" << std::hex << m_unCanIDReqMemoryFormat;
 
-    CanFrame.can_id = m_unCanIDReqMemoryFormat;
-    CanFrame.can_dlc = 3;
-    SetCANMsgDataU16(&CanFrame, ComputePassword(), 0);
-    CanFrame.data[2] = m_FunctionModuleList.count() + 1;
+    canmsg.can_id = m_unCanIDReqMemoryFormat;
+    canmsg.can_dlc = 0;
+    result = m_pCANCommunicator->SendCOB(canmsg);
 
-    return m_pCANCommunicator->SendCOB(CanFrame);
+    return result;
 }
 
 /****************************************************************************/
@@ -1624,8 +1734,7 @@ ReturnCode_t CBaseModule::SendCANMsgReqSerialNumber()
     ReturnCode_t result;
     can_frame canmsg;
 
-    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() <<": send hw serial number req.: 0x"
-                                 << std::hex << m_unCanIDReqSerialNumber;
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send hw serial number req.: 0x" << std::hex << m_unCanIDReqSerialNumber;
 
     canmsg.can_id = m_unCanIDReqSerialNumber;
     canmsg.can_dlc = 0;
@@ -1647,8 +1756,7 @@ ReturnCode_t CBaseModule::SendCANMsgReqEndTestResult()
     ReturnCode_t result;
     can_frame canmsg;
 
-    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send test result req.: 0x"
-                                 << std::hex << m_unCanIDReqEndTestResult;
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send test result req.: 0x" << std::hex << m_unCanIDReqEndTestResult;
 
     canmsg.can_id = m_unCanIDReqEndTestResult;
     canmsg.can_dlc = 0;
@@ -1670,8 +1778,7 @@ ReturnCode_t CBaseModule::SendCANMsgReqHWInfo()
     ReturnCode_t result;
     can_frame canmsg;
 
-    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send hw info req.: 0x"
-                                 << std::hex << m_unCanIDReqHWInfo;
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send hw info req.: 0x" << std::hex << m_unCanIDReqHWInfo;
 
     canmsg.can_id = m_unCanIDReqHWInfo;
     canmsg.can_dlc = 0;
@@ -1693,8 +1800,7 @@ ReturnCode_t CBaseModule::SendCANMsgReqSWInfo()
     ReturnCode_t result;
     can_frame canmsg;
 
-    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send sw info req.: 0x"
-                                 << std::hex << m_unCanIDReqSWInfo;
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send sw info req.: 0x" << std::hex << m_unCanIDReqSWInfo;
 
     canmsg.can_id = m_unCanIDReqSWInfo;
     canmsg.can_dlc = 0;
@@ -1800,7 +1906,25 @@ ReturnCode_t CBaseModule::SendCANMsgReqBoardOptions()
 
     return RetVal;
 }
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
+ *          otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CBaseModule::SendCANMsgConfVoltageMon()
+{
+    ReturnCode_t RetVal;
+    can_frame canmsg;
 
+    canmsg.can_id = m_unCanIDCfgVoltageMonitor;
+    canmsg.can_dlc = 0;
+    RetVal = m_pCANCommunicator->SendCOB(canmsg);
+
+    return RetVal;
+}
 /****************************************************************************/
 /*!
  *  \brief  Send the CAN message to request the sw information
@@ -1815,6 +1939,26 @@ ReturnCode_t CBaseModule::SendCANMsgReqVoltageState()
     can_frame canmsg;
 
     canmsg.can_id = m_unCanIDReqVoltageState;
+    canmsg.can_dlc = 0;
+    RetVal = m_pCANCommunicator->SendCOB(canmsg);
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
+ *          otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CBaseModule::SendCANMsgConfCurrentMon()
+{
+    ReturnCode_t RetVal;
+    can_frame canmsg;
+
+    canmsg.can_id = m_unCanIDCfgCurrentMonitor;
     canmsg.can_dlc = 0;
     RetVal = m_pCANCommunicator->SendCOB(canmsg);
 
@@ -1883,6 +2027,7 @@ void CBaseModule::HandleCanMessage(can_frame* pCANframe)
     if(m_ulCANNodeID != ((pCANframe->can_id & 0x00000F00) | ((pCANframe->can_id & 0x000000FE) >> 1)))
     {
         FILE_LOG_L(laFCT, llDEBUG1) << " CANNode " << GetName().toStdString() << ", NodeID: " << m_ulCANNodeID;
+        Q_ASSERT(m_ulCANNodeID == ((pCANframe->can_id & 0x00000F00) | ((pCANframe->can_id & 0x000000FE) >> 1)));
     }
 
     if(7 == ((pCANframe->can_id >> 26) & 0x7))  // check if the can id belongs to command class CMD_CLASS_ASSEMBLY
@@ -1894,9 +2039,9 @@ void CBaseModule::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDHeartbeatSlave)
@@ -1925,7 +2070,6 @@ void CBaseModule::HandleCanMessage(can_frame* pCANframe)
     }
     else if(pCANframe->can_id == m_unCanIDAcknDataReset)
     {
-        ResetModuleCommand(CN_CMD_REQ_DATA_RESET);
         HandleCANMsgAcknDataReset(pCANframe);
     }
     else if(pCANframe->can_id == m_unCanIDAcknMemoryFormat)
@@ -1991,6 +2135,7 @@ void CBaseModule::HandleCanMessage(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgHeartbeatSlave(can_frame* pCANframe)
 {
+    Q_ASSERT(pCANframe->can_id == m_unCanIDHeartbeatSlave);  //man weiß ja nie...
     Q_UNUSED(pCANframe);
 
     if(ftime(&m_tbHeartbeatTimeDelay) == 0)
@@ -2030,8 +2175,14 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
         {
             // Hardware ID CAN-message was received within the delay,
             // -> Are there two ore more nodes with same nodeId in the system?
+            QDateTime errorTimeStamp;
+            quint16 nAdditonalData = 0;
+
             FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " HardwareID received within delay (" << nMilliSeconds << "). 2 or more?";
-            ThrowEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, 0);
+
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_HWID_REC_INVALID_STATE, nAdditonalData, errorTimeStamp);
+
             m_bHardwareIDErrorState = 1;
         }
 
@@ -2051,8 +2202,14 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
             else
             {
                 // Pfui, da hat er ne HardwareID empfangen, reboot des Slaves?
+                QDateTime errorTimeStamp;
+
                 FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " HardwareID received. Reboot?" ;
-                ThrowEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, 0);
+
+                errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_HWID_REC_INVALID_STATE,
+                                 0, errorTimeStamp);
+
                 m_bHardwareIDErrorState = 0;
 
                 // Reset the state machine
@@ -2070,7 +2227,9 @@ void CBaseModule::HandleCANMsgHardwareID(can_frame* pCANframe)
     }
     else
     {
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC, ((quint16)(pCANframe->can_id >> 13)));
+        QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CANMSG_INVALID_DLC,
+                         ((quint16)(pCANframe->can_id >> 13)), errorTimeStamp);
     }
 }
 
@@ -2096,13 +2255,20 @@ void CBaseModule::HandleCANMsgConfig(can_frame* pCANframe)
         {
             /// \todo
             //pfui, da hat er ne Configuration-message empfangen, evtl. wegen reboot des Slaves?
-            ThrowEvent(EVENT_DEVICECONTROL_ERROR_HWID_REC_INVALID_STATE, (quint16) m_mainState);
+            QDateTime errorTimeStamp;
+
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_HWID_REC_INVALID_STATE,
+                             (int) m_mainState, errorTimeStamp);
+
             m_bHardwareIDErrorState = 2;
         }
     }
     else
     {
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANMSG_INVALID_DLC, ((quint16)(pCANframe->can_id >> 13)));
+        QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_DCL, ERROR_DCL_NODE_CANMSG_INVALID_DLC,
+                         ((quint16)(pCANframe->can_id >> 13)), errorTimeStamp);
     }
 }
 
@@ -2115,30 +2281,30 @@ void CBaseModule::HandleCANMsgConfig(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgNodeState(can_frame* pCANframe)
 {
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": NodeState received:" << (int) pCANframe->data[0];
-
+    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() << ": NodeState received:" << (int) pCANframe->data[0];
     if(pCANframe->can_dlc == 4)
     {
         // store the node state
         m_NodeState = (NodeState_t) pCANframe->data[0];
-        // Emergency stop state (0 - no emergency stop / 1 - emergency stop)
-        EmergencyStopReason_t EmergencyStopState = (EmergencyStopReason_t) pCANframe->data[1];
+        //emergency stop state (0 - no emergency stop / 1 - emergency stop)
+        //m_EmergencyStopState = (NodeState_t) pCANframe->data[1];
         // Power supply status (0 - OK, 1 - not good, but acceptable, 2 - bad, 9 -unknown)
-        PowerState_t PowerSupplyState = (PowerState_t) pCANframe->data[2];
+        //m_PowerSupplyState = (NodeState_t) pCANframe->data[2];
 
         //we await this message while CN_MAIN_TASK_CONFIG is active
         if(m_mainState == CN_MAIN_STATE_CONFIG)
         {
             HandleTaskConfiguration(pCANframe);
         }
-        else if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+        else
         {
-            ResetModuleCommand(CN_CMD_SET_NODE_STATE);
-            ResetModuleCommand(CN_CMD_REQ_NODE_STATE);
+            if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+            {
+                ResetModuleCommand(CN_CMD_SET_NODE_STATE);
+                ResetModuleCommand(CN_CMD_REQ_NODE_STATE);
+            }
+            emit ReportNodeState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_NodeState);
         }
-        emit ReportNodeState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, m_NodeState,
-                             EmergencyStopState, PowerSupplyState);
     }
     else
     {
@@ -2147,8 +2313,7 @@ void CBaseModule::HandleCANMsgNodeState(can_frame* pCANframe)
             ResetModuleCommand(CN_CMD_SET_NODE_STATE);
             ResetModuleCommand(CN_CMD_REQ_NODE_STATE);
         }
-        emit ReportNodeState(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, NODE_STATE_UNDEFINED,
-                             RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+        emit ReportNodeState(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, NODE_STATE_UNDEFINED);
     }
 }
 
@@ -2178,21 +2343,20 @@ void CBaseModule::HandleCANMsgStatistics(can_frame* pCANframe)
 
 /****************************************************************************/
 /*!
- *  \brief  Handle the reception of memory format acknowledgements
+ *  \brief  Handle the reception of date reset acknowledgements
  *
  *  \iparam pCANframe = Received CAN message
  */
 /****************************************************************************/
-void CBaseModule::HandleCANMsgAcknMemoryFormat(can_frame* pCANframe)
+void CBaseModule::HandleCANMsgAcknDataReset(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
         // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_FORMAT_MEM);
+        ResetModuleCommand(CN_CMD_REQ_DATA_RESET);
     }
 
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() <<
-                                     ": Acknowledge format memory received:" << (int) pCANframe->data[0];
+    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() << ": Acknowledge data reset received:" << (int) pCANframe->data[0];
     if(pCANframe->can_dlc == 1)
     {
         ReturnCode_t HdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
@@ -2203,12 +2367,24 @@ void CBaseModule::HandleCANMsgAcknMemoryFormat(can_frame* pCANframe)
             HdlInfo = DCL_ERR_FCT_CALL_FAILED;
         }
 
-        emit ReportFormatMemoryAckn(GetModuleHandle(), HdlInfo);
+        emit ReportDataResetAckn(GetModuleHandle(), HdlInfo);
     }
     else
     {
-        emit ReportFormatMemoryAckn(GetModuleHandle(), DCL_ERR_CANMSG_INVALID);
+        emit ReportDataResetAckn(GetModuleHandle(), DCL_ERR_CANMSG_INVALID);
     }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Handle the reception of memory format acknowledgements
+ *
+ *  \iparam pCANframe = Received CAN message
+ */
+/****************************************************************************/
+void CBaseModule::HandleCANMsgAcknMemoryFormat(can_frame* pCANframe)
+{
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2220,42 +2396,7 @@ void CBaseModule::HandleCANMsgAcknMemoryFormat(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgSerialNumber(can_frame* pCANframe)
 {
-    ReturnCode_t HdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
-    bool Finished = false;
-    qint32 Size = 7;
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Acknowledge serial number received:" << (int) pCANframe->data[0];
-
-    if(pCANframe->can_dlc == 8)
-    {
-        if (7 * pCANframe->data[0] != m_SerialNumber.size())
-        {
-            HdlInfo = DCL_ERR_INTERNAL_ERR;
-        }
-
-        if (pCANframe->data[7] == 0)
-        {
-            Finished = true;
-            Size = -1;
-        }
-
-        m_SerialNumber.append(QString::fromAscii((const char *)&pCANframe->data[1], Size));
-    }
-    else
-    {
-        HdlInfo = DCL_ERR_CANMSG_INVALID;
-    }
-
-    if (HdlInfo != DCL_ERR_FCT_CALL_SUCCESS || Finished == true)
-    {
-        if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-        {
-            // reset the module command
-            ResetModuleCommand(CN_CMD_REQ_SERIAL_NB);
-        }
-        emit ReportSerialNumber(GetModuleHandle(), HdlInfo, m_SerialNumber);
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2277,18 +2418,22 @@ void CBaseModule::HandleCANMsgEndTestResult(can_frame* pCANframe)
         ResetModuleCommand(CN_CMD_REQ_END_TEST_RESULT);
     }
 
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": End test result received:" << (int) pCANframe->data[0];
+    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() << ": End test result received:" << (int) pCANframe->data[0];
     if(pCANframe->can_dlc == 4)
     {
-        TestResult_t EndtestResult = (TestResult_t) pCANframe->data[0];
-        QDate Date(2000 + pCANframe->data[1], pCANframe->data[2], pCANframe->data[3]);
+        quint8 EndtestResult, EndtestYear, EndtestMonth, EndtestDay;
 
-        emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, EndtestResult, Date);
+        EndtestResult = pCANframe->data[0];
+        EndtestYear   = pCANframe->data[1];
+        EndtestMonth  = pCANframe->data[2];
+        EndtestDay    = pCANframe->data[3];
+
+        emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, EndtestResult,
+                                 EndtestYear, EndtestMonth, EndtestDay);
     }
     else
     {
-        emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, TEST_OPEN, QDate());
+        emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0, 0);
     }
 }
 
@@ -2311,19 +2456,23 @@ void CBaseModule::HandleCANMsgHardwareInformation(can_frame* pCANframe)
         ResetModuleCommand(CN_CMD_REQ_HW_INFO);
     }
 
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Hardware info received:" << (int) pCANframe->data[0];
+    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() << ": Hardware info received:" << (int) pCANframe->data[0];
     if(pCANframe->can_dlc == 5)
     {
-        quint8 MajorVersion = pCANframe->data[0];
-        quint8 MinorVersion = pCANframe->data[1];
-        QDate Date(2000 + pCANframe->data[2], pCANframe->data[3], pCANframe->data[4]);
+        quint8 MajorVersion, MinorVersion, ProductionYear, ProductionMonth, ProductionDay;
 
-        emit ReportHWInfo(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, MajorVersion, MinorVersion, Date);
+        MajorVersion = pCANframe->data[0];
+        MinorVersion = pCANframe->data[1];
+        ProductionYear = pCANframe->data[2];
+        ProductionMonth = pCANframe->data[3];
+        ProductionDay = pCANframe->data[4];
+
+        emit ReportHWInfo(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, MajorVersion,MinorVersion,
+                          ProductionYear, ProductionMonth, ProductionDay);
     }
     else
     {
-        emit ReportHWInfo(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, QDate());
+        emit ReportHWInfo(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0, 0, 0);
     }
 }
 
@@ -2346,18 +2495,23 @@ void CBaseModule::HandleCANMsgSoftwareInformation(can_frame* pCANframe)
         ResetModuleCommand(CN_CMD_REQ_SW_INFO);
     }
 
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Software info received:" << (int) pCANframe->data[0];
+    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() << ": Software info received:" << (int) pCANframe->data[0];
     if(pCANframe->can_dlc == 5)
     {
-        quint16 SWVersion = GetCANMsgDataU16(pCANframe, 0);
-        QDate Date(2000 + pCANframe->data[2], pCANframe->data[3], pCANframe->data[4]);
+        quint16 SWVersion;
+        quint8  ProductionYear, ProductionMonth, ProductionDay;
 
-        emit ReportSWInfo(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, SWVersion, Date);
+        SWVersion = GetCANMsgDataU16(pCANframe, 0);
+        ProductionYear = pCANframe->data[2];
+        ProductionMonth = pCANframe->data[3];
+        ProductionDay = pCANframe->data[4];
+
+        emit ReportSWInfo(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, SWVersion,
+                          ProductionYear, ProductionMonth, ProductionDay);
     }
     else
     {
-        emit ReportSWInfo(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, QDate());
+        emit ReportSWInfo(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0, 0);
     }
 }
 
@@ -2370,26 +2524,7 @@ void CBaseModule::HandleCANMsgSoftwareInformation(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgBootLoaderInfo(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_LOADER_INFO);
-    }
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Boot loader info received:" << (int) pCANframe->data[0];
-    if(pCANframe->can_dlc == 5)
-    {
-        quint8 VersionMajor = pCANframe->data[0];
-        quint8 VersionMinor = pCANframe->data[1];
-        QDate Date(2000 + pCANframe->data[2], pCANframe->data[3], pCANframe->data[4]);
-
-        emit ReportLoaderInfo(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, VersionMajor, VersionMinor, Date);
-    }
-    else
-    {
-        emit ReportLoaderInfo(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, QDate());
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2401,25 +2536,7 @@ void CBaseModule::HandleCANMsgBootLoaderInfo(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgLifeCycleData(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_LIFE_CYCLE_DATA);
-    }
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Lifecycle data received:" << (int) pCANframe->data[0];
-    if(pCANframe->can_dlc == 6)
-    {
-        quint32 OperationTime = GetCANMsgDataU32(pCANframe, 0);
-        quint16 StartupCycles = GetCANMsgDataU16(pCANframe, 4);
-
-        emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, OperationTime, StartupCycles);
-    }
-    else
-    {
-        emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0);
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2431,54 +2548,19 @@ void CBaseModule::HandleCANMsgLifeCycleData(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgLaunchData(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_LAUNCH_DATE);
-    }
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Launch data received:" << (int) pCANframe->data[0];
-    if(pCANframe->can_dlc == 4)
-    {
-        bool Launched = pCANframe->data[0];
-        QDate Date(2000 + pCANframe->data[1], pCANframe->data[2], pCANframe->data[3]);
-
-        emit ReportLaunchDate(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, Launched, Date);
-    }
-    else
-    {
-        emit ReportLaunchDate(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, false, QDate());
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
 /**
- *  \brief  Handles the receiption of the can message 'BoardName'
+ *  \brief  Handles the receiption of the can message 'UniqueNumber'
  *
  *  \iparam pCANframe = the received CAN message
  */
 /****************************************************************************/
 void CBaseModule::HandleCANMsgBoardName(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_BOARD_NAME);
-    }
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Board name received:" << (int) pCANframe->data[0];
-    if(pCANframe->can_dlc == 8)
-    {
-        QString BoardName = QString::fromAscii((const char *)pCANframe->data);
-
-        emit ReportBoardName(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, BoardName);
-    }
-    else
-    {
-        emit ReportBoardName(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, QString());
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2502,57 +2584,19 @@ void CBaseModule::HandleCANMsgBoardOptions(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgVoltageState(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_VOLTAGE_STATE);
-    }
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Voltage state received:" << (int) pCANframe->data[0];
-    if(pCANframe->can_dlc == 5)
-    {
-        PowerState_t State = (PowerState_t)pCANframe->data[0];
-        quint16 Value = GetCANMsgDataU16(pCANframe, 1);
-        quint16 Failures = GetCANMsgDataU16(pCANframe, 3);
-
-        emit ReportVoltageState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, State, Value, Failures);
-    }
-    else
-    {
-        emit ReportVoltageState(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, POWER_UNKNOWN, 0, 0);
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
 /**
- *  \brief  Handles the receiption of the can message 'CurrentState'
+ *  \brief  Handles the receiption of the can message 'UniqueNumber'
  *
  *  \iparam pCANframe the received CAN message
  */
 /****************************************************************************/
 void CBaseModule::HandleCANMsgCurrentState(can_frame* pCANframe)
 {
-    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-    {
-        // reset the module command
-        ResetModuleCommand(CN_CMD_REQ_CURRENT_STATE);
-    }
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Current state received:" << (int) pCANframe->data[0];
-    if(pCANframe->can_dlc == 5)
-    {
-        PowerState_t State = (PowerState_t)pCANframe->data[0];
-        quint16 Value = GetCANMsgDataU16(pCANframe, 1);
-        quint16 Failures = GetCANMsgDataU16(pCANframe, 3);
-
-        emit ReportCurrentState(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, State, Value, Failures);
-    }
-    else
-    {
-        emit ReportCurrentState(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, POWER_UNKNOWN, 0, 0);
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2564,43 +2608,7 @@ void CBaseModule::HandleCANMsgCurrentState(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgUniqueNumber(can_frame* pCANframe)
 {
-    ReturnCode_t HdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
-    bool Finished = false;
-
-    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString()
-                                  << ": Acknowledge unique number received:" << (int) pCANframe->data[0];
-
-    if(pCANframe->can_dlc > 2)
-    {
-        qint32 Size = pCANframe->data[0] - 8 * m_UniqueNumber.size();
-        Size = (Size > 48) ? 48 : Size;
-
-        if (6 * pCANframe->data[1] != m_UniqueNumber.size())
-        {
-            HdlInfo = DCL_ERR_INTERNAL_ERR;
-        }
-
-        m_UniqueNumber.append((const char *)&pCANframe->data[2], Size / 8);
-
-        if (pCANframe->data[0] == 8 * m_UniqueNumber.size())
-        {
-            Finished = true;
-        }
-    }
-    else
-    {
-        HdlInfo = DCL_ERR_CANMSG_INVALID;
-    }
-
-    if (HdlInfo != DCL_ERR_FCT_CALL_SUCCESS || Finished == true)
-    {
-        if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
-        {
-            // reset the module command
-            ResetModuleCommand(CN_CMD_REQ_UNIQUE_NUMBER);
-        }
-        emit ReportUniqueNumber(GetModuleHandle(), HdlInfo, m_UniqueNumber);
-    }
+    Q_UNUSED(pCANframe);
 }
 
 /****************************************************************************/
@@ -2616,11 +2624,11 @@ ReturnCode_t CBaseModule::SetNodeState(NodeState_t NodeState)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_SET_NODE_STATE);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(CN_CMD_SET_NODE_STATE, &CmdIndex))
     {
-        p_ModuleCommand->NodeState = NodeState;
+        m_ModuleCommand[CmdIndex].NodeState = NodeState;
     }
     else
     {
@@ -2643,8 +2651,7 @@ ReturnCode_t CBaseModule::ReqNodeState()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_NODE_STATE);
-    if(p_ModuleCommand == NULL)
+    if(!SetModuleTask(CN_CMD_REQ_NODE_STATE))
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
@@ -2660,21 +2667,11 @@ ReturnCode_t CBaseModule::ReqNodeState()
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
  */
 /****************************************************************************/
-ReturnCode_t CBaseModule::EnterEmcyStop()
+ReturnCode_t CBaseModule::ReqEmcyStop()
 {
-    return SendCANMsgEmgcyStop(true);
-}
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
-/****************************************************************************/
-/*!
- *  \brief  Release an emergency stop
- *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
- */
-/****************************************************************************/
-ReturnCode_t CBaseModule::ExitEmcyStop()
-{
-    return SendCANMsgEmgcyStop(false);
+    return RetVal;
 }
 
 /****************************************************************************/
@@ -2686,7 +2683,16 @@ ReturnCode_t CBaseModule::ExitEmcyStop()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqReset()
 {
-    return SendCANMsgReset();
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+
+    if(!SetModuleTask(CN_CMD_REQ_RESET))
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
+    }
+
+    return RetVal;
 }
 
 /****************************************************************************/
@@ -2698,7 +2704,9 @@ ReturnCode_t CBaseModule::ReqReset()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ConfigureStatistics()
 {
-    return DCL_ERR_FCT_NOT_IMPLEMENTED;
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
+
+    return RetVal;
 }
 
 /****************************************************************************/
@@ -2713,8 +2721,7 @@ ReturnCode_t CBaseModule::ReqDataReset()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_DATA_RESET);
-    if(p_ModuleCommand == NULL)
+    if(!SetModuleTask(CN_CMD_REQ_DATA_RESET))
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
@@ -2727,8 +2734,6 @@ ReturnCode_t CBaseModule::ReqDataReset()
 /*!
  *  \brief  Request the formatting of the memory
  *
- *  \iparam PartitionTableSize = Number of permanent storage partitions
- *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
  */
 /****************************************************************************/
@@ -2737,8 +2742,7 @@ ReturnCode_t CBaseModule::ReqFormatMemory()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_FORMAT_MEM);
-    if(p_ModuleCommand == NULL)
+    if(!SetModuleTask(CN_CMD_REQ_FORMAT_MEM))
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
@@ -2757,18 +2761,7 @@ ReturnCode_t CBaseModule::ReqFormatMemory()
 ReturnCode_t CBaseModule::ReqSerialNumber()
 {
     QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_SERIAL_NB);
-    if(p_ModuleCommand != NULL)
-    {
-        m_SerialNumber.clear();
-    }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -2785,10 +2778,9 @@ ReturnCode_t CBaseModule::ReqEndTestResult()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    if(m_NodeState == NODE_STATE_NORMAL)
+    if((m_NodeState == NODE_STATE_NORMAL) || (m_NodeState == NODE_STATE_SERVICE))
     {
-        ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_END_TEST_RESULT);
-        if(p_ModuleCommand == NULL)
+        if(!SetModuleTask(CN_CMD_REQ_END_TEST_RESULT))
         {
             RetVal = DCL_ERR_INVALID_STATE;
             FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
@@ -2815,8 +2807,7 @@ ReturnCode_t CBaseModule::ReqHWInfo()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_HW_INFO);
-    if(p_ModuleCommand == NULL)
+    if(!SetModuleTask(CN_CMD_REQ_HW_INFO))
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
@@ -2837,8 +2828,7 @@ ReturnCode_t CBaseModule::ReqSWInfo()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_SW_INFO);
-    if(p_ModuleCommand == NULL)
+    if(!SetModuleTask(CN_CMD_REQ_SW_INFO))
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
@@ -2856,15 +2846,7 @@ ReturnCode_t CBaseModule::ReqSWInfo()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqLoaderInfo()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_LOADER_INFO);
-    if(p_ModuleCommand == NULL)
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -2878,15 +2860,7 @@ ReturnCode_t CBaseModule::ReqLoaderInfo()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqLifeCycleData()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_LIFE_CYCLE_DATA);
-    if(p_ModuleCommand == NULL)
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -2900,15 +2874,7 @@ ReturnCode_t CBaseModule::ReqLifeCycleData()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqLaunchDate()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_LAUNCH_DATE);
-    if(p_ModuleCommand == NULL)
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -2922,15 +2888,7 @@ ReturnCode_t CBaseModule::ReqLaunchDate()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqBoardName()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_BOARD_NAME);
-    if(p_ModuleCommand == NULL)
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -2944,40 +2902,23 @@ ReturnCode_t CBaseModule::ReqBoardName()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqBoardOptions()
 {
-    return DCL_ERR_FCT_NOT_IMPLEMENTED;
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
+
+    return RetVal;
 }
 
 /****************************************************************************/
 /*!
  *  \brief  Configure the voltage monitor
  *
- *  \iparam Enable = Enables or disables monitoring
- *  \iparam Filter = Number of coefficients for the running average filter
- *  \iparam SamplingPeriod = Time between two input samples in milliseconds
- *  \iparam GoodThreshold = The state is good when it is above this limit
- *  \iparam FailThreshold = The state is failed when it is below this limit
- *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
  */
 /****************************************************************************/
-ReturnCode_t CBaseModule::ConfigureVoltageMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
-                                                  quint16 GoodThreshold, quint16 FailThreshold)
+ReturnCode_t CBaseModule::ConfigureVoltageMonitor()
 {
-    can_frame CanFrame;
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
-    CanFrame.can_id = m_unCanIDCfgVoltageMonitor;
-    CanFrame.can_dlc = 7;
-
-    CanFrame.data[0] = 0;
-    if (Enable) {
-        CanFrame.data[0] = 0x80;
-    }
-    CanFrame.data[1] = Filter;
-    CanFrame.data[2] = SamplingPeriod;
-    SetCANMsgDataU16(&CanFrame, GoodThreshold, 3);
-    SetCANMsgDataU16(&CanFrame, FailThreshold, 5);
-
-    return m_pCANCommunicator->SendCOB(CanFrame);
+    return RetVal;
 }
 
 /****************************************************************************/
@@ -2989,15 +2930,7 @@ ReturnCode_t CBaseModule::ConfigureVoltageMonitor(bool Enable, quint8 Filter, qu
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqVoltageState()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_VOLTAGE_STATE);
-    if(p_ModuleCommand == NULL)
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -3006,33 +2939,14 @@ ReturnCode_t CBaseModule::ReqVoltageState()
 /*!
  *  \brief  Configure the current monitor
  *
- *  \iparam Enable = Enables or disables monitoring
- *  \iparam Filter = Number of coefficients for the running average filter
- *  \iparam SamplingPeriod = Time between two input samples in milliseconds
- *  \iparam GoodThreshold = The state is good when it is below this limit
- *  \iparam FailThreshold = The state is failed when it is above this limit
- *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
  */
 /****************************************************************************/
-ReturnCode_t CBaseModule::ConfigureCurrentMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
-                                                  quint16 GoodThreshold, quint16 FailThreshold)
+ReturnCode_t CBaseModule::ConfigureCurrentMonitor()
 {
-    can_frame CanFrame;
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
-    CanFrame.can_id = m_unCanIDCfgCurrentMonitor;
-    CanFrame.can_dlc = 7;
-
-    CanFrame.data[0] = 0;
-    if (Enable) {
-        CanFrame.data[0] = 0x80;
-    }
-    CanFrame.data[1] = Filter;
-    CanFrame.data[2] = SamplingPeriod;
-    SetCANMsgDataU16(&CanFrame, GoodThreshold, 3);
-    SetCANMsgDataU16(&CanFrame, FailThreshold, 5);
-
-    return m_pCANCommunicator->SendCOB(CanFrame);
+    return RetVal;
 }
 
 /****************************************************************************/
@@ -3044,15 +2958,7 @@ ReturnCode_t CBaseModule::ConfigureCurrentMonitor(bool Enable, quint8 Filter, qu
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqCurrentState()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_CURRENT_STATE);
-    if(p_ModuleCommand == NULL)
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
 }
@@ -3066,31 +2972,58 @@ ReturnCode_t CBaseModule::ReqCurrentState()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqUniqueNumber()
 {
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(CN_CMD_REQ_UNIQUE_NUMBER);
-    if(p_ModuleCommand != NULL)
-    {
-        m_UniqueNumber.clear();
-    }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
-    }
+    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
 
     return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function, sets a free module command to the given command type
+ *
+ *  \iparam CommandType = command type to set
+ *  \iparam pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
+ *
+ *  \return true, if the command type can be placed, otherwise false
+ */
+/****************************************************************************/
+bool CBaseModule::SetModuleTask(CANNodeModuleCmdType_t CommandType, quint8* pCmdIndex)
+{
+    bool CommandAdded = false;
+
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
+    {
+        for(quint8 idx = 0; idx < CN_MAX_MODULE_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].Type = CommandType;
+
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
+
+                FILE_LOG_L(laFCT, llINFO) << " CANNode '" << GetKey().toStdString() << " task" << (int) idx;
+                break;
+            }
+        }
+    }
+
+    return CommandAdded;
 }
 
 /****************************************************************************/
 /**
  *  \brief  Set the master heartbeat supervision state
  *
- *  \iparam HBSupervisionState = Enables or disables heartbeat supervision
+ *  \iparam HBSupervisionState = 0 to deactivate heartbeat, other values activate the heartbeat
  */
 /****************************************************************************/
-void CBaseModule::SetHeartbeatSupervision(bool HBSupervisionState)
+void CBaseModule::SetHeartbeatSupervision(quint8 HBSupervisionState)
 {
     FILE_LOG_L(laFCT, llDEBUG1) << GetName().toStdString() << ": activated Heartbeat supervision.";
     if(HBSupervisionState)
@@ -3110,10 +3043,9 @@ void CBaseModule::SetHeartbeatSupervision(bool HBSupervisionState)
 
 /****************************************************************************/
 /*!
- *  \brief  Heartbeat handing
+ *  \brief  Heartbeat handing, checks the cyclically reception of the slave's heartbeat messages
  *
- *      Checks the cyclically reception of the slave's heartbeat messages. An
- *      error will be thrown if a heartbeat failure was detected.
+ *      An error will be thrown if a heartbeat failure was detected
  */
 /****************************************************************************/
 void CBaseModule::CheckHeartbeat()
@@ -3134,17 +3066,22 @@ void CBaseModule::CheckHeartbeat()
                 nSeconds--;
             }
             else
-            {
                 nMilliSeconds = tpNow.millitm - m_tbHeartbeatTimeDelay.millitm;
-            }
 
             nMilliSeconds = ((int)(nSeconds*1000)) + nMilliSeconds;
         }
 
         if(nMilliSeconds > CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE && (m_bHBErrorState == 1))
         {
+            QDateTime errorTimeStamp;
+            quint16 nAdditonalData = 0;
+
             FILE_LOG_L(laINIT, llERROR) << "Error: " << GetName().toStdString() << " Heartbeat failed." ;
-            ThrowEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT_TIMEOUT, 0);
+
+            errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+            emit ReportError(GetModuleHandle(), EVENT_GRP_DCL_NODE_SLV, ERROR_DCL_NODE_HEARTBEAT_TIMEOUT,
+                             nAdditonalData, errorTimeStamp);
+
             m_bHBErrorState = 2;
             m_mainState = CN_MAIN_STATE_INACTIVE;
         }
@@ -3275,102 +3212,57 @@ CFunctionModule* CBaseModule::GetFunctionModuleFromList(CFunctionModule* xpFctMo
 
 /****************************************************************************/
 /*!
- *  \brief  Adds a new command to the transmit queue
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command type to set
- *
- *  \return Module command, if the command type can be placed, otherwise NULL
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
  */
 /****************************************************************************/
-CBaseModule::ModuleCommand_t *CBaseModule::SetModuleTask(CANNodeModuleCmdType_t CommandType)
+void CBaseModule::ResetModuleCommand(CANNodeModuleCmdType_t ModuleCommandType)
 {
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
-            }
+    bool ActiveCommandFound = false;
+
+    for(quint8 idx = 0; idx < CN_MAX_MODULE_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
         }
 
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
-    }
-
-    return NULL;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Removes an existing command from the transmit queue
- *
- *  \iparam CommandType = Command of that type will be set to free
- */
-/****************************************************************************/
-void CBaseModule::ResetModuleCommand(CANNodeModuleCmdType_t CommandType)
-{
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            break;
+        if(m_ModuleCommand[idx].State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
 }
 
-void CBaseModule::ThrowEvent(quint32 EventCode, quint16 EventData)
+/****************************************************************************/
+/*!
+ *  \brief  Returns the index of a given command type
+ *
+ *  \iparam Type = Module command type to be searched
+ *
+ *  \return Command index (0xFF if now command of the given type is active)
+ */
+/****************************************************************************/
+quint8 CBaseModule::GetModuleCmdIndexFromType(CANNodeModuleCmdType_t Type)
 {
-    QDateTime EventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
-
-    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName() << EventData);
-    emit ReportEvent(EventCode, EventData, EventTime);
-}
-
-QTextStream& operator<< (QTextStream& s, const NodeState_t &NodeState)
-{
-    s << "node state (" << int(NodeState) << ") = ";
-    switch (NodeState)
+    quint8 ModuleCmdIndex = 0xFF;
+    for(quint8 idx  = 0; idx < CN_MAX_MODULE_CMD_IDX; idx++)
     {
-    case NODE_STATE_UNDEFINED:
-        s << "Undefined state";
-        break;
-    case NODE_STATE_BOOTING:
-        s << "Node is in boot loader";
-        break;
-    case NODE_STATE_STARTUP:
-        s << "Firmware initialization";
-        break;
-    case NODE_STATE_IDENTIFY:
-        s << "Node identification";
-        break;
-    case NODE_STATE_CONFIGURE:
-        s << "Node configuration";
-        break;
-    case NODE_STATE_NORMAL:
-        s << "Normal operation mode";
-        break;
-    case NODE_STATE_ASSEMBLY:
-        s << "Assembly mode";
-        break;
-    case NODE_STATE_SHUTDOWN:
-        s << "Shutdown (going to standby)";
-        break;
-    case NODE_STATE_STANDBY:
-        s << "Standby";
-        break;
-    default:
-        s << "unknown";
-        break;
+        if(m_ModuleCommand[idx].Type == Type)
+        {
+            ModuleCmdIndex = idx;
+            break;
+        }
     }
-    return s;
+
+    return ModuleCmdIndex;
 }
 
 } //namespace

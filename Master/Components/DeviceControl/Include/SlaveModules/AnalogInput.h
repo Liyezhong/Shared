@@ -33,6 +33,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_MODULE_CMD_IDX  2   ///< up to 2 module commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
  *  \brief  Analog input function module class
@@ -72,7 +74,7 @@ signals:
      *  \iparam InputValue = Actual input value
      */
     /****************************************************************************/
-    void ReportActInputValue(quint32 InstanceID, ReturnCode_t HdlInfo, qint16 InputValue);
+    void ReportActInputValue(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 InputValue);
 
     /****************************************************************************/
     /*!
@@ -142,10 +144,12 @@ private:
         bool Enable;                        //!< Module enable flag
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    ModuleCommand_t m_ModuleCommand[MAX_MODULE_CMD_IDX];  //!< array of module commands for simultaneously execution
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANAnalogInputModuleCmdType_t CommandType);
+    quint16 m_ActInputValue;  //!< Input value lastly received from slave
+
+    //! Set the module command type to free entry within array
+    bool SetModuleTask(CANAnalogInputModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
     //! Clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANAnalogInputModuleCmdType_t CommandType);
 };

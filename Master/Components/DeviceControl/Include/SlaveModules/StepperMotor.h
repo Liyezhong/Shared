@@ -26,7 +26,7 @@
 #define DEVICECONTROL_STEPPERMOTORPRIVATE_H
 
 #include "DeviceControl/Include/SlaveModules/FunctionModule.h"
-#include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "Global/Include/MonotonicTime.h"
 
 typedef quint8 UInt8;
@@ -75,6 +75,8 @@ namespace DeviceControl
 
 class CANCommunicator;
 
+#define MAX_SM_MODULE_CMD_IDX   4   ///< up to 4 motion commands can be handled simultaneously
+
 /****************************************************************************/
 /*!
  *  \brief  Stepper motor function module class
@@ -120,25 +122,57 @@ public:
     //! Request actual motor speed
     ReturnCode_t ReqActSpeed();
 
-    //! Request motor operation time
-    ReturnCode_t RequestOperationTimeData();
+    //! Request life cycle data
+    ReturnCode_t RequestLifeCycleData();
 
-    //! Request motor revolution count
-    ReturnCode_t RequestRevolutionCountData();
+    //! Request limit switch state
+    ReturnCode_t RequestLimitSwitchState();
+    //! Get limit switch state as buffer on master side
+    ReturnCode_t GetLimitSwitchState();
 
     //! motor positioning command
     ReturnCode_t DriveToPosition(quint32 TargetPosition,
-                                 quint8  MovementProfile);
-
+                                 quint8  MovementProfile,
+                                 StepperMotorSubCommandMotion_t SubCommandID = SM_SUBCMD_MOTION_NULL,
+                                 quint16 SubCommandData = 0);
     //! motor speed command
     ReturnCode_t DriveSpeed(qint16  TargetSpeed,
-                            quint8  MovementProfile);
+                            quint8  MovementProfile,
+                            StepperMotorSubCommandMotion_t SubCommandID = SM_SUBCMD_MOTION_NULL,
+                            quint16 SubCommandData = 0);
 
     //! reference run command
     ReturnCode_t ExecReferenceMovement();
 
-    //! Request data reset
-    ReturnCode_t ReqDataReset();
+    //! calculate the target speed of a time period based movement
+    Speed_t GetSpeedFromPeriod(Position_t Distance, MotionProfileIdx_t MotionProfileIdx, quint16 Period);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Return the minimal position
+     *
+     *  \return The minimal position
+     */
+    /****************************************************************************/
+    Position_t GetMinPosition() { return m_MinPosition; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Return the maximal position
+     *
+     *  \return The maximal position
+     */
+    /****************************************************************************/
+    Position_t GetMaxPosition() { return m_MaxPosition; }
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Return the maximal speed
+     *
+     *  \return The maximal speed
+     */
+    /****************************************************************************/
+    qint16 GetMaxSpeed() { return m_MaxSpeed; }
 
 signals:
     /****************************************************************************/
@@ -150,6 +184,17 @@ signals:
      *
      ****************************************************************************/
     void ReportSetStateAckn(quint32 InstanceID, ReturnCode_t HdlInfo);
+
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted to report the actual motor state
+     *
+     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \param   State      = Actual motor state
+     *
+     ****************************************************************************/
+    void ReportState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 State);
 
     /****************************************************************************/
     /*!
@@ -215,7 +260,18 @@ signals:
      *  \param   Speed      = Actual motor speed [half steps / sec]
      *
      ****************************************************************************/
-    void ReportSpeed(quint32 InstanceID, ReturnCode_t HdlInfo, qint16 Speed);
+    void ReportSpeed(quint32 InstanCANStepperMotorceID, ReturnCode_t HdlInfo, qint16 Speed);
+
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted to report the limit switch state
+     *
+     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \param   LimitSwitchState = Limit switch state (Bit0 - LS1, Bit 1 - LS2, active (1), incative(0))
+     *
+     ****************************************************************************/
+    void ReportLimitSwitchState(quint32 InstanceID, ReturnCode_t HdlInfo, qint8 LimitSwitchState);
 
     /****************************************************************************/
     /*!
@@ -245,7 +301,7 @@ private:
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
 
     void HandleConfigurationState();        //!< configuration task handling function
-    void SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_Flag_t &ls);    //! configure limit switch data
+    void SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_t &ls);    //! configure limit switch data
     void SetupPosCodeConfigData (CANFctModulePosCode &PosCode, ConfigData_LSPOS_t &pc);             //! configure position code data
     StepperMotorRotDir_t SetupRotationDir (CANFctModuleStepperMotor::RotationDir_t dir);            //! configure rotation dir
 
@@ -257,19 +313,23 @@ private:
     ReturnCode_t SendCANMsgReferenceMovement();
     //! sends the can message 'TargetPosition'
     ReturnCode_t SendCANMsgTargetPosition(Position_t TargetPos,
-                                          quint8 MotionProfile);
+                                          quint8 MotionProfile,
+                                          StepperMotorSubCommandMotion_t SubCommandID,
+                                          quint16 SubCommandData);
     //! sends the can message 'TargetSpeed'
     ReturnCode_t SendCANMsgTargetSpeed(Position_t TargetSpeed,
-                                       quint8 MotionProfileIdx);
+                                       quint8 MotionProfileIdx,
+                                       StepperMotorSubCommandMotion_t SubCommandID,
+                                       quint16 SubCommandData);
     //! sends the can message 'ActPositionRequest'
     ReturnCode_t SendCANMsgActPositionReq();
     //! sends the can message 'ActSpeedRequest'
     ReturnCode_t SendCANMsgActSpeedReq();
-    //! sends the can message 'operation time request'
-    ReturnCode_t SendCANMsgOperationTimeDataReq();
-    //! sends the can message 'revolution count request'
-    ReturnCode_t SendCANMsgRevolutionCountDataReq();
+    //! sends the can message 'LifeCycleData'
+    ReturnCode_t SendCANMsgLifeCycleDataReq();
 
+    //! handles the receipt of can message 'State'
+    void HandleCANMsgState(can_frame* pCANframe);
     //! handles the receipt of can message 'SetStateAck'
     void HandleCANMsgSetStateAck(can_frame* pCANframe);
     //! handles the receipt of can message 'ReferenceMovementReqAckn'
@@ -284,12 +344,12 @@ private:
     void HandleCANMsgMovementAckn(can_frame* pCANframe);
     //! handles the receipt of can message 'ActPosition'
     void HandleCANMsgActPositionResp(can_frame* pCANframe);
+    //! handles the receipt of can message 'Debug'
+    void HandleCANMsgDebug(can_frame* pCANframe);
+    //! handles the receipt of can message 'LiveCycleData'
+    void HandleCANMsgLiveCycleData(can_frame* pCANframe);
     //! handles the receipt of can message 'ActSpeed'
     void HandleCANMsgActSpeedResp(can_frame* pCANframe);
-    //! handles the receipt of can message 'OperationTimeData'
-    void HandleCANMsgOperationTimeData(can_frame* pCANframe);
-    //! handles the receipt of can message 'RevolutionsData'
-    void HandleCANMsgRevolutionsData(can_frame* pCANframe);
 
     //! command handling function
     void HandleCommandRequestTask();
@@ -298,15 +358,31 @@ private:
     typedef enum {
         FM_SM_SUB_STATE_CONFIG_INIT      = 0x00, ///< Initialisation state
         FM_SM_SUB_STATE_CONFIG_START     = 0x01, ///< Configuration start state
+        FM_SM_SUB_STATE_CONFIG_LS1_1     = 0x02, ///< Limit switch 1 configuration data block 1
+        FM_SM_SUB_STATE_CONFIG_LS1_2     = 0x03, ///< Limit switch 1 configuration data block 2
+        FM_SM_SUB_STATE_CONFIG_LS2_1     = 0x04, ///< Limit switch 2 configuration data block 1
+        FM_SM_SUB_STATE_CONFIG_LS2_2     = 0x05, ///< Limit switch 2 configuration data block 2
+        FM_SM_SUB_STATE_CONFIG_ENC       = 0x06, ///< Encoder configuration data
+        FM_SM_SUB_STATE_CONFIG_MOTOR_1   = 0x07, ///< Motor configuration data, part 1
+        FM_SM_SUB_STATE_CONFIG_MOTOR_2   = 0x08, ///< Motor configuration data, part 2
+        FM_SM_SUB_STATE_CONFIG_MOTOR_3   = 0x09, ///< Motor configuration data, part 3
+        FM_SM_SUB_STATE_CONFIG_MOTOR_4   = 0x0a, ///< Motor configuration data, part 4
+        FM_SM_SUB_STATE_CONFIG_MOTOR_5   = 0x0b, ///< Motor configuration data, part 5
+        FM_SM_SUB_STATE_CONFIG_MOTOR_6   = 0x0c, ///< Motor configuration data, part 6
+        FM_SM_SUB_STATE_CONFIG_MOTOR_7   = 0x0d, ///< Motor configuration data, part 7
+        FM_SM_SUB_STATE_CONFIG_MOTOR_PROFILE = 0x0e, ///< Motor movement profile data,
         FM_SM_SUB_STATE_CONFIG_FINISHED  = 0x0f  ///< Finish state
     } CANStepperMotorSubStateConfig_t;
 
     CANStepperMotorSubStateConfig_t m_subStateConfig;   ///< Motor configuration state machine control
-    SubIndex_t                      m_subIndex;         ///< Motor configuration state machine control
+    SubIndex_t m_subIndex;  ///< Motor configuration state machine control
 
-    quint32  m_unCanIDConfig;                 ///< CAN message 'Configuration data'
+    quint32  m_unCanIDError;                  ///< CAN message 'Error'
+    quint32  m_unCanIDErrorReq;               ///< CAN message 'Request error'
     quint32  m_unCanIDStateSet;               ///< CAN message 'Set motor state'
     quint32  m_unCanIDStateSetAck;            ///< CAN message 'Set motor state acknowledge'
+    quint32  m_unCanIDStateReq;               ///< CAN message 'Request motor state'
+    quint32  m_unCanIDState;                  ///< CAN  dmessage 'Motor state'
     quint32  m_unCanIDReferenceMovement;      ///< CAN message 'Reference run'
     quint32  m_unCanIDReferenceMovementReqAckn;  ///< CAN message 'Reference run request acknowledge'
     quint32  m_unCanIDReferenceMovementAckn;  ///< CAN message 'Reference run acknowledge'
@@ -317,12 +393,18 @@ private:
     quint32  m_unCanIDMovementAckn;           ///< CAN message 'Position or speed movement acknowledge'
     quint32  m_unCanIDActPositionReq;         ///< CAN message 'Actual position request'
     quint32  m_unCanIDActPositionResp;        ///< CAN message 'Actual position'
-    quint32  m_unCanIDActSpeedReq;            ///< CAN message 'Actual speed request'
     quint32  m_unCanIDActSpeed;               ///< CAN message 'Actual speed'
-    quint32  m_unCanIDOpTimeDataReq;          ///< CAN message 'Motor operation time request'
-    quint32  m_unCanIDOpTimeData;             ///< CAN message 'Motor operation time data'
-    quint32  m_unCanIDRevCountDataReq;        ///< CAN message 'Motor revolution count request'
-    quint32  m_unCanIDRevCountData;           ///< CAN message 'Motor revolution count data'
+    quint32  m_unCanIDActSpeedReq;            ///< CAN message 'Actual speed request'
+    quint32  m_unCanIDConfig;                 ///< CAN message 'Configuration data'
+    quint32  m_unCanIDMotionProfile;          ///< CAN message 'Movement configuration data'
+    quint32  m_unCanIDLiveCycleDataReq;       ///< CAN message 'Life cycle data request'
+    quint32  m_unCanIDLiveCycleData;          ///< CAN message 'Life cycle data'
+    quint32  m_unCanIDDiagSoftwareReq;        ///< CAN message 'Diagnostic Software request'
+    quint32  m_unCanIDDiagSoftware;           ///< CAN message 'Diagnostic Software'
+    quint32  m_unCanIDDiagHardwareReq;        ///< CAN message 'Diagnostic Hardware request'
+    quint32  m_unCanIDDiagHardware;           ///< CAN message 'Diagnostic Hardware'
+    quint32  m_unCanIDDebug;                  ///< CAN message 'Debug data'
+    quint32  m_unCanIDDebug2;                 ///< CAN message 'Debug2 data'
 
     /*! motor movement command type */
     typedef enum {
@@ -333,43 +415,66 @@ private:
         FM_SM_CMD_TYPE_SPEED               = 0x04,  //!< movement with target speed
         FM_SM_CMD_TYPE_ACTPOS_REQ          = 0x05,  //!< actual position request
         FM_SM_CMD_TYPE_ACTSPEED_REQ        = 0x06,  //!< actual speed request
-        FM_SM_CMD_TYPE_OPTIME_DATA_REQ     = 0x07,  //!< operation time data request
-        FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ   = 0x08,  //!< revolution count data request
-        FM_SM_CMD_TYPE_REQ_DATA_RESET      = 0x09   //!< data reset
+        FM_SM_CMD_TYPE_LIFE_CYCLE_DATA_REQ = 0x07,  //!< life cycle data request
+        FM_SM_CMD_TYPE_TECH_DATA1_REQ      = 0x08,  //!< technical data group 1 request
+        FM_SM_CMD_TYPE_TECH_DATA2_REQ      = 0x09,  //!< technical data group 1 request
+        FM_SM_CMD_TYPE_DEBUG_CMD_1         = 0x0a   //!< debug request
     } CANStepperMotorMotionCmdType_t;
 
     /*! motor command data, used for internal data transfer */
     typedef struct {
-        CANStepperMotorMotionCmdType_t Type;                //!< command type
-        ModuleCmdState_t               State;               //!< command state
-        bool                           MotorState;          //!< motor state
-        Position_t                     TargetPos;           //!< position [half-steps]
-        qint16                         TargetSpeed;         //!< target speed [half-steps/sec]
-        quint8                         MotionProfileIdx;    //!< index of movement profile
-        Global::MonotonicTime          ReqSendTime;         //!< time the command was executed
-        qint32                         Timeout;             //!< timeout in ms
+        CANStepperMotorMotionCmdType_t  Type;               //!< command type
+        ModuleCmdState_t                State;              //!< command state
+        bool                            m_MotorState;       //!< motor state
+        Position_t                      TargetPos;          //!< position [half-steps]
+        qint16                          TargetSpeed;        //!< target speed [half-steps/sec]
+        quint8                          MotionProfileIdx;   //!< index of movement profile
+        StepperMotorSubCommandMotion_t  SubCommandID;       //!< sub command id for further motion options
+        quint16                         SubCommandData;     //!< additional data, depending on subcommand
+        Global::MonotonicTime           m_ReqSendTime;      //!< time the command wasexecuted
+        qint32                          m_Timeout;          //!< timeout in ms
     } ModuleCommand_t;
 
-    QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
+    //! module command array
+    ModuleCommand_t m_ModuleCommand[MAX_SM_MODULE_CMD_IDX];
 
-    //! Adds the module command type to the transmit queue
-    ModuleCommand_t *SetModuleTask(CANStepperMotorMotionCmdType_t CommandType);
-    //! Clears all entrys with the specified module command type to free
+    //! set the module command type to free entry within array
+    bool SetModuleTask(CANStepperMotorMotionCmdType_t CommandType, quint8* pCmdIndex = 0);
+    //! clears all entrys with the specified module command type to free
     void ResetModuleCommand(CANStepperMotorMotionCmdType_t CommandType);
 
+    quint32 m_ReqTargetPosition;    ///< Requested target postion
+    qint16 m_ReqTargetSpeed;        ///< Requested target speed
+    quint8 m_ReqMovementProfile;    ///< Requested movement profile
+    quint8 m_ReqSubCommandID;       ///< Requested sub command ID (e.g. time delay)
+    qint16 m_ReqSubCommandData;     ///< Requested sun command data
+
+
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
+    qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
+
+    quint8 MotionProfileIndex;      ///< Motion profile index, used by configuration
+    quint8 MotionProfileSubIndex;   ///< Motion profile sub index, used by configuration
+
+    bool m_MotorState;  //!< motor state (enabled/disabled)
 
     //life cycle data
-    quint32 m_RevolutionCount;      //!< count of motor revolutions during life cycle
-    quint32 m_TripCounter;          //!< count of changes in direction during life cycle
-    quint32 m_OperationTime;        //!< motor operation time in hours during life cycle
+    quint32 m_StepCounter;      //!< count of motor step during life cycle
+    quint32 m_TripCounter;      //!< count of changes in direction during life cycle
+    quint32 m_OperationTime;    //!< motor operation time in minutes during life cycle
 
+    //configuration data
+    Position_t m_MinPosition;   ///< minimal position
+    Position_t m_MaxPosition;   ///< maximal position
+    qint16 m_MaxSpeed;          ///< maximal speed
+
+    // for testing purpose
+    void TestOutput(QString text);  //!< test
+    bool m_bTestOutput;             //!< test
+    quint16 m_nCounter;             //!< test
 
     static QMap<quint32, std::string> m_eventString;    //!< list with info strings for CAN events
 };
-
-
-std::ostream& operator<< (std::ostream& s, const SM_AckState_t &ackState);     //!< convert SM_AckState_t to string
 
 } //namespace
 

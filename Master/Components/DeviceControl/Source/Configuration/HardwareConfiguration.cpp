@@ -23,6 +23,7 @@
 /****************************************************************************/
 
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
+#include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/SystemPaths.h"
 
@@ -39,7 +40,7 @@ namespace DeviceControl
 HardwareConfiguration::HardwareConfiguration()
 {
     m_strErrorInfo = "";
-    m_EventCode = 0;
+    m_usErrorID = 0;
 }
 
 /****************************************************************************/
@@ -49,15 +50,8 @@ HardwareConfiguration::HardwareConfiguration()
 /****************************************************************************/
 HardwareConfiguration::~HardwareConfiguration()
 {
-    try
-    {
-        while (!m_DeviceCfgList.isEmpty()) {
-            delete m_DeviceCfgList.takeFirst();
-        }
-    }
-    catch (...)
-    {
-        return;
+    while (!m_DeviceCfgList.isEmpty()) {
+        delete m_DeviceCfgList.takeFirst();
     }
 }
 
@@ -69,10 +63,10 @@ HardwareConfiguration::~HardwareConfiguration()
  *  \oparam strErrorInfo = error information string
  */
 /****************************************************************************/
-void HardwareConfiguration::GetLastError(quint32 &EventCode, QString &strErrorInfo)
+void HardwareConfiguration::GetLastError(quint16& usErrorID, QString& strErrorInfo)
 {
-    strErrorInfo = m_strErrorInfo;
-    EventCode = m_EventCode;
+      strErrorInfo = m_strErrorInfo;
+      usErrorID = m_usErrorID;
 }
 
 /****************************************************************************/
@@ -111,7 +105,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
                                .arg(HWConfigFileName)
                                .arg(file.errorString());
             FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_OPEN_FAILED;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_OPEN_FAILED;
 
             return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -124,7 +118,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
                                  .arg(errorColumn)
                                  .arg(errorStr);
            FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-           m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_PARSE;
+           m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_PARSE_ERROR;
 
            return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -133,8 +127,8 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     if (root.tagName() != "hwconfig")
     {
         m_strErrorInfo = QObject::tr("The file is not a hardware config file. Tag 'hwconfig' missed");
-        FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT;
+           FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
+           m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -142,8 +136,8 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
                && root.attribute("version") != "1.0")
     {
         m_strErrorInfo = QObject::tr("The hardware config files' version is not valid.");
-        FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_VERSION;
+           FILE_LOG_L(laINIT, llERROR) << m_strErrorInfo.toStdString();
+           m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_VERSION_ERROR;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -154,7 +148,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     child = root.firstChildElement("parameter_slaves");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -176,7 +170,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     child = root.firstChildElement("devices");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -212,58 +206,52 @@ BaseDeviceConfiguration* HardwareConfiguration::ParseDeviceElement(const QDomEle
 {
     BaseDeviceConfiguration* pDevConfig = 0;
     QDomElement child;
-    QString StringKey;
-    QString StringId;
-    QString StringOptional;
-    quint32 InstanceId;
+    QString strType, strInstanceID, strOptional;
+    QString strKey, strFctInstanceID;
+    quint32 InstanceID, FctInstanceID;
     bool ok = true;
 
-    StringKey = element.attribute("key");
-    StringId = element.attribute("instance_id");
-    StringOptional = element.attribute("optional");
+    strType = element.attribute("type");
+    strInstanceID = element.attribute("dev_instanceID");
+    strOptional = element.attribute("optional");
 
     pDevConfig = new BaseDeviceConfiguration();
-    pDevConfig->m_Key = StringKey;
+    pDevConfig->m_Type = strType;
 
-    InstanceId = StringId.toUInt(&ok, 16);
-    pDevConfig->m_InstanceID = static_cast<DevInstanceID_t>(InstanceId);
+    InstanceID = strInstanceID.toUInt(&ok, 16);
+    pDevConfig->m_InstanceID = GetDeviceIDFromValue(InstanceID);
 
-    pDevConfig->m_Optional = (bool) StringOptional.toShort(&ok, 10);
+    pDevConfig->m_Optional = (bool) strOptional.toShort(&ok, 10);
     pDevConfig->m_OrderNr = orderNrDevice;
 
     //-------------------------------------------
     //   dependencies
     //-------------------------------------------
-    child = element.firstChildElement("modules");
+    child = element.firstChildElement("functionmodules");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_DEV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
         return pDevConfig;
     }
 
-    FILE_LOG_L(laINIT, llDEBUG1) << " HardwareConfiguration: Device found:" <<
-                                    StringKey.toStdString() << ", 0x" << std::hex << InstanceId;
+    FILE_LOG_L(laINIT, llDEBUG1) << " HardwareConfiguration: Device found:" << strType.toStdString() << ", 0x" << std::hex << InstanceID;
 
-    child = child.firstChildElement("module");
+    child = child.firstChildElement("functionmodule");
     while (!child.isNull())
     {
-        quint32 NodeType = child.attribute("node_type").toUShort(&ok);
-        quint32 NodeIndex = child.attribute("node_index").toUShort(&ok);
-        quint32 Channel = child.attribute("channel").toUShort(&ok);
+        strKey = child.attribute("key");
+        strFctInstanceID = child.attribute("fct_instanceID");
 
-        StringKey = child.attribute("key");
-
-        InstanceId = NodeType + (NodeIndex << 8) + (Channel << 12);
+        FctInstanceID = strFctInstanceID.toUInt(&ok, 16);
 
 /*lint -save -e534 */
         //ignoring return value of insert
-        pDevConfig->m_ModuleList.insert(StringKey, InstanceId);
+        pDevConfig->m_DevFctModList.insert(strKey, FctInstanceID);
 /*lint -restore */
 
-        FILE_LOG_L(laINIT, llDEBUG1) << " HardwareConfiguration: DeviceDependency found: " <<
-                                        StringKey.toStdString() << " 0x" << std::hex << InstanceId;
+        FILE_LOG_L(laINIT, llDEBUG1) << " HardwareConfiguration: DeviceDependency found: " << strKey.toStdString() << " 0x" << std::hex << FctInstanceID;
 
-        child = child.nextSiblingElement("module");
+        child = child.nextSiblingElement("functionmodule");
     }
     return pDevConfig;
 }
@@ -290,7 +278,7 @@ ReturnCode_t HardwareConfiguration::ParseSlaveElement(const QDomElement &element
 
     if (m_CANObjectCfgList.contains(pCANObjCfgEntry->m_strKey))
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 /*lint -save -e534 */
@@ -303,7 +291,7 @@ ReturnCode_t HardwareConfiguration::ParseSlaveElement(const QDomElement &element
     child = element.firstChildElement("functionmodules");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -352,7 +340,7 @@ CModuleConfig* HardwareConfiguration::ParseCANNode(const QDomElement &element, c
     child = element.firstChildElement("nodetype");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjCfgEntry;
     }
     else
@@ -363,7 +351,7 @@ CModuleConfig* HardwareConfiguration::ParseCANNode(const QDomElement &element, c
     child = element.firstChildElement("nodeindex");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjCfgEntry;
     }
     else
@@ -411,7 +399,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
     if (m_CANObjectCfgList.contains(strCANFctModuleKey))
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -420,7 +408,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
     sIface = strCANFctModuleIface.toShort(&bOK, 10);
     if(!bOK)
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -447,7 +435,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -474,7 +462,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -502,7 +490,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -529,7 +517,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -555,7 +543,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -583,7 +571,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -611,7 +599,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -638,7 +626,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -666,7 +654,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
@@ -694,10 +682,39 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         }
         else
         {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_FCT;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
+#ifdef PRE_ALFA_TEST
+     else if(CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL == sObjectType)
+    {
+        CANFctModulePressureCtrl* pCANObjFctPressureEntry;
+
+        pCANObjFctPressureEntry = ParsePressureCtrl(element);
+        if(pCANObjFctPressureEntry)
+        {
+            pCANObjFctPressureEntry->m_ObjectType = sObjectType;
+            pCANObjFctPressureEntry->m_strKey = strCANFctModuleKey;
+            pCANObjFctPressureEntry->m_strName = strCANFctModuleName;
+            pCANObjFctPressureEntry->pParent = pCANObjCfgNode;
+            pCANObjFctPressureEntry->m_sChannel = sIface;
+            pCANObjFctPressureEntry->m_sOrderNr = sOrderNrFct;
+            pCANObjFctPressureEntry->m_sCANNodeType = pCANObjCfgNode->m_sCANNodeType;
+            pCANObjFctPressureEntry->m_sCANNodeIndex = pCANObjCfgNode->m_sCANNodeIndex;
+
+            m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctPressureEntry;
+            FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctPressureEntry->m_strKey.toStdString() <<
+                    ", Order:" << pCANObjFctPressureEntry->m_sOrderNr <<
+                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctPressureEntry->m_ObjectType;
+        }
+        else
+        {
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            return DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+#endif
     return retCode;
 
 }
@@ -716,58 +733,29 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     CANFctModuleDigitInput* pCANObjFctDigitInEntry = 0;
 
     QDomElement child;
-    QString strEnabled, strPolarity, strSupervision, strInterval, strDebounce;
+    QString strEnabled, strTimestamp, strPolarity, strSupervision, strInterval, strDebounce;
     bool ok;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctDigitInEntry;
     }
     strEnabled = child.attribute("enabled");
+    strTimestamp = child.attribute("timestamp");
     strPolarity = child.attribute("polarity");
-    strSupervision = child.attribute("threshold");
+    strSupervision = child.attribute("supervision");
     strInterval = child.attribute("interval");
     strDebounce = child.attribute("debounce");
 
     pCANObjFctDigitInEntry = new CANFctModuleDigitInput();
-    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitInEntry;
-        return NULL;
-    }
-    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitInEntry;
-        return NULL;
-    }
-    pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitInEntry;
-        return NULL;
-    }
-    pCANObjFctDigitInEntry->m_sSupervision = strSupervision.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitInEntry;
-        return NULL;
-    }
-    pCANObjFctDigitInEntry->m_bInterval = strInterval.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitInEntry;
-        return NULL;
-    }
-    pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitInEntry;
-        return NULL;
-    }
+    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_bTimeStamp = strTimestamp.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_sSupervision = strSupervision.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_bInterval = strInterval.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toShort(&ok, 10);
 
     return pCANObjFctDigitInEntry;
 
@@ -786,13 +774,13 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
 {
     CANFctModuleDigitOutput* pCANObjFctDigitOutEntry = 0;
     QDomElement child;
-    QString strEnabled, strInactivShdw, strInactivEmcy, strPolarity, strOutvalInactiv, strLivetimeLimit;
+    QString strEnabled, strInactivShdw, strInactivEmcy, strInactivStby, strPolarity, strOutvalInactiv, strLivetimeLimit;
     bool ok;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctDigitOutEntry;
     }
 
@@ -805,42 +793,12 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
 
     pCANObjFctDigitOutEntry = new CANFctModuleDigitOutput();
 
-    pCANObjFctDigitOutEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitOutEntry;
-        return NULL;
-    }
-    pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitOutEntry;
-        return NULL;
-    }
-    pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitOutEntry;
-        return NULL;
-    }
-    pCANObjFctDigitOutEntry->m_sPolarity = strPolarity.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitOutEntry;
-        return NULL;
-    }
-    pCANObjFctDigitOutEntry->m_sOutvalInactiv = strOutvalInactiv.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitOutEntry;
-        return NULL;
-    }
-    pCANObjFctDigitOutEntry->m_sLivetimeLimit = strLivetimeLimit.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctDigitOutEntry;
-        return NULL;
-    }
+    pCANObjFctDigitOutEntry->m_bEnabled           = strEnabled.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_sPolarity          = strPolarity.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toShort(&ok, 10);
 
     return pCANObjFctDigitOutEntry;
 }
@@ -858,20 +816,21 @@ CANFctModuleAnalogInput* HardwareConfiguration::ParseAnalogInPort(const QDomElem
 {
     CANFctModuleAnalogInput* pCANObjFctAnalogInEntry = 0;
     QDomElement child;
-    QString strEnabled, strFastSampling, strSupervision, strLimitAutoSend, strInterval, strDebounce;
-    QString strValue1SendExceed, strValue1SendBelow, strValue1SendDataMsg, strValue1;
-    QString strValue2SendExceed, strValue2SendBelow, strValue2SendDataMsg, strValue2;
+    QString strEnabled, strTimestamp, strFastSampling, strSupervision, strLimitAutoSend, strInterval, strDebounce;
+    QString strValue1SendExceed, strValue1SendBelow, strValue1SendWarnMsg, strValue1SendDataMsg, strValue1;
+    QString strValue2SendExceed, strValue2SendBelow, strValue2SendWarnMsg, strValue2SendDataMsg, strValue2;
     QString strHysteresis;
     bool ok;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctAnalogInEntry;
     }
 
     strEnabled = child.attribute("enabled");
+    strTimestamp = child.attribute("timestamp");
     strFastSampling = child.attribute("fast_sampling");
     strSupervision = child.attribute("limit_supervision");
     strLimitAutoSend = child.attribute("limit_autosend");
@@ -881,109 +840,44 @@ CANFctModuleAnalogInput* HardwareConfiguration::ParseAnalogInPort(const QDomElem
     child = element.firstChildElement("limit_supervision");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctAnalogInEntry;
     }
 
-    strValue1SendExceed = child.attribute("value1_send_at_exceed");
-    strValue1SendBelow = child.attribute("value1_send_at_fall_below");
+    strValue1SendExceed  = child.attribute("value1_send_at_exceed");
+    strValue1SendBelow   = child.attribute("value1_send_at_fall_below");
+    strValue1SendWarnMsg = child.attribute("value1_send_warn_message");
     strValue1SendDataMsg = child.attribute("value1_send_data_message");
-    strValue1 = child.attribute("value1");
+    strValue1            = child.attribute("value1");
 
-    strValue2SendExceed = child.attribute("value2_send_at_exceed");
-    strValue2SendBelow = child.attribute("value2_send_at_fall_below");
+    strValue2SendExceed  = child.attribute("value2_send_at_exceed");
+    strValue2SendBelow   = child.attribute("value2_send_at_fall_below");
+    strValue2SendWarnMsg = child.attribute("value2_send_warn_message");
     strValue2SendDataMsg = child.attribute("value2_send_data_message");
-    strValue2 = child.attribute("value2");
+    strValue2            = child.attribute("value2");
 
-    strHysteresis = child.attribute("hysteresis");
+    strHysteresis        = child.attribute("hysteresis");
 
     pCANObjFctAnalogInEntry = new CANFctModuleAnalogInput();
 
-    pCANObjFctAnalogInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_bFastSampling = strFastSampling.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_sLimitAutoSend = strLimitAutoSend.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_sInterval = strInterval.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_sDebounce = strDebounce.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
+    pCANObjFctAnalogInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bTimeStamp = strTimestamp.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bFastSampling = strFastSampling.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_sLimitAutoSend = strLimitAutoSend.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_sInterval = strInterval.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_sDebounce = strDebounce.toShort(&ok, 10);
 
-    pCANObjFctAnalogInEntry->m_bLimitValue1SendExceed = strValue1SendExceed.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_bLimitValue1SendBelow = strValue1SendBelow.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_bLimitValue1SendDataMsg = strValue1SendDataMsg.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_sLimitValue1 = strValue1.toShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_bLimitValue2SendExceed = strValue2SendExceed.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_bLimitValue2SendBelow = strValue2SendBelow.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_bLimitValue2SendDataMsg = strValue2SendDataMsg.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_sLimitValue2 = strValue2.toShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogInEntry->m_sHysteresis = strHysteresis.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogInEntry;
-        return NULL;
-    }
+    pCANObjFctAnalogInEntry->m_bLimitValue1SendExceed  = strValue1SendExceed.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue1SendBelow   = strValue1SendBelow.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue1SendWarnMsg = strValue1SendWarnMsg.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue1SendDataMsg = strValue1SendDataMsg.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_sLimitValue1            = strValue1.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue2SendExceed  = strValue2SendExceed.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue2SendBelow   = strValue2SendBelow.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue2SendWarnMsg = strValue2SendWarnMsg.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_bLimitValue2SendDataMsg = strValue2SendDataMsg.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_sLimitValue2            = strValue2.toShort(&ok, 10);
+    pCANObjFctAnalogInEntry->m_sHysteresis             = strHysteresis.toShort(&ok, 10);
 
     return pCANObjFctAnalogInEntry;
 }
@@ -1007,7 +901,7 @@ CANFctModuleAnalogOutput* HardwareConfiguration::ParseAnalogOutPort(const QDomEl
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctAnalogOutEntry;
     }
 
@@ -1020,42 +914,13 @@ CANFctModuleAnalogOutput* HardwareConfiguration::ParseAnalogOutPort(const QDomEl
 
     pCANObjFctAnalogOutEntry = new CANFctModuleAnalogOutput();
 
-    pCANObjFctAnalogOutEntry->m_bEnabled = strEnabled.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogOutEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogOutEntry->m_bInaktivAtShutdown = strInactivShdw.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogOutEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogOutEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogOutEntry->m_sBitCount = strResolution.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogOutEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogOutEntry->m_sOutvalInactiv = strOutvalInactiv.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogOutEntry;
-        return NULL;
-    }
-    pCANObjFctAnalogOutEntry->m_sLivetimeLimit = strLivetimeLimit.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctAnalogOutEntry;
-        return NULL;
-    }
+    pCANObjFctAnalogOutEntry->m_bEnabled           = strEnabled.toShort(&ok, 10);
+    pCANObjFctAnalogOutEntry->m_bInaktivAtShutdown = strInactivShdw.toShort(&ok, 10);
+    pCANObjFctAnalogOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toShort(&ok, 10);
+    pCANObjFctAnalogOutEntry->m_sMode              = 0x01; //enable
+    pCANObjFctAnalogOutEntry->m_sBitCount          = strResolution.toShort(&ok, 10);
+    pCANObjFctAnalogOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toShort(&ok, 10);
+    pCANObjFctAnalogOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toShort(&ok, 10);
 
     return pCANObjFctAnalogOutEntry;
 }
@@ -1069,7 +934,7 @@ CANFctModuleAnalogOutput* HardwareConfiguration::ParseAnalogOutPort(const QDomEl
 /****************************************************************************/
 void HardwareConfiguration::ErrorCleanUp(CANFctModuleStepperMotor* pCANFctModuleStepperMotor)
 {
-    m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+    m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
     delete pCANFctModuleStepperMotor;
 }
 
@@ -1094,33 +959,50 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     QDomElement childPosCode;
     QDomElement childMotionProfiles;
     QDomElement childMotionProfile;
-    QString strStepsRev, strDirection, strPositionReset, strPositionMin, strPositionMax, strRunCurrent, strStopCurrent, strStopCurrentDelay;
+    QString strRotationType, strStepsRev, strDirection, strPositionReset, strPositionMin, strPositionMax, strSpeedMin, strSpeedMax, strRunCurrent, strStopCurrent, strStopCurrentDelay;
     QString strRefRunRefPos, strRefRunMaxDistance, strRefRunTimeout, strRefRunReverseDist, strRefRunSlowSpeed, strRefRunHighSpeed, strRefPosOffset;
-    QString strEncoderType, strEncoderRes;
-    QString strLSIndex;
+    QString strEncoderType, strEncoderRes, strEncoderRot;
+    QString strLSOrientation, strLSIndex;
     QString strPosCodeIndex;
     QString strProfileSpeedMin, strProfileSpeedMax, strProfileMicroSteps, strProfileRampSteps;
     QString strProfileAcc, strProfileDec, strProfileAccTime, strProfileDecTime;
     quint8  sProfileIdx;
+/*
+#ifdef PRE_ALFA_TEST
+    QString strRefRunRefPosSkip;
+#endif
+*/
 
     //  motor resolution
     child = element.firstChildElement("rotation");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANFctModuleStepperMotor;
     }
 
+    strRotationType     = child.attribute("type");
     strStepsRev         = child.attribute("steps_revolution");
     strDirection        = child.attribute("direction");
     strPositionReset    = child.attribute("position_reset");
     strPositionMin      = child.attribute("position_min");
     strPositionMax      = child.attribute("position_max");
+    strSpeedMin         = child.attribute("speed_min");
+    strSpeedMax         = child.attribute("speed_max");
     strRunCurrent       = child.attribute("run_cs");
     strStopCurrent      = child.attribute("stop_cs");
     strStopCurrentDelay = child.attribute("stop_cs_delay");
 
     pCANFctModuleStepperMotor = new CANFctModuleStepperMotor();
+
+    if(strRotationType == "rot")
+    {
+        pCANFctModuleStepperMotor->rotationType = CANFctModuleStepperMotor::ROTATION_TYPE_ROT;
+    }
+    else
+    {
+        pCANFctModuleStepperMotor->rotationType = CANFctModuleStepperMotor::ROTATION_TYPE_LINEAR;
+    }
 
     pCANFctModuleStepperMotor->sResolution = strStepsRev.toShort(&ok, 10);
     pCANFctModuleStepperMotor->bDirection = GetRotationFromString(strDirection);
@@ -1128,6 +1010,9 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     pCANFctModuleStepperMotor->sResetPosition = strPositionReset.toShort(&ok, 10);
     pCANFctModuleStepperMotor->lMinPosition = strPositionMin.toLong(&ok, 10);
     pCANFctModuleStepperMotor->lMaxPosition = strPositionMax.toLong(&ok, 10);
+
+    pCANFctModuleStepperMotor->sMinSpeed = strSpeedMin.toShort(&ok, 10);
+    pCANFctModuleStepperMotor->sMaxSpeed = strSpeedMax.toShort(&ok, 10);
 
     pCANFctModuleStepperMotor->runCurrentScale = strRunCurrent.toShort(&ok, 10);
     pCANFctModuleStepperMotor->stopCurrentScale = strStopCurrent.toShort(&ok, 10);
@@ -1140,7 +1025,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     child = element.firstChildElement("reference_run");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
 
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
@@ -1153,32 +1038,49 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     strRefRunSlowSpeed   = child.attribute("slow_speed");
     strRefRunHighSpeed   = child.attribute("high_speed");
     strRefPosOffset      = child.attribute("refpos_offset");
+/*
+#ifdef PRE_ALFA_TEST
+    strRefRunRefPosSkip  = child.attribute("refpos_skip");
+#endif
+*/
 
     pCANFctModuleStepperMotor->refRunRefPos           = strRefRunRefPos.toLong(&ok, 10);
     pCANFctModuleStepperMotor->lRefRunMaxDistance     = strRefRunMaxDistance.toLong(&ok, 10);
+#ifndef PRE_ALFA_TEST
     pCANFctModuleStepperMotor->sRefRunTimeout         = strRefRunTimeout.toShort(&ok, 10);
+#else
+    pCANFctModuleStepperMotor->sRefRunTimeout         = strRefRunTimeout.toUShort(&ok, 10);
+#endif
     pCANFctModuleStepperMotor->lRefRunReverseDistance = strRefRunReverseDist.toLong(&ok, 10);
     pCANFctModuleStepperMotor->sRefRunSlowSpeed       = strRefRunSlowSpeed.toShort(&ok, 10);
     pCANFctModuleStepperMotor->sRefRunHighSpeed       = strRefRunHighSpeed.toShort(&ok, 10);
     pCANFctModuleStepperMotor->lRefPosOffset          = strRefPosOffset.toLong(&ok, 10);
-
+/*
+#ifdef PRE_ALFA_TEST
+    if(strRefRunRefPosSkip.isEmpty()) {
+        pCANFctModuleStepperMotor->refRunRefPosSkip   = 0;
+    }
+    else {
+        pCANFctModuleStepperMotor->refRunRefPosSkip   = strRefRunRefPosSkip.toShort(&ok, 10);
+    }
+#endif
+*/
     //############################
     // position coverage
     childPosCoverage = element.firstChildElement("position_coverage");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
         return pCANFctModuleStepperMotor;
     }
 
-    //##########################
     //  encoder
     child = childPosCoverage.firstChildElement("encoder");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
         return pCANFctModuleStepperMotor;
@@ -1188,34 +1090,29 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     pCANFctModuleStepperMotor->bEncoderType = strEncoderType.toShort(&ok, 10);
     if(pCANFctModuleStepperMotor->bEncoderType)
     {
-        //if encoder exists, read resolution
+        //if encoder exists, read resolutoin and rotation direction
         strEncoderRes = child.attribute("resolution");
+        strEncoderRot = child.attribute("rotation");
         pCANFctModuleStepperMotor->sEncoderResolution = strEncoderRes.toShort(&ok, 10);
-
-        //supervision
-        QString strStepLossWarnLimit, strStepLossErrorLimit;
-
-        strStepLossWarnLimit  = child.attribute("warn_limit");
-        strStepLossErrorLimit = child.attribute("error_limit");
-
-        pCANFctModuleStepperMotor->sStepLossWarnLimit  = strStepLossWarnLimit.toShort(&ok, 10);
-        pCANFctModuleStepperMotor->sStepLossErrorLimit = strStepLossErrorLimit.toShort(&ok, 10);
+        pCANFctModuleStepperMotor->bEncoderDir = GetRotationFromString(strEncoderRot);
     }
 
     //##########################
     //  limit switches
     childLimitSwitches = childPosCoverage.firstChildElement("limitswitches");
-    QString strSampleRate, strDebounce;
-    strSampleRate = childLimitSwitches.attribute("sample_rate");
-    strDebounce = childLimitSwitches.attribute("debounce");
-    pCANFctModuleStepperMotor->bLSSampleRate = strSampleRate.toShort(&ok, 10);
-    pCANFctModuleStepperMotor->bLSDebounce = strDebounce.toShort(&ok, 10);
-
     childLimitSwitch = childLimitSwitches.firstChildElement("limitswitch");
     while (!childLimitSwitch.isNull()) {
         CANFctModuleLimitSwitch LimitSwitch = ParseLimitSwitch(childLimitSwitch);
 
+        strLSOrientation = childLimitSwitch.attribute("orientation");
         strLSIndex = childLimitSwitch.attribute("index");
+
+        if(strLSOrientation == "cw") {
+            LimitSwitch.bOrientation = 1;
+        }
+        else if(strLSOrientation == "ccw") {
+            LimitSwitch.bOrientation = 2;
+        }
 
         LimitSwitch.bIndex = strLSIndex.toShort(&ok, 10);
         if(LimitSwitch.bIndex == 0) {
@@ -1253,6 +1150,24 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
         childPosCode = childPosCode.nextSiblingElement("position_code");
     }
 
+    //##########################
+    //supervision
+    QString strStepLossWarnLimit, strStepLossErrorLimit, strCurrentLimit;
+
+    child = element.firstChildElement("supervision");
+    if(child.isNull())
+    {
+        ErrorCleanUp(pCANFctModuleStepperMotor);
+        return 0;
+    }
+    strStepLossWarnLimit  = child.attribute("steploss_warn_limit");
+    strStepLossErrorLimit = child.attribute("steploss_error_limit");
+    strCurrentLimit       = child.attribute("current_limit");
+
+    pCANFctModuleStepperMotor->sStepLossWarnLimit  = strStepLossWarnLimit.toShort(&ok, 10);
+    pCANFctModuleStepperMotor->sStepLossErrorLimit = strStepLossErrorLimit.toShort(&ok, 10);
+    pCANFctModuleStepperMotor->sCurrentLimit       = strCurrentLimit.toShort(&ok, 10);
+
     //############################
     // motor driver configuration
     pCANFctModuleStepperMotor->driverType = CANFctModuleStepperMotor::DRIVER_DEFAULT;
@@ -1289,7 +1204,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     childMotionProfiles = element.firstChildElement("motion_profiles");
     if(childMotionProfiles.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         delete pCANFctModuleStepperMotor;
         pCANFctModuleStepperMotor = 0;
 
@@ -1347,15 +1262,28 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
 CANFctModuleLimitSwitch HardwareConfiguration::ParseLimitSwitch(const QDomElement &element)
 {
     CANFctModuleLimitSwitch LimitSwitch;
-    QString strPolarity;
+    QDomElement child;
+    QString strPolarity, strSampleRate, strDebounce;
     bool ok;
 
-    strPolarity = element.attribute("polarity");
+    child = element.firstChildElement("configuration");
+    if(child.isNull())
+    {
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        return LimitSwitch;
+    }
+
+    strPolarity = child.attribute("polarity");
+    strSampleRate = child.attribute("sample_rate");
+    strDebounce = child.attribute("debounce");
 
     LimitSwitch.bExists = 1;
     LimitSwitch.bPolarity = strPolarity.toShort(&ok, 10);
+    LimitSwitch.bSampleRate = strSampleRate.toShort(&ok, 10);
+    LimitSwitch.bDebounce = strDebounce.toShort(&ok, 10);
 
     return LimitSwitch;
+
 }
 
 /****************************************************************************/
@@ -1371,13 +1299,21 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
 {
     CANFctModulePosCode PositionCode;
     QString strStop, strStopDir, strPosition, strWidth, strDeviation;
+#ifdef PRE_ALFA_TEST
+    QString strRotDirCheck, strHitSkip;
+#endif
     bool ok;
+
 
     strStop = element.attribute("stop");
     strStopDir = element.attribute("stop_dir");
     strPosition = element.attribute("position");
     strWidth = element.attribute("width");
     strDeviation = element.attribute("deviation");
+#ifdef PRE_ALFA_TEST
+    strRotDirCheck = element.attribute("dir_check");
+    strHitSkip = element.attribute("hit_skip");
+#endif
 
     PositionCode.bStop = strStop.toShort(&ok, 10);
     if(strStopDir == "cw") {
@@ -1387,13 +1323,28 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
         PositionCode.bStopDir = 2;
     }
     else {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return PositionCode;
     }
     PositionCode.bValid = true;
     PositionCode.position = strPosition.toShort(&ok, 10);
     PositionCode.width = strWidth.toShort(&ok, 10);
     PositionCode.deviation = strDeviation.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST
+    if (strRotDirCheck.isEmpty()) {
+        PositionCode.bRotDirCheck = 1;
+    }
+    else {
+        PositionCode.bRotDirCheck = strRotDirCheck.toShort(&ok, 10);
+    }
+
+    if (strHitSkip.isEmpty()) {
+        PositionCode.hitSkip = 0;
+    }
+    else {
+        PositionCode.hitSkip = strHitSkip.toShort(&ok, 10);
+    }
+#endif
 
     return PositionCode;
 }
@@ -1443,7 +1394,7 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     QDomElement child;
     QDomElement childPidControllers;
     QDomElement childPidController;
-    QString strTempTolerance, strTempRange, strSamplingPeriod, strFanSpeed, strFanThreshold,
+    QString strTempTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
             strCurrentGain, strHeaterCurrent, strHeaterThreshold;
     QString strMaxTemperature, strControllerGain, strResetTime, strDerivativeTime;
     bool ok;
@@ -1451,14 +1402,11 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctTempCtrl;
     } 
 
-    pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
-
     strTempTolerance = child.attribute("temp_tolerance");
-    strTempRange = child.attribute("temp_range");
     strSamplingPeriod = child.attribute("sampling_period");
     strFanSpeed = child.attribute("fan_speed");
     strFanThreshold = child.attribute("fan_threshold");
@@ -1466,60 +1414,14 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     strHeaterCurrent = child.attribute("heater_current");
     strHeaterThreshold = child.attribute("heater_threshold");
 
-    if (!strTempTolerance.isEmpty()) {
-        pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
-    }
-    pCANObjFctTempCtrl->bTempRange = strTempRange.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctTempCtrl;
-        return NULL;
-    }
-    pCANObjFctTempCtrl->sSamplingPeriod = strSamplingPeriod.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctTempCtrl;
-        return NULL;
-    }
-    if (!strFanSpeed.isEmpty()) {
-        pCANObjFctTempCtrl->sFanSpeed = strFanSpeed.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
-    }
-    if (!strFanThreshold.isEmpty()) {
-        pCANObjFctTempCtrl->sFanThreshold = strFanThreshold.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
-    }
-    pCANObjFctTempCtrl->sCurrentGain = strCurrentGain.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctTempCtrl;
-        return NULL;
-    }
-    pCANObjFctTempCtrl->sHeaterCurrent = strHeaterCurrent.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctTempCtrl;
-        return NULL;
-    }
-    pCANObjFctTempCtrl->sHeaterThreshold = strHeaterThreshold.toUShort(&ok);
-    if (!ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctTempCtrl;
-        return NULL;
-    }
+    pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
+    pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sSamplingPeriod = strSamplingPeriod.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sFanSpeed = strFanSpeed.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sFanThreshold = strFanThreshold.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentGain = strCurrentGain.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sHeaterCurrent = strHeaterCurrent.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sHeaterThreshold = strHeaterThreshold.toShort(&ok, 10);
 
     //############################
     // PID controller parameters
@@ -1528,9 +1430,11 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     childPidControllers = element.firstChildElement("pid_controllers");
     if(childPidControllers.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         delete pCANObjFctTempCtrl;
-        return NULL;
+        pCANObjFctTempCtrl = 0;
+
+        return pCANObjFctTempCtrl;
     }
 
     // loop thru the pid controllers, create a data instace for storage and place it into the list
@@ -1542,38 +1446,93 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
         strResetTime = childPidController.attribute("reset_time");
         strDerivativeTime = childPidController.attribute("derivative_time");
 
-        PidController.sMaxTemperature = strMaxTemperature.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
-        PidController.sControllerGain = strControllerGain.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
-        PidController.sResetTime = strResetTime.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
-        PidController.sDerivativeTime = strDerivativeTime.toUShort(&ok);
-        if (!ok) {
-            m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-            delete pCANObjFctTempCtrl;
-            return NULL;
-        }
+        PidController.sMaxTemperature = strMaxTemperature.toShort(&ok, 10);
+        PidController.sControllerGain = strControllerGain.toShort(&ok, 10);
+        PidController.sResetTime = strResetTime.toShort(&ok, 10);
+        PidController.sDerivativeTime = strDerivativeTime.toShort(&ok, 10);
 
         pCANObjFctTempCtrl->listPidControllers.append(PidController);
+
         childPidController = childPidController.nextSiblingElement("pid_controller");
     }
 
     return pCANObjFctTempCtrl;
 }
+#ifdef PRE_ALFA_TEST
+CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomElement &element)
+{
+    CANFctModulePressureCtrl* pCANObjFctPressureCtrl = 0;
+    QDomElement child;
+    QDomElement childPidControllers;
+    QDomElement childPidController;
+    QString strPressureTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
+            strCurrentGain, strPumpCurrent, strPumpThreshold;
+    QString strMaxPressure, strMinPressure, strControllerGain, strResetTime, strDerivativeTime;
+    bool ok;
 
+    child = element.firstChildElement("configuration");
+    if(child.isNull())
+    {
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        return pCANObjFctPressureCtrl;
+    }
+
+    strPressureTolerance = child.attribute("pressure_tolerance");
+    strSamplingPeriod = child.attribute("sampling_period");
+    strFanSpeed = child.attribute("fan_speed");
+    strFanThreshold = child.attribute("fan_threshold");
+    strCurrentGain = child.attribute("current_gain");
+    strPumpCurrent = child.attribute("pump_current");
+    strPumpThreshold = child.attribute("pump_threshold");
+
+    pCANObjFctPressureCtrl = new CANFctModulePressureCtrl();
+    pCANObjFctPressureCtrl->bPressureTolerance = strPressureTolerance.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sSamplingPeriod = strSamplingPeriod.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sFanSpeed = strFanSpeed.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sFanThreshold = strFanThreshold.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sCurrentGain = strCurrentGain.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sPumpCurrent = strPumpCurrent.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sPumpThreshold = strPumpThreshold.toShort(&ok, 10);
+
+    //############################
+    // PID controller parameters
+    CANPressureFctPidController PidController;
+
+    childPidControllers = element.firstChildElement("pid_controllers");
+    if(childPidControllers.isNull())
+    {
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        delete pCANObjFctPressureCtrl;
+        pCANObjFctPressureCtrl = 0;
+
+        return pCANObjFctPressureCtrl;
+    }
+
+    // loop thru the pid controllers, create a data instace for storage and place it into the list
+    childPidController = childPidControllers.firstChildElement("pid_controller");
+    while (!childPidController.isNull())
+    {
+        strMaxPressure = childPidController.attribute("max_pressure");
+        strMinPressure = childPidController.attribute("min_pressure");
+        strControllerGain = childPidController.attribute("controller_gain");
+        strResetTime = childPidController.attribute("reset_time");
+        strDerivativeTime = childPidController.attribute("derivative_time");
+
+        PidController.sMaxPressure = strMaxPressure.toShort(&ok, 10);
+        PidController.sMinPressure = strMinPressure.toShort(&ok, 10);
+        PidController.sControllerGain = strControllerGain.toShort(&ok, 10);
+        PidController.sResetTime = strResetTime.toShort(&ok, 10);
+        PidController.sDerivativeTime = strDerivativeTime.toInt(&ok, 10);
+
+        pCANObjFctPressureCtrl->listPidControllers.append(PidController);
+
+        childPidController = childPidController.nextSiblingElement("pid_controller");
+    }
+
+    return pCANObjFctPressureCtrl;
+}
+
+#endif
 /****************************************************************************/
 /*!
  *  \brief  Parse joystick element from xml
@@ -1587,39 +1546,23 @@ CANFctModuleJoystick* HardwareConfiguration::ParseJoystick(const QDomElement &el
 {
     CANFctModuleJoystick* pCANObjFctJoystick = 0;
     QDomElement child;
-    QString strSamplingRate, strUpperThreshold, strLowerThreshold;
-    bool Ok;
+    QString strType, strProtocol;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctJoystick;
     }
 
-    strSamplingRate = child.attribute("sampling_rate");
-    strUpperThreshold = child.attribute("upper_threshold");
-    strLowerThreshold = child.attribute("lower_threshold");
+    strType = child.attribute("type");
 
     pCANObjFctJoystick = new CANFctModuleJoystick();
-    pCANObjFctJoystick->m_SamplingRate = strSamplingRate.toUShort(&Ok);
-    if (!Ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctJoystick;
-        return NULL;
-    }
-    pCANObjFctJoystick->m_UpperThreshold = strUpperThreshold.toUShort(&Ok);
-    if (!Ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctJoystick;
-        return NULL;
-    }
-    pCANObjFctJoystick->m_LowerThreshold = strLowerThreshold.toUShort(&Ok);
-    if (!Ok) {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
-        delete pCANObjFctJoystick;
-        return NULL;
-    }
+    //pCANObjFctJoystick->m_bType = strType.toShort(&ok, 10);
+    pCANObjFctJoystick->m_bCommModeThresHold = 0;
+    pCANObjFctJoystick->m_sSampleRate = 0;
+    pCANObjFctJoystick->m_sUpperThreshold = 0;
+    pCANObjFctJoystick->m_sLowerThreshold = 0;
 
     return pCANObjFctJoystick;
 }
@@ -1637,11 +1580,12 @@ CANFctModuleUART* HardwareConfiguration::ParseUART(const QDomElement &element)
 {
     CANFctModuleUART* pCANObjFctUART = 0;
     QDomElement child;
+    QString strType, strProtocol;
 
     child = element.firstChildElement("configuration");
     if(child.isNull())
     {
-        m_EventCode = EVENT_DEVICECONTROL_ERROR_HW_CFG_FORMAT_SLV;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
         return pCANObjFctUART;
     }
 
@@ -1850,6 +1794,12 @@ CModuleConfig::CANObjectType_t HardwareConfiguration::GetObjectTypeFromString(co
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UART;
     }
+#ifdef PRE_ALFA_TEST
+    else if(strCANObjectType == "pressure_control")
+    {
+        eObjectType = CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL;
+    }
+#endif
     else
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UNDEF;
@@ -1912,6 +1862,44 @@ QString HardwareConfiguration::GetLabelFromObjectType(const CModuleConfig::CANOb
 
     return strCANObjectType;
 
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Returns the Device instance ID from a quint32 value
+ *
+ *  \iparam DeviceValue = Device instance identifier as quint32
+ *
+ *  \return Device instance ID as DevInstanceID_t
+ */
+/****************************************************************************/
+DevInstanceID_t HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
+{
+    DevInstanceID_t DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
+
+    switch (DeviceValue)
+    {
+        case 0x000080C0:
+            DevInstanceID = DEVICE_INSTANCE_ID_ROTARY_VALVE;
+            break;
+        case 0x000080C1:
+            DevInstanceID = DEVICE_INSTANCE_ID_AIR_LIQUID;
+        break;
+        case 0x000080C2:
+            DevInstanceID = DEVICE_INSTANCE_ID_OVEN;   //!< Oven
+        break;
+        case 0x000080C3:
+            DevInstanceID = DEVICE_INSTANCE_ID_RETORT; //!< Retort
+        break;
+        case 0x000080C4:
+            DevInstanceID = DEVICE_INSTANCE_ID_PERIPHERY; //!< Miscellaneous
+        break;
+        default:
+            DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
+            break;
+    }
+
+    return DevInstanceID;
 }
 
 /*****************************************************************************/

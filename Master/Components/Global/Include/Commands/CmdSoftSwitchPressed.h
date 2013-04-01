@@ -1,7 +1,7 @@
 #ifndef CMDSOFTSWITCHPRESSED_H
 #define CMDSOFTSWITCHPRESSED_H
 #include <Global/Include/Commands/Command.h>
-#include <DeviceControl/Include/Global/DeviceControl.h>
+#include <DeviceControl/Include/Global/DeviceControlGlobal.h>
 
 namespace Global {
 

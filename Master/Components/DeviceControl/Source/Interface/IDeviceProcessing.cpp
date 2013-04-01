@@ -24,9 +24,10 @@
 
 #include <QMutex>
 
-#include "Global/Include/EventObject.h"
+//#include "DataLogging/Include/LoggingObject.h"
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
+#include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "DeviceControl/Include/SlaveModules/AnalogInput.h"
 #include "DeviceControl/Include/SlaveModules/AnalogOutput.h"
@@ -35,9 +36,10 @@
 #include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 #include "DeviceControl/Include/SlaveModules/Rfid15693.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-#include "DeviceControl/Include/Devices/DeviceBase.h"
+#ifdef PRE_ALFA_TEST
+#include "DeviceControl/Include/SlaveModules/PressureControl.h"
+#endif
 #include "Global/Include/AdjustedTime.h"
-#include "Global/Include/EventObject.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 
@@ -50,16 +52,36 @@ namespace DeviceControl
  */
 /****************************************************************************/
 IDeviceProcessing::IDeviceProcessing() :
-    m_DevProc(this),
-    m_DevProcThread(this),
-    m_DevProcTimer(this),
-    m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
-    m_reqTaskParameter1(0), m_reqTaskParameter2(0)
+        m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
+        m_reqTaskParameter1(0), m_reqTaskParameter2(0)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
+    m_instanceID = DEVICE_INSTANCE_ID_DEVPROC;
+
+    /* activate the logging */
+    FILE* pFile = fopen("device_control.log", "w");
+    Output2FILE::Stream() = pFile;
+
+    mp_DevProc = new DeviceProcessing(this);
 
     moveToThread(&m_DevProcThread);
+
+    CONNECTSIGNALSLOT(&m_DevProcTimer, timeout(), this, HandleTasks());
+    m_DevProcTimer.start(10);
+
+    //start the DeviceProcessing thread
+    m_DevProcThread.start();
+
+    CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t), this, OnInitializationFinished(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t), this, OnConfigurationFinished(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportStartNormalOperationMode(ReturnCode_t), this, OnStartNormalOperationMode(ReturnCode_t));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime),
+                      this, OnError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString),
+                      this, OnErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
 }
 
 /****************************************************************************/
@@ -72,49 +94,13 @@ IDeviceProcessing::~IDeviceProcessing()
     try
     {
         m_DevProcThread.quit();
-
-        if (!m_DevProcThread.wait()) {
-            LOGANDTHROW(EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR);
-        }
-
-//        delete mp_DevProc;
+        m_DevProcThread.wait();
+        delete mp_DevProc;
     }
     catch (...)
     {
     }
 }
-
-
-void IDeviceProcessing::Start()
-{
-
-    /* activate the logging */
-    FILE* pFile = fopen("device_control.log", "w");
-    Output2FILE::Stream() = pFile;
-
-    CONNECTSIGNALSLOT(&m_DevProc, ReportInitializationFinished(ReturnCode_t),
-                      this, OnInitializationFinished(ReturnCode_t));
-    CONNECTSIGNALSLOT(&m_DevProc, ReportConfigurationFinished(ReturnCode_t),
-                      this, OnConfigurationFinished(ReturnCode_t));
-    CONNECTSIGNALSLOT(&m_DevProc, ReportStartNormalOperationMode(ReturnCode_t),
-                      this, OnStartNormalOperationMode(ReturnCode_t));
-    CONNECTSIGNALSLOT(&m_DevProc, ReportEvent(quint32, quint16, QDateTime),
-                      this, OnEvent(quint32, quint16, QDateTime));
-    CONNECTSIGNALSLOT(&m_DevProc, ReportEventWithInfo(quint32, quint16, QDateTime, QString),
-                      this, OnEventWithInfo(quint32, quint16, QDateTime, QString));
-    CONNECTSIGNALSLOT(&m_DevProc, ReportDiagnosticServiceClosed(ReturnCode_t),
-                      this, OnDiagnosticServiceClosed(ReturnCode_t));
-    CONNECTSIGNALSLOT(&m_DevProc, ReportDestroyFinished(),
-                      this, OnDestroyFinished());
-
-    // Shutdown signal to device threads
-    CONNECTSIGNALSIGNAL(this, DeviceShutdown(), &m_DevProc, DeviceShutdown());
-
-    //start the DeviceProcessing thread
-    CONNECTSIGNALSLOT(&m_DevProcThread, started(), this, ThreadStarted());
-    m_DevProcThread.start();
-}
-
 
 /****************************************************************************/
 /*!
@@ -127,11 +113,11 @@ void IDeviceProcessing::Start()
  *  \iparam TimeStamp  = Error time stamp
  */
 /****************************************************************************/
-void IDeviceProcessing::OnEvent(quint32 EventCode, quint16 EventData, QDateTime TimeStamp)
+void IDeviceProcessing::OnError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp)
 {
-    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::OnEvent (" << EventCode << ", " << EventData << ", "
-                                   << TimeStamp.toString().constData() << ")";
-    emit ReportEvent(EventCode, EventData, TimeStamp);
+    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::ThrowError (" << std::hex << (int) InstanceID << ", " <<
+                                      std::hex << ErrorGroup << ", " << std::hex << ErrorID << ", " << std::hex << ErrorData << ")";
+    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, TimeStamp);
 }
 
 /****************************************************************************/
@@ -146,11 +132,26 @@ void IDeviceProcessing::OnEvent(quint32 EventCode, quint16 EventData, QDateTime 
  *  \iparam ErrorInfo  = Additional error information
  */
 /****************************************************************************/
-void IDeviceProcessing::OnEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime TimeStamp, QString EventInfo)
+void IDeviceProcessing::OnErrorWithInfo(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp, QString ErrorInfo)
 {
-    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::OnEventWithInfo (" << EventCode << ", " << EventData << ", "
-                                   << TimeStamp.toString().constData() << ", " << EventInfo.constData() << ")";
-    emit ReportEventWithInfo(EventCode, EventData, TimeStamp, EventInfo);
+    FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing: emit event: " << std::hex << ErrorGroup << ", " <<
+                                      std::hex << ErrorID << ", " <<
+                                      ErrorData << ", '" << ErrorInfo.toStdString() << "'!";
+    emit ReportErrorWithInfo(InstanceID, ErrorGroup, ErrorID, ErrorData, TimeStamp, ErrorInfo);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Forward the serial number reading to implementation class
+ *
+ *  \iparam SerialNo = reference to a QString object, will be filled with the serial number
+ *
+ *  \return TRUE if the serial number has been filled, otherwise FALSE
+ */
+/****************************************************************************/
+bool IDeviceProcessing::GetSerialNumber(QString& SerialNo)
+{
+    return DeviceProcessing::GetSerialNumber(SerialNo);
 }
 
 /****************************************************************************/
@@ -166,7 +167,7 @@ void IDeviceProcessing::HandleTasks()
     }
 
     m_Mutex.lock();
-    m_DevProc.HandleTasks();
+    mp_DevProc->HandleTasks();
     m_Mutex.unlock();
 }
 
@@ -190,7 +191,7 @@ void IDeviceProcessing::HandleTaskRequestState()
     {
         FILE_LOG_L(laDEVPROC, llINFO) << " HandleTaskRequestState - AddTask";
         m_Mutex.lock();
-        retCode = m_DevProc.ActivateTask(m_reqTaskID, m_reqTaskParameter1, m_reqTaskParameter2);
+        retCode = mp_DevProc->ActivateTask(m_reqTaskID, m_reqTaskParameter1, m_reqTaskParameter2);
         m_Mutex.unlock();
         if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
         {
@@ -200,9 +201,8 @@ void IDeviceProcessing::HandleTaskRequestState()
         else
         {
             QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-            Global::EventObject::Instance().RaiseEvent(EVENT_DEVICECONTROL_ERROR_ACTIVATE_TASK,
-                                                       Global::FmtArgs() << (quint16)m_reqTaskID);
-            emit ReportEvent(EVENT_DEVICECONTROL_ERROR_ACTIVATE_TASK, (quint16)m_reqTaskID, errorTimeStamp);
+            emit ReportError(m_instanceID, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_ACTIVATE_TASK_FAILED,
+                             m_reqTaskID, errorTimeStamp);
         }
     }
 }
@@ -227,7 +227,7 @@ ReturnCode_t IDeviceProcessing::StartConfigurationService()
 
     FILE_LOG_L(laCONFIG, llDEBUG) << " IDeviceProcessing::StartConfigurationService";
     m_Mutex.lock();
-    DeviceProcessing::DeviceProcessingMainState_t State = m_DevProc.GetState();
+    DeviceProcessing::DeviceProcessingMainState_t State = mp_DevProc->GetState();
     m_Mutex.unlock();
     if(State < DeviceProcessing::DP_MAIN_STATE_WAIT_FOR_CONFIG)
     {
@@ -265,7 +265,7 @@ ReturnCode_t IDeviceProcessing::StartConfigurationService()
 ReturnCode_t IDeviceProcessing::RestartConfigurationService()
 {
     m_Mutex.lock();
-    m_DevProc.Initialize();
+    mp_DevProc->Initialize();
     m_Mutex.unlock();
     return StartConfigurationService();
 }
@@ -283,7 +283,7 @@ ReturnCode_t IDeviceProcessing::RestartConfigurationService()
 void IDeviceProcessing::OnInitializationFinished(ReturnCode_t HdlInfo)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing::RouteInitializationFinished:" << (int) HdlInfo;
-    emit ReportInitializationFinished(HdlInfo);
+    emit ReportInitializationFinished(m_instanceID, HdlInfo);
 }
 
 /****************************************************************************/
@@ -299,7 +299,7 @@ void IDeviceProcessing::OnInitializationFinished(ReturnCode_t HdlInfo)
 void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing::RouteConfigurationFinished: " << (int) HdlInfo;
-    emit ReportConfigurationFinished(HdlInfo);
+    emit ReportConfigurationFinished(m_instanceID, HdlInfo);
 }
 
 /****************************************************************************/
@@ -314,7 +314,7 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
 /****************************************************************************/
 void IDeviceProcessing::OnStartNormalOperationMode(ReturnCode_t HdlInfo)
 {
-    emit ReportStartNormalOperationMode(HdlInfo);
+    emit ReportStartNormalOperationMode(m_instanceID, HdlInfo);
 }
 
 /****************************************************************************/
@@ -373,13 +373,14 @@ ReturnCode_t IDeviceProcessing::CloseDiagnosticService()
  *          otherwise the error code, refer to ReturnCode_t definition
  */
 /****************************************************************************/
-void IDeviceProcessing::OnDiagnosticServiceClosed(ReturnCode_t DiagnosticResult)
+void IDeviceProcessing::OnDiagnosticServiceClosed(qint16 DiagnosticResult)
 {
     QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
 
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing: emit i_diagnosticFinished";
 
-    emit ReportEvent(EVENT_DEVICECONTROL_ERROR_START_DIAG, (quint16)DiagnosticResult, errorTimeStamp);
+    emit ReportError(m_instanceID, EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_DIAG_FINISHED,
+                     DiagnosticResult, errorTimeStamp);
 }
 
 /****************************************************************************/
@@ -415,10 +416,10 @@ ReturnCode_t IDeviceProcessing::StartAdjustmentService()
  *  \return The pointer to the specified device, if any
  */
 /****************************************************************************/
-CDeviceBase* IDeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
+CBaseDevice* IDeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 {
     QMutexLocker locker(&m_Mutex);
-    return m_DevProc.GetDevice(InstanceID);
+    return mp_DevProc->GetDevice(InstanceID);
 }
 
 /****************************************************************************/
@@ -436,13 +437,7 @@ CDeviceBase* IDeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 CBaseModule* IDeviceProcessing::GetNode(bool First)
 {
     QMutexLocker locker(&m_Mutex);
-    return m_DevProc.GetCANNodeFromObjectTree(First);
-}
-
-void IDeviceProcessing::SetAdjustmentList(DataManager::CAdjustment AdjustmentList)
-{
-    QMutexLocker locker(&m_Mutex);
-    m_DevProc.SetAdjustmentList(AdjustmentList);
+    return mp_DevProc->GetCANNodeFromObjectTree(First);
 }
 
 /****************************************************************************/
@@ -532,27 +527,12 @@ void IDeviceProcessing::Destroy()
     m_reqTaskPriority = DeviceProcTask::TASK_PRIO_MIDDLE;
     m_reqTaskParameter1 = 0;
     m_reqTaskParameter2 = 0;
-
-    emit DeviceShutdown();
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Received when device processing is stopped
- *
- *      This function stops the task loop of the device control layer.
- */
-/****************************************************************************/
 void IDeviceProcessing::OnDestroyFinished()
 {
     m_DevProcTimer.stop();
     emit ReportDestroyFinished();
-}
-
-void IDeviceProcessing::ThreadStarted()
-{
-    CONNECTSIGNALSLOT(&m_DevProcTimer, timeout(), this, HandleTasks());
-    m_DevProcTimer.start(10);
 }
 
 } // namespace

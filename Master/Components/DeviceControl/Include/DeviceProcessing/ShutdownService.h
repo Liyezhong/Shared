@@ -80,11 +80,11 @@ private:
     CANCommunicator*  m_pCANCommunicator;   ///< pointer to the CAN communicator
     ObjectTree*       m_pObjectTree;        ///< pointer to object tree, which keeps all CAN objects
 
-    ReturnCode_t m_lastEventHdlInfo;        ///< return value after a failed function call
-    quint16      m_lastEventGroup;          ///< error group of the error causing functionality
-    quint16      m_lastEventCode;           ///< error code of the error causing functionality
-    quint16      m_lastEventData;           ///< additional error data, filled by the error causing functionality
-    QDateTime    m_lastEventTime;           ///< time of error detection
+    ReturnCode_t m_LastErrorHdlInfo;        ///< return value after a failed function call
+    quint16      m_LastErrorGroup;          ///< error group of the error causing functionality
+    quint16      m_LastErrorCode;           ///< error code of the error causing functionality
+    quint16      m_LastErrorData;           ///< additional error data, filled by the error causing functionality
+    QDateTime    m_LastErrorTime;           ///< time of error detection
 
     Global::MonotonicTime m_StateTimer;     ///< timer for timeout observation
     qint16 m_StateTimespan;                 ///< max. time delay of current active timeout observation

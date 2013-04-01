@@ -27,7 +27,7 @@
 
 #include <sys/socket.h>
 #include <linux/can.h>
-#include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 
 namespace DeviceControl
 {

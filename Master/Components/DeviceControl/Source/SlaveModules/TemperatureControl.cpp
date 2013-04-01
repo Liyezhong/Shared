@@ -37,7 +37,7 @@ namespace DeviceControl
 #define TEMP_CTRL_ACTIVE_BITPOS 0   //!< bit position state
 #define TEMP_CTRL_TUNINGBITPOS 1    //!< bit position tuning
 #define TEMP_CTRL_PHASE_BITPOS 2    //!< bit position phase
-#define TEMP_CTRL_VOLTAGE_BITPOS 3  //!< bit position voltage
+#define TEMP_CTRL_VOLTAGE_BITPOS 3  //!< bit position phase
 
 /****************************************************************************/
 /*!
@@ -66,6 +66,12 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_mainState = FM_MAIN_STATE_BOOTUP;
     // configuration state
     m_subStateConfig = FM_TEMP_SUB_STATE_CONFIG_INIT;
+
+    //module command  array initialisation
+    for(quint8 idx = 0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
+    {
+        m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+    }
 }
 
 /****************************************************************************/
@@ -75,6 +81,7 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
 /****************************************************************************/
 CTemperatureControl::~CTemperatureControl()
 {
+    /// \todo Auto-generated destructor stub
 }
 
 /****************************************************************************/
@@ -121,9 +128,6 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     quint8 bChannel;
     const quint8 ModuleID = MODULE_ID_TEMPERATURE;
 
-    if (m_pCANObjectConfig == NULL) {
-        return DCL_ERR_NULL_PTR_ACCESS;
-    }
     bChannel = m_pCANObjectConfig->m_sChannel;
 
     RetVal = InitializeEventCANMessages(ModuleID);
@@ -148,7 +152,9 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     m_unCanIDNotiAutoTune       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiAutoTune", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiInRange        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiInRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
-
+#ifdef PRE_ALFA_TEST
+    m_unCanIDLevelSensorState   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlLevelSensorState", bChannel, m_pParent->GetNodeID());
+#endif
     FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
     FILE_LOG_L(laINIT, llDEBUG) << "   EventWarning       : 0x" << std::hex << m_unCanIDEventWarning;
@@ -174,7 +180,9 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiAutoTune       : 0x" << std::hex << m_unCanIDNotiAutoTune;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiInRange        : 0x" << std::hex << m_unCanIDNotiInRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiOutOfRange     : 0x" << std::hex << m_unCanIDNotiOutOfRange;
-
+#ifdef PRE_ALFA_TEST
+    FILE_LOG_L(laINIT, llDEBUG) << "   LevelSensorState   : 0x" << std::hex << m_unCanIDLevelSensorState;
+#endif
     return RetVal;
 }
 
@@ -230,6 +238,12 @@ ReturnCode_t CTemperatureControl::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDNotiOutOfRange, this);
     }
+#ifdef PRE_ALFA_TEST
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDLevelSensorState, this);
+    }
+#endif
     return RetVal;
 }
 
@@ -265,10 +279,6 @@ void CTemperatureControl::HandleTasks()
         {
             ReturnCode_t RetVal;
             CANFctModuleTempCtrl* pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
-            if (pCANObjConfTemp == NULL) {
-                m_mainState = FM_MAIN_STATE_ERROR;
-                return;
-            }
 
             RetVal = SendCANMsgFanWatchdogSet();
             if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
@@ -334,47 +344,56 @@ void CTemperatureControl::HandleIdleState()
 void CTemperatureControl::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
+    bool ActiveCommandFound = false;
 
-    QMutableListIterator<ModuleCommand_t *> Iterator(m_ModuleCommand);
-    while(Iterator.hasNext())
+    for(quint8 idx = 0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
     {
-        ModuleCommand_t *p_ModuleCommand = Iterator.next();
-        bool RemoveCommand = false;
-
-        if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
+        if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ)
         {
             // forward the motor command to the motor function module on slave side by sending
             // the corresponding CAN-message
-            p_ModuleCommand->State = MODULE_CMD_STATE_REQ_SEND;
-            p_ModuleCommand->ReqSendTime.Trigger();
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_SET_TEMP)
+            {
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl set reference temperature";
 
-            if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_ACTTEMP)
+                //send the reference temperature to the slave
+                RetVal = SendCANMsgSetTemperature(m_ModuleCommand[idx].Temperature, m_ModuleCommand[idx].TempCtrlOpMode,
+                                                  m_ModuleCommand[idx].TempCtrlState, m_ModuleCommand[idx].SlopeTempChange);
+
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                //because there is no slave acknowledge, we send our own acknowldege
+                emit ReportRefTemperature(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Temperature);
+            }
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_ACTTEMP)
             {
                 //send the act temperature request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDTemperature CAN-message
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl send temp. request";
-                RetVal = SendCANMsgServiceSensorRequest(p_ModuleCommand->Index);
+                RetVal = SendCANMsgServiceSensorRequest(m_ModuleCommand[idx].Index);
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
                 }
                 else
                 {
-                    emit ReportActTemperature(GetModuleHandle(), RetVal, p_ModuleCommand->Index, 0);
+                    emit ReportActTemperature(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_SET_OPMODE)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_SET_OPMODE)
             {
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl set operation mode";
 
                 //send the temperature ctrl operating mode to the slave
-                RetVal = SendCANMsgSetTemperature();
+                RetVal = SendCANMsgSetTemperature(m_ModuleCommand[idx].Temperature, m_ModuleCommand[idx].TempCtrlOpMode,
+                                                  m_ModuleCommand[idx].TempCtrlState, m_ModuleCommand[idx].SlopeTempChange);
 
-                RemoveCommand = true;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowledge
-                emit ReportSetOperatingModeAckn(GetModuleHandle(), RetVal, m_TempCtrlOpMode);
+                emit ReportSetOperatingModeAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].TempCtrlOpMode);
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_ACTOPMODE)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_ACTOPMODE)
             {
                 //send the act operation mode request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDTemperature CAN-message
@@ -382,25 +401,27 @@ void CTemperatureControl::HandleCommandRequestTask()
                 RetVal = SendCANMsgTemperatureRequest();
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
                 }
                 else
                 {
                     emit ReportActOperatingMode(GetModuleHandle(), RetVal, TEMPCTRL_OPMODE_UNDEF);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_SET_STATUS)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_SET_STATUS)
             {
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl set status";
 
                 //send the temperature ctrl status to the slave
-                RetVal = SendCANMsgSetTemperature();
+                RetVal = SendCANMsgSetTemperature(m_ModuleCommand[idx].Temperature, m_ModuleCommand[idx].TempCtrlOpMode,
+                                                  m_ModuleCommand[idx].TempCtrlState, m_ModuleCommand[idx].SlopeTempChange);
 
-                RemoveCommand = true;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
-                emit ReportSetStatusAckn(GetModuleHandle(), RetVal, m_TempCtrlState, m_Temperature);
+                emit ReportSetStatusAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].TempCtrlState);
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_ACTSTATUS)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_ACTSTATUS)
             {
                 //send the act temperature ctrl. status request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDTemperature CAN-message
@@ -408,55 +429,63 @@ void CTemperatureControl::HandleCommandRequestTask()
                 RetVal = SendCANMsgTemperatureRequest();
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+
+#ifdef PRE_ALFA_TEST
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ*10;
+#else
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+#endif
                 }
                 else
                 {
                     emit ReportActStatus(GetModuleHandle(), RetVal, TEMPCTRL_STATUS_UNDEF, TEMPCTRL_VOLTAGE_UNDEF);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_RESET_OPTIME)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_RESET_OPTIME)
             {
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl reset heater operating time";
 
                 //send the reset command to the slave
-                RetVal = SendCANMsgHeaterTimeSet(p_ModuleCommand->Index);
+                RetVal = SendCANMsgHeaterTimeSet(m_ModuleCommand[idx].Index);
 
-                RemoveCommand = true;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
-                emit ReportResetHeaterOperatingTime(GetModuleHandle(), RetVal, p_ModuleCommand->Index);
+                emit ReportResetHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index);
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_OPTIME)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_OPTIME)
             {
                 //send the act temperature ctrl. get operating time request to the slave, this command
                 //will be acknowledged by the receiption of the m_unCanIDHeaterTime CAN-message
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl send get operating time";
-                RetVal = SendCANMsgHeaterTimeReq(p_ModuleCommand->Index);
+                RetVal = SendCANMsgHeaterTimeReq(m_ModuleCommand[idx].Index);
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
                 }
                 else
                 {
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, p_ModuleCommand->Index, 0);
+                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
             {
                 //send the act temperature ctrl. get fan speed request to the slave, this command
                 //will be acknowledged by the receiption of the m_unCanIDFanSpeed CAN-message
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl send temp. get fan speed";
-                RetVal = SendCANMsgServiceFanReq(p_ModuleCommand->Index);
+                RetVal = SendCANMsgServiceFanReq(m_ModuleCommand[idx].Index);
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
                 }
                 else
                 {
-                    emit ReportFanSpeed(GetModuleHandle(), RetVal, p_ModuleCommand->Index, 0);
+                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
                 }
             }
-            else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
             {
                 //send the act temperature ctrl. get fan speed request to the slave, this command
                 //will be acknowledged by the receiption of the m_unCanIDFanSpeed CAN-message
@@ -464,74 +493,91 @@ void CTemperatureControl::HandleCommandRequestTask()
                 RetVal = SendCANMsgHardwareReq();
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    p_ModuleCommand->Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
                 }
                 else
                 {
                     emit ReportHardwareStatus(GetModuleHandle(), RetVal, 0, 0, 0, 0, 0);
                 }
             }
-
-            // Check for success
-            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+#ifdef PRE_ALFA_TEST
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_SET_PID)
             {
-                RemoveCommand = true;
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl set PID parameters";
+
+                //send the PID parameters to the slave
+                RetVal = SendCANMsgPidParametersSet(m_ModuleCommand[idx].MaxTemperature,
+                                                    m_ModuleCommand[idx].ControllerGain, m_ModuleCommand[idx].ResetTime, m_ModuleCommand[idx].DerivativeTime);
+
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                //because there is no slave acknowledge, we send our own acknowldege
+                emit ReportSetPidAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].MaxTemperature,
+                                      m_ModuleCommand[idx].ControllerGain, m_ModuleCommand[idx].ResetTime, m_ModuleCommand[idx].DerivativeTime);
+            }
+#endif
+
+            //---------------------------
+            //check for success
+            if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+            {
+                //trigger timeout supervision
+                m_ModuleCommand[idx].ReqSendTime.Trigger();
+            }
+            else
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
             }
         }
-        else if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ_SEND)
+        else if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND)
         {
-            // Check active module commands for timeout
-            if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
+            // check avtive motor commands for timeout
+            ActiveCommandFound = true;
+            if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
-                RemoveCommand = true;
-
-                if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_ACTTEMP)
+                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_ACTTEMP)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Act temp. request timeout error.";
-                    emit ReportActTemperature(GetModuleHandle(), DCL_ERR_TIMEOUT, p_ModuleCommand->Index, 0);
+                    emit ReportActTemperature(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_ACTOPMODE)
+                else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_ACTOPMODE)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Act op. mode request timeout error.";
-                    emit ReportActOperatingMode(GetModuleHandle(), DCL_ERR_TIMEOUT, TEMPCTRL_OPMODE_UNDEF);
+                    emit ReportActOperatingMode(GetModuleHandle(), m_lastErrorHdlInfo, TEMPCTRL_OPMODE_UNDEF);
                 }
-                else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_ACTSTATUS)
+                else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_ACTSTATUS)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Act status request timeout error.";
-                    emit ReportActStatus(GetModuleHandle(), DCL_ERR_TIMEOUT, TEMPCTRL_STATUS_UNDEF, TEMPCTRL_VOLTAGE_UNDEF);
+                    emit ReportActStatus(GetModuleHandle(), m_lastErrorHdlInfo, TEMPCTRL_STATUS_UNDEF, TEMPCTRL_VOLTAGE_UNDEF);
                 }
-                else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_OPTIME)
+                else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_OPTIME)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Operating time request timeout error.";
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), DCL_ERR_TIMEOUT, p_ModuleCommand->Index, 0);
+                    emit ReportHeaterOperatingTime(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
+                else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Fan speed request timeout error.";
-                    emit ReportFanSpeed(GetModuleHandle(), DCL_ERR_TIMEOUT, p_ModuleCommand->Index, 0);
+                    emit ReportFanSpeed(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
                 }
-                else if(p_ModuleCommand->Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
+                else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Hardware information request timeout error.";
-                    emit ReportHardwareStatus(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, 0, 0, 0);
+                    emit ReportHardwareStatus(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0, 0);
                 }
             }
         }
-
-        if (RemoveCommand == true)
-        {
-            delete p_ModuleCommand;
-            Iterator.remove();
-        }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
@@ -561,10 +607,9 @@ void CTemperatureControl::HandleCanMessage(can_frame* pCANframe)
        (pCANframe->can_id == m_unCanIDEventError) ||
        (pCANframe->can_id == m_unCanIDEventFatalError))
     {
-        quint32 EventCode = HandleCANMsgEvent(pCANframe);
+        HandleCANMsgError(pCANframe);
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
-            m_TempCtrlState = TEMPCTRL_STATUS_OFF;
-            emit ReportEvent(EventCode, m_lastEventData, m_lastEventTime);
+            emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
     else if(pCANframe->can_id == m_unCanIDTemperature)
@@ -595,8 +640,35 @@ void CTemperatureControl::HandleCanMessage(can_frame* pCANframe)
     {
         HandleCANMsgNotiRange(pCANframe, false);
     }
-}
+#ifdef PRE_ALFA_TEST
+    else if(pCANframe->can_id == m_unCanIDLevelSensorState)
+    {
+        HandleCANMsgLevelSensorState(pCANframe);
+    }
 
+#endif
+}
+#ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'LevelSensor' response CAN message
+ *
+ *      The message contains information to a level sensor's state.
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
+void CTemperatureControl::HandleCANMsgLevelSensorState(can_frame* pCANframe)
+{
+    FILE_LOG_L(laFCT, llDEBUG) << "recerived level sensor state data";
+    if(pCANframe->can_dlc == 1)
+    {
+        ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
+        quint8 LevelSensorState = pCANframe->data[0];
+        emit ReportLevelSensorState(GetModuleHandle(), hdlInfo, LevelSensorState);
+    }
+}
+#endif
 /****************************************************************************/
 /*!
  *  \brief  Handles the 'ServiceSensor' response CAN message
@@ -617,8 +689,11 @@ void CTemperatureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         qreal ActTemperature;
-
+#ifdef PRE_ALFA_TEST
+        ActTemperature = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
+#else
         ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 1) / 100;
+#endif
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl Temperature received: " << ActTemperature;
         emit ReportActTemperature(GetModuleHandle(), hdlInfo, pCANframe->data[0], ActTemperature);
@@ -647,10 +722,10 @@ void CTemperatureControl::HandleCANMsgTemperature(can_frame* pCANframe)
 {
     ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
     TempCtrlStatus_t TempCtrlStatus = TEMPCTRL_STATUS_OFF;
-    TempCtrlOperatingMode_t TempCtrlOpMode = TEMPCTRL_OPMODE_FULL;
+    TempCtrlOperatingMode_t TempCtrlOpMode = TEMPCTRL_OPMODE_HOLD;
     TempCtrlMainsVoltage_t TempCtrlVoltage = TEMPCTRL_VOLTAGE_220V;
 
-    if(pCANframe->can_dlc == 8)
+    if(pCANframe->can_dlc == 7)
     {
         //determine the temperature control status
         if(pCANframe->data[0] & (1 << TEMP_CTRL_ACTIVE_BITPOS))
@@ -671,24 +746,23 @@ void CTemperatureControl::HandleCANMsgTemperature(can_frame* pCANframe)
         }
 
         FILE_LOG_L(laFCT, llDEBUG) << "   CTemperatureControl::HandleCANMsgTemperature: "
-                                   << (qint32)TempCtrlStatus << ", "
-                                   << (qint32)TempCtrlOpMode << ", "
-                                   << (qint32)TempCtrlVoltage;
+                                   << TempCtrlStatus << ", " << TempCtrlOpMode << ", " << TempCtrlVoltage;
     }
     else
     {
         hdlInfo = DCL_ERR_CANMSG_INVALID;
     }
 
-    // Forward the status information, if still requested
-    if(ResetModuleCommand(FM_TEMP_CMD_TYPE_REQ_ACTSTATUS))
+    //forward the status information, if still requested
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
+        ResetModuleCommand(FM_TEMP_CMD_TYPE_REQ_ACTSTATUS);
         emit ReportActStatus(GetModuleHandle(), hdlInfo, TempCtrlStatus, TempCtrlVoltage);
     }
-
-    // Forward the operating mode, if still requested
-    if(ResetModuleCommand(FM_TEMP_CMD_TYPE_REQ_ACTOPMODE))
+    //forward the operating mode, if still requested
+    else if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {
+        ResetModuleCommand(FM_TEMP_CMD_TYPE_REQ_ACTOPMODE);
         emit ReportActOperatingMode(GetModuleHandle(), hdlInfo, TempCtrlOpMode);
     }
 }
@@ -809,7 +883,7 @@ void CTemperatureControl::HandleCANMsgNotiRange(can_frame* pCANframe, bool InRan
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         qreal ActTemperature;
 
-        ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 0) / 100;
+        ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 1) / 100;
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl temperature range notification received: " << ActTemperature;
         emit ReportTemperatureRange(GetModuleHandle(), hdlInfo, InRange, ActTemperature);
@@ -848,7 +922,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgFanWatchdogSet()
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -884,7 +958,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgCurrentWatchdogSet()
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -924,41 +998,88 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint8 Index)
     else
     {
         FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
-        m_lastEventHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
     return RetVal;
 }
 
+
+#ifdef PRE_ALFA_TEST
 /****************************************************************************/
 /*!
- *  \brief  Send the CAN message to set a desired temperature
+ *  \brief  Send the CAN message to configure temperature PID control parameters
+ *
+ *  \iparam MaxTemperature = max temperature
+ *  \iparam ControllerGain = controller gain
+ *  \iparam ResetTime      = reset time
+ *  \iparam DerivativeTime = derivative time
  *
  *  \return The return value is set from SendCOB(can_frame)
  */
 /****************************************************************************/
-ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature()
+ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    CANFctModuleTempCtrl* pCANObjConfTemp;
+    pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
+    can_frame canmsg;
+    ReturnCode_t RetVal;
+
+    //the following parameters must be send to the temperature control:
+    if(pCANObjConfTemp)
+    {
+        FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration: 0x" << std::hex << m_unCanIDPIDParamSet;
+        canmsg.can_id = m_unCanIDPIDParamSet;
+        canmsg.data[0] = 0;
+        canmsg.data[1] = MaxTemperature;
+        SetCANMsgDataU16(&canmsg, ControllerGain, 2);
+        SetCANMsgDataU16(&canmsg, ResetTime, 4);
+        SetCANMsgDataU16(&canmsg, DerivativeTime, 6);
+        canmsg.can_dlc = 8;
+
+        RetVal = m_pCANCommunicator->SendCOB(canmsg);
+    }
+    else
+    {
+        FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
+        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    return RetVal;
+}
+#endif
+
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set a desired temperature
+ *
+ *  \iparam Temperature = Reference temperature in 0.1 °C steps
+ *  \iparam OperatingMode = Hold or heating phase
+ *  \iparam Status = Module on or off
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
+ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature(qreal Temperature,
+        TempCtrlOperatingMode_t OperatingMode, TempCtrlStatus_t Status, quint8 SlopeTempChange)
 {
     CANFctModuleTempCtrl* pCANObjConfTemp;
     pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
 
-    if (pCANObjConfTemp == NULL) {
-        return DCL_ERR_NULL_PTR_ACCESS;
-    }
-
     canmsg.can_id = m_unCanIDTemperatureSet;
     canmsg.data[0] = 0;
-    if(m_TempCtrlState == TEMPCTRL_STATUS_ON) {
+    if(Status == TEMPCTRL_STATUS_ON) {
         canmsg.data[0] = 0x01;
     }
-    if(m_TempCtrlOpMode == TEMPCTRL_OPMODE_HOLD) {
+    if(OperatingMode == TEMPCTRL_OPMODE_HOLD) {
         canmsg.data[0] |= 0x04;
     }
 
-    canmsg.data[1] = (quint8)m_Temperature;
+    canmsg.data[1] = Temperature;
 
     FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: Data0: 0x" << std::hex << (quint8) canmsg.data[0]
                                << ", Data1: 0x" << std::hex << (quint8) canmsg.data[1];
@@ -967,8 +1088,12 @@ ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature()
     SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sSamplingPeriod, 3);
     canmsg.data[5] = 0;
     canmsg.data[6] = 0;
-    canmsg.data[7] = pCANObjConfTemp->bTempRange;
+#ifdef PRE_ALFA_TEST
+    canmsg.data[7] = SlopeTempChange;
     canmsg.can_dlc = 8;
+#else
+    canmsg.can_dlc = 7;
+#endif
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
     FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: CanID: 0x" << std::hex << m_unCanIDTemperatureSet;
@@ -1128,6 +1253,39 @@ ReturnCode_t CTemperatureControl::SendCANMsgHardwareReq()
 
 /****************************************************************************/
 /*!
+ *  \brief  Set the target temperature
+ *
+ *  \iparam Temperature = Reference temperature
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 SlopeTempChange)
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
+
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_TEMP, &CmdIndex))
+    {
+        m_ModuleCommand[CmdIndex].Temperature = Temperature;
+#ifdef PRE_ALFA_TEST
+        m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
+#endif
+        FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+    }
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Request the actual temperature
  *
  *  \iparam Index = Temperature sensor index
@@ -1140,17 +1298,17 @@ ReturnCode_t CTemperatureControl::ReqActTemperature(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_REQ_ACTTEMP);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_REQ_ACTTEMP, &CmdIndex))
     {
-        p_ModuleCommand->Index = Index;
+        m_ModuleCommand[CmdIndex].Index = Index;
         FILE_LOG_L(laDEV, llINFO) << " CANTemperatureControl, Index: " << Index;
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << (qint32)m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << m_TaskID;
     }
 
     return RetVal;
@@ -1170,11 +1328,11 @@ ReturnCode_t CTemperatureControl::SetOperatingMode(TempCtrlOperatingMode_t TempC
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_SET_OPMODE);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_OPMODE, &CmdIndex))
     {
-        m_TempCtrlOpMode = TempCtrlOpMode;
+        m_ModuleCommand[CmdIndex].TempCtrlOpMode = TempCtrlOpMode;
         FILE_LOG_L(laDEV, llINFO) << " CANTemperatureControl, TempCtrlOpMode: " << (int) TempCtrlOpMode;
     }
     else
@@ -1199,8 +1357,11 @@ ReturnCode_t CTemperatureControl::ReqOperatingMode()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_REQ_ACTOPMODE);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_REQ_ACTOPMODE))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANTemperatureControl";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << (int) m_TaskID;
@@ -1211,32 +1372,24 @@ ReturnCode_t CTemperatureControl::ReqOperatingMode()
 
 /****************************************************************************/
 /*!
- *  \brief  Set the temperature control's status and set point temperature
+ *  \brief  Set the temperature control's status
  *
  *  \iparam TempCtrlState = Status mode to set
- *  \iparam Temperature = Set point temperature
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CTemperatureControl::SetStatus(TempCtrlStatus_t TempCtrlState, qreal Temperature)
+ReturnCode_t CTemperatureControl::SetStatus(TempCtrlStatus_t TempCtrlState)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    if (Temperature < 0 || Temperature > 255)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_STATUS, &CmdIndex))
     {
-        return (DCL_ERR_INVALID_PARAM);
-    }
-
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_SET_STATUS);
-    if(p_ModuleCommand != NULL)
-    {
-        m_TempCtrlState = TempCtrlState;
-        m_Temperature = Temperature;
-        FILE_LOG_L(laDEV, llINFO) << " CANTemperatureControl, TempCtrlState: " << (qint32)TempCtrlState
-                                  << "Temperature: " << Temperature;
+        m_ModuleCommand[CmdIndex].TempCtrlState = TempCtrlState;
+        FILE_LOG_L(laDEV, llINFO) << " CANTemperatureControl, TempCtrlState: " << (int) TempCtrlState;
     }
     else
     {
@@ -1260,8 +1413,11 @@ ReturnCode_t CTemperatureControl::ReqStatus()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_REQ_ACTSTATUS);
-    if(p_ModuleCommand == NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_REQ_ACTSTATUS))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANTemperatureControl";
+    }
+    else
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << (int) m_TaskID;
@@ -1274,7 +1430,7 @@ ReturnCode_t CTemperatureControl::ReqStatus()
 /*!
  *  \brief  Resets the operating time of a heater
  *
- *  \iparam Index = Index of the heating element
+ *  \ipram  Index = Index of the heating element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1284,11 +1440,11 @@ ReturnCode_t CTemperatureControl::ResetHeaterOperatingTime(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_RESET_OPTIME);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_RESET_OPTIME, &CmdIndex))
     {
-        p_ModuleCommand->Index = Index;
+        m_ModuleCommand[CmdIndex].Index = Index;
         FILE_LOG_L(laDEV, llDEBUG) << " CANTemperatureControl";
     }
     else
@@ -1304,7 +1460,7 @@ ReturnCode_t CTemperatureControl::ResetHeaterOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the operating time of a heater
  *
- *  \iparam Index = Index of the heating element
+ *  \ipram  Index = Index of the heating element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1314,11 +1470,11 @@ ReturnCode_t CTemperatureControl::GetHeaterOperatingTime(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_REQ_OPTIME);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_REQ_OPTIME, &CmdIndex))
     {
-        p_ModuleCommand->Index = Index;
+        m_ModuleCommand[CmdIndex].Index = Index;
         FILE_LOG_L(laDEV, llDEBUG) << " CANTemperatureControl";
     }
     else
@@ -1334,7 +1490,7 @@ ReturnCode_t CTemperatureControl::GetHeaterOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the speed of a ventilation fan
  *
- *  \iparam Index = Index of the ventilation fan
+ *  \ipram  Index = Index of the ventilation fan
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1344,11 +1500,11 @@ ReturnCode_t CTemperatureControl::GetFanSpeed(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_REQ_FANSPEED);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_REQ_FANSPEED, &CmdIndex))
     {
-        p_ModuleCommand->Index = Index;
+        m_ModuleCommand[CmdIndex].Index = Index;
         FILE_LOG_L(laDEV, llDEBUG) << " CANTemperatureControl";
     }
     else
@@ -1379,8 +1535,7 @@ ReturnCode_t CTemperatureControl::GetHardwareStatus()
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
-    ModuleCommand_t *p_ModuleCommand = SetModuleTask(FM_TEMP_CMD_TYPE_REQ_HARDWARE);
-    if(p_ModuleCommand != NULL)
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_REQ_HARDWARE))
     {
         FILE_LOG_L(laDEV, llDEBUG) << " CANTemperatureControl";
     }
@@ -1395,60 +1550,112 @@ ReturnCode_t CTemperatureControl::GetHardwareStatus()
 
 /****************************************************************************/
 /*!
- *  \brief  Adds a new command to the transmit queue
+ *  \brief   Helper function, sets a free module command to the given command type
  *
- *  \iparam CommandType = Command type to set
+ *  \iparam  CommandType = command type to set
+ *  \iparam  pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
  *
- *  \return Module command, if the command type can be placed, otherwise NULL
+ *  \return  true, if the command type can be placed, otherwise false
  */
 /****************************************************************************/
-CTemperatureControl::ModuleCommand_t *CTemperatureControl::SetModuleTask(CANTempCtrlCmdType_t CommandType)
+bool CTemperatureControl::SetModuleTask(CANTempCtrlCmdType_t CommandType, quint8* pCmdIndex)
 {
-    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL)) {
-        for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-            if (m_ModuleCommand[i]->Type == CommandType) {
-                return NULL;
+    bool CommandAdded = false;
+
+    if((m_TaskID == MODULE_TASKID_FREE) || (m_TaskID == MODULE_TASKID_COMMAND_HDL))
+    {
+        for(quint8 idx = 0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
+        {
+            if(m_ModuleCommand[idx].State == MODULE_CMD_STATE_FREE)
+            {
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
+                m_ModuleCommand[idx].Type = CommandType;
+
+                m_TaskID = MODULE_TASKID_COMMAND_HDL;
+                CommandAdded  = true;
+                if(pCmdIndex)
+                {
+                    *pCmdIndex = idx;
+                }
+
+                FILE_LOG_L(laFCT, llINFO) << " CANTemperatureControl:  task " << (int) idx << " request.";
+                break;
             }
         }
-
-        ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
-        p_ModuleCommand->Type = CommandType;
-        p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
-        m_ModuleCommand.append(p_ModuleCommand);
-
-        m_TaskID = MODULE_TASKID_COMMAND_HDL;
-
-        return p_ModuleCommand;
     }
 
-    return NULL;
+    return CommandAdded;
 }
 
 /****************************************************************************/
-/*!
- *  \brief  Removes an existing command from the transmit queue
+/**
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
  *
- *  \iparam CommandType = Command of that type will be set to free
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
  */
 /****************************************************************************/
-bool CTemperatureControl::ResetModuleCommand(CANTempCtrlCmdType_t CommandType)
+void CTemperatureControl::ResetModuleCommand(CANTempCtrlCmdType_t ModuleCommandType)
 {
-    bool CommandFound = false;
+    bool ActiveCommandFound = false;
 
-    for(qint32 i = 0; i < m_ModuleCommand.size(); i++) {
-        if (m_ModuleCommand[i]->Type == CommandType) {
-            delete m_ModuleCommand.takeAt(i);
-            CommandFound = true;
-            break;
+    for(quint8 idx = 0; idx < MAX_TEMP_MODULE_CMD_IDX; idx++)
+    {
+        if((m_ModuleCommand[idx].Type == ModuleCommandType) &&
+           (m_ModuleCommand[idx].State == MODULE_CMD_STATE_REQ_SEND))
+        {
+            m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+        }
+
+        if(m_ModuleCommand[idx].State != MODULE_CMD_STATE_FREE)
+        {
+            ActiveCommandFound = true;
         }
     }
 
-    if(m_ModuleCommand.isEmpty())
+    if(ActiveCommandFound == false)
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
-
-    return CommandFound;
 }
 
+#ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Configure temperature PID control parameters
+ *
+ *  \iparam MaxTemperature = max temperature
+ *  \iparam ControllerGain = controller gain
+ *  \iparam ResetTime      = reset time
+ *  \iparam DerivativeTime = derivative time
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
+
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_PID, &CmdIndex))
+    {
+        m_ModuleCommand[CmdIndex].MaxTemperature = MaxTemperature;
+        m_ModuleCommand[CmdIndex].ControllerGain = ControllerGain;
+        m_ModuleCommand[CmdIndex].ResetTime = ResetTime;
+        m_ModuleCommand[CmdIndex].DerivativeTime = DerivativeTime;
+        FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, MaxTemperature: " << MaxTemperature <<" ControllerGain: "<< ControllerGain
+                                  << " ResetTime: " << ResetTime << " DerivativeTime: " << DerivativeTime;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+    }
+
+    return RetVal;
+}
+#endif
+
 } //namespace
+

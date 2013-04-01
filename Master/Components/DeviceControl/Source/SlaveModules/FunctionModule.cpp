@@ -41,8 +41,7 @@ namespace DeviceControl
  *  \iparam pParentNode = pointer to CANNode, where this module is assigned to
  */
 /****************************************************************************/
-CFunctionModule::CFunctionModule(CModuleConfig::CANObjectType_t eObjectType,
-                                 const CANMessageConfiguration* p_MessageConfiguration,
+CFunctionModule::CFunctionModule(CModuleConfig::CANObjectType_t eObjectType, const CANMessageConfiguration* p_MessageConfiguration,
                                  CANCommunicator* pCANCommunicator, CBaseModule* pParentNode) :
     CModule(eObjectType, p_MessageConfiguration, pCANCommunicator),
     m_mainState(FM_MAIN_STATE_UNDEF),
@@ -62,14 +61,65 @@ CFunctionModule::~CFunctionModule()
 
 /****************************************************************************/
 /*!
- *  \brief  Returns the node ID of the function module's node
+ *  \brief  Initialize the module's event CAN message IDs
  *
- *  \return Node ID
+ *      The CAN-IDs are read from the CAN-Message configuration class.
+ *      The CAN-ID for event notification are determined here
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/
-quint32 CFunctionModule::GetNodeID() const
+ReturnCode_t CFunctionModule::InitializeEventCANMessages(quint8 ModuleID)
 {
-    return m_pParent->GetNodeID();
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 bIfaceID;
+
+    if(m_pCANObjectConfig == 0)
+    {
+        return DCL_ERR_NULL_PTR_ACCESS;
+    }
+
+    bIfaceID = m_pCANObjectConfig->m_sChannel;
+
+    m_unCanIDEventInfo       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventInfo", bIfaceID, m_pParent->GetNodeID());
+    m_unCanIDEventWarning    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventWarning", bIfaceID, m_pParent->GetNodeID());
+    m_unCanIDEventError      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventError", bIfaceID, m_pParent->GetNodeID());
+    m_unCanIDEventFatalError = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventFatalError", bIfaceID, m_pParent->GetNodeID());
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Register the receive event CAN-messages to communication layer
+ *
+ *      Each receiveable CAN-message must be registered to the communication
+ *      layer. This enables the communication layer to call the
+ *      'HandleCANMessage(..)' function of this instance after receiption of
+ *      the message.
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ */
+/****************************************************************************/
+ReturnCode_t CFunctionModule::RegisterEventCANMessages()
+{
+    ReturnCode_t RetVal;
+
+    RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventInfo, this);
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventWarning, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventError, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventFatalError, this);
+    }
+
+    return RetVal;
 }
 
 } //namespace

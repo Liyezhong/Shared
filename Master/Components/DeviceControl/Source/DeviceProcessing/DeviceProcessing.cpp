@@ -29,108 +29,40 @@
 #include "DeviceControl/Include/DeviceProcessing/AdjustmentService.h"
 #include "DeviceControl/Include/DeviceProcessing/ShutdownService.h"
 
-#include "DeviceControl/Include/Devices/DeviceBase.h"
+#include "DeviceControl/Include/Devices/FunctionModuleTaskManager.h"
+#include "DeviceControl/Include/Devices/OvenDevice.h"
 
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 
 #include "DeviceControl/Include/Global/dcl_log.h"
-#include "Global/Include/AdjustedTime.h"
-#include "Global/Include/EventObject.h"
-#include "Global/Include/Exception.h"
 #include "Global/Include/SystemPaths.h"
+#include "Global/Include/AdjustedTime.h"
+#include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 
 #include <QMetaType>
-#include <QDebug>
 #include <cerrno>
 
 namespace DeviceControl
 {
 
-const QString CANObjectKeyLUT::m_DevAgitationKey = "Agitation";
-const QString CANObjectKeyLUT::m_DevExhaustKey = "Exhaust";
-const QString CANObjectKeyLUT::m_DevXyzTransportationKey = "XyzTransportation";
-const QString CANObjectKeyLUT::m_DevHeatedCuvettesKey = "HeatedCuvettes";
-const QString CANObjectKeyLUT::m_DevDrawerKey = "Drawer";
-const QString CANObjectKeyLUT::m_DevOvenKey = "Oven";
-const QString CANObjectKeyLUT::m_DevRackTransferKey = "RackTransfer";
-const QString CANObjectKeyLUT::m_DevWaterKey = "Water";
-const QString CANObjectKeyLUT::m_DevRackHandlingKey = "RackHandling";
-const QString CANObjectKeyLUT::m_DevCoverLineKey = "CoverLine";
-const QString CANObjectKeyLUT::m_DevSlideIdKey = "SlideId";
-const QString CANObjectKeyLUT::m_DevHoodKey = "Hood";
-const QString CANObjectKeyLUT::m_DevLightKey= "Light";
-
-const QString CANObjectKeyLUT::m_BaseAgitationKey = "base_agitation";
-const QString CANObjectKeyLUT::m_BaseExhaustKey = "base_exhaust";
-const QString CANObjectKeyLUT::m_BaseXAxisKey = "base_x_axis";
-const QString CANObjectKeyLUT::m_BaseYAxisKey = "base_y_axis";
-const QString CANObjectKeyLUT::m_BaseZAxisKey = "base_z_axis";
-const QString CANObjectKeyLUT::m_BaseHeatedCuvettesKey = "base_heated_cuvettes";
-const QString CANObjectKeyLUT::m_BaseDrawerKey = "base_drawer";
-const QString CANObjectKeyLUT::m_BaseOvenKey = "base_oven";
-const QString CANObjectKeyLUT::m_BaseRackTransferKey = "base_rack_transfer";
-const QString CANObjectKeyLUT::m_BaseWaterKey = "base_water";
-const QString CANObjectKeyLUT::m_BaseSlideIdKey = "base_slide_id";
-const QString CANObjectKeyLUT::m_BaseHoodKey = "base_hood";
-const QString CANObjectKeyLUT::m_BaseLightKey = "base_light";
-
-const QString CANObjectKeyLUT::m_MotorAgitationKey = "motor_agitation";
-const QString CANObjectKeyLUT::m_FlowSensorKey = "flow_sensor";
-const QString CANObjectKeyLUT::m_ControlFan1Key = "control_fan1";
-const QString CANObjectKeyLUT::m_ControlFan2Key = "control_fan2";
-const QString CANObjectKeyLUT::m_CurrentFan1Key = "current_fan1";
-const QString CANObjectKeyLUT::m_CurrentFan2Key = "current_fan2";
-const QString CANObjectKeyLUT::m_MotorXAxisKey = "motor_x_axis";
-const QString CANObjectKeyLUT::m_MotorYAxisKey = "motor_y_axis";
-const QString CANObjectKeyLUT::m_MotorZAxisKey = "motor_z_axis";
-const QString CANObjectKeyLUT::m_XyzSystemRFIDKey = "grap_rfid_reader";
-const QString CANObjectKeyLUT::m_XyzSystemLiquidLevelKey = "grap_liquid_level";
-const QString CANObjectKeyLUT::m_XyzSystemSensorTeachKey = "grap_sensor_teach";
-const QString CANObjectKeyLUT::m_TempCtrlVessel1Key = "temp_ctrl1";
-const QString CANObjectKeyLUT::m_TempCtrlVessel2Key = "temp_ctrl2";
-const QString CANObjectKeyLUT::m_TempCtrlVessel3Key = "temp_ctrl3";
-const QString CANObjectKeyLUT::m_TempCtrlVessel4Key = "temp_ctrl4";
-const QString CANObjectKeyLUT::m_MotorDrawerKey = "motor_drawer";
-const QString CANObjectKeyLUT::m_DrawerRFIDKey = "rfid_drawer";
-const QString CANObjectKeyLUT::m_DrawerButtonKey = "diginp_button_drawer";
-const QString CANObjectKeyLUT::m_DrawerLEDFreeKey = "digout_led_free_drawer";
-const QString CANObjectKeyLUT::m_DrawerLEDBlockedKey = "digout_led_blocked_drawer";
-const QString CANObjectKeyLUT::m_OvenCoverMotorKey = "motor_oven_cover";
-const QString CANObjectKeyLUT::m_OvenTempCtrlKey = "temp_ctrl_oven";
-const QString CANObjectKeyLUT::m_RackTransferMotorKey = "motor_transfer";
-const QString CANObjectKeyLUT::m_WaterValve1Key = "water_valve1";
-const QString CANObjectKeyLUT::m_WaterValve2Key = "water_valve2";
-const QString CANObjectKeyLUT::m_WaterValve3Key = "water_valve3";
-const QString CANObjectKeyLUT::m_WaterValve4Key = "water_valve4";
-const QString CANObjectKeyLUT::m_WaterValve5Key = "water_valve5";
-const QString CANObjectKeyLUT::m_WaterValve6Key = "water_valve6";
-const QString CANObjectKeyLUT::m_WaterLiquidLevelKey = "collecting_tray_limit";
-const QString CANObjectKeyLUT::m_SlideIdPhotoDetectorKey = "photo_detector";
-const QString CANObjectKeyLUT::m_SlideIdTransmitControlKey = "transmit_control";
-const QString CANObjectKeyLUT::m_SlideIdTransmitCurrentKey = "transmit_current";
-const QString CANObjectKeyLUT::m_SlideIdReceiveCurrentKey = "receive_current";
-const QString CANObjectKeyLUT::m_HoodSensorKey = "reed_active";
-const QString CANObjectKeyLUT::m_LightControlKey = "light_control";
-
-const QString CANObjectKeyLUT::m_MotorCoverLineZAxisKey = "motor_cl_elevator";
-const QString CANObjectKeyLUT::m_MotorCoverLineSlideKey = "motor_cl_slide_shift";
-const QString CANObjectKeyLUT::m_MotorCoverLineNeedleKey = "motor_cl_needle";
-const QString CANObjectKeyLUT::m_MotorCoverLineClampKey = "motor_cl_slide_clamp";
-const QString CANObjectKeyLUT::m_MotorCoverSlipYKey = "motor_cl_coverslip_y_axis";
-const QString CANObjectKeyLUT::m_MotorCoverSlipZKey = "motor_cl_coverslip_z_axis";
-const QString CANObjectKeyLUT::m_MotorEDMPump = "motor_cl_edm_pump";
-const QString CANObjectKeyLUT::m_DigInpCoverLineSlideDetect = "diginp_cl_slide_detect";
-const QString CANObjectKeyLUT::m_DigInpEDMLevel = "diginp_cl_edm_level";
-const QString CANObjectKeyLUT::m_DigOutpVacuumPump = "digout_cl_vakuum_pump";
-const QString CANObjectKeyLUT::m_DigOutpVacuumValve1 = "digout_cl_vacuum_valve_1";
-const QString CANObjectKeyLUT::m_DigOutpVacuumValve2 = "digout_cl_vacuum_valve_2";
-const QString CANObjectKeyLUT::m_AnaInpPressureSensor = "anainp_cl_vacuum";
-const QString CANObjectKeyLUT::m_AnaInpHallSensor1 = "anainp_cl_hall";
-const QString CANObjectKeyLUT::m_MotorRackHdlXAxisKey = "motor_rackhdl_x_axis";
-const QString CANObjectKeyLUT::m_MotorRackHdlYAxisKey = "motor_rackhdl_y_axis";
-const QString CANObjectKeyLUT::m_MotorRackHdlZAxisKey = "motor_rackhdl_z_axis";
-const QString CANObjectKeyLUT::m_MotorRackHdlGrabberKey = "motor_rackhdl_grab";
+const QString CANObjectKeyLUT::m_RVMotorKey = "RV_motor";
+const QString CANObjectKeyLUT::m_RVTempCtrlKey = "RV_temp_ctrl";
+const QString CANObjectKeyLUT::m_ALPressureCtrlKey = "AL_pressure_ctrl";        //!< Air-liquid pressure control
+const QString CANObjectKeyLUT::m_ALLevelSensorTempCtrlKey = "AL_level_sensor_temp_ctrl"; //!< Air-liquid level sensor temp control
+const QString CANObjectKeyLUT::m_ALTube1TempCtrlKey = "AL_tube1_temp_ctrl";       //!< Air-liquid tube1 temp control
+const QString CANObjectKeyLUT::m_ALTube2TempCtrlKey = "AL_tube2_temp_ctrl";       //!< Air-liquid tube2 temp control
+const QString CANObjectKeyLUT::m_ALFanDOKey= "AL_fan_digital_output";               //!< Air-liquid fan digital output
+const QString CANObjectKeyLUT::m_OvenTopTempCtrlKey = "OVEN_top_temp_ctrl";       //!< Oven top temp control
+const QString CANObjectKeyLUT::m_OvenBottomTempCtrlKey = "OVEN_bottom_temp_ctrl";    //!< Oven bottom temp control
+const QString CANObjectKeyLUT::m_OvenLockDIKey = "OVEN_lock_digital_input";            //!< Oven lock digital input
+const QString CANObjectKeyLUT::m_RetortBottomTempCtrlKey = "RETORT_bottom_temp_ctrl";  //!< Retort bottom temp control
+const QString CANObjectKeyLUT::m_RetortSideTempCtrlKey= "RETORT_side_temp_ctrl";    //!< Retort side temp control
+const QString CANObjectKeyLUT::m_RetortLockDOKey= "RETORT_lock_digital_output";          //!< Retort lock digital output
+const QString CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey= "PER_remote_alarm_ctrl_digital_output";  //!< Miscellaneous remote alarm ctrl digital output
+const QString CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey= "PER_remote_alarm_set_digital_output";   //!< Miscellaneous remote alarm set digital output
+const QString CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey= "PER_remote_alarm_clear_digital_output";  //!< Miscellaneous remote alarm clear digital output
+const QString CANObjectKeyLUT::m_PerMainRelayDOKey= "PER_main_relay_digital_output";     //!< Miscellaneous heater relay digital output
 
 //QString DeviceProcessing::m_HWConfigFileName = "hw_specification_sepia.xml";
 QString DeviceProcessing::m_HWConfigFileName = "hw_specification.xml";
@@ -149,10 +81,8 @@ QString DeviceProcessing::m_SerialNo = "";
 /********************************************************************************/
 DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     m_pTaskConfig(0), m_pTaskNormalOperation(0), m_pTaskShutdown(0), m_pTaskDestroy(0),
-    m_pTaskDiagnostic(0), m_pTaskAdjustment(0), m_pTaskFirmwareUpdate(0), m_pAdjustment(NULL)
+    m_pTaskDiagnostic(0), m_pTaskAdjustment(0), m_pTaskFirmwareUpdate(0)
 {
-    qDebug() << "Device Processing" << thread();
-
     ReturnCode_t retCode;
 
     m_MainState        = DP_MAIN_STATE_INIT;
@@ -169,8 +99,15 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     m_pAdjustmentService = 0;
     m_pShutdownService = 0;
 
+    m_pFunctionModuleTaskManager = new CFunctionModuleTaskManager();
+
     m_ulCanIDMasterHeartbeat = 0;
     m_ulCANNodeIDMaster = 0;
+
+    m_LastErrorHdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
+    m_LastErrorGroup = 0;
+    m_LastErrorCode = 0;
+    m_LastErrorData = 0;
 
     m_MainState = DP_MAIN_STATE_INTERNAL_CONFIG;
 
@@ -201,9 +138,10 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     //Setup communication interface, usually CAN, for test purpose TCP
     retCode = InitCommunication();
     if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << (qint32)retCode << "!";
+        FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << retCode << "!";
         return;
     }
+
 }
 
 /****************************************************************************/
@@ -215,13 +153,16 @@ DeviceProcessing::~DeviceProcessing()
 {
     try
     {
-        CDeviceBase *p_Device;
-
         while (!m_lstTasks.isEmpty()) {
             delete m_lstTasks.takeFirst();
         }
-        foreach (p_Device, m_DeviceList) {
-            delete p_Device;
+while (!m_ObjectTree.isEmpty())
+{
+delete m_ObjectTree.takeFirst();
+}
+
+        while (!m_DeviceList.isEmpty()) {
+            delete m_DeviceList.takeFirst();
         }
     }
     catch (...) //(const std::bad_alloc &)
@@ -232,11 +173,32 @@ DeviceProcessing::~DeviceProcessing()
 
 /****************************************************************************/
 /*!
- *  \brief  Forwards device control layer events
+ *  \brief  Forwards the error information from a device to IDeviceProcessing
  *
- *      The function forwards the error information to the IDeviceProcessing
- *      interface class. (which finally throws the signal assigned to the
- *      errors)
+ *      The function forwards the error information to the IDeviceProcessing interface class
+ *      (which finally throws the signal assigned to the errors)
+ *
+ *  \iparam InstanceID = The instance identifier of the device class which brought up the error
+ *  \iparam ErrorGroup = Error group ID of the thrown error
+ *  \iparam ErrorID = Error ID of the thrown error
+ *  \iparam ErrorData = Additional error information
+ *  \iparam ErrorTime = Time of error detection
+ */
+/****************************************************************************/
+void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID,
+                                  quint16 ErrorData, QDateTime ErrorTime)
+{
+    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << (int) InstanceID <<
+                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
+    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Forwards the error information from a function module to IDeviceProcessing
+ *
+ *      The function forwards the error information to the IDeviceProcessing interface class
+ *      (which finally throws the signal assigned to the errors)
  *
  *  \iparam InstanceID = The instance identifier of the module which brought up the error
  *  \iparam ErrorGroup = Error group ID of the thrown error
@@ -245,23 +207,20 @@ DeviceProcessing::~DeviceProcessing()
  *  \iparam ErrorTime  = Time of error detection
  */
 /****************************************************************************/
-void DeviceProcessing::ThrowEvent(quint32 EventCode, quint16 EventData)
+void DeviceProcessing::ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID,
+                                  quint16 ErrorData, QDateTime ErrorTime)
 {
-    QDateTime EventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
-
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowEvent (" << EventCode << ", " << EventData << ", "
-                                   << EventTime.toString().constData() << ")";
-    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << EventData);
-    emit ReportEvent(EventCode, EventData, EventTime);
+    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
+                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
+    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Forwards device control layer events
+ *  \brief  Forwards the error information from a function module to IDeviceProcessing
  *
- *      The function forwards the error information to the IDeviceProcessing
- *      interface class. (which finally throws the signal assigned to the
- *      errors)
+ *      The function forwards the error information to the IDeviceProcessing interface class
+ *      (which finally throws the signal assigned to the errors)
  *
  *  \iparam InstanceID = The instance identifier of the module which brought up the error
  *  \iparam ErrorGroup = Error group ID of the thrown error
@@ -271,14 +230,15 @@ void DeviceProcessing::ThrowEvent(quint32 EventCode, quint16 EventData)
  *  \iparam ErrorInfo  = Error information string
  */
 /****************************************************************************/
-void DeviceProcessing::ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QString EventInfo)
+void DeviceProcessing::ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID,
+                                          quint16 ErrorData, QDateTime ErrorTime, QString ErrorInfo)
 {
-    QDateTime EventTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    Q_UNUSED(ErrorInfo);
 
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowEventWithInfo (" << EventCode << ", " << EventData
-                                   << ", " << EventTime.toString().constData() << ", " << EventInfo.constData() << ")";
-    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << EventData << EventInfo);
-    emit ReportEventWithInfo(EventCode, EventData, EventTime, EventInfo);
+    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
+                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
+    //emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -306,6 +266,15 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
             {
                 retCode = ReadProcessSettings();
             }
+            else
+            {
+                m_LastErrorGroup = EVENT_GRP_DCL_CONFIGURATION;
+            }
+        }
+        else
+        {
+            m_pCANMessageConfiguration->GetLastError(m_LastErrorCode, m_LastErrorString);
+            m_LastErrorGroup = EVENT_GRP_DCL_CONFIGURATION;
         }
     }
     else
@@ -349,6 +318,7 @@ ReturnCode_t DeviceProcessing::InitCANMessages()
         if(m_ulCanIDMasterHeartbeat & GET_CAN_MSG_RR_FLAG)
         {
             retCode = DCL_ERR_CANMSG_INVALID;
+            SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_MESSAGE_ASSIGN, 0);
         }
     }
 
@@ -360,10 +330,9 @@ ReturnCode_t DeviceProcessing::InitCANMessages()
  *  \brief  Initialize the can messages used by this class
  *
  *      The function reads the 'parameter_master' section from the hardware
- *      configuration file. In an earlier version the serial number had to be
- *      provided directly after instantiating the DeviceProcessing class.
- *      That is why these values are read here and not at the
- *      HardwareConfiguration class.
+ *      configuration file. Because of the serial number must be provided
+ *      directly after instantiating the DeviceProcessing class, these values
+ *      are read here and not at the HardwareConfiguration class.
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise DCL_ERR_INVALID_STATE
@@ -372,10 +341,14 @@ ReturnCode_t DeviceProcessing::InitCANMessages()
 ReturnCode_t DeviceProcessing::ReadHWSettings()
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
+
     int errorLine;
     int errorColumn;
+
     QString errorStr;
+    QString strCANInterface;
     QString fileName = "hw_specification.xml";
+
     QDomDocument domDocument;
 
     FILE_LOG_L(laINIT, llDEBUG2) << "*******************************************";
@@ -396,10 +369,11 @@ ReturnCode_t DeviceProcessing::ReadHWSettings()
 
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
-        QString String = QObject::tr("Cannot read file %1:\n%2.")
+        m_LastErrorString = QObject::tr("Cannot read file %1:\n%2.")
                                .arg(fileName)
                                .arg(file.errorString());
-        FILE_LOG_L(laINIT, llERROR) << String.toStdString();
+        FILE_LOG_L(laINIT, llERROR) << m_LastErrorString.toStdString();
+        m_LastErrorCode = ERROR_DCL_CONFIG_HW_CFG_OPEN_FAILED;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -407,11 +381,12 @@ ReturnCode_t DeviceProcessing::ReadHWSettings()
     if (!domDocument.setContent(&file, true, &errorStr, &errorLine,
                                 &errorColumn))
     {
-        QString String = QObject::tr("Parse error at line %1, column %2:\n%3")
+        m_LastErrorString = QObject::tr("Parse error at line %1, column %2:\n%3")
                                  .arg(errorLine)
                                  .arg(errorColumn)
                                  .arg(errorStr);
-        FILE_LOG_L(laINIT, llERROR) << String.toStdString();
+        FILE_LOG_L(laINIT, llERROR) << m_LastErrorString.toStdString();
+        m_LastErrorCode = ERROR_DCL_CONFIG_HW_CFG_PARSE_ERROR;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -419,16 +394,18 @@ ReturnCode_t DeviceProcessing::ReadHWSettings()
     QDomElement root = domDocument.documentElement();
     if (root.tagName() != "hwconfig")
     {
-        QString String = QObject::tr("The file is not a hardware config file.. Tag 'hwconfig' missed");
-        FILE_LOG_L(laINIT, llERROR) << String.toStdString();
+        m_LastErrorString = QObject::tr("The file is not a hardware config file.. Tag 'hwconfig' missed");
+        FILE_LOG_L(laINIT, llERROR) << m_LastErrorString.toStdString();
+        m_LastErrorCode = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
     else if (root.hasAttribute("version")
                && root.attribute("version") != "1.0")
     {
-        QString String = QObject::tr("The hardware config files' version is not valid.");
-        FILE_LOG_L(laINIT, llERROR) << String.toStdString();
+        m_LastErrorString = QObject::tr("The hardware config files' version is not valid.");
+        FILE_LOG_L(laINIT, llERROR) << m_LastErrorString.toStdString();
+        m_LastErrorCode = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR;
 
         return DCL_ERR_FCT_CALL_FAILED;
     }
@@ -436,12 +413,14 @@ ReturnCode_t DeviceProcessing::ReadHWSettings()
     QDomElement child = root.firstChildElement("parameter_master");
     if(child.isNull())
     {
+        m_LastErrorCode = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_MST;
         return DCL_ERR_FCT_CALL_FAILED;
     }
     else
     {
         QDomElement childCAN;
         QDomElement childTcp;
+        QDomElement childSerialNb;
 
         childCAN= child.firstChildElement("can_interface");
         if(childCAN.isNull())
@@ -465,9 +444,119 @@ ReturnCode_t DeviceProcessing::ReadHWSettings()
 
         FILE_LOG_L(laINIT, llINFO) << " CAN-interface set to :" << m_CanInterface.toStdString();
         FILE_LOG_L(laINIT, llINFO) << " TCP-interface set to :" << m_TcpInterface.toStdString();
+
+        //read the serial number
+        childSerialNb=  child.firstChildElement("serial_number");
+        if(childSerialNb.isNull())
+        {
+            SetErrorParameter(EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_SERIALNO_FAILED, 0);
+            FILE_LOG_L(laINIT, llERROR) << " Serial number incorrect.";
+            retCode = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            m_SerialNo = childSerialNb.attribute("serialno");
+        }
     }
 
     return retCode;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Returns the serial number as stored in the config file
+ *
+ *  \oparam SerialNo = reference to a QString object, will be filled with the serial number
+ *
+ *  \return TRUE if the serial number can be filled, otherwise FALSE
+ */
+/****************************************************************************/
+bool DeviceProcessing::GetSerialNumber(QString& SerialNo)
+{
+    int errorLine;
+    int errorColumn;
+
+    QString errorStr;
+    QString fileName;
+
+    QDomDocument domDocument;
+
+    FILE_LOG_L(laINIT, llDEBUG2) << "*******************************************";
+    FILE_LOG_L(laINIT, llINFO) << " DeviceProcessing: GetSerialNumber";
+
+    //temp. code, remove when configuration file is set from outside
+    FILE_LOG_L(laINIT, llINFO) << " DeviceProcessing: m_ConfigFileName: " << GetHWConfigFile().toStdString();
+    FILE_LOG_L(laINIT, llINFO) << " GetSettingsPath: " << Global::SystemPaths::Instance().GetSettingsPath() .toStdString();
+    if(!GetHWConfigFile().isEmpty())
+    {
+        fileName = Global::SystemPaths::Instance().GetSettingsPath() + "/" + m_HWConfigFileName;
+    }
+    FILE_LOG_L(laINIT, llINFO) << " DeviceProcessing: use config file: " << fileName.toStdString();
+
+    QFile file(fileName);
+
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QString ErrorString = QObject::tr("Cannot read file %1:\n%2.")
+                               .arg(fileName)
+                               .arg(file.errorString());
+        FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+
+        return false;
+    }
+
+    if (!domDocument.setContent(&file, true, &errorStr, &errorLine,
+                                &errorColumn))
+    {
+        QString ErrorString = QObject::tr("Parse error at line %1, column %2:\n%3")
+                                 .arg(errorLine)
+                                 .arg(errorColumn)
+                                 .arg(errorStr);
+        FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+
+        return false;
+    }
+
+    QDomElement root = domDocument.documentElement();
+    if (root.tagName() != "hwconfig")
+    {
+        QString ErrorString = QObject::tr("The file is not a colorado hardware config file. Tag 'hwconfig' missed");
+        FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+
+        return false;
+    }
+    else if (root.hasAttribute("version")
+               && root.attribute("version") != "1.0")
+    {
+        QString ErrorString = QObject::tr("The colorado hardware config files' version is not valid.");
+        FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
+
+        return false;
+    }
+
+    QDomElement child = root.firstChildElement("parameter_master");
+    if(child.isNull())
+    {
+        return false;
+    }
+    else
+    {
+        QDomElement childSerialNb;
+
+        //read the serial number
+        childSerialNb=  child.firstChildElement("serial_number");
+        if(childSerialNb.isNull())
+        {
+            FILE_LOG_L(laINIT, llERROR) << " Serial number incorrect.";
+            return false;
+        }
+        else
+        {
+            SerialNo = childSerialNb.attribute("serialno");
+        }
+    }
+
+    return true;
 }
 
 /****************************************************************************/
@@ -654,27 +743,7 @@ void DeviceProcessing::TaskFinished(DeviceProcTask* pActiveTask)
     }
 }
 
-/****************************************************************************/
-/*!
- *  \brief  This slot receives TCP/IP messages from the simulator
- *
- *      This function is needed, when the Device Control Layer communicates
- *      with the Colopia simulator over TCP/IP sockets. The function recives
- *      the message in the format of a CAN datagram and appends it to the
- *      receive queue.
- *
- *  \iparam ID = CAN identifier
- *  \iparam data0 = Byte 0
- *  \iparam data1 = Byte 1
- *  \iparam data2 = Byte 2
- *  \iparam data3 = Byte 3
- *  \iparam data4 = Byte 4
- *  \iparam data5 = Byte 5
- *  \iparam data6 = Byte 6
- *  \iparam data7 = Byte 7
- *  \iparam dlc = data length count
- */
-/****************************************************************************/
+//test
 void DeviceProcessing::ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3,
                                          quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc)
 {
@@ -694,6 +763,7 @@ void DeviceProcessing::ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1,
 
     m_canCommunicator.AppendToReceiveQueue( frame);
 }
+
 
 /****************************************************************************/
 /*!
@@ -810,10 +880,10 @@ void DeviceProcessing::HandleTasks()
 {
     struct timeval tv_end;
     struct timeval tv_start;
+    bool PerformanceCheck = false;
 
     static quint16 stTest = 0;
     static quint32 RunThruCounter = 0;
-    static bool PerformanceCheck = false;
     static DeviceProcTask* pActiveTask = NULL;
     static DeviceProcTask::TaskID_t stTaskID = DeviceProcTask::TASK_ID_DP_UNDEF;
 
@@ -834,6 +904,7 @@ void DeviceProcessing::HandleTasks()
         stTaskID = pActiveTask->m_taskID;
         FILE_LOG_L(laDEVPROC, llINFO) << " DeviceProcessing: new TaskID: " << (int) pActiveTask->m_taskID;
     }
+
 
     switch (m_MainState)
     {
@@ -964,8 +1035,10 @@ void DeviceProcessing::HandleTasks()
     error = m_canCommunicator.GetCommunicationError(errorAddInfo);
     if(error < 0)
     {
+        QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_CANBUS_WRITE, error);
+        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        ThrowError(0, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
@@ -1026,7 +1099,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             if(!m_pConfigurationService)
             {
                 //create configuration service
-                m_pConfigurationService = new CConfigurationService(*this, m_canCommunicator);
+                m_pConfigurationService = new CConfigurationService(this, &m_canCommunicator);
             }
             m_SubStateConfig = DP_SUB_STATE_CONFIG_CONFIG;
             break;
@@ -1061,25 +1134,30 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             break;
         case DP_SUB_STATE_CONFIG_CFG_DEVICES:
             {
+                QListIterator<CBaseDevice*> iter(m_DeviceList);
+                CBaseDevice* pDevice;
                 bool NonIdleFound = false;
 
                 HandleCANNodesTask();
+                HandleDevicesTask();
 
-//                foreach (CDeviceBase* p_Device, m_DeviceList)
-//                {
-//                    if(p_Device->GetMainState() == CDeviceBase::DEVICE_MAIN_STATE_ERROR)
-//                    {
-//                        FILE_LOG_L(laINIT, llERROR) << "   DeviceProcessing: DEVICE_MAIN_STATE_ERROR";
-//                        m_SubStateConfig = DP_SUB_STATE_CONFIG_ERROR;
-//                        break;
-//                    }
-//                    else if(p_Device->GetMainState() != CDeviceBase::DEVICE_MAIN_STATE_IDLE)
-//                    {
-//                        FILE_LOG_L(laINIT, llWARNING) << "   DeviceProcessing: not idle";
-//                        NonIdleFound = true;
-//                        break;
-//                    }
-//                }
+                while (iter.hasNext())
+                {
+                    pDevice = iter.next();
+
+                    if(pDevice->GetMainState() == CBaseDevice::DEVICE_MAIN_STATE_ERROR)
+                    {
+                        FILE_LOG_L(laINIT, llERROR) << "   DeviceProcessing: " << pDevice->GetType().toStdString() << " DEVICE_MAIN_STATE_ERROR";
+                        m_SubStateConfig = DP_SUB_STATE_CONFIG_ERROR;
+                        break;
+                    }
+                    else if(pDevice->GetMainState() != CBaseDevice::DEVICE_MAIN_STATE_IDLE)
+                    {
+                        FILE_LOG_L(laINIT, llWARNING) << "   DeviceProcessing: " << pDevice->GetType().toStdString() << " not idle";
+                        NonIdleFound = true;
+                        break;
+                    }
+                }
                 if(NonIdleFound == false)
                 {
                     m_SubStateConfig = DP_SUB_STATE_CONFIG_FINISHED;
@@ -1126,9 +1204,12 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
 {
     if(pActiveTask->m_state == DeviceProcTask::TASK_STATE_ACTIVE_BRK)
     {
+        QDateTime errorTimeStamp;
+
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
-        ThrowEvent(EVENT_DEVICECONTROL_INFO_BREAK_NORMAL_OP, 0);
+        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
 
         return;
     }
@@ -1136,6 +1217,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_RUN)
     {
         HandleCANNodesTask();
+        HandleDevicesTask();
     }
     else if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_START)
     {
@@ -1145,6 +1227,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     else if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_CONFIG)
     {
         HandleCANNodesTask();
+        HandleDevicesTask();
         m_SubStateNormalOp = DP_SUB_STATE_NORMAL_OP_RUN;
         emit ReportStartNormalOperationMode(DCL_ERR_FCT_CALL_SUCCESS);
     }
@@ -1164,7 +1247,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_FINSHED;
         FILE_LOG_L(laDEVPROC, llINFO) << "  finish diag task";
 
-        emit ReportDiagnosticServiceClosed(DCL_ERR_FCT_CALL_SUCCESS);
+        emit ReportDiagnosticServiceClosed(4714);
         m_SubStateDiag = DP_SUB_STATE_DIAG_FINISHED;
         return;
     }
@@ -1184,8 +1267,10 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_CONFIG)
     {
+        QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
-        ThrowEvent(EVENT_DEVICECONTROL_ERROR_START_DIAG, 0);
+        errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1196,6 +1281,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
     }
 
     HandleCANNodesTask();
+    HandleDevicesTask();
 }
 
 /****************************************************************************/
@@ -1223,6 +1309,7 @@ void DeviceProcessing::HandleTaskAdjustment(DeviceProcTask* pActiveTask)
     }
 
     HandleCANNodesTask();
+    HandleDevicesTask();
     m_pAdjustmentService->HandleTasks();
 }
 
@@ -1293,6 +1380,7 @@ void DeviceProcessing::HandleTaskShutDown(DeviceProcTask* pActiveTask)
         delete m_pDiagnosticService;
         delete m_pAdjustmentService;
         delete m_pShutdownService;
+        delete m_pFunctionModuleTaskManager;
 
         // delete CANNodes
         while(!m_ObjectTree.isEmpty())
@@ -1308,9 +1396,9 @@ void DeviceProcessing::HandleTaskShutDown(DeviceProcTask* pActiveTask)
 
 /****************************************************************************/
 /**
- *  \brief Registers data Templates
+ *  \brief Registers data types
  *
- *      Registers the Templates declared in this layer and used by signal
+ *      Registers the types declared in this layer and used by signal
  *      slot mechanism.
  */
 /****************************************************************************/
@@ -1318,22 +1406,18 @@ void DeviceProcessing::RegisterMetaTypes()
 {
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<NodeState_t>("NodeState_t");
-    qRegisterMetaType<EmergencyStopReason_t>("EmergencyStopReason_t");
-    qRegisterMetaType<PowerState_t>("PowerState_t");
-    qRegisterMetaType<TestResult_t>("TestResult_t");
-    qRegisterMetaType<BlockState_t>("BlockState_t");
-    qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
-    qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
-    qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
-    qRegisterMetaType<AgitationSpeed_t>("AgitationSpeed_t");
-    qRegisterMetaType<WaterValveID_t>("WaterValveID_t");
-    qRegisterMetaType<OvenCoverPosition_t>("OvenCoverPosition_t");
+    //qRegisterMetaType<BlockState_t>("BlockState_t");
+    //qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
+    //qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
+    //qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
+    //qRegisterMetaType<AgitationSpeed_t>("AgitationSpeed_t");
+    //qRegisterMetaType<WaterValveID_t>("WaterValveID_t");
+    //qRegisterMetaType<OvenCoverPosition_t>("OvenCoverPosition_t");
     qRegisterMetaType<TempCtrlStatus_t>("TempCtrlStatus_t");
     qRegisterMetaType<TempCtrlOperatingMode_t>("TempCtrlOperatingMode_t");
     qRegisterMetaType<TempCtrlMainsVoltage_t>("TempCtrlMainsVoltage_t");
-    qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
-    qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
-    qRegisterMetaType<FanID_t>("FanID_t");
+    //qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
+    //qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
 }
 
 /****************************************************************************/
@@ -1349,6 +1433,32 @@ void DeviceProcessing::HandleCANNodesTask()
     {
         pCANNode = iter.next();
         pCANNode->HandleTasks();
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Calls the HandleTasks function of all devices
+ */
+/****************************************************************************/
+void DeviceProcessing::HandleDevicesTask()
+{
+    static quint16 stTest = 2505;
+
+    stTest++;
+    if(stTest > 2500)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << " DeviceProcessing::handleDevicesTask";
+        stTest = 0;
+    }
+
+    QListIterator<CBaseDevice*> iter(m_DeviceList);
+    CBaseDevice* pDevice;
+
+    while (iter.hasNext())
+    {
+        pDevice = iter.next();
+        pDevice->HandleTasks();
     }
 }
 
@@ -1401,7 +1511,8 @@ void DeviceProcessing::CheckMasterHeartbeat()
 
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
-                ThrowEvent(EVENT_DEVICECONTROL_ERROR_HEARTBEAT, 0);
+                QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
+                ThrowError(0, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
             }
         }
     }
@@ -1669,23 +1780,6 @@ MotionProfileIdx_t DeviceProcessing::GetProcSettingMotionProfileIdx(QString Key)
     return ProcSettingMotionProfileIdx;
 }
 
-void DeviceProcessing::SetAdjustmentList(DataManager::CAdjustment AdjustmentList)
-{
-    if (m_pAdjustment == NULL)
-    {
-        m_pAdjustment = new DataManager::CAdjustment(AdjustmentList);
-    }
-    else
-    {
-        *m_pAdjustment = AdjustmentList;
-    }
-}
-
-DataManager::CAdjustment* DeviceProcessing::GetAdjustmentList() const
-{
-    return m_pAdjustment;
-}
-
 /****************************************************************************/
 /*!
  *  \brief  Handles the processing of a new receipt can message
@@ -1724,12 +1818,25 @@ void DeviceProcessing::Initialize()
  *
  *  \iparam InstanceID = Instance identifier of the requested device
  *
- *  \return Device assigned to the instance identifier
+ *  \return CBaseDevice* matches the parameter
  */
 /****************************************************************************/
-CDeviceBase* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
+CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 {
-    return m_DeviceList[InstanceID];
+    QListIterator<CBaseDevice*> iter(m_DeviceList);
+    CBaseDevice* pDevice = NULL;
+
+    while (iter.hasNext())
+    {
+        pDevice = iter.next();
+
+        if(pDevice->GetInstanceID() == InstanceID)
+        {
+            break;
+        }
+    }
+
+    return pDevice;
 }
 
 /****************************************************************************/
@@ -1840,9 +1947,38 @@ CBaseModule* DeviceProcessing::GetNodeFromID(quint16 NodeID) const
 
 /****************************************************************************/
 /*!
+ *  \brief  Gets the CAN node assigned to a specific node key
+ *
+ *      A pointer to the CBaseModule instance with the matching key
+ *      will be returned. If no CBaseModule was found, the function
+ *      returns  a null pointer.
+ *
+ *  \iparam NodeKey = The key of the requested node
+ *
+ *  \return The CANNode* matches the key
+ */
+/****************************************************************************/
+CBaseModule* DeviceProcessing::GetNodeFromKey(QString NodeKey)
+{
+    CBaseModule* pCANNode = 0;
+
+    for(int nIndex=0; nIndex < m_ObjectTree.size(); nIndex++)
+    {
+        if(m_ObjectTree.at(nIndex)->GetKey() == NodeKey)
+        {
+            pCANNode = m_ObjectTree.at(nIndex);
+            break;
+        }
+    }
+
+    return pCANNode;
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Returns the function module with the specified instance ID
  *
- *  \iparam InstanceID = InstanceID of the requested funtion module
+ *  \iparam InstanceID = InstanceID of the requested fucntion module
  *
  *  \return The CANFunctionModuleBase* matches the key
  */
@@ -1868,15 +2004,34 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
 
 /****************************************************************************/
 /*!
- *  \brief  Insert a device into the internal list
+ *  \brief  Set the specified error parameters and error time to current time
  *
- *  \iparam InstanceId = Instance identifier of the device
- *  \iparam pBaseDevice = Pointer to device
+ *  \iparam ErrorGroup = Error group ID of the thrown error
+ *  \iparam ErrorCode = Error ID of the thrown error
+ *  \iparam ErrorData = Additional error information
  */
 /****************************************************************************/
-void DeviceProcessing::AddDevice(DevInstanceID_t InstanceId, CDeviceBase* pBaseDevice)
+void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData)
 {
-    m_DeviceList[InstanceId] = pBaseDevice;
+    m_LastErrorTime  = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    m_LastErrorGroup = ErrorGroup;
+    m_LastErrorCode  = ErrorCode;
+    m_LastErrorData  = ErrorData;
 }
-
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
+{
+    ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
+    if(!m_EventLoopsForSyncCall[CmdType].isRunning())
+    {
+        retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].exec();
+    }
+    return retValue;
+}
+void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
+{
+    if(m_EventLoopsForSyncCall[CmdType].isRunning())
+    {
+        m_EventLoopsForSyncCall[CmdType].exit(Value);
+    }
+}
 } //namespace

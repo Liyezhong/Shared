@@ -39,12 +39,9 @@
 
 #include "DeviceControl/Include/CanCommunication/CANCommunicator.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcTask.h"
-#include "DeviceControl/Include/Global/DeviceControl.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
-
-#include "DataManager/Containers/Adjustment/Include/Adjustment.h"
-#include "DataManager/Containers/Adjustment/Include/AdjustmentVerifier.h"
-
+#include <QEventLoop>
 namespace DeviceControl
 {
 
@@ -62,13 +59,14 @@ class CANMessageConfiguration;
 class ObjectTask;
 
 /// \todo remove to configuration service?
-class CDeviceBase;
+class CBaseDevice;
+class CFunctionModuleTaskManager;
 
 //! List of tasks used by device processing
-typedef QList<DeviceProcTask*> ListDeviceProcTask_t;
+typedef QList<DeviceProcTask*> ListDeviceProcTask;
 
 //! List of devices used by device processing
-typedef QMap<DevInstanceID_t, CDeviceBase*> ListDevice_t;
+typedef QList<CBaseDevice*> ListDevice;
 
 /****************************************************************************/
 /*!
@@ -91,12 +89,18 @@ public:
     DeviceProcessing(QObject *p_Parent);
     virtual ~DeviceProcessing();
 
-    void ThrowEvent(quint32 EventCode, quint16 EventData);
-    void ThrowEventWithInfo(quint32 EventCode, quint16 EventData, QString EventInfo);
+    void ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
+    void ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
+    void ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime, QString ErrorInfo);
+
+    //! Returns the serial number from config file
+    static bool GetSerialNumber(QString& SerialNo);
 
     //! Return the hardware config file name
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
 
+    ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
+    void ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value);
     //! Main state typde definition
     typedef enum {
         DP_MAIN_STATE_START           = 0x00,   /**< start state, after instantiation of the class */
@@ -110,13 +114,13 @@ public:
         DP_MAIN_STATE_ERROR           = 0x08    /**< error state, serious harm appeared */
     } DeviceProcessingMainState_t;
 
-    /****************************************************************************/
+    /*****************************************************************************/
     /*!
      *  \brief  Return the main state
      *
      *  \return Actual main state
      */
-    /****************************************************************************/
+    /*****************************************************************************/
     DeviceProcessingMainState_t GetState() const { return m_MainState; }
 
     //!< return the CAN message configuration
@@ -133,31 +137,44 @@ public:
     //! Insert a CANNode into the object tree
     void InsertCANNodeToObjectTree(CBaseModule* pCANNode);
 
-    void AddDevice(DevInstanceID_t InstanceId, CDeviceBase* pBaseDevice);
+    /*****************************************************************************/
+    /*!
+     *  \brief  Insert a device into the internal list
+     *
+     *  \iparam pBaseDevice = Pointer to device
+     */
+    /*****************************************************************************/
+    void AddDevice(CBaseDevice* pBaseDevice) { m_DeviceList.insert(m_DeviceList.size(), pBaseDevice); }
 
     //! Returns a device from the internal list
-    CDeviceBase* GetDevice(DevInstanceID_t InstanceID);
+    CBaseDevice* GetDevice(DevInstanceID_t InstanceID);
 
     //! Active the specified task
     ReturnCode_t ActivateTask(DeviceProcTask::TaskID_t taskID, quint16 taskParameter1, quint16 taskParameter2);
 
-    /****************************************************************************/
+    /*****************************************************************************/
     /*!
      *  \brief  Set the hardware decription  DomDocument
      *
      *  \iparam DocHwDescr = Hardware decription as DomDocument
      */
-    /****************************************************************************/
+    /*****************************************************************************/
     void SetXML_HWDescription(const QDomDocument &DocHwDescr) { m_DocHwDescr = DocHwDescr; }
 
     //! Output the actual object tree content
     void LogObjectTree(int nParameter);
 
-    //! Return CANNode specified by it's ID
-    CBaseModule* GetNodeFromID(quint16 nodeID) const;
-
     //! Return function module specified by it's instance identifier
     CFunctionModule* GetFunctionModule(quint32 InstanceID) const;
+
+    /*****************************************************************************/
+    /*!
+     *  \brief  Returns the function module task manager
+     *
+     *  \return Pointer to function module task manager
+     */
+    /*****************************************************************************/
+    CFunctionModuleTaskManager* GetFunctionModuleTaskManager() { return m_pFunctionModuleTaskManager; }
 
     //! Return the specified process setting parameter
     quint8  GetProcSettingUInt8(QString Key);
@@ -172,91 +189,21 @@ public:
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
 
-    void SetAdjustmentList(DataManager::CAdjustment AdjustmentList);
-    DataManager::CAdjustment* GetAdjustmentList() const;
-
 signals:
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward the 'intitialisation finished' notification
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportInitializationFinished(ReturnCode_t ReturnCode);
+    //! Forward the 'intitialisation finished' notification
+    void ReportInitializationFinished(ReturnCode_t);
+    //! Forward the 'configuration finished' notification
+    void ReportConfigurationFinished(ReturnCode_t);
+    //! Forward the 'normal operation mode started' notification
+    void ReportStartNormalOperationMode(ReturnCode_t);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward the 'configuration finished' notification
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportConfigurationFinished(ReturnCode_t ReturnCode);
+    //! Forward error information to IDeviceProcessing
+    void ReportError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
+    //! Forward error information to IDeviceProcessing
+    void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward the 'normal operation mode started' notification
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportStartNormalOperationMode(ReturnCode_t ReturnCode);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward error information to IDeviceProcessing
-     *
-     *  \iparam instanceID = Source of the error
-     *  \iparam usErrorGroup = Error group
-     *  \iparam usErrorID = Error ID
-     *  \iparam usErrorData = Error data
-     *  \iparam timeStamp = Timestamp
-     */
-    /****************************************************************************/
-    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Forward error information to IDeviceProcessing
-     *
-     *  \iparam instanceID = Source of the error
-     *  \iparam usErrorGroup = Error group
-     *  \iparam usErrorID = Error ID
-     *  \iparam usErrorData = Error data
-     *  \iparam timeStamp = Timestamp
-     *  \iparam strErrorInfo = Error string
-     */
-    /****************************************************************************/
-    void ReportEventWithInfo(quint32 EventCode, quint16 EventData, QDateTime EventTime, QString EventInfo);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Reports that the diagnostics task did finish
-     *
-     *  \iparam ReturnCode = DCL_ERR_FCT_CALL_SUCCESS if successful,
-     *                       otherwise an error code
-     */
-    /****************************************************************************/
-    void ReportDiagnosticServiceClosed(ReturnCode_t ReturnCode);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Reports that the device control layer is stopped
-     */
-    /****************************************************************************/
+    void ReportDiagnosticServiceClosed(qint16 DiagnosticResult);
     void ReportDestroyFinished();
-
-    /****************************************************************************/
-    /*!
-     *  \brief  Emitted when all devices should shut down
-     */
-    /****************************************************************************/
-    void DeviceShutdown();
-
 private slots:
     void ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3, quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc);
 
@@ -272,6 +219,7 @@ private:
     //! Initialize the communication via CAN or tcp/ip
     ReturnCode_t InitCommunication();
 
+    void SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData);
     ReturnCode_t ReadProcessSettings();
 
     CANCommunicator m_canCommunicator;  //!< CAN bus communication class
@@ -338,15 +286,17 @@ private:
 
     CANMessageConfiguration* m_pCANMessageConfiguration;    //!< Pointer to the CAN message configuration class
 
-    //himalaya device processing classes
+    //colorado device processing classes
     CConfigurationService* m_pConfigurationService; //!< configuration service class
     CDiagnosticService* m_pDiagnosticService;       //!< diagnostig operation service class
     CAdjustmentService* m_pAdjustmentService;       //!< adjustment service class
     CShutdownService* m_pShutdownService;           //!< shutdown service class
 
-    ListDevice_t m_DeviceList;          //!< List containing all devices
-    ListDeviceProcTask_t m_lstTasks;    //!< Internal task list
+    ListDevice m_DeviceList;    //!< List containing all devices
 
+    CFunctionModuleTaskManager* m_pFunctionModuleTaskManager;   //!< Function module's tasks list access
+
+    ListDeviceProcTask m_lstTasks;  //!< Internal task list
     //and the tasks
     DeviceProcTask* m_pTaskConfig;          //!< Configuration task
     DeviceProcTask* m_pTaskNormalOperation; //!< Normal operation task
@@ -364,6 +314,11 @@ private:
     ReturnCode_t ReadConfiguration();
     ReturnCode_t InitTasks();
 
+    //! Return CANNode specified by it's ID
+    CBaseModule* GetNodeFromID(quint16 nodeID) const;
+    //! Return CANNode specified by it's key
+    CBaseModule* GetNodeFromKey(QString nodeKey);
+
     void HandleTaskConfig(DeviceProcTask* pActiveTask);
     void HandleTaskDiagnostic(DeviceProcTask* pActiveTask);
     void HandleTaskNormalOperation(DeviceProcTask* pActiveTask);
@@ -371,6 +326,7 @@ private:
     void HandleTaskShutDown(DeviceProcTask* pActiveTask);
 
     void HandleCANNodesTask();
+    void HandleDevicesTask();
 
     //! CAN message handling
     void HandleCanMessage(can_frame* pCANframe);
@@ -391,8 +347,14 @@ private:
     static QString m_HWConfigFileName;  //!< Config file name
     static QString m_SerialNo;          //!< Serial number, read from config file
 
-    //!< Data Containers
-    DataManager::CAdjustment *m_pAdjustment;
+    ReturnCode_t m_LastErrorHdlInfo;    //!< Last errorcode, e.g. received by a fuction call
+    quint16      m_LastErrorGroup;      //!< Last error's group id
+    quint16      m_LastErrorCode;       //!< Last error's error code
+    quint16      m_LastErrorData;       //!< Last error's data
+    QDateTime    m_LastErrorTime;       //!< Last error's time
+    QString      m_LastErrorString;     //!< Last error information string
+
+    QEventLoop m_EventLoopsForSyncCall[SYNC_CMD_TOTAL_NUM];
 };
 
 } // namespace
