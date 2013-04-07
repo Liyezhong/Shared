@@ -30,7 +30,7 @@
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/Global/DeviceControlError.h"
 
-#include "FunctionModules/ModuleIDs.h"
+#include "ModuleIDs.h"
 
 namespace DeviceControl
 {

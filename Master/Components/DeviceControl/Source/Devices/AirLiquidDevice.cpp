@@ -796,7 +796,7 @@ SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
     return RetValue;
 }
-ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, quint32 TubePosition)
+ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
 {
 
     bool stop = false;
@@ -857,13 +857,6 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, quint32 TubePosition)
                 {
                     FILE_LOG_L(laDEVPROC, llINFO) << "Drain finished!";
                     stop = true;
-
-                    if(TubePosition != 0)
-                    {
-                        QDateTime now = QDateTime::currentDateTime();
-                        quint32 seconds = beforeDraining.secsTo(now);
-                        FILE_LOG_L(laDEVPROC, llINFO) << "Draining time is:" << seconds;
-                    }
                 }
             }
             else
@@ -913,7 +906,7 @@ SORTIE:
 
     return RetValue;
 }
-ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, quint32 TubePosition, bool IsAgitation)
+ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 {
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     qint32 retCode = DCL_ERR_FCT_CALL_SUCCESS;
@@ -924,7 +917,6 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, quint32 TubePosition, 
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
-    QDateTime beforeSucking = QDateTime::currentDateTime();
     connect(&timer, SIGNAL(timeout()), this, SLOT(SuckingTimerCB()));
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
 
@@ -973,13 +965,6 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, quint32 TubePosition, 
                 else
                 {
                     stop = true;
-                }
-                if((TubePosition != 0)&&(!IsAgitation))
-                {
-                    QDateTime now = QDateTime::currentDateTime();
-                    quint32 seconds = beforeSucking.secsTo(now);
-                    m_SuckingTime[TubePosition] = seconds;
-                    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Sucking time is: " << seconds<<" seconds.";
                 }
             }
         }

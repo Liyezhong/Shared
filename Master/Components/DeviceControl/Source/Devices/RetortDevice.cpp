@@ -15,7 +15,6 @@ CRetortDevice::CRetortDevice(DeviceProcessing* pDeviceProcessing, QString Type) 
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";
-    qDebug() <<  "Retort device cons thread id is " << QThread::currentThreadId();
 }
 
 CRetortDevice::~CRetortDevice()

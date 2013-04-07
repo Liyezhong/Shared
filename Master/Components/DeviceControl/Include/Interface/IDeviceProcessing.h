@@ -39,10 +39,16 @@
 #include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 #include "DeviceControl/Include/SlaveModules/Rfid15693.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
+#include "DeviceControl/Include/Devices/RotaryValveDevice.h"
+#include "DeviceControl/Include/Devices/AirLiquidDevice.h"
+#include "DeviceControl/Include/Devices/RetortDevice.h"
+#include "DeviceControl/Include/Devices/OvenDevice.h"
+#include "DeviceControl/Include/Devices/PeripheryDevice.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 
 namespace DeviceControl
 {
-
+#define UNDEFINED_VALUE (999)
 /****************************************************************************/
 /*!
  *  \brief  This is the interface class of the device control layer.
@@ -87,7 +93,55 @@ public:
     CBaseDevice* GetDevice(DevInstanceID_t InstanceID);
     //! Return the pointer to the CBaseModule which is next in list
     CBaseModule* GetNode(bool First);
-
+    //Air liquid device funcs
+    ReturnCode_t ALSetPressureCtrlON();
+    ReturnCode_t ALSetPressureCtrlOFF();
+    ReturnCode_t ALReleasePressure(void);
+    ReturnCode_t ALPressure();
+    ReturnCode_t ALVaccum();
+    ReturnCode_t ALDraining(quint32 DelayTime);
+    ReturnCode_t ALFilling(quint32 DelayTime);
+    qreal ALGetRecentPressure(quint8 Index);
+    ReturnCode_t ALSetTempCtrlON(ALTempCtrlType_t Type);
+    ReturnCode_t ALSetTempCtrlOFF(ALTempCtrlType_t type);
+    ReturnCode_t ALSetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    ReturnCode_t ALStartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    qreal ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index);
+    TempCtrlState_t ALGetTemperatureControlState(ALTempCtrlType_t Type);
+    ReturnCode_t ALTurnOnFan();
+    ReturnCode_t ALTurnOffFan();
+    //Rotary Valve device func
+    ReturnCode_t RVSetTempCtrlON();
+    ReturnCode_t RVSetTempCtrlOFF();
+    ReturnCode_t RVSetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    ReturnCode_t RVStartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange);
+    qreal RVGetRecentTemperature(quint32 Index);
+    TempCtrlState_t RVGetTemperatureControlState();
+    //! Execute the move to intial position of the RV
+    ReturnCode_t RVReqMoveToInitialPosition();
+    //! Position the oven cover
+    ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition);
+    //! Request actual oven cover position
+    RVPosition_t RVReqActRVPosition();
+    //Oven device func
+    ReturnCode_t OvenSetTempCtrlON(OVENTempCtrlType_t Type);
+    ReturnCode_t OvenSetTempCtrlOFF(OVENTempCtrlType_t type);
+    ReturnCode_t OvenSetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    ReturnCode_t OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    TempCtrlState_t OvenGetTemperatureControlState(OVENTempCtrlType_t Type);
+    //Retort device func
+    ReturnCode_t RTSetTempCtrlON(RTTempCtrlType_t Type);
+    ReturnCode_t RTSetTempCtrlOFF(RTTempCtrlType_t Type);
+    ReturnCode_t RTSetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    ReturnCode_t RTStartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    qreal RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
+    TempCtrlState_t RTGetTemperatureControlState(RTTempCtrlType_t Type);
+    ReturnCode_t RTUnlock();
+    ReturnCode_t RTLock();
+    //Periphery device func
+    ReturnCode_t PerTurnOffMainRelay();
+    ReturnCode_t PerTurnOnMainRelay();
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(DevInstanceID_t, ReturnCode_t);
@@ -135,7 +189,7 @@ private:
     DeviceProcessing *mp_DevProc;   //!< Device processing instance
     QThread m_DevProcThread;        //!< Device processing thread
     QTimer m_DevProcTimer;          //!< Device processing timer
-
+    Qt::HANDLE m_ParentThreadID;
     typedef enum {
         IDEVPROC_TASKID_INIT     = 0x00,    //!< Initialisation
         IDEVPROC_TASKID_FREE     = 0x01,    //!< Task free, nothing to do
@@ -159,7 +213,11 @@ private:
     quint16 m_reqTaskParameter2;    //!< Task parameter 2
 
     DevInstanceID_t m_instanceID;   //!< Instance identification
-
+    CRotaryValveDevice *m_pRotaryValve;
+    CAirLiquidDevice *m_pAirLiquid;
+    CRetortDevice *m_pRetort;
+    COvenDevice *m_pOven;
+    CPeripheryDevice *m_pPeriphery;
 
     QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing

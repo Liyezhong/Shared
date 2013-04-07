@@ -20,11 +20,6 @@ public:
     COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type);
     //! destructor
     virtual ~COvenDevice();
-    typedef enum {
-        OVEN_TOP = 0,
-        OVEN_BOTTOM = 1,
-        OVEN_TEMP_CTRL_NUM =2
-    } OVENTempCtrlType_t;
     //! general task handling function
     void HandleTasks();
 

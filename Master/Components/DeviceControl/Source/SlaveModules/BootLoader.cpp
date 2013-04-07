@@ -23,7 +23,7 @@
  */
 /****************************************************************************/
 
-#include "FunctionModules/ModuleIDs.h"
+#include "DeviceControl/Include/SlaveModules/ModuleIDs.h"
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/SlaveModules/BootLoader.h"

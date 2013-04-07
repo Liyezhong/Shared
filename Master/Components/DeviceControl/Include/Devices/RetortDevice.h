@@ -20,11 +20,7 @@ public:
     CRetortDevice(DeviceProcessing* pDeviceProcessing, QString Type);
     //! destructor
     virtual ~CRetortDevice();
-    typedef enum {
-        RT_BOTTOM = 0,
-        RT_SIDE = 1,
-        RT_TEMP_CTRL_NUM =2
-    } RTTempCtrlType_t;
+
     //! general task handling function
     void HandleTasks();
 

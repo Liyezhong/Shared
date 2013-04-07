@@ -298,7 +298,6 @@ typedef enum {
     TEMPCTRL_OPMODE_HOLD  = 0x02    //!< operation mode power safe
 } TempCtrlOperatingMode_t;
 
-#ifdef PRE_ALFA_TEST
 typedef enum {
     PRESSURECTRL_STATUS_UNDEF = 0x00,   //!< status undefined
     PRESSURECTRL_STATUS_OFF   = 0x01,   //!< pressure ctrl. is off
@@ -318,7 +317,6 @@ typedef enum {
     PRESSURECTRL_VOLTAGE_110V  = 0x02   //!< 110V mains voltage
 } PressureCtrlMainsVoltage_t;
 
-#endif
 
 /*! temperature control mains voltage */
 typedef enum {
@@ -368,9 +366,24 @@ typedef enum {
     DEVICE_INSTANCE_ID_PERIPHERY      = 0x000080C4    //!< Periphery
 } DevInstanceID_t;
 
+typedef enum {
+    AL_LEVELSENSOR = 0,
+    AL_TUBE1 = 1,
+    AL_TUBE2 = 2,
+    AL_TEMP_CTRL_NUM = 3
+} ALTempCtrlType_t;
 
+typedef enum {
+    OVEN_TOP = 0,
+    OVEN_BOTTOM = 1,
+    OVEN_TEMP_CTRL_NUM =2
+} OVENTempCtrlType_t;
 
-
+typedef enum {
+    RT_BOTTOM = 0,
+    RT_SIDE = 1,
+    RT_TEMP_CTRL_NUM =2
+} RTTempCtrlType_t;
 /****************************************************************************/
 /*! \class CANObjectKeyLUT
  *

@@ -61,12 +61,7 @@ public:
     CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString Type);
     //! destructor
     virtual ~CAirLiquidDevice();
-    typedef enum {
-        AL_LEVELSENSOR = 0,
-        AL_TUBE1 = 1,
-        AL_TUBE2 = 2,
-        AL_TEMP_CTRL_NUM = 3
-    } ALTempCtrlType_t;
+
     //! general task handling function
     void HandleTasks();
     //! Air Liquid device function
@@ -75,8 +70,8 @@ public:
     ReturnCode_t ReleasePressure(void);
     ReturnCode_t Pressure();
     ReturnCode_t Vaccum();
-    ReturnCode_t Draining(quint32 DelayTime, quint32 TubePosition);
-    ReturnCode_t Filling(quint32 DelayTime, quint32 TubePosition, bool IsAgitation);
+    ReturnCode_t Draining(quint32 DelayTime);
+    ReturnCode_t Filling(quint32 DelayTime);
     qreal GetRecentPressure(quint8 Index);
 
 
