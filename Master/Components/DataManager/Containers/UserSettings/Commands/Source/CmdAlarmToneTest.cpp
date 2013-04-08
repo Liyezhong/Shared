@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdAlarmToneTest.cpp
+/*! \file  DataManager/Containers/UserSettings/Commands/Source/CmdAlarmToneTest.cpp
  *
  *  \brief CmdAlarmToneTest command implementation.
  *

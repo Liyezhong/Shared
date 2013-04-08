@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdAlarmToneTest.h
+/*! \file DataManager/Containers/UserSettings/Commands/Source/CmdAlarmToneTest.cpp
  *
  *  \brief CmdAlarmToneTest command definition.
  *
@@ -37,13 +37,49 @@ class CmdAlarmToneTest : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdAlarmToneTest &);
 public:
     static QString NAME;    ///< Command name.
-    /****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Constructor.
+ */
+/****************************************************************************/
     CmdAlarmToneTest(int Timeout, quint8 Sound, quint8 Volume, bool AlarmType);
+/****************************************************************************/
+/*!
+ *  \brief  Default Constructor.
+ */
+/****************************************************************************/
     CmdAlarmToneTest();
+/****************************************************************************/
+/*!
+ *  \brief  Destructor.
+ */
+/****************************************************************************/
     ~CmdAlarmToneTest();
     virtual QString GetName() const;
+/****************************************************************************/
+/*!
+ *  \brief   This function returns requested Sound
+ *
+ *  \return  Sound
+ */
+/****************************************************************************/
+
     quint8 GetSound() const;
+/****************************************************************************/
+/*!
+ *  \brief   This function returns requested Volume
+ *
+ *  \return  Volume
+ */
+/****************************************************************************/
     quint8 GetVolume() const;
+/****************************************************************************/
+/*!
+ *  \brief   This function returns Type of Alarm
+ *
+ *  \return  AlarmType
+ */
+/****************************************************************************/
     bool GetAlarmType() const;
 private:
 

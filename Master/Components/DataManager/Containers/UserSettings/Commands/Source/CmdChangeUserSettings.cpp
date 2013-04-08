@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdChangeUserSettings.cpp
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Source/CmdChangeUserSettings.cpp
  *
  *  \brief CmdChangeUserSettings command implementation.
  *

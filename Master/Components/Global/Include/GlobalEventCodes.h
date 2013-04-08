@@ -53,6 +53,40 @@ const quint32 EVENT_GLOBAL_UNCAUGHT_EXCEPTION               = EVENT_GROUP_PLATFO
 
 const quint32 EVENT_GLOBAL_DUMMY_ERROR                      = EVENT_GROUP_PLATFORM_GLOBAL + 0xFFFE; ///< Dummy error. Should be replaced by correct error. File: %1 line: %2.
 
+// log user activities of the data manager starts from 0x0200
+/// don't start the number for events(EVENT_GROUP_PLATFORM_GLOBAL) from 0x0200
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_PROGRAM_ADDED                  = EVENT_GROUP_PLATFORM_GLOBAL + 0x0200; ///< Program %1 added
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_PROGRAM_DELETED                = EVENT_GROUP_PLATFORM_GLOBAL + 0x0201; ///< Program %1 deleted
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_PROGRAM_UPDATE                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x0202; ///< Program %1 updated
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_PROGRAM_MODIFY_LEICA           = EVENT_GROUP_PLATFORM_GLOBAL + 0x0203; ///< Leica Program %1 updated
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_PROGRAM_COLOR                  = EVENT_GROUP_PLATFORM_GLOBAL + 0x0204; ///< Color for program %1 changed
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_REAGENT_ADDED                  = EVENT_GROUP_PLATFORM_GLOBAL + 0x0205; ///< Reagent %1 added
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_REAGENT_DELETED                = EVENT_GROUP_PLATFORM_GLOBAL + 0x0206; ///< Reagent %1 deleted
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_REAGENT_UPDATED                = EVENT_GROUP_PLATFORM_GLOBAL + 0x0207; ///< Reagent %1 updated
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_LANGUAGE_CHANGED            = EVENT_GROUP_PLATFORM_GLOBAL + 0x0208; ///< Language set to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_DATE_TIME_CHANGED           = EVENT_GROUP_PLATFORM_GLOBAL + 0x0209; ///< Date/ Time changed: %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_TEMP_CHANGED           = EVENT_GROUP_PLATFORM_GLOBAL + 0x020A; ///< Oventemperature changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_NETWORK_SETTINGS_ADDED      = EVENT_GROUP_PLATFORM_GLOBAL + 0x020B; ///< Network Settings changed
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_WHITE_RACK_PROGRAM_ASSOCIATED  = EVENT_GROUP_PLATFORM_GLOBAL + 0x020C; ///< White rack assigned to program %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_ADMIN_LOGIN                    = EVENT_GROUP_PLATFORM_GLOBAL + 0x020D; ///< Administrator Login
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_OPERATOR_LOGIN                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x020E; ///< Operator Login
+const quint32 EVENT_GLOBAL_RMS_ACTIVITY_STATION_DC_UPDATED              = EVENT_GROUP_PLATFORM_GLOBAL + 0x0210; ///< Station DC updated by RMS
+const quint32 EVENT_GLOBAL_RMS_ACTIVITY_STATION_DC_UPDATE_FAILED        = EVENT_GROUP_PLATFORM_GLOBAL + 0x0211; ///< Station DC updation by RMS failed
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_BATHLAYOUT_CHANGE_FAILED       = EVENT_GROUP_PLATFORM_GLOBAL + 0x0212; ///< Bathlayout changed by user
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_BATHLAYOUT_CHANGED             = EVENT_GROUP_PLATFORM_GLOBAL + 0x0213; ///< Bathlayout change by user failed
+
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED          = EVENT_GROUP_PLATFORM_GLOBAL + 0x0214; ///< Water type is changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED     = EVENT_GROUP_PLATFORM_GLOBAL + 0x0215; ///< Oven start mode changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_TEMPERATURE_FORMAT_CHANGED  = EVENT_GROUP_PLATFORM_GLOBAL + 0x0216; ///< Temperature format changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_TIME_FORMAT_CHANGED         = EVENT_GROUP_PLATFORM_GLOBAL + 0x0217; ///< Time format changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_DATE_FORMAT_CHANGED         = EVENT_GROUP_PLATFORM_GLOBAL + 0x0218; ///< Date format changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_AGITATION_SPEED_CHANGED     = EVENT_GROUP_PLATFORM_GLOBAL + 0x0219; ///< Agitation speed changed to %1
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_LOADER_REAGENT_CHANGED      = EVENT_GROUP_PLATFORM_GLOBAL + 0x021A; ///< Loader reagent %1 changed to %2
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_NOTE_TONE_CHANGED    = EVENT_GROUP_PLATFORM_GLOBAL + 0x021B; ///< Alaram note tone changed
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_ERROR_NOTE_CHANGED   = EVENT_GROUP_PLATFORM_GLOBAL + 0x021C; ///< Alaram error tone changed
+const quint32 EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED           = EVENT_GROUP_PLATFORM_GLOBAL + 0x021D; ///< RMS state changed to %1
+
+
 // now some string IDs
 const quint32 EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE          = EVENT_GROUP_PLATFORM_GLOBAL + 0x1000; ///< Debug message: '%1'
 const quint32 EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED      = EVENT_GROUP_PLATFORM_GLOBAL + 0x1001; ///< Undefined Event type
@@ -67,6 +101,9 @@ const quint32 EVENT_GLOBAL_STRING_TERMINATING               = EVENT_GROUP_PLATFO
 const quint32 EVENT_GLOBAL_SET_DATE_TIME                    = EVENT_GROUP_PLATFORM_GLOBAL + 0x100A; ///< Setting date / time to '%1'.
 const quint32 EVENT_GLOBAL_CURRENT_TIME_OFFSET              = EVENT_GROUP_PLATFORM_GLOBAL + 0x100B; ///< Current time offset is '%1' seconds.
 const quint32 EVENT_GLOBAL_POWER_FAIL                       = EVENT_GROUP_PLATFORM_GLOBAL + 0x100C; ///< Power fail.
+const quint32 EVENT_GLOBAL_STRING_ID_RESOLVED               = EVENT_GROUP_PLATFORM_GLOBAL + 0x100D; ///< Resolved:
+const quint32 EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED           = EVENT_GROUP_PLATFORM_GLOBAL + 0x100E; ///< Acknowledged by user:
+
 
 // string IDs for Export
 // Event codes for the Export process
@@ -107,3 +144,4 @@ const quint32 EVENT_EXPORT_ZIP_IS_TAKING_LONGTIME                           = EV
 } // end namespace Global
 
 #endif // GLOBAL_GLOBALEVENTCODES_H
+

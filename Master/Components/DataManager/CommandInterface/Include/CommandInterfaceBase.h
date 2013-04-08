@@ -24,6 +24,7 @@
 #include <DataManager/Include/DataManagerBase.h>
 #include <Threads/Include/MasterThreadController.h>
 #include "Threads/Include/CommandChannel.h"
+#include "Global/Include/UITranslator.h"
 
 namespace DataManager {
 /****************************************************************************/
@@ -62,10 +63,76 @@ public:
 protected:
     //Pointer section
     CDataManagerBase                             *mp_DataManager;                     //!< Self Explaining
-    Threads::MasterThreadController       *mp_MasterThreadController; //!< Will be used to call BroadCastCommand
-    CDataContainerCollectionBase                           *mp_DataContainer;                  //!< Provides access to various containers
-    virtual void RegisterCommands() = 0;
-    virtual void UnRegisterCommands(){}
+    Threads::MasterThreadController              *mp_MasterThreadController;          //!< Will be used to call BroadCastCommand
+    CDataContainerCollectionBase                 *mp_DataContainer;                   //!< Provides access to various containers
+
+    /****************************************************************************/
+    /*!
+     *  \brief Provides functionality to SendNack to GUI
+     *  \iparam Ref = Command reference
+     *  \iparam AckCommandChannel = Command Channel to send Ack
+     *  \iparam ErrorList = List of errors occured
+     *  \iparam EventCode = EventCode to send for Default message
+     */
+    /****************************************************************************/
+    void SendNackToGUI(Global::tRefType Ref, Threads::CommandChannel &AckCommandChannel, ListOfErrors_t &ErrorList, quint32 EventCode)
+    {
+        QString ErrorString;
+        //Error List was not generated, we inform user that update was not possible
+        if (ErrorList.isEmpty()) {
+            ErrorString = Global::UITranslator::TranslatorInstance().
+                    Translate(Global::TranslatableString(EventCode,
+                                                         Global::tTranslatableStringList()));
+            Global::EventObject::Instance().RaiseEvent(EventCode);
+        }
+        else {
+            DataManager::Helper::ErrorIDToString(ErrorList, ErrorString);
+            if (ErrorString.isEmpty()) {
+                ErrorString = Global::UITranslator::TranslatorInstance().
+                        Translate(Global::TranslatableString(EventCode,
+                                                             Global::tTranslatableStringList()));
+            }
+        }
+        if (mp_MasterThreadController) {
+            mp_MasterThreadController->SendAcknowledgeNOK(Ref, AckCommandChannel, ErrorString, Global::GUIMSGTYPE_INFO);
+        }
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Provides functionality to SendNack to GUI
+     *  \iparam Ref = Command reference
+     *  \iparam AckCommandChannel = Command Channel to send Ack
+     *  \iparam EventCode = EventCode to send for Default message
+     */
+    /****************************************************************************/
+    void SendNackToGUIWithDefaultMsg(Global::tRefType Ref, Threads::CommandChannel &AckCommandChannel, quint32 EventCode)
+    {
+        //Error List was not generated, we inform user that update was not possible
+        QString ErrorString(Global::UITranslator::TranslatorInstance().
+                            Translate(Global::TranslatableString(EventCode, Global::tTranslatableStringList())));
+        //Logs the event
+        Global::EventObject::Instance().RaiseEvent(EventCode);
+        if (mp_MasterThreadController) {
+            mp_MasterThreadController->SendAcknowledgeNOK(Ref, AckCommandChannel, ErrorString, Global::GUIMSGTYPE_INFO);
+        }
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Provides functionality to SendNack to GUI
+     *  \iparam Ref = Command reference
+     *  \iparam AckCommandChannel = Command Channel to send Ack
+     *  \iparam Command = Command required to update GUI
+     */
+    /****************************************************************************/
+    void SendAckAndUpdateGUI(Global::tRefType Ref, Threads::CommandChannel &AckCommandChannel, const Global::CommandShPtr_t &Command)
+    {
+        if (mp_MasterThreadController) {
+            mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
+            mp_MasterThreadController->SendCommand(Command, AckCommandChannel);
+        }
+    }
 };
 
 }// end of namespace DataManager

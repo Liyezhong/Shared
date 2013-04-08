@@ -20,7 +20,7 @@
 #ifndef USERSETTINGSCOMMANDINTERFACE_H
 #define USERSETTINGSCOMMANDINTERFACE_H
 
-#include "CommandInterfaceBase.h"
+#include "DataManager/CommandInterface/Include/CommandInterfaceBase.h"
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdChangeUserSettings.h"
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
 
@@ -41,7 +41,13 @@ private:
     void SettingsUpdateHandler(Global::tRefType, const MsgClasses::CmdChangeUserSettings &Cmd, Threads::CommandChannel &AckCommandChannel);
     void AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel);
 signals:
-    void UserSettingsChanged();
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when User modifies the Settings from GUI
+     * \iparam LanguageChanged = true if language changed
+     */
+    /****************************************************************************/
+    void UserSettingsChanged(const bool LanguageChanged);
 };
 
 }// End of namespace DataManager

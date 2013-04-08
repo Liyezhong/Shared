@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file UserSettings.h
+/*! \file Components/DataManager/Containers/UserSettings/Source/UserSettings.cpp
  *
  *  \brief Implementation file for class CUserSettings.
  *
  *  $Version:   $ 0.2
- *  $Date:      $ 2010-08-23, 2012-04-23
- *  $Author:    $ J.Bugariu, Raju
+ *  $Date:      $ 2012-04-23
+ *  $Author:    $ Raju123
  *
  *  \b Company:
  *
@@ -26,7 +26,8 @@
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
-
+//lint -e641
+//lint -e1536
 
 namespace DataManager {
 
@@ -215,7 +216,6 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
                     qDebug() << "CUserSettings::DeserializeContent: Read localization is failed";
                     return false;
                 }
-                qDebug()<<GetDateFormat()<<GetTimeFormat()<<GetTemperatureFormat();
             }
             else if (XmlStreamReader.name() == "Sound")
             {
@@ -247,8 +247,8 @@ bool CUserSettings::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool C
         // do nothing
     }
     XmlStreamReader.device()->reset();
-    qDebug()<<"UserSettings Class";
-    qDebug()<<"UserSettings"<<XmlStreamReader.device()->readAll();
+//    qDebug()<<"UserSettings Class";
+//    qDebug()<<"UserSettings"<<XmlStreamReader.device()->readAll();
     return true;
 }
 
@@ -280,8 +280,6 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     Global::DateFormat DF = Global::StringToDateFormat(DateFormatStr, false);
     if(DF == Global::DATE_UNDEFINED) {
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << DF, true);
-        // wrong format. throw exception.
-        //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_DATEFORMAT, DateFormatStr);
     }
     SetDateFormat(DF);
 
@@ -295,8 +293,6 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     Global::TimeFormat TF = Global::StringToTimeFormat(TimeFormatStr, false);
     if(TF == Global::TIME_UNDEFINED) {
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << TF, true);
-        // wrong format. throw exception.
-        //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TIMEFORMAT, TimeFormatStr);
     }
     SetTimeFormat(TF);
 
@@ -310,8 +306,6 @@ bool CUserSettings::ReadLocalization(QXmlStreamReader& XmlStreamReader)
     Global::TemperatureFormat TempF = Global::StringToTemperatureFormat(TempFormatStr, false);
     if(TempF == Global::TEMP_FORMAT_UNDEFINED) {
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<TempF, true);
-        // wrong format. throw exception.
-        //LOGANDTHROWARG(EVENT_DATAMANAGEMENT_ERROR_NO_VALID_TEMPFORMAT, TempFormatStr);
     }
 
     SetTemperatureFormat(TempF);
@@ -335,7 +329,7 @@ bool CUserSettings::ReadSoundSettings(QXmlStreamReader& XmlStreamReader)
         XmlStreamReader.readNextStartElement();
         if (XmlStreamReader.tokenType() == QXmlStreamReader::StartElement)
         {
-            qDebug() << "CUserSettings::DeserializeContent, checking" << XmlStreamReader.name();
+//            qDebug() << "CUserSettings::DeserializeContent, checking" << XmlStreamReader.name();
 
             if (XmlStreamReader.name() == "ErrorTone")
             {
@@ -535,7 +529,16 @@ CUserSettings& CUserSettings::operator=(const CUserSettings& UserSettings)
     return *this;
 }
 
-QString CUserSettings::GetValue(QString key)
+/****************************************************************************/
+/*!
+ *  \brief Get value of a particular setting from the value list
+ *
+ *  \iparam key  = unique associated with the setting
+ *
+ *  \return Value
+ */
+/****************************************************************************/
+QString CUserSettings::GetValue(QString key) const
 {
     if (m_ValueList.contains(key.toUpper()))
     {

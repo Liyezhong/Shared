@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdRmsOnOff.cpp
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Source/CmdRmsOnOff.cpp
  *
  *  \brief CmdRmsOnOff command implementation.
  *

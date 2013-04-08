@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file UserSettings.h
+/*! \file Components/DataManager/Containers/UserSettings/Include/UserSettings.h
  *
  *  \brief Definition file for class CUserSettings.
  *
  *  $Version:   $ 0.2
- *  $Date:      $ 2010-08-23, 2012-04-23
- *  $Author:    $ J.Bugariu, Raju
+ *  $Date:      $ 2012-04-23
+ *  $Author:    $ Raju123
  *
  *  \b Company:
  *
@@ -63,21 +63,7 @@ private:
     QString                     m_ProxyPassword;        ///< ProxyPassword
     QString                     m_ProxyIPAddress;       ///< ProxyIPAddress
     int                         m_ProxyIPPort;          ///< ProxyIPPort
-
-//    int                         m_AgitationSpeed;       ///< Agitation speed.
-//    Global::OvenStartMode       m_OvenStartMode;        ///< Oven start mode.
-//    int                         m_OvenTemp;             ///< Oven temperature. in Celsius!
-//    Global::OnOffState          m_RMSState;             ///< RMS state.
-//    Global::WaterType           m_WaterType;            ///< Water type.
-//    int                         m_LeicaAgitationSpeed;  ///< Agitation Speed for Leica Programs
-//    int                         m_LeicaOvenTemp;        ///< Oven temperature. in Celsius! for leica Programs
-//    QString                     m_LoaderReagent1;       ///< Loader reagent1
-//    QString                     m_LoaderReagent2;       ///< Loader reagent2
-//    QString                     m_LoaderReagent3;       ///< Loader reagent3
-//    QString                     m_LoaderReagent4;       ///< Loader reagent4
-//    QString                     m_LoaderReagent5;       ///< Loader reagent5
-    //    QStringList                 m_LoaderReagents;       ///< Loader reagents
-
+    QHash<QString, QString>     m_ValueList;            ///< User Settings Hash
     /****************************************************************************/
 
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
@@ -86,7 +72,6 @@ private:
     bool ReadSoundSettings(QXmlStreamReader& XmlStreamReader);
     bool ReadLocalization(QXmlStreamReader& XmlStreamReader);
     bool ReadNetworkSettings(QXmlStreamReader& XmlStreamReader);
-//    bool ReadLoaderReagents(QXmlStreamReader& XmlStreamReader);
 
     /****************************************************************************/
     /*!
@@ -100,8 +85,6 @@ private:
         //QWriteLocker locker(mp_ReadWriteLock);
         m_Version = Value;
     }
-
-    QHash<QString, QString> m_ValueList;
 
 protected:
 public:
@@ -341,8 +324,16 @@ public:
         m_SoundLevelWarning = SoundLevel;
     }
 
-    QString GetValue(QString key);
+    QString GetValue(QString key) const;
 
+    /****************************************************************************/
+    /*!
+     *  \brief Set Value (e.g. RMS_STATE)
+     *
+     *  \iparam key = unique key e.g. RMS_STATE
+     *  \iparam value = value associated with Key
+     */
+    /****************************************************************************/
     void SetValue(QString key, QString value)
     {
         if (!m_ValueList.contains(key.toUpper()))
@@ -352,6 +343,14 @@ public:
         m_ValueList.insert(key.toUpper(), value);
     }
 
+    /****************************************************************************/
+    /*!
+     *  \brief Set Value (e.g. RMS_STATE)
+     *
+     *  \iparam key = unique key e.g. RMS_STATE
+     *  \iparam value = value associated with Key
+     */
+    /****************************************************************************/
     void SetValue(QString key, qint32 value)
     {
         SetValue(key, QString::number(value));
@@ -364,7 +363,7 @@ public:
      *  \return RemoteCare value.
      */
     /****************************************************************************/
-    Global::OnOffState GetRemoteCare()
+    Global::OnOffState GetRemoteCare() const
     {
         //QWriteLocker locker(mp_ReadWriteLock);
         return m_RemoteCare;
@@ -391,7 +390,7 @@ public:
      *  \return DirectConnection value.
      */
     /****************************************************************************/
-     Global::OnOffState GetDirectConnection()
+     Global::OnOffState GetDirectConnection() const
     {
         //QWriteLocker locker(mp_ReadWriteLock);
         return m_DirectConnection;
@@ -416,7 +415,7 @@ public:
      *  \return Proxy UserName.
      */
     /****************************************************************************/
-    QString GetProxyUserName()
+    QString GetProxyUserName() const
     {
         //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyUserName;
@@ -442,7 +441,7 @@ public:
      *  \return Proxy Password.
      */
     /****************************************************************************/
-    QString GetProxyPassword()
+    QString GetProxyPassword() const
     {
         //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyPassword;
@@ -468,7 +467,7 @@ public:
      *  \return Proxy IP Address.
      */
     /****************************************************************************/
-    QString GetProxyIPAddress()
+    QString GetProxyIPAddress() const
     {
         //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyIPAddress;
@@ -494,7 +493,7 @@ public:
      *  \return Proxy IP Port.
      */
     /****************************************************************************/
-    int GetProxyIPPort()
+    int GetProxyIPPort() const
     {
         //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyIPPort;
@@ -512,308 +511,6 @@ public:
         //QWriteLocker locker(mp_ReadWriteLock);
         m_ProxyIPPort = ProxyIPPort;
     }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the agitation speed
-//     *
-//     *  \return agitation speed
-//     */
-//    /****************************************************************************/
-//    int GetAgitationSpeed() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_AgitationSpeed;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the agitation speed
-//     *
-//     *  \iparam AgitationSpeed = Agitation speed
-//     */
-//    /****************************************************************************/
-//    void SetAgitationSpeed(int AgitationSpeed)
-//    {
-//        //QWriteLocker locker(mp_ReadWriteLock);
-//        m_AgitationSpeed = AgitationSpeed;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the oven start mode
-//     *
-//     *  \return oven start mode
-//     */
-//    /****************************************************************************/
-//    Global::OvenStartMode GetOvenStartMode() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_OvenStartMode;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the oven start mode
-//     *
-//     *  \iparam TheOvenStartMode = Oven start mode
-//     */
-//    /****************************************************************************/
-//    void SetOvenStartMode(Global::OvenStartMode TheOvenStartMode)
-//    {
-//        //QWriteLocker Locker(mp_ReadWriteLock);
-//        m_OvenStartMode = TheOvenStartMode;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the oven temperature
-//     *
-//     *  \return oven temperature
-//     */
-//    /****************************************************************************/
-//    int GetOvenTemp() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_OvenTemp;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the oven temperature
-//     *
-//     *  \iparam OvenTemp = Oven Temperature
-//     */
-//    /****************************************************************************/
-//    void SetOvenTemp(int OvenTemp)
-//    {
-//        //QWriteLocker locker(mp_ReadWriteLock);
-//        m_OvenTemp = OvenTemp;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the RMS state
-//     *
-//     *  \return RMS state
-//     */
-//    /****************************************************************************/
-//    Global::OnOffState GetRMSState() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_RMSState;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the RMS state
-//     *
-//     *  \iparam RMSState = State of the RMS
-//     */
-//    /****************************************************************************/
-//    void SetRMSState(Global::OnOffState RMSState)
-//    {
-//        //QWriteLocker locker(mp_ReadWriteLock);
-//        m_RMSState = RMSState;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the Water type for the UserSettings
-//     *
-//     *  \return water type value
-//     */
-//    /****************************************************************************/
-//    Global::WaterType GetWaterType() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_WaterType;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the water type for the UserSettings
-//     *
-//     *  \iparam Value = water type (i.e. tap or distilled)
-//     */
-//    /****************************************************************************/
-//    void SetWaterType(Global::WaterType Value)
-//    {
-//        //QWriteLocker locker(mp_ReadWriteLock);
-//        m_WaterType = Value;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the agitation speed for Leica Programs
-//     *
-//     *  \return agitation speed
-//     */
-//    /****************************************************************************/
-//    int GetLeicaAgitationSpeed() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_LeicaAgitationSpeed;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the agitation speed required for leica programs
-//     *
-//     *  \iparam AgitationSpeed = Agitation speed
-//     */
-//    /****************************************************************************/
-//    void SetLeicaAgitationSpeed(int AgitationSpeed)
-//    {
-//        //QWriteLocker locker(mp_ReadWriteLock);
-//        m_LeicaAgitationSpeed = AgitationSpeed;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the oven temperature required for Leica Programs
-//     *
-//     *  \return oven temperature
-//     */
-//    /****************************************************************************/
-//    int GetLeicaOvenTemp() const
-//    {
-//        //QReadLocker locker(mp_ReadWriteLock);
-//        return m_LeicaOvenTemp;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the oven temperature required for leica programs
-//     *
-//     *  \iparam OvenTemp = Oven Temperature
-//     */
-//    /****************************************************************************/
-//    void SetLeicaOvenTemp(int OvenTemp)
-//    {
-//        //QWriteLocker locker(mp_ReadWriteLock);
-//        m_LeicaOvenTemp = OvenTemp;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the reagent for first loader for the UserSettings
-//     *
-//     *  \return Loader reagent
-//     */
-//    /****************************************************************************/
-//    QString GetLoaderReagent1() const
-//    {
-//        return m_LoaderReagent1;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the reagent for first loader for the UserSettings
-//     *
-//     *  \iparam Value = Load reagent
-//     */
-//    /****************************************************************************/
-//    void SetLoaderReagent1(const QString Value)
-//    {
-//        m_LoaderReagent1 = Value;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the reagent for second loader for the UserSettings
-//     *
-//     *  \return Loader reagent
-//     */
-//    /****************************************************************************/
-//    QString GetLoaderReagent2() const
-//    {
-//        return m_LoaderReagent2;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the reagent for second loader for the UserSettings
-//     *
-//     *  \iparam Value = Load reagent
-//     */
-//    /****************************************************************************/
-//    void SetLoaderReagent2(const QString Value)
-//    {
-//        m_LoaderReagent2 = Value;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the reagent for third loader for the UserSettings
-//     *
-//     *  \return Loader reagent
-//     */
-//    /****************************************************************************/
-//    QString GetLoaderReagent3() const
-//    {
-//        return m_LoaderReagent3;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the reagent for third loader for the UserSettings
-//     *
-//     *  \iparam Value = Load reagent
-//     */
-//    /****************************************************************************/
-//    void SetLoaderReagent3(const QString Value)
-//    {
-//        m_LoaderReagent3 = Value;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the reagent for fourth loader for the UserSettings
-//     *
-//     *  \return Loader reagent
-//     */
-//    /****************************************************************************/
-//    QString GetLoaderReagent4() const
-//    {
-//        return m_LoaderReagent4;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the reagent for fourth loader for the UserSettings
-//     *
-//     *  \iparam Value = Load reagent
-//     */
-//    /****************************************************************************/
-//    void SetLoaderReagent4(const QString Value)
-//    {
-//        m_LoaderReagent4 = Value;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the reagent for fifth loader for the UserSettings
-//     *
-//     *  \return Loader reagent
-//     */
-//    /****************************************************************************/
-//    QString GetLoaderReagent5() const
-//    {
-//        return m_LoaderReagent5;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the reagent for fifth loader for the UserSettings
-//     *
-//     *  \iparam Value = Load reagent
-//     */
-//    /****************************************************************************/
-//    void SetLoaderReagent5(const QString Value)
-//    {
-//        m_LoaderReagent5 = Value;
-//    }
 }; // end class CUserSettings
 
 } // end namespace DataManager

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdChangeUserSettings.h
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Include/CmdChangeUserSettings.h
  *
  *  \brief CmdChangeUserSettings command definition.
  *

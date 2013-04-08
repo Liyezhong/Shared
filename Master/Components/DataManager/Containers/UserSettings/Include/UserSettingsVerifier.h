@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file UserSettingsVerifier.h
+/*! \file Components/DataManager/Containers/UserSettings/Include/UserSettingsVerifier.h
  *
  *  \brief UserSettingsVerifier definition.
  *
  *   $Version: $ 0.2
  *   $Date:    $ 23.04.2012
- *   $Author:  $ M.Scherer, Raju
+ *   $Author:  $ Raju123
  *
  *  \b Company:
  *
@@ -25,10 +25,26 @@
 
 #include "DataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
+#include "Global/Include/EventObject.h"
 
 //lint -e1540
 
 namespace DataManager {
+
+const int MIN_SOUND_NUMBER    = 1; ///< Minimum value for the sound
+const int MIN_SOUND_LEVEL     = 2; ///< Minimum value for the sound level
+const int MAX_SOUND_NUMBER    = 6; ///< Maximum value for the sound
+const int MAX_SOUND_LEVEL     = 9; ///< Maximum value for the sound level
+const int MIN_PROXY_IP_PORT   = 1; ///< Minimum value of IP Port
+const int MAX_PROXY_IP_PORT   = 65535; ///< Maximum value of IP Port
+const int MIN_IP_ADDRESS_NUMBER = 0;    ///< Minimum value of IP Address Number
+const int MAX_IP_ADDRESS_NUMBER = 255;  ///< Maximum value of IP Address Number
+const int MAX_PROXY_USERNAME_LENGTH = 16;///< Maximum length of Proxy UserName
+const int MIN_PROXY_USERNAME_LENGTH = 1; ///< Minimum length of Proxy UserName
+const int MAX_PROXY_PASSWORD_LENGTH = 16; ///< Maximum length of Proxy Password
+const int MIN_PROXY_PASSWORD_LENGTH = 4; ///< Minimum length of Proxy Password
+const int MIN_SOUND_LEVEL_FOR_WARNING = 0; ///< Minimum sound level for warning
+const int MAX_SOUND_LEVEL_FOR_WARNING = 9; ///< Maximum sound level for warning
 
 /****************************************************************************/
 /*!
@@ -40,26 +56,19 @@ class CUserSettingsVerifier : public IVerifierInterface
 public:
     CUserSettingsVerifier();
 
-    bool VerifyData(CDataContainerBase* p_DataRackList);  // use concrete class for concrete verifier
+    bool VerifyData(CDataContainerBase* p_UserSettingsInterface);  // use concrete class for concrete verifier
 
     ErrorHash_t &GetErrors();
 
     void ResetLastErrors();
     bool IsLocalVerifier();
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Destructor
-     */
-    /****************************************************************************/
-    virtual ~CUserSettingsVerifier() {}
-private:
-    CUserSettingsInterface* mp_USettingsInterface;   ///< Local pointer to a rack list
+protected:
+    CUserSettingsInterface* mp_USettingsInterface;   ///< Local pointer to user setting interface
     ErrorHash_t m_ErrorHash;          //!< To store Error ID and any arguments associated
 
-    bool CheckLoaderReagentID(QString LoaderReagentID);
-    void CheckSoundLevelWarnings(CUserSettings* UserSettings, bool& VerifiedData);
-    void CheckLoaderReagents(CUserSettings* UserSettings, bool& VerifiedData);
+private:
+    void CheckSoundLevelWarnings(CUserSettings* p_UserSettings, bool& VerifiedData);
     void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData);
     bool CheckProxyIPAddress(CUserSettings* p_UserSettings);
     bool CheckProxyIPPort(CUserSettings *p_UserSettings);

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file UserSettingsInterface.h
+/*! \file Components/DataManager/Containers/UserSettings/Include/UserSettingsInterface.h
  *
  *  \brief UserSettingsVerifier definition.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-04-23
- *  $Author:    $ Raju
+ *  $Author:    $ Raju123
  *
  *  \b Company:
  *
@@ -38,7 +38,7 @@ namespace DataManager {
 /**
  * \brief Class for reading / writing XML based configuration file for user settings.
  *
- * <b>This class isl thread safe.</b>
+ * <b>This class is not thread safe.</b>
  */
 /****************************************************************************/
 class CUserSettingsInterface : public CDataContainerBase
@@ -68,8 +68,6 @@ public:
     friend QDataStream& operator >>(QDataStream& InDataStream, CUserSettingsInterface& USInterface);
 
     CUserSettingsInterface & operator = (const CUserSettingsInterface &);
-
-    void SetDefaultAttributes();
 
     /****************************************************************************/
     /*!

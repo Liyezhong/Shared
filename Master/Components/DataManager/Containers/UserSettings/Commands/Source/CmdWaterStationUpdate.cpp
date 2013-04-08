@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdWaterStationUpdate.cpp
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Source/CmdWaterStationUpdate.cpp
  *
  *  \brief CmdWaterStationUpdate command implementation.
  *

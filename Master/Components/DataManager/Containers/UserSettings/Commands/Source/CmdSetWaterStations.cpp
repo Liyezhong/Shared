@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdSetWaterStations.cpp
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Source/CmdSetWaterStations.cpp
  *
  *  \brief CmdSetWaterStations command implementation.
  *

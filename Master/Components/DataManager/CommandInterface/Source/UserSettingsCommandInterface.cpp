@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file UserSettingsCommandInterface.cpp
+/*! \file Components/DataManager/CommandInterface/Source/UserSettingsCommandInterface.cpp
  *
  *  \brief UserSettings Command Interface  Implementation
  *
@@ -56,46 +56,90 @@ void CUserSettingsCommandInterface::RegisterCommands() {
  * \brief Function which handles CmdChangeUserSettings
  *  \iparam Ref = Command reference
  *  \iparam Cmd = Command
- *  \AckCommandChannel = Command channel to send acknowledge
+ *  \iparam AckCommandChannel = Command channel to send acknowledge
  */
 /****************************************************************************/
 void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, const MsgClasses::CmdChangeUserSettings &Cmd, Threads::CommandChannel &AckCommandChannel)
 {
-    QByteArray SettingsData(const_cast<QByteArray &>(Cmd.GetUserSettings()));
-    QDataStream SettingsDataStream(&SettingsData, QIODevice::ReadWrite);
-    SettingsDataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-    CUserSettings Settings;
-    SettingsDataStream >> Settings;
+    try {
+        CHECKPTR(mp_MasterThreadController);
+        CHECKPTR(mp_DataContainer);
+        CHECKPTR(mp_DataContainer->SettingsInterface);
+        QByteArray SettingsData(const_cast<QByteArray &>(Cmd.GetUserSettings()));
+        QDataStream SettingsDataStream(&SettingsData, QIODevice::ReadWrite);
+        SettingsDataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
+        CUserSettings Settings;
+        SettingsDataStream >> Settings;
 
-    bool Result = true;
-    Result = mp_DataContainer->SettingsInterface->UpdateUserSettings(&Settings);
-    if (!Result) {
-        // If error occurs , get errors and send errors to GUI
-        ListOfErrors_t &ErrorList = mp_DataContainer->SettingsInterface->GetErrorList();
-        QString ErrorString;
-        DataManager::Helper::ErrorIDToString(ErrorList, ErrorString);
-        // If error occurs , get errors and send errors to GUI
-        qDebug()<<"\n\n\nSettings Update Failed";
-        mp_MasterThreadController->SendAcknowledgeNOK(Ref, AckCommandChannel, ErrorString, Global::GUIMSGTYPE_INFO);
+        // compare the previous settings with the present settings and log the events
+        bool LanguageChanged = false;
+        const CUserSettings TempSettings(*mp_DataContainer->SettingsInterface->GetUserSettings());
+
+        bool Result = true;
+        Result = mp_DataContainer->SettingsInterface->UpdateUserSettings(&Settings);
+        if (!Result) {
+            // If error occurs , get errors and send errors to GUI
+            ListOfErrors_t &ErrorList = mp_DataContainer->SettingsInterface->GetErrorList();
+            // For now we send only default message , since user cant exceed any of the constraints
+            // in the verifier , from GUI.s
+            while(!ErrorList.isEmpty()) {
+                ErrorHash_t *p_ErrorHash = ErrorList.first();
+                p_ErrorHash->clear();
+                ErrorList.removeFirst();
+            }
+            SendNackToGUI(Ref,AckCommandChannel, ErrorList, EVENT_DM_SETTINGS_UPDATE_FAILED);
+            return;
+        }
+        else {
+
+            // Set volume values for UserSettings
+            Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
+            if (p_AlarmHandler) {
+                p_AlarmHandler->setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
+                p_AlarmHandler->setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
+                p_AlarmHandler->setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
+                p_AlarmHandler->setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
+            }
+
+            // raise the event if the language is changed
+            if (TempSettings.GetLanguage() != Settings.GetLanguage()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_LANGUAGE_CHANGED,
+                                                           Global::FmtArgs() << QLocale::languageToString(Settings.GetLanguage()));
+                LanguageChanged = true;
+            }
+            // raise the event if the network settings is changed
+            if (TempSettings.GetProxyIPAddress() != Settings.GetProxyIPAddress() ||
+                    TempSettings.GetProxyIPPort() != Settings.GetProxyIPPort() ||
+                    TempSettings.GetProxyUserName() != Settings.GetProxyUserName() ||
+                    TempSettings.GetProxyPassword() != Settings.GetProxyPassword() ||
+                    TempSettings.GetRemoteCare() != Settings.GetRemoteCare() ||
+                    TempSettings.GetDirectConnection() != Settings.GetDirectConnection()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_NETWORK_SETTINGS_ADDED);
+            }
+
+            if (!mp_DataContainer->SettingsInterface->VerifyData(true)) {
+                Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_GV_FAILED);
+                SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
+                return;
+            }
+
+            if (!mp_DataContainer->SettingsInterface->Write()) {
+                SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
+                return;
+            }
+            emit UserSettingsChanged(LanguageChanged);
+
+            SettingsDataStream.device()->reset();
+            SendAckAndUpdateGUI(Ref, AckCommandChannel, Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)));
+            qDebug()<<"\n\n User Settings Update Success";
+        }
     }
-    else {
-        mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
-        SettingsDataStream.device()->reset();
-        mp_MasterThreadController->BroadcastCommand(Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)));
-        // Set volume values for UserSettings
-        Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
-        if (p_AlarmHandler) {
-            p_AlarmHandler->setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
-            p_AlarmHandler->setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
-            p_AlarmHandler->setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
-            p_AlarmHandler->setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
-        }
-        emit UserSettingsChanged();
-        qDebug()<<"\n\n User Settings Update Success";
-        mp_DataContainer->SettingsInterface->Write();
-        if (mp_DataContainer->SettingsInterface->VerifyData(true)) {
-            Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_GV_FAILED);
-        }
+    catch (Global::Exception &E) {
+        Global::EventObject::Instance().RaiseEvent(E.GetErrorCode(),E.GetAdditionalData(),true);
+        SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
+    }
+    catch (...) {
+        SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
     }
 }
 /****************************************************************************/
@@ -103,29 +147,25 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
  * \brief Function which handles CmdAlarmToneTest
  *  \iparam Ref = Command reference
  *  \iparam Cmd = Command
- *  \AckCommandChannel = Command channel to send acknowledge
+ *  \iparam AckCommandChannel = Command channel to send acknowledge
  */
 /****************************************************************************/
 void CUserSettingsCommandInterface::AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel)
 {
-    //CUserSettings Settings;
-    bool Result;
-    qDebug()<<"Test tone handler"<<endl;
+    bool Result = false;
     qDebug()<<"Alarm Test- Type:"<<Cmd.GetAlarmType() <<"Sound:"<< Cmd.GetSound()<<"Volume:" << Cmd.GetVolume();
-    mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
-    Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
+    if (mp_MasterThreadController) {
+        mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
+        Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
+        if (p_AlarmHandler) {
+            Result = p_AlarmHandler->playTestTone(Cmd.GetAlarmType(), Cmd.GetVolume(), Cmd.GetSound());
+            qDebug()<<Result;
+        }
+        if (!Result) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_CANCEL_PLAY_ALARM_TEST_TONE);
 
-    if (p_AlarmHandler) {
-
-        Result = p_AlarmHandler->playTestTone(Cmd.GetAlarmType(), Cmd.GetVolume(), Cmd.GetSound());
-        qDebug()<<Result;
+        }
     }
-
-    if (!Result) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_CANCEL_PLAY_ALARM_TEST_TONE);
-
-    }
-
 }
 
 }// End of Namespace DataManager

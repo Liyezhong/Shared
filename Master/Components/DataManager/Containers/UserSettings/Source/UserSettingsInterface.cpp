@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file UserSettingsInterface.h
+/*! \file  Components/DataManager/Containers/UserSettings/Source/UserSettingsInterface.cpp
  *
  *  \brief Implementation file for class CUserSettingsInterface.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-04-23
- *  $Author:    $ Raju
+ *  $Author:    $ Raju123
  *
  *  \b Company:
  *
@@ -37,13 +37,16 @@ namespace DataManager {
  *  \brief Constructor
  */
 /****************************************************************************/
-CUserSettingsInterface::CUserSettingsInterface() :
-    mp_ReadWriteLock(NULL)
-    ,m_DataVerificationMode(true)
-    ,m_WorkStationMode(false)
+CUserSettingsInterface::CUserSettingsInterface()
+    : mp_ReadWriteLock(NULL)
+    , m_DataVerificationMode(true)
+    , mp_UserSettings(NULL)
+    , m_FileName("")
+    , m_WorkStationMode(false)
 {
-    // set default values
-    SetDefaultAttributes();
+    // create the Read write lock for threads
+    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+    mp_UserSettings = new CUserSettings();
 }
 
 /****************************************************************************/
@@ -55,13 +58,20 @@ CUserSettingsInterface::CUserSettingsInterface() :
  *  \return
  */
 /****************************************************************************/
-CUserSettingsInterface::CUserSettingsInterface(const CUserSettingsInterface& UserSettingsInterface) : CDataContainerBase()
+CUserSettingsInterface::CUserSettingsInterface(const CUserSettingsInterface& UserSettingsInterface)
+    : CDataContainerBase()
+    , mp_ReadWriteLock(NULL)
+    , m_DataVerificationMode(true)
+    , mp_UserSettings(NULL)
+    , m_FileName("")
+    , m_WorkStationMode(false)
 {
+    // create the Read write lock for threads
+    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+    mp_UserSettings = new CUserSettings();
     // remove constant cast from the object
     CUserSettingsInterface* p_USInterface = const_cast<CUserSettingsInterface*>(&UserSettingsInterface);
     // set the data to default values
-    SetDefaultAttributes();
-    m_DataVerificationMode = true;
     // create deep copy of the object
     *this = *p_USInterface;
 }
@@ -92,39 +102,6 @@ CUserSettingsInterface::~CUserSettingsInterface()
     mp_UserSettings = NULL;
 
 }
-
-/****************************************************************************/
-/*!
- *  \brief Set the default values of the local variables
- */
-/****************************************************************************/
-void CUserSettingsInterface::SetDefaultAttributes()
-{
-    // create the Read write lock for threads
-    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
-    m_DataVerificationMode = true;
-    mp_UserSettings = new CUserSettings();
-    m_WorkStationMode = false;
-}
-
-
-// not required now, because by default the interface class does this.
-///****************************************************************************/
-///*!
-// *  \brief Get the file name
-// *
-// *  \return file name
-// */
-///****************************************************************************/
-//CUserSettings* CUserSettingsInterface::CreateUserSettings()
-//{
-//    //QReadLocker locker(mp_ReadWriteLock);
-//    if (mp_UserSettings != NULL) {
-//        delete mp_UserSettings;
-//    }
-//    mp_UserSettings = new CUserSettings();
-//    return mp_UserSettings;
-//}
 
 /****************************************************************************/
 /*!
@@ -188,9 +165,14 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
     }
     else {
         QWriteLocker locker(mp_ReadWriteLock);
-        // replace the old class object with updated class object
-        *mp_UserSettings = *p_UserSettings;
-        Result = true;
+        if (mp_UserSettings) {
+            // replace the old class object with updated class object
+            *mp_UserSettings = *p_UserSettings;
+            Result = true;
+        }
+        else {
+            Result = false;
+        }
     }
 
     return Result;
@@ -211,8 +193,8 @@ CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
         CHECKPTR(mp_UserSettings);
     } catch(const Global::Exception &E) {
         // and send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
+        Global::EventObject::Instance().RaiseEvent(E.GetErrorCode(),E.GetAdditionalData(),true);
+        return NULL;
     }
     if (!CopySettings) {
         return mp_UserSettings;
@@ -285,17 +267,7 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
         else {
             XmlStreamWriter.writeAttribute("VerificationMode", "false");
         }
-        //        // store the verifier count
-        //        XmlStreamWriter.writeAttribute("VerifierCount", QString::number(m_VerifierList.count()));
-        //        for (qint32 I = 0; I < m_VerifierList.count(); I++) {
-        //            QString VerifierPtr;
-        //            // make the text stream input as string
-        //            QTextStream VerifierPointer(&VerifierPtr);
-        //            // get the verifier list pointer address
-        //            VerifierPointer << m_VerifierList.at(I);
-        //            qDebug() << "\n\n Real Verifier Pointer" << m_VerifierList.at(I);
-        //            XmlStreamWriter.writeAttribute(QString("Verifier%1Pointer").arg(I + 1), VerifierPointer.readAll());
-        //        }
+
         XmlStreamWriter.writeEndElement(); // for ClassTemporaryData
     }
 
@@ -388,38 +360,9 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
             XmlStreamReader.readNextStartElement();
         }
 
-//        if (!Helper::ReadNode(XmlStreamReader, "ClassTemporaryData")) {
-//            qDebug() << "DeserializeContent: abort reading. Node not found: ClassTemporaryData";
-//            return false;
-//        }
-        //        // Verifier
-        //        if (!XmlStreamReader.attributes().hasAttribute("VerifierCount")) {
-        //            qDebug() << "### attribute <VerifierCount> is missing";
-        //            return false;
-        //        }
-
-        //        // get the verifier count
-        //        int VerifierCount = XmlStreamReader.attributes().value("VerifierCount").toString().toInt();
-        //        // clear the list
-        //        m_VerifierList.clear();
-
-        //        // start adding the verifiers
-        //        for (qint32 I = 0; I < VerifierCount; I++) {
-        //            if (!XmlStreamReader.attributes().hasAttribute(QString("Verifier%1Pointer").arg(I + 1))) {
-        //                qDebug() << "### attribute <VerifierPointer> is missing";
-        //                return false;
-        //            }
-        //            // get the verifier interface address from the XML file
-        //            IVerifierInterface* p_VerifierInterface = reinterpret_cast<IVerifierInterface*>(XmlStreamReader.attributes().
-        //                                                                                       value(QString("Verifier%1Pointer").
-        //                                                                                             arg(I + 1)).toString().toInt(0, 16));
-        //            qDebug() << "\n\n Verifier Pointer" << p_VerifierInterface;
-        //            // append the verifier
-        //            m_VerifierList.append(p_VerifierInterface);
-        //        }
     }
     XmlStreamReader.device()->reset();
-    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
+//    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
     return true;
 }
 
@@ -454,7 +397,7 @@ bool CUserSettingsInterface::Read(QString FileName)
         Result = true;
         // read the data from the file
         if (!p_UserSettings_Verification->Read(FileName)){
-            Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_XML_READ_FAILED, Global::tTranslatableStringList() << "", true);
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_XML_READ_FAILED);
             Result = false;
         }
         else {
@@ -465,7 +408,7 @@ bool CUserSettingsInterface::Read(QString FileName)
                 Result = true;
             }
             else {
-                Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_VERIFICATION_FAILED, Global::tTranslatableStringList() << "", true);
+                Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_VERIFICATION_FAILED);
                 Result = false;
             }            
         }
@@ -485,7 +428,7 @@ bool CUserSettingsInterface::Read(QString FileName)
         QFile File(FileName);
         if (!File.open(QFile::ReadOnly | QFile::Text)) {
             qDebug() << "open file failed in Read: " << FileName;
-            Global::EventObject::Instance().RaiseEvent(EVENT_DM_FILE_OPEN_FAILED, Global::tTranslatableStringList() <<  "UserSettings XML", true);
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_FILE_OPEN_FAILED, Global::tTranslatableStringList() <<  "UserSettings.xml", true);
             return false;
         }
 
@@ -504,129 +447,6 @@ bool CUserSettingsInterface::Read(QString FileName)
     return Result;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief Writes the data from CUserSettingsInterface to the file
-// *
-// *  \iparam FileName = Name of the Output File
-// *
-// *  \return True or False
-// */
-///****************************************************************************/
-//bool CUserSettingsInterface::Write(QString FileName)
-//{
-//    QReadLocker locker(mp_ReadWriteLock);
-
-//    // if file already exists, delete it
-//    if (QFile::exists(FileName)) {
-//        if (!QFile::remove(GetFileName())) {
-//            qDebug() << "File remove failed in Write: " << GetFileName();
-//            return false;
-//        }
-//    }
-
-//    QFile File(FileName);
-//    if (!File.open(QFile::WriteOnly | QFile::Text)) {
-//        qDebug() << "open file failed in Write: " << FileName;
-//        return false;
-//    }
-
-//    if (!SerializeContent(File, false)) {
-//        qDebug() << "### CUserSettingsInterface::Write failed for file: " << FileName;
-//        return false;
-//    }
-
-//    File.close();
-//    return true;
-//}
-
-///****************************************************************************/
-///*!
-// *  \brief Writes the data from CUserSettingsInterface to the file
-// *
-// *  \return True or False
-// */
-///****************************************************************************/
-//bool CUserSettingsInterface::Write()
-//{
-//    QReadLocker locker(mp_ReadWriteLock);
-
-//    if (!QString::compare("UNDEFINED" , GetFileName())) {
-//        qDebug() << "File is not read";
-//        return false;
-//    }
-
-//    if (!Write(GetFileName())) {
-//        qDebug() << "Unable to write the file";
-//    }
-
-//    return true;
-//}
-
-///****************************************************************************/
-///*!
-// *  \brief  Adds a verifier for the rack list
-// *
-// *  \iparam Verifier = The new verifier
-// *
-// *  \return Successful (true) or not (false)
-// */
-///****************************************************************************/
-//bool CUserSettingsInterface::AddVerifier(IVerifierInterface* Verifier)
-//{
-//    QReadLocker locker(mp_ReadWriteLock);
-
-//    // add verifier object to base class list
-//    AddVerifierToBase(Verifier);
-
-////    // add every verifier only once
-////    if (m_VerifierList.indexOf(Verifier) != -1) {
-////        qDebug() << "### CDataRackList::AddVerifier failed: Verifier already exists.";
-////        return false;
-////    }
-////    else {
-////        m_VerifierList.append(Verifier);
-////        return true;
-////    }
-//}
-
-///****************************************************************************/
-///*!
-// *  \brief Verifies the Data with respect to Verifiers
-// *
-// *  \return True or False
-// */
-///****************************************************************************/
-//bool CUserSettingsInterface::VerifyData()
-//{
-//    return VerifyData(this);
-//}
-
-///****************************************************************************/
-///*!
-// *  \brief Verifies the Data with respect to Verifiers
-// *
-// *  \iparam p_USI_Verification = CUserSettingsInterface Instance
-// *
-// *  \return True or False
-// */
-///****************************************************************************/
-//bool CUserSettingsInterface::VerifyData(CUserSettingsInterface* p_USI_Verification)
-//{
-//    bool VerifierResult = true;
-//    for (int i = 0; i < m_VerifierList.count(); i++) {
-//        IVerifierInterface* p_Verifier = m_VerifierList.value(i, NULL);
-//        if (p_Verifier != NULL) {
-//            if (!p_Verifier->VerifyData(p_USI_Verification)) {
-//                VerifierResult = false;
-//                // stop verification at first failure
-//                break;
-//            }
-//        }
-//    }
-//    return VerifierResult;
-//}
-
 /****************************************************************************/
 /*!
  *  \brief Output Stream Operator which streams data
@@ -644,9 +464,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettingsInterfac
 
     if (!p_TempUSInterface->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        const_cast<CUserSettingsInterface &>(USInterface).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
       }
 
@@ -668,9 +485,6 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserSettingsInterface& USIn
     // deserialize the content from the data stream
     if (!USInterface.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
-        // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        USInterface.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }
     return InDataStream;

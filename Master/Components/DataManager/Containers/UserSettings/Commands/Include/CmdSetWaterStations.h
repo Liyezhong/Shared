@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdSetWaterStations.h
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Include/CmdSetWaterStations.h
  *
  *  \brief CmdSetWaterStations command definition.
  *

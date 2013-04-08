@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdWaterStationUpdate.h
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Include/CmdWaterStationUpdate.h
  *
  *  \brief CmdWaterStationUpdate command definition.
  *

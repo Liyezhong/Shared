@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdRmsOnOff.h
+/*! \file Components/DataManager/Containers/UserSettings/Commands/Include/CmdRmsOnOff.h
  *
  *  \brief CmdRmsOnOff command definition.
  *
