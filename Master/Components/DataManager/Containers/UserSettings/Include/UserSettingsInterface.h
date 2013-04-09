@@ -28,6 +28,7 @@
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
+#include "../../../Himalaya/Shared//Master/Components/HimalayaDataContainer/Containers/UserSettings/Include/HimalayaUserSettings.h"
 
 //lint -sem(DataManager::CUserSettingsInterface::SetDefaultAttributes,initializer)
 //lint -sem(DataManager::CUserSettingsInterface::UpdateUserSettings, custodial(1))
@@ -46,7 +47,7 @@ class CUserSettingsInterface : public CDataContainerBase
 private:
     QReadWriteLock*             mp_ReadWriteLock;       ///< Synchronisation object.
     bool                        m_DataVerificationMode; ///< Store the Date verification mode flag
-    CUserSettings*              mp_UserSettings;        ///< Store the user settings
+    DataManager::CHimalayaUserSettings*      mp_UserSettings;        ///< Store the user settings
     QString                     m_FileName;             ///< Store the file name
     bool                        m_WorkStationMode;      ///< Store the workstation mode
     /****************************************************************************/
@@ -122,7 +123,7 @@ public:
 
     bool Read(QString FileName);
 
-    bool UpdateUserSettings(const CUserSettings* p_UserSettings);
+    bool UpdateUserSettings(const CUserSettings *p_UserSettings);
     // not required now, because by default the interface class does this.
     //CUserSettings* CreateUserSettings();
     CUserSettings* GetUserSettings(bool CopySettings);
@@ -134,7 +135,7 @@ public:
      *  \return user settings class
      */
     /****************************************************************************/
-    CUserSettings* GetUserSettings() const
+    CHimalayaUserSettings* GetUserSettings() const
     {
         if (mp_UserSettings) {
             return mp_UserSettings;

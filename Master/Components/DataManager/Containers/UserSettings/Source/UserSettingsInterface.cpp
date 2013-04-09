@@ -46,7 +46,7 @@ CUserSettingsInterface::CUserSettingsInterface()
 {
     // create the Read write lock for threads
     mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
-    mp_UserSettings = new CUserSettings();
+    mp_UserSettings = new CHimalayaUserSettings();
 }
 
 /****************************************************************************/
@@ -68,7 +68,7 @@ CUserSettingsInterface::CUserSettingsInterface(const CUserSettingsInterface& Use
 {
     // create the Read write lock for threads
     mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
-    mp_UserSettings = new CUserSettings();
+    mp_UserSettings = new CHimalayaUserSettings();
     // remove constant cast from the object
     CUserSettingsInterface* p_USInterface = const_cast<CUserSettingsInterface*>(&UserSettingsInterface);
     // set the data to default values

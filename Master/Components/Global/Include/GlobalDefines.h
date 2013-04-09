@@ -359,6 +359,7 @@ enum GuiUserLevel{
  */
 /****************************************************************************/
 enum RMSOptions_t {
+    RMS_UNDEFINED = 0,
     RMS_OFF,
     RMS_CASSETTES,
     RMS_CYCLES,
