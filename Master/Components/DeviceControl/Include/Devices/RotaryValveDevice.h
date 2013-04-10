@@ -47,6 +47,7 @@ public:
     ReturnCode_t SetTempCtrlOFF();
     ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t StartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t StartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal GetRecentTemperature(quint32 Index);
     TempCtrlState_t GetTemperatureControlState();
     //! Execute the move to intial position of the RV

@@ -110,6 +110,7 @@ public:
     TempCtrlState_t ALGetTemperatureControlState(ALTempCtrlType_t Type);
     ReturnCode_t ALTurnOnFan();
     ReturnCode_t ALTurnOffFan();
+    ReturnCode_t ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Rotary Valve device func
     ReturnCode_t RVSetTempCtrlON();
     ReturnCode_t RVSetTempCtrlOFF();
@@ -123,6 +124,7 @@ public:
     ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition);
     //! Request actual oven cover position
     RVPosition_t RVReqActRVPosition();
+    ReturnCode_t RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Oven device func
     ReturnCode_t OvenSetTempCtrlON(OVENTempCtrlType_t Type);
     ReturnCode_t OvenSetTempCtrlOFF(OVENTempCtrlType_t type);
@@ -130,11 +132,13 @@ public:
     ReturnCode_t OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
     TempCtrlState_t OvenGetTemperatureControlState(OVENTempCtrlType_t Type);
+    ReturnCode_t OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Retort device func
     ReturnCode_t RTSetTempCtrlON(RTTempCtrlType_t Type);
     ReturnCode_t RTSetTempCtrlOFF(RTTempCtrlType_t Type);
     ReturnCode_t RTSetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t RTStartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t RTStartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
     TempCtrlState_t RTGetTemperatureControlState(RTTempCtrlType_t Type);
     ReturnCode_t RTUnlock();
@@ -162,6 +166,7 @@ signals:
 private slots:
     //! Task handling
     void HandleTasks();
+    void ThreadStarted();
 
     //! Get the 'intitialisation finished' notification
     void OnInitializationFinished(ReturnCode_t);
@@ -187,8 +192,8 @@ private:
     void HandleTaskRequestState();
 
     DeviceProcessing *mp_DevProc;   //!< Device processing instance
-    QThread m_DevProcThread;        //!< Device processing thread
-    QTimer m_DevProcTimer;          //!< Device processing timer
+    QThread *mp_DevProcThread;        //!< Device processing thread
+    QTimer *mp_DevProcTimer;          //!< Device processing timer
     Qt::HANDLE m_ParentThreadID;
     typedef enum {
         IDEVPROC_TASKID_INIT     = 0x00,    //!< Initialisation

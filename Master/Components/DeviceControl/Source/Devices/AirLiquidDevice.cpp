@@ -800,7 +800,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
 {
 
     bool stop = false;
-    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t RetValue = DCL_ERR_DEV_AL_DRAIN_SUCCESS;
     QTimer timer;
     QDateTime beforeDraining = QDateTime::currentDateTime();
     qreal CurrentPressure = 0;
@@ -908,7 +908,7 @@ SORTIE:
 }
 ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 {
-    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t RetValue = DCL_ERR_DEV_AL_FILL_SUCCESS;
     qint32 retCode = DCL_ERR_FCT_CALL_SUCCESS;
     QTimer timer;
     quint32 counter = 0;
@@ -1257,6 +1257,45 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qr
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
         }
     }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    ReturnCode_t retCode;
+    m_TargetTemperatures[Type] = NominalTemperature;
+    m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
+    if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
+    {
+        // Log(tr("Not able to read the temperature control status"));
+        return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
+    }
+    if (IsTemperatureControlOn(Type))
+    {
+        if(!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+        {
+            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+    }
+    }
+
+    retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+    if(retCode != DCL_ERR_FCT_CALL_SUCCESS)
+    {
+         return retCode;
+    }
+    //Set the nominal temperature
+    if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    {
+        // Log(tr("Not able to set temperature"));
+        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+    }
+    //ON the temperature control
+    if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    {
+        // Log(tr("Not able to start temperature control"));
+        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+    }
+
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 

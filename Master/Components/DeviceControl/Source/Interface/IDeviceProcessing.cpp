@@ -68,14 +68,13 @@ IDeviceProcessing::IDeviceProcessing() :
     Output2FILE::Stream() = pFile;
 
     mp_DevProc = new DeviceProcessing(this);
+    mp_DevProcThread = new QThread(); //!< Device processing thread
 
-    moveToThread(&m_DevProcThread);
-
-    CONNECTSIGNALSLOT(&m_DevProcTimer, timeout(), this, HandleTasks());
-    m_DevProcTimer.start(10);
+    this->moveToThread(mp_DevProcThread);
+    CONNECTSIGNALSLOT(mp_DevProcThread, started(), this, ThreadStarted());
 
     //start the DeviceProcessing thread
-    m_DevProcThread.start();
+    mp_DevProcThread->start();
 
     CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t), this, OnInitializationFinished(ReturnCode_t));
     CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t), this, OnConfigurationFinished(ReturnCode_t));
@@ -87,6 +86,9 @@ IDeviceProcessing::IDeviceProcessing() :
     CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
     m_ParentThreadID = QThread::currentThreadId();
+#if 1
+    qDebug()<< "IDeviceProcess's parent thread id is: "<<m_ParentThreadID;
+#endif
 }
 
 /****************************************************************************/
@@ -98,15 +100,22 @@ IDeviceProcessing::~IDeviceProcessing()
 {
     try
     {
-        m_DevProcThread.quit();
-        m_DevProcThread.wait();
+        mp_DevProcThread->quit();
+        mp_DevProcThread->wait();
+    delete mp_DevProcTimer;
+    delete mp_DevProcThread;
         delete mp_DevProc;
     }
     catch (...)
     {
     }
 }
-
+void IDeviceProcessing::ThreadStarted()
+{
+    mp_DevProcTimer = new QTimer(this);
+    CONNECTSIGNALSLOT(mp_DevProcTimer, timeout(), this, HandleTasks());
+    mp_DevProcTimer->start(10);
+}
 /****************************************************************************/
 /*!
  *  \brief  Forward error information via a signal
@@ -166,7 +175,6 @@ bool IDeviceProcessing::GetSerialNumber(QString& SerialNo)
 /****************************************************************************/
 void IDeviceProcessing::HandleTasks()
 {
-    qDebug() <<  "IDP handle task is " << QThread::currentThreadId();
     if(m_taskID == IDEVPROC_TASKID_REQ_TASK)
     {
         HandleTaskRequestState();
@@ -585,7 +593,7 @@ void IDeviceProcessing::Destroy()
 
 void IDeviceProcessing::OnDestroyFinished()
 {
-    m_DevProcTimer.stop();
+    mp_DevProcTimer->stop();
     emit ReportDestroyFinished();
 }
 ReturnCode_t IDeviceProcessing::ALSetPressureCtrlON()
@@ -767,6 +775,24 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControl(ALTempCtrlType_t Type,
     }
 
 }
+
+ReturnCode_t IDeviceProcessing::ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+
+}
+
 qreal IDeviceProcessing::ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
     if(m_pAirLiquid)
@@ -885,6 +911,25 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControl(qreal NominalTemperatu
     }
 
 }
+
+ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+   if(m_pRotaryValve)
+    {
+        return m_pRotaryValve->StartTemperatureControlWithPID(NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+
+}
+
+
 qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
 {
     if(m_pAirLiquid)
@@ -1017,6 +1062,24 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControl(OVENTempCtrlType_t T
         return DCL_ERR_NOT_INITIALIZED;
    }
 }
+
+ReturnCode_t IDeviceProcessing::OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+   if(m_pOven)
+    {
+        return m_pOven->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+
+}
+
 qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
     if(m_pOven)
@@ -1103,7 +1166,22 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControl(RTTempCtrlType_t Type,
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+ReturnCode_t IDeviceProcessing::RTStartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+   if(m_pRetort)
+    {
+        return m_pRetort->StartTemperatureControlWithPID(Type, NominalTemperature, SlopeTempChange, MaxTemperature, ControllerGain,  ResetTime,  DerivativeTime);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
 
+}
 qreal IDeviceProcessing::RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
         if(m_pRetort)

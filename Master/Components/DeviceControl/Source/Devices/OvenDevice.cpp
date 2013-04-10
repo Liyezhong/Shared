@@ -361,7 +361,6 @@ ReturnCode_t COvenDevice::SetTempCtrlOFF(OVENTempCtrlType_t Type)
 qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
    // QMutexLocker Locker(&m_Mutex);
-quint32 thisadd =(quint32)this;
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
@@ -374,6 +373,7 @@ quint32 thisadd =(quint32)this;
     }
     return RetValue;
 }
+
 ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
 #ifndef PRE_ALFA_TEST
@@ -405,6 +405,45 @@ ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
         }
     }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    ReturnCode_t retCode;
+    m_TargetTemperatures[Type] = NominalTemperature;
+    m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
+    if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
+    {
+        // Log(tr("Not able to read the temperature control status"));
+        return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
+    }
+    if (IsTemperatureControlOn(Type))
+    {
+        if(!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+        {
+            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+    }
+    }
+
+    retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+    if(retCode != DCL_ERR_FCT_CALL_SUCCESS)
+    {
+         return retCode;
+    }
+    //Set the nominal temperature
+    if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    {
+        // Log(tr("Not able to set temperature"));
+        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+    }
+    //ON the temperature control
+    if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    {
+        // Log(tr("Not able to start temperature control"));
+        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+    }
+
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 

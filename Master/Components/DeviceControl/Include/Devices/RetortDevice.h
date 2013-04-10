@@ -28,6 +28,7 @@ public:
     ReturnCode_t SetTempCtrlOFF(RTTempCtrlType_t type);
     ReturnCode_t SetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t StartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t StartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
     TempCtrlState_t GetTemperatureControlState(RTTempCtrlType_t Type);
 

@@ -79,6 +79,7 @@ public:
     ReturnCode_t SetTempCtrlOFF(ALTempCtrlType_t type);
     ReturnCode_t SetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t StartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t StartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index);
     TempCtrlState_t GetTemperatureControlState(ALTempCtrlType_t Type);
 

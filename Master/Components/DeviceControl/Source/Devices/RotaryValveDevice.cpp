@@ -678,6 +678,8 @@ void CRotaryValveDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_TEMP_PID, ReturnCode);
 }
+
+
 ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange)
 {
     m_TargetTemperature = NominalTemperature;
@@ -708,6 +710,46 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperatur
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
+
+ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    ReturnCode_t retCode;
+    m_TargetTemperature = NominalTemperature;
+    m_TargetTempCtrlStatus = TEMPCTRL_STATUS_ON;
+    if (GetTemperatureControlState() == TEMPCTRL_STATE_ERROR)
+    {
+        // Log(tr("Not able to read the temperature control status"));
+        return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
+    }
+    if (IsTemperatureControlOn())
+    {
+        if(!SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF))
+        {
+            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+    }
+    }
+
+    retCode = SetTemperaturePid(MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+    if(retCode != DCL_ERR_FCT_CALL_SUCCESS)
+    {
+         return retCode;
+    }
+    //Set the nominal temperature
+    if (!SetTemperature(NominalTemperature, SlopeTempChange))
+    {
+        // Log(tr("Not able to set temperature"));
+        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+    }
+    //ON the temperature control
+    if (!SetTemperatureControlStatus(TEMPCTRL_STATUS_ON))
+    {
+        // Log(tr("Not able to start temperature control"));
+        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+    }
+
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
 TempCtrlState_t CRotaryValveDevice::GetTemperatureControlState()
 {
     ReturnCode_t retCode = m_pTempCtrl->ReqStatus();
