@@ -626,6 +626,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
             return DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT;
         }
     }
+    TurnOffFan();
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
@@ -648,6 +649,7 @@ ReturnCode_t CAirLiquidDevice::Vaccum()
 
     //start compressor
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start set up vaccum now";
+    TurnOnFan();
     if(!SetTargetPressure(m_WorkingPressureNegative))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
@@ -737,6 +739,7 @@ ReturnCode_t CAirLiquidDevice::Pressure()
 
     //start compressor
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start to setup pressure now.";
+    TurnOnFan();
     SetTargetPressure(m_WorkingPressurePositive);
     IsPIDDataSteady(0,  0,  0,  0, true);
     timer.start(PRESSURE_POLLING_TIME);
@@ -819,6 +822,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         goto SORTIE;
     }
 
+    TurnOnFan();
     if(!SetTargetPressure(m_WorkingPressurePositive))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
@@ -903,6 +907,7 @@ SORTIE:
     //close both valve
     SetValve(VALVE_1_INDEX,VALVE_STATE_CLOSE);
     SetValve(VALVE_2_INDEX,VALVE_STATE_CLOSE);
+    TurnOffFan();
 
     return RetValue;
 }
@@ -927,6 +932,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
         goto SORTIE;
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
+    TurnOnFan();
     if(!SetTargetPressure(m_WorkingPressureNegative))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
@@ -1051,6 +1057,7 @@ SORTIE:
         timer.stop();
     }
     ReleasePressure();
+    TurnOffFan();
     return RetValue;
 }
 
