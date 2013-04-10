@@ -893,16 +893,29 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     }
 #if 1
     //RetValue = ReferenceRunWithTimeout(REFER_RUN_LOWER_LIMIT, 65000);
-    DoReferenceRunWithStepCheck(50, 7000);
+    bool refRunRet = DoReferenceRunWithStepCheck(50, 7000);
 #else
     RetValue = DoReferenceRun();
 #endif
     lsCode = GetLimitSwitchCode();
-    if((lsCode == "3")&&(RetValue))
+    if(refRunRet)
     {
-        //Log(tr("Hit Initial Position!"));
-        qDebug() << "Hit Initial Position";
-        SetEDPosition(RV_TUBE_1);
+        quint32 retry = 0;
+        while((lsCode != "3")&&(retry++ < 3))
+        {
+            lsCode = GetLimitSwitchCode();
+        }
+        if(lsCode == "3")
+        {
+            //Log(tr("Hit Initial Position!"));
+            qDebug() << "Hit Initial Position";
+            SetEDPosition(RV_TUBE_1);
+        }
+        else
+        {
+            SetEDPosition(RV_UNDEF);
+            qDebug() << "Hit unexpected position, please retry!";
+        }
     }
     else
     {
@@ -950,17 +963,20 @@ bool CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32
             {
                 stop = false;
                 //   Log(tr("Motor running lower limit exception: retry time: %1, retry now.").arg(retry));
+                qDebug()<<"Motor running lower limit exception: retry time: "<<retry <<", retry now.";
             }
             else
             {
                 //  Log(tr("Motor moving retry time exceed %1, may be stucked!").arg(REFER_RUN_RETRY_TIME));
+                qDebug()<<"Motor moving retry time exceed "<< retry <<"may be stucked!";
                 ret = false;
             }
         }
         else if(Step > UpperLimit)
         {
             //  Log(tr("Warning: Motor moving steps exceed upper limit: %1!").arg(UpperLimit));
-            //ret = false;
+            qDebug() << "Warning: Motor moving steps exceed upper limit: " << UpperLimit;
+            ret = false;
         }
 
     }
