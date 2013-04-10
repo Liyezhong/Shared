@@ -797,13 +797,15 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
     qDebug() << "\n\n\n\nEventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
     // if eventList is not available yet, place event into pendingList
-    if (EventID == EVENT_GUI_AVAILABLE) {
+    if (EventID == EVENT_GUI_AVAILABLE)
+    {
             SetGuiAvailable(true);
             //We dont need to log this particular event ,
             //instead we log for eg.EVENT_PROCESS_HIMALAYA_GUI_CONNECTED
             return;
     }
-    else if (m_eventList.size() == 0) {
+    else if (m_eventList.size() == 0)
+    {
         qDebug()<<"Event list not available \n\n\n";
         PendingEvent pe;
         pe.EventID = EventID;
@@ -816,7 +818,8 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         m_pendingEvents.push_back(pe);// These events, if any, are processed after successfully reading the EventConf file
         return;
     }
-    else {
+    else
+    {
         QHash<quint32, EventHandler::EventCSVInfo>::iterator i = m_eventList.find(EventID);
         if (i == m_eventList.end())
         {
@@ -841,8 +844,8 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
         }
 
         //Process the response action immediately
-          if (!IsPostProcess)
-          {
+        if (!IsPostProcess)
+        {
               if (Global::RESRECTYPE_RESPONSE_RECOVERY == EventInfo.GetResponseRecoveryType() ||
                       Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType() ||
                          Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
@@ -860,18 +863,18 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
                   this->SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));//response
                   return;
               }
-          }
-          else
-          {
-              if (Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType())
-              {
-                  if(IsResolved)
-                      return;
-              }
+        }
+        else//IsPostProcess
+        {
+            if (Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType())
+            {
+                if(IsResolved)
+                   return;
+             }
 
-              if(Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
+             if(Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
                   return;
-          }
+        }
 
         SetSystemStateMachine(EventEntry);
         if (!EventStatus) {
@@ -881,7 +884,6 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
             InformAlarmHandler(EventEntry, EventId64, true);
             UpdateEventDataStructures(EventID, EventId64, EventEntry, false);
         }
-
 
         InformGUI(EventEntry, EventId64);// Send the Error for handling
         /// \todo this is a test of Axeda Remote Care error reporting:

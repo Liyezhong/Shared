@@ -125,7 +125,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         }
         if (!Entry.IsEventActive())
         {
-        TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
+            TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
         }
 
         if (Entry.IsPostProcess())
@@ -133,7 +133,6 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             TrEventMessage = "PostProcess: " + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
          }
 
-        TrEventMessage = "AckValue:" + QString::number(Entry.GetAckValue(), 10) + " "+ TrEventMessage;
         QString AlternateString = UseAltEventString ? "true" : "false";
         QString ParameterString = "";
         foreach (Global::TranslatableString s, Entry.GetString())
@@ -144,10 +143,18 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
                                 QString::number(Entry.GetEventCode(), 10) + ";" +
                                 TrEventType + ";" +
-                                TrEventMessage + ";" +
-                                QString::number(AsInt(Entry.GetLogAuthorityType()), 10) + ";" +
-                            /*AlternateString + ";" +*/
-                                ParameterString + "\n";
+                                TrEventMessage + ";" + //Message
+                                QString::number(AsInt(Entry.GetLogAuthorityType()), 10) + ";";//log level for show in GUI
+
+        if (NetCommands::No_Set != Entry.GetAckValue())
+        {
+            LoggingString = LoggingString + "AckSel" + QString::number(Entry.GetAckValue(), 10) + ";";//which process options in the msg box the user has selected
+        }
+
+        if(!ParameterString.isEmpty())
+        {
+             LoggingString = LoggingString + ParameterString + "\n";
+        }
 
         // check if we must printout to console (because we sent it to the data logger
         // and we have to avoid a ping pong of error messages)
