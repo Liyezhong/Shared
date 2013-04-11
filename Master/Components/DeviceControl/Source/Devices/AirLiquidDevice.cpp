@@ -1114,7 +1114,7 @@ bool CAirLiquidDevice::SetTargetPressure(qreal pressure)
 void CAirLiquidDevice::VaccumTimerCB(void)
 {
 
-    qDebug() <<  "pressure time cb thread id is " << QThread::currentThreadId();
+    //qDebug() <<  "pressure time cb thread id is " << QThread::currentThreadId();
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_TIMER_TIMEOUT);
     //if(m_LoopPressureTimer.isRunning())
     //{
@@ -1124,7 +1124,7 @@ void CAirLiquidDevice::VaccumTimerCB(void)
 void CAirLiquidDevice::PressureTimerCB(void)
 {
 
-    qDebug() <<  "pressure time cb thread id is " << QThread::currentThreadId();
+    //qDebug() <<  "pressure time cb thread id is " << QThread::currentThreadId();
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_TIMER_TIMEOUT);
     //if(m_LoopPressureTimer.isRunning())
     //{
