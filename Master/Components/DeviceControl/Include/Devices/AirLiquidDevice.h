@@ -86,6 +86,7 @@ public:
 
     ReturnCode_t TurnOnFan();
     ReturnCode_t TurnOffFan();
+    ReturnCode_t BreakAllOperation(void);
 
 private slots:
     void Reset();

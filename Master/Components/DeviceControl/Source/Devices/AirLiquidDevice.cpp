@@ -632,170 +632,51 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
 
 ReturnCode_t CAirLiquidDevice::Vaccum()
 {
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start set up vaccum procedure";
-    QTimer timer;
-    quint32 TimeSlotPassed = 0;
-    bool stop = false;
-    qreal CurrentPressure;
-    connect(&timer, SIGNAL(timeout()), this, SLOT(VaccumTimerCB()));
-    ReturnCode_t retCode;
+
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
-    //release pressure
-    if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
-    {
-        RetValue = DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED;
-        goto SORTIE;
-    }
-
-    //start compressor
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start set up vaccum now";
-    TurnOnFan();
-    if(!SetTargetPressure(m_WorkingPressureNegative))
-    {
-        RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
-        goto SORTIE;
-    }
-    IsPIDDataSteady(0,  0,  0,  0, true);
-    timer.start(VACCUM_POLLING_TIME);
-    while(!stop)
-    {
-        //if (m_LoopVaccumTimer.exec()== (-1))
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM);
-        if (DCL_ERR_UNEXPECTED_BREAK == retCode)
-        {
-            FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-            timer.stop();
-            RetValue = DCL_ERR_DEV_AL_VACCUM_INTERRUPT;
-            goto SORTIE;
-        }
-        TimeSlotPassed++;
-        CurrentPressure = GetPressure(0);
-
-        if ((IsPIDDataSteady(m_WorkingPressureNegative,  CurrentPressure,  \
-                             VACCUM_STATIC_DIFFERENCE, VACCUM_PID_STEADY_NUM, false)))
-        {
-            FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Target pressure is getting steady now.";
-            stop = true;
-            timer.stop();
-        }
-        else
-        {
-            if((TimeSlotPassed * VACCUM_POLLING_TIME) > VACCUM_MAX_SETUP_TIME)
-            {
-                FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Vaccum exceed maximum setup time, exit!";
-                //stop compressor
-                StopCompressor();
-                //close both valve
-                SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-                SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-                RetValue = DCL_ERR_DEV_AL_VACCUM_TIMEOUT;
-                goto SORTIE;
-            }
-        }
-    }
-
-    timer.start(VACCUM_HOLD_TIME);
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Wait for 3 sec to get steady.";
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM);
-    if (DCL_ERR_UNEXPECTED_BREAK == retCode)
-    {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-        timer.stop();
-        RetValue = DCL_ERR_DEV_AL_VACCUM_INTERRUPT;
-        goto SORTIE;
-    }
-SORTIE:
-    if(timer.isActive())
-    {
-        timer.stop();
-    }
-
-    //stop compressor
-    //StopCompressor();
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Vaccum finished!";
-    return RetValue;
-}
-
-ReturnCode_t CAirLiquidDevice::Pressure()
-{
-    qDebug() <<  "Pressure thread id is " << QThread::currentThreadId();
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start set up pressure procedure";
-    QTimer timer;
-    bool stop = false;
-    quint32 TimeSlotPassed = 0;
-    qreal CurrentPressure;
-    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
-    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_FAILED;
-    //release pressure
-    connect(&timer, SIGNAL(timeout()), this, SLOT(PressureTimerCB()));
-
-    //release pressure
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
         RetValue = DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED;
         goto SORTIE;
     }
-
-    //start compressor
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start to setup pressure now.";
     TurnOnFan();
-    SetTargetPressure(m_WorkingPressurePositive);
-    IsPIDDataSteady(0,  0,  0,  0, true);
-    timer.start(PRESSURE_POLLING_TIME);
-
-    while(!stop)
+    if(!SetTargetPressure(m_WorkingPressureNegative))
     {
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE);
-        //if (m_LoopPressureTimer.exec()== (-1))
-        if (DCL_ERR_UNEXPECTED_BREAK == retCode)
-        {
-            FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-            RetValue = DCL_ERR_DEV_AL_PRESSURE_INTERRUPT;
-            goto SORTIE;
-        }
-        TimeSlotPassed++;
-        CurrentPressure = GetPressure(0);
-        if (IsPIDDataSteady(m_WorkingPressurePositive,  CurrentPressure,  \
-                            PRESSURE_STATIC_DIFFERENCE, PRESSURE_PID_STEADY_NUM, false))
-        {
-            FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Target pressure is getting steady now..";
-            stop = true;
-            timer.stop();
-        }
-        else
-        {
-            if((TimeSlotPassed * PRESSURE_POLLING_TIME) > PRESSURE_MAX_SETUP_TIME)
-            {
-                timer.stop();
-                FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Pressure exceed maximum setup time, exit!";
-                //stop compressor
-                StopCompressor();
-                //close both valve
-                SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-                SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-                RetValue = DCL_ERR_DEV_AL_PRESSURE_TIMEOUT;
-                goto SORTIE;
-            }
-        }
-    }
-    timer.start(PRESSURE_HOLD_TIME);
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Wait for 3 sec to get steady";
-    //if (m_LoopPressureTimer.exec()== (-1))
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE);
-    if (DCL_ERR_UNEXPECTED_BREAK == retCode)
-    {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-        timer.stop();
-        RetValue = DCL_ERR_DEV_AL_PRESSURE_INTERRUPT;
-        goto SORTIE;
+        RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
+        //stop compressor
+        StopCompressor();
+        //close both valve
+        SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        TurnOffFan();
     }
 SORTIE:
-    if(timer.isActive())
-    {
-        timer.stop();
-    }
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
+    return RetValue;
+}
 
+ReturnCode_t CAirLiquidDevice::Pressure()
+{
+    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
+        RetValue = DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED;
+        goto SORTIE;
+    }
+    TurnOnFan();
+    if(!SetTargetPressure(m_WorkingPressurePositive))
+    {
+        RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
+        //stop compressor
+        StopCompressor();
+        //close both valve
+        SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        TurnOffFan();
+    }
+SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
     return RetValue;
 }
@@ -1573,5 +1454,24 @@ ReturnCode_t CAirLiquidDevice::TurnOffFan()
     }
 
 
+}
+ReturnCode_t CAirLiquidDevice::BreakAllOperation(void)
+{
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start break all operation procedure";
+
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
+
+    //close both valve
+    m_pPressureCtrl->SetPressure(0, 10);
+
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
+    m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+    m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+    m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 } //namespace

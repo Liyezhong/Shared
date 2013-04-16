@@ -850,6 +850,19 @@ ReturnCode_t IDeviceProcessing::ALTurnOffFan()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+ReturnCode_t IDeviceProcessing::ALAllStop()
+{
+   if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->BreakAllOperation();
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
 ReturnCode_t IDeviceProcessing::RVSetTempCtrlON()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
