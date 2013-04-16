@@ -54,6 +54,8 @@ void InitSupportedLanguages() {
     AddSupportedLanguage(QLocale::Polish);
     AddSupportedLanguage(QLocale::Czech);
     AddSupportedLanguage(QLocale::Russian);
+    AddSupportedLanguage(QLocale::Chinese);
+    AddSupportedLanguage(QLocale::Japanese);
 }
 
 /****************************************************************************/

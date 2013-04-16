@@ -71,6 +71,8 @@ void CSliderControl::OnValueChanged(int Value)
         setSliderPosition(minimum());
         m_Position = PosLeft;
     }
+
+    emit positionChanged(m_Position);
 }
 
 /****************************************************************************/

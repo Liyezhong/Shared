@@ -49,6 +49,9 @@ public:
     Position_t GetPosition();
     void SetDisabled(bool Disabled);
 
+Q_SIGNALS:
+    void positionChanged(MainMenu::CSliderControl::Position_t Position);
+
 private:
     Position_t m_Position;  //!< Position of the slider
     CSemiTransparentOverlay *mp_SemiTransparentOverlay; //!< Semitransparent widget to give disabled look.
