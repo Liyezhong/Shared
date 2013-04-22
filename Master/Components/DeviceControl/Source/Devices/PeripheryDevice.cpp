@@ -300,7 +300,7 @@ bool CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16
     m_TargetDOOutputValues[Type] = OutputValue;
 
     ReturnCode_t retCode = m_pDigitalOutputs[Type]->SetOutputValue(m_TargetDOOutputValues[Type], Duration, Delay);
-    if (DCL_ERR_FCT_CALL_SUCCESS == retCode)
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         return false;
     }
