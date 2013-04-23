@@ -167,6 +167,13 @@ typedef enum {
     DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR = 43,
     DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR = 44,
 
+    DCL_ERR_DEV_BOTTLE_CHECK_OK = 45,
+    DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL = 46,
+    DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE = 47,
+    DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE = 48,
+    DCL_ERR_DEV_BOTTLE_CHECK_ERROR = 49,
+
+
     DCL_ERR_UNDEFINED             = 99   //!< The return code was not set
 } ReturnCode_t;
 typedef enum

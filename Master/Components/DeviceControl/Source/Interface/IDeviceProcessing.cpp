@@ -1267,6 +1267,7 @@ ReturnCode_t IDeviceProcessing::PerTurnOffMainRelay()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
 ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1282,4 +1283,49 @@ ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos)
+{
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if((m_pRotaryValve)&&(m_pAirLiquid))
+    {
+        if(DCL_ERR_FCT_CALL_SUCCESS != m_pRotaryValve->ReqMoveToRVPosition(TubePos))
+        {
+            return retCode;
+        }
+        usleep(4000);
+        qreal pressure = m_pAirLiquid->GetRecentPressure(0);
+
+        if(pressure < 0.4)
+        {
+            retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
+        }
+        else if(pressure < 1)
+        {
+            retCode = DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE;
+        }
+        else if(pressure < 2.5)
+        {
+            retCode = DCL_ERR_DEV_BOTTLE_CHECK_OK;
+        }
+        else
+        {
+            retCode = DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE;
+        }
+
+        if(DCL_ERR_FCT_CALL_SUCCESS != m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1)))
+        {
+            return retCode;
+        }
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
 } // namespace
