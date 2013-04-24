@@ -172,6 +172,7 @@ typedef enum {
     DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE = 47,
     DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE = 48,
     DCL_ERR_DEV_BOTTLE_CHECK_ERROR = 49,
+    DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT = 50,
 
 
     DCL_ERR_UNDEFINED             = 99   //!< The return code was not set

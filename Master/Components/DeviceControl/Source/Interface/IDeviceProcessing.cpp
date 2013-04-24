@@ -1293,6 +1293,25 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     }
     if((m_pRotaryValve)&&(m_pAirLiquid))
     {
+        qreal density = 1;
+        qreal basePressure = 1.4;
+        if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
+        {
+            density = 1;
+        }
+        else if((ReagentGrpID == "RG3")||(ReagentGrpID == "RG4")||(ReagentGrpID == "RG8"))
+        {
+            density = 0.8;
+        }
+        else if((ReagentGrpID == "RG5")||(ReagentGrpID == "RG7"))
+        {
+            density = 0.88;
+        }
+        else if((ReagentGrpID == "RG6"))
+        {
+            density = 1;
+            basePressure = 0.6;
+        }
         if(DCL_ERR_FCT_CALL_SUCCESS != m_pRotaryValve->ReqMoveToRVPosition(TubePos))
         {
             return retCode;

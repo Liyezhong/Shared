@@ -73,6 +73,7 @@ public:
     ReturnCode_t Draining(quint32 DelayTime);
     ReturnCode_t Filling(quint32 DelayTime);
     qreal GetRecentPressure(quint8 Index);
+    ReturnCode_t PressureForBottoleCheck();
 
 
     ReturnCode_t SetTempCtrlON(ALTempCtrlType_t Type);

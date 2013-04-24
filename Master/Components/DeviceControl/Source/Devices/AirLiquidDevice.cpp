@@ -952,6 +952,78 @@ SORTIE:
     return RetValue;
 }
 
+ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
+{
+    qDebug()<< "Start setting up pressure for bottle check";
+    QTimer timer;
+    bool stop = false;
+    quint32 TimeSlotPassed = 0;
+    qreal CurrentPressure;
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
+
+    connect(&timer, SIGNAL(timeout()), this, SLOT(PressureTimerCB()));
+
+    //release pressure
+    if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
+    {
+        retCode = DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED;
+        goto SORTIE;
+    }
+
+    //start compressor
+    if(!SetTargetPressure(10))
+    {
+        retCode = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
+        goto SORTIE;
+    }
+    IsPIDDataSteady(0,  0,  0,  0, true);
+    timer.setSingleShot(false);
+    timer.start(200);
+
+    while(!stop)
+    {
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE);
+        if ( DCL_ERR_UNEXPECTED_BREAK == retCode)
+        {
+            FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
+            retCode = DCL_ERR_DEV_AL_FILL_INTERRUPT;
+            goto SORTIE;
+        }
+        TimeSlotPassed++;
+        CurrentPressure = GetRecentPressure(0);
+        if (IsPIDDataSteady(10,  CurrentPressure,  \
+                            2, 8, false))
+        {
+            qDebug()<<"Target pressure is getting steady now.";
+            stop = true;
+            timer.stop();
+        }
+        else
+        {
+            if((TimeSlotPassed * 200) > PRESSURE_MAX_SETUP_TIME)
+            {
+                timer.stop();
+                qDebug()<<"Warning: Pressure exceed maximum setup time, exit!";
+                //stop compressor
+                StopCompressor();
+                //close both valve
+                SetValve(0,0);
+                SetValve(1,0);
+                retCode = DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT;
+                goto SORTIE;
+            }
+        }
+    }
+    //stop compressor
+    StopCompressor();
+SORTIE:
+    if(timer.isActive())
+    {
+        timer.stop();
+    }
+    return retCode;
+}
+
 bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qreal Tolerance, qint32 Num, bool Init)
 {
     bool ret = false;
