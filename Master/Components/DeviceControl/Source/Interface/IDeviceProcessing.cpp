@@ -1295,6 +1295,19 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     {
         qreal density = 1;
         qreal basePressure = 1.4;
+
+        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+
+        retCode = m_pAirLiquid->PressureForBottoleCheck();
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+
         if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
         {
             density = 1;
@@ -1312,34 +1325,37 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             density = 1;
             basePressure = 0.6;
         }
-        if(DCL_ERR_FCT_CALL_SUCCESS != m_pRotaryValve->ReqMoveToRVPosition(TubePos))
+        retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
-        usleep(4000);
+        usleep(3000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure(0);
 
         if(pressure < 0.4)
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
+            qDebug()<<"Bottle Check: Not full";
         }
         else if(pressure < 1)
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE;
+            qDebug()<<"Bottle Check: leakage";
         }
         else if(pressure < 2.5)
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_OK;
+            qDebug()<<"Bottle Check: OK";
         }
         else
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE;
+            qDebug()<<"Bottle Check: blockage";
         }
 
-        if(DCL_ERR_FCT_CALL_SUCCESS != m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1)))
-        {
-            return retCode;
-        }
+        m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));
+        return retCode;
     }
     else
     {

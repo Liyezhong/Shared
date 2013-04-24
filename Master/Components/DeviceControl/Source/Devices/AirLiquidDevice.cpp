@@ -995,6 +995,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
                             2, 8, false))
         {
             qDebug()<<"Target pressure is getting steady now.";
+            retCode = DCL_ERR_FCT_CALL_SUCCESS;
             stop = true;
             timer.stop();
         }
@@ -1005,10 +1006,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
                 timer.stop();
                 qDebug()<<"Warning: Pressure exceed maximum setup time, exit!";
                 //stop compressor
-                StopCompressor();
-                //close both valve
-                SetValve(0,0);
-                SetValve(1,0);
+                ReleasePressure();
                 retCode = DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT;
                 goto SORTIE;
             }

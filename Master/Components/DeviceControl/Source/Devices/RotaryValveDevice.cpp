@@ -1387,7 +1387,7 @@ bool CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 LowerLimit
     //static quint32 LastED = 0;
     RVPosition_t ED = GetEDPosition();
     //Log(tr("last ED is: %1, lower limit is: %2, upper limit is %3 ").arg(ED).arg(LowerLimit).arg(UpperLimit));
-    qDebug()<<"last ED is: %1, lower limit is: %2, upper limit is %3 " << ED << LowerLimit << UpperLimit;
+    qDebug()<<"last ED is:"<< ED <<", lower limit is: "<<LowerLimit<<", upper limit is " << UpperLimit;
     //RetValue = ReferenceRunWithTimeout(LowerLimit, UpperLimit);
     RetValue = DoReferenceRunWithStepCheck(LowerLimit, UpperLimit);
 #else
