@@ -1333,17 +1333,19 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         usleep(3000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure(0);
 
-        if(pressure < 0.4)
+        qDebug()<<"Bottle Check pressure: " << pressure;
+
+        if(pressure < (0.4 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
             qDebug()<<"Bottle Check: Not full";
         }
-        else if(pressure < 1)
+        else if(pressure < (0.7 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE;
             qDebug()<<"Bottle Check: leakage";
         }
-        else if(pressure < 2.5)
+        else if(pressure < (2 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_OK;
             qDebug()<<"Bottle Check: OK";

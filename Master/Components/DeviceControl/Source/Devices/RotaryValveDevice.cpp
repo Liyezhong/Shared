@@ -1126,7 +1126,7 @@ bool CRotaryValveDevice::MoveToNextPortCW()
         }
         SetEDPosition(EDPosition);
         //Log(tr("CW Hit Position: %1").arg(TranslateFromEDPosition(EDPosition)));
-        qDebug()<<"CW Hit Position: %1" << TranslateFromEDPosition(EDPosition);
+        qDebug()<<"CW Hit Position: " << TranslateFromEDPosition(EDPosition);
     }
     else
     {
@@ -1328,7 +1328,7 @@ bool CRotaryValveDevice::MoveToNextPortCCW()
         }
         SetEDPosition((RVPosition_t)tempPosition);
         //Log(tr("CCW Hit Position: %1").arg(TranslateFromEDPosition(EDPosition)));
-        qDebug() << "CCW Hit Position: %1" << TranslateFromEDPosition(EDPosition);
+        qDebug() << "CCW Hit Position: " << TranslateFromEDPosition(EDPosition);
     }
     else
     {
