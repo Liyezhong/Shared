@@ -44,7 +44,7 @@ EventCSVInfo::EventCSVInfo(const quint32 &EventCode,const QString &Eventname, co
                              Global::LogAuthorityType LogAuthorityType, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
                              const QString &MessageType, const bool &AckRequired, Global::AlarmPosType AlarmPosType, const Global::GuiButtonType &ButtonType,
                              const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent,
-                             const QString& ErrorOutline, Global::ResponseType ResponseType,
+                             const QString& ErrorOutline, Global::ActionType ResponseType,
                              const QString& DetailForRD,
                              Global::ResponseRecoveryType& ResponseRecoveryType ) :
 

@@ -52,10 +52,13 @@ private:
     NetCommands::ClickedButton_t    m_AckType;               ///< Ack status received from GUI
 //    Global::AckOKNOK                m_AckValue;              ///< Ack value received from GUI
     quint32                         m_EventKey;              ///< Event Key for every event raised. NULL until raised.
+    quint32                         m_EventCodeFromCom;            /// Event code from RaiseEvent call
+    Global::tTranslatableStringList m_StringForRd;             ///< Argument list for event string for R&d
+    quint32                         m_Scenario;             /// Event Scenario. m_EventCode + m_Scenario <=> m_EventCSVInfo.GetEventCode()
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
-    quint8                          m_count;                 ///< Number of times the event has occured
+    quint8                          m_CountRetires;                 ///< Number of times the event has been retried to fixed by user from Gui.
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
-    bool                            m_IsPostProcess;         ///< After process "Response", the ProcessEvent will be called again, maybe it will process "Recovery".
+
 
 
     /****************************************************************************/
@@ -81,8 +84,7 @@ public:
                                 const Global::tTranslatableStringList &String, quint8 count,
                                  NetCommands::ClickedButton_t ClickButton, 
                                 /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, 
-                                EventHandler::EventCSVInfo CSVInfo,
-                                 bool IsPostProcess);
+                                EventHandler::EventCSVInfo CSVInfo);
     /****************************************************************************/
     /**
      * \brief Copy constructor.
@@ -150,6 +152,36 @@ public:
           m_TimeStamp = DateTime;
       }
 
+      /****************************************************************************/
+      /**
+         * \brief Get the EventCode.
+         *
+         * \return      EventCode.
+         */
+        /****************************************************************************/
+        inline quint32 GetEventCodeFromCom() const {
+            return m_EventCodeFromCom;
+        }
+
+
+        inline void SetEventCodeFromCom(quint32 EventCode) {
+            m_EventCodeFromCom = EventCode;
+        }
+        /****************************************************************************/
+        /**
+           * \brief Get the Event Scenario.
+           *
+           * \return      Scenario.
+           */
+          /****************************************************************************/
+          inline quint32 GetScenario() const {
+              return m_Scenario;
+          }
+
+
+          inline void SetScenario(quint32 Scenario) {
+              m_Scenario = Scenario;
+          }
 
       /****************************************************************************/
       /**
@@ -180,6 +212,21 @@ public:
       inline void SetTranslatableStringList(Global::tTranslatableStringList  EventStringList) {
           m_String = EventStringList;
       }
+
+      /****************************************************************************/
+          /**
+           * \brief Get the argument list as for event string for RD
+           *
+           * \return
+           */
+          /****************************************************************************/
+          inline Global::tTranslatableStringList &GetStringForRd() {
+              return m_StringForRd;
+          }
+
+          inline void SetStringForRd(Global::tTranslatableStringList  EventStringList) {
+              m_StringForRd = EventStringList;
+          }
 
       Global::LogAuthorityType GetLogAuthorityType() const{
           return (m_EventCSVInfo.GetLogAuthorityType());
@@ -212,6 +259,10 @@ public:
       inline int GetRetryAttempts() const {
           return m_EventCSVInfo.GetRetryAttempts();
       }
+      inline quint8 GetAndIncRetryCount() {
+          m_CountRetires ++;
+          return m_CountRetires - 1;
+      }
 
       inline Global::ActionType GetActionNegative() const {
           return m_EventCSVInfo.GetActionNegative();
@@ -243,7 +294,7 @@ public:
           return m_EventCSVInfo.GetResponseRecoveryType();
       }
 
-      inline Global::ResponseType GetResponseType() const {
+      inline Global::ActionType GetResponseType() const {
           return m_EventCSVInfo.GetResponseType();
       }
 
@@ -261,6 +312,10 @@ public:
 
       inline Global::LoggingSource GetSource() const {
           return m_EventCSVInfo.GetSource();
+      }
+
+      inline Global::EventSourceType GetEventSource() const {
+          return m_EventCSVInfo.GetEventSource();
       }
 
       void SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) ;
@@ -286,14 +341,6 @@ public:
 
       inline void SetEventStatus(const bool & EventStatus) {
           m_EventStatus = EventStatus;
-      }
-
-      inline void IsPostProcess(const bool & IsPostProcess) {
-          m_IsPostProcess = IsPostProcess;
-      }
-
-      inline bool IsPostProcess() const{
-          return m_IsPostProcess;
       }
 
     /****************************************************************************/

@@ -68,6 +68,7 @@ EventHandlerThreadController::EventHandlerThreadController(Global::gSourceType T
     AddEventTypes();
     AddEventLogLevels();
     AddSourceComponents();
+    m_ProcessingEvents.clear();
 }
 
 
@@ -95,7 +96,6 @@ void EventHandlerThreadController::CreateAndInitializeObjects()
 {
     AddAlarmPosTypes();
     AddLogAuthorityTypes();
-    AddResponseTypes();
     AddResponseRecoveryTypes();
     bool ret =  ReadConfigFile(Global::SystemPaths::Instance().GetSettingsPath() + "/EventConfig.csv");
 
@@ -133,6 +133,7 @@ void EventHandlerThreadController::AddEventTypes(){
     m_EventTypeEnumMap.insert("L_ERROR", Global::EVTTYPE_SYS_ERROR);
     m_EventTypeEnumMap.insert("L_WARNING", Global::EVTTYPE_SYS_WARNING);
     m_EventTypeEnumMap.insert("L_HINT", Global::EVTTYPE_SYS_HINT);
+    m_EventTypeEnumMap.insert("L_INFO", Global::EVTTYPE_SYS_HINT);
 }
 
 void EventHandlerThreadController::AddEventLogLevels() {
@@ -171,24 +172,13 @@ void EventHandlerThreadController::AddAlarmPosTypes() {
     m_AlarmPosTypeEnumMap.insert("AL_REMOTE", Global::ALARMPOS_REMOTE);
 }
 
-void EventHandlerThreadController::AddResponseTypes() {
-    m_ResponseTypeEnumMap.insert("RS_RESET",Global::RESTYPE_RS_RESET);
-    m_ResponseTypeEnumMap.insert("RS_STOPLATER",Global::RESTYPE_RS_STOPLATER);
-    m_ResponseTypeEnumMap.insert("RS_STOPATONCE",Global::RESTYPE_RS_STOPATONCE);
-    m_ResponseTypeEnumMap.insert("RS_PAUSE",Global::RESTYPE_RS_PAUSE);
-    m_ResponseTypeEnumMap.insert("RS_DRAINATONCE",Global::RESTYPE_RS_DRAINATONCE);
-    m_ResponseTypeEnumMap.insert("RS_DRAINATONCE_T",Global::RESTYPE_RS_DRAINATONCE_T);
-    m_ResponseTypeEnumMap.insert("RS_TISSUE_PROTECT",Global::RESTYPE_RS_TISSUE_PROTECT);
-    m_ResponseTypeEnumMap.insert("RS_CHECK_BLOCKAGE",Global::RESTYPE_RS_CHECK_BLOCKAGE);
-    m_ResponseTypeEnumMap.insert("RS_AIRSYSTEM_CLEANING",Global::RESTYPE_RS_AIRSYSTEM_CLEANING);
-}
 
 void EventHandlerThreadController::AddResponseRecoveryTypes() {
     m_ResponseRecoveryTypeEnumMap.insert("RR_ONLY_REC", Global::RESRECTYPE_ONLY_RECOVERY);
     m_ResponseRecoveryTypeEnumMap.insert("RR_RES_REC", Global::RESRECTYPE_RESPONSE_RECOVERY);
     m_ResponseRecoveryTypeEnumMap.insert("RR_RES_RESULT_REC", Global::RESRECTYPE_RES_RESULT_RECOVERY);
     m_ResponseRecoveryTypeEnumMap.insert("RR_ONLY_RES", Global::RESRECTYPE_ONLY_RESPONSE);
-    m_ResponseRecoveryTypeEnumMap.insert("RR_NO_ACTION", Global::RESRECTYPE_NO_ACTION);
+    m_ResponseRecoveryTypeEnumMap.insert("", Global::RESRECTYPE_NONE);
 }
 
 void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64)
@@ -218,9 +208,10 @@ void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntr
 void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
                                                     EventCSVInfo &EventInfo,
                                                     const bool EventStatus,
-                                                    const bool IsPostProcess,
                                                     const quint32 EventID,
                                                     const Global::tTranslatableStringList &EventStringList,
+                                                    Global::tTranslatableStringList &EventStringListForRd,
+                                                    quint64 EventCodeScenario,
                                                     const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage)
 {
     if (EventInfo.GetEventCode() == 0 || !m_eventList.contains(EventInfo.GetEventCode()))
@@ -234,10 +225,13 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
         EventEntry.SetTranslatableStringList(EventStringList);
     }
 
+    EventEntry.SetStringForRd(EventStringListForRd);
+    EventEntry.SetEventCodeFromCom(EventCodeScenario >> 32);
+    EventEntry.SetScenario(EventCodeScenario &0xffffffff);
+
     EventEntry.SetEventKey(EventKey);
     EventEntry.SetEventCSVInfo(EventInfo);
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
-    EventEntry.IsPostProcess(IsPostProcess);
     EventEntry.SetEventStatus(EventStatus);
     EventEntry.SetAltStringUsage(AltStringUsage);
 }
@@ -246,8 +240,11 @@ void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEven
 {
     Global::AlarmType AlarmType = Global::ALARM_NONE;
 
-    if((EventEntry.GetEventType() == Global::EVTTYPE_ERROR || EventEntry.GetEventType() == Global::EVTTYPE_WARNING)) {
-        if (EventEntry.GetAlarmPosType() != Global::ALARMPOS_NONE)
+    if((EventEntry.GetEventType() == Global::EVTTYPE_ERROR ||
+        EventEntry.GetEventType() == Global::EVTTYPE_WARNING ||
+        EventEntry.GetEventType() == Global::EVTTYPE_SYS_ERROR ||
+        EventEntry.GetEventType() == Global::EVTTYPE_SYS_WARNING)) {
+        if (EventEntry.GetAlarmPosType() != Global::ALARMPOS_NONE && EventEntry.GetGUIMessageBoxOptions() != Global::NO_BUTTON)
         {
             //We need Alarm
             if ((EventEntry.GetEventType() == Global::EVTTYPE_ERROR) ||
@@ -286,12 +283,27 @@ void EventHandlerThreadController::AddActionTypes()
     m_ActionTypeEnumMap.insert("IDLE",Global::ACNTYPE_IDLE);
     m_ActionTypeEnumMap.insert("REMOVEALLRACKS",Global::ACNTYPE_REMOVEALLRACKS);
     m_ActionTypeEnumMap.insert("REMOVERACK",Global::ACNTYPE_REMOVERACK);
+
+    // Recovery Action
+    m_ActionTypeEnumMap.insert("RC_INIT_ROTARYVALVE", Global::ACNTYPE_RC_INIT_ROTARYVALVE);
+    m_ActionTypeEnumMap.insert("RC_BOTTLECHECK_I", Global::ACNTYPE_RC_BOTTLECHECK_I);
+    m_ActionTypeEnumMap.insert("RC_BUILD_PRESSURE", Global::ACNTYPE_RC_BUILD_PRESSURE);
+    m_ActionTypeEnumMap.insert("RC_BUILD_VACUUM", Global::ACNTYPE_RC_BUILD_VACUUM);
+    m_ActionTypeEnumMap.insert("RC_Maintenance_Airsystem", Global::ACNTYPE_RC_MAINTENANCE_AIRSYSTEM);
+
+    // Response Action
+    m_ActionTypeEnumMap.insert("RS_RESET",Global::ACNTYPE_RS_RESET);
+    m_ActionTypeEnumMap.insert("RS_STOPLATER",Global::ACNTYPE_RS_STOPLATER);
+    m_ActionTypeEnumMap.insert("RS_STOPATONCE",Global::ACNTYPE_RS_STOPATONCE);
+    m_ActionTypeEnumMap.insert("RS_PAUSE",Global::ACNTYPE_RS_PAUSE);
+    m_ActionTypeEnumMap.insert("RS_DRAINATONCE",Global::ACNTYPE_RS_DRAINATONCE);
+    m_ActionTypeEnumMap.insert("RS_DRAINATONCE_T",Global::ACNTYPE_RS_DRAINATONCE_T);
+    m_ActionTypeEnumMap.insert("RS_TISSUE_PROTECT",Global::ACNTYPE_RS_TISSUE_PROTECT);
+    m_ActionTypeEnumMap.insert("RS_CHECK_BLOCKAGE",Global::ACNTYPE_RS_CHECK_BLOCKAGE);
+    m_ActionTypeEnumMap.insert("RS_AIRSYSTEM_CLEANING",Global::ACNTYPE_RS_AIRSYSTEM_CLEANING);
+
+
     m_ActionTypeEnumMap.insert("", Global::ACNTYPE_NONE);
-    m_ActionTypeEnumMap.insert("RC_INIT_ROTARYVALVE", Global::ACNTYPE_INIT_ROTARYVALVE);
-    m_ActionTypeEnumMap.insert("RC_BOTTLECHECK_I", Global::ACNTYPE_BOTTLECHECK_I);
-    m_ActionTypeEnumMap.insert("RC_BUILD_PRESSURE", Global::ACNTYPE_BUILD_PRESSURE);
-    m_ActionTypeEnumMap.insert("RC_BUILD_VACUUM", Global::ACNTYPE_BUILD_VACUUM);
-    m_ActionTypeEnumMap.insert("RC_Maintenance_Airsystem", Global::ACNTYPE_MAINTENANCE_AIRSYSTEM);
 }
 
 
@@ -548,19 +560,28 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
             //! \ Get EventInfo/outline Ids(12) flag
             if (textList.count() > 13)
             {
-                EventCSVInfo.SetErrorOutline(textList.at(12).trimmed());
+                EventCSVInfo.SetErrorOutline(textList.at(13).trimmed());
             }
 
-            //! \ Get ResponseType(13) flag
+            //! \ Get ResponseType(14) flag
             if (textList.count() > 14)
             {
-                EventCSVInfo.SetResponseType(m_ResponseTypeEnumMap.value(textList.at(13).trimmed().toUpper(), Global::RESTYPE_RS_NO_ACTION));
+                EventCSVInfo.SetResponseType(m_ActionTypeEnumMap.value(textList.at(14).trimmed().toUpper(), Global::ACNTYPE_NONE));
             }
 
-            //! \ Get ResponseRecoveryType(15) flag
+            //! \ Get EventString for RD(15)
+
+               if (textList.count() > 15)
+               {
+                    // ! \ EventString for RD comes from the RaiseEvent call, just verify the data is not empty
+                    QString EventString = textList.at(15);
+                    EventCSVInfo.SetDetailForRD(EventString);
+               }
+
+            //! \ Get ResponseRecoveryType(16) flag
             if (textList.count() > 16)
             {
-                EventCSVInfo.SetResponseRecoveryType(m_ResponseRecoveryTypeEnumMap.value(textList.at(15).trimmed().toUpper(), Global::RESRECTYPE_NO_ACTION));
+                EventCSVInfo.SetResponseRecoveryType(m_ResponseRecoveryTypeEnumMap.value(textList.at(16).trimmed().toUpper(), Global::RESRECTYPE_NONE));
             }
 
             m_eventList.insert(EventCSVInfo.GetEventCode(), EventCSVInfo);
@@ -637,6 +658,114 @@ bool EventHandlerThreadController::ReadConfigFile(QString filename)
     file.close();
 
     return true;
+}
+
+/****************************************************************************/
+/**
+ * \brief check and get event current status
+ *
+ * \param[in]   EventSource   the source of the event
+ * \param[in]   EventCode   the EventCode of the event
+ * \param[out]   EventStatus   current status of the event
+ * \return      true - get EventStatus,  false - error during error
+ */
+/****************************************************************************/
+bool EventHandlerThreadController::CheckErrorStatus(const quint32 ErorCode, const quint32 EventKey,
+                                                    const DataLogging::DayEventEntry& EventEntry, Global::EventStatus& EventStatus)
+{
+    bool ret = true;
+    ProcessingEvent ProEvent;
+    Global::EventSourceType EventSource = EventEntry.GetEventSource();
+
+    if(EventSource == Global::EVENTSOURCE_NONE)
+    {
+        return ret;
+    }
+
+    if(!m_ProcessingEvents.contains(EventSource))
+    {
+        ProEvent.EventCode = ErorCode;
+        ProEvent.EventKey = EventKey;
+        ProEvent.CurrentStatusIndex = 0;
+        switch(EventEntry.GetResponseRecoveryType())
+        {
+            case Global::RESRECTYPE_RESPONSE_RECOVERY:
+                ProEvent.AvaliableStatus << Global::EVTSTAT_RESPONSE <<  Global::EVTSTAT_RECOVERY <<  Global::EVTSTAT_RECOVERY_ACK;
+                m_ProcessingEvents[EventSource].append(ProEvent);
+                EventStatus = ProEvent.AvaliableStatus[0];
+                DoResponseAction(ErorCode,EventKey,EventEntry);
+                break;
+            case Global::RESRECTYPE_RES_RESULT_RECOVERY:
+                ProEvent.AvaliableStatus << Global::EVTSTAT_RESPONSE << Global::EVTSTAT_RESPONSE_ACK  <<Global::EVTSTAT_RECOVERY <<  Global::EVTSTAT_RECOVERY_ACK;
+                m_ProcessingEvents[EventSource].append(ProEvent);
+                EventStatus = ProEvent.AvaliableStatus[0];
+                DoResponseAction(ErorCode,EventKey,EventEntry);
+                break;
+            case::Global::RESRECTYPE_ONLY_RESPONSE:
+                ProEvent.AvaliableStatus << Global::EVTSTAT_RESPONSE << Global::EVTSTAT_RESPONSE_ACK;
+                m_ProcessingEvents[EventSource].append(ProEvent);
+                EventStatus = ProEvent.AvaliableStatus[0];
+                DoResponseAction(ErorCode,EventKey,EventEntry);
+                break;
+            case::Global::RESRECTYPE_ONLY_RECOVERY:
+                ProEvent.AvaliableStatus <<Global::EVTSTAT_RECOVERY <<  Global::EVTSTAT_RECOVERY_ACK;
+                m_ProcessingEvents[EventSource].append(ProEvent);
+                EventStatus = ProEvent.AvaliableStatus[0];
+                break;
+            case::Global::RESRECTYPE_NONE: ////no t actions to be done
+                EventStatus = Global::EVTSTAT_OFF;
+                break;
+        }
+    }
+    else
+    {
+        if(m_ProcessingEvents[EventSource].count() == 1  &&
+                m_ProcessingEvents[EventSource][0].EventCode == ErorCode &&
+                m_ProcessingEvents[EventSource][0].EventKey == EventKey)
+        {
+            int index  = m_ProcessingEvents[EventSource][0].CurrentStatusIndex;
+            if(index + 1 < m_ProcessingEvents[EventSource][0].AvaliableStatus.count()) // have next step
+            {
+                m_ProcessingEvents[EventSource][0].CurrentStatusIndex++;
+                EventStatus =  m_ProcessingEvents[EventSource][0].AvaliableStatus[index + 1];
+            }
+            else
+            {
+                EventStatus = Global::EVTSTAT_OFF;
+                m_ProcessingEvents.remove(EventSource);
+            }
+        }
+        else // error in error
+        {
+            m_ProcessingEvents.remove(EventSource);
+            ret = false;
+        }
+    }
+
+    return ret;
+}
+
+/****************************************************************************/
+/**
+ * \brief Do Response Action
+ *
+ */
+/****************************************************************************/
+void EventHandlerThreadController::DoResponseAction(const quint32 EventCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry)
+{
+    NetCommands::CmdSystemAction *p_CmdSystemAction;
+    p_CmdSystemAction = new NetCommands::CmdSystemAction();
+    p_CmdSystemAction->SetRetryCount(0);
+    p_CmdSystemAction->SetEventKey(EventKey);
+    p_CmdSystemAction->SetEventID(EventEntry.GetEventCodeFromCom());
+    p_CmdSystemAction->SetScenario(EventEntry.GetScenario());
+    p_CmdSystemAction->SetSource(EventEntry.GetEventSource());
+//    p_CmdSystemAction->SetStringList(EventStringList);
+    Global::tRefType NewRef = this->GetNewCommandRef();
+
+    p_CmdSystemAction->SetAction(EventEntry.GetResponseType());
+    this->SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));//response
+    return;
 }
 
 bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo ) {
@@ -787,17 +916,19 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
  *  \return
  *
  ****************************************************************************/
-void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
+void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
                                                 const Global::tTranslatableStringList &EventStringList,
                                                 const bool EventStatus,
                                                 const quint32 EventKey,
                                                 const Global::AlternateEventStringUsage AltStringUsuage,
-                                                bool IsResolved, bool IsPostProcess)
+                                                Global::tTranslatableStringList EventStringListForRD,
+                                                quint64 EventCodeScenario,
+                                                bool IsResolved)
 {
-    qDebug() << "\n\n\n\nEventHandlerThreadController::ProcessEvent, EventID=" << EventID << "EventKey=" << EventKey << "Event status" <<EventStatus;
+    qDebug() << "\n\n\n\nEventHandlerThreadController::ProcessEvent, EventID=" << ErrorCode << "EventKey=" << EventKey << "Event status" <<EventStatus;
 
     // if eventList is not available yet, place event into pendingList
-    if (EventID == EVENT_GUI_AVAILABLE)
+    if (ErrorCode == EVENT_GUI_AVAILABLE)
     {
             SetGuiAvailable(true);
             //We dont need to log this particular event ,
@@ -808,33 +939,36 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
     {
         qDebug()<<"Event list not available \n\n\n";
         PendingEvent pe;
-        pe.EventID = EventID;
+        pe.EventID = ErrorCode;
         pe.EventStringList = EventStringList;
         pe.EventKey = EventKey;
         pe.EventStatus = EventStatus;
         pe.IsResolved = IsResolved;
-        pe.IsPostProcess= IsPostProcess;
         pe.AltStringUsuage = AltStringUsuage;
+        pe.EventStringListForRD = EventStringListForRD;
+        pe.EventCodeScenario = EventCodeScenario;
         m_pendingEvents.push_back(pe);// These events, if any, are processed after successfully reading the EventConf file
         return;
     }
     else
     {
-        QHash<quint32, EventHandler::EventCSVInfo>::iterator i = m_eventList.find(EventID);
+        bool isEventActive  = EventStatus;
+        QHash<quint32, EventHandler::EventCSVInfo>::iterator i = m_eventList.find(ErrorCode);
         if (i == m_eventList.end())
         {
-                qDebug()<< "\n The event item: "<< EventID<< " has not been appended into the config table!";
+                qDebug()<< "\n The event item: "<< ErrorCode<< " has not been appended into the config table!";
                 return;
         }
 
-        quint64 EventId64 = EventID;
+        quint64 EventId64 = ErrorCode;
         EventId64 <<= 32;
         EventId64 |= EventKey;
+
         DataLogging::DayEventEntry EventEntry;
-        EventCSVInfo EventInfo = m_eventList.value(EventID);
+        EventCSVInfo EventInfo = m_eventList.value(ErrorCode);
         //EventEntry encapsulates EventInfo. EventEntry is also
         //passed to the logging component.
-        CreateEventEntry(EventEntry, EventInfo, EventStatus, IsPostProcess, EventID, EventStringList, EventKey, AltStringUsuage);
+        CreateEventEntry(EventEntry, EventInfo, isEventActive, ErrorCode, EventStringList, EventStringListForRD, EventCodeScenario, EventKey, AltStringUsuage);
 
         //Log if loglevel is not "NONE"
         if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
@@ -843,50 +977,62 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
             emit LogEventEntry(EventEntry); //Log the event
         }
 
-        //Process the response action immediately
-        if (!IsPostProcess)
+        Global::EventStatus CurrentStatus = Global::EVTSTAT_OFF;
+        bool NotErrorInError = CheckErrorStatus(ErrorCode,EventKey, EventEntry,CurrentStatus);
+        if(NotErrorInError)
         {
-              if (Global::RESRECTYPE_RESPONSE_RECOVERY == EventInfo.GetResponseRecoveryType() ||
-                      Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType() ||
-                         Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
-              {
-                  NetCommands::CmdSystemAction *p_CmdSystemAction;
-                  p_CmdSystemAction = new NetCommands::CmdSystemAction();
-                  p_CmdSystemAction->SetRetryCount(0);
-                  p_CmdSystemAction->SetEventKey(EventKey);
-                  p_CmdSystemAction->SetEventID(EventInfo.GetEventCode());
-                  p_CmdSystemAction->SetSource(EventInfo.GetSourceComponent());
-                  p_CmdSystemAction->SetStringList(EventStringList);
-                  Global::tRefType NewRef = this->GetNewCommandRef();
-
-                  p_CmdSystemAction->SetResponse(EventInfo.GetResponseType());
-                  this->SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));//response
-                  return;
-              }
-        }
-        else//IsPostProcess
-        {
-            if (Global::RESRECTYPE_RES_RESULT_RECOVERY == EventInfo.GetResponseRecoveryType())
+            switch(CurrentStatus)
             {
-                if(IsResolved)
-                   return;
-             }
+                case Global::EVTSTAT_RESPONSE:
+                    return; // waiting Response result
+                    break;
+                case Global::EVTSTAT_RESPONSE_ACK:
+                    CheckErrorStatus(ErrorCode,EventKey, EventEntry,CurrentStatus); // move to next status
+                    if((IsResolved && CurrentStatus == Global::EVTSTAT_OFF))//the finial Action.
+                    {
+                        m_ProcessingEvents.remove(EventEntry.GetEventSource());
+                        return;
+                    }
+                    break;
+                case Global::EVTSTAT_RECOVERY:
+                    break;
+                case Global::EVTSTAT_RECOVERY_ACK:
+                    CheckErrorStatus(ErrorCode,EventKey, EventEntry,CurrentStatus); // move to next status
+                    if((IsResolved && CurrentStatus == Global::EVTSTAT_OFF))//the event has been resloved.
+                    {
+                        m_ProcessingEvents.remove(EventEntry.GetEventSource());
+                        isEventActive = false;
+                        EventEntry.SetEventStatus(isEventActive);
+                    }
+                    else
+                    {
+                        //todo: inform user to contact service
+                        return;
+                    }
+                    break;
+                case Global::EVTSTAT_OFF: // no actions for  the event
+                    break;
+                case Global::EVTSTAT_ON:
+                    break;
 
-             if(Global::RESRECTYPE_ONLY_RESPONSE == EventInfo.GetResponseRecoveryType())
-                  return;
+            }
+        }
+        else // raise Error during error handling
+        {
+            //todo: inform user to contact service
         }
 
-        SetSystemStateMachine(EventEntry);
-        if (!EventStatus) {
+
+//        SetSystemStateMachine(EventEntry);
+        if (!isEventActive) {
             HandleInactiveEvent(EventEntry, EventId64);
         }
         else {
             InformAlarmHandler(EventEntry, EventId64, true);
-            UpdateEventDataStructures(EventID, EventId64, EventEntry, false);
+            UpdateEventDataStructures(ErrorCode, EventId64, EventEntry, false);
         }
 
         InformGUI(EventEntry, EventId64);// Send the Error for handling
-        /// \todo this is a test of Axeda Remote Care error reporting:
         //emit ErrorHandler::SendErrorToRemoteCare(EventEntry);
     }
 }
@@ -998,8 +1144,6 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     EventEntry.SetAckValue(Ack);
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
 
-    int Count = GetCountForEventKey(EventKey);
-
     if(EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
     {
         qDebug()<<"OnAcknowledge() <<EventEntry" <<EventEntry.GetEventCode();
@@ -1011,10 +1155,16 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
         return;
     }
 
+    if(EventEntry.GetResponseRecoveryType() == Global::RESRECTYPE_ONLY_RESPONSE ||
+            Global::RESRECTYPE_NONE)
+    {
+        return;
+    }
+
 //    quint64 EventId64 = EventEntry.GetEventCode();
 //    EventId64 <<= 32;
 //    EventId64 |= EventKey;
-    InformAlarmHandler(EventEntry, EventId64, false);
+    InformAlarmHandler(EventEntry, EventId64, false); // stop Alarm
     UpdateEventDataStructures(EventEntry.GetEventCode(), EventId64, EventEntry, true, true);
     bool IsActive = EventEntry.IsEventActive();
     if( IsActive == false) {
@@ -1026,14 +1176,16 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
     EventID = (quint32)((Ack.GetEventKey() & 0xffffffff00000000) >> 32) ;
     p_CmdSystemAction->SetEventKey(EventKey);
-    p_CmdSystemAction->SetEventID(EventID);
+    p_CmdSystemAction->SetEventID(EventEntry.GetEventCodeFromCom());
+    p_CmdSystemAction->SetScenario(EventEntry.GetScenario());
     p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
-    p_CmdSystemAction->SetRetryCount(Count);
+    p_CmdSystemAction->SetRetryCount(EventEntry.GetRetryAttempts());
     p_CmdSystemAction->SetStringList(EventEntry.GetString());
     Global::tRefType NewRef = GetNewCommandRef();
 
 
-    if(Count <= EventEntry.GetRetryAttempts())
+//    int Count = EventEntry.GetAndIncRetryCount();
+//    if(Count <= EventEntry.GetRetryAttempts())  //
     {
         //send -ve command action if defined.
        if((EventEntry.GetAckValue() ==  NetCommands::OK_BUTTON) || 
@@ -1049,12 +1201,6 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
             //send -ve command action if defined.
             p_CmdSystemAction->SetAction(EventEntry.GetActionNegative());
         }       
-    }
-    else
-    {
-        // if (second action )//second action
-        p_CmdSystemAction->SetAction(EventEntry.GetActionPositive());
-
     }
 
     qDebug() << "EventHandlerThreadController::OnAcknowledge, EventKey=" << EventKey << "EventID=" <<EventID;
@@ -1108,7 +1254,7 @@ void EventHandlerThreadController::OnGoReceived()
     {
         foreach (PendingEvent pe, m_pendingEvents)
         {
-            ProcessEvent(pe.EventID, pe.EventStringList, pe.EventStatus, pe.EventKey, pe.AltStringUsuage, pe.IsPostProcess);
+            ProcessEvent(pe.EventID, pe.EventStringList, pe.EventStatus, pe.EventKey, pe.AltStringUsuage,pe.EventStringListForRD,pe.IsResolved);
         }
     }
 }
@@ -1214,6 +1360,9 @@ bool EventHandlerThreadController::VerifyEventType(Global::EventType EventType) 
     case Global::EVTTYPE_ERROR:
     case Global::EVTTYPE_WARNING:
     case Global::EVTTYPE_INFO:
+    case Global::EVTTYPE_SYS_HINT:
+    case Global::EVTTYPE_SYS_WARNING:
+    case Global::EVTTYPE_SYS_ERROR:
         return true;
     default:
         return false;
@@ -1293,6 +1442,8 @@ bool EventHandlerThreadController::VerifyGuiButtonType(Global::GuiButtonType Gui
     case Global::YES_NO:
     case Global::CONTINUE_STOP:
     case Global::NO_BUTTON:
+    case Global::RECOVERYLATER_RECOVERYNOW:
+    case Global::RECOVERYNOW:
         return true;
     default:
         return false;

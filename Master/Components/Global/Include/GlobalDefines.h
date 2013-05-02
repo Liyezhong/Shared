@@ -98,11 +98,25 @@ enum ActionType {
     ACNTYPE_REMOVEALLRACKS,
     ACNTYPE_REMOVERACK,
     ACNTYPE_UNEXPECTED,        /// < Unexpected text in action column, raise an error
-    ACNTYPE_INIT_ROTARYVALVE,
-    ACNTYPE_BOTTLECHECK_I,           ///< Please check the reagent bottle first and then click Recovery!
-    ACNTYPE_BUILD_PRESSURE,          ///< Please check the Retort Lid first and then click Recovery!
-    ACNTYPE_BUILD_VACUUM,            ///< Please check the Retort Lid first and then click Recovery!
-    ACNTYPE_MAINTENANCE_AIRSYSTEM    ///< Please confirm there is no Tissue & Reagent in Retort and Cleaning-Xylene Bottle is not empty!
+
+    // Recovery action
+    ACNTYPE_RC_INIT_ROTARYVALVE,
+    ACNTYPE_RC_BOTTLECHECK_I,           ///< Please check the reagent bottle first and then click Recovery!
+    ACNTYPE_RC_BUILD_PRESSURE,          ///< Please check the Retort Lid first and then click Recovery!
+    ACNTYPE_RC_BUILD_VACUUM,            ///< Please check the Retort Lid first and then click Recovery!
+    ACNTYPE_RC_MAINTENANCE_AIRSYSTEM,    ///< Please confirm there is no Tissue & Reagent in Retort and Cleaning-Xylene Bottle is not empty!
+
+    // Response action
+    ACNTYPE_RS_NO_ACTION,
+    ACNTYPE_RS_RESET,    ///< sequence/protocols-Pump/Valves Reset,Release P/V, Register clear-up;
+    ACNTYPE_RS_STOPLATER,///< sequence/protocols-Stop after the running/current protocol finished, Stop=Pump/Valves Reset,Release P/V;
+    ACNTYPE_RS_STOPATONCE,///< sequence/protocols-Stop at once, Stop=Pump/Valves Reset,Release P/V; Remember current status of protocol
+    ACNTYPE_RS_PAUSE,     ///< sequence/protocols-Paused, keep status; Remember current status of protocol;
+    ACNTYPE_RS_DRAINATONCE,///< Drain at once if overflow
+    ACNTYPE_RS_DRAINATONCE_T,///< Drain at once for certain time if overflow
+    ACNTYPE_RS_TISSUE_PROTECT,///< Change the tissue to Formalin or some safety reagent when Err happened(Such as.: Draining Xylene, Sucking Formalin -- TBD)
+    ACNTYPE_RS_CHECK_BLOCKAGE,///< Bulid Pressure to attempt to recovery from Blockage automaticly
+    ACNTYPE_RS_AIRSYSTEM_CLEANING ///< AirSystem(Pump/Valve/Tube) do a series of action to get recovery from potential blockage in Airsystem(Just air no Xylene this)
 };
 
 enum EventSourceType {
@@ -146,24 +160,6 @@ enum LogAuthorityType {
 
 /****************************************************************************/
 /**
- * \brief Enum containing all Response Types.
- */
-/****************************************************************************/
-enum ResponseType {
-    RESTYPE_RS_NO_ACTION,
-    RESTYPE_RS_RESET,    ///< sequence/protocols-Pump/Valves Reset,Release P/V, Register clear-up;
-    RESTYPE_RS_STOPLATER,///< sequence/protocols-Stop after the running/current protocol finished, Stop=Pump/Valves Reset,Release P/V;
-    RESTYPE_RS_STOPATONCE,///< sequence/protocols-Stop at once, Stop=Pump/Valves Reset,Release P/V; Remember current status of protocol
-    RESTYPE_RS_PAUSE,     ///< sequence/protocols-Paused, keep status; Remember current status of protocol;
-    RESTYPE_RS_DRAINATONCE,///< Drain at once if overflow
-    RESTYPE_RS_DRAINATONCE_T,///< Drain at once for certain time if overflow
-    RESTYPE_RS_TISSUE_PROTECT,///< Change the tissue to Formalin or some safety reagent when Err happened(Such as.: Draining Xylene, Sucking Formalin -- TBD)
-    RESTYPE_RS_CHECK_BLOCKAGE,///< Bulid Pressure to attempt to recovery from Blockage automaticly
-    RESTYPE_RS_AIRSYSTEM_CLEANING ///< AirSystem(Pump/Valve/Tube) do a series of action to get recovery from potential blockage in Airsystem(Just air no Xylene this)
-};
-
-/****************************************************************************/
-/**
  * \brief Enum containing all ResponseRecovery Types.
  */
 /****************************************************************************/
@@ -172,7 +168,7 @@ enum ResponseRecoveryType {
     RESRECTYPE_RESPONSE_RECOVERY,
     RESRECTYPE_RES_RESULT_RECOVERY,
     RESRECTYPE_ONLY_RESPONSE,
-    RESRECTYPE_NO_ACTION,
+    RESRECTYPE_NONE
 };
 
 /****************************************************************************/
@@ -182,7 +178,11 @@ enum ResponseRecoveryType {
 /****************************************************************************/
 enum EventStatus {
     EVTSTAT_OFF = 0,        ///< Event "turned off". For example: now there is glass in cover slipper.
-    EVTSTAT_ON  = 1         ///< Event "turned on". For example: no glass in cover slipper.
+    EVTSTAT_ON  = 1,       ///< Event "turned on". For example: no glass in cover slipper.
+    EVTSTAT_RESPONSE,       ///< doing response action
+    EVTSTAT_RESPONSE_ACK,   ///< checking response action result
+    EVTSTAT_RECOVERY,       ///< dong recovery action
+    EVTSTAT_RECOVERY_ACK       ///< checking recovery action
 };
 
 /****************************************************************************/
@@ -339,7 +339,8 @@ enum GuiButtonType {
     YES_NO,         //!< Msg Box with Yes and No
     CONTINUE_STOP,  //!< Msg Box with Continue and Stop
     OK_CANCEL,       //!< Msg Box with Ok and Cancel
-    RECOVERYLATER_RECOVERYNOW //!< Msg Box with Recovery Later and Recovery Now
+    RECOVERYLATER_RECOVERYNOW, //!< Msg Box with Recovery Later and Recovery Now
+    RECOVERYNOW //!< Msg Box with Recovery Now
 };
 
 /****************************************************************************/

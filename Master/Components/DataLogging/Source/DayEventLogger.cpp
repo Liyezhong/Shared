@@ -128,11 +128,6 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
         }
 
-        if (Entry.IsPostProcess())
-        {
-            TrEventMessage = "PostProcess: " + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
-         }
-
         QString AlternateString = UseAltEventString ? "true" : "false";
         QString ParameterString = "";
         foreach (Global::TranslatableString s, Entry.GetString())

@@ -62,7 +62,7 @@ protected:
     bool                            m_StatusBarIcon;         ///< true - Display icon in status bar
     Global::EventSourceType         m_SourceComponent;       ///< SourceComponent that raises the event
     QString                         m_ErrorOutline;          ///< Error Outline
-    Global::ResponseType            m_ResponseType;          ///< Response Type
+    Global::ActionType              m_ResponseType;          ///< Response Type
     QString                         m_DetailForRD;           ///< the detailed information for RD&Service
     Global::ResponseRecoveryType    m_ResponseRecoveryType;  ///< ResponseRecovery Type
 
@@ -121,7 +121,7 @@ public:
                                  Global::LogAuthorityType LogAuthorityType, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
                                  const QString &MessageType, const bool &AckRequired, Global::AlarmPosType AlarmPosType, const Global::GuiButtonType &ButtonType,
                                  const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent, const QString& ErrorOutline,
-                                 Global::ResponseType ResponseType, const QString &DetailForRD, Global::ResponseRecoveryType& ResponseRecoveryType);
+                                 Global::ActionType ResponseType, const QString &DetailForRD, Global::ResponseRecoveryType& ResponseRecoveryType);
 
     /****************************************************************************/
     /**
@@ -176,7 +176,7 @@ public:
         return m_ResponseRecoveryType;
     }
 
-    inline Global::ResponseType GetResponseType() const {
+    inline Global::ActionType GetResponseType() const {
         return m_ResponseType;
     }
 
@@ -476,7 +476,7 @@ public:
      * param[in] const ref to Response type flag
      */
     /****************************************************************************/
-    inline void SetResponseType(Global::ResponseType ResponseType) {
+    inline void SetResponseType(Global::ActionType ResponseType) {
         m_ResponseType = ResponseType;
     }
 

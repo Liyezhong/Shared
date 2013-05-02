@@ -28,6 +28,7 @@
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
 #include <EventHandler/Include/EventHandlerThreadController.h>
+#include <EventHandler/Include/CrisisEventHandler.h>
 #include <DataLogging/Include/DataLoggingThreadController.h>
 #include <Global/Include/AlarmHandler.h>
 
@@ -41,6 +42,8 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
+#include <NetCommands/Include/CmdEventReport.h>
+#include <QThread>
 
 
 #include <Threads/Include/MasterThreadController.h>
@@ -63,6 +66,53 @@ class TestEventHandlerThreadController : public QObject {
     Q_OBJECT
 
 private:
+    class EventHandlerUser : public Threads::ThreadController
+    {
+    public:
+        quint32 EventCode;
+        quint32 Scenario;
+        quint32 EventKey;
+        EventHandlerUser(Global::gSourceType m_HeartBeatSource):
+            Threads::ThreadController(m_HeartBeatSource,"EventHandlerUser")
+        {
+            CommandChannel = new Threads::CommandChannel(this,"EventHandlerUser");
+            RegisterCommandForProcessing<NetCommands::CmdSystemAction,EventHandlerUser>
+                    (&EventHandlerUser::OnActionCommandReceived, this);
+
+            RegisterCommandForProcessing<NetCommands::CmdEventReport, EventHandlerUser>
+                    (&EventHandlerUser::OnReceiveCmdThatShouldBeToGui,this);
+        }
+        Threads::CommandChannel *CommandChannel;
+        void OnActionCommandReceived(Global::tRefType Ref, const NetCommands::CmdSystemAction &Cmd)
+        {
+            qDebug()<<"OnActionCommandReceived: " << Cmd.GetEventID() << " - " << Cmd.GetScenario() << " - " << Cmd.GetAction();
+            EventCode = Cmd.GetEventID();
+            Scenario = Cmd.GetScenario();
+            EventKey = Cmd.GetEventKey();
+//            RaiseEvent(Cmd.GetEventID(),Cmd.GetScenario(),Cmd.GetEventKey(),true);
+        }
+
+        void OnReceiveCmdThatShouldBeToGui(Global::tRefType Ref, const NetCommands::CmdEventReport &Cmd)
+        {
+            qDebug()<<"OnReceiveCmdThatShouldBeToGui: "<< Ref;
+        }
+
+        void RaiseEvent(quint32 EventCode, quint32 Scenario)
+        {
+            EventHandler::CrisisEventHandler::Instance().RaiseEvent(EventCode,Scenario,Global::tTranslatableStringList(),Global::tTranslatableStringList());
+        }
+
+        void RaiseEvent(bool isResolved)
+        {
+            EventHandler::CrisisEventHandler::Instance().RaiseEvent(EventCode,Scenario,EventKey,isResolved);
+        }
+
+        void OnGoReceived(){}
+        void OnStopReceived(){}
+        void OnPowerFail(){}
+        void CreateAndInitializeObjects(){}
+        void CleanupAndDestroyObjects(){}
+    };
 
     Global::gSourceType m_HeartBeatSourceEventHandler;
     Global::gSourceType m_HeartBeatSourceDataLogging;
@@ -72,6 +122,7 @@ private:
     Global::AlarmHandler * mp_alarmHandler;
     Threads::CommandChannel    *  mp_CommandChannelEventThread;        ///< Command channel for EventHandler.
     QSignalSpy * mp_SpyCommandChannelTx;
+    EventHandlerUser* EVUser;
 
 private slots:
     /****************************************************************************/
@@ -100,33 +151,12 @@ private slots:
     void cleanupTestCase();
     /****************************************************************************/
 
-    void TestReadEventConfigurationFile();
-
     void TestProcessEvents();
 
-    void TestOnAcknowledge();
-
-    void TestUpdateEventKeyCountMap();
+public:
 
 }; // end class TestXmlConfigFile
 
-void TestEventHandlerThreadController::TestUpdateEventKeyCountMap()
-{
-//    int count = mp_EventHandlerThreadController->m_EventKeyCountMap.count();
-//    mp_EventHandlerThreadController->UpdateEventKeyCountMap(1,true);
-//    mp_EventHandlerThreadController->UpdateEventKeyCountMap(1,true);
-//    mp_EventHandlerThreadController->UpdateEventKeyCountMap(1,true);
-//    quint32 val =  mp_EventHandlerThreadController->m_EventKeyCountMap.value(1);
-//    QCOMPARE(mp_EventHandlerThreadController->m_EventKeyCountMap.count(), count+1);
-//    mp_EventHandlerThreadController->UpdateEventKeyCountMap(1,false);
-//    QCOMPARE(mp_EventHandlerThreadController->m_EventKeyCountMap.count(), count);
-//    val =  mp_EventHandlerThreadController->m_EventKeyCountMap.value(1);
-    //qDebug()<<val<<"after false";
-
-}
-
-void TestEventHandlerThreadController::TestOnAcknowledge() {
-}
 
 void TestEventHandlerThreadController::TestProcessEvents(){
 
@@ -150,42 +180,18 @@ void TestEventHandlerThreadController::TestProcessEvents(){
 
     int cntactionhandler = 0;
 
-    for (i = mp_EventHandlerThreadController->m_eventList.begin(); i != mp_EventHandlerThreadController->m_eventList.end(); ++i)
-    {
+//    for (i = mp_EventHandlerThreadController->m_eventList.begin(); i != mp_EventHandlerThreadController->m_eventList.end(); ++i)
+//    {
 
-        EventHandler::EventCSVInfo EventInfo = i.value();
+//    }
 
-        if(EventInfo.GetLogLevel() != Global::LOGLEVEL_NONE)
-        {
-            cntlogevent += 1;
-        }
-
-        cntactionhandler += 1;
-        Global::EventObject::Instance().RaiseEvent(EventInfo.GetEventCode(), Global::FmtArgs(), true, EventInfo.GetEventCode());
-
-    }
-
-
-    //verify if the signals have been called correctly
-
-    //QCOMPARE(spyGuiAvailability.count(),1);
-    //qDebug()<< "count for spyGuiAvailability"<<spyGuiAvailability.count();
-    //QCOMPARE(spyLogEvent.count(), cntlogevent -4);
-    qDebug()<< "count for LogEvent"<<spyLogEvent.count()-4;
-    //QCOMPARE(spyForwardToErrorHandler.count(), cntactionhandler-4);
-    //qDebug()<< "count for spyForwardToErrorHandler"<<spyForwardToErrorHandler.count()-4;
+    EVUser->RaiseEvent(500040401,520000200);
+    EVUser->RaiseEvent(true);
+    EVUser->RaiseEvent(true);
 
 }
 
-void TestEventHandlerThreadController::TestReadEventConfigurationFile() {
 
-    QDir dir;
-    QString strfilepath = dir.absolutePath();
-    strfilepath += "/EventConfig.csv";
-    mp_EventHandlerThreadController->ReadConfigFile(strfilepath);
-    //QCOMPARE(mp_EventHandlerThreadController->m_eventList.count(), 481);
-
-}
 
 /****************************************************************************/
 void TestEventHandlerThreadController::initTestCase() {
@@ -194,27 +200,32 @@ void TestEventHandlerThreadController::initTestCase() {
     m_HeartBeatSourceDataLogging = EVENT_GROUP_SOURCENAME + 0x0002;
     m_HeartBeatSourceEventHandler =  HEARTBEAT_SOURCE_EVENTHANDLER;
 
+    Global::SystemPaths::Instance().SetLogfilesPath("../Logfiles");
+    Global::SystemPaths::Instance().SetSettingsPath("../Settings");
+    EventHandler::CrisisEventHandler::Instance().readEventStateConf("../Settings/EventStateError.csv");
     m_EventLoggerBaseFileName = "Base";
     mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(m_HeartBeatSourceDataLogging, m_EventLoggerBaseFileName);
 
-    mp_alarmHandler = new Global::AlarmHandler(5000);
+    mp_alarmHandler = new Global::AlarmHandler(5000,this);
 
     mp_EventHandlerThreadController = new EventHandler::EventHandlerThreadController(m_HeartBeatSourceEventHandler);
     mp_EventHandlerThreadController->SetAlarmHandler(mp_alarmHandler);
+    mp_EventHandlerThreadController->ConnectToEventObject();
 
-    Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
-
-    CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32),
-                      mp_EventHandlerThreadController, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32));
-
-    //mp_EventHandlerThreadController->CreateAndInitializeObjects();
+     mp_EventHandlerThreadController->CreateAndInitializeObjects();
 
     CONNECTSIGNALSLOT(mp_EventHandlerThreadController, LogEventEntry(const DataLogging::DayEventEntry &),
                       mp_DataLoggingThreadController, SendToDayEventLogger(const DataLogging::DayEventEntry &));
 
-    //FOR ACKNOWLEDGEMENT testing
 
-    mp_CommandChannelEventThread = new Threads::CommandChannel(mp_EventHandlerThreadController, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER);
+    EVUser = new EventHandlerUser(m_HeartBeatSourceEventHandler);
+
+    mp_EventHandlerThreadController->ConnectToOtherCommandChannel(EVUser->CommandChannel);
+
+//    QThread *EventHandlerThread = new QThread();
+
+//    mp_EventHandlerThreadController->moveToThread(EventHandlerThread);
+//    EventHandlerThread->start();
 
 }
 

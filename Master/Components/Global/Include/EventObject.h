@@ -185,10 +185,11 @@ public:
                            const bool EventStatus,
                            const quint32 EventKey,
                            Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                           bool IsResolved = false,
-                           bool IsPostProcess = false
+                           Global::tTranslatableStringList EventStringListForRd = Global::tTranslatableStringList(),
+                           quint64 EventCodeScenario = 0,
+                           bool IsResolved = false
                            )  {
-        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage, IsResolved, IsPostProcess);
+        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage,EventStringListForRd, EventCodeScenario, IsResolved);
     }
 
     /****************************************************************************/
@@ -202,11 +203,12 @@ public:
                            const Global::tTranslatableStringList &EventStringList,
                            const bool EventStatus = true,
                            Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                           bool IsResolved = false,
-                           bool IsPostProcess = false
+                           Global::tTranslatableStringList EventStringListForRD = Global::tTranslatableStringList(),
+                           quint64 EventCodeScenario = 0,
+                           bool IsResolved = false
                            )  {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage, IsResolved, IsPostProcess);
+        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage,EventStringListForRD, EventCodeScenario, IsResolved);
     }
 
     /****************************************************************************/
@@ -217,10 +219,10 @@ public:
      */
     /****************************************************************************/
     inline void RaiseEvent(const quint32 EventCode,  Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                            bool IsResolved = false, bool IsPostProcess = false)
+                            bool IsResolved = false)
     {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey, AltStringUsage, IsResolved, IsPostProcess);
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey, AltStringUsage,Global::tTranslatableStringList(),0, IsResolved);
         qDebug()<<"EventObject Thread"<<this->thread();
     }
 
@@ -233,10 +235,10 @@ public:
     /****************************************************************************/
     inline void RaiseEvent(const quint32 EventCode, const bool EventStatus,
                            Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                           bool IsResolved = false, bool IsPostProcess = false)
+                           bool IsResolved = false)
     {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventStatus, EventKey, AltStringUsage, IsResolved, IsPostProcess);
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventStatus, EventKey, AltStringUsage, Global::tTranslatableStringList(),0, IsResolved);
         qDebug()<<"EventObject Thread"<<this->thread();
     }
 
@@ -303,7 +305,7 @@ signals:
      *        controller
      */
     /****************************************************************************/
-    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, bool, bool);
+    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, const Global::tTranslatableStringList,quint64, bool);
 
 }; // end class EventObject
 

@@ -17,10 +17,10 @@ private:
     qint8 m_MaxNumberofRetries;
     bool m_UserRetry;
     qint8 m_CountRetires;
-    Global::ActionType m_Action; /// < Next Action , after retries are exhausted
-    Global::ResponseType m_Response;
+    Global::ActionType m_Action; /// < Next Action , after retries are exhausted;
     quint32  m_EventKey; //!< Unique Event Key
     quint32 m_EventID; //!< Event ID
+    quint32 m_Scenario; //!< Event Scenario
     Global::EventSourceType m_SourceComponent;
     Global::tTranslatableStringList m_StringList;                ///< The translatable string.
 public:
@@ -60,14 +60,6 @@ public:
         m_Action = ActionType;
     }
 
-    inline Global::ResponseType GetResponse() const {
-        return m_Response;
-    }
-
-    inline void SetResponse(Global::ResponseType  ResponseType) {
-        m_Response = ResponseType;
-    }
-
     inline bool GetMaxRetryAttempts() const {
         return m_MaxNumberofRetries;
     }
@@ -103,6 +95,13 @@ public:
         m_EventID = EventID;
     }
 
+    inline quint32 GetScenario() const {
+        return m_Scenario;
+    }
+
+    inline void SetScenario(quint32 Scenario) {
+        m_Scenario = Scenario;
+    }
 
 
 }; // end class CmdSystemAction

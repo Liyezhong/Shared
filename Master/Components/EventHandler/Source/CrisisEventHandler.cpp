@@ -101,5 +101,21 @@ quint32 CrisisEventHandler::findErrorCode(quint32 eventId)
     return 0;
 }
 
+quint32 CrisisEventHandler::findErrorCode(quint32 eventId, quint32 Scenario)
+{
+    QHash< quint32, QPair<QStringList,quint32> >::iterator i = m_EventStateErrorHash.find(eventId);
+    while (i != m_EventStateErrorHash.end() && i.key() == eventId) {
+        QPair<QStringList,quint32> value = i.value();
+        QStringList stateList = value.first;
+        QString strCurrentSysState = QString::number(Scenario);
+        if (stateList.contains(strCurrentSysState))
+        {
+            return value.second;
+        }
+        ++i;
+    }
+    return 0;
+}
+
 } // end namespace EventHandler
 

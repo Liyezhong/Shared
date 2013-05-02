@@ -61,6 +61,54 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Raise new Event
+     *
+     * \return
+     */
+    /****************************************************************************/
+    inline void RaiseEvent(quint32 EventCode, quint32 Scenario,
+                           const Global::tTranslatableStringList &msgArgs,
+                           Global::tTranslatableStringList msgRdArgs,
+                           bool isResolved = false)
+    {
+        quint32 ErrorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventCode,Scenario);
+
+        quint64 EventCodeScenario = EventCode;
+        EventCodeScenario <<= 32;
+        EventCodeScenario |=Scenario;
+        if(ErrorCode)
+        {
+            Global::EventObject::Instance().RaiseEvent(ErrorCode, msgArgs, true,Global::NOT_APPLICABLE, msgRdArgs,EventCodeScenario, isResolved);
+        }
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Raise Event result
+     *
+     * \return
+     */
+    /****************************************************************************/
+    inline void RaiseEvent(quint32 EventCode, quint32 Scenario, quint32 EventKey, bool isResolved)
+    {
+        quint32 ErrorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventCode,Scenario);
+        quint64 EventCodeScenario = EventCode;
+        EventCodeScenario <<= 32;
+        EventCodeScenario |=Scenario;
+
+        if(ErrorCode)
+        {
+            Global::EventObject::Instance().RaiseEvent(ErrorCode,
+                                                       Global::tTranslatableStringList(),
+                                                       true,EventKey,
+                                                       Global::NOT_APPLICABLE,
+                                                       Global::tTranslatableStringList(),
+                                                       EventCodeScenario,
+                                                       isResolved);
+        }
+    }
+    /****************************************************************************/
+    /**
      * \brief File parser for the eventstateError.csv.
      *
      * \param[in]   valid event config csv file name
@@ -80,6 +128,7 @@ public:
      */
     /****************************************************************************/
     quint32 findErrorCode(quint32 eventId);
+    quint32 findErrorCode(quint32 eventId,quint32 Scenario);
 
 private:
     CrisisEventHandler();
@@ -89,46 +138,6 @@ private:
     quint32 m_currentSysState;  //!< Keep current system state
     QMultiHash< quint32, QPair<QStringList,quint32> > m_EventStateErrorHash; //!< QHash<EventId, QPair<StateList, ErrorId>
 }; // end class
-
-#define PROCESSCRISISEVENT(EventId) \
-{ \
-    quint32 errorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventId); \
-    if (errorCode){ \
-        Global::EventObject::Instance().RaiseEvent(errorCode); \
-    } \
-}
-
-#define POSTPROCESSCRISISEVENT(ErrorCode, IsResolved) \
-{ \
-    Global::EventObject::Instance().RaiseEvent(ErrorCode, true, Global::NOT_APPLICABLE, IsResolved, true); \
-}
-
-#define PROCESSCRISISEVENTARG(EventId, Arg) \
-{ \
-    quint32 errorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventId); \
-    if (errorCode){ \
-       Global::EventObject::Instance().RaiseEvent(errorCode, Global::FmtArgs() << Arg, true); \
-    } \
-}
-
-#define POSTPROCESSCRISISEVENTARG(ErrorCode, Arg, IsResolved) \
-{ \
-    Global::EventObject::Instance().RaiseEvent(ErrorCode, Global::FmtArgs() << Arg, true, Global::NOT_APPLICABLE, IsResolved, true); \
-}
-
-#define PROCESSCRISISEVENTARGS(EventId, ArgList) \
-{ \
-    quint32 errorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventId); \
-    if (errorCode){ \
-        Global::EventObject::Instance().RaiseEvent(errorCode, ArgList, true); \
-    } \
-}
-
-#define POSTPROCESSCRISISEVENTARGS(ErrorCode, ArgList, IsResolved) \
-{ \
-    Global::EventObject::Instance().RaiseEvent(ErrorCode, ArgList, true, Global::NOT_APPLICABLE, IsResolved, true); \
-}
-
 } // end namespace EventHandler
 
 #endif // EVENTHANDLER_CRISISEVENTHANDLER_H
