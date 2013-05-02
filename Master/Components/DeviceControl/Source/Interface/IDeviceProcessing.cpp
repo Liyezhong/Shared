@@ -1297,7 +1297,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal basePressure = 1.4;
 
         retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));
-        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        if(DCL_ERR_DEV_RV_MOVE_OK != retCode)
         {
             return retCode;
         }
@@ -1326,7 +1326,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             basePressure = 0.6;
         }
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
-        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        if(DCL_ERR_DEV_RV_MOVE_OK != retCode)
         {
             return retCode;
         }

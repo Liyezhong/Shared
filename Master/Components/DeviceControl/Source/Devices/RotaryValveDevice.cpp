@@ -985,7 +985,7 @@ bool CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32
 }
 ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
 {
-    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t retCode = DCL_ERR_DEV_RV_MOVE_OK;
     RVPosition_t EDPosition = GetEDPosition();
     float MoveSteps = 0;
     bool cw = false;
@@ -1010,7 +1010,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             {
                 //                 Log(tr("Limit Switch code are not stable!"));
                 qDebug() << "Limit Switch code are not stable!";
-                retCode = DCL_ERR_FCT_CALL_FAILED;
+                retCode = DCL_ERR_DEV_RV_MOVE_LS_ERROR;
                 return retCode;
             }
         }
@@ -1023,7 +1023,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         {
             //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
             qDebug()<<"Can't find current position, please run MoveToInitialPosition first!";
-            retCode = DCL_ERR_FCT_CALL_FAILED;
+            retCode = DCL_ERR_DEV_RV_MOVE_LS_ERROR;
             return retCode;
         }
     }
@@ -1031,7 +1031,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         //Log(tr("The Tube No You Input: %1 is Invalid").arg(Position));
         qDebug() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;
-        retCode = DCL_ERR_FCT_CALL_FAILED;
+        retCode = DCL_ERR_DEV_RV_MOVE_GENERAL_ERROR;
         return retCode;
     }
 
@@ -1039,7 +1039,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         //Log(tr("Already At Target Position, No Need To Move!").arg(EDPosition));
         qDebug()<<"Already At Target Position, No Need To Move!" << RVPosition;
-        retCode = DCL_ERR_FCT_CALL_SUCCESS;
+        retCode = DCL_ERR_DEV_RV_MOVE_OK;
         return retCode;
     }
     else
