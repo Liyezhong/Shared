@@ -283,6 +283,7 @@ bool StringToTrueFalse(const QString &YesNoStateString, bool CaseSensitive) {
 quint32 GetButtonCountFromButtonType(GuiButtonType ButtonType) {
     switch (ButtonType) {
         case Global::OK:
+        case Global::RECOVERYNOW:
             return 1;
         case Global::OK_CANCEL:
         case Global::YES_NO:
@@ -312,6 +313,9 @@ Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
     }
     else if (ButtonTypeString == "RECOVERYLATER+RECOVERYNOW") {
         return Global::RECOVERYLATER_RECOVERYNOW;
+    }
+    else if (ButtonTypeString == "RECOVERYNOW") {
+        return Global::RECOVERYNOW;
     }
     return Global::NO_BUTTON;
 }

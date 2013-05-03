@@ -96,12 +96,12 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
                 break;
         }
         //Set Button Text
-        quint32 ButtonCount = Global::GetButtonCountFromButtonType(MsgDataStruct.BtnType);
-        if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::OK) {
-            mp_MessageDlg->SetButtonText(1, tr("Ok"));
-            mp_MessageDlg->HideButtons();
-        }
-        else if (ButtonCount == 2) {
+//        quint32 ButtonCount = Global::GetButtonCountFromButtonType(MsgDataStruct.BtnType);
+//        if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::OK) {
+//            mp_MessageDlg->SetButtonText(1, tr("Ok"));
+//            mp_MessageDlg->HideButtons();
+//        }
+//        else if (ButtonCount == 2) {
             switch (MsgDataStruct.BtnType) {
                 case Global::YES_NO:
                 //I am not adding the below lines(Which are repeated in every switch case) to a function
@@ -120,6 +120,10 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
                 mp_MessageDlg->SetButtonText(3, tr("Recovery Now"));
                 mp_MessageDlg->HideCenterButton();
                 break;
+            case Global::RECOVERYNOW:
+                mp_MessageDlg->SetButtonText(1, tr("Recovery Now"));
+                mp_MessageDlg->HideButtons();
+                break;
             case Global::OK_CANCEL:
                 mp_MessageDlg->SetButtonText(1, tr("Ok"));
                 mp_MessageDlg->SetButtonText(3, tr("Cancel"));
@@ -130,11 +134,11 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
                 mp_MessageDlg->HideButtons();
                 break;
             }
-        }
-        else {
-            mp_MessageDlg->SetButtonText(1, tr("Ok"));
-            mp_MessageDlg->HideButtons();
-        }
+//        }
+//        else {
+//            mp_MessageDlg->SetButtonText(1, tr("Ok"));
+//            mp_MessageDlg->HideButtons();
+//        }
         mp_MessageDlg->setModal(true);
     }
 }
@@ -237,6 +241,9 @@ void CMsgBoxManager::ButtonLeftClicked()
     else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
            emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
        }
+    else if (m_CurrentMsgData.BtnType == Global::RECOVERYNOW) {
+           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
+       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::STOP_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
@@ -275,6 +282,9 @@ void CMsgBoxManager::ButtonRightClicked()
     else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
           emit EventReportAck(NetCommands::RECOVERYLATER, CmdRef, m_CurrentMsgData.ID);
     }
+    else if (m_CurrentMsgData.BtnType == Global::RECOVERYNOW) {
+           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
+       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::CONTINUE_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
