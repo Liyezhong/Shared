@@ -611,7 +611,8 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     timer.setSingleShot(false);
     timer.start(500);
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Wait for current pressure get to ZERO";
-    while((CurrentPressure > 2)||(CurrentPressure < (-2)))
+    //while((CurrentPressure > 2)||(CurrentPressure < (-2)))
+    while((CurrentPressure > 5)||(CurrentPressure < (-5)))
     {
         CurrentPressure = GetPressure(0);
         //if (m_LoopReleasePressureTimer.exec() == RELEASE_PRESSURE_PROCEDURE_INTERRUPT)
@@ -631,6 +632,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
             //close both valve
             SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
             SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+            TurnOffFan();
             return DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT;
         }
     }
