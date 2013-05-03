@@ -57,6 +57,7 @@ public:
     void SetText(const QString &Text);
     void SetIcon(QMessageBox::Icon);
     void SetButtonText(qint32 ButtonNumber, QString ButtonText);
+    void EnableButton(qint32 ButtonNumber, bool IsEnable);
     void HideCenterButton();
     void HideButtons();
     void HideButtonsOneAndTwo();

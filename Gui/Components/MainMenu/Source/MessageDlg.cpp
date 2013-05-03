@@ -162,6 +162,21 @@ void CMessageDlg::SetButtonText(qint32 ButtonNumber, QString ButtonText)
     }
 }
 
+void CMessageDlg::EnableButton(qint32 ButtonNumber, bool IsEnable)
+{
+    switch(ButtonNumber){
+    case 1:
+        mp_Ui->Button1->setEnabled(IsEnable);
+        break;
+    case 2:
+        mp_Ui->Button2->setEnabled(IsEnable);
+        break;
+    case 3:
+        mp_Ui->Button3->setEnabled(IsEnable);
+        break;
+    }
+}
+
 /****************************************************************************/
 /*!
  *  \brief Function to hide center button
