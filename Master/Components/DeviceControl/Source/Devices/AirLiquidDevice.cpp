@@ -464,8 +464,7 @@ bool CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
 
 void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Pressure)
 {
-    m_CurrentPressure = Pressure;
-    if (m_CurrentPressure != m_TargetPressure)
+    if ((Pressure != m_TargetPressure)&&(UNDEFINED != Pressure))
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_FAILED);
         FILE_LOG_L(laDEVPROC, llWARNING) << " ERROR: Target pressure is not reached. ";
@@ -583,7 +582,7 @@ void CAirLiquidDevice::StopCompressor(void)
 {
     //Log(tr("Shut down compressor"));
     FILE_LOG_L(laDEVPROC, llINFO) << " INFO: Shut down compressor. ";
-    SetPressure(0, 10);
+    SetPressure(0, UNDEFINED - m_PressureDrift);
 }
 
 ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
@@ -1537,12 +1536,57 @@ ReturnCode_t CAirLiquidDevice::BreakAllOperation(void)
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
 
     //close both valve
-    m_pPressureCtrl->SetPressure(0, 10);
-
+    StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
     m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
     m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
     m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
+
+ReturnCode_t CAirLiquidDevice::SetPressureDrift(qreal pressureDrift)
+{
+    m_PressureDrift = pressureDrift;
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+#if 0
+qreal CAirLiquidDevice::ReadPressureDrift(void)
+{
+    QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/PressureNullDrift.txt";
+    qreal pressureDrift = 0;
+    FILE* pFile;
+
+    if ((pFile = fopen(FileName.toStdString().c_str(), "r")) == NULL)
+    {
+       // Log(tr("Cannot open PressureNullDrift.txt.\n"));
+        return 0;
+    }
+
+    char Buf[200];
+    memset(Buf, 0, sizeof(Buf));
+    if(fread(Buf, 1, 200, pFile) > 0 )
+    {
+        QString Content = QString::fromAscii(Buf, -1);
+        QStringList StrList = Content.split(";");
+        if(StrList.size() >= 1)
+        {
+            pressureDrift = StrList.at(0).toDouble();
+        }
+    }
+    fclose(pFile);
+    m_PressureDrift = pressureDrift;
+    return pressureDrift;
+}
+
+void CAirLiquidDevice::WritePressureDrift(float PressureDrift)
+{
+    QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/PressureNullDrift.txt";
+    QString msg = tr("%1;\n").arg(PressureDrift);
+    FILE* pFile = fopen(FileName.toStdString().c_str(), "w+");
+    fprintf(pFile, "%s", msg.toStdString().c_str());
+    fflush(pFile);
+    fclose(pFile);
+    m_PressureDrift = PressureDrift;
+}
+#endif
 } //namespace

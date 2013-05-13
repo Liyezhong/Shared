@@ -111,6 +111,7 @@ public:
     ReturnCode_t ALTurnOnFan();
     ReturnCode_t ALTurnOffFan();
     ReturnCode_t ALAllStop();
+    ReturnCode_t ALSetPressureDrift(qreal pressureDrift);
     ReturnCode_t ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Rotary Valve device func
     ReturnCode_t RVSetTempCtrlON();

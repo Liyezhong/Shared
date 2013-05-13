@@ -88,6 +88,7 @@ public:
     ReturnCode_t TurnOnFan();
     ReturnCode_t TurnOffFan();
     ReturnCode_t BreakAllOperation(void);
+    ReturnCode_t SetPressureDrift(qreal pressureDrift);
 
 private slots:
     void Reset();

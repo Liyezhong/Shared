@@ -863,6 +863,18 @@ ReturnCode_t IDeviceProcessing::ALAllStop()
     }
 }
 
+ReturnCode_t IDeviceProcessing::ALSetPressureDrift(qreal pressureDrift)
+{
+   if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->SetPressureDrift(pressureDrift);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
 ReturnCode_t IDeviceProcessing::RVSetTempCtrlON()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
