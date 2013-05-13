@@ -273,5 +273,8 @@
         <file>HimalayaImages/Color/Color_6038.png</file>
         <file>HimalayaImages/Color/Color_7045.png</file>
         <file>HimalayaImages/Color/Color_9003.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Pipe/flow1.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Pipe/flow2.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Pipe/flow3.png</file>
     </qresource>
 </RCC>
