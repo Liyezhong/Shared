@@ -207,7 +207,7 @@ bool CSWVersionList::DeserializeContent(QIODevice& IODevice, bool CompleteData)
     //  Now Delete the SWDetails list and SW names
     if (!DeleteAllSWDetails()) {
         //throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     (void)XmlStreamReader.readElementText(QXmlStreamReader::IncludeChildElements);// lint -e534
@@ -390,7 +390,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CSWVersionList& SWVer
     if (!p_TempSWVersionList->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CSWVersionList::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -410,7 +410,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CSWVersionList& SWVersionLis
     if (!SWVersionList.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CSWVersionList::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -809,7 +809,7 @@ void CSWVersionList::Init()
 {
     if (!DeleteAllSWDetails()) {
         //throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 
 }

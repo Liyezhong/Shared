@@ -82,14 +82,14 @@ void BaseThreadController::Go() {
         OnGoReceived();
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
     } catch(const Global::Exception &E) {
         // and send error message
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
@@ -103,14 +103,14 @@ void BaseThreadController::Stop() {
         StopHeartbeatTimer();
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     } catch(const Global::Exception &E) {
         // and send error message
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     // quit thread
@@ -128,7 +128,7 @@ void BaseThreadController::DoSendCommand(Global::tRefType Ref, const Global::Com
     // check pointer
     if(Cmd.IsNull())
     {
-        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
+        LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
     }
     try {
         // try to send the command over the according transmit channel
@@ -162,7 +162,7 @@ void BaseThreadController::DoSendCommand(Global::tRefType Ref, const Global::Com
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     // some error occured
@@ -177,7 +177,7 @@ void BaseThreadController::DoSendAcknowledge(Global::tRefType Ref, const Global:
     // check pointer
     if(Ack.IsNull())
     {
-        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
+        LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
     }
     try {
         // try to send the command over the according transmit channel
@@ -189,7 +189,7 @@ void BaseThreadController::DoSendAcknowledge(Global::tRefType Ref, const Global:
       Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
     }
     // some error occured
@@ -283,7 +283,7 @@ void BaseThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Glob
     try
     {
         if(Ack.IsNull()) {
-            LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
+            LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
         }
 //        SEND_DEBUG(WHEREAMI + " " +
 //                   QString("Ref = ") + QString::number(Ref, 10) +
@@ -315,7 +315,7 @@ void BaseThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Glob
         //Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }

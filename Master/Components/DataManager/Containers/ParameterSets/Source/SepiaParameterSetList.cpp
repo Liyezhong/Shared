@@ -108,7 +108,7 @@ void CSepiaParameterSetList::Init()
 
     if (!DeleteAllPrograms()) {
         //throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 
 }
@@ -336,7 +336,7 @@ bool CSepiaParameterSetList::DeserializeContent(QIODevice& IODevice, bool Comple
     //  Now Delete the Program list and ordered list of Program ID's
     if (!DeleteAllPrograms()) {
         //throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     // Look for node <ProgramList>
@@ -460,7 +460,7 @@ QDataStream& operator << (QDataStream& OutDataStream, const CSepiaParameterSetLi
     if (!p_TempProgramList->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CProgramList::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -481,7 +481,7 @@ QDataStream& operator >> (QDataStream& InDataStream, CSepiaParameterSetList& Pro
     if (!ProgramList.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CProgramList::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return InDataStream;
 }

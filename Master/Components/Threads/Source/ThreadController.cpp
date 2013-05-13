@@ -153,7 +153,7 @@ void ThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::Comm
         {
             // get command pointer
             if(Cmd.IsNull()) {
-                LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
+                LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
             }
 //            SEND_DEBUG(WHEREAMI + " " +
 //                       QString("Ref = ") + QString::number(Ref, 10) +
@@ -173,7 +173,7 @@ void ThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::Comm
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }

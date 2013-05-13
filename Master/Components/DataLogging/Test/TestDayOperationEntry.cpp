@@ -112,7 +112,7 @@ void TestDayOperationEntry::utDefaultConstructor() {
     // test default constructor
     DayEventEntry TestObject;
     QCOMPARE(TestObject.m_TimeStamp.isNull(),               true);
-    //QCOMPARE(TestObject.m_String.GetStringID(),             Global::EVENT_GLOBAL_UNKNOWN_STRING_ID);
+    //QCOMPARE(TestObject.m_String.GetStringID(),             EVENT_GLOBAL_UNKNOWN_STRING_ID);
     //QCOMPARE(TestObject.m_String.GetArgumentList().size(),  0);
 }
 

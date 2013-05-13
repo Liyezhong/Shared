@@ -67,7 +67,7 @@ bool CPasswordManager::CheckPasswordFormat(const QString &Password) {
 /****************************************************************************/
 void CPasswordManager::SetPassword(const QString &Name, const QString &Password) {
     if(!CheckPasswordFormat(Password)) {
-        LOGANDTHROW(DataManager::EVENT_DM_ERROR_PASSWORD_FORMAT);
+        LOGANDTHROW(EVENT_DM_ERROR_PASSWORD_FORMAT);
     }    
     // checks passed. compute hash and insert password.
     m_Passwords.insert(Name, ComputeHash(Password));

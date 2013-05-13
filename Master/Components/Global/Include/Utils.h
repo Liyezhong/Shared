@@ -99,7 +99,7 @@
 /****************************************************************************/
 #define CONNECTSIGNALSLOT(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget))) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -114,7 +114,7 @@
 /****************************************************************************/
 #define CONNECTSIGNALSLOTQUEUED(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget), Qt::QueuedConnection)) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -128,7 +128,7 @@
 /****************************************************************************/
 #define CONNECTSIGNALSIGNAL(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SIGNAL(SlotTarget))) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
+        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -141,7 +141,7 @@
 /****************************************************************************/
 #define CHECKPTR(pPtr) \
     if(pPtr == NULL) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << #pPtr << FILE_LINE); \
+        THROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << #pPtr << FILE_LINE); \
     }
 
 

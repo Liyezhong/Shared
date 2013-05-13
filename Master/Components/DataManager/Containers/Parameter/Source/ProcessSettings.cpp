@@ -99,7 +99,7 @@ void CProcessSettings::Init()
     m_Filename = "";
     if (!DeleteAllGroup()) {
         //throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 }
 /****************************************************************************/
@@ -596,7 +596,7 @@ bool CProcessSettings::DeserializeContent(QIODevice& IODevice, bool CompleteData
     
     if (!DeleteAllGroup()) {
         //throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 	
     Result = ReadAllGroups(XmlStreamReader);
@@ -621,7 +621,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CProcessSettings& Gro
     if (!p_TempGroupList->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CGroupList::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE );
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE );
     }
     return OutDataStream;
 }
@@ -641,7 +641,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CProcessSettings& GroupList)
     if (!GroupList.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CGroupList::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return InDataStream;
 }

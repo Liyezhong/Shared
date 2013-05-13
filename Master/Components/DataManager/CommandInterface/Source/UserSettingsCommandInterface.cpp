@@ -103,7 +103,7 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
 
             // raise the event if the language is changed
             if (TempSettings.GetLanguage() != Settings.GetLanguage()) {
-                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_LANGUAGE_CHANGED,
+                Global::EventObject::Instance().RaiseEvent(EVENT_GLOBAL_USER_ACTIVITY_US_LANGUAGE_CHANGED,
                                                            Global::FmtArgs() << QLocale::languageToString(Settings.GetLanguage()));
                 LanguageChanged = true;
             }
@@ -114,11 +114,11 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                     TempSettings.GetProxyPassword() != Settings.GetProxyPassword() ||
                     TempSettings.GetRemoteCare() != Settings.GetRemoteCare() ||
                     TempSettings.GetDirectConnection() != Settings.GetDirectConnection()) {
-                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_NETWORK_SETTINGS_ADDED);
+                Global::EventObject::Instance().RaiseEvent(EVENT_GLOBAL_USER_ACTIVITY_US_NETWORK_SETTINGS_ADDED);
             }
 
             if (!mp_DataContainer->SettingsInterface->VerifyData(true)) {
-                Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_GV_FAILED);
+                Global::EventObject::Instance().RaiseEvent(EVENT_DM_GV_FAILED);
                 SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
                 return;
             }

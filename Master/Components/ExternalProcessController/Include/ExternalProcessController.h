@@ -122,7 +122,7 @@ private:
      */
     /****************************************************************************/
     template<class MSG> void SendMsgToExternalProcess(Global::tRefType Ref, const MSG &Msg) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__, Global::NO_NUMERIC_DATA, false);
+        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__, Global::NO_NUMERIC_DATA, false);
         // serialize data
         QByteArray Data;
         // create data stream
@@ -188,7 +188,7 @@ protected:
      */
     /****************************************************************************/
     template<class CmdClass> void SendCmdToExternalProcess(Global::tRefType Ref, const CmdClass &Cmd) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
+        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
                   , Global::NO_NUMERIC_DATA, false);
         SendMsgToExternalProcess<CmdClass>(Ref, Cmd);
     }
@@ -241,7 +241,7 @@ protected:
      */
     /****************************************************************************/
     template<class CmdClass> void ForwardCmdFromExternalProcess(Global::tRefType Ref, CmdClass *pCmd) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
+        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
                   , Global::NO_NUMERIC_DATA, false);
         SendCmd(Ref, pCmd);
     }
@@ -295,7 +295,7 @@ protected:
      */
     /****************************************************************************/
     template<class AckClass> void ForwardAckFromExternalProcess(Global::tRefType Ref, AckClass *pAck) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
+        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
                   , Global::NO_NUMERIC_DATA, false);
         CHECKPTR(pAck);
         SendAcknowledge(Ref, Global::AcknowledgeShPtr_t(pAck));

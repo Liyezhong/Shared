@@ -113,7 +113,7 @@ bool BaseLoggerReusable::CheckHeaderFormat(const QString &FileName) {
     }
     // set reading position to 0
     if(!File.seek(0)) {
-        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_SEEK, FileName);
+        LOGANDTHROWARG(EVENT_GLOBAL_ERROR_FILE_SEEK, FileName);
     }
     // file now open for reading
 

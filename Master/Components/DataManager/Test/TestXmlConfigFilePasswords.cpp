@@ -145,7 +145,7 @@ void TestXmlConfigFilePasswords::utTestReadPasswordsNOK_data() {
     QTest::addColumn<QString>("FileName");
     QTest::addColumn<quint32>("ExpectedErrorCode");
 
-    QTest::newRow("file not found")                                 << "XmlConfigFilePasswordsNOKNotHere.xml"   << Global::EVENT_GLOBAL_ERROR_FILE_OPEN;
+    QTest::newRow("file not found")                                 << "XmlConfigFilePasswordsNOKNotHere.xml"   << EVENT_GLOBAL_ERROR_FILE_OPEN;
     QTest::newRow("buggy root element")                             << "XmlConfigFilePasswordsNOK1.xml"         << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
     QTest::newRow("unsupported format version")                     << "XmlConfigFilePasswordsNOK2.xml"         << EVENT_DM_ERROR_UNSUPPORTED_VERSION;
     QTest::newRow("unexpected element instead of \"serialnumber\"") << "XmlConfigFilePasswordsNOK3.xml"         << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;

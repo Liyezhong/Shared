@@ -169,7 +169,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserConfiguration& E
     if (!p_TempExportConfiguration->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CUserConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -192,7 +192,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserConfiguration& ExportCo
     if (!ExportConfiguration.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CUserConfiguration::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;

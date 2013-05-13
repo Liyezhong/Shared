@@ -645,7 +645,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettingsInterfac
     if (!p_TempUSInterface->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
         const_cast<CUserSettingsInterface &>(USInterface).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
       }
@@ -669,7 +669,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserSettingsInterface& USIn
     if (!USInterface.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
         USInterface.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
     }

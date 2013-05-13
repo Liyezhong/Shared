@@ -521,7 +521,7 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
 
         // check pointer
         if(Cmd.IsNull()) {
-            LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
+            LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
         }
 //        SEND_DEBUG(WHEREAMI + " " +
 //                   QString("Ref = ") + QString::number(Ref, 10) +
@@ -582,7 +582,7 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
@@ -599,7 +599,7 @@ void MasterThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Gl
     try {
         // check pointer
         if(Ack.IsNull()) {
-            LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
+            LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
         }
 //        SEND_DEBUG(WHEREAMI + " " +
 //                   QString("Ref = ") + QString::number(Ref, 10) +
@@ -632,7 +632,7 @@ void MasterThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Gl
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
@@ -776,11 +776,11 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
         } catch(const Global::Exception &E) {
             // and send error message
             //RaiseException(E);
-            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_READ_CONFIG_FILE, FileName
+            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_READ_CONFIG_FILE, FileName
                       , Global::NO_NUMERIC_DATA, false);
         } catch(...) {
             // send some error message
-            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                       , Global::NO_NUMERIC_DATA, false);
         }
     }
@@ -812,7 +812,7 @@ bool MasterThreadController::ReadTimeOffsetFile() {
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     // something went wrong
@@ -828,7 +828,7 @@ bool MasterThreadController::ReadTimeOffsetFile() {
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   ,Global::NO_NUMERIC_DATA, false);
     }
     return false;
@@ -841,19 +841,19 @@ bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateT
 
     if(((m_MaxAdjustedTimeOffset != 0) && (abs(NewOffset) > m_MaxAdjustedTimeOffset)) || NewOffset < 0) {
         // offset must be checked and is outside allowed range.
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE, Global::tTranslatableStringList() <<
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE, Global::tTranslatableStringList() <<
                   QString::number(NewOffset, 10) <<
                   QString::number(m_MaxAdjustedTimeOffset, 10)
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
     // log setting new time offset
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_SET_DATE_TIME, NewDateTime.toUTC().toString(Qt::ISODate)
+    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_SET_DATE_TIME, NewDateTime.toUTC().toString(Qt::ISODate)
               , Global::NO_NUMERIC_DATA, false);
     // set date and time
     Global::AdjustedTime::Instance().AdjustToDateTime(NewDateTime);
     // log new time offset as info
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_CURRENT_TIME_OFFSET, QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
+    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_CURRENT_TIME_OFFSET, QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
               , Global::NO_NUMERIC_DATA, false);
     // save new offset to file
     try {
@@ -867,7 +867,7 @@ bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateT
         Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     return true;
@@ -896,14 +896,14 @@ void MasterThreadController::OnGoReceived()
     } catch(const std::bad_alloc &) {
         // destroy controllers and threads
         // send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
         // and request exit
         Shutdown();
     } catch(...) {
         // destroy controllers and threads
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
         // and request exit
         Shutdown();
@@ -933,7 +933,7 @@ void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, 
 //        AttachControllersAndStartThreads();
 
 //        // log current time offset as info
-//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_CURRENT_TIME_OFFSET,
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_CURRENT_TIME_OFFSET,
 //                  QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
 //                  , Global::NO_NUMERIC_DATA, false);
 
@@ -956,14 +956,14 @@ void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, 
     } catch(const std::bad_alloc &) {
         // destroy controllers and threads
         // send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
         // and request exit
         Shutdown();
     } catch(...) {
         // destroy controllers and threads
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
         // and request exit
         Shutdown();
@@ -982,7 +982,7 @@ void MasterThreadController::OnStopReceived() {
 
 /****************************************************************************/
 void MasterThreadController::Shutdown() {
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList()
+    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList()
               , Global::NO_NUMERIC_DATA, false);
 
     // send Stop signal to all thread controllers

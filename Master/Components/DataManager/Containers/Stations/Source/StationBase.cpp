@@ -259,7 +259,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CStationBase& Station
     if (!p_TempStation->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CStationBase::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -288,13 +288,13 @@ QDataStream& operator >>(QDataStream& InDataStream, CStationBase& Station)
 
     if (!DataManager::Helper::ReadNode(XmlStreamReader, QString("Station"))) {
         qDebug() << "CStationBase::Operator Streaming (DeSerializeContent) Node not found: Reagent";
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     if (!Station.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CStationBase::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }    
 
     return InDataStream;

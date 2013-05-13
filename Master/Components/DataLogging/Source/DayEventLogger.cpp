@@ -77,19 +77,19 @@ void DayEventLogger::SwitchToNewFile() {
 void DayEventLogger::Log(const DayEventEntry &Entry) {
 
         // translate event type
-        quint32 IDStrEvtType = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
+        quint32 IDStrEvtType = EVENT_GLOBAL_UNKNOWN_STRING_ID;
         const Global::EventType EventType = Entry.GetEventType();
         switch(EventType) {
-            case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
+            case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
             case Global::EVTTYPE_FATAL_ERROR:
             case Global::EVTTYPE_SYS_ERROR:
-                                                IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
-            case Global::EVTTYPE_ERROR:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
+                                                IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
+            case Global::EVTTYPE_ERROR:         IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
             case Global::EVTTYPE_WARNING:
             case Global::EVTTYPE_SYS_WARNING:                                                
-                                                IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
-            case Global::EVTTYPE_INFO:          IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
-            case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
+                                                IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
+            case Global::EVTTYPE_INFO:          IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
+            case Global::EVTTYPE_DEBUG:         IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
             default:                            break;
         }
         QString TrEventType = Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType);

@@ -20,13 +20,5 @@
 
 #ifndef EVENTHANDLEREVENTCODES_H
 #define EVENTHANDLEREVENTCODES_H
-
-#include <QtGlobal>
-
-const quint32 EVENT_ERROR_STATE                     = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0001;
-const quint32 EVENT_NORMAL_STATE                    = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0002;
-const quint32 EVENT_GUI_AVAILABLE                   = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0003;
-const quint32 EVENT_EVENT_ID_MISSING                = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0004;
-
-
+#include <../Include/PlatformEventCodes.h>
 #endif // EVENTHANDLEREVENTCODES_H

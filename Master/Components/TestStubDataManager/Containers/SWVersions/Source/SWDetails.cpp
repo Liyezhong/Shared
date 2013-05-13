@@ -204,7 +204,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CSWDetails& SWDetails
     if (!p_TempSWDetails->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CSWDetails::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -226,12 +226,12 @@ QDataStream& operator >>(QDataStream& InDataStream, CSWDetails& SWDetails)
 
     if (!Helper::ReadNode(XmlStreamReader, QString("file"))) {
         qDebug() << "CSWDetails::Operator Streaming (DeSerializeContent) Node not found: file";
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     if (!SWDetails.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CSWDetails::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;

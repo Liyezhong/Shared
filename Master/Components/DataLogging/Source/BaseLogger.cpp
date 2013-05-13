@@ -78,7 +78,7 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
 //        // file open failed. Clean file name.
 //        m_File.setFileName("");
 //        // throw according exception.
-//        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
+//        LOGANDTHROWARG(EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
     }
     m_LogFileError = false;
 
@@ -105,7 +105,7 @@ void BaseLogger::AppendLine(QString Line) {
     if(WrittenSize != WriteSize) {
         Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_WRITE, Global::FmtArgs() << m_File.fileName(), true);
 //        // writing failed. throw according exception
-//        THROWARGS(Global::EVENT_GLOBAL_ERROR_FILE_WRITE, Global::tTranslatableStringList() << m_File.fileName() <<
+//        THROWARGS(EVENT_GLOBAL_ERROR_FILE_WRITE, Global::tTranslatableStringList() << m_File.fileName() <<
 //                  QString::number(WrittenSize, 10) << QString::number(WriteSize, 10));
     }
     // now flush data to disk

@@ -144,7 +144,7 @@ void TestXmlConfigFileTimeOffset::utTestReadTimeOffsetNOK_data() {
     QTest::addColumn<QString>("FileName");
     QTest::addColumn<quint32>("ExpectedErrorCode");
 
-    QTest::newRow("file not found")                             << "XmlConfigFileTimeOffsetNOKNotHere.xml"  << Global::EVENT_GLOBAL_ERROR_FILE_OPEN;
+    QTest::newRow("file not found")                             << "XmlConfigFileTimeOffsetNOKNotHere.xml"  << EVENT_GLOBAL_ERROR_FILE_OPEN;
     QTest::newRow("buggy root element")                         << "XmlConfigFileTimeOffsetNOK1.xml"        << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;
     QTest::newRow("unsupported format version")                 << "XmlConfigFileTimeOffsetNOK2.xml"        << EVENT_DM_ERROR_UNSUPPORTED_VERSION;
     QTest::newRow("not expected element instead of \"offset\"") << "XmlConfigFileTimeOffsetNOK3.xml"        << EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT;

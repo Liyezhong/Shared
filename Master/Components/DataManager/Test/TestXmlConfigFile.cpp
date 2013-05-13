@@ -162,7 +162,7 @@ void TestXmlConfigFile::utTestInitStreamReader() {
         Obj.InitStreamReader(Reader, File, FilesPathOK + "ConfigFileNotHere.xml");
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
-        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_FILE_OPEN);
+        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_FILE_OPEN);
     } catch(...) {
         QFAIL("Unknown exception caught!");
     }
@@ -535,7 +535,7 @@ void TestXmlConfigFile::utTestInitStreamWriter() {
         // create file and write some dummy data in it
         File.setFileName(FileName);
         if(!File.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate)) {
-            THROWARG(Global::EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
+            THROWARG(EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
         }
         qint64 WrittenSize = File.write("this is a dummy file");
         QVERIFY(WrittenSize > 0);

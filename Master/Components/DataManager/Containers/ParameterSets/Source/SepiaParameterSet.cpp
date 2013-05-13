@@ -172,7 +172,7 @@ QDataStream& operator << (QDataStream& OutDataStream, const CSepiaParameterSet& 
     if (!p_TempProgram->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CSepiaParameterSet::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return OutDataStream;
@@ -195,13 +195,13 @@ QDataStream& operator >> (QDataStream& InDataStream, CSepiaParameterSet& Paramet
     (void)XmlStreamReader.readElementText(QXmlStreamReader::IncludeChildElements); //lint -e534
     if (!DataManager::Helper::ReadNode(XmlStreamReader, QString("ParameterSet"))) {
         qDebug() << "CSepiaParameterSet::Operator Streaming (DeSerializeContent) Node not found: Program";
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     if (!ParameterSet.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CSepiaParameterSet::Operator Streaming (DeSerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;

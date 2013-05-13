@@ -336,7 +336,7 @@ bool ExternalProcessController::InitializeProcessManager()
         CONNECTSIGNALSLOT(m_myProcess, ProcessError(int), this, ExternalProcessError(int));
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     } catch(const Global::Exception &E) {
@@ -345,7 +345,7 @@ bool ExternalProcessController::InitializeProcessManager()
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
@@ -417,7 +417,7 @@ bool ExternalProcessController::InitializeFullStateMachine()
         m_myStateManager->AddTransition(m_CommunicationRetryState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     } catch(const Global::Exception &E) {
@@ -426,7 +426,7 @@ bool ExternalProcessController::InitializeFullStateMachine()
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
@@ -478,7 +478,7 @@ bool ExternalProcessController::InitializeSimplifiedStateMachine()
         m_myStateManager->AddTransition(m_WorkingState, m_WaitState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_DISCONNECTED);
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     } catch(const Global::Exception &E) {
@@ -487,7 +487,7 @@ bool ExternalProcessController::InitializeSimplifiedStateMachine()
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
@@ -730,7 +730,7 @@ bool ExternalProcessController::ForwardMsgToRecepient(const QByteArray &bArr)
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }

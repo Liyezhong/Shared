@@ -278,7 +278,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfiguration&
     if (!p_TempDeviceConfig->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
         const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
     }
@@ -313,7 +313,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfiguration& Device
         DeviceConfig.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
         // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;

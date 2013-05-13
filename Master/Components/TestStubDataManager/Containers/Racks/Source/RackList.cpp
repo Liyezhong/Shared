@@ -74,7 +74,7 @@ CRackList::~CRackList()
     // delete all racks from the list
     //    if (!DeleteAllRacks()) {
     //        // throw error ...
-    //        LOGANDTHROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+    //        LOGANDTHROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     //    }
     try {
         (void)DeleteAllRacks(); // to avoid lint-534
@@ -119,7 +119,7 @@ void CRackList::Init()
     // delete all racks from the list
     if (!DeleteAllRacks()) {
         // throw error ...
-        THROWARG(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << FILE_LINE);
     }
 }
 
@@ -321,7 +321,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRackList& RackList)
     if (!p_TempRackList->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CDataRackList::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return OutDataStream;
@@ -343,7 +343,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CRackList& RackList)
     if (!RackList.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CDataRackList::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return InDataStream;
 }

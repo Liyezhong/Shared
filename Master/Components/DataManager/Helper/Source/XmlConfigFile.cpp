@@ -40,7 +40,7 @@ void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QFile &rFile, co
     rFile.close();
     rFile.setFileName(FileName);
     if(!rFile.open(QIODevice::Text | QIODevice::ReadOnly)) {
-        THROWARG(Global::EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
+        THROWARG(EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
     }
     // set stream reader device
     rReader.setDevice(&rFile);
@@ -51,7 +51,7 @@ void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QIODevice &rDevi
     // check if we can open device
     rDevice.close();
     if(!rDevice.open(QIODevice::Text | QIODevice::ReadOnly)) {
-        THROW(Global::EVENT_GLOBAL_ERROR_FILE_OPEN);
+        THROW(EVENT_GLOBAL_ERROR_FILE_OPEN);
     }
     // set stream reader device
     rReader.setDevice(&rDevice);
@@ -62,7 +62,7 @@ void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, co
     rFile.close();
     rFile.setFileName(FileName);
     if(!rFile.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate)) {
-        THROWARG(Global::EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
+        THROWARG(EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
     }
     // set stream writer device
     rWriter.setDevice(&rFile);
@@ -75,7 +75,7 @@ void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, co
 void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QIODevice &rDevice) {
     rDevice.close();
     if(!rDevice.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate)) {
-        THROW(Global::EVENT_GLOBAL_ERROR_FILE_CREATE);
+        THROW(EVENT_GLOBAL_ERROR_FILE_CREATE);
     }
     // set stream writer device
     rWriter.setDevice(&rDevice);

@@ -392,7 +392,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRack& Rack)
     if (!p_TempRack->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CRack::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     // write enddocument
@@ -431,7 +431,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CRack& Rack)
                     if (!Rack.DeserializeContent(XmlStreamReader, true)) {
                         qDebug() << "CRack::Operator Streaming (DeSerializeContent) failed.";
                         // throws an exception
-                        THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+                        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
                     }
                 }
             }

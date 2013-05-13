@@ -81,7 +81,7 @@ namespace Global {
     #define SEND_DEBUG(data)
 #else
     // we are in debug mode
-    #define SEND_DEBUG(data) SendEvent(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), Global::EVTTYPE_DEBUG, Global::EVTSTAT_ON, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, data);
+    #define SEND_DEBUG(data) SendEvent(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), Global::EVTTYPE_DEBUG, Global::EVTSTAT_ON, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, data);
 #endif
 
 /****************************************************************************/
