@@ -150,6 +150,7 @@ void CMessageDlg::SetButtonText(qint32 ButtonNumber, QString ButtonText)
     switch(ButtonNumber){
     case 1:
         mp_Ui->Button1->setText(tr("%1").arg(ButtonText));
+        mp_Ui->Button1->show();
         break;
     case 2:
         mp_Ui->Button2->setText(tr("%1").arg(ButtonText));
