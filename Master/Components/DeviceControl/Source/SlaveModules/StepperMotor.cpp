@@ -402,7 +402,7 @@ void CStepperMotor::HandleTasks()
     {
         // 50ms delay between each call of HandleConfigurationState()
         // ensures a proper CAN-message intervall
-#if 1
+#if 0
         if(m_timeAction.Elapsed() > 5)
 #else
         if(m_timeAction.Elapsed() > 50)

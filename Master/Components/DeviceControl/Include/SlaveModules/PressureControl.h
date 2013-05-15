@@ -35,7 +35,7 @@ class CPressureControl : public CFunctionModule
     void HandleCanMessage(can_frame* pCANframe);    ///< CAN-message handling function
 
 //    //! Set reference pressure
-    ReturnCode_t SetPressure(quint8 flag, qint8 Pressure);
+    ReturnCode_t SetPressure(quint8 flag, qreal Pressure);
 //    //! Request actual pressure
     ReturnCode_t ReqActPressure(quint8 Index);
 //    //! Set pressure ctrl. status
@@ -282,7 +282,7 @@ private:
         CANPressureCtrlCmdType_t Type;                  //!< command type
         ModuleCmdState_t State;                         //!< command state
         quint8 flag;                                    //!< flag of pressre control
-        qint8 Pressure;                                 //!< pressure
+        qreal Pressure;                                 //!< pressure
         PressureCtrlStatus_t PressureCtrlState;         //!< pressure control state
         PressureCtrlOperatingMode_t PressureCtrlOpMode; //!< pressure control operating mode
         Global::MonotonicTime ReqSendTime;              //!< time the command was executed

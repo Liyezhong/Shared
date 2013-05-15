@@ -1227,7 +1227,7 @@ ReturnCode_t CPressureControl::SendCANMsgHardwareReq()
 // *          otherwise an error code
 // */
 ///****************************************************************************/
-ReturnCode_t CPressureControl::SetPressure(quint8 flag, qint8 Pressure)
+ReturnCode_t CPressureControl::SetPressure(quint8 flag, qreal Pressure)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
