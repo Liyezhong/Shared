@@ -159,5 +159,6 @@
         <file>HimalayaImages/LongButton/LongButton_Disabled.png</file>
         <file>HimalayaImages/LongButton/LongButton_Enabled.png</file>
         <file>HimalayaImages/LongButton/LongButton_Pressed.png</file>
+        <file>HimalayaImages/ComboButton/ComboButton_Program_Running.png</file>
     </qresource>
 </RCC>
