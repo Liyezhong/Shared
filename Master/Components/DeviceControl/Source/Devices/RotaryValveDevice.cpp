@@ -893,12 +893,12 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     }
 #if 1
     //RetValue = ReferenceRunWithTimeout(REFER_RUN_LOWER_LIMIT, 65000);
-    bool refRunRet = DoReferenceRunWithStepCheck(50, 7000);
+    qint32 refRunRet = DoReferenceRunWithStepCheck(50, 7000);
 #else
     RetValue = DoReferenceRun();
 #endif
     lsCode = GetLimitSwitchCode();
-    if(refRunRet)
+    if(refRunRet==REFER_RUN_OK)
     {
         quint32 retry = 0;
         while((lsCode != "3")&&(retry++ < 3))
@@ -933,10 +933,17 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
 //#define REFER_RUN_LOWER_LIMIT         (600)
 //#define REFER_RUN_TIMEROUT_IN_MS      (1100)
 #define REFER_RUN_RETRY_TIME          (20)
+#define REFER_RUN_OK                  (1)
+#define REFER_RUN_DCL_ERR             (-1)
+#define REFER_RUN_TO_UPPER_LIMIT_ERR  (-2)
+#define REFER_RUN_TO_LOWER_LIMIT_ERR  (-3)
+#define REFER_RUN_UNEXPECTED_POSITION (-4)
+#define REFER_RUN_NOT_INITIALIZED     (-5)
+#define REFER_RUN_USER_ERROR          (-6)
 
 bool CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32 UpperLimit)
 {
-    qint32 ret = true;
+    qint32 ret = REFER_RUN_OK;
 
     bool stop = false;
     quint8 retry = 0;
@@ -969,14 +976,14 @@ bool CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32
             {
                 //  Log(tr("Motor moving retry time exceed %1, may be stucked!").arg(REFER_RUN_RETRY_TIME));
                 qDebug()<<"Motor moving retry time exceed "<< retry <<"may be stucked!";
-                ret = false;
+                ret = REFER_RUN_TO_LOWER_LIMIT_ERR;
             }
         }
         else if(Step > UpperLimit)
         {
             //  Log(tr("Warning: Motor moving steps exceed upper limit: %1!").arg(UpperLimit));
             qDebug() << "Warning: Motor moving steps exceed upper limit: " << UpperLimit;
-            ret = false;
+            ret = REFER_RUN_TO_UPPER_LIMIT_ERR;
         }
 
     }
@@ -1183,7 +1190,7 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
             }
             else if(2 == CurrentEDPosition)
             {
-                UpperLimit = 2000;
+                UpperLimit = 350;
             }
             else if(24 == CurrentEDPosition)
             {
@@ -1191,7 +1198,7 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
             }
             else if(26 == CurrentEDPosition)
             {
-                UpperLimit = 2000;
+                UpperLimit = 350;
             }
             else if(99 == CurrentEDPosition)
             {
@@ -1210,7 +1217,7 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
             }
             else if(1 == CurrentEDPosition)
             {
-                UpperLimit = 2000;
+                UpperLimit = 350;
             }
             else if(23 == CurrentEDPosition)
             {
@@ -1218,7 +1225,7 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
             }
             else if(25 == CurrentEDPosition)
             {
-                UpperLimit = 2000;
+                UpperLimit = 350;
             }
             else if(99 == CurrentEDPosition)
             {

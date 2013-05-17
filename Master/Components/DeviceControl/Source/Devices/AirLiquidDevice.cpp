@@ -650,7 +650,7 @@ ReturnCode_t CAirLiquidDevice::Vaccum()
         goto SORTIE;
     }
     TurnOnFan();
-    if(!SetTargetPressure(m_WorkingPressureNegative))
+    if(!SetTargetPressure(9, m_WorkingPressureNegative))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         //stop compressor
@@ -675,7 +675,7 @@ ReturnCode_t CAirLiquidDevice::Pressure()
         goto SORTIE;
     }
     TurnOnFan();
-    if(!SetTargetPressure(m_WorkingPressurePositive))
+    if(!SetTargetPressure(1, m_WorkingPressurePositive))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         //stop compressor
@@ -714,7 +714,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     }
 
     TurnOnFan();
-    if(!SetTargetPressure(m_WorkingPressurePositive))
+    if(!SetTargetPressure(17, m_WorkingPressurePositive))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         goto SORTIE;
@@ -825,7 +825,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
     TurnOnFan();
-    if(!SetTargetPressure(m_WorkingPressureNegative))
+    if(!SetTargetPressure(25, m_WorkingPressureNegative))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         goto SORTIE;
@@ -904,8 +904,28 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
             {
                 PressureBuf.append(CurrentPressure);
             }
-            if(PressureBuf.length() > SUCKING_OVERFLOW_SAMPLE_SIZE)
+            if(PressureBuf.length() >= SUCKING_OVERFLOW_SAMPLE_SIZE)
             {
+#if 1
+                //with 4 wire pump
+                qreal Sum = 0;
+                qreal DeltaSum = 0;
+                qreal lastValue = PressureBuf.at(0);
+                for(qint32 i = 0; i < PressureBuf.length(); i++)
+                {
+                     Sum += PressureBuf.at(i);
+                     DeltaSum += PressureBuf.at(i) - lastValue;
+                     lastValue = PressureBuf.at(i);
+                }
+
+                if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM))
+                {
+                    Log(tr("Overflow occured! Exit now"));
+                    RetValue = SUCKING_RET_OVERFLOW;
+                    goto SORTIE;
+                }
+                PressureBuf.pop_front();	    
+#else
                 //after 2012.11.15, algorithm: at least one sample bigger than target, and two sample bigger than 3 samples' mean.
                 PressureBuf.pop_front();
                 quint32 ExceptPointNum = 0;
@@ -934,6 +954,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                     RetValue = DCL_ERR_DEV_AL_FILL_OVERFLOW;
                     goto SORTIE;
                 }
+#endif
             }
         }
         else
@@ -972,7 +993,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
     }
 
     //start compressor
-    if(!SetTargetPressure(10))
+    if(!SetTargetPressure(1, 10))
     {
         retCode = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         goto SORTIE;
@@ -1054,7 +1075,7 @@ bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qr
     return ret;
 }
 
-bool CAirLiquidDevice::SetTargetPressure(qreal pressure)
+bool CAirLiquidDevice::SetTargetPressure(quint8 flag, qreal pressure)
 {
     if(pressure > 0)
     {
@@ -1062,7 +1083,7 @@ bool CAirLiquidDevice::SetTargetPressure(qreal pressure)
         SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         //open valve 2
         SetValve(VALVE_2_INDEX, VALVE_STATE_OPEN);
-        return  SetPressure(1, pressure);//should be 1
+        return  SetPressure(flag, pressure);//should be 1
     }
     else if(pressure < 0)
     {
@@ -1070,7 +1091,7 @@ bool CAirLiquidDevice::SetTargetPressure(qreal pressure)
         SetValve(VALVE_1_INDEX, VALVE_STATE_OPEN);
         //close valve 2
         SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        return SetPressure(9, pressure);//should be 9
+        return SetPressure(flag, pressure);//should be 9
     }
     return true;
 }

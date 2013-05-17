@@ -102,7 +102,7 @@ private slots:
     // void HandleErrorState();
     bool SetPressure(quint8 flag, qreal NominalPressure);
     qreal GetPressure(quint8 Index);
-    bool SetTargetPressure(qreal pressure);
+    bool SetTargetPressure(quint8 flag, qint8 pressure);
     bool SetValve(quint8 ValveIndex, quint8 ValveState);
     bool SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus);
     void StopCompressor(void);

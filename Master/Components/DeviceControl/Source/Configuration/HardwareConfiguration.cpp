@@ -1465,9 +1465,11 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     QDomElement child;
     QDomElement childPidControllers;
     QDomElement childPidController;
+    QDomElement childPwmController;
     QString strPressureTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
             strCurrentGain, strPumpCurrent, strPumpThreshold;
     QString strMaxPressure, strMinPressure, strControllerGain, strResetTime, strDerivativeTime;
+    QString strMaxActuatingValue, strMinActuatingValue, strMaxPwmDuty, strMinPwmDuty;
     bool ok;
 
     child = element.firstChildElement("configuration");
@@ -1528,6 +1530,26 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
 
         childPidController = childPidController.nextSiblingElement("pid_controller");
     }
+
+    childPwmController = element.firstChildElement("pwm_controller");
+    if(childPwmController.isNull())
+    {
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        delete pCANObjFctPressureCtrl;
+        pCANObjFctPressureCtrl = 0;
+
+        return pCANObjFctPressureCtrl;
+
+    }
+    strMaxActuatingValue = childPwmController.attribute("max_actuating_value");
+    strMinActuatingValue = childPwmController.attribute("min_actuating_value");
+    strMaxPwmDuty = childPwmController.attribute("max_pwm_duty");
+    strMinPwmDuty = childPwmController.attribute("min_pwm_duty");
+
+    pCANObjFctPressureCtrl->pwmController.sMaxActuatingValue = strMaxActuatingValue.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->pwmController.sMinActuatingValue = strMinActuatingValue.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->pwmController.sMaxPwmDuty = strMaxPwmDuty.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->pwmController.sMinPwmDuty = strMinPwmDuty.toShort(&ok, 10);
 
     return pCANObjFctPressureCtrl;
 }
