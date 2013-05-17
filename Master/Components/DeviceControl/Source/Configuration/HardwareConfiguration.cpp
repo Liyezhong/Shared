@@ -1901,51 +1901,21 @@ DevInstanceID_t HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
 
     switch (DeviceValue)
     {
-        case 0x00008010:
-            DevInstanceID = DEVICE_INSTANCE_ID_GRAPPLER_1;
+        case 0x000080C0:
+            DevInstanceID = DEVICE_INSTANCE_ID_ROTARY_VALVE;
             break;
-        case 0x00008011:
-            DevInstanceID = DEVICE_INSTANCE_ID_GRAPPLER_2;
-            break;
-        case 0x00008020:
-            DevInstanceID = DEVICE_INSTANCE_ID_LOADER;
-            break;
-        case 0x00008021:
-            DevInstanceID = DEVICE_INSTANCE_ID_UNLOADER;
-            break;
-        case 0x00008030:
-            DevInstanceID = DEVICE_INSTANCE_ID_OVEN;
-            break;
-        case 0x00008040:
-            DevInstanceID = DEVICE_INSTANCE_ID_HVESSELS;
-            break;
-        case 0x00008050:
-            DevInstanceID = DEVICE_INSTANCE_ID_AGITATION;
-            break;
-        case 0x00008060:
-            DevInstanceID = DEVICE_INSTANCE_ID_RACKTRANSFER;
-            break;
-        case 0x00008070:
-            DevInstanceID = DEVICE_INSTANCE_ID_EXHAUST;
-            break;
-        case 0x00008080:
-            DevInstanceID = DEVICE_INSTANCE_ID_WATER;
-            break;
-        case 0x00008090:
-            DevInstanceID = DEVICE_INSTANCE_ID_INCLINOMETER;
-            break;
-        case 0x000080A0:
-            DevInstanceID = DEVICE_INSTANCE_ID_COVERLINE_1;
-            break;
-        case 0x000080A1:
-            DevInstanceID = DEVICE_INSTANCE_ID_COVERLINE_2;
-            break;
-        case 0x000080B0:
-            DevInstanceID = DEVICE_INSTANCE_ID_RACK_HANDLING;
-            break;
-        case 0x000080B1:
-            DevInstanceID = DEVICE_INSTANCE_ID_HOOD;
-            break;
+        case 0x000080C1:
+            DevInstanceID = DEVICE_INSTANCE_ID_AIR_LIQUID;
+        break;
+        case 0x000080C2:
+            DevInstanceID = DEVICE_INSTANCE_ID_OVEN;   //!< Oven
+        break;
+        case 0x000080C3:
+            DevInstanceID = DEVICE_INSTANCE_ID_RETORT; //!< Retort
+        break;
+        case 0x000080C4:
+            DevInstanceID = DEVICE_INSTANCE_ID_PERIPHERY; //!< Miscellaneous
+        break;
         default:
             DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
             break;
