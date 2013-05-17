@@ -58,6 +58,7 @@ class CPressureControl : public CFunctionModule
     ReturnCode_t SetValve(quint8 ValveIndex, quint8 ValveState);
 //    //! Enable/Disable calibration function
     ReturnCode_t SetCalibration(bool Enable);
+    ReturnCode_t SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty);
 signals:
 //    /****************************************************************************/
 //    /*!
@@ -216,7 +217,7 @@ private:
 //    //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
 //    //! sends the can set message 'Pressure'
- ReturnCode_t SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime);
+    ReturnCode_t SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime);
 //    //! sends the can request message 'Pressure'
     ReturnCode_t SendCANMsgPressureRequest();
 //    //! sends the can request message 'ServiceSensor'
@@ -233,6 +234,7 @@ private:
     ReturnCode_t SendCANMsgSetValve(quint8 ValveIndex, quint8 flags);
 //    //! sends the can request message 'Calibration'
     ReturnCode_t SendCANMsgCalibration(bool Enable);
+    ReturnCode_t SendCANMsgSetPWMParam(quint16 MaxActuatingValue, quint16 MinActuatingValue, quint8 MaxPwmDuty, quint8 MinPwmDuty);
 
 
 //    //! handles the receipt of can response message 'ServiceSensor'
@@ -274,7 +276,8 @@ private:
         FM_PRESSURE_CMD_TYPE_REQ_FANSPEED      = 9, //!< request fan speed
         FM_PRESSURE_CMD_TYPE_REQ_HARDWARE      = 10, //!< request hardware status
         FM_PRESSURE_CMD_TYPE_SET_VALVE         = 11,
-        FM_PRESSURE_CMD_TYPE_CALIBRATION       = 12
+        FM_PRESSURE_CMD_TYPE_CALIBRATION       = 12,
+        FM_PRESSURE_CMD_TYPE_SET_PWM           = 13
     } CANPressureCtrlCmdType_t;
 
 //    /*! motor command data, used for internal data transfer*/
@@ -291,6 +294,10 @@ private:
         quint8 ValveIndex;                              //!< Valve index
         quint8 ValveState;                              //!< Valve State. 0: off, 1: on
         bool EnableCalibration;                         //!< Enable or disable calibration
+        quint16 MaxActuatingValue;
+        quint16 MinActuatingValue;
+        quint8 MaxPwmDuty;
+        quint8 MinPwmDuty;
     } PressureCtrlCommand_t;
 
     PressureCtrlCommand_t m_ModuleCommand[MAX_PRESSURE_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -324,6 +331,7 @@ private:
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDValveSet;               //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDCalibration;
+    quint32 m_unCanIDPWMParamSet;
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
 };

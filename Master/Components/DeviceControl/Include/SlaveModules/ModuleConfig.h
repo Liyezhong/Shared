@@ -557,6 +557,22 @@ public:
     qint8 sDerivativeTime;    //!< Derivative parameter of the PID [hundredth of seconds]
 };
 
+class CANPressureFctPwmController
+{
+public:
+    CANPressureFctPwmController() {
+    sMaxActuatingValue = 0;
+    sMinActuatingValue = 0;
+    sMaxPwmDuty = 0;
+    sMinPwmDuty = 0;
+}
+
+    quint16 sMaxActuatingValue;
+    quint16 sMinActuatingValue;
+    quint8 sMaxPwmDuty;
+    quint8 sMinPwmDuty;
+};
+
 class CANFctModulePressureCtrl : public CModuleConfig
 {
 public:
@@ -577,6 +593,7 @@ public:
     quint16 sPumpCurrent;       //!< current through the pumps in mA
     quint16 sPumpThreshold;     //!< current threshold of the pumps in mA
     QList<CANPressureFctPidController> listPidControllers;  //!< List of PID parameter sets
+    CANPressureFctPwmController pwmController;
 };
 #endif
 /*! \brief This class transfers the CANoystick-Object configuration.

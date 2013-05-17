@@ -60,7 +60,7 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     m_unCanIDServiceSensorReq(0), m_unCanIDServiceSensor(0),
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),m_unCanIDValveSet(0),
-    m_unCanIDCalibration(0),m_aktionTimespan(0)
+    m_unCanIDCalibration(0),m_unCanIDPWMParamSet(0), m_aktionTimespan(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -153,6 +153,7 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDValveSet           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlValveSet", bChannel, m_pParent->GetNodeID());
     m_unCanIDCalibration        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlCalibration", bChannel, m_pParent->GetNodeID());
+    m_unCanIDPWMParamSet        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPWMParamSet", bChannel, m_pParent->GetNodeID());
 
     //FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
@@ -244,6 +245,11 @@ ReturnCode_t CPressureControl::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDCalibration, this);
     }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDPWMParamSet, this);
+    }
+
 
     return RetVal;
 }
@@ -296,6 +302,18 @@ void CPressureControl::HandleTasks()
             for(qint32 i = 0; i < pCANObjConfPressure->listPidControllers.size(); i++) {
                 RetVal = SendCANMsgPidParametersSet(i);
                 if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
+                    FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
+                    m_mainState = FM_MAIN_STATE_ERROR;
+                    return;
+                }
+            }
+            {
+                RetVal = SendCANMsgSetPWMParam(pCANObjConfPressure->pwmController.sMaxActuatingValue ,\
+                                               pCANObjConfPressure->pwmController.sMinActuatingValue, \
+                                               pCANObjConfPressure->pwmController.sMaxPwmDuty, \
+                                               pCANObjConfPressure->pwmController.sMinPwmDuty);
+                if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
+                {
                     FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
                     m_mainState = FM_MAIN_STATE_ERROR;
                     return;
@@ -359,8 +377,10 @@ void CPressureControl::HandleCommandRequestTask()
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl set reference pressure";
 
                 //send the reference pressure to the slave
-                //RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].Pressure, m_ModuleCommand[idx].PressureCtrlOpMode, m_ModuleCommand[idx].PressureCtrlState);
-                  RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
+                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure,\
+                ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->bPressureTolerance,\
+                ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->sSamplingPeriod, \
+                0);
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
                 emit ReportRefPressure(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Pressure);
@@ -387,7 +407,10 @@ void CPressureControl::HandleCommandRequestTask()
 
                 //send the pressure ctrl operating mode to the slave
                // RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].Pressure, m_ModuleCommand[idx].PressureCtrlOpMode, m_ModuleCommand[idx].PressureCtrlState);
-                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
+                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure,\
+                ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->bPressureTolerance,\
+                ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->sSamplingPeriod, \
+                0);
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowledge
                 emit ReportSetOperatingModeAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].PressureCtrlOpMode);
@@ -414,7 +437,10 @@ void CPressureControl::HandleCommandRequestTask()
 
                 //send the pressure ctrl status to the slave
                // RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].Pressure, m_ModuleCommand[idx].PressureCtrlOpMode, m_ModuleCommand[idx].PressureCtrlState);
-                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure, 2, 100, 0);
+                RetVal = SendCANMsgSetPressure(m_ModuleCommand[idx].flag , m_ModuleCommand[idx].Pressure,\
+                ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->bPressureTolerance,\
+                ((CANFctModulePressureCtrl*) m_pCANObjectConfig)->sSamplingPeriod, \
+                0);
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
                 emit ReportSetStatusAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].PressureCtrlState);
@@ -518,7 +544,19 @@ void CPressureControl::HandleCommandRequestTask()
                 //because there is no slave acknowledge, we send our own acknowldege
                 //emit ReportRefCalibration(GetModuleHandle(), RetVal, m_ModuleCommand[idx].EnableCalibration);
             }
+            else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_SET_PWM)
+            {
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl Set PWM Params";
 
+                //send the PWM parameters to the slave
+
+                RetVal = SendCANMsgSetPWMParam(m_ModuleCommand[idx].MaxActuatingValue, \
+                                               m_ModuleCommand[idx].MinActuatingValue, \
+                                               m_ModuleCommand[idx].MaxPwmDuty, \
+                                               m_ModuleCommand[idx].MinPwmDuty);
+
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+            }
             //---------------------------
             //check for success
             if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
@@ -1042,6 +1080,25 @@ ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 ValveIndex, quint8 flag
     return retval;
 }
 
+ReturnCode_t CPressureControl::SendCANMsgSetPWMParam(quint16 MaxActuatingValue, quint16 MinActuatingValue, quint8 MaxPwmDuty, quint8 MinPwmDuty)
+{
+    ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
+    can_frame canmsg;
+
+    canmsg.can_id = m_unCanIDPWMParamSet;
+    SetCANMsgDataU16(&canmsg, MaxActuatingValue, 0);
+    SetCANMsgDataU16(&canmsg, MinActuatingValue, 2);
+    canmsg.data[4] = MaxPwmDuty;
+    canmsg.data[5] = MinPwmDuty;
+
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgPWMParamSet: Data0: 0x" << std::hex << (quint8) canmsg.data[0];
+    canmsg.can_dlc = 6;
+    retval = m_pCANCommunicator->SendCOB(canmsg);
+
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgPWMParamSet: CanID: 0x" << std::hex << m_unCanIDPWMParamSet;
+
+    return retval;
+}
 ///****************************************************************************/
 ///*!
 // *  \brief  Send the CAN message to enable/disable calibration function.
@@ -1308,6 +1365,32 @@ ReturnCode_t CPressureControl::SetCalibration(bool Enable)
 
     return RetVal;
 }
+
+ReturnCode_t CPressureControl::SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty)
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
+
+    if(SetModuleTask(FM_PRESSURE_CMD_TYPE_SET_PWM, &CmdIndex))
+    {
+        m_ModuleCommand[CmdIndex].MaxActuatingValue = maxActuatingValue;
+        m_ModuleCommand[CmdIndex].MinActuatingValue = minActuatingValue;
+        m_ModuleCommand[CmdIndex].MaxPwmDuty = maxPwmDuty;
+        m_ModuleCommand[CmdIndex].MinPwmDuty = minPwmDuty;
+
+        FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Set PWM Params: " << maxActuatingValue << minActuatingValue << maxPwmDuty << minPwmDuty;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;
+    }
+
+    return RetVal;
+}
+
+
 ///****************************************************************************/
 ///*!
 // *  \brief  Request the actual pressure
