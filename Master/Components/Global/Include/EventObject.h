@@ -182,14 +182,13 @@ public:
     /****************************************************************************/
     inline void RaiseEvent(const quint32 EventCode,
                            const Global::tTranslatableStringList &EventStringList,
-                           const bool EventStatus,
+                           const bool IsResolved,
                            const quint32 EventKey,
                            Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
                            Global::tTranslatableStringList EventStringListForRd = Global::tTranslatableStringList(),
-                           quint64 EventCodeScenario = 0,
-                           bool IsResolved = false
+                           quint64 EventCodeScenario = 0
                            )  {
-        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage,EventStringListForRd, EventCodeScenario, IsResolved);
+        emit ForwardEvent(EventCode, EventStringList, IsResolved, EventKey, AltStringUsage,EventStringListForRd, EventCodeScenario);
     }
 
     /****************************************************************************/
@@ -201,14 +200,13 @@ public:
     /****************************************************************************/
     inline void RaiseEvent(const quint32 EventCode,
                            const Global::tTranslatableStringList &EventStringList,
-                           const bool EventStatus = true,
+                           const bool IsResolved = true,
                            Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
                            Global::tTranslatableStringList EventStringListForRD = Global::tTranslatableStringList(),
-                           quint64 EventCodeScenario = 0,
-                           bool IsResolved = false
+                           quint64 EventCodeScenario = 0
                            )  {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, EventStringList, EventStatus, EventKey, AltStringUsage,EventStringListForRD, EventCodeScenario, IsResolved);
+        emit ForwardEvent(EventCode, EventStringList, IsResolved, EventKey, AltStringUsage,EventStringListForRD, EventCodeScenario);
     }
 
     /****************************************************************************/
@@ -222,7 +220,7 @@ public:
                             bool IsResolved = false)
     {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey, AltStringUsage,Global::tTranslatableStringList(),0, IsResolved);
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), IsResolved, EventKey, AltStringUsage,Global::tTranslatableStringList(),0);
         qDebug()<<"EventObject Thread"<<this->thread();
     }
 
@@ -233,12 +231,11 @@ public:
      * \iparam EventStatus = True -if event active, False - if event not active
      */
     /****************************************************************************/
-    inline void RaiseEvent(const quint32 EventCode, const bool EventStatus,
-                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                           bool IsResolved = false)
+    inline void RaiseEvent(const quint32 EventCode, const bool IsResolved,
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE)
     {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventStatus, EventKey, AltStringUsage, Global::tTranslatableStringList(),0, IsResolved);
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), IsResolved, EventKey, AltStringUsage, Global::tTranslatableStringList(),0);
         qDebug()<<"EventObject Thread"<<this->thread();
     }
 
@@ -305,7 +302,7 @@ signals:
      *        controller
      */
     /****************************************************************************/
-    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, const Global::tTranslatableStringList,quint64, bool);
+    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, const Global::tTranslatableStringList,quint64);
 
 }; // end class EventObject
 

@@ -102,21 +102,27 @@ enum ActionType {
     // Recovery action
     ACNTYPE_RC_INIT_ROTARYVALVE,
     ACNTYPE_RC_BOTTLECHECK_I,           ///< Please check the reagent bottle first and then click Recovery!
-    ACNTYPE_RC_BUILD_PRESSURE,          ///< Please check the Retort Lid first and then click Recovery!
-    ACNTYPE_RC_BUILD_VACUUM,            ///< Please check the Retort Lid first and then click Recovery!
+    ACNTYPE_RC_RESTART,///< Restart from the failed process
     ACNTYPE_RC_MAINTENANCE_AIRSYSTEM,    ///< Please confirm there is no Tissue & Reagent in Retort and Cleaning-Xylene Bottle is not empty!
+    ACNTYPE_RC_CHECKREAGENT_RV, ///< User check if there is reagent in the retort.
+    ACNTYPE_RC_LEVELSENSOR_HEATING_OVERTIME, ///< Self-test of Level sensor
+    ACNTYPE_RC_REPORT,
 
     // Response action
-    ACNTYPE_RS_NO_ACTION,
     ACNTYPE_RS_RESET,    ///< sequence/protocols-Pump/Valves Reset,Release P/V, Register clear-up;
     ACNTYPE_RS_STOPLATER,///< sequence/protocols-Stop after the running/current protocol finished, Stop=Pump/Valves Reset,Release P/V;
     ACNTYPE_RS_STOPATONCE,///< sequence/protocols-Stop at once, Stop=Pump/Valves Reset,Release P/V; Remember current status of protocol
-    ACNTYPE_RS_PAUSE,     ///< sequence/protocols-Paused, keep status; Remember current status of protocol;
     ACNTYPE_RS_DRAINATONCE,///< Drain at once if overflow
-    ACNTYPE_RS_DRAINATONCE_T,///< Drain at once for certain time if overflow
-    ACNTYPE_RS_TISSUE_PROTECT,///< Change the tissue to Formalin or some safety reagent when Err happened(Such as.: Draining Xylene, Sucking Formalin -- TBD)
     ACNTYPE_RS_CHECK_BLOCKAGE,///< Bulid Pressure to attempt to recovery from Blockage automaticly
-    ACNTYPE_RS_AIRSYSTEM_CLEANING ///< AirSystem(Pump/Valve/Tube) do a series of action to get recovery from potential blockage in Airsystem(Just air no Xylene this)
+    ACNTYPE_RS_AIRSYSTEM_FLUSH, /// <AirSystem(Pump/Valve/Tube) do a series of action to get recovery from potential blockage in Airsystem(Just air no Xylene this), and redo the releasing check; Heating function continue the current status;
+    ACNTYPE_RS_RELEASING,       /// < Releasing the pressure/Vacuum
+    ACNTYPE_RS_RV_GETORIGINALPOSITIONAGAIN,///< Get original position again, and continue the running protocol.
+    ACNTYPE_RS_STANDBY, ///< sequence/protocols-Paused, Wax-bath, RV, heating tube Keep heating (heating strategy based on the protocol); Remember current status of protocol;
+    ACNTYPE_RS_RV_MOVETOPOSITION_P3_5, ///<	Set vacuum @-7KPa (TBD), get original position again, then move to position P3.5; sequence/protocols-Paused, Wax-bath, RV, heating tube Keep heating (heating strategy based on the protocol); Remember current status of protocol;
+    ACNTYPE_RS_HEATINGERR_3S_RETRY,///<	Wait 3 second and reread or retry to confirm the Error;
+    ACNTYPE_RS_FILLINGAFTERFLUSH, ///<	Bulid pressure(30Kpa) for 10S and filling again
+    ACNTYPE_RS_REAGENTCHECK///<	"Call Draining function:1. If draining time-out: Call RS_RV_MoveToPositionP3.5  2. Else (Draining build pressure failed, or Draining sucessed): Call RS_RV_GetOriginalPositionAgain"
+
 };
 
 enum EventSourceType {
@@ -182,7 +188,8 @@ enum EventStatus {
     EVTSTAT_RESPONSE,       ///< doing response action
     EVTSTAT_RESPONSE_ACK,   ///< checking response action result
     EVTSTAT_RECOVERY,       ///< dong recovery action
-    EVTSTAT_RECOVERY_ACK       ///< checking recovery action
+    EVTSTAT_RECOVERY_ACK,    ///< checking recovery action
+    EVTSTAT_ERROR_IN_ACTION  ///< raise new error during response or recovery
 };
 
 /****************************************************************************/

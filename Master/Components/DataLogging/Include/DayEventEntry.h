@@ -58,6 +58,7 @@ private:
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_CountRetires;                 ///< Number of times the event has been retried to fixed by user from Gui.
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
+    Global::EventStatus m_CurrentStatus;                         ///< current status of event.
 
 
 
@@ -183,6 +184,23 @@ public:
               m_Scenario = Scenario;
           }
 
+
+          /****************************************************************************/
+          /**
+             * \brief Get/Set the Event Current Status.
+             *
+             * \return      Scenario.
+             */
+            /****************************************************************************/
+            inline Global::EventStatus GetCurrentStatus() const {
+                return m_CurrentStatus;
+            }
+
+
+            inline void SetCurrentStatus(Global::EventStatus CurrentStatus) {
+                m_CurrentStatus = CurrentStatus;
+            }
+
       /****************************************************************************/
       /**
        * \brief Get the Event Key.
@@ -264,11 +282,17 @@ public:
           return m_CountRetires - 1;
       }
 
-      inline Global::ActionType GetActionNegative() const {
-          return m_EventCSVInfo.GetActionNegative();
+      inline Global::ActionType GetRecoveryActionOnRspFailUsrPst() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspFailUsrPst();
       }
-      inline Global::ActionType GetActionPositive() const {
-          return m_EventCSVInfo.GetActionPositive();
+      inline Global::ActionType GetRecoveryActionOnRspFailUsrNeg() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspFailUsrNeg();
+      }
+      inline Global::ActionType GetRecoveryActionOnRspSuccUsrPst() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspSuccUsrPst();
+      }
+      inline Global::ActionType GetRecoveryActionOnRspSuccUsrNeg() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspSuccUsrNeg();
       }
 //      inline Global::ActionType GetNextAction() const {
 //          return m_EventCSVInfo.GetNextAction();
@@ -286,25 +310,25 @@ public:
           m_EventCSVInfo.SetAckRequired(Ack);
       }
 
-      inline Global::ActionType GetActionType() const {
-          return m_EventCSVInfo.GetActionType();
+      inline Global::ActionType GetDefaultAction() const {
+          return m_EventCSVInfo.GetDefaultAction();
       }
 
       inline Global::ResponseRecoveryType GetResponseRecoveryType() const {
           return m_EventCSVInfo.GetResponseRecoveryType();
       }
 
-      inline Global::ActionType GetResponseType() const {
-          return m_EventCSVInfo.GetResponseType();
+      inline Global::ActionType GetResponseAction() const {
+          return m_EventCSVInfo.GetResponseAction();
       }
 
-      inline Global::GuiButtonType GetButtonType() const {
-          return m_EventCSVInfo.GetButtonType();
+      inline Global::GuiButtonType GetButtonTypeOnRspFail() const {
+          return m_EventCSVInfo.GetButtonTypeOnRspFail();
+      }
+      inline Global::GuiButtonType GetButtonTypeOnRspSucc() const {
+          return m_EventCSVInfo.GetButtonTypeOnRspSucc();
       }
 
-      inline Global::GuiButtonType GetGUIMessageBoxOptions() const {
-          return m_EventCSVInfo.GetGUIMessageBoxOptions();
-      }
 
       inline Global::EventSourceType GetSourceComponent() const {
           return m_EventCSVInfo.GetSourceComponent();
@@ -314,9 +338,6 @@ public:
           return m_EventCSVInfo.GetSource();
       }
 
-      inline Global::EventSourceType GetEventSource() const {
-          return m_EventCSVInfo.GetEventSource();
-      }
 
       void SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) ;
 

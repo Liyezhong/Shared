@@ -78,7 +78,7 @@ public:
         EventCodeScenario |=Scenario;
         if(ErrorCode)
         {
-            Global::EventObject::Instance().RaiseEvent(ErrorCode, msgArgs, true,Global::NOT_APPLICABLE, msgRdArgs,EventCodeScenario, isResolved);
+            Global::EventObject::Instance().RaiseEvent(ErrorCode, msgArgs, isResolved,Global::NOT_APPLICABLE, msgRdArgs,EventCodeScenario);
         }
     }
 
@@ -100,11 +100,10 @@ public:
         {
             Global::EventObject::Instance().RaiseEvent(ErrorCode,
                                                        Global::tTranslatableStringList(),
-                                                       true,EventKey,
+                                                       isResolved,EventKey,
                                                        Global::NOT_APPLICABLE,
                                                        Global::tTranslatableStringList(),
-                                                       EventCodeScenario,
-                                                       isResolved);
+                                                       EventCodeScenario);
         }
     }
     /****************************************************************************/

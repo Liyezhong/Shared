@@ -101,7 +101,8 @@ public:
                                    quint64 EventId64,
                                    const DataLogging::DayEventEntry &EventEntry,
                                    bool Remove,
-                                   bool AckByGUI = false) ;
+                                   bool AckByGUI = false,
+                                   bool ResponseRes = false) ;
 
     /****************************************************************************/
     /**
@@ -120,14 +121,14 @@ public:
     Global::tRefType GetNewCommandRef();
 
 
-    inline QHash<Global::tRefType, quint32>GetEventRefMap()
-    {
-        return m_EventKeyRefMap;
-    }
+//    inline QHash<Global::tRefType, quint32>GetEventRefMap()
+//    {
+//        return m_EventKeyRefMap;
+//    }
 
-    inline void SetEventKeyRefMap(Global::tRefType & Ref, quint32 EventKey){
-        m_EventKeyRefMap.insert(Ref, EventKey);
-    }
+//    inline void SetEventKeyRefMap(Global::tRefType & Ref, quint32 EventKey){
+//        m_EventKeyRefMap.insert(Ref, EventKey);
+//    }
 
     inline void UpdateEventKeyRefMap(quint32  EventKey, Global::tRefType  Ref) {
         Q_UNUSED(EventKey)
@@ -136,8 +137,8 @@ public:
 
     inline void ConnectToEventObject() {
         Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
-        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList,quint64, bool),
-                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList, quint64,bool));
+        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList,quint64),
+                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList, quint64));
     }
 
 
@@ -168,7 +169,6 @@ private:
     {
         quint32 EventID;
         Global::tTranslatableStringList EventStringList;
-        bool EventStatus;
         quint32 EventKey;
         Global::AlternateEventStringUsage AltStringUsuage;
         Global::tTranslatableStringList EventStringListForRD;
@@ -180,8 +180,8 @@ private:
     {
         quint32 EventCode;  ///< or Event code
         quint32 EventKey;
-        int  CurrentStatusIndex;  ///< Current Status Index
-        QList<Global::EventStatus> AvaliableStatus;
+        Global::EventStatus CurrentStatus;
+        bool CurrentActionResult;
     };
     typedef  QList<ProcessingEvent> ProcessingEventList;
 
@@ -194,18 +194,19 @@ private:
 
     bool                                        m_GuiAvailable;
     QHash<quint32, EventHandler::EventCSVInfo> m_eventList;
-    QHash<quint32,quint32>m_EventKeyIdMap; //!< Hash of Event Key and EventID as value.
-    QHash<quint32, quint32>m_EventIDKeyHash;
+//    QHash<quint32,quint32>m_EventKeyIdMap; //!< Hash of Event Key and EventID as value.
+//    QHash<quint32, quint32>m_EventIDKeyHash;
 
     QMap<Global::EventSourceType, ProcessingEventList> m_ProcessingEvents;
 
 
     QHash<QString, Global::EventSourceType>m_EventSourceMap;
-    QHash<quint64,DataLogging::DayEventEntry>m_EventKeyDataMap;
+//    QHash<quint64,DataLogging::DayEventEntry>m_EventKeyDataMap;
     QVector<PendingEvent> m_pendingEvents;
-    QHash<Global::tRefType, quint32> m_EventKeyRefMap;
+//    QHash<Global::tRefType, quint32> m_EventKeyRefMap;
+    QHash<Global::tRefType,DataLogging::DayEventEntry> m_EventRefDataMap;
     QVector<NetCommands::EventReportDataStruct> mPendingGuiEventList;
-    QList<quint32> m_EventIDCount;  //!< Keeps track of event occurence i.e.,the no. of times an event has occured.
+//    QList<quint32> m_EventIDCount;  //!< Keeps track of event occurence i.e.,the no. of times an event has occured.
     QList<quint64> m_EventIdKeyCombinedList;
 
     QHash<QString, Global::LogAuthorityType> m_LogAuthorityTypeEnumMap;
@@ -231,10 +232,10 @@ private:
                           Global::tTranslatableStringList &EventStringListForRd,
                           quint64 EventCodeScenario,
                           const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE);
-    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
+    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, bool StartAlarm);
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
     void SetGuiAvailable(const bool active);
-    void InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
+    void InformUser(const DataLogging::DayEventEntry &TheEvent, bool RaiseBox = true, bool AckByGui = false);
 
     // copy constructor & "=" operator
     EventHandlerThreadController(const EventHandlerThreadController &);                      ///< Not implemented.
@@ -330,7 +331,7 @@ private:
      * \return      true - get EventStatus,  false - error during error
      */
     /****************************************************************************/
-    bool CheckErrorStatus(const quint32 ErrorCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry, Global::EventStatus& EventStatus);
+    bool HandlingError(const quint32 ErrorCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry);
     void DoResponseAction(const quint32 ErrorCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry);
 
 
@@ -338,11 +339,10 @@ public slots:
 
     void ProcessEvent(const quint32 ErrorCode,
                       const Global::tTranslatableStringList &EventStringList,
-                      const bool EventStatus, const quint32 EventKeyRef,
+                      const bool IsResolved, const quint32 EventKeyRef,
                       const Global::AlternateEventStringUsage AltStringUsuage,
                       Global::tTranslatableStringList EventStringListForRD = Global::tTranslatableStringList(),
-                      quint64 EventCodeScenario = 0,
-                      bool IsResolve = false);
+                      quint64 EventCodeScenario = 0);
 
 
     /****************************************************************************/

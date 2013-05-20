@@ -48,21 +48,25 @@ protected:
     quint32                         m_EventCode;             ///< Event code/Event ID for event entry - Also used as String ID to get corresponding string for translation
     QString                         m_EventMacroName;             ///< Name of event macro
     Global::EventType               m_EventType;             ///< Event type/level of event entry.
-    Global::ActionType              m_ActionPositive;                ///< Action type Positive ( action + retry + action pattern)
+
+    Global::ActionType              m_ResponseAction;          ///< Response Type
+    Global::ActionType              m_RecoveryActions[4];       ///< 0 - Response fail, Positive Btn clicked; 1 -  Response fail, Negative Btn clicked; 2 - Response success, Positive Btn clicked; 3 -  Response success, Negative Btn clicked;
     Global::ActionType              m_FinalAction;                   /// < default action for event
+    Global::GuiButtonType           m_Buttons[2];            ///< 0 - Response fail,1 - Response success,
+
+
+
+
     qint8                           m_NumberOfRetries;       ///< Retry attempts for the action
-    Global::ActionType              m_ActionNegative;        ///< Next Action type for Negative action
     Global::LogAuthorityType        m_LogAuthorityType;      ///< users in different authority, they can review the different content in logView of GUI
     Global::LoggingSource           m_Source;                ///< Source for event entry.
     Global::EventLogLevel           m_LogLevel;              ///< Various log levels
     QString                         m_MessageType;           ///< Error/Info/Warning/Reboot/Retry
     bool                            m_AckRequired;           ///< true - Needs acknowledge
-    Global::AlarmPosType            m_AlarmPosType;          ///< No/device/local/remote site
-    Global::GuiButtonType           m_ButtonType;            ///< One of the valid options
+    Global::AlarmPosType            m_AlarmPosType;          ///< No/device/local/remote site   
     bool                            m_StatusBarIcon;         ///< true - Display icon in status bar
     Global::EventSourceType         m_SourceComponent;       ///< SourceComponent that raises the event
     QString                         m_ErrorOutline;          ///< Error Outline
-    Global::ActionType              m_ResponseType;          ///< Response Type
     QString                         m_DetailForRD;           ///< the detailed information for RD&Service
     Global::ResponseRecoveryType    m_ResponseRecoveryType;  ///< ResponseRecovery Type
 
@@ -95,33 +99,33 @@ public:
     /****************************************************************************/
 
 
-    /****************************************************************************/
-    /**
-     * \brief Constructor with a translatable string.
-     *
+//    /****************************************************************************/
+//    /**
+//     * \brief Constructor with a translatable string.
+//     *
 
-     * \param[in]   EventCode             EventID
-     * \param[in]   EventType             Fatal/Warning/Info
-     * \param[in]   ActionType            Action for the event
-     * \param[in]   Retries               Number of retries allowed
-     * \param[in]   ShowInRunLog          true - show , false - hide
-     * \param[in]   LoggingSource         Source -Scheduler/main controller etc
-     * \param[in]   LogLevel              Enabled, disabled, debug, console
-     * \param[in]   EventSource           Source Component for the Event
-     * \param[in]   MessageType           Error/Info/Warning/Reboot/Retry
-     * \param[in]   Ack                   true - Required, false - Not Required
-     * \param[in]   AlarmRequired         true - Required, false - Not Required
-     * \param[in]   GuiButtonType         List of GUI buttons for the event
-     * \param[in]   StatusBarIcon         true - Required, false - Not Required
-     * \param[in]   SourceComponent       Source of event as string, read from EventConf file
-     */
-    /****************************************************************************/
-    EventCSVInfo(const quint32 &EventCode, const QString &EventMacroName, const Global::EventType &EventType,  const Global::ActionType &ActionType,
-                                 qint8 NumofAttempts, Global::ActionType &ActionTypePositive,Global::ActionType &ActionTypeNegative,
-                                 Global::LogAuthorityType LogAuthorityType, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
-                                 const QString &MessageType, const bool &AckRequired, Global::AlarmPosType AlarmPosType, const Global::GuiButtonType &ButtonType,
-                                 const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent, const QString& ErrorOutline,
-                                 Global::ActionType ResponseType, const QString &DetailForRD, Global::ResponseRecoveryType& ResponseRecoveryType);
+//     * \param[in]   EventCode             EventID
+//     * \param[in]   EventType             Fatal/Warning/Info
+//     * \param[in]   ActionType            Action for the event
+//     * \param[in]   Retries               Number of retries allowed
+//     * \param[in]   ShowInRunLog          true - show , false - hide
+//     * \param[in]   LoggingSource         Source -Scheduler/main controller etc
+//     * \param[in]   LogLevel              Enabled, disabled, debug, console
+//     * \param[in]   EventSource           Source Component for the Event
+//     * \param[in]   MessageType           Error/Info/Warning/Reboot/Retry
+//     * \param[in]   Ack                   true - Required, false - Not Required
+//     * \param[in]   AlarmRequired         true - Required, false - Not Required
+//     * \param[in]   GuiButtonType         List of GUI buttons for the event
+//     * \param[in]   StatusBarIcon         true - Required, false - Not Required
+//     * \param[in]   SourceComponent       Source of event as string, read from EventConf file
+//     */
+//    /****************************************************************************/
+//    EventCSVInfo(const quint32 &EventCode, const QString &EventMacroName, const Global::EventType &EventType,  const Global::ActionType &ActionType,
+//                                 qint8 NumofAttempts, Global::ActionType &ActionTypePositive,Global::ActionType &ActionTypeNegative,
+//                                 Global::LogAuthorityType LogAuthorityType, const Global::LoggingSource &LoggingSource, const Global::EventLogLevel &LogLevel,
+//                                 const QString &MessageType, const bool &AckRequired, Global::AlarmPosType AlarmPosType, const Global::GuiButtonType &ButtonType,
+//                                 const bool &StatusBarIcon, const Global::EventSourceType &SourceComponent, const QString& ErrorOutline,
+//                                 Global::ActionType ResponseType, const QString &DetailForRD, Global::ResponseRecoveryType& ResponseRecoveryType);
 
     /****************************************************************************/
     /**
@@ -157,35 +161,58 @@ public:
     inline void SetEventType(Global::EventType EventType) {
         m_EventType = EventType;
     }
+
     inline  int GetRetryAttempts() const {
         return m_NumberOfRetries;
+    }
+    inline void SetRetryAttempts(int num){
+        m_NumberOfRetries = num;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the action type for the event.
+     * \brief Get/Set the action type for the event.
      *
      * \return      Action type.
      */
     /****************************************************************************/
-    inline Global::ActionType GetActionType() const {
+    inline Global::ActionType GetDefaultAction() const {
         return (Global::ActionType)m_FinalAction;
     }
-
-  inline Global::ResponseRecoveryType GetResponseRecoveryType() const {
-        return m_ResponseRecoveryType;
+    inline void SetDefaultAction(Global::ActionType action) {
+        m_FinalAction = action;
     }
 
-    inline Global::ActionType GetResponseType() const {
-        return m_ResponseType;
+    inline Global::ActionType GetResponseAction() const {
+        return (Global::ActionType)m_ResponseAction;
+    }
+    inline void SetResponseAction(Global::ActionType action) {
+        m_ResponseAction = action;
     }
 
-    inline Global::ActionType GetPositiveActionType() const {
-        return (Global::ActionType)m_ActionPositive;
+    inline Global::ActionType GetRecoveryActionOnRspFailUsrPst() const {
+        return (Global::ActionType)m_RecoveryActions[0];
     }
-
-    inline Global::ActionType GetNegativeActionType() const {
-        return (Global::ActionType)m_ActionNegative;
+    inline Global::ActionType GetRecoveryActionOnRspFailUsrNeg() const {
+        return (Global::ActionType)m_RecoveryActions[1];
+    }
+    inline Global::ActionType GetRecoveryActionOnRspSuccUsrPst() const {
+        return (Global::ActionType)m_RecoveryActions[2];
+    }
+    inline Global::ActionType GetRecoveryActionOnRspSuccUsrNeg() const {
+        return (Global::ActionType)m_RecoveryActions[3];
+    }
+    inline void SetRecoveryActionOnRspFailUsrPst(Global::ActionType action) {
+        m_RecoveryActions[0] = action;
+    }
+    inline void SetRecoveryActionOnRspFailUsrNeg(Global::ActionType action) {
+        m_RecoveryActions[1] = action;
+    }
+    inline void SetRecoveryActionOnRspSuccUsrPst(Global::ActionType action) {
+        m_RecoveryActions[2] = action;
+    }
+    inline void SetRecoveryActionOnRspSuccUsrNeg(Global::ActionType action) {
+        m_RecoveryActions[3] = action;
     }
 
     /****************************************************************************/
@@ -210,17 +237,21 @@ public:
      * \return      Event code.
      */
     /****************************************************************************/
-    inline Global::GuiButtonType GetButtonType() const {
-        return m_ButtonType;
+    inline Global::GuiButtonType GetButtonTypeOnRspFail() const {
+        return m_Buttons[0];
     }
-
-    inline void SetButtonType(Global::GuiButtonType buttonType) {
-        m_ButtonType = buttonType;
+    inline Global::GuiButtonType GetButtonTypeOnRspSucc() const {
+        return m_Buttons[1];
     }
-
+    inline void SetButtonTypeOnRspFail(Global::GuiButtonType buttonType) {
+        m_Buttons[0] = buttonType;
+    }
+    inline void SetButtonTypeOnRspSucc(Global::GuiButtonType buttonType) {
+        m_Buttons[1] = buttonType;
+    }
     /****************************************************************************/
     /**
-     * \brief Get the status icon flag of event entry.
+     * \brief Get/Set the status icon flag of event entry.
      *
      * \return      Event code.
      */
@@ -247,10 +278,6 @@ public:
         m_EventMacroName = EventName;
     }
 
-    inline bool StatusBarIcon() const {
-        return m_StatusBarIcon;
-    }
-
     /****************************************************************************/
     /**
      * \brief Get the source of the event.
@@ -260,6 +287,9 @@ public:
     /****************************************************************************/
     inline Global::EventSourceType GetSourceComponent() const {
         return m_SourceComponent;
+    }
+    inline void SetSourceComponent(Global::EventSourceType source) {
+        m_SourceComponent = source;
     }
 
     inline Global::LoggingSource GetSource() const {
@@ -301,54 +331,6 @@ public:
         m_LogLevel = LogLevel;
     }    
 
-    inline Global::ActionType GetFinalAction() const{
-        return m_FinalAction;
-    }
-
-    inline Global::ActionType GetActionPositive() const{
-        return m_ActionPositive;
-    }
-
-    inline Global::ActionType GetActionNegative() const{
-        return m_ActionNegative;
-    }
-    inline void SetRetries(qint8 NumberOfRetries) {
-        m_NumberOfRetries = NumberOfRetries;
-    }   
-
-    inline void SetFinalAction(const Global::ActionType & ActionType) {
-        m_FinalAction = ActionType;
-    }
-
-    inline void SetActionPositive(const Global::ActionType & ActionType) {
-        m_ActionPositive = ActionType;
-    }
-
-    inline void SetActionNegative(const Global::ActionType & ActionType) {
-        m_ActionNegative = ActionType;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get the Source Component for the Event
-     *
-     * \return Source component as const ref.
-     */
-    /****************************************************************************/
-    inline Global::EventSourceType GetEventSource() const {
-        return m_SourceComponent;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Set Source Component for the Event
-     *
-     * param[in] const ref to Source Component
-     */
-    /****************************************************************************/
-    inline void SetEventSource(const Global::EventSourceType & EventSource) {
-        m_SourceComponent = EventSource;
-    }
 
     /****************************************************************************/
     /**
@@ -415,52 +397,6 @@ public:
 
     /****************************************************************************/
     /**
-     * \brief Get the GUI Options to Display in Message Box of GUI
-     *
-     * \return List of GUIOptions as const ref.
-     */
-    /****************************************************************************/
-    inline Global::GuiButtonType GetGUIMessageBoxOptions() const {
-        return m_ButtonType;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Set GUI Options
-     *
-     * param[in] const ref to GUI Options List
-     */
-    /****************************************************************************/
-
-    inline void SetGUIOptions(const Global::GuiButtonType  GUIOptions) {
-        m_ButtonType = GUIOptions;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get the Status bar icon flag
-     *
-     * \return Status bar icon as const ref.
-     */
-    /****************************************************************************/
-    inline bool GetStatusBarIcon() const {
-        return m_StatusBarIcon;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Set status bar icon in GUI
-     *
-     * param[in] const ref to status bar icon flag
-     */
-    /****************************************************************************/
-
-    inline void SetStatusBarIcon(const bool & StatusBarIcon) {
-        m_StatusBarIcon = StatusBarIcon;
-    }
-
-    /****************************************************************************/
-    /**
      * \brief Set the outline of the error
      *
      */
@@ -468,18 +404,6 @@ public:
     inline void SetErrorOutline(const QString & ErrorOutline) {
         m_ErrorOutline = ErrorOutline;
     }
-
-    /****************************************************************************/
-    /**
-     * \brief Set Response type
-     *
-     * param[in] const ref to Response type flag
-     */
-    /****************************************************************************/
-    inline void SetResponseType(Global::ActionType ResponseType) {
-        m_ResponseType = ResponseType;
-    }
-
 
     /****************************************************************************/
     /**
@@ -491,6 +415,9 @@ public:
     inline void SetResponseRecoveryType(Global::ResponseRecoveryType ResponseRecoveryType) {
         m_ResponseRecoveryType = ResponseRecoveryType;
     }
+    inline Global::ResponseRecoveryType GetResponseRecoveryType() const {
+        return m_ResponseRecoveryType;
+    }
 
     /****************************************************************************/
     /**
@@ -501,6 +428,9 @@ public:
     /****************************************************************************/
     inline void SetDetailForRD(const QString & DetailInfor) {
         m_DetailForRD = DetailInfor;
+    }
+    inline QString GetDetailForRD() const{
+        return m_DetailForRD;
     }
 
 }; // end class EventCSVInfo

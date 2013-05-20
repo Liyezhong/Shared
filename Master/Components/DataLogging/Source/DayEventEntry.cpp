@@ -24,7 +24,8 @@ namespace DataLogging {
 
 /****************************************************************************/
 DayEventEntry::DayEventEntry()
-    : m_EventKey(0),m_AckType(NetCommands::No_Set),m_CountRetires(0)
+    : m_EventKey(0),m_AckType(NetCommands::No_Set),m_CountRetires(0),
+      m_EventCodeFromCom(0),m_CurrentStatus(Global::EVTSTAT_OFF), m_Scenario(0)
 {
 }
 
@@ -102,6 +103,10 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_AckType = rOther.m_AckType;
     m_EventCSVInfo = rOther.m_EventCSVInfo;
     m_AltEventStringUsage = rOther.m_AltEventStringUsage;
+    m_EventCodeFromCom = rOther.m_EventCodeFromCom;
+    m_Scenario = rOther.m_Scenario;
+    m_CurrentStatus = rOther.m_CurrentStatus;
+    m_StringForRd = rOther.m_StringForRd;
 //    m_AckValue = rOther.m_AckValue;
 }
 
