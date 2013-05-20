@@ -320,7 +320,7 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
               << DEVICE_INSTANCE_ID_AIR_LIQUID
               << DEVICE_INSTANCE_ID_OVEN
               << DEVICE_INSTANCE_ID_RETORT
-              << DEVICE_INSTANCE_ID_PERIPHERY;
+              << DEVICE_INSTANCE_ID_MAIN_CONTROL;
 
         DevInstanceID_t id;
         foreach (id, list)
@@ -347,8 +347,8 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
                     Name = "Retort";
                     m_pRetort =  (CRetortDevice *)pDevice;
                     break;
-                case DEVICE_INSTANCE_ID_PERIPHERY:
-                    Name = "Periphery";
+                case DEVICE_INSTANCE_ID_MAIN_CONTROL:
+                    Name = "Main control";
                     m_pPeriphery = (CPeripheryDevice *)pDevice;
                     break;
                 default:
@@ -1309,7 +1309,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal basePressure = 1.4;
 
         retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));
-        if(DCL_ERR_DEV_RV_MOVE_OK != retCode)
+        if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
         {
             return retCode;
         }
@@ -1338,7 +1338,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             basePressure = 0.6;
         }
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
-        if(DCL_ERR_DEV_RV_MOVE_OK != retCode)
+        if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
         {
             return retCode;
         }
@@ -1349,13 +1349,13 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         if(pressure < (0.4 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
-            qDebug()<<"Bottle Check: Not full";
+            retCode = DCL_ERR_DEV_BOTTLE_CHECK_EMPTY ;
+            qDebug()<<"Bottle Check: Empty";
         }
         else if(pressure < (0.7 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE;
-            qDebug()<<"Bottle Check: leakage";
+            retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
+            qDebug()<<"Bottle Check: Leakage or Not Full";
         }
         else if(pressure < (2 * density * basePressure))
         {
@@ -1365,7 +1365,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         else
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE;
-            qDebug()<<"Bottle Check: blockage";
+            qDebug()<<"Bottle Check: Blockage";
         }
 
         m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));

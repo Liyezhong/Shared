@@ -34,6 +34,8 @@ class CDigitalOutput;
 #define DRAINGING_RET_TIMEOUT           (-2)
 
 #define SUCKING_TARGET_PRESSURE       (-30)
+#define SUCKING_OVERFLOW_PRESSURE         (-20)
+#define SUCKING_OVERFLOW_4SAMPLE_DELTASUM (-2)
 #define SUCKING_MAX_DELAY_TIME        (5000)
 #define SUCKING_POOLING_TIME          (400)
 #define SUCKING_SETUP_WARNING_TIME    (120*1000)
@@ -102,7 +104,7 @@ private slots:
     // void HandleErrorState();
     bool SetPressure(quint8 flag, qreal NominalPressure);
     qreal GetPressure(quint8 Index);
-    bool SetTargetPressure(quint8 flag, qint8 pressure);
+    bool SetTargetPressure(quint8 flag, qreal pressure);
     bool SetValve(quint8 ValveIndex, quint8 ValveState);
     bool SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus);
     void StopCompressor(void);

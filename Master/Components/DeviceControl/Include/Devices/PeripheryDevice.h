@@ -21,9 +21,10 @@ public:
     typedef enum {
         PER_MAIN_RELAY = 0,
         PER_REMOTE_ALARM_CTRL  = 1,
-        PER_REMOTE_ALARM_SET   = 2,
-        PER_REMOTE_ALARM_CLEAR = 3,
-        PER_TOTAL_NUM = 4
+        PER_LOCAL_ALARM_CTRL  = 2,
+        //PER_REMOTE_ALARM_SET   = 2,
+        //PER_REMOTE_ALARM_CLEAR = 3,
+        PER_TOTAL_NUM = 3
     } PerDOType_t;
     //! general task handling function
     void HandleTasks();

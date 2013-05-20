@@ -118,6 +118,77 @@ namespace DeviceControl
 //*****************************************************************************/
 // Module type definitions
 //*****************************************************************************/
+#define EVENT_SOURCE_DEV_ROTARY_VALVE      0x01
+#define EVENT_SOURCE_DEV_AIR_LIQUID        0x02
+#define EVENT_SOURCE_DEV_RETORT            0x03
+#define EVENT_SOURCE_DEV_OVEN              0x04
+#define EVENT_SOURCE_DEV_MAIN_CTRL         0x05
+#define EVENT_SOURCE_DEV_INTERFACE         0x06
+#define EVENT_SOURCE_FM_TEMP_CTRL          0x10
+
+#define EVENT_SOURCE_FM_PRESSURE_CTRL      0x11
+#define EVENT_SOURCE_FM_STEPPER_MOTOR      0x12
+#define EVENT_SOURCE_FM_DIGITAL_INPUT      0x13
+#define EVENT_SOURCE_FM_DIGITAL_OUTPUT     0x14
+#define EVENT_SOURCE_FM_ANALOG_INPUT       0x15
+#define EVENT_SOURCE_FM_ANALOG_OUTPUT      0x16
+
+
+#define EVENT_FUNC_SET_TEMP_CTRL_STATE       0x01
+#define EVENT_FUNC_SET_TEMP_PID              0x02
+#define EVENT_FUNC_START_TEMP_CTRL           0x03
+#define EVENT_FUNC_GET_TEMP                  0x04
+#define EVENT_FUNC_GET_TEMP_CTRL_STATE       0x05
+
+#define EVENT_FUNC_PRESSURE_PROCEDURE        0x0A
+#define EVENT_FUNC_VACCUM_PROCEDURE          0x0B
+#define EVENT_FUNC_FILLING_PROCEDURE         0x0C
+#define EVENT_FUNC_DRAINING_PROCEDURE        0x0D
+#define EVENT_FUNC_SET_PRESSURE              0x0E
+#define EVENT_FUNC_GET_PRESSURE              0x0F
+#define EVENT_FUNC_SET_PRESSURE_CTRL_STATE   0x10
+#define EVENT_FUNC_RELEASE_PRESSURE          0x11
+#define EVENT_FUNC_FAN_OPERATION             0x12
+#define EVENT_FUNC_ALL_STOP                  0x13
+#define EVENT_FUNC_SET_PRESSURE_DRIFT        0x14
+#define EVENT_FUNC_GET_PRESSURE_DRIFT        0x15
+#define EVENT_FUNC_BOTTLE_CHECK              0x16
+#define EVENT_FUNC_LEVEL_SENSOR_STATE        0x17
+
+
+#define EVENT_FUNC_MOVE_TO_INIT_POS          0x1A
+#define EVENT_FUNC_MOVE_TO_RV_POS            0x1B
+#define EVENT_FUNC_GET_RV_POS                0x1C
+#define EVENT_FUNC_REF_RUN                   0x1D
+
+#define EVENT_FUNC_SET_LOCK_STATUS           0x20
+#define EVENT_FUNC_GET_LOCK_STATUS           0x21
+
+
+#define EVENT_FUNC_SET_MAIN_RELAY_STATUS     0x22
+
+
+
+#define EVENT_CODE_SUCCESS                   0x00
+#define EVENT_CODE_FAIL                      0x01
+#define EVENT_CODE_GENERAL_ERROR             0x02
+#define EVENT_CODE_NOT_INITIALIZED           0x03
+#define EVENT_CODE_INVALID_INPUT             0x04
+
+#define EVENT_CODE_TIMEOUT                   0x05
+#define EVENT_CODE_BOTTLE_CHECK_EMPTY        0x06
+#define EVENT_CODE_BOTTLE_CHECK_NOTFULL      0x07
+#define EVENT_CODE_BOTTLE_CHECK_OK           0x08
+#define EVENT_CODE_BOTTLE_CHECK_BLOCKAGE     0x09
+#define EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT  0x0A
+#define EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT  0x0B
+#define EVENT_CODE_MOTOR_UNEXPECTED_POS      0x0C
+#define EVENT_CODE_INTERRUPT                 0x0D
+#define EVENT_CODE_OVERFLOW                  0x0E
+#define EVENT_CODE_DIGITAL_SIGNAL_0          0x10
+#define EVENT_CODE_DIGITAL_SIGNAL_1          0x11
+
+
 
 /*! general return codes, will be used as return value by methods, and as hdlInfo variable by signals
    these return codes will not appear as an error code in EventEntrys errorID. Anstead they will be transmitted in errorData variable */
@@ -141,40 +212,50 @@ typedef enum {
     DCL_ERR_UNEXPECTED_BREAK      = 23,   //!< Current program was breaked by other program
     DCL_ERR_SNYC_CALL_BUSY        = 24,   //!< Current program was breaked by other program
     DCL_ERR_TIMER_TIMEOUT         = 25,
-    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 = 26,
-    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 = 27,
 
-    DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT = 28,
-    DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED = 29,
-    DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED = 30,
-    DCL_ERR_DEV_AL_DRAIN_SUCCESS = 31,
-    DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT = 32,
-    DCL_ERR_DEV_AL_DRAIN_GENERAL_ERR = 33,
-    DCL_ERR_DEV_AL_DRAIN_INTERRUPT = 34,
+    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_DIGITAL_SIGNAL_0),
+    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_DIGITAL_SIGNAL_1),
 
-    DCL_ERR_DEV_AL_FILL_SUCCESS = 35,
-    DCL_ERR_DEV_AL_FILL_INTERRUPT = 36,
-    DCL_ERR_DEV_AL_FILL_TIMEOUT = 37,
-    DCL_ERR_DEV_AL_FILL_OVERFLOW = 38,
+    DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_RELEASE_PRESSURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_RELEASE_PRESSURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_SET_PRESSURE) << 8)|| EVENT_CODE_FAIL),
+    DCL_ERR_DEV_AL_DRAIN_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_DRAINING_PROCEDURE) << 8)|| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_DRAINING_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_DRAIN_GENERAL_ERR = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_DRAINING_PROCEDURE) << 8)|| EVENT_CODE_GENERAL_ERROR),
+    DCL_ERR_DEV_AL_DRAIN_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_DRAINING_PROCEDURE) << 8)|| EVENT_CODE_INTERRUPT),
 
-    DCL_ERR_DEV_AL_VACCUM_INTERRUPT = 39,
-    DCL_ERR_DEV_AL_VACCUM_TIMEOUT = 40,
-    DCL_ERR_DEV_AL_PRESSURE_INTERRUPT = 41,
-    DCL_ERR_DEV_AL_PRESSURE_TIMEOUT = 42,
+    DCL_ERR_DEV_AL_FILL_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_AL_FILL_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_INTERRUPT),
+    DCL_ERR_DEV_AL_FILL_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_FILL_OVERFLOW = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_OVERFLOW),
+
+    DCL_ERR_DEV_AL_VACCUM_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_VACCUM_PROCEDURE) << 8)|| EVENT_CODE_INTERRUPT),
+    DCL_ERR_DEV_AL_VACCUM_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_VACCUM_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_PRESSURE_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_PRESSURE_PROCEDURE) << 8)|| EVENT_CODE_INTERRUPT),
+    DCL_ERR_DEV_AL_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_PRESSURE_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
 
     DCL_ERR_DEV_TEMP_CTRL_STATE_ERR = 43,
     DCL_ERR_DEV_TEMP_CTRL_ALREADY_ON = 44,
     DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR = 45,
     DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR = 46,
 
-    DCL_ERR_DEV_BOTTLE_CHECK_OK = 47,
-    DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL = 48,
-    DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE = 49,
-    DCL_ERR_DEV_BOTTLE_CHECK_LEAKAGE = 50,
-    DCL_ERR_DEV_BOTTLE_CHECK_ERROR = 51,
-    DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT = 52,
+    DCL_ERR_DEV_BOTTLE_CHECK_OK = ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_BOTTLE_CHECK_OK),
+    DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL = ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_BOTTLE_CHECK_NOTFULL),
+    DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_BOTTLE_CHECK_BLOCKAGE),
+    DCL_ERR_DEV_BOTTLE_CHECK_EMPTY =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_BOTTLE_CHECK_EMPTY),
+    DCL_ERR_DEV_BOTTLE_CHECK_ERROR =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_FAIL),
+    DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_TIMEOUT),
 
-    DCL_ERR_DEV_RV_MOVE_OK = 53,
+    DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_MOVE_TO_INIT_POS) << 8)|| EVENT_CODE_SUCCESS),
+
+   // DCL_ERR_DEV_RV_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_MOVE_TO_RV_POS) << 8)|| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_RV_REF_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_RV_MOVE_EXCEED_UPPER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT),
+    DCL_ERR_DEV_RV_MOVE_EXCEED_LOWER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT),
+    DCL_ERR_DEV_RV_INVALID_INPUT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_INVALID_INPUT),
+    DCL_ERR_DEV_RV_NOT_INITIALIZED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_NOT_INITIALIZED),
+
+
     DCL_ERR_DEV_RV_MOVE_LS_ERROR = 54,
     DCL_ERR_DEV_RV_MOVE_GENERAL_ERROR = 55,
 
@@ -377,7 +458,7 @@ typedef enum {
     DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1,   //!< Air liquid system
     DEVICE_INSTANCE_ID_OVEN           = 0x000080C2,   //!< Oven
     DEVICE_INSTANCE_ID_RETORT         = 0x000080C3,   //!< Retort
-    DEVICE_INSTANCE_ID_PERIPHERY      = 0x000080C4    //!< Periphery
+    DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4    //!< Main Control
 } DevInstanceID_t;
 
 typedef enum {
@@ -430,8 +511,9 @@ public:
     static const QString m_RetortSideTempCtrlKey;    //!< Retort side temp control
     static const QString m_RetortLockDOKey;          //!< Retort lock digital output
     static const QString m_PerRemoteAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
-    static const QString m_PerRemoteAlarmSetDOKey;   //!< Miscellaneous remote alarm set digital output
-    static const QString m_PerRemoteAlarmClearDOKey;  //!< Miscellaneous remote alarm clear digital output
+    static const QString m_PerLocalAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
+//    static const QString m_PerRemoteAlarmSetDOKey;   //!< Miscellaneous remote alarm set digital output
+//    static const QString m_PerRemoteAlarmClearDOKey;  //!< Miscellaneous remote alarm clear digital output
     static const QString m_PerMainRelayDOKey;     //!< Miscellaneous heater relay digital output
 
 
@@ -455,8 +537,9 @@ public:
         FCTMOD_RETORT_SIDETEMPCTRL    = 0x4005,  //!< Retort side temp control
         FCTMOD_RETORT_LOCKDO          = 0x600F,  //!< Retort lock digital output
         FCTMOD_PER_REMOTEALARMCTRLDO  = 0x800F,  //!< Miscellaneous remote alarm ctrl digital output
-        FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
-        FCTMOD_PER_REMOTEALARMCLEARDO = 0xA00F,  //!< Miscellaneous remote alarm clear digital output
+        FCTMOD_PER_LOCALALARMCTRLDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
+        //FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
+        //FCTMOD_PER_REMOTEALARMCLEARDO = 0xA00F,  //!< Miscellaneous remote alarm clear digital output
         FCTMOD_PER_MAINRELAYDO        = 0x700F   //!< Miscellaneous heater relay digital output
     } CANObjectIdentifier_t;
 };

@@ -109,7 +109,7 @@ private slots:
     ReturnCode_t HandleConfigurationState();
     //! Handle substate motor configuration
     //ReturnCode_t ConfigureDeviceTasks();
-    bool DoReferenceRun();
+    ReturnCode_t DoReferenceRun();
     // bool SetState(bool flag);
     void OnReferenceRun(quint32 InstanceID, ReturnCode_t ReturnCode, qint32 Position);
     void OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t ReturnCode);
@@ -119,9 +119,9 @@ private slots:
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
 
-    bool MoveToNextPort(bool changeParameter, quint32 LowerLimit, quint32 UpperLimit);
-    bool MoveToNextPortCW();
-    bool MoveToNextPortCCW();
+    ReturnCode_t MoveToNextPort(bool changeParameter, quint32 LowerLimit, quint32 UpperLimit);
+    ReturnCode_t MoveToNextPortCW();
+    ReturnCode_t MoveToNextPortCCW();
     quint8 GetRotationDirection();
     bool SetRotationDirection(quint8 direction);
     QString TranslateFromEDPosition(quint32 EDPosition);
@@ -148,9 +148,9 @@ private slots:
     QString GetPosition();
     void RestoreLastValidParameterSet();
     void Reset();
-    bool DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32 UpperLimit);
-    bool SetMotorState(bool flag);
-    bool ApplyNewParameterSet();
+    ReturnCode_t DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32 UpperLimit);
+    ReturnCode_t SetMotorState(bool flag);
+    ReturnCode_t ApplyNewParameterSet();
 
     //! idle state handling task
     void HandleIdleState();

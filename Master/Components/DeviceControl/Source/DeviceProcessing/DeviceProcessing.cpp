@@ -60,8 +60,9 @@ const QString CANObjectKeyLUT::m_RetortBottomTempCtrlKey = "RETORT_bottom_temp_c
 const QString CANObjectKeyLUT::m_RetortSideTempCtrlKey= "RETORT_side_temp_ctrl";    //!< Retort side temp control
 const QString CANObjectKeyLUT::m_RetortLockDOKey= "RETORT_lock_digital_output";          //!< Retort lock digital output
 const QString CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey= "PER_remote_alarm_ctrl_digital_output";  //!< Miscellaneous remote alarm ctrl digital output
-const QString CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey= "PER_remote_alarm_set_digital_output";   //!< Miscellaneous remote alarm set digital output
-const QString CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey= "PER_remote_alarm_clear_digital_output";  //!< Miscellaneous remote alarm clear digital output
+const QString CANObjectKeyLUT::m_PerLocalAlarmCtrlDOKey= "PER_local_alarm_ctrl_digital_output";  //!< Miscellaneous remote alarm ctrl digital output
+//const QString CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey= "PER_remote_alarm_set_digital_output";   //!< Miscellaneous remote alarm set digital output
+//const QString CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey= "PER_remote_alarm_clear_digital_output";  //!< Miscellaneous remote alarm clear digital output
 const QString CANObjectKeyLUT::m_PerMainRelayDOKey= "PER_main_relay_digital_output";     //!< Miscellaneous heater relay digital output
 
 //QString DeviceProcessing::m_HWConfigFileName = "hw_specification_sepia.xml";

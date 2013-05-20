@@ -115,12 +115,13 @@
 #define EVENT_GRP_DCL_COVERLINE_DEV             ((EVENT_MAIN_GRP_DCL << 8) | 0x0039)   //!< Coverline
 #define EVENT_GRP_DCL_RACKHDL_DEV               ((EVENT_MAIN_GRP_DCL << 8) | 0x003A)   //!< Rackhandling sepia
 #define EVENT_GRP_DCL_HOOD_DEV                  ((EVENT_MAIN_GRP_DCL << 8) | 0x003B)   //!< Hood Open Detection
-#define EVENT_GRP_DCL_RV_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003C)   //!< Rotary Valve
 
+
+#define EVENT_GRP_DCL_RV_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003C)   //!< Rotary Valve
 #define EVENT_GRP_DCL_AL_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003D)   //!< Air liquid
 #define EVENT_GRP_DCL_RT_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003E)   //!< Retort
 #define EVENT_GRP_DCL_OVEN_DEV                  ((EVENT_MAIN_GRP_DCL << 8) | 0x003F)   //!< Oven
-#define EVENT_GRP_DCL_PER_DEV                   ((EVENT_MAIN_GRP_DCL << 8) | 0x0040)   //!< Periphery
+#define EVENT_GRP_DCL_MC_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x0040)   //!< Main controll
 
 
 /*********************************************************

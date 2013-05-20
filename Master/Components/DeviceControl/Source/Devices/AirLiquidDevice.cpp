@@ -920,8 +920,8 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 
                 if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM))
                 {
-                    Log(tr("Overflow occured! Exit now"));
-                    RetValue = SUCKING_RET_OVERFLOW;
+                    qDebug() << "Overflow occured! Exit now";
+                    RetValue = DCL_ERR_DEV_AL_FILL_OVERFLOW;
                     goto SORTIE;
                 }
                 PressureBuf.pop_front();	    
