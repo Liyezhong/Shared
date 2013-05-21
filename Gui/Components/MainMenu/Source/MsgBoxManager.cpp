@@ -291,7 +291,7 @@ void CMsgBoxManager::ButtonRightClicked()
     else if (m_CurrentMsgData.BtnType == Global::YES_NO) {
         emit EventReportAck(NetCommands::YES_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
-    else {
+    else if(m_CurrentMsgData.BtnType == Global::OK){
         emit EventReportAck(NetCommands::OK_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);

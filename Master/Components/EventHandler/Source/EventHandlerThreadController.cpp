@@ -914,6 +914,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
                     {
                         m_ProcessingEvents.remove(EventInfo.GetSourceComponent());
                         RaiseBox = false;
+                        return;
 
                     }
                     else // Recovery fail
@@ -972,6 +973,8 @@ void EventHandlerThreadController::InformUser(const DataLogging::DayEventEntry &
         btn = TheEvent.GetButtonTypeOnRspSucc();
     }
 
+
+
     if ((m_UserRole >= userLevel) && ((btn != Global::NO_BUTTON) || (TheEvent.GetStatusIcon())))
     {
         NetCommands::EventReportDataStruct EventReportData;
@@ -997,14 +1000,18 @@ void EventHandlerThreadController::InformUser(const DataLogging::DayEventEntry &
         if(TheEvent.GetCurrentStatus() == Global::EVTSTAT_RESPONSE_ACK ||
                 TheEvent.GetCurrentStatus() == Global::EVTSTAT_RECOVERY)//status before Recovery Ack comming
         {
-            if(!AckByGui)
+            if(AckByGui)// call from OnAcknowledge for RC_REPORT
+            {
+                EventReportData.BtnType = Global::NO_BUTTON;
+            }
+            else
             {
                 EventReportData.StatusBarIcon = false;
             }
         }
         else if(TheEvent.GetCurrentStatus() == Global::EVTSTAT_RECOVERY_ACK)
         {
-            if(TheEvent.IsEventActive())// recovery fail
+            if(!TheEvent.IsEventActive())// recovery fail
             {
                 EventReportData.StatusBarIcon = true;
                 EventReportData.MsgString += Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(EVENT_RECOVERY_FAIL_PLEASE_CONTACT_SERVICE,
@@ -1037,7 +1044,7 @@ void EventHandlerThreadController::InformUser(const DataLogging::DayEventEntry &
                 m_EventRefDataMap.insert(Ref,TheEvent);
             }
             SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
-            if(!AckByGui)
+            if(!AckByGui && TheEvent.GetCurrentStatus() != Global::EVTSTAT_RECOVERY_ACK)
             {
                 InformAlarmHandler(TheEvent,RaiseBox);
             }
