@@ -345,7 +345,7 @@ typedef enum {
     DEVICE_INSTANCE_ID_GRAPPLER_2     = 0x00008011,  //!< the right grappler
     DEVICE_INSTANCE_ID_LOADER         = 0x00008020,  //!< loader
     DEVICE_INSTANCE_ID_UNLOADER       = 0x00008021,  //!< unloader
-    DEVICE_INSTANCE_ID_OVEN           = 0x00008030,  //!< oven
+    //DEVICE_INSTANCE_ID_OVEN           = 0x00008030,  //!< oven
     DEVICE_INSTANCE_ID_HVESSELS       = 0x00008040,  //!< heated vessels
     DEVICE_INSTANCE_ID_AGITATION      = 0x00008050,  //!< agitation
     DEVICE_INSTANCE_ID_RACKTRANSFER   = 0x00008060,  //!< rack transfer
@@ -355,7 +355,12 @@ typedef enum {
     DEVICE_INSTANCE_ID_COVERLINE_1    = 0x000080A0,  //!< cover line unit 1
     DEVICE_INSTANCE_ID_COVERLINE_2    = 0x000080A1,  //!< cover line unit 2
     DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0,  //!< rack handling
-    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1   //!< device cover (hood)
+    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,   //!< device cover (hood)
+    DEVICE_INSTANCE_ID_ROTARY_VALVE   = 0x000080C0,   //!< Rotary valve
+    DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1,   //!< Air liquid system
+    DEVICE_INSTANCE_ID_OVEN           = 0x000080C2,   //!< Oven
+    DEVICE_INSTANCE_ID_RETORT         = 0x000080C3,   //!< Retort
+    DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4    //!< Main Control
 } DevInstanceID_t;
 
 /****************************************************************************/

@@ -254,7 +254,7 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
     else {
         RetVal = CreateObjectTree(&Configuration);
         if(RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-            RetVal = CreateDevices(&Configuration);
+            //RetVal = CreateDevices(&Configuration);
         }
     }
 
