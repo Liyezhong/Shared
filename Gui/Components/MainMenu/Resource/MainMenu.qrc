@@ -277,5 +277,6 @@
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow2.png</file>
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow3.png</file>
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLine.png</file>
+        <file>HimalayaImages/Digits/Snow.PNG</file>
     </qresource>
 </RCC>

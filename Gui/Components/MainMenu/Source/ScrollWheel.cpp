@@ -116,12 +116,19 @@ void CScrollWheel::paintEvent(QPaintEvent *p_PaintEvent)
 
     for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
         qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
+        if (m_Items[Index] != "")
+        {
+            Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
 
-        Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
-
-        if(!m_ItemPixmaps[Index].isNull()) {
-            Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+            if(!m_ItemPixmaps[Index].isNull()) {
+                Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+            }
         }
+        else
+            if(!m_ItemPixmaps[Index].isNull()) {
+                Painter.drawPixmap(9, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+            }
+
     }
 
     // draw the scaled cover
