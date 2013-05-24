@@ -36,7 +36,7 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessWindowHint)
+CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessWindowHint), m_ThreeDigitMode(false)
 {
     QFont Font = font();
     Font.setPointSize(46);
@@ -83,9 +83,12 @@ QPoint CScrollWheel::scrollOffset() const
 /****************************************************************************/
 void CScrollWheel::setScrollOffset(const QPoint &Offset)
 {
-    m_Offset.setY(Offset.y() % (m_ItemHeight * m_Items.count()));
-    if (m_Offset.y() < 0) {
-        m_Offset.setY(m_Offset.y() + (m_ItemHeight * m_Items.count()));
+    if (m_Items.count() > 0)
+    {
+        m_Offset.setY(Offset.y() % (m_ItemHeight * m_Items.count()));
+        if (m_Offset.y() < 0) {
+            m_Offset.setY(m_Offset.y() + (m_ItemHeight * m_Items.count()));
+        }
     }
     update();
 }
@@ -126,7 +129,10 @@ void CScrollWheel::paintEvent(QPaintEvent *p_PaintEvent)
         }
         else
             if(!m_ItemPixmaps[Index].isNull()) {
-                Painter.drawPixmap(9, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+                if (m_ThreeDigitMode)
+                    Painter.drawPixmap(30, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+                else
+                    Painter.drawPixmap(9, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
             }
 
     }
@@ -297,6 +303,7 @@ void CScrollWheel::SetNonContinuous()
 /****************************************************************************/
 void CScrollWheel::SetThreeDigitMode(bool Mode)
 {
+    m_ThreeDigitMode = Mode;
     if (Mode) {
         m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 126, 188);
         m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 126, 188);
