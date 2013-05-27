@@ -279,5 +279,18 @@
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLine.png</file>
         <file>HimalayaImages/Digits/Snow.png</file>
         <file>HimalayaImages/Digits/SnowBig.png</file>
+        <file>HimalayaImages/Icons/Program/Icon1.png</file>
+        <file>HimalayaImages/Icons/Program/Icon2.png</file>
+        <file>HimalayaImages/Icons/Program/Icon3.png</file>
+        <file>HimalayaImages/Icons/Program/Icon4.png</file>
+        <file>HimalayaImages/Icons/Program/Icon5.png</file>
+        <file>HimalayaImages/Icons/Program/Icon6.png</file>
+        <file>HimalayaImages/Icons/Program/Icon7.png</file>
+        <file>HimalayaImages/Icons/Program/Icon8.png</file>
+        <file>HimalayaImages/Icons/Program/Icon9.png</file>
+        <file>HimalayaImages/Icons/Program/Icon10.png</file>
+        <file>HimalayaImages/Icons/Program/Icon11.png</file>
+        <file>HimalayaImages/Icons/Program/Icon0.png</file>
+        <file>HimalayaImages/Icons/Program/Icon_Leica.png</file>
     </qresource>
 </RCC>
