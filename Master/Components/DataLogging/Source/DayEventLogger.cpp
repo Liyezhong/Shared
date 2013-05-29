@@ -88,6 +88,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             case Global::EVTTYPE_WARNING:
             case Global::EVTTYPE_SYS_WARNING:                                                
                                                 IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
+            case Global::EVTTYPE_SYS_HINT:
             case Global::EVTTYPE_INFO:          IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
             case Global::EVTTYPE_DEBUG:         IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
             default:                            break;
