@@ -222,7 +222,7 @@ ReturnCode_t CDiagnosticService::CheckNodeState()
 /****************************************************************************/
 void CDiagnosticService::ThrowErrorSignal(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
 {
-    m_pDeviceProcessing->ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    m_pDeviceProcessing->ThrowError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 } //namespace

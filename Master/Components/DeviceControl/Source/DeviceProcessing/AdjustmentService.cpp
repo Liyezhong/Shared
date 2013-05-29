@@ -158,7 +158,7 @@ void CAdjustmentService::ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo,
 
     quint32 ulModulHandle = 0;
     QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-    m_pDeviceProcessing->ThrowError(ulModulHandle, usErrorGroup, usErrorID, sErrorData, errorTimeStamp);
+    m_pDeviceProcessing->ThrowError((DevInstanceID_t)ulModulHandle, usErrorGroup, usErrorID, sErrorData, errorTimeStamp);
 }
 
 } //namespace

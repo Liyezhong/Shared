@@ -251,6 +251,7 @@ void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup
  *  \iparam ErrorTime  = Time of error detection
  */
 /****************************************************************************/
+#if 0
 void DeviceProcessing::ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID,
                                   quint16 ErrorData, QDateTime ErrorTime)
 {
@@ -258,7 +259,7 @@ void DeviceProcessing::ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint1
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
     emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
-
+#endif
 /****************************************************************************/
 /*!
  *  \brief  Forwards the error information from a function module to IDeviceProcessing
@@ -1080,7 +1081,7 @@ void DeviceProcessing::HandleTasks()
         QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
@@ -1251,7 +1252,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
 
         return;
     }
@@ -1312,7 +1313,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
         QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1554,7 +1555,7 @@ void DeviceProcessing::CheckMasterHeartbeat()
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
                 QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                ThrowError(0, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
+                ThrowError(DEVICE_INSTANCE_ID_DEVPROC, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
             }
         }
     }
