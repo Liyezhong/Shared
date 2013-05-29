@@ -23,6 +23,7 @@
 
 #include "Application/Include/LeicaStyle.h"
 #include <QApplication>
+#include <QTimer>
 
 namespace Application {
 
@@ -34,8 +35,19 @@ namespace Application {
 /****************************************************************************/
 class CApplication : public QApplication
 {
+    Q_OBJECT
+
 public:
-    CApplication(int Argc, char* p_Argv[], Application::ProjectId_t m_ProjId);
+    explicit CApplication(int Argc, char* p_Argv[], Application::ProjectId_t m_ProjId);
+
+protected:
+    bool notify(QObject * receiver, QEvent * event );
+
+signals:
+    void InteractStart();
+
+private:
+    QPoint m_MousePos;
 };
 
 } // end namespace Application

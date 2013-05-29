@@ -22,6 +22,7 @@
 #include <QFile>
 #include <QFont>
 #include <QTextStream>
+ #include <QMouseEvent>
 
 namespace Application {
 
@@ -42,6 +43,35 @@ CApplication::CApplication(int Argc, char* p_Argv[],
     setFont(Font);
     setStyle(new CLeicaStyle()); //lint !e1524
     Application::CLeicaStyle::SetProjectId(m_ProjId);
+}
+
+
+
+
+bool CApplication::notify ( QObject * receiver, QEvent * event )
+{
+    bool isTouch = false;
+    if (event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+        if (mouseEvent)
+        {
+            QPoint p = mouseEvent->globalPos();
+            if (p != m_MousePos)
+               isTouch = true;
+            m_MousePos = mouseEvent->globalPos();
+        }
+    }
+    else
+    {
+        if (event->type() == QEvent::KeyPress)
+            isTouch = true;
+    }
+
+    if (isTouch)
+        emit this->InteractStart();
+
+    return QApplication::notify(receiver, event);
 }
 
 } // end namespace Application
