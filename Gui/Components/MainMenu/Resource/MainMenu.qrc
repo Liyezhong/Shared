@@ -293,5 +293,6 @@
         <file>HimalayaImages/Icons/Program/Icon0.png</file>
         <file>HimalayaImages/Icons/Program/Icon_Leica.png</file>
         <file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenSaver.png</file>
+        <file>HimalayaImages/Icons/Program/IconEmpty.png</file>
     </qresource>
 </RCC>
