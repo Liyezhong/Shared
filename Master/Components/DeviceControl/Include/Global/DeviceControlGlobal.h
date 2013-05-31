@@ -217,7 +217,7 @@ typedef enum {
     DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_DIGITAL_SIGNAL_1),
 
     DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_RELEASE_PRESSURE) << 8)|| EVENT_CODE_TIMEOUT),
-    DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_RELEASE_PRESSURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_RELEASE_PRESSURE) << 8)|| EVENT_CODE_FAIL),
     DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_SET_PRESSURE) << 8)|| EVENT_CODE_FAIL),
     DCL_ERR_DEV_AL_DRAIN_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_DRAINING_PROCEDURE) << 8)|| EVENT_CODE_SUCCESS),
     DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_DRAINING_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
@@ -229,10 +229,12 @@ typedef enum {
     DCL_ERR_DEV_AL_FILL_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
     DCL_ERR_DEV_AL_FILL_OVERFLOW = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_FILLING_PROCEDURE) << 8)|| EVENT_CODE_OVERFLOW),
 
+    DCL_ERR_DEV_AL_VACCUM_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_VACCUM_PROCEDURE) << 8)|| EVENT_CODE_SUCCESS),
     DCL_ERR_DEV_AL_VACCUM_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_VACCUM_PROCEDURE) << 8)|| EVENT_CODE_INTERRUPT),
     DCL_ERR_DEV_AL_VACCUM_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_VACCUM_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
     DCL_ERR_DEV_AL_PRESSURE_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_PRESSURE_PROCEDURE) << 8)|| EVENT_CODE_INTERRUPT),
     DCL_ERR_DEV_AL_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_PRESSURE_PROCEDURE) << 8)|| EVENT_CODE_TIMEOUT),
+    DCL_ERR_DEV_AL_PRESSURE_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) || EVENT_FUNC_PRESSURE_PROCEDURE) << 8)|| EVENT_CODE_SUCCESS),
 
     DCL_ERR_DEV_TEMP_CTRL_STATE_ERR = 43,
     DCL_ERR_DEV_TEMP_CTRL_ALREADY_ON = 44,
@@ -247,13 +249,16 @@ typedef enum {
     DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) || EVENT_FUNC_BOTTLE_CHECK) << 8)|| EVENT_CODE_TIMEOUT),
 
     DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_MOVE_TO_INIT_POS) << 8)|| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_MOVE_TO_INIT_POS) << 8)|| EVENT_CODE_MOTOR_UNEXPECTED_POS),
 
    // DCL_ERR_DEV_RV_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_MOVE_TO_RV_POS) << 8)|| EVENT_CODE_SUCCESS),
     DCL_ERR_DEV_RV_REF_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_RV_REF_MOVE_FAILED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_FAIL),
     DCL_ERR_DEV_RV_MOVE_EXCEED_UPPER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT),
     DCL_ERR_DEV_RV_MOVE_EXCEED_LOWER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT),
     DCL_ERR_DEV_RV_INVALID_INPUT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_INVALID_INPUT),
     DCL_ERR_DEV_RV_NOT_INITIALIZED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_NOT_INITIALIZED),
+    DCL_ERR_DEV_RV_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) || EVENT_FUNC_REF_RUN) << 8)|| EVENT_CODE_MOTOR_UNEXPECTED_POS),
 
 
     DCL_ERR_DEV_RV_MOVE_LS_ERROR = 54,
@@ -522,25 +527,25 @@ public:
     typedef enum
     {
 
-        FCTMOD_RV_MOTOR               = 0x3003,  //!< Rotary valve motor
-        FCTMOD_RV_TEMPCONTROL         = 0x4003,  //!< Rotary valve temperature control
+        FCTMOD_RV_MOTOR               = 0x30003,  //!< Rotary valve motor
+        FCTMOD_RV_TEMPCONTROL         = 0x40003,  //!< Rotary valve temperature control
 
-        FCTMOD_AL_PRESSURECTRL        = 0x100F,  //!< Air-liquid pressure control
-        FCTMOD_AL_LEVELSENSORTEMPCTRL = 0x200F,  //!< Air-liquid level sensor temp control
-        FCTMOD_AL_TUBE1TEMPCTRL       = 0x300F,  //!< Air-liquid tube1 temp control
-        FCTMOD_AL_TUBE2TEMPCTRL       = 0x400F,  //!< Air-liquid tube2 temp control
-        FCTMOD_AL_FANDO               = 0x500F,  //!< Air-liquid fan digital output
-        FCTMOD_OVEN_TOPTEMPCTRL       = 0x1005,  //!< Oven top temp control
-        FCTMOD_OVEN_BOTTOMTEMPCTRL    = 0x2005,  //!< Oven bottom temp control
+        FCTMOD_AL_PRESSURECTRL        = 0x1000F,  //!< Air-liquid pressure control
+        FCTMOD_AL_LEVELSENSORTEMPCTRL = 0x2000F,  //!< Air-liquid level sensor temp control
+        FCTMOD_AL_TUBE1TEMPCTRL       = 0x3000F,  //!< Air-liquid tube1 temp control
+        FCTMOD_AL_TUBE2TEMPCTRL       = 0x4000F,  //!< Air-liquid tube2 temp control
+        FCTMOD_AL_FANDO               = 0x5000F,  //!< Air-liquid fan digital output
+        FCTMOD_OVEN_TOPTEMPCTRL       = 0x10005,  //!< Oven top temp control
+        FCTMOD_OVEN_BOTTOMTEMPCTRL    = 0x20005,  //!< Oven bottom temp control
         //FCTMOD_OVEN_LOCKDIKEY;            //!< Oven lock digital input
-        FCTMOD_RETORT_BOTTOMTEMPCTRL  = 0x3005,  //!< Retort bottom temp control
-        FCTMOD_RETORT_SIDETEMPCTRL    = 0x4005,  //!< Retort side temp control
-        FCTMOD_RETORT_LOCKDO          = 0x600F,  //!< Retort lock digital output
-        FCTMOD_PER_REMOTEALARMCTRLDO  = 0x800F,  //!< Miscellaneous remote alarm ctrl digital output
-        FCTMOD_PER_LOCALALARMCTRLDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
+        FCTMOD_RETORT_BOTTOMTEMPCTRL  = 0x30005,  //!< Retort bottom temp control
+        FCTMOD_RETORT_SIDETEMPCTRL    = 0x40005,  //!< Retort side temp control
+        FCTMOD_RETORT_LOCKDO          = 0x6000F,  //!< Retort lock digital output
+        FCTMOD_PER_REMOTEALARMCTRLDO  = 0x8000F,  //!< Miscellaneous remote alarm ctrl digital output
+        FCTMOD_PER_LOCALALARMCTRLDO   = 0x9000F,  //!< Miscellaneous remote alarm set digital output
         //FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
         //FCTMOD_PER_REMOTEALARMCLEARDO = 0xA00F,  //!< Miscellaneous remote alarm clear digital output
-        FCTMOD_PER_MAINRELAYDO        = 0x700F   //!< Miscellaneous heater relay digital output
+        FCTMOD_PER_MAINRELAYDO        = 0x7000F   //!< Miscellaneous heater relay digital output
     } CANObjectIdentifier_t;
 };
 

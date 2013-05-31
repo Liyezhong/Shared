@@ -150,7 +150,8 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     }
     else
     {
-        m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xF)] = PER_MAIN_RELAY;
+        //m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xF)] = PER_MAIN_RELAY;
+        m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO] = PER_MAIN_RELAY;
     }
 
 /*    m_pDigitalOutputs[PER_REMOTE_ALARM_SET] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey));
@@ -177,7 +178,8 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     }
     else
     {
-        m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xF)] = PER_REMOTE_ALARM_CTRL;
+       // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xF)] = PER_REMOTE_ALARM_CTRL;
+        m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_REMOTE_ALARM_CTRL;
     }
 
     m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerLocalAlarmCtrlDOKey));
@@ -190,7 +192,8 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     }
     else
     {
-        m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
+       // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
+        m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_LOCAL_ALARM_CTRL;
     }
 /*    m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey));
     if(m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] == 0)

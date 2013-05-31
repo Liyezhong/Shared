@@ -21,7 +21,7 @@
  *
  */
 /******************************************************************/
-
+#include <QtDebug>
 #include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
@@ -90,6 +90,11 @@ quint32 CBaseDevice::GetFctModInstanceFromKey(const QString &Key)
     }
 
     return InstanceID;
+}
+
+QString CBaseDevice::GetFctModKeyFromInstance(const quint32 instanceID)
+{
+    return m_FctModList.key(instanceID, "NOT FOUND");
 }
 
 /****************************************************************************/
@@ -285,6 +290,31 @@ DeviceTask* CBaseDevice::GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskStat
     pDeviceTask->m_Key = Key;
 
     return pDeviceTask;
+}
+
+void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime)
+{
+    QString FuncModName = "";
+    if(m_pDevProc)
+    {
+        QList<DevInstanceID_t> list;
+        list <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
+              << DEVICE_INSTANCE_ID_AIR_LIQUID
+              << DEVICE_INSTANCE_ID_OVEN
+              << DEVICE_INSTANCE_ID_RETORT
+              << DEVICE_INSTANCE_ID_MAIN_CONTROL;
+
+        DevInstanceID_t id;
+        foreach (id, list)
+        {
+            CBaseDevice* pBaseDevice;
+            pBaseDevice = m_pDevProc->GetDevice(id);
+            FuncModName = pBaseDevice->GetFctModKeyFromInstance(InstanceID);
+            if(FuncModName != "NOT FOUND")
+            {break;}
+        }
+        qDebug()<<"Function module: "<< FuncModName <<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
+    }
 }
 
 } //namespace

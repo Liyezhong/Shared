@@ -188,7 +188,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
     else
     {
-        m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xF)] = AL_LEVELSENSOR;
+       // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xF)] = AL_LEVELSENSOR;
+        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR;
     }
 
     m_pTempCtrls[AL_TUBE1] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube1TempCtrlKey));
@@ -201,7 +202,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
     else
     {
-        m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xF)] = AL_TUBE1;
+        //m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xF)] = AL_TUBE1;
+        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL ] = AL_TUBE1;
     }
 
     m_pTempCtrls[AL_TUBE2] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube2TempCtrlKey));
@@ -214,7 +216,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
     else
     {
-        m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xF)] = AL_TUBE2;
+       // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xF)] = AL_TUBE2;
+        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL ] = AL_TUBE2;
     }
 
     m_pFanDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALFanDOKey));
@@ -260,6 +263,14 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
     {
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect pressure ctrl signal 'ReportActPressure'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pPressureCtrl, SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect pressure ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -367,6 +378,30 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
     {
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_FANDO);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportOutputValueAckn'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[AL_LEVELSENSOR], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[AL_TUBE1], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[AL_TUBE2], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -590,8 +625,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start release pressure procedure";
     QTimer timer;
     quint32 TimeSlotPassed = 0;
-    ReturnCode_t retCode= DCL_ERR_FCT_CALL_SUCCESS;
-
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
 
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
@@ -641,8 +675,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
 
 ReturnCode_t CAirLiquidDevice::Vaccum()
 {
-
-    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t RetValue = DCL_ERR_DEV_AL_VACCUM_SUCCESS;
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
@@ -667,7 +700,7 @@ SORTIE:
 
 ReturnCode_t CAirLiquidDevice::Pressure()
 {
-    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t RetValue = DCL_ERR_DEV_AL_PRESSURE_SUCCESS;
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
@@ -696,7 +729,6 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     bool stop = false;
     ReturnCode_t RetValue = DCL_ERR_DEV_AL_DRAIN_SUCCESS;
     QTimer timer;
-    QDateTime beforeDraining = QDateTime::currentDateTime();
     qreal CurrentPressure = 0;
     bool PressureHasBeenSetup = false;
     qint32 counter = 0;
@@ -806,7 +838,7 @@ SORTIE:
 ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 {
     ReturnCode_t RetValue = DCL_ERR_DEV_AL_FILL_SUCCESS;
-    qint32 retCode = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     QTimer timer;
     quint32 counter = 0;
     quint32 CounterStopValue = 0;
@@ -1187,7 +1219,6 @@ qreal CAirLiquidDevice::GetRecentPressure(quint8 Index)
 qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
   //  QMutexLocker Locker(&m_Mutex);
-quint32 thisadd =(quint32)this;
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
@@ -1315,7 +1346,13 @@ void CAirLiquidDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t Retu
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_TEMP_CTRL_STATE, ReturnCode);
 }
-
+#if 0
+void CAirLiquidDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime)
+{
+    //Log(tr("Pressure control get error: %1 %2 %3 %4").arg(InstanceID).arg(ErrorGroup).arg(ErrorCode).arg(ErrorData));
+    qDebug()<<"AL device's Function module: "<<InstanceID<<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
+}
+#endif
 bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)

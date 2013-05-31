@@ -207,8 +207,10 @@ ReturnCode_t CRotaryValveDevice::HandleInitializationState()
  ****************************************************************************/
 ReturnCode_t CRotaryValveDevice::HandleConfigurationState()
 {
+    //if(!connect(m_pMotorRV, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)),
+    //            this, SLOT(StepperMotorError(quint32, quint16, quint16, quint16, QDateTime))))
     if(!connect(m_pMotorRV, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)),
-                this, SLOT(StepperMotorError(quint32, quint16, quint16, quint16, QDateTime))))
+                (CBaseDevice*)this, SLOT(OnFunctionModuleError(quint32, quint16, quint16, quint16, QDateTime))))
     {
         SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_MOTOR);
         FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportError'failed.";
@@ -263,7 +265,14 @@ ReturnCode_t CRotaryValveDevice::HandleConfigurationState()
                 this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
     {
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportActStatus'failed.";
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportActStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(!connect(m_pTempCtrl, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32, quint16, quint16, quint16, QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 #if 0
@@ -845,7 +854,7 @@ bool CRotaryValveDevice::IsOutsideRange()
 ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
 {
     QString lsCode;
-    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS;
     bool ParaChange = false;
     //reconfig for original position
     if(GetConfigLS2Exists()==0)
@@ -892,12 +901,12 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
         //Log(tr("Already At Initial Position, No Need To Move!"));
         //Log("Already At Initial Position, No Need To Move!");
         qDebug()<< "Error when read LS code";
-        RetValue = DCL_ERR_FCT_CALL_FAILED;
+        RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
         return RetValue;
     }
 #if 1
     //RetValue = ReferenceRunWithTimeout(REFER_RUN_LOWER_LIMIT, 65000);
-    qint32 refRunRet = DoReferenceRunWithStepCheck(50, 7000);
+    ReturnCode_t refRunRet = DoReferenceRunWithStepCheck(50, 7000);
 #else
     RetValue = DoReferenceRun();
 #endif
@@ -918,6 +927,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
         else
         {
             SetEDPosition(RV_UNDEF);
+            RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
             qDebug() << "Hit unexpected position, please retry!";
         }
     }
@@ -925,6 +935,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     {
         SetEDPosition(RV_UNDEF);
         qDebug() << "Hit unexpected position, please retry!";
+        RetValue = refRunRet;
         // Log(tr("Hit unexpected position, please retry!"));
         // Log(tr("The Limit Switch code is: %1").arg(lsCode));
     }
@@ -1004,11 +1015,6 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     QString lsCode, lsCodeDup;
     quint8 retry = 0;
 
-    if(EDPosition == 0)
-    {
-        retCode = DCL_ERR_FCT_CALL_FAILED;
-    }
-
     if(0 == EDPosition)
     {
         lsCode = GetLimitSwitchCode();
@@ -1021,7 +1027,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             {
                 //                 Log(tr("Limit Switch code are not stable!"));
                 qDebug() << "Limit Switch code are not stable!";
-                retCode = DCL_ERR_DEV_RV_MOVE_LS_ERROR;
+                retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
                 return retCode;
             }
         }
@@ -1034,7 +1040,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         {
             //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
             qDebug()<<"Can't find current position, please run MoveToInitialPosition first!";
-            retCode = DCL_ERR_DEV_RV_MOVE_LS_ERROR;
+            retCode = DCL_ERR_DEV_RV_NOT_INITIALIZED;
             return retCode;
         }
     }
@@ -1042,7 +1048,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         //Log(tr("The Tube No You Input: %1 is Invalid").arg(Position));
         qDebug() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;
-        retCode = DCL_ERR_DEV_RV_MOVE_GENERAL_ERROR;
+        retCode = DCL_ERR_DEV_RV_INVALID_INPUT;
         return retCode;
     }
 
@@ -1070,9 +1076,9 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         for(int i =0;i<MoveSteps;i++)
         {
-            if(!MoveToNextPortCW())
+            retCode = MoveToNextPortCW();
+            if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
             {
-                retCode = DCL_ERR_FCT_CALL_FAILED;
                 return retCode;
             }
         }
@@ -1081,20 +1087,21 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         for(int i =0;i<MoveSteps;i++)
         {
-            if (!MoveToNextPortCCW())
+            retCode = MoveToNextPortCCW();
+            if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
             {
-                retCode = DCL_ERR_FCT_CALL_FAILED;
                 return retCode;
             }
         }
     }
     return retCode;
-
 }
+
 RVPosition_t CRotaryValveDevice::ReqActRVPosition()
 {
     return m_RVCurrentPosition;
 }
+
 ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
 {
     ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;

@@ -1991,8 +1991,10 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
     quint16 canNodeID;
     quint8 channel;
 
-    canNodeID = ((quint16)(0x0fff & ((quint16)InstanceID)));
-    channel = ((quint8)((0x000ff000 & InstanceID) >> 12));
+    //canNodeID = ((quint16)(0x0fff & ((quint16)InstanceID)));
+    //channel = ((quint8)((0x000ff000 & InstanceID) >> 12));
+    canNodeID = ((quint16)(0xff & (InstanceID)));
+    channel = ((quint8)((0x000ff0000 & InstanceID) >> 16));
 
     pCANNode = GetNodeFromID(canNodeID);
     if(pCANNode)

@@ -121,6 +121,7 @@ public:
     DeviceProcessing* GetDeviceProcessing() const { return m_pDevProc; }
 
     quint32 GetFctModInstanceFromKey(const QString &Key);
+    QString GetFctModKeyFromInstance(const quint32 instanceID);
 
     static CANStepperMotorTask*    GetNewCANStepperMotorTask(CANStepperMotorTask::CANStepperMotorTaskID_t MotorTaskID);
     static CANRFIDTask*            GetNewCANRFIDTask(CANRFIDTask::CANRFIDTaskID_t RFIDTaskID);
@@ -130,6 +131,8 @@ public:
 
     static DeviceTask* GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskState, quint16 Key);
 
+public slots:
+    void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
 protected:
     /// Compact function to set the error parameter and error time by one code line
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
