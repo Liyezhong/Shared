@@ -250,6 +250,16 @@
            <number>0</number>
           </property>
           <item>
+           <widget class="QLabel" name="labelLanguage">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="../Resource/MainMenu.qrc">:/HimalayaImages/Icons/Status_Bar/Language.png</pixmap>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="statusLabel2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -377,6 +387,8 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../Resource/MainMenu.qrc"/>
+ </resources>
  <connections/>
 </ui>

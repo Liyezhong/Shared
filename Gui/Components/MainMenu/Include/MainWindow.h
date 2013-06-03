@@ -158,6 +158,7 @@ signals:
     void CurrentTabChanged(int);
     void ShowErrorMsgDlg();
     void ShowWarningMsgDlg();
+    void ShowLanguageSelectDialog();
 };
 
 } // end namespace MainMenu
