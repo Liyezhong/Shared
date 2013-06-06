@@ -498,7 +498,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportHardwareStatus(GetModuleHandle(), RetVal, 0, 0, 0, 0, 0);
+                    emit ReportHardwareStatus(GetModuleHandle(), RetVal, 0, 0, 0, 0, 0, 0);
                 }
             }
 #ifdef PRE_ALFA_TEST
@@ -571,7 +571,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 {
                     FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl '" << GetKey().toStdString() <<
                                                   "': Hardware information request timeout error.";
-                    emit ReportHardwareStatus(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0, 0);
+                    emit ReportHardwareStatus(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0, 0, 0);
                 }
             }
         }
@@ -848,7 +848,7 @@ void CTemperatureControl::HandleCANMsgHardware(can_frame* pCANframe)
         ResetModuleCommand(FM_TEMP_CMD_TYPE_REQ_HARDWARE);
     }
 
-    if(pCANframe->can_dlc == 6)
+    if(pCANframe->can_dlc == 7)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         quint16 Current;
@@ -857,11 +857,11 @@ void CTemperatureControl::HandleCANMsgHardware(can_frame* pCANframe)
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl hardware information received: " << Current;
         emit ReportHardwareStatus(GetModuleHandle(), hdlInfo, pCANframe->data[0], pCANframe->data[1],
-                                  pCANframe->data[2], pCANframe->data[3], Current);
+                                  pCANframe->data[2], pCANframe->data[3], Current, pCANframe->data[6]);
     }
     else
     {
-        emit ReportHardwareStatus(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0, 0, 0);
+        emit ReportHardwareStatus(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0, 0, 0, 0);
     }
 }
 
