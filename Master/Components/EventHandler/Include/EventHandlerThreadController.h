@@ -139,6 +139,8 @@ public:
         Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
         CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList,quint64),
                           this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList, quint64));
+
+        CONNECTSIGNALSLOT(p_EventObject, ForwardLog(QString),this,ProcessLog(QString));
     }
 
 
@@ -343,6 +345,7 @@ public slots:
                       const Global::AlternateEventStringUsage AltStringUsuage,
                       Global::tTranslatableStringList EventStringListForRD = Global::tTranslatableStringList(),
                       quint64 EventCodeScenario = 0);
+    void ProcessLog(QString info);
 
 
     /****************************************************************************/

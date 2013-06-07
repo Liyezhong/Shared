@@ -22,6 +22,7 @@
 #define EVENTHANDLER_CRISISEVENTHANDLER_H
 #include <QObject>
 #include <QMultiHash>
+#include <QStringList>
 #include <Global/Include/EventObject.h>
 
 namespace EventHandler {
@@ -106,6 +107,7 @@ public:
                                                        EventCodeScenario);
         }
     }
+
     /****************************************************************************/
     /**
      * \brief File parser for the eventstateError.csv.
@@ -129,6 +131,9 @@ public:
     quint32 findErrorCode(quint32 eventId);
     quint32 findErrorCode(quint32 eventId,quint32 Scenario);
 
+    QStringList& RaiseLog();
+
+
 private:
     CrisisEventHandler();
     ~CrisisEventHandler();
@@ -136,7 +141,13 @@ private:
     Q_DISABLE_COPY(CrisisEventHandler ) //!< Disable Copy and assignment
     quint32 m_currentSysState;  //!< Keep current system state
     QMultiHash< quint32, QPair<QStringList,quint32> > m_EventStateErrorHash; //!< QHash<EventId, QPair<StateList, ErrorId>
+    QStringList OneLogInfo;
 }; // end class
+
+
+
+#define LOG_HW_PAR() CrisisEventHandler::Instance().RaiseLog()
+
 } // end namespace EventHandler
 
 #endif // EVENTHANDLER_CRISISEVENTHANDLER_H

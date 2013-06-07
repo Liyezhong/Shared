@@ -25,7 +25,8 @@ namespace DataLogging {
 /****************************************************************************/
 DayEventEntry::DayEventEntry()
     : m_EventKey(0),m_AckType(NetCommands::No_Set),m_CountRetires(0),
-      m_EventCodeFromCom(0),m_CurrentStatus(Global::EVTSTAT_OFF), m_Scenario(0)
+      m_EventCodeFromCom(0),m_CurrentStatus(Global::EVTSTAT_OFF), m_Scenario(0),
+      m_IsHWParameter(false),m_HWParameter("")
 {
 }
 
@@ -34,11 +35,20 @@ DayEventEntry::DayEventEntry(const DayEventEntry &rOther) {
     CopyFrom(rOther);
 }
 
+DayEventEntry::DayEventEntry(bool isHWPar, QString &HWInfo):
+    m_IsHWParameter(isHWPar),m_HWParameter(HWInfo),
+    m_TimeStamp(QDateTime::currentDateTime())
+{
+
+}
+
 /****************************************************************************/
 DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String)
     : m_String(String)
     , m_EventKey(0)
     , m_TimeStamp(TimeStamp)
+    ,m_IsHWParameter(false)
+    ,m_HWParameter("")
 {
 }
 
@@ -54,7 +64,9 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &E
     m_AckType(ClickButton),
     m_EventKey(EventKey),
     m_TimeStamp(TimeStamp),
-    m_CountRetires(count)
+    m_CountRetires(count),
+    m_IsHWParameter(false),
+    m_HWParameter("")
 {
     //m_AckValue = AckValue.GetStatus();
 
@@ -107,6 +119,8 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_Scenario = rOther.m_Scenario;
     m_CurrentStatus = rOther.m_CurrentStatus;
     m_StringForRd = rOther.m_StringForRd;
+    m_IsHWParameter = rOther.m_IsHWParameter;
+    m_HWParameter = rOther.m_HWParameter;
 //    m_AckValue = rOther.m_AckValue;
 }
 
@@ -132,5 +146,27 @@ void DayEventEntry::DumpToConsole() const {
     }
     // output to std
     Global::ToConsole(LoggingString.trimmed());
+}
+
+QString DayEventEntry::GetStringForRd() const{
+    QString rd = m_EventCSVInfo.GetDetailForRD();
+    for(int i = 0; i < m_StringForRd.size(); i++)
+    {
+        if(rd.contains(QString("%1").arg(i)))
+        {
+            rd.replace(QString("%1").arg(i),m_StringForRd[i].GetString());
+        }
+        else
+        {
+            rd += " " + m_StringForRd[i].GetString();
+        }
+    }
+    if(! rd.isEmpty())
+    {
+        rd += QString(" Event Code:%1").arg(m_EventCodeFromCom);
+        rd += QString(" Error Code:%1").arg(GetEventCode());
+        rd += QString(" Scenario:%1").arg(m_Scenario);
+    }
+    return rd;
 }
 } // end namespace DataLogging

@@ -76,6 +76,12 @@ void DayEventLogger::SwitchToNewFile() {
 /****************************************************************************/
 void DayEventLogger::Log(const DayEventEntry &Entry) {
 
+    //HW parameter log
+    if(Entry.GetIsHWParameter())
+    {
+        AppendLine(TimeStampToString(Entry.GetTimeStamp())+ "\t" + Entry.GetHWParameter());
+        return;
+    }
         // translate event type
         quint32 IDStrEvtType = EVENT_GLOBAL_UNKNOWN_STRING_ID;
         const Global::EventType EventType = Entry.GetEventType();
@@ -149,7 +155,13 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
 
         if(!ParameterString.isEmpty())
         {
-             LoggingString = LoggingString + ParameterString + "\n";
+             LoggingString = LoggingString + ParameterString;
+        }
+
+        //String For R&D
+        if(!Entry.GetStringForRd().isEmpty())
+        {
+            LoggingString = LoggingString + Entry.GetStringForRd() + ";";
         }
 
         // check if we must printout to console (because we sent it to the data logger

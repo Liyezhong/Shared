@@ -39,6 +39,7 @@
 #include <QMetaType>
 #include <QThread>
 #include <QDebug>
+#include <QDateTime>
 
 //#define VALIDATE
 
@@ -225,7 +226,7 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
         EventEntry.SetTranslatableStringList(EventStringList);
     }
 
-    EventEntry.SetStringForRd(EventStringListForRd);
+    EventEntry.SetStringArgForRd(EventStringListForRd);
     EventEntry.SetEventCodeFromCom(EventCodeScenario >> 32);
     EventEntry.SetScenario(EventCodeScenario &0xffffffff);
 
@@ -793,6 +794,12 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
 //        }
 //    }
 //    qDebug()<<"Event Entry status in UpdateEventDataStructures();"<<EventEntry.IsEventActive();
+}
+
+void EventHandlerThreadController::ProcessLog(QString info)
+{
+    DataLogging::DayEventEntry EventEntry(true,info);
+    emit LogEventEntry(EventEntry);
 }
 
 /****************************************************************************/

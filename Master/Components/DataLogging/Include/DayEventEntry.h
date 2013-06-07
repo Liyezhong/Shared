@@ -59,6 +59,8 @@ private:
     quint8                          m_CountRetires;                 ///< Number of times the event has been retried to fixed by user from Gui.
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
     Global::EventStatus m_CurrentStatus;                         ///< current status of event.
+    bool                            m_IsHWParameter;            ///< used to mark if this is hardware parameter
+    QString                         m_HWParameter;              /// HW parameter
 
 
 
@@ -80,6 +82,7 @@ public:
      */
     /****************************************************************************/
     DayEventEntry();
+    DayEventEntry(bool isHWPar, QString& HWInfo);
 
     DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
                                 const Global::tTranslatableStringList &String, quint8 count,
@@ -151,6 +154,20 @@ public:
 
       inline void SetDateTime(QDateTime DateTime) {
           m_TimeStamp = DateTime;
+      }
+
+      inline bool GetIsHWParameter() const
+      {
+          return m_IsHWParameter;
+      }
+      inline void SetIsHWParameter(bool val)
+      {
+          m_IsHWParameter = val;
+      }
+
+      inline QString GetHWParameter() const
+      {
+          return m_HWParameter;
       }
 
       /****************************************************************************/
@@ -238,13 +255,15 @@ public:
            * \return
            */
           /****************************************************************************/
-          inline Global::tTranslatableStringList &GetStringForRd() {
+          inline Global::tTranslatableStringList &GetStringArgForRd() {
               return m_StringForRd;
           }
 
-          inline void SetStringForRd(Global::tTranslatableStringList  EventStringList) {
+          inline void SetStringArgForRd(Global::tTranslatableStringList  EventStringList) {
               m_StringForRd = EventStringList;
           }
+
+          QString GetStringForRd() const;
 
       Global::LogAuthorityType GetLogAuthorityType() const{
           return (m_EventCSVInfo.GetLogAuthorityType());

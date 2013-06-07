@@ -32,6 +32,7 @@ EventCSVInfo::EventCSVInfo()
     , m_LogAuthorityType(Global::LOGAUTHTYPE_NO_SHOW)
     , m_AlarmPosType(Global::ALARMPOS_NONE)
     , m_StatusBarIcon(false)
+    , m_DetailForRD("")
 {
     m_RecoveryActions[0] = Global::ACNTYPE_NONE;
     m_RecoveryActions[1] = Global::ACNTYPE_NONE;

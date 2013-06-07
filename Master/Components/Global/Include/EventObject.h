@@ -295,6 +295,11 @@ public:
         throw E;
     }
 
+    inline void RaiseLog(QString info)
+    {
+        emit ForwardLog(info);
+    }
+
 signals:
     /****************************************************************************/
     /**
@@ -304,6 +309,7 @@ signals:
     /****************************************************************************/
     void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, const Global::tTranslatableStringList,quint64);
 
+    void ForwardLog(QString info);
 }; // end class EventObject
 
 #define LOGANDTHROW(ErrorCode) \
