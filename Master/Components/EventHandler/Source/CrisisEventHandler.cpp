@@ -118,12 +118,12 @@ quint32 CrisisEventHandler::findErrorCode(quint32 eventId, quint32 Scenario)
 }
 
 
-QStringList& CrisisEventHandler::RaiseLog()
+LogArgs& CrisisEventHandler::RaiseLog()
 {
     if(OneLogInfo.size() >0 )
     {
         QString info("");
-        for(QStringList::const_iterator it = OneLogInfo.constBegin(); it != OneLogInfo.constEnd(); it++)
+        for(LogArgs::const_iterator it = OneLogInfo.constBegin(); it != OneLogInfo.constEnd(); it++)
         {
             info += " " + *it;
         }

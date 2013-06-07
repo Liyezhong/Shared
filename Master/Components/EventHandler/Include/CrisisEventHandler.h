@@ -22,10 +22,28 @@
 #define EVENTHANDLER_CRISISEVENTHANDLER_H
 #include <QObject>
 #include <QMultiHash>
-#include <QStringList>
+#include <QList>
 #include <Global/Include/EventObject.h>
 
 namespace EventHandler {
+
+class LogArgs: public QList<QString>
+{
+    public:
+        /// overloaded << operator for appending integer
+        LogArgs& operator<<(const double val)
+        {
+            this->append(QString("%1").arg(val));
+            return *this;
+        }
+
+        /// << operator for strings must be redefined for child class!
+        LogArgs& operator<<(const QString& strg)
+        {
+            this->append(strg);
+            return *this;
+        }
+};
 
 
 /****************************************************************************/
@@ -131,7 +149,7 @@ public:
     quint32 findErrorCode(quint32 eventId);
     quint32 findErrorCode(quint32 eventId,quint32 Scenario);
 
-    QStringList& RaiseLog();
+    LogArgs& RaiseLog();
 
 
 private:
@@ -141,7 +159,7 @@ private:
     Q_DISABLE_COPY(CrisisEventHandler ) //!< Disable Copy and assignment
     quint32 m_currentSysState;  //!< Keep current system state
     QMultiHash< quint32, QPair<QStringList,quint32> > m_EventStateErrorHash; //!< QHash<EventId, QPair<StateList, ErrorId>
-    QStringList OneLogInfo;
+    LogArgs OneLogInfo;
 }; // end class
 
 
