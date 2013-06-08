@@ -71,7 +71,6 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :
     mp_Ui->statusLabelWarn->setHidden(true);
     mp_Ui->statusLabelErr->installEventFilter(this);
     mp_Ui->statusLabelWarn->installEventFilter(this);
-    mp_Ui->labelLanguage->installEventFilter(this);
 }
 /****************************************************************************/
 /*!
@@ -393,9 +392,6 @@ bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
                 qDebug()<< "Clicked on Warning status label";
             }
             return true;
-        }
-        else if (Obj == static_cast<QObject*>(mp_Ui->labelLanguage)) {
-            emit ShowLanguageSelectDialog();
         }
     }
 }
