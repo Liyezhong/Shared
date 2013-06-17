@@ -295,13 +295,15 @@ typedef enum
     SYNC_CMD_RT_GET_TEMP = 23,
     SYNC_CMD_RT_SET_TEMP_PID = 24,
     SYNC_CMD_RT_GET_TEMP_CTRL_STATE = 25,
-    SYNC_CMD_RT_SET_DO_VALVE = 26,
-    SYNC_CMD_OVEN_SET_TEMP = 27,
-    SYNC_CMD_OVEN_GET_TEMP = 28,
-    SYNC_CMD_OVEN_SET_TEMP_PID = 29,
-    SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE = 30,
-    SYNC_CMD_OVEN_SET_DO_VALVE = 31,
-    SYNC_CMD_PER_SET_DO_VALVE = 32,
+    SYNC_CMD_RT_SET_DO_VALUE = 26,
+    SYNC_CMD_RT_GET_DI_VALUE = 27,
+    SYNC_CMD_OVEN_SET_TEMP = 28,
+    SYNC_CMD_OVEN_GET_TEMP = 29,
+    SYNC_CMD_OVEN_SET_TEMP_PID = 30,
+    SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE = 31,
+    SYNC_CMD_OVEN_GET_DI_VALUE = 32,
+    SYNC_CMD_PER_GET_DI_VALUE = 33,
+    SYNC_CMD_PER_SET_DO_VALUE = 34,
 
     SYNC_CMD_TOTAL_NUM = 40
 } SyncCmdType_t;
@@ -511,10 +513,11 @@ public:
     static const QString m_ALFanDOKey;               //!< Air-liquid fan digital output
     static const QString m_OvenTopTempCtrlKey;       //!< Oven top temp control
     static const QString m_OvenBottomTempCtrlKey;    //!< Oven bottom temp control
-    static const QString m_OvenLockDIKey;            //!< Oven lock digital input
+    static const QString m_OvenLidDIKey;            //!< Oven lid digital input
     static const QString m_RetortBottomTempCtrlKey;  //!< Retort bottom temp control
     static const QString m_RetortSideTempCtrlKey;    //!< Retort side temp control
     static const QString m_RetortLockDOKey;          //!< Retort lock digital output
+    static const QString m_RetortLockDIKey;          //!< Retort lock digital output
     static const QString m_PerRemoteAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
     static const QString m_PerLocalAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
 //    static const QString m_PerRemoteAlarmSetDOKey;   //!< Miscellaneous remote alarm set digital output
@@ -537,10 +540,11 @@ public:
         FCTMOD_AL_FANDO               = 0x5000F,  //!< Air-liquid fan digital output
         FCTMOD_OVEN_TOPTEMPCTRL       = 0x10005,  //!< Oven top temp control
         FCTMOD_OVEN_BOTTOMTEMPCTRL    = 0x20005,  //!< Oven bottom temp control
-        //FCTMOD_OVEN_LOCKDIKEY;            //!< Oven lock digital input
+        FCTMOD_OVEN_LIDDI             = 0xB000F,  //!< Oven lid digital input
         FCTMOD_RETORT_BOTTOMTEMPCTRL  = 0x30005,  //!< Retort bottom temp control
         FCTMOD_RETORT_SIDETEMPCTRL    = 0x40005,  //!< Retort side temp control
         FCTMOD_RETORT_LOCKDO          = 0x6000F,  //!< Retort lock digital output
+        FCTMOD_RETORT_LOCKDI          = 0xA000F,  //!< Retort lock digital input
         FCTMOD_PER_REMOTEALARMCTRLDO  = 0x8000F,  //!< Miscellaneous remote alarm ctrl digital output
         FCTMOD_PER_LOCALALARMCTRLDO   = 0x9000F,  //!< Miscellaneous remote alarm set digital output
         //FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output

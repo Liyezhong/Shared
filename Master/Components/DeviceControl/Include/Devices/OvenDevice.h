@@ -4,12 +4,12 @@
 
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/Devices/BaseDevice.h"
-#include "DeviceControl/Include/Devices/FunctionModuleTaskManager.h"
 
 
 namespace DeviceControl
 {
 class CTemperatureControl;
+class CDigitalInput;
 
 class COvenDevice : public CBaseDevice
 {
@@ -29,6 +29,7 @@ public:
     ReturnCode_t StartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     ReturnCode_t StartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    quint16 GetRecentOvenLidStatus();
     TempCtrlState_t GetTemperatureControlState(OVENTempCtrlType_t Type);
 
 private slots:
@@ -46,6 +47,8 @@ private slots:
     bool SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(OVENTempCtrlType_t Type, quint8 Index);
     bool GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index);
+    quint16 GetLidStatus();
+    bool GetLidStatusAsync();
 
 
 
@@ -62,6 +65,7 @@ private slots:
     void OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
+    void OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue);
 
     //! command handling task
     //  void HandleCommandRequestTask();
@@ -75,6 +79,7 @@ private slots:
 private:
     //Function modules
     CTemperatureControl* m_pTempCtrls[OVEN_TEMP_CTRL_NUM];
+    CDigitalInput* m_pLidDigitalInput;
 
 
     qreal m_CurrentTemperatures[OVEN_TEMP_CTRL_NUM];                     //!< Current temperature
@@ -83,7 +88,9 @@ private:
     TempCtrlStatus_t m_CurrentTempCtrlStatus[OVEN_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[OVEN_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
     qint64 m_LastGetTempTime[OVEN_TEMP_CTRL_NUM][5];
+    qint64 m_LastGetLidStatusTime;
     QMap<quint32, OVENTempCtrlType_t> m_InstTCTypeMap;
+    quint16 m_LidStatus;     //!< Target output value; for verification of action result
 
 
     /*! error task state definitiosn */

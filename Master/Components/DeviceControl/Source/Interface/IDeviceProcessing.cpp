@@ -1132,6 +1132,19 @@ qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint
         return UNDEFINED_VALUE;
     }
 }
+
+quint16 IDeviceProcessing::OvenGetRecentLidStatus()
+{
+    if(m_pOven)
+    {
+        return m_pOven->GetRecentOvenLidStatus();
+    }
+    else
+    {
+        return UNDEFINED_VALUE;
+    }
+}
+
 TempCtrlState_t IDeviceProcessing::OvenGetTemperatureControlState(OVENTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1277,6 +1290,18 @@ ReturnCode_t IDeviceProcessing::RTLock()
     else
     {
         return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+quint16 IDeviceProcessing::RTGetRecentLockStatus()
+{
+    if(m_pRetort)
+    {
+        return m_pRetort->GetRecentRetortLockStatus();
+    }
+    else
+    {
+        return UNDEFINED_VALUE;
     }
 }
 

@@ -2,6 +2,7 @@
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
@@ -29,7 +30,7 @@ void COvenDevice::Reset()
     m_ErrorTaskState   = OVEN_DEV_ERRTASK_STATE_FREE;
 
     m_instanceID = DEVICE_INSTANCE_ID_OVEN;
-
+    m_LastGetLidStatusTime = 0;
     memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime));
     memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));
     memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus));
@@ -177,6 +178,14 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;
     }
 
+    m_pLidDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey));
+    if(m_pLidDigitalInput == 0)
+    {
+        // the function module could not be allocated
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
 
     return RetVal;
 }
@@ -272,6 +281,21 @@ ReturnCode_t COvenDevice::HandleConfigurationState()
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
+    if(!connect(m_pLidDigitalInput, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
+            this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pLidDigitalInput, SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
@@ -287,6 +311,10 @@ void COvenDevice::CheckSensorsData()
     if(m_pTempCtrls[OVEN_BOTTOM])
     {
         GetTemperatureAsync(OVEN_BOTTOM, 0);
+    }
+    if(m_pLidDigitalInput)
+    {
+        GetLidStatusAsync();
     }
 }
 
@@ -618,6 +646,7 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
     }
     return RetValue;
 }
+
 bool COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
@@ -628,7 +657,6 @@ bool COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index)
     }
     return true;
 }
-
 
 void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp)
 {
@@ -683,5 +711,60 @@ void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemp
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID, ReturnCode);
 }
 
+quint16 COvenDevice::GetLidStatus()
+{
+    //Log(tr("GetValue"));
+    ReturnCode_t retCode = m_pLidDigitalInput->ReqActInputValue();
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED;
+    }
+    retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED;
+    }
+    return m_LidStatus;
+}
 
+bool COvenDevice::GetLidStatusAsync()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetLidStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetLidStatusTime = Now;
+        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pLidDigitalInput->ReqActInputValue());
+    }
+    return true;
+}
+
+void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue)
+{
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Oven Get DI value successful! ";
+        m_LidStatus = InputValue;
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven Get DI value failed! " << ReturnCode;
+    }
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE, ReturnCode);
+}
+
+quint16 COvenDevice::GetRecentOvenLidStatus()
+{
+   // QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    qreal RetValue;
+    if((Now - m_LastGetLidStatusTime) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_LidStatus;
+    }
+    else
+    {
+        RetValue = UNDEFINED;
+    }
+    return RetValue;
+}
 } //namespace

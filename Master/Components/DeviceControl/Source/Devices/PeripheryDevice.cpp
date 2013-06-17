@@ -318,8 +318,6 @@ void CPeripheryDevice::HandleErrorState()
     }
 }
 
-
-
 bool CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     m_TargetDOOutputValues[Type] = OutputValue;
@@ -329,8 +327,9 @@ bool CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16
     {
         return false;
     }
-    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALVE));
+    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALUE));
 }
+
 void CPeripheryDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue)
 {
     Q_UNUSED(OutputValue)
@@ -342,7 +341,7 @@ void CPeripheryDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Periphery set DO output failed! " << ReturnCode;
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_SET_DO_VALVE, ReturnCode);
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_SET_DO_VALUE, ReturnCode);
 
 }
 ReturnCode_t CPeripheryDevice::TurnOnMainRelay()

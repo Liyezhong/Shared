@@ -10,6 +10,7 @@ namespace DeviceControl
 {
 class CTemperatureControl;
 class CDigitalOutput;
+class CDigitalInput;
 
 class CRetortDevice : public CBaseDevice
 {
@@ -31,7 +32,8 @@ public:
     ReturnCode_t StartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
     TempCtrlState_t GetTemperatureControlState(RTTempCtrlType_t Type);
-
+    quint16 GetLidStatus();
+    quint16 GetRecentRetortLockStatus();
 
     ReturnCode_t Unlock();
     ReturnCode_t Lock();
@@ -51,6 +53,7 @@ private slots:
     bool SetTemperature(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(RTTempCtrlType_t Type, quint8 Index);
     bool GetTemperatureAsync(RTTempCtrlType_t Type, quint8 Index);
+    bool GetLockStatusAsync();
 
 
     bool SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
@@ -70,6 +73,7 @@ private slots:
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
+    void OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue);
 
     //! command handling task
     //  void HandleCommandRequestTask();
@@ -84,6 +88,7 @@ private:
     //Function modules
     CTemperatureControl* m_pTempCtrls[RT_TEMP_CTRL_NUM];
     CDigitalOutput* m_pLockDigitalOutput;
+    CDigitalInput* m_pLockDigitalInput;
 
 
     qreal m_CurrentTemperatures[RT_TEMP_CTRL_NUM];                     //!< Current temperature
@@ -94,7 +99,9 @@ private:
     qint64 m_LastGetTempTime[RT_TEMP_CTRL_NUM][5];
     QMap<quint32, RTTempCtrlType_t> m_InstTCTypeMap;
 
+    qint64 m_LastGetLockStatusTime;
     qint16 m_TargetDOOutputValue;     //!< Target output value; for verification of action result
+    qint16 m_LockStatus;     //!< Target output value; for verification of action result
 
 
     /*! error task state definitiosn */

@@ -2,6 +2,7 @@
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
@@ -30,6 +31,7 @@ void CRetortDevice::Reset()
     m_instanceID = DEVICE_INSTANCE_ID_RETORT;
 
     m_pLockDigitalOutput = NULL;
+    m_pLockDigitalInput = NULL;
     memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime));
     memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));
     memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus));
@@ -38,7 +40,8 @@ void CRetortDevice::Reset()
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus));
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));
     m_TargetDOOutputValue = 0;
-
+    m_LockStatus = 0;
+    m_LastGetLockStatusTime = 0;
 }
 /****************************************************************************/
 /*!
@@ -178,7 +181,6 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL] = RT_SIDE;
     }
 
-
     m_pLockDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDOKey));
     if(m_pLockDigitalOutput == 0)
     {
@@ -187,6 +189,16 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDO not allocated.";
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
+
+    m_pLockDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDIKey));
+    if(m_pLockDigitalInput == 0)
+    {
+        // the function module could not be allocated
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
     return RetVal;
 }
 /****************************************************************************/
@@ -288,6 +300,22 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
+    if(!connect(m_pLockDigitalInput, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
+            this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pLockDigitalInput, SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
     return DCL_ERR_FCT_CALL_SUCCESS;
 
 }
@@ -304,6 +332,10 @@ void CRetortDevice::CheckSensorsData()
     if(m_pTempCtrls[RT_SIDE])
     {
         GetTemperatureAsync(RT_SIDE, 0);
+    }
+    if(m_pLockDigitalInput)
+    {
+        GetLockStatusAsync();
     }
 }
 
@@ -712,7 +744,7 @@ bool CRetortDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 De
     {
         return false;
     }
-    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALVE));
+    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALUE));
 }
 void CRetortDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue)
 {
@@ -725,7 +757,7 @@ void CRetortDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t Retu
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode;
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_DO_VALVE, ReturnCode);
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_DO_VALUE, ReturnCode);
 
 }
 ReturnCode_t CRetortDevice::Lock()
@@ -750,6 +782,61 @@ ReturnCode_t CRetortDevice::Unlock()
         return DCL_ERR_FCT_CALL_FAILED;
     }
 }
+void CRetortDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue)
+{
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Retort Get DI value successful! ";
+        m_LockStatus = InputValue;
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode;
+    }
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_DI_VALUE, ReturnCode);
+}
 
+quint16 CRetortDevice::GetRecentRetortLockStatus()
+{
+   // QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    qreal RetValue;
+    if((Now - m_LastGetLockStatusTime) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_LockStatus;
+    }
+    else
+    {
+        RetValue = UNDEFINED;
+    }
+    return RetValue;
+}
+
+bool CRetortDevice::GetLockStatusAsync()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetLockStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetLockStatusTime = Now;
+        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pLockDigitalInput->ReqActInputValue());
+    }
+    return true;
+}
+
+quint16 CRetortDevice::GetLidStatus()
+{
+    //Log(tr("GetValue"));
+    ReturnCode_t retCode = m_pLockDigitalInput->ReqActInputValue();
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED;
+    }
+    retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_DI_VALUE);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED;
+    }
+    return m_LockStatus;
+}
 
 } //namespace

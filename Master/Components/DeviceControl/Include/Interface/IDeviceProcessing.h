@@ -134,6 +134,7 @@ public:
     ReturnCode_t OvenSetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    quint16 OvenGetRecentLidStatus();
     TempCtrlState_t OvenGetTemperatureControlState(OVENTempCtrlType_t Type);
     ReturnCode_t OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Retort device func
@@ -146,6 +147,7 @@ public:
     TempCtrlState_t RTGetTemperatureControlState(RTTempCtrlType_t Type);
     ReturnCode_t RTUnlock();
     ReturnCode_t RTLock();
+    quint16 RTGetRecentLockStatus();
     //Periphery device func
     ReturnCode_t PerTurnOffMainRelay();
     ReturnCode_t PerTurnOnMainRelay();
