@@ -28,7 +28,6 @@
 #include <sys/timeb.h> // used for time measurement
 
 #include <QMutex>
-#include <QWaitCondition>
 #include <QReadWriteLock>
 #include <QWaitCondition>
 #include <QList>
@@ -100,6 +99,7 @@ public:
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
 
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
+    ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout);
     void ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value);
     //! Main state typde definition
     typedef enum {
@@ -354,7 +354,9 @@ private:
     QDateTime    m_LastErrorTime;       //!< Last error's time
     QString      m_LastErrorString;     //!< Last error information string
 
-    QEventLoop m_EventLoopsForSyncCall[SYNC_CMD_TOTAL_NUM];
+    QWaitCondition m_WaitConditionForSyncCall[SYNC_CMD_TOTAL_NUM];
+    ReturnCode_t m_SyncCallResult[SYNC_CMD_TOTAL_NUM];
+    QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];
 };
 
 } // namespace

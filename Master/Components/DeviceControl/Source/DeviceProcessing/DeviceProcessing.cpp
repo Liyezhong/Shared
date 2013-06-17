@@ -2021,20 +2021,59 @@ void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, 
     m_LastErrorCode  = ErrorCode;
     m_LastErrorData  = ErrorData;
 }
-ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
+
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
 {
-    ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
-    if(!m_EventLoopsForSyncCall[CmdType].isRunning())
+    ReturnCode_t retValue;
+   // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
     {
-        retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].exec();
+        m_Mutex[CmdType].lock();
+        if(m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType], Timeout))
+        {
+            retValue = m_SyncCallResult[CmdType];
+        }
+        else
+        {
+            retValue = DCL_ERR_TIMER_TIMEOUT;
     }
+        m_Mutex[CmdType].unlock();
+    }
+    else
+    {
+         retValue = DCL_ERR_INVALID_PARAM;
+    }
+   // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
+
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
+{
+    ReturnCode_t retValue;
+   // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
+    {
+        m_Mutex[CmdType].lock();
+        m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType]);
+        retValue = m_SyncCallResult[CmdType];
+        m_Mutex[CmdType].unlock();
+    }
+    else
+    {
+         retValue = DCL_ERR_INVALID_PARAM;
+    }
+   // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    return retValue;
+}
+
 void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
 {
-    if(m_EventLoopsForSyncCall[CmdType].isRunning())
+    if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
     {
-        m_EventLoopsForSyncCall[CmdType].exit(Value);
+        m_Mutex[CmdType].lock();
+        m_WaitConditionForSyncCall[CmdType].wakeAll();
+        m_SyncCallResult[CmdType] = (ReturnCode_t)Value;
+        m_Mutex[CmdType].unlock();
     }
 }
 } //namespace

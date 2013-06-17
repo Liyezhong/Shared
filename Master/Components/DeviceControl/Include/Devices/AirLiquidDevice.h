@@ -90,6 +90,7 @@ public:
     ReturnCode_t TurnOnFan();
     ReturnCode_t TurnOffFan();
     ReturnCode_t BreakAllOperation(void);
+    ReturnCode_t AllStop(void);
     ReturnCode_t SetPressureDrift(qreal pressureDrift);
 
 private slots:
@@ -144,6 +145,7 @@ private slots:
     void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
     void OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quint8 State);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
+    //void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
 
     //! command handling task
     //  void HandleCommandRequestTask();

@@ -623,7 +623,6 @@ void CAirLiquidDevice::StopCompressor(void)
 ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start release pressure procedure";
-    QTimer timer;
     quint32 TimeSlotPassed = 0;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
 
@@ -633,7 +632,6 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(ReleasePressureTimerCB()));
     //close both valve
     StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
@@ -641,25 +639,25 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
     qreal CurrentPressure = GetPressure(0);
 
-    timer.setSingleShot(false);
-    timer.start(500);
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Wait for current pressure get to ZERO";
     //while((CurrentPressure > 2)||(CurrentPressure < (-2)))
     while((CurrentPressure > 5)||(CurrentPressure < (-5)))
     {
         CurrentPressure = GetPressure(0);
         //if (m_LoopReleasePressureTimer.exec() == RELEASE_PRESSURE_PROCEDURE_INTERRUPT)
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE);
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, 500);
+        qDebug() << "Device Air Liquid: Sync call returned: " << retCode;
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
-            timer.stop();
+            qDebug() << "WARNING: Current procedure has been interrupted, exit now.";
             return DCL_ERR_UNEXPECTED_BREAK;
         }
         TimeSlotPassed++;
         if(TimeSlotPassed*500 > RELEASE_PRESSURE_MAX_TIME)
         {
-            FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release Pressure exceed maximum setup time, exit!";
+            //FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release Pressure exceed maximum setup time, exit!";
+            qDebug() << "WARNING:  Release Pressure exceed maximum setup time, exit!";
             //stop compressor
             StopCompressor();
             //close both valve
@@ -670,6 +668,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
         }
     }
     TurnOffFan();
+    qDebug() << "Device Air Liquid: Pressure released, exit now.";
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
@@ -728,7 +727,6 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
 
     bool stop = false;
     ReturnCode_t RetValue = DCL_ERR_DEV_AL_DRAIN_SUCCESS;
-    QTimer timer;
     qreal CurrentPressure = 0;
     bool PressureHasBeenSetup = false;
     qint32 counter = 0;
@@ -736,7 +734,6 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     bool WarnShowed = false;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(DrainingTimerCB()));
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Drainging procedure.";
     //release pressure
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
@@ -752,13 +749,11 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         goto SORTIE;
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set target pressure finished.";
-    timer.setSingleShot(false);
-    timer.start(DRAINGING_POLLING_TIME);
 
     while(!stop)
     {
         // if (m_LoopDrainingTimer.exec()== (-1))
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING);
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DRAINGING_POLLING_TIME);
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
@@ -809,9 +804,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     if(DelayTime > 0)
     {
         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Finished. start hold for "<< DelayTime << " millisecond.";
-        timer.setSingleShot(true);
-        timer.start(DelayTime);
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING);
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DelayTime);
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
@@ -821,10 +814,6 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     }
 
 SORTIE:
-    if(timer.isActive())
-    {
-        timer.stop();
-    }
     //stop compressor
     StopCompressor();
     //close both valve
@@ -839,14 +828,12 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 {
     ReturnCode_t RetValue = DCL_ERR_DEV_AL_FILL_SUCCESS;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
-    QTimer timer;
     quint32 counter = 0;
     quint32 CounterStopValue = 0;
     QList<qreal> PressureBuf;
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
-    connect(&timer, SIGNAL(timeout()), this, SLOT(SuckingTimerCB()));
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
 
     //release pressure
@@ -864,13 +851,10 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
     }
 
     //set timeout to 2 minutes
-    timer.setSingleShot(false);
-    timer.start(SUCKING_POOLING_TIME);
-
     while(!stop)
     {
         // levelSensorState = m_LoopSuckingLevelSensor.exec();
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR);
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, SUCKING_POOLING_TIME);
         counter++;
         //if(levelSensorState == 1)
         if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 == retCode)
@@ -997,10 +981,6 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 
 
 SORTIE:
-    if(timer.isActive())
-    {
-        timer.stop();
-    }
     ReleasePressure();
     TurnOffFan();
     return RetValue;
@@ -1009,13 +989,10 @@ SORTIE:
 ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
 {
     qDebug()<< "Start setting up pressure for bottle check";
-    QTimer timer;
     bool stop = false;
     quint32 TimeSlotPassed = 0;
     qreal CurrentPressure;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
-
-    connect(&timer, SIGNAL(timeout()), this, SLOT(PressureTimerCB()));
 
     //release pressure
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
@@ -1031,12 +1008,10 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
         goto SORTIE;
     }
     IsPIDDataSteady(0,  0,  0,  0, true);
-    timer.setSingleShot(false);
-    timer.start(200);
 
     while(!stop)
     {
-        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE);
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, 200);
         if ( DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
@@ -1051,13 +1026,11 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
             qDebug()<<"Target pressure is getting steady now.";
             retCode = DCL_ERR_FCT_CALL_SUCCESS;
             stop = true;
-            timer.stop();
         }
         else
         {
             if((TimeSlotPassed * 200) > PRESSURE_MAX_SETUP_TIME)
             {
-                timer.stop();
                 qDebug()<<"Warning: Pressure exceed maximum setup time, exit!";
                 //stop compressor
                 ReleasePressure();
@@ -1069,10 +1042,6 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
     //stop compressor
     StopCompressor();
 SORTIE:
-    if(timer.isActive())
-    {
-        timer.stop();
-    }
     return retCode;
 }
 
@@ -1585,19 +1554,25 @@ ReturnCode_t CAirLiquidDevice::TurnOffFan()
 
 ReturnCode_t CAirLiquidDevice::BreakAllOperation(void)
 {
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start break all operation procedure";
-
+    qDebug() << "Device Airliquid: Start break all operation procedure";
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
 
-    //close both valve
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+ReturnCode_t CAirLiquidDevice::AllStop(void)
+{
+    qDebug() << "Device Airliquid: Stop pump";
     StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
+    qDebug() << "Device Airliquid: Close both valves";
     m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
     m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+    qDebug() << "Device Airliquid: Stop fan";
     m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
     return DCL_ERR_FCT_CALL_SUCCESS;
 }

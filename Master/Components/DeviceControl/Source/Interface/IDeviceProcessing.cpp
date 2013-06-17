@@ -853,7 +853,23 @@ ReturnCode_t IDeviceProcessing::ALTurnOffFan()
 
 ReturnCode_t IDeviceProcessing::ALAllStop()
 {
-   if(m_pAirLiquid)
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->AllStop();
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+ReturnCode_t IDeviceProcessing::ALBreakAllOperation()
+{
+    if(m_pAirLiquid)
     {
         return m_pAirLiquid->BreakAllOperation();
     }
