@@ -1128,7 +1128,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
                              GetUpperLimit(EDPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false));
     }
 
-    if(ret&&(3 == EDPosition))
+    if((DCL_ERR_DEV_RV_REF_MOVE_OK == ret) && (3 == EDPosition))
     {
         ret = MoveToNextPort(false, \
                              GetLowerLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false), \
@@ -1329,14 +1329,14 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
                              GetLowerLimit(EDPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false), \
                              GetUpperLimit(EDPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false));
     }
-    if(2 == EDPosition)
+    if((DCL_ERR_DEV_RV_REF_MOVE_OK == ret) && (2 == EDPosition))
     {
         ret = MoveToNextPort(false, \
                              GetLowerLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false), \
                              GetUpperLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false));
     }
 
-    if((ret == DCL_ERR_DEV_RV_NOT_INITIALIZED) && (EDPosition == GetEDPosition()))
+    if((ret == DCL_ERR_DEV_RV_REF_MOVE_OK) && (EDPosition == GetEDPosition()))
     {
         quint32 tempPosition = ((quint32)EDPosition + 1);
         if(tempPosition == 33)

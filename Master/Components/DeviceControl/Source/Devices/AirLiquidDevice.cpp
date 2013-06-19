@@ -735,6 +735,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
 
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Drainging procedure.";
+    qDebug() << "Device Air Liquid: INFO: Start Drainging procedure.";
     //release pressure
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
     {
@@ -749,6 +750,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         goto SORTIE;
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set target pressure finished.";
+    qDebug() << "Device Air Liquid: INFO: Set target pressure finished.";
 
     while(!stop)
     {
@@ -757,6 +759,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
+            qDebug() << "Device Air Liquid: WARNING: Current procedure has been interrupted, exit now.";
             RetValue = DCL_ERR_DEV_AL_DRAIN_INTERRUPT;
             goto SORTIE;
         }
@@ -768,6 +771,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
             {
                 PressureHasBeenSetup = true;
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure has been set up";
+            qDebug() << "Device Air Liquid: INFO: Pressure has been set up";
             }
         }
         else
@@ -778,6 +782,8 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
                 if(counter > 6)
                 {
                     FILE_LOG_L(laDEVPROC, llINFO) << "Drain finished!";
+                    qDebug() << "Device Air Liquid: Drain finished!";
+                    RetValue = DCL_ERR_DEV_AL_DRAIN_SUCCESS;
                     stop = true;
                 }
             }
@@ -790,11 +796,13 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         if(((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_SETUP_WARNING_TIME) && (!WarnShowed))
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining do not finished in expected time";
+            qDebug() << "Device Air Liquid: Warning: Draining do not finished in expected time";
             WarnShowed = true;
         }
         if((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_MAX_SETUP_TIME)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining exceed maximum setup time(%1 seconds), exit!";
+            qDebug() << "Device Air Liquid: Warning: Draining exceed maximum setup time(%1 seconds), exit!";
             RetValue = DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT;
             goto SORTIE;
         }
@@ -804,10 +812,12 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     if(DelayTime > 0)
     {
         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Finished. start hold for "<< DelayTime << " millisecond.";
+        qDebug() << "Device Air Liquid: INFO: Finished. start hold for "<< DelayTime << " millisecond.";
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DelayTime);
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
+            qDebug() << "Device Air Liquid: WARNING: Current procedure has been interrupted, exit now.";
             RetValue = DCL_ERR_DEV_AL_DRAIN_INTERRUPT;
             goto SORTIE;
         }
