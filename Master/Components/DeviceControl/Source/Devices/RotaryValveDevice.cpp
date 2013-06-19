@@ -90,7 +90,7 @@ ReturnCode_t CRotaryValveDevice::ClearErrorState()
 /****************************************************************************/
 void CRotaryValveDevice::HandleTasks()
 {
-    ReturnCode_t RetVal;
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
     if(m_MainState == DEVICE_MAIN_STATE_IDLE)
     {
@@ -767,7 +767,7 @@ TempCtrlState_t CRotaryValveDevice::GetTemperatureControlState()
         return TEMPCTRL_STATE_ERROR;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_GET_TEMP_CTRL_STATE);
-    TempCtrlState_t controlstate;
+    TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         controlstate = TEMPCTRL_STATE_ERROR;

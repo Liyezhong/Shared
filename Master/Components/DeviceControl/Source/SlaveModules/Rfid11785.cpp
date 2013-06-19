@@ -1017,7 +1017,7 @@ ReturnCode_t CRfid11785::ReqUserData(quint8 Address)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-    quint8 CmdIndex;
+    quint8 CmdIndex = 0;
 
     if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_REQ), &CmdIndex)
     {
@@ -1050,7 +1050,7 @@ ReturnCode_t CRfid11785::WriteUserData(quint8 Address, quint32 Data)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-    quint8 CmdIndex;
+    quint8 CmdIndex = 0;
 
     if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_WRITE), &CmdIndex)
     {
@@ -1084,7 +1084,7 @@ ReturnCode_t CRfid11785::WritePassword(quint32 Password)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-    quint8 CmdIndex;
+    quint8 CmdIndex = 0;
 
     if(SetModuleTask(FM_RFID_CMD_TYPE_PASSWORD_WRITE), &CmdIndex)
     {
@@ -1119,7 +1119,7 @@ ReturnCode_t CRfid11785::WriteConfiguration(bool ReadLogin, bool WriteLogin, boo
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-    quint8 CmdIndex;
+    quint8 CmdIndex = 0;
 
     if(SetModuleTask(FM_RFID_CMD_TYPE_CONGIG_WRITE), &CmdIndex)
     {

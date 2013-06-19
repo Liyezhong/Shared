@@ -175,6 +175,7 @@ SoftSwitchMgr::~SoftSwitchMgr()
 }
 
 bool SoftSwitchMgr::CheckIfDeviceIsBusy(QEvent *p_Event) {
+    Q_UNUSED(p_Event)
     qDebug()<<"Testing If Device Is Busy";
     QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
     qDebug()<<"Device State" << CurrentSytemState;
@@ -187,6 +188,7 @@ bool SoftSwitchMgr::CheckIfDeviceIsBusy(QEvent *p_Event) {
 }
 
 bool SoftSwitchMgr::CheckIfDeviceIsIdle(QEvent *p_Event) {
+    Q_UNUSED(p_Event)
     qDebug()<<"Testing If Device Is Idle";
     QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
     qDebug()<<"Device State" << CurrentSytemState;
@@ -199,6 +201,7 @@ bool SoftSwitchMgr::CheckIfDeviceIsIdle(QEvent *p_Event) {
 }
 
 bool SoftSwitchMgr::IsSystemStateSoftSwitchMonitor(QEvent *p_Event) {
+    Q_UNUSED(p_Event)
     qDebug()<<"Testing If Device Is In Init";
     QString CurrentSytemState = EventHandler::StateHandler::Instance().getCurrentOperationState();
     qDebug()<<"Device State" << CurrentSytemState;
@@ -212,15 +215,15 @@ bool SoftSwitchMgr::IsSystemStateSoftSwitchMonitor(QEvent *p_Event) {
 
 bool SoftSwitchMgr::CheckShutDownTransition(QEvent *p_Event)
 {
+    Q_UNUSED(p_Event)
     qDebug()<<"Checking if previous state is Idle or Critical Action Check state";
     if (QString::compare(m_CurrentState, PressedAtIdleState) == 0
         || QString::compare(m_CurrentState, CriticalActionCheckState) == 0 ) {
 
         return true;
     }
-    else {
-        false;
-    }
+
+    return false;
 }
 
 void SoftSwitchMgr::OnDefaultStateEntered()

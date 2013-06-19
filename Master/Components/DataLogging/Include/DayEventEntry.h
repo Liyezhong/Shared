@@ -58,7 +58,7 @@ private:
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_CountRetires;                 ///< Number of times the event has been retried to fixed by user from Gui.
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
-    Global::EventStatus m_CurrentStatus;                         ///< current status of event.
+    Global::EventStatus             m_CurrentStatus;                         ///< current status of event.
     bool                            m_IsHWParameter;            ///< used to mark if this is hardware parameter
     QString                         m_HWParameter;              /// HW parameter
 

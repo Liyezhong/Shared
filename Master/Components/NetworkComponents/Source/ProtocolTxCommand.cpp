@@ -43,8 +43,9 @@ DEFINE_REG_CLASS(ProtocolTxCommand, DateAndTime);
 ProtocolTxCommand::ProtocolTxCommand() :
         ProtocolCommand::ProtocolCommand(),
         m_myRef(0),
-        m_myAppRef(0),
-        m_myTimer(this)
+        m_myTimer(this),
+        m_myAppRef(0)
+
 {
     m_myPayloadArray.clear();
 }

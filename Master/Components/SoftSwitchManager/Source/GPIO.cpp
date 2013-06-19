@@ -95,6 +95,7 @@ void GPIOPin::ExportGPIOPin()
 void GPIOPin::SetDirection(const bool Direction)
 {
     qint32 Fd = -1;
+
     char Buf[BUF_SIZE];
     (void)qsnprintf(Buf, sizeof(Buf), SYSFS_GPIO_DIRECTORY"/gpio%d/direction", m_PinNumber);
     Fd = open(Buf, O_WRONLY);
@@ -185,7 +186,11 @@ qint32 GPIOPin::SetEdge(const char *p_Edge)
         return -1;
     }
 
-    write(Fd, p_Edge, strlen(p_Edge) + 1);
+    ssize_t WriteLen = write(Fd, p_Edge, strlen(p_Edge) + 1);
+    if(WriteLen != (ssize_t)strlen(p_Edge) + 1)
+    {
+        return -1;
+    }
 
     close(Fd);
     return 0;
@@ -202,6 +207,7 @@ qint32 GPIOPin::SetEdge(const char *p_Edge)
 qint32 GPIOPin::SetValue(const qint32 Value)
 {
     if ( m_Direction && m_CurrentValue != Value ) {
+        ssize_t writeLen = 0;
 
         if ( 0 > m_Fd ) {
             Open();
@@ -211,11 +217,15 @@ qint32 GPIOPin::SetValue(const qint32 Value)
         }
 
         if ( Value ) {
-            write(m_Fd, "1", 2);
+            writeLen = write(m_Fd, "1", 2);
         } else {
-            write(m_Fd, "0", 2);
+            writeLen = write(m_Fd, "0", 2);
         }
 
+        if(writeLen != 2)
+        {
+            return -1;
+        }
         m_CurrentValue = Value;
     }
     close(m_Fd);

@@ -52,11 +52,11 @@ ConnectionManager::ConnectionManager(QHash<QString, QString> hash,
                                      m_myNumber(number),
                                      m_myClient(""),
                                      m_authenticationStringsList(hash),
+                                     m_timer(this),
                                      m_authRequest(req),
                                      m_authConfirm(conf),
                                      m_replySection(d),
-                                     m_connectionState(CM_NOT_AUTHENTICATED),
-                                     m_timer(this)
+                                     m_connectionState(CM_NOT_AUTHENTICATED)
 
 {
 }

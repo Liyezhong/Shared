@@ -26,3 +26,4 @@ SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/Devices/*.cpp \
             ../Source/Interface/*.cpp
 
+QMAKE_CXXFLAGS += -Wall -Wno-strict-aliasing

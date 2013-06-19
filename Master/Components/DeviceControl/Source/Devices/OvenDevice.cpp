@@ -500,7 +500,7 @@ TempCtrlState_t COvenDevice::GetTemperatureControlState(OVENTempCtrlType_t Type)
         return TEMPCTRL_STATE_ERROR;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE);
-    TempCtrlState_t controlstate;
+    TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         controlstate = TEMPCTRL_STATE_ERROR;

@@ -429,7 +429,7 @@ ReturnCode_t CRetortDevice::SetTempCtrlOFF(RTTempCtrlType_t Type)
 qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
    // QMutexLocker Locker(&m_Mutex);
-quint32 thisadd =(quint32)this;
+//quint32 thisadd =(quint32)this;
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
@@ -524,7 +524,7 @@ TempCtrlState_t CRetortDevice::GetTemperatureControlState(RTTempCtrlType_t Type)
         return TEMPCTRL_STATE_ERROR;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_TEMP_CTRL_STATE);
-    TempCtrlState_t controlstate;
+    TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         controlstate = TEMPCTRL_STATE_ERROR;

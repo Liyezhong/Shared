@@ -46,8 +46,9 @@ CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(int Timeout) :
  */
 /****************************************************************************/
 CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(Global::GuiUserLevel CurrentUserRole) :
-    m_CurrentUserRole(m_CurrentUserRole),
-    Command(0)
+    Command(0),
+    m_CurrentUserRole(CurrentUserRole)
+
 {
 }
 

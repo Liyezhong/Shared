@@ -27,8 +27,9 @@ QString CmdExternalProcessState::NAME           = "NetCommands::CmdExternalProce
 /****************************************************************************/
 CmdExternalProcessState::CmdExternalProcessState(int TimeOut, ProcessType_t ProcessType, bool Connected) :
     Global::Command(TimeOut),
-    m_Connected(Connected),
-    m_ProcessType(ProcessType)
+    m_ProcessType(ProcessType),
+    m_Connected(Connected)
+
 {
 }
 

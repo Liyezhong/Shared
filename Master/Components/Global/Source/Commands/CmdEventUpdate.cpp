@@ -35,8 +35,8 @@ QString CmdEventUpdate::NAME = "MsgClasses::CmdEventUpdate";
 CmdEventUpdate::CmdEventUpdate(quint32 eventId, QString type, bool stopSystem)
     : Global::Command(0)
     , m_eventId(eventId)
-    , m_type(type)
     , m_stopExecution(stopSystem)
+    , m_type(type)
 {
 }
 

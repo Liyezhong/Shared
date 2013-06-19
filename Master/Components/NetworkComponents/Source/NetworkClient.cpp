@@ -48,8 +48,8 @@ NetworkClient::NetworkClient(NetworkClientType_t type, const QString &ip, const 
       m_Ip(ip),
       m_port(port),
       m_authStage(NC_INIT),
-      m_BlockSize(0),
-      m_timer(this)
+      m_timer(this),
+      m_BlockSize(0)
 {
 }
 

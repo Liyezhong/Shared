@@ -72,17 +72,18 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     m_HeartbeatCheckTimer(this),
     m_ShutdownSharedMemName(ShutdownSharedMemName),
     m_ShutdownSharedMemTimer(this),
-    mp_SoftSwitchManagerThreadController(NULL),
-    m_CommandChannelSoftSwitch(this, "SoftSwitch", Global::EVENTSOURCE_NONE),
+    m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
+    m_HeartBeatSourceAxeda(101),
     m_CommandChannelDataLogging(this, "DataLogging", Global::EVENTSOURCE_DATALOGGER),
     m_CommandChannelEventThread(this, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER),
     mp_EventThreadController(NULL),
-    m_HeartBeatSourceSoftSwitch(100),
-    m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
-    m_HeartBeatSourceAxeda(101),
     mp_alarmHandler(NULL),
     mp_UserSettings(NULL),
-    mp_DataManagerBase(NULL)
+    mp_DataManagerBase(NULL),
+    mp_SoftSwitchManagerThreadController(NULL),
+    m_CommandChannelSoftSwitch(this, "SoftSwitch", Global::EVENTSOURCE_NONE),
+    m_HeartBeatSourceSoftSwitch(100)
+
 {
     // register the metytype for gSourceType
     qRegisterMetaType<Global::gSourceType>("Global::gSourceType");

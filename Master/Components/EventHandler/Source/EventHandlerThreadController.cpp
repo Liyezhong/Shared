@@ -184,6 +184,8 @@ void EventHandlerThreadController::AddResponseRecoveryTypes() {
 
 void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64)
 {
+    Q_UNUSED(EventEntry)
+    Q_UNUSED(EventId64)
 //    quint32 EventID = EventEntry.GetEventCode();
 //    int EventOccurenceCount = m_EventIDCount.count(EventID);
 //    if (EventOccurenceCount == 0) {
@@ -645,6 +647,7 @@ bool EventHandlerThreadController::HandlingError(const quint32 ErorCode, const q
 /****************************************************************************/
 void EventHandlerThreadController::DoResponseAction(const quint32 EventCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry)
 {
+    Q_UNUSED(EventCode)
     NetCommands::CmdSystemAction *p_CmdSystemAction;
     p_CmdSystemAction = new NetCommands::CmdSystemAction();
     p_CmdSystemAction->SetRetryCount(0);
@@ -661,6 +664,7 @@ void EventHandlerThreadController::DoResponseAction(const quint32 EventCode, con
 }
 
 bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo ) {
+    Q_UNUSED(EventCSVInfo)
 
 //    if((EventCSVInfo.GetLogAuthorityType() != Global::LOGAUTHTYPE_NO_SHOW) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON)) {
 
@@ -672,7 +676,7 @@ bool EventHandlerThreadController::VerifyUserLogGUIOptionDependency( EventHandle
 }
 
 bool EventHandlerThreadController::VerifySourceComponentGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
-
+    Q_UNUSED(EventCSVInfo)
 //    if((EventCSVInfo.GetSourceComponent() != Global::EVENTSOURCE_NONE) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON )) {
 
 //        qDebug()<< "Invalid SourceComponent - GUIOption combination set"<< EventCSVInfo.GetEventCode()<<"\t"<<
@@ -683,6 +687,7 @@ bool EventHandlerThreadController::VerifySourceComponentGUIOptionsDependency(Eve
 }
 
 bool EventHandlerThreadController::VerifyActionGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
+    Q_UNUSED(EventCSVInfo)
     //ActionNegative the action taken on negative acknowledgement by the user ,which means guiOption
     //is has to be filled properly with valid button type other than GUI:NO_BUTTON
 
@@ -709,6 +714,7 @@ bool EventHandlerThreadController::VerifyActionGUIOptionsDependency(EventHandler
 }
 
 bool EventHandlerThreadController::VerifyAlarmGUIOptionsDependency(EventHandler::EventCSVInfo EventCSVInfo) {
+    Q_UNUSED(EventCSVInfo)
      /// < If alarm is set then GUIOptions has to be set with a valid value.
 
 //    if((EventCSVInfo.GetAlarmPosType() != Global::ALARMPOS_NONE) && (EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON))
@@ -721,7 +727,7 @@ bool EventHandlerThreadController::VerifyAlarmGUIOptionsDependency(EventHandler:
 }
 
 bool EventHandlerThreadController::VerifyAlarmEventTypeDependency(EventHandler::EventCSVInfo EventCSVInfo) {
-
+    Q_UNUSED(EventCSVInfo)
     //            1 . alarm should not be set if event type is info.
 
 //        if((EventCSVInfo.GetEventType() == Global::EVTTYPE_INFO) && (EventCSVInfo.GetAlarmPosType() != Global::ALARMPOS_NONE)) {
@@ -735,7 +741,7 @@ bool EventHandlerThreadController::VerifyAlarmEventTypeDependency(EventHandler::
 }
 
 bool EventHandlerThreadController::VerifyStatusbarGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo) {
-
+    Q_UNUSED(EventCSVInfo)
 //       if((EventCSVInfo.GetStatusBarIcon() == true) && EventCSVInfo.GetGUIMessageBoxOptions() == Global::NO_BUTTON)
 //       {
 //           qDebug()<< "Invalid StatusBar icon GUIOption combination set"<<EventCSVInfo.GetEventCode()<<"\t"
@@ -759,6 +765,12 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
                                                              bool AckByGUI,
                                                              bool ResponseRes)
 {
+    Q_UNUSED(EventID)
+    Q_UNUSED(EventId64)
+    Q_UNUSED(EventEntry)
+    Q_UNUSED(Remove)
+    Q_UNUSED(AckByGUI)
+    Q_UNUSED(ResponseRes)
 ////    quint32 EventKey = (quint32)EventId64 >> 32;
 //    quint32 EventKey = (quint32)(EventId64 & 0x00000000FFFFFFFF);
 //    if (Remove) {
@@ -945,6 +957,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
 
 void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent)
 {
+    Q_UNUSED(TheEvent)
 //    if ((TheEvent.GetActionPositive() == Global::ACNTYPE_BUSY)
 //            || (TheEvent.GetActionPositive() == Global::ACNTYPE_IDLE)) {
 //        if(TheEvent.GetString().count() > 0) { // e.g. Rack inserted
@@ -1078,6 +1091,7 @@ void EventHandlerThreadController::RegisterCommands()
 
 void EventHandlerThreadController::OnUserRoleChanged(Global::tRefType Ref, const NetCommands::CmdChangeUserLevel& cmd)
 {
+    Q_UNUSED(Ref)
     if (cmd.GetUserLevel() != m_UserRole)
         m_UserRole = cmd.GetUserLevel();
 }

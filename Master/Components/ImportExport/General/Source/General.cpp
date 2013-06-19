@@ -253,7 +253,7 @@ int FailSafeOpen::size()
 /****************************************************************************/
 void FailSafeOpen::write(QByteArray data)
 {
-    qint64 written;
+    qint64 written = -1;
 
     if(!mp_fd)
     {

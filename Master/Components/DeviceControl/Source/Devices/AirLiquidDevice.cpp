@@ -499,6 +499,7 @@ bool CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
 
 void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Pressure)
 {
+    Q_UNUSED(ReturnCode)
     if ((Pressure != m_TargetPressure)&&(UNDEFINED != Pressure))
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_FAILED);
@@ -1292,7 +1293,7 @@ TempCtrlState_t CAirLiquidDevice::GetTemperatureControlState(ALTempCtrlType_t Ty
         return TEMPCTRL_STATE_ERROR;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_TEMP_CTRL_STATE);
-    TempCtrlState_t controlstate;
+    TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         controlstate = TEMPCTRL_STATE_ERROR;

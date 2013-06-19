@@ -42,10 +42,11 @@ namespace ExternalProcessControl {
 ExternalProcessDevice::ExternalProcessDevice(NetworkBase::NetworkServerType_t server, const QString &client, \
                                              const QString &path, ExternalProcessController *pController, QObject *pParent) :
         NetworkServerDevice::NetworkServerDevice(server, client, path, pParent),
+        m_LoginTimer(this),
         m_RemoteLoginEnabled("No"),
         m_RemoteLoginTimeout(-1),
-        m_myController(pController),
-        m_LoginTimer(this)
+        m_myController(pController)
+
 {
     this->setParent(pParent);
 }

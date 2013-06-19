@@ -24,8 +24,8 @@ namespace DataLogging {
 
 /****************************************************************************/
 DayEventEntry::DayEventEntry()
-    : m_EventKey(0),m_AckType(NetCommands::No_Set),m_CountRetires(0),
-      m_EventCodeFromCom(0),m_CurrentStatus(Global::EVTSTAT_OFF), m_Scenario(0),
+      : m_AckType(NetCommands::No_Set),m_EventKey(0),
+      m_EventCodeFromCom(0),m_Scenario(0),m_CountRetires(0),m_CurrentStatus(Global::EVTSTAT_OFF),
       m_IsHWParameter(false),m_HWParameter("")
 {
 }
@@ -36,8 +36,7 @@ DayEventEntry::DayEventEntry(const DayEventEntry &rOther) {
 }
 
 DayEventEntry::DayEventEntry(bool isHWPar, QString &HWInfo):
-    m_IsHWParameter(isHWPar),m_HWParameter(HWInfo),
-    m_TimeStamp(QDateTime::currentDateTime())
+    m_TimeStamp(QDateTime::currentDateTime()),m_IsHWParameter(isHWPar),m_HWParameter(HWInfo)
 {
 
 }
