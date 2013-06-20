@@ -297,13 +297,15 @@ typedef enum
     SYNC_CMD_RT_GET_TEMP_CTRL_STATE = 25,
     SYNC_CMD_RT_SET_DO_VALUE = 26,
     SYNC_CMD_RT_GET_DI_VALUE = 27,
-    SYNC_CMD_OVEN_SET_TEMP = 28,
-    SYNC_CMD_OVEN_GET_TEMP = 29,
-    SYNC_CMD_OVEN_SET_TEMP_PID = 30,
-    SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE = 31,
-    SYNC_CMD_OVEN_GET_DI_VALUE = 32,
-    SYNC_CMD_PER_GET_DI_VALUE = 33,
-    SYNC_CMD_PER_SET_DO_VALUE = 34,
+    SYNC_CMD_RT_GET_HW_STATUS = 28,
+
+    SYNC_CMD_OVEN_SET_TEMP = 29,
+    SYNC_CMD_OVEN_GET_TEMP = 30,
+    SYNC_CMD_OVEN_SET_TEMP_PID = 31,
+    SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE = 32,
+    SYNC_CMD_OVEN_GET_DI_VALUE = 33,
+    SYNC_CMD_PER_GET_DI_VALUE = 34,
+    SYNC_CMD_PER_SET_DO_VALUE = 35,
 
     SYNC_CMD_TOTAL_NUM = 40
 } SyncCmdType_t;
@@ -427,6 +429,14 @@ typedef enum {
     TEMPCTRL_VOLTAGE_110V  = 0x02   //!< 110V mains voltage
 } TempCtrlMainsVoltage_t;
 
+typedef struct {
+    quint8 Sensors;
+    quint8 Fans;
+    quint8 Heaters;
+    quint8 Pids;
+    quint16 Current;
+    quint8 HeaterSwitchType;
+} TempCtrlHardwareStatus_t;
 
 
 /*! Sub commands for motor movement requests */

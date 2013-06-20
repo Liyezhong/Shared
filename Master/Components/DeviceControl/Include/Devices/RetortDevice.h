@@ -32,6 +32,7 @@ public:
     ReturnCode_t StartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     qreal GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
     TempCtrlState_t GetTemperatureControlState(RTTempCtrlType_t Type);
+    TempCtrlHardwareStatus_t *GetHardwareStatus(RTTempCtrlType_t Type);
     quint16 GetLidStatus();
     quint16 GetRecentRetortLockStatus();
 
@@ -74,7 +75,7 @@ private slots:
     void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
     void OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue);
-
+    void OnGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans, quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
     //! command handling task
     //  void HandleCommandRequestTask();
     //  void HandleDeviceTaskActions();
@@ -89,7 +90,7 @@ private:
     CTemperatureControl* m_pTempCtrls[RT_TEMP_CTRL_NUM];
     CDigitalOutput* m_pLockDigitalOutput;
     CDigitalInput* m_pLockDigitalInput;
-
+    TempCtrlHardwareStatus_t m_HardwareStatus[RT_TEMP_CTRL_NUM];
 
     qreal m_CurrentTemperatures[RT_TEMP_CTRL_NUM];                     //!< Current temperature
     qreal m_TargetTemperatures[RT_TEMP_CTRL_NUM];                     //!< Current temperature

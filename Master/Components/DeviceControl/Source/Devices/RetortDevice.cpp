@@ -300,6 +300,22 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
+    if(!connect(m_pTempCtrls[RT_BOTTOM], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+            this, SLOT(OnGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[RT_SIDE], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+            this, SLOT(OnGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
     if(!connect(m_pLockDigitalInput, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
             this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
     {
@@ -839,4 +855,44 @@ quint16 CRetortDevice::GetLidStatus()
     return m_LockStatus;
 }
 
+TempCtrlHardwareStatus_t *CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type)
+{
+    if(m_pTempCtrls[Type] != NULL)
+    {
+        ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return NULL;
+        }
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_HW_STATUS);
+        if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
+        {
+            return &m_HardwareStatus[Type];
+        }
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void CRetortDevice::OnGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType)
+{
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Retort Get DI value successful! ";
+        m_HardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = Sensors;
+        m_HardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = Fans;
+        m_HardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = Heaters;
+        m_HardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = Pids;
+        m_HardwareStatus[m_InstTCTypeMap[InstanceID]].Current = Current;
+        m_HardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = HeaterSwitchType;
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode;
+    }
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_HW_STATUS, ReturnCode);
+}
 } //namespace
