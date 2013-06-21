@@ -26,6 +26,8 @@
 #include <QDateTime>
 #include <QXmlStreamReader>
 #include "DataManager/Helper/Include/Types.h"
+#include "Global/Include/TranslatableString.h"
+#include "Global/Include/Translator.h"
 
 namespace DataManager {
 /****************************************************************************/
@@ -80,6 +82,7 @@ public:
         static QDateTime ConvertDateTimeStringToQDateTime(QString DateTime);
         static bool ReadNode(QXmlStreamReader& XmlStreamReader, QString NodeName);
         static void ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString);
+        static QString TranslateString(quint32 StringID);
 
 	
 };

@@ -65,7 +65,7 @@ const qint32 EVENTSTRING_EVENTTYPE          = 2; ///< event log event type numbe
 const qint32 EVENTSTRING_EVENTSTRING        = 3; ///< event log event string number if the event is splitted
 const qint32 EVENTSTRING_USERLOG            = 4; ///< event log user log flag number if the event is splitted
 const qint32 EVENTSTRING_ALTERNATETEXT      = 5; ///< event log alternate text flag number if the event is splitted
-const qint32 EVENTSTRING_PARAMETERS         = 5; ///< event log parameters number if the event is splitted
+const qint32 EVENTSTRING_PARAMETERS         = 7; ///< event log parameters number if the event is splitted
 
 /****************************************************************************/
 DayLogFileInformation::DayLogFileInformation(QString FilePath) :
@@ -107,7 +107,17 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, Glo
                         if (QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).compare(EMPTY_STRING) != 0 &&
                                 QString(ReadData.split(DELIMITER_SEMICOLON).value(Counter)).
                                 compare(STRING_NEWLINE) != 0) {
-                            TranslateStringList << ReadData.split(DELIMITER_SEMICOLON).value(Counter);
+                            QString strid = ReadData.split(DELIMITER_SEMICOLON).value(Counter);
+                            bool ok = false;
+                            quint32 id = strid.toUInt(&ok,10);
+                            if(ok)
+                            {
+                                TranslateStringList << Global::TranslatableString(id);
+                            }
+                            else
+                            {
+                                TranslateStringList << strid.replace("\"","");
+                            }
                         }
                     }
 //                    // used for alternate text
@@ -151,11 +161,11 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, Glo
             if (ReadData != STRING_NEWLINE) {
                 if (ReadData.contains(EVENTLOGFILE_STARTING_NAME)) {
                     ReadData = DAILYRUNLOG_FILE_FIRSTLINE + ReadData.split(DELIMITER_UNDERSCORE).value(2);
+
+                    FileData.append(ReadData);
+
+                    FileData.append(STRING_NEWLINE);
                 }
-
-                FileData.append(ReadData);
-
-                FileData.append(STRING_NEWLINE);
             }
         }
     }

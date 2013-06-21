@@ -139,7 +139,14 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         QString ParameterString = "";
         foreach (Global::TranslatableString s, Entry.GetString())
         {
-            ParameterString += s.GetString() +";";
+            if(s.IsString())//plain string
+            {
+                ParameterString += "\"" + s.GetString() +"\";";
+            }
+            else
+            {
+                ParameterString += QString::number(s.GetStringID()) +";";
+            }
         }
 
         QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
@@ -148,20 +155,20 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
                                 TrEventMessage + ";" + //Message
                                 QString::number(AsInt(Entry.GetLogAuthorityType()), 10) + ";";//log level for show in GUI
 
-        if (NetCommands::No_Set != Entry.GetAckValue())
+//        if (NetCommands::No_Set != Entry.GetAckValue())
         {
             LoggingString = LoggingString + "AckSel" + QString::number(Entry.GetAckValue(), 10) + ";";//which process options in the msg box the user has selected
+        }
+
+        //String For R&D
+//        if(!Entry.GetStringForRd().isEmpty())
+        {
+            LoggingString = LoggingString + Entry.GetStringForRd() + ";";
         }
 
         if(!ParameterString.isEmpty())
         {
              LoggingString = LoggingString + ParameterString;
-        }
-
-        //String For R&D
-        if(!Entry.GetStringForRd().isEmpty())
-        {
-            LoggingString = LoggingString + Entry.GetStringForRd() + ";";
         }
 
         // check if we must printout to console (because we sent it to the data logger

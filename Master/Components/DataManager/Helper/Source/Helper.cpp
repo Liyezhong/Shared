@@ -304,4 +304,8 @@ void Helper::ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString)
     ErrorList.clear();
 }
 
+QString Helper::TranslateString(quint32 StringID)
+{
+    return Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(StringID),false);
+}
 }  // namespace DataManager

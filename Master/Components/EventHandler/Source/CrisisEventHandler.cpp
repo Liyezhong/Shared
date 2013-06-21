@@ -132,5 +132,16 @@ LogArgs& CrisisEventHandler::RaiseLog()
     }
     return OneLogInfo;
 }
+
+void CrisisEventHandler::RaiseLog(quint32 stringID, Global::tTranslatableStringList& arg)
+{
+    Global::EventObject::Instance().RaiseEvent(stringID,arg,true);
+}
+
+
+void CrisisEventHandler::RaiseLog(quint32 stringID)
+{
+    Global::EventObject::Instance().RaiseEvent(stringID,Global::FmtArgs(),true);
+}
 } // end namespace EventHandler
 

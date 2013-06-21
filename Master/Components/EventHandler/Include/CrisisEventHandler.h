@@ -149,7 +149,9 @@ public:
     quint32 findErrorCode(quint32 eventId);
     quint32 findErrorCode(quint32 eventId,quint32 Scenario);
 
-    LogArgs& RaiseLog();
+    LogArgs& RaiseLog();//use to log hardware infor, not show in gui
+    void RaiseLog(quint32 stringID,Global::tTranslatableStringList& arg);
+    void RaiseLog(quint32 stringID);
 
 
 private:
@@ -163,9 +165,9 @@ private:
 }; // end class
 
 
-
-#define LOG_HW_PAR() CrisisEventHandler::Instance().RaiseLog()
-
 } // end namespace EventHandler
 
+#define LOG_PAR() EventHandler::CrisisEventHandler::Instance().RaiseLog()
+#define LOG_STR_ARG(Id, Args) EventHandler::CrisisEventHandler::Instance().RaiseLog(Id,Args)
+#define LOG_STR(Id) EventHandler::CrisisEventHandler::Instance().RaiseLog(Id)
 #endif // EVENTHANDLER_CRISISEVENTHANDLER_H
