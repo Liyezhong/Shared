@@ -1,0 +1,6 @@
+QMAKE_PRL_BUILD_DIR = /root/GermanySVN/Himalaya/HimalayaMain/Gui/HimalayaGui-build-QT4_8_1Rel-Debug/../../../../Platform/Gui/Components/kineticscroller/src
+QMAKE_PRO_INPUT = src.pro
+QMAKE_PRL_TARGET = libQtScroller.a
+QMAKE_PRL_CONFIG = include_source_dir lex yacc warn_on debug uic resources qt warn_on incremental link_prl gdb_dwarf_index def_files_disabled exceptions no_mocdepend stl qt_no_framework debug declarative_debug staticlib create_prl no-webkit static staticlib moc thread
+QMAKE_PRL_VERSION = 1.0.0
+QMAKE_PRL_LIBS = -L/root/QTSDK4.8.1_Release//lib  -lQtGui -L/root/QTSDK4.8.1_Release//lib -L/usr/X11R6/lib -lQtCore -lpthread  

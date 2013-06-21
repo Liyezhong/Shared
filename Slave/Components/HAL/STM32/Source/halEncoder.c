@@ -59,7 +59,6 @@
 #define TIM_UNIT_LIMIT1     3   //!< Timer compare unit for limit 1
 #define TIM_UNIT_LIMIT2     2   //!< Timer compare unit for limit 2
 
-#define TIM_UNIT_ENC_CHA    0   //!< Timer capture/compare unit for encoder channel A
 
 
 /*****************************************************************************/
@@ -85,11 +84,8 @@
 
 Error_t halEncoderOpen (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler) {
 
-    // also we have to enter a value for count direction we don't need to care about it,
-    // because direction is determined be real rotation of the encoder and polarity setup
-    // of encoder input pins
     const TimerMode_t TimerMode = { 
-        TIM_MODE_COUNT_UP, TIM_MODE_INTERVAL, TIM_MODE_INTERNAL, TIM_MODE_ENCODER_3 };
+        0, TIM_MODE_INTERVAL, 0, TIM_MODE_ENCODER_3 };
     Handle_t Handle;
     Error_t Status;
 
@@ -287,7 +283,6 @@ Error_t halEncoderStatus (Handle_t Handle, EncStatID_t StatusID) {
  *      - Control limit position 1 interrupt
  *      - Control limit position 2 interrupt
  *      - Control encoder overflow/underflow interrupt
- *      - Control inverse counting
  *
  *      State determines if to enable the selected function (TRUE) or 
  *      to disable it (FALSE).
@@ -321,12 +316,7 @@ Error_t halEncoderControl (Handle_t Handle, EncCtrlID_t ControlID, Bool State) {
         case ENC_INTR_OVERFLOW:
             TimCtrlID = State ? TIM_INTR_ENABLE : TIM_INTR_DISABLE;
             return (halTimerControl (Handle, TimCtrlID));
-
-        case ENC_INVERSE_COUNT:
-            TimCtrlID = State ? TIM_CTRL_IOP_SET : TIM_CTRL_IOP_RESET;
-            return (halCapComControl (Handle, TIM_UNIT_ENC_CHA, TimCtrlID));
-
-    }
+    }    
     return (E_UNKNOWN_CONTROL_ID);
 }
 

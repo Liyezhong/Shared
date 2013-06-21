@@ -372,7 +372,7 @@ UInt64 rfid15693GetUniqueId (Rfid15693Stream_t *Stream)
     UniqueID = Stream->RxBuffer[2];
     UniqueID |= Stream->RxBuffer[3] << 8;
     UniqueID |= Stream->RxBuffer[4] << 16;
-    UniqueID |= (UInt32) Stream->RxBuffer[5] << 24;
+    UniqueID |= Stream->RxBuffer[5] << 24;
     UniqueID |= (UInt64) Stream->RxBuffer[6] << 32;
     UniqueID |= (UInt64) Stream->RxBuffer[7] << 40;
     UniqueID |= (UInt64) Stream->RxBuffer[8] << 48;

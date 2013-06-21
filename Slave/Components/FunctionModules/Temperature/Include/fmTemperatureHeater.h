@@ -38,6 +38,12 @@
 // Public Type Definitions 
 //****************************************************************************/
 
+/*! Currently supported heaters */
+typedef enum {
+    TYPE_HEATER_AC, //!< AC heater
+    TYPE_HEATER_DC, //!< DC heater
+} TempHeaterType_t;
+
 /*! Contains parameters for the heater current measurements */
 typedef struct {
     UInt16 CurrentGain;             //!< Gain parameter of the current sensor in mA/V
@@ -49,15 +55,17 @@ typedef struct {
 // Public Function Prototypes
 //****************************************************************************/
 
-Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances);
+Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, TempHeaterType_t HeaterType, UInt16 Instances);
 void tempHeaterReset (void);
 Error_t tempHeaterProgress (void);
+Error_t tempSampleCurrent (void);
 Bool tempHeaterParallel (void);
-Error_t tempHeaterCheck (void);
+Error_t tempHeaterCheck (Bool AutoSwitch);
 Bool tempHeaterFailed (void);
 Error_t tempHeaterActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance);
 UInt16 tempHeaterCurrent (void);
 UInt16 tempHeaterActive(void);
+void tempCalcEffectiveCurrent(void);
 
 //****************************************************************************/
 

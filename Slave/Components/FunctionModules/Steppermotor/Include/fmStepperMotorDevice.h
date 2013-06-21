@@ -1,20 +1,18 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorDevice.h
  * 
- *  \brief  Functions to manage stepper motor device of function module 'stepper motor'
- *
  *  $Rev:    $ 0.1
  *  $Date:   $ 21.06.2012
  *  $Author: $ Rainer Boehles
  *
+ *  \brief 
  *
- *  \b Company:
+ *         
+ * <dl compact><dt>Company:</dt><dd> Leica Biosystems Nussloch GmbH </dd></dl>
  *
- *       Leica Biosystems Nussloch GmbH.
- *
- *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice
- *  does not evidence any actual or intended publication.
+ * (c) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ * This is unpublished proprietary source code of Leica.
+ * The copyright notice does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
@@ -39,26 +37,21 @@
 #endif
 
 
-//****************************************************************************/
-// Public Type Definitions
-//****************************************************************************/
-
-//! stepper motor revolution counter data
 typedef struct
 {
     UInt32                  Count;              //!< count of motor revolutions
     UInt32                  FullSteps;          //!< counts the motor steps in full-steps. reset at every full revolution
 } smRevolutionCount_t;
 
-//! stepper motor operation time data
+
 typedef struct
 {
-    UInt32                  Minutes;            //!< operation time in minutes
+    UInt32                  Hours;              //!< operation time in hours
     UInt32                  Duration;           //!< duration since last measurement start time in ms
     UInt32                  Start;              //!< measurement start time in ms
 } smOperationTime_t;
 
-//! stepper motor life cycle data
+
 typedef struct
 {
     smRevolutionCount_t     Revolutions;        //!< for keeping track of motor revolutions
@@ -66,39 +59,39 @@ typedef struct
 } smLifeCycle_t;
 
 
-//! TMC26x motor driver register set
+/*! TMC26x motor driver register set */
 typedef struct {
     UInt32 Mode[4];                             //!< trinamic TMC26x register settings
 } TMC26xReg_t;
 
-//! TMC26x motor driver configuration data
+/*! TMC26x motor driver configuration data */
 typedef struct
 {
     UInt8                   ConfigMask;         //!< mask to determine complete stepper motor driver configuration
     TMC26xReg_t             RegValue;           //!< data used to initialize trinamic TMC26x stepper motor driver
 } TMC26x_t;
 
-//! motor driver configuration data
+/*! stepper motor driver configuration parameters */
 typedef struct {
     StepperMotorDriverType_t    Type;           //!< used stepper motor driver type
     union
     {
         TMC26x_t    TMC26x;                     //!< data used to initialize trinamic TMC26x stepper motor driver
-    } Data;                                     //!< motor driver data
-} smMotorDriver_t;
+    } Data;
+} MotorDriver_t;
 
 
-//! stepper motor configuration data
+// motor configuration data
 typedef struct
 {
     UInt16                  Resolution;         //!< motor resolution (full steps per turn)
     UInt8                   RunCS;              //!< run current scale in RunCS*1/32 percent, used when motor is moving
     UInt8                   StopCS;             //!< stop current scale in StopCS*1/32 percent, used when motor is standing still
     UInt16                  StopCSDelay;        //!< stop current scale is applied after this delay time (in ms )
-} smMotorConfig_t;
+} MotorConfig_t;
 
 
-//! reference framework configuration data
+// reference framework configuration data
 typedef struct
 {
     StepperMotorRotDir_t    RotationDir;        //!< the motor's rotation dir (causes an increasing step counter)
@@ -107,22 +100,22 @@ typedef struct
 
 //    StepperMotorRotType_t   RotationType;      //!< the motor's rotation type: linear or rotatorically axis
     UInt16                  ResetPosition;      //!< position value at which the actual position is reset to 0 (needed for rotatory movement). Ignored if reset value is 0.
-} smFrameworkConfig_t;
+} FrameworkConfig_t;
 
 
-//! stepper motor data
+
 typedef struct
 {
-    smMotorDriver_t         Driver;             //!< motor driver data
-    smMotorConfig_t         Config;             //!< stepper motor configuration  
-    smFrameworkConfig_t     FrameworkConfig;    //!< framework configuration
+    MotorDriver_t           Driver;             //!< motor driver data
+    MotorConfig_t           Config;             //!< stepper motor configuration  
+    FrameworkConfig_t       FrameworkConfig;    //!< framework configuration
     Handle_t                Handle;             //!< stepper motor HAL handle  
     Bool                    InversePosCount;    //!< if set, counter clock wise rotation dir of motor will increase position counter
     UInt32                  StopCSTimeout;      //!< timeout for switching motor currrent back from run current to stop current value
     UInt32                  StopCSTime;         //!< start time for StopCSTimeout
     smLifeCycle_t           LifeCycle;          //!< life cycle data of stepper motor
     UInt8                   ConfigMask;         //!< flags to track which part is already configured
-} smMotor_t;
+} Motor_t;
 
 
 //****************************************************************************/
@@ -136,17 +129,21 @@ typedef struct
 //****************************************************************************/
 #ifndef SIMULATION
 
-void smInitMotor (smMotor_t *Motor, smMemory_t *Memory);
-Error_t smConfigureTMC26x(smMotor_t* Motor, UInt32 RegVal, UInt8 Index);
-Error_t smConfigureMotor(smMotor_t* Motor, ConfigData_MOT_P1_t* Param);
-Error_t smConfigureFramework1(smMotor_t* Motor, ConfigData_MOT_P2_t* Param);
-Error_t smConfigureFramework2(smMotor_t* Motor, ConfigData_MOT_P3_t* Param);
-Bool smMotorConfigIsComplete(smMotor_t* Motor);
-Error_t smOpenMotor (smMotor_t* Motor, UInt8 Instance);
-Error_t smCloseMotor (smMotor_t* Motor);
-void smCheckMotorStopCS (smMotor_t *PtrMotor, UInt16 Channel);
-void smInitLifeCycleData(smMotor_t *Motor, smMemory_t *Memory);
-void smCountOperationTime (smMotor_t *Motor);
+void smInitMotor (Motor_t *Motor, smMemory_t *Memory);
+
+Error_t smConfigureTMC26x(Motor_t* Motor, UInt32 RegVal, UInt8 Index);
+Error_t smConfigureMotor(Motor_t* Motor, ConfigData_MOT_P1_t* Param);
+Error_t smConfigureFramework1(Motor_t* Motor, ConfigData_MOT_P2_t* Param);
+Error_t smConfigureFramework2(Motor_t* Motor, ConfigData_MOT_P3_t* Param);
+Bool    smMotorConfigIsComplete(Motor_t* Motor);
+
+Error_t smOpenMotor (Motor_t* Motor, UInt8 Instance);
+Error_t smCloseMotor (Motor_t* Motor);
+
+Error_t smCheckMotorStopCS (Motor_t *PtrMotor);
+
+void smResetLifeCycleData(Motor_t *Motor, smMemory_t *Memory);
+void smCountOperationTime (Motor_t *Motor);
 
 #endif
 

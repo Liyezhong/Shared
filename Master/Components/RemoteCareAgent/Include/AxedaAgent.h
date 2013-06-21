@@ -114,7 +114,7 @@ public:
             ProxyPort(0),
             bAllowRemoteSession(AeFalse),
             bRemoteSessionSetup(AeTrue),
-            pRemoteSessionName((AeChar*)"Colorado"),
+            pRemoteSessionName((AeChar*)"Himalaya"),
             pRemoteSessionType((AeChar*)"desktop"),
             pRemoteSessionHost((AeChar*)"127.0.0.1"),
             RemoteSessionPort((AeInt16)5900),

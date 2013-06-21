@@ -72,7 +72,10 @@ static const bmCanIdNames_t CanIdNames[] = {
 //! Event-ID to Text Conversion Table (Errors, Warnings, Infos)
 //****************************************************************************/
 
-static const ErrorString_t EventNames[] = {0};
+static const ErrorString_t EventNames[] = {
+    { E_ANAOUT_NOT_ENABLED,      "E_ANAOUT_NOT_ENABLED"      },
+    { E_ANAOUT_NOT_USABLE,       "E_ANAOUT_NOT_USABLE"       }
+};
 
 
 /*****************************************************************************/

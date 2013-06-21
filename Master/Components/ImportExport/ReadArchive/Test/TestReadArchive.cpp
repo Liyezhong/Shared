@@ -24,7 +24,7 @@
 
 namespace ImportExport {
 
-static const char* Archname = "Colorado_arch_deviceID_20110815T20:59:43";
+static const char* Archname = "Himalaya_arch_deviceID_20110815T20:59:43";
 /****************************************************************************/
 /*!
  * \brief empty constructor

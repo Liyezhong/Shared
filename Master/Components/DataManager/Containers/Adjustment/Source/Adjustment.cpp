@@ -153,8 +153,8 @@ bool CAdjustment::SerializeContent(QIODevice &p_Device, bool CompleteData)
     XmlStreamWriter.setAutoFormatting(true);
     XmlStreamWriter.writeStartDocument();
 
-    XmlStreamWriter.writeDTD("<!DOCTYPE ColoradoAdjustment>");
-    XmlStreamWriter.writeStartElement("ColoradoAdjustment");
+    XmlStreamWriter.writeDTD("<!DOCTYPE HimalayaAdjustment>");
+    XmlStreamWriter.writeStartElement("HimalayaAdjustment");
 
     // write attribute version
     (void)StringValue.setNum(GetVersion()); //to suppress lint-534
@@ -196,10 +196,10 @@ bool CAdjustment::DeserializeContent(QIODevice &p_Device, bool CompleteData)
 
     XmlStreamReader.setDevice(&p_Device);
 
-    // look for node <colorado_adjustment>
-    if (!Helper::ReadNode(XmlStreamReader, "ColoradoAdjustment"))
+    // look for node <himalaya_adjustment>
+    if (!Helper::ReadNode(XmlStreamReader, "HimalayaAdjustment"))
     {
-        qDebug() << "DeserializeContent: abort reading. Node not found: colorado_adjustment";
+        qDebug() << "DeserializeContent: abort reading. Node not found: himalaya_adjustment";
         return false;
     }
 

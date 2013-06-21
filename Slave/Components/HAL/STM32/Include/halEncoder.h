@@ -76,7 +76,6 @@ typedef enum {
     ENC_INTR_OVERFLOW,     //!< Encoder over-/underflow interrupt control
     ENC_INTR_LIMIT1,       //!< Limit 1 interrupt control
     ENC_INTR_LIMIT2,       //!< Limit 2 interrupt control
-    ENC_INVERSE_COUNT,     //!< Inverse count control
 } EncCtrlID_t;
 
 //! Index uses same unit as limit 2 monitor (alternative)

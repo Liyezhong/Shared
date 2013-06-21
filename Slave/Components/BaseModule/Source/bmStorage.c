@@ -129,7 +129,7 @@ static Error_t bmWritePartitionDescriptor (Handle_t Handle);
 
 Error_t bmCreatePartition (UInt32 PartitionID, UInt16 Mode, UInt16 Size) {
 
-    Handle_t FreeEntry, FreeBlock = 0;
+    Handle_t FreeEntry, FreeBlock;
     Error_t Status;
     UInt32 Address;
 
@@ -143,11 +143,10 @@ Error_t bmCreatePartition (UInt32 PartitionID, UInt16 Mode, UInt16 Size) {
             return (E_PARTITION_TABLE_FULL);
         }
         // find free block of memory in storage
-        while (Partitions[FreeBlock].Free < Size) {
+        for (FreeBlock=0; Partitions[FreeBlock].Free < Size; FreeBlock++) {
             if (FreeBlock >= PartitionTableSize) {
                 return (E_MEMORY_FULL);
             }
-            FreeBlock++;
         }
         if (WriteProtected) {
             return (E_STORAGE_PROTECTED);
@@ -436,27 +435,29 @@ Error_t bmClosePartition (Handle_t Handle) {
 
 Error_t bmFlushPartitions (void) {
 
-    Error_t Status;
+    Error_t Status = NO_ERROR;
     Handle_t Handle;
 
+    if (UpdateChecksumOnWrite) {
+        return (NO_ERROR);
+    }
     if (WriteProtected) {
         return (E_STORAGE_PROTECTED);
     }
     for (Handle=0; Handle < PartitionTableSize; Handle++) {
+
         if ((Partitions[Handle].Mode & FLAG_MODIFIED) &&
-           (~Partitions[Handle].Mode & FLAG_CHKSUM_ERROR) && !UpdateChecksumOnWrite) {
+           (~Partitions[Handle].Mode & FLAG_CHKSUM_ERROR)) {
+
             UInt16 CheckSum = bmCalculateChecksum(Handle);
 
-            if ((Status = bmWritePartitionChecksum(Handle, CheckSum)) < NO_ERROR) {
-                return (Status);
+            if (bmWritePartitionChecksum(Handle, CheckSum) < 0) {
+                Status = E_CHECKSUM_WRITE_ERROR;
             }
             Partitions[Handle].Mode &= ~FLAG_MODIFIED;
         }
-        if ((Status = halStorageWait (Handle)) < NO_ERROR) {
-            return (Status);
-        }
     }
-    return (NO_ERROR);
+    return (Status);
 }
 
 

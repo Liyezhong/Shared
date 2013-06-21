@@ -1,6 +1,6 @@
 # include pri file from Platform/Build
 
-!include("../../../../../Colorado/ColoradoMain/Gui/GuiStub/Build/GuiStub.pri") {
+!include("../../../../../Himalaya/HimalayaMain/Gui/Test/Build/Test.pri") {
     error("../../../Build/Platform.pri not found")
 }
 

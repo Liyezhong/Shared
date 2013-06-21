@@ -73,7 +73,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>0</IsCurrentTarget>
+        <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
       <Books>
@@ -351,9 +351,41 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>UL2CM3</Key>
-          <Name>-UV1393BME -O206 -S9 -C0 -N00("ARM CoreSight SW-DP") -D00(1BA01477) -L00(0) -TO19 -TC72000000 -TP21 -TDS803D -TDT0 -TDC1F -TIE80000001 -TIP9 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32F10x_128 -FS08000000 -FL020000</Name>
+          <Name>-UV1289BME -O206 -S9 -C0 -N00("ARM CoreSight SW-DP") -D00(1BA01477) -L00(0) -TO19 -TC72000000 -TP21 -TDS803D -TDT0 -TDC1F -TIE80000001 -TIP9 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32F10x_128 -FS08000000 -FL020000</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
+      <Breakpoint>
+        <Bp>
+          <Number>0</Number>
+          <Type>0</Type>
+          <LineNumber>500</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134280600</Address>
+          <ByteObject>0</ByteObject>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename></Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\ASB12\../Source/halInterrupt.c\500</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>0</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134242834</Address>
+          <ByteObject>0</ByteObject>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename></Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+      </Breakpoint>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -443,9 +475,9 @@
         <LExpSel>0</LExpSel>
       </OPTXL>
       <OPTFL>
-        <tvExp>0</tvExp>
+        <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
+        <IsCurrentTarget>0</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
       <Books>
@@ -607,8 +639,8 @@
       <Focus>0</Focus>
       <ColumnNumber>2</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>32</TopLine>
+      <CurrentLine>32</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Include\halConfigure.h</PathWithFileName>
       <FilenameWithoutPath>halConfigure.h</FilenameWithoutPath>
@@ -617,7 +649,7 @@
 
   <Group>
     <GroupName>Source</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
@@ -626,10 +658,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>24</ColumnNumber>
+      <ColumnNumber>2</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>163</TopLine>
-      <CurrentLine>181</CurrentLine>
+      <TopLine>175</TopLine>
+      <CurrentLine>175</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\halConfigure.c</PathWithFileName>
       <FilenameWithoutPath>halConfigure.c</FilenameWithoutPath>
@@ -642,8 +674,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>102</TopLine>
+      <CurrentLine>126</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -656,8 +688,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>3</GroupNumber>
-      <FileNumber>4</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>2</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -670,8 +702,8 @@
       <FilenameWithoutPath>Startup.s</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>3</GroupNumber>
-      <FileNumber>5</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -691,8 +723,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>4</GroupNumber>
-      <FileNumber>6</FileNumber>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>4</FileNumber>
       <FileType>4</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -705,8 +737,8 @@
       <FilenameWithoutPath>BaseModule.lib</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>4</GroupNumber>
-      <FileNumber>7</FileNumber>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>5</FileNumber>
       <FileType>4</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -719,8 +751,8 @@
       <FilenameWithoutPath>HAL.lib</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>4</GroupNumber>
-      <FileNumber>8</FileNumber>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>6</FileNumber>
       <FileType>4</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -733,8 +765,8 @@
       <FilenameWithoutPath>AnalogInput.lib</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>4</GroupNumber>
-      <FileNumber>9</FileNumber>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>7</FileNumber>
       <FileType>4</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -747,8 +779,8 @@
       <FilenameWithoutPath>AnalogOutput.lib</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>4</GroupNumber>
-      <FileNumber>10</FileNumber>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>8</FileNumber>
       <FileType>4</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -768,8 +800,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>11</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -782,8 +814,8 @@
       <FilenameWithoutPath>Global.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>12</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -796,8 +828,8 @@
       <FilenameWithoutPath>halAD779x.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>13</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -810,8 +842,8 @@
       <FilenameWithoutPath>halAnalog.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>14</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -824,8 +856,8 @@
       <FilenameWithoutPath>halCan.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>15</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -838,8 +870,8 @@
       <FilenameWithoutPath>halClocks.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>16</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -852,8 +884,8 @@
       <FilenameWithoutPath>halCommon.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>17</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -866,8 +898,8 @@
       <FilenameWithoutPath>halConsole.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>18</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -880,8 +912,8 @@
       <FilenameWithoutPath>halDescriptor.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>19</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -894,8 +926,8 @@
       <FilenameWithoutPath>halDeviceID.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>20</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -908,8 +940,8 @@
       <FilenameWithoutPath>halDma.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>21</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -922,8 +954,8 @@
       <FilenameWithoutPath>halEeprom.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>22</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -936,8 +968,8 @@
       <FilenameWithoutPath>halEncoder.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>23</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -950,8 +982,8 @@
       <FilenameWithoutPath>halError.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>24</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -964,8 +996,8 @@
       <FilenameWithoutPath>halExtIntr.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>25</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -978,8 +1010,8 @@
       <FilenameWithoutPath>halFlash.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>26</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -992,8 +1024,8 @@
       <FilenameWithoutPath>halI2cBus.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>27</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1006,8 +1038,8 @@
       <FilenameWithoutPath>halInterrupt.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>28</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1020,8 +1052,8 @@
       <FilenameWithoutPath>halLayer.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>29</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1034,8 +1066,8 @@
       <FilenameWithoutPath>halMain.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>30</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1048,8 +1080,8 @@
       <FilenameWithoutPath>halPorts.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>31</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1062,8 +1094,8 @@
       <FilenameWithoutPath>halProcessor.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>32</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1076,8 +1108,8 @@
       <FilenameWithoutPath>halPwm.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>33</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1090,8 +1122,8 @@
       <FilenameWithoutPath>halRealTime.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>34</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1104,8 +1136,8 @@
       <FilenameWithoutPath>halSerial.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>35</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1118,8 +1150,8 @@
       <FilenameWithoutPath>halSpiBus.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>36</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1132,8 +1164,8 @@
       <FilenameWithoutPath>halStepper.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>37</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1146,8 +1178,8 @@
       <FilenameWithoutPath>halStorage.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>38</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1160,8 +1192,8 @@
       <FilenameWithoutPath>halSysTick.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>39</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1174,8 +1206,8 @@
       <FilenameWithoutPath>halTimer.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>40</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1188,8 +1220,8 @@
       <FilenameWithoutPath>halUtilities.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>41</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1202,8 +1234,8 @@
       <FilenameWithoutPath>halVectors.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>42</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1223,8 +1255,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>43</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1237,8 +1269,8 @@
       <FilenameWithoutPath>halAD779x.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>44</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1251,8 +1283,8 @@
       <FilenameWithoutPath>halAnalog.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>45</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1265,8 +1297,8 @@
       <FilenameWithoutPath>halCan.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>46</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1279,8 +1311,8 @@
       <FilenameWithoutPath>halClocks.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>47</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1293,8 +1325,8 @@
       <FilenameWithoutPath>halConsole.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>48</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1307,8 +1339,8 @@
       <FilenameWithoutPath>halDescriptor.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>49</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1321,8 +1353,8 @@
       <FilenameWithoutPath>halDma.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>50</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1335,8 +1367,8 @@
       <FilenameWithoutPath>halEeprom.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>51</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1349,8 +1381,8 @@
       <FilenameWithoutPath>halEncoder.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>52</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1363,8 +1395,8 @@
       <FilenameWithoutPath>halError.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>53</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1377,8 +1409,8 @@
       <FilenameWithoutPath>halExtIntr.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>54</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1391,8 +1423,8 @@
       <FilenameWithoutPath>halFlash.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>55</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1405,22 +1437,22 @@
       <FilenameWithoutPath>halI2cBus.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>56</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>511</TopLine>
+      <CurrentLine>534</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Source\halInterrupt.c</PathWithFileName>
       <FilenameWithoutPath>halInterrupt.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>57</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1433,8 +1465,8 @@
       <FilenameWithoutPath>halMain.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>58</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1447,8 +1479,8 @@
       <FilenameWithoutPath>halPorts.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>59</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1461,8 +1493,8 @@
       <FilenameWithoutPath>halPwm.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>60</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1475,8 +1507,8 @@
       <FilenameWithoutPath>halRealTime.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>61</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1489,8 +1521,8 @@
       <FilenameWithoutPath>halSerial.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>62</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1503,8 +1535,8 @@
       <FilenameWithoutPath>halSpiBus.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>63</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1517,8 +1549,8 @@
       <FilenameWithoutPath>halStepper.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>64</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1531,8 +1563,8 @@
       <FilenameWithoutPath>halStorage.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>65</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1545,8 +1577,8 @@
       <FilenameWithoutPath>halSysTick.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>66</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1559,8 +1591,8 @@
       <FilenameWithoutPath>halTimer.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>67</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1573,8 +1605,8 @@
       <FilenameWithoutPath>halUtilities.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>68</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1587,15 +1619,15 @@
       <FilenameWithoutPath>halVectors.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>6</GroupNumber>
-      <FileNumber>69</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>37</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>136</TopLine>
+      <CurrentLine>136</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Source\halWatchdog.c</PathWithFileName>
       <FilenameWithoutPath>halWatchdog.c</FilenameWithoutPath>
@@ -1608,8 +1640,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>70</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1622,8 +1654,8 @@
       <FilenameWithoutPath>Basemodule.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>71</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1636,8 +1668,8 @@
       <FilenameWithoutPath>bmBlink.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>72</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1650,8 +1682,8 @@
       <FilenameWithoutPath>bmCan.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>73</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1664,8 +1696,8 @@
       <FilenameWithoutPath>bmCommon.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>74</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1678,8 +1710,8 @@
       <FilenameWithoutPath>bmDebug.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>75</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1692,8 +1724,8 @@
       <FilenameWithoutPath>bmDispatch.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>76</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1706,8 +1738,8 @@
       <FilenameWithoutPath>bmError.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>77</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1720,8 +1752,8 @@
       <FilenameWithoutPath>bmMain.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>78</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1734,8 +1766,8 @@
       <FilenameWithoutPath>bmMonitor.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>79</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1748,8 +1780,8 @@
       <FilenameWithoutPath>bmPermData.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>80</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1762,8 +1794,8 @@
       <FilenameWithoutPath>bmProcData.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>81</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1776,8 +1808,8 @@
       <FilenameWithoutPath>bmScheduler.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>82</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1790,8 +1822,8 @@
       <FilenameWithoutPath>bmService.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>83</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1804,8 +1836,8 @@
       <FilenameWithoutPath>bmStatistics.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>84</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1818,8 +1850,8 @@
       <FilenameWithoutPath>bmStorage.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>85</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1832,8 +1864,8 @@
       <FilenameWithoutPath>bmStrings.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>86</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1846,8 +1878,8 @@
       <FilenameWithoutPath>bmSystem.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>87</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1860,7 +1892,7 @@
       <FilenameWithoutPath>bmTime.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
+      <GroupNumber>0</GroupNumber>
       <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
@@ -1870,26 +1902,12 @@
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\BaseModule\Include\bmUpdate.h</PathWithFileName>
-      <FilenameWithoutPath>bmUpdate.h</FilenameWithoutPath>
-    </File>
-    <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>88</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>37</TopLine>
-      <CurrentLine>51</CurrentLine>
-      <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Include\bmUtilities.h</PathWithFileName>
       <FilenameWithoutPath>bmUtilities.h</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>89</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1909,22 +1927,22 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>90</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>201</TopLine>
+      <CurrentLine>201</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmBlink.c</PathWithFileName>
       <FilenameWithoutPath>bmBlink.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>91</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1937,8 +1955,8 @@
       <FilenameWithoutPath>bmCan.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>92</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1951,8 +1969,8 @@
       <FilenameWithoutPath>bmDebug.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>93</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1965,8 +1983,8 @@
       <FilenameWithoutPath>bmDispatch.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>94</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -1979,22 +1997,22 @@
       <FilenameWithoutPath>bmError.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>95</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>109</TopLine>
+      <CurrentLine>114</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmMain.c</PathWithFileName>
       <FilenameWithoutPath>bmMain.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>96</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2007,8 +2025,8 @@
       <FilenameWithoutPath>bmMonitor.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>97</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2021,8 +2039,8 @@
       <FilenameWithoutPath>bmPermData.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>98</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2035,8 +2053,8 @@
       <FilenameWithoutPath>bmProcData.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>99</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2049,22 +2067,22 @@
       <FilenameWithoutPath>bmScheduler.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>100</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>502</TopLine>
-      <CurrentLine>534</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmService.c</PathWithFileName>
       <FilenameWithoutPath>bmService.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>101</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2077,8 +2095,8 @@
       <FilenameWithoutPath>bmStatistics.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>102</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2091,8 +2109,8 @@
       <FilenameWithoutPath>bmStorage.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>103</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2105,8 +2123,8 @@
       <FilenameWithoutPath>bmStrings.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>104</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2119,8 +2137,8 @@
       <FilenameWithoutPath>bmSystem.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>105</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2133,22 +2151,8 @@
       <FilenameWithoutPath>bmTime.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>8</GroupNumber>
+      <GroupNumber>0</GroupNumber>
       <FileNumber>0</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\BaseModule\Source\bmUpdate.c</PathWithFileName>
-      <FilenameWithoutPath>bmUpdate.c</FilenameWithoutPath>
-    </File>
-    <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>106</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2168,12 +2172,12 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>9</GroupNumber>
-      <FileNumber>107</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>27</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
@@ -2189,8 +2193,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>10</GroupNumber>
-      <FileNumber>108</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2203,15 +2207,15 @@
       <FilenameWithoutPath>dbDigiOutput.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>10</GroupNumber>
-      <FileNumber>109</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>24</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>714</TopLine>
-      <CurrentLine>725</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\DigitalOutput\Source\fmDigiOutput.c</PathWithFileName>
       <FilenameWithoutPath>fmDigiOutput.c</FilenameWithoutPath>
@@ -2224,8 +2228,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>11</GroupNumber>
-      <FileNumber>110</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2245,8 +2249,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>12</GroupNumber>
-      <FileNumber>111</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2259,8 +2263,8 @@
       <FilenameWithoutPath>dbAnaInput.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>12</GroupNumber>
-      <FileNumber>112</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2280,8 +2284,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>13</GroupNumber>
-      <FileNumber>113</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2301,8 +2305,8 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
-      <GroupNumber>14</GroupNumber>
-      <FileNumber>114</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -2315,8 +2319,8 @@
       <FilenameWithoutPath>dbAnaOutput.c</FilenameWithoutPath>
     </File>
     <File>
-      <GroupNumber>14</GroupNumber>
-      <FileNumber>115</FileNumber>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>

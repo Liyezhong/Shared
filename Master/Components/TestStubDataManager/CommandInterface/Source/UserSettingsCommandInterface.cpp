@@ -25,7 +25,7 @@ namespace DataManager {
 /*!
  *  \brief Constructor
  *  \iparam p_DataManager = Datamanager object
- *  \iparam p_ColoradoMasterThreadController = Colorado Master thread Cntrl
+ *  \iparam p_HimalayaMasterThreadController = Himalaya Master thread Cntrl
  *  \iparam p_DataContainer = DataContainer pointer
  */
 /****************************************************************************/

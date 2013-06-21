@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file EventHandler/Include/StateHandler.h
  *
- *  \brief Definition file for class StateHandler (previously ColoradoMasterThread/Include/ColoradoStateHandler.h)
+ *  \brief Definition file for class StateHandler (previously HimalayaMasterThread/Include/HimalayaStateHandler.h)
  *
  *  $Version:   $ 0.2
  *  $Date:      $ 2012-07-17

@@ -82,7 +82,7 @@ const QString DATEANDTIME_FORMAT = "dd.MM.yyyy hh:mm:ss";
  * \brief This is a base class for a project specific NetworkDevice.
  *
  * Object, derived from this calss, shall implement a project specific
- * Network Device (e.g. Sepia in Colorado).
+ * Network Device (e.g. Sepia in Himalaya).
  *
  */
 /****************************************************************************/

@@ -109,13 +109,13 @@ void TestSWVersionList::utTestSWDetails() {
     // set all the parameters
     SWDetails1.SetSWDate("2012-01-12");
     SWDetails1.SetSWVersion("MAIN_1.123");
-    SWDetails1.SetSWName("Colorado");
+    SWDetails1.SetSWName("Himalaya");
     SWDetails1.SetSWType(MASTERSOFTWARE);
 
     // compare the data
     QCOMPARE(SWDetails1.GetSWDate(), QString("2012-01-12"));
     QCOMPARE(SWDetails1.GetSWVersion(), QString("MAIN_1.123"));
-    QCOMPARE(SWDetails1.GetSWName(), QString("Colorado"));
+    QCOMPARE(SWDetails1.GetSWName(), QString("Himalaya"));
     QCOMPARE(SWDetails1.GetSWType(), (SWType_t) MASTERSOFTWARE);
 
     // check the copy constructor
@@ -157,7 +157,7 @@ void TestSWVersionList::utTestSWVersionList() {
     // set all the parameters
     SWDetails1->SetSWDate("2012-01-12");
     SWDetails1->SetSWVersion("MAIN_1.123");
-    SWDetails1->SetSWName("Colorado");
+    SWDetails1->SetSWName("Himalaya");
     SWDetails1->SetSWType(MASTERSOFTWARE);
     // no verification is required
     VersionList.SetDataVerificationMode(false);
@@ -167,7 +167,7 @@ void TestSWVersionList::utTestSWVersionList() {
 
     // check the content of the data from the list
     CSWDetails SWDetails;
-    QCOMPARE(VersionList.GetSWDetails("Colorado", SWDetails), true);
+    QCOMPARE(VersionList.GetSWDetails("Himalaya", SWDetails), true);
     // compare the data with other class data
     QCOMPARE(SWDetails.GetSWDate(), SWDetails1->GetSWDate());
     QCOMPARE(SWDetails.GetSWVersion(), SWDetails1->GetSWVersion());
@@ -234,7 +234,7 @@ void TestSWVersionList::utTestSWVersionListVerifier() {
     // check the content of the data from the list
     CSWDetails SWDetails;
     QCOMPARE(VersionList.GetSWDetails("SABb.bin", SWDetails), true);
-    QCOMPARE(VersionList.GetSWDetails("Colorado", SWDetails), true);
+    QCOMPARE(VersionList.GetSWDetails("Himalaya", SWDetails), true);
     QCOMPARE(VersionList.GetSWDetails("BLG", SWDetails), true);
     QCOMPARE(VersionList.GetSWDetails("ASB1.bin", SWDetails), true);
     QCOMPARE(VersionList.GetSWDetails("RemoteCare", SWDetails), true);

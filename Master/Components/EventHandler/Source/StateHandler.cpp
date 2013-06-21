@@ -243,25 +243,25 @@ void StateHandler::onSoftSwitchMonitorStateEntered()
 //    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_CmdExecutionStateGUI));
 //}
 
-//ColoradoStartupState::ColoradoStartupState(ColoradoThreadController *threadController)
+//HimalayaStartupState::HimalayaStartupState(HimalayaThreadController *threadController)
 //    : QState()
 //    , m_threadController(threadController)
 //{
 
 //}
 
-//void ColoradoStartupState::onEntry(QEvent* event)
+//void HimalayaStartupState::onEntry(QEvent* event)
 //{
 //    // doing reference runs
 
-//    qDebug() << "ColoradoStartupState::onEntry" << this->objectName();
+//    qDebug() << "HimalayaStartupState::onEntry" << this->objectName();
 ////    emit SIGNAL(stateChanged());
 //}
 
-//void ColoradoStartupState::onExit(QEvent* event)
+//void HimalayaStartupState::onExit(QEvent* event)
 //{
-//    qDebug() << "ColoradoState::onExit" << this->objectName();
+//    qDebug() << "HimalayaState::onExit" << this->objectName();
 ////    emit SIGNAL(stateChanged());
 //}
 
-} // end namespace Colorado
+} // end namespace Himalaya

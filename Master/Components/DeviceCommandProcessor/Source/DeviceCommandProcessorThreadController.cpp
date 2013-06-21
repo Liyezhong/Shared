@@ -211,7 +211,7 @@ void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode
     else
     {
         // log error
-        //SEND_FATAL_ERROR(EVENT_ColoradoDeviceCommandProcessor_ERROR_COMMAND_FAILED, EVENT_ColoradoDeviceCommandProcessor_STRING_CONFIGURATION);
+        //SEND_FATAL_ERROR(EVENT_HimalayaDeviceCommandProcessor_ERROR_COMMAND_FAILED, EVENT_HimalayaDeviceCommandProcessor_STRING_CONFIGURATION);
         // send negative acknowledge back.
         SendAcknowledgeNOK(m_RefInitDCL);
     }
@@ -232,13 +232,13 @@ void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(Return
         if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS) {
             ConnectDevices();
             // log success
-            //SEND_INFO(EVENT_ColoradoDeviceCommandProcessor_INFO_COMMAND_FINISHED, EVENT_ColoradoDeviceCommandProcessor_STRING_CONFIGURATION);
+            //SEND_INFO(EVENT_HimalayaDeviceCommandProcessor_INFO_COMMAND_FINISHED, EVENT_HimalayaDeviceCommandProcessor_STRING_CONFIGURATION);
             // send positive acknowledge back.
             SendAcknowledgeOK(m_RefInitDCL);
         }
         else {
             // log error
-            //SEND_FATAL_ERROR(EVENT_ColoradoDeviceCommandProcessor_ERROR_COMMAND_FAILED, EVENT_ColoradoDeviceCommandProcessor_STRING_CONFIGURATION);
+            //SEND_FATAL_ERROR(EVENT_HimalayaDeviceCommandProcessor_ERROR_COMMAND_FAILED, EVENT_HimalayaDeviceCommandProcessor_STRING_CONFIGURATION);
             // send negative acknowledge back.
             SendAcknowledgeNOK(m_RefInitDCL);
         }

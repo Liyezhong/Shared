@@ -47,7 +47,7 @@ protected:
     bool m_SepiaStation;                    ///< Is the rack in Sepia?
     bool m_UseSepia;                        ///< Is the rack relevant for Sepia ?
     QDateTime m_StartTime;                  ///< Scheduler claculation time
-    QDateTime m_EndTimeColorado;            ///< End time Colorado
+    QDateTime m_EndTimeHimalaya;            ///< End time Himalaya
     QString m_StationID;                    ///< Station ID
     quint16 m_ProgramStepIndex;             ///< Current program step
     QDateTime m_EndTimeStation;             ///< Station end time
@@ -176,21 +176,21 @@ public:
 
     /****************************************************************************/
     /*!
-     *  \brief  Get the Colorado end time of the Rack
+     *  \brief  Get the Himalaya end time of the Rack
      *
      *  \return DateTime
      */
     /****************************************************************************/
-    QDateTime GetEndTimeColorado() const { return m_EndTimeColorado; }
+    QDateTime GetEndTimeHimalaya() const { return m_EndTimeHimalaya; }
 
     /****************************************************************************/
     /*!
-     *  \brief  Set the Colorado end time of the Rack
+     *  \brief  Set the Himalaya end time of the Rack
      *
-     *  \iparam EndTimeColorado = End time of Colorado value
+     *  \iparam EndTimeHimalaya = End time of Himalaya value
      */
     /****************************************************************************/
-    void SetEndTimeColorado(const QDateTime EndTimeColorado) { m_EndTimeColorado = EndTimeColorado; }
+    void SetEndTimeHimalaya(const QDateTime EndTimeHimalaya) { m_EndTimeHimalaya = EndTimeHimalaya; }
 
     /****************************************************************************/
     /*!

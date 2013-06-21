@@ -37,18 +37,22 @@
 // Temperature module related errors
 //! The parameters of the PID controller are not set
 #define E_TEMP_PID_NOT_CONFIGURED   BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 0)
+//! The module is heating, operation not permitted
+#define E_TEMP_MODULE_ACTIVE        BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 1)
 //! The module is stopped or in standby
-#define E_TEMP_MODULE_INACTIVE      BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 1)
+#define E_TEMP_MODULE_INACTIVE      BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 2)
 //! Speed of a fan is out of range
-#define E_TEMP_FAN_OUT_OF_RANGE     BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 2)
+#define E_TEMP_FAN_OUT_OF_RANGE     BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 3)
 //! The current through the heating elements is too high or too low
-#define E_TEMP_CURRENT_OUT_OF_RANGE BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 3)
+#define E_TEMP_CURRENT_OUT_OF_RANGE BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 4)
 //! Temperature is too high
-#define E_TEMP_SENSOR_OUT_OF_RANGE  BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 4)
+#define E_TEMP_SENSOR_OUT_OF_RANGE  BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 5)
 //! Temperature sensors are measuring different values
-#define E_TEMP_SENSORS_INCONSISTENT BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 5)
+#define E_TEMP_SENSORS_INCONSISTENT BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 6)
 //! Unsupported type of temperature sensor
-#define E_TEMP_SENSOR_NOT_SUPPORTED BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 6)
+#define E_TEMP_SENSOR_NOT_SUPPORTED BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 7)
+//! Unsupported type of heater
+#define E_TEMP_HEATER_NOT_SUPPORTED BUILD_ERRCODE(MODULE_ID_TEMPERATURE, ERRCLASS_ERROR, 8)
 
 
 // Temperature module related CAN identifiers
@@ -95,6 +99,8 @@
 #define MSG_TEMP_NOTI_IN_RANGE        BUILD_CAN_ID(CMD_CLASS_FUNCTION, 17, 0)
 //! Notification sent when the temperature leaves the required range
 #define MSG_TEMP_NOTI_OUT_OF_RANGE    BUILD_CAN_ID(CMD_CLASS_FUNCTION, 18, 0)
+//! Notification sent when preset temperature variation slope reached
+#define MSG_TEMP_NOTI_SLOPE           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0)
 
 //****************************************************************************/
 // Public Type Definitions 

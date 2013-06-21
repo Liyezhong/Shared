@@ -75,6 +75,9 @@ static const UInt32 TestOptionList[] = {
         VOLTAGE_LIMIT_FAILURE,          // Voltage monitor failure level
         CURRENT_LIMIT_WARNING,          // Current monitor warning level
         CURRENT_LIMIT_FAILURE,          // Current monitor failure level
+        
+    // Function modules board options
+    MODULE_ID_TEMPERATURE, 4, 0x12012, 0x12012, 0x12012, 0x12012
 };
 
 //****************************************************************************/
@@ -147,7 +150,7 @@ static Error_t InitTestBoardInfoBlock (void) {
     static bmBoardInfoBlock_t InfoBlock;
 
     InfoBlock.Signature       = INFOBLOCK_SIGNATURE;
-    InfoBlock.NodeType        = 11;
+    InfoBlock.NodeType        = 0x39;
     InfoBlock.NodeClass       = 0;
 
     strcpy (InfoBlock.BoardName, "ASBJM");
@@ -212,11 +215,11 @@ static Error_t InitTestBootloaderInfoBlock (void) {
 
 int main (int argc, char **argv) {
 
+    volatile Int32 i;
     Error_t Status;
 
     // Wait for JTAG to synchronize
     #ifdef DEBUG
-    volatile Int32 i;
     for (i=0; i < 300000; i++);
     #endif
 
@@ -232,8 +235,6 @@ int main (int argc, char **argv) {
         dbgPrintError (BASEMODULE_CHANNEL, Status, ON, 0);
     }
     dbgPrint ("Firmware stopped");
-
-    return Status;
 }
 
 //****************************************************************************/

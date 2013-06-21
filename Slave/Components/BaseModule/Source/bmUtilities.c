@@ -589,6 +589,7 @@ Error_t bmInitUtilities (void) {
     halSetAddress(ADDRESS_BOARD_OPTION_BLOCK_FLASH, (void *) (
             halStorageBase(Handle) + halStorageSize(Handle) -     halFlashBlockSize())); 
 
+
     // Locates the board info block
     BoardInfo = bmGetBoardInfoBlock();
 

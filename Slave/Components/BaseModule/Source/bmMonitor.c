@@ -108,7 +108,8 @@ static Error_t bmSendCurrentState     (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmSendSafeState        (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmGetFilteredInput     (bmPowerMonitorState_t *Monitor);
 
-static Error_t bmConfigPowerMonitor (bmPowerMonitorState_t *Monitor, CanMessage_t *Message);
+static Error_t bmConfigPowerMonitor (
+                    bmPowerMonitorState_t *Monitor, CanMessage_t *Message);
 
 static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index);
 static bmPowerState_t bmGetSupplyCurrentState (void);
@@ -241,7 +242,7 @@ static Error_t bmSetMasterPowerState (UInt16 Channel, CanMessage_t *Message) {
 static Error_t bmMonitorSupplyVoltageIndex (UInt8 Index) {
 
     if (Voltage[Index].Enabled || Voltage[Index].ErrFlag) {
-        if (bmTimeExpired(Voltage[Index].SampleTime) >= Voltage[Index].SampleRate) {
+        if (bmTimeExpired(Voltage[Index].SampleTime) > Voltage[Index].SampleRate) {
 
             bmPowerState_t State =
                 Voltage[Index].Enabled ? bmGetSupplyVoltageState(Index) : POWER_GOOD;
@@ -353,7 +354,7 @@ Error_t bmMonitorSupplySafe (void) {
 Error_t bmMonitorSupplyCurrent (void) {
 
     if (Current.Enabled || Current.ErrFlag) {
-        if (bmTimeExpired(Current.SampleTime) >= Current.SampleRate) {
+        if (bmTimeExpired(Current.SampleTime) > Current.SampleRate) {
 
             bmPowerState_t State =
                 Current.Enabled ? bmGetSupplyCurrentState() : POWER_GOOD;
@@ -414,9 +415,9 @@ Error_t bmMonitorSupplyCurrent (void) {
 static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
 
     if (Voltage[Index].Handle >= 0) {
-        Error_t Status = bmGetFilteredInput(&Voltage[Index]);
 
-        if (Status > NO_ERROR) {
+        if (bmGetFilteredInput(&Voltage[Index]) == NO_ERROR) {
+
             if (Voltage[Index].Value >= Voltage[Index].Threshold2) {
                 return (POWER_GOOD);
             }
@@ -424,9 +425,6 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
                 return (POWER_FAILED);
             }
             return (POWER_WARNING);
-        }
-        else if (Status == NO_ERROR) {
-            return (POWER_GOOD);
         }
     }
     return (POWER_UNKNOWN);
@@ -455,9 +453,13 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
 static bmPowerState_t bmGetSupplyCurrentState (void) {
 
     if (Current.Handle >= 0) {
-        Error_t Status = bmGetFilteredInput(&Current);
+        if (bmGetFilteredInput(&Current) == NO_ERROR) {
 
-        if (Status > NO_ERROR) {
+/*
+            if (Current.Value > Current.Threshold1-100) {
+                printf("C:%d\n", Current.Value);
+            }
+*/            
             if (Current.Value <= Current.Threshold1) {
                 return (POWER_GOOD);
             }
@@ -465,9 +467,6 @@ static bmPowerState_t bmGetSupplyCurrentState (void) {
                 return (POWER_FAILED);
             }
             return (POWER_WARNING);
-        }
-        else if (Status == NO_ERROR) {
-            return (POWER_GOOD);
         }
     }
     return (POWER_UNKNOWN);
@@ -486,7 +485,7 @@ static bmPowerState_t bmGetSupplyCurrentState (void) {
  *
  *  \iparam  Monitor = Pointer to power monitor data structure
  *
- *  \return  Filter state (1 = ready) or negative error code
+ *  \return  Filtered analog input value
  *
  *****************************************************************************/
 
@@ -497,6 +496,7 @@ static Error_t bmGetFilteredInput (bmPowerMonitorState_t *Monitor) {
     UInt16 Index;
     UInt16 Count;
     UInt16 i;
+    
 
     Status = halAnalogRead (
         Monitor->Handle, &Monitor->History[Monitor->NextIn]);
@@ -524,8 +524,8 @@ static Error_t bmGetFilteredInput (bmPowerMonitorState_t *Monitor) {
         if (Count) {
             Monitor->Value = Average / Count;
         }
-        return (Monitor->Filter < Monitor->InCount);
     }
+
     return (Status);
 }
 
@@ -921,7 +921,7 @@ void bmInitVoltageMonitor (void) {
  *      connected to the board safe supply voltage and setting up the  
  *      structure holding the state of the voltage monitor. All data   
  *      elements in this structure are assumed to be set to 0 before  
- *      calling this function.
+ *      calling this function.																			   
  *
  *      Voltage thresholds are looked up in the board options for the base
  *      module. If the voltage thresholds are defined there, they are taken

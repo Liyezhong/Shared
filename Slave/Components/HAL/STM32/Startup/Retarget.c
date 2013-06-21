@@ -27,10 +27,6 @@
 #include <string.h>
 #include "Global.h"
 #include "halConsole.h"
-#include "halCan.h"
-#include "bmCommon.h"
-#include "bmCan.h"
-#include "bmUtilities.h"
 
 #pragma import(__use_no_semihosting)
 
@@ -166,59 +162,9 @@ char *_sys_command_string (char *Command, int Length) {
 }
 
 /*****************************************************************************/
-/*!
- *  \brief   System exit function
- *
- *      When firmware is terminated this function will be called.
- *
- *      The ReturnCode is send as CAN-event message if CAN bus is useable.
- *      Then a hardware reset is issued, which leads firmware to reenter the
- *      bootloader.
- *
- *  \iparam  ReturnCode = (negative) error code
- *
- ****************************************************************************/
+
 void _sys_exit (int ReturnCode) {
 
-    // send CAN event if bus is ready
-    static const UInt32 EventID[8] = {
-        MSG_EVENT_INFO, MSG_EVENT_ERROR, MSG_EVENT_WARNING, MSG_EVENT_FATAL
-    };
-    Handle_t CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, NULL, FALSE);
-    CanMessage_t Message;
-
-    UInt16  NodeType  = 0;
-    UInt16  NodeIndex = 0;
-    //try to get node type and index
-    bmBoardInfoBlock_t *BoardInfo =  bmGetBoardInfoBlock();
-    if (NULL != BoardInfo) {
-        Handle_t Handle;
-        NodeType = BoardInfo->NodeType;
-        // read-in dip switch to get node index
-        if ((Handle = halPortOpen (HAL_CAN_NODE_INDEX, HAL_OPEN_READ)) >= 0) {
-            halPortRead (Handle, &NodeIndex);
-        }
-    }
-
-    Message.CanID = EventID[(((ReturnCode) & ERRCODE_MASK_CLASS)  >> 28)];
-    Message.CanID = (Message.CanID & ~CANiD_MASK_CHANNEL) |
-                    (((NodeType << 1) | (NodeIndex << 8)) & CANiD_MASK_ADDRESS) |
-                    (0 << CANiD_SHIFT_CHANNEL);
-    Message.Length = 6;
-    bmSetMessageItem (&Message, (((ReturnCode) & ERRCODE_MASK_MODULE) >> 16), 0, 2);
-    bmSetMessageItem (&Message, ((ReturnCode) & ERRCODE_MASK_NUMBER), 2, 2);
-    bmSetMessageItem (&Message, 0, 4, 2);
-    if (CanHandle > 0) {
-        volatile Int32 i;
-        halCanWrite (CanHandle, &Message);
-        // give some time to transmit the message
-        for (i=0; i < 300000; i++);
-    }
-
-    // Do hardware reset (should never return)
-    halHardwareReset();
-
-    // stop, if reset failed
     for(;;);
 }
 

@@ -30,7 +30,6 @@ namespace MainMenu {
 
 CMainWindow::UserRole_t CMainWindow::m_CurrentUserRole = CMainWindow::Operator;
 bool CMainWindow::m_ProcessRunning = false;
-bool StyleSize = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetStyleSize();
 
 /****************************************************************************/
 /*!
@@ -63,7 +62,7 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :
     mTimeRefreshTimer.start();
 
     QPalette Palette = mp_Ui->caption->palette();
-    Palette.setBrush(QPalette::Window, QBrush(QPixmap(QString(":/%1/StatusArea.png").arg(Application::CLeicaStyle::GetStyleSizeString()))));
+    Palette.setBrush(QPalette::Window, QBrush(QPixmap(QString(":/%1/StatusBar/StatusBar_Background.png").arg(Application::CLeicaStyle::GetProjectNameString()))));
     Palette.setColor(QPalette::WindowText, Qt::white);
     mp_Ui->caption->setPalette(Palette);
     QObject::connect(mp_Ui->TabWidget,SIGNAL(currentChanged(int)),this,SLOT(OnCurrentTabChanged(int)));
@@ -140,10 +139,10 @@ void CMainWindow::AddMenuGroup(QWidget *p_MenuGroup, QPixmap Pixmap)
 {
     QTransform Transform;
     Transform.rotate(90.0);
-    QString m_SepiaTabs = "Small";
+    QString m_SepiaTabs = "Sepia";
 
     qint32 Index = mp_Ui->TabWidget->addTab(p_MenuGroup, QIcon(Pixmap.transformed(Transform)), "");
-    if(Application::CLeicaStyle::GetStyleSizeString()== m_SepiaTabs){
+    if(Application::CLeicaStyle::GetProjectNameString()== m_SepiaTabs){
         mp_Ui->TabWidget->setIconSize(QSize(180,250));
     }
     if (Index < 0) {
@@ -218,13 +217,13 @@ void CMainWindow::SetUserIcon(MainMenu::CMainWindow::UserRole_t UserRole)
 {
     switch (UserRole) {
         case Admin:
-            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Admin.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Admin.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case Operator:
-            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Operator.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Operator.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case Service:
-            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Service.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Service.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
     }
 }
@@ -246,7 +245,7 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
         if (!m_ProcessRunning) {
             p_Label = mp_Ui->statusLabel1;
             delete mp_ProcPixmap;
-            mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+            mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetProjectNameString()));
             p_Label->setPixmap(*mp_ProcPixmap);
             p_Label->show();
             m_ProcessRunning = true;
@@ -260,7 +259,7 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
         if (!m_RemoteService) {
             p_Label = mp_Ui->statusLabel2;
             delete mp_RemotePixMap;
-            mp_RemotePixMap = new QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+            mp_RemotePixMap = new QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetProjectNameString()));
             p_Label->setPixmap(*mp_RemotePixMap);
             //p_Label->pixmap.fill(Qt::transparent);
             p_Label->show();
@@ -270,14 +269,14 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
         break;
     case Error:
         p_Label = mp_Ui->statusLabelErr;
-        p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Error_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+        p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Error_small.png").arg(Application::CLeicaStyle::GetProjectNameString())));
         p_Label->show();
         m_Error= true;
         result = true;
         break;
     case Warning:
         p_Label = mp_Ui->statusLabelWarn;
-        p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Warning_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+        p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Warning_small.png").arg(Application::CLeicaStyle::GetProjectNameString())));
         p_Label->show();
         m_Warning = true;
         result = true;
@@ -395,6 +394,7 @@ bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
             return true;
         }
     }
+    return QMainWindow::eventFilter(Obj, p_Event);
 }
 
 } // end namespace MainMenu

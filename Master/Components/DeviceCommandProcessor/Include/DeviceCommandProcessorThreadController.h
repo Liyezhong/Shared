@@ -28,7 +28,7 @@
 #include "DeviceControl/Include/Global/DeviceControl.h"
 //#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
-//#include "ColoradoDataManager/Include/DataManager.h"
+//#include "HimalayaDataContainer/Include/DataManager.h"
 
 #include <QMutex>
 
@@ -165,7 +165,7 @@ public:
     /****************************************************************************/
     virtual void OnDeviceProcessingCleanup(Global::tRefType Ref, const CmdDeviceProcessingCleanup &Cmd);
 
-public slots:  
+public slots:
     void DevProcInitialisationAckn(ReturnCode_t configResult);
     void DevProcConfigurationAckn(ReturnCode_t configResult);
     void DevProcStartNormalOpModeAckn(ReturnCode_t hdlInfo);

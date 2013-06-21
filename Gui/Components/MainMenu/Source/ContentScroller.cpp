@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-
+#include "Application/Include/LeicaStyle.h"
 #include "MainMenu/Include/ContentScroller.h"
 #include "ui_ContentScroller.h"
 #include <QDebug>
@@ -48,15 +48,15 @@ CContentScroller::CContentScroller(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui
     m_ButtonGroup.addButton(mp_Ui->btnScrollEnd, 3);
 
     //Set initial state of buttons
-    m_IconScrollBegin.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_up_end_active.png"));
-    m_IconScrollUp.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_up_active.png"));
-    m_IconScrollDown.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_down_active.png"));
-    m_IconScrollEnd.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_down_end_active.png"));
+    m_IconScrollBegin.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_end_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+    m_IconScrollUp.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+    m_IconScrollDown.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+    m_IconScrollEnd.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_end_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
 
-    m_IconScrollBegin.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_up_end_passive.png"), QIcon::Disabled);
-    m_IconScrollUp.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_up_passive.png"), QIcon::Disabled);
-    m_IconScrollDown.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_down_passive.png"), QIcon::Disabled);
-    m_IconScrollEnd.addPixmap(QPixmap(":/Large/Icons/Scroll_Indicator/Scroll_down_end_passive.png"), QIcon::Disabled);
+    m_IconScrollBegin.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_end_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
+    m_IconScrollUp.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
+    m_IconScrollDown.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
+    m_IconScrollEnd.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_end_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
 
     mp_Ui->btnScrollBegin->setIcon(m_IconScrollBegin);
     mp_Ui->btnScrollUp->setIcon(m_IconScrollUp);

@@ -99,7 +99,6 @@ static Error_t InitTestBoardOptionBlock (void) {
     UInt16 Elements = ELEMENTS(TestOptionList);
     UInt16 i;
 
-    //lint -esym(429, BoardOptions)
     UInt32 *BoardOptions = calloc (Elements+3, sizeof(UInt32));
 
     if (BoardOptions != NULL) {
@@ -126,7 +125,7 @@ static Error_t InitTestBoardInfoBlock (void) {
     static bmBoardInfoBlock_t InfoBlock;
 
     InfoBlock.Signature       = INFOBLOCK_SIGNATURE;
-    InfoBlock.NodeType        = 1;
+    InfoBlock.NodeType        = 15;
     InfoBlock.NodeClass       = 0;
 
     strcpy (InfoBlock.BoardName, "ASB0");

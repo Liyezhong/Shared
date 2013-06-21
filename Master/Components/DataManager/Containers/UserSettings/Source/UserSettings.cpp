@@ -100,8 +100,8 @@ void CUserSettings::SetDefaultAttributes()
     m_SoundLevelWarning     = 6;
     m_RemoteCare            = Global::ONOFFSTATE_ON;
     m_DirectConnection      = Global::ONOFFSTATE_OFF;
-    m_ProxyUserName         = "Colorado";
-    m_ProxyPassword         = "Colorado";
+    m_ProxyUserName         = "Himalaya";
+    m_ProxyPassword         = "Himalaya";
     m_ProxyIPAddress        = "000.000.000.001";
     m_ProxyIPPort           = 1;
 }

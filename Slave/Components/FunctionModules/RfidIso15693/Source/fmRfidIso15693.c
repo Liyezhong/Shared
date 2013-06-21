@@ -50,7 +50,7 @@
 #define RFID15693_CAPTURE_CHANNEL 2 //!< Timer channel used for the capture input
 #define RFID15693_COMPARE_CHANNEL 3 //!< Timer channel used for the compare output
 
-#define RFID15693_TIMEOUT 10        //!< Timeout for an RFID transaction
+#define RFID15693_TIMEOUT 50        //!< Timeout for an RFID transaction
 
 //****************************************************************************/
 // Private Type Definitions
@@ -108,8 +108,7 @@ static Error_t rfid15693ModuleTask    (UInt16 Instance);
 
 static Error_t rfid15693OptionBitsInit (InstanceData_t* Data);
 static Error_t rfid15693StartCompare (InstanceData_t *Data, UInt16 Time);
-static Error_t rfid15693SendResponse (InstanceData_t* Data);
-static Error_t rfid15693Complete (InstanceData_t* Data);
+static Error_t rfid15693SendResponse(InstanceData_t* Data);
 
 static Error_t rfid15693SetConfig (UInt16 Channel, CanMessage_t* Message);
 static Error_t rfid15693AcquireUid (UInt16 Channel, CanMessage_t* Message);
@@ -134,13 +133,11 @@ static Error_t rfid15693HandleOpen (InstanceData_t *Data, Int16 Instance);
  *      module. Depending on the ControlID parameter, the following actions
  *      are performed:
  * 
- *      - MODULE_CONTROL_RESUME
- *      - MODULE_CONTROL_WAKEUP
  *      - MODULE_CONTROL_STOP
- *      - MODULE_CONTROL_SHUTDOWN
- *      - MODULE_CONTROL_RESET
- *      - MODULE_CONTROL_FLUSH_DATA
- *      - MODULE_CONTROL_RESET_DATA
+ *      - MODULE_CONTROL_RESUME
+ *      - MODULE_CONTROL_STANDBY  
+ *      - MODULE_CONTROL_WAKEUP
+ *      - MODULE_CONTROL_SHUTDOWN        
  * 
  *  \iparam  Instance  = Instance number of this module [in]
  *  \iparam  ControlID = Control code to select sub-function [in]
@@ -194,11 +191,13 @@ static Error_t rfid15693ModuleControl (UInt16 Instance, bmModuleControlID_t Cont
  *      this function module. Depending on the StatusID parameter, the 
  *      following status values are returned:
  * 
- *      - MODULE_STATUS_STATE
- *      - MODULE_STATUS_VALUE
- *      - MODULE_STATUS_MODULE_ID
  *      - MODULE_STATUS_INSTANCES
+ *      - MODULE_STATUS_MODULE_ID
+ *      - MODULE_STATUS_POWER_STATE
  *      - MODULE_STATUS_VERSION
+ *      - MODULE_STATUS_STATE
+ *      - MODULE_STATUS_ABORTED
+ *      - MODULE_STATUS_VALUE
  * 
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
@@ -255,30 +254,28 @@ static Error_t rfid15693ModuleTask (UInt16 Instance)
 {
     Error_t Error;
     InstanceData_t* Data = &DataTable[Instance];
-
+    
     // Control the option bits programming sequence
     Error = rfid15693OptionBitsInit (Data);
     if (Error < NO_ERROR) {
         bmSignalEvent (Data->Channel, Error, TRUE, 0);
         return ((Error_t) Data->ModuleState);
     }
-
+    
     if (Data->ModuleState == MODULE_STATE_BUSY && Data->InitState == STATE_INIT) {
-        Error = rfid15693Complete(Data);
         // Check for possible errors from the interrupt handlers
-        if (Error < NO_ERROR) {
+        if (Data->IrqError < NO_ERROR) {
             Data->ModuleState = MODULE_STATE_READY;
-            bmSignalEvent (Data->Channel, Error, TRUE, Data->Stream.ReceiveState);
+            bmSignalEvent (Data->Channel, Data->IrqError, TRUE, 0);
             Data->IrqError = NO_ERROR;
             return ((Error_t) Data->ModuleState);
         }
         // Check for transaction completeness
-        else if (Error == 1) {
+        else if (Data->Stream.ReceiveState == LINK_RXSTATE_EOF) {
             Data->ModuleState = MODULE_STATE_READY;
             Error = rfid15693LinkCheckMessage(&Data->Stream);
             if (Error < NO_ERROR) {
-                UInt8 ErrorCode = (Error == E_RFID15693_RESPONSE_ERRORFLAG) ?
-                        Data->Stream.RxBuffer[1] : Data->Stream.RxCount;
+                UInt8 ErrorCode = (Error == E_RFID15693_RESPONSE_ERRORFLAG) ? Data->Stream.RxBuffer[1] : 0;
                 bmSignalEvent (Data->Channel, Error, TRUE, ErrorCode);
                 return ((Error_t) Data->ModuleState);
             }
@@ -290,8 +287,14 @@ static Error_t rfid15693ModuleTask (UInt16 Instance)
                 }
             }
         }
+        // Check for a transaction timeout
+        else if (bmTimeExpired(Data->StartTime) > RFID15693_TIMEOUT) {
+            Data->ModuleState = MODULE_STATE_READY;
+            bmSignalEvent (Data->Channel, E_RFID15693_TRANSACTION_TIMEOUT, TRUE, 0);
+            return ((Error_t) Data->ModuleState);
+        }
     }
-
+    
     return ((Error_t) Data->ModuleState);
 }
 
@@ -456,37 +459,6 @@ static Error_t rfid15693SendResponse(InstanceData_t* Data)
     return (canWriteMessage (Data->Channel, &Message));
 }
 
-
-/*****************************************************************************/
-/*! 
- *  \brief   Checks an RFID transaction for completion
- *
- *      This method checks if an RFID transaction has completed successfully.
- *      If this is the case, it will return TRUE.
- * 
- *  \iparam  Data = This structure contains the transaction state
- * 
- *  \return  1 when transaction complete, NO_ERROR or (negative) error code
- *
- ****************************************************************************/
-
-static Error_t rfid15693Complete (InstanceData_t* Data)
-{
-    // Check for possible errors from the interrupt handlers
-    if (Data->IrqError < NO_ERROR) {
-        return (Data->IrqError);
-    }
-    // Check for transaction completeness
-    else if (Data->Stream.ReceiveState == LINK_RXSTATE_EOF) {
-        return (1);
-    }
-    // Check for a transaction timeout
-    else if (bmTimeExpired(Data->StartTime) > RFID15693_TIMEOUT) {
-        return (E_RFID15693_TRANSACTION_TIMEOUT);
-    }
-
-    return 0;
-}
 
 /*****************************************************************************/
 /*! 
@@ -1053,7 +1025,6 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
     UInt32 Time;
     Error_t Error;
     UInt32 NewCount;
-    const UInt32 Threshold = 32;
 
     Error = halCapComRead (Data->HandleTimer, RFID15693_CAPTURE_CHANNEL, &NewCount);
     if (Error < 0) {
@@ -1064,7 +1035,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
 
     switch(Data->Stream.ReceiveState) {
         case LINK_RXSTATE_WAIT:
-            if (Time > 768 + Threshold) {
+            if (Time > 768 + 8) {
                 Data->Stream.ReceiveState = LINK_RXSTATE_SOF1;
             }
             else {
@@ -1072,7 +1043,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
             }
             break;
         case LINK_RXSTATE_SOF1:
-            if (Time >= 256 - Threshold && Time <= 256 + Threshold) {
+            if (Time >= 256 - 8 && Time <= 256 + 8) {
                 Data->Stream.ReceiveState = LINK_RXSTATE_SOF2;
             }
             else {
@@ -1080,7 +1051,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
             }
             break;
         case LINK_RXSTATE_SOF2:
-            if (Time >= 256 - Threshold && Time <= 256 + Threshold) {
+            if (Time >= 256 - 8 && Time <= 256 + 8) {
                 Data->Stream.ReceiveState = LINK_RXSTATE_SOF3;
             }
             else {
@@ -1088,7 +1059,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
             }
             break;
         case LINK_RXSTATE_SOF3:
-            if (Time >= 512 - Threshold && Time <= 512 + Threshold) {
+            if (Time >= 512 - 8 && Time <= 512 + 8) {
                 Data->Stream.ReceiveState = LINK_RXSTATE_DATA;
             }
             else {
@@ -1096,7 +1067,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
             }
             break;
         case LINK_RXSTATE_DATA:
-            if (Time >= 256 - Threshold && Time <= 256 + Threshold) {
+            if (Time >= 256 - 8 && Time <= 256 + 8) {
                 if (Data->Stream.SymbolShift == TRUE) {
                     Data->Stream.ReceiveState = LINK_RXSTATE_EOF;
                 }
@@ -1105,7 +1076,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
                 }
                 Data->Stream.SymbolShift = TRUE;
             }
-            else if (Time >= 512 - Threshold && Time <= 512 + Threshold) {
+            else if (Time >= 512 - 8 && Time <= 512 + 8) {
                 if (Data->Stream.SymbolShift == TRUE) {
                     rfid15693LinkWriteBit(Data->Stream.RxBuffer, Data->Stream.RxCount++, 0);
                 }
@@ -1113,7 +1084,7 @@ static Error_t rfid15693CaptureIntHandler (InstanceData_t *Data)
                     rfid15693LinkWriteBit(Data->Stream.RxBuffer, Data->Stream.RxCount++, 1);
                 }
             }
-            else if (Time >= 768 - Threshold && Time <= 768 + Threshold) {
+            else if (Time >= 768 - 8 && Time <= 768 + 8) {
                 if (Data->Stream.SymbolShift == FALSE) {
                     return (E_RFID15693_UNKNOWN_RXSYMBOL);
                 }

@@ -394,9 +394,8 @@ static Error_t halPortGetIndex (Handle_t Handle, UInt16 Mode) {
     register const UInt32 Index = Handle & DEVICE_INDEX_MASK;
 
     if ((DEVICE_CLASS_DIGIN != (Handle & DEVICE_CLASS_MASK)) &&
-        (DEVICE_CLASS_DIGOUT != (Handle & DEVICE_CLASS_MASK))) {
+        (DEVICE_CLASS_DIGOUT != (Handle & DEVICE_CLASS_MASK)))
         return (E_DEVICE_HANDLE_INVALID);
-    }
 
     if (Index < halPortDescriptorCount) {
 
@@ -682,6 +681,12 @@ static Error_t halPinActivateMode (void) {
 
     for (i=0; i < PortCount; i++) {
         GPIO[i].Regs->CR[0] = GPIO[i].Mode[0];
+#if 0
+	if(i==1)
+	{
+	   GPIO[i].Regs->CR[0] = 0xD9808080;
+	}
+#endif
         GPIO[i].Regs->CR[1] = GPIO[i].Mode[1];
         GPIO[i].Regs->LOCK  = GPIO_LOCK_LCK | GPIO_LOCK_LCKK;
         GPIO[i].Regs->LOCK  = GPIO_LOCK_LCK;
@@ -711,8 +716,8 @@ static Error_t halPinSetToDefault (void) {
     UInt32 i;
 
     for (i=0; i < PortCount; i++) {
-        GPIO[i].Mode[0]   = 0x44444444;
-        GPIO[i].Mode[1]   = 0x44444444;
+        GPIO[i].Mode[0]   = 0x80808080;
+        GPIO[i].Mode[1]   = 0x80808080;
         GPIO[i].Regs->BRR = MAX_UINT32;
     }
     return (NO_ERROR);

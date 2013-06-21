@@ -112,6 +112,7 @@ static Error_t bmConfigureHeartbeat (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmRequestModeChange  (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmRequestNodeState   (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmNotifyNodeState    (void);
+static Error_t bmUpdateFirmware     (void);
 
 
 /*****************************************************************************/
@@ -166,10 +167,10 @@ bmNodeState_t bmSetNodeState (bmNodeState_t NewState) {
             bmWriteProtectStorage(PROTECT_BY_NODE_STATE, FALSE);
         }
         NodeState = NewState;
-    }
-    dbgPrintNodeState (NewState);
-    bmNotifyNodeState();
 
+        dbgPrintNodeState (NewState);
+        bmNotifyNodeState();
+    }
     return (OldState);
 }
 
@@ -221,6 +222,7 @@ bmNodeState_t bmProcessModeChange (void) {
         if (ModeRequest == NODE_STATE_SHUTDOWN) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
             bmSetGlobalControl (MODULE_CONTROL_SHUTDOWN);
+            bmSetNodeState (ModeRequest);
         }
         else if (ModeRequest == NODE_STATE_IDENTIFY) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
@@ -232,9 +234,11 @@ bmNodeState_t bmProcessModeChange (void) {
             canFlushMessages (1000);
             halHardwareReset(); 
         }
-        else if (ModeRequest == NODE_STATE_ASSEMBLY) {
+        else if (ModeRequest == NODE_STATE_UPDATE) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
             bmSetGlobalControl (MODULE_CONTROL_RESET);
+            bmUpdateFirmware();
+            bmSetNodeState (NODE_STATE_STANDBY);
         }
         if (ModeRequest < NODE_STATE_SHUTDOWN) {
             if (OldState >= NODE_STATE_SHUTDOWN) {
@@ -268,7 +272,7 @@ static Error_t bmRequestModeChange (UInt16 Channel, CanMessage_t *Message) {
     if (Message->Length >= 1) {
 
         bmNodeState_t NewState = (bmNodeState_t) Message->Data[0];
-
+                        
         // Check if requested state is a valid state
         if (NewState >= NUMBER_OF_NODE_STATES || 
             NewState == NODE_STATE_UNDEFINED) {
@@ -279,7 +283,7 @@ static Error_t bmRequestModeChange (UInt16 Channel, CanMessage_t *Message) {
             return (E_ILLEGAL_MODE_CHANGE);
         }
         // Change to update mode is allowed only out of standby mode
-        if (NewState == NODE_STATE_ASSEMBLY && NodeState < NODE_STATE_ASSEMBLY) {
+        if (NewState == NODE_STATE_UPDATE && NodeState < NODE_STATE_STANDBY) {
             return (E_ILLEGAL_MODE_CHANGE);
         }
         // Standby/startup state can't be entered directly
@@ -768,11 +772,10 @@ static Error_t bmProcessNodeReset (UInt16 Channel, CanMessage_t *Message) {
         }
         if (PatternIndex >= ELEMENTS(PatternSequence)) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
-            bmSetGlobalControl (MODULE_CONTROL_RESET);
             canFlushMessages (1000);
 
             // Do hardware reset (should never return)
-            halHardwareReset();
+            halHardwareReset();         
             PatternIndex = 0;
 
             return (E_HARDWARE_RESET_FAILED);
@@ -781,6 +784,38 @@ static Error_t bmProcessNodeReset (UInt16 Channel, CanMessage_t *Message) {
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Firmware update
+ *
+ *      Calls the bootloader to perform a firmware update. If the call is
+ *      successfull, the function never returns. Instead of this, the new
+ *      firmware is started after the update is done. If the bootloader
+ *      can't be called, an error message is send.
+ *
+ *  \return   NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t bmUpdateFirmware (void) {
+
+    const UInt32 *Signature =
+        (UInt32*) halGetAddress(ADDRESS_BOOTLOADER_SIGNATURE);
+
+    if (*Signature == INFOBLOCK_SIGNATURE) {
+
+        bmBootLoaderVector *FirmwareUpdateManager =
+            (bmBootLoaderVector*) halGetAddress(ADDRESS_BOOTLOADER_UPDATE);
+
+        // call bootloader to do firmware update (should not return)
+        (*FirmwareUpdateManager)();
+
+    }
+    bmSignalEvent (BASEMODULE_CHANNEL, E_BOOTLOADER_MISSING, TRUE, 0);
+    return (E_BOOTLOADER_MISSING);
 }
 
 

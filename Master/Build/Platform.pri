@@ -22,13 +22,13 @@ CONFIG += debug_and_release
 
 INCLUDEPATH += ../..
 #INCLUDEPATH += ../../../../../Platform/Master/Components/
-#               ../../../../../Colorado/Shared/Master/Components/
-INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Master/Include
-INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Master/Components
-INCLUDEPATH += ../../../../../Colorado/Shared/Master/Components
+#               ../../../../../Himalaya/Shared/Master/Components/
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components
+INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components
 DEPENDPATH += ../..
 #              ../../../../../Platform/Master/Components/
-#              ../../../../../Colorado/Shared/Master/Components/
+#              ../../../../../Himalaya/Shared/Master/Components/
 
 QMAKE_CXXFLAGS += -Wall -std=c++0x
 

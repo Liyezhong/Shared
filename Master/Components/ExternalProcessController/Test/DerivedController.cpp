@@ -68,5 +68,5 @@ void DerivedController::OnPowerFail()
 {
 }
 
-} // end namespace ColoradoGui
+} // end namespace HimalayaGui
 

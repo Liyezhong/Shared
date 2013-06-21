@@ -35,7 +35,7 @@ namespace Global {
 
 /****************************************************************************/
 /**
- * \brief Alarm handler for Colorado application.
+ * \brief Alarm handler for Himalaya application.
  */
 /****************************************************************************/
 class AlarmHandler : public QObject

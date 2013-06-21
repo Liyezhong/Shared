@@ -754,7 +754,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 EventID,
     if (EventID == EVENT_GUI_AVAILABLE) {
             SetGuiAvailable(true);
             //We dont need to log this particular event ,
-            //instead we log for eg.EVENT_PROCESS_COLORADO_GUI_CONNECTED
+            //instead we log for eg.EVENT_PROCESS_HIMALAYA_GUI_CONNECTED
             return;
     }
     else if (m_eventList.size() == 0) {

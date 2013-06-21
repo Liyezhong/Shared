@@ -85,7 +85,7 @@ const UInt32 halCanDefaultBitrate = 500000;   //!< CAN bus baudrate [Hz]
 const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_A,  0, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // ENCODER_EQEP1A
     { PORT_A,  1, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // ENCODER_EQEP1B
-    { PORT_A,  2, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // ENCODER_EQEP1I
+	{ PORT_A,  2, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // ENCODER_EQEP1I
     { PORT_A,  3, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LIMITSWITCH1
     { PORT_A,  4, PIN_MUX_GPIO, PIN_TYP_DOUT50, PIN_OPT_NONE }, // STEPPER_SPI_ENABLE
     { PORT_A,  5, PIN_MUX_SFIO, PIN_TYP_DOUT50, PIN_OPT_NONE }, // STEPPER_SPI_SCK
@@ -102,9 +102,7 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  2, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // STEPPER_CURRENT_MEAS_A/ADC12_IN12
     { PORT_C,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // STEPPER_CURRENT_MEAS_B/ADC12_IN13
     { PORT_C,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // UNDER_VOLTAGE_DETECT_1/ADC12_IN14
-    { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Yellow
-    { PORT_C, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Red
-    { PORT_C, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Blue
+	{ PORT_C,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // UNDER_VOLTAGE_DETECT_2/ADC12_IN15
 
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBK_A
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
@@ -113,6 +111,9 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D,  4, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID1
 
     { PORT_E,  0, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LIMITSWITCH2
+    { PORT_E,  4, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
+    { PORT_E,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
+    { PORT_E,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
     { PORT_E, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // STEPPER_CHIPENABLE
     { PORT_E, 13, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // STEPPER_STALLGUARD
     { PORT_E, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // STEPPER_STEP
@@ -146,17 +147,17 @@ const UInt32 halPinDescriptorCount = ELEMENTS(halPinDescriptors);
  ***********************************************************************************/
 
 const halPortDescriptor_t halPortDescriptors[] = {
-    { HAL_CAN_NODE_INDEX,  DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
-    { HAL_CAN_LOOPBACK,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
+    { HAL_CAN_NODE_INDEX,     DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
+    { HAL_CAN_LOOPBACK,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
-    { HAL_STATUS_LED1,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 13, 1, 0, 0 },
-    { HAL_STATUS_LED2,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 15, 1, 0, 0 },
-    { HAL_STATUS_LED3,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 14, 1, 0, 0 },
+    { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  6, 1, 0, 0 },
+    { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  4, 1, 0, 0 },
+    { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  5, 1, 0, 0 },
 
-    { HAL_STEPPER1_ENABLE, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 12, 1, 1, 0 },
-    { HAL_STEPPER1_LIMIT1, DIR_INPUT,  BUS_TYPE_INTERN, PORT_A,  3, 1, 1, 0 },
-    { HAL_STEPPER1_LIMIT2, DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  0, 1, 1, 0 },
-    { HAL_STEPPER1_SELECT, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_A,  4, 1, 0, 0 },
+    { HAL_STEPPER1_ENABLE,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 12, 1, 1, 0 },
+    { HAL_STEPPER1_LIMIT1,    DIR_INPUT,  BUS_TYPE_INTERN, PORT_A,  3, 1, 1, 0 },
+    { HAL_STEPPER1_LIMIT2,    DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  0, 1, 1, 0 },
+    { HAL_STEPPER1_SELECT,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_A,  4, 1, 0, 0 },
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
@@ -183,11 +184,12 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  ***********************************************************************************/
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
-    { HAL_SUPPLY_VOLTAGE,  DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 33000, 0 },
-    { HAL_SUPPLY_CURRENT,  DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
+    { HAL_SUPPLY_VOLTAGE_1,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 33000, 0 },
+    { HAL_SUPPLY_VOLTAGE_2,    DIR_INPUT, BUS_TYPE_INTERN, 12, 15, 6, 33000, 0 },
+    { HAL_SUPPLY_CURRENT,      DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
 
-    { HAL_STEPPER1_PHASEA, DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,  3300, 0 },
-    { HAL_STEPPER1_PHASEB, DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3300, 0 },
+    { HAL_STEPPER1_PHASEA,   DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,  3300, 0 },
+    { HAL_STEPPER1_PHASEB,   DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3300, 0 },
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 
@@ -282,7 +284,7 @@ const UInt32 halStepperDescriptorCount = ELEMENTS(halStepperDescriptors);
 const halStorageDescriptor_t halStorageDescriptors[] = {
    { HAL_STORAGE_FLASH, MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x08000000, 0x20000 },
    { HAL_STORAGE_OTP,   MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x1FFFF000, 0x00800 },
-   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
+   //{ HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
 };
 const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
@@ -310,7 +312,7 @@ const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
 const halSerialDescriptor_t halSerialDescriptors[] = {
     { HAL_CAN_SYSTEM, 0, SIO_TYPE_CAN, 1, 0,  500000 },
-    { HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 0,  400000 }
+    //{ HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 0,  400000 }
 };
 const UInt32 halSerialDescriptorCount = ELEMENTS(halSerialDescriptors);
 

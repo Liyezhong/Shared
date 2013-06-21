@@ -1,24 +1,24 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorCAN.c
  * 
  *  \brief CAN-communication functions of module 'stepper motor'
  *
  *  $Version: $ 0.1
  *  $Date:    $ 03.07.2012
- *  $Author: $ Rainer Boehles
+ *  $Author:  $ Rainer Boehles
  *
  *  \b Description:
  *
  *      This module contains the functions to send / receive CAN-bus messages
- *      used by FM 'stepper motor' control.
- *
+ *      which are used for 'stepper motor' control.
+ *       
  *
  *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
- *
+ * 
  *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  This is unpublished proprietary source code of Leica. The copyright notice 
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
@@ -41,6 +41,12 @@
 
 
 
+//****************************************************************************/
+// Private Function Prototypes 
+//****************************************************************************/
+
+
+                      
 /****************************************************************************/
 /*! 
  *  \brief   Send CAN message for enable / disable acknowledgement
@@ -48,23 +54,19 @@
  *      Sends the can massage to acknowledge that stepper module
  *      enable/disabe request was successful 
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-Error_t smSendSetEnableAck(UInt16 Channel, SM_AckState_t Ack)
+Error_t smSendSetEnableAck(smData_t *Data)
 {
     CanMessage_t Message;
-    Msg_EnableAckData_t *AckData = (Msg_EnableAckData_t*)Message.Data;
 
     Message.CanID  = MSG_SMOT_SET_ENABLE_ACK;
     Message.Length = MSG_SMOT_SET_ENABLE_ACK_DLC;
 
-    AckData->ack = Ack;
-
-    return (canWriteMessage(Channel, &Message));
+    return (canWriteMessage(Data->Channel, &Message));
 }
 
 
@@ -89,8 +91,6 @@ Error_t smSendSetEnableAck(UInt16 Channel, SM_AckState_t Ack)
 Error_t smSetEnableState(UInt16 Channel, CanMessage_t* Message)
 {
     Error_t RetCode  = NO_ERROR;
-    SM_AckState_t Ack = SM_ACK;
-
     smData_t* Data = &smDataTable[bmGetInstance(Channel)];
     
     Msg_EnableData_t *EnableData = (Msg_EnableData_t*)Message->Data;
@@ -99,19 +99,21 @@ Error_t smSetEnableState(UInt16 Channel, CanMessage_t* Message)
     {
         if (EnableData->enable)     // enable the stepper
         {
-            if ((RetCode = smEnable(Data, EnableData->dbg_skipRefRun)) < 0)
-                SM_SIGNAL_EVENT (RetCode);
+        if ((RetCode = smEnable(Data, EnableData->dbg_skipRefRun)) < 0)
+            return RetCode;
         }
-        else                        // disable the stepper
+        else                    // disable the stepper
         {
             if ((RetCode = smCloseDevices(Data)) < 0)   // close hal devices, this will also switch off driver stage
-                SM_SIGNAL_EVENT (RetCode);
+                return RetCode;
 
             Data->Flags.Enable = 0;
         }
     }
+    
+   // printf("S:%d,%d.\n", EnableData->enable, Data->Flags.Enable);
 
-    return smSendSetEnableAck(Channel, Ack);
+    return smSendSetEnableAck(Data);
 }
 
 
@@ -119,12 +121,9 @@ Error_t smSetEnableState(UInt16 Channel, CanMessage_t* Message)
 /*! 
  *  \brief   Send CAN message to acknowledge termination of reference run
  *
- *      Sends can massage to acknowledge that reference run is finished.
+ *      Sends the can massage to acknowledge that the reference run is finished.
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Pos     = Position (in half-step)
- *  \iparam  PosCode = Limit switch position code
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -132,14 +131,14 @@ Error_t smSetEnableState(UInt16 Channel, CanMessage_t* Message)
 Error_t smRefRunAck(UInt16 Channel, Int32 Pos, Int8 PosCode, SM_AckState_t Ack)
 {
     CanMessage_t Message;
-    Msg_RefRunAckData_t *AckData = (Msg_RefRunAckData_t*)Message.Data;
+    Msg_RefRunAckData_t *PtrAckData = (Msg_RefRunAckData_t*)Message.Data;
 
     Message.CanID  = MSG_SMOT_REFERENCE_RUN_ACK;
     Message.Length = MSG_SMOT_REFERENCE_RUN_ACK_DLC;
 
-    VAL_TO_DB4 (Pos, AckData->pos);
-    AckData->posCode = PosCode;
-    AckData->ack     = Ack;
+    VAL_TO_DB4 (Pos, PtrAckData->pos);
+    PtrAckData->posCode = PosCode;
+    PtrAckData->ack     = Ack;
 
     return (canWriteMessage(Channel, &Message));
 }
@@ -152,23 +151,22 @@ Error_t smRefRunAck(UInt16 Channel, Int32 Pos, Int8 PosCode, SM_AckState_t Ack)
  *      Sends the can massage to acknowledge that the received
  *      reference run request was accepted.
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-Error_t smReferenceRunReqAck(UInt16 Channel, SM_AckState_t Ack)
+Error_t smReferenceRunReqAck(smData_t *Data, SM_AckState_t Ack)
 {
     CanMessage_t Message;
-    Msg_RefRunReqAckData_t *AckData = (Msg_RefRunReqAckData_t*)Message.Data;
+    Msg_RefRunReqAckData_t *PtrAckData  = (Msg_RefRunReqAckData_t*)Message.Data;
 
     Message.CanID  = MSG_SMOT_REQ_REF_RUN_ACK;
     Message.Length = MSG_SMOT_REQ_REF_RUN_ACK_DLC;
 
-    AckData->ack = Ack;
+    PtrAckData->ack = Ack;
 
-    return (canWriteMessage(Channel, &Message));
+    return (canWriteMessage(Data->Channel, &Message));
 }
 
 
@@ -198,7 +196,7 @@ Error_t smReferenceRun(UInt16 Channel, CanMessage_t* Message)
 
     smData_t* Data = &smDataTable[bmGetInstance(Channel)];
     
-    Msg_RefRunData_t *RefRunData = (Msg_RefRunData_t*)Message->Data;
+    Msg_RefRunData_t *PtrRefRunData = (Msg_RefRunData_t*)Message->Data;
 
     if (MSG_SMOT_REQ_REF_RUN_DLC != Message->Length)
         SM_SIGNAL_EVENT (E_UNEXPECTED_PARAMETERS);
@@ -210,28 +208,20 @@ Error_t smReferenceRun(UInt16 Channel, CanMessage_t* Message)
         SM_SIGNAL_EVENT (E_COMMAND_REJECTED);
 
     // check profile index
-    Data->RefRun.Profile = RefRunData->profile;
+    Data->RefRun.Profile = PtrRefRunData->profile;
     if(Data->RefRun.Profile >= Data->Profiles.Count)
         SM_SIGNAL_EVENT (E_PARAMETER_OUT_OF_RANGE);
 
     // acknowledge the request
-    if ((RetCode = smReferenceRunReqAck(Channel, Ack)) < 0) {
+    if ((RetCode = smReferenceRunReqAck(Data, Ack)) < 0)
         return RetCode;
-    }
 
     // if everything is ok then initiate the reference run
     if (SM_ACK == Ack)
     {
-        // skip ref-run movements if reference position is not defined
-        if (0 == Data->RefRun.Config.RefPos) {
-            Data->RefRun.State = SM_RRS_ASSIGN_OFFSET;
-        }
-        else {
-            Data->RefRun.State = SM_RRS_FAST_MOTION_START;
-        }
-
     // set stepper module state accordingly, to mark that reference run is active
     // inside "smRefRunTask" the final acknowledge message for the reference run will be sent to master
+        Data->RefRun.State = SM_RRS_FAST_MOTION_START;
         Data->State = SM_STATE_REFRUN;
     }
 
@@ -246,13 +236,12 @@ Error_t smReferenceRun(UInt16 Channel, CanMessage_t* Message)
  *      Sends the can massage to acknowledge that the received
  *      position request was accepted.
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-Error_t smTargetPositionReqAck(UInt16 Channel, SM_AckState_t Ack)
+Error_t smTargetPositionReqAck(smData_t *Data, SM_AckState_t Ack)
 {
     CanMessage_t Message;
     Msg_TargetPosAckData_t *AckData = (Msg_TargetPosAckData_t*)Message.Data;
@@ -262,7 +251,7 @@ Error_t smTargetPositionReqAck(UInt16 Channel, SM_AckState_t Ack)
 
     AckData->ack = Ack;
 
-    return (canWriteMessage(Channel, &Message));
+    return (canWriteMessage(Data->Channel, &Message));
 }
 
 
@@ -322,7 +311,10 @@ Error_t smTargetPosition(UInt16 Channel, CanMessage_t* Message)
     // if everything is ok then movement can start)
     if (SM_ACK == Ack)
     {
-        if ((RetCode = smPositionRequest (Data->Instance, Position, ProfileIndex)) < 0)
+        // start movement if requested position is different from actual postion
+        if (Position != Data->Motion.Pos)
+            RetCode = smPositionRequest (Data->Instance, Position, ProfileIndex);
+        if (RetCode < 0)
         {
             SM_SIGNAL_EVENT (RetCode);
         }
@@ -335,7 +327,7 @@ Error_t smTargetPosition(UInt16 Channel, CanMessage_t* Message)
     }
 
     // acknowledge the request
-    return smTargetPositionReqAck(Channel, Ack);
+    return smTargetPositionReqAck(Data, Ack);
 }
 
 
@@ -346,13 +338,12 @@ Error_t smTargetPosition(UInt16 Channel, CanMessage_t* Message)
  *      Sends the can massage to acknowledge that the received
  *      speed request was accepted.
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-Error_t smTargetSpeedReqAck(UInt16 Channel, SM_AckState_t Ack)
+Error_t smTargetSpeedReqAck(smData_t *Data, SM_AckState_t Ack)
 {
     CanMessage_t Message;
     Msg_TargetSpeedAckData_t *AckData   = (Msg_TargetSpeedAckData_t*)Message.Data;
@@ -362,23 +353,23 @@ Error_t smTargetSpeedReqAck(UInt16 Channel, SM_AckState_t Ack)
 
     AckData->ack = Ack;
 
-    return (canWriteMessage(Channel, &Message));
+    return (canWriteMessage(Data->Channel, &Message));
 }
 
 
 /******************************************************************************/
 /*! 
- *  \brief  Request movement with target speed
+ *  \brief  Request movement to target position
  *
- *      This function is called by the CAN message dispatcher when a speed
+ *      This function is called by the CAN message dispatcher when a position
  *      movement request message is received from the master.
  *      Movement parameters and module state are checked. If everything is ok
  *      the movement is started.
  *      
  *      A acknowledge message for the request is sent back to the master
  *
- *      Later, when the movement reached target speed, an additional acknowledge
- *      message is sent back to the master.
+ *      Later, when the movement is finished, an additional acknowledge message
+ *      is sent back to the master.
  *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
@@ -418,6 +409,7 @@ Error_t smTargetSpeed(UInt16 Channel, CanMessage_t* Message)
     // if everything is ok then movement can start)
     if (SM_ACK == Ack)
     {
+        // start movement if requested position is different from actual postion
         if ((RetCode = smSpeedRequest (Data->Instance, Speed, ProfileIndex)) < 0)
         {
             SM_SIGNAL_EVENT (RetCode);
@@ -431,20 +423,21 @@ Error_t smTargetSpeed(UInt16 Channel, CanMessage_t* Message)
     }
 
     // acknowledge the request
-    return smTargetSpeedReqAck(Channel, Ack);
+    return smTargetSpeedReqAck(Data, Ack);
 }
+
+
 
 
 /*****************************************************************************/
 /*! 
- *  \brief   Send actual motor position data to the master
+ *  \brief   Send actual motor position to the master
  *
  *      Sends CAN message with position data to master.
  *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Pos     = Position (in half-step)
  *  \iparam  PosCode = Limit switch position code
- *  \iparam  Ack     = success/failed status
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -491,7 +484,7 @@ Error_t smReqPosition(UInt16 Channel, CanMessage_t* Message)
     if(!Data->Flags.Enable)
         SM_SIGNAL_EVENT (E_MODULE_NOT_ENABLED);
 
-    return smSendPosition(Channel, Data->Motion.Pos, Data->LimitSwitches.PosCode.Value, Ack);
+    return smSendPosition(Data->Channel, Data->Motion.Pos, Data->LimitSwitches.PosCode.Value, Ack);
 }
 
 
@@ -501,10 +494,11 @@ Error_t smReqPosition(UInt16 Channel, CanMessage_t* Message)
  *
  *      Sends CAN message with speed and position data to master.
  *
+ *  \iparam  Data = Pointer to module instance's data
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Pos     = Position ( in half-step )
- *  \iparam  Speed   = Speed ( in half steps/s )
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Speed   = speed ( in half steps/s )
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -545,9 +539,8 @@ Error_t smReqSpeed(UInt16 Channel, CanMessage_t* Message)
     smData_t *Data = &smDataTable[bmGetInstance(Channel)];
 
     Int16 Speed = Data->Motion.Nominal.v >> 5; // speed (in half-step/s²) = velocity / ISR_MICROSTEPS_PER_HALFSTEP;
-    if (Data->Motion.Param[Data->Motion.ActSet].NegPosCount) {
+    if (Data->Motion.Param[Data->Motion.ActSet].NegPosCount)
         Speed = -Speed;
-    }
     
     if (MSG_SMOT_ACT_SPEED_REQ_DLC != Message->Length)
         SM_SIGNAL_EVENT (E_UNEXPECTED_PARAMETERS);
@@ -555,7 +548,7 @@ Error_t smReqSpeed(UInt16 Channel, CanMessage_t* Message)
     if(!Data->Flags.Enable)
         SM_SIGNAL_EVENT (E_MODULE_NOT_ENABLED);
 
-    return smSendSpeed(Channel, Data->Motion.Pos, Speed, Ack);
+    return smSendSpeed(Data->Channel, Data->Motion.Pos, Speed, Ack);
 }
 
 
@@ -572,10 +565,7 @@ Error_t smReqSpeed(UInt16 Channel, CanMessage_t* Message)
  *      As additional info the CAN message also reports the actual
  *      motor position and speed.
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Pos     = Position ( in half-step )
- *  \iparam  Speed   = Speed ( in half steps/s )
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -590,7 +580,7 @@ Error_t smSendMovementAckn(UInt16 Channel, Int32 Pos, Int16 Speed, SM_AckState_t
 
     VAL_TO_DB4 (Pos, AckData->pos);    
     VAL_TO_DB2 (Speed, AckData->speed);
-    AckData->ack = Ack;
+    AckData->ack = Ack;    
 
     return (canWriteMessage(Channel, &Message));
 }
@@ -603,21 +593,17 @@ Error_t smSendMovementAckn(UInt16 Channel, Int32 Pos, Int16 Speed, SM_AckState_t
  *      Sends the can massage to acknowledge that the received
  *      configuration data was accepted.
  * 
- *  \iparam  Channel = Logical channel number
- *  \iparam  Ack     = success/failed status
+ *  \iparam  Data = Pointer to module instance's data
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-Error_t smSendConfigAck(UInt16 Channel, SM_AckState_t Ack)
+Error_t smSendConfigAck(UInt16 Channel)
 {
     CanMessage_t Message;
-    Msg_ConfigAckData_t *AckData = (Msg_ConfigAckData_t*)Message.Data;
 
     Message.CanID  = MSG_SMOT_CONFIG_ACK;
     Message.Length = MSG_SMOT_CONFIG_ACK_DLC;
-
-    AckData->ack = Ack;
 
     return (canWriteMessage(Channel, &Message));
 }
@@ -646,50 +632,53 @@ Error_t smSendConfigAck(UInt16 Channel, SM_AckState_t Ack)
 Error_t smConfigure(UInt16 Channel, CanMessage_t* Message)
 {
     Error_t RetCode = NO_ERROR;
-    SM_AckState_t Ack = SM_ACK;
 
     smData_t* Data = &smDataTable[bmGetInstance(Channel)];
 
     ConfigData_Param_t *ConfigParam = (ConfigData_Param_t*)Message->Data;
+    
+    //printf("Cfg:%d,%d,%d\n", ConfigParam->index.type.profileData, ConfigParam->index.param.index, ConfigParam->index.profile.index);
 
 // configuration is only allowed if stepper module is disabled
-    if(Data->Flags.Enable)
-        SM_SIGNAL_EVENT (E_SMOT_INVALID_STATE);
-
-    if (! ConfigParam->index.type.profileData) {
-        RetCode = smConfigureParam(Data, ConfigParam, Message->Length);
+    if(Data->Flags.Enable) {
+        return E_SMOT_INVALID_STATE;
     }
-    else 
+
+    if (! ConfigParam->index.type.profileData)
+        RetCode = smConfigureParam(Data, ConfigParam, Message->Length);
+    else
     {   // profile parameters
         if (NULL == Data->Profiles.Set)
-            SM_SIGNAL_EVENT (E_UNEXPECTED_PARAMETERS);
-
+            return E_UNEXPECTED_PARAMETERS;
+    
         if (ConfigParam->index.profile.no >= Data->Profiles.Count)
-            SM_SIGNAL_EVENT (E_UNEXPECTED_PARAMETERS);
+            return E_UNEXPECTED_PARAMETERS;
 
         if (ConfigParam->index.profile.no >= MAX_MOTION_PROFIL)
-            SM_SIGNAL_EVENT (E_UNEXPECTED_PARAMETERS);
+            return E_UNEXPECTED_PARAMETERS;
 
         RetCode = smConfigureProfile(&(Data->Profiles), ConfigParam->index.profile.no, ConfigParam, Message->Length);
+        
     }
 
     if (NO_ERROR != RetCode)
-        SM_SIGNAL_EVENT (RetCode);
+        return RetCode;
 
     // acknowledge reception of parameters
-    return smSendConfigAck(Data->Channel, Ack);
+    return smSendConfigAck(Data->Channel);
 }
 
 
 /*****************************************************************************/
 /*!
- *  \brief   Send motor revolution count (life cycle data)
+ *  \brief   Send motor revolution count
  *
- *      Sends total revolution count of the motor via CAN to the master.
+ *      Sends total revolution cont of the motor via CAN to the master.
  *
- *  \iparam  Channel         = Logical channel number
- *  \iparam  RevolutionCount = motor's revolution count
- *  \iparam  Ack             = success/failed status
+ *  \iparam  Channel        = Logical channel number
+ *  \iparam  Revolutions    = motors revolution count
+ *  \iparam  ack            = set to ACK if request was successful and message
+ *                            contains valid data, otherwise NACK.
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -712,7 +701,7 @@ static Error_t bmSendRevolutionCount (UInt16 Channel, UInt32 RevolutionCount, SM
 
 /******************************************************************************/
 /*! 
- *  \brief  Request motor revolution count (life cycle data)
+ *  \brief  Request motor revolution count
  *
  *      This function is called by the CAN message dispatcher whenever the
  *      life cycle command "request revolution count" is received.
@@ -733,24 +722,25 @@ Error_t smReqRevolutionCount(UInt16 Channel, CanMessage_t* Message)
     if (MSG_SMOT_REVCOUNT_REQ_DLC != Message->Length)
         SM_SIGNAL_EVENT (E_UNEXPECTED_PARAMETERS);
 
-    return bmSendRevolutionCount(Channel, Data->Motor.LifeCycle.Revolutions.Count, Ack);
+    return bmSendRevolutionCount(Data->Channel, Data->Motor.LifeCycle.Revolutions.Count, Ack);
 }
 
 
 /*****************************************************************************/
 /*!
- *  \brief   Send motor operation time (life cycle data)
+ *  \brief   Send motor operation time
  *
  *      Sends total operation time of the motor via CAN to the master.
  *
- *  \iparam  Channel       = Logical channel number
- *  \iparam  OperationTime = motors operation time in hours
- *  \iparam  Ack           = success/failed status
+ *  \iparam  Channel        = Logical channel number
+ *  \iparam  OperationTime  = motors operation time in hours
+ *  \iparam  ack            = set to ACK if request was successful and message
+ *                            contains valid data, otherwise NACK.
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-static Error_t smSendOperationTime (UInt16 Channel, UInt32 OperationTime, SM_AckState_t Ack)
+static Error_t bmSendOperationTime (UInt16 Channel, UInt32 OperationTime, SM_AckState_t Ack)
 {
     CanMessage_t Message;
 
@@ -768,7 +758,7 @@ static Error_t smSendOperationTime (UInt16 Channel, UInt32 OperationTime, SM_Ack
 
 /******************************************************************************/
 /*! 
- *  \brief  Request motor operation time (life cycle data)
+ *  \brief  Request motor operation time
  *
  *      This function is called by the CAN message dispatcher whenever the
  *      life cycle command "request operation time" is received.
@@ -795,5 +785,5 @@ Error_t smReqOperationTime(UInt16 Channel, CanMessage_t* Message)
 
     OperationTime = smGetOperationTime(&Data->Memory);
 
-    return smSendOperationTime(Channel, OperationTime / 60, Ack);
+    return bmSendOperationTime(Data->Channel, OperationTime, Ack);
 }

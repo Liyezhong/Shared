@@ -58,7 +58,6 @@
 
 //@{**************************************************************************/
 //! Events for this function module (Errors, Warnings, Infos)
-//! \remark This function is currently not used.
 //****************************************************************************/
 
 #define BUILD_AI_ERRCODE(Class,Code) \

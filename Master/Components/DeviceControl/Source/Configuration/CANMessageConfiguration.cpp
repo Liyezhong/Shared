@@ -104,9 +104,9 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
     }
 
     QDomElement root = domDocument.documentElement();
-    if (root.tagName() != "colorado_fct_module_spec")
+    if (root.tagName() != "himalaya_fct_module_spec")
     {
-        errorMsg = QObject::tr("The file is not a colorado function module specification file. Tag 'colorado_fct_module_spec' missed!");
+        errorMsg = QObject::tr("The file is not a himalaya function module specification file. Tag 'himalaya_fct_module_spec' missed!");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
         m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_FORMAT;
@@ -115,7 +115,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
     else if (root.hasAttribute("version")
                        && root.attribute("version") != "1.0")
     {
-        errorMsg = QObject::tr("The colorado hardware config files' version is not valid.");
+        errorMsg = QObject::tr("The himalaya hardware config files' version is not valid.");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
         m_EventCode = EVENT_DEVICECONTROL_ERROR_CAN_MSG_CFG_VERSION;

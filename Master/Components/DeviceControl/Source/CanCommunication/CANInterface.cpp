@@ -183,7 +183,7 @@ int CANInterface::Write(const can_frame* pCanMsg)
     // refer to socketcan mailinglist
     if ((nWriteResult = write(m_sockCan, &frame, sizeof(frame))) != sizeof(frame))
     {
-        perror("Colorado, write socketcan:");
+        perror("Himalaya, write socketcan:");
         return ERROR_CANINTERFACE_WRITE;
     }
 

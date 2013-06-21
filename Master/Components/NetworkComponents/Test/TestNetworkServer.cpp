@@ -80,7 +80,7 @@ void TestNetworkServer::cleanup()
 void TestNetworkServer::initTestCase()
 {
     // initialize settings path:
-    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Colorado/ColoradoMain/Master/Components/Main/Build/Settings");
+    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings");
 
     // create server
     m_myServer = new NetworkServer(NSE_TYPE_NORMAL_GUI, this);
@@ -127,12 +127,12 @@ void TestNetworkServer::initTestCase()
 
     // create message handler:
     QString path =  Global::SystemPaths::Instance().GetSettingsPath() + "/Communication";
-    m_myNetworkDevice = new NetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Colorado Device GUI", path, (QString)"netlayer_messages", this);
+    m_myNetworkDevice = new NetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Himalaya Device GUI", path, (QString)"netlayer_messages", this);
     QCOMPARE(m_myNetworkDevice->InitializeDevice(), true);
 
     // test message handler registration:
-    // "Colorado Device GUI" is the real client name read from config XML file!!!
-    QCOMPARE(m_myServer->RegisterMessageHandler(m_myNetworkDevice, (QString)"Colorado Device GUI"), true);
+    // "Himalaya Device GUI" is the real client name read from config XML file!!!
+    QCOMPARE(m_myServer->RegisterMessageHandler(m_myNetworkDevice, (QString)"Himalaya Device GUI"), true);
 }
 
 /****************************************************************************/
@@ -308,18 +308,18 @@ void TestNetworkServer::utTestWorkFunctions()
     QCOMPARE(m_myServer->m_takenConnections.size(), (int)0);
     int ACSize = m_myServer->m_availableConnections.size();
     // register simulated connection:
-    m_myServer->RegisterConnection((quint32)22, (QString)"Colorado Device GUI");
+    m_myServer->RegisterConnection((quint32)22, (QString)"Himalaya Device GUI");
     // check that connection moved from "available" to "taken" list:
     QCOMPARE(m_myServer->m_takenConnections.size(), (int)1);
     QCOMPARE(m_myServer->m_availableConnections.size(), (ACSize-1));
     // destroy connection:
-    m_myServer->DestroyManager((quint32)22, (QString)"Colorado Device GUI", (DisconnectType_t)UNKNOWN_ERROR);
+    m_myServer->DestroyManager((quint32)22, (QString)"Himalaya Device GUI", (DisconnectType_t)UNKNOWN_ERROR);
     // check that connection moved from "taken" to "available" list:
     QCOMPARE(m_myServer->m_takenConnections.size(), (int)0);
     QCOMPARE(m_myServer->m_availableConnections.size(), ACSize);
     // check that disconnect happend with UNKNOWN_ERROR code:
     QCOMPARE(m_DisconnectType, (DisconnectType_t)UNKNOWN_ERROR);
-    QCOMPARE(m_ClientName, (QString)"Colorado Device GUI");
+    QCOMPARE(m_ClientName, (QString)"Himalaya Device GUI");
     QCOMPARE(m_FlagConnectionError, true);
     // reset flags:
     m_FlagConnectionError = false;
@@ -327,10 +327,10 @@ void TestNetworkServer::utTestWorkFunctions()
     m_ClientName = "";
 
     // try to register an allowed connection, but without connected client:
-    m_myServer->RegisterConnection((quint32)12714, (QString)"Colorado Device GUI");
+    m_myServer->RegisterConnection((quint32)12714, (QString)"Himalaya Device GUI");
     // check that disconnect happend with NULL_POINTER_IN_HASH code:
     QCOMPARE(m_DisconnectType, (DisconnectType_t)NULL_POINTER_IN_HASH);
-    QCOMPARE(m_ClientName, (QString)"Colorado Device GUI");
+    QCOMPARE(m_ClientName, (QString)"Himalaya Device GUI");
     QCOMPARE(m_FlagConnectionError, true);
     // reset flags:
     m_FlagConnectionError = false;

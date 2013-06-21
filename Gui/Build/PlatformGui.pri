@@ -20,13 +20,13 @@ CONFIG += uitools
 
 INCLUDEPATH += ../.. \
                ../../../../../Platform/Master/Components \
-               ../../../../../Colorado/ColoradoMain/Gui/Components \
-               ../../../../../Colorado/Shared/Gui/Components
+               ../../../../../Himalaya/HimalayaMain/Gui/Components \
+               ../../../../../Himalaya/Shared/Gui/Components
 
 DEPENDPATH += ../.. \
               ../../../../../Platform/Master/Components \
-              ../../../../../Colorado/ColoradoMain/Gui/Components \
-              ../../../../../Colorado/Shared/Gui/Components
+              ../../../../../Himalaya/HimalayaMain/Gui/Components \
+              ../../../../../Himalaya/Shared/Gui/Components
 
 QMAKE_CXXFLAGS += -Wall -std=c++0x
 

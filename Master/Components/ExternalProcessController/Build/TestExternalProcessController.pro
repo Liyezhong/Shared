@@ -10,4 +10,4 @@ HEADERS +=  ../Include/*.h \
 SOURCES +=  ../Source/*.cpp \
             ../Source/ExternalProcessStates/*.cpp
 
-INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Gui/Test/Components/
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Gui/Test/Components/

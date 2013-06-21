@@ -108,7 +108,7 @@ static Error_t tempHeaterSwitch (Handle_t Handle, Bool Parallel);
  *
  ****************************************************************************/
 
-Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances)
+Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, TempHeaterType_t HeaterType, UInt16 Instances)
 {
     UInt16 i;
     Error_t Error;
@@ -132,11 +132,15 @@ Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, De
     if (TempHeaterMonitor.Handle < 0) {
         return (TempHeaterMonitor.Handle);
     }
+
     // Open the heating element circuit switch
-    TempHeaterData.HandleSwitch = halPortOpen (SwitchChannel, HAL_OPEN_WRITE);
-    if (TempHeaterData.HandleSwitch < 0) {
-        return (TempHeaterData.HandleSwitch);
+    if (HeaterType == TYPE_HEATER_AC) {     
+        TempHeaterData.HandleSwitch = halPortOpen (SwitchChannel, HAL_OPEN_WRITE);
+        if (TempHeaterData.HandleSwitch < 0) {
+            return (TempHeaterData.HandleSwitch);
+        }
     }
+
     // Open heating element control outputs
     for (i = 0; i < Instances; i++) {
         TempHeaterData.HandleControl[i] = halPortOpen (ControlChannel + i, HAL_OPEN_WRITE);
@@ -144,11 +148,13 @@ Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, De
             return (TempHeaterData.HandleControl[i]);
         }
     }
-    
+   
     // Set circuit to serial mode
-    Error = tempHeaterSwitch (TempHeaterData.HandleSwitch, FALSE);
-    if (Error < NO_ERROR) {
-        return Error;
+    if (HeaterType == TYPE_HEATER_AC) {
+        Error = tempHeaterSwitch (TempHeaterData.HandleSwitch, FALSE);
+        if (Error < NO_ERROR) {
+            return Error;
+        }
     }
     
     TempHeaterData.Instances = Instances;
@@ -192,9 +198,9 @@ void tempHeaterReset ()
  *      entries in the history buffer will be taken to average over.
  *      The filtered result is returned in "Data->Value".
  *
- *  \xparam  Monitor = Pointer to power monitor data structure
+ *  \iparam  Monitor = Pointer to power monitor data structure
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Filtered analog input value
  *
  *****************************************************************************/
 
@@ -264,7 +270,7 @@ Error_t tempHeaterProgress ()
 
     // Switch off the heating elements
     for (i = 0; i < TempHeaterData.Instances; i++) {
-        if (bmTimeExpired (TempHeaterData.StartingTime[i]) > TempHeaterData.OperatingTime[i]) {
+        if (bmTimeExpired (TempHeaterData.StartingTime[i]) >= TempHeaterData.OperatingTime[i]) {
             Error = halPortWrite (TempHeaterData.HandleControl[i], 0);
             if (Error < NO_ERROR) {
                 return (Error);
@@ -272,6 +278,33 @@ Error_t tempHeaterProgress ()
         }
     }
 
+#if 0
+    if (bmTimeExpired (TempHeaterData.SampleTime) != 0) {
+        TempHeaterData.SampleTime = bmGetTime ();
+
+        // Reading analog input value from sensor
+        Error = tempHeaterGetFilteredInput (&TempHeaterMonitor);
+        if (Error < NO_ERROR) {
+            return Error;
+        }
+
+        // Minimum / Maximum detection
+        if (TempHeaterMonitor.Value < TempHeaterData.MinValue) {
+            TempHeaterData.MinValue = TempHeaterMonitor.Value;
+        }
+        if (TempHeaterMonitor.Value > TempHeaterData.MaxValue) {
+            TempHeaterData.MaxValue = TempHeaterMonitor.Value;
+        }
+    }
+#endif
+
+    return (NO_ERROR);
+}
+
+Error_t tempSampleCurrent()
+{
+    Error_t Error;
+    
     if (bmTimeExpired (TempHeaterData.SampleTime) != 0) {
         TempHeaterData.SampleTime = bmGetTime ();
 
@@ -322,12 +355,8 @@ Bool tempHeaterParallel (void)
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
- 
-Error_t tempHeaterCheck ()
+void tempCalcEffectiveCurrent(void)
 {
-    Error_t Error;
-    UInt16 Current;
-    UInt16 ActiveCount = TempHeaterData.MaxActive;
     TempHeaterParams_t *Params = &TempHeaterData.Params;
     
     // Compute effective current
@@ -335,8 +364,29 @@ Error_t tempHeaterCheck ()
     // => (1 / 1000 / 2 * 10000) / 14142 = 5 / 14142
     TempHeaterData.EffectiveCurrent = (((Int32) Params->CurrentGain *
             (TempHeaterData.MaxValue - TempHeaterData.MinValue)) * 5) / 14142;
+    //printf("E:%d %d %d\n", TempHeaterData.EffectiveCurrent, TempHeaterData.MaxValue, TempHeaterData.MinValue);
     TempHeaterData.MinValue = MAX_INT16;
     TempHeaterData.MaxValue = MIN_INT16;
+
+}
+ 
+Error_t tempHeaterCheck (Bool AutoSwitch)
+{
+    Error_t Error;
+    UInt16 Current;
+    UInt16 ActiveCount = TempHeaterData.MaxActive;
+    TempHeaterParams_t *Params = &TempHeaterData.Params;
+    
+#if 0    
+    // Compute effective current
+    // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV) / 2 / sqrt(2)
+    // => (1 / 1000 / 2 * 10000) / 14142 = 5 / 14142
+    TempHeaterData.EffectiveCurrent = (((Int32) Params->CurrentGain *
+            (TempHeaterData.MaxValue - TempHeaterData.MinValue)) * 5) / 14142;                    
+    TempHeaterData.MinValue = MAX_INT16;
+    TempHeaterData.MaxValue = MIN_INT16;
+#endif
+    
     TempHeaterData.Failed = FALSE;
     TempHeaterData.MaxActive = 0;
 
@@ -353,16 +403,25 @@ Error_t tempHeaterCheck ()
         // Check if the current is out of range (200 - 240V)
         if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
                 Current > Params->DesiredCurrent + Params->DesiredCurThreshold) {
-            // Check if the current is out of range (100 - 127V)
-            if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent / 2 ||
-                    Current > Params->DesiredCurrent / 2 + Params->DesiredCurThreshold) {
-                TempHeaterData.Failed = TRUE;
+                
+            if (AutoSwitch) {
+                // Check if the current is out of range (100 - 127V)
+                if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent / 2 ||
+                        Current > Params->DesiredCurrent / 2 + Params->DesiredCurThreshold) {
+                    TempHeaterData.Failed = TRUE;
+                }
+                else {
+                
+                    // Switched for 110V            
+                    Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TRUE);
+                    if (Error < 0) {
+                        return (Error);
+                    }
+                    
+                }
             }
             else {
-                Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TRUE);
-                if (Error < 0) {
-                    return (Error);
-                }
+                TempHeaterData.Failed = TRUE;
             }
         }
     }
@@ -372,9 +431,12 @@ Error_t tempHeaterCheck ()
         // Check if the current is out of range (100 - 127V)
         if (Current / 2 + Params->DesiredCurThreshold < Params->DesiredCurrent ||
                 Current / 2 > Params->DesiredCurrent + Params->DesiredCurThreshold) {
-            Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, FALSE);
-            if (Error < 0) {
-                return (Error);
+            if (AutoSwitch) {
+                // Switched for 220V
+                Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, FALSE);
+                if (Error < 0) {
+                    return (Error);
+                }
             }
             TempHeaterData.Failed = TRUE;
         }

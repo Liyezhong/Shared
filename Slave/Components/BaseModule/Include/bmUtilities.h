@@ -89,7 +89,8 @@ typedef struct {
 //****************************************************************************/
 
 UInt32  bmGetMessageItem  (CanMessage_t *Message, UInt16 Offset, UInt16 Size);
-void    bmSetMessageItem  (CanMessage_t *Message, UInt32 Value, UInt16 Offset, UInt16 Size);
+void    bmSetMessageItem  (
+		     CanMessage_t *Message, UInt32 Value, UInt16 Offset, UInt16 Size);
 
 UInt32  bmGetBoardOptions (UInt16 ModuleID, UInt16 Instance, UInt32 Default);
 UInt32  bmGetPartitionID  (UInt16 ModuleID, UInt16 Instance);

@@ -159,7 +159,9 @@ void CDateTime::RefreshDateTime(Global::TimeFormat TimeFormat)
             mp_HourWheel->AddItem(QString("%1").arg(i, 2, 10, QChar('0')), i);
         }
         else {
-            QPixmap Pixmap = (i < 12) ? QPixmap(":/Large/Digits/Digit_AM.png") : QPixmap(":/Large/Digits/Digit_PM.png");
+            QPixmap Pixmap = (i < 12) ? 
+                            QPixmap(QString(":/%1/Digits/Digit_AM.png").arg(Application::CLeicaStyle::GetProjectNameString())) :
+                            QPixmap(QString(":/%1/Digits/Digit_PM.png").arg(Application::CLeicaStyle::GetProjectNameString())) ;
             qint32 Hour = (i % 12 == 0) ? 12 : i % 12;
             mp_HourWheel->AddItem(QString("%1").arg(Hour, 2, 10, QChar('0')), i, Pixmap);
         }

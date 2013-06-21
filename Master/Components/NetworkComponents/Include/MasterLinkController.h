@@ -26,7 +26,7 @@
 namespace NetworkBase {
 
 /// Type of network client to create
-//const NetworkBase::NetworkClientType_t MY_CLIENT_TYPE = NetworkBase::NCE_TYPE_COLORADO_GUI;
+//const NetworkBase::NetworkClientType_t MY_CLIENT_TYPE = NetworkBase::NCE_TYPE_HIMALAYA_GUI;
 
 /****************************************************************************/
 /**

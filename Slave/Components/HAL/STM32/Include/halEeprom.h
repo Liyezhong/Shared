@@ -70,7 +70,6 @@ Error_t halEepromErase (UInt32 Address, UInt32 Count);
 Error_t halEepromInit  (void);
 
 Error_t halEepromProtect (Bool State);
-Error_t halEepromWait (void);
 
 //****************************************************************************/
 

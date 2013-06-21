@@ -62,7 +62,7 @@ private:
 
     bool CompareDateTime(QDateTime Source, QDateTime Destination);
     void ValidateRackDateTime(const CRack *p_Rack, bool& VerifiedData, QString& ErrorDescription);
-    void CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDateTime, bool& VerifiedData, QString& ErrorDescription);
+    void CompareRackDataTime(CRack* p_Rack, bool CheckHimalayaDateTime, bool& VerifiedData, QString& ErrorDescription);
 };
 
 } // namespace DataManager

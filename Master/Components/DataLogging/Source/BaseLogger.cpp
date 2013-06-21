@@ -24,7 +24,7 @@
 
 namespace DataLogging {
 
-static const QString EVENTLOG_TEMP_FILE_NAME = "Colorado_Events_Tmp.log"; ///< Event log temporary file name
+static const QString EVENTLOG_TEMP_FILE_NAME = "Himalaya_Events_Tmp.log"; ///< Event log temporary file name
 
 /****************************************************************************/
 BaseLogger::BaseLogger(Global::EventObject *pParent, const QString & LoggingSource, int FormatVersion) :
@@ -65,13 +65,13 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
     m_File.setFileName(FileName);
     // and try to open
     if(!m_File.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        // check if the event log file name is "Colorado_Events_Tmp.log then raise an error and don't log anything
+        // check if the event log file name is "Himalaya_Events_Tmp.log then raise an error and don't log anything
         if (FileName.contains(EVENTLOG_TEMP_FILE_NAME)) {
             m_LogFileError = true;
             // don't log the data - disable permanently
             Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED);
             return;
-        }
+    }
         else {
             Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN, Global::FmtArgs() << FileName, true);
         }

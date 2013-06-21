@@ -75,16 +75,16 @@ void TestNetworkClientDevice::cleanup()
 void TestNetworkClientDevice::initTestCase()
 {
     // initialize settings path:
-    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Colorado/Master/Components/Main/Build/Settings");
+    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/Master/Components/Main/Build/Settings");
 
     // get path to settings:
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + "/Communication/gui";
 
     // create device
-    m_myDevice = new NetworkClientDevice(NCE_TYPE_COLORADO_GUI, UT_CLIENT_IP, UT_CLIENT_PORT, path, (QString)"gui_messages", this);
+    m_myDevice = new NetworkClientDevice(NCE_TYPE_HIMALAYA_GUI, UT_CLIENT_IP, UT_CLIENT_PORT, path, (QString)"gui_messages", this);
     QCOMPARE(m_myDevice->m_myMessageChecker, (MessageChecker*)NULL);
     QCOMPARE(m_myDevice->m_myNetworkClient, (NetworkClient*)NULL);
-    QCOMPARE(m_myDevice->m_myClientType, NCE_TYPE_COLORADO_GUI);
+    QCOMPARE(m_myDevice->m_myClientType, NCE_TYPE_HIMALAYA_GUI);
     QCOMPARE(m_myDevice->m_myIp, UT_CLIENT_IP);
     QCOMPARE(m_myDevice->m_myPort, UT_CLIENT_PORT);
     QCOMPARE(m_myDevice->m_myPath, path);

@@ -152,8 +152,6 @@ static void rfid11785LinkCopyBits (UInt8* Dest, UInt8 DstPos, const UInt8* Sourc
 /*! 
  *  \brief   Computes an even parity bit
  *
- *  \riskid  SWRA 5.5.1: Unreliable and wrong recognition of racks
- *
  *      This method computes a parity bit from the information in a bit stream
  *      The step size (stride) can be set as well as the number of bits used
  *      for computation.
@@ -437,8 +435,6 @@ Int8 rfid11785LinkPatternOk (Rfid11785Stream_t *DataStream)
 /*****************************************************************************/
 /*! 
  *  \brief   Checks the parity bits in a read response data package
- *
- *  \riskid  SWRA 5.5.1: Unreliable and wrong recognition of racks
  *
  *      This method controls the parity bits in the read response message
  *      that was received from the RFID tag. It reports a failure when one

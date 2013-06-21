@@ -62,7 +62,7 @@ void CSemiTransparentOverlay::paintEvent(QPaintEvent *)
     if (m_Enabled) {
         QPainter Painter(this);
         QPixmap Source1(QSize(149,37));
-        QPixmap Source(QString(":/%1/Digits/Digit_Overlay_disabled.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+        QPixmap Source(QString(":/%1/Digits/Digit_Overlay_disabled.png").arg(Application::CLeicaStyle::GetProjectNameString()));
         if(m_SliderControl){
             QPixmap Target(mp_SliderParent->size());
           //  Source(QSize(149,37)); //mp_SliderParent->size();

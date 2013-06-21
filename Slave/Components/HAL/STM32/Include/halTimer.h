@@ -72,8 +72,6 @@ typedef enum {
     TIM_CTRL_START,       //!< Start timer
     TIM_CTRL_STOP,        //!< Stop timer
     TIM_CTRL_RELOAD,      //!< Reload timer
-    TIM_CTRL_IOP_RESET,   //!< Input polarity non-inverted / output polarity active high
-    TIM_CTRL_IOP_SET,     //!< Input polarity inverted / output polarity active low
     TIM_INTR_ENABLE,      //!< Enable timer interrupt
     TIM_INTR_DISABLE,     //!< Disable timer interrupt
     TIM_INTR_CLEAR        //!< Clear interrupt flag

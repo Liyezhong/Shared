@@ -122,7 +122,7 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
             }
 
             // verify the rack date time whether it is null or valid or not
-            // i.e. like colorado date time, sepia date time and station date time
+            // i.e. like himalaya date time, sepia date time and station date time
             // and also update the error description and verification flag
             ValidateRackDateTime(p_Rack, VerifiedData, ErrorDescription);
 
@@ -165,7 +165,7 @@ bool CRackListVerifier::VerifyData(CDataContainerBase* p_RackList)
 /****************************************************************************/
 void CRackListVerifier::ValidateRackDateTime(const CRack* p_Rack, bool& VerifiedData, QString& ErrorDescription)
 {
-    bool CheckColoradoDateTime = true; ///< check whether colorado exists or not to validate date time
+    bool CheckHimalayaDateTime = true; ///< check whether himalaya exists or not to validate date time
 
     // check for the start time value null or not
     if (p_Rack->GetStartTime().isNull()) {
@@ -191,23 +191,23 @@ void CRackListVerifier::ValidateRackDateTime(const CRack* p_Rack, bool& Verified
     }
     else {
         if (p_Rack->GetSepiaStation()) {
-            CheckColoradoDateTime = false;
+            CheckHimalayaDateTime = false;
         }
     }
 
-    // check whether colorado time validation requires or not
-    if (CheckColoradoDateTime) {
-        // check for the end time of colorado value null or not
-        if (p_Rack->GetEndTimeColorado().isNull()) {
-            ErrorDescription += "DateTime format is null for the Rack end time of colorado: "
-                    + p_Rack->GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
+    // check whether himalaya time validation requires or not
+    if (CheckHimalayaDateTime) {
+        // check for the end time of himalaya value null or not
+        if (p_Rack->GetEndTimeHimalaya().isNull()) {
+            ErrorDescription += "DateTime format is null for the Rack end time of himalaya: "
+                    + p_Rack->GetEndTimeHimalaya().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
             VerifiedData = false;
         }
 
-        // check for the end time of colorado format valid or not
-        if (!p_Rack->GetEndTimeColorado().isValid()) {
-            ErrorDescription += "DateTime format is invalid for the Rack end time of colorado: "
-                    + p_Rack->GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
+        // check for the end time of himalaya format valid or not
+        if (!p_Rack->GetEndTimeHimalaya().isValid()) {
+            ErrorDescription += "DateTime format is invalid for the Rack end time of himalaya: "
+                    + p_Rack->GetEndTimeHimalaya().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
             VerifiedData = false;
         }
     }
@@ -227,25 +227,25 @@ void CRackListVerifier::ValidateRackDateTime(const CRack* p_Rack, bool& Verified
             VerifiedData = false;
         }
     }
-    // compare the rack date time like colorado end time, Sepia end time and Station end time
-    //CompareRackDataTime(p_Rack, CheckColoradoDateTime, VerifiedData, ErrorDescription);
+    // compare the rack date time like himalaya end time, Sepia end time and Station end time
+    //CompareRackDataTime(p_Rack, CheckHimalayaDateTime, VerifiedData, ErrorDescription);
 
 }
 
 #if 0
 /****************************************************************************/
 /*!
- *  \brief  Compares the date time of the rack like Colorado endtime, Sepia
+ *  \brief  Compares the date time of the rack like Himalaya endtime, Sepia
  *  end time, Station end time
  *
  *  \iparam p_Rack = Pointer to CRack
- *  \iparam CheckColoradoDateTime = Check colorado date time flag value
+ *  \iparam CheckHimalayaDateTime = Check himalaya date time flag value
  *  \iparam VerifiedData = verifier flag value
  *  \iparam ErrorDescription = Description of the error
  *
  */
 /****************************************************************************/
-void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDateTime, bool& VerifiedData, QString& ErrorDescription)
+void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckHimalayaDateTime, bool& VerifiedData, QString& ErrorDescription)
 {
 
     // first check all the end times with start time of the rack.
@@ -258,13 +258,13 @@ void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDat
         VerifiedData = false;
     }
 
-    if (CheckColoradoDateTime) {
-        // check the end time of colorado with start time of the rack
-        //if (!CompareDateTime(p_Rack->GetStartTime(), p_Rack->GetEndTimeColorado())) {
-        if (p_Rack->GetStartTime().toTime_t() > p_Rack->GetEndTimeColorado().toTime_t()) {
-            ErrorDescription += "Colorado end time cannot be less than the start time: "
+    if (CheckHimalayaDateTime) {
+        // check the end time of himalaya with start time of the rack
+        //if (!CompareDateTime(p_Rack->GetStartTime(), p_Rack->GetEndTimeHimalaya())) {
+        if (p_Rack->GetStartTime().toTime_t() > p_Rack->GetEndTimeHimalaya().toTime_t()) {
+            ErrorDescription += "Himalaya end time cannot be less than the start time: "
                     + p_Rack->GetStartTime().toString("'M'M'd'd'y'yyyyhh:mm:ss") + " End time : "
-                    + p_Rack->GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
+                    + p_Rack->GetEndTimeHimalaya().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
             VerifiedData = false;
         }
     }
@@ -280,15 +280,15 @@ void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDat
         }
     }
 
-    // first check all the end times of the Colorado and Sepia with end time of the rack.
-    // Because end time cannot be less than end of the Colorado and Sepia
-    // check the end time of colorado with start time of the rack
-    if (CheckColoradoDateTime) {
-        //if (!CompareDateTime(p_Rack->GetEndTimeStation(), p_Rack->GetEndTimeColorado())) {
-        if (p_Rack->GetEndTimeStation().toTime_t() > p_Rack->GetEndTimeColorado().toTime_t()) {
-            ErrorDescription += "Colorado end time cannot be less than the end time of the station: "
+    // first check all the end times of the Himalaya and Sepia with end time of the rack.
+    // Because end time cannot be less than end of the Himalaya and Sepia
+    // check the end time of himalaya with start time of the rack
+    if (CheckHimalayaDateTime) {
+        //if (!CompareDateTime(p_Rack->GetEndTimeStation(), p_Rack->GetEndTimeHimalaya())) {
+        if (p_Rack->GetEndTimeStation().toTime_t() > p_Rack->GetEndTimeHimalaya().toTime_t()) {
+            ErrorDescription += "Himalaya end time cannot be less than the end time of the station: "
                     + p_Rack->GetEndTimeStation().toString("'M'M'd'd'y'yyyyhh:mm:ss")
-                    + " End time of Colorado : " + p_Rack->GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
+                    + " End time of Himalaya : " + p_Rack->GetEndTimeHimalaya().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
             VerifiedData = false;
         }
     }
@@ -304,12 +304,12 @@ void CRackListVerifier::CompareRackDataTime(CRack* p_Rack, bool CheckColoradoDat
         }
     }
 
-    // check the end time of Sepia with end time of colorado
-    if (p_Rack->GetSepiaStation() && CheckColoradoDateTime) {
-        //if (!CompareDateTime(p_Rack->GetEndTimeColorado(), p_Rack->GetEndTimeSepia())) {
-        if (p_Rack->GetEndTimeColorado().toTime_t() > p_Rack->GetEndTimeSepia().toTime_t()) {
-            ErrorDescription += "Sepia end time cannot be less than the end time of the Colorado: "
-                    + p_Rack->GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss")
+    // check the end time of Sepia with end time of himalaya
+    if (p_Rack->GetSepiaStation() && CheckHimalayaDateTime) {
+        //if (!CompareDateTime(p_Rack->GetEndTimeHimalaya(), p_Rack->GetEndTimeSepia())) {
+        if (p_Rack->GetEndTimeHimalaya().toTime_t() > p_Rack->GetEndTimeSepia().toTime_t()) {
+            ErrorDescription += "Sepia end time cannot be less than the end time of the Himalaya: "
+                    + p_Rack->GetEndTimeHimalaya().toString("'M'M'd'd'y'yyyyhh:mm:ss")
                     + " End time of Sepia : " + p_Rack->GetEndTimeSepia().toString("'M'M'd'd'y'yyyyhh:mm:ss") + "\n";
             VerifiedData = false;
         }

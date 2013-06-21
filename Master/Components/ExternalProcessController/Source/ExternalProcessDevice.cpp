@@ -245,7 +245,7 @@ void ExternalProcessDevice::PeerDisconnected(const QString &name)
 
 /****************************************************************************/
 /*!
- *  \brief    This function disconnects Colorado from ExternalProcess
+ *  \brief    This function disconnects Himalaya from ExternalProcess
  *
  *
  ****************************************************************************/

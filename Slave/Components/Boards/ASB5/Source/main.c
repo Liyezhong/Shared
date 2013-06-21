@@ -42,8 +42,8 @@
 
 #define VOLTAGE_LIMIT_WARNING   20000   //!< Supply voltage warning limit [mV]
 #define VOLTAGE_LIMIT_FAILURE   16000   //!< Supply voltage error limit [mV]
-#define CURRENT_LIMIT_WARNING   300     //!< Supply current warning limit [mA]
-#define CURRENT_LIMIT_FAILURE   400     //!< Supply current error limit [mA]
+#define CURRENT_LIMIT_WARNING   2300     //!< Supply current warning limit [mA]
+#define CURRENT_LIMIT_FAILURE   2400     //!< Supply current error limit [mA]
 
 //****************************************************************************/
 //! Board options of the base module
@@ -77,7 +77,9 @@ static const UInt32 TestOptionList[] = {
         CURRENT_LIMIT_FAILURE,          // Current monitor failure level
         
     // Function modules board options
-    MODULE_ID_TEMPERATURE, 4, 0x12022, 0x12022, 0x12022, 0x12022
+    MODULE_ID_TEMPERATURE, 4, 0x011011, 0xF11012, 0x011012, 0x011012
+    //MODULE_ID_TEMPERATURE, 1, 0x1011012//, 0x011012
+    //MODULE_ID_TEMPERATURE, 2, 0x011011, 0xF11012,
 };
 
 //****************************************************************************/
@@ -215,11 +217,11 @@ static Error_t InitTestBootloaderInfoBlock (void) {
 
 int main (int argc, char **argv) {
 
+    volatile Int32 i;
     Error_t Status;
 
     // Wait for JTAG to synchronize
     #ifdef DEBUG
-    volatile Int32 i;
     for (i=0; i < 300000; i++);
     #endif
 
@@ -235,8 +237,6 @@ int main (int argc, char **argv) {
         dbgPrintError (BASEMODULE_CHANNEL, Status, ON, 0);
     }
     dbgPrint ("Firmware stopped");
-
-    return Status;
 }
 
 //****************************************************************************/

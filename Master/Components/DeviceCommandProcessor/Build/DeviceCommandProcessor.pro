@@ -14,20 +14,20 @@ SOURCES +=  ../Source/*.cpp \
 
 INCLUDEPATH += ../../../../Common/Components
 INCLUDEPATH += $$PWD/../../../../Components
-INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Master/Components
-INCLUDEPATH += ../../../../../Colorado/Shared/Master/Components \
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components
+INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components \
 
-DEPENDPATH +=  ../../../../../Colorado/Shared/Master/Components \
-
-
+DEPENDPATH +=  ../../../../../Himalaya/Shared/Master/Components \
 
 
-#unix:!macx:!symbian: LIBS += -L$$OUT_PWD/../../../../../Colorado/ColoradoMain/Master/Components/Scheduler/Demo/SchedulerSimulation/ -lSchedulerSimulation
 
-#INCLUDEPATH += $$PWD/../../../../../Colorado/ColoradoMain/Master/Components/Scheduler/Demo/SchedulerSimulation
-#DEPENDPATH += $$PWD/../../../../../Colorado/ColoradoMain/Master/Components/Scheduler/Demo/SchedulerSimulation
 
-#unix:!macx:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../../../../../Colorado/ColoradoMain/Master/Components/Scheduler/Demo/SchedulerSimulation/libSchedulerSimulation.a
+#unix:!macx:!symbian: LIBS += -L$$OUT_PWD/../../../../../Himalaya/HimalayaMain/Master/Components/Scheduler/Demo/SchedulerSimulation/ -lSchedulerSimulation
+
+#INCLUDEPATH += $$PWD/../../../../../Himalaya/HimalayaMain/Master/Components/Scheduler/Demo/SchedulerSimulation
+#DEPENDPATH += $$PWD/../../../../../Himalaya/HimalayaMain/Master/Components/Scheduler/Demo/SchedulerSimulation
+
+#unix:!macx:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../../../../../Himalaya/HimalayaMain/Master/Components/Scheduler/Demo/SchedulerSimulation/libSchedulerSimulation.a
 
 
 

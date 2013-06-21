@@ -15,7 +15,7 @@
  *      RFID transponder. This transponder uses a propietary protocol on top
  *      of ISO 11785 and thus is not standard compliant. The module controls
  *      the EM Microelectronic EM4095 RFID front end IC via the Hardware
- *      Abstraction Layer (HAL). For this purpose, the module uses digital I/O
+ *      Abstraction Layer (HAL). Fot this purpose, the module uses digital I/O
  *      ports and a timer unit to control the time critical communication
  *      procedure through the generation of interrupts.
  *
@@ -65,8 +65,6 @@
 //! Requests the UID number of the RFID transponder
 #define MSG_RFID11785_READ_UID_NUMBER       BUILD_CAN_ID(CMD_CLASS_FUNCTION, 11, 1)
 
-//! Acknowledges the set configuration parameters message
-#define MSG_RFID11785_ACK_CONFIG            BUILD_CAN_ID(CMD_CLASS_FUNCTION, 5, 0)
 //! Responds to a login message to the RFID transponder
 #define MSG_RFID11785_RESP_LOGIN            BUILD_CAN_ID(CMD_CLASS_FUNCTION, 6, 0)
 //! Responds to write user data messages sent to the RFID transponder

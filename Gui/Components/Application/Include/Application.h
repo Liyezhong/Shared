@@ -35,7 +35,7 @@ namespace Application {
 class CApplication : public QApplication
 {
 public:
-    CApplication(int Argc, char* p_Argv[], bool m_SetStyleSize);
+    CApplication(int Argc, char* p_Argv[], Application::ProjectId_t m_ProjId);
 };
 
 } // end namespace Application

@@ -44,12 +44,12 @@ const QString EMPTY_STRING                  = "";///< empty string
 const QString STRING_NEWLINE                = "\n";///< new line
 const QString STRING_SEMICOLON              = ";";///< string for semicolon
 const QString TRANSLATE_RETURN_VALUE_1      = "\"0\":";///< translator return value
-const QString EVENTLOGFILE_STARTING_NAME    = "ColoradoEvents_";///< Start name of event log file
+const QString EVENTLOGFILE_STARTING_NAME    = "HimalayaEvents_";///< Start name of event log file
 const QString DAILYRUNLOG_FILE_FIRSTLINE    = "FileName: DailyRunLog_";///< Filrst line of the DailyRunLog file
 const QString DAILYRUNLOG_FILENAME          = "DailyRunLog_";///< DailyRunLog file name
 const QString FILEEXTENSION_LOG             = ".log";///< Extension for the log files
 const QString STRING_DAILYRUN               = "DailyRun";///< String for DailyRunLog
-const QString COLORADOEVENTS_MULTIPLEFILES  = "ColoradoEvents_*.log";///< Multiple log files string
+const QString HIMALAYAEVENTS_MULTIPLEFILES  = "HimalayaEvents_*.log";///< Multiple log files string
 const QString COMMAND_RMDIR                 = "rmdir "; ///< constant string for the command 'rmdir'
 const QString COMMAND_ARGUMENT_C            = "-c"; ///< constant string for the command argument for shell '-c'
 const QString COMMAND_ARGUMENT_R            = "-rf"; ///< constant string for the command argument for recursive files '-r'
@@ -161,7 +161,7 @@ void DayLogFileInformation::CreateAndListDailyRunLogFileName(const QStringList &
 
     QDir LogDirectory(m_LogFilePath);
     // iterate each file and change the name to daily run log file
-    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << COLORADOEVENTS_MULTIPLEFILES)) {
+    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << HIMALAYAEVENTS_MULTIPLEFILES)) {
         // get the date time value from the event log file name
         QString DateAndTimeValue = LogFileName.split(DELIMITER_UNDERSCORE).value
                 (LogFileName.split(DELIMITER_UNDERSCORE).count() - 1);
@@ -179,7 +179,7 @@ void DayLogFileInformation::CreateSpecificDailyRunLogFile(const QString &FileNam
     QDir LogDirectory(m_LogFilePath);
     QByteArray& FileData = const_cast<QByteArray&>(FileContent);
     // iterate each file and find whcih event log file it is referring to it
-    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << COLORADOEVENTS_MULTIPLEFILES)) {
+    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << HIMALAYAEVENTS_MULTIPLEFILES)) {
         if (LogFileName.contains(FileName.split(DELIMITER_UNDERSCORE).value
                                  (FileName.split(DELIMITER_UNDERSCORE).count() - 1))) {
             ReadAndTranslateTheFile(m_LogFilePath + QDir::separator() + LogFileName, FileData);
@@ -212,7 +212,7 @@ void DayLogFileInformation::CreateDailyRunLogFiles(const QStringList &FileNames)
 
     QByteArray FileData;
     // iterate each file and find whcih event log file it is referring to it
-    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << COLORADOEVENTS_MULTIPLEFILES)) {
+    foreach (QString LogFileName, LogDirectory.entryList(QStringList() << HIMALAYAEVENTS_MULTIPLEFILES)) {
         FileData.clear();
         // get the date time value from the event log file name
         QString DateAndTimeValue = LogFileName.split(DELIMITER_UNDERSCORE).value

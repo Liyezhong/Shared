@@ -77,7 +77,7 @@ void SimulationConnector::registerConnection()
     qDebug() << "SimulationConnector::registerConnection";
     m_clientConnection = m_tcpServer->nextPendingConnection();
     connect(m_clientConnection, SIGNAL(readyRead()), this, SLOT(readMessageFromClient()));
-    sendMessageToClient("Connected to Colorado simulation");
+    sendMessageToClient("Connected to Himalaya simulation");
 }
 
 void SimulationConnector::sendMessageToClient(QString message)
@@ -96,11 +96,11 @@ void SimulationConnector::sendMessageToClient(QString message)
         out.device()->reset();
         if (out.device()->isOpen())
         {
-            if (m_clientConnection->isOpen())
-            {
-                m_clientConnection->write(block);
-                m_clientConnection->flush();
-            }
+        if (m_clientConnection->isOpen())
+        {
+            m_clientConnection->write(block);
+            m_clientConnection->flush();
+        }
         }
 
         if (m_verbose)

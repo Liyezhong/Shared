@@ -56,8 +56,8 @@ const UInt32 halRtcClockFrequency = 0;        //!< Real time crystal frequency [
 const UInt32 halProcessorVoltage  = 3300;     //!< Nominal processor voltage [mV]
 const UInt32 halWatchdogInterval  = 2000;     //!< Watchdog interval time [ms]
 
-const UInt32 halNonVolatileSize   = 512;      //!< Non volatile memory size
-const UInt32 halNonVolatileCache  = 512;      //!< Non volatile memory cache size
+const UInt32 halNonVolatileSize   = 256;      //!< Non volatile memory size
+const UInt32 halNonVolatileCache  = 256;      //!< Non volatile memory cache size
 
 
 /***********************************************************************************/
@@ -208,10 +208,10 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
     { HAL_SUPPLY_VOLTAGE,  DIR_INPUT,  BUS_TYPE_INTERN, 12, 14, 6, 30000, 0 },
-
+    
     { HAL_STEPPER1_PHASEA, DIR_INPUT,  BUS_TYPE_INTERN, 12, 10, 6,  3000, 0 },
     { HAL_STEPPER1_PHASEB, DIR_INPUT,  BUS_TYPE_INTERN, 12, 11, 6,  3000, 0 },
-
+    
     { HAL_AIRFAN_CURRENT1, DIR_INPUT,  BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
     { HAL_AIRFAN_CURRENT2, DIR_INPUT,  BUS_TYPE_INTERN, 12, 12, 6,  3000, 0 }
 };
@@ -332,7 +332,7 @@ const UInt32 halStepperDescriptorCount = ELEMENTS(halStepperDescriptors);
 const halStorageDescriptor_t halStorageDescriptors[] = {
    { HAL_STORAGE_FLASH, MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x08000000, 0x20000 },
    { HAL_STORAGE_OTP,   MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x1FFFF000, 0x00800 },
-   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 512 }
+//   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
 };
 const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
@@ -360,7 +360,7 @@ const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
 const halSerialDescriptor_t halSerialDescriptors[] = {
     { HAL_CAN_SYSTEM, 0, SIO_TYPE_CAN, 1, 0, 500000 },
-    { HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 1, 400000 },
+    { HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 0, 400000 },
 };
 const UInt32 halSerialDescriptorCount = ELEMENTS(halSerialDescriptors);
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file ColoradoMasterThread/Source/AlarmHandler.cpp
+/*! \file HimalayaMasterThread/Source/AlarmHandler.cpp
  *
  *  \brief Implementation file for class AlarmHandler.
  *

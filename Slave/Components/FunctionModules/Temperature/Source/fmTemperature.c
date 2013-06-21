@@ -27,6 +27,7 @@
  */
 /****************************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "Basemodule.h"
@@ -50,6 +51,7 @@
 #define MODE_AUTO_TUNE      0x0002  //!< Auto tuning is in progress
 #define MODE_TEMP_PHASE     0x0004  //!< 0: heating phase, 1: hold phase
 #define MODE_VOLTAGE_RANGE  0x0008  //!< Voltage range detected: 0 is 200 to 240V, 1 is 100 to 127V
+#define MODE_TEMP_RANGE     0x0010  //!< Actual temperature is in required range
 
 //****************************************************************************/
 // Private Type Definitions
@@ -77,11 +79,9 @@ typedef struct {
     UInt16 Flags;                //!< Mode control flag bits
     TempTaskState_t State;       //!< The module task state
     UInt8 Priority;              //!< Heating priority in hold phase (0 is highest)
-    Bool InRange;                //!< Temperature in range (true) or not (false)
 
     UInt16 DesiredTemp;          //!< Desired temperature (in 0.01 degree Celsius steps)
     UInt16 ToleranceTemp;        //!< Temperature tolerance (in 0.01 degree Celsius steps)
-    UInt16 DesiredRangeTemp;     //!< Desired temperature range (in 0.01 degree Celsius steps)
 
     UInt16* ServiceTemp;         //!< Temperature a certain sensor in 0.01 degree Celsius steps     
     UInt16* ServiceFan;          //!< Speed of the fans in rotations per minute
@@ -98,7 +98,15 @@ typedef struct {
     UInt8 NumberHeaters;         //!< Number of heating elements
     UInt8 NumberFans;            //!< Number of ventilation fans to be watched
     UInt8 NumberPid;             //!< Number of cascaded PID controllers
+    UInt8 IndexPidSensor;        //!< Index of sensor used for PID calculation.
+                                 //!< F: Lowest for caculation
+
+    UInt8 DetectSlope;           //!< 0: No, 1: Yes
+    UInt8 SlopeTimeInterval;     //!< Time in milliseconds
+    UInt16 SlopeTempChange;      //!< Temperature in 0.01 degree Celsius steps
+    UInt8 SlopeSampleCnt;
     
+    TempHeaterType_t HeaterType; //!< 0: AC, 1: DC      
     TempSensorType_t SensorType; //!< Type of temperature sensor used by this module
     TempTimeParams_t TimeParams; //!< Input and output parameters of the lifecycle counters
     TempPidParams_t *PidParams;  //!< Input and output parameters of the PID controller
@@ -121,7 +129,7 @@ static TempHeaterPhase_t TempPhase;
 /*! Time in milliseconds the last temperature value was sampled */
 static UInt32 TempSampleTimestamp;
 /*! Sampling time of the module in milliseconds */
-static UInt32 TempSamplingTime;
+static UInt32 TempSamplingTime = 1000;
 
 /*! Public parameters for the heating element control functionality */
 static TempHeaterParams_t *tempHeaterParams;
@@ -142,6 +150,7 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance);
 static Error_t tempReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 Instance);
 static Error_t tempDeviceAlloc (InstanceData_t *Data);
 static Error_t tempHandleOpen (InstanceData_t *Data, UInt16 Instance);
+static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus);
 
 static Error_t tempSetTemperature       (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempSetFanWatchdog       (UInt16 Channel, CanMessage_t* Message);
@@ -164,13 +173,11 @@ static Error_t tempGetHardware          (UInt16 Channel, CanMessage_t* Message);
  *      module. Depending on the ControlID parameter, the following actions
  *      are performed:
  *
- *      - MODULE_CONTROL_RESUME
- *      - MODULE_CONTROL_WAKEUP
  *      - MODULE_CONTROL_STOP
+ *      - MODULE_CONTROL_RESUME
+ *      - MODULE_CONTROL_STANDBY
+ *      - MODULE_CONTROL_WAKEUP
  *      - MODULE_CONTROL_SHUTDOWN
- *      - MODULE_CONTROL_RESET
- *      - MODULE_CONTROL_FLUSH_DATA
- *      - MODULE_CONTROL_RESET_DATA
  *
  *  \iparam  Instance  = Instance number of this module [in]
  *  \iparam  ControlID = Control code to select sub-function [in]
@@ -201,17 +208,18 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
 
         case MODULE_CONTROL_RESET:
             Data->Flags &= ~MODE_MODULE_ENABLE;
+            printf("Reset\n");
             break;
-
+                                
         case MODULE_CONTROL_FLUSH_DATA:
             break;
-
+            
         case MODULE_CONTROL_RESET_DATA:
             Error = tempTimeResetPartition (&Data->TimeParams, Data->Channel);
             break;
 
-        default:
-            return (E_PARAMETER_OUT_OF_RANGE);
+        default:             
+            return (E_PARAMETER_OUT_OF_RANGE);  
     }    
     return (Error);
 }
@@ -225,11 +233,13 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
  *      this function module. Depending on the StatusID parameter, the
  *      following status values are returned:
  *
- *      - MODULE_STATUS_STATE
- *      - MODULE_STATUS_VALUE
- *      - MODULE_STATUS_MODULE_ID
  *      - MODULE_STATUS_INSTANCES
+ *      - MODULE_STATUS_MODULE_ID
+ *      - MODULE_STATUS_POWER_STATE
  *      - MODULE_STATUS_VERSION
+ *      - MODULE_STATUS_STATE
+ *      - MODULE_STATUS_ABORTED
+ *      - MODULE_STATUS_VALUE
  *
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
@@ -249,21 +259,21 @@ static Error_t tempModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID)
                 return ((Error_t) MODULE_STATE_DISABLED);
             }
             return ((Error_t) Data->ModuleState);
-
+            
         case MODULE_STATUS_VALUE:
             return (Data->ServiceTemp[0] / 10);
-
+        
         case MODULE_STATUS_MODULE_ID:
             return (ModuleIdentifier);
-
+            
         case MODULE_STATUS_INSTANCES:
             return (InstanceCount);
-
+            
         case MODULE_STATUS_VERSION:
             return (MODULE_VERSION);
-
-        default: break;
-    }
+            
+        default: break;            
+    }    
     return (E_PARAMETER_OUT_OF_RANGE);
 }
 
@@ -287,18 +297,41 @@ static Error_t tempModuleTask (UInt16 Instance)
     Bool Fail = FALSE;
     UInt8 i;
     Error_t Error;
+    static UInt16* TempArray = NULL;
+    static UInt8 TempArraySize = 0, TempArrayIndex = 0;
+    static UInt8 SamplesPerSec = 0;
+    //static UInt8 TempCnt = 0;
+    Int16 TempDelta = 0;
 
     InstanceData_t* Data = &DataTable[Instance];
 
-    // Is heating active?
-    if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
-        // Progress the current sensor evaluation
-        Error = tempHeaterProgress ();
-        if (Error < 0) {
-            return (tempShutDown (Data, Error, Instance));
+    if (Data->DetectSlope == 1 && TempArray == NULL) {
+        // Only set sampling array if temp. module has been configured.
+        if ((Data->Flags & MODE_MODULE_ENABLE) != 0 && TempSamplingTime>0 ) {
+            //TempArraySize = Data->SlopeTimeInterval/TempSamplingTime;
+            TempArraySize = 5000/TempSamplingTime;
+            SamplesPerSec = 1000/TempSamplingTime;
+            printf("TempArraySize:%d, SamplesPerSec:%d\n", TempArraySize, SamplesPerSec);
+            if ( TempArraySize > 0 ) {
+                TempArray = calloc (TempArraySize, sizeof(UInt16));
+                if (NULL == TempArray) {
+                    return (E_MEMORY_FULL);
+                }
+            }
+        }
+    }
+    
+    if (Data->ModuleState == MODULE_STATE_READY) {
+    
+        if (Data->HeaterType == TYPE_HEATER_AC) {
+            Error = tempSampleCurrent();  
+            if (Error < 0) {
+                return (tempShutDown (Data, Error, Instance));
+            }
         }
         
-        if (Instance == tempFindRoot ()) {
+
+        if ( Instance == 0 ) {
             if (bmTimeExpired (TempSampleTimestamp) >= TempSamplingTime) {
                 // Update the sampling time
                 TempSampleTimestamp = bmGetTime();
@@ -308,11 +341,16 @@ static Error_t tempModuleTask (UInt16 Instance)
                 }
             }
         }
+
         
-        // Check if the sampling time expired already
         if (Data->State == STATE_SAMPLE) {
-            Data->State = STATE_CONTROL;
+        
+            if ((Data->Flags & MODE_MODULE_ENABLE) == 0 ) {
+                Data->State = STATE_CONTROL;
+            }
             
+            printf("I:%d ", Instance);           
+
             // Read and check sensors
             Error = tempFetchCheck(Data, Instance, &Fail);
             if (Error != NO_ERROR) {
@@ -324,10 +362,88 @@ static Error_t tempModuleTask (UInt16 Instance)
                 Data->Flags &= ~(MODE_MODULE_ENABLE);
                 return ((Error_t) Data->ModuleState);
             }
+            
+        }              
+    
+    }
+
+    // Is heating active?
+    if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        // Progress the current sensor evaluation
+        Error = tempHeaterProgress ();
+        if (Error < 0) {
+            return (tempShutDown (Data, Error, Instance));
+        }
+    
+#if 0        
+        if (Instance == tempFindRoot ()) {
+            if (bmTimeExpired (TempSampleTimestamp) >= TempSamplingTime) {
+                // Update the sampling time
+                TempSampleTimestamp = bmGetTime();
+                TempPriority = 0;
+                for (i = 0; i < InstanceCount; i++) {
+                    DataTable[i].State = STATE_SAMPLE;
+                }
+            }
+        }
+#endif
+        
+        // Check if the sampling time expired already
+        if (Data->State == STATE_SAMPLE) {
+            Data->State = STATE_CONTROL;
+
+#if 0
+            printf("I:%d ", Instance);           
+
+            // Read and check sensors
+            Error = tempFetchCheck(Data, Instance, &Fail);
+            if (Error != NO_ERROR) {
+                return (tempShutDown (Data, Error, Instance));
+            }
+            
+            // If one of the subsystems fails, shutdown and quit
+            if (Fail == TRUE) {
+                Data->Flags &= ~(MODE_MODULE_ENABLE);
+                return ((Error_t) Data->ModuleState);
+            }
+#endif           
+            
             // Check if the temperature is within the required range
             Error = tempNotifRange(Data);
             if (Error != NO_ERROR) {
                 return (tempShutDown (Data, Error, Instance));
+            }
+
+            // Slope detection
+            if (Data->DetectSlope == 1 && TempArray != NULL) {
+                
+                TempArray[TempArrayIndex++] = Data->ServiceTemp[0];
+                TempArrayIndex %= TempArraySize;                
+                if (Data->SlopeSampleCnt < TempArraySize) {
+                    Data->SlopeSampleCnt++;
+                }
+                else {
+                    //tempNotifySlope(Data, 1);
+                    TempDelta = Data->ServiceTemp[0]- TempArray[(TempArrayIndex+SamplesPerSec*(5-3)) % TempArraySize];
+                    printf("D3: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
+                    if (TempDelta < (-Data->SlopeTempChange)) {
+                        printf("Level up [3].\n");
+                        tempNotifySlope(Data, 1);
+                    }
+                    else if (TempDelta > 1000) {
+                        //printf("Level down.\n");
+                        tempNotifySlope(Data, 0);
+                    }
+                    else {
+                        TempDelta = Data->ServiceTemp[0]- TempArray[TempArrayIndex];
+                        printf("D5: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
+                        if (TempDelta < (-Data->SlopeTempChange)) {
+                        printf("Level up [5].\n");
+                        tempNotifySlope(Data, 1);
+                    }
+                    }
+
+                }
             }
             
             // Regulate temperature
@@ -365,6 +481,7 @@ static Error_t tempModuleTask (UInt16 Instance)
         if (Error < NO_ERROR) {
             return (tempShutDown (Data, Error, Instance));
         }
+        //printf("NE\n");
     }
     return ((Error_t) Data->ModuleState);
 }
@@ -417,6 +534,7 @@ static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instanc
     UInt8 i;
     
     Data->Flags &= ~(MODE_MODULE_ENABLE);
+    printf("ShutDown\n");
     bmSignalEvent (Data->Channel, Error, TRUE, 0);
     
     for(i = 0; i < Data->NumberPid; i++) {
@@ -451,20 +569,38 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
 {
     UInt8 i;
     UInt8 j;
-    UInt16 Compensation = 0;
+    UInt16 Compensation;
     Error_t Error = NO_ERROR;
+    static UInt16 TempPre[2] = {19900,19900};
+    static UInt16 CompPre = 2500;
 
-    // Compute and check heater current
-    if (Instance == tempFindRoot ()) {
-        Error = tempHeaterCheck ();
-        if (Error < 0) {
-            return Error;
+
+    if (Data->HeaterType == TYPE_HEATER_AC) {
+    
+        // Compute and check heater current      
+        if ( Instance == 0 ) {
+            tempCalcEffectiveCurrent();
         }
+        if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
+            if ( Instance == tempFindRoot () ) {
+                Error = tempHeaterCheck (FALSE);
+                if (Error < 0) {
+                    return Error;
+                }
+            }
+
+        }        
+        
+        
+        if (tempHeaterFailed () == TRUE) {
+            //*Fail = TRUE;
+            bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
+        }
+        
+        //printf("C:%d ", tempHeaterCurrent());
+    
     }
-    if (tempHeaterFailed () == TRUE) {
-        *Fail = TRUE;
-        bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
-    }
+
 
     // Read and check fan speeds
     for (i = 0; i < Data->NumberFans; i++) {
@@ -480,21 +616,39 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
             }
         }
     }
+   
 
     // Read cold junction temperature sensor
     if (Data->SensorType == TYPEK || Data->SensorType == TYPET) {
         if ((Error = tempSensorRead (Data->HandleCompensate, PT1000, 0, &Compensation)) < 0) {
-            return (Error);
+            //return (Error);
+            //Compensation = 2800;
+            Compensation = CompPre;
+        }
+        else {
+            //printf("C:%d ", Compensation);
+            CompPre = Compensation;
         }
     }
 
+    //Compensation = 2600;
     // Measure and check the temperature
     for (i = 0; i < Data->NumberSensors; i++) {
         if ((Error = tempSensorRead (Data->HandleTemp[i], Data->SensorType, Compensation, &Data->ServiceTemp[i])) < 0) {
-            return (Error);
+            //return (Error);
+            printf("[%d]:E ", i);            
+            Data->ServiceTemp[i] = TempPre[i];
+        }
+        else {
+            printf("[%d]:%d ", i, Data->ServiceTemp[i]);            
+            TempPre[i] = Data->ServiceTemp[i];
         }
     }
+    
+    printf("\n");
 
+
+#if 0
     // Compare all temperature sensors
     for (i = 0; i < (Data->NumberSensors / Data->NumberPid) - 1; i++) {
         for (j = i + 1; j < Data->NumberSensors; j++) {
@@ -505,6 +659,7 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
             }
         }
     }
+#endif
 
     return (NO_ERROR);
 }
@@ -531,10 +686,10 @@ static Error_t tempNotifRange (InstanceData_t *Data)
     CanMessage_t Message;
 
     // Temperature curve leaves desired range
-    if (Data->ServiceTemp[0] + Data->DesiredRangeTemp < Data->DesiredTemp ||
-        Data->ServiceTemp[0] > Data->DesiredTemp + Data->DesiredRangeTemp) {
-        if (Data->InRange == TRUE) {
-            Data->InRange = FALSE;
+    if (Data->ServiceTemp[0] + Data->ToleranceTemp < Data->DesiredTemp ||
+        Data->ServiceTemp[0] > Data->DesiredTemp + Data->ToleranceTemp) {
+        if ((Data->Flags & MODE_TEMP_RANGE) != 0) {
+            Data->Flags &= ~(MODE_TEMP_RANGE);
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
@@ -543,8 +698,8 @@ static Error_t tempNotifRange (InstanceData_t *Data)
     }
     // Temperature curve enters desired range
     else {
-        if (Data->InRange == FALSE) {
-            Data->InRange = TRUE;
+        if ((Data->Flags & MODE_TEMP_RANGE) == 0) {
+            Data->Flags |= MODE_TEMP_RANGE;
             Message.CanID = MSG_TEMP_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
@@ -553,6 +708,33 @@ static Error_t tempNotifRange (InstanceData_t *Data)
     }
 
     return (NO_ERROR);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief  Checks if the temperature enters or leaves the required range
+ *
+ *      This function checks if the actual temperature curve meassured by the
+ *      functional module enters or leaves the desired temperature range set
+ *      by the master. If this is the case, a notification is sent to the
+ *      master. There are separate messages for entering and leaving the
+ *      temperature range.
+ *
+ *  \xparam  Data = Data of one instance of the functional module
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus)
+{
+    CanMessage_t Message;
+
+    Message.CanID = MSG_TEMP_NOTI_SLOPE;
+    Message.Length = 1;
+    bmSetMessageItem (&Message, LevelStatus, 0, 1);
+    return (canWriteMessage(Data->Channel, &Message));
 }
 
 
@@ -576,7 +758,7 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance)
 {
     UInt8 i;
     UInt8 j;
-    UInt8 First;
+    UInt8 First = 0, SensorIndex = 0;
     Error_t Error;
     Int16 DevTemp = 0;
     CanMessage_t Message;
@@ -588,7 +770,27 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance)
     }
     else {
         First = 0;
+#if 0
         if (tempPidCalculate (&Data->PidParams[First], Data->DesiredTemp, Data->ServiceTemp[First]) == FALSE) {
+            return (E_TEMP_PID_NOT_CONFIGURED);
+        }
+#endif
+
+#if 1
+        if ( Data->IndexPidSensor == 0 ) {
+            SensorIndex = First;
+        }
+        else if ( Data->NumberSensors > 1 && Data->IndexPidSensor == 0xF ) {
+            if ( Data->ServiceTemp[0] < Data->ServiceTemp[1] ) {
+                SensorIndex = 0;
+            }
+            else {
+                SensorIndex = 1;
+            }
+        }
+#endif
+
+        if (tempPidCalculate (&Data->PidParams[First], Data->DesiredTemp, Data->ServiceTemp[SensorIndex]) == FALSE) {
             return (E_TEMP_PID_NOT_CONFIGURED);
         }
     }
@@ -625,6 +827,7 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance)
         if (bmTimeExpired(Data->AutoTuneStartTime) >= Data->AutoTuneDuration) {
             tempPidAutoStop (&Data->PidParams[Data->AutoTunePidNumber]);
             if (Data->AutoTunePidNumber == 0) {
+                printf("Stop auto tuning\n");
                 Data->Flags &= ~(MODE_MODULE_ENABLE | MODE_AUTO_TUNE);
                 Message.CanID = MSG_TEMP_NOTI_AUTO_TUNE;
                 Message.Length = 0;
@@ -674,8 +877,13 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     UInt8 i;
     Bool Running;
     Error_t Status = NO_ERROR;
-
+    
+    UInt16 InstanceID = 99;
+    
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
+    
+    InstanceID = bmGetInstance(Channel);
+
 
     if (Message->Length != 8) {
         return (E_MISSING_PARAMETERS);
@@ -692,9 +900,12 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     Data->Flags = bmGetMessageItem(Message, 0, 1);
     Data->DesiredTemp = bmGetMessageItem(Message, 1, 1) * 100;
     Data->ToleranceTemp = bmGetMessageItem(Message, 2, 1) * 100;
-    TempSamplingTime = bmGetMessageItem(Message, 3, 2) * 10;
+    TempSamplingTime = bmGetMessageItem(Message, 3, 2) * 5;
     Data->AutoTuneDuration = bmGetMessageItem(Message, 5, 2) * 1000;
-    Data->DesiredRangeTemp = bmGetMessageItem(Message, 7, 1) * 100;
+    //Data->SlopeTimeInterval = bmGetMessageItem(Message, 7, 1) * 1000;
+    Data->SlopeTempChange = bmGetMessageItem(Message, 7, 1) * 100;
+    
+    printf("Temp Change for slope detection:%d\n", Data->SlopeTempChange);
 
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
@@ -709,6 +920,8 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
         TempPhase = PHASE_HEAT;
     }
     
+    printf("Id:%d, Flag:%d\n", InstanceID, Data->Flags);
+    
     // Start auto-tuning
     if ((Data->Flags & MODE_AUTO_TUNE) != 0) {
         Data->Flags |= MODE_AUTO_TUNE;
@@ -721,10 +934,11 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     // If the module was or is deactivated, reset some parameters
     if (Running == FALSE || (Data->Flags & MODE_MODULE_ENABLE) == 0) {
         for (i = 0; i < Data->NumberPid; i++) {
-            tempPidReset(&Data->PidParams[i]);
+            //tempPidReset(&Data->PidParams[i]);
         }
+        //tempHeaterReset();
         Data->State = STATE_IDLE;
-        Data->InRange = FALSE;
+        Data->SlopeSampleCnt = 0;
         Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
     }
     return (Status);
@@ -775,6 +989,7 @@ static Error_t tempSetFanWatchdog (UInt16 Channel, CanMessage_t* Message)
  *      influence the behavior of the module task. The following settings will
  *      be modified:
  *
+ *      - Current sensor idle output voltage (mV)
  *      - Current sensor gain factor (mA/V)
  *      - Desired heater current (in milliampere)
  *      - Heater current threshold (in milliampere)
@@ -832,11 +1047,11 @@ static Error_t tempSetPidParameters (UInt16 Channel, CanMessage_t* Message)
             return (E_PARAMETER_OUT_OF_RANGE);
         }
         Data->PidParams[Number].Ready = TRUE;
-        Data->PidParams[Number].MaxTemp = bmGetMessageItem(Message, 1, 1) * 100;
-        Data->PidParams[Number].Kc = bmGetMessageItem(Message, 2, 2);
+        Data->PidParams[Number].MaxTemp = bmGetMessageItem(Message, 1, 1) * 100;  //Caution: Error
+        Data->PidParams[Number].Kc = bmGetMessageItem(Message, 2, 2);  //Caution: Error
         Data->PidParams[Number].Ti = bmGetMessageItem(Message, 4, 2);
         Data->PidParams[Number].Td = bmGetMessageItem(Message, 6, 2);
-        tempPidReset(&Data->PidParams[Number]);
+        //tempPidReset(&Data->PidParams[Number]);
         
         if (Number == Data->NumberPid - 1) {
             Data->PidParams[Number].Range = MAX_INT16;
@@ -844,6 +1059,8 @@ static Error_t tempSetPidParameters (UInt16 Channel, CanMessage_t* Message)
         if (Number != 0) {
             Data->PidParams[Number-1].Range = Data->PidParams[Number].MaxTemp;
         }
+        
+        printf("PID:%d %d %d\n", Data->PidParams[Number].Kc, Data->PidParams[Number].Ti, Data->PidParams[Number].Td  );
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
@@ -858,8 +1075,8 @@ static Error_t tempSetPidParameters (UInt16 Channel, CanMessage_t* Message)
  *      resetting the operating timers of the heating elements is received
  *      from the master. The parameters in the message are transfered to the
  *      data structure of the addressed module instance. The modified settings
- *      influence the behavior of the module task. The following parameters
- *      will be used:
+ *      influence the behavior of the module task. The following settings will
+ *      be modified:
  *
  *      - Number of the heating element
  *
@@ -942,8 +1159,7 @@ static Error_t tempGetTemperature (UInt16 Channel, CanMessage_t* Message)
     bmSetMessageItem (&RespMessage, Data->ToleranceTemp / 100, 2, 1);
     bmSetMessageItem (&RespMessage, TempSamplingTime / 10, 3, 2);
     bmSetMessageItem (&RespMessage, Data->AutoTuneDuration / 1000, 5, 2);
-    bmSetMessageItem (&RespMessage, Data->DesiredRangeTemp / 100, 7, 1);
-    RespMessage.Length = 8;
+    RespMessage.Length = 7;
 
     return (canWriteMessage(Data->Channel, &RespMessage));
 }
@@ -952,8 +1168,6 @@ static Error_t tempGetTemperature (UInt16 Channel, CanMessage_t* Message)
 /*****************************************************************************/
 /*!
  *  \brief   Requests the gain and time parameters of a PID controller
- *
- *  \remark  This function is currently not used.
  *
  *      This function is called by the CAN message dispatcher when the gain
  *      and time parameters of a PID controller are requested by the master.
@@ -1111,8 +1325,8 @@ static Error_t tempGetServiceFan (UInt16 Channel, CanMessage_t* Message)
         if(Number < Data->NumberFans) {
             RespMessage.CanID = MSG_TEMP_RESP_SERVICE_FAN;
             bmSetMessageItem (&RespMessage, Number, 0, 1);
-            bmSetMessageItem (&RespMessage, Data->ServiceFan[Number], 1, 2);
-            RespMessage.Length = 3;
+            bmSetMessageItem (&RespMessage, Data->ServiceFan[Number], 1, 4);
+            RespMessage.Length = 5;
             return (canWriteMessage(Data->Channel, &RespMessage));
         }
         return (E_PARAMETER_OUT_OF_RANGE);
@@ -1201,10 +1415,29 @@ static Error_t tempReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 In
             break;
         case 3:
             Data->SensorType = TYPET;
-            break; 
+            break;
+        case 4:
+            Data->SensorType = NTCGT103F;
+            break;           
         default:
             return (E_TEMP_SENSOR_NOT_SUPPORTED);
     }
+
+    Data->IndexPidSensor = (Options >> 20) & 0xf;
+
+    Type = (Options >> 24) & 0xf;
+    switch (Type) {
+        case 0:
+            Data->HeaterType = TYPE_HEATER_AC;
+            break;
+        case 1:
+            Data->HeaterType = TYPE_HEATER_DC;
+            break;           
+        default:
+            return (E_TEMP_HEATER_NOT_SUPPORTED);
+    }
+
+    Data->DetectSlope = (Options >> 28) & 0xf;
     
     return (NO_ERROR);
 }
@@ -1338,6 +1571,8 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     Error_t Status;
     UInt16 i;
     UInt16 j;
+    UInt16 Channel;
+    InstanceData_t* Data;
 
     // allocate module instances data storage
     DataTable = calloc (Instances, sizeof(InstanceData_t));
@@ -1363,11 +1598,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     if (Status < NO_ERROR) {
         return (Status);
     }
-    // Initialize current measurement
-    Status = tempHeaterInit (&tempHeaterParams, HAL_TEMP_CURRENT, HAL_TEMP_MAINVOLTAGE, HAL_TEMP_CTRLHEATING, Instances);
-    if (Status < NO_ERROR) {
-        return Status;
-    }
+
     // open channels and ports for all modules
     for (i=0; i < Instances; i++) {
 
@@ -1403,15 +1634,183 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
             return Status;
         }
 
+        // Start time recording
+        TempSampleTimestamp = bmGetTime();
         DataTable[i].State = STATE_IDLE;
         DataTable[i].ModuleState = MODULE_STATE_READY;
+        DataTable[i].SlopeSampleCnt = 0;
     }
 
-    // Start time recording
-    TempSampleTimestamp = bmGetTime();
-    tempHeaterReset();
+    // Initialize current measurement
+    Status = tempHeaterInit (&tempHeaterParams, HAL_TEMP_CURRENT, HAL_TEMP_MAINVOLTAGE, HAL_TEMP_CTRLHEATING, DataTable[0].HeaterType, Instances);
+    if (Status < NO_ERROR) {
+        return Status;
+    }
+    
     InstanceCount = Instances;
     ModuleIdentifier = ModuleID;
+
+
+
+// Initialization for non-IDENTIFICATION mode
+// Only for debug use
+#if 0
+
+// For level sensor
+    Channel = 1;
+    Data = &DataTable[bmGetInstance(Channel)];
+    ///////////////////////////////////////////////////////////
+    // Set PID parameters
+    Data = &DataTable[bmGetInstance(Channel)];
+    Data->PidParams[0].Ready = TRUE;
+    Data->PidParams[0].MaxTemp = 90 * 100;
+    Data->PidParams[0].Kc = 1212;
+    Data->PidParams[0].Ti = 1000;
+    Data->PidParams[0].Td = 80;
+    tempPidReset(&Data->PidParams[0]);
+    
+    //if (0 == Data->NumberPid - 1) {
+        Data->PidParams[0].Range = MAX_INT16;
+    //}
+
+    //////////////////////////////////////////////////////////
+    // Current watchdog
+    tempHeaterParams->CurrentGain = 7813;
+    tempHeaterParams->DesiredCurrent = 3000;
+    tempHeaterParams->DesiredCurThreshold = 2500;
+
+
+    //////////////////////////////////////////////////////////
+    // Set Temperature
+     
+    Data->Flags = 1;
+    Data->DesiredTemp = 6000;
+    Data->ToleranceTemp = 500;
+    TempSamplingTime = 500;
+    Data->AutoTuneDuration = 0;
+    Data->SlopeTempChange = 99*100;
+
+    // Set the sampling time
+    for (i = 0; i < Data->NumberPid; i++) {
+        Data->PidParams[i].Ts = 100;
+    }
+
+    TempPhase = PHASE_HEAT;
+
+    for (i = 0; i < Data->NumberPid; i++) {
+        tempPidReset(&Data->PidParams[i]);
+    }
+    tempHeaterReset();
+    Data->State = STATE_IDLE;
+    Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
+#endif
+
+
+// For retort and wax bath
+
+#if 0
+
+    Channel = 1;
+    Data = &DataTable[bmGetInstance(Channel)];
+    ///////////////////////////////////////////////////////////
+    // Set PID parameters
+    Data = &DataTable[bmGetInstance(Channel)];
+    Data->PidParams[0].Ready = TRUE;
+    Data->PidParams[0].MaxTemp = 100 * 100;
+    Data->PidParams[0].Kc = 6000;
+    Data->PidParams[0].Ti = 1000;
+    Data->PidParams[0].Td = 80;
+    tempPidReset(&Data->PidParams[0]);
+    
+    //if (0 == Data->NumberPid - 1) {
+        Data->PidParams[0].Range = MAX_INT16;
+    //}
+
+    //////////////////////////////////////////////////////////
+    // Current watchdog
+    tempHeaterParams->CurrentGain = 7813;
+    tempHeaterParams->DesiredCurrent = 3000;
+    tempHeaterParams->DesiredCurThreshold = 3000;
+
+
+    //////////////////////////////////////////////////////////
+    // Set Temperature
+     
+    Data->Flags = 1;
+    Data->DesiredTemp = 9000;
+    Data->ToleranceTemp = 500;
+    TempSamplingTime = 1000;
+    Data->AutoTuneDuration = 0;
+    Data->SlopeTempChange = 99*100;
+
+    // Set the sampling time
+    for (i = 0; i < Data->NumberPid; i++) {
+        Data->PidParams[i].Ts = 100;
+    }
+
+    TempPhase = PHASE_HEAT;
+
+    for (i = 0; i < Data->NumberPid; i++) {
+        tempPidReset(&Data->PidParams[i]);
+    }
+    tempHeaterReset();
+    Data->State = STATE_IDLE;
+    Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
+
+#endif
+
+
+#if 0
+
+    Channel = 2;
+    Data = &DataTable[bmGetInstance(Channel)];
+    ///////////////////////////////////////////////////////////
+    // Set PID parameters
+    Data = &DataTable[bmGetInstance(Channel)];
+    Data->PidParams[0].Ready = TRUE;
+    Data->PidParams[0].MaxTemp = 90 * 100;
+    Data->PidParams[0].Kc = 6000;
+    Data->PidParams[0].Ti = 1000;
+    Data->PidParams[0].Td = 80;
+    tempPidReset(&Data->PidParams[1]);
+    
+    //if (0 == Data->NumberPid - 1) {
+        Data->PidParams[0].Range = MAX_INT16;
+    //}
+
+    //////////////////////////////////////////////////////////
+    // Current watchdog
+    tempHeaterParams->CurrentGain = 7813;
+    tempHeaterParams->DesiredCurrent = 3000;
+    tempHeaterParams->DesiredCurThreshold = 2500;
+
+
+    //////////////////////////////////////////////////////////
+    // Set Temperature
+     
+    Data->Flags = 1;
+    Data->DesiredTemp = 6600;
+    Data->ToleranceTemp = 500;
+    TempSamplingTime = 500;
+    Data->AutoTuneDuration = 0;
+    Data->SlopeTempChange = 99*100;
+
+    // Set the sampling time
+    for (i = 0; i < Data->NumberPid; i++) {
+        Data->PidParams[i].Ts = 100;
+    }
+
+    TempPhase = PHASE_HEAT;
+
+    for (i = 0; i < Data->NumberPid; i++) {
+        tempPidReset(&Data->PidParams[i]);
+    }
+    tempHeaterReset();
+    Data->State = STATE_IDLE;
+    Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
+
+#endif
+
 
     return (NO_ERROR);
 }

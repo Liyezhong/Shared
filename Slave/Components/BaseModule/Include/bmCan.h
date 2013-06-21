@@ -110,35 +110,35 @@ typedef enum {
 
 // CAN-IDs for Boot Loader Messages
 //! Update required message, the boot loader is waiting for a firmware update
-#define MSG_ASM_UPDATE_REQUIRED     BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 0, 0)
+#define MSG_SYS_UPDATE_REQUIRED     BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 0, 0)
 //! Update request message, the master is ready to perform the update
-#define MSG_ASM_UPDATE_MODE_REQUEST BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 1, 1)
+#define MSG_SYS_UPDATE_MODE_REQUEST BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 1, 1)
 //! Acknowledgement of the update request message
-#define MSG_ASM_UPDATE_MODE_ACK     BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 1, 0)
+#define MSG_SYS_UPDATE_MODE_ACK     BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 1, 0)
 //! Header message of the actual firmware update process
-#define MSG_ASM_UPDATE_HEADER       BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 2, 1)
+#define MSG_SYS_UPDATE_HEADER       BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 2, 1)
 //! Acknowledgement of the update header message
-#define MSG_ASM_UPDATE_HEADER_ACK   BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 2, 0)
+#define MSG_SYS_UPDATE_HEADER_ACK   BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 2, 0)
 //! Data message of the actual firmware update process, flow control bit 0
-#define MSG_ASM_UPDATE_DATA_0       BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 3, 1)
+#define MSG_SYS_UPDATE_DATA_0       BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 3, 1)
 //! Acknowledgement of the update data message, flow control bit 0
-#define MSG_ASM_UPDATE_ACK_0        BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 3, 0)
+#define MSG_SYS_UPDATE_ACK_0        BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 3, 0)
 //! Data message of the actual firmware update process, flow control bit 1
-#define MSG_ASM_UPDATE_DATA_1       BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 4, 1)
+#define MSG_SYS_UPDATE_DATA_1       BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 4, 1)
 //! Acknowledgement of the update data message, flow control bit 1
-#define MSG_ASM_UPDATE_ACK_1        BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 4, 0)
+#define MSG_SYS_UPDATE_ACK_1        BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 4, 0)
 //! Trailer message of the actual firmware update process
-#define MSG_ASM_UPDATE_TRAILER      BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 5, 1)
+#define MSG_SYS_UPDATE_TRAILER      BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 5, 1)
 //! Acknowledgement of the update trailer message
-#define MSG_ASM_UPDATE_TRAILER_ACK  BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 5, 0)
+#define MSG_SYS_UPDATE_TRAILER_ACK  BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 5, 0)
 //! Update info init message with info type and size.
-#define MSG_ASM_UPDATE_INFO_INIT    BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 6, 1)
+#define MSG_SYS_UPDATE_INFO_INIT    BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 6, 1)
 //! Acknowledgement of the update info init message
-#define MSG_ASM_UPDATE_INFO_INIT_ACK BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 6, 0)
+#define MSG_SYS_UPDATE_INFO_INIT_ACK BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 6, 0)
 //! Update info message of the actual info update process
-#define MSG_ASM_UPDATE_INFO         BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 7, 1)
+#define MSG_SYS_UPDATE_INFO         BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 7, 1)
 //! Acknowledgement of the update info message
-#define MSG_ASM_UPDATE_INFO_ACK     BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 7, 0)
+#define MSG_SYS_UPDATE_INFO_ACK     BUILD_CAN_ID(CMD_CLASS_ASSEMBLY, 7, 0)
 
 //! Macro to build error codes
 #define BL_BUILD_ERRCODE(Class,Code) BUILD_ERRCODE(MODULE_ID_BOOTLOADER, Class, Code)

@@ -30,13 +30,13 @@
 namespace DataLogging {
 
 static const int DAYEVENTLOGGER_FORMAT_VERSION = 1;     ///< Format version.
-const QString EVENTLOG_TEMP_FILE_NAME = "Colorado_Events_Tmp.log"; ///< Event log temporary file name
+const QString EVENTLOG_TEMP_FILE_NAME = "Himalaya_Events_Tmp.log"; ///< Event log temporary file name
 
 /****************************************************************************/
 DayEventLogger::DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& fileNamePrefix)
     : BaseLoggerReusable(pParent, TheLoggingSource, DAYEVENTLOGGER_FORMAT_VERSION)
     , m_MaxFileCount(0)
-    , m_FileNamePrefix(fileNamePrefix)  // e.g. 'ColoradoEvents_'
+    , m_FileNamePrefix(fileNamePrefix)  // e.g. 'HimalayaEvents_'
 {
 }
 
@@ -74,21 +74,21 @@ void DayEventLogger::SwitchToNewFile() {
 
 
 /****************************************************************************/
-void DayEventLogger::Log(const DayEventEntry &Entry) {    
+void DayEventLogger::Log(const DayEventEntry &Entry) {
 
-    // translate event type
-    quint32 IDStrEvtType = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
-    const Global::EventType EventType = Entry.GetEventType();
-    switch(EventType) {
-        case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
-        case Global::EVTTYPE_FATAL_ERROR:   IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
-        case Global::EVTTYPE_ERROR:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
-        case Global::EVTTYPE_WARNING:       IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
-        case Global::EVTTYPE_INFO:          IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
-        case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
-        default:                            break;
-    }
-    QString TrEventType = Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType);
+        // translate event type
+        quint32 IDStrEvtType = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
+        const Global::EventType EventType = Entry.GetEventType();
+        switch(EventType) {
+            case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
+            case Global::EVTTYPE_FATAL_ERROR:   IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
+            case Global::EVTTYPE_ERROR:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
+            case Global::EVTTYPE_WARNING:       IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
+            case Global::EVTTYPE_INFO:          IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
+            case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
+            default:                            break;
+        }
+        QString TrEventType = Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType);
 
     const Global::AlternateEventStringUsage AltStringUsage = Entry.GetAltStringUsageType();
     bool UseAltEventString = false;
@@ -100,75 +100,75 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             UseAltEventString = true;
     }
     qDebug()<<"\n\n\nUse Alternate Strings" << UseAltEventString;
-    // translate message
+        // translate message
     QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventCode(), Entry.GetString()),
                                                                                       UseAltEventString);
-    if (TrEventMessage.length() == 0)
-    {
-        TrEventMessage = Entry.GetEventName();
-        if (Entry.GetString().count() > 0)
+        if (TrEventMessage.length() == 0)
         {
-            TrEventMessage += " (";
+            TrEventMessage = Entry.GetEventName();
+            if (Entry.GetString().count() > 0)
+            {
+                TrEventMessage += " (";
+            }
+            foreach (Global::TranslatableString s, Entry.GetString())
+            {
+                TrEventMessage += s.GetString() + " ";
+            }
+            if (Entry.GetString().count() > 0)
+            {
+                TrEventMessage += ")";
+            }
         }
-        foreach (Global::TranslatableString s, Entry.GetString())
+        if (!Entry.IsEventActive())
         {
-            TrEventMessage += s.GetString() + " ";
-        }
-        if (Entry.GetString().count() > 0)
-        {
-            TrEventMessage += ")";
-        }
-    }
-    if (!Entry.IsEventActive())
-    {
         TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
-    }
+        }
 
-    QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
+        QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
     QString AlternateString = UseAltEventString ? "true" : "false";
 
-    QString ParameterString = "";
-    foreach (Global::TranslatableString s, Entry.GetString())
-    {
-        ParameterString += s.GetString() +";";
-    }
-
-    QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
-                            QString::number(Entry.GetEventCode(), 10) + ";" +
-                            TrEventType + ";" +
-                            TrEventMessage + ";" +
-                            ShowInRunLog + ";" +
-                            /*AlternateString + ";" +*/
-                            ParameterString + "\n";
-
-    // check if we must printout to console (because we sent it to the data logger
-    // and we have to avoid a ping pong of error messages)
-    Global::EventSourceType SourceType = Entry.GetSourceComponent();
-    if(( SourceType == Global::EVENTSOURCE_DATALOGGER) &&
-        ((Entry.GetEventType() == Global::EVTTYPE_FATAL_ERROR) || (Entry.GetEventType() == Global::EVTTYPE_ERROR)))
-    {
-        // we sent this error message.
-
-        // Put it to console since we could not write at that time.
-        Global::ToConsole(LoggingString);
-    }
-    else
-    {
-        // check if date changed
-        QDate Now = Global::AdjustedTime::Instance().GetCurrentDate();
-        if(m_LastLogDate != Now)
+        QString ParameterString = "";
+        foreach (Global::TranslatableString s, Entry.GetString())
         {
-            m_LastLogDateBackUp = m_LastLogDate;
-            // remember new date
-            m_LastLogDate = Now;
-            // switch to new file
-            SwitchToNewFile();
+            ParameterString += s.GetString() +";";
         }
+
+        QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
+                                QString::number(Entry.GetEventCode(), 10) + ";" +
+                                TrEventType + ";" +
+                                TrEventMessage + ";" +
+                                ShowInRunLog + ";" +
+                            /*AlternateString + ";" +*/
+                                ParameterString + "\n";
+
+        // check if we must printout to console (because we sent it to the data logger
+        // and we have to avoid a ping pong of error messages)
+        Global::EventSourceType SourceType = Entry.GetSourceComponent();
+        if(( SourceType == Global::EVENTSOURCE_DATALOGGER) &&
+            ((Entry.GetEventType() == Global::EVTTYPE_FATAL_ERROR) || (Entry.GetEventType() == Global::EVTTYPE_ERROR)))
+        {
+            // we sent this error message.
+
+            // Put it to console since we could not write at that time.
+            Global::ToConsole(LoggingString);
+        }
+        else
+        {
+            // check if date changed
+            QDate Now = Global::AdjustedTime::Instance().GetCurrentDate();
+            if(m_LastLogDate != Now)
+            {
+                m_LastLogDateBackUp = m_LastLogDate;
+                // remember new date
+                m_LastLogDate = Now;
+                // switch to new file
+                SwitchToNewFile();
+            }
         // check if file ready for logging - usually this log file open at the
         // start of the Data Logging component now this causes the recursive call
         // so create the temporay file to log the data
         if(!IsLogFileOpen() && !IsLogFileError())
-        {
+            {
             // compute new file name
             QDir Dir(GetPath());
             QString CompleteFileName(QDir::cleanPath(Dir.absoluteFilePath(EVENTLOG_TEMP_FILE_NAME)));
@@ -183,28 +183,28 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
                 // write the header of the file
                 WriteHeader();
             }
+            }
+            // append data to file and flush
+            //qDebug() << "DayEventLogger::Log" << LoggingString;
+            AppendLine(LoggingString);
         }
-        // append data to file and flush
-        //qDebug() << "DayEventLogger::Log" << LoggingString;
-        AppendLine(LoggingString);
-    }
 
 }
 
 /****************************************************************************/
 void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
 
-    // save configuration
-    SetConfiguration(Config.GetOperatingMode(), Config.GetSerialNumber(), Config.GetPath());
-    m_MaxFileCount = Config.GetMaxFileCount();
-    // Time is stored to overcome the problem created when the number of files
-    // have reached max count and SwitchToNew file removes the oldest file even
-    // though the date is same
-    m_LastLogDate = Global::AdjustedTime::Instance().GetCurrentDate();
-    m_LastLogDateBackUp = m_LastLogDate;
-    m_FileNamePrefix = Config.GetBaseFileName();
-    // switch to new file
-    SwitchToNewFile();
+        // save configuration
+        SetConfiguration(Config.GetOperatingMode(), Config.GetSerialNumber(), Config.GetPath());
+        m_MaxFileCount = Config.GetMaxFileCount();
+        // Time is stored to overcome the problem created when the number of files
+        // have reached max count and SwitchToNew file removes the oldest file even
+        // though the date is same
+        m_LastLogDate = Global::AdjustedTime::Instance().GetCurrentDate();
+        m_LastLogDateBackUp = m_LastLogDate;
+        m_FileNamePrefix = Config.GetBaseFileName();
+        // switch to new file
+        SwitchToNewFile();
 
 }
 

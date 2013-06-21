@@ -152,23 +152,26 @@ static Error_t tempTimeVerifyPartition (const TempTimeParams_t *Params, UInt16 C
 Error_t tempTimeInit (UInt16 ModuleID, UInt16 Instance, TempTimeParams_t *Params, UInt8 NumberHeaters)
 {
     UInt8 i;
+    Error_t Error;
     UInt16 Size;
-
+    
     Params->Start = GET_PARAM_SIZE (PARAM_LAYOUT_VERSION);
     Size = Params->Start + NumberHeaters * sizeof(UInt32);
-
+    
+    printf("Temp size:%d\n", Size);
+    
     // Open storage
     Params->Handle = bmOpenPermStorage (ModuleID, Instance, Size);
     if (Params->Handle < 0) {
         return (Params->Handle);
     }
-
+    
     // Allocate parameter ranges
     Params->PermDataTable = calloc (NumberHeaters + 1, sizeof(bmParamRange_t));
     if (Params->PermDataTable == NULL) {
         return (E_MEMORY_FULL);
     }
-
+    
     Params->PermDataTable[0].Address = PARAM_LAYOUT_VERSION;
     Params->PermDataTable[0].MinValue = 1;
     Params->PermDataTable[0].MaxValue = PARTITION_VERSION;
@@ -182,8 +185,13 @@ Error_t tempTimeInit (UInt16 ModuleID, UInt16 Instance, TempTimeParams_t *Params
     }
 
     Params->NumberHeaters = NumberHeaters;
-
-    return (tempTimeVerifyPartition (Params, bmGetChannel(bmGetTaskID(ModuleID, Instance))));
+    
+    Error = tempTimeVerifyPartition (Params, bmGetChannel(bmGetTaskID(ModuleID, Instance)));
+    if (Error != NO_ERROR) {
+        return Error;
+    }
+    
+    return (Error);
 }
 
 /*****************************************************************************/
@@ -198,7 +206,7 @@ Error_t tempTimeInit (UInt16 ModuleID, UInt16 Instance, TempTimeParams_t *Params
  *  \iparam  Params = Lifetime counter data structure
  *  \iparam  Number = Number of the heating element
  *
- *  \return  Timestamp in seconds
+ *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 

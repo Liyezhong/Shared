@@ -122,21 +122,18 @@
 #define TIM2_MODE_CAPCOM3   0x1101   //!< Unit 3: Capture Index input
 #define TIM2_MODE_CAPCOM4   0x0000   //!< Unit 4: Compare, output disable
 
-#ifndef ENCODER_SHIFTER
-    // Timer 4 programmed for the PWM signal to the photo electric transmitter
-    #define TIM4_MODE_MASTER    0x0000   //!< Timer slave mode
-    #define TIM4_MODE_CAPCOM1   0x0000   //!< Unit 1: Disable input/output
-    #define TIM4_MODE_CAPCOM2   0x0000   //!< Unit 2: Disable input/output
-    #define TIM4_MODE_CAPCOM3   0x6C01   //!< Unit 3: Laser control PWM output
-    #define TIM4_MODE_CAPCOM4   0x0000   //!< Unit 4: Disable input/output
-#else
-    // Timer 4 programmed for quadrature encoder Encoder_SFT_EQEP1
-    #define TIM4_MODE_MASTER    0x0000   //!< Timer slave mode
-    #define TIM4_MODE_CAPCOM1   0x1100   //!< Unit 1: Encoder input A
-    #define TIM4_MODE_CAPCOM2   0x1100   //!< Unit 2: Encoder input B
-    #define TIM4_MODE_CAPCOM3   0x1101   //!< Unit 3: Capture Index input
-    #define TIM4_MODE_CAPCOM4   0x0000   //!< Unit 4: Compare, output disable
-#endif
+// Timer 4 programmed for quadrature encoder Encoder_SFT_EQEP1
+/*#define TIM4_MODE_MASTER    0x0000   //!< Timer slave mode
+#define TIM4_MODE_CAPCOM1   0x1100   //!< Unit 1: Encoder input A
+#define TIM4_MODE_CAPCOM2   0x1100   //!< Unit 2: Encoder input B
+#define TIM4_MODE_CAPCOM3   0x1101   //!< Unit 3: Capture Index input
+#define TIM4_MODE_CAPCOM4   0x0000   //!< Unit 4: Compare, output disable*/
+// Timer 4 programmed for the PWM signal to the photo electric transmitter
+#define TIM4_MODE_MASTER    0x0000   //!< Timer slave mode
+#define TIM4_MODE_CAPCOM1   0x0000   //!< Unit 1: Disable input/output
+#define TIM4_MODE_CAPCOM2   0x0000   //!< Unit 2: Disable input/output
+#define TIM4_MODE_CAPCOM3   0x6C01   //!< Unit 3: Laser control PWM output
+#define TIM4_MODE_CAPCOM4   0x0000   //!< Unit 4: Disable input/output
 
 /********************************************************************************/
 /*
@@ -201,11 +198,8 @@
 // | 1 | PD12 | PD13 | PD14 | PD15 | PE00 |
 //  --------------------------------------
 //
-#ifndef ENCODER_SHIFTER
-    #define MAPPING_TIMER4   0   //!< Configured timer 4 pin mapping
-#else
-    #define MAPPING_TIMER4   1   //!< Configured timer 4 pin mapping
-#endif
+#define MAPPING_TIMER4   0   //!< Configured timer 4 pin mapping
+
 //********************************************************************************/
 // Pin Mapping for Timer 5:
 //  --------------------------------------   F100, F10x: Present on high and

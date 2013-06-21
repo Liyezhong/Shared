@@ -47,7 +47,7 @@ static const Int16 tempPidHysteresis = 40;          //!< Hystersis factor for re
 
 /*****************************************************************************/
 /*! 
- *  \brief  Resets the input and output parameters of the PID controller
+ *  \brief Resets the input and output parameters of the PID controller
  *
  *      This method sets all input and output parameters of the PID controller
  *      to null. This is needed when the controller operation is stopped and
@@ -67,7 +67,7 @@ void tempPidReset (TempPidParams_t *Param)
 
 /*****************************************************************************/
 /*! 
- *  \brief  Checks PID parameters
+ *  \brief Checks PID parameters
  *
  *      This method checks if the parameters of the PID controller have been
  *      set and if they are in a valid range.
@@ -107,7 +107,7 @@ Int16 tempPidGetOutput (const TempPidParams_t *Param)
 
 /*****************************************************************************/
 /*! 
- *  \brief  Implements a PID controller
+ *  \brief Implements a PID controller
  *
  *      This method implements a PID controller. It receives the difference
  *      between the actual and the desired temperature and the parameters 
@@ -167,15 +167,15 @@ Bool tempPidCalculate (TempPidParams_t *Param, Int16 DesiredTemp, UInt16 ActualT
     
     Param->Error = Error;
     
+    //printf("P:%d %d %d %d, %d\n", Proportional, Param->Integral, Error, Param->Output, ActualTemp);
+    
     return TRUE;
 }
 
 
 /*****************************************************************************/
 /*! 
- *  \brief  Starts the PID auto tuning process
- *
- *  \remark This function is currently not used.
+ *  \brief Starts the PID auto tuning process
  *
  *      This method starts the auto tuning algorithm of the PID controller. It
  *      checks, if the process can be started and initializes the internal
@@ -198,8 +198,6 @@ void tempPidAutoStart (TempPidParams_t *Param)
 /*****************************************************************************/
 /*! 
  *  \brief Controls the auto tuning process
- *
- *  \remark This function is currently not used.
  *
  *      This method is instantly called by the task function. It controls the
  *      auto tuning process and computes and returns the actuating value for
@@ -259,9 +257,7 @@ void tempPidAutoProgress (TempPidParams_t *Param, UInt16 DesiredTemp, UInt16 Act
 
 /*****************************************************************************/
 /*! 
- *  \brief  Stops the auto tuning process
- *
- *  \remark This function is currently not used.
+ *  \brief Stops the auto tuning process
  *
  *      This method stops the auto tuning algorithm and evaluates the values
  *      measured during the process. It returns the control parameters for the

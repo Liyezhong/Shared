@@ -15,7 +15,7 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- * \warning This object lives in ColoradoMaster Thread
+ * \warning This object lives in HimalayaMaster Thread
  */
 /****************************************************************************/
 
@@ -88,7 +88,7 @@ namespace Global {
 /**
  * \brief Singleton class for Collecting and forwarding Events raised
  *
- * \warning This object lives in ColoradoMaster Thread
+ * \warning This object lives in HimalayaMaster Thread
  */
 /****************************************************************************/
 class EventObject : public QObject {

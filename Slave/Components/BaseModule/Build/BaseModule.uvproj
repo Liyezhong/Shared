@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="project_proj.xsd">
 
-  <SchemaVersion>1.1</SchemaVersion>
+  <SchemaVersion>1.0</SchemaVersion>
 
   <Header>### uVision Project, (C) Keil Software</Header>
 
@@ -29,7 +29,6 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\ST\STM32F10xx\STM32F10xxB.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -331,8 +330,8 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
-            <oTime>1</oTime>
+            <Optim>1</Optim>
+            <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -472,11 +471,6 @@
               <FilePath>..\Include\bmTime.h</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Include\bmUpdate.h</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Include\bmUtilities.h</FilePath>
@@ -570,11 +564,6 @@
               <FileName>bmTime.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\bmTime.c</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\bmUpdate.c</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.c</FileName>

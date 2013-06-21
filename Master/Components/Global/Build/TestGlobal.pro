@@ -12,4 +12,4 @@ SOURCES +=  ../Source/*.cpp \
 
 
 
-INCLUDEPATH += ../../../../../Colorado/ColoradoMain/Gui/Test/Components/
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Gui/Test/Components/

@@ -83,14 +83,26 @@ const UInt32 halCanDefaultBitrate = 500000;   //!< CAN bus baudrate [Hz]
  ***********************************************************************************/
 
 const halPinDesciptor_t halPinDescriptors[] = {
+//    { PORT_A,  0, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN0/TempMeas1
+//    { PORT_A,  1, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN1/TempMeas2
+//    { PORT_A,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN2/TempMeas3
+//    { PORT_A,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN3/TempMeas4
+//    { PORT_A,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN4/TempMeas5
+//    { PORT_A,  6, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN5/TempMeas6
+//    { PORT_A,  7, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN6/TempMeas7
+//    { PORT_A,  8, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN7/TempMeas8
+
+
     { PORT_A,  0, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN0/TempMeas1
     { PORT_A,  1, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN1/TempMeas2
-    { PORT_A,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN2/TempMeas3
-    { PORT_A,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN3/TempMeas4
-    { PORT_A,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN4/TempMeas5
-    { PORT_A,  6, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN5/TempMeas6
-    { PORT_A,  7, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN6/TempMeas7
-    { PORT_A,  8, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN7/TempMeas8
+    { PORT_A,  2, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN2/TempMeas3
+    { PORT_A,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN3/TempMeas4
+    { PORT_A,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN4/TempMeas5
+    { PORT_A,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN5/TempMeas6
+    { PORT_A,  6, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN6/TempMeas7
+    { PORT_A,  7, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN7/TempMeas8
+
+
     { PORT_A, 11, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN1 RX
     { PORT_A, 12, PIN_MUX_SFIO, PIN_TYP_DOUT10, PIN_OPT_NONE }, // CAN1 TX
 
@@ -100,13 +112,17 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  0, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN10/MainsCurrentMeasurement
     { PORT_C,  1, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN11/Supply Current
     { PORT_C,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN14/Supply Voltage
-    { PORT_C,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette1
-    { PORT_C,  7, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette2
-    { PORT_C,  8, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette3
-    { PORT_C,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette4
-    { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Yellow
-    { PORT_C, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Red
-    { PORT_C, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Blue
+
+
+//    { PORT_C,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette1
+//    { PORT_C,  7, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette2
+//    { PORT_C,  8, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette3
+//    { PORT_C,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette4
+
+    { PORT_C,  7, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette1
+    { PORT_C,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette2
+    { PORT_C,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette3
+    { PORT_C,  8, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette4
 
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBKA
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
@@ -114,6 +130,10 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D,  3, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID2
     { PORT_D,  4, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID1
     { PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // MainVoltageSwitchRelayControl
+
+    { PORT_E,  4, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
+    { PORT_E,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
+    { PORT_E,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
 };
 
 const UInt32 halPinDescriptorCount = ELEMENTS(halPinDescriptors);
@@ -146,15 +166,27 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_CAN_NODE_INDEX,     DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
     { HAL_CAN_LOOPBACK,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
-    { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 13, 1, 0, 0 },
-    { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 15, 1, 0, 0 },
-    { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 14, 1, 0, 0 },
+    { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  6, 1, 0, 0 },
+    { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  4, 1, 0, 0 },
+    { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  5, 1, 0, 0 },
 
     { HAL_TEMP_MAINVOLTAGE_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  9, 1, 0, 0 },
-    { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
-    { HAL_TEMP_CTRLHEATING_1, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  7, 1, 0, 0 },
-    { HAL_TEMP_CTRLHEATING_2, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
+
+#if 0  // For Retort
+    { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  7, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_1, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  9, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_2, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_3, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
+#endif
+
+
+#if 1  // For wax bath
+    { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_1, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_2, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  7, 1, 0, 0 },
     { HAL_TEMP_CTRLHEATING_3, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  9, 1, 0, 0 },
+#endif
+
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
@@ -181,17 +213,42 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  ***********************************************************************************/
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
-    { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 33000, 0 },
+    { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 30000, 0 },
     { HAL_SUPPLY_CURRENT,    DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
     { HAL_TEMP_CURRENT_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 10, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  3, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
+
+    
+#if 0  // For retort
+
+    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_INTERN, 12,  3, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+
+
+    { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_6,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
+
+#endif
+
+
+#if 1
+    // For wax bath
+    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
+
+
+
+    { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  3, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_6,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+    //{ HAL_TEMP_SENSOR_8,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+#endif
+
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 

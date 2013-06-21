@@ -78,7 +78,7 @@
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1068,11 +1068,6 @@
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmUtilities.h</FilePath>
@@ -1220,11 +1215,6 @@
               <FileName>bmTime.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.c</FileName>
@@ -2534,11 +2524,6 @@
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmUtilities.h</FilePath>
@@ -2632,11 +2617,6 @@
               <FileName>bmTime.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.c</FileName>
@@ -3622,11 +3602,6 @@
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmUtilities.h</FilePath>
@@ -3720,11 +3695,6 @@
               <FileName>bmTime.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.c</FileName>

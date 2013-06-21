@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file   Adjustment.h
+/*! \file Adjustment.h
  *
- *  \brief  Definition file for class CAdjustment
+ *  \brief Definition file for class CAdjustment
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-12-21

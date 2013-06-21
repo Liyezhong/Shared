@@ -95,8 +95,8 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_A, 11, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN1 RX
     { PORT_A, 12, PIN_MUX_SFIO, PIN_TYP_DOUT10, PIN_OPT_NONE }, // CAN1 TX
 
-    { PORT_B,  6, PIN_MUX_SFIO, PIN_TYP_DOUT10, PIN_OPT_OPENDR }, // I2C1/SCL
-    { PORT_B,  7, PIN_MUX_SFIO, PIN_TYP_DOUT10, PIN_OPT_OPENDR }, // I2C1/SDA
+    { PORT_B,  6, PIN_MUX_SFIO, PIN_TYP_DOUT50, PIN_OPT_OPENDR }, // I2C1/SCL
+    { PORT_B,  7, PIN_MUX_SFIO, PIN_TYP_DOUT50, PIN_OPT_OPENDR }, // I2C1/SDA
     { PORT_B, 11, PIN_MUX_GPIO, PIN_TYP_DOUT50, PIN_OPT_NONE }, // TempADC_#CS
     { PORT_B, 12, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // TempADC_Dout#RDY
     { PORT_B, 13, PIN_MUX_SFIO, PIN_TYP_DOUT50, PIN_OPT_NONE }, // TempADC_SCLK (SPI2_SCK)
@@ -108,9 +108,6 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  2, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN12/STP Current A
     { PORT_C,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN13/STP Current B
     { PORT_C,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN14/Supply Voltage
-    { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Yellow
-    { PORT_C, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Red
-    { PORT_C, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Blue
 
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBKA
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
@@ -120,8 +117,16 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl1
     { PORT_D, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl2
 
+    // Only for the bad ASB board
+#if 0
+    { PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl2
+#endif
+
     { PORT_E,  0, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LimitSwitch2
     { PORT_E,  1, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // MainVoltageSwitchRelayControl
+    { PORT_E,  4, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
+    { PORT_E,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
+    { PORT_E,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
     { PORT_E, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // STP1 ENN
     { PORT_E, 13, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // STP1 SG
     { PORT_E, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // STP1 STEP
@@ -158,20 +163,32 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_CAN_NODE_INDEX,     DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
     { HAL_CAN_LOOPBACK,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
-    { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 13, 1, 0, 0 },
-    { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 15, 1, 0, 0 },
-    { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 14, 1, 0, 0 },
+    { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  6, 1, 0, 0 },
+    { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  4, 1, 0, 0 },
+    { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  5, 1, 0, 0 },
 
     { HAL_STEPPER1_ENABLE,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 12, 1, 1, 0 },
     { HAL_STEPPER1_LIMIT1,    DIR_INPUT,  BUS_TYPE_INTERN, PORT_A,  3, 1, 1, 0 },
     { HAL_STEPPER1_LIMIT2,    DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  0, 1, 1, 0 },
     { HAL_STEPPER1_SELECT,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_A,  4, 1, 0, 0 },
 
+#if 1
     { HAL_SPI_SELECT_0,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 11, 1, 0, 0 },
     { HAL_TEMP_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },
     { HAL_TEMP_FANCONTROL_1,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 },
     { HAL_TEMP_MAINVOLTAGE_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  1, 1, 0, 0 },
     { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_A,  9, 1, 0, 0 },
+#endif
+
+    // Only for the bad ASB board
+#if 0
+    { HAL_SPI_SELECT_0,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 11, 1, 0, 0 },
+    { HAL_TEMP_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  9, 1, 0, 0 },
+    { HAL_TEMP_FANCONTROL_1,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 },
+    { HAL_TEMP_MAINVOLTAGE_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  1, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },
+#endif
+
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
@@ -198,14 +215,14 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  ***********************************************************************************/
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
-    { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6,  33000, 0 },
+    { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6,  30000, 0 },
     { HAL_SUPPLY_CURRENT,    DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,    750, 0 },
     { HAL_STEPPER1_PHASEA,   DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,   3000, 0 },
     { HAL_STEPPER1_PHASEB,   DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,   3000, 0 },
     { HAL_TEMP_CURRENT_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 10, 6,   3000, 0 },
     { HAL_TEMP_COMPENSATE_0, DIR_INPUT, BUS_TYPE_AD779x, 24,  0, 0,  18000, 0 },
-    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_AD779x, 24,  1, 0,  18281, 0 },
-    { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_AD779x, 24,  2, 0,  18281, 0 },
+    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_AD779x, 24,  1, 0, -18281, 0 },
+    { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_AD779x, 24,  2, 0, -18281, 0 },
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 
@@ -328,7 +345,7 @@ const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
 const halSerialDescriptor_t halSerialDescriptors[] = {
     { HAL_CAN_SYSTEM, 0,                SIO_TYPE_CAN, 1, 0,  500000 },
-    { HAL_BUS_I2C_A,  0,                SIO_TYPE_I2C, 1, 0,  400000 },
+    { HAL_BUS_I2C_A,  0,                SIO_TYPE_I2C, 1, 0,  400000 },                  
     { HAL_BUS_SPI_A,  HAL_SPI_SELECT_0, SIO_TYPE_SPI, 1, 1, 4500000 }
 };
 const UInt32 halSerialDescriptorCount = ELEMENTS(halSerialDescriptors);

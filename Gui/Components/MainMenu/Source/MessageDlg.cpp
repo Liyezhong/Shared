@@ -122,13 +122,13 @@ void CMessageDlg::SetIcon(QMessageBox::Icon Icon)
 {
     switch (Icon) {
         case QMessageBox::Information:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case QMessageBox::Warning:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case QMessageBox::Critical:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         default:
             mp_Ui->labelIcon->setPixmap(QPixmap());

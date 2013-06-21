@@ -338,7 +338,7 @@ private:
 
     CANMessageConfiguration* m_pCANMessageConfiguration;    //!< Pointer to the CAN message configuration class
 
-    //colorado device processing classes
+    //himalaya device processing classes
     CConfigurationService* m_pConfigurationService; //!< configuration service class
     CDiagnosticService* m_pDiagnosticService;       //!< diagnostig operation service class
     CAdjustmentService* m_pAdjustmentService;       //!< adjustment service class

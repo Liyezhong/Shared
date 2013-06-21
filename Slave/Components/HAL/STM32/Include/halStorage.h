@@ -58,7 +58,6 @@ UInt32  halStorageSize  (Handle_t Handle);
 UInt32  halStorageBase  (Handle_t Handle);
 
 Error_t halStorageProtect (Handle_t Handle, Bool State);
-Error_t halStorageWait (Handle_t Handle);
 
 //****************************************************************************/
 

@@ -39,7 +39,8 @@ typedef enum {
     NTC10K3A1I, //!< Betatherm NTC 10K3A1I thermistor
     AD595,      //!< Analog Devices AD595 thermocouple amplifier
     TYPET,      //!< Thermocouple of type T (IEC 584)
-    PT1000      //!< PT1000 resistance thermometer
+    PT1000,     //!< PT1000 resistance thermometer
+    NTCGT103F
 } TempSensorType_t;
 
 //****************************************************************************/

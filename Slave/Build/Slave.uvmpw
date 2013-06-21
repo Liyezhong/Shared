@@ -9,125 +9,65 @@
 
   <project>
     <PathAndName>..\Components\BaseModule\Build\BaseModule.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\HAL\STM32\Build\HAL.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\AnalogInput\Build\AnalogInput.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\AnalogOutput\Build\AnalogOutput.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\DigitalInput\Build\DigitalInput.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\DigitalOutput\Build\DigitalOutput.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\Joystick\Build\Joystick.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\RfidIso11785\Build\RfidIso11785.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\RfidIso15693\Build\RfidIso15693.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\Steppermotor\Build\Steppermotor.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\Temperature\Build\Temperature.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\Uart\Build\Uart.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
-    <PathAndName>..\Components\Boards\ASB1\Build\ASB1.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB2\Build\ASB2.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB3\Build\ASB3.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB4\Build\ASB4.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB5\Build\ASB5.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB8a\Build\ASB8a.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB8b\Build\ASB8b.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB10\Build\ASB10.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB12\Build\ASB12.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASB13\Build\ASB13.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\ASBJM\Build\ASBJM.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\SABa\Build\SABa.uvproj</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>..\Components\Boards\SABb\Build\SABb.uvproj</PathAndName>
+    <PathAndName>..\Components\FunctionModules\Pressure\Build\Pressure.uvproj</PathAndName>
     <NodeIsActive>1</NodeIsActive>
   </project>
 

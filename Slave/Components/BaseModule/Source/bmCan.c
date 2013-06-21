@@ -130,7 +130,7 @@ Error_t canWriteMessage (UInt16 Channel, CanMessage_t *Message) {
         if (canQueueCount(&SendQueue) > 0) {
             halCanControl (CanHandle, CAN_INTR_TxREADY, ON);
         }
-        dbgPrintCanMessage (Message, 'w');
+        //dbgPrintCanMessage (Message, 'w');
 
         return (NO_ERROR);
     }
@@ -171,7 +171,7 @@ Error_t canReadMessage (UInt16 *Channel, CanMessage_t *Message) {
             if (Channel != NULL) {
                 *Channel = GET_CANiD_CHANNEL(Message->CanID);
             }
-            dbgPrintCanMessage (Message, 'r');
+            //dbgPrintCanMessage (Message, 'r');
         }
         return (Count);
     }
@@ -267,9 +267,7 @@ static void canHandleTxInterrupt (void) {
         if (halCanWrite (CanHandle, &Message) > 0) {
             canSkipQueue (&SendQueue, 1);
         }
-        else {
-            break;
-        }
+        else break;
     }
     if (canQueueCount(&SendQueue) == 0) {
         halCanControl (CanHandle, CAN_INTR_TxREADY, OFF);
@@ -656,7 +654,7 @@ Error_t canInitializeLayer (void) {
     if ((Count = canSetupAcceptFilters (Filters, ELEMENTS(Filters))) < 0) {
         return (CanHandle);
     }
-    if ((CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, canHandleInterrupts, TRUE)) < 0) {
+    if ((CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, canHandleInterrupts)) < 0) {
         return (CanHandle);
     }
     if ((Status = halCanSetup(CanHandle, Filters, Count)) < 0) {

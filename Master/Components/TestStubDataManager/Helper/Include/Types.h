@@ -31,6 +31,34 @@ typedef QHash<QString, int> ListOfForecastValues_t;
 typedef QHash<quint32, Global::tTranslatableStringList> ErrorHash_t; //!< Self Explaining.
 //!< List of hash tables with Error IDs
 typedef QList<ErrorHash_t *>  ListOfErrors_t;
+
+//Station Status
+typedef enum {
+    DASHBOARD_RETORT_EMPTY_CLEAN,
+    DASHBOARD_RETORT_FULL,
+    DASHBOARD_RETORT_PARTIALLY_FILLED,
+    DASHBOARD_RETORT_EMPTY_POLLUTED,
+    DASHBOARD_PARAFFIN_EMPTY,
+    DASHBOARD_PARAFFIN_FULL,
+    DASHBOARD_PARAFFIN_PARTIALLY_FILLED,
+    DASHBOARD_PARAFFIN_EXPIRED,
+    DASHBOARD_PARAFFIN_NOT_IN_USE,
+    DASHBOARD_REAGENT_BOTTLE_EMPTY,
+    DASHBOARD_REAGENT_BOTTLE_FULL,
+    DASHBOARD_REAGENT_BOTTLE_PARTIALLY_FILLED,
+    DASHBOARD_REAGENT_BOTTLE_EXPIRED,
+    DASHBOARD_REAGENT_BOTTLE_NOT_IN_USE,
+    INVALID_STATUS
+} DashboardStationStatus_t;
+
+//Types of Stations
+typedef enum {
+    DASHBOARD_STATION_BOTTLE,
+    DASHBOARD_STATION_PARAFFIN,
+    DASHBOARD_STATION_RETORT,
+    INVALID_STATION
+} DashboardStationType_t;
+
 // Types of reagents
 typedef enum
 {
@@ -79,6 +107,7 @@ typedef enum
     PROGRAMSEQUENCE,
     RACKS,
     REAGENTS,
+    REAGENTGROUP,
     STATIONS,
     STATIONSGRID,
     BLGCONFIGURATION,

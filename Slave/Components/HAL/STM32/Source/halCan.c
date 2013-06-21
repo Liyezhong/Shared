@@ -198,7 +198,7 @@ static InterruptVector_t CanIntrVectors[ELEMENTS(DataTable)] = {0};
 //****************************************************************************/
 
 static Error_t halCanSetBaudrate (Handle_t Handle, UInt32 Bitrate);
-static Error_t halCanFindDevice  (Device_t DeviceID, Bool CheckHalStatus);
+static Error_t halCanFindDevice  (Device_t DeviceID);
 static Error_t halCanGetIndex    (Handle_t Handle);
 
 
@@ -217,22 +217,17 @@ static Error_t halCanGetIndex    (Handle_t Handle);
  *      to the handler function, e.g. as index into a data table in case 
  *      of multiple instances. 
  *
- *      If parameter 'CheckHalStatus' is FALSE, then the CAN device can
- *      be opened even if this module isn't initialized.
- *      For regular use 'CheckHalStatus' should be set to TRUE.
- *
- *  \iparam  DeviceID       = CAN device ID
- *  \iparam  UserTag        = User tag to pass thru to interrupt handler
- *  \iparam  Handler        = Interrupt handler function
- *  \iparam  CheckHalStatus = if true, then HAL is checked to be initialized
+ *  \iparam  DeviceID = CAN device ID
+ *  \iparam  UserTag  = User tag to pass thru to interrupt handler
+ *  \iparam  Handler  = Interrupt handler function
  *
  *  \return  Handle or (negative) error code
  *
  ****************************************************************************/
 
-Error_t halCanOpen (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler, Bool CheckHalStatus) {
+Error_t halCanOpen (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler) {
 
-    const Int32 Index = halCanFindDevice(DeviceID, CheckHalStatus);
+    const Int32 Index = halCanFindDevice(DeviceID);
     Error_t Status;
     UInt32 i;
 
@@ -730,21 +725,16 @@ void halCanInterruptHandler (UInt32 Channel, UInt32 IntrFlags) {
  *
  *      Searches the serial device descriptor for an entry with the asked
  *      DeviceID. If found, the index into the descrptor table is returned.
- *      If the requested hardware doesn't exist or the device isn't initialized,
- *      an error is returned.
+ *      If this module isn't initialized, the requested hardware doesn't
+ *      exist or the device isn't initialized, an error is returned.
  *
- *      If parameter 'CheckHalStatus' is FALSE, then the CAN device can
- *      be accessed even if this module isn't initialized.
- *      For regular use 'CheckHalStatus' should be set to TRUE.
- *
- *  \iparam  DeviceID       = Logical CAN device ID
- *  \iparam  CheckHalStatus = if true, then HAL is checked to be initialized
+ *  \iparam  DeviceID = Logical CAN device ID
  *
  *  \return  Descriptor table index or (negative) error code
  *
  ****************************************************************************/
 
-static Error_t halCanFindDevice (Device_t DeviceID, Bool CheckHalStatus) {
+static Error_t halCanFindDevice (Device_t DeviceID) {
 
     UInt32 Index;
 
@@ -752,10 +742,8 @@ static Error_t halCanFindDevice (Device_t DeviceID, Bool CheckHalStatus) {
 
         halInitState_t InitState = halGetInitState();
 
-        if (CheckHalStatus) {
-            if (InitState == INIT_NOT_DONE || InitState == INIT_FAILED) {
-                return (E_HAL_NOT_INITIALIZED);
-            }
+        if (InitState == INIT_NOT_DONE || InitState == INIT_FAILED) {
+            return (E_HAL_NOT_INITIALIZED);
         }
         for (Index=0; Index < halSerialDescriptorCount; Index++) {
 

@@ -23,7 +23,7 @@ DeviceProcessingResponse::DeviceProcessingResponse()
     m_bInitialisationFinished = false;
     m_bConfigurationFinished   = false;
 
-    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Colorado/ColoradoMain/Master/Components/Main/Build/Settings");
+    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings");
 
 
     m_pIDeviceProcessing = new IDeviceProcessing();

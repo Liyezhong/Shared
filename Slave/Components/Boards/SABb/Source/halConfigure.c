@@ -326,7 +326,7 @@ const UInt32 halStepperDescriptorCount = ELEMENTS(halStepperDescriptors);
 const halStorageDescriptor_t halStorageDescriptors[] = {
    { HAL_STORAGE_FLASH, MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x08000000, 0x20000 },
    { HAL_STORAGE_OTP,   MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x1FFFF000, 0x00800 },
-   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
+//   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
 };
 const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
@@ -354,7 +354,7 @@ const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
 const halSerialDescriptor_t halSerialDescriptors[] = {
     { HAL_CAN_SYSTEM, 0, SIO_TYPE_CAN, 1, 0, 500000 },
-    { HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 1, 400000 },
+    { HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 0, 400000 },
 };
 const UInt32 halSerialDescriptorCount = ELEMENTS(halSerialDescriptors);
 

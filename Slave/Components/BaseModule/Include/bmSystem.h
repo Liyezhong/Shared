@@ -46,6 +46,7 @@ typedef enum {
     NODE_STATE_ASSEMBLY  = 6,    //!< Assembly mode
     NODE_STATE_SHUTDOWN  = 7,    //!< Shutdown (going to standby)
     NODE_STATE_STANDBY   = 8,    //!< Standby
+    NODE_STATE_UPDATE    = 9,    //!< Firmware update
     NUMBER_OF_NODE_STATES        //!  MUST be last element in enum list
 } bmNodeState_t;
 

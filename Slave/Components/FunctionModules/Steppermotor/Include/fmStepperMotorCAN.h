@@ -1,20 +1,18 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorCAN.h
  * 
- *  \brief CAN-communication functions of module 'stepper motor'
+ *  $Rev:    $ 0.1
+ *  $Date:   $ 03.07.2012
+ *  $Author: $ rainer Boehles
  *
- *  $Version: $ 0.1
- *  $Date:    $ 03.07.2012
- *  $Author: $ Rainer Boehles
+ *  \brief Publics for CAN-communication functions of module 'stepper motor'
  *
+ *         
+ * <dl compact><dt>Company:</dt><dd> Leica Biosystems Nussloch GmbH </dd></dl>
  *
- *  \b Company:
- *
- *       Leica Biosystems Nussloch GmbH.
- *
- *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice
- *  does not evidence any actual or intended publication.
+ * (c) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ * This is unpublished proprietary source code of Leica.
+ * The copyright notice does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
@@ -22,8 +20,16 @@
 #define FMSTEPPERMOTORCAN_H
 
 
+
+
 //****************************************************************************/
-// Public Function Prototypes
+// Public Constants and Macros 
+//****************************************************************************/
+
+
+
+//****************************************************************************/
+// Module Function Prototypes
 //****************************************************************************/
 
 //!< set configuration parameters

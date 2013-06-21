@@ -374,6 +374,7 @@ void dbgPrintNodeState (UInt16 NodeState) {
     static const bmCanIdNames_t NodeStateNames[] = {
         { NODE_STATE_UNDEFINED, "UNDEFINED" },
         { NODE_STATE_BOOTING,   "BOOTING"   },
+        { NODE_STATE_UPDATE,    "UPDATE"    },
         { NODE_STATE_STARTUP,   "STARTUP"   },
         { NODE_STATE_IDENTIFY,  "IDENTIFY"  },
         { NODE_STATE_CONFIGURE, "CONFIGURE" },

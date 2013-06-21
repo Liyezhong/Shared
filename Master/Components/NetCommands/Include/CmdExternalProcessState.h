@@ -5,7 +5,7 @@
 
 namespace NetCommands {
 enum ProcessType_t{
-    COLORADO_GUI_PROCESS,
+    HIMALAYA_GUI_PROCESS,
     SEPIA_MAIN_PROCESS
 };
 

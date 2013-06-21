@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE colorado_err_definitionn>
-<colorado_event_definitions version="1.0" >
+<!DOCTYPE himalaya_err_definitionn>
+<himalaya_event_definitions version="1.0" >
     <event_definitions language="english">
         <event_main_group key="app" ID="0x01">
             <event_sub_group key="app_ctrl" ID="0x01">
@@ -157,4 +157,4 @@
         <eventgroup key="other_stuff" ID="0x0002">
         </eventgroup>
     </event_definitions>
-</colorado_event_definitions>
+</himalaya_event_definitions>

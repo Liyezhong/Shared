@@ -37,9 +37,9 @@ CPanelFrame::CPanelFrame(QWidget *p_Parent) : QWidget(p_Parent), mp_FrameUi(new 
 {
     mp_FrameUi->setupUi(this);
     m_IsDialog = false;
-    bool StyleSize = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetStyleSize();
+    Application::ProjectId_t eProjId = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetProjectId();
 
-    if (StyleSize == true) {
+    if(eProjId == Application::SEPIA_PROJECT) {
         mp_FrameUi->verticalLayout->setContentsMargins(10, 10, 10, 10);
         mp_FrameUi->panelTitle->setMinimumHeight(36);
     }
@@ -167,18 +167,33 @@ void CPanelFrame::paintEvent(QPaintEvent *)
     Target.fill(Qt::transparent);
 
     if (m_IsDialog == false) {
-        Source = QPixmap(QString(":/%1/Panel.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+        Source = QPixmap(QString(":/%1/Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
     }
     else {
-        Source = QPixmap(QString(":/%1/Popup/Popup.png").arg(Application::CLeicaStyle::GetStyleSizeString()));
+        Source = QPixmap(QString(":/%1/Popup/Popup.png").arg(Application::CLeicaStyle::GetProjectNameString()));
     }
 
-    if (Application::CLeicaStyle::GetStyleSize() == false) {
-        Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
-    }
-    else {
-        Application::CLeicaStyle::BorderPixmap(&Target, &Source, 29, 46, 29, 29);
-    }
+    switch(Application::CLeicaStyle::GetProjectId()) {
+        case Application::COLORADO_PROJECT:
+        {
+           Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
+        }
+        break;
+        case Application::SEPIA_PROJECT:
+        {
+            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 29, 46, 29, 29);
+        }
+        break;
+        case Application::HIMALAYA_PROJECT:
+        {
+            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
+        }
+        break;
+        default:
+        {
+            // Do Nothing
+        }
+   }
 
     Painter.drawPixmap(0, 0, Target);
 }

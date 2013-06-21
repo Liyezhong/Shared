@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE colorado_hw_specification>
-<colorado_hwconfig version="1.0">
+<!DOCTYPE himalaya_hw_specification>
+<himalaya_hwconfig version="1.0">
     <name>Geraetename</name>
     <serialnumber>666-42</serialnumber>
     <parameter_master folded="yes">
@@ -197,7 +197,7 @@
             </functionmodules>
         </slave>
         <slave type="base" key="oven" name="oven">
-            <!-- ASB3 oven: stepper motor for oven cover, temperature control for colorado oven -->
+            <!-- ASB3 oven: stepper motor for oven cover, temperature control for himalaya oven -->
             <nodetype>3</nodetype>
             <nodeindex>0</nodeindex>
             <functionmodules>
@@ -395,7 +395,7 @@
             </functionmodules>
         </slave>
         <slave type="base" key="hot_tube" name="hot tube">
-            <!-- ASB5 hot tube: temperature control for colorado hot tube -->
+            <!-- ASB5 hot tube: temperature control for himalaya hot tube -->
             <nodetype>5</nodetype>
             <nodeindex>0</nodeindex>
             <functionmodules>
@@ -558,4 +558,4 @@
             </functionmodules>
         </slave>
     </parameter_slaves>
-</colorado_hwconfig>
+</himalaya_hwconfig>

@@ -78,7 +78,7 @@
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1053,11 +1053,6 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -1210,11 +1205,6 @@
               <FileName>bmTime.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.h</FileName>
@@ -1454,11 +1444,6 @@
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorMemory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</FilePath>
-            </File>
-            <File>
               <FileName>fmStepperMotorMotion.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotion.c</FilePath>
@@ -1571,11 +1556,6 @@
               <FileName>fmStepperMotorLimitSwitch.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorLimitSwitch.h</FilePath>
-            </File>
-            <File>
-              <FileName>fmStepperMotorMemory.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorMemory.h</FilePath>
             </File>
             <File>
               <FileName>fmStepperMotorMotion.h</FileName>
@@ -2555,11 +2535,6 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -2660,11 +2635,6 @@
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmUtilities.h</FilePath>
@@ -2740,11 +2710,6 @@
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorMemory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</FilePath>
-            </File>
-            <File>
               <FileName>fmStepperMotorMotion.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotion.c</FilePath>
@@ -2803,11 +2768,6 @@
               <FileName>fmStepperMotorLimitSwitch.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorLimitSwitch.h</FilePath>
-            </File>
-            <File>
-              <FileName>fmStepperMotorMemory.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorMemory.h</FilePath>
             </File>
             <File>
               <FileName>fmStepperMotorMotion.h</FileName>
@@ -3733,11 +3693,6 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -3838,11 +3793,6 @@
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmUtilities.h</FilePath>
@@ -3918,11 +3868,6 @@
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorMemory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</FilePath>
-            </File>
-            <File>
               <FileName>fmStepperMotorMotion.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotion.c</FilePath>
@@ -3981,11 +3926,6 @@
               <FileName>fmStepperMotorLimitSwitch.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorLimitSwitch.h</FilePath>
-            </File>
-            <File>
-              <FileName>fmStepperMotorMemory.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorMemory.h</FilePath>
             </File>
             <File>
               <FileName>fmStepperMotorMotion.h</FileName>

@@ -74,6 +74,7 @@ Handle_t bmOpenPermStorage (UInt16 ModuleID, UInt16 Instance, UInt16 Size) {
             return (Status);
         }
     }
+    
     // open/create base module's data partition
     Handle = bmCreatePartition (PartitionID, OpenMode , Size);
     if (Handle >= 0) {

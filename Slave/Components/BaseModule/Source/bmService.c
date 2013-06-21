@@ -235,7 +235,7 @@ static Error_t bmFormatPermStorage (UInt16 Channel, CanMessage_t *Message) {
     Error_t Status;
     Bool Success;
 
-    if (Message->Length == 3) {
+    if (Message->Length >= 1) {
 
         Password = bmGetMessageItem (Message, 0, 2);
         if (!bmCheckPassword (Password)) {
@@ -304,7 +304,7 @@ static Error_t bmResetPermData (UInt16 Channel, CanMessage_t *Message) {
     Error_t Status;
     UInt16 Password;
 
-    if (Message->Length == 2) {
+    if (Message->Length >= 1) {
 
         Password = bmGetMessageItem (Message, 0, 2);
         if (!bmCheckPassword (Password)) {

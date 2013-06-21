@@ -22,8 +22,8 @@
 
 #include <QObject>
 #include <TestStubDataManager/Include/DataManagerBase.h>
-#include "../../../../../../Colorado/ColoradoMain/Gui/GuiStub/Components/Threads/Include/MasterThreadController.h"
-#include "../../../../../../Colorado/ColoradoMain/Gui/GuiStub/Components/Threads/Include/CommandChannel.h"
+#include "../../../../../../Himalaya/HimalayaMain/Gui/GuiStub/Components/Threads/Include/MasterThreadController.h"
+#include "../../../../../../Himalaya/HimalayaMain/Gui/GuiStub/Components/Threads/Include/CommandChannel.h"
 #include "TestStubDataManager/Include/DataManagerBase.h"
 
 namespace DataManager {
@@ -40,7 +40,7 @@ public:
     /*!
      *  \brief Constructor
      *  \iparam p_DataManager = Datamanager object
-     *  \iparam p_ColoradoMasterThreadController = Colorado Master thread Cntrl
+     *  \iparam p_HimalayaMasterThreadController = Himalaya Master thread Cntrl
      *  \iparam p_DataContainer = DataContainer pointer
      */
     /****************************************************************************/

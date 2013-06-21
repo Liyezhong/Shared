@@ -236,9 +236,7 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
     { HAL_STEPPER3_PHASEA, DIR_INPUT,  BUS_TYPE_INTERN, 12,  4, 3,  3000, 0 },   // Stepper_SFT
     { HAL_STEPPER3_PHASEB, DIR_INPUT,  BUS_TYPE_INTERN, 12, 15, 3,  3000, 0 },
     
-#ifndef ENCODER_SHIFTER
     { HAL_LASER_ENABLE,    DIR_OUTPUT, BUS_TYPE_PWM,    16,  2, 0, 10000, 0xFFFF, HAL_TIMER_4 }, // Conflicts with Encoder_SFT_EQEP1
-#endif
     { HAL_LASER_CURRENT,   DIR_OUTPUT, BUS_TYPE_SPI,     8,  0, 0,     1, 0xFF,   HAL_BUS_SPI_A },
     { HAL_SD_VAR_RES,      DIR_OUTPUT, BUS_TYPE_SPI,     8,  1, 0,     1, 0,      HAL_BUS_SPI_B },
 };
@@ -277,27 +275,24 @@ const halTimerDescriptor_t halTimerDescriptors[] = {
     { HAL_STEPPER1_TIMER,   0, 3, 0, TIM_SEL_COMPARE, TIM1_MODE_CAPCOM4 },
 
     // Timer 2 programmed as quadrature encoder with index input (Encoder_ELVT_EQEP1)
-    { HAL_STEPPER2_ENCODER, 1, 0, 0, TIM_SEL_COUNTER, TIM2_MODE_MASTER  },
-    { HAL_STEPPER2_ENCODER, 1, 0, 0, TIM_SEL_CAPTURE, TIM2_MODE_CAPCOM1 },
-    { HAL_STEPPER2_ENCODER, 1, 1, 0, TIM_SEL_CAPTURE, TIM2_MODE_CAPCOM2 },
-    { HAL_STEPPER2_ENCODER, 1, 2, 0, TIM_SEL_CAPTURE, TIM2_MODE_CAPCOM3 },
-    { HAL_STEPPER2_ENCODER, 1, 3, 0, TIM_SEL_COMPARE, TIM2_MODE_CAPCOM4 },
+    { HAL_STEPPER1_ENCODER, 1, 0, 0, TIM_SEL_COUNTER, TIM2_MODE_MASTER  },
+    { HAL_STEPPER1_ENCODER, 1, 0, 0, TIM_SEL_CAPTURE, TIM2_MODE_CAPCOM1 },
+    { HAL_STEPPER1_ENCODER, 1, 1, 0, TIM_SEL_CAPTURE, TIM2_MODE_CAPCOM2 },
+    { HAL_STEPPER1_ENCODER, 1, 2, 0, TIM_SEL_CAPTURE, TIM2_MODE_CAPCOM3 },
+    { HAL_STEPPER1_ENCODER, 1, 3, 0, TIM_SEL_COMPARE, TIM2_MODE_CAPCOM4 },
 
-#ifndef ENCODER_SHIFTER
+    // Timer 4 programmed as quadrature encoder with index input (Encoder_SFT_EQEP1)
+    /*{ HAL_STEPPER2_ENCODER, 3, 0, 3, TIM_SEL_COUNTER, TIM4_MODE_MASTER  },
+    { HAL_STEPPER2_ENCODER, 3, 0, 0, TIM_SEL_CAPTURE, TIM4_MODE_CAPCOM1 },
+    { HAL_STEPPER2_ENCODER, 3, 1, 0, TIM_SEL_CAPTURE, TIM4_MODE_CAPCOM2 },
+    { HAL_STEPPER2_ENCODER, 3, 2, 0, TIM_SEL_CAPTURE, TIM4_MODE_CAPCOM3 },
+    { HAL_STEPPER2_ENCODER, 3, 3, 0, TIM_SEL_COMPARE, TIM4_MODE_CAPCOM4 },*/
     // Timer 4 programmed for the PWM signal to the photo electric transmitter
     { HAL_TIMER_4, 3, 0, 0, TIM_SEL_COUNTER, TIM4_MODE_MASTER  },
     { HAL_TIMER_4, 3, 0, 0, TIM_SEL_DISABLE, TIM4_MODE_CAPCOM1 },
     { HAL_TIMER_4, 3, 1, 0, TIM_SEL_DISABLE, TIM4_MODE_CAPCOM2 },
     { HAL_TIMER_4, 3, 2, 0, TIM_SEL_COMPARE, TIM4_MODE_CAPCOM3 },
     { HAL_TIMER_4, 3, 3, 0, TIM_SEL_DISABLE, TIM4_MODE_CAPCOM4 },
-#else
-    // Timer 4 programmed as quadrature encoder with index input (Encoder_SFT_EQEP1)
-    { HAL_STEPPER3_ENCODER, 3, 0, 0, TIM_SEL_COUNTER, TIM4_MODE_MASTER  },
-    { HAL_STEPPER3_ENCODER, 3, 0, 0, TIM_SEL_CAPTURE, TIM4_MODE_CAPCOM1 },
-    { HAL_STEPPER3_ENCODER, 3, 1, 0, TIM_SEL_CAPTURE, TIM4_MODE_CAPCOM2 },
-    { HAL_STEPPER3_ENCODER, 3, 2, 0, TIM_SEL_CAPTURE, TIM4_MODE_CAPCOM3 },
-    { HAL_STEPPER3_ENCODER, 3, 3, 0, TIM_SEL_COMPARE, TIM4_MODE_CAPCOM4 },
-#endif
 };
 const UInt32 halTimerDescriptorCount = ELEMENTS(halTimerDescriptors);
 
@@ -377,7 +372,7 @@ const UInt32 halStepperDescriptorCount = ELEMENTS(halStepperDescriptors);
 const halStorageDescriptor_t halStorageDescriptors[] = {
    { HAL_STORAGE_FLASH, MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x08000000, 0x20000 },
    { HAL_STORAGE_OTP,   MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x1FFFF000, 0x00800 },
-   { HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
+   //{ HAL_STORAGE_FRAM,  MEM_CLASS_FRAM,  HAL_OPEN_RWE, 0x00000000, 256 }
 };
 const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
@@ -405,7 +400,7 @@ const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
 const halSerialDescriptor_t halSerialDescriptors[] = {
     { HAL_CAN_SYSTEM, 0, SIO_TYPE_CAN, 1, 0, 500000 },
-    { HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 0, 400000 },
+    //{ HAL_BUS_I2C_A,  0, SIO_TYPE_I2C, 1, 0, 400000 },
     { HAL_BUS_SPI_A,  HAL_SPI_SELECT_0, SIO_TYPE_SPI, 2, 0, 4500000 },
     { HAL_BUS_SPI_B,  HAL_SPI_SELECT_1, SIO_TYPE_SPI, 2, 0, 4500000 }
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="project_proj.xsd">
 
-  <SchemaVersion>1.1</SchemaVersion>
+  <SchemaVersion>1.0</SchemaVersion>
 
   <Header>### uVision Project, (C) Keil Software</Header>
 
@@ -29,7 +29,6 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\ST\STM32F10xx\STM32F10xxB.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -73,12 +72,12 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>$KARM\BIN40\fromelf --bin --output=..\Binary\Release\ASB5.bin ..\Binary\Release\ASB5.axf</UserProg1Name>
+            <UserProg1Name>$KARM\BIN40\fromelf --bin --output=..\Binary\Release\ASB5_rel.bin ..\Binary\Release\ASB5_rel.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1048,11 +1047,6 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -1205,11 +1199,6 @@
               <FileName>bmTime.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.h</FileName>
@@ -1431,7 +1420,6 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\ST\STM32F10xx\STM32F10xxB.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -1449,7 +1437,7 @@
           <OutputName>ASB5_dbg</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\</ListingPath>
@@ -1473,9 +1461,9 @@
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>$KARM\BIN40\fromelf --bin --output=..\Binary\Debug\ASB5_dbg.bin ..\Binary\Debug\ASB5_dbg.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -1746,7 +1734,7 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>DEBUG</Define>
               <Undefine></Undefine>
               <IncludePath>..\Include;..\..\..\BaseModule\Include;..\..\..\HAL\STM32\Include;..\..\..\FunctionModules\Steppermotor\Include;..\..\..\FunctionModules\Temperature\Include</IncludePath>
             </VariousControls>
@@ -2288,11 +2276,6 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -2391,11 +2374,6 @@
               <FileName>bmTime.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.h</FileName>
@@ -2509,7 +2487,6 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\ST\STM32F10xx\STM32F10xxB.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -3366,11 +3343,6 @@
               <FilePath>..\..\..\BaseModule\Source\bmTime.c</FilePath>
             </File>
             <File>
-              <FileName>bmUpdate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
-            </File>
-            <File>
               <FileName>bmUtilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
@@ -3469,11 +3441,6 @@
               <FileName>bmTime.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\bmTime.h</FilePath>
-            </File>
-            <File>
-              <FileName>bmUpdate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
             <File>
               <FileName>bmUtilities.h</FileName>

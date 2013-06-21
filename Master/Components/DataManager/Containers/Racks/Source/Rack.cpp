@@ -34,7 +34,7 @@ namespace DataManager {
 /****************************************************************************/
 CRack::CRack() :
     m_RFIDUniqueID(0), m_RFIDUserData(0), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false), m_UseSepia(false),
-    m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeColorado(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
+    m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeHimalaya(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
     m_EndTimeStation(QDateTime::fromTime_t(0)), m_Color("white"), m_EndTimeSepia(Global::AdjustedTime::Instance().GetCurrentDateTime()), m_Orientation(false),
     m_ActualSlides(0),
     m_ActualSlideForecastValue(0)
@@ -51,13 +51,13 @@ CRack::CRack() :
 /****************************************************************************/
 CRack::CRack(const quint32 RFIDUniqueID, const quint32 RFIDUserData) :
     m_RFIDUniqueID(RFIDUniqueID), m_ProgramID("0"), m_Transported(false), m_SepiaStation(false), m_UseSepia(false),
-    m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeColorado(QDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
+    m_StartTime(QDateTime::fromTime_t(0)), m_EndTimeHimalaya(QDateTime()), m_StationID("0"), m_ProgramStepIndex(0),
     m_EndTimeStation(QDateTime::fromTime_t(0)), m_Color("white"), m_EndTimeSepia(QDateTime::fromTime_t(0)),
     m_ActualSlides(0), m_ActualSlideForecastValue(0)
 {
     // sets the color, orientation and size of the rack
     SetRFIDUserData(RFIDUserData);
-    m_EndTimeColorado.setTimeSpec(Qt::UTC);
+    m_EndTimeHimalaya.setTimeSpec(Qt::UTC);
 }
 
 /****************************************************************************/
@@ -201,7 +201,7 @@ bool CRack::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool CompleteDat
     }
 
     XmlStreamWriter.writeAttribute("StartTime",GetStartTime().toString("'M'M'd'd'y'yyyyhh:mm:ss"));
-    XmlStreamWriter.writeAttribute("EndTimeColorado", GetEndTimeColorado().toString("'M'M'd'd'y'yyyyhh:mm:ss"));
+    XmlStreamWriter.writeAttribute("EndTimeHimalaya", GetEndTimeHimalaya().toString("'M'M'd'd'y'yyyyhh:mm:ss"));
     XmlStreamWriter.writeAttribute("StationID", GetStationID());
     XmlStreamWriter.writeAttribute("ProgramStepIndex", QString::number(GetProgramStepIndex()));
     XmlStreamWriter.writeAttribute("EndTimeStation", GetEndTimeStation().toString("'M'M'd'd'y'yyyyhh:mm:ss"));
@@ -297,14 +297,14 @@ bool CRack::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool CompleteD
     startTime.setTimeSpec(Qt::UTC);
     SetStartTime(startTime);
 
-    // check end time of colorado attribute
-    if (!XmlStreamReader.attributes().hasAttribute("EndTimeColorado")) {
-        qDebug() << "### attribute <EndTimeColorado> is missing => abort reading";
+    // check end time of himalaya attribute
+    if (!XmlStreamReader.attributes().hasAttribute("EndTimeHimalaya")) {
+        qDebug() << "### attribute <EndTimeHimalaya> is missing => abort reading";
         return false;
     }
-    QDateTime endTimeColorado = QDateTime::fromString(XmlStreamReader.attributes().value("EndTimeColorado").toString(), "'M'M'd'd'y'yyyyhh:mm:ss");
-    endTimeColorado.setTimeSpec(Qt::UTC);
-    SetEndTimeColorado(endTimeColorado);
+    QDateTime endTimeHimalaya = QDateTime::fromString(XmlStreamReader.attributes().value("EndTimeHimalaya").toString(), "'M'M'd'd'y'yyyyhh:mm:ss");
+    endTimeHimalaya.setTimeSpec(Qt::UTC);
+    SetEndTimeHimalaya(endTimeHimalaya);
 
     // check Station ID attribute
     if (!XmlStreamReader.attributes().hasAttribute("StationID")) {

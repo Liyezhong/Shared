@@ -1,7 +1,7 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorMotion.h
  * 
- *  \brief Motion setup/control functions of module 'stepper motor'
+ *  \brief Public's for motion setup/control
  * 
  *
  *  $Version: $ 0.1
@@ -26,23 +26,17 @@
     #include "Global.h"
 #endif
 
-//********************************************************************************/
-// Public Constants and Definitions
-//********************************************************************************/
-
-#define SM_NUM_OF_PARAMETERSETS             3   //!< amount of movement parameter sets
-
-#define MSEC                                (1000)              //!< mili-seconds per second
-#define USEC                                (1000*1000)         //!< micro-seconds per second
-#define NSEC                                (1000*1000*1000)    //!< nano-seconds per second
-
-#define SM_MICROSTEPS_PER_HALFSTEP          32  //!< step unit used for calculation
-#define SM_MICROSTEPS_PER_FULLSTEP          64  //!< step unit used for calculation
+#define NUM_OF_PARAMETERSETS                3   //!< amount of movement parameter sets
 
 
-//****************************************************************************/
-// Public Type Definitions
-//****************************************************************************/
+#define MSEC                                (1000)
+#define USEC                                (1000*1000)
+#define NSEC                                (1000*1000*1000)
+
+#define MICROSTEPS_PER_HALFSTEP             32  //!< step unit used for calculation
+#define MICROSTEPS_PER_FULLSTEP             64  //!< step unit used for calculation
+
+#define PROC
 
 //! stepper motion state
 typedef enum
@@ -50,11 +44,10 @@ typedef enum
     MS_IDLE,                //!< motor is not moving
     MS_POSITION,            //!< motor is moving to a target position
     MS_SPEED,               //!< motor is moving to reach, or already moving with target speed
-    MS_STOP,                //!< motor is stopping
 } smMotionState_t;
 
 
-//! movement phases of s-curve trajectory
+//! all movement phases of s-curve trajectory
 typedef enum
 {
     PH_0_START,             //!< move with constant start speed 
@@ -155,7 +148,7 @@ typedef enum
 //! motion control data
 typedef struct
 {
-    smParamSet_t            Param[SM_NUM_OF_PARAMETERSETS]; //!< array of parameter sets for combined movements
+    smParamSet_t            Param[NUM_OF_PARAMETERSETS];    //!< array of parameter sets for combined movements
     Int8                    ActSet;             //!< actual used parameter set
     Int8                    NewSet;             //!< new parameter set which should be used
 
@@ -173,7 +166,7 @@ typedef struct
     Int32                   dt;                 //!< interval time for next step
 #endif
 
-    volatile smMotionState_t    State;          //!< motors motion state, idle or moving to target speed/position
+    smMotionState_t         State;              //!< motors motion state, idle or moving to target speed/position
 
     Bool                    AtTargetPosition;   //!< set to signal that position movement have reached the target position
     Bool                    AtTargetSpeed;      //!< set to signal that speed movement have reached the target speed
@@ -187,13 +180,10 @@ typedef struct
 
     Bool                    LSTrigger;          //!< at each half-step this flag is set to trigger poll of limit switch status in the module task
 
-    smCCR_t                 CCR;                //!< CCR data used for ISR timing   
+    smCCR_t                 CCR;                //!< CCR data used for ISR timing
+    UInt8                   LSHitCnt;   
 } Motion_t;
 
-
-//****************************************************************************/
-// Public Function Prototypes
-//****************************************************************************/
 
 //! init. motion control data
 void smInitMotion (Motion_t *Motion, UInt16 Instance);

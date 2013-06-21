@@ -305,8 +305,8 @@ typedef enum {
 /*! Rack transfer adapter position */
 typedef enum {
     RACK_ADAPTER_POS_UNDEF    = 0x00,   //!< undefined
-    RACK_ADAPTER_POS_LOAD     = 0x01,   //!< load position (from colorado view)
-    RACK_ADAPTER_POS_TRANSFER = 0x02    //!< transfer position (from colorado view)
+    RACK_ADAPTER_POS_LOAD     = 0x01,   //!< load position (from himalaya view)
+    RACK_ADAPTER_POS_TRANSFER = 0x02    //!< transfer position (from himalaya view)
 } RackAdapterPosition_t;
 
 /*! Rack type definition */
@@ -347,7 +347,7 @@ typedef enum {
 /****************************************************************************/
 /*!
  *  \brief  This classes elements containing the can object keys, used for
- *          object identification by string at the colorado project
+ *          object identification by string at the himalaya project
  */
 /****************************************************************************/
 class CANObjectKeyLUT
@@ -367,7 +367,7 @@ public:
     static const QString m_DevSlideIdKey;           //!< Slide ID device key
     static const QString m_DevHoodKey;              //!< Hood device key
     static const QString m_DevLightKey;             //!< Light device key
-    // Colorado base modules
+    // Himalaya base modules
     static const QString m_BaseAgitationKey;        //!< Agitation base module key
     static const QString m_BaseExhaustKey;          //!< Exhaust base module key
     static const QString m_BaseXAxisKey;            //!< X-axis base module key
@@ -381,7 +381,7 @@ public:
     static const QString m_BaseSlideIdKey;          //!< Slide ID base module key
     static const QString m_BaseHoodKey;             //!< Hood base module key
     static const QString m_BaseLightKey;            //!< Light base module key
-    // Colorado function modules
+    // Himalaya function modules
     static const QString m_MotorAgitationKey;           //!< Motor agitation
     static const QString m_FlowSensorKey;               //!< Air flow sensor
     static const QString m_ControlFan1Key;              //!< Control switch fan 1

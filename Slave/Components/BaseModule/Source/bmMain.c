@@ -44,7 +44,6 @@
 #include "bmError.h"
 #include "bmStorage.h"
 #include "bmMain.h"
-#include "bmUpdate.h"
 
 
 //****************************************************************************/
@@ -229,9 +228,6 @@ static Error_t bmInitCoreModules (UInt16 ModuleCount, UInt16 TaskCount) {
         return (Status);
     }
     if ((Status = bmInitSystemCommands()) != NO_ERROR) {
-        return (Status);
-    }
-    if ((Status = bmInitUpdate()) != NO_ERROR) {
         return (Status);
     }
     return (NO_ERROR);
@@ -497,7 +493,8 @@ static Error_t bmBaseModuleControl (UInt16 Instance, bmModuleControlID_t Control
 
         case MODULE_CONTROL_SHUTDOWN:
             ModuleState = MODULE_STATE_STANDBY;
-            return (bmFlushPartitions());
+            bmFlushPartitions();
+            break;
 
         case MODULE_CONTROL_WAKEUP:
             ModuleState = MODULE_STATE_READY;
@@ -510,7 +507,9 @@ static Error_t bmBaseModuleControl (UInt16 Instance, bmModuleControlID_t Control
             return (bmResetPartition());
 
         case MODULE_CONTROL_RESET:
-            return (bmFlushPartitions());
+            // TODO: Alle BM-Funktionen deaktivieren (diese 
+            // Funktion wird bisher noch nicht benutzt
+            break;
     }
     return (NO_ERROR);
 }

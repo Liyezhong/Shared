@@ -22,7 +22,7 @@
 // Define size of the queue (to check how queue callbacks work)
 #define TEST_QUEUE_SIZE_BYTES    500000//1000  /// size of the outgoing message queue in bytes
 // Define name of the file to upload:
-//#define UPLOAD_FILE_NAME         "/home/colorado/SVN-repo/trunk/Platform/Master/Test/AxedaAgentTest/TestAxeda.xtx"
+//#define UPLOAD_FILE_NAME         "/home/himalaya/SVN-repo/trunk/Platform/Master/Test/AxedaAgentTest/TestAxeda.xtx"
 #define UPLOAD_FILE_NAME         "TestAxeda.xtx"
 #define UPLOAD_FILE_NAME2        "AnotherTestAxeda.xtx"
 

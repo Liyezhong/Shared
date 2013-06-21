@@ -24,8 +24,8 @@
 
 namespace ImportExport {
 
-static const char* Archname = "Colorado_User_deviceID_20110815_205943.lpkg";
-static const QString ArchZipName = "Colorado_User_deviceID_%1.zip";
+static const char* Archname = "Himalaya_User_deviceID_20110815_205943.lpkg";
+static const QString ArchZipName = "Himalaya_User_deviceID_%1.zip";
 /****************************************************************************/
 /*!
  * \brief empty constructor

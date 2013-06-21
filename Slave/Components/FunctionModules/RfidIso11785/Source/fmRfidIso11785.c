@@ -15,7 +15,7 @@
  *      RFID transponder. This transponder uses a propietary protocol on top
  *      of ISO 11785 and thus is not standard compliant. The module controls
  *      the EM Microelectronic EM4095 RFID front end IC via the Hardware
- *      Abstraction Layer (HAL). For this purpose, the module uses digital I/O
+ *      Abstraction Layer (HAL). Fot this purpose, the module uses digital I/O
  *      ports and a timer unit to control the time critical communication
  *      procedure through the generation of interrupts.
  *
@@ -67,7 +67,6 @@
 
 /*! Contains message types needed to communicate with the RFID transponder */
 typedef enum {
-    SetConfig,      //!< Set config
     Login,          //!< Login
     WriteUserData,  //!< Write user data
     WritePassword,  //!< Write password
@@ -120,7 +119,7 @@ static Error_t rfid11785ModuleTask    (UInt16 Instance);
 static Error_t rfid11785RespondAck    (UInt16 Channel, Rfid11785Command_t Ongoing, UInt8 Address, UInt32 ReadData);
 static Error_t rfid11785StartModOutput(InstanceData_t *Data);
 static Error_t rfid11785SetModOutput  (InstanceData_t *Data, UInt32 Count, UInt16 Value);
-static Error_t rfid11785SetDeviceSel  (Handle_t Handle, UInt8 DeviceSelect, UInt8 AntennaNumber);
+static Error_t rfid11785SetDeviceSel  (Handle_t Handle, UInt8 DeviceSelect);
 static Error_t rfid11785HandleOpen    (InstanceData_t *Data, Int16 Instance);
 
 static Error_t rfid11785SetConfig     (UInt16 Channel, CanMessage_t *Message);
@@ -133,8 +132,8 @@ static Error_t rfid11785ReadUserData  (UInt16 Channel, CanMessage_t *Message);
 static Error_t rfid11785ReadUidNumber (UInt16 Channel, CanMessage_t *Message);
 
 static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags);
-static Error_t rfid11785CompareHandler (InstanceData_t *Data);
-static Error_t rfid11785CaptureHandler (InstanceData_t *Data);
+static Error_t rfid11785CompareIntHandler (InstanceData_t *Data);
+static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data);
 
 /*****************************************************************************/
 /*! 
@@ -144,13 +143,11 @@ static Error_t rfid11785CaptureHandler (InstanceData_t *Data);
  *      module. Depending on the ControlID parameter, the following actions
  *      are performed:
  * 
- *      - MODULE_CONTROL_RESUME
- *      - MODULE_CONTROL_WAKEUP
  *      - MODULE_CONTROL_STOP
- *      - MODULE_CONTROL_SHUTDOWN
- *      - MODULE_CONTROL_RESET
- *      - MODULE_CONTROL_FLUSH_DATA
- *      - MODULE_CONTROL_RESET_DATA
+ *      - MODULE_CONTROL_RESUME
+ *      - MODULE_CONTROL_STANDBY  
+ *      - MODULE_CONTROL_WAKEUP
+ *      - MODULE_CONTROL_SHUTDOWN        
  * 
  *  \iparam  Instance  = Instance number of this module [in]
  *  \iparam  ControlID = Control code to select sub-function [in]
@@ -204,11 +201,13 @@ static Error_t rfid11785ModuleControl (UInt16 Instance, bmModuleControlID_t Cont
  *      this function module. Depending on the StatusID parameter, the 
  *      following status values are returned:
  * 
- *      - MODULE_STATUS_STATE
- *      - MODULE_STATUS_VALUE
- *      - MODULE_STATUS_MODULE_ID
  *      - MODULE_STATUS_INSTANCES
+ *      - MODULE_STATUS_MODULE_ID
+ *      - MODULE_STATUS_POWER_STATE
  *      - MODULE_STATUS_VERSION
+ *      - MODULE_STATUS_STATE
+ *      - MODULE_STATUS_ABORTED
+ *      - MODULE_STATUS_VALUE
  * 
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
@@ -251,15 +250,13 @@ static Error_t rfid11785ModuleStatus (UInt16 Instance, bmModuleStatusID_t Status
 /*! 
  *  \brief   Module Task Function
  *
- *  \riskid  SWRA 5.5.1: Unreliable and wrong recognition of racks
- *
  *      This function is called by the task scheduler periodically. 
  *      It's purpose is to perform all actions to provide the modules
  *      functionality.
  * 
  *  \iparam  Instance = Instance number of this module
  *
- *  \return  Module instance state or (negative) error code
+ *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
 
@@ -268,9 +265,9 @@ static Error_t rfid11785ModuleTask (UInt16 Instance)
     Int8 Result;
     Error_t Error;
     InstanceData_t* Data = &DataTable[Instance];
-
+      
     if (Data->ModuleState == MODULE_STATE_BUSY) {
-        if ((bmTimeExpired (Data->SwitchTime) >= ANTENNA_SWITCH_INTERVAL) && (Data->Started == FALSE)) {
+        if (bmTimeExpired (Data->SwitchTime) >= ANTENNA_SWITCH_INTERVAL && Data->Started == FALSE) {           
             if ((Error = rfid11785StartModOutput (Data)) < 0) {
                 Data->ModuleState = MODULE_STATE_READY;
                 bmSignalEvent (Data->Channel, Error, TRUE, 0);
@@ -278,7 +275,7 @@ static Error_t rfid11785ModuleTask (UInt16 Instance)
             }
             Data->Started = TRUE;
         }
-
+        
         Result = rfid11785LinkComplete (&Data->DataStream);
         if (Result == 1) {
             Data->ModuleState = MODULE_STATE_READY;
@@ -326,7 +323,7 @@ static Error_t rfid11785ModuleTask (UInt16 Instance)
             return ((Error_t) Data->ModuleState);
         }
     }
-
+    
     return ((Error_t) Data->ModuleState);
 }
 
@@ -354,10 +351,6 @@ static Error_t rfid11785RespondAck (UInt16 Channel, Rfid11785Command_t Ongoing, 
     CanMessage_t Message;
     
     switch (Ongoing) {
-        case SetConfig:
-            Message.CanID = MSG_RFID11785_ACK_CONFIG;
-            Message.Length = 0;
-            break;
         case Login:
             Message.CanID = MSG_RFID11785_RESP_LOGIN;
             Message.Length = 0;
@@ -478,77 +471,34 @@ static Error_t rfid11785SetModOutput (InstanceData_t *Data, UInt32 Count, UInt16
  *      signals and writes this information to the digital output port.
  * 
  *  \iparam  Handle = Handle of the output port
- *  \iparam  DeviceSelect = Antenna to be selected
- *  \iparam  AntennaNumber = Number of antennas
+ *  \iparam  DeviceSelect = Antenna number
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 
-static Error_t rfid11785SetDeviceSel (Handle_t Handle, UInt8 DeviceSelect, UInt8 AntennaNumber)
+static Error_t rfid11785SetDeviceSel (Handle_t Handle, UInt8 DeviceSelect)
 {
     UInt8 Code;
     
-    if (DeviceSelect >= AntennaNumber) {
-        return (E_PARAMETER_OUT_OF_RANGE);
-    }
-
-    if (AntennaNumber <= 1) {
-        return (NO_ERROR);
-    }
-    else if (AntennaNumber <= 5) {
-        switch (DeviceSelect) {
-            case 0:
-                Code = 0;
-                break;
-            case 1:
-                Code = 1;
-                break;
-            case 2:
-                Code = 4;
-                break;
-            case 3:
-                Code = 6;
-                break;
-            case 4:
-                Code = 8;
-                break;
-            default:
-                return (E_PARAMETER_OUT_OF_RANGE);
-        }
-    }
-    else {
-        switch (DeviceSelect) {
-            case 0:
-                Code = 0;
-                break;
-            case 1:
-                Code = 2;
-                break;
-            case 2:
-                Code = 8;
-                break;
-            case 3:
-                Code = 12;
-                break;
-            case 4:
-                Code = 16;
-                break;
-            case 5:
-                Code = 18;
-                break;
-            case 6:
-                Code = 24;
-                break;
-            case 7:
-                Code = 28;
-                break;
-            case 8:
-                Code = 1;
-                break;
-            default:
-                return (E_PARAMETER_OUT_OF_RANGE);
-        }
+    switch (DeviceSelect) {
+        case 0:
+            Code = 0;
+            break;
+        case 1:
+            Code = 1;
+            break;
+        case 2:
+            Code = 4;
+            break;
+        case 3:
+            Code = 6;
+            break;
+        case 4:
+            Code = 8;
+            break;
+        default:
+            return E_PARAMETER_OUT_OF_RANGE;
     }
 
     return (halPortWrite(Handle, Code));
@@ -582,17 +532,12 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
 {
     Error_t Error;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
-
+ 
     if (Message->Length == 1) {
         if (Data->ModuleState == MODULE_STATE_READY) {
             Data->Flags = bmGetMessageItem(Message, 0, 1);
-            Data->DeviceSelect = (Data->Flags & 0x3C) >> 2;
-
-            // Set the antenna selection pins
-            if((Error = rfid11785SetDeviceSel(Data->HandleDevSelOut, Data->DeviceSelect, Data->AntennaNumber)) < 0) {
-                return (Error);
-            }
-
+			Data->DeviceSelect = (Data->Flags & 0x3C) >> 2;
+            
             // Activate or deactivate the shutdown signal to the RFID frontend IC
             if((Data->Flags & MODE_MODULE_ENABLE) != 0) {           
                 if((Error = halPortWrite(Data->HandleShdOut, 0)) < 0) {
@@ -601,6 +546,16 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
             }
             else {
                 if((Error = halPortWrite(Data->HandleShdOut, 1)) < 0) {
+                    return (Error);
+                }
+            }
+            
+            if (Data->AntennaNumber > 1) {
+                if (Data->DeviceSelect >= Data->AntennaNumber) {
+                    return (E_PARAMETER_OUT_OF_RANGE);
+                }
+                // Set the antenna selection pins
+                if((Error = rfid11785SetDeviceSel(Data->HandleDevSelOut, Data->DeviceSelect)) < 0) {
                     return (Error);
                 }
             }
@@ -624,9 +579,9 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
                     break; 
                 default: break;
             }
-
+            
             Data->SwitchTime = bmGetTime();
-            return (rfid11785RespondAck (Channel, SetConfig, 0, 0));
+            return (NO_ERROR);
         }
         return (E_RFID11785_TRANSACTION_ACTIVE);
     }
@@ -748,7 +703,7 @@ static Error_t rfid11785WritePassword (UInt16 Channel, CanMessage_t* Message)
     if (Message->Length == 4) {
         if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
             Password = bmGetMessageItem(Message, 0, 4);
-
+ 
             Data->Ongoing = WritePassword;
             rfid11785LinkStartWrite(ADDR_PASSWORD, Password, &Data->DataStream);
             Data->ModuleState = MODULE_STATE_BUSY;
@@ -942,7 +897,7 @@ static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags)
         Data->DataStream.IrqError = Error;
     }
     else if (Error > 0) {
-        Data->DataStream.IrqError = rfid11785CompareHandler (Data);
+        Data->DataStream.IrqError = rfid11785CompareIntHandler (Data);
     }
     
     // Handling the capture interrupt
@@ -951,7 +906,7 @@ static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags)
         Data->DataStream.IrqError = Error;
     }
     else if (Error > 0) {
-        Data->DataStream.IrqError = rfid11785CaptureHandler (Data);
+        Data->DataStream.IrqError = rfid11785CaptureIntHandler (Data);
     }
         
     // Deactivate the interrupts in case of an error
@@ -971,18 +926,17 @@ static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags)
 
 /*****************************************************************************/
 /*! 
- *  \brief   Handler for the compare channel
+ *  \brief   Interrupt handler for the compare channel
  *
- *      The function is called by the timer interrupt handler, when the
- *      compare timer reaches a certain value. The handler sets the MOD signal
- *      to the RFID front end and this way controls the transmission of RFID
- *      messages.
+ *      The interrupt handler is called when a certain duration set in the CPU
+ *      timer expires. The handler sets the MOD signal to the RFID front end
+ *      and this way controls the transmission of RFID messages.
  * 
  *  \iparam  Data = Instance data structure
  *
  ****************************************************************************/
 
-static Error_t rfid11785CompareHandler (InstanceData_t *Data)
+static Error_t rfid11785CompareIntHandler (InstanceData_t *Data)
 {
     Error_t Error;
     Rfid11785Stream_t *DataStream;
@@ -1044,20 +998,20 @@ static Error_t rfid11785CompareHandler (InstanceData_t *Data)
 
 /*****************************************************************************/
 /*! 
- *  \brief   Handler issued by the capture channel
+ *  \brief   Interrupt handler issued by the capture channel
  *
- *      The function is called by the timer interrupt handler, when the
- *      capture channel detects a transition on the DEMOD signal coming from
- *      the RFID front end. The handler measures the time since the last
- *      transition. This way, it is able to identify single bits in the
- *      incoming data stream. When the message transfer completes
- *      successfully, the timer interrupt is deactivated again.
+ *      The interrupt handler is called when the capture channel detects a
+ *      transition on the DEMOD signal coming from the RFID front end. The
+ *      handler measures the time since the last transition. This way, it is
+ *      able to identify single bits in the incoming data stream. When the
+ *      message transfer completes successfully, the interrupt is deactivated
+ *      again.
  * 
  *  \iparam  Data = Instance data structure
  *
  ****************************************************************************/
 
-static Error_t rfid11785CaptureHandler (InstanceData_t *Data)
+static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data)
 {
     Error_t Error;
     UInt32 Time;

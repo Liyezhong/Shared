@@ -33,6 +33,7 @@ typedef enum {
     PROGRAM,                ///< Program list file
     PROGRAM_SEQUENCE,       ///< Program sequence file
     REAGENT,                ///< Reagent list file
+    REAGENTGROUP,           ///< Reagentgroup list file
     STATION,                ///< Station list file
     USER_SETTING,           ///< User setting file
     DEVICE_CONFIGURATION,   ///< Device Configuration file

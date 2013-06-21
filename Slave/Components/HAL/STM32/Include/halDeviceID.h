@@ -363,19 +363,76 @@
 //! Logical Device IDs for Joystick Function Module
 //****************************************************************************/
 // Channels used by the joystick function module (X-axis)
-#define HAL_JOYSTICK_XAXIS      HAL_ANALOG_INPUTS+20
+#define HAL_JOYSTICK_XAXIS      HAL_ANALOG_INPUTS+26
 #define HAL_JOYSTICK_XAXIS_0    HAL_JOYSTICK_XAXIS
 #define HAL_JOYSTICK_XAXIS_1    HAL_JOYSTICK_XAXIS+1
 #define HAL_JOYSTICK_XAXIS_2    HAL_JOYSTICK_XAXIS+2
 #define HAL_JOYSTICK_XAXIS_3    HAL_JOYSTICK_XAXIS+3
 
 // Channels used by the joystick function module (Y-axis)
-#define HAL_JOYSTICK_YAXIS      HAL_ANALOG_INPUTS+24
+#define HAL_JOYSTICK_YAXIS      HAL_ANALOG_INPUTS+30
 #define HAL_JOYSTICK_YAXIS_0    HAL_JOYSTICK_YAXIS
 #define HAL_JOYSTICK_YAXIS_1    HAL_JOYSTICK_YAXIS+1
 #define HAL_JOYSTICK_YAXIS_2    HAL_JOYSTICK_YAXIS+2
 #define HAL_JOYSTICK_YAXIS_3    HAL_JOYSTICK_YAXIS+3
 //@} End of doxygen group
+
+
+//@{**************************************************************************/
+//! Logical Device IDs for Pressure Function Module
+//****************************************************************************/
+// Channels used by the pressure function module (fan controls)
+#define HAL_PRESS_FANCONTROL     HAL_DIGITAL_OUTPUTS+92
+#define HAL_PRESS_FANCONTROL_0   HAL_PRESS_FANCONTROL
+#define HAL_PRESS_FANCONTROL_1   HAL_PRESS_FANCONTROL+1
+#define HAL_PRESS_FANCONTROL_2   HAL_PRESS_FANCONTROL+2
+#define HAL_PRESS_FANCONTROL_3   HAL_PRESS_FANCONTROL+3
+
+// Channels used by the pressure function module (main voltage switch)
+#define HAL_PRESS_MAINVOLTAGE    HAL_DIGITAL_OUTPUTS+96
+#define HAL_PRESS_MAINVOLTAGE_0  HAL_PRESS_MAINVOLTAGE
+#define HAL_PRESS_MAINVOLTAGE_1  HAL_PRESS_MAINVOLTAGE+1
+#define HAL_PRESS_MAINVOLTAGE_2  HAL_PRESS_MAINVOLTAGE+2
+#define HAL_PRESS_MAINVOLTAGE_3  HAL_PRESS_MAINVOLTAGE+3
+
+// Channels used by the pressure function module (fan speed sensor)
+#define HAL_PRESS_FANSPEED       HAL_TIMERS+74
+#define HAL_PRESS_FANSPEED_0     HAL_PRESS_FANSPEED
+#define HAL_PRESS_FANSPEED_1     HAL_PRESS_FANSPEED+1
+#define HAL_PRESS_FANSPEED_2     HAL_PRESS_FANSPEED+2
+#define HAL_PRESS_FANSPEED_3     HAL_PRESS_FANSPEED+3
+
+// Channels used by the pressure function module (control pumping element)
+#define HAL_PRESS_CTRLPUMPING    HAL_DIGITAL_OUTPUTS+100
+#define HAL_PRESS_CTRLPUMPING_0  HAL_PRESS_CTRLPUMPING
+#define HAL_PRESS_CTRLPUMPING_1  HAL_PRESS_CTRLPUMPING+1
+#define HAL_PRESS_CTRLPUMPING_2  HAL_PRESS_CTRLPUMPING+2
+#define HAL_PRESS_CTRLPUMPING_3  HAL_PRESS_CTRLPUMPING+3
+
+// Channels used by the pressure function module (pressure sensors)
+#define HAL_PRESS_SENSOR         HAL_ANALOG_INPUTS+34
+#define HAL_PRESS_SENSOR_0       HAL_PRESS_SENSOR
+#define HAL_PRESS_SENSOR_1       HAL_PRESS_SENSOR+1
+#define HAL_PRESS_SENSOR_2       HAL_PRESS_SENSOR+2
+#define HAL_PRESS_SENSOR_3       HAL_PRESS_SENSOR+3
+#define HAL_PRESS_SENSOR_4       HAL_PRESS_SENSOR+4
+#define HAL_PRESS_SENSOR_5       HAL_PRESS_SENSOR+5
+#define HAL_PRESS_SENSOR_6       HAL_PRESS_SENSOR+6
+#define HAL_PRESS_SENSOR_7       HAL_PRESS_SENSOR+7
+
+// Channels used by the pressure function module (current measurement)
+#define HAL_PRESS_CURRENT        HAL_ANALOG_INPUTS+42
+#define HAL_PRESS_CURRENT_0      HAL_PRESS_CURRENT
+#define HAL_PRESS_CURRENT_1      HAL_PRESS_CURRENT+1
+#define HAL_PRESS_CURRENT_2      HAL_PRESS_CURRENT+2
+#define HAL_PRESS_CURRENT_3      HAL_PRESS_CURRENT+3
+
+// Channels used by the pressure function module (control valve element)
+#define HAL_PRESS_CTRLVALVE      HAL_DIGITAL_OUTPUTS+104
+#define HAL_PRESS_CTRLVALVE_0    HAL_PRESS_CTRLVALVE
+#define HAL_PRESS_CTRLVALVE_1    HAL_PRESS_CTRLVALVE+1
+#define HAL_PRESS_CTRLVALVE_2    HAL_PRESS_CTRLVALVE+2
+
 
 //****************************************************************************/
 

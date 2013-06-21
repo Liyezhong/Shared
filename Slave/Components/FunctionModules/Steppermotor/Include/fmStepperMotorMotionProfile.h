@@ -1,21 +1,18 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorMotionProfile.h
  * 
- *  \brief Functions to initialize, configure and validate motion profiles
- * 
+ *  $Rev:    $ 0.1
+ *  $Date:   $ 21.06.2012
+ *  $Author: $ Rainer Boehles
  *
- *  $Version: $ 0.1
- *  $Date:    $ 27.07.2012
- *  $Author:  $ Rainer Boehles
+ *  \brief Public definitions for motion profile data
  *
+ *         
+ * <dl compact><dt>Company:</dt><dd> Leica Biosystems Nussloch GmbH </dd></dl>
  *
- *  \b Company:
- *
- *       Leica Biosystems Nussloch GmbH.
- * 
- *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice 
- *  does not evidence any actual or intended publication.
+ * (c) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ * This is unpublished proprietary source code of Leica.
+ * The copyright notice does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
@@ -27,10 +24,6 @@
 #include "defStepperMotor.h"
 #endif
 
-
-//****************************************************************************/
-// Public Type Definitions
-//****************************************************************************/
 
 //! motion profile configuration data
 typedef struct
@@ -77,8 +70,15 @@ typedef struct
 } smProfiles_t;
 
 
+
 //****************************************************************************/
-// Public Function Prototypes
+// Public Constants and Macros 
+//****************************************************************************/
+
+
+
+//****************************************************************************/
+// Module Function Prototypes
 //****************************************************************************/
 
 #ifndef SIMULATION

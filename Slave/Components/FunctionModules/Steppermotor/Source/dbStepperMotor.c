@@ -74,6 +74,7 @@ static const bmCanIdNames_t CanIdNames[] = {
     { MSG_SMOT_MOVEMENT_ACK,         "MSG_SMOT_MOVEMENT_ACK"       },
   //{ MSG_SMOT_CONFIG_PARAMETER,     "MSG_SMOT_CONFIG_PARAMETER"   },
   //{ MSG_SMOT_DRIVE_PARAMETER,      "MSG_SMOT_DRIVE_PARAMETER"    },
+    { MSG_SMOT_DEBUG,                "MSG_SMOT_DEBUG"              },
 };
 
 

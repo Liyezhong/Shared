@@ -80,8 +80,6 @@
 #define TIM_CCER_CC3E      0x0100u  //!< Capture/compare unit 3 enable
 #define TIM_CCER_CC4E      0x1000u  //!< Capture/compare unit 4 enable
 
-#define TIM_CCER_CCxP      0x0002u  //!< Capture/compare unit output polarity
-
 #define TIM_SR_UIF         0x0001u   //!< Update interrupt flag
 #define TIM_SR_CC1IF       0x0002u   //!< Capture/Compare 1 interrupt flag
 #define TIM_SR_CC2IF       0x0004u   //!< Capture/Compare 2 interrupt flag
@@ -434,11 +432,11 @@ Error_t halTimerWrite (Handle_t Handle, TimRegsID_t RegID, UInt32 Value) {
         }
         switch (RegID) {
             case TIM_REG_RELOAD:
-                TIM->ARR = Value;
+                TIM->ARR = Value;       
                 break;
 
             case TIM_REG_COUNTER:
-                TIM->CNT = Value;
+                TIM->CNT = Value;       
                 break;
 
             case TIM_REG_PRESCALER:
@@ -449,7 +447,7 @@ Error_t halTimerWrite (Handle_t Handle, TimRegsID_t RegID, UInt32 Value) {
                 return (E_INVALID_REGISTER_ID);
         }
         // Clear update interrupt flag
-        TIM->SR = ~TIM_SR_UIF;
+        TIM->SR = ~TIM_SR_UIF;      
         return (NO_ERROR);
     }
     return (Index);
@@ -562,7 +560,7 @@ Error_t halTimerControl (Handle_t Handle, TimCtrlID_t ControlID) {
                 break;
 
             case TIM_INTR_CLEAR:
-                TIM->SR = ~TIM_SR_UIF;
+                TIM->SR &= ~TIM_SR_UIF;   
                 break;
 
             default:
@@ -614,7 +612,7 @@ Error_t halCapComRead (Handle_t Handle, UInt16 UnitNo, UInt32 *Value) {
             *Value = TIM->CCR[UnitNo];
         }
         if (TIM->SR & (TIM_SR_CC1OF << UnitNo)) {
-            TIM->SR = ~(TIM_SR_CC1OF << UnitNo);
+            TIM->SR &= ~(TIM_SR_CC1OF << UnitNo);
 
             return (E_TIMER_CAPCOM_OVERFLOW);
         }
@@ -658,7 +656,7 @@ Error_t halCapComWrite (Handle_t Handle, UInt16 UnitNo, UInt32 Value) {
         if (Value > TIMER_MAX_VALUE) {
             return (E_VALUE_OUT_OF_RANGE);
         }
-        DataTable[Index].TIM->SR = ~(TIM_SR_CC1IF << UnitNo);   // clear capture/compare interrupt flag
+        DataTable[Index].TIM->SR &= ~(TIM_SR_CC1IF << UnitNo);
         DataTable[Index].TIM->CCR[UnitNo] = Value;
 
         return (NO_ERROR);
@@ -680,13 +678,6 @@ Error_t halCapComWrite (Handle_t Handle, UInt16 UnitNo, UInt32 Value) {
  *      The ISR of the stepper function-module uses this version to minimize
  *      execution time of the ISR. This allows faster stepper movement.
  *
- *      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *      Don't clear capture/compare interrupt flag here.
- *      It will be cleared at end of halTimerInterruptHandler().
- *      Don't know why, but if it is cleared here too then sometimes
- *      timing get's disturbed, when two motors are running.
- *      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *
  *      This version is fixed to use TIMER 1
  *
  *  \iparam  UnitNo = Unit number of the capture/compare channel
@@ -696,6 +687,7 @@ Error_t halCapComWrite (Handle_t Handle, UInt16 UnitNo, UInt32 Value) {
 
 void halCapComWriteTimer1_Simplified (UInt16 UnitNo, UInt32 Value) {
 
+    DataTable[0].TIM->SR &= ~(TIM_SR_CC1IF << UnitNo);
     DataTable[0].TIM->CCR[UnitNo] = Value;
 }
 
@@ -764,7 +756,6 @@ Error_t halCapComStatus (Handle_t Handle, UInt16 UnitNo, TimStatID_t StatID) {
  *      in several ways. Depending on ControlID the following actions can 
  *      be initiated:
  *
- *      - set/reset capture/compare output polarity /input inversion
  *      - Enable/disable capture/compare unit
  *      - Enable/disable capture/compare interrupt
  *      - Clear capture/compare interrupt flag
@@ -791,14 +782,6 @@ Error_t halCapComControl (
             return (E_TIMER_CAPCOM_CHANNEL);
         }
         switch (ControlID) {
-            case TIM_CTRL_IOP_SET:
-                TIM->CCER |= (TIM_CCER_CCxP << (UnitNo * 4));
-                break;
-
-            case TIM_CTRL_IOP_RESET:
-                TIM->CCER &= ~(TIM_CCER_CCxP << (UnitNo * 4));
-                break;
-
             case TIM_CTRL_START:
                 TIM->CCER |= (TIM_CCER_CC1E << (UnitNo * 4));
                 break;
@@ -816,7 +799,7 @@ Error_t halCapComControl (
                 break;
 
             case TIM_INTR_CLEAR:
-                TIM->SR = ~(TIM_SR_CC1IF << UnitNo);
+                TIM->SR &= ~(TIM_SR_CC1IF << UnitNo);   
                 break;
 
             default:
@@ -853,12 +836,11 @@ void halTimerInterruptHandler (UInt32 Channel) {
     if (Channel < ELEMENTS(DataTable)) {
         const UInt32 IntrFlags = DataTable[Channel].TIM->SR & 
             DataTable[Channel].TIM->DIER & TIM_SR_IFLAGS;
-
+    
         if (TimerIntrVectors[Channel].Handler != NULL) {
             TimerIntrVectors[Channel].Handler (TimerIntrVectors[Channel].UserTag, IntrFlags);
         }
-
-        DataTable[Channel].TIM->SR = ~IntrFlags;    //    clear capture/compare interrupt flags
+        DataTable[Channel].TIM->SR = ~IntrFlags;
     }
 //usDuration=halGetFastTick()-usDuration;
 //if(usDuration<min)

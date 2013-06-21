@@ -646,14 +646,12 @@ Error_t halStepperControl (Handle_t Handle, StepCtrlID_t ControlID, Bool State) 
                     UInt32 SpiNo =Data->SpiNo;
                     // check if lock / unlock is allowed
                     if (State) { // only can get lock if not owned by another fm
-                        if (!Data->OwnBusLock && SpiData[SpiNo].Locked) {
+                        if (!Data->OwnBusLock && SpiData[SpiNo].Locked)
                             return E_DEVICE_LOCKED;
-                        }
                     }
                     else {  // only owner can unlock
-                        if (!Data->OwnBusLock) {
+                        if (!Data->OwnBusLock)
                             return E_STEPPER_NO_BUS;
-                        }
                     }
                     // perform lock / unlock
                     SpiData[SpiNo].Locked = State;

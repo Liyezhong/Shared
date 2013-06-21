@@ -38,8 +38,6 @@
 #include <EventHandler/Include/StateHandler.h>
 #include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
 #include <DataLogging/Include/DataLoggingThreadController.h>
-#include <AxedaController/Include/AxedaThreadController.h>
-/// Axeda commands (from Platform):
 #include <RemoteCareAgent/Include/Commands/CmdAxedaAlarm.h>
 #include <RemoteCareAgent/Include/Commands/CmdAxedaEvent.h>
 #include <RemoteCareAgent/Include/Commands/CmdAxedaDataItem.h>
@@ -162,10 +160,10 @@ void MasterThreadController::RegisterCommands() {
     qDebug()<<"Registering Command MasterThreadController";
     RegisterCommandForProcessing<Global::CmdSoftSwitchPressed, MasterThreadController>(&MasterThreadController::OnSoftSwitchPressedAtStartup, this);
     // tests for Axeda
-    RegisterCommandForRouting<RCAgentNamespace::CmdAxedaAlarm>(&m_CommandChannelAxeda);
+    /*RegisterCommandForRouting<RCAgentNamespace::CmdAxedaAlarm>(&m_CommandChannelAxeda);
     RegisterCommandForRouting<RCAgentNamespace::CmdAxedaEvent>(&m_CommandChannelAxeda);
     RegisterCommandForRouting<RCAgentNamespace::CmdAxedaDataItem>(&m_CommandChannelAxeda);
-    RegisterCommandForRouting<RCAgentNamespace::CmdAxedaUpload>(&m_CommandChannelAxeda);
+    RegisterCommandForRouting<RCAgentNamespace::CmdAxedaUpload>(&m_CommandChannelAxeda);*/
 }
 
 /****************************************************************************/
@@ -220,12 +218,7 @@ void MasterThreadController::AddAndConnectController(ThreadController *pControll
 
 /****************************************************************************/
 void MasterThreadController::CreateControllersAndThreads() {
-    // now create new objects common to all master threads
-    // create and connect axeda controller
-    Axeda::AxedaThreadController *pAxedaController = new Axeda::AxedaThreadController(m_HeartBeatSourceAxeda);
-    // Connect Remote Care related signals/slots:
-    //MasterThreadController::SetRemoteCareConnection(pAxedaController);
-    AddAndConnectController(pAxedaController, &m_CommandChannelAxeda, static_cast<int>(AXEDA_CONTROLLER_THREAD));
+
 }
 
 /****************************************************************************/
@@ -740,7 +733,7 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
 
     // read all the languages which are available in the translations directory
     QDir TheDir(Global::SystemPaths::Instance().GetTranslationsPath());
-    QStringList FileNames = TheDir.entryList(QStringList("Colorado_*.qm"));
+    QStringList FileNames = TheDir.entryList(QStringList("Himalaya_*.qm"));
 
     // Create list of used languages. Language and FallbackLanguage can be the same, since we are
     // working wit a QSet
@@ -752,8 +745,8 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
     {
         // get locale extracted by filename
         QString Locale;
-        Locale = FileNames[Counter];                  // "Colorado_de.qm"
-        Locale.truncate(Locale.lastIndexOf('.'));   // "Colorado_de"
+        Locale = FileNames[Counter];                  // "Himalaya_de.qm"
+        Locale.truncate(Locale.lastIndexOf('.'));   // "Himalaya_de"
         Locale.remove(0, Locale.indexOf('_') + 1);   // "de"
         LanguageList << QLocale(Locale).language();
     }
@@ -761,7 +754,7 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
     for(QSet<QLocale::Language>::const_iterator itl = LanguageList.constBegin(); itl != LanguageList.constEnd(); ++itl) {
 
         QString FileName = Global::SystemPaths::Instance().GetTranslationsPath() + "/EventStrings_" +
-                Global::LanguageToLanguageCode(*itl) + ".xml";
+                    Global::LanguageToLanguageCode(*itl) + ".xml";
 
         try {            
             // read strings for specified language

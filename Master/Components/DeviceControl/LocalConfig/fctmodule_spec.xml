@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE colorado_fct_module_specification>
-<colorado_fct_module_spec version="1.0">
+<!DOCTYPE himalaya_fct_module_specification>
+<himalaya_fct_module_spec version="1.0">
     <base_modules>
         <base_module>
             <CAN_messages>
@@ -170,4 +170,4 @@
             </CAN_messages>
         </function_module>
     </function_modules>
-</colorado_fct_module_spec>
+</himalaya_fct_module_spec>

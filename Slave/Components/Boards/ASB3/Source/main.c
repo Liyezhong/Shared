@@ -79,7 +79,7 @@ static const UInt32 TestOptionList[] = {
         CURRENT_LIMIT_FAILURE,          // Current monitor failure level
         
     // Function modules board options
-    MODULE_ID_TEMPERATURE, 1, 0x31242
+    MODULE_ID_TEMPERATURE, 1, 0x31042
 };
 
 //****************************************************************************/
@@ -220,11 +220,11 @@ static Error_t InitTestBootloaderInfoBlock (void) {
 
 int main (int argc, char **argv) {
 
+    volatile Int32 i;
     Error_t Status;
 
     // Wait for JTAG to synchronize
     #ifdef DEBUG
-    volatile Int32 i;
     for (i=0; i < 300000; i++);
     #endif
 
@@ -240,8 +240,6 @@ int main (int argc, char **argv) {
         dbgPrintError (BASEMODULE_CHANNEL, Status, ON, 0);
     }
     dbgPrint ("Firmware stopped");
-
-    return Status;
 }
 
 //****************************************************************************/

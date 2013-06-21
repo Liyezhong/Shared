@@ -238,8 +238,8 @@ public:
     void Attach(KeyBoard::CKeyBoardObserver *p_KeyBoardObserver);
     void Detach();
 
-    void ValidateString(QString m_Name);    
-
+    void ValidateString(QString m_Name);
+   
     /****************************************************************************/
     /*!
      *  \brief This function is used to set input mask for the line edit
