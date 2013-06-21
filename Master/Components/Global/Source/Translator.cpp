@@ -192,26 +192,32 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
         // language found. now get string
         tLanguageData::const_iterator it2 = (*it).find(StringID);
         if(it2 == (*it).constEnd()) {
-            // string not found. Get string for EVENT_GLOBAL_UNKNOWN_STRING_ID
-            it2 = (*it).find(EVENT_GLOBAL_UNKNOWN_STRING_ID);
-            if(it2 == (*it).constEnd()) {
-                // text for EVENT_GLOBAL_UNKNOWN_STRING_ID also not found.
-                // Take some extremely basic string with only the string id.
-                Result = GenerateMinimalString(StringID);
-            } else {
-                // translation for EVENT_GLOBAL_UNKNOWN_STRING_ID found. Insert StringID
-                QStringList tmp;
-                tmp << QString::number(StringID, 10);
-                QStringList StringList = *it2;
-                if (StringList.size() >= 1) {
-                    Result = StringList.at(0);
+            if((TheLanguage == m_FallbackLanguage) || (QLocale::C == m_FallbackLanguage)){
+                // string not found. Get string for EVENT_GLOBAL_UNKNOWN_STRING_ID
+                it2 = (*it).find(EVENT_GLOBAL_UNKNOWN_STRING_ID);
+                if(it2 == (*it).constEnd()) {
+                    // text for EVENT_GLOBAL_UNKNOWN_STRING_ID also not found.
+                    // Take some extremely basic string with only the string id.
+                    Result = GenerateMinimalString(StringID);
+                } else {
+                    // translation for EVENT_GLOBAL_UNKNOWN_STRING_ID found. Insert StringID
+                    QStringList tmp;
+                    tmp << QString::number(StringID, 10);
+                    QStringList StringList = *it2;
+                    if (StringList.size() >= 1) {
+                        Result = StringList.at(0);
+                    }
+                    InsertArguments(Result, tmp);
                 }
-                InsertArguments(Result, tmp);
+                // now append arguments
+                for(tTranslatableStringList::const_iterator its = ArgumentList.constBegin(); its != ArgumentList.constEnd(); ++its) {
+                    QString ArgumentTranslation = TranslateToLanguage(TheLanguage, (*its));
+                    Result = Result + " \"" + ArgumentTranslation + "\"";
+                }
             }
-            // now append arguments
-            for(tTranslatableStringList::const_iterator its = ArgumentList.constBegin(); its != ArgumentList.constEnd(); ++its) {
-                QString ArgumentTranslation = TranslateToLanguage(TheLanguage, (*its));
-                Result = Result + " \"" + ArgumentTranslation + "\"";
+            else
+            {
+                Result = TranslateToLanguage(m_FallbackLanguage, String);
             }
         } else {
             // string found
