@@ -870,10 +870,7 @@ TempCtrlHardwareStatus_t *CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type
             return &m_HardwareStatus[Type];
         }
     }
-    else
-    {
-        return NULL;
-    }
+    return NULL;
 }
 
 void CRetortDevice::OnGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
