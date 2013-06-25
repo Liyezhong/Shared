@@ -295,5 +295,6 @@
         <file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenSaver.png</file>
         <file>HimalayaImages/Icons/Program/IconEmpty.png</file>
         <file>HimalayaImages/Icons/MISC/LeicaLogo.png</file>
+        <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLineRed.png</file>
     </qresource>
 </RCC>
