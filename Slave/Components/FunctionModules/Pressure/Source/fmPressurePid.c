@@ -23,6 +23,7 @@
  */
 /****************************************************************************/
 
+#include <stdio.h>
 #include "Global.h"
 #include "bmTime.h"
 #include "fmPressurePid.h"
@@ -133,41 +134,41 @@ Bool pressPidCalculate (PressPidParams_t *Param, Int32 DesiredPress, Int32 Actua
         return FALSE;
     }
 
-    // Direction: 0-Pressure, 1-Vacuum
+	// Direction: 0-Pressure, 1-Vacuum
     if (Direction == 0) {
-        // Compute error
-        if (DesiredPress > Param->MaxPress) {
-            Error = Param->MaxPress - ActualPress;
-        }
-        else {
-            Error = DesiredPress - ActualPress;
-        }
-    }
-    else {
-        // Compute error
+		// Compute error
+	    if (DesiredPress > Param->MaxPress) {
+	        Error = Param->MaxPress - ActualPress;
+	    }
+	    else {
+	        Error = DesiredPress - ActualPress;
+	    }
+	}
+	else {
+		// Compute error
         if (DesiredPress < Param->MinPress) {
-            Error = ActualPress - Param->MinPress;
-        }
-        else {
-            Error = ActualPress - DesiredPress;
-        }
-    }
+		    Error = ActualPress - Param->MinPress;
+		}
+	    else {
+	        Error = ActualPress - DesiredPress;
+	    }
+	}
 
 
     // Compute proportional part
     Proportional = (Param->Kc * Error) / 100;
     
     // Compute integral part
-    if (Param->Ti != 0) {
-        Integral = ((Param->Kc * Error * Param->Ts) / Param->Ti) / 100;
-        // Anti windup
-        if ( (Param->Output > 0 && Param->Output < Param->Range) ) {
-            Param->Integral += Integral;
-        }
-    }
-    else {
-        Param->Integral = 0;
-    }    
+	if (Param->Ti != 0) {
+	    Integral = ((Param->Kc * Error * Param->Ts) / Param->Ti) / 100;
+	    // Anti windup
+	    if ( (Param->Output > 0 && Param->Output < Param->Range) ) {
+	        Param->Integral += Integral;
+	    }
+	}
+	else {
+	    Param->Integral = 0;
+	}    
 
     // Compute derivative part
     Derivative = ((Param->Kc * (Error - Param->Error) * Param->Td) / Param->Ts) / 100;
@@ -185,7 +186,8 @@ Bool pressPidCalculate (PressPidParams_t *Param, Int32 DesiredPress, Int32 Actua
     
     Param->Error = Error;
     
-    //printf("P:%5d %5d %5d %5d, %5d\n", Proportional, Param->Integral, Error, Param->Output, ActualPress);
+    //printf("P:%5d %5d %5d [%5d], %5d\n", Proportional, Param->Integral, Error, Param->Output, ActualPress);
+    //printf("P:%5d %5d \n ", Param->Output, ActualPress);
     
     return TRUE;
 }

@@ -83,7 +83,7 @@ typedef struct {
     UInt16 DesiredTemp;          //!< Desired temperature (in 0.01 degree Celsius steps)
     UInt16 ToleranceTemp;        //!< Temperature tolerance (in 0.01 degree Celsius steps)
 
-    UInt16* ServiceTemp;         //!< Temperature a certain sensor in 0.01 degree Celsius steps     
+    UInt16* ServiceTemp;         //!< Temperature of a certain sensor in 0.01 degree Celsius steps     
     UInt16* ServiceFan;          //!< Speed of the fans in rotations per minute
 
     UInt16 DesiredFanSpeed;      //!< Desired speed for the fan watchdog in RPM
@@ -99,7 +99,7 @@ typedef struct {
     UInt8 NumberFans;            //!< Number of ventilation fans to be watched
     UInt8 NumberPid;             //!< Number of cascaded PID controllers
     UInt8 IndexPidSensor;        //!< Index of sensor used for PID calculation.
-                                 //!< F: Lowest for caculation
+                                 //!< 0xF: Sensor wiht lowest temperature is used for caculation
 
     UInt8 DetectSlope;           //!< 0: No, 1: Yes
     UInt8 SlopeTimeInterval;     //!< Time in milliseconds
@@ -110,6 +110,13 @@ typedef struct {
     TempSensorType_t SensorType; //!< Type of temperature sensor used by this module
     TempTimeParams_t TimeParams; //!< Input and output parameters of the lifecycle counters
     TempPidParams_t *PidParams;  //!< Input and output parameters of the PID controller
+    
+    UInt16* TempArray;
+    UInt8   TempArraySize;
+    UInt8   TempArrayIndex;
+    UInt8   SamplesPerSec;
+    UInt32* SensorErrTimestamp;
+    
 } InstanceData_t;
 
 
@@ -134,6 +141,9 @@ static UInt32 TempSamplingTime = 1000;
 /*! Public parameters for the heating element control functionality */
 static TempHeaterParams_t *tempHeaterParams;
 
+/*! Total number of sensors used in all instances */
+static UInt32 TempNumSensors = 0;
+
 //****************************************************************************/
 // Private Function Prototypes
 //****************************************************************************/
@@ -142,7 +152,7 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
 static Error_t tempModuleStatus  (UInt16 Instance, bmModuleStatusID_t StatusID);
 static Error_t tempModuleTask    (UInt16 Instance);
 
-static UInt8   tempFindRoot (void);
+static Int8    tempFindRoot (void);
 static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instance);
 static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail);
 static Error_t tempNotifRange (InstanceData_t *Data);
@@ -297,24 +307,24 @@ static Error_t tempModuleTask (UInt16 Instance)
     Bool Fail = FALSE;
     UInt8 i;
     Error_t Error;
-    static UInt16* TempArray = NULL;
-    static UInt8 TempArraySize = 0, TempArrayIndex = 0;
-    static UInt8 SamplesPerSec = 0;
+    //static UInt16* TempArray = NULL;
+    //static UInt8 TempArraySize = 0, TempArrayIndex = 0;
+    //static UInt8 SamplesPerSec = 0;
     //static UInt8 TempCnt = 0;
     Int16 TempDelta = 0;
 
     InstanceData_t* Data = &DataTable[Instance];
 
-    if (Data->DetectSlope == 1 && TempArray == NULL) {
+    if (Data->DetectSlope == 1 && Data->TempArray == NULL) {
         // Only set sampling array if temp. module has been configured.
         if ((Data->Flags & MODE_MODULE_ENABLE) != 0 && TempSamplingTime>0 ) {
-            //TempArraySize = Data->SlopeTimeInterval/TempSamplingTime;
-            TempArraySize = 5000/TempSamplingTime;
-            SamplesPerSec = 1000/TempSamplingTime;
-            printf("TempArraySize:%d, SamplesPerSec:%d\n", TempArraySize, SamplesPerSec);
-            if ( TempArraySize > 0 ) {
-                TempArray = calloc (TempArraySize, sizeof(UInt16));
-                if (NULL == TempArray) {
+            //Data->TempArraySize = Data->SlopeTimeInterval/TempSamplingTime;
+            Data->TempArraySize = 5000/TempSamplingTime;
+            Data->SamplesPerSec = 1000/TempSamplingTime;
+            printf("TempArraySize:%d, SamplesPerSec:%d\n", Data->TempArraySize, Data->SamplesPerSec);
+            if ( Data->TempArraySize > 0 ) {
+                Data->TempArray = calloc (Data->TempArraySize, sizeof(UInt16));
+                if (NULL == Data->TempArray) {
                     return (E_MEMORY_FULL);
                 }
             }
@@ -322,14 +332,13 @@ static Error_t tempModuleTask (UInt16 Instance)
     }
     
     if (Data->ModuleState == MODULE_STATE_READY) {
-    
-        if (Data->HeaterType == TYPE_HEATER_AC) {
-            Error = tempSampleCurrent();  
+
+        //if (Data->HeaterType == TYPE_HEATER_AC) {
+            Error = tempSampleCurrent(Data->HeaterType);  
             if (Error < 0) {
                 return (tempShutDown (Data, Error, Instance));
             }
-        }
-        
+        //}
 
         if ( Instance == 0 ) {
             if (bmTimeExpired (TempSampleTimestamp) >= TempSamplingTime) {
@@ -347,9 +356,7 @@ static Error_t tempModuleTask (UInt16 Instance)
         
             if ((Data->Flags & MODE_MODULE_ENABLE) == 0 ) {
                 Data->State = STATE_CONTROL;
-            }
-            
-            printf("I:%d ", Instance);           
+            }                       
 
             // Read and check sensors
             Error = tempFetchCheck(Data, Instance, &Fail);
@@ -392,9 +399,8 @@ static Error_t tempModuleTask (UInt16 Instance)
         if (Data->State == STATE_SAMPLE) {
             Data->State = STATE_CONTROL;
 
-#if 0
-            printf("I:%d ", Instance);           
 
+#if 0
             // Read and check sensors
             Error = tempFetchCheck(Data, Instance, &Fail);
             if (Error != NO_ERROR) {
@@ -415,16 +421,16 @@ static Error_t tempModuleTask (UInt16 Instance)
             }
 
             // Slope detection
-            if (Data->DetectSlope == 1 && TempArray != NULL) {
+            if (Data->DetectSlope == 1 && Data->TempArray != NULL) {
                 
-                TempArray[TempArrayIndex++] = Data->ServiceTemp[0];
-                TempArrayIndex %= TempArraySize;                
-                if (Data->SlopeSampleCnt < TempArraySize) {
+                Data->TempArray[Data->TempArrayIndex++] = Data->ServiceTemp[0];
+                Data->TempArrayIndex %= Data->TempArraySize;                
+                if (Data->SlopeSampleCnt < Data->TempArraySize) {
                     Data->SlopeSampleCnt++;
                 }
                 else {
                     //tempNotifySlope(Data, 1);
-                    TempDelta = Data->ServiceTemp[0]- TempArray[(TempArrayIndex+SamplesPerSec*(5-3)) % TempArraySize];
+                    TempDelta = Data->ServiceTemp[0]- Data->TempArray[(Data->TempArrayIndex+Data->SamplesPerSec*(5-3)) % Data->TempArraySize];
                     printf("D3: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
                     if (TempDelta < (-Data->SlopeTempChange)) {
                         printf("Level up [3].\n");
@@ -435,7 +441,7 @@ static Error_t tempModuleTask (UInt16 Instance)
                         tempNotifySlope(Data, 0);
                     }
                     else {
-                        TempDelta = Data->ServiceTemp[0]- TempArray[TempArrayIndex];
+                        TempDelta = Data->ServiceTemp[0]- Data->TempArray[Data->TempArrayIndex];
                         printf("D5: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
                         if (TempDelta < (-Data->SlopeTempChange)) {
                         printf("Level up [5].\n");
@@ -459,6 +465,8 @@ static Error_t tempModuleTask (UInt16 Instance)
                 Data->State = STATE_IDLE;
                 TempPriority++;
                 
+                //printf("OP:%d\n", OperatingTime);
+                
                 // Control the heating elements
                 Error = tempHeaterActuate (OperatingTime, TempSampleTimestamp + TempSamplingTime, Instance);
                 if (Error != NO_ERROR) {
@@ -473,6 +481,9 @@ static Error_t tempModuleTask (UInt16 Instance)
         }
     }
     else {
+        if (tempFindRoot () < 0) {
+            tempHeaterReset ();
+        }
         Error = tempHeaterActuate (0, TempSampleTimestamp + TempSamplingTime, Instance);
         if (Error < NO_ERROR) {
             return (tempShutDown (Data, Error, Instance));
@@ -500,15 +511,16 @@ static Error_t tempModuleTask (UInt16 Instance)
  *
  ****************************************************************************/
 
-static UInt8 tempFindRoot (void)
+static Int8 tempFindRoot (void)
 {
-    UInt8 i;
+    Int8 i;
+
     for (i = 0; i < InstanceCount; i++) {
         if (DataTable[i].ModuleState == MODULE_STATE_READY && (DataTable[i].Flags & MODE_MODULE_ENABLE) != 0) {
             return (i);
         }
     }
-    return (i);
+    return (-1);
 }
 
 
@@ -516,7 +528,7 @@ static UInt8 tempFindRoot (void)
 /*!
  *  \brief  Deactivates the module and sends an error message
  *
- *      This method deactivates an instance of the temperature function
+ *      This method deactivates an instance of the temperature fufnction
  *      module, when an error occured. It also forwards the error code to the
  *      master via CAN Bus. After that, it returns the module state as an 
  *      error code.
@@ -568,39 +580,68 @@ static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instanc
 static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail)
 {
     UInt8 i;
-    UInt8 j;
-    UInt16 Compensation;
+    //UInt8 j;
+    UInt16 Compensation = 0;
     Error_t Error = NO_ERROR;
-    static UInt16 TempPre[2] = {19900,19900};
+    //static UInt16 TempPre[2] = {19900,19900};
     static UInt16 CompPre = 2500;
 
 
-    if (Data->HeaterType == TYPE_HEATER_AC) {
+    //if (Data->HeaterType == TYPE_HEATER_AC) {
     
         // Compute and check heater current      
         if ( Instance == 0 ) {
-            tempCalcEffectiveCurrent();
+            tempCalcEffectiveCurrent(/*Instance, */Data->HeaterType);
+            //printf("Current[%d]:%d\n", Instance, tempHeaterCurrent());
         }
         if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
             if ( Instance == tempFindRoot () ) {
-                Error = tempHeaterCheck (FALSE);
+                Error = tempHeaterCheck (/*Instance, */Data->HeaterType);
                 if (Error < 0) {
                     return Error;
                 }
             }
+            else {
+                //printf("here AAA\n");
+            }
+            
+            
+            if (tempHeaterFailed () == TRUE) {
+                *Fail = TRUE;
+                //printf("I[Err]:%d ", Instance);
+                bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
+                bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempGetActiveStatus ());
+            }
+            
 
-        }        
-        
-        
-        if (tempHeaterFailed () == TRUE) {
-            //*Fail = TRUE;
-            bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
         }
+        else {
+            //printf("here BBB\n");
+        }
+        
+        
+
         
         //printf("C:%d ", tempHeaterCurrent());
     
+    //}
+ 
+    
+/*
+    if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) { 
+        // Compute and check heater current
+        if (Instance == tempFindRoot ()) {
+            Error = tempHeaterCheck (Instance, Data->HeaterType);
+            if (Error < 0) {
+                return Error;
+            }
+        }
+        if (tempHeaterFailed () == TRUE) {
+            // *Fail = TRUE;
+            // bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
+        }
     }
-
+*/
 
     // Read and check fan speeds
     for (i = 0; i < Data->NumberFans; i++) {
@@ -631,21 +672,41 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
         }
     }
 
+    //printf("I:%d ", Instance);
+
     //Compensation = 2600;
     // Measure and check the temperature
     for (i = 0; i < Data->NumberSensors; i++) {
         if ((Error = tempSensorRead (Data->HandleTemp[i], Data->SensorType, Compensation, &Data->ServiceTemp[i])) < 0) {
-            //return (Error);
-            printf("[%d]:E ", i);            
-            Data->ServiceTemp[i] = TempPre[i];
+            //return (Error);            
+            //Data->ServiceTemp[i] = TempPre[i];
+            //Data->ServiceTemp[i] = 19900;
+            //printf("[%d]:E ", i);
+            //printf("[%d]:%d(E) ", i, Data->ServiceTemp[i]);
+            if ( Data->SensorErrTimestamp[i] == 0 ) {
+                Data->SensorErrTimestamp[i] = bmGetTime();
+            }
+            else if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= 3000) {
+                Data->ServiceTemp[i] = 29900;
+                if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
+                    return (Error);
+                }
+            }
         }
         else {
-            printf("[%d]:%d ", i, Data->ServiceTemp[i]);            
-            TempPre[i] = Data->ServiceTemp[i];
+            //printf("[%d]:%d ", i, Data->ServiceTemp[i]);
+            
+            //TempPre[i] = Data->ServiceTemp[i];
+            
+            if ( Data->SensorErrTimestamp[i] != 0 ) {
+                if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= 3000) {
+                    Data->SensorErrTimestamp[i] = 0;
+                }
+            }
         }
     }
     
-    printf("\n");
+    //printf("\n");
 
 
 #if 0
@@ -731,10 +792,12 @@ static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus)
 {
     CanMessage_t Message;
 
-    Message.CanID = MSG_TEMP_NOTI_SLOPE;
+    Message.CanID = MSG_TEMP_NOTI_SLOPE_DETECTED;
     Message.Length = 1;
     bmSetMessageItem (&Message, LevelStatus, 0, 1);
     return (canWriteMessage(Data->Channel, &Message));
+
+    //return (NO_ERROR);
 }
 
 
@@ -900,16 +963,16 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     Data->Flags = bmGetMessageItem(Message, 0, 1);
     Data->DesiredTemp = bmGetMessageItem(Message, 1, 1) * 100;
     Data->ToleranceTemp = bmGetMessageItem(Message, 2, 1) * 100;
-    TempSamplingTime = bmGetMessageItem(Message, 3, 2) * 5;
+    TempSamplingTime = bmGetMessageItem(Message, 3, 2);
     Data->AutoTuneDuration = bmGetMessageItem(Message, 5, 2) * 1000;
     //Data->SlopeTimeInterval = bmGetMessageItem(Message, 7, 1) * 1000;
     Data->SlopeTempChange = bmGetMessageItem(Message, 7, 1) * 100;
     
-    printf("Temp Change for slope detection:%d\n", Data->SlopeTempChange);
+    //printf("Temp Change for slope detection:%d\n", Data->SlopeTempChange);
 
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
-        Data->PidParams[i].Ts = bmGetMessageItem(Message, 3, 2);
+        Data->PidParams[i].Ts = bmGetMessageItem(Message, 3, 2)/10;
     }
 
     // Set operating phase
@@ -1003,10 +1066,16 @@ static Error_t tempSetFanWatchdog (UInt16 Channel, CanMessage_t* Message)
 
 static Error_t tempSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
 {
+    UInt16 Instance = bmGetInstance(Channel);
+    
+    //if (Message->Length == 8) {
     if (Message->Length == 6) {
-        tempHeaterParams->CurrentGain = bmGetMessageItem (Message, 0, 2);
-        tempHeaterParams->DesiredCurrent = bmGetMessageItem (Message, 2, 2);
-        tempHeaterParams->DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
+        tempHeaterParams[Instance].CurrentGain = bmGetMessageItem (Message, 0, 2);
+        tempHeaterParams[Instance].DesiredCurrent = bmGetMessageItem (Message, 2, 2);
+        tempHeaterParams[Instance].DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
+        //tempHeaterParams[Instance].CurrentDeviation = bmGetMessageItem (Message, 6, 2);
+        tempHeaterParams[Instance].CurrentDeviation = 200;
+        printf("WD:%d %d %d\n", tempHeaterParams[Instance].DesiredCurrent, tempHeaterParams[Instance].DesiredCurThreshold, tempHeaterParams[Instance].CurrentDeviation);
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
@@ -1157,7 +1226,7 @@ static Error_t tempGetTemperature (UInt16 Channel, CanMessage_t* Message)
     bmSetMessageItem (&RespMessage, Data->Flags, 0, 1);
     bmSetMessageItem (&RespMessage, Data->DesiredTemp / 100, 1, 1);
     bmSetMessageItem (&RespMessage, Data->ToleranceTemp / 100, 2, 1);
-    bmSetMessageItem (&RespMessage, TempSamplingTime / 10, 3, 2);
+    bmSetMessageItem (&RespMessage, TempSamplingTime, 3, 2);
     bmSetMessageItem (&RespMessage, Data->AutoTuneDuration / 1000, 5, 2);
     RespMessage.Length = 7;
 
@@ -1364,7 +1433,8 @@ static Error_t tempGetHardware (UInt16 Channel, CanMessage_t* Message)
     bmSetMessageItem (&RespMessage, Data->NumberHeaters, 2, 1);
     bmSetMessageItem (&RespMessage, Data->NumberPid, 3, 1);
     bmSetMessageItem (&RespMessage, tempHeaterCurrent(), 4, 2);
-    RespMessage.Length = 6;
+    bmSetMessageItem (&RespMessage, tempHeaterSwitchState(), 6, 1);
+    RespMessage.Length = 7;
 
     return (canWriteMessage(Data->Channel, &RespMessage));
 }
@@ -1467,6 +1537,10 @@ static Error_t tempDeviceAlloc (InstanceData_t *Data)
         if (NULL == Data->ServiceTemp) {
             return (E_MEMORY_FULL);
         }
+        Data->SensorErrTimestamp = calloc (Data->NumberSensors, sizeof(UInt32));
+        if (NULL == Data->SensorErrTimestamp) {
+            return (E_MEMORY_FULL);
+        }        
     }
     if (Data->NumberFans > 0) {
         Data->ServiceFan = calloc (Data->NumberFans, sizeof(UInt16));
@@ -1515,7 +1589,9 @@ static Error_t tempHandleOpen (InstanceData_t *Data, UInt16 Instance)
 
     // Open temperature sensors
     for (j = 0; j < Data->NumberSensors; j++) {
-        Data->HandleTemp[j] = halAnalogOpen (HAL_TEMP_SENSOR + Data->NumberSensors * i + j, HAL_OPEN_READ, 0, NULL);
+        //Data->HandleTemp[j] = halAnalogOpen (HAL_TEMP_SENSOR + Data->NumberSensors * i + j, HAL_OPEN_READ, 0, NULL);
+        //printf("%d:%d\n", i, HAL_TEMP_SENSOR + TempNumSensors);
+        Data->HandleTemp[j] = halAnalogOpen (HAL_TEMP_SENSOR + (TempNumSensors++), HAL_OPEN_READ, 0, NULL);     
         if (Data->HandleTemp[j] < 0) {
             return (Data->HandleTemp[j]);
         }
@@ -1571,8 +1647,9 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     Error_t Status;
     UInt16 i;
     UInt16 j;
-    UInt16 Channel;
-    InstanceData_t* Data;
+    //UInt16 Channel;
+    //InstanceData_t* Data;
+    //UInt16 Instance;
 
     // allocate module instances data storage
     DataTable = calloc (Instances, sizeof(InstanceData_t));
@@ -1598,6 +1675,9 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     if (Status < NO_ERROR) {
         return (Status);
     }
+    
+    // Reset total number of sensors for all instances
+    TempNumSensors = 0;
 
     // open channels and ports for all modules
     for (i=0; i < Instances; i++) {
@@ -1639,6 +1719,16 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
         DataTable[i].State = STATE_IDLE;
         DataTable[i].ModuleState = MODULE_STATE_READY;
         DataTable[i].SlopeSampleCnt = 0;
+        
+        DataTable[i].TempArray = NULL;
+        DataTable[i].TempArraySize = 0;
+        DataTable[i].TempArrayIndex = 0;
+        DataTable[i].SamplesPerSec = 0;
+        
+        // Init time stamps for sensor error detection
+        for (j = 0; j < DataTable[i].NumberSensors; j++) {
+            DataTable[i].SensorErrTimestamp[j] = 0;
+        };
     }
 
     // Initialize current measurement
@@ -1659,11 +1749,12 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
 // For level sensor
     Channel = 1;
     Data = &DataTable[bmGetInstance(Channel)];
+    Instance = bmGetInstance(Channel);
     ///////////////////////////////////////////////////////////
     // Set PID parameters
     Data = &DataTable[bmGetInstance(Channel)];
     Data->PidParams[0].Ready = TRUE;
-    Data->PidParams[0].MaxTemp = 90 * 100;
+    Data->PidParams[0].MaxTemp = 125 * 100;
     Data->PidParams[0].Kc = 1212;
     Data->PidParams[0].Ti = 1000;
     Data->PidParams[0].Td = 80;
@@ -1675,16 +1766,16 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     //////////////////////////////////////////////////////////
     // Current watchdog
-    tempHeaterParams->CurrentGain = 7813;
-    tempHeaterParams->DesiredCurrent = 3000;
-    tempHeaterParams->DesiredCurThreshold = 2500;
+    tempHeaterParams[Instance].CurrentGain = 7813;
+    tempHeaterParams[Instance].DesiredCurrent = 3000;
+    tempHeaterParams[Instance].DesiredCurThreshold = 2800;
 
 
     //////////////////////////////////////////////////////////
     // Set Temperature
      
     Data->Flags = 1;
-    Data->DesiredTemp = 6000;
+    Data->DesiredTemp = 12000;
     Data->ToleranceTemp = 500;
     TempSamplingTime = 500;
     Data->AutoTuneDuration = 0;
@@ -1712,6 +1803,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     Channel = 1;
     Data = &DataTable[bmGetInstance(Channel)];
+    Instance = bmGetInstance(Channel);
     ///////////////////////////////////////////////////////////
     // Set PID parameters
     Data = &DataTable[bmGetInstance(Channel)];
@@ -1728,18 +1820,18 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     //////////////////////////////////////////////////////////
     // Current watchdog
-    tempHeaterParams->CurrentGain = 7813;
-    tempHeaterParams->DesiredCurrent = 3000;
-    tempHeaterParams->DesiredCurThreshold = 3000;
+    tempHeaterParams[Instance].CurrentGain = 7813;
+    tempHeaterParams[Instance].DesiredCurrent = 350;
+    tempHeaterParams[Instance].DesiredCurThreshold = 100;
 
 
     //////////////////////////////////////////////////////////
     // Set Temperature
      
     Data->Flags = 1;
-    Data->DesiredTemp = 9000;
+    Data->DesiredTemp = 4000;
     Data->ToleranceTemp = 500;
-    TempSamplingTime = 1000;
+    TempSamplingTime = 500;
     Data->AutoTuneDuration = 0;
     Data->SlopeTempChange = 99*100;
 
@@ -1764,6 +1856,59 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     Channel = 2;
     Data = &DataTable[bmGetInstance(Channel)];
+    Instance = bmGetInstance(Channel);
+    ///////////////////////////////////////////////////////////
+    // Set PID parameters
+    Data = &DataTable[bmGetInstance(Channel)];
+    Data->PidParams[0].Ready = TRUE;
+    Data->PidParams[0].MaxTemp = 100 * 100;
+    Data->PidParams[0].Kc = 6000;
+    Data->PidParams[0].Ti = 1000;
+    Data->PidParams[0].Td = 80;
+    tempPidReset(&Data->PidParams[1]);
+    
+    //if (0 == Data->NumberPid - 1) {
+        Data->PidParams[0].Range = MAX_INT16;
+    //}
+
+    //////////////////////////////////////////////////////////
+    // Current watchdog
+    tempHeaterParams[Instance].CurrentGain = 7813;
+    tempHeaterParams[Instance].DesiredCurrent = 760;
+    tempHeaterParams[Instance].DesiredCurThreshold = 100;
+
+
+    //////////////////////////////////////////////////////////
+    // Set Temperature
+     
+    Data->Flags = 1;
+    Data->DesiredTemp = 8000;
+    Data->ToleranceTemp = 500;
+    TempSamplingTime = 500;
+    Data->AutoTuneDuration = 0;
+    Data->SlopeTempChange = 99*100;
+
+    // Set the sampling time
+    for (i = 0; i < Data->NumberPid; i++) {
+        Data->PidParams[i].Ts = 100;
+    }
+
+    TempPhase = PHASE_HEAT;
+
+    for (i = 0; i < Data->NumberPid; i++) {
+        tempPidReset(&Data->PidParams[i]);
+    }
+    tempHeaterReset();
+    Data->State = STATE_IDLE;
+    Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
+
+#endif
+
+#if 0
+
+    Channel = 3;
+    Data = &DataTable[bmGetInstance(Channel)];
+    Instance = bmGetInstance(Channel);
     ///////////////////////////////////////////////////////////
     // Set PID parameters
     Data = &DataTable[bmGetInstance(Channel)];
@@ -1780,16 +1925,68 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     //////////////////////////////////////////////////////////
     // Current watchdog
-    tempHeaterParams->CurrentGain = 7813;
-    tempHeaterParams->DesiredCurrent = 3000;
-    tempHeaterParams->DesiredCurThreshold = 2500;
+    tempHeaterParams[Instance].CurrentGain = 7813;
+    tempHeaterParams[Instance].DesiredCurrent = 1750;
+    tempHeaterParams[Instance].DesiredCurThreshold = 100;
 
 
     //////////////////////////////////////////////////////////
     // Set Temperature
      
     Data->Flags = 1;
-    Data->DesiredTemp = 6600;
+    Data->DesiredTemp = 8000;
+    Data->ToleranceTemp = 500;
+    TempSamplingTime = 500;
+    Data->AutoTuneDuration = 0;
+    Data->SlopeTempChange = 99*100;
+
+    // Set the sampling time
+    for (i = 0; i < Data->NumberPid; i++) {
+        Data->PidParams[i].Ts = 100;
+    }
+
+    TempPhase = PHASE_HEAT;
+
+    for (i = 0; i < Data->NumberPid; i++) {
+        tempPidReset(&Data->PidParams[i]);
+    }
+    tempHeaterReset();
+    Data->State = STATE_IDLE;
+    Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
+
+#endif
+
+#if 0
+
+    Channel = 4;
+    Data = &DataTable[bmGetInstance(Channel)];
+    Instance = bmGetInstance(Channel);
+    ///////////////////////////////////////////////////////////
+    // Set PID parameters
+    Data = &DataTable[bmGetInstance(Channel)];
+    Data->PidParams[0].Ready = TRUE;
+    Data->PidParams[0].MaxTemp = 90 * 100;
+    Data->PidParams[0].Kc = 6000;
+    Data->PidParams[0].Ti = 1000;
+    Data->PidParams[0].Td = 80;
+    tempPidReset(&Data->PidParams[1]);
+    
+    //if (0 == Data->NumberPid - 1) {
+        Data->PidParams[0].Range = MAX_INT16;
+    //}
+
+    //////////////////////////////////////////////////////////
+    // Current watchdog
+    tempHeaterParams[Instance].CurrentGain = 7813;
+    tempHeaterParams[Instance].DesiredCurrent = 1000;
+    tempHeaterParams[Instance].DesiredCurThreshold = 100;
+
+
+    //////////////////////////////////////////////////////////
+    // Set Temperature
+     
+    Data->Flags = 1;
+    Data->DesiredTemp = 8000;
     Data->ToleranceTemp = 500;
     TempSamplingTime = 500;
     Data->AutoTuneDuration = 0;

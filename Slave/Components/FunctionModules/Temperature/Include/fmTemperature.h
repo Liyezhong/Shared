@@ -100,7 +100,7 @@
 //! Notification sent when the temperature leaves the required range
 #define MSG_TEMP_NOTI_OUT_OF_RANGE    BUILD_CAN_ID(CMD_CLASS_FUNCTION, 18, 0)
 //! Notification sent when preset temperature variation slope reached
-#define MSG_TEMP_NOTI_SLOPE           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0)
+#define MSG_TEMP_NOTI_SLOPE_DETECTED  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0)
 
 //****************************************************************************/
 // Public Type Definitions 

@@ -25,6 +25,7 @@
  */
 /****************************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "bmError.h"
@@ -45,13 +46,16 @@
 
 /*! Contains the data for the pump current measurements */
 typedef struct {
-    Handle_t HandleSwitch;      //!< Handle for the heating element circuit switch
-    Handle_t *HandleControl;    //!< Array of handles for the heating element control outputs
+    Handle_t HandleSwitch;      //!< Handle for the pumping element circuit switch
+    Handle_t *HandleControl;    //!< Array of handles for the pumping element control outputs
+#ifdef ASB15_VER_B
+    Handle_t *HandlePWMControl;
+#endif    
     Int16 MinValue;             //!< Minimal value of the last current half-wave
     Int16 MaxValue;             //!< Maximal value of the last current half-wave
-    UInt16 EffectiveCurrent;    //!< Effective value of the heating element current in mA
-    Bool ParallelCircuit;       //!< Heating elment circuit is switched serially or parallelly
-    PressPumpParams_t Params;  //!< Parameters for the pump current measurements
+    UInt16 EffectiveCurrent;    //!< Effective value of the pumping element current in mA
+    Bool ParallelCircuit;       //!< Pumping elment circuit is switched serially or parallelly
+    PressPumpParams_t Params;   //!< Parameters for the pump current measurements
     UInt16 Instances;           //!< Total number of module instances
     UInt16 MaxActive;           //!< Maximum number of active pumping elements
     UInt32 *StartingTime;       //!< Time in milliseconds an output pulse is started
@@ -75,7 +79,7 @@ typedef struct {
 // Private Variables 
 //****************************************************************************/
 
-/*! Global data for the heating element control functionality */
+/*! Global data for the pumping element control functionality */
 static PressPumpData_t PressPumpData;
 /*! Global data for input filtering functionality */
 static PressPumpMonitor_t PressPumpMonitor;  
@@ -86,16 +90,15 @@ static PressPumpMonitor_t PressPumpMonitor;
 //****************************************************************************/
 
 static Error_t pressPumpGetFilteredInput (PressPumpMonitor_t *Monitor);
-static Error_t pressPumpSwitch (Handle_t Handle, Bool Parallel);
 
 
 /*****************************************************************************/
 /*!
- *  \brief  Initializes the handling of the heating elements
+ *  \brief  Initializes the handling of the pumping elements
  *
  *      This methods opens the peripheral handlers needed for the control of
- *      the heating elements. It also allocates the memory required by this
- *      task and initializes the heating element switching circuit and the
+ *      the pumping elements. It also allocates the memory required by this
+ *      task and initializes the pumping element switching circuit and the
  *      measurement of the effective current through the elements.
  *
  *  \oparam  Params = Points to the public data of this module
@@ -108,16 +111,30 @@ static Error_t pressPumpSwitch (Handle_t Handle, Bool Parallel);
  *
  ****************************************************************************/
 
+#ifdef ASB15_VER_A
 Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances)
+#endif
+
+#ifdef ASB15_VER_B
+Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Device_t ControlChannel, Device_t PWMControlChannel, UInt16 Instances)
+#endif
 {
     UInt16 i;
-    Error_t Error;
+    //Error_t Error;
 
     // Allocating memory
     PressPumpData.HandleControl = calloc (Instances, sizeof(Handle_t));
     if (NULL == PressPumpData.HandleControl) {
         return (E_MEMORY_FULL);
     }
+    
+#ifdef ASB15_VER_B
+    PressPumpData.HandlePWMControl = calloc (Instances, sizeof(Handle_t));
+    if (NULL == PressPumpData.HandlePWMControl) {
+        return (E_MEMORY_FULL);
+    }
+#endif
+
     PressPumpData.StartingTime = calloc (Instances, sizeof(UInt32));
     if (NULL == PressPumpData.StartingTime) {
         return (E_MEMORY_FULL);
@@ -133,6 +150,7 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
         return (PressPumpMonitor.Handle);
     }
 
+#ifdef ASB15_VER_A
     // Open pumping element control outputs
     for (i = 0; i < Instances; i++) {
         PressPumpData.HandleControl[i] = halPortOpen (ControlChannel + i, HAL_OPEN_WRITE);
@@ -140,7 +158,34 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
             return (PressPumpData.HandleControl[i]);
         }
     }
+#endif
+
+#ifdef ASB15_VER_B
+    // Open pumping element control outputs
+    for (i = 0; i < Instances; i++) {
+        PressPumpData.HandleControl[i] = halPortOpen (ControlChannel + i, HAL_OPEN_WRITE);
+        if (PressPumpData.HandleControl[i] < 0) {
+            return (PressPumpData.HandleControl[i]);
+        }
+        // set inactive low for 24V power supply
+        #if 0
+        halPortWrite(PressPumpData.HandleControl[i], 0);
+        #endif
+        
+        halPortWrite(PressPumpData.HandleControl[i], 1);
+    }
     
+    // Open pumping element PWM control outputs
+    for (i = 0; i < Instances; i++) {
+        PressPumpData.HandlePWMControl[i] = halAnalogOpen (PWMControlChannel + i, HAL_OPEN_WRITE, 0, NULL);
+        if (PressPumpData.HandlePWMControl[i] < 0) {
+            return (PressPumpData.HandlePWMControl[i]);
+        }
+    }
+    
+    //halAnalogWrite(PressPumpData.HandleControl[0], 0x7FFF);
+#endif    
+
     
     PressPumpData.Instances = Instances;
     PressPumpData.MinValue = MAX_INT16;
@@ -160,15 +205,15 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
  *
  *      This function resets all runtime parameters of the pump current
  *      measurements to their default values. This function should always be
- *      called, when the heating process has been stopped and it is restarted.
+ *      called, when the pumping process has been stopped and it is restarted.
  *
  ****************************************************************************/
 
 void pressPumpReset ()
 {
-    PressPumpMonitor.InCount = 0;
-    PressPumpData.MinValue = MAX_INT16;
-    PressPumpData.MaxValue = MIN_INT16;
+    //PressPumpMonitor.InCount = 0;
+    //PressPumpData.MinValue = MAX_INT16;
+    //PressPumpData.MaxValue = MIN_INT16;
     PressPumpData.MaxActive = 0;
 }
 
@@ -235,14 +280,56 @@ static Error_t pressPumpGetFilteredInput (PressPumpMonitor_t *Monitor) {
  *      This function reads the analog input value delivered by the current
  *      sensor and computes the effective current. It is also able to detect a
  *      zero-crossing of the AC wave. The function furthermore deactivates the
- *      pulses controlling the heating elements. It should be called by the
+ *      pulses controlling the pumping elements. It should be called by the
  *      task function as often as possible.
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
+Error_t pressSampleCurrent(void)
+{
+    Error_t Error;
+    
+    if (bmTimeExpired (PressPumpData.SampleTime) != 0) {
+        PressPumpData.SampleTime = bmGetTime ();
 
-Error_t pressPumpProgress ()
+        // Reading analog input value from sensor
+        Error = pressPumpGetFilteredInput (&PressPumpMonitor);
+        if (Error < NO_ERROR) {
+            return Error;
+        }
+
+        // Maximum detection
+        if (PressPumpMonitor.Value > PressPumpData.MaxValue) {
+            PressPumpData.MaxValue = PressPumpMonitor.Value;
+            //PressPumpData.EffectiveCurrent = PressPumpData.MaxValue;
+        }
+    }
+    
+    return (NO_ERROR);
+}
+
+/*****************************************************************************/
+/*!
+ *  \brief  Checks the measured current through the pump
+ *
+ *      This method checks if the current is in the range specified by the
+ *      master computer. If it is not, the function also checks if it is in
+ *      the range of a 100 to 127V network. When this is the case, the heating
+ *      elements are switched in parallel. When neither one is correct, the
+ *      module issues an error message.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+void pressCalcEffectiveCurrent(UInt16 Instance)
+{
+    PressPumpData.EffectiveCurrent = PressPumpData.MaxValue;
+    PressPumpData.MaxValue = MIN_INT16;
+}
+
+
+Error_t pressPumpProgress (Bool PumpControl)
 {
     UInt16 i;
     UInt16 Active;
@@ -252,8 +339,11 @@ Error_t pressPumpProgress ()
     if (Active > PressPumpData.MaxActive) {
         PressPumpData.MaxActive = Active;
     }
+    //printf("Active:%d\n", Active);
 
-    // Switch off the heating elements
+#ifdef ASB15_VER_A
+#if 0
+    // Switch off the pumping elements
     for (i = 0; i < PressPumpData.Instances; i++) {
         if (bmTimeExpired (PressPumpData.StartingTime[i]) >= PressPumpData.OperatingTime[i]) {
             Error = halPortWrite (PressPumpData.HandleControl[i], 0);
@@ -262,7 +352,25 @@ Error_t pressPumpProgress ()
             }
         }
     }
+#endif
+#endif
 
+
+#ifdef ASB15_VER_B
+    if ( PumpControl ) {
+        // Switch off the pumping elements
+        for (i = 0; i < PressPumpData.Instances; i++) {
+            if (bmTimeExpired (PressPumpData.StartingTime[i]) >= PressPumpData.OperatingTime[i]) {
+                Error = halAnalogWrite(PressPumpData.HandlePWMControl[i], 0);
+                if (Error < NO_ERROR) {
+                    return (Error);
+                }
+            }
+        }
+    }
+#endif
+
+#if 0
     if (bmTimeExpired (PressPumpData.SampleTime) != 0) {
         PressPumpData.SampleTime = bmGetTime ();
 
@@ -280,33 +388,18 @@ Error_t pressPumpProgress ()
             PressPumpData.MaxValue = PressPumpMonitor.Value;
         }
     }
+#endif    
 
     return (NO_ERROR);
 }
 
 /*****************************************************************************/
 /*!
- *  \brief  Returns cicruit switching state
- *
- *      This small method returns, if the heating elements are switched
- *      serially or in parallel.
- *
- *  \return  Circuit is switched parallely (TRUE) or serially (FALSE)
- *
- ****************************************************************************/
-
-Bool pressPumpParallel (void)
-{
-    return PressPumpData.ParallelCircuit;
-}
-
-/*****************************************************************************/
-/*!
- *  \brief  Checks the measured current through the heating elements
+ *  \brief  Checks the measured current through the pumping elements
  *
  *      This method checks if the current is in the range specified by the
  *      master computer. If it is not, the function also checks if it is in
- *      the range of a 100 to 127V network. When this is the case, the heating
+ *      the range of a 100 to 127V network. When this is the case, the pumping
  *      elements are switched in parallel. When neither one is correct, the
  *      module issues an error message.
  *
@@ -314,65 +407,41 @@ Bool pressPumpParallel (void)
  *
  ****************************************************************************/
  
-Error_t pressPumpCheck ()
+Error_t pressPumpCheck (void)
 {
-    Error_t Error;
+    //Error_t Error;
     UInt16 Current;
     UInt16 ActiveCount = PressPumpData.MaxActive;
     PressPumpParams_t *Params = &PressPumpData.Params;
     
-    // Compute effective current
-    // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV) / 2 / sqrt(2)
-    // => (1 / 1000 / 2 * 10000) / 14142 = 5 / 14142
-    PressPumpData.EffectiveCurrent = (((Int32) Params->CurrentGain *
-            (PressPumpData.MaxValue - PressPumpData.MinValue)) * 5) / 14142;
-    PressPumpData.MinValue = MAX_INT16;
-    PressPumpData.MaxValue = MIN_INT16;
+    //PressPumpData.EffectiveCurrent = PressPumpData.MaxValue;
+    //PressPumpData.MinValue = MAX_INT16;
+    
+    //PressPumpData.MaxValue = MIN_INT16;
     PressPumpData.Failed = FALSE;
     PressPumpData.MaxActive = 0;
 
     // Check the current through the pumps
-    // All heating elements are off
+    // All pumping elements are off
     if (ActiveCount == 0) {
-        if (PressPumpData.EffectiveCurrent > Params->DesiredCurThreshold) {
+        //printf("Pump Current[aaa]:%d\n", PressPumpData.EffectiveCurrent);
+        if (PressPumpData.EffectiveCurrent > Params->DesiredCurThreshold &&
+            PressPumpMonitor.Value > Params->DesiredCurThreshold) {
             PressPumpData.Failed = TRUE;
-            //printf("HEa*****************\n");
+            printf("Pump Current Err[aaa]:%d\n", PressPumpData.EffectiveCurrent);
         }
+        
     }
-    // Pumping elements are switched serially
-    else if (PressPumpData.ParallelCircuit == FALSE) {
-        Current = PressPumpData.EffectiveCurrent / ActiveCount;
-        // Check if the current is out of range (200 - 240V)
-        if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
-                Current > Params->DesiredCurrent + Params->DesiredCurThreshold) {
-            // Check if the current is out of range (100 - 127V)
-            if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent / 2 ||
-                    Current > Params->DesiredCurrent / 2 + Params->DesiredCurThreshold) {
-                PressPumpData.Failed = TRUE;
-                //printf("HEA*****************, %d\n", Current);
-            }
-            else {
-                Error = pressPumpSwitch(PressPumpData.HandleSwitch, TRUE);
-                if (Error < 0) {
-                    //printf("HEB*****************\n");
-                    return (Error);
-                }
-            }
-        }
-    }
-    // Pumping elements are switched parallelly
     else {
         Current = PressPumpData.EffectiveCurrent / ActiveCount;
-        // Check if the current is out of range (100 - 127V)
-        if (Current / 2 + Params->DesiredCurThreshold < Params->DesiredCurrent ||
-                Current / 2 > Params->DesiredCurrent + Params->DesiredCurThreshold) {
-            Error = pressPumpSwitch(PressPumpData.HandleSwitch, FALSE);
-            if (Error < 0) {
-                //printf("HEC*****************\n");
-                return (Error);
-            }
-            //printf("HED*****************, %d\n", Current/2);
-            PressPumpData.Failed = TRUE;
+        
+        //printf("Pump Current[bbb]:%d\n", PressPumpData.EffectiveCurrent);
+        
+        // Check if the current is out of range
+        if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
+                Current > Params->DesiredCurrent + Params->DesiredCurThreshold) {
+                printf("Pump Current Err[bbb]:%d\n", PressPumpData.EffectiveCurrent);
+                PressPumpData.Failed = TRUE;
         }
     }
     
@@ -399,7 +468,7 @@ Bool pressPumpFailed ()
 
 /*****************************************************************************/
 /*! 
- *  \brief   Sets the actuating variable of a heating element
+ *  \brief   Sets the actuating variable of a pumping element
  *
  *      This function receives the actuating variable computed by the PID
  *      controller. This input value is converted into a pulse width
@@ -412,7 +481,8 @@ Bool pressPumpFailed ()
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
- 
+
+#ifdef ASB15_VER_A 
 Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance)
 {
     PressPumpData.StartingTime[Instance] = bmGetTime ();
@@ -436,53 +506,109 @@ Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance)
     //printf("o:%d\n", PressPumpData.OperatingTime[Instance]);
 
     if (PressPumpData.OperatingTime[Instance] == 0) {
-        //printf("C:%d\n",bmGetTime());
+	    //printf("C:%d\n",bmGetTime());
         return (halPortWrite (PressPumpData.HandleControl[Instance], 0));
     }
-    //printf("O:%d\n",bmGetTime());
+	//printf("O:%d\n",bmGetTime());
     //printf("O1:%d\n", PressPumpData.OperatingTime[Instance]);
     return (halPortWrite (PressPumpData.HandleControl[Instance], 1));
 }
+#endif
 
-
-/*****************************************************************************/
-/*! 
- *  \brief   Controls the connection between different heating elements
- *
- *      This function is able to switch the electric power circuit of the
- *      heating elements. For example, they can be connected in series or
- *      in parallel. This is necessary due to different voltage levels in
- *      different countries. 
- *
- *  \iparam  Handle = Handle of the digital port switching the circuit
- *  \iparam  Parallel = Parallel (TRUE) or serial (FALSE)
- * 
- *  \return  NO_ERROR or (negative) error code
- *
- ****************************************************************************/
-
-Error_t pressPumpSwitch (Handle_t Handle, Bool Parallel)
+#ifdef ASB15_VER_B
+Error_t pressPumpActuatePwm (Int32 ActuatingPwmWidth, UInt32 EndTime, UInt16 Instance, UInt32* OperatingTime)
 {
-    UInt16 Value;
     
-    if (Parallel == TRUE) {
-        Value = 1;
+    PressPumpData.StartingTime[Instance] = bmGetTime();
+    
+    if (ActuatingPwmWidth < 0 ) {
+        ActuatingPwmWidth = 0;
+    }
+ 
+ /*
+ 
+ 200  -> 30% Duty
+ 8000 -> 90% Duty
+ 
+ (OpTime-200)/(8000-200) = (Duty-30)/(90-30)
+ 
+ Duty = (OpTime-200)/(8000-200)*(90-30)+30
+ 
+ PWMWidth = (Duty*0xFFFF)/100 = [(OpTime-200)*(90-30)/(8000-200)+30] * (0xFFFF/100)
+ 
+ */
+ 
+    if (ActuatingPwmWidth == 0) {
+        PressPumpData.OperatingTime[Instance] = 0;
+        if (OperatingTime != NULL) {
+            *OperatingTime = 0;
+        }
+        //printf("Opt[PWM]:%d\n", 0);
+        return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0));
     }
     else {
-        Value = 0;
+        PressPumpData.OperatingTime[Instance] = EndTime - PressPumpData.StartingTime[Instance];
+        if (OperatingTime != NULL) {
+            *OperatingTime = PressPumpData.OperatingTime[Instance];
+        }
+        //printf("Opt[PWM]:%d\n", PressPumpData.OperatingTime[Instance]);
+        return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], ActuatingPwmWidth*0xFFFF/100));
+    }
+
+ 
+   //return (NO_ERROR);   
+}
+#endif
+
+
+#ifdef ASB15_VER_B
+Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance)
+{
+    UInt32 OptTime = 0;
+    
+    if ( OperatingTime != NULL) {
+        OptTime = *OperatingTime;
     }
     
-    PressPumpData.ParallelCircuit = Parallel;
-    
-    return (halPortWrite(Handle, Value));
-}
+    PressPumpData.StartingTime[Instance] = bmGetTime ();
 
+    // Adaptions to the zero crossing relay, it can only switch every 20 ms
+    if (OptTime > 0 && OptTime < 20) {
+        OptTime = 20;
+    }
+    
+    // Minimal pulse length is 20 ms plus last time active is 20 ms before end time
+    if (PressPumpData.StartingTime[Instance] > EndTime - 40) {
+        PressPumpData.OperatingTime[Instance] = 0;
+    }
+    else if (PressPumpData.StartingTime[Instance] + OptTime > EndTime - 20) {
+        PressPumpData.OperatingTime[Instance] = EndTime - 20 - PressPumpData.StartingTime[Instance];
+    }
+    else {
+        PressPumpData.OperatingTime[Instance] = OptTime;
+    }
+    
+    if (OperatingTime != NULL) {
+        *OperatingTime = PressPumpData.OperatingTime[Instance];
+    }
+    
+    if (OperatingTime != NULL) {
+        //printf("Opt[ONOFF]:%d\n", PressPumpData.OperatingTime[Instance]);
+    }
+
+    if (PressPumpData.OperatingTime[Instance] == 0) {
+        return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0));
+    }
+    
+    return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0xFFFF));
+}
+#endif
 
 /*****************************************************************************/
 /*! 
- *  \brief   Returns the electric current through the heating elements
+ *  \brief   Returns the electric current through the pumping elements
  *
- *      This function returns the electric current flowing through the heating
+ *      This function returns the electric current flowing through the pumping
  *      elements in milliamperes.
  * 
  *  \return  Effective current value in milliamperes
@@ -497,11 +623,11 @@ UInt16 pressPumpCurrent (void)
 
 /*****************************************************************************/
 /*! 
- *  \brief   Returns the number of active heating elements
+ *  \brief   Returns the number of active pumping elements
  *
- *      This function returns the number of currently active heating elements.
+ *      This function returns the number of currently active pumping elements.
  *
- *  \return  Number of active heating elements or an error code
+ *  \return  Number of active pumping elements or an error code
  *
  ****************************************************************************/
 
@@ -520,5 +646,17 @@ UInt16 pressPumpActive()
 
     return (Active);
 }
+
+#ifdef ASB15_VER_B
+Error_t pressPumpEnablePower(Bool PowerState, UInt16 Instance)
+{
+    if (PowerState) {
+        return halPortWrite(PressPumpData.HandleControl[Instance], 1);
+    }
+    else {
+        return halPortWrite(PressPumpData.HandleControl[Instance], 0);
+    }
+}
+#endif
 
 //****************************************************************************/

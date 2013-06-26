@@ -31,8 +31,12 @@
 //****************************************************************************/
 // Private Constants and Macros 
 //****************************************************************************/
+#define SWAP(X,Y) {X=X^Y;Y=X^Y;X=X^Y;}
 
-#define PRESS_SENSOR_VOLTAGE     6000  //!< ADC supply voltage used for pressure sensor
+#define TEMP_SENSOR_MAX 120 //!< Maximal sensor pressure in degree Celsius 
+
+#define PRESS_SENSOR_VOLTAGE_LOW     500  //!< The lowest voltage allowed for pressure sensor 
+#define PRESS_SENSOR_VOLTAGE_HIGH    3000 //!< The highest voltage allowed for pressure sensor
 
 
 //****************************************************************************/
@@ -69,19 +73,51 @@ Error_t pressSensorRead (Handle_t Handle, PressSensorType_t Type, UInt16 Compens
 {
     Error_t Error;
     Int16 AdcValue;
+    Int16 AdcValue1, AdcValue2, AdcValue3;
        
-
+#if 0
     if ((Error = halAnalogRead (Handle, &AdcValue)) < 0) {
         return (Error);
     }
+#endif    
+ 
+#if 1    
+	// Median filtering
+    if ((Error = halAnalogRead (Handle, &AdcValue1)) < 0) {
+        return (Error);
+    }
+    if ((Error = halAnalogRead (Handle, &AdcValue2)) < 0) {
+        return (Error);
+    }
+    if ((Error = halAnalogRead (Handle, &AdcValue3)) < 0) {
+        return (Error);
+    }
+
+	if (AdcValue1>AdcValue2) {
+	    SWAP(AdcValue1,AdcValue2);
+	}
+	if (AdcValue1>AdcValue3) {
+	    SWAP(AdcValue1,AdcValue3);
+	}
+	if (AdcValue2>AdcValue3) {
+	    SWAP(AdcValue2,AdcValue3);
+	}
+	
+	AdcValue = AdcValue2;
     
-    //printf("Ad:%d\n", AdcValue);
+    //printf("AD:%d\n", AdcValue);
+#endif
     
     // Voltage: 1-6V ==> 0.5-3V
-    //*Pressure = 103.42-40.944*(6-AdcValue*2);
-    *Pressure = 103420-41*(PRESS_SENSOR_VOLTAGE-AdcValue*2) - Compensation;
+	//*Pressure = 103.42-40.944*(6-AdcValue*2);
+    
+    if ( AdcValue > PRESS_SENSOR_VOLTAGE_HIGH || AdcValue < PRESS_SENSOR_VOLTAGE_LOW ) {
+        return (E_PRESS_SENSOR_OUT_OF_RANGE);
+    }
+    
+	*Pressure = 103420-41*(PRESS_SENSOR_VOLTAGE_HIGH*2-AdcValue*2) - Compensation;
 
-    return (NO_ERROR);
+	return (NO_ERROR);
 
 }
 

@@ -56,8 +56,8 @@ const UInt32 halRtcClockFrequency = 0;        //!< Real time crystal frequency [
 const UInt32 halProcessorVoltage  = 3300;     //!< Nominal processor voltage [mV]
 const UInt32 halWatchdogInterval  = 2000;     //!< Watchdog interval time [ms]
 
-const UInt32 halNonVolatileSize   = 256;      //!< Non volatile memory size
-const UInt32 halNonVolatileCache  = 256;      //!< Non volatile memory cache size
+const UInt32 halNonVolatileSize   = 512;      //!< Non volatile memory size
+const UInt32 halNonVolatileCache  = 512;      //!< Non volatile memory cache size
 
 const UInt32 halCanDefaultBitrate = 500000;   //!< CAN bus baudrate [Hz]
 
@@ -89,7 +89,13 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_A,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN5/TempMeas2
     { PORT_A,  6, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN6/TempMeas3
     { PORT_A,  7, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN7/TempMeas4
+#ifdef ASB15_VER_A    
     //{ PORT_A,  8, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN7/TempMeas5
+#endif
+
+#ifdef ASB15_VER_B
+    //{ PORT_A,  2, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // AIN4/TempMeas5
+#endif
 
     { PORT_A, 11, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN1 RX
     { PORT_A, 12, PIN_MUX_SFIO, PIN_TYP_DOUT10, PIN_OPT_NONE }, // CAN1 TX
@@ -101,13 +107,20 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  2, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN12/HeatCurrent_Measurement
     { PORT_C,  3, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN13/PumpValveCurrent_Measurement
     { PORT_C,  4, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN14/UnderVoltageDetection
-    { PORT_C,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN15/PressureValve
+	{ PORT_C,  5, PIN_MUX_SFIO, PIN_TYP_ANALOG, PIN_OPT_NONE }, // ADC12_IN15/PressureValve
 
     { PORT_C,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // HeatElementControl1
     { PORT_C,  7, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // HeatElementControl2
     { PORT_C,  8, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // HeatElementControl3
+#ifdef ASB15_VER_A       
     { PORT_C,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // HeatElementControl4
-    { PORT_C, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LidControl
+#endif
+
+#ifdef ASB15_VER_B       
+    { PORT_C,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // MainRelayControl
+#endif
+
+	{ PORT_C, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LidControl
 
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBKA
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
@@ -115,23 +128,44 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D,  3, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID2
     { PORT_D,  4, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID1
 
-    { PORT_D,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl
-    { PORT_D,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ExhaustFanControl
-    { PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl1
-    { PORT_D, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl2
-    { PORT_D, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl3
-    { PORT_D, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // VacuumPumpControl
+	{ PORT_D,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // FanControl
+	{ PORT_D,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ExhaustFanControl
+	{ PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl1
+	{ PORT_D, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl2
+	{ PORT_D, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // AirValveControl3
+#ifdef ASB15_VER_A
+	{ PORT_D, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // VacuumPumpControl
+#endif
 
     { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
     { PORT_C, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
     { PORT_C, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
- 
+
+#ifdef ASB15_VER_A
     { PORT_E, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Remote Alarm Control
     { PORT_E, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Remote Alarm Set
     { PORT_E, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Remote Alarm Clear   
     { PORT_B,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Local Alarm Control
     { PORT_B, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Local Alarm Set
     { PORT_B, 11, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Local Alarm Clear
+#endif
+
+#ifdef ASB15_VER_B
+    { PORT_E, 10, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Remote Alarm Control
+    { PORT_E, 14, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // Remote Alarm Set Status
+    { PORT_E, 15, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // Remote Alarm Connection Status
+    { PORT_B,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // Local Alarm Control
+    { PORT_B, 13, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // Local Alarm Set Status
+    { PORT_B, 14, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // Local Alarm Connection Status    
+#endif    
+    
+#ifdef ASB15_VER_B
+    { PORT_B, 12, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // VacuumPumpControl
+    { PORT_E,  7, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LimitSwitch1/LidSensor
+    { PORT_E,  8, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // LimitSwitch1/OvenDoorSensor
+    { PORT_B, 15, PIN_MUX_SFIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // PWM
+    //{ PORT_A, 10, PIN_MUX_SFIO, PIN_TYP_DOUT2,  PIN_OPT_NONE },
+#endif    
 
 };
 
@@ -174,14 +208,28 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_FANCONTROL_SIGNAL,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  6, 1, 0, 0 },
     { HAL_LIDCONTROL_SIGNAL,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 10, 1, 0, 0 },
     { HAL_HEATER_RELAY,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  9, 1, 0, 0 },
+#ifdef ASB15_VER_A     
     { HAL_REMOTE_ALARM_CONTROL,DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 10, 1, 0, 0 },
     { HAL_REMOTE_ALARM_SET,    DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 11, 1, 0, 0 },
     { HAL_REMOTE_ALARM_CLEAR,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 12, 1, 0, 0 }, 
     { HAL_LOCAL_ALARM_CONTROL, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B,  9, 1, 0, 0 },
     { HAL_LOCAL_ALARM_SET,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 10, 1, 0, 0 },
     { HAL_LOCAL_ALARM_CLEAR,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 11, 1, 0, 0 },
-            
+#endif
+
+#ifdef ASB15_VER_B
+    { HAL_REMOTE_ALARM_CONTROL,DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E, 10, 1, 0, 0 },
+    { HAL_LOCAL_ALARM_CONTROL, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B,  9, 1, 0, 0 },
+#endif
+
+#ifdef ASB15_VER_A            
     { HAL_LIDSTATUS_SIGNAL,    DIR_INPUT,  BUS_TYPE_INTERN, PORT_A,  3, 1, 0, 0 },
+#endif    
+    
+#ifdef ASB15_VER_B
+    { HAL_LIDSTATUS_SIGNAL,    DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  7, 1, 0, 0 },
+    { HAL_OVENDOOR_SIGNAL,     DIR_INPUT,  BUS_TYPE_INTERN, PORT_E,  8, 1, 0, 0 },
+#endif    
 
     { HAL_TEMP_CTRLHEATING_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
     { HAL_TEMP_CTRLHEATING_1,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
@@ -193,10 +241,17 @@ const halPortDescriptor_t halPortDescriptors[] = {
 //    { HAL_TEMP_CTRLHEATING_2,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 },
 //    { HAL_TEMP_CTRLHEATING_3,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 12, 1, 0, 0 },
 
+#ifdef ASB15_VER_A
     { HAL_PRESS_CTRLPUMPING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 12, 1, 0, 0 },
-    //{ HAL_PRESS_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  5, 1, 0, 0 },
-    { HAL_PRESS_CTRLVALVE_0,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },  //Pressure
-    { HAL_PRESS_CTRLVALVE_1,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 }    //Vacuum
+#endif
+
+#ifdef ASB15_VER_B
+    { HAL_PRESS_CTRLPUMPING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_B, 12, 1, 0, 0 },
+#endif
+
+	//{ HAL_PRESS_FANCONTROL_0,  DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  5, 1, 0, 0 },
+	{ HAL_PRESS_CTRLVALVE_0,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 10, 1, 0, 0 },  //Pressure
+	{ HAL_PRESS_CTRLVALVE_1,   DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D, 11, 1, 0, 0 }	//Vacuum
 
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
@@ -226,20 +281,26 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
     { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 30000, 0 },
     { HAL_SUPPLY_CURRENT,    DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
+      
     { HAL_TEMP_CURRENT_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 12, 6,  3000, 0 },
-    { HAL_PRESS_CURRENT_0,   DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
+    
+	{ HAL_PRESS_CURRENT_0,   DIR_INPUT, BUS_TYPE_INTERN, 12, 13, 6,  3000, 0 },
 
 
     { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
-    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+	{ HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
     //{ HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
 
-    { HAL_PRESS_SENSOR_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 15, 6,  3000, 0 },
+	{ HAL_PRESS_SENSOR_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 15, 6,  3000, 0 },
 
+#ifdef ASB15_VER_B
+    // TIM1_CH3N
+    { HAL_PRESS_PWM_CTRL_0,  DIR_OUTPUT,BUS_TYPE_PWM,    16,  2, 0, 10000, 0, HAL_PWM_0}
+#endif
 
-     //HAL_PRESS_CURRENT, HAL_PRESS_MAINVOLTAGE, HAL_PRESS_CTRLPUMPING, Instances);
+	 //HAL_PRESS_CURRENT, HAL_PRESS_MAINVOLTAGE, HAL_PRESS_CTRLPUMPING, Instances);
 };
 const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
 
@@ -265,7 +326,7 @@ const UInt32 halAnalogDescriptorCount = ELEMENTS(halAnalogDescriptors);
  *      Capture/compare units that are not used needs not to be specified.
  *
  ***********************************************************************************/
-
+#ifdef ASB15_VER_A
 const halTimerDescriptor_t halTimerDescriptors[] = {
 0
 /*
@@ -279,7 +340,18 @@ const halTimerDescriptor_t halTimerDescriptors[] = {
 };
 //const UInt32 halTimerDescriptorCount = ELEMENTS(halTimerDescriptors);
 const UInt32 halTimerDescriptorCount = 0;
+#endif
 
+#ifdef ASB15_VER_B
+const halTimerDescriptor_t halTimerDescriptors[] = {
+    { HAL_PWM_0, 0, 0, 0, TIM_SEL_COUNTER, 0 },
+    { HAL_PWM_0, 0, 0, 0, TIM_SEL_DISABLE, TIM3_MODE_CAPCOM1 },
+    { HAL_PWM_0, 0, 1, 0, TIM_SEL_DISABLE, TIM3_MODE_CAPCOM2 },
+    { HAL_PWM_0, 0, 2, 0, TIM_SEL_COMPARE, TIM3_MODE_CAPCOM3 },
+    { HAL_PWM_0, 0, 3, 0, TIM_SEL_DISABLE, TIM3_MODE_CAPCOM4 }
+};
+const UInt32 halTimerDescriptorCount = ELEMENTS(halTimerDescriptors);
+#endif
 
 /***********************************************************************************/
 /*!

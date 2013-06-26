@@ -433,6 +433,12 @@
 #define HAL_PRESS_CTRLVALVE_1    HAL_PRESS_CTRLVALVE+1
 #define HAL_PRESS_CTRLVALVE_2    HAL_PRESS_CTRLVALVE+2
 
+// Channels used by the pressure function module (PWM output control)
+#define HAL_PRESS_PWM_CTRL       HAL_ANALOG_OUTPUTS+10
+#define HAL_PRESS_PWM_CTRL_0     HAL_PRESS_PWM_CTRL
+#define HAL_PRESS_PWM_CTRL_1     HAL_PRESS_PWM_CTRL+1
+#define HAL_PRESS_PWM_CTRL_2     HAL_PRESS_PWM_CTRL+2
+
 
 //****************************************************************************/
 

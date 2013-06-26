@@ -396,7 +396,7 @@ Error_t halEepromInit (void) {
 
     Error_t Status;
     Error_t JobID;
-	int i;
+	//int i;
 
     if (halGetInitState() == INIT_IN_PROGRESS) {
 

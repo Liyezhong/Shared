@@ -45,19 +45,51 @@ typedef struct {
     UInt16 DesiredCurThreshold;     //!< Desired current threshold in milliamperes
 } PressPumpParams_t;
 
+#ifdef ASB15_VER_B
+
+typedef struct {
+    Bool  Ready;                    //!< Indicates all paramters are set
+    Int32 MaxActuatingValue;
+    Int32 MinActuatingValue;
+    UInt8 MaxPwmDuty;
+    UInt8 MinPwmDuty;
+    Int32 PwmCoeff1;
+    Int32 PwmCoeff2;
+} PressPwmParams_t;
+
+#endif
+
 //****************************************************************************/
 // Public Function Prototypes
 //****************************************************************************/
-
+#ifdef ASB15_VER_A
 Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances);
+#endif
+
+#ifdef ASB15_VER_B
+Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Device_t ControlChannel, Device_t PWMControlChannel, UInt16 Instances);
+#endif
+
 void pressPumpReset (void);
-Error_t pressPumpProgress (void);
-Bool pressPumpParallel (void);
+Error_t pressPumpProgress (Bool PumpControl);
 Error_t pressPumpCheck (void);
 Bool pressPumpFailed (void);
+#ifdef ASB15_VER_A
 Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance);
+#endif
+#ifdef ASB15_VER_B
+Error_t pressPumpActuatePwm (Int32 ActuatingPwmWidth, UInt32 EndTime, UInt16 Instance, UInt32* OperatingTime);
+Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance);
+#endif
 UInt16 pressPumpCurrent (void);
 UInt16 pressPumpActive(void);
+Error_t pressSampleCurrent(void);
+void pressCalcEffectiveCurrent(UInt16 Instance);
+#ifdef ASB15_VER_B
+//Error_t pressSampleCurrent(void);
+Error_t pressPumpEnablePower(Bool PowerState, UInt16 Instance);
+//void pressCalcEffectiveCurrent(UInt16 Instance);
+#endif
 
 //****************************************************************************/
 

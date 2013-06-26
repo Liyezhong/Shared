@@ -124,6 +124,13 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_C,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette3
     { PORT_C,  8, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // ControlCuevette4
 
+#ifdef ASB5_VER_B    
+    { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
+    { PORT_C, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
+    { PORT_C, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
+#endif    
+
+
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBKA
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
     { PORT_D,  2, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID3
@@ -131,9 +138,11 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_D,  4, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID1
     { PORT_D,  9, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // MainVoltageSwitchRelayControl
 
-    { PORT_E,  4, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
-    { PORT_E,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
-    { PORT_E,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
+#ifdef ASB5_VER_A    
+    { PORT_E,  4, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
+    { PORT_E,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
+    { PORT_E,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
+#endif
 };
 
 const UInt32 halPinDescriptorCount = ELEMENTS(halPinDescriptors);
@@ -166,9 +175,17 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_CAN_NODE_INDEX,     DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
     { HAL_CAN_LOOPBACK,       DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
+#ifdef ASB5_VER_A 
     { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  6, 1, 0, 0 },
     { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  4, 1, 0, 0 },
     { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  5, 1, 0, 0 },
+#endif
+
+#ifdef ASB5_VER_B 
+    { HAL_STATUS_LED1,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 13, 1, 0, 0 },
+    { HAL_STATUS_LED2,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 15, 1, 0, 0 },
+    { HAL_STATUS_LED3,        DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 14, 1, 0, 0 },
+#endif
 
     { HAL_TEMP_MAINVOLTAGE_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  9, 1, 0, 0 },
 
@@ -180,13 +197,21 @@ const halPortDescriptor_t halPortDescriptors[] = {
 #endif
 
 
+#ifdef ASB5_VER_A
 #if 1  // For wax bath
     { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
     { HAL_TEMP_CTRLHEATING_1, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
     { HAL_TEMP_CTRLHEATING_2, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  7, 1, 0, 0 },
     { HAL_TEMP_CTRLHEATING_3, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  9, 1, 0, 0 },
 #endif
+#endif
 
+#ifdef ASB5_VER_B
+    { HAL_TEMP_CTRLHEATING_0, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  6, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_1, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  8, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_2, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  9, 1, 0, 0 },
+    { HAL_TEMP_CTRLHEATING_3, DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C,  7, 1, 0, 0 },
+#endif
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
@@ -234,19 +259,53 @@ const halAnalogDescriptor_t halAnalogDescriptors[] = {
 #endif
 
 
+#ifdef ASB5_VER_A
 #if 1
     // For wax bath
     { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
 
-
-
     { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  3, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_6,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
     { HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
     //{ HAL_TEMP_SENSOR_8,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+#endif
+#endif
+
+#ifdef ASB5_VER_B_OLD
+    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
+
+    { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_6,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
+    //{ HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+#endif
+
+//#ifdef ASB5_VER_B
+//    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
+//    { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+//    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
+//
+//    { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
+//    { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
+//    { HAL_TEMP_SENSOR_6,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
+//    //{ HAL_TEMP_SENSOR_7,     DIR_INPUT, BUS_TYPE_INTERN, 12,  7, 6,  3000, 0 },
+//#endif
+
+#ifdef ASB5_VER_B
+    { HAL_TEMP_SENSOR_0,     DIR_INPUT, BUS_TYPE_INTERN, 12,  6, 6,  3000, 0 },
+    
+    { HAL_TEMP_SENSOR_1,     DIR_INPUT, BUS_TYPE_INTERN, 12,  4, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_2,     DIR_INPUT, BUS_TYPE_INTERN, 12,  5, 6,  3000, 0 },
+
+    { HAL_TEMP_SENSOR_3,     DIR_INPUT, BUS_TYPE_INTERN, 12,  0, 6,  3000, 0 },
+    { HAL_TEMP_SENSOR_4,     DIR_INPUT, BUS_TYPE_INTERN, 12,  1, 6,  3000, 0 },
+    
+    { HAL_TEMP_SENSOR_5,     DIR_INPUT, BUS_TYPE_INTERN, 12,  2, 6,  3000, 0 },
 #endif
 
 };

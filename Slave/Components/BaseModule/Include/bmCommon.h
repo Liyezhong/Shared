@@ -32,10 +32,10 @@
 #define INFOBLOCK_SIGNATURE      0x91827364 //!< Signature of info block
 
 /* basemodule's software version informations */
-#define SOFTWARE_VERSION         0x0001     //!< Software version number
-#define SOFTWARE_CREATION_YEAR   2010       //!< Software creation date (year)
-#define SOFTWARE_CREATION_MONTH  8          //!< Software creation date (month)
-#define SOFTWARE_CREATION_DAY    18         //!< Software creation date (day)
+#define SOFTWARE_VERSION         0x0002     //!< Software version number
+#define SOFTWARE_CREATION_YEAR   2013       //!< Software creation date (year)
+#define SOFTWARE_CREATION_MONTH  2          //!< Software creation date (month)
+#define SOFTWARE_CREATION_DAY    11          //!< Software creation date (day)
 
 /* basemodule global identifiers */
 #define BASEMODULE_CHANNEL       0          //!< Base module's channel ID

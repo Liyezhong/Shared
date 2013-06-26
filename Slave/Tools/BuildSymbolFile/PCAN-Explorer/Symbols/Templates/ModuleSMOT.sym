@@ -184,26 +184,26 @@ DLC=0
 [$B::MsgSmotEventInfo@$I]
 ID=$MSG_SMOT_EVENT_INFO	// Info message
 Type=Extended
-DLC=8
-Var=InfoCode unsigned 0,16 -m /ln:"Info code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=InfoCode unsigned 16,16 -m /ln:"Info code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [$B::MsgSmotEventWarning@$I]
 ID=$MSG_SMOT_EVENT_WARNING	// Warning message
 Type=Extended
-DLC=8
-Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [$B::MsgSmotEventError@$I]
 ID=$MSG_SMOT_EVENT_ERROR	// Error message
 Type=Extended
-DLC=8
-Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=ErrCode unsigned 16,16 -m /ln:"Error code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [$B::MsgSmotSrvStatistics@$I]
 ID=$MSG_SMOT_SRV_STATISTICS	// Task statistics

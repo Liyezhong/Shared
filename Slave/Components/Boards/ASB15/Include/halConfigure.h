@@ -51,6 +51,7 @@
 //****************************************************************************/
 // Device ID mapping (function-module to application specific)
 //****************************************************************************/
+#ifdef ASB15_VER_A
 
 //! Fan control signal
 #define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
@@ -85,6 +86,42 @@
 //! Lid status signal
 #define HAL_LIDSTATUS_SIGNAL     HAL_DIGITAL_INPUT_0
 
+#endif
+
+
+
+#ifdef ASB15_VER_B
+
+//! Fan control signal
+#define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
+
+//! Lid control signal
+#define HAL_LIDCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_1
+
+//! Heater relay signal
+#define HAL_HEATER_RELAY         HAL_DIGITAL_OUTPUT_2
+
+//! Remote Alarm Control signal
+#define HAL_REMOTE_ALARM_CONTROL HAL_DIGITAL_OUTPUT_3
+
+//! Local Alarm Control signal
+#define HAL_LOCAL_ALARM_CONTROL  HAL_DIGITAL_OUTPUT_4
+
+////! Valve control signal
+//#define HAL_VALVECONTROL_SIGNAL  HAL_DIGITAL_OUTPUT_5
+
+//! Lid status signal
+#define HAL_LIDSTATUS_SIGNAL     HAL_DIGITAL_INPUT_0
+
+//! Oven door sensor signal
+#define HAL_OVENDOOR_SIGNAL      HAL_DIGITAL_INPUT_1
+
+//! PWM output for pump control
+//#define HAL_PUMP_PWM_CONTROL     HAL_ANALOG_OUTPUT_0
+
+#endif
+
+
 /*********************************************************************************/
 /*
  *  \brief   Timer configuration
@@ -106,10 +143,10 @@
 
 // Timer 1 programmed for the control of the heating elements
 #define TIM3_MODE_MASTER    0x0000   //!< Timer slave mode
-#define TIM3_MODE_CAPCOM1   0x6C01   //!< Unit 1: Heater control PWM output
-#define TIM3_MODE_CAPCOM2   0x6C01   //!< Unit 2: Heater control PWM output
-#define TIM3_MODE_CAPCOM3   0x6C01   //!< Unit 3: Heater control PWM output
-#define TIM3_MODE_CAPCOM4   0x6C01   //!< Unit 4: Heater control PWM output
+#define TIM3_MODE_CAPCOM1   0x0000   //!< Unit 1: Heater control PWM output
+#define TIM3_MODE_CAPCOM2   0x0000   //!< Unit 2: Heater control PWM output
+#define TIM3_MODE_CAPCOM3   0x6C0C   //!< Unit 3: Heater control PWM output
+#define TIM3_MODE_CAPCOM4   0x0000   //!< Unit 4: Heater control PWM output
 
 /********************************************************************************/
 /*

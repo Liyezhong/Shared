@@ -41,16 +41,16 @@
 #define E_PRESS_MODULE_ACTIVE        BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 1)
 //! The module is stopped or in standby
 #define E_PRESS_MODULE_INACTIVE      BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 2)
-//! Speed of a fan is out of range
-#define E_PRESS_FAN_OUT_OF_RANGE     BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 3)
 //! The current through the pump elements is too high or too low
-#define E_PRESS_CURRENT_OUT_OF_RANGE BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 4)
+#define E_PRESS_CURRENT_OUT_OF_RANGE BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 3)
 //! Pressure is too high
-#define E_PRESS_SENSOR_OUT_OF_RANGE  BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 5)
+#define E_PRESS_SENSOR_OUT_OF_RANGE  BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 4)
 //! Pressure sensors are measuring different values
-#define E_PRESS_SENSORS_INCONSISTENT BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 6)
+#define E_PRESS_SENSORS_INCONSISTENT BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 5)
 //! Unsupported type of pressure sensor
-#define E_PRESS_SENSOR_NOT_SUPPORTED BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 7)
+#define E_PRESS_SENSOR_NOT_SUPPORTED BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 6)
+//! The parameters of the PWM controller are not set
+#define E_PRESS_PWM_NOT_CONFIGURED   BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 7)
 
 
 // Pressure module related CAN identifiers
@@ -103,6 +103,9 @@
 
 //! Set valve status 
 #define MSG_PRESS_SET_CALIBRATION      BUILD_CAN_ID(CMD_CLASS_FUNCTION, 20, 1)
+
+//! Set PWM controller parameters
+#define MSG_PRESS_SET_PWM_PARAMS       BUILD_CAN_ID(CMD_CLASS_FUNCTION, 21, 1)
 
 //****************************************************************************/
 // Public Type Definitions 
