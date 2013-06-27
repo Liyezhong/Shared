@@ -79,7 +79,7 @@ Error_t pressSensorRead (Handle_t Handle, PressSensorType_t Type, UInt16 Compens
     if ((Error = halAnalogRead (Handle, &AdcValue)) < 0) {
         return (Error);
     }
-#endif    
+#endif
  
 #if 1    
 	// Median filtering

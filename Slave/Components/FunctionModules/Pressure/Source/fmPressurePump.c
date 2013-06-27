@@ -275,17 +275,15 @@ static Error_t pressPumpGetFilteredInput (PressPumpMonitor_t *Monitor) {
 
 /*****************************************************************************/
 /*!
- *  \brief  Checks if the effective current is in range
+ *  \brief  Samples effective current through pumps
  *
  *      This function reads the analog input value delivered by the current
- *      sensor and computes the effective current. It is also able to detect a
- *      zero-crossing of the AC wave. The function furthermore deactivates the
- *      pulses controlling the pumping elements. It should be called by the
- *      task function as often as possible.
+ *      sensor. It should be called by the task function as often as possible.
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
+ 
 Error_t pressSampleCurrent(void)
 {
     Error_t Error;
@@ -311,17 +309,14 @@ Error_t pressSampleCurrent(void)
 
 /*****************************************************************************/
 /*!
- *  \brief  Checks the measured current through the pump
+ *  \brief  Calculates the effective current through pumps
  *
- *      This method checks if the current is in the range specified by the
- *      master computer. If it is not, the function also checks if it is in
- *      the range of a 100 to 127V network. When this is the case, the heating
- *      elements are switched in parallel. When neither one is correct, the
- *      module issues an error message.
+ *      This function computes the effective current through pumps. It should 
+ *      be called by the task function as often as possible.
  *
- *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
+ 
 void pressCalcEffectiveCurrent(UInt16 Instance)
 {
     PressPumpData.EffectiveCurrent = PressPumpData.MaxValue;
@@ -329,6 +324,17 @@ void pressCalcEffectiveCurrent(UInt16 Instance)
 }
 
 
+/*****************************************************************************/
+/*!
+ *  \brief  Checks the measured current through the pump
+ *
+ *      This method updates active status of pumps. It should be called by the 
+ *      task function as often as possible.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
 Error_t pressPumpProgress (Bool PumpControl)
 {
     UInt16 i;
@@ -395,13 +401,10 @@ Error_t pressPumpProgress (Bool PumpControl)
 
 /*****************************************************************************/
 /*!
- *  \brief  Checks the measured current through the pumping elements
+ *  \brief  Checks the measured current through the pump
  *
  *      This method checks if the current is in the range specified by the
- *      master computer. If it is not, the function also checks if it is in
- *      the range of a 100 to 127V network. When this is the case, the pumping
- *      elements are switched in parallel. When neither one is correct, the
- *      module issues an error message.
+ *      master computer. If not, the module issues an error message.
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -503,19 +506,76 @@ Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance)
         PressPumpData.OperatingTime[Instance] = OperatingTime;
     }
 
-    //printf("o:%d\n", PressPumpData.OperatingTime[Instance]);
-
     if (PressPumpData.OperatingTime[Instance] == 0) {
-	    //printf("C:%d\n",bmGetTime());
         return (halPortWrite (PressPumpData.HandleControl[Instance], 0));
     }
-	//printf("O:%d\n",bmGetTime());
-    //printf("O1:%d\n", PressPumpData.OperatingTime[Instance]);
+
     return (halPortWrite (PressPumpData.HandleControl[Instance], 1));
 }
 #endif
 
 #ifdef ASB15_VER_B
+Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance)
+{
+    UInt32 OptTime = 0;
+    
+    if ( OperatingTime != NULL) {
+        OptTime = *OperatingTime;
+    }
+    
+    PressPumpData.StartingTime[Instance] = bmGetTime ();
+
+    // Adaptions to the zero crossing relay, it can only switch every 20 ms
+    if (OptTime > 0 && OptTime < 20) {
+        OptTime = 20;
+    }
+    
+    // Minimal pulse length is 20 ms plus last time active is 20 ms before end time
+    if (PressPumpData.StartingTime[Instance] > EndTime - 40) {
+        PressPumpData.OperatingTime[Instance] = 0;
+    }
+    else if (PressPumpData.StartingTime[Instance] + OptTime > EndTime - 20) {
+        PressPumpData.OperatingTime[Instance] = EndTime - 20 - PressPumpData.StartingTime[Instance];
+    }
+    else {
+        PressPumpData.OperatingTime[Instance] = OptTime;
+    }
+    
+    if (OperatingTime != NULL) {
+        *OperatingTime = PressPumpData.OperatingTime[Instance];
+    }
+    
+    //if (OperatingTime != NULL) {
+        //printf("Opt[ONOFF]:%d\n", PressPumpData.OperatingTime[Instance]);
+    //}
+
+    if (PressPumpData.OperatingTime[Instance] == 0) {
+        return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0));
+    }
+    
+    return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0xFFFF));
+}
+#endif
+
+
+#ifdef ASB15_VER_B
+/*****************************************************************************/
+/*! 
+ *  \brief   Sets the actuating PWM variable of a pumping element
+ *
+ *      This function receives the actuating PWM variable computed by the PID
+ *      controller. This input value is converted into a pulse width
+ *      modulation signal that is passed to an analog output port.
+ * 
+ *  \iparam  ActuatingPwmWidth = PWM duty in percentage
+ *  \iparam  EndTime = End of the sampling period in milliseconds
+ *  \iparam  Instance = Instance number
+ *  \iparam  OperatingTime = Returned active time in milliseconds
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
 Error_t pressPumpActuatePwm (Int32 ActuatingPwmWidth, UInt32 EndTime, UInt16 Instance, UInt32* OperatingTime)
 {
     
@@ -561,48 +621,6 @@ Error_t pressPumpActuatePwm (Int32 ActuatingPwmWidth, UInt32 EndTime, UInt16 Ins
 #endif
 
 
-#ifdef ASB15_VER_B
-Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance)
-{
-    UInt32 OptTime = 0;
-    
-    if ( OperatingTime != NULL) {
-        OptTime = *OperatingTime;
-    }
-    
-    PressPumpData.StartingTime[Instance] = bmGetTime ();
-
-    // Adaptions to the zero crossing relay, it can only switch every 20 ms
-    if (OptTime > 0 && OptTime < 20) {
-        OptTime = 20;
-    }
-    
-    // Minimal pulse length is 20 ms plus last time active is 20 ms before end time
-    if (PressPumpData.StartingTime[Instance] > EndTime - 40) {
-        PressPumpData.OperatingTime[Instance] = 0;
-    }
-    else if (PressPumpData.StartingTime[Instance] + OptTime > EndTime - 20) {
-        PressPumpData.OperatingTime[Instance] = EndTime - 20 - PressPumpData.StartingTime[Instance];
-    }
-    else {
-        PressPumpData.OperatingTime[Instance] = OptTime;
-    }
-    
-    if (OperatingTime != NULL) {
-        *OperatingTime = PressPumpData.OperatingTime[Instance];
-    }
-    
-    if (OperatingTime != NULL) {
-        //printf("Opt[ONOFF]:%d\n", PressPumpData.OperatingTime[Instance]);
-    }
-
-    if (PressPumpData.OperatingTime[Instance] == 0) {
-        return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0));
-    }
-    
-    return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0xFFFF));
-}
-#endif
 
 /*****************************************************************************/
 /*! 
@@ -647,7 +665,19 @@ UInt16 pressPumpActive()
     return (Active);
 }
 
+
 #ifdef ASB15_VER_B
+/*****************************************************************************/
+/*!
+ *  \brief  Enable/Disable 24V power supply of 4-wire pump
+ *
+ *      This function changes the state of 24V power supply connected to   
+ *      4-wire pump according to input flag.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
 Error_t pressPumpEnablePower(Bool PowerState, UInt16 Instance)
 {
     if (PowerState) {

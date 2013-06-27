@@ -86,9 +86,7 @@ UInt16 pressPumpActive(void);
 Error_t pressSampleCurrent(void);
 void pressCalcEffectiveCurrent(UInt16 Instance);
 #ifdef ASB15_VER_B
-//Error_t pressSampleCurrent(void);
 Error_t pressPumpEnablePower(Bool PowerState, UInt16 Instance);
-//void pressCalcEffectiveCurrent(UInt16 Instance);
 #endif
 
 //****************************************************************************/

@@ -351,6 +351,17 @@ Error_t tempHeaterProgress ()
     return (NO_ERROR);
 }
 
+/*****************************************************************************/
+/*!
+ *  \brief  Samples effective current through heaters
+ *
+ *      This function reads the analog input value delivered by the current
+ *      sensor. It should be called by the task function as often as possible.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
 Error_t tempSampleCurrent(TempHeaterType_t HeaterType)
 {
     Error_t Error;
@@ -401,6 +412,16 @@ Bool tempHeaterParallel (void)
 }
 
 
+/*****************************************************************************/
+/*!
+ *  \brief  Returns heater switch state
+ *
+ *      This small method returns the state of heating elements.
+ *
+ *  \return  State of heater switch (UNDEF/SERIAL/PARALLEL/DC)
+ *
+ ****************************************************************************/
+ 
 UInt8 tempHeaterSwitchState (void)
 {
     return (TempHeaterData.State);
@@ -408,17 +429,16 @@ UInt8 tempHeaterSwitchState (void)
 
 /*****************************************************************************/
 /*!
- *  \brief  Checks the measured current through the heating elements
+ *  \brief  Calculates the effective current through heaters
  *
- *      This method checks if the current is in the range specified by the
- *      master computer. If it is not, the function also checks if it is in
- *      the range of a 100 to 127V network. When this is the case, the heating
- *      elements are switched in parallel. When neither one is correct, the
- *      module issues an error message.
+ *      This function computes the effective current through heaters. It is 
+ *      also able to detect a zero-crossing of the AC wave. It should be called 
+ *      by the task function as often as possible.
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
+ 
 void tempCalcEffectiveCurrent(/*UInt16 Instance, */TempHeaterType_t HeaterType)
 {
     UInt16 Diff;
@@ -451,6 +471,20 @@ void tempCalcEffectiveCurrent(/*UInt16 Instance, */TempHeaterType_t HeaterType)
     //printf("Max:%d Min:%d EC:%d\n", TempHeaterData.MaxValue, TempHeaterData.MinValue, TempHeaterData.EffectiveCurrent);
 }
 
+
+/*****************************************************************************/
+/*!
+ *  \brief  Checks the measured current through the heating elements
+ *
+ *      This method checks if the current is in the range specified by the
+ *      master computer. If it is not, the function also checks if it is in
+ *      the range of a 100 to 127V network. When this is the case, the heating
+ *      elements are switched in parallel. When neither one is correct, the
+ *      module issues an error message.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
 
 Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
 {

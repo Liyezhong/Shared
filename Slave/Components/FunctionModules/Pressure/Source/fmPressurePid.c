@@ -187,7 +187,6 @@ Bool pressPidCalculate (PressPidParams_t *Param, Int32 DesiredPress, Int32 Actua
     Param->Error = Error;
     
     //printf("P:%5d %5d %5d [%5d], %5d\n", Proportional, Param->Integral, Error, Param->Output, ActualPress);
-    //printf("P:%5d %5d \n ", Param->Output, ActualPress);
     
     return TRUE;
 }
