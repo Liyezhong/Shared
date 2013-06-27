@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PCANExplorerProject Version="5.0" Name="Himalaya">
+    <Connections AutoReset="1" IgnoreRTRLength="1" ProcessRTR="1">
+        <Connection Bus="1" Enabled="1" Protocol="0" SymbolsFileName="../Symbols/Himalaya.sym" BitRate="28" Connection="Himalaya@pcan_usb" Name="Himalaya"/>
+    </Connections>
+    <MessageFilters/>
+    <TransmitList>
+        <TransmitListItem Bus="1" CanId="31" Type="2" DLC="0" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="1048607" Type="2" DLC="1" Data="05" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="272633887" Type="2" DLC="8" Data="003CC40001000203" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="274206751" Type="2" DLC="1" Data="00" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="271061023" Type="2" DLC="7" Data="006405012C0000" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="273682463" Type="2" DLC="0" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="272113695" Type="2" DLC="6" Data="00000BB80BB8" Creator="User"/>
+        <TransmitListItem Bus="1" CanId="271065119" Type="2" DLC="8" Data="01500301F4000063" Creator="User"/>
+    </TransmitList>
+    <Timeouts Enabled="0" LogfileEnabled="0" LogfilePath="\" CheckPermanently="0"/>
+    <Files>
+        <File RelativePath="../Symbols/Himalaya.sym"/>
+    </Files>
+</PCANExplorerProject>
