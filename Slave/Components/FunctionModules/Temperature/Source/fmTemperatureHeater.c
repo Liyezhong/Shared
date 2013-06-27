@@ -555,8 +555,8 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
             if (Current + DesiredCurThreshold < DesiredCurrent ||
                     Current > DesiredCurrent + DesiredCurThreshold) {                    
                 // Check if the current is out of range (100 - 127V)
-                if (Current + DesiredCurThreshold < DesiredCurrent / 2 ||
-                        Current > DesiredCurrent / 2 + DesiredCurThreshold) {
+                if (Current + DesiredCurThreshold / 2 < DesiredCurrent / 2 ||
+                        Current > DesiredCurrent / 2 + DesiredCurThreshold / 2) {
                     TempHeaterData.Failed = TRUE;
                     printf("220V ErrA:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
                 }
