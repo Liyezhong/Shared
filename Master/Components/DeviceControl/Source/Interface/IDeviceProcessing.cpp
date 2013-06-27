@@ -43,6 +43,7 @@
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 
+#include <unistd.h>
 namespace DeviceControl
 {
 

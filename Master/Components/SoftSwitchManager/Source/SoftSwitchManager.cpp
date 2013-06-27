@@ -318,9 +318,9 @@ void SoftSwitchMgr::OnShutDownStateEntered()
 void SoftSwitchMgr::OnSoftSwitchPressed()
 {
     #if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM)
-    if (m_SoftSwitchGPIO.GetValue() == 0) {
+//    if (m_SoftSwitchGPIO.GetValue() == 0) {
           emit SoftSwitchPressed();
-    }
+//    }
     #else
        emit SoftSwitchPressed();
     #endif

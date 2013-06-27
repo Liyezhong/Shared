@@ -6,6 +6,7 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
+#include <unistd.h>
 
 namespace DeviceControl
 {

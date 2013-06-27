@@ -4,6 +4,7 @@
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
+#include <unistd.h>
 #include <QtDebug>
 namespace DeviceControl
 {
