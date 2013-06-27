@@ -53,6 +53,16 @@
 #define MODE_VOLTAGE_RANGE  0x0008  //!< Voltage range detected: 0 is 200 to 240V, 1 is 100 to 127V
 #define MODE_TEMP_RANGE     0x0010  //!< Actual temperature is in required range
 
+/* Time constants for slope change detection */
+#define SLOPE_DETECT_LONG_DURATION  5 //!< Longer duration in seconds for detection
+#define SLOPE_DETECT_SHORT_DURATION 3 //!< Shorter duration in seconds for detection
+
+/* Time constants for sensor error report */
+#define SENSOR_ERROR_DURATION  3000   //!< Time duration in miliseconds to confirm sensor error
+
+/* Default error value for temp. sensor out of range */
+#define SENSOR_ERROR_VALUE     29900  //!< Default return value if sensor out of range 
+
 //****************************************************************************/
 // Private Type Definitions
 //****************************************************************************/
@@ -154,12 +164,12 @@ static Error_t tempModuleTask    (UInt16 Instance);
 
 static Int8    tempFindRoot (void);
 static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instance);
-static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail);
-static Error_t tempNotifRange (InstanceData_t *Data);
-static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance);
+static Error_t tempFetchCheck  (InstanceData_t *Data, UInt16 Instance, Bool *Fail);
+static Error_t tempNotifRange  (InstanceData_t *Data);
+static Error_t tempRegulation  (InstanceData_t *Data, UInt16 Instance);
 static Error_t tempReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 Instance);
 static Error_t tempDeviceAlloc (InstanceData_t *Data);
-static Error_t tempHandleOpen (InstanceData_t *Data, UInt16 Instance);
+static Error_t tempHandleOpen  (InstanceData_t *Data, UInt16 Instance);
 static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus);
 
 static Error_t tempSetTemperature       (UInt16 Channel, CanMessage_t* Message);
@@ -218,7 +228,6 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
 
         case MODULE_CONTROL_RESET:
             Data->Flags &= ~MODE_MODULE_ENABLE;
-            printf("Reset\n");
             break;
                                 
         case MODULE_CONTROL_FLUSH_DATA:
@@ -307,10 +316,6 @@ static Error_t tempModuleTask (UInt16 Instance)
     Bool Fail = FALSE;
     UInt8 i;
     Error_t Error;
-    //static UInt16* TempArray = NULL;
-    //static UInt8 TempArraySize = 0, TempArrayIndex = 0;
-    //static UInt8 SamplesPerSec = 0;
-    //static UInt8 TempCnt = 0;
     Int16 TempDelta = 0;
 
     InstanceData_t* Data = &DataTable[Instance];
@@ -319,7 +324,7 @@ static Error_t tempModuleTask (UInt16 Instance)
         // Only set sampling array if temp. module has been configured.
         if ((Data->Flags & MODE_MODULE_ENABLE) != 0 && TempSamplingTime>0 ) {
             //Data->TempArraySize = Data->SlopeTimeInterval/TempSamplingTime;
-            Data->TempArraySize = 5000/TempSamplingTime;
+            Data->TempArraySize = (SLOPE_DETECT_LONG_DURATION*1000)/TempSamplingTime;
             Data->SamplesPerSec = 1000/TempSamplingTime;
             printf("TempArraySize:%d, SamplesPerSec:%d\n", Data->TempArraySize, Data->SamplesPerSec);
             if ( Data->TempArraySize > 0 ) {
@@ -333,12 +338,12 @@ static Error_t tempModuleTask (UInt16 Instance)
     
     if (Data->ModuleState == MODULE_STATE_READY) {
 
-        //if (Data->HeaterType == TYPE_HEATER_AC) {
-            Error = tempSampleCurrent(Data->HeaterType);  
-            if (Error < 0) {
-                return (tempShutDown (Data, Error, Instance));
-            }
-        //}
+
+        Error = tempSampleCurrent(Data->HeaterType);  
+        if (Error < 0) {
+            return (tempShutDown (Data, Error, Instance));
+        }
+
 
         if ( Instance == 0 ) {
             if (bmTimeExpired (TempSampleTimestamp) >= TempSamplingTime) {
@@ -381,38 +386,10 @@ static Error_t tempModuleTask (UInt16 Instance)
         if (Error < 0) {
             return (tempShutDown (Data, Error, Instance));
         }
-    
-#if 0        
-        if (Instance == tempFindRoot ()) {
-            if (bmTimeExpired (TempSampleTimestamp) >= TempSamplingTime) {
-                // Update the sampling time
-                TempSampleTimestamp = bmGetTime();
-                TempPriority = 0;
-                for (i = 0; i < InstanceCount; i++) {
-                    DataTable[i].State = STATE_SAMPLE;
-                }
-            }
-        }
-#endif
         
         // Check if the sampling time expired already
         if (Data->State == STATE_SAMPLE) {
-            Data->State = STATE_CONTROL;
-
-
-#if 0
-            // Read and check sensors
-            Error = tempFetchCheck(Data, Instance, &Fail);
-            if (Error != NO_ERROR) {
-                return (tempShutDown (Data, Error, Instance));
-            }
-            
-            // If one of the subsystems fails, shutdown and quit
-            if (Fail == TRUE) {
-                Data->Flags &= ~(MODE_MODULE_ENABLE);
-                return ((Error_t) Data->ModuleState);
-            }
-#endif           
+            Data->State = STATE_CONTROL;     
             
             // Check if the temperature is within the required range
             Error = tempNotifRange(Data);
@@ -430,7 +407,8 @@ static Error_t tempModuleTask (UInt16 Instance)
                 }
                 else {
                     //tempNotifySlope(Data, 1);
-                    TempDelta = Data->ServiceTemp[0]- Data->TempArray[(Data->TempArrayIndex+Data->SamplesPerSec*(5-3)) % Data->TempArraySize];
+                    TempDelta = 
+                    Data->ServiceTemp[0]- Data->TempArray[(Data->TempArrayIndex+Data->SamplesPerSec*(SLOPE_DETECT_LONG_DURATION-SLOPE_DETECT_SHORT_DURATION)) % Data->TempArraySize];
                     printf("D3: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
                     if (TempDelta < (-Data->SlopeTempChange)) {
                         printf("Level up [3].\n");
@@ -465,8 +443,6 @@ static Error_t tempModuleTask (UInt16 Instance)
                 Data->State = STATE_IDLE;
                 TempPriority++;
                 
-                //printf("OP:%d\n", OperatingTime);
-                
                 // Control the heating elements
                 Error = tempHeaterActuate (OperatingTime, TempSampleTimestamp + TempSamplingTime, Instance);
                 if (Error != NO_ERROR) {
@@ -492,7 +468,6 @@ static Error_t tempModuleTask (UInt16 Instance)
         if (Error < NO_ERROR) {
             return (tempShutDown (Data, Error, Instance));
         }
-        //printf("NE\n");
     }
     return ((Error_t) Data->ModuleState);
 }
@@ -546,7 +521,7 @@ static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instanc
     UInt8 i;
     
     Data->Flags &= ~(MODE_MODULE_ENABLE);
-    printf("ShutDown\n");
+    printf("Heater shutDown\n");
     bmSignalEvent (Data->Channel, Error, TRUE, 0);
     
     for(i = 0; i < Data->NumberPid; i++) {
@@ -583,65 +558,32 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
     //UInt8 j;
     UInt16 Compensation = 0;
     Error_t Error = NO_ERROR;
-    //static UInt16 TempPre[2] = {19900,19900};
     static UInt16 CompPre = 2500;
-
-
-    //if (Data->HeaterType == TYPE_HEATER_AC) {
-    
-        // Compute and check heater current      
-        if ( Instance == 0 ) {
-            tempCalcEffectiveCurrent(/*Instance, */Data->HeaterType);
-            //printf("Current[%d]:%d\n", Instance, tempHeaterCurrent());
-        }
-        if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
-            if ( Instance == tempFindRoot () ) {
-                Error = tempHeaterCheck (/*Instance, */Data->HeaterType);
-                if (Error < 0) {
-                    return Error;
-                }
-            }
-            else {
-                //printf("here AAA\n");
-            }
-            
-            
-            if (tempHeaterFailed () == TRUE) {
-                *Fail = TRUE;
-                //printf("I[Err]:%d ", Instance);
-                bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
-                bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempGetActiveStatus ());
-            }
-            
-
-        }
-        else {
-            //printf("here BBB\n");
-        }
-        
-        
-
-        
-        //printf("C:%d ", tempHeaterCurrent());
-    
-    //}
  
+ 
+    // Compute and check heater current      
+    if ( Instance == 0 ) {
+        tempCalcEffectiveCurrent(/*Instance, */Data->HeaterType);
+        //printf("Current[%d]:%d\n", Instance, tempHeaterCurrent());
+    }
+    if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
     
-/*
-    if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) { 
-        // Compute and check heater current
-        if (Instance == tempFindRoot ()) {
-            Error = tempHeaterCheck (Instance, Data->HeaterType);
+        if ( Instance == tempFindRoot () ) {
+            Error = tempHeaterCheck (/*Instance, */Data->HeaterType);
             if (Error < 0) {
                 return Error;
             }
-        }
+        }       
+        
         if (tempHeaterFailed () == TRUE) {
-            // *Fail = TRUE;
-            // bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
+            *Fail = TRUE;
+            //printf("I[Err]:%d ", Instance);
+            bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
+            bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempGetActiveStatus ());
         }
+        
     }
-*/
+
 
     // Read and check fan speeds
     for (i = 0; i < Data->NumberFans; i++) {
@@ -663,31 +605,25 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
     if (Data->SensorType == TYPEK || Data->SensorType == TYPET) {
         if ((Error = tempSensorRead (Data->HandleCompensate, PT1000, 0, &Compensation)) < 0) {
             //return (Error);
-            //Compensation = 2800;
             Compensation = CompPre;
         }
         else {
-            //printf("C:%d ", Compensation);
             CompPre = Compensation;
         }
     }
 
     //printf("I:%d ", Instance);
 
-    //Compensation = 2600;
+
     // Measure and check the temperature
     for (i = 0; i < Data->NumberSensors; i++) {
         if ((Error = tempSensorRead (Data->HandleTemp[i], Data->SensorType, Compensation, &Data->ServiceTemp[i])) < 0) {
-            //return (Error);            
-            //Data->ServiceTemp[i] = TempPre[i];
-            //Data->ServiceTemp[i] = 19900;
             //printf("[%d]:E ", i);
-            //printf("[%d]:%d(E) ", i, Data->ServiceTemp[i]);
             if ( Data->SensorErrTimestamp[i] == 0 ) {
                 Data->SensorErrTimestamp[i] = bmGetTime();
             }
-            else if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= 3000) {
-                Data->ServiceTemp[i] = 29900;
+            else if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= SENSOR_ERROR_DURATION) {
+                Data->ServiceTemp[i] = SENSOR_ERROR_VALUE;
                 if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
                     return (Error);
                 }
@@ -696,10 +632,8 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
         else {
             //printf("[%d]:%d ", i, Data->ServiceTemp[i]);
             
-            //TempPre[i] = Data->ServiceTemp[i];
-            
             if ( Data->SensorErrTimestamp[i] != 0 ) {
-                if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= 3000) {
+                if (bmTimeExpired(Data->SensorErrTimestamp[i]) >= SENSOR_ERROR_DURATION) {
                     Data->SensorErrTimestamp[i] = 0;
                 }
             }
@@ -1647,9 +1581,13 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     Error_t Status;
     UInt16 i;
     UInt16 j;
-    //UInt16 Channel;
-    //InstanceData_t* Data;
-    //UInt16 Instance;
+    
+    // Only for debug use
+#if 0    
+    UInt16 Channel;
+    InstanceData_t* Data;
+    UInt16 Instance;
+#endif
 
     // allocate module instances data storage
     DataTable = calloc (Instances, sizeof(InstanceData_t));
@@ -1769,7 +1707,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     tempHeaterParams[Instance].CurrentGain = 7813;
     tempHeaterParams[Instance].DesiredCurrent = 3000;
     tempHeaterParams[Instance].DesiredCurThreshold = 2800;
-
+    tempHeaterParams[Instance].CurrentDeviation = 200;
 
     //////////////////////////////////////////////////////////
     // Set Temperature
@@ -1823,6 +1761,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     tempHeaterParams[Instance].CurrentGain = 7813;
     tempHeaterParams[Instance].DesiredCurrent = 350;
     tempHeaterParams[Instance].DesiredCurThreshold = 100;
+    tempHeaterParams[Instance].CurrentDeviation = 200;
 
 
     //////////////////////////////////////////////////////////
@@ -1876,6 +1815,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     tempHeaterParams[Instance].CurrentGain = 7813;
     tempHeaterParams[Instance].DesiredCurrent = 760;
     tempHeaterParams[Instance].DesiredCurThreshold = 100;
+    tempHeaterParams[Instance].CurrentDeviation = 200;
 
 
     //////////////////////////////////////////////////////////
@@ -1928,6 +1868,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     tempHeaterParams[Instance].CurrentGain = 7813;
     tempHeaterParams[Instance].DesiredCurrent = 1750;
     tempHeaterParams[Instance].DesiredCurThreshold = 100;
+    tempHeaterParams[Instance].CurrentDeviation = 200;
 
 
     //////////////////////////////////////////////////////////
@@ -1980,6 +1921,7 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
     tempHeaterParams[Instance].CurrentGain = 7813;
     tempHeaterParams[Instance].DesiredCurrent = 1000;
     tempHeaterParams[Instance].DesiredCurThreshold = 100;
+    tempHeaterParams[Instance].CurrentDeviation = 200;
 
 
     //////////////////////////////////////////////////////////

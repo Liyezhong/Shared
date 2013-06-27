@@ -340,7 +340,6 @@ Error_t tempHeaterProgress ()
         if (Error < NO_ERROR) {
             return (Error);
         }
-        //printf("C:%d\n", TempHeaterMonitor.Value);
 
         // Minimum / Maximum detection
         if (TempHeaterMonitor.Value < TempHeaterData.MinValue) {
@@ -456,7 +455,6 @@ void tempCalcEffectiveCurrent(/*UInt16 Instance, */TempHeaterType_t HeaterType)
 Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
 {
     Error_t Error;
-    //UInt16 Diff;
     UInt16 Current = 0;
     UInt16 DesiredCurThreshold = 0, DesiredCurrent = 0;
     UInt16 CurrentDeviation = 0;
@@ -467,26 +465,7 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
     TempHeaterParams_t *Params = TempHeaterData.Params;
     //DesiredCurThreshold = Params->DesiredCurThreshold;
     CurrentDeviation = Params[0].CurrentDeviation;
-
-/*
-    if (TempHeaterData.MaxValue >= TempHeaterData.MinValue) {
-        Diff = TempHeaterData.MaxValue - TempHeaterData.MinValue;
-    }
-    else {
-        Diff = TempHeaterData.MinValue - TempHeaterData.MaxValue;
-    }
-        
-    if (HeaterType == TYPE_HEATER_AC) {
-    // Compute effective current
-    // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV) / sqrt(2)
-    // => (1 / 1000 * 10000) / 14142 = 10 / 14142
-        TempHeaterData.EffectiveCurrent = (((Int32) Params[Instance].CurrentGain * Diff) * 10) / 14142;    
-    }
-    else {
-        TempHeaterData.EffectiveCurrent = ((Int32) Params[Instance].CurrentGain * Diff) / 1000;
-    }
-    TempHeaterData.MinValue = MAX_INT16;
-*/
+    
 
     TempHeaterData.Failed = FALSE;
     TempHeaterData.MaxActive = 0;
@@ -549,7 +528,7 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
             Current = TempHeaterData.EffectiveCurrent / ActiveCount;
             DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
             DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
-            printf("220V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            //printf("220V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
             
             // Check if the current is out of range (200 - 240V)
             if (Current + DesiredCurThreshold < DesiredCurrent ||
@@ -584,7 +563,7 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
             DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
             DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
             
-            printf("110V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            //printf("110V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
             
             // Check if the current is out of range (100 - 127V)
             if (Current / 2 + DesiredCurThreshold < DesiredCurrent ||
@@ -780,6 +759,17 @@ UInt16 tempGetActiveDesiredCurrent(void)
     return (DesiredCurrent);  
 }
 
+/*****************************************************************************/
+/*! 
+ *  \brief   Returns the total active desired current threshold
+ *
+ *      This function returns the total desired current threshold of currently 
+ *      active heating elements.
+ *
+ *  \return  Total desired current threshold of active heating elements
+ *
+ ****************************************************************************/
+
 UInt16 tempGetActiveDesiredCurThreshold(void)
 {
     UInt16 i;
@@ -794,6 +784,22 @@ UInt16 tempGetActiveDesiredCurThreshold(void)
     return (DesiredCurThreshold);  
 }
 
+/*****************************************************************************/
+/*! 
+ *  \brief   Returns the active status of heating elements
+ *
+ *      This function returns the status of heating elements which indicates
+ *      currently active/inactive heating elements by set/clear bits.
+ *
+ *  \return  Active status of heating elements
+ *
+ ****************************************************************************/
+
+UInt32 tempGetActiveStatus(void)
+{
+    return TempHeaterData.MaxActiveStatus2;
+}
+
 /*
 void tempResetActiveStatus(void)
 {
@@ -805,20 +811,3 @@ void tempResetActiveStatus(void)
 }
 */
 
-UInt32 tempGetActiveStatus(void)
-{
-/*
-    UInt16 i;
-    UInt32 ActiveStatus = 0;
-    
-    for (i = 0; i < TempHeaterData.Instances; i++) {
-        if (TempHeaterData.ActiveStatus[i]) {
-            ActiveStatus |= (1<<i);
-        }
-    }
-    
-    return (ActiveStatus);  
-    */
-    
-    return TempHeaterData.MaxActiveStatus2;
-}
