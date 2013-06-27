@@ -23,7 +23,6 @@
 
 #include "Application/Include/LeicaStyle.h"
 #include <QApplication>
-#include <QTimer>
 
 namespace Application {
 
