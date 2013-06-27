@@ -840,7 +840,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
                                                 Global::tTranslatableStringList EventStringListForRD,
                                                 quint64 EventCodeScenario)
 {
-    qDebug() << "\n\n\n\nEventHandlerThreadController::ProcessEvent, EventID=" << ErrorCode << "EventKey=" << EventKey << "Event status" <<IsResolved;
+//    qDebug() << "\n\n\n\nEventHandlerThreadController::ProcessEvent, EventID=" << ErrorCode << "EventKey=" << EventKey << "Event status" <<IsResolved;
 
     // if eventList is not available yet, place event into pendingList
     if (ErrorCode == EVENT_GUI_AVAILABLE)
@@ -882,7 +882,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
         //Log if loglevel is not "NONE"
         if (EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
         {
-            qDebug()<< "Sending event to DataLogger";
+//            qDebug()<< "Sending event to DataLogger";
             emit LogEventEntry(EventEntry); //Log the event
         }
 
