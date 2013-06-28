@@ -121,11 +121,11 @@ typedef struct {
     TempTimeParams_t TimeParams; //!< Input and output parameters of the lifecycle counters
     TempPidParams_t *PidParams;  //!< Input and output parameters of the PID controller
     
-    UInt16* TempArray;
-    UInt8   TempArraySize;
-    UInt8   TempArrayIndex;
-    UInt8   SamplesPerSec;
-    UInt32* SensorErrTimestamp;
+    UInt16* TempArray;           //!< Array of temp. data for slope change detection
+    UInt8   TempArraySize;       //!< Size of temp. array
+    UInt8   TempArrayIndex;      //!< Current index of temp. array for writing
+    UInt8   SamplesPerSec;       //!< Number of temperature samples per second
+    UInt32* SensorErrTimestamp;  //!< Time stamp for trigeering sensor error reporting
     
 } InstanceData_t;
 

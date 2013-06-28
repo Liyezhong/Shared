@@ -139,7 +139,9 @@ static InstanceData_t* DataTable;  //!< data table for all instances
 static UInt8 PressPriority;
 /*! Pump or hold phase */
 static PressPumpPhase_t PressPhase;
+/*! Pressure or Vacuum mode */
 static PressPumpMode_t  PressPumpMode;
+/*! Actuating mode - on/off or PWM */
 static PressPumpActuateMode_t PressPumpActuateMode;
 /*! Time in milliseconds the last pressure value was sampled */
 static UInt32 PressSampleTimestamp;
@@ -1751,7 +1753,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     InstanceCount = Instances;
     ModuleIdentifier = ModuleID;
 
-
+// Only for debug use only
 #if 0
 
     Channel = 1;

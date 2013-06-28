@@ -64,8 +64,9 @@ typedef struct {
     UInt16 MaxActive;           //!< Maximum number of active heating elements
     UInt16 MaxActDesiredCurrent;//!< Maximum desired current of active heating elements
     UInt16 MaxActDesiredCurThreshold;
-    UInt32 MaxActiveStatus;
-    UInt32 MaxActiveStatus2;
+                                //!< Maximum desired current threshold of active heating elements
+    UInt32 MaxActiveStatus;     //!< Status flag bits of maximum active heating elements
+    UInt32 MaxActiveStatus2;    //!< Status flag bits of maximum active heating elements (only for debug)
     Bool *ActiveStatus;         //!< Active status for each heating element
     UInt32 *StartingTime;       //!< Time in milliseconds an output pulse is started
     UInt32 *OperatingTime;      //!< Time in milliseconds an output pulse is active
