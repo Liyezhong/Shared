@@ -220,14 +220,14 @@ ID=$MSG_PRESS_RESP_PUMP_TIME	// Operating time of a single pump
 Type=Extended
 DLC=5
 Var=PumpNumber unsigned 0,8 -m /ln:"Number of pumping element"
-Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
+Var=ActiveTime unsigned 8,32 -m /u:sec /ln:"Operating time"
 	
 [$B::MsgPressRespSvcSensor@$I]
 ID=$MSG_PRESS_RESP_SERVICE_SENSOR	// Actual pressure sensor pressure
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Pressure sensor number"
-Var=Pressure unsigned 8,16 -m /u:in hundredth of KPa /ln:"Sensor pressure"
+Var=Pressure signed 8,16 -m /u:KPa /f:0.01 /ln:"Sensor pressure"
 	
 [$B::MsgPressRespServiceFan@$I]
 ID=$MSG_PRESS_RESP_SERVICE_FAN	// Actual speed of a ventilation fan
