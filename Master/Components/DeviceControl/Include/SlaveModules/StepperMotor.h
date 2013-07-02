@@ -125,6 +125,15 @@ public:
     //! Request life cycle data
     ReturnCode_t RequestLifeCycleData();
 
+    //! Request motor operation time
+    ReturnCode_t RequestOperationTimeData();
+
+    //! Request motor revolution count
+    ReturnCode_t RequestRevolutionCountData();
+
+    //! Request motor direction changes count
+    ReturnCode_t RequestDirChangeCountData();
+
     //! Request limit switch state
     ReturnCode_t RequestLimitSwitchState();
     //! Get limit switch state as buffer on master side
@@ -327,6 +336,12 @@ private:
     ReturnCode_t SendCANMsgActSpeedReq();
     //! sends the can message 'LifeCycleData'
     ReturnCode_t SendCANMsgLifeCycleDataReq();
+    //! sends the can message 'operation time request'
+    ReturnCode_t SendCANMsgOperationTimeDataReq();
+    //! sends the can message 'revolution count request'
+    ReturnCode_t SendCANMsgRevolutionCountDataReq();
+    //! sends the can message 'direction changes count request'
+    ReturnCode_t SendCANMsgDirChangesCountDataReq();
 
     //! handles the receipt of can message 'State'
     void HandleCANMsgState(can_frame* pCANframe);
@@ -347,10 +362,15 @@ private:
     //! handles the receipt of can message 'Debug'
     void HandleCANMsgDebug(can_frame* pCANframe);
     //! handles the receipt of can message 'LiveCycleData'
-    void HandleCANMsgLiveCycleData(can_frame* pCANframe);
+    //void HandleCANMsgLiveCycleData(can_frame* pCANframe);
     //! handles the receipt of can message 'ActSpeed'
     void HandleCANMsgActSpeedResp(can_frame* pCANframe);
-
+    //! handles the receipt of can message 'OperationTimeData'
+    void HandleCANMsgOperationTimeData(can_frame* pCANframe);
+    //! handles the receipt of can message 'RevolutionsData'
+    void HandleCANMsgRevolutionsData(can_frame* pCANframe);
+    //! handles the receipt of can message 'DirectionChangesData'
+    void HandleCANMsgDirChangesData(can_frame* pCANframe);
     //! command handling function
     void HandleCommandRequestTask();
 
@@ -405,6 +425,12 @@ private:
     quint32  m_unCanIDDiagHardware;           ///< CAN message 'Diagnostic Hardware'
     quint32  m_unCanIDDebug;                  ///< CAN message 'Debug data'
     quint32  m_unCanIDDebug2;                 ///< CAN message 'Debug2 data'
+    quint32  m_unCanIDOpTimeDataReq;          ///< CAN message 'Motor operation time request'
+    quint32  m_unCanIDOpTimeData;             ///< CAN message 'Motor operation time data'
+    quint32  m_unCanIDRevCountDataReq;        ///< CAN message 'Motor revolution count request'
+    quint32  m_unCanIDRevCountData;           ///< CAN message 'Motor revolution count data'
+    quint32  m_unCanIDDirCountDataReq;        ///< CAN message 'Motor direction changes count request'
+    quint32  m_unCanIDDirCountData;           ///< CAN message 'Motor direction changes count data'
 
     /*! motor movement command type */
     typedef enum {
@@ -418,9 +444,29 @@ private:
         FM_SM_CMD_TYPE_LIFE_CYCLE_DATA_REQ = 0x07,  //!< life cycle data request
         FM_SM_CMD_TYPE_TECH_DATA1_REQ      = 0x08,  //!< technical data group 1 request
         FM_SM_CMD_TYPE_TECH_DATA2_REQ      = 0x09,  //!< technical data group 1 request
-        FM_SM_CMD_TYPE_DEBUG_CMD_1         = 0x0a   //!< debug request
+        FM_SM_CMD_TYPE_DEBUG_CMD_1         = 0x0a,  //!< debug request
+#if 1
+        FM_SM_CMD_TYPE_OPTIME_DATA_REQ     = 0x0b,  //!< operation time data request
+        FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ   = 0x0c,  //!< revolution count data request
+        FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ   = 0x0d  //!< direction change count data request
+#endif
     } CANStepperMotorMotionCmdType_t;
-
+#if 0
+    /*! motor movement command type */
+    typedef enum {
+        FM_SM_CMD_TYPE_UNDEF               = 0x00,  //!< undefined movement type
+        FM_SM_CMD_TYPE_STATE               = 0x01,  //!< set motor state
+        FM_SM_CMD_TYPE_REFRUN              = 0x02,  //!< reference run request
+        FM_SM_CMD_TYPE_POS                 = 0x03,  //!< movement to target position
+        FM_SM_CMD_TYPE_SPEED               = 0x04,  //!< movement with target speed
+        FM_SM_CMD_TYPE_ACTPOS_REQ          = 0x05,  //!< actual position request
+        FM_SM_CMD_TYPE_ACTSPEED_REQ        = 0x06,  //!< actual speed request
+        FM_SM_CMD_TYPE_OPTIME_DATA_REQ     = 0x07,  //!< operation time data request
+        FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ   = 0x08,  //!< revolution count data request
+        FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ   = 0x09,  //!< direction change count data request
+        FM_SM_CMD_TYPE_REQ_DATA_RESET      = 0x0a   //!< data reset
+    } CANStepperMotorMotionCmdType_t;
+#endif
     /*! motor command data, used for internal data transfer */
     typedef struct {
         CANStepperMotorMotionCmdType_t  Type;               //!< command type
@@ -457,12 +503,12 @@ private:
     quint8 MotionProfileSubIndex;   ///< Motion profile sub index, used by configuration
 
     bool m_MotorState;  //!< motor state (enabled/disabled)
-
+#if 0
     //life cycle data
     quint32 m_StepCounter;      //!< count of motor step during life cycle
     quint32 m_TripCounter;      //!< count of changes in direction during life cycle
     quint32 m_OperationTime;    //!< motor operation time in minutes during life cycle
-
+#endif
     //configuration data
     Position_t m_MinPosition;   ///< minimal position
     Position_t m_MaxPosition;   ///< maximal position
@@ -472,6 +518,11 @@ private:
     void TestOutput(QString text);  //!< test
     bool m_bTestOutput;             //!< test
     quint16 m_nCounter;             //!< test
+
+    //life cycle data
+    quint32 m_RevolutionCount;      //!< count of motor revolutions during life cycle
+    quint32 m_DirChangeCount;       //!< count of changes in direction during life cycle
+    quint32 m_OperationTime;        //!< motor operation time in hours during life cycle
 
     static QMap<quint32, std::string> m_eventString;    //!< list with info strings for CAN events
 };

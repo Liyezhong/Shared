@@ -185,7 +185,35 @@ typedef struct
 #define MSG_SMOT_DEBUG2                 BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0) // CAN-ID: 0x1098xxx0
 #define MSG_SMOT_DEBUG2_DLC             sizeof(Msg_Debug2Data_t)
 
+//! CAN msg ID - Request motor operation time
+#define MSG_SMOT_OPTIME_REQ             BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 1) // CAN-ID: 0x1078xxx1
+#define MSG_SMOT_OPTIME_REQ_DLC         0
+//!< CAN msg DLC - Request motor operation time
 
+//! CAN msg ID - Send motor operation time
+#define MSG_SMOT_OPTIME                 BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 0) // CAN-ID: 0x1078xxx1
+#define MSG_SMOT_OPTIME_DLC             sizeof(Msg_OperationTimeData_t)
+//!< CAN msg DLC - Send motor operation time
+
+//! CAN msg ID - Request motor revolution count
+#define MSG_SMOT_REVCOUNT_REQ           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 1) // CAN-ID: 0x1080xxx1
+#define MSG_SMOT_REVCOUNT_REQ_DLC       0
+//!< CAN msg DLC - Request motor revolution count
+
+//! CAN msg ID - Send motor revolution count
+#define MSG_SMOT_REVCOUNT               BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 0) // CAN-ID: 0x1080xxx1
+#define MSG_SMOT_REVCOUNT_DLC           sizeof(Msg_RevolutionsData_t)
+//!< CAN msg DLC - Send motor revolution count
+
+//! CAN msg ID - Request motor direction change count
+#define MSG_SMOT_DIRCOUNT_REQ           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 17, 1) // CAN-ID: 0x1088xxx1
+#define MSG_SMOT_DIRCOUNT_REQ_DLC       0
+//!< CAN msg DLC - Request motor direction change count
+
+//! CAN msg ID - Send motor direction change count
+#define MSG_SMOT_DIRCOUNT               BUILD_CAN_ID(CMD_CLASS_FUNCTION, 17, 0) // CAN-ID: 0x1088xxx1
+#define MSG_SMOT_DIRCOUNT_DLC           sizeof(Msg_DirChangeData_t)
+//!< CAN msg DLC - Send motor direction change count
 //@{**************************************************************************/
 //! type declarations and data structures for CAN message data
 //****************************************************************************/
@@ -274,6 +302,28 @@ typedef struct
         SM_AckState_t   ack;        // status of finished movement
     } __attribute__((packed)) Msg_SpeedData_t;
 
+//! CAN data bytes for Operation Time msg
+typedef struct
+{
+    Msg_DB4_t       hours;      //!< actual motor operation time (hours)
+    SM_AckState_t   ack;        //!< status for requested data
+} __attribute__((packed)) Msg_OperationTimeData_t;
+
+
+//! CAN data bytes for Revolution Count msg
+typedef struct
+{
+    Msg_DB4_t       count;      //!< actual motor revolution count
+    SM_AckState_t   ack;        //!< status for requested data
+} __attribute__((packed)) Msg_RevolutionsData_t;
+
+
+//! CAN data bytes for Direction Change Count msg
+typedef struct
+{
+    Msg_DB4_t       count;      //!< actual motor dirction change count
+    SM_AckState_t   ack;        //!< status for requested data
+} __attribute__((packed)) Msg_DirChangeData_t;
 
 //@{**************************************************************************/
 //! type declarations used for configurtion data
