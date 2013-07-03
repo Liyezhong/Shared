@@ -42,8 +42,8 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :
     QMainWindow(p_Parent),
     mp_Ui(new Ui::CMainWindow),
     mTimeRefreshTimer(this),
-    mp_RemotePixMap(NULL),
-    mp_ProcPixmap(NULL)
+    mp_ProcPixmap(NULL),
+    mp_RemotePixMap(NULL)
 {
     mp_Ui->setupUi(this);
     m_ProcessRunning = false;
@@ -394,6 +394,8 @@ bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
             return true;
         }
     }
+
+    return false;
 }
 
 } // end namespace MainMenu

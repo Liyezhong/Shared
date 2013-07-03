@@ -146,6 +146,7 @@ public:
         if (mp_DeviceConfig) {
             return mp_DeviceConfig->GetLanguageList();
         }
+        return QStringList();
     }
 
     /****************************************************************************/
