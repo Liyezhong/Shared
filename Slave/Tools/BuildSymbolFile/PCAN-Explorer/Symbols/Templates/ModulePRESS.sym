@@ -1,0 +1,263 @@
+FormatVersion=5.0
+Title="Symbols for Pressure Regulator Module"
+
+{ENUMS}
+
+enum PressCtrlState(
+  0 = "DISABLED", 
+  1 = "Pressure/ON_OFF", 
+  9 = "Vacuum/ON_OFF", 
+  17= "Pressure/PWM", 
+  25= "Vacuum/PWM"
+  )
+
+enum CalibrationStatus(
+  0 = "Disable",
+  1 = "Enable"
+  )
+
+{SENDRECEIVE}
+
+[$B::MsgPressSrvCfgStatistic@$I]
+ID=$MSG_PRESS_SRV_CFG_STATISTICS	// Configure and request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[$B::MsgPressSrvReqResetData@$I]
+ID=$MSG_PRESS_SRV_REQ_RESET_DATA	// Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[$B::MsgPressProcConfigure@$I]
+ID=$MSG_PRESS_PROC_CONFIGURE	// Configure process data 
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[$B::MsgPressProcReqData@$I]
+ID=$MSG_PRESS_PROC_REQ_DATA	// Request process data 
+Type=Extended
+DLC=0
+
+[$B::MsgPressSetPressure@$I]
+ID=$MSG_PRESS_SET_PRESSURE	// Set pressure related parameters 
+Type=Extended
+DLC=7
+Var=Flags unsigned 0,8 -m /e:PressCtrlState /ln:"Mode control bitmap"
+Var=Pressure unsigned 8,8 -m /u:KPa /ln:"Desired pressure"
+Var=Tolerance unsigned 16,8 -m /u:KPa /ln:"Pressure tolerance"
+Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
+Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
+
+
+[$B::MsgPressSetFanWatchdog@$I]
+ID=$MSG_PRESS_SET_FAN_WATCHDOG	// Sets fan speed watchdog parameters
+Type=Extended
+DLC=4
+Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
+Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
+
+[$B::MsgPressSetCurrWatchdog@$I]
+ID=$MSG_PRESS_SET_CURRENT_WATCHDOG	// Set current watchdog parameters
+Type=Extended
+DLC=6
+Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
+Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired pump current"
+Var=Threshold unsigned 32,16 -m /u:mA /ln:"Pump current threshold"
+
+[$B::MsgPressSetPidParams@$I]
+ID=$MSG_PRESS_SET_PID_PARAMS	// Sets parameters of a PID controller
+Type=Extended
+DLC=8
+Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
+Var=MaxPress signed 8,8 -m /u:KPa /ln:"Maximal pressure"
+Var=MinPress signed 16,8 -m /u:KPa /ln:"Minimum pressure"
+Var=ParamKc unsigned 24,16 -m /ln:"PID gain parameter"
+Var=ParamTi unsigned 40,16 -m /u:ms /ln:"PID reset time"
+Var=ParamTd unsigned 56,8 -m /u:ms /ln:"PD deviation time"
+
+[$B::MsgPressSetPumpTime@$I]
+ID=$MSG_PRESS_SET_PUMP_TIME	// Reset the operating timers of the module
+Type=Extended
+DLC=1
+Var=PumpNumber unsigned 0,8 -m /ln:"Number of the pumping element"
+		
+[$B::MsgPressReqPressure@$I]
+ID=$MSG_PRESS_REQ_PRESSURE	// Request pressure and state of pump
+Type=Extended
+DLC=0
+	
+[$B::MsgPressReqPidParams@$I]
+ID=$MSG_PRESS_REQ_PID_PARAMS	// Requests parameters of a PID controller
+Type=Extended
+DLC=1
+Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
+	
+[$B::MsgPressReqPumpTime@$I]
+ID=$MSG_PRESS_REQ_PUMP_TIME	// Request operating time of a pump
+Type=Extended
+DLC=1
+Var=PumpNumber unsigned 0,8 -m /ln:"Number of pumping element"
+		
+[$B::MsgPressReqSvcSensor@$I]
+ID=$MSG_PRESS_REQ_SERVICE_SENSOR	// Requests pressure of a pressure sensor
+Type=Extended
+DLC=1
+Var=SensorNumber unsigned 0,8 -m /ln:"Pressure sensor number"
+	
+[$B::MsgPressReqServiceFan@$I]
+ID=$MSG_PRESS_REQ_SERVICE_FAN	// Requests speed of a single fan
+Type=Extended
+DLC=1
+Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
+
+[$B::MsgPressReqHardware@$I]
+ID=$MSG_PRESS_REQ_HARDWARE	// Request hardware informations
+Type=Extended
+DLC=0
+
+
+[$B::MsgPressSetValve@$I]
+ID=$MSG_PRESS_SET_VALVE	       // Set valve status
+Type=Extended
+DLC=2
+Var=ValveNumber unsigned 0,8 -m /ln:"Valve number"
+Var=ValveStatus unsigned 0,8 -m /ln:"Valve status"
+
+[$B::MsgPressSetCalibration@$I]
+ID=$MSG_PRESS_SET_CALIBRATION  // Enable/Disable pump calibration
+Type=Extended
+DLC=1
+Var=CalibrationStatus unsigned 0,8 -m /e:CalibrationStatus /ln:"Calibration Status"
+
+[$B::MsgPressSetPwmParams@$I]
+ID=$MSG_PRESS_SET_PWM_PARAMS	// Sets parameters for PWM output
+Type=Extended
+DLC=6
+Var=MaxActuatingValue unsigned 0,16 -m /ln:"Maximal actuating value"
+Var=MinActuatingValue unsigned 16,16 -m /ln:"Minimum actuating value"
+Var=MaxPwmDuty unsigned 32,8 -m /u:Percentage /ln:"Maximal pulse duty"
+Var=MinPwmDuty unsigned 40,8 -m /u:Percentage /ln:"Minimum pulse duty"
+
+{RECEIVE}
+
+[$B::MsgPressEventInfo@$I]
+ID=$MSG_PRESS_EVENT_INFO	// Info message
+Type=Extended
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=InfoCode unsigned 16,16 -m /ln:"Info code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
+
+[$B::MsgPressEventWarning@$I]
+ID=$MSG_PRESS_EVENT_WARNING	// Warning message
+Type=Extended
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
+
+[$B::MsgPressEventError@$I]
+ID=$MSG_PRESS_EVENT_ERROR	// Error message
+Type=Extended
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=ErrCode unsigned 16,16 -m /ln:"Error code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
+
+[$B::MsgPressSrvStatistics@$I]
+ID=$MSG_PRESS_SRV_STATISTICS	// Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[$B::MsgPressSrvAckResetData@$I]
+ID=$MSG_PRESS_SRV_ACK_RESET_DATA	// Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[$B::MsgPressProcData@$I]
+ID=$MSG_PRESS_PROC_DATA	// Process data of pressure regulator
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+
+[$B::MsgPressRespPressure@$I]
+ID=$MSG_PRESS_RESP_PRESSURE	// Pressure/state of pressure module
+Type=Extended
+DLC=7
+Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
+Var=Pressure unsigned 8,8 -m /u:KPa /ln:"Desired pressure"
+Var=Tolerance unsigned 16,8 -m /u:KPa /ln:"Pressure tolerance"
+Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
+Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
+
+[$B::MsgPressRespPidParams@$I]
+ID=$MSG_PRESS_RESP_PID_PARAMS	// Parameters of a PID controller
+Type=Extended
+DLC=8
+Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
+Var=MaxPress signed 8,8 -m /u:KPa /ln:"Maximal pressure"
+Var=MinPress signed 16,8 -m /u:KPa /ln:"Minimum pressure"
+Var=ParamKc unsigned 24,16 -m /ln:"PID gain parameter"
+Var=ParamTi unsigned 40,16 -m /u:ms /ln:"PID reset time"
+Var=ParamTd unsigned 56,8 -m /u:ms /ln:"PD deviation time"
+
+		
+[$B::MsgPressRespPumpTime@$I]
+ID=$MSG_PRESS_RESP_PUMP_TIME	// Operating time of a single pump
+Type=Extended
+DLC=5
+Var=PumpNumber unsigned 0,8 -m /ln:"Number of pumping element"
+Var=ActiveTime unsigned 8,32 -m /u:sec /ln:"Operating time"
+	
+[$B::MsgPressRespSvcSensor@$I]
+ID=$MSG_PRESS_RESP_SERVICE_SENSOR	// Actual pressure sensor pressure
+Type=Extended
+DLC=3
+Var=SensorNumber unsigned 0,8 -m /ln:"Pressure sensor number"
+Var=Pressure signed 8,16 -m /u:KPa /f:0.01 /ln:"Sensor pressure"
+	
+[$B::MsgPressRespServiceFan@$I]
+ID=$MSG_PRESS_RESP_SERVICE_FAN	// Actual speed of a ventilation fan
+Type=Extended
+DLC=5
+Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
+Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
+	
+[$B::MsgPressRespHardware@$I]
+ID=$MSG_PRESS_RESP_HARDWARE	// Pressure regulator hardware information
+Type=Extended
+DLC=5
+Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
+Var=NumberPumps unsigned 8,8 -m /ln:"Number of pumps"
+Var=NumberPid unsigned 16,8 -m /ln:"Number of PIDs"
+Var=PumpCurrent unsigned 24,16 -m /u:mA /ln:"Current at pumping elements "
+	
+[$B::MsgPressNotiAutoTune@$I]
+ID=$MSG_PRESS_NOTI_AUTO_TUNE	// Auto tune notification
+Type=Extended
+DLC=0
+		
+[$B::MsgPressNotiInRange@$I]
+ID=$MSG_PRESS_NOTI_IN_RANGE	// Notification: pressure in range
+Type=Extended
+DLC=2
+Var=Pressure unsigned 0,16 -m /ln:"Pressure"
+
+[$B::MsgPressNotiOutOfRange@$I]
+ID=$MSG_PRESS_NOTI_OUT_OF_RANGE	// Notification: pressure out of range
+Type=Extended
+DLC=2
+Var=Pressure unsigned 0,16 -m /ln:"Pressure"

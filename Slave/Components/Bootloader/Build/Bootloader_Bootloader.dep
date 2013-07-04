@@ -1,0 +1,8 @@
+Dependencies for Project 'Bootloader', Target 'Bootloader': (DO NOT MODIFY !)
+F (..\Include\blMain.h)(0x4F6B2633)()
+F (..\Include\halConfigure.h)(0x4F6B2633)()
+F (..\Source\blMain.c)(0x5034987F)(-c --device DARMSTM -g -O0 --apcs=interwork --split_sections -I..\Include -I..\..\BaseModule\Include -I..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Binary\blmain.o" --omf_browse "..\Binary\blmain.crf" --depend "..\Binary\blmain.d")
+F (..\Source\halConfigure.c)(0x4FC4EBB2)(-c --device DARMSTM -g -O0 --apcs=interwork --split_sections -I..\Include -I..\..\BaseModule\Include -I..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Binary\halconfigure.o" --omf_browse "..\Binary\halconfigure.crf" --depend "..\Binary\halconfigure.d")
+F (..\Source\main.c)(0x50CAE3AB)(-c --device DARMSTM -g -O0 --apcs=interwork --split_sections -I..\Include -I..\..\BaseModule\Include -I..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Binary\main.o" --omf_browse "..\Binary\main.crf" --depend "..\Binary\main.d")
+F (..\..\BaseModule\Library\BaseModule.lib)(0x500627C9)()
+F (..\..\HAL\STM32\Library\HAL.lib)(0x50061B6C)()
