@@ -3,6 +3,13 @@ Title="Symbols for Temperature Regulator Module"
 
 {ENUMS}
 
+enum HeaterSwitchState(
+  0 = "Undefined",
+  1 = "Serial",
+  2 = "Parallel",
+  3 = "DC Heater"
+  )
+
 
 {SENDRECEIVE}
 
@@ -37,12 +44,13 @@ DLC=0
 [$B::MsgTempSetTemp@$I]
 ID=$MSG_TEMP_SET_TEMP	// Set temperature related parameters 
 Type=Extended
-DLC=7
+DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
-Var=Temperature unsigned 8,8 -m /u:°C /ln:"Desired temperature"
-Var=Tolerance unsigned 16,8 -m /u:°C /ln:"Temperature tolerance"
-Var=SampleTime unsigned 24,16 -m /u:0.01s /ln:"Sampling time"
+Var=Temperature unsigned 8,8 -m /u:Celsius degree /ln:"Desired temperature"
+Var=Tolerance unsigned 16,8 -m /u:Celsius degree /ln:"Temperature tolerance"
+Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
+Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [$B::MsgTempSetFanWatchdog@$I]
 ID=$MSG_TEMP_SET_FAN_WATCHDOG	// Sets fan speed watchdog parameters
@@ -64,10 +72,10 @@ ID=$MSG_TEMP_SET_PID_PARAMS	// Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-Var=MaxTemp unsigned 8,8 -m /u:°C /ln:"Maximal temperature"
+Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
-Var=ParamTi unsigned 32,16 -m /f:10 /u:ms /ln:"PID reset time"
-Var=ParamTd unsigned 48,16 -m /f:10 /u:ms /ln:"PD deviation time"
+Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
+Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [$B::MsgTempSetHeaterTime@$I]
 ID=$MSG_TEMP_SET_HEATER_TIME	// Reset the operating timers of the module
@@ -92,7 +100,7 @@ Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 		
-[$B::MsgTempReqServiceSensor@$I]
+[$B::MsgTempReqSvcSensor@$I]
 ID=$MSG_TEMP_REQ_SERVICE_SENSOR	// Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
@@ -116,26 +124,26 @@ DLC=0
 [$B::MsgTempEventInfo@$I]
 ID=$MSG_TEMP_EVENT_INFO	// Info message
 Type=Extended
-DLC=8
-Var=InfoCode unsigned 0,16 -m /ln:"Info code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=InfoCode unsigned 16,16 -m /ln:"Info code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [$B::MsgTempEventWarning@$I]
 ID=$MSG_TEMP_EVENT_WARNING	// Warning message
 Type=Extended
-DLC=8
-Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [$B::MsgTempEventError@$I]
 ID=$MSG_TEMP_EVENT_ERROR	// Error message
 Type=Extended
-DLC=8
-Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=ErrCode unsigned 16,16 -m /ln:"Error code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [$B::MsgTempSrvStatistics@$I]
 ID=$MSG_TEMP_SRV_STATISTICS	// Task statistics
@@ -163,8 +171,8 @@ ID=$MSG_TEMP_RESP_TEMP	// Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
-Var=Temperature unsigned 8,8 -m /u:°C /ln:"Desired temperature"
-Var=Tolerance unsigned 16,8 -m /u:°C /ln:"Temperature tolerance"
+Var=Temperature unsigned 8,8 -m /u:Celsius degree /ln:"Desired temperature"
+Var=Tolerance unsigned 16,8 -m /u:Celsius degree /ln:"Temperature tolerance"
 Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
@@ -173,10 +181,10 @@ ID=$MSG_TEMP_RESP_PID_PARAMS	// Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-Var=MaxTemp unsigned 8,8 -m /u:°C /ln:"Maximal temperature"
+Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
-Var=ParamTi unsigned 32,16 -m /f:10 /u:ms /ln:"PID reset time"
-Var=ParamTd unsigned 48,16 -m /f:10 /u:ms /ln:"PD deviation time"
+Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
+Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 		
 [$B::MsgTempRespHeaterTime@$I]
 ID=$MSG_TEMP_RESP_HEATER_TIME	// Operating time of a single heater
@@ -185,12 +193,12 @@ DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
 	
-[$B::MsgTempRespServiceSensor@$I]
+[$B::MsgTempRespSvcSensor@$I]
 ID=$MSG_TEMP_RESP_SERVICE_SENSOR	// Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-Var=Temperature unsigned 8,16 -m /u:°C /ln:"Sensor temperature"
+Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
 	
 [$B::MsgTempRespServiceFan@$I]
 ID=$MSG_TEMP_RESP_SERVICE_FAN	// Actual speed of a ventilation fan
@@ -202,12 +210,13 @@ Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
 [$B::MsgTempRespHardware@$I]
 ID=$MSG_TEMP_RESP_HARDWARE	// Temperature regulator hardware information
 Type=Extended
-DLC=6
+DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
 Var=NumberFans unsigned 8,8 -m /ln:"Number of fans"
 Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
+Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
 	
 [$B::MsgTempNotiAutoTune@$I]
 ID=$MSG_TEMP_NOTI_AUTO_TUNE	// Auto tune notification
@@ -225,3 +234,9 @@ ID=$MSG_TEMP_NOTI_OUT_OF_RANGE	// Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
+
+[$B::MsgTempNotiSlope@$I]
+ID=$MSG_TEMP_NOTI_SLOPE_DETECTED // Notification: preset temperature variation slope detected
+Type=Extended
+DLC=1
+Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"

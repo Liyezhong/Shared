@@ -125,7 +125,7 @@ static Error_t InitTestBoardInfoBlock (void) {
     static bmBoardInfoBlock_t InfoBlock;
 
     InfoBlock.Signature       = INFOBLOCK_SIGNATURE;
-    InfoBlock.NodeType        = 15;
+    InfoBlock.NodeType        = 3;
     InfoBlock.NodeClass       = 0;
 
     strcpy (InfoBlock.BoardName, "ASB0");

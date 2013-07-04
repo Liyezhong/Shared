@@ -77,9 +77,16 @@ static const UInt32 TestOptionList[] = {
         CURRENT_LIMIT_FAILURE,          // Current monitor failure level
         
     // Function modules board options
+#ifdef ASB5_VER_A    
     MODULE_ID_TEMPERATURE, 4, 0x011011, 0xF11012, 0x011012, 0x011012
+#endif
+
+#ifdef ASB5_VER_B
+    MODULE_ID_TEMPERATURE, 4, 0x011011, 0xF11012, 0x011012, 0x011011
+#endif    
     //MODULE_ID_TEMPERATURE, 1, 0x1011012//, 0x011012
     //MODULE_ID_TEMPERATURE, 2, 0x011011, 0xF11012,
+    //MODULE_ID_TEMPERATURE, 4, 0x011012, 0x011012, 0x011012, 0x011012
 };
 
 //****************************************************************************/
@@ -158,12 +165,25 @@ static Error_t InitTestBoardInfoBlock (void) {
     strcpy (InfoBlock.BoardName, "ASB5");
     strcpy (InfoBlock.SerialNum, "SN:0307.12345.AB/9-4");
 
+
+#ifdef ASB5_VER_A
     InfoBlock.VersionMajor    = 0;
     InfoBlock.VersionMinor    = 1;
 
-    InfoBlock.ProductionYear  = 10;
-    InfoBlock.ProductionMonth = 7;
-    InfoBlock.ProductionDay   = 25;
+    InfoBlock.ProductionYear  = 13;
+    InfoBlock.ProductionMonth = 1;
+    InfoBlock.ProductionDay   = 9;
+#endif
+
+
+#ifdef ASB5_VER_B
+    InfoBlock.VersionMajor    = 0;
+    InfoBlock.VersionMinor    = 3;
+
+    InfoBlock.ProductionYear  = 13;
+    InfoBlock.ProductionMonth = 6;
+    InfoBlock.ProductionDay   = 17;
+#endif
 
     InfoBlock.EndTestYear     = 10;
     InfoBlock.EndTestMonth    = 7;

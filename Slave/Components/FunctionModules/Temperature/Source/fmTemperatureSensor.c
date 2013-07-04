@@ -22,6 +22,7 @@
  */
 /****************************************************************************/
 
+#include <stdio.h>
 #include "Global.h"
 #include "halLayer.h"
 #include "BaseModule.h"
@@ -36,7 +37,15 @@
 #define TEMP_SENSOR_MAX 200 //!< Maximal sensor temperature in degree Celsius 
 
 #define TEMP_SENSOR_VOLTAGE     3000  //!< ADC supply voltage used for the NTC 10K3A1I
+
+#ifdef ASB5_VER_A
 #define TEMP_SENSOR_RESISTANCE  10000 //!< Pullup resistance connected to NTC 10K3A1I
+#endif
+
+// For new ASB board
+#ifdef ASB5_VER_B
+#define TEMP_SENSOR_RESISTANCE  2700 //!< Pullup resistance connected to NTC 10K3A1I
+#endif
 
 /*! Conversion table for a thermocouple of type K (IEC 584) in microvolts */
 static Int16 tempSensorTableTypeK[TEMP_SENSOR_MAX] = {
@@ -86,6 +95,7 @@ static Int16 tempSensorTableTypeT[TEMP_SENSOR_MAX] = {
     8759, 8812, 8865, 8917, 8970, 9023, 9076, 9129, 9182, 9235  // 190 to 199 degree Celsius
 };
 
+#ifdef ASB5_VER_A
 /*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
 static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
     32651, 31031, 29500, 28054, 26687, 25395, 24172, 23016, 21921, 20885, //   0 to   9 degree Celsius
@@ -99,31 +109,66 @@ static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
      1256,  1216,  1178,  1141,  1105,  1070,  1037,  1005,   974,   945, //  80 to  89 degree Celsius
       916,   888,   862,   836,   811,   787,   764,   741,   720,   699, //  90 to  99 degree Celsius
       678,   659,   640,   622,   604,   587,   571,   555,   539,   524, // 100 to 109 degree Celsius
-      510,   496,   482,   469,   457,   444,   432,   421,   410,   399  // 110 to 119 degree Celsius
+      510,   496,   482,   469,   457,   444,   432,   421,   410,   399, // 110 to 119 degree Celsius
+      397,   387,   378,   368,   359,   350,   341,   333,   325,   317, // 120 to 129 degree Celsius 
+      309,   302,   295,   287,   281,   274,   268,   261,   255,   249, // 130 to 139 degree Celsius 
+      244,   238,   232,   227,   222,   217,   212,   207,   203,   198, // 140 to 149 degree Celsius 
+      194,   190,   186,   182,   178,   174,   170,   166,   163,   159, // 150 to 159 degree Celsius 
+      156,   153,   150,   147,   144,   141,   138,   135,   132,   129, // 160 to 169 degree Celsius 
+      127,   124,   122,   119,   117,   115,   113,   110,   108,   106, // 170 to 179 degree Celsius 
+      104,   102,   100,    98,    96,    95,    93,    91,    89,    88, // 180 to 189 degree Celsius 
+       86,    85,    83,    81,    80,    79,    77,    76,    74,    73  // 190 to 199 degree Celsius      
 };
+#endif
+
+#ifdef ASB5_VER_B
+/*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
+static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
+    32767, 32177, 30523, 28965, 27497, 26114, 24809, 23578, 22416, 21319, //   0 to   9 degree Celsius
+    20283, 19304, 18378, 17503, 16676, 15893, 15151, 14449, 13784, 13154, //  10 to  19 degree Celsius
+    12557, 11990, 11453, 10943, 10459, 10000,  9564,  9149,  8755,  8380, //  20 to  29 degree Celsius 
+     8024,  7685,  7362,  7055,  6763,  6484,  6219,  5966,  5725,  5495, //  30 to  39 degree Celsius 
+     5276,  5067,  4867,  4677,  4495,  4321,  4155,  3996,  3844,  3699, //  40 to  49 degree Celsius 
+     3561,  3428,  3301,  3179,  3063,  2951,  2845,  2742,  2644,  2550, //  50 to  59 degree Celsius 
+     2460,  2374,  2291,  2211,  2135,  2062,  1992,  1924,  1859,  1797, //  60 to  69 degree Celsius 
+     1737,  1679,  1624,  1571,  1520,  1470,  1423,  1378,  1334,  1291, //  70 to  79 degree Celsius 
+     1251,  1212,  1174,  1138,  1102,  1069,  1036,  1005,   974,   945, //  80 to  89 degree Celsius 
+      917,   890,   864,   838,   814,   790,   767,   745,   724,   704, //  90 to  99 degree Celsius 
+      684,   665,   646,   628,   611,   594,   578,   562,   547,   532, // 100 to 109 degree Celsius
+      518,   504,   490,   478,   465,   453,   441,   430,   419,   408, // 110 to 119 degree Celsius 
+      397,   387,   378,   368,   359,   350,   341,   333,   325,   317, // 120 to 129 degree Celsius 
+      309,   302,   295,   287,   281,   274,   268,   261,   255,   249, // 130 to 139 degree Celsius 
+      244,   238,   232,   227,   222,   217,   212,   207,   203,   198, // 140 to 149 degree Celsius 
+      194,   190,   186,   182,   178,   174,   170,   166,   163,   159, // 150 to 159 degree Celsius 
+      156,   153,   150,   147,   144,   141,   138,   135,   132,   129, // 160 to 169 degree Celsius 
+      127,   124,   122,   119,   117,   115,   113,   110,   108,   106, // 170 to 179 degree Celsius 
+      104,   102,   100,    98,    96,    95,    93,    91,    89,    88, // 180 to 189 degree Celsius 
+       86,    85,    83,    81,    80,    79,    77,    76,    74,    73  // 190 to 199 degree Celsius
+};
+#endif
 
 /*! Conversion table for the Exsense NTC GT103F3950A thermistor in ohms */
 static Int16 tempSensorTableGT103F[TEMP_SENSOR_MAX] = {
-    32767, 31932, 30301, 28765, 27316, 25950, 24662, 23446, 22298, 21214, //   0 to   9 degree Celsius
-    20189, 19221, 18305, 17440, 16620, 15845, 15110, 14415, 13755, 13131, //  10 to  19 degree Celsius
-    12538, 11976, 11443, 10937, 10456, 10000,  9566,  9154,  8762,  8390, //  20 to  29 degree Celsius
-     8035,  7698,  7377,  7071,  6780,  6503,  6238,  5986,  5746,  5517, //  30 to  39 degree Celsius
-     5298,  5089,  4890,  4700,  4518,  4345,  4179,  4020,  3868,  3723, //  40 to  49 degree Celsius 
-     3585,  3452,  3325,  3203,  3087,  2975,  2868,  2766,  2667,  2573, //  50 to  59 degree Celsius
-     2483,  2396,  2313,  2233,  2157,  2083,  2013,  1945,  1880,  1817, //  60 to  69 degree Celsius
-     1757,  1699,  1643,  1590,  1539,  1489,  1441,  1396,  1351,  1309, //  70 to  79 degree Celsius
-     1268,  1228,  1190,  1154,  1118,  1084,  1052,  1020,   989,   960, //  80 to  89 degree Celsius
-      932,   904,   878,   852,   827,   804,   780,   758,   737,   716, //  90 to  99 degree Celsius
-      696,   676,   658,   639,   622,   605,   588,   573,   557,   542, // 100 to 109 degree Celsius
-      528,   514,   500,   487,   474,   462,   450,   439,   427,   416, // 110 to 119 degree Celsius
-      406,   396,   386,   376,   367,   358,   349,   340,   332,   324, // 120 to 129 degree Celsius  
-      316,   309,   301,   294,   287,   281,   274,   268,   261,   255, // 130 to 139 degree Celsius  
-      250,   244,   238,   233,   228,   223,   218,   213,   208,   203, // 140 to 149 degree Celsius  
-      199,   195,   190,   186,   182,   178,   175,   171,   167,   164, // 150 to 159 degree Celsius  
-      160,   157,   154,   151,   148,   145,   142,   139,   136,   133, // 160 to 169 degree Celsius  
-      131,   128,   125,   123,   121,   118,   116,   114,   111,   109, // 170 to 179 degree Celsius  
-      107,   105,   103,   101,    99,    97,    96,    94,    92,    90, // 180 to 189 degree Celsius  
-       89,    87,    86,    84,    83,    81,    80,    78,    77,    75  // 190 to 199 degree Celsius
+ 32767, 31932, 30301, 28765, 27316, 25950, 24662, 23446, 22298, 21214, //   0 to   9 degree Celsius
+ 20189, 19221, 18305, 17440, 16620, 15845, 15110, 14415, 13755, 13131, //  10 to  19 degree Celsius
+ 12538, 11976, 11443, 10937, 10456, 10000,  9566,  9154,  8762,  8390, //  20 to  29 degree Celsius
+  8035,  7698,  7377,  7071,  6780,  6503,  6238,  5986,  5746,  5517, //  30 to  39 degree Celsius
+  5298,  5089,  4890,  4700,  4518,  4345,  4179,  4020,  3868,  3723, //  40 to  49 degree Celsius 
+  3585,  3452,  3325,  3203,  3087,  2975,  2868,  2766,  2667,  2573, //  50 to  59 degree Celsius
+  2483,  2396,  2313,  2233,  2157,  2083,  2013,  1945,  1880,  1817, //  60 to  69 degree Celsius
+  1757,  1699,  1643,  1590,  1539,  1489,  1441,  1396,  1351,  1309, //  70 to  79 degree Celsius
+  1268,  1228,  1190,  1154,  1118,  1084,  1052,  1020,   989,   960, //  80 to  89 degree Celsius
+   932,   904,   878,   852,   827,   804,   780,   758,   737,   716, //  90 to  99 degree Celsius
+   696,   676,   658,   639,   622,   605,   588,   573,   557,   542, // 100 to 109 degree Celsius
+   528,   514,   500,   487,   474,   462,   450,   439,   427,   416, // 110 to 119 degree Celsius
+   406,   396,   386,   376,   367,   358,   349,   340,   332,   324, // 120 to 129 degree Celsius  
+   316,   309,   301,   294,   287,   281,   274,   268,   261,   255, // 130 to 139 degree Celsius  
+   250,   244,   238,   233,   228,   223,   218,   213,   208,   203, // 140 to 149 degree Celsius  
+   199,   195,   190,   186,   182,   178,   175,   171,   167,   164, // 150 to 159 degree Celsius  
+   160,   157,   154,   151,   148,   145,   142,   139,   136,   133, // 160 to 169 degree Celsius  
+   131,   128,   125,   123,   121,   118,   116,   114,   111,   109, // 170 to 179 degree Celsius  
+   107,   105,   103,   101,    99,    97,    96,    94,    92,    90, // 180 to 189 degree Celsius  
+    89,    87,    86,    84,    83,    81,    80,    78,    77,    75  // 190 to 199 degree Celsius
 };
 
 
@@ -165,7 +210,7 @@ static Int16 tempSensorTablePT1000[TEMP_SENSOR_MAX] = {
     16477, 16514, 16551, 16589, 16626, 16663, 16700, 16737, 16774, 16811, // 170 to 179 degree Celsius
     16848, 16885, 16922, 16959, 16996, 17033, 17070, 17107, 17143, 17180, // 180 to 189 degree Celsius
     17217, 17254, 17291, 17328, 17365, 17402, 17438, 17475, 17512, 17549  // 190 to 199 degree Celsius
-};
+};                   
 
 //****************************************************************************/
 // Private Type Definitions 
@@ -207,39 +252,45 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
     Int16 Voltage;
        
     if (ColdJunction / 100 >= TEMP_SENSOR_MAX) {
+        printf("CJ:%d ", ColdJunction);
         return (E_TEMP_SENSOR_OUT_OF_RANGE);
     }
 
-#if 1   
+#if 0   
     if ((Error = halAnalogRead (Handle, &AdcValue)) < 0) {
         return (Error);
     }
 #endif
 
-#if 0    
-    // Median filtering
+#if 1    
+ // Median filtering
     if ((Error = halAnalogRead (Handle, &AdcValue1)) < 0) {
+        printf("AD:Err1[%d] ", Error);
         return (Error);
     }
     if ((Error = halAnalogRead (Handle, &AdcValue2)) < 0) {
+        printf("AD:Err2[%d] ", Error);
         return (Error);
     }
     if ((Error = halAnalogRead (Handle, &AdcValue3)) < 0) {
+        printf("AD:Err3[%d] ", Error);
         return (Error);
     }
-
-    if (AdcValue1>AdcValue2) {
-        SWAP(AdcValue1,AdcValue2);
-    }
-    if (AdcValue1>AdcValue3) {
-        SWAP(AdcValue1,AdcValue3);
-    }
-    if (AdcValue2>AdcValue3) {
-        SWAP(AdcValue2,AdcValue3);
-    }
     
-    AdcValue = AdcValue2;
-#endif
+     if (AdcValue1>AdcValue2) {
+         SWAP(AdcValue1,AdcValue2);
+     }
+     if (AdcValue1>AdcValue3) {
+         SWAP(AdcValue1,AdcValue3);
+     }
+     if (AdcValue2>AdcValue3) {
+         SWAP(AdcValue2,AdcValue3);
+     }
+     
+     AdcValue = AdcValue2;
+    
+     //printf("AD:(%d) ", AdcValue);
+#endif     
     
     if (Type == TYPEK) {
         Table = tempSensorTableTypeK;

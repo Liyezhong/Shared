@@ -440,6 +440,11 @@
               <FileType>5</FileType>
               <FilePath>..\Include\fmStepperMotorMotionProfile.h</FilePath>
             </File>
+            <File>
+              <FileName>fmStepperMotorMemory.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Include\fmStepperMotorMemory.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -504,6 +509,11 @@
               <FileName>fmStepperMotorReferenceRun.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\fmStepperMotorReferenceRun.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmStepperMotorMemory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\fmStepperMotorMemory.c</FilePath>
             </File>
           </Files>
         </Group>

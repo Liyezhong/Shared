@@ -975,6 +975,11 @@ Error_t halTimerInit (void) {
                     TIM->CCMR[1] |= ModeCCM << ((UnitNo % 2) * 8);
                 }
                 TIM->CCER |= ModeCCE << (UnitNo * 4);
+                
+                // Temporary code for PWM output with advanced timers
+                if (Descriptor->TimerNo == 0 || Descriptor->TimerNo == 7) {
+                    TIM->BDTR = 0x8C00;
+                }
             }
             else if (Descriptor->TypeID == TIM_SEL_COUNTER) {
                 if (Descriptor->Priority) {

@@ -49,6 +49,7 @@ typedef struct {
     UInt16 CurrentGain;             //!< Gain parameter of the current sensor in mA/V
     UInt16 DesiredCurrent;          //!< Desired value of the effective current in milliamperes
     UInt16 DesiredCurThreshold;     //!< Desired current threshold in milliamperes
+    UInt16 CurrentDeviation;        //!< Current deviation in milliamperes when heater is off
 } TempHeaterParams_t;
 
 //****************************************************************************/
@@ -58,15 +59,19 @@ typedef struct {
 Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, TempHeaterType_t HeaterType, UInt16 Instances);
 void tempHeaterReset (void);
 Error_t tempHeaterProgress (void);
-Error_t tempSampleCurrent (void);
+Error_t tempSampleCurrent (TempHeaterType_t HeaterType);
 Bool tempHeaterParallel (void);
-Error_t tempHeaterCheck (Bool AutoSwitch);
+Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType);
 Bool tempHeaterFailed (void);
 Error_t tempHeaterActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance);
 UInt16 tempHeaterCurrent (void);
 UInt16 tempHeaterActive(void);
-void tempCalcEffectiveCurrent(void);
-
+void tempCalcEffectiveCurrent(/*UInt16 Instance, */TempHeaterType_t HeaterType);
+UInt16 tempGetActiveDesiredCurrent(void);
+UInt16 tempGetActiveDesiredCurThreshold(void);
+//void tempResetActiveStatus(void);
+UInt8 tempHeaterSwitchState(void);
+UInt32 tempGetActiveStatus(void);
 //****************************************************************************/
 
 #endif /*FMTEMPERATUREHEATER_H*/
