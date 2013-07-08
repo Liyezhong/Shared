@@ -211,6 +211,11 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
 /****************************************************************************/
 void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgData)
 {
+
+    //no button, no msg box
+    if(CurrentMsgData.BtnType == Global::NO_BUTTON){
+        return;
+    }
     //Store reference in Hash
     m_EvenIDCmdRefHash.insert(CurrentMsgData.ID, Ref);
     //Add EventID to Priority Queue & EventId Hash
