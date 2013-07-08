@@ -463,8 +463,9 @@ void tempCalcEffectiveCurrent(/*UInt16 Instance, */TempHeaterType_t HeaterType)
         TempHeaterData.MinValue = MAX_INT16;   
     }
     else if (HeaterType == TYPE_HEATER_DC) {
-    
-        TempHeaterData.EffectiveCurrent = TempHeaterData.MaxValue;
+        // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV)
+        // => (1 / 1000)    
+        TempHeaterData.EffectiveCurrent = ((Int32) Params[0].CurrentGain * TempHeaterData.MaxValue) / 1000;
         
         TempHeaterData.MaxValue = MIN_INT16;
     }
@@ -492,7 +493,7 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
     Error_t Error;
     UInt16 Current = 0;
     UInt16 DesiredCurThreshold = 0, DesiredCurrent = 0;
-    UInt16 CurrentDeviation = 0;
+    UInt16 CurrentDeviation = 0, CurrentGain = 0;
     UInt16 ActiveDesiredCurrent = TempHeaterData.MaxActDesiredCurrent;
     UInt16 ActiveDesiredCurThreshold = TempHeaterData.MaxActDesiredCurThreshold;
     UInt16 ActiveCount = TempHeaterData.MaxActive;
@@ -500,6 +501,7 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
     TempHeaterParams_t *Params = TempHeaterData.Params;
     //DesiredCurThreshold = Params->DesiredCurThreshold;
     CurrentDeviation = Params[0].CurrentDeviation;
+    CurrentGain = Params[0].CurrentGain;
     
 
     TempHeaterData.Failed = FALSE;
@@ -516,9 +518,16 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
         if (ActiveCount == 0) {
             //printf("DC[0]:%d %d %d %d\n", TempHeaterData.EffectiveCurrent, TempHeaterMonitor.Value, DesiredCurrent, CurrentDeviation);
                         
-            if (TempHeaterData.EffectiveCurrent > CurrentDeviation &&
-                TempHeaterMonitor.Value > CurrentDeviation) {
-                TempHeaterData.Failed = TRUE;
+            if (TempHeaterData.EffectiveCurrent > CurrentDeviation) {
+            
+                // Calculate current effective current
+                UInt16 RealEffectiveCurrent;            
+                RealEffectiveCurrent = ((Int32) CurrentGain * TempHeaterMonitor.Value) / 1000;
+                            
+                if(RealEffectiveCurrent > CurrentDeviation) {
+                    TempHeaterData.Failed = TRUE;
+                    printf("DC[0] Err:%d %d %d [%d]\n", RealEffectiveCurrent, DesiredCurrent, CurrentDeviation, ActiveCount);
+                }
             }
         }
         else {
@@ -550,7 +559,7 @@ Error_t tempHeaterCheck (/*UInt16 Instance, */TempHeaterType_t HeaterType)
                 else {
                     Diff = TempHeaterMonitor.Value - TempHeaterData.MaxValue;
                 }                
-                RealEffectiveCurrent = (((Int32) Params[0].CurrentGain * Diff) * 10) / 14142;
+                RealEffectiveCurrent = (((Int32) CurrentGain * Diff) * 10) / 14142;
                 
                 if (RealEffectiveCurrent > CurrentDeviation) {
                     TempHeaterData.Failed = TRUE;

@@ -688,6 +688,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
+            printf("Temperature out of range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -698,6 +699,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
+            printf("Temperature in range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -779,10 +781,24 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance)
         }
         else if ( Data->NumberSensors > 1 && Data->IndexPidSensor == 0xF ) {
             if ( Data->ServiceTemp[0] < Data->ServiceTemp[1] ) {
-                SensorIndex = 0;
+            
+                if ( Data->ServiceTemp[1] < Data->PidParams[First].MaxTemp ) {
+                    SensorIndex = 0;
+                }
+                else {
+                    SensorIndex = 1;
+                }
+                
             }
-            else {
-                SensorIndex = 1;
+            else {  //  Data->ServiceTemp[1] <= Data->ServiceTemp[0]
+            
+                if ( Data->ServiceTemp[0] < Data->PidParams[First].MaxTemp ) {
+                    SensorIndex = 1;
+                }
+                else {
+                    SensorIndex = 0;
+                }
+
             }
         }
 #endif
