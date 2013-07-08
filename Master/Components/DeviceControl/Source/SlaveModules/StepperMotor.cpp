@@ -98,7 +98,6 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
     m_unCanIDMovementAckn(0),
     m_unCanIDActPositionReq(0), m_unCanIDActPositionResp(0), m_unCanIDActSpeed(0), m_unCanIDActSpeedReq(0),
     m_unCanIDConfig(0), m_unCanIDMotionProfile(0),
-    m_unCanIDLiveCycleDataReq(0), m_unCanIDLiveCycleData(0),
     m_unCanIDDiagSoftwareReq(0), m_unCanIDDiagSoftware(0), m_unCanIDDiagHardwareReq(0), m_unCanIDDiagHardware(0),
     m_unCanIDDebug(0), m_unCanIDDebug2(0),
     m_ReqTargetPosition(0), m_ReqTargetSpeed(0),
@@ -247,9 +246,6 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     m_unCanIDActSpeedReq        = MSG_SMOT_ACT_SPEED_REQ | nodeId;
     m_unCanIDActSpeed           = MSG_SMOT_ACT_SPEED | nodeId;
 
-    m_unCanIDLiveCycleDataReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorLiveCycleDataReq", bIfaceID, m_pParent->GetNodeID());
-    m_unCanIDLiveCycleData      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorLiveCycleData", bIfaceID, m_pParent->GetNodeID());
-
     m_unCanIDDiagSoftwareReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDiagSoftwareReq", bIfaceID, m_pParent->GetNodeID());
     m_unCanIDDiagSoftware      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDiagSoftware", bIfaceID, m_pParent->GetNodeID());
     m_unCanIDDiagHardwareReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDiagHardwareReq", bIfaceID, m_pParent->GetNodeID());
@@ -290,8 +286,6 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   ActPositionReq        : 0x" << std::hex << m_unCanIDActPositionReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   ActSpeed              : 0x" << std::hex << m_unCanIDActSpeed;
     FILE_LOG_L(laINIT, llDEBUG) << "   ActSpeedReq           : 0x" << std::hex << m_unCanIDActSpeedReq;
-    FILE_LOG_L(laINIT, llDEBUG) << "   LiveCycleDataReq      : 0x" << std::hex << m_unCanIDLiveCycleDataReq;
-    FILE_LOG_L(laINIT, llDEBUG) << "   LiveCycleData         : 0x" << std::hex << m_unCanIDLiveCycleData;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagSoftwareReq       : 0x" << std::hex << m_unCanIDDiagSoftwareReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagSoftware          : 0x" << std::hex << m_unCanIDDiagSoftware;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagHardwareReq       : 0x" << std::hex << m_unCanIDDiagHardwareReq;
@@ -366,10 +360,6 @@ ReturnCode_t CStepperMotor::RegisterCANMessages()
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
-        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDLiveCycleData, this);
-    }
-    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-    {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDDiagSoftware, this);
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
@@ -384,7 +374,18 @@ ReturnCode_t CStepperMotor::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDDebug2, this);
     }
-
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDOpTimeData, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDRevCountData, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDDirCountData, this);
+    }
 
     return RetVal;
 }
@@ -1403,21 +1404,6 @@ void CStepperMotor::HandleCommandRequestTask()
                     emit ReportSpeed(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_LIFE_CYCLE_DATA_REQ)
-            {
-                //send the actual speed request to the slave, this command will be acknowledged by the receiption
-                // of the m_unCanIDActSpeed CAN-message.
-                RetVal = SendCANMsgLifeCycleDataReq();
-                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-                {
-                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
-                    m_ModuleCommand[idx].m_Timeout = CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ;
-                }
-                else
-                {
-                    emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0, 0);
-                }
-            }
             else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_OPTIME_DATA_REQ)
             {
                 //send the actual speed request to the slave, this command will be acknowledged by the receiption
@@ -1598,10 +1584,6 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
     else if(m_unCanIDState == pCANframe->can_id)
     {
         HandleCANMsgState(pCANframe);
-    }
-    else if(m_unCanIDLiveCycleData == pCANframe->can_id)
-    {
-        //HandleCANMsgLiveCycleData(pCANframe);
     }
     else if(m_unCanIDActSpeed == pCANframe->can_id)
     {
@@ -2298,36 +2280,6 @@ ReturnCode_t CStepperMotor::SendCANMsgActSpeedReq()
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
     FILE_LOG_L(laFCT, llDEBUG2) << "   CStepperMotor::SendCANMsgActPositionReq canID: 0x" << std::hex << m_unCanIDActSpeedReq;
-
-    return retval;
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Send the CAN message to request the live cycle data
- *
- *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transim queue
- *            otherwise the return code from SendCOB(..)
- */
-/****************************************************************************/
-ReturnCode_t CStepperMotor::SendCANMsgLifeCycleDataReq()
-{
-    ReturnCode_t retval;
-    can_frame canmsg;
-
-    canmsg.can_id = m_unCanIDLiveCycleDataReq;
-    canmsg.data[0] = 0;
-    canmsg.data[1] = 0;
-    canmsg.data[2] = 0;
-    canmsg.data[3] = 0;
-    canmsg.data[4] = 0;
-    canmsg.data[5] = 0;
-    canmsg.data[6] = 0;
-    canmsg.data[7] = 0;
-    canmsg.can_dlc = 0;
-    retval = m_pCANCommunicator->SendCOB(canmsg);
-
-    FILE_LOG_L(laFCT, llDEBUG2) << "   CStepperMotor::SendCANMsgLifeCycleDataReq canID: 0x" << std::hex << m_unCanIDLiveCycleDataReq;
 
     return retval;
 }

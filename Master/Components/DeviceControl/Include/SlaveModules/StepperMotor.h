@@ -334,8 +334,6 @@ private:
     ReturnCode_t SendCANMsgActPositionReq();
     //! sends the can message 'ActSpeedRequest'
     ReturnCode_t SendCANMsgActSpeedReq();
-    //! sends the can message 'LifeCycleData'
-    ReturnCode_t SendCANMsgLifeCycleDataReq();
     //! sends the can message 'operation time request'
     ReturnCode_t SendCANMsgOperationTimeDataReq();
     //! sends the can message 'revolution count request'
@@ -417,8 +415,6 @@ private:
     quint32  m_unCanIDActSpeedReq;            ///< CAN message 'Actual speed request'
     quint32  m_unCanIDConfig;                 ///< CAN message 'Configuration data'
     quint32  m_unCanIDMotionProfile;          ///< CAN message 'Movement configuration data'
-    quint32  m_unCanIDLiveCycleDataReq;       ///< CAN message 'Life cycle data request'
-    quint32  m_unCanIDLiveCycleData;          ///< CAN message 'Life cycle data'
     quint32  m_unCanIDDiagSoftwareReq;        ///< CAN message 'Diagnostic Software request'
     quint32  m_unCanIDDiagSoftware;           ///< CAN message 'Diagnostic Software'
     quint32  m_unCanIDDiagHardwareReq;        ///< CAN message 'Diagnostic Hardware request'
