@@ -173,6 +173,7 @@ static Bool    pressPwmParamsOk (const PressPwmParams_t *Param);
 
 static Error_t pressSetPressure          (UInt16 Channel, CanMessage_t* Message);
 static Error_t pressSetCurrentWatchdog   (UInt16 Channel, CanMessage_t* Message);
+static Error_t pressSetFanWatchdog       (UInt16 Channel, CanMessage_t* Message);
 static Error_t pressSetPidParameters     (UInt16 Channel, CanMessage_t* Message);
 static Error_t pressSetPumpTime          (UInt16 Channel, CanMessage_t* Message);
 static Error_t pressSetValve             (UInt16 Channel, CanMessage_t* Message);
@@ -438,11 +439,13 @@ static Error_t pressModuleTask (UInt16 Instance)
                 }
                 else if ( PressPumpActuateMode == ACTUATE_ONOFF ) {
                 
+                    //TODO:
+                    //Find a more accurate coefficient to convert PID output to opt. time
     				if (Data->ActuatingValue > 0) {
     				    OperatingTime = (Data->ActuatingValue * PressSamplingTime) / (MAX_INT16);
     			    }
                     
-                    //printf("Opt: %d\n", OperatingTime);
+                    //printf("Opt[Be]: %d\n", OperatingTime);
                     
                     Data->State = STATE_IDLE;
                     PressPriority++;
@@ -460,6 +463,8 @@ static Error_t pressModuleTask (UInt16 Instance)
                 if (Error != NO_ERROR) {
                     return (pressShutDown (Data, Error, Instance));
                 }
+                
+                //printf("Opt[Af]: %d\n", OperatingTime);
             }
             
 #ifdef ASB15_VER_B_PWMHOLD
@@ -693,6 +698,7 @@ static Error_t pressNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_PRESS_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServicePress[0]/10, 0, 2);
+            printf("Pressure out of range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -703,6 +709,7 @@ static Error_t pressNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_PRESS_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServicePress[0]/10, 0, 2);
+            printf("Pressure in range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -995,6 +1002,44 @@ static Error_t pressSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief  Sets the fan speed watchdog parameters (Obsolete)
+ *
+ *      This function is called by the CAN message dispatcher when a message
+ *      setting the fan speed watchdog parameters is received from the master.
+ *      The parameters in the message are transfered to the data structure of
+ *      the addressed module instance. The modified settings influence the
+ *      behavior of the module task. The following settings will be modified:
+ *
+ *      - Desired fan speed (in RPM)
+ *      - Fan speed threshold (in RPM)
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t pressSetFanWatchdog (UInt16 Channel, CanMessage_t* Message)
+{
+#if 0
+    InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
+
+    if (Message->Length == 4) {
+        Data->DesiredFanSpeed = bmGetMessageItem (Message, 0, 2);
+        Data->DesiredFanThreshold = bmGetMessageItem (Message, 2, 2);
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+#endif
+    
+    // Obsolete function. Only kept for compatability with master SW
+    return (NO_ERROR);
 }
 
 
@@ -1465,7 +1510,7 @@ static Error_t pressGetHardware (UInt16 Channel, CanMessage_t* Message)
 static Error_t pressReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 Instance)
 {
 
-#if 0
+#if 1
     UInt32 Options;
 //    UInt8 Type;    
        
@@ -1491,10 +1536,12 @@ static Error_t pressReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 I
 #endif
 
 
+#if 0
     Data->NumberSensors = 1;
     Data->NumberPumps = 1;
     Data->NumberPid = 1;
 	Data->NumberValves = 2;
+#endif
 
     
     return (NO_ERROR);
@@ -1632,6 +1679,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     static bmCallbackEntry_t Commands[] = {
         { MSG_PRESS_SET_PRESSURE,        pressSetPressure },
         { MSG_PRESS_SET_CURRENT_WATCHDOG,pressSetCurrentWatchdog },
+        { MSG_PRESS_SET_FAN_WATCHDOG,    pressSetFanWatchdog },
         { MSG_PRESS_SET_PID_PARAMS,      pressSetPidParameters },
         { MSG_PRESS_SET_PUMP_TIME,       pressSetPumpTime },
         { MSG_PRESS_REQ_PRESSURE,        pressGetPressure },

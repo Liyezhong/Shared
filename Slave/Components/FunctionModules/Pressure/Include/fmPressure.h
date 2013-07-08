@@ -56,7 +56,7 @@
 // Pressure module related CAN identifiers
 //! Sets pressure related parameters
 #define MSG_PRESS_SET_PRESSURE         BUILD_CAN_ID(CMD_CLASS_FUNCTION, 5, 1)
-//! Sets the fan speed watchdog parameters
+//! Sets the fan speed watchdog parameters (Obsolete)
 #define MSG_PRESS_SET_FAN_WATCHDOG     BUILD_CAN_ID(CMD_CLASS_FUNCTION, 6, 1)
 //! Sets the pump current watchdog parameters
 #define MSG_PRESS_SET_CURRENT_WATCHDOG BUILD_CAN_ID(CMD_CLASS_FUNCTION, 7, 1)
