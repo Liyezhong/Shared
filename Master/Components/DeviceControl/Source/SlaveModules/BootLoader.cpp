@@ -33,7 +33,7 @@
 namespace DeviceControl
 {
 
-const qint32 CBootLoader::m_Timeout = 2000;
+const qint32 CBootLoader::m_Timeout = 5000;
 const quint32 CBootLoader::m_Crc32Polynomial = 0x04C11DB7;
 const quint32 CBootLoader::m_Crc32InitialValue = 0xFFFFFFFF;
 

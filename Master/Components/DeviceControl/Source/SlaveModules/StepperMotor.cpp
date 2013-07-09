@@ -99,13 +99,12 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
     m_unCanIDMovementAckn(0),
     m_unCanIDActPositionReq(0), m_unCanIDActPositionResp(0), m_unCanIDActSpeed(0), m_unCanIDActSpeedReq(0),
     m_unCanIDConfig(0), m_unCanIDMotionProfile(0),
-    m_unCanIDLiveCycleDataReq(0), m_unCanIDLiveCycleData(0),
     m_unCanIDDiagSoftwareReq(0), m_unCanIDDiagSoftware(0), m_unCanIDDiagHardwareReq(0), m_unCanIDDiagHardware(0),
     m_unCanIDDebug(0), m_unCanIDDebug2(0),
     m_ReqTargetPosition(0), m_ReqTargetSpeed(0),
     m_ReqMovementProfile(0), m_ReqSubCommandID(0), m_ReqSubCommandData(0),
     m_aktionTimespan(0), MotionProfileIndex(0), MotionProfileSubIndex(0), m_MotorState(false),
-    m_StepCounter(0), m_TripCounter(0), m_OperationTime(0),
+    m_RevolutionCount(0), m_DirChangeCount(0), m_OperationTime(0),
     m_MinPosition(0), m_MaxPosition(0), m_MaxSpeed(0),
     m_bTestOutput(0), m_nCounter(0)
 {
@@ -248,9 +247,6 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     m_unCanIDActSpeedReq        = MSG_SMOT_ACT_SPEED_REQ | nodeId;
     m_unCanIDActSpeed           = MSG_SMOT_ACT_SPEED | nodeId;
 
-    m_unCanIDLiveCycleDataReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorLiveCycleDataReq", bIfaceID, m_pParent->GetNodeID());
-    m_unCanIDLiveCycleData      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorLiveCycleData", bIfaceID, m_pParent->GetNodeID());
-
     m_unCanIDDiagSoftwareReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDiagSoftwareReq", bIfaceID, m_pParent->GetNodeID());
     m_unCanIDDiagSoftware      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDiagSoftware", bIfaceID, m_pParent->GetNodeID());
     m_unCanIDDiagHardwareReq   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDiagHardwareReq", bIfaceID, m_pParent->GetNodeID());
@@ -258,6 +254,15 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
 
     m_unCanIDDebug              = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDebug", bIfaceID, m_pParent->GetNodeID());
     m_unCanIDDebug2             = mp_MessageConfiguration->GetCANMessageID(ModuleID, "StepperMotorDebug2", bIfaceID, m_pParent->GetNodeID());
+
+    m_unCanIDOpTimeDataReq      = MSG_SMOT_OPTIME_REQ | nodeId;
+    m_unCanIDOpTimeData         = MSG_SMOT_OPTIME | nodeId;
+
+    m_unCanIDRevCountDataReq    = MSG_SMOT_REVCOUNT_REQ | nodeId;
+    m_unCanIDRevCountData       = MSG_SMOT_REVCOUNT | nodeId;
+
+    m_unCanIDDirCountDataReq    = MSG_SMOT_DIRCOUNT_REQ | nodeId;
+    m_unCanIDDirCountData       = MSG_SMOT_DIRCOUNT | nodeId;
 
     FILE_LOG_L(laINIT, llDEBUG) << "  CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo             : 0x" << std::hex << m_unCanIDEventInfo;
@@ -282,15 +287,18 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   ActPositionReq        : 0x" << std::hex << m_unCanIDActPositionReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   ActSpeed              : 0x" << std::hex << m_unCanIDActSpeed;
     FILE_LOG_L(laINIT, llDEBUG) << "   ActSpeedReq           : 0x" << std::hex << m_unCanIDActSpeedReq;
-    FILE_LOG_L(laINIT, llDEBUG) << "   LiveCycleDataReq      : 0x" << std::hex << m_unCanIDLiveCycleDataReq;
-    FILE_LOG_L(laINIT, llDEBUG) << "   LiveCycleData         : 0x" << std::hex << m_unCanIDLiveCycleData;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagSoftwareReq       : 0x" << std::hex << m_unCanIDDiagSoftwareReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagSoftware          : 0x" << std::hex << m_unCanIDDiagSoftware;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagHardwareReq       : 0x" << std::hex << m_unCanIDDiagHardwareReq;
     FILE_LOG_L(laINIT, llDEBUG) << "   DiagHardware          : 0x" << std::hex << m_unCanIDDiagHardware;
     FILE_LOG_L(laINIT, llDEBUG) << "   Debug                 : 0x" << std::hex << m_unCanIDDebug;
     FILE_LOG_L(laINIT, llDEBUG) << "   Debug2                : 0x" << std::hex << m_unCanIDDebug2;
-
+    FILE_LOG_L(laINIT, llDEBUG) << "   OperationTimeReq      : 0x" << std::hex << m_unCanIDOpTimeDataReq;
+    FILE_LOG_L(laINIT, llDEBUG) << "   OperationData         : 0x" << std::hex << m_unCanIDOpTimeData;
+    FILE_LOG_L(laINIT, llDEBUG) << "   RevCountReq           : 0x" << std::hex << m_unCanIDRevCountDataReq;
+    FILE_LOG_L(laINIT, llDEBUG) << "   RevCountData          : 0x" << std::hex << m_unCanIDRevCountData;
+    FILE_LOG_L(laINIT, llDEBUG) << "   DirCountReq           : 0x" << std::hex << m_unCanIDDirCountDataReq;
+    FILE_LOG_L(laINIT, llDEBUG) << "   DirCountData          : 0x" << std::hex << m_unCanIDDirCountData;
 
     return RetVal;
 }
@@ -353,10 +361,6 @@ ReturnCode_t CStepperMotor::RegisterCANMessages()
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
-        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDLiveCycleData, this);
-    }
-    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-    {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDDiagSoftware, this);
     }
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
@@ -371,7 +375,18 @@ ReturnCode_t CStepperMotor::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDDebug2, this);
     }
-
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDOpTimeData, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDRevCountData, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDDirCountData, this);
+    }
 
     return RetVal;
 }
@@ -403,7 +418,7 @@ void CStepperMotor::HandleTasks()
     {
         // 50ms delay between each call of HandleConfigurationState()
         // ensures a proper CAN-message intervall
-#if 1
+#if 0
         if(m_timeAction.Elapsed() > 5)
 #else
         if(m_timeAction.Elapsed() > 50)
@@ -1390,11 +1405,11 @@ void CStepperMotor::HandleCommandRequestTask()
                     emit ReportSpeed(GetModuleHandle(), RetVal, 0);
                 }
             }
-            else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_LIFE_CYCLE_DATA_REQ)
+            else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_OPTIME_DATA_REQ)
             {
                 //send the actual speed request to the slave, this command will be acknowledged by the receiption
                 // of the m_unCanIDActSpeed CAN-message.
-                RetVal = SendCANMsgLifeCycleDataReq();
+                RetVal = SendCANMsgOperationTimeDataReq();
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
                     m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
@@ -1405,7 +1420,36 @@ void CStepperMotor::HandleCommandRequestTask()
                     emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0, 0);
                 }
             }
-
+            else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ)
+            {
+                //send the actual speed request to the slave, this command will be acknowledged by the receiption
+                // of the m_unCanIDActSpeed CAN-message.
+                RetVal = SendCANMsgRevolutionCountDataReq();
+                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ;
+                }
+                else
+                {
+                    emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0, 0);
+                }
+            }
+            else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ)
+            {
+                //send the actual direction change count request to the slave, this command will be acknowledged by the receiption
+                // of the m_unCanIDActSpeed CAN-message.
+                RetVal = SendCANMsgDirChangesCountDataReq();
+                if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ;
+                }
+                else
+                {
+                    emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0, 0);
+                }
+            }
             //check for success
             if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
@@ -1542,13 +1586,21 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
     {
         HandleCANMsgState(pCANframe);
     }
-    else if(m_unCanIDLiveCycleData == pCANframe->can_id)
-    {
-        HandleCANMsgLiveCycleData(pCANframe);
-    }
     else if(m_unCanIDActSpeed == pCANframe->can_id)
     {
         HandleCANMsgActSpeedResp(pCANframe);
+    }
+    else if(m_unCanIDOpTimeData == pCANframe->can_id)
+    {
+        HandleCANMsgOperationTimeData(pCANframe);
+    }
+    else if(m_unCanIDRevCountData == pCANframe->can_id)
+    {
+        HandleCANMsgRevolutionsData(pCANframe);
+    }
+    else if(m_unCanIDDirCountData == pCANframe->can_id)
+    {
+        HandleCANMsgDirChangesData(pCANframe);
     }
 }
 
@@ -1844,6 +1896,7 @@ void CStepperMotor::HandleCANMsgActSpeedResp(can_frame* pCANframe)
  *  \iparam pCANframe = struct contains the data of the receipt CAN message
  */
 /****************************************************************************/
+#if 0
 void CStepperMotor::HandleCANMsgLiveCycleData(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
@@ -1886,7 +1939,7 @@ void CStepperMotor::HandleCANMsgLiveCycleData(can_frame* pCANframe)
         emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0);
     }
 }
-
+#endif
 /****************************************************************************/
 /*!
  *  \brief  Handles the reception of the CAN message 'Debug'
@@ -1910,6 +1963,101 @@ void CStepperMotor::HandleCANMsgDebug(can_frame* pCANframe)
         Speed= ((qint16) pCANframe->data[5]);
 
         FILE_LOG_L(laFCT, llDEBUG1) << " Debug: pos/speed/acc: " << Position << ", " << Speed << ", " << Acc;
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Handles the reception of the CAN message 'Operation time'
+ *
+ *  \iparam pCANframe = struct contains the data of the receipt CAN message
+ */
+/****************************************************************************/
+void CStepperMotor::HandleCANMsgOperationTimeData(can_frame* pCANframe)
+{
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        ResetModuleCommand(FM_SM_CMD_TYPE_OPTIME_DATA_REQ);
+    }
+
+    if(MSG_SMOT_OPTIME_DLC == pCANframe->can_dlc)
+    {
+        Msg_OperationTimeData_t *OpTimeData = (Msg_OperationTimeData_t*)pCANframe->data;
+
+        SM_AckState_t ack   = OpTimeData->ack;
+        m_OperationTime = DB4ToVal(OpTimeData->hours);
+
+        FILE_LOG_L(laFCT, llDEBUG1) << " CANStepperMotor-LiveCyleData: Time: " << m_RevolutionCount <<  ", " << m_DirChangeCount << ", " << m_OperationTime;
+
+        emit ReportLifeCycleData(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), m_RevolutionCount, m_DirChangeCount, m_OperationTime);
+    }
+    else
+    {
+        emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0);
+    }
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief  Handles the reception of the CAN message 'revolution count'
+ *
+ *  \iparam pCANframe = struct contains the data of the receipt CAN message
+ */
+/****************************************************************************/
+void CStepperMotor::HandleCANMsgRevolutionsData(can_frame* pCANframe)
+{
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        ResetModuleCommand(FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ);
+    }
+
+    if(MSG_SMOT_REVCOUNT_DLC == pCANframe->can_dlc)
+    {
+        Msg_RevolutionsData_t *RevolutionsData = (Msg_RevolutionsData_t*)pCANframe->data;
+
+        SM_AckState_t ack   = RevolutionsData->ack;
+        m_RevolutionCount = DB4ToVal(RevolutionsData->count);
+
+        FILE_LOG_L(laFCT, llDEBUG1) << " CANStepperMotor-LiveCyleData: Revolutions: " << m_RevolutionCount <<  ", " << m_DirChangeCount << ", " << m_OperationTime;
+
+        emit ReportLifeCycleData(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), m_RevolutionCount, m_DirChangeCount, m_OperationTime);
+    }
+    else
+    {
+        emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0);
+    }
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief  Handles the reception of the CAN message 'direction change count'
+ *
+ *  \iparam pCANframe = struct contains the data of the receipt CAN message
+ */
+/****************************************************************************/
+void CStepperMotor::HandleCANMsgDirChangesData(can_frame* pCANframe)
+{
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        ResetModuleCommand(FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ);
+    }
+
+    if(MSG_SMOT_DIRCOUNT_DLC == pCANframe->can_dlc)
+    {
+        Msg_DirChangeData_t *DirChangeData = (Msg_DirChangeData_t*)pCANframe->data;
+
+        SM_AckState_t ack   = DirChangeData->ack;
+        m_DirChangeCount = DB4ToVal(DirChangeData->count);
+
+        FILE_LOG_L(laFCT, llDEBUG1) << " CANStepperMotor-LiveCyleData: Direction Changes: " << m_RevolutionCount <<  ", " << m_DirChangeCount << ", " << m_OperationTime;
+
+        emit ReportLifeCycleData(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), m_RevolutionCount, m_DirChangeCount, m_OperationTime);
+    }
+    else
+    {
+        emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0, 0, 0);
     }
 }
 
@@ -2139,34 +2287,69 @@ ReturnCode_t CStepperMotor::SendCANMsgActSpeedReq()
 
 /****************************************************************************/
 /*!
- *  \brief    Send the CAN message to request the live cycle data
+ *  \brief    Send the CAN message to request the motor operation time data
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transim queue
  *            otherwise the return code from SendCOB(..)
  */
 /****************************************************************************/
-ReturnCode_t CStepperMotor::SendCANMsgLifeCycleDataReq()
+ReturnCode_t CStepperMotor::SendCANMsgOperationTimeDataReq()
 {
     ReturnCode_t retval;
     can_frame canmsg;
 
-    canmsg.can_id = m_unCanIDLiveCycleDataReq;
-    canmsg.data[0] = 0;
-    canmsg.data[1] = 0;
-    canmsg.data[2] = 0;
-    canmsg.data[3] = 0;
-    canmsg.data[4] = 0;
-    canmsg.data[5] = 0;
-    canmsg.data[6] = 0;
-    canmsg.data[7] = 0;
-    canmsg.can_dlc = 0;
+    canmsg.can_id = m_unCanIDOpTimeDataReq;
+    canmsg.can_dlc = MSG_SMOT_OPTIME_REQ_DLC;
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
-    FILE_LOG_L(laFCT, llDEBUG2) << "   CStepperMotor::SendCANMsgLifeCycleDataReq canID: 0x" << std::hex << m_unCanIDLiveCycleDataReq;
+    FILE_LOG_L(laFCT, llDEBUG2) << "   CStepperMotor::SendCANMsgOperationTimeDataReq canID: 0x" << std::hex << m_unCanIDOpTimeDataReq;
 
     return retval;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief    Send the CAN message to request the motor revolution count data
+ *
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transim queue
+ *            otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CStepperMotor::SendCANMsgRevolutionCountDataReq()
+{
+    ReturnCode_t retval;
+    can_frame canmsg;
+
+    canmsg.can_id = m_unCanIDRevCountDataReq;
+    canmsg.can_dlc = MSG_SMOT_REVCOUNT_REQ_DLC;
+    retval = m_pCANCommunicator->SendCOB(canmsg);
+
+    FILE_LOG_L(laFCT, llDEBUG2) << "   CStepperMotor::SendCANMsgRevolutionCountDataReq canID: 0x" << std::hex << m_unCanIDRevCountDataReq;
+
+    return retval;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief    Send the CAN message to request the motor direction changes count data
+ *
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transim queue
+ *            otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CStepperMotor::SendCANMsgDirChangesCountDataReq()
+{
+    ReturnCode_t retval;
+    can_frame canmsg;
+
+    canmsg.can_id = m_unCanIDDirCountDataReq;
+    canmsg.can_dlc = MSG_SMOT_DIRCOUNT_REQ_DLC;
+    retval = m_pCANCommunicator->SendCOB(canmsg);
+
+    FILE_LOG_L(laFCT, llDEBUG2) << "   CStepperMotor::SendCANMsgDirChangesCountDataReq canID: 0x" << std::hex << m_unCanIDDirCountDataReq;
+
+    return retval;
+}
 /****************************************************************************/
 /*!
  *  \brief    Set the motor state regarding enabled/disabled
@@ -2394,7 +2577,92 @@ ReturnCode_t CStepperMotor::RequestLifeCycleData()
 
     return RetVal;
 }
+/****************************************************************************/
+/*!
+ *  \brief    Request the motor operation time
+ *            The request will be acknowledged by sending the signal ReportLifeCycleData
+ *
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *            otherwise DCL_ERR_INVALID_STATE
+ */
+/****************************************************************************/
+ReturnCode_t CStepperMotor::RequestOperationTimeData()
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
 
+    if(SetModuleTask(FM_SM_CMD_TYPE_OPTIME_DATA_REQ, &CmdIndex))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANStepperMotor";
+        m_ModuleCommand[CmdIndex].SubCommandData = 0;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANStepperMotor invalid state: " << (int) m_TaskID;
+    }
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief    Request the motor revolution count
+ *            The request will be acknowledged by sending the signal ReportLifeCycleData
+ *
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *            otherwise DCL_ERR_INVALID_STATE
+ */
+/****************************************************************************/
+ReturnCode_t CStepperMotor::RequestRevolutionCountData()
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
+
+    if(SetModuleTask(FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ, &CmdIndex))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANStepperMotor";
+        m_ModuleCommand[CmdIndex].SubCommandData = 0;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANStepperMotor invalid state: " << (int) m_TaskID;
+    }
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief    Request the motor direction changes count
+ *            The request will be acknowledged by sending the signal ReportLifeCycleData
+ *
+ *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *            otherwise DCL_ERR_INVALID_STATE
+ */
+/****************************************************************************/
+ReturnCode_t CStepperMotor::RequestDirChangeCountData()
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8  CmdIndex;
+
+    if(SetModuleTask(FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ, &CmdIndex))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANStepperMotor";
+        m_ModuleCommand[CmdIndex].SubCommandData = 0;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANStepperMotor invalid state: " << (int) m_TaskID;
+    }
+
+    return RetVal;
+}
 /****************************************************************************/
 /*!
  *  \brief   Helper function, sets a free module command to the given command type

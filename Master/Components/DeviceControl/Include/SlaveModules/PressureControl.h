@@ -179,7 +179,7 @@ signals:
 //     */
 //    /****************************************************************************/
     void ReportHardwareStatus(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Sensors,
-                              quint8 Fans, quint8 Pumps, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
+                              quint8 Fans, quint8 Pumps, quint8 Pids, quint16 Current);
 
 //    /****************************************************************************/
 //    /*!

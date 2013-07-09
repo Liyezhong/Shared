@@ -1626,7 +1626,19 @@ ReturnCode_t CBaseModule::SendCANMsgEmgcyStop()
 
     return RetVal;
 }
+ReturnCode_t CBaseModule::SendCANMsgEmgcyStop(bool enter)
+{
+    ReturnCode_t RetVal;
+    can_frame canmsg;
 
+    canmsg.can_id = m_unCanIDEmgcyStop;
+    canmsg.can_id &= 0x1ff80001;        // make it a broadcast msg by setting node type, node index and channel to zero
+    canmsg.data[0] = (enter ? 1 : 0);
+    canmsg.can_dlc = 1;
+    RetVal = m_pCANCommunicator->SendCOB(canmsg);
+
+    return RetVal;
+}
 /****************************************************************************/
 /*!
  *  \brief  Send the CAN message to
@@ -2673,7 +2685,29 @@ ReturnCode_t CBaseModule::ReqEmcyStop()
 
     return RetVal;
 }
+/****************************************************************************/
+/*!
+ *  \brief  Force an emergency stop
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
+ */
+/****************************************************************************/
+ReturnCode_t CBaseModule::EnterEmcyStop()
+{
+    return SendCANMsgEmgcyStop(true);
+}
 
+/****************************************************************************/
+/*!
+ *  \brief  Release an emergency stop
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
+ */
+/****************************************************************************/
+ReturnCode_t CBaseModule::ExitEmcyStop()
+{
+    return SendCANMsgEmgcyStop(false);
+}
 /****************************************************************************/
 /*!
  *  \brief  Force an node reset

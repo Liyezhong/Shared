@@ -163,6 +163,8 @@ public:
     ReturnCode_t ReqNodeState();              //!< Request actual node state
 
     ReturnCode_t ReqEmcyStop();               //!< Request emergency stop
+    ReturnCode_t EnterEmcyStop();
+    ReturnCode_t ExitEmcyStop();
     ReturnCode_t ReqReset();                  //!< Request the node's reset
 
     ReturnCode_t ConfigureStatistics();       //!< Configure statistics
@@ -276,6 +278,7 @@ private:
     ReturnCode_t SendCANMsgSetNodeState(NodeState_t);   //!< sends the can message 'SetNodeState'
     ReturnCode_t SendCANMsgReqNodeState();              //!< sends the can message 'ReqNodeState'
     ReturnCode_t SendCANMsgEmgcyStop();                 //!< sends the can message 'EmergencyStop'
+    ReturnCode_t SendCANMsgEmgcyStop(bool enter);
     ReturnCode_t SendCANMsgReset();                     //!< sends the can message 'NodeReset'
     ReturnCode_t SendCANMsgConfStatistics();            //!< sends the can message 'CfgStatistics'
     ReturnCode_t SendCANMsgReqDataReset();              //!< sends the can message 'ReqResetData'

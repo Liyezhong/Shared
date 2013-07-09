@@ -883,8 +883,7 @@ void CTemperatureControl::HandleCANMsgNotiRange(can_frame* pCANframe, bool InRan
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         qreal ActTemperature;
 
-        ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 1) / 100;
-
+        ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 0) / 100;
         FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl temperature range notification received: " << ActTemperature;
         emit ReportTemperatureRange(GetModuleHandle(), hdlInfo, InRange, ActTemperature);
     }

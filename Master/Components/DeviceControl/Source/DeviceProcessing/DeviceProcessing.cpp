@@ -158,10 +158,10 @@ DeviceProcessing::~DeviceProcessing()
         while (!m_lstTasks.isEmpty()) {
             delete m_lstTasks.takeFirst();
         }
-while (!m_ObjectTree.isEmpty())
-{
-delete m_ObjectTree.takeFirst();
-}
+        while (!m_ObjectTree.isEmpty())
+        {
+            delete m_ObjectTree.takeFirst();
+        }
 
         while (!m_DeviceList.isEmpty()) {
             delete m_DeviceList.takeFirst();
@@ -906,7 +906,6 @@ void DeviceProcessing::HandleTasks()
         stTaskID = pActiveTask->m_taskID;
         FILE_LOG_L(laDEVPROC, llINFO) << " DeviceProcessing: new TaskID: " << (int) pActiveTask->m_taskID;
     }
-
 
     switch (m_MainState)
     {
