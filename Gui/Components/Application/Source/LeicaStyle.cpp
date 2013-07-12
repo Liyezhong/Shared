@@ -443,9 +443,6 @@ void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionCom
         }
         case CC_ComboBox:
         {
-            const QStyleOptionComboBox *p_ComboBox = qstyleoption_cast<const QStyleOptionComboBox *>(p_Option);
-            //QRect Handle = proxy()->subControlRect(CC_ComboBox, p_ComboBox, SC_ComboBoxListBoxPopup, p_Widget);
-
             p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetProjectNameString())));
 
             if (p_Option->state & QStyle::State_Enabled) {

@@ -1805,6 +1805,8 @@ void QtScrollerPrivate::setContentPositionHelperDragging(const QPointF &deltaPos
     QPointF ppm = q->pixelPerMeter();
     const QtScrollerPropertiesPrivate *sp = properties.d.data();
     QPointF v = q->velocity();
+    Q_UNUSED(ppm);
+    Q_UNUSED(v);
 
     if (sp->overshootDragResistanceFactor)
         overshootPosition /= sp->overshootDragResistanceFactor;

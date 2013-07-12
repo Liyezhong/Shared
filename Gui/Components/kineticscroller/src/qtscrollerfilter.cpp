@@ -200,26 +200,25 @@ QWebFrame *QtScrollerFilter::scrollingFrameAt_QWebView(QWebView *view, const QPo
 
 bool QtScrollerFilter::eventFilter_QAbstractScrollArea(QAbstractScrollArea *area, QEvent *event)
 {
-    switch (event->type()) {
-    case QtScrollPrepareEvent::ScrollPrepare:
-    {
-        QtScrollPrepareEvent *se = static_cast<QtScrollPrepareEvent *>(event);
-        if (canStartScrollingAt_QAbstractScrollArea(area, se->startPos().toPoint())) {
+     QtScrollPrepareEvent *sp = dynamic_cast<QtScrollPrepareEvent*>(event);
+     if (sp)
+     {
+        if (canStartScrollingAt_QAbstractScrollArea(area, sp->startPos().toPoint())) {
             QScrollBar *hBar = area->horizontalScrollBar();
             QScrollBar *vBar = area->verticalScrollBar();
 
-            se->setViewportSize(QSizeF(area->viewport()->size()));
-            se->setContentPosRange(QRectF(0, 0, hBar->maximum(), vBar->maximum()));
-            se->setContentPos(QPointF(hBar->value(), vBar->value()));
-            se->accept();
+            sp->setViewportSize(QSizeF(area->viewport()->size()));
+            sp->setContentPosRange(QRectF(0, 0, hBar->maximum(), vBar->maximum()));
+            sp->setContentPos(QPointF(hBar->value(), vBar->value()));
+            sp->accept();
             return true;
         }
         return false;
     }
-    case QtScrollEvent::Scroll:
-    {
-        QtScrollEvent *se = static_cast<QtScrollEvent *>(event);
 
+    QtScrollEvent *se = static_cast<QtScrollEvent *>(event);
+    if (se)
+    {
         QScrollBar *hBar = area->horizontalScrollBar();
         QScrollBar *vBar = area->verticalScrollBar();
         hBar->setValue(se->contentPos().x());
@@ -264,16 +263,19 @@ bool QtScrollerFilter::eventFilter_QAbstractScrollArea(QAbstractScrollArea *area
         overshoot[area] = se->overshootDistance().toPoint();
         return true;
     }
-    case QEvent::Move: {
-        if (!ignoreMove && !overshoot.value(area).isNull()) {
-            ignoreMove = true;
-            area->viewport()->move(area->viewport()->pos() - overshoot.value(area));
-            ignoreMove = false;
+
+    switch (event->type())
+    {
+        case QEvent::Move: {
+            if (!ignoreMove && !overshoot.value(area).isNull()) {
+                ignoreMove = true;
+                area->viewport()->move(area->viewport()->pos() - overshoot.value(area));
+                ignoreMove = false;
+            }
+            return false;
         }
-        return false;
-    }
-    default:
-        return false;
+        default:
+            return false;
     }
 }
 
@@ -315,15 +317,12 @@ void QtScrollerFilter::stateChanged_QAbstractItemView(QAbstractItemView *view, Q
 
 bool QtScrollerFilter::eventFilter_QAbstractItemView(QAbstractItemView *view, QEvent *event)
 {
-    switch (event->type()) {
-    case QtScrollPrepareEvent::ScrollPrepare:
+    QtScrollPrepareEvent *sp = dynamic_cast<QtScrollPrepareEvent*>(event);
+    if (sp)
+    {
         static_cast<HackedAbstractItemView *>(view)->hackedExecuteDelayedItemsLayout();
-        break;
-        
-    default:
-        break;
     }
-  
+
     return false;
 }
 

@@ -202,7 +202,7 @@ QString CErrorMsgDlg::GetDateAndTime(QString DateTimeStr)
         //Getting the current Date Format from user settings
         Global::DateFormat DateFmt = mp_SettingsInterface->GetUserSettings()->GetDateFormat();
         //Getting the current Time Format from user settings
-        Global::TimeFormat TimeFmt = mp_SettingsInterface->GetUserSettings()->GetTimeFormat();
+        //Global::TimeFormat TimeFmt = mp_SettingsInterface->GetUserSettings()->GetTimeFormat();
         if (DateFmt == Global::DATE_INTERNATIONAL) {
             Date = DateTime.date().toString("dd.MM.yyyy");
         }
