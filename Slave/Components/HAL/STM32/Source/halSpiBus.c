@@ -177,8 +177,7 @@ static Error_t halSpiLock       (Handle_t Handle, Bool State);
 
 Error_t halSpiOpen (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler) {
 
-    
-    UInt32 Index;   // Logical SPI device index
+    UInt32 Index = 0;   // Logical SPI device index
     Int32 SerialIndex;  // Index in the serial descriptor table
     Error_t Status;
 

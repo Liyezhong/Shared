@@ -319,7 +319,12 @@ Error_t pressSampleCurrent(void)
  
 void pressCalcEffectiveCurrent(UInt16 Instance)
 {
-    PressPumpData.EffectiveCurrent = PressPumpData.MaxValue;
+    PressPumpParams_t *Params = &PressPumpData.Params;  
+
+    // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV)
+    // => (1 / 1000)    
+    PressPumpData.EffectiveCurrent = ((Int32) Params->CurrentGain * PressPumpData.MaxValue) / 1000;
+    
     PressPumpData.MaxValue = MIN_INT16;
 }
 
@@ -428,10 +433,16 @@ Error_t pressPumpCheck (void)
     // All pumping elements are off
     if (ActiveCount == 0) {
         //printf("Pump Current[aaa]:%d\n", PressPumpData.EffectiveCurrent);
-        if (PressPumpData.EffectiveCurrent > Params->DesiredCurThreshold &&
-            PressPumpMonitor.Value > Params->DesiredCurThreshold) {
-            PressPumpData.Failed = TRUE;
-            printf("Pump Current Err[aaa]:%d\n", PressPumpData.EffectiveCurrent);
+        if (PressPumpData.EffectiveCurrent > Params->DesiredCurThreshold) {
+        
+            // Calculate current effective current
+            UInt16 RealEffectiveCurrent;            
+            RealEffectiveCurrent = ((Int32) Params->CurrentGain * PressPumpMonitor.Value) / 1000;        
+            
+            if(RealEffectiveCurrent > Params->DesiredCurThreshold) {
+                PressPumpData.Failed = TRUE;
+                printf("Pump Current Err[aaa]:%d\n", PressPumpData.EffectiveCurrent);
+            }
         }
         
     }
@@ -540,7 +551,10 @@ Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance
     else {
         PressPumpData.OperatingTime[Instance] = OptTime;
     }
-    
+
+    //TODO:
+    //Find a more accurate coefficient to convert PID output to opt. time
+#if 0    
     if (OperatingTime != NULL) {
         *OperatingTime = PressPumpData.OperatingTime[Instance];
     }
@@ -548,11 +562,19 @@ Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance
     //if (OperatingTime != NULL) {
         //printf("Opt[ONOFF]:%d\n", PressPumpData.OperatingTime[Instance]);
     //}
+#endif    
 
     if (PressPumpData.OperatingTime[Instance] == 0) {
+        if (OperatingTime != NULL) {
+            *OperatingTime = 0;
+        }
         return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0));
     }
-    
+            
+    if (OperatingTime != NULL) {
+        *OperatingTime = EndTime - PressPumpData.StartingTime[Instance];
+    }
+        
     return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0xFFFF));
 }
 #endif

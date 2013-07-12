@@ -64,7 +64,7 @@
 #define MSG_TEMP_SET_CURRENT_WATCHDOG BUILD_CAN_ID(CMD_CLASS_FUNCTION, 7, 1)
 //! Sets the PID gain and time parameters
 #define MSG_TEMP_SET_PID_PARAMS       BUILD_CAN_ID(CMD_CLASS_FUNCTION, 8, 1)
-//! Resets the operating timers of the heaters 
+//! Resets the operating timers of the heaters
 #define MSG_TEMP_SET_HEATER_TIME      BUILD_CAN_ID(CMD_CLASS_FUNCTION, 9, 1)
 
 //! Requests temperature related parameters

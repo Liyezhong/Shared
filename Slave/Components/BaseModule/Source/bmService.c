@@ -204,7 +204,7 @@ static Bool bmUpdateLaunchDate (void) {
  *  \brief   Format non volatile memory
  *
  *      Reformats the non-volatile memory. The message contains the
- *      maximum number of partitions to be creatable on the storage.
+ *      maximum number of partitions that can be created on the storage.
  *      After formatting, all data and all partitions are lost.
  *
  *      This function is intended to be uses during manufacturing only.
@@ -235,7 +235,7 @@ static Error_t bmFormatPermStorage (UInt16 Channel, CanMessage_t *Message) {
     Error_t Status;
     Bool Success;
 
-    if (Message->Length >= 1) {
+    if (Message->Length == 3) {
 
         Password = bmGetMessageItem (Message, 0, 2);
         if (!bmCheckPassword (Password)) {
@@ -244,7 +244,6 @@ static Error_t bmFormatPermStorage (UInt16 Channel, CanMessage_t *Message) {
         PartitionTableSize = bmGetMessageItem (Message, 2, 1);
 
         if (bmFormatStorage(PartitionTableSize) == NO_ERROR) {
-//        if (bmInvalidateStorage(PartitionTableSize) == NO_ERROR) {        
             Success = TRUE;
         }
         else {
@@ -304,7 +303,7 @@ static Error_t bmResetPermData (UInt16 Channel, CanMessage_t *Message) {
     Error_t Status;
     UInt16 Password;
 
-    if (Message->Length >= 1) {
+    if (Message->Length == 2) {
 
         Password = bmGetMessageItem (Message, 0, 2);
         if (!bmCheckPassword (Password)) {
@@ -339,7 +338,7 @@ static Error_t bmResetPermData (UInt16 Channel, CanMessage_t *Message) {
  *      via CAN to the master. The info block must be written to a fixed
  *      memory location during manufacturing of the board. The format of
  *      the serial number is not defined; therefore it is coded and send
- *      as a formatless string.
+ *      as a plain string.
  *
  *      Since the length of the serial number exceeds the capacity of a
  *      single CAN message, multiple messages are used. Each message
@@ -570,6 +569,9 @@ static Error_t bmSendLaunchDate (UInt16 Channel, CanMessage_t *Message) {
     CanMessage_t Response;
 
     if (bmStorage >= 0) {
+        if (!LaunchDateSaved) {
+            LaunchDateSaved = bmUpdateLaunchDate();
+        }
 
         bmSetMessageItem (&Response,
             bmGetStorageItem (bmStorage, PARAM_LAUNCH_STATE, 0), 0, 1);
@@ -867,7 +869,8 @@ Error_t bmResetPartition (void) {
     if (bmStorage >= 0) {
 
         bmSignalEvent(0, I_PARTITION_RESET, 1, 0);
-        LifeTime.ErrCount = LifeTime.Duration = 0;
+        LifeTime.Duration = LifeTime.ErrCount = 0;
+        LifeTime.LastUpdate = bmGetTime();
 
         return (bmResetStorageItems (
             bmStorage, ParamTable, ELEMENTS(ParamTable)));
@@ -883,7 +886,7 @@ Error_t bmResetPartition (void) {
  *      This function is called, when the data layout version number of this
  *      software release is higher than the layout version stored in the
  *      data partition. Its purpose is to convert (upgrade) an outdated
- *      data layout into the format requirered by the actual software.
+ *      data layout into the format required by the actual software.
  *
  *      Since this is the 1st release of the software, no conversion is
  *      necessary. This function is just a placeholder for the future.
@@ -945,7 +948,8 @@ Error_t bmInitServiceModule (void) {
         bmVerifyPartition();
         bmIncStorageItem (bmStorage, PARAM_STARTUP_CYCLES, 1);
     }
-    LifeTime.LastUpdate = LifeTime.Duration = LifeTime.ErrCount = 0;
+    LifeTime.Duration = LifeTime.ErrCount = 0;
+    LifeTime.LastUpdate = bmGetTime();
     LaunchDateSaved = bmGetStorageItem (bmStorage, PARAM_LAUNCH_STATE, 0);
 
     // register CAN message to handle by this module

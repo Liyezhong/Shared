@@ -395,6 +395,11 @@
               <FileType>5</FileType>
               <FilePath>..\Include\halConfigure.h</FilePath>
             </File>
+            <File>
+              <FileName>blAssembler.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Include\blAssembler.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -414,6 +419,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>blAssembler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\blAssembler.c</FilePath>
             </File>
           </Files>
         </Group>

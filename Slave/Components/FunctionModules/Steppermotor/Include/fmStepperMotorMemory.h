@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorMemory.h
  * 
  *  \brief Functions to manage and access non-volatile memory used by function
  *         module stepper motor
@@ -35,8 +35,7 @@
 //****************************************************************************/
 
 //! data object for non volatile memory
-typedef struct
-{
+typedef struct {
     Handle_t                Handle;             //!< Non-volatile storage handle 
     UInt32                  Interval;           //!< Storage update interval    
 } smMemory_t;
@@ -48,6 +47,7 @@ typedef struct
 
 UInt32 smGetRevolution(smMemory_t *Memory);
 UInt32 smGetOperationTime(smMemory_t *Memory);
+UInt32 smGetDirChanges(smMemory_t *Memory);
 Error_t smResetMemory (UInt16 Instance);
 Error_t smFlushMemory(UInt16 Instance, UInt16 Interval);
 void smInitMemory(UInt16 Instance);

@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file fmStepperMotorMotionCalc.h
  * 
- *  \brief Public's for s-curve motion profile calculation
+ *  \brief Calculation of movement values bases on s-curve motion profile
  * 
  *
  *  $Version: $ 0.1
@@ -25,26 +25,38 @@
 #include "fmStepperMotorMotionProfile.h"
 #include "fmStepperMotorMotion.h"
 
-#define PROFILE_MICROSTEPS_PER_HALFSTEP     1   // step unit used for precalculation of phase data
-#define PROFILE_TIMEBASE                    MSEC
-//#define PROFILE_MICROSTEPS_PER_HALFSTEP       MICROSTEPS_PER_HALFSTEP // step unit used for precalculation of phase data
-//#define PROFILE_TIMEBASE                  USEC
 
-#define START_HSTEPS                        5 * PROFILE_MICROSTEPS_PER_HALFSTEP     //!< amount of half-step used for phase 0 (motor start with constant speed)
-#define END_HSTEPS                          5 * PROFILE_MICROSTEPS_PER_HALFSTEP     //!< amount of half-step used for phase 8 (motor run with constant speed and then stop)
+//********************************************************************************/
+// Public Constants and Definitions
+//********************************************************************************/
+
+//! step unit used for precalculation of phase data
+#define SM_PROFILE_MICROSTEPS_PER_HALFSTEP  1
+
+//! time unit used for precalculation of phase data
+#define SM_PROFILE_TIMEBASE                 MSEC
+
+//! amount of half-step used for phase 0 (motor start with constant speed)
+#define SM_START_HSTEPS                     5 * SM_PROFILE_MICROSTEPS_PER_HALFSTEP
+
+//! amount of half-step used for phase 8 (motor run with constant speed and then stop)
+#define SM_END_HSTEPS                       5 * SM_PROFILE_MICROSTEPS_PER_HALFSTEP
 
 
-//! calculated values for a single phase                   
-typedef struct
-{
-    Int32   s;  //<! start position relative to actual movement (in half-steps)
-    Int32   v;  //<! start velocity (in half-steps/timebase²)
-    Int32   a;  //<! start acceleration (in half-steps/timebase³)
-    Int32   t;  //<! start time relative to actual movement (in timebase)
-    Int32   ds; //<! position change(in half-steps)
-    Int32   dv; //<! velocity change (in half-steps/timebase²)
-    Int32   da; //<! acceleration change (in half-steps/timebase³)
-    Int32   dt; //<! duration (in timebase)
+//****************************************************************************/
+// Public Type Definitions
+//****************************************************************************/
+
+//! calculated values for a single phase
+typedef struct {
+    Int32   s;  //!< start position relative to actual movement (in half-steps)
+    Int32   v;  //!< start velocity (in half-steps/timebase)
+    Int32   a;  //!< start acceleration (in half-steps/timebase²)
+    Int32   t;  //!< start time relative to actual movement (in timebase)
+    Int32   ds; //!< position change(in half-steps)
+    Int32   dv; //!< velocity change (in half-steps/timebase)
+    Int32   da; //!< acceleration change (in half-steps/timebase²)
+    Int32   dt; //!< duration (in timebase)
 } smPhaseData_t;
 
 //! perform calculation of phase values for acceleration (phase 0 to phase 4)

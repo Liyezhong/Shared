@@ -85,12 +85,15 @@ static const UInt32 TestOptionList[] = {
 	MODULE_ID_TEMPERATURE, 3, 0x11041011, 0x01041011, 0x01041011,
     
 #ifdef ASB15_VER_A
-    MODULE_ID_DIGITAL_OUT, 6, 1, 1, 1, 1, 1, 1
+    MODULE_ID_DIGITAL_OUT, 6, 1, 1, 1, 1, 1, 1,
 #endif
 
 #ifdef ASB15_VER_B
-    MODULE_ID_DIGITAL_OUT, 6, 1, 1, 1, 1, 1, 1
+    MODULE_ID_DIGITAL_OUT, 6, 1, 1, 1, 1, 1, 1,
 #endif
+    
+    MODULE_ID_PRESSURE, 1, 0x2111
+
 };
 
 //****************************************************************************/
@@ -193,7 +196,7 @@ static Error_t InitTestBoardInfoBlock (void) {
 
     InfoBlock.ProductionYear  = 13;
     InfoBlock.ProductionMonth = 6;
-    InfoBlock.ProductionDay   = 17;
+    InfoBlock.ProductionDay   = 28;
 #endif
 
     InfoBlock.EndTestYear     = 10;

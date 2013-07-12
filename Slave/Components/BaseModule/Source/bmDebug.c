@@ -61,7 +61,7 @@ typedef struct {
     UInt16 Count;                   //!< Size of table
 } dbgEventNameDescriptor_t;
 
-//! Structure to assign a describting string to an exception reason
+//! Structure to assign a describing string to an exception reason
 typedef struct {
     const UInt32 Value;             //!< Exception reason value
     const char *Name;               //!< Exception name 
@@ -91,6 +91,7 @@ static Bool Initialized    = FALSE;     //!< Module is initialized
 //****************************************************************************/
 
 static const char* dbgSearchCanIdName (UInt32 CanID, UInt16 Channel);
+static void dbgPrintException (halExceptionInfo_t *Exception);
 
 
 /*****************************************************************************/
@@ -98,7 +99,7 @@ static const char* dbgSearchCanIdName (UInt32 CanID, UInt16 Channel);
  *  \brief   Register CAN-ID strings for debugging
  *
  *      Register CAN-ID strings to the debug module to enable printing of
- *      CAN-IDs on the debug console textual istead of numerical. Each
+ *      CAN-IDs on the debug console textual instead of numerical. Each
  *      function module can register it's own set of private CAN-IDs.
  *      It isn't a must to use this functionality, but debugging is
  *      more user friendly using it. The caller has to supply the module
@@ -374,7 +375,6 @@ void dbgPrintNodeState (UInt16 NodeState) {
     static const bmCanIdNames_t NodeStateNames[] = {
         { NODE_STATE_UNDEFINED, "UNDEFINED" },
         { NODE_STATE_BOOTING,   "BOOTING"   },
-        { NODE_STATE_UPDATE,    "UPDATE"    },
         { NODE_STATE_STARTUP,   "STARTUP"   },
         { NODE_STATE_IDENTIFY,  "IDENTIFY"  },
         { NODE_STATE_CONFIGURE, "CONFIGURE" },

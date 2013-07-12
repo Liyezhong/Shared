@@ -27,6 +27,9 @@
 #include <string.h>
 #include "Global.h"
 #include "halConsole.h"
+#include "halCan.h"
+#include "bmCan.h"
+#include "bmUtilities.h"
 
 #pragma import(__use_no_semihosting)
 
@@ -162,9 +165,88 @@ char *_sys_command_string (char *Command, int Length) {
 }
 
 /*****************************************************************************/
+/*!
+ *  \brief   Set item in message's data
+ *
+ *      Sets a data item in the data area of the supplied message to the
+ *      given Value. The parameter Offsets specifies the byte offset of
+ *      the item inside the message's data, Size specifies the size of
+ *      the item in bytes. Items can be from 1-4 bytes in length. If
+ *      the parameters are invalid, the message is left touched.
+ *
+ *  \oparam  Message = CAN message buffer
+ *  \iparam  Value   = New value of data item
+ *  \iparam  Offset  = Byte offset in message buffer
+ *  \iparam  Size    = Size of data item (bytes)
+ *
+ *  \return  Nothing
+ *
+ ****************************************************************************/
+void _sys_SetMessageItem (
+        CanMessage_t *Message, UInt32 Value, UInt16 Offset, UInt16 Size) {
 
+    if (Message != NULL && (Offset+Size <= 8)) {
+        while (Size--) {
+            Message->Data[Offset++] = (UInt8)(Value >> (Size * 8)) & 0xFF;
+        }
+    }
+    return;
+}
+
+/*****************************************************************************/
+/*!
+ *  \brief   System exit function
+ *
+ *      When firmware is terminated this function will be called.
+ *
+ *      The ReturnCode is send as CAN-event message if CAN bus is useable.
+ *      Then a hardware reset is issued, which leads firmware to reenter the
+ *      bootloader.
+ *
+ *  \iparam  ReturnCode = (negative) error code
+ *
+ ****************************************************************************/
 void _sys_exit (int ReturnCode) {
 
+    // send CAN event if bus is ready
+    static const UInt32 EventID[8] = {
+        MSG_EVENT_INFO, MSG_EVENT_ERROR, MSG_EVENT_WARNING, MSG_EVENT_FATAL
+    };
+    Handle_t CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, NULL, FALSE);
+    CanMessage_t Message;
+
+    UInt16  NodeType  = 0;
+    UInt16  NodeIndex = 0;
+    //try to get node type and index
+    bmBoardInfoBlock_t *BoardInfo  = halGetAddress(ADDRESS_BOARD_HARDWARE_INFO_FLASH);
+    if (NULL != BoardInfo) {
+        Handle_t Handle;
+        NodeType = BoardInfo->NodeType;
+        // read-in dip switch to get node index
+        if ((Handle = halPortOpen (HAL_CAN_NODE_INDEX, HAL_OPEN_READ)) >= 0) {
+            halPortRead (Handle, &NodeIndex);
+        }
+    }
+
+    Message.CanID = EventID[(((ReturnCode) & ERRCODE_MASK_CLASS)  >> 28)];
+    Message.CanID = (Message.CanID & ~CANiD_MASK_CHANNEL) |
+                    (((NodeType << 1) | (NodeIndex << 8)) & CANiD_MASK_ADDRESS) |
+                    (0 << CANiD_SHIFT_CHANNEL);
+    Message.Length = 6;
+    _sys_SetMessageItem (&Message, (((ReturnCode) & ERRCODE_MASK_MODULE) >> 16), 0, 2);
+    _sys_SetMessageItem (&Message, ((ReturnCode) & ERRCODE_MASK_NUMBER), 2, 2);
+    _sys_SetMessageItem (&Message, 0, 4, 2);
+    if (CanHandle > 0) {
+        volatile Int32 i;
+        halCanWrite (CanHandle, &Message);
+        // give some time to transmit the message
+        for (i=0; i < 300000; i++);
+    }
+
+    // Do hardware reset (should never return)
+    halHardwareReset();
+
+    // stop, if reset failed
     for(;;);
 }
 

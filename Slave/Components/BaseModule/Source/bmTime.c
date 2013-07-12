@@ -13,7 +13,7 @@
  *       the following:
  *
  *       - Local system ticks (local free running counter)
- *       - System clock (suppied by master)
+ *       - System clock (supplied by master)
  *       - Real time and date (supplied by master)
  *
  *       The tick counter is intended to measure time differences, the system
@@ -81,7 +81,7 @@ static UInt32  bmGetMonthLength (UInt32 Year, UInt32 Month);
  *
  *      Returns the actual count of the slave system tick counter, which
  *      counts the number of milliseconds since program start. Since the
- *      counter is unsigned, time differnces can be calculated correctly
+ *      counter is unsigned, time differences can be calculated correctly
  *      even when the counter overflows to zero, as long as the measured
  *      time interval is smaller than approx. 49 days.
  *
@@ -99,11 +99,11 @@ UInt32 bmGetTime (void) {
 /*!
  *  \brief   Calculate time difference
  *
- *      Returns the number of milliceconds expired since the time given by
+ *      Returns the number of milliseconds expired since the time given by
  *      SinceTime. SinceTime must be a valid system tick count, as returned
  *      by bmGetTime().
  *
- *  \iparam  SinceTime = Time to calculate the differnece to
+ *  \iparam  SinceTime = Time to calculate the difference to
  *
  *  \return  Time expired since SinceTime [ms]
  *
@@ -224,7 +224,6 @@ Error_t bmReadDateTime (DateTime_t *DateTime) {
 static Error_t bmSetDateTime (UInt16 Channel, CanMessage_t *Message) {
 
     DateTime_t DateTime;
-    //UInt16 AgeOfDate;
 
     if (Message->Length >= 8) {
 
@@ -239,8 +238,6 @@ static Error_t bmSetDateTime (UInt16 Channel, CanMessage_t *Message) {
         DateTime.Minutes = Message->Data[MINUTE];
         DateTime.Seconds = Message->Data[SECOND];
         DateTime.Millis  = bmGetMessageItem(Message, MILLI, 2);
-
-        //AgeOfDate = bmTimeExpired(Message->Timestamp);
 
         return (halRtcWriteDate (&DateTime));
     }

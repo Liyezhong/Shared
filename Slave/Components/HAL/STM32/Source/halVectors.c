@@ -345,6 +345,8 @@ interrupt void halAnalogInterruptHandler (void);
  *      Due to restrictions in the hardware the vector table must be aligned
  *      to 512 byte boundaries.
  *
+ *  \return  Interrupt vector table
+ *
  ****************************************************************************/
 
 const halInterruptVector_t 

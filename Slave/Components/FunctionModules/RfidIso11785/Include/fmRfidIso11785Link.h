@@ -1,6 +1,6 @@
 /****************************************************************************/
 /*! \file fmRfidIso11785Link.h
- * 
+ *
  *  \brief Low level functions of the RFID ISO 11785 module.
  *
  *   $Version: $ 0.1
@@ -17,9 +17,9 @@
  *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
- * 
+ *
  *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice 
+ *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
@@ -30,29 +30,28 @@
 #include "Global.h"
 
 //****************************************************************************/
-// Public Constants and Macros 
+// Public Constants and Macros
 //****************************************************************************/
 
 //****************************************************************************/
-// Public Type Definitions 
+// Public Type Definitions
 //****************************************************************************/
 
 /*! Containg the status of an RFID transaction */
 typedef struct {
     Bool ReadCommand;   //!< Indicates whether this is a read command
-    
+
     UInt8 TxBuffer[8];  //!< Bit stream transmitted to the RFID chip
     UInt8 TxLength;     //!< Length of the transmit bit stream
     UInt8 TxCount;      //!< Bits already transmitted
-    
-    UInt8 RxBuffer[8];  //!< Bit stream received from the RFID chip
+
+    UInt8 RxBuffer[7];  //!< Bit stream received from the RFID chip
     UInt8 RxLength;     //!< Length of the receive bit stream
     UInt8 RxCount;      //!< Bits already received
 
     UInt8 CycleCount;   //!< Counts RFID signal cycles
     UInt32 OldCount;    //!< Old counter value from the capture unit
     UInt32 OldTime;     //!< Time of the previous signal state
-    UInt32 RespWait;    //!< Waiting time before the response arrives
     UInt32 StartTime;   //!< Time the process started in ms
     Error_t IrqError;   //!< Stores a possible error code during interrupt handling
 } Rfid11785Stream_t;

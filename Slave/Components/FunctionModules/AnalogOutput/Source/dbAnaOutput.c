@@ -3,7 +3,7 @@
  *
  *  \brief Debug String Defintion for Analog Output Function Module
  *
- *  $Version: $ 0.2
+ *  $Version: $ 0.3
  *  $Date:    $ 27.01.2011
  *  $Author:  $ Andreas Menge
  *
@@ -72,10 +72,7 @@ static const bmCanIdNames_t CanIdNames[] = {
 //! Event-ID to Text Conversion Table (Errors, Warnings, Infos)
 //****************************************************************************/
 
-static const ErrorString_t EventNames[] = {
-    { E_ANAOUT_NOT_ENABLED,      "E_ANAOUT_NOT_ENABLED"      },
-    { E_ANAOUT_NOT_USABLE,       "E_ANAOUT_NOT_USABLE"       }
-};
+static const ErrorString_t EventNames[] = {0};
 
 
 /*****************************************************************************/

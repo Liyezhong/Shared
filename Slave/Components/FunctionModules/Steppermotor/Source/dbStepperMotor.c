@@ -46,35 +46,46 @@
 
 static const bmCanIdNames_t CanIdNames[] = {
 
-    { MSG_SRV_STATISTICS,            "MSG_SMOT_SRV_STATISTICS"     },
-    { MSG_SRV_CFG_STATISTICS,        "MSG_SMOT_SRV_CFG_STATISTICS" },
-    { MSG_SRV_REQ_RESET_DATA,        "MSG_SMOT_SRV_REQ_RESET_DATA" },
-    { MSG_SRV_ACK_RESET_DATA,        "MSG_SMOT_SRV_ACK_RESET_DATA" },
+// CAN-IDs for service data (handled by base module)
+    { MSG_SRV_STATISTICS,           "MSG_SMOT_SRV_STATISTICS"       },
+    { MSG_SRV_CFG_STATISTICS,       "MSG_SMOT_SRV_CFG_STATISTICS"   },
+    { MSG_SRV_REQ_RESET_DATA,       "MSG_SMOT_SRV_REQ_RESET_DATA"   },
+    { MSG_SRV_ACK_RESET_DATA,       "MSG_SMOT_SRV_ACK_RESET_DATA"   },
 
-    { MSG_PROC_CONFIGURE,            "MSG_SMOT_PROC_CONFIGURE"     },
-    { MSG_PROC_REQ_DATA,             "MSG_SMOT_PROC_REQ_DATA"      },
-    { MSG_PROC_DATA,                 "MSG_SMOT_PROC_DATA"          },
+// CAN-IDs for process data (handled by base module)
+    { MSG_PROC_CONFIGURE,           "MSG_SMOT_PROC_CONFIGURE"       },
+    { MSG_PROC_REQ_DATA,            "MSG_SMOT_PROC_REQ_DATA"        },
+    { MSG_PROC_DATA,                "MSG_SMOT_PROC_DATA"            },
 
-    { MSG_EVENT_INFO,                "MSG_SMOT_EVENT_INFO"         },
-    { MSG_EVENT_WARNING,             "MSG_SMOT_EVENT_WARNING"      },
-    { MSG_EVENT_ERROR,               "MSG_SMOT_EVENT_ERROR"        },
-    { MSG_EVENT_FATAL,               "MSG_SMOT_EVENT_FATAL"        },
+// CAN-IDs for event messages (handled by base module)
+    { MSG_EVENT_INFO,               "MSG_SMOT_EVENT_INFO"           },
+    { MSG_EVENT_WARNING,            "MSG_SMOT_EVENT_WARNING"        },
+    { MSG_EVENT_ERROR,              "MSG_SMOT_EVENT_ERROR"          },
+    { MSG_EVENT_FATAL,              "MSG_SMOT_EVENT_FATAL"          },
 
-    { MSG_SMOT_REQ_REF_RUN,          "MSG_SMOT_REQ_REF_RUN"        },
-    { MSG_SMOT_REQ_REF_RUN_ACK,      "MSG_SMOT_REQ_REF_RUN_ACK"    },
-    { MSG_SMOT_REFERENCE_RUN_ACK,    "MSG_SMOT_REFERENCE_RUN_ACK"  },
-    { MSG_SMOT_TARGET_POS,           "MSG_SMOT_TARGET_POS"         },
-    { MSG_SMOT_TARGET_POS_ACK,       "MSG_SMOT_TARGET_POS_ACK"     },
-    { MSG_SMOT_ACT_POS_REQ,          "MSG_SMOT_ACT_POS_REQ"        },
-    { MSG_SMOT_ACT_POS,              "MSG_SMOT_ACT_POS"            },
-    { MSG_SMOT_TARGET_SPEED,         "MSG_SMOT_TARGET_SPEED_SET"   },
-    { MSG_SMOT_TARGET_SPEED_ACK,     "MSG_SMOT_TARGET_SPEED_CMD_ACKN"},
-    { MSG_SMOT_ACT_SPEED_REQ,        "MSG_SMOT_ACT_SPEED_REQ"      },
-    { MSG_SMOT_ACT_SPEED,            "MSG_SMOT_ACT_SPEED"          },
-    { MSG_SMOT_MOVEMENT_ACK,         "MSG_SMOT_MOVEMENT_ACK"       },
-  //{ MSG_SMOT_CONFIG_PARAMETER,     "MSG_SMOT_CONFIG_PARAMETER"   },
-  //{ MSG_SMOT_DRIVE_PARAMETER,      "MSG_SMOT_DRIVE_PARAMETER"    },
-    { MSG_SMOT_DEBUG,                "MSG_SMOT_DEBUG"              },
+// CAN-IDs for stepper motor (handled by function module)
+    { MSG_SMOT_CONFIG,              "MSG_SMOT_CONFIG"               },
+    { MSG_SMOT_CONFIG_ACK,          "MSG_SMOT_CONFIG_ACK"           },
+    { MSG_SMOT_SET_ENABLE,          "MSG_SMOT_SET_ENABLE"           },
+    { MSG_SMOT_SET_ENABLE_ACK,      "MSG_SMOT_SET_ENABLE_ACK"       },
+    { MSG_SMOT_REQ_REF_RUN,         "MSG_SMOT_REQ_REF_RUN"          },
+    { MSG_SMOT_REQ_REF_RUN_ACK,     "MSG_SMOT_REQ_REF_RUN_ACK"      },
+    { MSG_SMOT_REFERENCE_RUN_ACK,   "MSG_SMOT_REFERENCE_RUN_ACK"    },
+    { MSG_SMOT_TARGET_POS,          "MSG_SMOT_TARGET_POS"           },
+    { MSG_SMOT_TARGET_POS_ACK,      "MSG_SMOT_TARGET_POS_ACK"       },
+    { MSG_SMOT_TARGET_SPEED,        "MSG_SMOT_TARGET_SPEED"         },
+    { MSG_SMOT_TARGET_SPEED_ACK,    "MSG_SMOT_TARGET_SPEED_ACK"     },
+    { MSG_SMOT_MOVEMENT_ACK,        "MSG_SMOT_MOVEMENT_ACK"         },
+    { MSG_SMOT_ACT_POS_REQ,         "MSG_SMOT_ACT_POS_REQ"          },
+    { MSG_SMOT_ACT_POS,             "MSG_SMOT_ACT_POS"              },
+    { MSG_SMOT_ACT_SPEED_REQ,       "MSG_SMOT_ACT_SPEED_REQ"        },
+    { MSG_SMOT_ACT_SPEED,           "MSG_SMOT_ACT_SPEED"            },
+    { MSG_SMOT_OPTIME_REQ,          "MSG_SMOT_OPTIME_REQ"           },
+    { MSG_SMOT_OPTIME,              "MSG_SMOT_OPTIME"               },
+    { MSG_SMOT_REVCOUNT_REQ,        "MSG_SMOT_REVCOUNT_REQ"         },
+    { MSG_SMOT_REVCOUNT,            "MSG_SMOT_REVCOUNT"             },
+    { MSG_SMOT_DIRCOUNT_REQ,        "MSG_SMOT_DIRCOUNT_REQ"         },
+    { MSG_SMOT_DIRCOUNT,            "MSG_SMOT_DIRCOUNT"             },
 };
 
 
@@ -83,13 +94,37 @@ static const bmCanIdNames_t CanIdNames[] = {
 //****************************************************************************/
 
 static const ErrorString_t EventNames[] = {
-    { E_SMOT_REFRUN_TIMEOUT,         "E_SMOT_REFRUN_TIMEOUT"         },
-//    { E_SMOT_CONFIG_INVALID,         "E_SMOT_CONFIG_INVALID"         },
-//    { E_SMOT_CAN_MSG_LENGTH,         "E_SMOT_CAN_MSG_LENGTH"         },
-//    { E_SMOT_CAN_MSG_INVALID_PARAMETERS ,
-//                                 "E_SMOT_CAN_MSG_INVALID_PARAMETERS" },
-//    { E_SMOT_PARAMETER_OUT_OF_RANGE, "E_SMOT_PARAMETER_OUT_OF_RANGE" },
-    { E_SMOT_INVALID_STATE,          "E_SMOT_INVALID_STATE"          }
+
+    { E_SMOT_INVALID_STATE,                 "E_SMOT_INVALID_STATE"                  },
+    { E_SMOT_CONFIG_INCOMPLETE,             "E_SMOT_CONFIG_INCOMPLETE"              },
+    { E_SMOT_CONFIG_LIMITSWITCH,            "E_SMOT_CONFIG_LIMITSWITCH"             },
+    { E_SMOT_CONFIG_INVALID_DRIVER,         "E_SMOT_CONFIG_INVALID_DRIVER"          },
+    { E_SMOT_CONFIG_REFRUN,                 "E_SMOT_CONFIG_REFRUN"                  },
+    { E_SMOT_CONFIG_PROFILES,               "E_SMOT_CONFIG_PROFILES"                },
+    { E_SMOT_CONFIG_INVALID_PROFILE,        "E_SMOT_CONFIG_INVALID_PROFILE"         },
+    { E_SMOT_CONFIG_INVALID_PROFILE_VMIN,   "E_SMOT_CONFIG_INVALID_PROFILE_VMIN"    },
+    { E_SMOT_CONFIG_INVALID_PROFILE_VMAX,   "E_SMOT_CONFIG_INVALID_PROFILE_VMAX"    },
+    { E_SMOT_REFRUN_TIMEOUT,                "E_SMOT_REFRUN_TIMEOUT"                 },
+    { E_SMOT_REFRUN_MAXDISTANCE,            "E_SMOT_REFRUN_MAXDISTANCE"             },
+    { E_SMOT_REFRUN_ERROR,                  "E_SMOT_REFRUN_ERROR"                   },
+    { E_SMOT_TIMER_OVERLOAD,                "E_SMOT_TIMER_OVERLOAD"                 },
+    { E_SMOT_INVALID_POSCODE,               "E_SMOT_INVALID_POSCODE"                },
+    { E_SMOT_INVALID_POSCODE_POSITION,      "E_SMOT_INVALID_POSCODE_POSITION"       },
+    { E_SMOT_INVALID_POSCODE_DIR,           "E_SMOT_INVALID_POSCODE_DIR"            },
+    { E_SMOT_STOP_BY_POSCODE,               "E_SMOT_STOP_BY_POSCODE"                },
+    { E_SMOT_STOP_BY_OFFLIMIT,              "E_SMOT_STOP_BY_OFFLIMIT"               },
+    { E_SMOT_STOP_BY_STEPDIFF,              "E_SMOT_STOP_BY_STEPDIFF"               },
+    { E_SMOT_STOP_BY_STEPLOSS,              "E_SMOT_STOP_BY_STEPLOSS"               },
+    { E_SMOT_STOP_BY_SHUTDOWN,              "E_SMOT_STOP_BY_SHUTDOWN"               },
+    { E_SMOT_STOP_BY_EMERGENCYSTOP,         "E_SMOT_STOP_BY_EMERGENCYSTOP"          },
+    { E_SMOT_PROFILE_ENCODER_UNFIT,         "E_SMOT_PROFILE_ENCODER_UNFIT"          },
+    { E_SMOT_MOTION_PROFILE_UNFIT,          "E_SMOT_MOTION_PROFILE_UNFIT"           },
+
+    { W_SMOT_STEPLOSS,                      "W_SMOT_STEPLOSS"                       },
+    { W_SMOT_STEPDIFF,                      "W_SMOT_STEPDIFF"                       },
+
+    { I_SMOT_NEED_INIT,                     "I_SMOT_NEED_INIT"                      },
+    { I_SMOT_ROTATION_STOPPED,              "I_SMOT_ROTATION_STOPPED"               },
 };
 
 #endif   // end of DEBUG section
@@ -119,10 +154,8 @@ static const ErrorString_t EventNames[] = {
 
 void smRegisterDebugNames (UInt16 ModuleID) {
 
-    #ifdef DEBUG
     dbgRegisterCanIdNames(ModuleID, CanIdNames, ELEMENTS(CanIdNames));
     dbgRegisterEventNames(EventNames, ELEMENTS(EventNames));
-    #endif
 }
 
 /****************************************************************************/

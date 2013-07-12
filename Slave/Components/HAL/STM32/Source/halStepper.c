@@ -439,6 +439,10 @@ Error_t halStepperWrite_Simplified (Int32 Index, UInt32 SinIndex) {
     }
     Control  = (PhaseA << 9) | PhaseB;
 
+    if ((Data->Status >> 12) & TMC_STATUS_OT) {
+        return (E_STEPPER_TEMPERATURE);
+    }
+
     return halStepperExchange (Data, Control);
 }
 
@@ -646,12 +650,14 @@ Error_t halStepperControl (Handle_t Handle, StepCtrlID_t ControlID, Bool State) 
                     UInt32 SpiNo =Data->SpiNo;
                     // check if lock / unlock is allowed
                     if (State) { // only can get lock if not owned by another fm
-                        if (!Data->OwnBusLock && SpiData[SpiNo].Locked)
+                        if (!Data->OwnBusLock && SpiData[SpiNo].Locked) {
                             return E_DEVICE_LOCKED;
+                        }
                     }
                     else {  // only owner can unlock
-                        if (!Data->OwnBusLock)
+                        if (!Data->OwnBusLock) {
                             return E_STEPPER_NO_BUS;
+                        }
                     }
                     // perform lock / unlock
                     SpiData[SpiNo].Locked = State;

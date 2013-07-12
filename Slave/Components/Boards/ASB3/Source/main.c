@@ -79,7 +79,7 @@ static const UInt32 TestOptionList[] = {
         CURRENT_LIMIT_FAILURE,          // Current monitor failure level
         
     // Function modules board options
-    MODULE_ID_TEMPERATURE, 1, 0x31042
+    MODULE_ID_TEMPERATURE, 1, 0x31012
 };
 
 //****************************************************************************/
@@ -165,8 +165,8 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMinor    = 1;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 1;
-    InfoBlock.ProductionDay   = 9;
+    InfoBlock.ProductionMonth = 7;
+    InfoBlock.ProductionDay   = 4;
 #endif    
 
 #ifdef ASB3_VER_B
@@ -175,7 +175,7 @@ static Error_t InitTestBoardInfoBlock (void) {
 
     InfoBlock.ProductionYear  = 13;
     InfoBlock.ProductionMonth = 6;
-    InfoBlock.ProductionDay   = 17;
+    InfoBlock.ProductionDay   = 28;
 #endif    
 
     InfoBlock.EndTestYear     = 10;

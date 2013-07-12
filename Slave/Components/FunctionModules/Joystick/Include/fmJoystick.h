@@ -45,6 +45,8 @@
 #define MSG_JOYS_SET_CONFIGURATION  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 5, 1)
 //! Sets the mechanical offset data of the device
 #define MSG_JOYS_SET_MECH_OFFSET    BUILD_CAN_ID(CMD_CLASS_FUNCTION, 6, 1)
+//! Sets minimum and maximum voltages of the joystick axes
+#define MSG_JOYS_SET_VOLTAGE_RANGE  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 9, 1)
 
 //! Requests the joystick displacement
 #define MSG_JOYS_REQ_DISPLACEMENT   BUILD_CAN_ID(CMD_CLASS_FUNCTION, 7, 1)

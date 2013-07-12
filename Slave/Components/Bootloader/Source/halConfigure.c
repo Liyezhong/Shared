@@ -20,7 +20,7 @@
  *      - Logical memory descriptors
  *      - Logical serial busses (I2C, SPI)
  *      - External interrupt inputs
- *      - Logical motor decriptors
+ *      - Logical motor descriptors
  *
  *      This file works in conjunction with the halConfigure.h header
  *      file, which must also be adopted to the boards needs.
@@ -84,15 +84,23 @@ const halPinDesciptor_t halPinDescriptors[] = {
     { PORT_A, 11, PIN_MUX_SFIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN1 RX
     { PORT_A, 12, PIN_MUX_SFIO, PIN_TYP_DOUT10, PIN_OPT_NONE }, // CAN1 TX
 
+#ifndef OLD_LED_MAPPING
+    { PORT_C, 13, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Yellow
+    { PORT_C, 14, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Red
+    { PORT_C, 15, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED Blue
+#endif
+
     { PORT_D,  0, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // CAN_LBKA
     { PORT_D,  1, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID4
     { PORT_D,  2, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID3
     { PORT_D,  3, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID2
     { PORT_D,  4, PIN_MUX_GPIO, PIN_TYP_DINPUT, PIN_OPT_NONE }, // CAN_ID1
 
+#ifdef OLD_LED_MAPPING
     { PORT_E,  4, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED1
     { PORT_E,  5, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED2
     { PORT_E,  6, PIN_MUX_GPIO, PIN_TYP_DOUT2,  PIN_OPT_NONE }, // LED3
+#endif
 };
 
 const UInt32 halPinDescriptorCount = ELEMENTS(halPinDescriptors);
@@ -125,9 +133,16 @@ const halPortDescriptor_t halPortDescriptors[] = {
     { HAL_CAN_NODE_INDEX,   DIR_INPUT,  BUS_TYPE_INTERN, PORT_D,  1, 4, 0, 0 },
     { HAL_CAN_LOOPBACK,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_D,  0, 1, 0, 0 },
 
+#ifdef OLD_LED_MAPPING
     { HAL_STATUS_LED1,      DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  6, 1, 0, 0 },
     { HAL_STATUS_LED2,      DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  4, 1, 0, 0 },
     { HAL_STATUS_LED3,      DIR_OUTPUT, BUS_TYPE_INTERN, PORT_E,  5, 1, 0, 0 },
+#else
+    { HAL_STATUS_LED1,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 13, 1, 0, 0 },
+    { HAL_STATUS_LED2,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 15, 1, 0, 0 },
+    { HAL_STATUS_LED3,     DIR_OUTPUT, BUS_TYPE_INTERN, PORT_C, 14, 1, 0, 0 },
+#endif
+
 };
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
@@ -148,7 +163,7 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  *      - Converter resolution (number of bits)
  *      - Physical channel number
  *      - Conversion time
- *      - Scaling facor (value for full scale)
+ *      - Scaling factor (value for full scale)
  *      - Initial output value
  *
  ***********************************************************************************/
@@ -293,7 +308,7 @@ const UInt32 halSerialDescriptorCount = ELEMENTS(halSerialDescriptors);
  *
  *      The peripheral pin mapping descriptor contains the informations
  *      for the various processor internal peripherals and to which pins
- *      the i/o signals of those periperhals are routed.
+ *      the i/o signals of those peripherals are routed.
  *
  *      The defines used in this structure are defined in halConfigure.h
  *      and should be adopted there.

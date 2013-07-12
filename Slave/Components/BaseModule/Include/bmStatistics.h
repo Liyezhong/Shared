@@ -9,7 +9,7 @@
  *
  *  \b Description:
  *
- *       This module contains all functions to control meassurement of task
+ *       This module contains all functions to control measurement of task
  *       statistics. Following informations will be collected for each task:
  *
  *       - Run time of task (minimum, average, maximum)

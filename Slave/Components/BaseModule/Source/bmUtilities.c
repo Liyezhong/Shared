@@ -110,45 +110,6 @@ UInt32 bmGetBoardOptions (UInt16 ModuleID, UInt16 Instance, UInt32 Default) {
 
 /*****************************************************************************/
 /*!
- *  \brief   Define board info block
- *
- *      Overrides the external board info block with the supplied data block.
- *      This is for debug only, since under normal circumstances an external
- *      board info block is written during manufacturing.
- *
- *      The supplied data block must not contain the signature, size and
- *      checksum, as required for an external board option block, but
- *      only the raw option section.
- *
- *  \iparam  Datablock = Board options data
- *  \iparam  Elements  = Number of elements in Datablock
- *
- *  \return  NO_ERROR or (negative) error code
- *
- ****************************************************************************/
-
-Error_t bmSetBoardOptionBlock (const UInt32 *Datablock, UInt16 Elements) {
-
-    UInt32 *Options;
-    UInt16 i;
-
-    Options = calloc (Elements, sizeof(UInt32));
-    if (Options != NULL) {
-
-        for (i=0; i < Elements; i++) {
-            Options[i] = Datablock[i];
-        }
-        BoardOptionsSize = Elements;
-        BoardOptions = Options;
-
-        return (NO_ERROR);
-    }
-    return (E_MEMORY_FULL);
-}
-
-
-/*****************************************************************************/
-/*!
  *  \brief   Check if the external board option block is valid
  *
  *      This function checks, if the external board option block is valid. It
@@ -251,21 +212,18 @@ bmBoardInfoBlock_t* bmGetBoardInfoBlock (void) {
     static Bool IsVerified = FALSE;
 
     if (!IsVerified) {
-        InfoBlock =
-            (bmBoardInfoBlock_t*) halGetAddress(ADDRESS_BOARD_HARDWARE_INFO_FLASH);
+        InfoBlock = (bmBoardInfoBlock_t*) halGetAddress(ADDRESS_BOARD_HARDWARE_INFO_FLASH);
 
-        if (InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
+        if (InfoBlock == NULL || InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
             // Try to read board info block from stack memory instead
-            InfoBlock =
-            (bmBoardInfoBlock_t*) halGetAddress(ADDRESS_BOARD_HARDWARE_INFO);
-            if (InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
+            InfoBlock = (bmBoardInfoBlock_t*) halGetAddress(ADDRESS_BOARD_HARDWARE_INFO);
+            if (InfoBlock == NULL || InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
                 InfoBlock = NULL;
             }
         }
 
         if (InfoBlock != NULL) {
-            if (bmCalculateCrc(InfoBlock,
-                sizeof(bmBoardInfoBlock_t) - sizeof(UInt32)) != InfoBlock->Checksum) {
+            if (bmCalculateCrc(InfoBlock, sizeof(bmBoardInfoBlock_t) - sizeof(UInt32)) != InfoBlock->Checksum) {
                 InfoBlock = NULL;
             }
         }
@@ -301,10 +259,10 @@ bmBootInfoBlock_t* bmGetLoaderInfoBlock (void) {
     if (!IsVerified) {
         InfoBlock = (bmBootInfoBlock_t*) halGetAddress(ADDRESS_BOOTLOADER_INFO_FLASH);
 
-        if (InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
+        if (InfoBlock == NULL || InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
             // Try to read boot info block from stack memory instead
             InfoBlock = (bmBootInfoBlock_t*) halGetAddress(ADDRESS_BOOTLOADER_INFO);
-            if (InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
+            if (InfoBlock == NULL || InfoBlock->Signature != INFOBLOCK_SIGNATURE) {
                 InfoBlock = NULL;
             }
         }
@@ -403,39 +361,13 @@ void bmSetMessageItem (
 
 /*****************************************************************************/
 /*!
- *  \brief   Get data fields contained in CAN ID
- *
- *      Divides the supplied CAN ID into the various data fields contained
- *      in the ID and returns a data structure containing these informations
- *      as separate data elements.
- *
- *  \iparam  CanID = CAN identifier
- *
- *  \return  Structure containing all data fields of the CAN ID
- *
- ****************************************************************************/
-
-bmCanIdFields_t bmGetCanIdField (UInt32 CanID) {
-
-    union {
-        bmCanIdFields_t Fields;
-        UInt32 Plain;
-    } Union;
-
-    Union.Plain = CanID;
-    return (Union.Fields);
-}
-
-
-/*****************************************************************************/
-/*!
  *  \brief   Returns a standardized partition ID
  *
  *      Returns a standardized partition ID to be used to identify a data
  *      partition in nonvolatile storage. The partition ID is calculated
  *      using the supplied ModuleID and Instance. If a module wants to
  *      use a single partition for all instances the instance number 0
- *      should be suppied.
+ *      should be supplied.
  *
  *  \iparam  ModuleID = Module ID
  *  \iparam  Instance = Module instance
@@ -589,9 +521,10 @@ Error_t bmInitUtilities (void) {
     halSetAddress(ADDRESS_BOARD_OPTION_BLOCK_FLASH, (void *) (
             halStorageBase(Handle) + halStorageSize(Handle) -     halFlashBlockSize())); 
 
-
     // Locates the board info block
-    BoardInfo = bmGetBoardInfoBlock();
+    if ((BoardInfo = bmGetBoardInfoBlock()) == NULL) {
+        return (E_INFOBLOCK_MISSING);
+    }
 
     // localize board options in external flash (if not already done)
     if (!BoardOptionsSize) {
@@ -605,27 +538,29 @@ Error_t bmInitUtilities (void) {
         return (Status);
     }
 
-    Options = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_BASEMODULE, 0);
+    if ((Options = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_BASEMODULE, 0)) == NULL) {
+        return (E_BOARD_OPTION_MISSING);
+    }
 
     // get node type and index from board options
     NodeType = BoardInfo->NodeType;
     if (NodeType > CANiD_MAX_NODETYPE || NodeType < 1) {
         return (E_ILLEGAL_NODE_TYPE);
     }
-    NodeIndex = 
-        bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_NODE_INDEX, 0);
+    NodeIndex = bmGetBoardOptions (BASEMODULE_MODULE_ID, OPTIONS_NODE_INDEX, 0);
 
     // read node index form DIP switch (if present)
     if (Options & OPTION_NODE_INDEX_DIP) {
-
         // read-in dip switch to get node index
-        if ((Handle = halPortOpen (HAL_CAN_NODE_INDEX, HAL_OPEN_READ)) < 0) {
+        if ((Handle = halPortOpen (HAL_CAN_NODE_INDEX, HAL_OPEN_READ)) < NO_ERROR) {
             return (Handle);
         }
-        if ((Status = halPortRead (Handle, &NodeIndex)) < 0) {
+        if ((Status = halPortRead (Handle, &NodeIndex)) < NO_ERROR) {
             return (Status);
         }
-        //halDigitalClose (Handle);
+        if ((Status = halPortClose (Handle)) < NO_ERROR) {
+            return (Status);
+        }
     }
     if (NodeIndex > CANiD_MAX_NODEINDEX) {
         return (E_ILLEGAL_NODE_INDEX);

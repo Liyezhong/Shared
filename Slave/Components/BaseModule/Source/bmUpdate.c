@@ -138,12 +138,12 @@ static Error_t bmUpdateHeader (UInt16 Channel, CanMessage_t *Message)
  *  \brief   Handles update data messages
  *
  *      This function is called, when a update data message is received from
- *      the master. It basicaly writes the message data into flash memory. The
- *      message is only processed, when the update process is in the started
- *      state. The data messages implement a simple flow control mechanism to
- *      recognize double CAN frames. The function also returns an
+ *      the master. It basically writes the message data into flash memory.
+ *      The message is only processed, when the update process is in the
+ *      started state. The data messages implement a simple flow control
+ *      mechanism to recognize double CAN frames. The function also returns an
  *      acknowledgement message to the master. This message indicates, if the
- *      data has been sucessfully written.
+ *      data has been successfully written.
  *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
@@ -293,10 +293,10 @@ static Error_t bmUpdateTrailer (UInt16 Channel, CanMessage_t *Message)
  *
  *          x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
  *
- *  \oparam Crc = CRC32 value
- *  \iparam Handle = Handle of the flash memory
- *  \iparam Address = Address offset in flash memory
- *  \iparam Length = Size of data block (in bytes)
+ *  \oparam  Crc     = CRC32 value
+ *  \iparam  Handle  = Handle of the flash memory
+ *  \iparam  Address = Address offset in flash memory
+ *  \iparam  Length  = Size of data block (in bytes)
  *
  *  \return  NO_ERROR or (negative) error code
  *

@@ -51,7 +51,7 @@ typedef struct {
     UInt8  EndTestResult;       //!< End-test result (ok, failed, open)
     char   BoardName[16];       //!< Board name string
     char   SerialNum[32];       //!< Serial number string
-    UInt32 Checksum;            //!< Checksum to verfiy info block
+    UInt32 Checksum;            //!< Checksum to verify info block
 } bmBoardInfoBlock_t;
 
 //****************************************************************************/
@@ -65,7 +65,7 @@ typedef struct {
     UInt8  CreationYear;        //!< Year of production
     UInt8  CreationMonth;       //!< Month of production
     UInt8  CreationDay;         //!< Day of production
-    UInt32 Checksum;            //!< Checksum to verfiy info block
+    UInt32 Checksum;            //!< Checksum to verify info block
 } bmBootInfoBlock_t;
 
 //****************************************************************************/
@@ -89,8 +89,7 @@ typedef struct {
 //****************************************************************************/
 
 UInt32  bmGetMessageItem  (CanMessage_t *Message, UInt16 Offset, UInt16 Size);
-void    bmSetMessageItem  (
-		     CanMessage_t *Message, UInt32 Value, UInt16 Offset, UInt16 Size);
+void    bmSetMessageItem  (CanMessage_t *Message, UInt32 Value, UInt16 Offset, UInt16 Size);
 
 UInt32  bmGetBoardOptions (UInt16 ModuleID, UInt16 Instance, UInt32 Default);
 UInt32  bmGetPartitionID  (UInt16 ModuleID, UInt16 Instance);

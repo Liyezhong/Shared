@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file
+/*! \file fmStepperMotorMemory.c
  * 
  *  \brief Functions to manage and access non-volatile memory used by function
  *         module stepper motor
@@ -36,7 +36,7 @@
 
 //!  Definition of non-volatile data used by stepper module
 #define SM_PARAM_LAYOUT_VERSION     BUILD_PARAMETER(0,2)    //!< Partition layout version
-#define SM_PARAM_OPERATE_HOURS      BUILD_PARAMETER(2,4)    //!< oparation hours (total amount of activity)
+#define SM_PARAM_OPERATE_HOURS      BUILD_PARAMETER(2,4)    //!< operation hours (total amount of activity)
 #define SM_PARAM_REV_COUNTER        BUILD_PARAMETER(6,4)    //!< step counter (total amount of revisions)
 #define SM_PARAM_DIRCHG_COUNTER     BUILD_PARAMETER(10,4)   //!< direction changes counter (total amount of direction changes)
 #define SM_PARTITION_SIZE           14                      //!< non-volatile data storage partition size
@@ -69,8 +69,8 @@ static const bmParamRange_t smPermDataTable[] = {
  *  \return  Value of read data item or 0
  *
  *****************************************************************************/
-UInt32 smGetRevolution(smMemory_t *Memory)
-{
+UInt32 smGetRevolution(smMemory_t *Memory) {
+
     return bmGetStorageItem (Memory->Handle, SM_PARAM_REV_COUNTER, 0);
 }
 
@@ -87,9 +87,27 @@ UInt32 smGetRevolution(smMemory_t *Memory)
  *  \return  Value of read data item or 0
  *
  *****************************************************************************/
-UInt32 smGetOperationTime(smMemory_t *Memory)
-{
+UInt32 smGetOperationTime(smMemory_t *Memory) {
+
     return bmGetStorageItem (Memory->Handle, SM_PARAM_OPERATE_HOURS, 0);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Get 'revolution count' from non-volatile storage
+ *
+ *      Reads 'revolution count' from non-volatile storage and returns it.
+ *      If reading of data fails, 0 is returned. 
+ *
+ *  \iparam  Memory  = pointer to non volatile data object
+ *
+ *  \return  Value of read data item or 0
+ *
+ *****************************************************************************/
+UInt32 smGetDirChanges(smMemory_t *Memory) {
+
+    return bmGetStorageItem (Memory->Handle, SM_PARAM_DIRCHG_COUNTER, 0);
 }
 
 
@@ -98,16 +116,19 @@ UInt32 smGetOperationTime(smMemory_t *Memory)
  *  \brief   Flush life cycle data to non-volatile storage 
  *
  *      Updates the life cycle counters in non-volatile storage:
- *   
+ *
  *      - Operating time
  *      - Number of motor revisions
- * 
+ *
  *      'Operation time' is updated by incrementing the life cycle counter in
  *       non-volatile storage by the number of hours expired since last updating.
  *
  *      'Revolution count' is updated by overwriting value in non-volatile storage
  *      with new value, if value have changed.
- * 
+ *
+ *      'Direction change count' is updated by overwriting value in non-volatile storage
+ *      with new value, if value have changed.
+ *
  *
  *  \iparam  Instance = Module instance number
  *  \iparam  Interval = Interval time to flush data [ms]
@@ -115,34 +136,42 @@ UInt32 smGetOperationTime(smMemory_t *Memory)
  *  \return  NO_ERROR or (negative) error code
  *
  ******************************************************************************/
-Error_t smFlushMemory(UInt16 Instance, UInt16 Interval) 
-{
+Error_t smFlushMemory(UInt16 Instance, UInt16 Interval) {
+
     Error_t Status1 = NO_ERROR;
     Error_t Status2 = NO_ERROR;
+    Error_t Status3 = NO_ERROR;
 
     smData_t *Data = &smDataTable[Instance];
-    
-    if (bmTimeExpired(Data->Memory.Interval) >= Interval) 
-    {
+
+    if (bmTimeExpired(Data->Memory.Interval) >= Interval) {
         smLifeCycle_t *LifeCycle = &Data->Motor.LifeCycle;
 
-        if (LifeCycle->Revolutions.Count != smGetRevolution(&Data->Memory))
-        {
+        if (LifeCycle->Revolutions.Count != smGetRevolution(&Data->Memory)) {
             Status1 = bmSetStorageItem(Data->Memory.Handle, SM_PARAM_REV_COUNTER, LifeCycle->Revolutions.Count);
         }
 
-        if (LifeCycle->OperationTime.Minutes)
-        {
-            Status2 = bmIncStorageItem(Data->Memory.Handle, SM_PARAM_OPERATE_HOURS, LifeCycle->OperationTime.Minutes);
-            if (Status2 == NO_ERROR)
-            {
-                LifeCycle->OperationTime.Minutes = 0;
+        if (LifeCycle->OperationTime.Hours) {
+            Status2 = bmIncStorageItem(Data->Memory.Handle, SM_PARAM_OPERATE_HOURS, LifeCycle->OperationTime.Hours);
+            if (Status2 == NO_ERROR) {
+                LifeCycle->OperationTime.Hours = 0;
             }
         }
 
+        if (LifeCycle->DirChanges.Count != smGetDirChanges(&Data->Memory)) {
+            Status3 = bmSetStorageItem(Data->Memory.Handle, SM_PARAM_DIRCHG_COUNTER, LifeCycle->DirChanges.Count);
+        }
+
         Data->Memory.Interval = bmGetTime();
-    }        
-    return (Status1 == NO_ERROR ? Status2 : Status1);
+    }
+
+    if (NO_ERROR != Status1) {
+        return Status1;
+    }
+    if (NO_ERROR != Status2) {
+        return Status2;
+    }
+    return (Status3);
 }
 
 
@@ -158,20 +187,19 @@ Error_t smFlushMemory(UInt16 Instance, UInt16 Interval)
  *  \return  NO_ERROR or (negative) error code
  *
  ******************************************************************************/
-Error_t smResetMemory(UInt16 Instance)
-{
+Error_t smResetMemory(UInt16 Instance) {
+
     Error_t Status;
 
     smData_t *Data = &smDataTable[Instance];
 
-    if (Data->Memory.Handle >= 0)
-    {                                                     
+    if (Data->Memory.Handle >= 0) {
         bmSignalEvent(Data->Channel, I_PARTITION_RESET, 1, 0);
 
         Status = bmResetStorageItems (Data->Memory.Handle, smPermDataTable, ELEMENTS(smPermDataTable));
-        
+
         smInitLifeCycleData(&Data->Motor, &Data->Memory);
-                        
+
         return (Status);
     }
 
@@ -200,8 +228,8 @@ Error_t smResetMemory(UInt16 Instance)
  *  \return  NO_ERROR or (negative) error code
  *
  ******************************************************************************/
-Error_t smVerifyMemory (UInt16 Instance)
-{
+Error_t smVerifyMemory (UInt16 Instance) {
+
     Error_t RetCode;
 
     UInt32 LayoutVersion;
@@ -209,32 +237,28 @@ Error_t smVerifyMemory (UInt16 Instance)
     smData_t *Data = &smDataTable[Instance];
     smMemory_t *Memory = &Data->Memory;
             
-    if (Memory->Handle >= 0)
-    {
-        if (!bmVerifyStorageItems (Memory->Handle, smPermDataTable, ELEMENTS(smPermDataTable)))
-        {
-            bmSignalEvent(Data->Channel, E_PERSISTENTS_INVALID, 1, 0);            
+    if (Memory->Handle >= 0) {
+        if (!bmVerifyStorageItems (Memory->Handle, smPermDataTable, ELEMENTS(smPermDataTable))) {
+            bmSignalEvent(Data->Channel, E_PERSISTENTS_INVALID, 1, 0);
             if ((RetCode = smResetMemory(Instance)) < 0) {
                 return RetCode;
             }
         }
-        LayoutVersion = bmGetStorageItem(Memory->Handle, SM_PARAM_LAYOUT_VERSION, 0);       
+        LayoutVersion = bmGetStorageItem(Memory->Handle, SM_PARAM_LAYOUT_VERSION, 0);
 
         // if required, upgrade partition to new layout format
-        if (LayoutVersion < SM_PARTITION_VERSION)
-        {
-            return E_PERSISTENTS_INVALID;      
+        if (LayoutVersion < SM_PARTITION_VERSION) {
+            return E_PERSISTENTS_INVALID;
             // currently no conversion required
-//            bmSignalEvent(Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);                                
+//            bmSignalEvent(Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);
         }
-        else
-        {
+        else {
             // downgrade not supported
             if (SM_PARTITION_VERSION < LayoutVersion) {
                 return E_PERSISTENTS_INVALID;
             }
         }
-        return (NO_ERROR);        
+        return (NO_ERROR);
     }
     return (E_STORAGE_OPEN_ERROR);
 }
@@ -252,18 +276,16 @@ Error_t smVerifyMemory (UInt16 Instance)
  *  \return  NO_ERROR or (negative) error code
  *
  ******************************************************************************/
-void smInitMemory(UInt16 Instance)
-{
+void smInitMemory(UInt16 Instance) {
+
     Error_t RetCode;
 
     smData_t *Data = &smDataTable[Instance];
     smMemory_t *Memory = &Data->Memory;
 
     Memory->Handle = bmOpenPermStorage(MODULE_ID_STEPPER, Instance, SM_PARTITION_SIZE);
-    if (Memory->Handle > 0)
-    {
-        if ((RetCode = smVerifyMemory(Instance)) < 0)
-        {
+    if (Memory->Handle > 0) {
+        if ((RetCode = smVerifyMemory(Instance)) < 0) {
             bmSignalEvent(Data->Channel, RetCode, 1, 0);
             if ((RetCode = bmClosePermStorage(Memory->Handle)) < 0) {
                 bmSignalEvent(Data->Channel, RetCode, 1, 0);

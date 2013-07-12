@@ -3,7 +3,7 @@
  * 
  *  \brief Functions determining the speed of a ventilation fan.
  *
- *   $Version: $ 0.1
+ *   $Version: $ 0.4
  *   $Date:    $ 02.07.2010
  *   $Author:  $ Martin Scherer
  *
@@ -209,7 +209,7 @@ Error_t tempFanOpen (UInt16 Instance, UInt8 Fans)
 Error_t tempFanControl (UInt16 Instance, Bool Activate)
 {
     UInt8 i;
-    Error_t Status;
+    Error_t Status = NO_ERROR;
 
     if (Instance >= TempFanInstances) {
         return (E_PARAMETER_OUT_OF_RANGE);

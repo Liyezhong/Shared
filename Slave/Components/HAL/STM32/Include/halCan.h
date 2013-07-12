@@ -105,7 +105,7 @@ typedef struct {
 // Public Function Prototypes
 //****************************************************************************/
 
-Error_t halCanOpen  (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler);
+Error_t halCanOpen  (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler, Bool CheckHalStatus);
 Error_t halCanSetup (Handle_t Handle, CanIdFilter_t *Filters, UInt16 Count);
 Error_t halCanClose (Handle_t Handle);
 Error_t halCanRead  (Handle_t Handle, CanMessage_t *Message);

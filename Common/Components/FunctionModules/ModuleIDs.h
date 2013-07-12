@@ -9,7 +9,7 @@
  *
  *  \b Description:
  *
- *       This is the platform-wide module ID definition file, which contains
+ *       This is the plattform-wide module ID definition file, which contains
  *       all module identifiers of all function modules. Each module ID must
  *       be unique, i.e. can only be assigned once.
  *
@@ -44,6 +44,7 @@
 #define MODULE_ID_TEMPERATURE     11    //!< Module ID for temperature control
 #define MODULE_ID_UART            12    //!< Module ID for serial interface
 #define MODULE_ID_PRESSURE        13    //!< Module ID for pressure control
+
 
 #define MODULE_ID_SIMUALTION      0xFFF //!< Modules ID for test simulation
 

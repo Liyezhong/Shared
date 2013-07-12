@@ -19,7 +19,7 @@
  *       - Bootloader informations (version number, creation date)
  *       - Life cycle counters
  *
- *       Addintionally, the following actions can be initiated by the
+ *       Additionally, the following actions can be initiated by the
  *       master using special service commands:
  *
  *       - Reset all data in non-volatile storage to default

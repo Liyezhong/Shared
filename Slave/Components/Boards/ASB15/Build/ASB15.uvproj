@@ -899,6 +899,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
             </File>
+            <File>
+              <FileName>bmUpdate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1003,6 +1008,11 @@
               <FileName>ModuleIDs.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\ModuleIDs.h</FilePath>
+            </File>
+            <File>
+              <FileName>bmUpdate.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -2126,6 +2136,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
             </File>
+            <File>
+              <FileName>bmUpdate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2230,6 +2245,11 @@
               <FileName>ModuleIDs.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\ModuleIDs.h</FilePath>
+            </File>
+            <File>
+              <FileName>bmUpdate.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -3353,6 +3373,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\BaseModule\Source\bmUtilities.c</FilePath>
             </File>
+            <File>
+              <FileName>bmUpdate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\BaseModule\Source\bmUpdate.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3457,6 +3482,11 @@
               <FileName>ModuleIDs.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\BaseModule\Include\ModuleIDs.h</FilePath>
+            </File>
+            <File>
+              <FileName>bmUpdate.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\BaseModule\Include\bmUpdate.h</FilePath>
             </File>
           </Files>
         </Group>

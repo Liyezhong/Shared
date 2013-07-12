@@ -52,7 +52,7 @@
 //! Task state enumeration
 typedef enum {
     TASK_STATE_RUNABLE,           //!< Task is runnable
-    TASK_STATE_SHUTDOWN,          //!< Task is shuting down
+    TASK_STATE_SHUTDOWN,          //!< Task is shutting down
     TASK_STATE_SUSPEND            //!< Task is suspended
 } bmTaskStates_t;
 
@@ -83,12 +83,12 @@ typedef struct {
 // Private Variables
 //****************************************************************************/
 
-//! TaskTable contains the task desciptors of all tasks
+//! TaskTable contains the task descriptors of all tasks
 static bmTaskDescriptor_t *TaskTable;     //!< Task descriptor table
 static UInt16 TaskTableSize = 0;          //!< Size of task descriptor table
 static UInt16 NumberOfTasks = 0;          //!< Number of tasks
 
-//! ModuleTable contains the module desciptors of all modules 
+//! ModuleTable contains the module descriptors of all modules 
 static bmModuleDescriptor_t *ModuleTable; //!< Module descriptor table
 static UInt16 ModuleTableSize;            //!< Size of module descriptor table
 static UInt16 NumberOfModules = 0;        //!< Number of modules
@@ -456,7 +456,7 @@ Error_t bmGetModuleInstances (UInt16 ModuleID) {
  *  \iparam   Value   = Value of the module state (TRUE, FALSE)
  *
  *  \return   TRUE if all modules return the asked status, FALSE if at
- *            least one task retuns another status
+ *            least one task returns another status
  *
  ****************************************************************************/
 
@@ -651,11 +651,17 @@ static bmModuleState_t bmCallModuleTask (UInt16 TaskID) {
         bmModuleTask_t ModuleTask = ModuleTable[ModuleNr].Interface.Task;
 
         if (ModuleTask != NULL) {
+            Error_t Status;
 
             if (BoardOptions & OPTION_TASK_STATISTICS) {
                 bmControlStatistics (TaskID, STAT_TASK_START);
             }
-            ModuleState = (bmModuleState_t) ModuleTask(Instance);
+            if ((Status = ModuleTask(Instance)) < NO_ERROR) {
+                ModuleState = MODULE_STATE_DISABLED;
+            }
+            else {
+                ModuleState = (bmModuleState_t) Status;
+            }
 
             if (BoardOptions & OPTION_TASK_STATISTICS) {
                 bmControlStatistics (TaskID, STAT_TASK_STOP);
@@ -666,7 +672,7 @@ static bmModuleState_t bmCallModuleTask (UInt16 TaskID) {
             return (ModuleState);
         }
     }
-    return ((bmModuleState_t) E_TASK_NOT_EXISTS);
+    return (MODULE_STATE_DISABLED);
 }
 
 

@@ -9,7 +9,7 @@
  *
  *  \b Description:
  *
- *       This module contains all functions to control meassurement of task
+ *       This module contains all functions to control measurement of task
  *       statistics. Following informations will be collected for each task:
  *
  *       - Run time of task (minimum, average, maximum)
@@ -94,7 +94,7 @@ static UInt16  bmGetAverage (UInt16 Average, UInt16 Value, UInt16 Count);
 
 /*****************************************************************************/
 /*!
- *  \brief   Control colletion of task statistics
+ *  \brief   Control collection of task statistics
  *
  *      This function controls statistic data collection. It must be called
  *      once with ControlID set to STAT_TASK_START before the task is going
@@ -139,7 +139,7 @@ Error_t bmControlStatistics (UInt16 TaskID, bmStatCtrlID_t ControlID) {
  *
  *      Updates interval time statistics for a particular task. The minimal
  *      maximal, and average interval times are collected. When the run
- *      counter reaches it's maximum, futher statistics updates will be
+ *      counter reaches it's maximum, further statistics updates will be
  *      stopped automatically. Statistics must be cleared and started
  *      again, to initiate an new measurement.
  *
@@ -183,7 +183,7 @@ static Error_t bmUpdateTaskInterval (UInt16 TaskID, UInt32 Time) {
  *
  *      Updates run time statistics for a particular task. The minimal
  *      maximal, and average run times were collected. When the run
- *      counter reaches it's maximum, futher statistics updates will be
+ *      counter reaches it's maximum, further statistics updates will be
  *      stopped automatically. Statistics must be cleared and started
  *      again, to initiate an new measurement.
  *
@@ -269,7 +269,7 @@ static Error_t bmSendStatistics (UInt16 Channel, bmTaskTimes_t *Times) {
 
     CanMessage_t Message = {0};
 
-    if (Times != NULL) {
+    if (Channel < StatisticsTableSize && Times != NULL) {
 
         UInt32 RunCount = StatisticsTable[Channel].RunCount;
 
@@ -307,7 +307,7 @@ static Error_t bmSendStatistics (UInt16 Channel, bmTaskTimes_t *Times) {
  *      - request sending of statistic data
  *
  *      Two types of statistic data can be requested: task run times and
- *      task run intervalls.
+ *      task run intervals.
  *
  *      This function is called by the CAN message dispatcher when a
  *      configuration message is received from the master.

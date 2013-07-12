@@ -52,47 +52,48 @@
 // Private Constants and Macros 
 //*****************************************************************************/
 
-#define MODULE_VERSION           0x0001  //!< Software version number
+#define DO_MODULE_VERSION           0x0002  //!< Software version number
 
 /*! Defines for the Mode member of the module instance data */
-#define MODE_MODULE_ENABLE       0x80    //!< Module enabled
-#define MODE_OFF_ON_SHUTDOWN     0x40    //!< Set output off on shutdown
-#define MODE_OFF_ON_NOTSTOP      0x20    //!< Set output off on notstop
+#define DO_MODE_MODULE_ENABLE       0x80    //!< Module enabled
+#define DO_MODE_OFF_ON_SHUTDOWN     0x40    //!< Set output off on shutdown
+#define DO_MODE_OFF_ON_NOTSTOP      0x20    //!< Set output off on notstop
 
 /*! Defines for the Flags member of the module instance data */
-#define FLAG_DATA_MODE           0x03    //!< Data mode bitmask
-#define FLAG_DATA_VALUE          0x00    //!< Data mode: set value
-#define FLAG_DATA_BITSET         0x01    //!< Data mode: SET bitmask
-#define FLAG_DATA_BITCLR         0x02    //!< Data mode: CLR bitmask
-#define FLAG_DATA_INVERT         0x03    //!< Data mode: Invert bitmask
+/*! \remark This function is currently not used. */
+#define DO_FLAG_DATA_MODE           0x03    //!< Data mode bitmask
+#define DO_FLAG_DATA_VALUE          0x00    //!< Data mode: set value
+#define DO_FLAG_DATA_BITSET         0x01    //!< Data mode: SET bitmask
+#define DO_FLAG_DATA_BITCLR         0x02    //!< Data mode: CLR bitmask
+#define DO_FLAG_DATA_INVERT         0x03    //!< Data mode: Invert bitmask
 
-#define FLAG_BLINK_MASK          0x0C    //!< Blink mode bitmask
-#define FLAG_BLINK_NONE          0x00    //!< Blink mode: don't blink
-#define FLAG_BLINK_MODE_1        0x04    //!< Blink mode: mode 1
-#define FLAG_BLINK_MODE_2        0x08    //!< Blink mode: mode 2
-#define FLAG_BLINK_RESERVED      0x0C    //!< Blink mode: reserved
+#define DO_FLAG_BLINK_MASK          0x0C    //!< Blink mode bitmask
+#define DO_FLAG_BLINK_NONE          0x00    //!< Blink mode: don't blink
+#define DO_FLAG_BLINK_MODE_1        0x04    //!< Blink mode: mode 1
+#define DO_FLAG_BLINK_MODE_2        0x08    //!< Blink mode: mode 2
+#define DO_FLAG_BLINK_RESERVED      0x0C    //!< Blink mode: reserved
 
-#define FLAG_CLOCK_SOURCE        0x10    //!< Clock source select
-#define FLAG_USE_NOTIFICATION    0x40    //!< Enable notification
-#define FLAG_NEW_DATA            0x8000  //!< New data received
+#define DO_FLAG_CLOCK_SOURCE        0x10    //!< Clock source select
+#define DO_FLAG_USE_NOTIFICATION    0x40    //!< Enable notification
+#define DO_FLAG_NEW_DATA            0x8000  //!< New data received
 
 /*! Defines for the Blink.Flag member of the module instance data */
-#define BLINKING_CONFIGURED      0x80    //!< Blinking configured
-#define BLINKING_ACTIVE          0x8000  //!< Blinking active
+#define DO_BLINKING_CONFIGURED      0x80    //!< Blinking configured
+#define DO_BLINKING_ACTIVE          0x8000  //!< Blinking active
 
-#define LIFETIME_UPDATE_INTERVAL 5000    //!< Lifetime update interval
+#define DO_LIFETIME_UPDATE_INTERVAL 5000    //!< Lifetime update interval
 
-#define OPTION_LIFETIME_DATA     1       //!< Enable collection of lifetime data
+#define DO_OPTION_LIFETIME_DATA     1       //!< Enable collection of lifetime data
 
 //@{ Start of doxygen group
 //!  Definition of non-volatile item used by function module
-#define PARAM_LAYOUT_VERSION     BUILD_PARAMETER(0,2)
-#define PARAM_LIFE_TIME          BUILD_PARAMETER(2,4)
-#define PARAM_LIFE_CYCLES        BUILD_PARAMETER(6,4)
-#define PARAM_TOTAL_SIZE         16            
+#define DO_PARAM_LAYOUT_VERSION     BUILD_PARAMETER(0,2)
+#define DO_PARAM_LIFE_TIME          BUILD_PARAMETER(2,4)
+#define DO_PARAM_LIFE_CYCLES        BUILD_PARAMETER(6,4)
+#define DO_PARAM_TOTAL_SIZE         16
 //@} End of doxygen group
 
-#define PARTITION_VERSION        1       //!< Partition layout version
+#define DO_PARTITION_VERSION        1       //!< Partition layout version
 
 
 //*****************************************************************************/
@@ -175,9 +176,9 @@ typedef struct {
 
 //! Persistent parameter descriptor table (used for verification) 
 static const bmParamRange_t PermDataTable[] = {
-    { PARAM_LAYOUT_VERSION, 1, PARTITION_VERSION, PARTITION_VERSION },
-    { PARAM_LIFE_TIME,      0, 0, 0 },
-    { PARAM_LIFE_CYCLES,    0, 0, 0 }
+    { DO_PARAM_LAYOUT_VERSION, 1, DO_PARTITION_VERSION, DO_PARTITION_VERSION },
+    { DO_PARAM_LIFE_TIME,      0, 0, 0 },
+    { DO_PARAM_LIFE_CYCLES,    0, 0, 0 }
 };
 
 static doInstanceData_t *doDataTable; //!< Data table for all instances
@@ -210,6 +211,7 @@ static Error_t doConfigureBlinks  (UInt16 Channel, CanMessage_t *Message);
 static Error_t doSetOutputState   (UInt16 Channel, CanMessage_t *Message);
 static Error_t doGetOutputState   (UInt16 Channel, CanMessage_t *Message);
 
+static void doResetInstanceData(UInt16 Instance);
 
 /******************************************************************************/
 /*! 
@@ -246,22 +248,22 @@ static Error_t doModuleControl (UInt16 Instance, bmModuleControlID_t ControlID) 
             break;
 
         case MODULE_CONTROL_STOP:
-            if (Data->Mode & MODE_OFF_ON_NOTSTOP) {
+            if (Data->Mode & DO_MODE_OFF_ON_NOTSTOP) {
                 Data->State = STATE_ABORT;
             }
             Data->ModuleState = MODULE_STATE_STOPPED;
             break;
 
         case MODULE_CONTROL_SHUTDOWN:
-            if (Data->Mode & MODE_OFF_ON_SHUTDOWN) {
-                Data->Flags &= ~FLAG_USE_NOTIFICATION;
+            if (Data->Mode & DO_MODE_OFF_ON_SHUTDOWN) {
+                Data->Flags &= ~DO_FLAG_USE_NOTIFICATION;
                 Data->State = STATE_ABORT;
             }
             Data->ModuleState = MODULE_STATE_STANDBY;
             break;
             
         case MODULE_CONTROL_RESET:
-            Data->Mode = Data->Flags = 0; 
+            doResetInstanceData(Instance);
             break;
                         
         case MODULE_CONTROL_FLUSH_DATA:
@@ -294,7 +296,7 @@ static Error_t doModuleControl (UInt16 Instance, bmModuleControlID_t ControlID) 
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Module status or (negative) error code
  *
  ******************************************************************************/
 
@@ -317,7 +319,7 @@ static Error_t doModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID) {
             return (doInstanceCount);
             
         case MODULE_STATUS_VERSION:
-            return (MODULE_VERSION);
+            return (DO_MODULE_VERSION);
     }    
     return (E_PARAMETER_OUT_OF_RANGE);   
 }
@@ -339,7 +341,7 @@ static Error_t doModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID) {
  * 
  *  \iparam  Data = Pointer to instance data variables
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Module state or (negative) error code
  *
  ******************************************************************************/
 
@@ -348,7 +350,7 @@ static Error_t doGetModuleState (doInstanceData_t *Data) {
     if (Data->State != STATE_IDLE) {
         return (MODULE_STATE_BUSY);
     }    
-    if ((Data->Mode & MODE_MODULE_ENABLE) == 0) { 
+    if ((Data->Mode & DO_MODE_MODULE_ENABLE) == 0) {
          return (MODULE_STATE_DISABLED);
     }
     return (Data->ModuleState);
@@ -379,60 +381,70 @@ static Error_t doGetModuleState (doInstanceData_t *Data) {
 static Error_t doModuleTask (UInt16 Instance) {
 
     doInstanceData_t *Data = &doDataTable[Instance];
+    Error_t Status;
 
-    if ((Data->Mode & MODE_MODULE_ENABLE) || Data->State != STATE_IDLE) {
-    
+    if ((Data->Mode & DO_MODE_MODULE_ENABLE) || Data->State != STATE_IDLE) {
+
         switch (Data->State) {
-            
+
             case STATE_IDLE:
-                if (Data->Flags & FLAG_NEW_DATA) {
+                if (Data->Flags & DO_FLAG_NEW_DATA) {
                     Data->State = Data->Delay ? STATE_DELAY : STATE_OUTPUT;
-                    if (Data->NewValue != Data->CurValue) {
-                        Data->OldValue = Data->CurValue;     
-                    }          
+                    Data->OldValue = Data->CurValue;
                     Data->StartTime = doGetTime(Data);
                 }
                 break;
-                
+
             case STATE_DELAY:
                 if (doTimeExpired(Data) > Data->Delay) {
                     Data->StartTime = doGetTime(Data);
-                    Data->State = STATE_OUTPUT;                
+                    Data->State = STATE_OUTPUT;
                 }
                 break;
-                
+
             case STATE_DURATION:
                 if (doTimeExpired(Data) > Data->Duration) {
-                    doChangeOutput (Data, Data->OldValue);
-                    Data->State = STATE_NOTIFY;                
+                    Status = doChangeOutput (Data, Data->OldValue);
+                    if (Status < NO_ERROR) {
+                        Data->State = STATE_IDLE;
+                        return (Status);
+                    }
+                    Data->State = STATE_NOTIFY;
                 }
-                break;        
+                break;
     
             case STATE_NOTIFY:
-                if (Data->Flags & FLAG_USE_NOTIFICATION) {
+                if (Data->Flags & DO_FLAG_USE_NOTIFICATION) {
                     doSendNotification (Data);
                 }
-                Data->Flags &= ~FLAG_NEW_DATA;
-                Data->State = STATE_IDLE;                
+                Data->Flags &= ~DO_FLAG_NEW_DATA;
+                Data->State = STATE_IDLE;
                 break;
-                
+
             case STATE_ABORT:
-                doChangeOutput (Data, Data->OffValue);
-                Data->State = 
-                    (Data->Flags & FLAG_NEW_DATA) ? STATE_NOTIFY : STATE_IDLE;  
-                break; 
+                Status = doChangeOutput (Data, Data->OffValue);
+                if (Status < NO_ERROR) {
+                    Data->State = STATE_IDLE;
+                    return (Status);
+                }
+                Data->State = (Data->Flags & DO_FLAG_NEW_DATA) ? STATE_NOTIFY : STATE_IDLE;
+                break;
         }
         if (Data->State == STATE_OUTPUT) {
-            doChangeOutput (Data, Data->NewValue);
+            Status = doChangeOutput (Data, Data->NewValue);
+            if (Status < NO_ERROR) {
+                Data->State = STATE_IDLE;
+                return (Status);
+            }
             Data->State = Data->Duration ? STATE_DURATION : STATE_NOTIFY;
-        }            
-        if (Data->Options & OPTION_LIFETIME_DATA) {
-            doFlushLifeTime(Data, LIFETIME_UPDATE_INTERVAL);
         }
-        if (Data->Blink.Flags & BLINKING_ACTIVE) {
+        if (Data->Options & DO_OPTION_LIFETIME_DATA) {
+            doFlushLifeTime(Data, DO_LIFETIME_UPDATE_INTERVAL);
+        }
+        if (Data->Blink.Flags & DO_BLINKING_ACTIVE) {
             doControlBlinking (Data);
         }
-    }    
+    }
     return (doGetModuleState(Data));
 }
 
@@ -440,6 +452,8 @@ static Error_t doModuleTask (UInt16 Instance) {
 /******************************************************************************/
 /*! 
  *  \brief  Blink control task 
+ *
+ *  \remark This function is currently not used.
  *
  *      Implements a state maschine to control the "blinking" of the
  *      output. Blinking consists of up to three phases:
@@ -469,7 +483,7 @@ static Error_t doControlBlinking (doInstanceData_t *Data) {
 
     doBlinkData_t *Blink = &Data->Blink;
     UInt16 NewValue = 0;
-       
+
     if (bmTimeExpired(Blink->StartTime) >= Blink->Delay) {
         
         switch (Blink->State) {
@@ -478,22 +492,21 @@ static Error_t doControlBlinking (doInstanceData_t *Data) {
                 Blink->Count = Blink->Code - 1;
                 Blink->State = STATE_BLINK_ON;
                 // fall thru into blink on state
-                            
-            case STATE_BLINK_ON:            
+
+            case STATE_BLINK_ON:
                 NewValue = Blink->OnValue;
-                Blink->State =
-                    (Blink->Code && !Blink->Count--) ? STATE_BLINK_PAUSE : STATE_BLINK_OFF;
+                Blink->State = (Blink->Code && !Blink->Count--) ? STATE_BLINK_PAUSE : STATE_BLINK_OFF;
                 Blink->Delay = Blink->OnTime;
                 break;
 
-            case STATE_BLINK_OFF:            
-                NewValue = Blink->OffValue; 
-                Blink->Delay = Blink->OffTime;                
+            case STATE_BLINK_OFF:
+                NewValue = Blink->OffValue;
+                Blink->Delay = Blink->OffTime;
                 Blink->State = STATE_BLINK_ON;
                 break;
 
-            case STATE_BLINK_PAUSE:            
-                NewValue = Blink->OffValue; 
+            case STATE_BLINK_PAUSE:
+                NewValue = Blink->OffValue;
                 Blink->Delay = Blink->Pause;
                 Blink->State = STATE_BLINK_START;
                 break;
@@ -530,32 +543,30 @@ static Error_t doControlBlinking (doInstanceData_t *Data) {
 
 static Error_t doChangeOutput (doInstanceData_t *Data, UInt16 Value) {
 
-    if (Value != Data->CurValue) {
-        
-        UInt16 BlinkMode = Data->Flags & FLAG_BLINK_MASK;
+    UInt16 BlinkMode = Data->Flags & DO_FLAG_BLINK_MASK;
 
-        if (BlinkMode != FLAG_BLINK_NONE) {
-            if (Data->State == STATE_OUTPUT) {
-                Data->Blink.Flags |= BLINKING_ACTIVE;
-            }
-            else {
-                Data->Blink.Flags &= ~BLINKING_ACTIVE;
-            }
-            if (BlinkMode == FLAG_BLINK_MODE_1) {
-                Data->Blink.OffValue = Data->OldValue;
-            }
-            else {
-                Data->Blink.OffValue = Data->OffValue;
-            }        
-            Data->Blink.OnValue = Data->NewValue;
+    if (BlinkMode != DO_FLAG_BLINK_NONE) {
+        if (Data->State == STATE_OUTPUT) {
+            Data->Blink.Flags |= DO_BLINKING_ACTIVE;
         }
         else {
-            halPortWrite (Data->Port, Value ^ Data->Polarity);
-            Data->Blink.Flags &= ~BLINKING_ACTIVE;
+            Data->Blink.Flags &= ~DO_BLINKING_ACTIVE;
         }
-        Data->CurValue = Value;
+        if (BlinkMode == DO_FLAG_BLINK_MODE_1) {
+            Data->Blink.OffValue = Data->OldValue;
+        }
+        else {
+            Data->Blink.OffValue = Data->OffValue;
+        }        
+        Data->Blink.OnValue = Data->NewValue;
     }
-    if (Data->Options & OPTION_LIFETIME_DATA) {
+    else {
+        halPortWrite (Data->Port, Value ^ Data->Polarity);
+        Data->Blink.Flags &= ~DO_BLINKING_ACTIVE;
+    }
+    Data->CurValue = Value;
+
+    if (Data->Options & DO_OPTION_LIFETIME_DATA) {
         doCountLifeTime (Data, Value > Data->OffLimit);
     }
     return (NO_ERROR);
@@ -599,45 +610,45 @@ static Error_t doSetOutputState (UInt16 Channel, CanMessage_t *Message) {
     doInstanceData_t *Data = &doDataTable[bmGetInstance(Channel)];
     UInt16 NewDataValue;
 
-    if (!(Data->Mode & MODE_MODULE_ENABLE)) {
+    if (!(Data->Mode & DO_MODE_MODULE_ENABLE)) {
         return (E_MODULE_NOT_ENABLED);
-    }       
-    if (Message->Length >= 7) {
+    }
+    if (Message->Length == 7) {
         
         NewDataValue = bmGetMessageItem(Message, 1, 2);
         if (NewDataValue > Data->MaxValue) {
             return (E_PARAMETER_OUT_OF_RANGE);
-        }        
+        }
         Data->Flags    = bmGetMessageItem(Message, 0, 1);
         Data->Duration = bmGetMessageItem(Message, 3, 2);
         Data->Delay    = bmGetMessageItem(Message, 5, 2);
         
-        switch (Data->Flags & FLAG_DATA_MODE) {
+        switch (Data->Flags & DO_FLAG_DATA_MODE) {
 
-            case FLAG_DATA_VALUE:
+            case DO_FLAG_DATA_VALUE:
                 Data->NewValue = NewDataValue; 
                 break;
 
-            case FLAG_DATA_BITSET:
+            case DO_FLAG_DATA_BITSET:
                 Data->NewValue |= NewDataValue; 
                 break;
 
-            case FLAG_DATA_BITCLR:
+            case DO_FLAG_DATA_BITCLR:
                 Data->NewValue &= ~NewDataValue; 
                 break;
 
-            case FLAG_DATA_INVERT:
+            case DO_FLAG_DATA_INVERT:
                 Data->NewValue ^= NewDataValue; 
                 break;
         }
-        if ((Data->Flags & FLAG_BLINK_MASK) != FLAG_BLINK_NONE) {
-            if (!(Data->Blink.Flags & BLINKING_CONFIGURED)) {
-                Data->Flags &= ~FLAG_BLINK_MASK;
+        if ((Data->Flags & DO_FLAG_BLINK_MASK) != DO_FLAG_BLINK_NONE) {
+            if (!(Data->Blink.Flags & DO_BLINKING_CONFIGURED)) {
+                Data->Flags &= ~DO_FLAG_BLINK_MASK;
             }
             Data->Blink.State = STATE_BLINK_START;
             Data->Blink.Delay = 0;
         }
-        Data->Flags |= FLAG_NEW_DATA;     
+        Data->Flags |= DO_FLAG_NEW_DATA;
         Data->State = STATE_IDLE;
         return (NO_ERROR);
     }
@@ -683,14 +694,18 @@ static Error_t doConfigureOutput (UInt16 Channel, CanMessage_t *Message) {
     doInstanceData_t *Data = &doDataTable[bmGetInstance(Channel)];
     
     if (Data->Port < 0) {
-        return (E_MODULE_NOT_USEABLE);        
+        return (E_MODULE_NOT_USEABLE);
     }
-    if (Message->Length >= 7) {
-        
+    if (Message->Length == 7) {
+
         Data->Mode     = bmGetMessageItem(Message, 0, 1);
         Data->Polarity = bmGetMessageItem(Message, 1, 2);
         Data->OffValue = bmGetMessageItem(Message, 3, 2);
         Data->OffLimit = bmGetMessageItem(Message, 5, 2);
+
+        if ((Data->Mode & DO_MODE_MODULE_ENABLE) == 0) {
+            Data->State = STATE_ABORT;
+        }
         
         return (NO_ERROR);
     }
@@ -701,6 +716,8 @@ static Error_t doConfigureOutput (UInt16 Channel, CanMessage_t *Message) {
 /******************************************************************************/
 /*! 
  *  \brief   Configure a blink code
+ *
+ *  \remark This function is currently not used.
  *
  *      Extracts parameters from a received blink configuration message
  *      and sets the instance variables accordingly. If an output data 
@@ -734,8 +751,8 @@ static Error_t doConfigureBlinks (UInt16 Channel, CanMessage_t *Message) {
         UInt16 OnTime  = bmGetMessageItem(Message, 2, 2);
         UInt16 OffTime = bmGetMessageItem(Message, 4, 2);
 
-        if (OnTime > 0 && OffTime > 0) {            
-            Data->Blink.Flags   = Data->Blink.Flags | BLINKING_CONFIGURED;        
+        if (OnTime > 0 && OffTime > 0) {
+            Data->Blink.Flags   = Data->Blink.Flags | DO_BLINKING_CONFIGURED;
             Data->Blink.Code    = bmGetMessageItem(Message, 1, 1);
             Data->Blink.OnTime  = OnTime;
             Data->Blink.OffTime = OffTime;
@@ -745,7 +762,7 @@ static Error_t doConfigureBlinks (UInt16 Channel, CanMessage_t *Message) {
             
             return (NO_ERROR);
         }
-        return (E_PARAMETER_OUT_OF_RANGE);                
+        return (E_PARAMETER_OUT_OF_RANGE);
     }
     return (E_MISSING_PARAMETERS);
 }
@@ -780,12 +797,11 @@ static Error_t doSendNotification (doInstanceData_t *Data) {
     CanMessage_t Message;
     UInt16 Expired;
 
-    if (Data->Mode & MODE_MODULE_ENABLE) {   
-                
+    if (Data->Mode & DO_MODE_MODULE_ENABLE) {
         Message.CanID = MSG_DO_OUTPUT_STATE;
-        bmSetMessageItem (&Message, Data->State, 0, 1);                    
+        bmSetMessageItem (&Message, Data->State, 0, 1);
         bmSetMessageItem (&Message, Data->CurValue, 1, 2);
-        
+
         if (Data->State == STATE_DURATION) {
             Expired = doTimeExpired(Data);
         }
@@ -796,7 +812,7 @@ static Error_t doSendNotification (doInstanceData_t *Data) {
             Expired = 0;
         }
         bmSetMessageItem (&Message, Expired, 3, 2);
-            
+
         if (Data->State == STATE_DELAY) {
             Expired = doTimeExpired(Data);
         }
@@ -805,13 +821,13 @@ static Error_t doSendNotification (doInstanceData_t *Data) {
         }
         else {
             Expired = 0;
-        }    
-        bmSetMessageItem (&Message, Expired, 5, 2);    
+        }
+        bmSetMessageItem (&Message, Expired, 5, 2);
         Message.Length = 7;
-        
+
         return (canWriteMessage(Data->Channel, &Message));
     }
-    return (E_MODULE_NOT_CONFIGURED);
+    return (E_MODULE_NOT_ENABLED);
 }
 
 
@@ -835,10 +851,13 @@ static Error_t doGetOutputState (UInt16 Channel, CanMessage_t *Message) {
 
     doInstanceData_t *Data = &doDataTable[bmGetInstance(Channel)];
 
-    return (doSendNotification (Data));
+    if (Message->Length == 0) {
+        return (doSendNotification (Data));
+    }
+    return (E_MISSING_PARAMETERS);
 }
 
-    
+
 /******************************************************************************/
 /*! 
  *  \brief   Get actual time 
@@ -856,11 +875,11 @@ static Error_t doGetOutputState (UInt16 Channel, CanMessage_t *Message) {
 
 static UInt32 doGetTime (doInstanceData_t *Data) {
 
-    if (Data->Flags & FLAG_CLOCK_SOURCE) {
+    if (Data->Flags & DO_FLAG_CLOCK_SOURCE) {
         return (bmGetSysClock());
     }
     return (bmGetTime());
-}    
+}
 
 
 /******************************************************************************/
@@ -881,7 +900,7 @@ static UInt32 doGetTime (doInstanceData_t *Data) {
 
 static UInt32 doTimeExpired (doInstanceData_t *Data) {
 
-    if (Data->Flags & FLAG_CLOCK_SOURCE) {
+    if (Data->Flags & DO_FLAG_CLOCK_SOURCE) {
         return (bmSysClockExpired(Data->StartTime));
     }
     return (bmTimeExpired(Data->StartTime));
@@ -920,23 +939,19 @@ static UInt32 doTimeExpired (doInstanceData_t *Data) {
 
 static Error_t doCountLifeTime (doInstanceData_t *Data, Bool OnOff) {
 
-    if (Data->ModuleState != MODULE_STATE_STANDBY) {
-            
-        doLifeTimeData_t *LifeTime = &Data->LifeTime;
-
-        if (LifeTime->Running) {
-            LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
-        }    
-        if (OnOff) {
-            LifeTime->StartTime = bmGetTime();
-            
-            if (!LifeTime->Running) {
-                LifeTime->Counter++;
-            }
+    doLifeTimeData_t *LifeTime = &Data->LifeTime;
+    if (LifeTime->Running) {
+        LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
+    }
+    if (OnOff) {
+        LifeTime->StartTime = bmGetTime();
+        if (!LifeTime->Running) {
+            LifeTime->Counter++;
         }
-        LifeTime->Running = OnOff;
-    }    
-    return (NO_ERROR);            
+    }
+    LifeTime->Running = OnOff;
+
+    return (NO_ERROR);
 }
 
 
@@ -968,30 +983,28 @@ static Error_t doFlushLifeTime (doInstanceData_t *Data, UInt16 Interval) {
     doLifeTimeData_t *LifeTime = &Data->LifeTime;
     Error_t Status1 = NO_ERROR;
     Error_t Status2 = NO_ERROR;
-    
+
     if (bmTimeExpired(LifeTime->Interval) >= Interval) {
-        
+        if (LifeTime->Running) {
+            LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
+            LifeTime->StartTime = bmGetTime();
+        }
         // update life time on/off cycles in non-volatile storage
         if (LifeTime->Counter) {
-            
-            Status1 = bmIncStorageItem (
-                Data->Memory, PARAM_LIFE_CYCLES, LifeTime->Counter);
-                        
+            Status1 = bmIncStorageItem (Data->Memory, DO_PARAM_LIFE_CYCLES, LifeTime->Counter);
             if (Status1 == NO_ERROR) {
                 LifeTime->Counter = 0;
             }
         }
         // update life time duration in non-volatile storage
         if (LifeTime->Duration / 1000) {
-            Status2 = bmIncStorageItem (
-                Data->Memory, PARAM_LIFE_TIME, LifeTime->Duration / 1000);
-                    
+            Status2 = bmIncStorageItem (Data->Memory, DO_PARAM_LIFE_TIME, LifeTime->Duration / 1000);
             if (Status2 == NO_ERROR) {
-                LifeTime->Duration %= 1000;      
+                LifeTime->Duration %= 1000;
             }
         }
         Data->LifeTime.Interval = bmGetTime();
-    }        
+    }
     return (Status1 == NO_ERROR ? Status2 : Status1);
 }
 
@@ -1019,19 +1032,16 @@ static Error_t doSendLifeTimeData (UInt16 Channel, CanMessage_t *Message) {
 
     doInstanceData_t *Data = &doDataTable[bmGetInstance(Channel)];
     CanMessage_t Response;
-    
+
     if (Data->Memory >= 0) {
-        
-        UInt32 LifeTime = 
-            bmGetStorageItem (Data->Memory, PARAM_LIFE_TIME, 0);
-        UInt32 LifeCycles = 
-            bmGetStorageItem (Data->Memory, PARAM_LIFE_CYCLES, 0);
-        
+        UInt32 LifeTime = bmGetStorageItem (Data->Memory, DO_PARAM_LIFE_TIME, 0) + Data->LifeTime.Duration / 1000;
+        UInt32 LifeCycles = bmGetStorageItem (Data->Memory, DO_PARAM_LIFE_CYCLES, 0) + Data->LifeTime.Counter;
+
         Response.CanID = MSG_DO_LIFETIME_DATA;
-        bmSetMessageItem (&Response, LifeTime / 60, 0, 4);           
-        bmSetMessageItem (&Response, LifeCycles, 4, 4);           
+        bmSetMessageItem (&Response, LifeTime / 60, 0, 4);
+        bmSetMessageItem (&Response, LifeCycles, 4, 4);
         Response.Length = 8;
-        
+
         return (canWriteMessage(Channel, &Response));
     }
     return (E_STORAGE_OPEN_ERROR);
@@ -1057,15 +1067,12 @@ static Error_t doSendLifeTimeData (UInt16 Channel, CanMessage_t *Message) {
 static Error_t doResetPartition (doInstanceData_t *Data) {
 
     Error_t Status;
-    
-    if (Data->Memory >= 0) {               
-        
+
+    if (Data->Memory >= 0) {
         bmSignalEvent(Data->Channel, I_PARTITION_RESET, 1, 0);
         Data->LifeTime.Counter = Data->LifeTime.Duration = 0;
-                        
-        Status = bmResetStorageItems (
-            Data->Memory, PermDataTable, ELEMENTS(PermDataTable));
-        
+
+        Status = bmResetStorageItems (Data->Memory, PermDataTable, ELEMENTS(PermDataTable));
         return (Status);
     }
     return (E_STORAGE_OPEN_ERROR);
@@ -1097,27 +1104,75 @@ static Error_t doResetPartition (doInstanceData_t *Data) {
 static Error_t doVerifyPartition (doInstanceData_t *Data) {
 
     UInt32 LayoutVersion;
-        
+
     if (Data->Memory >= 0) {
-        
-        if (!bmVerifyStorageItems (
-                Data->Memory, PermDataTable, ELEMENTS(PermDataTable))) {
-                    
-            bmSignalEvent(Data->Channel, E_PERSISTENTS_INVALID, 1, 0);            
-            doResetPartition(Data);       
+        if (!bmVerifyStorageItems (Data->Memory, PermDataTable, ELEMENTS(PermDataTable))) {
+            bmSignalEvent(Data->Channel, E_PERSISTENTS_INVALID, 1, 0);
+            doResetPartition(Data);
         }
-        LayoutVersion = 
-            bmGetStorageItem(Data->Memory, PARAM_LAYOUT_VERSION, 0);       
+        LayoutVersion = bmGetStorageItem(Data->Memory, DO_PARAM_LAYOUT_VERSION, 0);
 
         // if required, upgrade partition to new layout format
-        if (LayoutVersion < PARTITION_VERSION) {
+        if (LayoutVersion < DO_PARTITION_VERSION) {
             // currently no conversion required
             bmSignalEvent(
-                Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);                                
+                Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);
         }
-        return (NO_ERROR);        
+        return (NO_ERROR);
     }
     return (E_STORAGE_OPEN_ERROR);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Resets the instance data
+ *
+ *      This function resets all members of the instance data to their
+ *      intialization values. This function is called, when the module control
+ *      action MODULE_CONTROL_RESET is received.
+ *
+ *  \iparam  Instance  = Instance number of this module
+ *
+ ****************************************************************************/
+static void doResetInstanceData(UInt16 Instance) {
+
+    doInstanceData_t *Data = &doDataTable[Instance];
+
+    Data->ModuleState = MODULE_STATE_READY;
+    Data->State = STATE_IDLE;
+
+    Data->Mode = 0;
+    Data->Flags = 0;
+    Data->Delay = 0;
+    Data->Duration = 0;
+    Data->StartTime = 0;
+
+    Data->Polarity = 0;
+    Data->NewValue = 0;
+    Data->CurValue = 0;
+    Data->OldValue = 0;
+    Data->MaxValue = 0;
+    Data->OffValue = 0;
+    Data->OffLimit = 0;
+
+    Data->LifeTime.Running = 0;
+    Data->LifeTime.Counter = 0;
+    Data->LifeTime.Duration = 0;
+    Data->LifeTime.StartTime = 0;
+    Data->LifeTime.Interval = 0;
+
+    Data->Blink.Flags = 0;
+    Data->Blink.Code = 0;
+    Data->Blink.Count = 0;
+    Data->Blink.OnValue = 0;
+    Data->Blink.OffValue = 0;
+    Data->Blink.OnTime = 0;
+    Data->Blink.OffTime = 0;
+    Data->Blink.Pause = 0;
+    Data->Blink.Delay = 0;
+    Data->Blink.StartTime = 0;
+    Data->Blink.State = STATE_BLINK_START;
 }
 
 
@@ -1178,22 +1233,32 @@ Error_t doInitializeModule (UInt16 ModuleID, UInt16 Instances) {
     for (i=0; i < Instances; i++) {
 
         doInstanceData_t *Data = &doDataTable[i];
-        
-        Data->Port = halPortOpen (HAL_DIGITAL_OUTPUTS + i, HAL_OPEN_WRITE);                        
-        if (Data->Port >= 0) {
-            Data->MaxValue = halPortStatus (Data->Port, PORT_STAT_MAXVALUE);
-        }        
-        Data->Channel = bmGetChannel (bmGetTaskID(ModuleID, i));
-        Data->Options = bmGetBoardOptions (ModuleID, i, OPTION_LIFETIME_DATA);
-        // Allocate perm storage memory only if needed
-        if (Data->Options & OPTION_LIFETIME_DATA) {
-            printf("DO size:%d\n", PARAM_TOTAL_SIZE);
-            Data->Memory  = bmOpenPermStorage (ModuleID, i, PARAM_TOTAL_SIZE); 
+
+        Data->Port = halPortOpen (HAL_DIGITAL_OUTPUTS + i, HAL_OPEN_WRITE);
+        if (Data->Port < NO_ERROR) {
+            return (Data->Port);
         }
-                   
+        else {
+            Data->MaxValue = halPortStatus (Data->Port, PORT_STAT_MAXVALUE);
+        }
+
+        Data->Channel = bmGetChannel (bmGetTaskID(ModuleID, i));
+        Data->Options = bmGetBoardOptions (ModuleID, i, DO_OPTION_LIFETIME_DATA);
+        // Allocate perm storage memory only if needed
+        if (Data->Options & DO_OPTION_LIFETIME_DATA) {
+            printf("DO size:%d\n", DO_PARAM_TOTAL_SIZE);
+            Data->Memory  = bmOpenPermStorage (ModuleID, i, DO_PARAM_TOTAL_SIZE); 
+            if (Data->Memory < NO_ERROR) {
+                return (Data->Memory);
+            }
+        }
+
         Data->ModuleState = MODULE_STATE_READY;
-            
-        doVerifyPartition(Data);
+
+        Status = doVerifyPartition(Data);
+        if (Status < NO_ERROR) {
+            return (Status);
+        }
     }
     doModuleID = ModuleID;
     doInstanceCount = Instances;

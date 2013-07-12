@@ -12,7 +12,7 @@
  *      This file holds the low level functions of the RFID ISO/IEC 15693
  *      function module. These methods build the messages sent to the RFID tag
  *      and evaluate the data received from it. These functions work with all
- *      RFID tranponders that are specified regarding the ISO/IEC 15693
+ *      RFID transponders that are specified regarding the ISO/IEC 15693
  *      standard.
  *
  *  \b Company:
@@ -34,10 +34,10 @@
 // Public Constants and Macros 
 //****************************************************************************/
 
-#define RFID15693_LINK_CMD_INVENTORY    0x01    //!< Inventory command code according to ISO/IEC 15693
-#define RFID15693_LINK_CMD_SINGLE_READ  0x20    //!< Read single block command code according to ISO/IEC 15693
-#define RFID15693_LINK_CMD_SINGLE_WRITE 0x21    //!< Write single block command code according to ISO/IEC 15693
-#define RFID15693_LINK_CMD_BLOCK_LOCK   0x22    //!< Lock block command code according to ISO/IEC 15693
+#define RFID15693_LINK_CMD_INVENTORY    0x01    //!< Inventory command code according to ISO/IEC 15693-3
+#define RFID15693_LINK_CMD_SINGLE_READ  0x20    //!< Read single block command code according to ISO/IEC 15693-3
+#define RFID15693_LINK_CMD_SINGLE_WRITE 0x21    //!< Write single block command code according to ISO/IEC 15693-3
+#define RFID15693_LINK_CMD_BLOCK_LOCK   0x22    //!< Lock block command code according to ISO/IEC 15693-3
 
 //****************************************************************************/
 // Public Type Definitions 
@@ -56,7 +56,6 @@ typedef enum {
     LINK_RXSTATE_WAIT,
     LINK_RXSTATE_SOF1,
     LINK_RXSTATE_SOF2,
-    LINK_RXSTATE_SOF3,
     LINK_RXSTATE_DATA,
     LINK_RXSTATE_EOF
 } Rfid15693ReceiveState_t;

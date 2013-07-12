@@ -11,7 +11,7 @@
  *
  *       This module contains all error handling functions. This includes
  *       sending of errors to the master via CAN and managing the status
- *       of errors that must explicitely revoked.
+ *       of errors that must explicitly revoked.
  *
  *  \b Company:
  *

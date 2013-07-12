@@ -44,7 +44,7 @@
 //****************************************************************************/
 
 /* Global defines of the temperature module */
-#define MODULE_VERSION      0x0001  //!< Version number of module
+#define MODULE_VERSION      0x0004  //!< Version number of module
 
 /* Mode bits for the Flags member of the module instance data */
 #define MODE_MODULE_ENABLE  0x0001  //!< The regulation is on or off
@@ -220,25 +220,27 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
 
         case MODULE_CONTROL_STOP:
             Data->ModuleState = MODULE_STATE_STOPPED;
+            Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
 
         case MODULE_CONTROL_SHUTDOWN:
             Data->ModuleState = MODULE_STATE_STANDBY;
+            Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
 
         case MODULE_CONTROL_RESET:
             Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
-                                
+
         case MODULE_CONTROL_FLUSH_DATA:
             break;
-            
+
         case MODULE_CONTROL_RESET_DATA:
             Error = tempTimeResetPartition (&Data->TimeParams, Data->Channel);
             break;
 
-        default:             
-            return (E_PARAMETER_OUT_OF_RANGE);  
+        default:
+            return (E_PARAMETER_OUT_OF_RANGE);
     }    
     return (Error);
 }
@@ -280,7 +282,7 @@ static Error_t tempModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID)
             return ((Error_t) Data->ModuleState);
             
         case MODULE_STATUS_VALUE:
-            return (Data->ServiceTemp[0] / 10);
+            return (Data->ServiceTemp[0]);
         
         case MODULE_STATUS_MODULE_ID:
             return (ModuleIdentifier);
@@ -563,13 +565,13 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
  
     // Compute and check heater current      
     if ( Instance == 0 ) {
-        tempCalcEffectiveCurrent(/*Instance, */Data->HeaterType);
-        //printf("Current[%d]:%d\n", Instance, tempHeaterCurrent());
+        tempCalcEffectiveCurrent(Instance, Data->HeaterType);
+        //printf("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
     }
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
     
         if ( Instance == tempFindRoot () ) {
-            Error = tempHeaterCheck (/*Instance, */Data->HeaterType);
+            Error = tempHeaterCheck (Instance, Data->HeaterType);
             if (Error < 0) {
                 return Error;
             }
@@ -688,6 +690,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
+            printf("Temperature out of range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -698,6 +701,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
+            printf("Temperature in range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -779,10 +783,24 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance)
         }
         else if ( Data->NumberSensors > 1 && Data->IndexPidSensor == 0xF ) {
             if ( Data->ServiceTemp[0] < Data->ServiceTemp[1] ) {
-                SensorIndex = 0;
+            
+                if ( Data->ServiceTemp[1] < Data->PidParams[First].MaxTemp ) {
+                    SensorIndex = 0;
+                }
+                else {
+                    SensorIndex = 1;
+                }
+                
             }
-            else {
-                SensorIndex = 1;
+            else {  //  Data->ServiceTemp[1] <= Data->ServiceTemp[0]
+            
+                if ( Data->ServiceTemp[0] < Data->PidParams[First].MaxTemp ) {
+                    SensorIndex = 1;
+                }
+                else {
+                    SensorIndex = 0;
+                }
+
             }
         }
 #endif

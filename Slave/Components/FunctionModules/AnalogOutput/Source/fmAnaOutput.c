@@ -3,7 +3,7 @@
  *
  *  \brief Function Module for Analog Outputs
  *
- *   $Version: $ 0.2
+ *   $Version: $ 0.3
  *   $Date:    $ 27.01.2011
  *   $Author:  $ Andreas Menge
  *
@@ -44,40 +44,41 @@
 // Private Constants and Macros
 //*****************************************************************************/
 
-#define MODULE_VERSION           0x0001  //!< Software version number
-#define MAX_PORT_VALUE           0xFFFF  //!< Maximal analog port value
-#define MIN_PORT_WIDTH           1       //!< Minimal analog port width
-#define MAX_PORT_WIDTH           16      //!< Maximal analog port width
+#define AO_MODULE_VERSION           0x0003  //!< Software version number
+#define AO_MAX_PORT_VALUE           0xFFFF  //!< Maximal analog port value
+#define AO_MIN_PORT_WIDTH           1       //!< Minimal analog port width
+#define AO_MAX_PORT_WIDTH           16      //!< Maximal analog port width
 
 /*! Defines for the Mode member of the module instance data */
-#define MODE_MODULE_ENABLE       0x80    //!< Module enabled
-#define MODE_OFF_AT_SHUTDOWN     0x40    //!< Set output off on shutdown
-#define MODE_OFF_AT_NOTSTOP      0x20    //!< Set output off on notstop
+#define AO_MODE_MODULE_ENABLE       0x80    //!< Module enabled
+#define AO_MODE_OFF_AT_SHUTDOWN     0x40    //!< Set output off on shutdown
+#define AO_MODE_OFF_AT_NOTSTOP      0x20    //!< Set output off on notstop
 
 /*! Defines for the Flags member of the module instance data */
-#define FLAG_DATA_MODE           0x03    //!< Data mode bitmask
-#define FLAG_DATA_VALUE          0x00    //!< Data mode: immediate value
-#define FLAG_DATA_INCREMENT      0x01    //!< Data mode: increment by value
-#define FLAG_DATA_DECREMENT      0x02    //!< Data mode: decrement by value
-#define FLAG_DATA_BELOW_MAX      0x03    //!< Data mode: offset from maximum
+/*! \remark This function is currently not used. */
+#define AO_FLAG_DATA_MODE           0x03    //!< Data mode bitmask
+#define AO_FLAG_DATA_VALUE          0x00    //!< Data mode: immediate value
+#define AO_FLAG_DATA_INCREMENT      0x01    //!< Data mode: increment by value
+#define AO_FLAG_DATA_DECREMENT      0x02    //!< Data mode: decrement by value
+#define AO_FLAG_DATA_BELOW_MAX      0x03    //!< Data mode: offset from maximum
 
-#define FLAG_CLOCK_SOURCE        0x10    //!< Clock source select
-#define FLAG_USE_NOTIFICATION    0x40    //!< Enable notification
-#define FLAG_NEW_DATA            0x8000  //!< New data received
+#define AO_FLAG_CLOCK_SOURCE        0x10    //!< Clock source select
+#define AO_FLAG_USE_NOTIFICATION    0x40    //!< Enable notification
+#define AO_FLAG_NEW_DATA            0x8000  //!< New data received
 
-#define LIFETIME_UPDATE_INTERVAL 5000    //!< Lifetime update interval
+#define AO_LIFETIME_UPDATE_INTERVAL 5000    //!< Lifetime update interval
 
-#define OPTION_LIFETIME_DATA     1       //!< Enable collection of lifetime data
+#define OPTION_LIFETIME_DATA        1       //!< Enable collection of lifetime data
 
 //@{ Start of doxygen group
 //!  Definition of non-volatile item used by function module
-#define PARAM_LAYOUT_VERSION     BUILD_PARAMETER(0,2)
-#define PARAM_LIFE_TIME          BUILD_PARAMETER(2,4)
-#define PARAM_LIFE_CYCLES        BUILD_PARAMETER(6,4)
-#define PARAM_TOTAL_SIZE         16
+#define AO_PARAM_LAYOUT_VERSION     BUILD_PARAMETER(0,2)
+#define AO_PARAM_LIFE_TIME          BUILD_PARAMETER(2,4)
+#define AO_PARAM_LIFE_CYCLES        BUILD_PARAMETER(6,4)
+#define AO_PARAM_TOTAL_SIZE         16
 //@} End of doxygen group
 
-#define PARTITION_VERSION        1       //!< Partition layout version
+#define AO_PARTITION_VERSION        1       //!< Partition layout version
 
 
 //*****************************************************************************/
@@ -137,9 +138,9 @@ typedef struct {
 
 //! Persistent parameter descriptor table (used for verification)
 static const bmParamRange_t PermDataTable[] = {
-    { PARAM_LAYOUT_VERSION, 1, PARTITION_VERSION, PARTITION_VERSION },
-    { PARAM_LIFE_TIME,      0, 0, 0 },
-    { PARAM_LIFE_CYCLES,    0, 0, 0 }
+    { AO_PARAM_LAYOUT_VERSION, 1, AO_PARTITION_VERSION, AO_PARTITION_VERSION },
+    { AO_PARAM_LIFE_TIME,      0, 0, 0 },
+    { AO_PARAM_LIFE_CYCLES,    0, 0, 0 }
 };
 
 static aoInstanceData_t *aoDataTable; //!< Data table for all instances
@@ -170,6 +171,7 @@ static Error_t aoConfigureOutput  (UInt16 Channel, CanMessage_t *Message);
 static Error_t aoSetOutputState   (UInt16 Channel, CanMessage_t *Message);
 static Error_t aoGetOutputState   (UInt16 Channel, CanMessage_t *Message);
 
+static void aoResetInstanceData(UInt16 Instance);
 
 /******************************************************************************/
 /*!
@@ -206,22 +208,22 @@ static Error_t aoModuleControl (UInt16 Instance, bmModuleControlID_t ControlID) 
             break;
 
         case MODULE_CONTROL_STOP:
-            if (Data->Mode & MODE_OFF_AT_NOTSTOP) {
+            if (Data->Mode & AO_MODE_OFF_AT_NOTSTOP) {
                 Data->State = STATE_ABORT;
             }
             Data->ModuleState = MODULE_STATE_STOPPED;
             break;
 
         case MODULE_CONTROL_SHUTDOWN:
-            if (Data->Mode & MODE_OFF_AT_SHUTDOWN) {
-                Data->Flags &= ~FLAG_USE_NOTIFICATION;
+            if (Data->Mode & AO_MODE_OFF_AT_SHUTDOWN) {
+                Data->Flags &= ~AO_FLAG_USE_NOTIFICATION;
                 Data->State = STATE_ABORT;
             }
             Data->ModuleState = MODULE_STATE_STANDBY;
             break;
 
         case MODULE_CONTROL_RESET:
-            Data->Mode = Data->Flags = 0;
+            aoResetInstanceData(Instance);
             break;
 
         case MODULE_CONTROL_FLUSH_DATA:
@@ -254,7 +256,7 @@ static Error_t aoModuleControl (UInt16 Instance, bmModuleControlID_t ControlID) 
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Module status or (negative) error code
  *
  ******************************************************************************/
 
@@ -276,7 +278,7 @@ static Error_t aoModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID) {
             return (aoInstanceCount);
 
         case MODULE_STATUS_VERSION:
-            return (MODULE_VERSION);
+            return (AO_MODULE_VERSION);
     }
     return (E_PARAMETER_OUT_OF_RANGE);
 }
@@ -298,7 +300,7 @@ static Error_t aoModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID) {
  *
  *  \iparam  Data = Pointer to instance data variables
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Module state
  *
  ******************************************************************************/
 
@@ -307,7 +309,7 @@ static Error_t aoGetModuleState (aoInstanceData_t *Data) {
     if (Data->State != STATE_IDLE) {
         return (MODULE_STATE_BUSY);
     }
-    if ((Data->Mode & MODE_MODULE_ENABLE) == 0) {
+    if ((Data->Mode & AO_MODE_MODULE_ENABLE) == 0) {
         return (MODULE_STATE_DISABLED);
     }
     return (Data->ModuleState);
@@ -338,17 +340,16 @@ static Error_t aoGetModuleState (aoInstanceData_t *Data) {
 static Error_t aoModuleTask (UInt16 Instance) {
 
     aoInstanceData_t *Data = &aoDataTable[Instance];
+    Error_t Status;
 
-    if ((Data->Mode & MODE_MODULE_ENABLE) || (Data->State != STATE_IDLE)) {
+    if ((Data->Mode & AO_MODE_MODULE_ENABLE) || (Data->State != STATE_IDLE)) {
 
         switch (Data->State) {
 
             case STATE_IDLE:
-                if (Data->Flags & FLAG_NEW_DATA) {
+                if (Data->Flags & AO_FLAG_NEW_DATA) {
                     Data->State = Data->Delay ? STATE_DELAY : STATE_OUTPUT;
-                    if (Data->NewValue != Data->CurValue) {
-                        Data->OldValue = Data->CurValue;
-                    }
+                    Data->OldValue = Data->CurValue;
                     Data->StartTime = aoGetTime(Data);
                 }
                 break;
@@ -362,31 +363,42 @@ static Error_t aoModuleTask (UInt16 Instance) {
 
             case STATE_DURATION:
                 if (aoTimeExpired(Data) > Data->Duration) {
-                    aoChangeOutput (Data, Data->OldValue);
+                    Status = aoChangeOutput (Data, Data->OldValue);
+                    if (Status < NO_ERROR) {
+                        Data->State = STATE_IDLE;
+                        return (Status);
+                    }
                     Data->State = STATE_NOTIFY;
                 }
                 break;
 
             case STATE_NOTIFY:
-                if (Data->Flags & FLAG_USE_NOTIFICATION) {
+                if (Data->Flags & AO_FLAG_USE_NOTIFICATION) {
                     aoSendNotification (Data);
                 }
-                Data->Flags &= ~FLAG_NEW_DATA;
+                Data->Flags &= ~AO_FLAG_NEW_DATA;
                 Data->State = STATE_IDLE;
                 break;
 
             case STATE_ABORT:
-                aoChangeOutput (Data, Data->OffValue);
-                Data->State =
-                    (Data->Flags & FLAG_NEW_DATA) ? STATE_NOTIFY : STATE_IDLE;
+                Status = aoChangeOutput (Data, Data->OffValue);
+                if (Status < NO_ERROR) {
+                    Data->State = STATE_IDLE;
+                    return (Status);
+                }
+                Data->State = (Data->Flags & AO_FLAG_NEW_DATA) ? STATE_NOTIFY : STATE_IDLE;
                 break;
         }
         if (Data->State == STATE_OUTPUT) {
-            aoChangeOutput (Data, Data->NewValue);
+            Status = aoChangeOutput (Data, Data->NewValue);
+            if (Status < NO_ERROR) {
+                Data->State = STATE_IDLE;
+                return (Status);
+            }
             Data->State = Data->Duration ? STATE_DURATION : STATE_NOTIFY;
         }
         if (Data->Options & OPTION_LIFETIME_DATA) {
-            aoFlushLifeTime(Data, LIFETIME_UPDATE_INTERVAL);
+            aoFlushLifeTime(Data, AO_LIFETIME_UPDATE_INTERVAL);
         }
     }
     return (aoGetModuleState(Data));
@@ -416,11 +428,11 @@ static Error_t aoChangeOutput (aoInstanceData_t *Data, UInt16 Value) {
 
     Error_t Status;
 
-    if ((Status = halAnalogWrite (Data->Port, Value << Data->BitShift)) < NO_ERROR) {
+    if ((Status = halAnalogWrite (Data->Port, (Value * AO_MAX_PORT_VALUE) / Data->MaxValue)) < NO_ERROR) {
         return Status;
-    } 
-    Data->CurValue = Value;   
-        
+    }
+    Data->CurValue = Value;
+
     if (Data->Options & OPTION_LIFETIME_DATA) {
         aoCountLifeTime (Data, Value > Data->OffLimit);
     }
@@ -465,10 +477,10 @@ static Error_t aoSetOutputState (UInt16 Channel, CanMessage_t *Message) {
 
     aoInstanceData_t *Data = &aoDataTable[bmGetInstance(Channel)];
 
-    if (!(Data->Mode & MODE_MODULE_ENABLE)) {
+    if (!(Data->Mode & AO_MODE_MODULE_ENABLE)) {
         return (E_MODULE_NOT_ENABLED);
     }
-    if (Message->Length >= 7) {
+    if (Message->Length == 7) {
 
         UInt32 newDataValue = bmGetMessageItem(Message, 1, 2);
         if (newDataValue > Data->MaxValue) {
@@ -478,17 +490,17 @@ static Error_t aoSetOutputState (UInt16 Channel, CanMessage_t *Message) {
         Data->Duration = bmGetMessageItem(Message, 3, 2);
         Data->Delay    = bmGetMessageItem(Message, 5, 2);
 
-        switch (Data->Flags & FLAG_DATA_MODE) {
+        switch (Data->Flags & AO_FLAG_DATA_MODE) {
 
-            case FLAG_DATA_INCREMENT:
+            case AO_FLAG_DATA_INCREMENT:
                 newDataValue = Data->NewValue + newDataValue;
                 break;
 
-            case FLAG_DATA_DECREMENT:
+            case AO_FLAG_DATA_DECREMENT:
                 newDataValue = Data->NewValue - newDataValue;
                 break;
 
-            case FLAG_DATA_BELOW_MAX:
+            case AO_FLAG_DATA_BELOW_MAX:
                 newDataValue = Data->MaxValue - newDataValue;
                 break;
         }
@@ -501,7 +513,7 @@ static Error_t aoSetOutputState (UInt16 Channel, CanMessage_t *Message) {
         }
         Data->NewValue = newDataValue;
 
-        Data->Flags |= FLAG_NEW_DATA;
+        Data->Flags |= AO_FLAG_NEW_DATA;
         Data->State = STATE_IDLE;
         return (NO_ERROR);
     }
@@ -550,22 +562,26 @@ static Error_t aoConfigureOutput (UInt16 Channel, CanMessage_t *Message) {
     if (Data->Port < 0) {
         return (E_MODULE_NOT_USEABLE);
     }
-    if (Message->Length >= 6) {
+    if (Message->Length == 6) {
 
         Data->Mode     = bmGetMessageItem(Message, 0, 1);
         Data->BitCount = bmGetMessageItem(Message, 1, 1);
         Data->OffValue = bmGetMessageItem(Message, 2, 2);
         Data->OffLimit = bmGetMessageItem(Message, 4, 2);
 
-        if (Data->BitCount <  MAX_PORT_WIDTH &&
-            Data->BitCount >= MIN_PORT_WIDTH) {
+        if ((Data->Mode & AO_MODE_MODULE_ENABLE) == 0) {
+            Data->State = STATE_ABORT;
+        }
+
+        if (Data->BitCount <  AO_MAX_PORT_WIDTH &&
+            Data->BitCount >= AO_MIN_PORT_WIDTH) {
             Data->MaxValue = ~(0xFFFFUL << Data->BitCount);
         }
         else {
-            Data->BitCount = MAX_PORT_WIDTH;
-            Data->MaxValue = MAX_PORT_VALUE;
+            Data->BitCount = AO_MAX_PORT_WIDTH;
+            Data->MaxValue = AO_MAX_PORT_VALUE;
         }
-        Data->BitShift = MAX_PORT_WIDTH - Data->BitCount;
+        Data->BitShift = AO_MAX_PORT_WIDTH - Data->BitCount;
 
         if (Data->OffValue > Data->MaxValue ||
             Data->OffLimit > Data->MaxValue) {
@@ -576,7 +592,7 @@ static Error_t aoConfigureOutput (UInt16 Channel, CanMessage_t *Message) {
             if (Data->OffLimit > Data->MaxValue) {
                 Data->OffLimit = Data->MaxValue;
             }
-            Data->Mode = ~MODE_MODULE_ENABLE;
+            Data->Mode = ~AO_MODE_MODULE_ENABLE;
             return (E_PARAMETER_OUT_OF_RANGE);
         }
         return (NO_ERROR);
@@ -614,7 +630,7 @@ static Error_t aoSendNotification (aoInstanceData_t *Data) {
     CanMessage_t Message;
     UInt16 Expired;
 
-    if (Data->Mode & MODE_MODULE_ENABLE) {
+    if (Data->Mode & AO_MODE_MODULE_ENABLE) {
 
         Message.CanID = MSG_AO_OUTPUT_STATE;
         bmSetMessageItem (&Message, Data->State, 0, 1);
@@ -645,7 +661,7 @@ static Error_t aoSendNotification (aoInstanceData_t *Data) {
 
         return (canWriteMessage(Data->Channel, &Message));
     }
-    return (E_MODULE_NOT_CONFIGURED);
+    return (E_MODULE_NOT_ENABLED);
 }
 
 
@@ -669,7 +685,10 @@ static Error_t aoGetOutputState (UInt16 Channel, CanMessage_t *Message) {
 
     aoInstanceData_t *Data = &aoDataTable[bmGetInstance(Channel)];
 
-    return (aoSendNotification (Data));
+    if (Message->Length == 0) {
+        return (aoSendNotification (Data));
+    }
+    return (E_MISSING_PARAMETERS);
 }
 
 
@@ -690,7 +709,7 @@ static Error_t aoGetOutputState (UInt16 Channel, CanMessage_t *Message) {
 
 static UInt32 aoGetTime (aoInstanceData_t *Data) {
 
-    if (Data->Flags & FLAG_CLOCK_SOURCE) {
+    if (Data->Flags & AO_FLAG_CLOCK_SOURCE) {
         return (bmGetSysClock());
     }
     return (bmGetTime());
@@ -715,7 +734,7 @@ static UInt32 aoGetTime (aoInstanceData_t *Data) {
 
 static UInt32 aoTimeExpired (aoInstanceData_t *Data) {
 
-    if (Data->Flags & FLAG_CLOCK_SOURCE) {
+    if (Data->Flags & AO_FLAG_CLOCK_SOURCE) {
         return (bmSysClockExpired(Data->StartTime));
     }
     return (bmTimeExpired(Data->StartTime));
@@ -754,23 +773,21 @@ static UInt32 aoTimeExpired (aoInstanceData_t *Data) {
 
 static Error_t aoCountLifeTime (aoInstanceData_t *Data, Bool OnOff) {
 
-    if (Data->ModuleState != MODULE_STATE_STANDBY) {
+    aoLifeTimeData_t *LifeTime = &Data->LifeTime;
 
-        aoLifeTimeData_t *LifeTime = &Data->LifeTime;
-
-        if (LifeTime->Running) {
-            LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
-        }
-        if (OnOff) {
-            LifeTime->StartTime = bmGetTime();
-
-            if (!LifeTime->Running) {
-                LifeTime->Counter++;
-            }
-        }
-        //dbgPrint("LifeTimeCounter = %s", OnOff ? "ON" : "OFF");
-        LifeTime->Running = OnOff;
+    if (LifeTime->Running) {
+        LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
     }
+    if (OnOff) {
+        LifeTime->StartTime = bmGetTime();
+
+        if (!LifeTime->Running) {
+            LifeTime->Counter++;
+        }
+    }
+    //dbgPrint("LifeTimeCounter = %s", OnOff ? "ON" : "OFF");
+    LifeTime->Running = OnOff;
+
     return (NO_ERROR);
 }
 
@@ -805,22 +822,20 @@ static Error_t aoFlushLifeTime (aoInstanceData_t *Data, UInt16 Interval) {
     Error_t Status2 = NO_ERROR;
 
     if (bmTimeExpired(LifeTime->Interval) >= Interval) {
-
+        if (LifeTime->Running) {
+            LifeTime->Duration += bmTimeExpired(LifeTime->StartTime);
+            LifeTime->StartTime = bmGetTime();
+        }
         // update life time on/off cycles in non-volatile storage
         if (LifeTime->Counter) {
-
-            Status1 = bmIncStorageItem (
-                Data->Memory, PARAM_LIFE_CYCLES, LifeTime->Counter);
-
+            Status1 = bmIncStorageItem (Data->Memory, AO_PARAM_LIFE_CYCLES, LifeTime->Counter);
             if (Status1 == NO_ERROR) {
                 LifeTime->Counter = 0;
             }
         }
         // update life time duration in non-volatile storage
         if (LifeTime->Duration) {
-            Status2 = bmIncStorageItem (
-                Data->Memory, PARAM_LIFE_TIME, LifeTime->Duration / 1000);
-
+            Status2 = bmIncStorageItem (Data->Memory, AO_PARAM_LIFE_TIME, LifeTime->Duration / 1000);
             if (Status2 == NO_ERROR) {
                 LifeTime->Duration %= 1000;
             }
@@ -856,11 +871,8 @@ static Error_t aoSendLifeTimeData (UInt16 Channel, CanMessage_t *Message) {
     CanMessage_t Response;
 
     if (Data->Memory >= 0) {
-
-        UInt32 LifeTime =
-            bmGetStorageItem (Data->Memory, PARAM_LIFE_TIME, 0);
-        UInt32 LifeCycles =
-            bmGetStorageItem (Data->Memory, PARAM_LIFE_CYCLES, 0);
+        UInt32 LifeTime = bmGetStorageItem (Data->Memory, AO_PARAM_LIFE_TIME, 0) + Data->LifeTime.Duration / 1000;
+        UInt32 LifeCycles = bmGetStorageItem (Data->Memory, AO_PARAM_LIFE_CYCLES, 0) + Data->LifeTime.Counter;
 
         Response.CanID = MSG_AO_LIFETIME_DATA;
         bmSetMessageItem (&Response, LifeTime / 60, 0, 4);
@@ -942,10 +954,10 @@ static Error_t aoVerifyPartition (aoInstanceData_t *Data) {
             aoResetPartition(Data);
         }
         LayoutVersion =
-            bmGetStorageItem(Data->Memory, PARAM_LAYOUT_VERSION, 0);
+            bmGetStorageItem(Data->Memory, AO_PARAM_LAYOUT_VERSION, 0);
 
         // if required, upgrade partition to new layout format
-        if (LayoutVersion < PARTITION_VERSION) {
+        if (LayoutVersion < AO_PARTITION_VERSION) {
             // currently no conversion required
             bmSignalEvent(
                 Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);
@@ -953,6 +965,47 @@ static Error_t aoVerifyPartition (aoInstanceData_t *Data) {
         return (NO_ERROR);
     }
     return (E_STORAGE_OPEN_ERROR);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Resets the instance data
+ *
+ *      This function resets all members of the instance data to their
+ *      intialization values. This function is called, when the module control
+ *      action MODULE_CONTROL_RESET is received.
+ *
+ *  \iparam  Instance  = Instance number of this module
+ *
+ ****************************************************************************/
+static void aoResetInstanceData(UInt16 Instance) {
+
+    aoInstanceData_t *Data = &aoDataTable[Instance];
+
+    Data->ModuleState = MODULE_STATE_READY;
+    Data->State = STATE_IDLE;
+
+    Data->Mode = 0;
+    Data->Flags = 0;
+    Data->Delay = 0;
+    Data->Duration = 0;
+    Data->StartTime = 0;
+
+    Data->BitCount = 0;
+    Data->BitShift = 0;
+    Data->NewValue = 0;
+    Data->CurValue = 0;
+    Data->OldValue = 0;
+    Data->MaxValue = 0;
+    Data->OffValue = 0;
+    Data->OffLimit = 0;
+
+    Data->LifeTime.Running = 0;
+    Data->LifeTime.Counter = 0;
+    Data->LifeTime.Duration = 0;
+    Data->LifeTime.StartTime = 0;
+    Data->LifeTime.Interval = 0;
 }
 
 
@@ -1011,17 +1064,25 @@ Error_t aoInitializeModule (UInt16 ModuleID, UInt16 Instances) {
     // open channel, port and partition for each module instance
     for (i=0; i < Instances; i++) {
 
-        aoDataTable[i].Port =
-            halAnalogOpen(HAL_ANALOG_OUTPUTS + i, HAL_OPEN_WRITE, 0, NULL);
-        aoDataTable[i].Options =
-            bmGetBoardOptions (ModuleID, i, OPTION_LIFETIME_DATA);
-        aoDataTable[i].Channel =
-            bmGetChannel (bmGetTaskID(ModuleID, i));
-        aoDataTable[i].Memory =
-            bmOpenPermStorage (ModuleID, i, PARAM_TOTAL_SIZE);
+        aoDataTable[i].Port = halAnalogOpen(HAL_ANALOG_OUTPUTS + i, HAL_OPEN_WRITE, 0, NULL);
+        if (aoDataTable[i].Port < NO_ERROR) {
+            return (aoDataTable[i].Port);
+        }
 
-        aoDataTable[i].ModuleState = MODULE_STATE_READY;
-        aoVerifyPartition(&aoDataTable[i]);
+        aoDataTable[i].Options = bmGetBoardOptions (ModuleID, i, OPTION_LIFETIME_DATA);
+        aoDataTable[i].Channel = bmGetChannel (bmGetTaskID(ModuleID, i));
+
+        aoDataTable[i].Memory = bmOpenPermStorage (ModuleID, i, AO_PARAM_TOTAL_SIZE);
+        if (aoDataTable[i].Memory < NO_ERROR) {
+            return (aoDataTable[i].Memory);
+        }
+
+        aoResetInstanceData(i);
+
+        Status = aoVerifyPartition(&aoDataTable[i]);
+        if (Status < NO_ERROR) {
+            return (Status);
+        }
     }
     aoInstanceCount = Instances;
     aoModuleID = ModuleID;

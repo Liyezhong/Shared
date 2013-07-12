@@ -34,8 +34,8 @@
 /* basemodule's software version informations */
 #define SOFTWARE_VERSION         0x0002     //!< Software version number
 #define SOFTWARE_CREATION_YEAR   2013       //!< Software creation date (year)
-#define SOFTWARE_CREATION_MONTH  2          //!< Software creation date (month)
-#define SOFTWARE_CREATION_DAY    11          //!< Software creation date (day)
+#define SOFTWARE_CREATION_MONTH  3          //!< Software creation date (month)
+#define SOFTWARE_CREATION_DAY    19         //!< Software creation date (day)
 
 /* basemodule global identifiers */
 #define BASEMODULE_CHANNEL       0          //!< Base module's channel ID

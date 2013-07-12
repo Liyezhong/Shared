@@ -38,12 +38,12 @@
 
 #define TEMP_SENSOR_VOLTAGE     3000  //!< ADC supply voltage used for the NTC 10K3A1I
 
-#ifdef ASB5_VER_A
+#ifdef ASB3_VER_A
 #define TEMP_SENSOR_RESISTANCE  10000 //!< Pullup resistance connected to NTC 10K3A1I
 #endif
 
 // For new ASB board
-#ifdef ASB5_VER_B
+#ifdef ASB15_VER_B
 #define TEMP_SENSOR_RESISTANCE  2700 //!< Pullup resistance connected to NTC 10K3A1I
 #endif
 
@@ -95,7 +95,7 @@ static Int16 tempSensorTableTypeT[TEMP_SENSOR_MAX] = {
     8759, 8812, 8865, 8917, 8970, 9023, 9076, 9129, 9182, 9235  // 190 to 199 degree Celsius
 };
 
-#ifdef ASB5_VER_A
+#ifdef ASB3_VER_A
 /*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
 static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
     32651, 31031, 29500, 28054, 26687, 25395, 24172, 23016, 21921, 20885, //   0 to   9 degree Celsius
@@ -121,7 +121,7 @@ static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
 };
 #endif
 
-#ifdef ASB5_VER_B
+#ifdef ASB15_VER_B
 /*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
 static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
     32767, 32177, 30523, 28965, 27497, 26114, 24809, 23578, 22416, 21319, //   0 to   9 degree Celsius
