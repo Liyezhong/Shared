@@ -78,7 +78,7 @@ static const UInt32 TestOptionList[] = {
         
     // Function modules board options
 #ifdef ASB5_VER_A    
-    MODULE_ID_TEMPERATURE, 4, 0x011011, 0xF11012, 0x011012, 0x011012
+    MODULE_ID_TEMPERATURE, 4, 0x011011, 0xF11012, 0x011012, 0x011011
 #endif
 
 #ifdef ASB5_VER_B
@@ -171,8 +171,8 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMinor    = 1;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 1;
-    InfoBlock.ProductionDay   = 9;
+    InfoBlock.ProductionMonth = 7;
+    InfoBlock.ProductionDay   = 15;
 #endif
 
 
@@ -181,8 +181,8 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMinor    = 3;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 6;
-    InfoBlock.ProductionDay   = 17;
+    InfoBlock.ProductionMonth = 7;
+    InfoBlock.ProductionDay   = 15;
 #endif
 
     InfoBlock.EndTestYear     = 10;
