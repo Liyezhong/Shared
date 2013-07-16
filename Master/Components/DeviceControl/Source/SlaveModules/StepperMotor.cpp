@@ -500,7 +500,7 @@ void CStepperMotor::HandleTasks()
 
 StepperMotorRotDir_t CStepperMotor::SetupRotationDir (CANFctModuleStepperMotor::RotationDir_t dir)
 {
-    StepperMotorRotDir_t rotDir;
+    StepperMotorRotDir_t rotDir = SMOT_ROTDIR_CW;
 
     switch (dir)
     {

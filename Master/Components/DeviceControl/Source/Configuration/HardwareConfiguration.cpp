@@ -1914,7 +1914,7 @@ DevInstanceID_t HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
             DevInstanceID = DEVICE_INSTANCE_ID_RETORT; //!< Retort
         break;
         case 0x000080C4:
-            DevInstanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL; //!< Miscellaneous
+            DevInstanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL; //!< Main contorl
         break;
         default:
             DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;

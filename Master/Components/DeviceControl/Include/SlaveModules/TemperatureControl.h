@@ -197,8 +197,6 @@ signals:
      *  \iparam Current = Current through the heatinf circuit in milliamperes
      */
     /****************************************************************************/
-    //void ReportHardwareStatus(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Sensors,
-    //                          quint8 Fans, quint8 Heaters, quint8 Pids, quint16 Current);
     void ReportHardwareStatus(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Sensors,
                               quint8 Fans, quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchState);
 
