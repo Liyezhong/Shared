@@ -1018,6 +1018,28 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     pCANFctModuleStepperMotor->stopCurrentScale = strStopCurrent.toShort(&ok, 10);
     pCANFctModuleStepperMotor->stopCurrentDelay = strStopCurrentDelay.toShort(&ok, 10);
 
+#ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
+        if((pCANFctModuleStepperMotor->runCurrentScale < 0)||(pCANFctModuleStepperMotor->runCurrentScale >31)) {
+            delete pCANFctModuleStepperMotor;
+            pCANFctModuleStepperMotor = 0;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            return pCANFctModuleStepperMotor;
+        }
+        if((pCANFctModuleStepperMotor->stopCurrentScale < 0)||(pCANFctModuleStepperMotor->stopCurrentScale >31)) {
+            delete pCANFctModuleStepperMotor;
+            pCANFctModuleStepperMotor = 0;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            return pCANFctModuleStepperMotor;
+        }
+        quint32 stopCurrentDelay = strStopCurrentDelay.toUInt(&ok, 10);
+        if((stopCurrentDelay < 0)||(stopCurrentDelay >65535)) {
+            delete pCANFctModuleStepperMotor;
+            pCANFctModuleStepperMotor = 0;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            return pCANFctModuleStepperMotor;
+        }
+#endif
+
     FILE_LOG_L(laINIT, llDEBUG4) << " Motorconfiguration: " << strPositionMin.toStdString() << " - " << strPositionMax.toStdString() <<
             " position: " << pCANFctModuleStepperMotor->lMinPosition << "- " << pCANFctModuleStepperMotor->lMaxPosition;
 
@@ -1121,6 +1143,14 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
         else if(LimitSwitch.bIndex == 1) {
             pCANFctModuleStepperMotor->LimitSwitch2 = LimitSwitch;
         }
+#ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
+        else if((LimitSwitch.bIndex != 0)&&(LimitSwitch.bIndex != 1)) {
+            delete pCANFctModuleStepperMotor;
+            pCANFctModuleStepperMotor = 0;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+            return pCANFctModuleStepperMotor;
+        }
+#endif
 
         childLimitSwitch = childLimitSwitch.nextSiblingElement("limitswitch");
     }
@@ -1185,7 +1215,16 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
             QString strTMC26XsgcConf   = child.attribute("reg_sgcsConf");
             QString strTMC26XsmartEn   = child.attribute("reg_smartEn");
             QString strTMC26XchopConf  = child.attribute("reg_chopConf");
-
+#ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
+            quint32 chopConf =  strTMC26XchopConf.toUInt(&ok, 16);
+            if((chopConf & 0xF) == 0)
+            {
+                delete pCANFctModuleStepperMotor;
+                pCANFctModuleStepperMotor = 0;
+                m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+                return pCANFctModuleStepperMotor;
+            }
+#endif
             pCANFctModuleStepperMotor->tmc26x.drvConf  = strTMC26XdrvConf.toUInt(&ok, 16);
             if (ok)
                 pCANFctModuleStepperMotor->tmc26x.sgcsConf  = strTMC26XsgcConf.toUInt(&ok, 16);
