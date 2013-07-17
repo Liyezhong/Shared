@@ -89,6 +89,9 @@ typedef struct
 //! During a reference run the motor stopped at an unexpected limitswitch position
 #define E_SMOT_REFRUN_INVALID_LS            BUILD_SM_ERRCODE(ERRCLASS_ERROR, 12)
 
+//! all stepper operations stopped because of timer overload - BOARD RESTART NEEDED
+#define E_SMOT_TIMER_OVERLOAD               BUILD_SM_ERRCODE(ERRCLASS_ERROR, 13)
+
 //! position code from limitswitches is invalid
 #define E_SMOT_INVALID_POSCODE              BUILD_SM_ERRCODE(ERRCLASS_ERROR, 20)
 
@@ -104,8 +107,21 @@ typedef struct
 //! during a movement the motor stopped because actual position get off-limit
 #define E_SMOT_STOP_BY_OFFLIMIT             BUILD_SM_ERRCODE(ERRCLASS_ERROR, 24)
 
+//! during a movement the motor stopped because step difference between encoder and counter get's too big
+#define E_SMOT_STOP_BY_STEPDIFF             BUILD_SM_ERRCODE(ERRCLASS_ERROR, 25)
+
+//! during a movement the motor stopped because of too much lost steps
+#define E_SMOT_STOP_BY_STEPLOSS             BUILD_SM_ERRCODE(ERRCLASS_ERROR, 26)
+
 //! requested speed exceeds vMin/vMax of selected profile
 #define E_SMOT_MOTION_PROFILE_UNFIT         BUILD_SM_ERRCODE(ERRCLASS_ERROR, 30)
+
+
+//! during a movement step loss was detected
+#define W_SMOT_STEPLOSS                     BUILD_SM_ERRCODE(ERRCLASS_WARNING, 1)
+
+//! during a movement step difference was detected
+#define W_SMOT_STEPDIFF                     BUILD_SM_ERRCODE(ERRCLASS_WARNING, 2)
 
 //@} End of doxygen group
 
