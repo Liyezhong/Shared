@@ -280,7 +280,7 @@ static Error_t tempModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID)
             return ((Error_t) Data->ModuleState);
             
         case MODULE_STATUS_VALUE:
-            return (Data->ServiceTemp[0] / 10);
+            return (Data->ServiceTemp[0]);
         
         case MODULE_STATUS_MODULE_ID:
             return (ModuleIdentifier);
@@ -563,13 +563,13 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
  
     // Compute and check heater current      
     if ( Instance == 0 ) {
-        tempCalcEffectiveCurrent(/*Instance, */Data->HeaterType);
-        //printf("Current[%d]:%d\n", Instance, tempHeaterCurrent());
+        tempCalcEffectiveCurrent(Instance, Data->HeaterType);
+        //printf("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
     }
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
     
         if ( Instance == tempFindRoot () ) {
-            Error = tempHeaterCheck (/*Instance, */Data->HeaterType);
+            Error = tempHeaterCheck (Instance, Data->HeaterType);
             if (Error < 0) {
                 return Error;
             }
@@ -688,7 +688,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
-            printf("Temperature out of range\n");
+            printf("Temperature out of range[%d]\n", Data->ServiceTemp[0]);
             return (canWriteMessage(Data->Channel, &Message));
         }
     }

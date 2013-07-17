@@ -209,7 +209,7 @@ Error_t tempFanOpen (UInt16 Instance, UInt8 Fans)
 Error_t tempFanControl (UInt16 Instance, Bool Activate)
 {
     UInt8 i;
-    Error_t Status;
+    Error_t Status = NO_ERROR;
 
     if (Instance >= TempFanInstances) {
         return (E_PARAMETER_OUT_OF_RANGE);
