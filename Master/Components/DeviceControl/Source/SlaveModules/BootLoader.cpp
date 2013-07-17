@@ -171,6 +171,8 @@ void CBootLoader::WaitForUpdate(bool Wait)
 /****************************************************************************/
 ReturnCode_t CBootLoader::BootFirmware()
 {
+
+#if 0
     QMutexLocker Locker(&m_Mutex);
 
     if (m_UpdateRequired == false) {
@@ -181,6 +183,20 @@ ReturnCode_t CBootLoader::BootFirmware()
         return Result;
     }
     return (DCL_ERR_INVALID_STATE);
+#endif
+
+    // Copied from colorado platform
+    // Need further investigation
+
+    QMutexLocker Locker(&m_Mutex);
+
+    m_WaitForUpdate = false;
+
+    if (m_UpdateRequired == false) {
+        return DCL_ERR_FCT_CALL_SUCCESS;
+    }
+    return DCL_ERR_INVALID_STATE;
+
 }
 
 /****************************************************************************/
