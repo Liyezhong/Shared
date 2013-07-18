@@ -2022,6 +2022,14 @@ void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, 
     m_LastErrorData  = ErrorData;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Block caller's current thread with specified type and timeout
+ *
+ *  \iparam CmdType = Command type to block the thread
+ *  \iparam Timeout = Timeout for the command
+ */
+/****************************************************************************/
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
 {
     ReturnCode_t retValue;
@@ -2046,6 +2054,14 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
    // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Resume blocked thread with specified type
+ *
+ *  \iparam CmdType = Command type to unblock the thread
+ */
+/****************************************************************************/
 
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 {

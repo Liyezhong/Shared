@@ -267,6 +267,7 @@ typedef enum {
 
     DCL_ERR_UNDEFINED             = 99   //!< The return code was not set
 } ReturnCode_t;
+
 typedef enum
 {
     SYNC_CMD_RV_REF_RUN = 0,
@@ -309,6 +310,7 @@ typedef enum
 
     SYNC_CMD_TOTAL_NUM = 40
 } SyncCmdType_t;
+
 /*! Node state definitions */
 typedef enum {
     NODE_STATE_UNDEFINED = 0,    //!< Undefined state
@@ -496,6 +498,7 @@ typedef enum {
     RT_SIDE = 1,
     RT_TEMP_CTRL_NUM =2
 } RTTempCtrlType_t;
+
 /****************************************************************************/
 /*! \class CANObjectKeyLUT
  *
