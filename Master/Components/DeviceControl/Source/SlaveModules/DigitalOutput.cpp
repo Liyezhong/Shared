@@ -509,17 +509,8 @@ void CDigitalOutput::HandleCANMsgLifeTimeData(can_frame* pCANframe)
     if(pCANframe->can_dlc == 8)
     {
         quint32 LifeTime, LifeCycles;
-
-        LifeTime = (((quint32) pCANframe->data[0]) << 24);
-        LifeTime |= (((quint32) pCANframe->data[1]) << 16);
-        LifeTime |= (((quint32) pCANframe->data[2]) << 8);
-        LifeTime |= ((quint32) pCANframe->data[3]);
-
-        LifeCycles = (((quint32) pCANframe->data[0]) << 24);
-        LifeCycles |= (((quint32) pCANframe->data[1]) << 16);
-        LifeCycles |= (((quint32) pCANframe->data[2]) << 8);
-        LifeCycles |= ((quint32) pCANframe->data[3]);
-
+        LifeTime = GetCANMsgDataU32(pCANframe, 0);
+        LifeCycles = GetCANMsgDataU32(pCANframe, 4);
         FILE_LOG_L(laFCT, llDEBUG) << " CANDigitalOutput: " << (int) LifeTime << ", " << (int) LifeCycles;
 
         emit ReportLifeTimeData(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, LifeTime, LifeCycles);

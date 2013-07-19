@@ -404,6 +404,13 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+    if(!connect(m_pFanDigitalOutput, SIGNAL(ReportLifeTimeData(quint32, ReturnCode_t, quint32, quint32)),
+            this, SLOT(OnGetLifeTime(quint32,  ReturnCode_t, quint32, quint32))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_FANDO);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportLifeTimeData' failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
 
     return DCL_ERR_FCT_CALL_SUCCESS;
 
@@ -1158,6 +1165,32 @@ bool CAirLiquidDevice::SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCt
         return false;
     }
 }
+
+quint32 CAirLiquidDevice::GetFanOperationTime()
+{
+    // Log(tr("GetValue"));
+     ReturnCode_t retCode = m_pFanDigitalOutput->ReqLifeTimeData();
+     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+     {
+         return 0;
+     }
+     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_DO_LIFE_TIME);
+     if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
+       return 0;
+     }
+     return m_DOLifeTime;
+}
+
+void CAirLiquidDevice::OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint32 LifeTime, quint32 LifeCycles)
+{
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        m_DOLifeTime = LifeTime;
+        m_DOLifeCycles = LifeCycles;
+    }
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_DO_LIFE_TIME, ReturnCode);
+}
+
 ReturnCode_t CAirLiquidDevice::SetTempCtrlON(ALTempCtrlType_t Type)
 {
     if (SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))

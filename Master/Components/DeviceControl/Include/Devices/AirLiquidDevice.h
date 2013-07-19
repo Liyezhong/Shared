@@ -89,6 +89,7 @@ public:
 
     ReturnCode_t TurnOnFan();
     ReturnCode_t TurnOffFan();
+    quint32 GetFanOperationTime();
     ReturnCode_t BreakAllOperation(void);
     ReturnCode_t AllStop(void);
     ReturnCode_t SetPressureDrift(qreal pressureDrift);
@@ -145,6 +146,7 @@ private slots:
     void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
     void OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quint8 State);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
+    void OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint32 LifeTime, quint32 LifeCycles);
     //void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
 
     //! command handling task
@@ -182,6 +184,8 @@ private:
     QMap<quint32, ALTempCtrlType_t> m_InstTCTypeMap;
 
     qint16 m_TargetDOOutputValue;     //!< Target output value; for verification of action result
+    quint32 m_DOLifeTime;
+    quint32 m_DOLifeCycles;
 
     QEventLoop m_LoopGetPressure;
     QEventLoop m_LoopPressureTimer;
