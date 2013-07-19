@@ -112,7 +112,12 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     m_LastErrorData = 0;
 
     m_MainState = DP_MAIN_STATE_INTERNAL_CONFIG;
-
+#ifdef HAL_CV_TEST
+    for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
+    {
+        m_EventLoopsForSyncCall[i].timerActive = false;
+    }
+#endif
     //Heartbeat timer initialization
     if (ftime(&m_tbTimerHeartbeatTime) != 0) {
         FILE_LOG_L(laINIT, llERROR) << " ftime failed.";
@@ -2021,7 +2026,61 @@ void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, 
     m_LastErrorCode  = ErrorCode;
     m_LastErrorData  = ErrorData;
 }
+#ifdef HAL_CV_TEST
 
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
+{
+    ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
+    if(!m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    {
+        retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
+    }
+    return retValue;
+}
+void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
+{
+    if(m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    {
+        m_EventLoopsForSyncCall[CmdType].eventloop.exit(Value);
+    }
+}
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
+{
+        ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
+
+        if(!m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+        {
+            QTimer timer;
+            timer.setSingleShot(true);
+            bool b = connect(&timer, SIGNAL(timeout()), this, SLOT(BlockingTimerCallback()));
+            qint64 Before = QDateTime::currentMSecsSinceEpoch();
+            m_EventLoopsForSyncCall[CmdType].timerActive = true;
+            m_EventLoopsForSyncCall[CmdType].endTime = Before + Timeout;
+
+            timer.start((qint32)Timeout);
+            //qDebug()<<Before<<"timer start"<<CmdType<<"timer in"<<timer.interval();
+            retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
+        }
+        return retValue;
+}
+
+void DeviceProcessing::BlockingTimerCallback()
+{
+    for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
+    {
+        if(m_EventLoopsForSyncCall[i].timerActive)
+        {
+            qint64 Now = QDateTime::currentMSecsSinceEpoch();
+            //if(Now > m_EventLoopsForSyncCall[i].endTime)
+            {
+                m_EventLoopsForSyncCall[i].timerActive = false;
+                m_EventLoopsForSyncCall[i].eventloop.exit(DCL_ERR_TIMER_TIMEOUT);
+                //qDebug()<<Now<<"timer end"<<i<<"llll:"<<(Now - m_EventLoopsForSyncCall[i].endTime);
+            }
+        }
+    }
+}
+#else
 /****************************************************************************/
 /*!
  *  \brief  Block caller's current thread with specified type and timeout
@@ -2092,4 +2151,5 @@ void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
         m_Mutex[CmdType].unlock();
     }
 }
+#endif
 } //namespace

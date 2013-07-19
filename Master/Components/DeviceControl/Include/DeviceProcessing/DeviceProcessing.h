@@ -189,6 +189,10 @@ public:
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
 
+#ifdef HAL_CV_TEST
+private slots:
+    void BlockingTimerCallback();
+#endif
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(ReturnCode_t);
@@ -353,8 +357,19 @@ private:
     quint16      m_LastErrorData;       //!< Last error's data
     QDateTime    m_LastErrorTime;       //!< Last error's time
     QString      m_LastErrorString;     //!< Last error information string
-
+#ifndef HAL_CV_TEST
     QWaitCondition m_WaitConditionForSyncCall[SYNC_CMD_TOTAL_NUM];
+#else
+   typedef struct
+    {
+       QEventLoop eventloop;
+       bool timerActive;
+       qint64 endTime;
+    } EventLoopWithTimeout_t;
+
+    EventLoopWithTimeout_t m_EventLoopsForSyncCall[SYNC_CMD_TOTAL_NUM];
+    QTimer* m_pTimer;
+#endif
     ReturnCode_t m_SyncCallResult[SYNC_CMD_TOTAL_NUM];
     QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];
 };
