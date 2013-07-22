@@ -706,7 +706,7 @@ qreal IDeviceProcessing::ALGetRecentPressure(quint8 Index)
 {
     if(m_pAirLiquid)
     {
-        return m_pAirLiquid->GetRecentPressure(Index);
+        return m_pAirLiquid->GetRecentPressure();
     }
     else
     {
@@ -1385,7 +1385,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             return retCode;
         }
         usleep(3000*1000);
-        qreal pressure = m_pAirLiquid->GetRecentPressure(0);
+        qreal pressure = m_pAirLiquid->GetRecentPressure();
 
         qDebug()<<"Bottle Check pressure: " << pressure;
 

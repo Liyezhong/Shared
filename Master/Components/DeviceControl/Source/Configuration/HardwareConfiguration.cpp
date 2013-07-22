@@ -1459,6 +1459,15 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     return pCANObjFctTempCtrl;
 }
 #ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Parse pressure control element from xml
+ *
+ *  \iparam element = Contains the function module's desription
+ *
+ *  \return The function module's configuration
+ */
+/****************************************************************************/
 CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomElement &element)
 {
     CANFctModulePressureCtrl* pCANObjFctPressureCtrl = 0;

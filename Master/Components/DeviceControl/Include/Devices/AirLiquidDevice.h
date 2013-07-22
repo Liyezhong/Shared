@@ -67,15 +67,15 @@ public:
     //! general task handling function
     void HandleTasks();
     //! Air Liquid device function
-    ReturnCode_t SetPressureCtrlON();
-    ReturnCode_t SetPressureCtrlOFF();
+    ReturnCode_t SetPressureCtrlON(void);
+    ReturnCode_t SetPressureCtrlOFF(void);
     ReturnCode_t ReleasePressure(void);
-    ReturnCode_t Pressure();
-    ReturnCode_t Vaccum();
+    ReturnCode_t Pressure(void);
+    ReturnCode_t Vaccum(void);
     ReturnCode_t Draining(quint32 DelayTime);
     ReturnCode_t Filling(quint32 DelayTime);
-    qreal GetRecentPressure(quint8 Index);
-    ReturnCode_t PressureForBottoleCheck();
+    qreal GetRecentPressure(void);
+    ReturnCode_t PressureForBottoleCheck(void);
 
 
     ReturnCode_t SetTempCtrlON(ALTempCtrlType_t Type);
@@ -89,7 +89,7 @@ public:
 
     ReturnCode_t TurnOnFan();
     ReturnCode_t TurnOffFan();
-    quint32 GetFanOperationTime();
+    qint32 GetFanOperationTime();
     ReturnCode_t BreakAllOperation(void);
     ReturnCode_t AllStop(void);
     ReturnCode_t SetPressureDrift(qreal pressureDrift);
@@ -104,19 +104,19 @@ private slots:
     //! error handling task
     void HandleErrorState();
     // void HandleErrorState();
-    bool SetPressure(quint8 flag, qreal NominalPressure);
-    qreal GetPressure(quint8 Index);
-    bool SetTargetPressure(quint8 flag, qreal pressure);
-    bool SetValve(quint8 ValveIndex, quint8 ValveState);
-    bool SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus);
+    ReturnCode_t SetPressure(quint8 flag, qreal NominalPressure);
+    qreal GetPressure(void);
+    ReturnCode_t SetTargetPressure(quint8 flag, qreal pressure);
+    ReturnCode_t SetValve(quint8 ValveIndex, quint8 ValveState);
+    ReturnCode_t SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus);
     void StopCompressor(void);
 
 
-    bool SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
+    ReturnCode_t SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
     bool SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(ALTempCtrlType_t Type, quint8 Index);
     bool GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index);
-    bool GetPressureAsync(quint8 Index);
+    ReturnCode_t GetPressureAsync(void);
 
 
     bool SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
@@ -171,7 +171,7 @@ private:
     qint32 m_WorkingPressureNegative;
     PressureCtrlStatus_t m_TargetPressureCtrlStatus;     //!< Target pressure control status; for verification of action result.
     PressureCtrlStatus_t m_CurrentPressureCtrlStatus;    //!< Current pressure control status
-    qint64 m_LastGetPressureTime[5];
+    qint64 m_LastGetPressureTime;
     QList<qreal> m_PIDDataList;
 
     qreal m_CurrentTemperatures[AL_TEMP_CTRL_NUM];                     //!< Current temperature

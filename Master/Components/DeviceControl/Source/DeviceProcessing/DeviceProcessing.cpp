@@ -2026,8 +2026,15 @@ void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, 
     m_LastErrorCode  = ErrorCode;
     m_LastErrorData  = ErrorData;
 }
-#ifdef HAL_CV_TEST
 
+#ifdef HAL_CV_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Block caller's current thread with specified type
+ *
+ *  \iparam CmdType = Command type to block the thread
+ */
+/****************************************************************************/
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 {
     ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
@@ -2037,6 +2044,14 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
     }
     return retValue;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Resume blocked thread with specified type
+ *
+ *  \iparam CmdType = Command type to unblock the thread
+ */
+/****************************************************************************/
 void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
 {
     if(m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
@@ -2044,6 +2059,15 @@ void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
         m_EventLoopsForSyncCall[CmdType].eventloop.exit(Value);
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Block caller's current thread with specified type and timeout
+ *
+ *  \iparam CmdType = Command type to block the thread
+ *  \iparam Timeout = Timeout for the command
+ */
+/****************************************************************************/
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
 {
         ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
@@ -2064,6 +2088,11 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
         return retValue;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Timer callback for BlockingForSyncCall
+ */
+/****************************************************************************/
 void DeviceProcessing::BlockingTimerCallback()
 {
     for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
@@ -2071,7 +2100,7 @@ void DeviceProcessing::BlockingTimerCallback()
         if(m_EventLoopsForSyncCall[i].timerActive)
         {
             qint64 Now = QDateTime::currentMSecsSinceEpoch();
-            //if(Now > m_EventLoopsForSyncCall[i].endTime)
+            //if(Now >= m_EventLoopsForSyncCall[i].endTime)
             {
                 m_EventLoopsForSyncCall[i].timerActive = false;
                 m_EventLoopsForSyncCall[i].eventloop.exit(DCL_ERR_TIMER_TIMEOUT);
@@ -2140,7 +2169,14 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
    // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
-
+:w
+/****************************************************************************/
+/*!
+ *  \brief  Resume blocked thread with specified type
+ *
+ *  \iparam CmdType = Command type to unblock the thread
+ */
+/****************************************************************************/
 void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
 {
     if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
