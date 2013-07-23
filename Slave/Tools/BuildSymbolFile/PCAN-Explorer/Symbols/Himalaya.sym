@@ -1,6 +1,6 @@
 FormatVersion=5.0
 Title="Symbol File for Himalaya"
-// Symbol file version: 13-26A1
+// Symbol file version: 13-29A1
 
 
 {ENUMS}
@@ -333,31 +333,31 @@ ID=800006h // Update trailer acknowledgement
 Type=Extended
 DLC=1
 Var=Result unsigned 0,8 -m /e:EnumBootLoaderTrailer /ln:"Trailer result"
-[ASB3::MsgAinEventInfo@1]
+[ASB3::MsgSmotEventInfo@1]
 ID=8001006h	// Info message
 Type=Extended
-DLC=8
-Var=InfoCode unsigned 0,16 -m /ln:"Info code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=InfoCode unsigned 16,16 -m /ln:"Info code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
-[ASB3::MsgAinEventWarning@1]
+[ASB3::MsgSmotEventWarning@1]
 ID=8081006h	// Warning message
 Type=Extended
-DLC=8
-Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
-[ASB3::MsgAinEventError@1]
+[ASB3::MsgSmotEventError@1]
 ID=8101006h	// Error message
 Type=Extended
-DLC=8
-Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+DLC=6
+Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
+Var=ErrCode unsigned 16,16 -m /ln:"Error code"
+Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
-[ASB3::MsgAinSrvStatistics@1]
+[ASB3::MsgSmotSrvStatistics@1]
 ID=1C001006h	// Task statistics
 Type=Extended
 DLC=8
@@ -366,159 +366,55 @@ Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
 Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
-[ASB3::MsgAinSrvAckResetData@1]
+[ASB3::MsgSmotSrvAckResetData@1]
 ID=1C081006h	// Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
-[ASB3::MsgAinInputState@1]
-ID=10381006h	// Actual state of analog input
-Type=Extended
-DLC=6
-Var=InputValue unsigned 0,16 -m /ln:"Actual analog input value"
-Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
-
-[ASB3::MsgAinProcData@1]
-ID=18081006h	// Process data of analog input
-Type=Extended
-DLC=2
-Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
-
-[ASB3::MsgAinEventInfo@2]
-ID=8002006h	// Info message
-Type=Extended
-DLC=8
-Var=InfoCode unsigned 0,16 -m /ln:"Info code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
-
-[ASB3::MsgAinEventWarning@2]
-ID=8082006h	// Warning message
-Type=Extended
-DLC=8
-Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
-
-[ASB3::MsgAinEventError@2]
-ID=8102006h	// Error message
-Type=Extended
-DLC=8
-Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
-
-[ASB3::MsgAinSrvStatistics@2]
-ID=1C002006h	// Task statistics
-Type=Extended
-DLC=8
-Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
-Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
-Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
-Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
-
-[ASB3::MsgAinSrvAckResetData@2]
-ID=1C082006h	// Reset permanent data acknowledge
-Type=Extended
-DLC=1
-Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
-
-[ASB3::MsgAinInputState@2]
-ID=10382006h	// Actual state of analog input
-Type=Extended
-DLC=6
-Var=InputValue unsigned 0,16 -m /ln:"Actual analog input value"
-Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
-
-[ASB3::MsgAinProcData@2]
-ID=18082006h	// Process data of analog input
-Type=Extended
-DLC=2
-Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
-
-[ASB3::MsgSmotEventInfo@1]
-ID=8003006h	// Info message
-Type=Extended
-DLC=6
-Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
-Var=InfoCode unsigned 16,16 -m /ln:"Info code"
-Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
-
-[ASB3::MsgSmotEventWarning@1]
-ID=8083006h	// Warning message
-Type=Extended
-DLC=6
-Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
-Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
-Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
-
-[ASB3::MsgSmotEventError@1]
-ID=8103006h	// Error message
-Type=Extended
-DLC=6
-Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
-Var=ErrCode unsigned 16,16 -m /ln:"Error code"
-Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
-
-[ASB3::MsgSmotSrvStatistics@1]
-ID=1C003006h	// Task statistics
-Type=Extended
-DLC=8
-Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
-Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
-Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
-Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
-
-[ASB3::MsgSmotSrvAckResetData@1]
-ID=1C083006h	// Reset permanent data acknowledge
-Type=Extended
-DLC=1
-Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
-
 [ASB3::MsgSmotProcData@1]
-ID=18083006h	// Process data of digital input
+ID=18081006h	// Process data of digital input
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB3::MsgSmotReferenceRunAckn@1]
-ID=10283006h	// Motor reference run acknowledge
+ID=10281006h	// Motor reference run acknowledge
 Type=Extended
 DLC=5
 Var=Position unsigned 0,32 -m /ln:"Actual motor position"
 Var=State unsigned 32,8 -m /ln:"Main state"
 
 [ASB3::MsgSmotTargetPosAckn@1]
-ID=10303006h	// Target position request acknowledge
+ID=10301006h	// Target position request acknowledge
 Type=Extended
 DLC=5
 Var=Position unsigned 0,32 -m /ln:"Actual position control"
 Var=State unsigned 32,8 -m /ln:"Main state"
 
 [ASB3::MsgSmotActPos@1]
-ID=10383006h	// Actual motor position
+ID=10381006h	// Actual motor position
 Type=Extended
 DLC=5
 Var=Position unsigned 0,32 -m /ln:"Actual motor position"
 Var=State unsigned 32,8 -m /ln:"Main state"
 
 [ASB3::MsgSmotTargetSpeedAckn@1]
-ID=10403006h	// Acknowledge of speed request
+ID=10401006h	// Acknowledge of speed request
 Type=Extended
 DLC=6
 Var=Speed unsigned 0,16 -m /ln:"Actual motor speed"
 Var=Position unsigned 16,32 -m /ln:"Actual motor position"
 
 [ASB3::MsgSmotActSpeed@1]
-ID=10483006h	// Actual motor speed
+ID=10481006h	// Actual motor speed
 Type=Extended
 DLC=6
 Var=Speed unsigned 0,16 -m /ln:"Actual motor speed"
 Var=Position unsigned 16,32 -m /ln:"Actual motor position"
 
 [ASB3::MsgSmotDebug@1]
-ID=14383006h	// Motor debug informations
+ID=14381006h	// Motor debug informations
 Type=Extended
 DLC=8
 Var=Position unsigned 0,16 -m /ln:"Actual motor position"
@@ -527,17 +423,17 @@ Var=Speed unsigned 32,16 -m /ln:"Actual motor speed"
 Var=Duration unsigned 48,16 -m /u:ms /ln:"Actual movement duration"
 
 [ASB3::MsgSmotDiagSwResp@1]
-ID=1C283006h	// NOT JET DEFINED
+ID=1C281006h	// NOT JET DEFINED
 Type=Extended
 DLC=0
 
 [ASB3::MsgSmotDiagHwResp@1]
-ID=1C303006h	// NOT JET DEFINED
+ID=1C301006h	// NOT JET DEFINED
 Type=Extended
 DLC=0
 
 [ASB3::MsgTempEventInfo@1]
-ID=8004006h	// Info message
+ID=8002006h	// Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -545,7 +441,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB3::MsgTempEventWarning@1]
-ID=8084006h	// Warning message
+ID=8082006h	// Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -553,7 +449,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB3::MsgTempEventError@1]
-ID=8104006h	// Error message
+ID=8102006h	// Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -561,7 +457,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB3::MsgTempSrvStatistics@1]
-ID=18004006h	// Task statistics
+ID=18002006h	// Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -570,19 +466,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB3::MsgTempSrvAckResetData@1]
-ID=18084006h	// Reset permanent data acknowledge
+ID=18082006h	// Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB3::MsgTempProcData@1]
-ID=14084006h	// Process data of temperature regulator
+ID=14082006h	// Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB3::MsgTempRespTemp@1]
-ID=10504006h	// Temperature/state of temperature module
+ID=10502006h	// Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -592,7 +488,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB3::MsgTempRespPidParams@1]
-ID=10584006h	// Parameters of a PID controller
+ID=10582006h	// Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -602,28 +498,28 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 		
 [ASB3::MsgTempRespHeaterTime@1]
-ID=18604006h	// Operating time of a single heater
+ID=18602006h	// Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
 	
 [ASB3::MsgTempRespSvcSensor@1]
-ID=18684006h	// Actual temperature sensor temperature
+ID=18682006h	// Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
 	
 [ASB3::MsgTempRespServiceFan@1]
-ID=18704006h	// Actual speed of a ventilation fan
+ID=18702006h	// Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
 	
 [ASB3::MsgTempRespHardware@1]
-ID=18784006h	// Temperature regulator hardware information
+ID=18782006h	// Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -634,24 +530,24 @@ Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
 	
 [ASB3::MsgTempNotiAutoTune@1]
-ID=10804006h	// Auto tune notification
+ID=10802006h	// Auto tune notification
 Type=Extended
 DLC=0
 		
 [ASB3::MsgTempNotiInRange@1]
-ID=10884006h	// Notification: temperature in range
+ID=10882006h	// Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB3::MsgTempNotiOutOfRange@1]
-ID=10904006h	// Notification: temperature out of range
+ID=10902006h	// Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB3::MsgTempNotiSlope@1]
-ID=10984006h // Notification: preset temperature variation slope detected
+ID=10982006h // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
@@ -2745,116 +2641,8 @@ Type=Extended
 DLC=4
 Var=CRC unsigned 0,32 -m /ln:"CRC checksum"
 
-[ASB3::MsgAinConfigInput@1]
-ID=10281007h	// Configure analog input
-Type=Extended
-DLC=5
-Var=EnableModule unsigned 0,1 -m /ln:"Enable analog input module"
-Var=UseTimestamp unsigned 1,1 -m /ln:"Add timestamp when sending"
-Var=FastSampling unsigned 2,1 -m /ln:"Fast sampling mode"
-Var=SampleRate unsigned 8,8 -m /u:ms /ln:"Input sample rate"
-Var=SampleCount unsigned 16,8 -m /ln:"Number of samples to average over"
-Var=Threshold unsigned 24,16 -m /ln:"Threshold for autom. sending"
-
-[ASB3::MsgAinConfigLimits@1]
-ID=10301007h	// Configure analog input limits
-Type=Extended
-DLC=8
-Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
-Var=Limit1 unsigned 8,16 -m /ln:"Limit 1 threshold"
-Var=Flags2 unsigned 24,8 -m -h /ln:"Limit 2 mode bits"
-Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
-Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
-
-[ASB3::MsgAinReqInputState@1]
-ID=10381007h	// Request analog input status
-Type=Extended
-DLC=0
-
-[ASB3::MsgAinProcConfigure@1]
-ID=18001007h	// Configure process data of analog input
-Type=Extended
-DLC=5
-Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
-Var=Interval unsigned 8,16 -m /ln:"Process data Send interval"
-Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
-
-[ASB3::MsgAinProcReqData@1]
-ID=18081007h	// Request process data of analog input
-Type=Extended
-DLC=0
-
-[ASB3::MsgAinSrvCfgStatistics@1]
-ID=1C001007h	// Configure/Request statistics
-Type=Extended
-DLC=1
-Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
-Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
-Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
-Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
-
-[ASB3::MsgAinSrvReqResetData@1]
-ID=1C081007h	// Request reset permanent data
-Type=Extended
-DLC=2
-Var=Password unsigned 0,16 -m /ln:"Protection password"
-
-[ASB3::MsgAinConfigInput@2]
-ID=10282007h	// Configure analog input
-Type=Extended
-DLC=5
-Var=EnableModule unsigned 0,1 -m /ln:"Enable analog input module"
-Var=UseTimestamp unsigned 1,1 -m /ln:"Add timestamp when sending"
-Var=FastSampling unsigned 2,1 -m /ln:"Fast sampling mode"
-Var=SampleRate unsigned 8,8 -m /u:ms /ln:"Input sample rate"
-Var=SampleCount unsigned 16,8 -m /ln:"Number of samples to average over"
-Var=Threshold unsigned 24,16 -m /ln:"Threshold for autom. sending"
-
-[ASB3::MsgAinConfigLimits@2]
-ID=10302007h	// Configure analog input limits
-Type=Extended
-DLC=8
-Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
-Var=Limit1 unsigned 8,16 -m /ln:"Limit 1 threshold"
-Var=Flags2 unsigned 24,8 -m -h /ln:"Limit 2 mode bits"
-Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
-Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
-
-[ASB3::MsgAinReqInputState@2]
-ID=10382007h	// Request analog input status
-Type=Extended
-DLC=0
-
-[ASB3::MsgAinProcConfigure@2]
-ID=18002007h	// Configure process data of analog input
-Type=Extended
-DLC=5
-Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
-Var=Interval unsigned 8,16 -m /ln:"Process data Send interval"
-Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
-
-[ASB3::MsgAinProcReqData@2]
-ID=18082007h	// Request process data of analog input
-Type=Extended
-DLC=0
-
-[ASB3::MsgAinSrvCfgStatistics@2]
-ID=1C002007h	// Configure/Request statistics
-Type=Extended
-DLC=1
-Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
-Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
-Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
-Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
-
-[ASB3::MsgAinSrvReqResetData@2]
-ID=1C082007h	// Request reset permanent data
-Type=Extended
-DLC=2
-Var=Password unsigned 0,16 -m /ln:"Protection password"
-
 [ASB3::MsgSmotSrvCfgStatistics@1]
-ID=1C003007h	// Configure and request statistics
+ID=1C001007h	// Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -2863,13 +2651,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB3::MsgSmotSrvReqResetData@1]
-ID=1C083007h	// Request reset permanent data
+ID=1C081007h	// Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB3::MsgSmotProcConfigure@1]
-ID=18003007h	// Configure process data of digital output
+ID=18001007h	// Configure process data of digital output
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -2877,17 +2665,17 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB3::MsgSmotProcReqData@1]
-ID=18083007h	// Request process data of digital output
+ID=18081007h	// Request process data of digital output
 Type=Extended
 DLC=0
 
 [ASB3::MsgSmotReferenceRun@1]
-ID=10283007h	// Motor reference run request
+ID=10281007h	// Motor reference run request
 Type=Extended
 DLC=0
 
 [ASB3::MsgSmotTargetPosSet@1]
-ID=10303007h	// Set target position
+ID=10301007h	// Set target position
 Type=Extended
 DLC=8
 Var=TargetPos unsigned 0,32 -m /ln:"Target position"
@@ -2896,12 +2684,12 @@ Var=SubCommand unsigned 40,8 -m /ln:"Sub-command code"
 Var=SubParameter unsigned 48,16 -m /ln:"Sub-command parameter"
 
 [ASB3::MsgSmotActPosReq@1]
-ID=10383007h	// Request actual motor position 
+ID=10381007h	// Request actual motor position 
 Type=Extended
 DLC=0
 
 [ASB3::MsgSmotTargetSpeedSet@1]
-ID=10403007h	// Set motor target speed
+ID=10401007h	// Set motor target speed
 Type=Extended
 DLC=8
 Var=TargetPos unsigned 0,32 -m /ln:"Target position"
@@ -2910,12 +2698,12 @@ Var=SubCommand unsigned 40,8 -m /ln:"Sub-command code"
 Var=SubParameter unsigned 48,16 -m /ln:"Sub-command parameter"
 
 [ASB3::MsgSmotActSpeedReq@1]
-ID=10483007h	// Request actual motor speed
+ID=10481007h	// Request actual motor speed
 Type=Extended
 DLC=0
 
 [ASB3::MsgSmotConfigParameter@1]
-ID=10503007h	// Configure stepper motor
+ID=10501007h	// Configure stepper motor
 Type=Extended
 DLC=6
 Mux=LimitSwitch1 0,8 1  -m	// Configure limit switch 1
@@ -2996,7 +2784,7 @@ Var=CurrentLimit unsigned 40,16 -m /ln:"Motor current limit"
 Var=ControlMode unsigned 56,8 -m /ln:"Motor control mode "
 
 [ASB3::MsgSmotDriveParameter@1]
-ID=10583007h	// Set motor movement profile data
+ID=10581007h	// Set motor movement profile data
 Type=Extended
 DLC=8
 Mux=SubIndex1 8,8 1  -m	// Set acceleration and speed
@@ -3016,17 +2804,17 @@ Var=AccJerkTime unsigned 32,16 -m /u:ms /ln:"Acceleration jerk time"
 Var=DecJerkTime unsigned 48,16 -m /u:ms /ln:"Deceleration jerk time"
 
 [ASB3::MsgSmotDiagSwRequest@1]
-ID=1C283007h	// NOT YET DEFINED
+ID=1C281007h	// NOT YET DEFINED
 Type=Extended
 DLC=0
 
 [ASB3::MsgSmotDiagHwRequest@1]
-ID=1C303007h	// NOT YET DEFINED
+ID=1C301007h	// NOT YET DEFINED
 Type=Extended
 DLC=0
 
 [ASB3::MsgTempSrvCfgStatistics@1]
-ID=18004007h	// Configure and request statistics
+ID=18002007h	// Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3035,13 +2823,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB3::MsgTempSrvReqResetData@1]
-ID=18084007h	// Request reset permanent data
+ID=18082007h	// Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB3::MsgTempProcConfigure@1]
-ID=14004007h	// Configure process data 
+ID=14002007h	// Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3049,12 +2837,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB3::MsgTempProcReqData@1]
-ID=14084007h	// Request process data 
+ID=14082007h	// Request process data 
 Type=Extended
 DLC=0
 
 [ASB3::MsgTempSetTemp@1]
-ID=10284007h	// Set temperature related parameters 
+ID=10282007h	// Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -3065,14 +2853,14 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB3::MsgTempSetFanWatchdog@1]
-ID=10304007h	// Sets fan speed watchdog parameters
+ID=10302007h	// Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB3::MsgTempSetCurrWatchdog@1]
-ID=10384007h	// Set current watchdog parameters
+ID=10382007h	// Set current watchdog parameters
 Type=Extended
 DLC=6
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
@@ -3080,7 +2868,7 @@ Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
 Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
 
 [ASB3::MsgTempSetPidParams@1]
-ID=10404007h	// Sets parameters of a PID controller
+ID=10402007h	// Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -3090,42 +2878,42 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB3::MsgTempSetHeaterTime@1]
-ID=10484007h	// Reset the operating timers of the module
+ID=10482007h	// Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
 		
 [ASB3::MsgTempReqTemp@1]
-ID=10504007h	// Request temperature and state of heater
+ID=10502007h	// Request temperature and state of heater
 Type=Extended
 DLC=0
 	
 [ASB3::MsgTempReqPidParams@1]
-ID=10584007h	// Requests parameters of a PID controller
+ID=10582007h	// Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
 	
 [ASB3::MsgTempReqHeaterTime@1]
-ID=18604007h	// Request operating time of a heater
+ID=18602007h	// Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 		
 [ASB3::MsgTempReqSvcSensor@1]
-ID=18684007h	// Requests temperature of a temperature sensor
+ID=18682007h	// Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 	
 [ASB3::MsgTempReqServiceFan@1]
-ID=18704007h	// Requests speed of a single fan
+ID=18702007h	// Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB3::MsgTempReqHardware@1]
-ID=18784007h	// Request hardware informations
+ID=18782007h	// Request hardware informations
 Type=Extended
 DLC=0
 		
