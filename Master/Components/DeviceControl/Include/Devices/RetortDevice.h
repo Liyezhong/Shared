@@ -50,14 +50,14 @@ private slots:
     void HandleErrorState();
     // void HandleErrorState();
 
-    bool SetTemperatureControlStatus(RTTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
-    bool SetTemperature(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t SetTemperatureControlStatus(RTTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
+    ReturnCode_t SetTemperature(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(RTTempCtrlType_t Type, quint8 Index);
-    bool GetTemperatureAsync(RTTempCtrlType_t Type, quint8 Index);
-    bool GetLockStatusAsync();
+    ReturnCode_t GetTemperatureAsync(RTTempCtrlType_t Type, quint8 Index);
+    ReturnCode_t GetLockStatusAsync();
 
 
-    bool SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
+    ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
 
 
     bool IsInsideRange(RTTempCtrlType_t Type);

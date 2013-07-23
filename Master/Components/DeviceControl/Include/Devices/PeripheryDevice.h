@@ -44,7 +44,7 @@ private slots:
     // void HandleErrorState();
 
 
-    bool SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16 Duration, quint16 Delay);
+    ReturnCode_t SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16 Duration, quint16 Delay);
 
     void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
 

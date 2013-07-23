@@ -292,6 +292,20 @@ DeviceTask* CBaseDevice::GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskStat
     return pDeviceTask;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with function module error reporting.
+ *
+ *  This slot is connected to the signal, ReportError
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam ErrorGroup = Error group as define.
+ *  \iparam ErrorCode = Error code.
+ *  \iparam ErrorData = Error data.
+ *  \iparam ErrorTime = Error happened time.
+ *
+ */
+/****************************************************************************/
 void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime)
 {
     QString FuncModName = "";

@@ -12,6 +12,16 @@ namespace DeviceControl
 #define CHECK_SENSOR_TIME (200) // in msecs
 #define UNDEFINED (999)
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
+
+/****************************************************************************/
+/*!
+ *  \brief    Constructor of the CRotaryValveDevice class
+ *
+ *
+ *  \param    pDeviceProcessing = pointer to DeviceProcessing
+ *  \param    Type = Device type string
+ */
+/****************************************************************************/
 CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
         m_pTempCtrl(0), m_pMotorRV(0), m_RVCurrentPosition(RV_UNDEF)
 {
@@ -354,6 +364,12 @@ void CRotaryValveDevice::HandleIdleState()
     }
 #endif
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Read Rotary-valve device's sensors data asynchronizely
+ */
+/****************************************************************************/
 void CRotaryValveDevice::CheckSensorsData()
 {
     if(m_pTempCtrl)
@@ -442,7 +458,6 @@ void CRotaryValveDevice::StepperMotorError(quint32 InstanceID, quint16 ErrorGrou
     m_ErrorTaskState = RV_DEV_ERRTASK_STATE_REPORT_IFACE;
 }
 
-
 /****************************************************************************/
 /*!
  *  \brief    Handles the temperature control's error message
@@ -483,13 +498,17 @@ void CRotaryValveDevice::TempCtrlSetOperatingModeAckn(quint32 InstanceID, Return
     Q_UNUSED(HdlInfo);
     Q_UNUSED(TempCtrlOpMode);
 }
+
 /****************************************************************************/
 /*!
  *  \brief Helper function, to set the temperature of Oven
  *
  *  \iparam NominalTemperature Temperature to be set
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
- *  \return true, if the temperature set succeeded, else false
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  *
  */
 /****************************************************************************/
@@ -512,6 +531,18 @@ bool CRotaryValveDevice::SetTemperature(qreal NominalTemperature, quint8 SlopeTe
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_SET_TEMP);
     return (DCL_ERR_FCT_CALL_SUCCESS == retCode);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set temperature.
+ *
+ *  This slot is connected to the signal, ReportRefTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Temperature = Target temperature.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature)
 {
     Q_UNUSED(Temperature)
@@ -525,6 +556,7 @@ void CRotaryValveDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_TEMP, ReturnCode);
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Request the actual oven temperature
@@ -568,6 +600,16 @@ qreal CRotaryValveDevice::GetTemperature(quint32 Index)
     }
     return RetValue;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief    Get actual temperature of Rotary valve device asynchronously.
+ *
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 bool CRotaryValveDevice::GetTemperatureAsync(quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
@@ -578,6 +620,16 @@ bool CRotaryValveDevice::GetTemperatureAsync(quint8 Index)
     }
     return true;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
+ *
+ *  \iparam  Index = Actual temperature sensor index.
+ *
+ *  \return  Actual temperature, UNDEFINED if failed.
+ */
+/****************************************************************************/
 qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -589,6 +641,7 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
     }
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief  slot for get temperature
@@ -616,44 +669,67 @@ void CRotaryValveDevice::OnGetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_GET_TEMP, ReturnCode);
 }
-bool CRotaryValveDevice::SetTemperatureControlStatus(TempCtrlStatus_t TempCtrlStatus)
+
+/****************************************************************************/
+/*!
+ *  \brief    Set temperature control's status.
+ *
+ *  \iparam  TempCtrlStatus = New pressure control status.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRotaryValveDevice::SetTemperatureControlStatus(TempCtrlStatus_t TempCtrlStatus)
 {
     m_TargetTempCtrlStatus = TempCtrlStatus;
     ReturnCode_t retCode;
     if(m_pTempCtrl != NULL)
     {
         retCode = m_pTempCtrl->SetStatus(TempCtrlStatus);
-        return (DCL_ERR_FCT_CALL_SUCCESS== retCode);
+        return retCode;
     }
     else
     {
-        return false;
+        return DCL_ERR_DEV_RV_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Enable temperature control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::SetTempCtrlON()
 {
-    if( SetTemperatureControlStatus( TEMPCTRL_STATUS_ON))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetTemperatureControlStatus( TEMPCTRL_STATUS_ON);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Disable temperature control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::SetTempCtrlOFF()
 {
-    if(SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Set PID parameters for temperature control module.
+ *
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set RV temperature PID";
@@ -672,6 +748,21 @@ ReturnCode_t CRotaryValveDevice::SetTemperaturePid(quint16 MaxTemperature, quint
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set PID parameters.
+ *
+ *  This slot is connected to the signal, ReportSetPidAckn
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     Q_UNUSED(MaxTemperature)
@@ -689,7 +780,18 @@ void CRotaryValveDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_TEMP_PID, ReturnCode);
 }
 
-
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange)
 {
     m_TargetTemperature = NominalTemperature;
@@ -721,6 +823,22 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperatur
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control with PID parameters.
+ *
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     ReturnCode_t retCode;
@@ -760,6 +878,13 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature control module's status.
+ *
+ *  \return  Temperature control module status.
+ */
+/****************************************************************************/
 TempCtrlState_t CRotaryValveDevice::GetTemperatureControlState()
 {
     ReturnCode_t retCode = m_pTempCtrl->ReqStatus();
@@ -790,6 +915,19 @@ TempCtrlState_t CRotaryValveDevice::GetTemperatureControlState()
     }
     return controlstate;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature control status.
+ *
+ *  This slot is connected to the signal, ReportActStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam TempCtrlStatus = Actual temperature control status
+ *  \iparam MainsVoltage = Main voltage status.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode,
                                              TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage)
 {
@@ -802,15 +940,37 @@ void CRotaryValveDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t Re
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_GET_TEMP_CTRL_STATE, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is enabled.
+ *
+ *  \return  True if temperature control is enabled, else not.
+ */
+/****************************************************************************/
 bool CRotaryValveDevice::IsTemperatureControlOn()
 {
     return (m_CurrentTempCtrlStatus == TEMPCTRL_STATUS_ON);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is disabled.
+ *
+ *  \return  True if temperature control is disabled, else not.
+ */
+/****************************************************************************/
 bool CRotaryValveDevice::IsTemperatureControlOff()
 {
     return (m_CurrentTempCtrlStatus == TEMPCTRL_STATUS_OFF);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is inside the range.
+ *
+ *  \return  True if is inside the range, else not.
+ */
+/****************************************************************************/
 bool CRotaryValveDevice::IsInsideRange()
 {
     if(GetTemperature(0) != UNDEFINED)
@@ -832,6 +992,13 @@ bool CRotaryValveDevice::IsInsideRange()
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is outside the range.
+ *
+ *  \return  True if is outside the range, else not.
+ */
+/****************************************************************************/
 bool CRotaryValveDevice::IsOutsideRange()
 {
     if(GetTemperature(0) != UNDEFINED)
@@ -852,6 +1019,14 @@ bool CRotaryValveDevice::IsOutsideRange()
     //   Log(tr("Error"));
     return false;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Request the rotary valve to move to its initial position.
+ *
+ *  \return  DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
 {
     QString lsCode;
@@ -956,7 +1131,16 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
 //#define REFER_RUN_UNEXPECTED_POSITION (-4)
 //#define REFER_RUN_NOT_INITIALIZED     (-5)
 //#define REFER_RUN_USER_ERROR          (-6)
-
+/****************************************************************************/
+/*!
+ *  \brief   Request the rotary valve to do reference run with step check.
+ *
+ *  \iparam  LowerLimit = The lower limit of the movement to initial position.
+ *  \iparam  UpperLimit = The upper limit of the movement to initial position.
+ *
+ *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32 UpperLimit)
 {
     ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
@@ -1006,6 +1190,16 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
 
     return ret;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Request the rotary valve to move to certain encoder disk's position.
+ *
+ *  \iparam  RVPosition = Target rotary valve encoder disk's position.
+ *
+ *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
 {
     ReturnCode_t retCode = DCL_ERR_DEV_RV_REF_MOVE_OK;
@@ -1098,11 +1292,26 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     return retCode;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Return rotary valve's encoder disk's position.
+ *
+ *  \return  Current encoder disk position.
+ */
+/****************************************************************************/
 RVPosition_t CRotaryValveDevice::ReqActRVPosition()
 {
     return m_RVCurrentPosition;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Request the rotary valve to move to next clockwise encoder disk position.
+ *
+ *
+ *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
 {
     ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
@@ -1155,6 +1364,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
     }
     return ret;
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Helper function: Get the name of certain encoder disk postion.
@@ -1163,6 +1373,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
  *  \return The name of certain position.
  *
  */
+/****************************************************************************/
 QString CRotaryValveDevice::TranslateFromEDPosition(quint32 EDPosition)
 {
     QString RetValue = "Invalid position";
@@ -1180,14 +1391,16 @@ QString CRotaryValveDevice::TranslateFromEDPosition(quint32 EDPosition)
     }
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
- *  \brief  Helper function: Get the upper limit for movment at certain encoder disk position .
+ *  \brief  Helper function: Get the upper limit for movelment at certain encoder disk position .
  *
  *
  *  \return the upper limit
  *
  */
+/****************************************************************************/
 quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceControl::CANFctModuleStepperMotor::RotationDir_t Direction, bool ChangeDirection)
 {
     quint32 UpperLimit = 500;
@@ -1263,6 +1476,7 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
  *  \return the lower limit
  *
  */
+/****************************************************************************/
 quint32 CRotaryValveDevice::GetLowerLimit(quint32 CurrentEDPosition, DeviceControl::CANFctModuleStepperMotor::RotationDir_t Direction, bool ChangeDirection)
 {
     quint32 LowerLimit = 100;
@@ -1297,14 +1511,14 @@ quint32 CRotaryValveDevice::GetLowerLimit(quint32 CurrentEDPosition, DeviceContr
     }
     return LowerLimit;
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Helper function: Let the rotary valve move to next port counter-clockwisly.
  *
- *
- *  \return true, if the reference run succeeded, else false
- *
+ *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
  */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
 {
     ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
@@ -1368,6 +1582,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
  *  \return The name of certain position.
  *
  */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 LowerLimit, quint32 UpperLimit)
 {
     bool ParaChange = changeParameter;
@@ -1432,32 +1647,50 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
     return ret;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Return rotary-valve's rotation direction.
+ *
+ *  \return  The rotation direction.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetRotationDirection()
 {
     return m_Config.PosCode1.bStopDir;
 }
-bool CRotaryValveDevice::SetRotationDirection(quint8 direction)
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set rotary-valve's rotation direction.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetRotationDirection(quint8 direction)
 {
     if(direction == DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW)
     {
         m_Config.PosCode1.bStopDir = 1;
         m_Config.PosCode2.bStopDir = 2;
-        //
     }
     else if(direction == DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW)
     {
         m_Config.PosCode1.bStopDir = 2;
         m_Config.PosCode2.bStopDir = 1;
     }
-    return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Get rotary-valve's absolute position.
+ *
+ *  \return  The absolute position.
+ */
+/****************************************************************************/
 QString CRotaryValveDevice::GetPosition()
 {
-    //    bool ok = HandleErrorCode(m_pMotorRV->ReqActPosition());
-    bool ok = true;
-    m_pMotorRV->ReqActPosition();
-    if (!ok) {
+    if (DCL_ERR_FCT_CALL_SUCCESS != m_pMotorRV->ReqActPosition())
+    {
         // TODO: use const String from BaseWrapper
         return "request error";
     }
@@ -1470,6 +1703,13 @@ QString CRotaryValveDevice::GetPosition()
     return position;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Get rotary-valve's limit switch code.
+ *
+ *  \return  The limit switch code.
+ */
+/****************************************************************************/
 QString CRotaryValveDevice::GetLimitSwitchCode()
 {
 
@@ -1488,6 +1728,19 @@ QString CRotaryValveDevice::GetLimitSwitchCode()
     }
     return code;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get position.
+ *
+ *  This slot is connected to the signal, OnGetPosition
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Position = Actual position.
+ *  \iparam PosCode = Actual limit switch code.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnGetPosition(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qint32 Position, qint8 PosCode)
 {
     m_CurrentPosition = Position;
@@ -1498,84 +1751,198 @@ void CRotaryValveDevice::OnGetPosition(quint32 /*InstanceID*/, ReturnCode_t Retu
         //m_CurrentPositionKnown = true;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_GET_MOTOR_POSITION, ReturnCode);
-    // if (m_RVLoopGetPosition.isRunning()) {
-    //     m_RVLoopGetPosition.exit(ret);
-    // } else {
-    //    // Log(tr("NOTICE: Unexpected action acknowledgement for GetPosition (p: %1, LS code: %2).").arg(m_CurrentPosition).arg(PosCode));
-    // }
+    // Log(tr("NOTICE: Unexpected action acknowledgement for GetPosition (p: %1, LS code: %2).").arg(m_CurrentPosition).arg(PosCode));
 }
 
-
-bool CRotaryValveDevice::SetConfigLS2Exists(quint8 bExists)
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set if rotary-valve's limit switch 2 exist.
+ *
+ *  \iparam bExists = Actual limit switch code.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigLS2Exists(quint8 bExists)
 {
     m_Config.LimitSwitch2.bExists = bExists;
-    return true;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check if rotary-valve's limit switch 2 exist.
+ *
+ *  \return The configuration of limit switch 2' existence.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetConfigLS2Exists()
 {
     return m_Config.LimitSwitch2.bExists;
 }
-bool CRotaryValveDevice::SetConfigPos2Value(quint8 bValid)
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set position 2's limit switch value.
+ *
+ *  \iparam bValid = Conifguration of position 2's limit switch value.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigPos2Value(quint8 bValid)
 {
     m_Config.PosCode2.bValid = bValid;
-    return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check position 2's limit switch value.
+ *
+ *  \return Position 2's limit switch value.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetConfigPos2Value()
 {
     return m_Config.PosCode2.bValid;
 }
 
-bool CRotaryValveDevice::SetConfigPos3Value(quint8 bValid)
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set position 3's limit switch value.
+ *
+ *  \iparam bValid = Conifguration of position 3's limit switch value.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigPos3Value(quint8 bValid)
 {
     m_Config.PosCode3.bValid = bValid;
-    return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check position 3's limit switch value.
+ *
+ *  \return Position 3's limit switch value.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetConfigPos3Value()
 {
     return m_Config.PosCode3.bValid;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check reference run's stop position value.
+ *
+ *  \return Reference run's stop position value.
+ */
+/****************************************************************************/
 qint8 CRotaryValveDevice::GetConfigRefRunPosition()
 {
     return m_Config.refRunRefPos;
 }
-bool CRotaryValveDevice::SetConfigRefRunPosition(qint8 refRunRefPos)
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set reference run's stop position value.
+ *
+ *  \iparam bValid = Conifguration of position 3's limit switch value.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigRefRunPosition(qint8 refRunRefPos)
 {
     m_Config.refRunRefPos =  refRunRefPos;
-    return true;
-}
-bool CRotaryValveDevice::SetConfigPos1Stop(quint8 bStop)
-{
-    m_Config.PosCode1.bStop = bStop;
-    return true;
-}
-bool CRotaryValveDevice::SetConfigPos2Stop(quint8 bStop)
-{
-    m_Config.PosCode2.bStop = bStop;
-    return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set position 1's stop value.
+ *
+ *  \iparam bStop = Position 1's stop value.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigPos1Stop(quint8 bStop)
+{
+    m_Config.PosCode1.bStop = bStop;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set position 2's stop value.
+ *
+ *  \iparam bStop = Position 2's stop value.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigPos2Stop(quint8 bStop)
+{
+    m_Config.PosCode2.bStop = bStop;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check position 2's stop value.
+ *
+ *  \return position 2's stop value.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetConfigPos2Stop()
 {
     return m_Config.PosCode2.bStop;
 }
 
-bool CRotaryValveDevice::SetConfigPos3Stop(quint8 bStop)
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set position 3's stop value.
+ *
+ *  \iparam bStop = Position 3's stop value.
+ *
+ *  \return void
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetConfigPos3Stop(quint8 bStop)
 {
     m_Config.PosCode3.bStop = bStop;
-    return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check position 3's stop value.
+ *
+ *  \return position 3's stop value.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetConfigPos3Stop()
 {
     return m_Config.PosCode3.bStop;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Check position 1's stop value.
+ *
+ *  \return position 1's stop value.
+ */
+/****************************************************************************/
 quint8 CRotaryValveDevice::GetConfigPos1Stop()
 {
     return m_Config.PosCode1.bStop;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Get current encoder disk's position.
+ *
+ *  \return Encoder disk position.
+ */
+/****************************************************************************/
 RVPosition_t CRotaryValveDevice::GetEDPosition()
 {
     if(m_RVCurrentPosition > 32)
@@ -1585,6 +1952,14 @@ RVPosition_t CRotaryValveDevice::GetEDPosition()
 
     return m_RVCurrentPosition;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set current encoder disk's position.
+ *
+ *  \iparam position = Encoder disk position.
+ */
+/****************************************************************************/
 void CRotaryValveDevice::SetEDPosition(RVPosition_t position)
 {
 
@@ -1597,15 +1972,35 @@ void CRotaryValveDevice::SetEDPosition(RVPosition_t position)
         m_RVCurrentPosition = RV_UNDEF;
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set current encoder disk's position to initial
+ *                           position.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::InitEDPosition()
 {
     m_RVCurrentPosition =RV_UNDEF ;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Request the slave board to get the configuration.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::RestoreLastValidParameterSet()
 {
     m_Config = *m_pMotorRV->GetConfiguration();
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Reset class member variable
+ */
+/****************************************************************************/
 void CRotaryValveDevice::Reset()
 {
     RestoreLastValidParameterSet();
@@ -1632,12 +2027,13 @@ void CRotaryValveDevice::Reset()
     m_CurrentTemperature = 0;
     m_TargetTemperature = 0;
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus));
-
-
-
-
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Write the local configuration to slave board.
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::ApplyNewParameterSet()
 {
    ReturnCode_t retCode = SetMotorState(false);
@@ -1657,6 +2053,13 @@ ReturnCode_t CRotaryValveDevice::ApplyNewParameterSet()
     return SetMotorState(true);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Request the motor to do reference run.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::DoReferenceRun()
 {
     // enable function module before first use
@@ -1674,6 +2077,17 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRun()
     return retCode;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with do reference run.
+ *
+ *  This slot is connected to the signal, OnReferenceRun
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Position = Motor's actual position.
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnReferenceRun(quint32 InstanceID, ReturnCode_t ReturnCode, qint32 Position)
 {
     Q_UNUSED(InstanceID)
@@ -1688,6 +2102,17 @@ void CRotaryValveDevice::OnReferenceRun(quint32 InstanceID, ReturnCode_t ReturnC
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_REF_RUN, ReturnCode);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set configuration.
+ *
+ *  This slot is connected to the signal, OnSetConfiguration
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnSetConfiguration(quint32 /*InstanceID*/, ReturnCode_t ReturnCode)
 {
     // exit from eventloop: 1 success, 0 timeout, -1 failure
@@ -1698,6 +2123,15 @@ void CRotaryValveDevice::OnSetConfiguration(quint32 /*InstanceID*/, ReturnCode_t
 
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Set the motor's state.
+ *
+ *  \iparam flag = New state.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
+ */
+/****************************************************************************/
 ReturnCode_t CRotaryValveDevice::SetMotorState(bool flag)
 {
 
@@ -1711,6 +2145,16 @@ ReturnCode_t CRotaryValveDevice::SetMotorState(bool flag)
     return retCode;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set motor state.
+ *
+ *  This slot is connected to the signal, OnSetMotorState
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *
+ */
+/****************************************************************************/
 void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t ReturnCode)
 {
     // exit from eventloop: 1 success, 0 timeout, -1 failure

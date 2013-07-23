@@ -2076,7 +2076,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
         {
             QTimer timer;
             timer.setSingleShot(true);
-            bool b = connect(&timer, SIGNAL(timeout()), this, SLOT(BlockingTimerCallback()));
+            connect(&timer, SIGNAL(timeout()), this, SLOT(BlockingTimerCallback()));
             qint64 Before = QDateTime::currentMSecsSinceEpoch();
             m_EventLoopsForSyncCall[CmdType].timerActive = true;
             m_EventLoopsForSyncCall[CmdType].endTime = Before + Timeout;
@@ -2099,7 +2099,7 @@ void DeviceProcessing::BlockingTimerCallback()
     {
         if(m_EventLoopsForSyncCall[i].timerActive)
         {
-            qint64 Now = QDateTime::currentMSecsSinceEpoch();
+            //qint64 Now = QDateTime::currentMSecsSinceEpoch();
             //if(Now >= m_EventLoopsForSyncCall[i].endTime)
             {
                 m_EventLoopsForSyncCall[i].timerActive = false;

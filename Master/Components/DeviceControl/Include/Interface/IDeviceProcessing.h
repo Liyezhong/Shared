@@ -101,7 +101,7 @@ public:
     ReturnCode_t ALVaccum();
     ReturnCode_t ALDraining(quint32 DelayTime);
     ReturnCode_t ALFilling(quint32 DelayTime);
-    qreal ALGetRecentPressure(quint8 Index);
+    qreal ALGetRecentPressure();
     ReturnCode_t ALSetTempCtrlON(ALTempCtrlType_t Type);
     ReturnCode_t ALSetTempCtrlOFF(ALTempCtrlType_t type);
     ReturnCode_t ALSetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);

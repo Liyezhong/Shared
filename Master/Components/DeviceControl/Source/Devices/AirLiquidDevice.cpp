@@ -22,8 +22,8 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  *
  *  \param    pDeviceProcessing = pointer to DeviceProcessing
  *  \param    Type = Device type string
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
         m_pPressureCtrl(0),  m_pFanDigitalOutput(0)
 {
@@ -183,8 +183,8 @@ void CAirLiquidDevice::HandleIdleState()
  *           This function attaches the function modules pointer variables
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
@@ -252,6 +252,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
     return RetVal;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Handles the classes configuration state.
@@ -260,8 +261,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if configuration was successfully executed
  *           otherwise DCL_ERR_FCT_CALL_FAILED
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
 {
     if(!connect(m_pPressureCtrl, SIGNAL(ReportRefPressure(quint32, ReturnCode_t, qreal)),
@@ -441,8 +442,8 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
 /****************************************************************************/
 /*!
  *  \brief   Read Air-liquid device's sensors data asynchronizely
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 void CAirLiquidDevice::CheckSensorsData()
 {
 
@@ -465,18 +466,24 @@ void CAirLiquidDevice::CheckSensorsData()
         GetTemperatureAsync(AL_TUBE2, 0);
     }
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Create and configure the device tasks
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::ConfigureDeviceTasks()
 {
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Handles the error state of the class.
+ */
+/****************************************************************************/
 void CAirLiquidDevice::HandleErrorState()
 {
     if(m_ErrorTaskState == AL_DEV_ERRTASK_STATE_IDLE)
@@ -515,6 +522,7 @@ void CAirLiquidDevice::HandleErrorState()
         m_pFanDigitalOutput= 0;
     }
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Set specified pressure to Air-liquid device.
@@ -525,8 +533,8 @@ void CAirLiquidDevice::HandleErrorState()
  *  \param    NominalPressure = Target pressure to set
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
 {
     //m_TargetPressure = NominalPressure;
@@ -539,6 +547,7 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE);
     return retCode;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   slot associated with set pressure
@@ -565,6 +574,7 @@ void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
     }
     m_TargetPressure = 0;
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Set  Air-liquid device's valve to specified state.
@@ -574,8 +584,8 @@ void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
  *  \param    ValveState = Valve's new state
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetValve(quint8 ValveIndex, quint8 ValveState)
 {
     ReturnCode_t retCode = m_pPressureCtrl->SetValve(ValveIndex, ValveState);
@@ -585,6 +595,7 @@ ReturnCode_t CAirLiquidDevice::SetValve(quint8 ValveIndex, quint8 ValveState)
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_VALVE);
     return retCode;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   slot associated with set valve
@@ -603,6 +614,7 @@ void CAirLiquidDevice::OnSetValve(quint32 /*InstanceID*/, ReturnCode_t ReturnCod
     Q_UNUSED(ValveState)
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_VALVE, ReturnCode);
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Get actual pressure of Air-liquid device. This functin will
@@ -611,8 +623,8 @@ void CAirLiquidDevice::OnSetValve(quint32 /*InstanceID*/, ReturnCode_t ReturnCod
  *
  *  \return  The actual pressure of the Air-liquid system. UNDEFINED if any
  *           problem happens.
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 qreal CAirLiquidDevice::GetPressure(void)
 {
     qreal RetValue;
@@ -645,14 +657,15 @@ qreal CAirLiquidDevice::GetPressure(void)
     }
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Get actual pressure of Air-liquid device asynchronously.
  *
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
@@ -665,6 +678,7 @@ ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   slot associated with Get pressure
@@ -683,6 +697,7 @@ void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
     m_CurrentPressure = Pressure;
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_PRESSURE, ReturnCode);
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Set pressure control's status.
@@ -690,7 +705,7 @@ void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
  *  \iparam  PressureCtrlStatus = New pressure control status
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus)
 {
@@ -704,7 +719,7 @@ ReturnCode_t CAirLiquidDevice::SetPressureControlStatus(PressureCtrlStatus_t Pre
  *  \brief   Enable pressure control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressureCtrlON()
 {
@@ -716,16 +731,17 @@ ReturnCode_t CAirLiquidDevice::SetPressureCtrlON()
  *  \brief   Disable pressure control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressureCtrlOFF()
 {
     return SetPressureControlStatus(PRESSURECTRL_STATUS_OFF);
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Turn off the pump.
- *
+ */
 /****************************************************************************/
 void CAirLiquidDevice::StopCompressor(void)
 {
@@ -733,13 +749,14 @@ void CAirLiquidDevice::StopCompressor(void)
     FILE_LOG_L(laDEVPROC, llINFO) << " INFO: Shut down compressor. ";
     SetPressure(0, UNDEFINED - m_PressureDrift);
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Release pressure/vaccum in the system, this function will also
  *           break any on-going pump operation related function.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
 {
@@ -792,12 +809,13 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     qDebug() << "Device Air Liquid: Pressure released, exit now.";
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Set-up pre-defied pressure enviroment in the system.
  *
  *  \return  DCL_ERR_DEV_AL_VACCUM_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::Vaccum()
 {
@@ -823,12 +841,13 @@ SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Set-up pre-defied vaccum enviroment in the system.
  *
  *  \return  DCL_ERR_DEV_AL_PRESSURE_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::Pressure()
 {
@@ -854,6 +873,7 @@ SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Drain the system automatically.
@@ -862,7 +882,7 @@ SORTIE:
  *                       the pump when retort has been detected empty.
  *
  *  \return  DCL_ERR_DEV_AL_DRAIN_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
 {
@@ -975,6 +995,7 @@ SORTIE:
 
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Fill the system automatically.
@@ -983,7 +1004,7 @@ SORTIE:
  *                       the pump when retort has been detected full.
  *
  *  \return  DCL_ERR_DEV_AL_FILL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 {
@@ -1146,13 +1167,14 @@ SORTIE:
     TurnOffFan();
     return RetValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Build-up a lower pressure in system for Bottle-check function.
  *
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
 {
@@ -1212,6 +1234,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
 SORTIE:
     return retCode;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Judge if the control target's is stable under PID method.
@@ -1223,7 +1246,7 @@ SORTIE:
  *  \iparam  Init = Whether it is to start a new comparsion.
  *
  *  \return  DCL_ERR_DEV_AL_FILL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qreal Tolerance, qint32 Num, bool Init)
 {
@@ -1255,6 +1278,7 @@ bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qr
 
     return ret;
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Set specified pressure to Air-liquid device.
@@ -1265,7 +1289,7 @@ bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qr
  *  \param    NominalPressure = Target pressure to set
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, qreal pressure)
 {
@@ -1287,10 +1311,11 @@ ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, qreal pressure)
     }
     return DCL_ERR_FCT_CALL_FAILED;
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Callback function for timer used in Vaccum.
- *
+ */
 /****************************************************************************/
 void CAirLiquidDevice::VaccumTimerCB(void)
 {
@@ -1300,7 +1325,7 @@ void CAirLiquidDevice::VaccumTimerCB(void)
 /****************************************************************************/
 /*!
  *  \brief    Callback function for timer used in Pressure.
- *
+ */
 /****************************************************************************/
 void CAirLiquidDevice::PressureTimerCB(void)
 {
@@ -1310,7 +1335,7 @@ void CAirLiquidDevice::PressureTimerCB(void)
 /****************************************************************************/
 /*!
  *  \brief    Callback function for timer used in Draining.
- *
+ */
 /****************************************************************************/
 void CAirLiquidDevice::DrainingTimerCB(void)
 {
@@ -1320,7 +1345,7 @@ void CAirLiquidDevice::DrainingTimerCB(void)
 /****************************************************************************/
 /*!
  *  \brief    Callback function for timer used in ReleasePressure.
- *
+ */
 /****************************************************************************/
 void CAirLiquidDevice::ReleasePressureTimerCB(void)
 {
@@ -1330,12 +1355,13 @@ void CAirLiquidDevice::ReleasePressureTimerCB(void)
 /****************************************************************************/
 /*!
  *  \brief    Callback function for timer used in Sucking.
- *
+ */
 /****************************************************************************/
 void CAirLiquidDevice::SuckingTimerCB(void)
 {
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_TIMER_TIMEOUT);
 }
+
 /****************************************************************************/
 /*!
  *  \brief   slot associated with level sensor state changing.
@@ -1357,15 +1383,16 @@ void CAirLiquidDevice::OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quin
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1);
     }
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Set temperature control's status.
  *
  *  \iparam  Type = The target temperature contorl module to control.
- *  \iparam  PressureCtrlStatus = New pressure control status.
+ *  \iparam  TempCtrlStatus = New pressure control status.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus)
 {
@@ -1387,8 +1414,8 @@ ReturnCode_t CAirLiquidDevice::SetTemperatureControlStatus(ALTempCtrlType_t Type
  *  \brief   Get the fan's operation time in minutes.
  *
  *  \return  The actual operation time of the fan in minutes. -1 if error
-*            happend.
- *
+ *           happend.
+ */
 /****************************************************************************/
 qint32 CAirLiquidDevice::GetFanOperationTime(void)
 {
@@ -1404,6 +1431,7 @@ qint32 CAirLiquidDevice::GetFanOperationTime(void)
      }
      return m_DOLifeTime;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   slot associated with get fan's life-cycle data.
@@ -1425,6 +1453,7 @@ void CAirLiquidDevice::OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t Return
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_DO_LIFE_TIME, ReturnCode);
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Enable temperature control.
@@ -1432,12 +1461,13 @@ void CAirLiquidDevice::OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t Return
  *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTempCtrlON(ALTempCtrlType_t Type)
 {
     return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Disable temperature control.
@@ -1445,13 +1475,20 @@ ReturnCode_t CAirLiquidDevice::SetTempCtrlON(ALTempCtrlType_t Type)
  *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
+ */
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTempCtrlOFF(ALTempCtrlType_t Type)
 {
     return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get the pressure sensor data captured in last 500 milliseconds.
+ *
+ *  \return  Actual pressure, UNDEFINED if failed.
+ */
+/****************************************************************************/
 qreal CAirLiquidDevice::GetRecentPressure(void)
 {
    // QMutexLocker Locker(&m_Mutex);
@@ -1466,6 +1503,16 @@ qreal CAirLiquidDevice::GetRecentPressure(void)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
+ *
+ *  \return  Actual temperature, UNDEFINED if failed.
+ */
+/****************************************************************************/
 qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
   //  QMutexLocker Locker(&m_Mutex);
@@ -1482,6 +1529,19 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
     return RetValue;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
 #ifndef PRE_ALFA_TEST
@@ -1501,13 +1561,13 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qr
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
         {
             // Log(tr("Not able to set temperature"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
         }
         //ON the temperature control
-        if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
         {
             // Log(tr("Not able to start temperature control"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -1516,6 +1576,23 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qr
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control with PID parameters.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     ReturnCode_t retCode;
@@ -1540,13 +1617,13 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t T
          return retCode;
     }
     //Set the nominal temperature
-    if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
     {
         // Log(tr("Not able to set temperature"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
     }
     //ON the temperature control
-    if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    if ( DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
     {
         // Log(tr("Not able to start temperature control"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -1555,6 +1632,15 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t T
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature control module's status.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Temperature control module status.
+ */
+/****************************************************************************/
 TempCtrlState_t CAirLiquidDevice::GetTemperatureControlState(ALTempCtrlType_t Type)
 {
     ReturnCode_t retCode = m_pTempCtrls[Type]->ReqStatus();
@@ -1586,6 +1672,18 @@ TempCtrlState_t CAirLiquidDevice::GetTemperatureControlState(ALTempCtrlType_t Ty
     return controlstate;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature control status.
+ *
+ *  This slot is connected to the signal, ReportActStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam TempCtrlStatus = Actual temperature control status
+ *  \iparam MainsVoltage = Main voltage status.
+ *
+ */
+/****************************************************************************/
 void CAirLiquidDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode,
                                            TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage)
 {
@@ -1603,6 +1701,16 @@ void CAirLiquidDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGr
     qDebug()<<"AL device's Function module: "<<InstanceID<<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
 }
 #endif
+
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is inside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is inside the range, else not.
+ */
+/****************************************************************************/
 bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)
@@ -1624,6 +1732,15 @@ bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is outside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is outside the range, else not.
+ */
+/****************************************************************************/
 bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)
@@ -1645,17 +1762,48 @@ bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type)
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is enabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is enabled, else not.
+ */
+/****************************************************************************/
 bool CAirLiquidDevice::IsTemperatureControlOn(ALTempCtrlType_t Type)
 {
     return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_ON);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is disabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is disabled, else not.
+ */
+/****************************************************************************/
 bool CAirLiquidDevice::IsTemperatureControlOff(ALTempCtrlType_t Type)
 {
     return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_OFF);
 }
 
-bool CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
@@ -1665,16 +1813,27 @@ bool CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, qreal NominalTemper
     }
     else
     {
-        return false;
+        return DCL_ERR_NOT_INITIALIZED;
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return false;
+        return retCode;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_TEMP);
-    return (DCL_ERR_FCT_CALL_SUCCESS == retCode);
+    return retCode;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set temperature.
+ *
+ *  This slot is connected to the signal, ReportRefTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Temperature = Target temperature.
+ *
+ */
+/****************************************************************************/
 void CAirLiquidDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature)
 {
     Q_UNUSED(Temperature)
@@ -1689,6 +1848,16 @@ void CAirLiquidDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_TEMP, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature synchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
@@ -1717,17 +1886,39 @@ qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
     return RetValue;
 }
 
-bool CAirLiquidDevice::GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index)
+/****************************************************************************/
+/*!
+ *  \brief    Get actual temperature of Air-liquid device asynchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CAirLiquidDevice::GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetTempTime[Type][Index] = Now;
-        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pTempCtrls[Type]->ReqActTemperature(Index));
+        return m_pTempCtrls[Type]->ReqActTemperature(Index);
     }
-    return true;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature.
+ *
+ *  This slot is connected to the signal, ReportActTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Index = Index of the actual temperature control module.
+ *  \iparam Temp = Actual temperature.
+ *
+ */
+/****************************************************************************/
 void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp)
 {
     Q_UNUSED(Index)
@@ -1743,9 +1934,21 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_TEMP, ReturnCode);
-
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Set PID parameters for temperature control module.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set AL temperature PID, type: " << Type;
@@ -1765,6 +1968,20 @@ ReturnCode_t CAirLiquidDevice::SetTemperaturePid(ALTempCtrlType_t Type, quint16 
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set PID parameters.
+ *
+ *  This slot is connected to the signal, ReportSetPidAckn
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ */
+/****************************************************************************/
 void CAirLiquidDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     Q_UNUSED(MaxTemperature)
@@ -1782,18 +1999,41 @@ void CAirLiquidDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 Ma
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_TEMP_PID, ReturnCode);
 }
 
-bool CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
+/****************************************************************************/
+/*!
+ *  \brief   Set fan's digital output value.
+ *
+ *
+ *  \iparam OutputValue = Actual output value of fan's digital output module.
+ *  \iparam Duration = Duration of the output(not used now).
+ *  \iparam Delay = UNUSED.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     m_TargetDOOutputValue = OutputValue;
 
     ReturnCode_t retCode = m_pFanDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
-    if (DCL_ERR_FCT_CALL_SUCCESS == retCode)
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return false;
+        return retCode;
     }
-    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_DO_VALVE));
+    return m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_DO_VALVE);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set digital output value.
+ *
+ *  This slot is connected to the signal, ReportOutputValueAckn
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam OutputValue = Output Value.
+ *
+ */
+/****************************************************************************/
 void CAirLiquidDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue)
 {
     Q_UNUSED(OutputValue)
@@ -1809,30 +2049,37 @@ void CAirLiquidDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
 
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Turn on the fan.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::TurnOnFan()
 {
-    if (SetDOValue(1, 0, 0))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetDOValue(1, 0, 0);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Turn off the fan.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::TurnOffFan()
 {
-    if(SetDOValue(0, 0, 0))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetDOValue(0, 0, 0);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Break all ongoing pump-related operation.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::BreakAllOperation(void)
 {
     qDebug() << "Device Airliquid: Start break all operation procedure";
@@ -1845,6 +2092,13 @@ ReturnCode_t CAirLiquidDevice::BreakAllOperation(void)
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  This function would turn-off the pump, valves and fan,
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::AllStop(void)
 {
     qDebug() << "Device Airliquid: Stop pump";
@@ -1858,6 +2112,13 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Set pressure drift value of the pressure control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetPressureDrift(qreal pressureDrift)
 {
     m_PressureDrift = pressureDrift;

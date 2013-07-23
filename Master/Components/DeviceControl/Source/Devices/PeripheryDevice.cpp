@@ -8,6 +8,15 @@
 
 namespace DeviceControl
 {
+/****************************************************************************/
+/*!
+ *  \brief    Constructor of the CPeripheryDevice class
+ *
+ *
+ *  \param    pDeviceProcessing = pointer to DeviceProcessing
+ *  \param    Type = Device type string
+ */
+/****************************************************************************/
 CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type)
 {
     Reset();
@@ -15,10 +24,21 @@ CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString 
     qDebug() <<  "Retort device cons thread id is " << QThread::currentThreadId();
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Destructor of CAirLiquidDevice
+ */
+/****************************************************************************/
 CPeripheryDevice::~CPeripheryDevice()
 {
     Reset();
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Reset class member variable
+ */
+/****************************************************************************/
 void CPeripheryDevice::Reset()
 {
     m_MainState      = DEVICE_MAIN_STATE_START;
@@ -31,6 +51,7 @@ void CPeripheryDevice::Reset()
     memset( &m_TargetDOOutputValues, 0 , sizeof(m_TargetDOOutputValues));
 
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Handles the internal state machine
@@ -266,9 +287,6 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
 
 }
 
-
-
-
 /****************************************************************************/
 /*!
  *  \brief   Create and configure the device tasks
@@ -318,18 +336,42 @@ void CPeripheryDevice::HandleErrorState()
     }
 }
 
-bool CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16 Duration, quint16 Delay)
+/****************************************************************************/
+/*!
+ *  \brief   Set digital output value.
+ *
+ *
+ *  \iparam Type = Actual digital output module.
+ *  \iparam OutputValue = Actual output value of fan's digital output module.
+ *  \iparam Duration = Duration of the output(not used now).
+ *  \iparam Delay = UNUSED.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     m_TargetDOOutputValues[Type] = OutputValue;
 
     ReturnCode_t retCode = m_pDigitalOutputs[Type]->SetOutputValue(m_TargetDOOutputValues[Type], Duration, Delay);
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return false;
+        return retCode;
     }
-    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALUE));
+    return m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALUE);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set digital output value.
+ *
+ *  This slot is connected to the signal, ReportOutputValueAckn
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam OutputValue = Output Value.
+ *
+ */
+/****************************************************************************/
 void CPeripheryDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue)
 {
     Q_UNUSED(OutputValue)
@@ -344,27 +386,29 @@ void CPeripheryDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_SET_DO_VALUE, ReturnCode);
 
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Turn on the main relay.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPeripheryDevice::TurnOnMainRelay()
 {
-    if (SetDOValue(PER_MAIN_RELAY,1, 0, 0))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetDOValue(PER_MAIN_RELAY,1, 0, 0);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Turn off the main relay.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPeripheryDevice::TurnOffMainRelay()
 {
-    if(SetDOValue(PER_MAIN_RELAY, 0, 0, 0))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetDOValue(PER_MAIN_RELAY, 0, 0, 0);
 }
 
 

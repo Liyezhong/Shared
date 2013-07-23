@@ -702,7 +702,7 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
-qreal IDeviceProcessing::ALGetRecentPressure(quint8 Index)
+qreal IDeviceProcessing::ALGetRecentPressure()
 {
     if(m_pAirLiquid)
     {

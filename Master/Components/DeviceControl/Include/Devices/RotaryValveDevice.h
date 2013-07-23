@@ -67,7 +67,7 @@ signals:
     void ReportActTempeature(quint32 SensorIndex, qreal Temperature);
 private slots:
     qreal GetTemperature(quint32 Index);
-    bool SetTemperatureControlStatus(TempCtrlStatus_t TempCtrlStatus);
+    ReturnCode_t SetTemperatureControlStatus(TempCtrlStatus_t TempCtrlStatus);
     void OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode, TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
     bool SetTemperature(qreal NominalTemperature, quint8 SlopeTempChange);
 
@@ -123,22 +123,22 @@ private slots:
     ReturnCode_t MoveToNextPortCW();
     ReturnCode_t MoveToNextPortCCW();
     quint8 GetRotationDirection();
-    bool SetRotationDirection(quint8 direction);
+    void SetRotationDirection(quint8 direction);
     QString TranslateFromEDPosition(quint32 EDPosition);
     quint32 GetUpperLimit(quint32 CurrentEDPosition, DeviceControl::CANFctModuleStepperMotor::RotationDir_t Direction, bool ChangeDirection);
     quint32 GetLowerLimit(quint32 CurrentEDPosition, DeviceControl::CANFctModuleStepperMotor::RotationDir_t Direction, bool ChangeDirection);
-    bool SetConfigLS2Exists(quint8 bExists);
+    void SetConfigLS2Exists(quint8 bExists);
     quint8 GetConfigLS2Exists();
-    bool SetConfigPos2Value(quint8 bValid);
+    void SetConfigPos2Value(quint8 bValid);
     quint8 GetConfigPos2Value();
-    bool SetConfigPos3Value(quint8 bValid);
+    void SetConfigPos3Value(quint8 bValid);
     quint8 GetConfigPos3Value();
     qint8 GetConfigRefRunPosition();
-    bool SetConfigRefRunPosition(qint8 refRunRefPos);
-    bool SetConfigPos1Stop(quint8 bStop);
-    bool SetConfigPos2Stop(quint8 bStop);
+    void SetConfigRefRunPosition(qint8 refRunRefPos);
+    void SetConfigPos1Stop(quint8 bStop);
+    void SetConfigPos2Stop(quint8 bStop);
     quint8 GetConfigPos2Stop();
-    bool SetConfigPos3Stop(quint8 bStop);
+    void SetConfigPos3Stop(quint8 bStop);
     quint8 GetConfigPos3Stop();
     quint8 GetConfigPos1Stop();
     QString GetLimitSwitchCode();

@@ -43,23 +43,19 @@ private slots:
     void HandleErrorState();
     // void HandleErrorState();
 
-    bool SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
-    bool SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
+    ReturnCode_t SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(OVENTempCtrlType_t Type, quint8 Index);
-    bool GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index);
+    ReturnCode_t GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index);
     quint16 GetLidStatus();
-    bool GetLidStatusAsync();
-
-
+    ReturnCode_t GetLidStatusAsync();
 
     bool IsInsideRange(OVENTempCtrlType_t Type);
     bool IsOutsideRange(OVENTempCtrlType_t Type);
     bool IsTemperatureControlOn(OVENTempCtrlType_t Type);
     bool IsTemperatureControlOff(OVENTempCtrlType_t Type);
 
-
     void CheckSensorsData();
-
 
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
     void OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);

@@ -13,16 +13,38 @@ namespace DeviceControl
 #define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
+
+
+/****************************************************************************/
+/*!
+ *  \brief    Constructor of the CRetortDevice class
+ *
+ *
+ *  \param    pDeviceProcessing = pointer to DeviceProcessing
+ *  \param    Type = Device type string
+ */
+/****************************************************************************/
 CRetortDevice::CRetortDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type)
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Destructor of CRetortDevice
+ */
+/****************************************************************************/
 CRetortDevice::~CRetortDevice()
 {
     Reset();
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Reset class member variable
+ */
+/****************************************************************************/
 void CRetortDevice::Reset()
 {
     m_MainState      = DEVICE_MAIN_STATE_START;
@@ -44,6 +66,7 @@ void CRetortDevice::Reset()
     m_LockStatus = 0;
     m_LastGetLockStatusTime = 0;
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Handles the internal state machine
@@ -122,6 +145,7 @@ void CRetortDevice::HandleTasks()
         m_MainStateOld = m_MainState;
     }
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Internal function for idle state machine processing
@@ -137,7 +161,6 @@ void CRetortDevice::HandleIdleState()
 {
     CheckSensorsData();
 }
-
 
 /****************************************************************************/
 /*!
@@ -202,6 +225,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
 
     return RetVal;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Handles the classes configuration state.
@@ -337,6 +361,11 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
 
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Read Retort device's sensors data asynchronizely
+ */
+/****************************************************************************/
 void CRetortDevice::CheckSensorsData()
 {
 
@@ -355,7 +384,6 @@ void CRetortDevice::CheckSensorsData()
         GetLockStatusAsync();
     }
 }
-
 
 /****************************************************************************/
 /*!
@@ -405,44 +433,69 @@ void CRetortDevice::HandleErrorState()
     }
 }
 
-
-bool CRetortDevice::SetTemperatureControlStatus(RTTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus)
+/****************************************************************************/
+/*!
+ *  \brief    Set temperature control's status.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  TempCtrlStatus = New temperature control status.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRetortDevice::SetTemperatureControlStatus(RTTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus)
 {
     m_TargetTempCtrlStatus[Type] = TempCtrlStatus;
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
         retCode = m_pTempCtrls[Type]->SetStatus(TempCtrlStatus);
-        return (DCL_ERR_FCT_CALL_SUCCESS== retCode);
+        return retCode;
     }
     else
     {
-        return false;
-    }
-}
-ReturnCode_t CRetortDevice::SetTempCtrlON(RTTempCtrlType_t Type)
-{
-    if (SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
+        return DCL_ERR_NOT_INITIALIZED;
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Enable temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRetortDevice::SetTempCtrlON(RTTempCtrlType_t Type)
+{
+    return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Disable temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRetortDevice::SetTempCtrlOFF(RTTempCtrlType_t Type)
 {
-    if(SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
+ *
+ *  \return  Actual temperature, UNDEFINED if failed.
+ */
+/****************************************************************************/
 qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
    // QMutexLocker Locker(&m_Mutex);
@@ -460,6 +513,19 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
     return RetValue;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
 #ifndef PRE_ALFA_TEST
@@ -479,13 +545,13 @@ ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
         {
             // Log(tr("Not able to set temperature"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
         }
         //ON the temperature control
-        if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
         {
             // Log(tr("Not able to start temperature control"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -494,6 +560,23 @@ ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control with PID parameters.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     ReturnCode_t retCode;
@@ -518,13 +601,13 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
          return retCode;
     }
     //Set the nominal temperature
-    if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
     {
         // Log(tr("Not able to set temperature"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
     }
     //ON the temperature control
-    if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
     {
         // Log(tr("Not able to start temperature control"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -533,6 +616,15 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature control module's status.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Temperature control module status.
+ */
+/****************************************************************************/
 TempCtrlState_t CRetortDevice::GetTemperatureControlState(RTTempCtrlType_t Type)
 {
     ReturnCode_t retCode = m_pTempCtrls[Type]->ReqStatus();
@@ -563,6 +655,19 @@ TempCtrlState_t CRetortDevice::GetTemperatureControlState(RTTempCtrlType_t Type)
     }
     return controlstate;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature control status.
+ *
+ *  This slot is connected to the signal, ReportActStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam TempCtrlStatus = Actual temperature control status
+ *  \iparam MainsVoltage = Main voltage status.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode,
                                            TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage)
 {
@@ -574,6 +679,15 @@ void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnC
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_TEMP_CTRL_STATE, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is inside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is inside the range, else not.
+ */
+/****************************************************************************/
 bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)
@@ -595,6 +709,15 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type)
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is outside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is outside the range, else not.
+ */
+/****************************************************************************/
 bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)
@@ -616,17 +739,48 @@ bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type)
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is enabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is enabled, else not.
+ */
+/****************************************************************************/
 bool CRetortDevice::IsTemperatureControlOn(RTTempCtrlType_t Type)
 {
     return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_ON);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is disabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is disabled, else not.
+ */
+/****************************************************************************/
 bool CRetortDevice::IsTemperatureControlOff(RTTempCtrlType_t Type)
 {
     return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_OFF);
 }
 
-bool CRetortDevice::SetTemperature(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRetortDevice::SetTemperature(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
@@ -636,16 +790,27 @@ bool CRetortDevice::SetTemperature(RTTempCtrlType_t Type, qreal NominalTemperatu
     }
     else
     {
-        return false;
+        return DCL_ERR_NOT_INITIALIZED;
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return false;
+        return retCode;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP);
-    return (DCL_ERR_FCT_CALL_SUCCESS == retCode);
+    return retCode;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set temperature.
+ *
+ *  This slot is connected to the signal, ReportRefTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Temperature = Target temperature.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature)
 {
     Q_UNUSED(Temperature)
@@ -660,6 +825,16 @@ void CRetortDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, q
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature synchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
@@ -687,18 +862,40 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
     }
     return RetValue;
 }
-bool CRetortDevice::GetTemperatureAsync(RTTempCtrlType_t Type, quint8 Index)
+
+/****************************************************************************/
+/*!
+ *  \brief    Get actual temperature of Air-liquid device asynchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRetortDevice::GetTemperatureAsync(RTTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetTempTime[Type][Index] = Now;
-        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pTempCtrls[Type]->ReqActTemperature(Index));
+        return m_pTempCtrls[Type]->ReqActTemperature(Index);
     }
-    return true;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
-
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature.
+ *
+ *  This slot is connected to the signal, ReportActTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Index = Index of the actual temperature control module.
+ *  \iparam Temp = Actual temperature.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp)
 {
     Q_UNUSED(Index)
@@ -717,6 +914,19 @@ void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint
 
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Set PID parameters for temperature control module.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRetortDevice::SetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Retort temperature PID, type: " << Type;
@@ -735,6 +945,21 @@ ReturnCode_t CRetortDevice::SetTemperaturePid(RTTempCtrlType_t Type, quint16 Max
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set PID parameters.
+ *
+ *  This slot is connected to the signal, ReportSetPidAckn
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     Q_UNUSED(MaxTemperature)
@@ -752,17 +977,41 @@ void CRetortDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTe
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP_PID, ReturnCode);
 }
 
-bool CRetortDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
+/****************************************************************************/
+/*!
+ *  \brief   Set retort lock digital output value.
+ *
+ *
+ *  \iparam OutputValue = Actual output value of fan's digital output module.
+ *  \iparam Duration = Duration of the output(not used now).
+ *  \iparam Delay = UNUSED.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRetortDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     m_TargetDOOutputValue = OutputValue;
 
     ReturnCode_t retCode = m_pLockDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
-    if (DCL_ERR_FCT_CALL_SUCCESS == retCode)
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return false;
+        return retCode;
     }
-    return (DCL_ERR_FCT_CALL_SUCCESS == m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALUE));
+    return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALUE);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set digital output value.
+ *
+ *  This slot is connected to the signal, ReportOutputValueAckn
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam OutputValue = Output Value.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue)
 {
     Q_UNUSED(OutputValue)
@@ -777,28 +1026,42 @@ void CRetortDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t Retu
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_DO_VALUE, ReturnCode);
 
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Lock the retort.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRetortDevice::Lock()
 {
-    if (SetDOValue(1, 0, 0))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetDOValue(1, 0, 0);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Unlock the retort.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CRetortDevice::Unlock()
 {
-    if(SetDOValue(0, 0, 0))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetDOValue(0, 0, 0);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get digital input data.
+ *
+ *  This slot is connected to the signal, OnGetDIValue
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam InputValue = Actual digital input module's value.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue)
 {
     if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
@@ -813,6 +1076,13 @@ void CRetortDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_DI_VALUE, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get the Retort lid sensor data captured in last 500 milliseconds.
+ *
+ *  \return  Actual retort lock status, UNDEFINED if failed.
+ */
+/****************************************************************************/
 quint16 CRetortDevice::GetRecentRetortLockStatus()
 {
    // QMutexLocker Locker(&m_Mutex);
@@ -829,17 +1099,31 @@ quint16 CRetortDevice::GetRecentRetortLockStatus()
     return RetValue;
 }
 
-bool CRetortDevice::GetLockStatusAsync()
+/****************************************************************************/
+/*!
+ *  \brief  Get Retort lock status asynchronously.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CRetortDevice::GetLockStatusAsync()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetLockStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetLockStatusTime = Now;
-        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pLockDigitalInput->ReqActInputValue());
+        return m_pLockDigitalInput->ReqActInputValue();
     }
-    return true;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Get Retort Lid status.
+ *
+ *  \return  1: Open, 0: Closed
+ */
+/****************************************************************************/
 quint16 CRetortDevice::GetLidStatus()
 {
     //Log(tr("GetValue"));
@@ -856,6 +1140,15 @@ quint16 CRetortDevice::GetLidStatus()
     return m_LockStatus;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get hardware status of the temperature control module.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Temperature control module's hardware status.
+ */
+/****************************************************************************/
 TempCtrlHardwareStatus_t *CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type)
 {
     if(m_pTempCtrls[Type] != NULL)
@@ -874,6 +1167,23 @@ TempCtrlHardwareStatus_t *CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type
     return NULL;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get hardware status.
+ *
+ *  This slot is connected to the signal, ReportHardwareStatus
+ *
+ *  \iparam  InstanceID = Instance ID of the temperature control module.
+ *  \iparam  ReturnCode = ReturnCode of function level Layer
+ *  \iparam  Sensors = Number of sensors.
+ *  \iparam  Fans = Number of fans.
+ *  \iparam  Heaters = Number of heaters.
+ *  \iparam  Pids = Number of PIDs.
+ *  \iparam  Current = Actual current.
+ *  \iparam  HeaterSwitchType = Heater Switch Type.
+ *
+ */
+/****************************************************************************/
 void CRetortDevice::OnGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
                                                quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType)
 {

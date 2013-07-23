@@ -113,13 +113,13 @@ private slots:
 
 
     ReturnCode_t SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
-    bool SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(ALTempCtrlType_t Type, quint8 Index);
-    bool GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index);
+    ReturnCode_t GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index);
     ReturnCode_t GetPressureAsync(void);
 
 
-    bool SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
+    ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
 
 
     bool IsInsideRange(ALTempCtrlType_t Type);

@@ -12,6 +12,16 @@ namespace DeviceControl
 #define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
+
+/****************************************************************************/
+/*!
+ *  \brief    Constructor of the COvenDevice class
+ *
+ *
+ *  \param    pDeviceProcessing = pointer to DeviceProcessing
+ *  \param    Type = Device type string
+ */
+/****************************************************************************/
 COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type)
 {
     Reset();
@@ -19,10 +29,21 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
     qDebug() <<  "Oven device cons thread id is " << QThread::currentThreadId();
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Destructor of COvenDevice
+ */
+/****************************************************************************/
 COvenDevice::~COvenDevice()
 {
     Reset();
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Reset class member variable
+ */
+/****************************************************************************/
 void COvenDevice::Reset()
 {
     m_MainState      = DEVICE_MAIN_STATE_START;
@@ -40,6 +61,7 @@ void COvenDevice::Reset()
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));
 
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Handles the internal state machine
@@ -118,6 +140,7 @@ void COvenDevice::HandleTasks()
         m_MainStateOld = m_MainState;
     }
 }
+
 /****************************************************************************/
 /*!
  *  \brief    Internal function for idle state machine processing
@@ -134,7 +157,6 @@ void COvenDevice::HandleIdleState()
     CheckSensorsData();
 }
 
-
 /****************************************************************************/
 /*!
  *  \brief   Handles the classes initialization state.
@@ -142,8 +164,8 @@ void COvenDevice::HandleIdleState()
  *           This function attaches the function modules pointer variables
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
@@ -189,6 +211,7 @@ ReturnCode_t COvenDevice::HandleInitializationState()
 
     return RetVal;
 }
+
 /****************************************************************************/
 /*!
  *  \brief   Handles the classes configuration state.
@@ -197,8 +220,8 @@ ReturnCode_t COvenDevice::HandleInitializationState()
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if configuration was successfully executed
  *           otherwise DCL_ERR_FCT_CALL_FAILED
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::HandleConfigurationState()
 {
 
@@ -299,6 +322,11 @@ ReturnCode_t COvenDevice::HandleConfigurationState()
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Read Oven device's sensors data asynchronizely
+ */
+/****************************************************************************/
 void COvenDevice::CheckSensorsData()
 {
 
@@ -324,8 +352,8 @@ void COvenDevice::CheckSensorsData()
  *  \brief   Create and configure the device tasks
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::ConfigureDeviceTasks()
 {
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -366,43 +394,69 @@ void COvenDevice::HandleErrorState()
     }
 }
 
-bool COvenDevice::SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus)
+/****************************************************************************/
+/*!
+ *  \brief    Set temperature control's status.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  TempCtrlStatus = New temperature control status.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus)
 {
     m_TargetTempCtrlStatus[Type] = TempCtrlStatus;
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
         retCode = m_pTempCtrls[Type]->SetStatus(TempCtrlStatus);
-        return (DCL_ERR_FCT_CALL_SUCCESS== retCode);
+        return retCode;
     }
     else
     {
-        return false;
-    }
-}
-ReturnCode_t COvenDevice::SetTempCtrlON(OVENTempCtrlType_t Type)
-{
-    if (SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
+        return DCL_ERR_NOT_INITIALIZED;
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Enable temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::SetTempCtrlON(OVENTempCtrlType_t Type)
+{
+    return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Disable temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::SetTempCtrlOFF(OVENTempCtrlType_t Type)
 {
-    if(SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
-    {
-        return DCL_ERR_FCT_CALL_SUCCESS;
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
+    return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
+ *
+ *  \return  Actual temperature, UNDEFINED if failed.
+ */
+/****************************************************************************/
 qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
    // QMutexLocker Locker(&m_Mutex);
@@ -419,6 +473,19 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
     return RetValue;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
 #ifndef PRE_ALFA_TEST
@@ -438,13 +505,13 @@ ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
         {
             // Log(tr("Not able to set temperature"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
         }
         //ON the temperature control
-        if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
         {
             // Log(tr("Not able to start temperature control"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -453,6 +520,23 @@ ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control with PID parameters.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     ReturnCode_t retCode;
@@ -465,7 +549,7 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
     }
     if (IsTemperatureControlOn(Type))
     {
-        if(!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+        if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
     }
@@ -477,13 +561,13 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
          return retCode;
     }
     //Set the nominal temperature
-    if (!SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
     {
         // Log(tr("Not able to set temperature"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
     }
     //ON the temperature control
-    if (!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
     {
         // Log(tr("Not able to start temperature control"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -492,6 +576,15 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature control module's status.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Temperature control module status.
+ */
+/****************************************************************************/
 TempCtrlState_t COvenDevice::GetTemperatureControlState(OVENTempCtrlType_t Type)
 {
     ReturnCode_t retCode = m_pTempCtrls[Type]->ReqStatus();
@@ -522,6 +615,19 @@ TempCtrlState_t COvenDevice::GetTemperatureControlState(OVENTempCtrlType_t Type)
     }
     return controlstate;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature control status.
+ *
+ *  This slot is connected to the signal, ReportActStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam TempCtrlStatus = Actual temperature control status
+ *  \iparam MainsVoltage = Main voltage status.
+ *
+ */
+/****************************************************************************/
 void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode,
                                            TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage)
 {
@@ -533,6 +639,15 @@ void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCod
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is inside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is inside the range, else not.
+ */
+/****************************************************************************/
 bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)
@@ -554,6 +669,15 @@ bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type)
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is outside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is outside the range, else not.
+ */
+/****************************************************************************/
 bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type)
 {
     if(GetTemperature(Type, 0) != UNDEFINED)
@@ -575,17 +699,48 @@ bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type)
     return false;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is enabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is enabled, else not.
+ */
+/****************************************************************************/
 bool COvenDevice::IsTemperatureControlOn(OVENTempCtrlType_t Type)
 {
     return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_ON);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is disabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is disabled, else not.
+ */
+/****************************************************************************/
 bool COvenDevice::IsTemperatureControlOff(OVENTempCtrlType_t Type)
 {
     return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_OFF);
 }
 
-bool COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
@@ -595,16 +750,27 @@ bool COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperatu
     }
     else
     {
-        return false;
+        return DCL_ERR_NOT_INITIALIZED;
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return false;
+        return retCode;
     }
     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP);
-    return (DCL_ERR_FCT_CALL_SUCCESS == retCode);
+    return retCode;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set temperature.
+ *
+ *  This slot is connected to the signal, ReportRefTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Temperature = Target temperature.
+ *
+ */
+/****************************************************************************/
 void COvenDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature)
 {
     Q_UNUSED(Temperature)
@@ -619,6 +785,16 @@ void COvenDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qre
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature synchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
@@ -647,17 +823,39 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
     return RetValue;
 }
 
-bool COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index)
+/****************************************************************************/
+/*!
+ *  \brief    Get actual temperature of Air-liquid device asynchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetTempTime[Type][Index] = Now;
-        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pTempCtrls[Type]->ReqActTemperature(Index));
+        return   m_pTempCtrls[Type]->ReqActTemperature(Index);
     }
-    return true;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature.
+ *
+ *  This slot is connected to the signal, ReportActTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Index = Index of the actual temperature control module.
+ *  \iparam Temp = Actual temperature.
+ *
+ */
+/****************************************************************************/
 void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp)
 {
     Q_UNUSED(Index)
@@ -676,6 +874,19 @@ void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 
 
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Set PID parameters for temperature control module.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Oven temperature PID, type: " << Type;
@@ -694,6 +905,21 @@ ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 Max
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set PID parameters.
+ *
+ *  This slot is connected to the signal, ReportSetPidAckn
+ *
+ *  \iparam  ReturnCode = ReturnCode of function level Layer
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ */
+/****************************************************************************/
 void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     Q_UNUSED(MaxTemperature)
@@ -711,6 +937,13 @@ void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemp
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Get Oven Lid status.
+ *
+ *  \return  1: Open, 0: Closed
+ */
+/****************************************************************************/
 quint16 COvenDevice::GetLidStatus()
 {
     //Log(tr("GetValue"));
@@ -727,17 +960,35 @@ quint16 COvenDevice::GetLidStatus()
     return m_LidStatus;
 }
 
-bool COvenDevice::GetLidStatusAsync()
+/****************************************************************************/
+/*!
+ *  \brief  Get Oven Lid status asynchronously.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::GetLidStatusAsync()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetLidStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetLidStatusTime = Now;
-        return ( DCL_ERR_FCT_CALL_SUCCESS== m_pLidDigitalInput->ReqActInputValue());
+        return m_pLidDigitalInput->ReqActInputValue();
     }
-    return true;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get digital input value.
+ *
+ *  This slot is connected to the signal, ReportActInputValue
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam InputValue = Actual digital input value.
+ *
+ */
+/****************************************************************************/
 void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue)
 {
     if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
@@ -752,6 +1003,13 @@ void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, 
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE, ReturnCode);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Get the Oven lid sensor data captured in last 500 milliseconds.
+ *
+ *  \return  Actual lid status, UNDEFINED if failed.
+ */
+/****************************************************************************/
 quint16 COvenDevice::GetRecentOvenLidStatus()
 {
    // QMutexLocker Locker(&m_Mutex);
