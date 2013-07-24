@@ -36,9 +36,7 @@
 #include "DeviceControl/Include/SlaveModules/Rfid11785.h"
 #include "DeviceControl/Include/SlaveModules/Rfid15693.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-#ifdef PRE_ALFA_TEST
 #include "DeviceControl/Include/SlaveModules/PressureControl.h"
-#endif
 #include "Global/Include/AdjustedTime.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
@@ -87,9 +85,6 @@ IDeviceProcessing::IDeviceProcessing() :
     CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
     m_ParentThreadID = QThread::currentThreadId();
-#if 1
-    qDebug()<< "IDeviceProcess's parent thread id is: "<<m_ParentThreadID;
-#endif
 }
 
 /****************************************************************************/
@@ -111,12 +106,22 @@ IDeviceProcessing::~IDeviceProcessing()
     {
     }
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  slot for local thread started
+ *
+ *  This slot is connected to the signal started
+ *
+ */
+/****************************************************************************/
 void IDeviceProcessing::ThreadStarted()
 {
     mp_DevProcTimer = new QTimer(this);
     CONNECTSIGNALSLOT(mp_DevProcTimer, timeout(), this, HandleTasks());
     mp_DevProcTimer->start(10);
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Forward error information via a signal

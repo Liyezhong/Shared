@@ -556,12 +556,12 @@ ReturnCode_t CConfigurationService::CreateDiscoveredHWConfiguration()
     QDomDocument DocHwDescr;
     QDomNode ResultNode;
     //pDocHwDescr = new QDomDocument();
-    QDomElement root = DocHwDescr.createElement("colorado_hwconfig");
+    QDomElement root = DocHwDescr.createElement("himalaya_hwconfig");
 
     ResultNode = DocHwDescr.appendChild(root);
     if(ResultNode.isNull())
     {
-        FILE_LOG_L(laCONFIG, llERROR) << " append 'colorado_hwconfig'' node failed.";
+        FILE_LOG_L(laCONFIG, llERROR) << " append 'himalaya_hwconfig'' node failed.";
         return  DCL_ERR_FCT_CALL_SUCCESS;
     }
 

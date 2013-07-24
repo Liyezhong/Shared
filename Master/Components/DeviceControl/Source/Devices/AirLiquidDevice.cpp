@@ -191,63 +191,104 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
 
     FILE_LOG_L(laDEV, llINFO) << "  CAirLiquidDevice::HandleInitializationState()";
 
-    m_pPressureCtrl = (CPressureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALPressureCtrlKey));
-    if(m_pPressureCtrl == 0)
+    quint32 InstanceID;
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALPressureCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_PRESSURECTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
-    }
-
-    m_pTempCtrls[AL_LEVELSENSOR] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALLevelSensorTempCtrlKey));
-    if(m_pTempCtrls[AL_LEVELSENSOR] == 0)
-    {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_LEVELSENSORTEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pPressureCtrl = (CPressureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pPressureCtrl == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_PRESSURECTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
     }
     else
     {
-       // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xF)] = AL_LEVELSENSOR;
-        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pTempCtrls[AL_TUBE1] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube1TempCtrlKey));
-    if(m_pTempCtrls[AL_TUBE1] == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALLevelSensorTempCtrlKey);
+    m_pTempCtrls[AL_LEVELSENSOR] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_TUBE1TEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        if(m_pTempCtrls[AL_LEVELSENSOR] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_LEVELSENSORTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xF)] = AL_LEVELSENSOR;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR;
+        }
     }
     else
     {
-        //m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xF)] = AL_TUBE1;
-        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL ] = AL_TUBE1;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pTempCtrls[AL_TUBE2] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube2TempCtrlKey));
-    if(m_pTempCtrls[AL_TUBE2] == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube1TempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_TUBE2TEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pTempCtrls[AL_TUBE1] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[AL_TUBE1] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_TUBE1TEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            //m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xF)] = AL_TUBE1;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL ] = AL_TUBE1;
+        }
     }
     else
     {
-       // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xF)] = AL_TUBE2;
-        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL ] = AL_TUBE2;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pFanDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALFanDOKey));
-    if(m_pFanDigitalOutput == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube2TempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_FANDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_FANDO not allocated.";
+        m_pTempCtrls[AL_TUBE2] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[AL_TUBE2] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_TUBE2TEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xF)] = AL_TUBE2;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL ] = AL_TUBE2;
+        }
+    }
+    else
+    {
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALFanDOKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
+    {
+        m_pFanDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pFanDigitalOutput == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_FANDO);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_FANDO not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
     return RetVal;

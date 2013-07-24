@@ -171,41 +171,65 @@ ReturnCode_t COvenDevice::HandleInitializationState()
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
     FILE_LOG_L(laDEV, llINFO) << "  COvenDevice::HandleInitializationState()";
-
-    m_pTempCtrls[OVEN_TOP] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenTopTempCtrlKey));
-    if(m_pTempCtrls[OVEN_TOP] == 0)
+    quint32 InstanceID;
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenTopTempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_OVEN_TOPTEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pTempCtrls[OVEN_TOP] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[OVEN_TOP] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_OVEN_TOPTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            //m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xF)] = OVEN_TOP;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;
+        }
     }
     else
     {
-        //m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xF)] = OVEN_TOP;
-        m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pTempCtrls[OVEN_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenBottomTempCtrlKey));
-    if(m_pTempCtrls[OVEN_BOTTOM] == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenBottomTempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_OVEN_BOTTOMTEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pTempCtrls[OVEN_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[OVEN_BOTTOM] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_OVEN_BOTTOMTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xF)] = OVEN_BOTTOM;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;
+        }
     }
     else
     {
-       // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xF)] = OVEN_BOTTOM;
-        m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pLidDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey));
-    if(m_pLidDigitalInput == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+        m_pLidDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey));
+        if(m_pLidDigitalInput == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 

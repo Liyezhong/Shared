@@ -161,72 +161,94 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
 
     FILE_LOG_L(laDEV, llINFO) << "  CPeripheryDevice::HandleInitializationState()";
 
-    m_pDigitalOutputs[PER_MAIN_RELAY] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerMainRelayDOKey));
-    if(m_pDigitalOutputs[PER_MAIN_RELAY] == 0)
+    quint32 InstanceID;
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerMainRelayDOKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pDigitalOutputs[PER_MAIN_RELAY] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pDigitalOutputs[PER_MAIN_RELAY] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            //m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xF)] = PER_MAIN_RELAY;
+            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO] = PER_MAIN_RELAY;
+        }
     }
     else
     {
-        //m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xF)] = PER_MAIN_RELAY;
-        m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO] = PER_MAIN_RELAY;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
-
-/*    m_pDigitalOutputs[PER_REMOTE_ALARM_SET] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey));
+    /*    m_pDigitalOutputs[PER_REMOTE_ALARM_SET] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey));
     if(m_pDigitalOutputs[PER_REMOTE_ALARM_SET] == 0)
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    // the function module could not be allocated
+    SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO);
+    FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
+    RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
     else
     {
-        m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO & 0xF)] = PER_REMOTE_ALARM_SET;
+    m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO & 0xF)] = PER_REMOTE_ALARM_SET;
     }
 */
-
-    m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey));
-    if(m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCTRLDO not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCTRLDO not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xF)] = PER_REMOTE_ALARM_CTRL;
+            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_REMOTE_ALARM_CTRL;
+        }
     }
     else
     {
-       // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xF)] = PER_REMOTE_ALARM_CTRL;
-        m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_REMOTE_ALARM_CTRL;
-    }
-
-    m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerLocalAlarmCtrlDOKey));
-    if(m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] == 0)
-    {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCTRLDO not allocated.";
         RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerLocalAlarmCtrlDOKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
+    {
+        m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCTRLDO not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
+            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_LOCAL_ALARM_CTRL;
+        }
     }
     else
     {
-       // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
-        m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_LOCAL_ALARM_CTRL;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
-/*    m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey));
+    /*    m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey));
     if(m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] == 0)
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCLEARDO not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    // the function module could not be allocated
+    SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO);
+    FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCLEARDO not allocated.";
+    RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
     else
     {
-        m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO & 0xF)] = PER_REMOTE_ALARM_CLEAR;
+    m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO & 0xF)] = PER_REMOTE_ALARM_CLEAR;
     }
 */
     return RetVal;

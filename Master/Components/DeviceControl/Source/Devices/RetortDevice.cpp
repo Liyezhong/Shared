@@ -176,50 +176,82 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
     FILE_LOG_L(laDEV, llINFO) << "  CRetortDevice::HandleInitializationState()";
-
-    m_pTempCtrls[RT_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortBottomTempCtrlKey));
-    if(m_pTempCtrls[RT_BOTTOM] == 0)
+    quint32 InstanceID;
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortBottomTempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pTempCtrls[RT_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[RT_BOTTOM] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xF)] = RT_BOTTOM;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL] = RT_BOTTOM;
+        }
     }
     else
     {
-       // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xF)] = RT_BOTTOM;
-        m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL] = RT_BOTTOM;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pTempCtrls[RT_SIDE] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortSideTempCtrlKey));
-    if(m_pTempCtrls[RT_SIDE] == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortSideTempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_SIDETEMPCTRL not allocated.";
-        RetVal = DCL_ERR_FCT_CALL_FAILED;
+        m_pTempCtrls[RT_SIDE] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[RT_SIDE] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_SIDETEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xF)] = RT_SIDE;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL] = RT_SIDE;
+        }
     }
     else
     {
-       // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xF)] = RT_SIDE;
-        m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL] = RT_SIDE;
-    }
-
-    m_pLockDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDOKey));
-    if(m_pLockDigitalOutput == 0)
-    {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDO);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDO not allocated.";
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pLockDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDIKey));
-    if(m_pLockDigitalInput == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDOKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+        m_pLockDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pLockDigitalOutput == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDO);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDO not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDIKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
+    {
+        m_pLockDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pLockDigitalInput == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RETORT_LOCKDI);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
