@@ -40,15 +40,15 @@ namespace DeviceControl
 #define PRESSURE_CTRL_PHASE_BITPOS   (2)    //!< bit position phase
 #define PRESSURE_CTRL_VOLTAGE_BITPOS (3)  //!< bit position phase
 
-///****************************************************************************/
-///*!
-// *  \brief  Constructor for the CPressureControl
-// *
-// *  \iparam p_MessageConfiguration = Message configuration
-// *  \iparam pCANCommunicator = pointer to communication class
-// *  \iparam pParentNode = pointer to CANNode, where this module is assigned to
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Constructor for the CPressureControl
+ *
+ *  \iparam p_MessageConfiguration = Message configuration
+ *  \iparam pCANCommunicator = pointer to communication class
+ *  \iparam pParentNode = pointer to CANNode, where this module is assigned to
+ */
+/****************************************************************************/
 CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator, CBaseModule* pParentNode) :
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL, p_MessageConfiguration, pCANCommunicator, pParentNode),
     m_unCanIDError(0), m_unCanIDErrorReq(0),
@@ -74,25 +74,26 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Destructor of CPressureControl
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Destructor of CPressureControl
+ */
+/****************************************************************************/
 CPressureControl::~CPressureControl()
 {
     /// \todo Auto-generated destructor stub
 }
-///****************************************************************************/
-///*!
-// *  \brief  Initialize this function module
-// *
-// *  The CAN-IDs are read from the CAN-Message configuration class, and the CAN-ID are composed
-// *  Receiveable CAN-message are registered to the communication layer
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
-// */
-///****************************************************************************/
+
+/****************************************************************************/
+/*!
+ *  \brief  Initialize this function module
+ *
+ *  The CAN-IDs are read from the CAN-Message configuration class, and the CAN-ID are composed
+ *  Receiveable CAN-message are registered to the communication layer
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::Initialize()
 {
     ReturnCode_t RetVal;
@@ -110,17 +111,17 @@ ReturnCode_t CPressureControl::Initialize()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Initialize the module's CAN message IDs
-// *
-// *  The CAN-IDs are read from the CAN-Message configuration class.
-// *  The CAN-ID is composed by the message key, the function
-// *  module's channel and the node id of the CANNode this fct-module is assigned to.
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Initialize the module's CAN message IDs
+ *
+ *  The CAN-IDs are read from the CAN-Message configuration class.
+ *  The CAN-ID is composed by the message key, the function
+ *  module's channel and the node id of the CANNode this fct-module is assigned to.
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ */
+/****************************************************************************/
 ReturnCode_t  CPressureControl::InitializeCANMessages()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
@@ -185,17 +186,17 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Register the receive CAN-messages to communication layer
-// *
-// *  Each receiveable CAN-message must be registered to the communication layer.
-// *  This enables the communication layer to call the 'HandelCANMessage(..)' function of this
-// *  instance after receiption of the message.
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Register the receive CAN-messages to communication layer
+ *
+ *  Each receiveable CAN-message must be registered to the communication layer.
+ *  This enables the communication layer to call the 'HandelCANMessage(..)' function of this
+ *  instance after receiption of the message.
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::RegisterCANMessages()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
@@ -254,13 +255,13 @@ ReturnCode_t CPressureControl::RegisterCANMessages()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the function module's state machine
-// *
-// *  Depending on the active main state, the appropriate task function will be called.
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the function module's state machine
+ *
+ *  Depending on the active main state, the appropriate task function will be called.
+ */
+/****************************************************************************/
 void CPressureControl::HandleTasks()
 {
     QMutexLocker Locker(&m_Mutex);
@@ -328,14 +329,14 @@ void CPressureControl::HandleTasks()
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the function module's state machine in idle main state
-// *
-// *      Depending on the active task ID, the appropriate task function will
-// *      be called.
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the function module's state machine in idle main state
+ *
+ *      Depending on the active task ID, the appropriate task function will
+ *      be called.
+ */
+/****************************************************************************/
 void CPressureControl::HandleIdleState()
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
@@ -344,22 +345,22 @@ void CPressureControl::HandleIdleState()
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handle the task to execute the module commands
-// *
-// *  The function is called from HandleIdleState() if m_taskID == FM_PRESSURE_TASKID_COMMAND_HDL.
-// *  The function loops thru the m_ModuleCommand array and controls the commands stored there
-// *
-// *   - Module command with state MODULE_CMD_STATE_REQ will be forwarded to the pressure ctrl. function module
-// *     on slave side by sending the corresponding CAN-messge
-// *
-// *   - Module command with state MODULE_CMD_STATE_REQ_SEND will be checked for timeout
-// *
-// *  Usually, a motor command will be confirmed and closed by receiving the expected CAN-message (e.g. act. pressure)
-// *  This is done at the HandleCANMessage... function
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handle the task to execute the module commands
+ *
+ *  The function is called from HandleIdleState() if m_taskID == FM_PRESSURE_TASKID_COMMAND_HDL.
+ *  The function loops thru the m_ModuleCommand array and controls the commands stored there
+ *
+ *   - Module command with state MODULE_CMD_STATE_REQ will be forwarded to the pressure ctrl. function module
+ *     on slave side by sending the corresponding CAN-messge
+ *
+ *   - Module command with state MODULE_CMD_STATE_REQ_SEND will be checked for timeout
+ *
+ *  Usually, a motor command will be confirmed and closed by receiving the expected CAN-message (e.g. act. pressure)
+ *  This is done at the HandleCANMessage... function
+ */
+/****************************************************************************/
 void CPressureControl::HandleCommandRequestTask()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_NOT_FOUND;
@@ -623,19 +624,19 @@ void CPressureControl::HandleCommandRequestTask()
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handle the reception of a CAN message
-// *
-// *  The function is called from communication layer if a CAN message, which
-// *  was registered to this class instance, was received.
-// *  The message will be forwarded to the specialized function.
-// *
-// *  \iparam pCANframe = struct contains the data of the receipt CAN message
-// *
-// *  \return void
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handle the reception of a CAN message
+ *
+ *  The function is called from communication layer if a CAN message, which
+ *  was registered to this class instance, was received.
+ *  The message will be forwarded to the specialized function.
+ *
+ *  \iparam pCANframe = struct contains the data of the receipt CAN message
+ *
+ *  \return void
+ */
+/****************************************************************************/
 void CPressureControl::HandleCanMessage(can_frame* pCANframe)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -682,15 +683,15 @@ void CPressureControl::HandleCanMessage(can_frame* pCANframe)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the 'ServiceSensor' response CAN message
-// *
-// *      The message contains information to a sensor's pressure.
-// *
-// *  \iparam pCANframe = The received CAN message
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'ServiceSensor' response CAN message
+ *
+ *      The message contains information to a sensor's pressure.
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
 void CPressureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
@@ -712,20 +713,20 @@ void CPressureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief   Handles the 'Pressure' response CAN message
-// *
-// *      The message contains information to
-// *       - pressure control status and operation mode
-// *       - desired pressure
-// *       - tolerance
-// *       - sampling rate
-// *       - auto tuning duration
-// *
-// *  \iparam pCANframe = The received CAN message
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief   Handles the 'Pressure' response CAN message
+ *
+ *      The message contains information to
+ *       - pressure control status and operation mode
+ *       - desired pressure
+ *       - tolerance
+ *       - sampling rate
+ *       - auto tuning duration
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
 void CPressureControl::HandleCANMsgPressure(can_frame* pCANframe)
 {
     ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
@@ -775,16 +776,16 @@ void CPressureControl::HandleCANMsgPressure(can_frame* pCANframe)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the 'PumpTime' response CAN message
-// *
-// *      The message contains information to a operating time counter of a
-// *      pump.
-// *
-// *  \iparam pCANframe = The received CAN message
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'PumpTime' response CAN message
+ *
+ *      The message contains information to a operating time counter of a
+ *      pump.
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
 void CPressureControl::HandleCANMsgPumpTime(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
@@ -808,15 +809,15 @@ void CPressureControl::HandleCANMsgPumpTime(can_frame* pCANframe)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the 'ServiceFan' response CAN message
-// *
-// *      The message contains information to a ventilation fan's speed.
-// *
-// *  \iparam pCANframe = The received CAN message
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'ServiceFan' response CAN message
+ *
+ *      The message contains information to a ventilation fan's speed.
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
 void CPressureControl::HandleCANMsgServiceFan(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
@@ -840,15 +841,15 @@ void CPressureControl::HandleCANMsgServiceFan(can_frame* pCANframe)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the 'ServiceFan' response CAN message
-// *
-// *      The message contains information to a boards's hardware setup.
-// *
-// *  \iparam pCANframe = The received CAN message
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'ServiceFan' response CAN message
+ *
+ *      The message contains information to a boards's hardware setup.
+ *
+ *  \iparam pCANframe = The received CAN message
+ */
+/****************************************************************************/
 void CPressureControl::HandleCANMsgHardware(can_frame* pCANframe)
 {
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
@@ -873,17 +874,17 @@ void CPressureControl::HandleCANMsgHardware(can_frame* pCANframe)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Handles the 'NotiInRange' and 'NotiOutOfRange' response message
-// *
-// *      The message is received when the measured pressure leaves or
-// *      enters a predefined range.
-// *
-// *  \iparam pCANframe = The received CAN message
-// *  \iparam InRange = Pressure in range (true) or out of range (false)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Handles the 'NotiInRange' and 'NotiOutOfRange' response message
+ *
+ *      The message is received when the measured pressure leaves or
+ *      enters a predefined range.
+ *
+ *  \iparam pCANframe = The received CAN message
+ *  \iparam InRange = Pressure in range (true) or out of range (false)
+ */
+/****************************************************************************/
 void CPressureControl::HandleCANMsgNotiRange(can_frame* pCANframe, bool InRange)
 {
     if(pCANframe->can_dlc == 2)
@@ -902,13 +903,13 @@ void CPressureControl::HandleCANMsgNotiRange(can_frame* pCANframe, bool InRange)
     }
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to set the fan parameters
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set the fan parameters
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgFanWatchdogSet()
 {
     CANFctModulePressureCtrl* pCANObjConfPressure;
@@ -937,13 +938,13 @@ ReturnCode_t CPressureControl::SendCANMsgFanWatchdogSet()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to set the pump current parameters
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set the pump current parameters
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgCurrentWatchdogSet()
 {
     CANFctModulePressureCtrl* pCANObjConfPressure;
@@ -973,15 +974,15 @@ ReturnCode_t CPressureControl::SendCANMsgCurrentWatchdogSet()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to set the pump current parameters
-// *
-// *  \iparam Index = Index of the PID controller
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set the pump current parameters
+ *
+ *  \iparam Index = Index of the PID controller
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgPidParametersSet(quint8 Index)
 {
     CANFctModulePressureCtrl* pCANObjConfPressure;
@@ -1015,19 +1016,19 @@ ReturnCode_t CPressureControl::SendCANMsgPidParametersSet(quint8 Index)
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to set a desired pressure
-// *
-// *  \iparam flag = 1: Pressure 9: Vaccum
-// *  \iparam Pressure = Reference Pressure in 1 kpa steps
-// *  \iparam Tolerance = Pressure tolerance in 1 kpa
-// *  \iparam SamplingTime = sampleing time
-// *  \iparam DurationTime = duration time
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set a desired pressure
+ *
+ *  \iparam flag = 1: Pressure 9: Vaccum
+ *  \iparam Pressure = Reference Pressure in 1 kpa steps
+ *  \iparam Tolerance = Pressure tolerance in 1 kpa
+ *  \iparam SamplingTime = sampleing time
+ *  \iparam DurationTime = duration time
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1050,16 +1051,16 @@ ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to set valves' state
-// *
-// *  \iparam ValveIndex = index of the valves, start from 0
-// *  \iparam falgs = 0: close  1: open
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set valves' state
+ *
+ *  \iparam ValveIndex = index of the valves, start from 0
+ *  \iparam falgs = 0: close  1: open
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 ValveIndex, quint8 flags)
 {
 
@@ -1080,6 +1081,18 @@ ReturnCode_t CPressureControl::SendCANMsgSetValve(quint8 ValveIndex, quint8 flag
     return retval;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set PWM parameters.
+ *
+ *  \iparam MaxActuatingValue = Maximum actuaing value
+ *  \iparam MinActuatingValue = Minumum actuaing value
+ *  \iparam MaxPwmDuty = Maximum PWM duty
+ *  \iparam MinPwmDuty = Minumum PWM duty
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgSetPWMParam(quint16 MaxActuatingValue, quint16 MinActuatingValue, quint8 MaxPwmDuty, quint8 MinPwmDuty)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1099,15 +1112,16 @@ ReturnCode_t CPressureControl::SendCANMsgSetPWMParam(quint16 MaxActuatingValue, 
 
     return retval;
 }
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to enable/disable calibration function.
-// *
-// *  \iparam Enabl= true: Enable  false: Disable
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to enable/disable calibration function.
+ *
+ *  \iparam Enabl= true: Enable  false: Disable
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgCalibration(bool Enable)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1123,16 +1137,17 @@ ReturnCode_t CPressureControl::SendCANMsgCalibration(bool Enable)
 
     return retval;
 }
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to request the 'Pressure' CAN-Message
-// *
-// *      The 'Pressure' CAN-Message contains the reference pressure and
-// *      the operation mode.
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to request the 'Pressure' CAN-Message
+ *
+ *      The 'Pressure' CAN-Message contains the reference pressure and
+ *      the operation mode.
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgPressureRequest()
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1148,18 +1163,18 @@ ReturnCode_t CPressureControl::SendCANMsgPressureRequest()
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to request the 'PumpTimeSet' CAN-Message
-// *
-// *      The 'ServiceSensor' CAN-Message contains the pressure measured by
-// *      one of the sensors of the Slave module.
-// *
-// *  \iparam Index = Number of the sensor
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to request the 'PumpTimeSet' CAN-Message
+ *
+ *      The 'ServiceSensor' CAN-Message contains the pressure measured by
+ *      one of the sensors of the Slave module.
+ *
+ *  \iparam Index = Number of the sensor
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgServiceSensorRequest(quint8 Index)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1176,15 +1191,15 @@ ReturnCode_t CPressureControl::SendCANMsgServiceSensorRequest(quint8 Index)
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to reset the operating time of a pump
-// *
-// *  \iparam Index = Number of the pump
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to reset the operating time of a pump
+ *
+ *  \iparam Index = Number of the pump
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgPumpTimeSet(quint8 Index)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1201,15 +1216,15 @@ ReturnCode_t CPressureControl::SendCANMsgPumpTimeSet(quint8 Index)
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to get the operating time of a pump
-// *
-// *  \iparam Index = Number of the pump
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to get the operating time of a pump
+ *
+ *  \iparam Index = Number of the pump
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgPumpTimeReq(quint8 Index)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1226,15 +1241,15 @@ ReturnCode_t CPressureControl::SendCANMsgPumpTimeReq(quint8 Index)
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to get speed of a ventilation fan
-// *
-// *  \iparam Index = Number of the fan
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to get speed of a ventilation fan
+ *
+ *  \iparam Index = Number of the fan
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgServiceFanReq(quint8 Index)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1251,13 +1266,13 @@ ReturnCode_t CPressureControl::SendCANMsgServiceFanReq(quint8 Index)
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Send the CAN message to get hardware information
-// *
-// *  \return The return value is set from SendCOB(can_frame)
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to get hardware information
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SendCANMsgHardwareReq()
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1273,17 +1288,17 @@ ReturnCode_t CPressureControl::SendCANMsgHardwareReq()
     return retval;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Set the target pressure
-// *
-// *  \iparam flag = 1: Pressure, 9: Vaccum
-// *  \iparam Pressure = Reference pressure
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Set the target pressure
+ *
+ *  \iparam flag = 1: Pressure, 9: Vaccum
+ *  \iparam Pressure = Reference pressure
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SetPressure(quint8 flag, qreal Pressure)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1304,17 +1319,18 @@ ReturnCode_t CPressureControl::SetPressure(quint8 flag, qreal Pressure)
 
     return RetVal;
 }
-///****************************************************************************/
-///*!
-// *  \brief  Set the valves' state
-// *
-// *  \iparam ValveIndex: Index of the valves, start from 0
-// *  \iparam ValveState = 0: close, 1: open
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+
+/****************************************************************************/
+/*!
+ *  \brief  Set the valves' state
+ *
+ *  \iparam ValveIndex: Index of the valves, start from 0
+ *  \iparam ValveState = 0: close, 1: open
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1336,16 +1352,17 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
 
     return RetVal;
 }
-///****************************************************************************/
-///*!
-// *  \brief  Enable/Disable calibration function
-// *
-// *  \iparam Enable: true: Enable, false: Disbale
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+
+/****************************************************************************/
+/*!
+ *  \brief  Enable/Disable calibration function
+ *
+ *  \iparam Enable: true: Enable, false: Disbale
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SetCalibration(bool Enable)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1366,6 +1383,19 @@ ReturnCode_t CPressureControl::SetCalibration(bool Enable)
     return RetVal;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Set PWM parameters.
+ *
+ *  \iparam MaxActuatingValue = Maximum actuaing value
+ *  \iparam MinActuatingValue = Minumum actuaing value
+ *  \iparam MaxPwmDuty = Maximum PWM duty
+ *  \iparam MinPwmDuty = Minumum PWM duty
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1390,17 +1420,16 @@ ReturnCode_t CPressureControl::SetPWMParams(quint16 maxActuatingValue, quint16 m
     return RetVal;
 }
 
-
-///****************************************************************************/
-///*!
-// *  \brief  Request the actual pressure
-// *
-// *  \iparam Index = Pressure sensor index
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Request the actual pressure
+ *
+ *  \iparam Index = Pressure sensor index
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::ReqActPressure(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1421,16 +1450,16 @@ ReturnCode_t CPressureControl::ReqActPressure(quint8 Index)
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Set the pressure control's operation mode
-// *
-// *  \iparam PressureCtrlOpMode = Operation mode to set
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Set the pressure control's operation mode
+ *
+ *  \iparam PressureCtrlOpMode = Operation mode to set
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SetOperatingMode(PressureCtrlOperatingMode_t PressureCtrlOpMode)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1451,14 +1480,14 @@ ReturnCode_t CPressureControl::SetOperatingMode(PressureCtrlOperatingMode_t Pres
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Request the operating mode
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Request the operating mode
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::ReqOperatingMode()
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1477,16 +1506,16 @@ ReturnCode_t CPressureControl::ReqOperatingMode()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Set the pressure control's status
-// *
-// *  \iparam PressureCtrlState = Status mode to set
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Set the pressure control's status
+ *
+ *  \iparam PressureCtrlState = Status mode to set
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::SetStatus(PressureCtrlStatus_t PressureCtrlState)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1507,14 +1536,14 @@ ReturnCode_t CPressureControl::SetStatus(PressureCtrlStatus_t PressureCtrlState)
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Request the pressure control status
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Request the pressure control status
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::ReqStatus()
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1533,16 +1562,16 @@ ReturnCode_t CPressureControl::ReqStatus()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Resets the operating time of a pump
-// *
-// *  \ipram  Index = Index of the pump element
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Resets the operating time of a pump
+ *
+ *  \ipram  Index = Index of the pump element
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::ResetPumpOperatingTime(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1563,16 +1592,16 @@ ReturnCode_t CPressureControl::ResetPumpOperatingTime(quint8 Index)
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Gets the operating time of a pump
-// *
-// *  \ipram  Index = Index of the pump
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Gets the operating time of a pump
+ *
+ *  \ipram  Index = Index of the pump
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::GetPumpOperatingTime(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1593,16 +1622,16 @@ ReturnCode_t CPressureControl::GetPumpOperatingTime(quint8 Index)
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Gets the speed of a ventilation fan
-// *
-// *  \ipram  Index = Index of the ventilation fan
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Gets the speed of a ventilation fan
+ *
+ *  \ipram  Index = Index of the ventilation fan
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::GetFanSpeed(quint8 Index)
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1623,20 +1652,20 @@ ReturnCode_t CPressureControl::GetFanSpeed(quint8 Index)
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief  Gets information of the hardware connected to the module
-// *
-// *      This method will return the following information from the
-// *      pressure control module on the Slave: number of pressure
-// *      sensors, number of ventilation fans, number of pumps, number of PID
-// *      controllers in the control loop, current through the pump
-// *      in milliamperes.
-// *
-// *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
-// *          otherwise an error code
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Gets information of the hardware connected to the module
+ *
+ *      This method will return the following information from the
+ *      pressure control module on the Slave: number of pressure
+ *      sensors, number of ventilation fans, number of pumps, number of PID
+ *      controllers in the control loop, current through the pump
+ *      in milliamperes.
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t CPressureControl::GetHardwareStatus()
 {
     QMutexLocker Locker(&m_Mutex);
@@ -1655,16 +1684,16 @@ ReturnCode_t CPressureControl::GetHardwareStatus()
     return RetVal;
 }
 
-///****************************************************************************/
-///*!
-// *  \brief   Helper function, sets a free module command to the given command type
-// *
-// *  \iparam  CommandType = command type to set
-// *  \iparam  pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
-// *
-// *  \return  true, if the command type can be placed, otherwise false
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief   Helper function, sets a free module command to the given command type
+ *
+ *  \iparam  CommandType = command type to set
+ *  \iparam  pCmdIndex = pointer to index within the command array the command is set to (optional parameter, default 0)
+ *
+ *  \return  true, if the command type can be placed, otherwise false
+ */
+/****************************************************************************/
 bool CPressureControl::SetModuleTask(CANPressureCtrlCmdType_t CommandType, quint8* pCmdIndex)
 {
     bool CommandAdded = false;
@@ -1694,13 +1723,13 @@ bool CPressureControl::SetModuleTask(CANPressureCtrlCmdType_t CommandType, quint
     return CommandAdded;
 }
 
-///****************************************************************************/
-///**
-// *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
-// *
-// *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
-// */
-///****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief  Set the ModuleCommands with the specified command type to 'FREE'
+ *
+ *  \iparam ModuleCommandType = ModuleCommands having this command type will be set to free
+ */
+/****************************************************************************/
 void CPressureControl::ResetModuleCommand(CANPressureCtrlCmdType_t ModuleCommandType)
 {
     bool ActiveCommandFound = false;

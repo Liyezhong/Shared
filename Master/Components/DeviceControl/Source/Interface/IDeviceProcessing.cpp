@@ -597,11 +597,29 @@ void IDeviceProcessing::Destroy()
     m_reqTaskParameter2 = 0;
 }
 
+/****************************************************************************/
+/**
+ *  \brief  slot associate with Destroy
+ *
+ *  This slot is connected to the signal, ReportDestroyFinished
+ *
+ *
+ */
+/****************************************************************************/
 void IDeviceProcessing::OnDestroyFinished()
 {
     mp_DevProcTimer->stop();
     emit ReportDestroyFinished();
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetPressureCtrlON()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -617,6 +635,15 @@ ReturnCode_t IDeviceProcessing::ALSetPressureCtrlON()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetPressureCtrlOFF()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -632,6 +659,15 @@ ReturnCode_t IDeviceProcessing::ALSetPressureCtrlOFF()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALReleasePressure(void)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -647,6 +683,15 @@ ReturnCode_t IDeviceProcessing::ALReleasePressure(void)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALPressure()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -662,6 +707,15 @@ ReturnCode_t IDeviceProcessing::ALPressure()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALVaccum()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -677,6 +731,15 @@ ReturnCode_t IDeviceProcessing::ALVaccum()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -692,6 +755,15 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -707,6 +779,15 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal IDeviceProcessing::ALGetRecentPressure()
 {
     if(m_pAirLiquid)
@@ -720,6 +801,15 @@ qreal IDeviceProcessing::ALGetRecentPressure()
 
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetTempCtrlON(ALTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -735,6 +825,15 @@ ReturnCode_t IDeviceProcessing::ALSetTempCtrlON(ALTempCtrlType_t Type)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetTempCtrlOFF(ALTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -750,6 +849,15 @@ ReturnCode_t IDeviceProcessing::ALSetTempCtrlOFF(ALTempCtrlType_t Type)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -765,6 +873,15 @@ ReturnCode_t IDeviceProcessing::ALSetTemperaturePid(ALTempCtrlType_t Type, quint
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALStartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -782,6 +899,15 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControl(ALTempCtrlType_t Type,
 
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -799,6 +925,15 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControlWithPID(ALTempCtrlType_
 
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal IDeviceProcessing::ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
     if(m_pAirLiquid)
@@ -810,6 +945,15 @@ qreal IDeviceProcessing::ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 In
         return UNDEFINED_VALUE;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 TempCtrlState_t IDeviceProcessing::ALGetTemperatureControlState(ALTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -826,6 +970,15 @@ TempCtrlState_t IDeviceProcessing::ALGetTemperatureControlState(ALTempCtrlType_t
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALTurnOnFan()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -841,6 +994,15 @@ ReturnCode_t IDeviceProcessing::ALTurnOnFan()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALTurnOffFan()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -857,6 +1019,15 @@ ReturnCode_t IDeviceProcessing::ALTurnOffFan()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALAllStop()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -873,6 +1044,15 @@ ReturnCode_t IDeviceProcessing::ALAllStop()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALBreakAllOperation()
 {
     if(m_pAirLiquid)
@@ -885,6 +1065,15 @@ ReturnCode_t IDeviceProcessing::ALBreakAllOperation()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::ALSetPressureDrift(qreal pressureDrift)
 {
    if(m_pAirLiquid)
@@ -897,6 +1086,15 @@ ReturnCode_t IDeviceProcessing::ALSetPressureDrift(qreal pressureDrift)
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVSetTempCtrlON()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -912,6 +1110,15 @@ ReturnCode_t IDeviceProcessing::RVSetTempCtrlON()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVSetTempCtrlOFF()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -927,6 +1134,15 @@ ReturnCode_t IDeviceProcessing::RVSetTempCtrlOFF()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVSetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -942,6 +1158,15 @@ ReturnCode_t IDeviceProcessing::RVSetTemperaturePid(quint16 MaxTemperature, quin
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVStartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -959,6 +1184,14 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControl(qreal NominalTemperatu
 
 }
 
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -976,7 +1209,14 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTe
 
 }
 
-
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
 {
     if(m_pAirLiquid)
@@ -988,6 +1228,15 @@ qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
         return UNDEFINED_VALUE;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1002,8 +1251,16 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
     {
         return TEMPCTRL_STATE_ERROR;
     }
-}
-//! Execute the move to intial position of the RV
+} 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *  Execute the move to intial position of the RV
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1018,8 +1275,16 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
     {
         return DCL_ERR_NOT_INITIALIZED;
     }
-}
-//! Position the oven cover
+} 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.Position the oven cover
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1036,7 +1301,15 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
     }
 }
 
-//! Request actual oven cover position
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function. Request actual oven cover position
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 RVPosition_t IDeviceProcessing::RVReqActRVPosition()
 {
     if(m_pRotaryValve)
@@ -1048,6 +1321,15 @@ RVPosition_t IDeviceProcessing::RVReqActRVPosition()
         return RV_UNDEF;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::OvenSetTempCtrlON(OVENTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1063,6 +1345,15 @@ ReturnCode_t IDeviceProcessing::OvenSetTempCtrlON(OVENTempCtrlType_t Type)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::OvenSetTempCtrlOFF(OVENTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1078,6 +1369,15 @@ ReturnCode_t IDeviceProcessing::OvenSetTempCtrlOFF(OVENTempCtrlType_t Type)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::OvenSetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1094,6 +1394,15 @@ ReturnCode_t IDeviceProcessing::OvenSetTemperaturePid(OVENTempCtrlType_t Type, q
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1110,6 +1419,15 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControl(OVENTempCtrlType_t T
    }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1127,6 +1445,15 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControlWithPID(OVENTempCtrlT
 
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
 {
     if(m_pOven)
@@ -1139,6 +1466,15 @@ qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 quint16 IDeviceProcessing::OvenGetRecentLidStatus()
 {
     if(m_pOven)
@@ -1151,6 +1487,15 @@ quint16 IDeviceProcessing::OvenGetRecentLidStatus()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 TempCtrlState_t IDeviceProcessing::OvenGetTemperatureControlState(OVENTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1166,6 +1511,15 @@ TempCtrlState_t IDeviceProcessing::OvenGetTemperatureControlState(OVENTempCtrlTy
         return TEMPCTRL_STATE_ERROR;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTSetTempCtrlON(RTTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1181,6 +1535,15 @@ ReturnCode_t IDeviceProcessing::RTSetTempCtrlON(RTTempCtrlType_t Type)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTSetTempCtrlOFF(RTTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1196,6 +1559,15 @@ ReturnCode_t IDeviceProcessing::RTSetTempCtrlOFF(RTTempCtrlType_t Type)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTSetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1211,6 +1583,15 @@ ReturnCode_t IDeviceProcessing::RTSetTemperaturePid(RTTempCtrlType_t Type, quint
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTStartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1226,6 +1607,15 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControl(RTTempCtrlType_t Type,
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTStartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1242,6 +1632,15 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControlWithPID(RTTempCtrlType_
     }
 
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 qreal IDeviceProcessing::RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
         if(m_pRetort)
@@ -1253,6 +1652,15 @@ qreal IDeviceProcessing::RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 In
             return UNDEFINED_VALUE;
         }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 TempCtrlState_t IDeviceProcessing::RTGetTemperatureControlState(RTTempCtrlType_t Type)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1268,6 +1676,15 @@ TempCtrlState_t IDeviceProcessing::RTGetTemperatureControlState(RTTempCtrlType_t
         return TEMPCTRL_STATE_ERROR;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTUnlock()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1283,6 +1700,15 @@ ReturnCode_t IDeviceProcessing::RTUnlock()
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::RTLock()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1299,6 +1725,15 @@ ReturnCode_t IDeviceProcessing::RTLock()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 quint16 IDeviceProcessing::RTGetRecentLockStatus()
 {
     if(m_pRetort)
@@ -1311,6 +1746,15 @@ quint16 IDeviceProcessing::RTGetRecentLockStatus()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::PerTurnOffMainRelay()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1327,6 +1771,15 @@ ReturnCode_t IDeviceProcessing::PerTurnOffMainRelay()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
@@ -1343,6 +1796,15 @@ ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
     }
 }
 
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
 ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos)
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;

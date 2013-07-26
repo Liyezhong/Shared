@@ -2212,7 +2212,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
    // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
-:w
+
 /****************************************************************************/
 /*!
  *  \brief  Resume blocked thread with specified type
