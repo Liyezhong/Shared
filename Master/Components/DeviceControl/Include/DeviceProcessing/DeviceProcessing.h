@@ -379,6 +379,8 @@ private:
     EventLoopWithTimeout_t m_EventLoopsForSyncCall[SYNC_CMD_TOTAL_NUM];
     QTimer* m_pTimer;
 #endif
+    ReturnCode_t m_SyncCallResult[SYNC_CMD_TOTAL_NUM]; //!< Synchronized call results
+    QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];                //!< Mutexs for waitconditions
 };
 
 } // namespace

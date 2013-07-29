@@ -1,0 +1,45 @@
+#in repository we don't need to have:
+# Compiled object files
+*.o
+*.out
+
+# Generated MOC, resource and UI files
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+
+# Qt User Project files
+*.pro.user
+
+# Debug and Release directories (created under Windows, not Linux)
+# and the shadow build directories
+Debug/
+Release/
+*build-desktop-Qt*
+
+#ignore lib_*, bin_*, obj_* and moc_*
+lib_dbg/
+lib_rel/
+bin_dbg/
+bin_rel/
+obj_dbg/
+obj_rel/
+moc_dbg/
+moc_rel/
+Logfiles/
+
+#backup files from editor
+*~
+
+# Output of the coverage analysis
+gcov.info
+test.info
+
+# Output of the test report
+*.actual
+test_report*
+
+#Doxygen
+output/
+warnings.log
