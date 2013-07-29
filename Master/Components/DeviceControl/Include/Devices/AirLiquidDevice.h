@@ -54,6 +54,13 @@ class CDigitalOutput;
 #define VACCUM_MAX_SETUP_TIME        (120*1000)  //Tv_Rrr
 #define VACCUM_HOLD_TIME             (5*1000)  //Tv_Delay
 #define VACCUM_POLLING_TIME          (500)  //Polling time
+
+/****************************************************************************/
+/*!
+*   \brief This class implements the functionality to configure and control a
+*          'Air-Liquid' device
+*/
+/****************************************************************************/
 class CAirLiquidDevice : public CBaseDevice
 {
     Q_OBJECT
@@ -160,39 +167,32 @@ private slots:
 
 private:
     //Function modules
-    CPressureControl* m_pPressureCtrl;
-    CTemperatureControl* m_pTempCtrls[AL_TEMP_CTRL_NUM];
-    CDigitalOutput* m_pFanDigitalOutput;
+    CPressureControl* m_pPressureCtrl;                   //!< Pressure control FM
+    CTemperatureControl* m_pTempCtrls[AL_TEMP_CTRL_NUM]; //!< Temperature controls FMs for the heaters
+    CDigitalOutput* m_pFanDigitalOutput;                 //!< Digital output FM for the fan
 
     qreal m_TargetPressure;                              //!< Target pressure; for verification of action result.
     qreal m_CurrentPressure;                             //!< Current pressure
-    qreal m_PressureDrift;
-    qint32 m_WorkingPressurePositive;
-    qint32 m_WorkingPressureNegative;
+    qreal m_PressureDrift;                               //!< Current pressure drift
+    qint32 m_WorkingPressurePositive;                    //!< Positive working pressure
+    qint32 m_WorkingPressureNegative;                    //!< Negative working pressure
     PressureCtrlStatus_t m_TargetPressureCtrlStatus;     //!< Target pressure control status; for verification of action result.
     PressureCtrlStatus_t m_CurrentPressureCtrlStatus;    //!< Current pressure control status
-    qint64 m_LastGetPressureTime;
-    QList<qreal> m_PIDDataList;
+    qint64 m_LastGetPressureTime;                        //!< Last time of getting pressure
+    QList<qreal> m_PIDDataList;                          //!< PID parameters list
 
-    qreal m_CurrentTemperatures[AL_TEMP_CTRL_NUM];                     //!< Current temperature
+    qreal m_CurrentTemperatures[AL_TEMP_CTRL_NUM];                    //!< Current temperature
     qreal m_TargetTemperatures[AL_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[AL_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[AL_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[AL_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
-    quint32 m_SuckingTime[50];  // in mec, idx 1-13 is port 1-13, idx 0 is unused
-    qint64 m_LastGetTempTime[AL_TEMP_CTRL_NUM][5];
-    QMap<quint32, ALTempCtrlType_t> m_InstTCTypeMap;
+    quint32 m_SuckingTime[16];                                        //!< in mec, idx 1-13 is port 1-13, idx 0 is unused
+    qint64 m_LastGetTempTime[AL_TEMP_CTRL_NUM][5];                    //!< Last time of getting temperature
+    QMap<quint32, ALTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperature control
 
     qint16 m_TargetDOOutputValue;     //!< Target output value; for verification of action result
-    quint32 m_DOLifeTime;
-    quint32 m_DOLifeCycles;
-
-    QEventLoop m_LoopGetPressure;
-    QEventLoop m_LoopPressureTimer;
-    QEventLoop m_LoopDrainingTimer;
-    QEventLoop m_LoopSuckingTimer;
-    QEventLoop m_LoopSuckingLevelSensor;
-    QEventLoop m_LoopReleasePressureTimer;
+    quint32 m_DOLifeTime;             //!< Digital output life time
+    quint32 m_DOLifeCycles;           //!< Digital output life cycles
 
     /*! error task state definitiosn */
     typedef enum {

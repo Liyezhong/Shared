@@ -23,23 +23,23 @@
 
 typedef struct
 {
-    UInt8  hi;
-    UInt8  lo;
+    UInt8  hi;      //!< Refer to slave module
+    UInt8  lo;      //!< Refer to slave module
 } __attribute__((packed)) Msg_DB2_t;
 
 typedef struct
 {
-    UInt8  db_2;
-    UInt8  db_1;
-    UInt8  db_0;
+    UInt8  db_2;      //!< Refer to slave module
+    UInt8  db_1;      //!< Refer to slave module
+    UInt8  db_0;      //!< Refer to slave module
 } __attribute__((packed)) Msg_DB3_t;
 
 typedef struct
 {
-    UInt8  db_3;
-    UInt8  db_2;
-    UInt8  db_1;
-    UInt8  db_0;
+    UInt8  db_3;      //!< Refer to slave module
+    UInt8  db_2;      //!< Refer to slave module
+    UInt8  db_1;      //!< Refer to slave module
+    UInt8  db_0;      //!< Refer to slave module
 } __attribute__((packed)) Msg_DB4_t;
 
 
@@ -220,10 +220,10 @@ typedef struct
 
     typedef struct
     {
-        UInt8  enable      			: 1;
-        UInt8  dbg_skipRefRun   	: 1;
-        UInt8  dbg_sendMovementData	: 1;
-        UInt8  reserved				: 5;
+        UInt8  enable      			: 1;      //!< Refer to slave module
+        UInt8  dbg_skipRefRun   	: 1;      //!< Refer to slave module
+        UInt8  dbg_sendMovementData	: 1;      //!< Refer to slave module
+        UInt8  reserved				: 5;      //!< Refer to slave module
     } __attribute__((packed)) Msg_EnableData_t;
 
 
@@ -349,8 +349,9 @@ typedef struct
     {
 		SMOT_DRIVER_DEFAULT		= 0,	///< default driver, default configuration from the HAL configuration file is used
 		SMOT_DRIVER_TMC26X		= 1		///< trinamic TMC26x driver
-	} __attribute__((packed)) StepperMotorDriverType_t;
+    } __attribute__((packed)) StepperMotorDriverType_t;
 
+    //!< Refer to slave module
     typedef enum
     {
         LS1     = 1,
@@ -373,66 +374,66 @@ typedef struct
 		TMC26x_CHOPCONF	= 0x23
     } __attribute__((packed)) ParamSubIndex_t;
 
-
+    //!< Refer to slave module
     typedef enum
     {
-        P1      = 1,
-        P2      = 2,
-        P3      = 3
+        P1      = 1,      //!< Refer to slave module
+        P2      = 2,      //!< Refer to slave module
+        P3      = 3      //!< Refer to slave module
     } __attribute__((packed)) ProfileSubIndex_t;
 
-
+    //!< Refer to slave module
     typedef union
     {
         struct
         {
-            ParamSubIndex_t     index       : 7;
-            UInt8               reserved    : 1;
+            ParamSubIndex_t     index       : 7;  //!< index
+            UInt8               reserved    : 1;  //!< reserved
         } __attribute__((packed)) param;
         struct
         {
-            ProfileSubIndex_t   index       : 4;
-            UInt8               no          : 3;
-            UInt8               reserved    : 1;
+            ProfileSubIndex_t   index       : 4;  //!< index
+            UInt8               no          : 3;  //!< no
+            UInt8               reserved    : 1;  //!< reserved
         } __attribute__((packed)) profile;
         struct
         {
-            UInt8               reserved    : 7;
-            UInt8               profileData : 1;
+            UInt8               reserved    : 7;  //!< reserved
+            UInt8               profileData : 1;  //!< profile data
         } __attribute__((packed)) type;
     } __attribute__((packed)) SubIndex_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        UInt8                   exist		: 1;
-        UInt8                   polarity	: 1;
-        UInt8                   reserved	: 5;
+        UInt8                   exist		: 1;  //!< exist
+        UInt8                   polarity	: 1;  //!< polarity
+        UInt8                   reserved	: 5;  //!< reserved
     } __attribute__((packed)) ConfigData_LS_Flag_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        ConfigData_LS_Flag_t                flag;
-        UInt8                               sampleRate;
-        UInt8                               debounceCount;
+        ConfigData_LS_Flag_t                flag;           //!< flag
+        UInt8                               sampleRate;     //!< sample rate
+        UInt8                               debounceCount;  //!< debunce count
     } __attribute__((packed)) ConfigData_LS_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        UInt8                       valid		: 1;
-        UInt8                       stop		: 1;
-        StepperMotorRotDir_t        stopDir		: 1;
-        UInt8                       rotDirCheck : 1;
-        UInt8                       hitSkip     : 1;
-        UInt8                       reserved	: 3;
+        UInt8                       valid       : 1;  //!< valid
+        UInt8                       stop        : 1;  //!< stop
+        StepperMotorRotDir_t        stopDir     : 1;  //!< stop direction
+        UInt8                       rotDirCheck : 1;  //!< rotation direction check
+        UInt8                       hitSkip     : 1;  //!< hit skip
+        UInt8                       reserved    : 3;  //!< reserved
     } __attribute__((packed)) ConfigData_LSPOS_Flag_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        ConfigData_LSPOS_Flag_t     flag;
+        ConfigData_LSPOS_Flag_t     flag;           //!< flag
         Msg_DB4_t                   position;       //!< centered limit switch position in half-steps
         UInt8                       width;          //!< limit switch width in half-steps
         UInt8                       deviation;      //!< tolerated deviation (+/-) in half-steps
@@ -491,20 +492,21 @@ typedef struct
 //            Data->BasisParam.ConfigMask |= (1 << MSG_CONFIG_SUB_INDEX_ENC);
 //        }
 
-
+      //!< Refer to slave module
         typedef struct
         {
-            UInt8                   exist		: 1;
-            StepperMotorRotDir_t	rotDir		: 1;
-            UInt8                   reserved	: 6;
+            UInt8                   exist		: 1;      //!< Refer to slave module
+            StepperMotorRotDir_t	rotDir		: 1;      //!< Refer to slave module
+            UInt8                   reserved	: 6;      //!< Refer to slave module
         } __attribute__((packed)) ConfigData_ENC_Flag_t;
 
+      //!< Refer to slave module
         typedef struct
         {
-            ConfigData_ENC_Flag_t   flag;
-            Msg_DB2_t               resolution;
-            Msg_DB2_t               stepLoss_WarnLimit;
-            Msg_DB2_t               stepLoss_ErrLimit;
+            ConfigData_ENC_Flag_t   flag;      //!< Refer to slave module
+            Msg_DB2_t               resolution;      //!< Refer to slave module
+            Msg_DB2_t               stepLoss_WarnLimit;      //!< Refer to slave module
+            Msg_DB2_t               stepLoss_ErrLimit;      //!< Refer to slave module
         } __attribute__((packed)) ConfigData_ENC_t;
 
 
@@ -544,73 +546,73 @@ typedef struct
 //            // set the sub message bit in the mask which is used for complete configuration receipt detection
 //            Data->BasisParam.ConfigMask |= (1 << MSG_CONFIG_SUB_INDEX_MOTOR1);
 //        }
-
+      //!< Refer to slave module
     typedef struct
     {
 //            UInt8                       enable          : 1;
 //            StepperMotorRotType_t       rotType         : 1;
-        StepperMotorRotDir_t        rotDir          : 1;
-        UInt8                       reserved	    : 3;
-        UInt8                       motionProf_cnt  : 4;
+        StepperMotorRotDir_t        rotDir          : 1;      //!< Refer to slave module
+        UInt8                       reserved	    : 3;      //!< Refer to slave module
+        UInt8                       motionProf_cnt  : 4;      //!< Refer to slave module
     } __attribute__((packed)) ConfigData_MOT_Flag_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        Msg_DB2_t               	resolution;
-        UInt8                       run_CurrentScale;
-        UInt8                       stop_CurrentScale;
-        Msg_DB2_t                   stopCurrent_Delay;
-		StepperMotorDriverType_t	driverType;
+        Msg_DB2_t               	resolution;      //!< Refer to slave module
+        UInt8                       run_CurrentScale;      //!< Refer to slave module
+        UInt8                       stop_CurrentScale;      //!< Refer to slave module
+        Msg_DB2_t                   stopCurrent_Delay;      //!< Refer to slave module
+        StepperMotorDriverType_t	driverType;      //!< Refer to slave module
     } __attribute__((packed)) ConfigData_MOT_P1_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        ConfigData_MOT_Flag_t   	flag;
-        Msg_DB4_t                   minPos;
+        ConfigData_MOT_Flag_t   	flag;      //!< Refer to slave module
+        Msg_DB4_t                   minPos;      //!< Refer to slave module
         Msg_DB2_t                   resetPos;           //!< position value at which the actual position is reset to 0 (needed for rotatory movement). Ignored if reset value is 0.
 //            Msg_DB2_t   currentLimit;
     } __attribute__((packed)) ConfigData_MOT_P2_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        Msg_DB4_t                   maxPos;
+        Msg_DB4_t                   maxPos;      //!< Refer to slave module
     } __attribute__((packed)) ConfigData_MOT_P3_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
         UInt8                       refRun_RefPos;      //!< the limit switch position code used as reference position
-        Msg_DB4_t                   refRun_PosOffset;
+        Msg_DB4_t                   refRun_PosOffset;      //!< Refer to slave module
         Msg_DB2_t                   refRun_Timeout;     //!< maximum duration to perform each movement in ms
     } __attribute__((packed)) ConfigData_REFRUN_P1_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
 /*
         UInt8                       refRun_RefPosSkip;
 */
-        Msg_DB4_t                   refRun_MaxDist;
-        Msg_DB2_t                   refRun_HighSpeed;
+        Msg_DB4_t                   refRun_MaxDist;      //!< Refer to slave module
+        Msg_DB2_t                   refRun_HighSpeed;      //!< Refer to slave module
     } __attribute__((packed)) ConfigData_REFRUN_P2_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        Msg_DB4_t                   refRun_ReverseDist;
-        Msg_DB2_t                   refRun_LowSpeed;
+        Msg_DB4_t                   refRun_ReverseDist;      //!< Refer to slave module
+        Msg_DB2_t                   refRun_LowSpeed;      //!< Refer to slave module
     } __attribute__((packed)) ConfigData_REFRUN_P3_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
-        Msg_DB3_t	regVal;	            // register value
+        Msg_DB3_t	regVal;	            //!< register value
     } __attribute__((packed)) ConfigData_DRV_TMC26X_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
         UInt8       microsteps;         //!<  microsteps, 1-2-4-8-16-32-64 are allowed
@@ -618,14 +620,14 @@ typedef struct
         Msg_DB2_t   targetSpeed;        //!<  target speed in half-steps/sec 
     } __attribute__((packed)) ProfileData_P1_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
         Msg_DB2_t   acceleration;       //!<  acceleration ramp, half-steps/s?
         Msg_DB2_t   accJerkTime;        //!<  acceleration jerk phase time in ms
     } __attribute__((packed)) ProfileData_P2_t;
 
-
+      //!< Refer to slave module
     typedef struct
     {
         Msg_DB2_t   deceleration;       //!<  deceleration ramp, half-steps/sec?
@@ -640,24 +642,24 @@ typedef struct
         SubIndex_t  index;
         union
         {
-            ConfigData_LS_t     	ls1;
-            ConfigData_LS_t     	ls2;
-            ConfigData_LSPOS_t      pos1;
-            ConfigData_LSPOS_t      pos2;
-            ConfigData_LSPOS_t      pos3;
-            ConfigData_ENC_t    	enc;
-            ConfigData_MOT_P1_t 	mot1;
-            ConfigData_MOT_P2_t 	mot2;
-            ConfigData_MOT_P3_t 	mot3;
-            ConfigData_REFRUN_P1_t 	refRun1;
-            ConfigData_REFRUN_P2_t 	refRun2;
-            ConfigData_REFRUN_P3_t 	refRun3;
+            ConfigData_LS_t     	ls1;      //!< Refer to slave module
+            ConfigData_LS_t     	ls2;      //!< Refer to slave module
+            ConfigData_LSPOS_t      pos1;      //!< Refer to slave module
+            ConfigData_LSPOS_t      pos2;      //!< Refer to slave module
+            ConfigData_LSPOS_t      pos3;      //!< Refer to slave module
+            ConfigData_ENC_t    	enc;      //!< Refer to slave module
+            ConfigData_MOT_P1_t 	mot1;      //!< Refer to slave module
+            ConfigData_MOT_P2_t 	mot2;      //!< Refer to slave module
+            ConfigData_MOT_P3_t 	mot3;      //!< Refer to slave module
+            ConfigData_REFRUN_P1_t 	refRun1;      //!< Refer to slave module
+            ConfigData_REFRUN_P2_t 	refRun2;      //!< Refer to slave module
+            ConfigData_REFRUN_P3_t 	refRun3;      //!< Refer to slave module
 
-			ConfigData_DRV_TMC26X_t	drvTMC26x;
+            ConfigData_DRV_TMC26X_t	drvTMC26x;      //!< Refer to slave module
 
-            ProfileData_P1_t    	prof1;
-            ProfileData_P2_t    	prof2;
-            ProfileData_P3_t    	prof3;
+            ProfileData_P1_t    	prof1;      //!< Refer to slave module
+            ProfileData_P2_t    	prof2;      //!< Refer to slave module
+            ProfileData_P3_t    	prof3;      //!< Refer to slave module
         } __attribute__((packed)) part;
     } __attribute__((packed)) ConfigData_Param_t;
 
@@ -712,10 +714,10 @@ typedef struct
 
 typedef struct
 {
-    Msg_DB2_t  pos;
-    Msg_DB2_t  acc;
-    Msg_DB2_t  speed;
-    Msg_DB2_t  baseTime;
+    Msg_DB2_t  pos;      //!< Refer to slave module
+    Msg_DB2_t  acc;      //!< Refer to slave module
+    Msg_DB2_t  speed;      //!< Refer to slave module
+    Msg_DB2_t  baseTime;      //!< Refer to slave module
 } __attribute__((packed))  Msg_DebugData_t;
 
 
@@ -741,11 +743,11 @@ typedef struct
 
 typedef struct
 {
-    UInt8       index;
-    Msg_DB4_t   val;
-    UInt8       reserved_5;
-    UInt8       reserved_6;
-    UInt8       reserved_7;
+    UInt8       index;      //!< Refer to slave module
+    Msg_DB4_t   val;      //!< Refer to slave module
+    UInt8       reserved_5;      //!< Refer to slave module
+    UInt8       reserved_6;      //!< Refer to slave module
+    UInt8       reserved_7;      //!< Refer to slave module
 } __attribute__((packed))  Msg_Debug2Data_t;
 
 

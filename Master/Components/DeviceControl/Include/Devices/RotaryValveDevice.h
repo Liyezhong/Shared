@@ -25,11 +25,15 @@ class CStepperMotor;
 
 
 
+/****************************************************************************/
+/*!
+*   \brief This class implements the functionality to configure and control a
+*          'Rotary valve' device
+*/
+/****************************************************************************/
 
 class CRotaryValveDevice : public CBaseDevice
 {
-    //friend class :: WrapperDeviceRotaryValve;
-
     Q_OBJECT
 
 public:
@@ -63,8 +67,11 @@ public:
     //! Request the status of the oven temperature control
 
     ReturnCode_t ClearErrorState();
+
 signals:
+    //! Signal for report actual temperature
     void ReportActTempeature(quint32 SensorIndex, qreal Temperature);
+
 private slots:
     qreal GetTemperature(quint32 Index);
     ReturnCode_t SetTemperatureControlStatus(TempCtrlStatus_t TempCtrlStatus);
@@ -166,16 +173,16 @@ private slots:
     // qint32 GetEDPosFromRVPos(RVPosition_t RVPosition);
 private:
     //Function modules
-    CTemperatureControl* m_pTempCtrl;    //!< Temperature control
-    CANFctModuleStepperMotor m_Config;      //!< Copy of configuration.
-    CStepperMotor* m_pMotorRV;    //!< Oven cover motor
+    CTemperatureControl* m_pTempCtrl;         //!< Temperature control
+    CANFctModuleStepperMotor m_Config;        //!< Copy of configuration.
+    CStepperMotor* m_pMotorRV;                //!< Oven cover motor
 
     /*! Device command type definitions */
     typedef enum {
         RVDEV_CMD_TYPE_UNDEF       = 0x00,    //!< undefined command type
-        RVDEV_CMD_INITPOS     = 0x01,    //!< cover reference run
-        RVDEV_CMD_REQ_RV_MOVE   = 0x02,    //!< move cover
-        RVDEV_CMD_REQ_RV_ACTPOS = 0x03,    //!< request actual cover position
+        RVDEV_CMD_INITPOS          = 0x01,    //!< cover reference run
+        RVDEV_CMD_REQ_RV_MOVE      = 0x02,    //!< move cover
+        RVDEV_CMD_REQ_RV_ACTPOS    = 0x03,    //!< request actual cover position
         RVDEV_CMD_SET_TEMP         = 0x04,    //!< set oven temperature
         RVDEV_CMD_REQ_ACT_TEMP     = 0x05,    //!< request actual oven temperature
         RVDEV_CMD_SET_STATUS       = 0x06,    //!< set temperature control state
@@ -201,19 +208,19 @@ private:
         RV_DEV_ERRTASK_STATE_RESET          = 0x04    ///< reset error state, change to initial state
     } RVDevErrTaskState_t;
 
-    RVDevErrTaskState_t m_ErrorTaskState;  //!< error task state
+    RVDevErrTaskState_t m_ErrorTaskState;           //!< error task state
 
     // Variables from process settings
-    qint32 m_CurrentLimitSwitchCode;
-    RVPosition_t m_RVCurrentPosition;
-    qint32 m_CurrentPosition;  //!< Current position (stored by asynchronous call)
-    qreal m_CurrentTemperature;
-    qreal m_TargetTemperature;                     //!< Current temperature
+    qint32 m_CurrentLimitSwitchCode;                //!< Current limit switchs' code
+    RVPosition_t m_RVCurrentPosition;               //!< Current rotary valve postion
+    qint32 m_CurrentPosition;                       //!< Current position (stored by asynchronous call)
+    qreal m_CurrentTemperature;                     //!< Current temperature
+    qreal m_TargetTemperature;                      //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus;        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus;       //!< Current temperature control status
-    qint64 m_LastGetTempTime[50];
+    qint64 m_LastGetTempTime[50];                   //!< Last get temperature time
     TempCtrlMainsVoltage_t m_MainsVoltageStatus;    //!< Mains voltage state of the heaters
-    QMutex m_Mutex; //!< Protects the task handling thread from request functions
+    QMutex m_Mutex;                                 //!< Protects the task handling thread from request functions
 };
 
 

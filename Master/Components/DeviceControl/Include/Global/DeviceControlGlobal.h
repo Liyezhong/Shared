@@ -116,77 +116,66 @@ namespace DeviceControl
 
 
 //*****************************************************************************/
-// Module type definitions
+// Event code definitions
 //*****************************************************************************/
-#define EVENT_SOURCE_DEV_ROTARY_VALVE      0x01
-#define EVENT_SOURCE_DEV_AIR_LIQUID        0x02
-#define EVENT_SOURCE_DEV_RETORT            0x03
-#define EVENT_SOURCE_DEV_OVEN              0x04
-#define EVENT_SOURCE_DEV_MAIN_CTRL         0x05
-#define EVENT_SOURCE_DEV_INTERFACE         0x06
-#define EVENT_SOURCE_FM_TEMP_CTRL          0x10
+#define EVENT_SOURCE_DEV_ROTARY_VALVE      0x01      //!< Event Source: Rotary valve device
+#define EVENT_SOURCE_DEV_AIR_LIQUID        0x02      //!< Event Source: Air-liquid device
+#define EVENT_SOURCE_DEV_RETORT            0x03      //!< Event Source: Retort device
+#define EVENT_SOURCE_DEV_OVEN              0x04      //!< Event Source: Oven device
+#define EVENT_SOURCE_DEV_MAIN_CTRL         0x05      //!< Event Source: Main control device
+#define EVENT_SOURCE_DEV_INTERFACE         0x06      //!< Event Source: Device control interface
+#define EVENT_SOURCE_FM_TEMP_CTRL          0x10      //!< Event Source: Temperature control function module
+#define EVENT_SOURCE_FM_PRESSURE_CTRL      0x11      //!< Event Source: Pressure control function module
+#define EVENT_SOURCE_FM_STEPPER_MOTOR      0x12      //!< Event Source: Stepper motor function module
+#define EVENT_SOURCE_FM_DIGITAL_INPUT      0x13      //!< Event Source: Digital input function module
+#define EVENT_SOURCE_FM_DIGITAL_OUTPUT     0x14      //!< Event Source: Digital output function module
+#define EVENT_SOURCE_FM_ANALOG_INPUT       0x15      //!< Event Source: Analog input function module
+#define EVENT_SOURCE_FM_ANALOG_OUTPUT      0x16      //!< Event Source: Analog output function module
 
-#define EVENT_SOURCE_FM_PRESSURE_CTRL      0x11
-#define EVENT_SOURCE_FM_STEPPER_MOTOR      0x12
-#define EVENT_SOURCE_FM_DIGITAL_INPUT      0x13
-#define EVENT_SOURCE_FM_DIGITAL_OUTPUT     0x14
-#define EVENT_SOURCE_FM_ANALOG_INPUT       0x15
-#define EVENT_SOURCE_FM_ANALOG_OUTPUT      0x16
+#define EVENT_FUNC_SET_TEMP_CTRL_STATE       0x01    //!< Event Function: Set temperature control state
+#define EVENT_FUNC_SET_TEMP_PID              0x02    //!< Event Function: Set temperature control PID parameter
+#define EVENT_FUNC_START_TEMP_CTRL           0x03    //!< Event Function: Start temperature control
+#define EVENT_FUNC_GET_TEMP                  0x04    //!< Event Function: Get temperature
+#define EVENT_FUNC_GET_TEMP_CTRL_STATE       0x05    //!< Event Function: Get temperature control state
+#define EVENT_FUNC_PRESSURE_PROCEDURE        0x0A    //!< Event Function: Pressure procedure
+#define EVENT_FUNC_VACCUM_PROCEDURE          0x0B    //!< Event Function: Vaccum procedure
+#define EVENT_FUNC_FILLING_PROCEDURE         0x0C    //!< Event Function: Filling procedure
+#define EVENT_FUNC_DRAINING_PROCEDURE        0x0D    //!< Event Function: Draining procedure
+#define EVENT_FUNC_SET_PRESSURE              0x0E    //!< Event Function: Set pressure
+#define EVENT_FUNC_GET_PRESSURE              0x0F    //!< Event Function: Get pressure
+#define EVENT_FUNC_SET_PRESSURE_CTRL_STATE   0x10    //!< Event Function: Set pressure control state
+#define EVENT_FUNC_RELEASE_PRESSURE          0x11    //!< Event Function: Release pressure
+#define EVENT_FUNC_FAN_OPERATION             0x12    //!< Event Function: Fan operation
+#define EVENT_FUNC_ALL_STOP                  0x13    //!< Event Function: Stop all operation
+#define EVENT_FUNC_SET_PRESSURE_DRIFT        0x14    //!< Event Function: Set pressure drift
+#define EVENT_FUNC_GET_PRESSURE_DRIFT        0x15    //!< Event Function: Get pressure drift
+#define EVENT_FUNC_BOTTLE_CHECK              0x16    //!< Event Function: Bottle check
+#define EVENT_FUNC_LEVEL_SENSOR_STATE        0x17    //!< Event Function: Level sensor new state
+#define EVENT_FUNC_MOVE_TO_INIT_POS          0x1A    //!< Event Function: Move to initial position
+#define EVENT_FUNC_MOVE_TO_RV_POS            0x1B    //!< Event Function: Move to rotary valve position
+#define EVENT_FUNC_GET_RV_POS                0x1C    //!< Event Function: Get rotary valve position
+#define EVENT_FUNC_REF_RUN                   0x1D    //!< Event Function: Reference run
+#define EVENT_FUNC_SET_LOCK_STATUS           0x20    //!< Event Function: Get lock status
+#define EVENT_FUNC_GET_LOCK_STATUS           0x21    //!< Event Function: Set lock status
+#define EVENT_FUNC_SET_MAIN_RELAY_STATUS     0x22    //!< Event Function: Set main relay status
 
-
-#define EVENT_FUNC_SET_TEMP_CTRL_STATE       0x01
-#define EVENT_FUNC_SET_TEMP_PID              0x02
-#define EVENT_FUNC_START_TEMP_CTRL           0x03
-#define EVENT_FUNC_GET_TEMP                  0x04
-#define EVENT_FUNC_GET_TEMP_CTRL_STATE       0x05
-
-#define EVENT_FUNC_PRESSURE_PROCEDURE        0x0A
-#define EVENT_FUNC_VACCUM_PROCEDURE          0x0B
-#define EVENT_FUNC_FILLING_PROCEDURE         0x0C
-#define EVENT_FUNC_DRAINING_PROCEDURE        0x0D
-#define EVENT_FUNC_SET_PRESSURE              0x0E
-#define EVENT_FUNC_GET_PRESSURE              0x0F
-#define EVENT_FUNC_SET_PRESSURE_CTRL_STATE   0x10
-#define EVENT_FUNC_RELEASE_PRESSURE          0x11
-#define EVENT_FUNC_FAN_OPERATION             0x12
-#define EVENT_FUNC_ALL_STOP                  0x13
-#define EVENT_FUNC_SET_PRESSURE_DRIFT        0x14
-#define EVENT_FUNC_GET_PRESSURE_DRIFT        0x15
-#define EVENT_FUNC_BOTTLE_CHECK              0x16
-#define EVENT_FUNC_LEVEL_SENSOR_STATE        0x17
-
-
-#define EVENT_FUNC_MOVE_TO_INIT_POS          0x1A
-#define EVENT_FUNC_MOVE_TO_RV_POS            0x1B
-#define EVENT_FUNC_GET_RV_POS                0x1C
-#define EVENT_FUNC_REF_RUN                   0x1D
-
-#define EVENT_FUNC_SET_LOCK_STATUS           0x20
-#define EVENT_FUNC_GET_LOCK_STATUS           0x21
-
-
-#define EVENT_FUNC_SET_MAIN_RELAY_STATUS     0x22
-
-
-
-#define EVENT_CODE_SUCCESS                   0x00
-#define EVENT_CODE_FAIL                      0x01
-#define EVENT_CODE_GENERAL_ERROR             0x02
-#define EVENT_CODE_NOT_INITIALIZED           0x03
-#define EVENT_CODE_INVALID_INPUT             0x04
-
-#define EVENT_CODE_TIMEOUT                   0x05
-#define EVENT_CODE_BOTTLE_CHECK_EMPTY        0x06
-#define EVENT_CODE_BOTTLE_CHECK_NOTFULL      0x07
-#define EVENT_CODE_BOTTLE_CHECK_OK           0x08
-#define EVENT_CODE_BOTTLE_CHECK_BLOCKAGE     0x09
-#define EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT  0x0A
-#define EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT  0x0B
-#define EVENT_CODE_MOTOR_UNEXPECTED_POS      0x0C
-#define EVENT_CODE_INTERRUPT                 0x0D
-#define EVENT_CODE_OVERFLOW                  0x0E
-#define EVENT_CODE_DIGITAL_SIGNAL_0          0x10
-#define EVENT_CODE_DIGITAL_SIGNAL_1          0x11
+#define EVENT_CODE_SUCCESS                   0x00    //!< Event Code: Success
+#define EVENT_CODE_FAIL                      0x01    //!< Event Code: Failed
+#define EVENT_CODE_GENERAL_ERROR             0x02    //!< Event Code: General error
+#define EVENT_CODE_NOT_INITIALIZED           0x03    //!< Event Code: Not initialized
+#define EVENT_CODE_INVALID_INPUT             0x04    //!< Event Code: Invalid input
+#define EVENT_CODE_TIMEOUT                   0x05    //!< Event Code: Timeout
+#define EVENT_CODE_BOTTLE_CHECK_EMPTY        0x06    //!< Event Code: Bottle check result: Empty
+#define EVENT_CODE_BOTTLE_CHECK_NOTFULL      0x07    //!< Event Code: Bottle check result: Not-full
+#define EVENT_CODE_BOTTLE_CHECK_OK           0x08    //!< Event Code: Bottle check result: OK
+#define EVENT_CODE_BOTTLE_CHECK_BLOCKAGE     0x09    //!< Event Code: Bottle check result: Blockage
+#define EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT  0x0A    //!< Event Code: Motor run exceed upper limit
+#define EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT  0x0B    //!< Event Code: Motor run exceed lower limit
+#define EVENT_CODE_MOTOR_UNEXPECTED_POS      0x0C    //!< Event Code: Motor run hit un-expected position
+#define EVENT_CODE_INTERRUPT                 0x0D    //!< Event Code: Interrupted
+#define EVENT_CODE_OVERFLOW                  0x0E    //!< Event Code: Overflow happend
+#define EVENT_CODE_DIGITAL_SIGNAL_0          0x10    //!< Event Code: Digital input signal 0
+#define EVENT_CODE_DIGITAL_SIGNAL_1          0x11    //!< Event Code: Digital input signal 1
 
 
 
@@ -260,7 +249,6 @@ typedef enum {
     DCL_ERR_DEV_RV_NOT_INITIALIZED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_NOT_INITIALIZED),//!< Motor has not been initialized
     DCL_ERR_DEV_RV_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_UNEXPECTED_POS),//!< Motor encouter unexpected position
 
-
     DCL_ERR_DEV_RV_MOVE_LS_ERROR = 54,//!< Motor reference run read limit switch error
     DCL_ERR_DEV_RV_MOVE_GENERAL_ERROR = 55,//!< Motor reference run general error
 
@@ -268,6 +256,7 @@ typedef enum {
     DCL_ERR_UNDEFINED             = 99   //!< The return code was not set
 } ReturnCode_t;
 
+/*! Synchronized functions definitions */
 typedef enum
 {
     SYNC_CMD_RV_REF_RUN = 0,
@@ -300,7 +289,6 @@ typedef enum
     SYNC_CMD_RT_SET_DO_VALUE = 29,
     SYNC_CMD_RT_GET_DI_VALUE = 30,
     SYNC_CMD_RT_GET_HW_STATUS = 31,
-
     SYNC_CMD_OVEN_SET_TEMP = 32,
     SYNC_CMD_OVEN_GET_TEMP = 33,
     SYNC_CMD_OVEN_SET_TEMP_PID = 34,
@@ -308,7 +296,6 @@ typedef enum
     SYNC_CMD_OVEN_GET_DI_VALUE = 36,
     SYNC_CMD_PER_GET_DI_VALUE = 37,
     SYNC_CMD_PER_SET_DO_VALUE = 38,
-
     SYNC_CMD_TOTAL_NUM = 40
 } SyncCmdType_t;
 
@@ -405,12 +392,14 @@ typedef enum {
     TEMPCTRL_OPMODE_HOLD  = 0x02    //!< operation mode power safe
 } TempCtrlOperatingMode_t;
 
+/*! pressure control status */
 typedef enum {
     PRESSURECTRL_STATUS_UNDEF = 0x00,   //!< status undefined
     PRESSURECTRL_STATUS_OFF   = 0x01,   //!< pressure ctrl. is off
     PRESSURECTRL_STATUS_ON    = 0x02    //!< pressure ctrl. is active (on)
 } PressureCtrlStatus_t;
 
+/*! pressure control operation mode */
 typedef enum {
     PRESSURECTRL_OPMODE_UNDEF  = 0x00,   //!< operation mode undefined
     PRESSURECTRL_OPMODE_FULL   = 0x01,   //!< operation mode full power
@@ -418,6 +407,7 @@ typedef enum {
     PRESSURECTRL_OPMODE_VACUUM = 0x08    //!< operation mode vacuuming
 } PressureCtrlOperatingMode_t;
 
+/*! pressure control main voltage */
 typedef enum {
     PRESSURECTRL_VOLTAGE_UNDEF = 0x00,  //!< status undefined
     PRESSURECTRL_VOLTAGE_220V  = 0x01,  //!< 220V mains voltage
@@ -432,13 +422,14 @@ typedef enum {
     TEMPCTRL_VOLTAGE_110V  = 0x02   //!< 110V mains voltage
 } TempCtrlMainsVoltage_t;
 
+/*! temperature control hardware status */
 typedef struct {
-    quint8 Sensors;
-    quint8 Fans;
-    quint8 Heaters;
-    quint8 Pids;
-    quint16 Current;
-    quint8 HeaterSwitchType;
+    quint8 Sensors;           //!< Sensors count
+    quint8 Fans;              //!< Fans count
+    quint8 Heaters;           //!< Heaters count
+    quint8 Pids;              //!< PID parameter set count
+    quint16 Current;          //!< Current
+    quint8 HeaterSwitchType;  //!< Heater switch type
 } TempCtrlHardwareStatus_t;
 
 
@@ -481,6 +472,7 @@ typedef enum {
     DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4    //!< Main Control
 } DevInstanceID_t;
 
+/*! Air-liquid device's temperature control function module*/
 typedef enum {
     AL_LEVELSENSOR = 0,
     AL_TUBE1 = 1,
@@ -488,12 +480,14 @@ typedef enum {
     AL_TEMP_CTRL_NUM = 3
 } ALTempCtrlType_t;
 
+/*! Oven device's temperature control function module*/
 typedef enum {
     OVEN_TOP = 0,
     OVEN_BOTTOM = 1,
     OVEN_TEMP_CTRL_NUM =2
 } OVENTempCtrlType_t;
 
+/*! Retort device's temperature control function module*/
 typedef enum {
     RT_BOTTOM = 0,
     RT_SIDE = 1,

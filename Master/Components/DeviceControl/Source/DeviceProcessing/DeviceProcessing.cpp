@@ -2032,8 +2032,6 @@ bool DeviceProcessing::CheckFunctionModuleExistence(quint32 InstanceID)
         CBaseModule::CANNodeMainState_t nodeState = pCANNode->GetMainState();
         if (nodeState != CBaseModule::CN_MAIN_STATE_IDLE)
         {
-            quint16 id = pCANNode->GetNodeID();
-            quint8 channel = pFctModuleBase->GetChannelNo();
             pCANNode = this->GetCANNodeFromObjectTree(false);
             continue;
         }
@@ -2153,12 +2151,15 @@ void DeviceProcessing::BlockingTimerCallback()
     }
 }
 #else
+
 /****************************************************************************/
 /*!
  *  \brief  Block caller's current thread with specified type and timeout
  *
  *  \iparam CmdType = Command type to block the thread
  *  \iparam Timeout = Timeout for the command
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
  */
 /****************************************************************************/
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
@@ -2191,6 +2192,8 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
  *  \brief  Resume blocked thread with specified type
  *
  *  \iparam CmdType = Command type to unblock the thread
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
  */
 /****************************************************************************/
 
@@ -2218,6 +2221,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
  *  \brief  Resume blocked thread with specified type
  *
  *  \iparam CmdType = Command type to unblock the thread
+ *  \iparam Value = Return value for the blocking caller
  */
 /****************************************************************************/
 void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)

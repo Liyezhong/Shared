@@ -92,6 +92,15 @@ quint32 CBaseDevice::GetFctModInstanceFromKey(const QString &Key)
     return InstanceID;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Returns the key of a function module
+ *
+ *  \param   instanceID = The instance id of the requested module
+ *
+ *  \return  Fuction module key, as defined at the hardware specification file
+ *
+ ****************************************************************************/
 QString CBaseDevice::GetFctModKeyFromInstance(const quint32 instanceID)
 {
     return m_FctModList.key(instanceID, "NOT FOUND");
@@ -298,7 +307,7 @@ DeviceTask* CBaseDevice::GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskStat
  *
  *  This slot is connected to the signal, ReportError
  *
- *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam InstanceID = Instance ID of the function module
  *  \iparam ErrorGroup = Error group as define.
  *  \iparam ErrorCode = Error code.
  *  \iparam ErrorData = Error data.

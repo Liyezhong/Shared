@@ -421,7 +421,6 @@ void CAnalogOutput::HandleCANMsgAnalogOutputState(can_frame* pCANframe)
 /*!
  *  \brief    Handle the reception of the 'Lifetime' CAN message
  *
- *
  *  \iparam   pCANframe = struct contains the data of the receipt CAN message
  *
  *  \return   void
@@ -507,6 +506,9 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
 /*!
  *  \brief    Send the CAN-message 'OutputStateSet' to set output state
  *
+ *  \iparam   OutputValue = Output value of the analog output FM
+ *  \iparam   Duration = Duration of the value
+ *  \iparam   Delay = Time delay
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */
@@ -578,7 +580,9 @@ ReturnCode_t CAnalogOutput::SendCANMsgLifeTimeDataReq()
  *
  *            The task will be acknowledged by sending the signal ReportActOutputValue
  *
- *  \iparam   OutputValue     Analog output value to set
+ *  \iparam   OutputValue = Output value of the analog output FM
+ *  \iparam   Duration = Duration of the value
+ *  \iparam   Delay = Time delay
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *            otherwise DCL_ERR_INVALID_STATE

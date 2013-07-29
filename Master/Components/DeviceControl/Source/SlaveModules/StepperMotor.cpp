@@ -496,6 +496,10 @@ void CStepperMotor::HandleTasks()
  *                        0 - CW motor axis rotation at reference run
  *                        1 - CCW motor axis rotation at reference run
  *          DB[7] = reserved
+ *
+ *  \iparam dir = Rotation direction of the rotary valve
+ *
+ *  \return Rotation direction of the rotary valve
  */
  /******************************************************************/
 
@@ -2065,6 +2069,8 @@ void CStepperMotor::HandleCANMsgDirChangesData(can_frame* pCANframe)
 /*!
  *  \brief    Send the CAN message to set the motor state
  *
+ *  \iparam   MotorState = true if enable the motor, else false
+ *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
  *            otherwise the return code as returned from SendCOB(..)
  */
@@ -2201,10 +2207,10 @@ ReturnCode_t CStepperMotor::SendCANMsgTargetPosition(Position_t TargetPos,
  *             - Byte 5    : Sub command index
  *             - Byte 6..7 : Sub command data
  *
- *  \param    TargetSpeed    = Position where the motor shall drive to
- *  \param    MotionProfile  = Motion profile for the movement
- *  \param    SubCommandID   = SubCommand identifier
- *  \param    SubCommandData = Sub command data
+ *  \param    TargetSpeed       = Position where the motor shall drive to
+ *  \param    MotionProfileIdx  = Motion profile for the movement
+ *  \param    SubCommandID      = SubCommand identifier
+ *  \param    SubCommandData    = Sub command data
  *
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
@@ -2787,6 +2793,8 @@ Speed_t CStepperMotor::GetSpeedFromPeriod(Position_t Distance, MotionProfileIdx_
  *            The request will be acknowledged by sending the signal ReportConfigureDone.
  *            Reconfiguration is initiated by switching mainState back to FM_MAIN_STATE_CONFIRMED.
  *            The modified mainState is processed in HandleTasks.
+ *
+ *  \iparam   pConfig = The pointer to the configuration file
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *            otherwise DCL_ERR_INVALID_STATE

@@ -1057,6 +1057,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint16 MaxTemperat
  *  \iparam Temperature = Reference temperature in 0.1 °C steps
  *  \iparam OperatingMode = Hold or heating phase
  *  \iparam Status = Module on or off
+ *  \iparam SlopeTempChange = Slop of temperature change
  *
  *  \return The return value is set from SendCOB(can_frame)
  */
@@ -1255,6 +1256,9 @@ ReturnCode_t CTemperatureControl::SendCANMsgHardwareReq()
  *  \brief  Set the target temperature
  *
  *  \iparam Temperature = Reference temperature
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1429,7 +1433,7 @@ ReturnCode_t CTemperatureControl::ReqStatus()
 /*!
  *  \brief  Resets the operating time of a heater
  *
- *  \ipram  Index = Index of the heating element
+ *  \iparam  Index = Index of the heating element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1459,7 +1463,7 @@ ReturnCode_t CTemperatureControl::ResetHeaterOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the operating time of a heater
  *
- *  \ipram  Index = Index of the heating element
+ *  \iparam  Index = Index of the heating element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1489,7 +1493,7 @@ ReturnCode_t CTemperatureControl::GetHeaterOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the speed of a ventilation fan
  *
- *  \ipram  Index = Index of the ventilation fan
+ *  \iparam  Index = Index of the ventilation fan
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code

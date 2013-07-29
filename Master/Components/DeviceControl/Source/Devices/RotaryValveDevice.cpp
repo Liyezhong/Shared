@@ -583,6 +583,7 @@ void CRotaryValveDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
  *           When finished, the slot TempCtrlActTemperature() will be called by
  *           CANTemperatureControl, and forwards the acknowledge of this request to the interface class
  *
+ *  \iparam  Index = index of the temperature sensor
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
  *           If there is always another task active, or the error state is active,
@@ -665,6 +666,7 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
  *  This slot is connected to the signal ReportActTemperature
  *
  *  \iparam   ReturnCode    ReturnCode of function level Layer
+ *  \iparam   Index         Index of the temperature sensor
  *  \iparam   Temp          Actual temperature
  *
  */
@@ -938,6 +940,7 @@ TempCtrlState_t CRotaryValveDevice::GetTemperatureControlState()
  *
  *  This slot is connected to the signal, ReportActStatus
  *
+ *  \iparam InstanceID = Instance ID of the device
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam TempCtrlStatus = Actual temperature control status
  *  \iparam MainsVoltage = Main voltage status.
@@ -1385,6 +1388,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
 /*!
  *  \brief  Helper function: Get the name of certain encoder disk postion.
  *
+ *  \iparam  EDPosition = Current encoder disk position.
  *
  *  \return The name of certain position.
  *
@@ -1410,8 +1414,11 @@ QString CRotaryValveDevice::TranslateFromEDPosition(quint32 EDPosition)
 
 /****************************************************************************/
 /*!
- *  \brief  Helper function: Get the upper limit for movelment at certain encoder disk position .
+ *  \brief  Helper function: Get the upper limit for movement at certain encoder disk position .
  *
+ *  \iparam  CurrentEDPosition = Current encoder disk position.
+ *  \iparam  Direction = The current rotation direction.
+ *  \iparam  ChangeDirection = If is to change direction.
  *
  *  \return the upper limit
  *
@@ -1486,8 +1493,11 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
 
 /****************************************************************************/
 /*!
- *  \brief  Helper function: Get the lower limit for movment at certain encoder disk position .
+ *  \brief  Helper function: Get the lower limit for movement at certain encoder disk position .
  *
+ *  \iparam  CurrentEDPosition = Current encoder disk position.
+ *  \iparam  Direction = The current rotation direction.
+ *  \iparam  ChangeDirection = If is to change direction.
  *
  *  \return the lower limit
  *
@@ -1679,6 +1689,8 @@ quint8 CRotaryValveDevice::GetRotationDirection()
 /*!
  *  \brief  Helper function: Set rotary-valve's rotation direction.
  *
+ *  \iparam direction = Target direction.
+ *
  *  \return void
  */
 /****************************************************************************/
@@ -1864,7 +1876,7 @@ qint8 CRotaryValveDevice::GetConfigRefRunPosition()
 /*!
  *  \brief  Helper function: Set reference run's stop position value.
  *
- *  \iparam bValid = Conifguration of position 3's limit switch value.
+ *  \iparam refRunRefPos = Reference run position.
  *
  *  \return void
  */
@@ -2099,6 +2111,7 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRun()
  *
  *  This slot is connected to the signal, OnReferenceRun
  *
+ *  \iparam InstanceID = Instance ID of the module
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam Position = Motor's actual position.
  *

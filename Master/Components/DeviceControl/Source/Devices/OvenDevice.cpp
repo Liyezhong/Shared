@@ -646,6 +646,7 @@ TempCtrlState_t COvenDevice::GetTemperatureControlState(OVENTempCtrlType_t Type)
  *
  *  This slot is connected to the signal, ReportActStatus
  *
+ *  \iparam InstanceID = Instance ID of the function module
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam TempCtrlStatus = Actual temperature control status
  *  \iparam MainsVoltage = Main voltage status.
@@ -874,6 +875,7 @@ ReturnCode_t COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 In
  *
  *  This slot is connected to the signal, ReportActTemperature
  *
+ *  \iparam InstanceID = Instance ID of the function module
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam Index = Index of the actual temperature control module.
  *  \iparam Temp = Actual temperature.

@@ -563,6 +563,8 @@ ReturnCode_t CAnalogInput::ReqActInputValue()
  *      The class acknowledges this request by sending the signal
  *      ReportSetState.
  *
+ *  \iparam Enable = True if enable, else false.
+ *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise DCL_ERR_INVALID_STATE
  */
