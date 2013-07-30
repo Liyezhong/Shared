@@ -1830,7 +1830,8 @@ void DeviceProcessing::Initialize()
 CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 {
     QListIterator<CBaseDevice*> iter(m_DeviceList);
-    CBaseDevice* pDevice = NULL;
+    CBaseDevice* pDevice;
+    CBaseDevice* pDeviceRet = NULL;
 
     while (iter.hasNext())
     {
@@ -1838,11 +1839,12 @@ CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 
         if(pDevice->GetInstanceID() == InstanceID)
         {
+            pDeviceRet = pDevice;
             break;
         }
     }
 
-    return pDevice;
+    return pDeviceRet;
 }
 
 /****************************************************************************/

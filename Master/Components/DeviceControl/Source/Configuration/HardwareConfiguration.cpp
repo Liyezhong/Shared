@@ -181,8 +181,11 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     while (!child.isNull())
     {
         pDevConfig = ParseDeviceElement(child, OrderNrDevice);
-        OrderNrDevice++;
-        m_DeviceCfgList.insert(m_DeviceCfgList.size(), pDevConfig);
+        if(pDevConfig != NULL)
+        {
+            OrderNrDevice++;
+            m_DeviceCfgList.insert(m_DeviceCfgList.size(), pDevConfig);
+        }
         child = child.nextSiblingElement("device");
     }
 
@@ -220,6 +223,11 @@ BaseDeviceConfiguration* HardwareConfiguration::ParseDeviceElement(const QDomEle
 
     InstanceID = strInstanceID.toUInt(&ok, 16);
     pDevConfig->m_InstanceID = GetDeviceIDFromValue(InstanceID);
+    if(pDevConfig->m_InstanceID == DEVICE_INSTANCE_ID_UNDEFINED)
+    {
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
+        return NULL;
+    }
 
     pDevConfig->m_Optional = (bool) strOptional.toShort(&ok, 10);
     pDevConfig->m_OrderNr = orderNrDevice;
