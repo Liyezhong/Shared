@@ -184,22 +184,38 @@ ReturnCode_t CRotaryValveDevice::HandleInitializationState()
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
 
     FILE_LOG_L(laDEV, llINFO) << "  CRotaryValveDevice::HandleInitializationState()";
-
-    m_pTempCtrl = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RVTempCtrlKey));
-    if(m_pTempCtrl == 0)
+    quint32 InstanceID;
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RVTempCtrlKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RV_TEMPCONTROL not allocated.";
+        m_pTempCtrl = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrl == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RV_TEMPCONTROL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pMotorRV = (CStepperMotor*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_RVMotorKey));
-    if(m_pMotorRV == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RVMotorKey);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_MOTOR);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RV_MOTOR not allocated.";
+        m_pMotorRV = (CStepperMotor*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pMotorRV == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_MOTOR);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RV_MOTOR not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 

@@ -1885,6 +1885,9 @@ QString HardwareConfiguration::GetLabelFromObjectType(const CModuleConfig::CANOb
         case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
             strCANObjectType = "temperature_control";
             break;
+        case CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL:
+            strCANObjectType = "pressure_control";
+            break;
         default:
             strCANObjectType = "undef";
             FILE_LOG_L(laINIT, llERROR) << "ERROR: unknown object type";

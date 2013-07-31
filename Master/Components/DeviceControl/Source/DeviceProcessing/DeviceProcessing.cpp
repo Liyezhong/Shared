@@ -2012,6 +2012,49 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
 
 /****************************************************************************/
 /*!
+ *  \brief  Returns if the function module has been detetcted and configured via CAN
+ *
+ *  \iparam InstanceID = InstanceID of the requested fucntion module
+ *
+ *  \return True if the function module exist, else not.
+ */
+/****************************************************************************/
+bool DeviceProcessing::CheckFunctionModuleExistence(quint32 InstanceID)
+{
+    CBaseModule* pCANNode;
+    CFunctionModule* pFctModuleBase;
+    pCANNode = this->GetCANNodeFromObjectTree(true);
+    quint16 canNodeID = ((quint16)(0xff & (InstanceID)));
+    quint8 channel = ((quint8)((0x000ff0000 & InstanceID) >> 16));
+
+    while(pCANNode)
+    {
+        CBaseModule::CANNodeMainState_t nodeState = pCANNode->GetMainState();
+        if (nodeState != CBaseModule::CN_MAIN_STATE_IDLE)
+        {
+            quint16 id = pCANNode->GetNodeID();
+            quint8 channel = pFctModuleBase->GetChannelNo();
+            pCANNode = this->GetCANNodeFromObjectTree(false);
+            continue;
+        }
+        if(pCANNode->GetNodeID() == canNodeID)
+        {
+            pFctModuleBase = pCANNode->GetFunctionModuleFromList(0);
+            while (pFctModuleBase)
+            {
+                if(pFctModuleBase->GetChannelNo() == channel)
+                {
+                    return true;
+                }
+                pFctModuleBase = pCANNode->GetFunctionModuleFromList(pFctModuleBase);
+            }
+        }
+        pCANNode = this->GetCANNodeFromObjectTree(false);
+    }
+    return false;
+}
+/****************************************************************************/
+/*!
  *  \brief  Set the specified error parameters and error time to current time
  *
  *  \iparam ErrorGroup = Error group ID of the thrown error
@@ -2169,6 +2212,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
    // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
+
 /****************************************************************************/
 /*!
  *  \brief  Resume blocked thread with specified type
