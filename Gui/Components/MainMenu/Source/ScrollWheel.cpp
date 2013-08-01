@@ -102,41 +102,41 @@ void CScrollWheel::setScrollOffset(const QPoint &Offset)
 /****************************************************************************/
 void CScrollWheel::paintEvent(QPaintEvent *p_PaintEvent)
 {
-    if (!m_Items.count()) {
-        return;
-    }
+
 
     QPainter Painter(this);
     //draw the scaled BG image
     Painter.fillRect(p_PaintEvent->rect(), QColor(39, 47, 58));
     Painter.drawPixmap(0, 0, m_BackgroundPixmap);
-    Painter.setPen(Qt::white);
 
-    qint32 Items = height() / m_ItemHeight;
-    qint32 Start = m_Offset.y() / m_ItemHeight - Items / 2 - 1;
-    qint32 End = Start + height() / m_ItemHeight + Items / 2 + 2;
-    qint32 YPos = Start * m_ItemHeight - m_Offset.y() + height() / 2 + 2;
+    if (m_Items.count() > 0) {
+        Painter.setPen(Qt::white);
 
-    for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
-        qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
-        if (m_Items[Index] != "")
-        {
-            Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
+        qint32 Items = height() / m_ItemHeight;
+        qint32 Start = m_Offset.y() / m_ItemHeight - Items / 2 - 1;
+        qint32 End = Start + height() / m_ItemHeight + Items / 2 + 2;
+        qint32 YPos = Start * m_ItemHeight - m_Offset.y() + height() / 2 + 2;
 
-            if(!m_ItemPixmaps[Index].isNull()) {
-                Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+        for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
+            qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
+            if (m_Items[Index] != "")
+            {
+                Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
+
+                if(!m_ItemPixmaps[Index].isNull()) {
+                    Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+                }
             }
+            else
+                if(!m_ItemPixmaps[Index].isNull()) {
+                    if (m_ThreeDigitMode)
+                        Painter.drawPixmap(30, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+                    else
+                        Painter.drawPixmap(9, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+                }
+
         }
-        else
-            if(!m_ItemPixmaps[Index].isNull()) {
-                if (m_ThreeDigitMode)
-                    Painter.drawPixmap(30, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
-                else
-                    Painter.drawPixmap(9, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
-            }
-
     }
-
     // draw the scaled cover
     Painter.drawPixmap(0, 0, m_SelectedItemPixmap);
 }
