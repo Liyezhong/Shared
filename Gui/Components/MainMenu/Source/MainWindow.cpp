@@ -244,9 +244,9 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
     case ProcessRunning:
         if (!m_ProcessRunning) {
             p_Label = mp_Ui->statusLabel1;
-            delete mp_ProcPixmap;
+            /*delete mp_ProcPixmap;
             mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetProjectNameString()));
-            p_Label->setPixmap(*mp_ProcPixmap);
+            p_Label->setPixmap(*mp_ProcPixmap);*/
             p_Label->show();
             m_ProcessRunning = true;
             //p_Label->pixmap.fill(Qt::transparent);
@@ -302,9 +302,9 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
     case ProcessRunning:
         if (m_ProcessRunning) {
             //mp_Ui->statusLabel1->hide();
-            mp_ProcPixmap->fill(Qt::transparent);
+            /*mp_ProcPixmap->fill(Qt::transparent);
             mp_Ui->statusLabel1->setPixmap(*mp_ProcPixmap);
-            mp_Ui->statusLabel1->show();
+            mp_Ui->statusLabel1->show();*/
             m_ProcessRunning = false;
             emit ProcessStateChanged();
             result = true;
