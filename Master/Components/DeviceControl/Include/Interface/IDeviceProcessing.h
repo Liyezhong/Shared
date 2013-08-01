@@ -48,7 +48,7 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED_VALUE (999)
+#define UNDEFINED_VALUE (999)  //!< undefine value. used for invlid sensor's data
 /****************************************************************************/
 /*!
  *  \brief  This is the interface class of the device control layer.
@@ -167,7 +167,7 @@ signals:
     //! Forward error information
     void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
-
+    //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
 
 private slots:
@@ -198,10 +198,12 @@ private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
 
-    DeviceProcessing *mp_DevProc;   //!< Device processing instance
+    DeviceProcessing *mp_DevProc;     //!< Device processing instance
     QThread *mp_DevProcThread;        //!< Device processing thread
     QTimer *mp_DevProcTimer;          //!< Device processing timer
-    Qt::HANDLE m_ParentThreadID;
+    Qt::HANDLE m_ParentThreadID;      //!< Parent thread ID
+
+    //! Device processing task ID
     typedef enum {
         IDEVPROC_TASKID_INIT     = 0x00,    //!< Initialisation
         IDEVPROC_TASKID_FREE     = 0x01,    //!< Task free, nothing to do
@@ -209,6 +211,7 @@ private:
         IDEVPROC_TASKID_REQ_TASK = 0x03     //!< A reqest is active
     } IDeviceProcessingTaskID_t;
 
+    //! Device processing task state
     typedef enum {
         IDEVPROC_TASK_STATE_FREE     = 0x00,    //!< Task state free, ready for action request
         IDEVPROC_TASK_STATE_REQ      = 0x01,    //!< An action was requested, next step will be to forward the command
@@ -221,15 +224,15 @@ private:
 
     DeviceProcTask::TaskID_t m_reqTaskID;           //!< Task identification
     DeviceProcTask::TaskPrio_t m_reqTaskPriority;   //!< Task priority
-    quint16 m_reqTaskParameter1;    //!< Task parameter 1
-    quint16 m_reqTaskParameter2;    //!< Task parameter 2
+    quint16 m_reqTaskParameter1;                    //!< Task parameter 1
+    quint16 m_reqTaskParameter2;                    //!< Task parameter 2
 
-    DevInstanceID_t m_instanceID;   //!< Instance identification
-    CRotaryValveDevice *m_pRotaryValve;
-    CAirLiquidDevice *m_pAirLiquid;
-    CRetortDevice *m_pRetort;
-    COvenDevice *m_pOven;
-    CPeripheryDevice *m_pPeriphery;
+    DevInstanceID_t m_instanceID;                   //!< Instance identification
+    CRotaryValveDevice *m_pRotaryValve;             //!< Rotary Valve device
+    CAirLiquidDevice *m_pAirLiquid;                 //!< Air-liquid device
+    CRetortDevice *m_pRetort;                       //!< Retort device
+    COvenDevice *m_pOven;                           //!< Oven device
+    CPeripheryDevice *m_pPeriphery;                 //!< Periphery device
 
     QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing

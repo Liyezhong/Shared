@@ -1566,7 +1566,7 @@ ReturnCode_t CPressureControl::ReqStatus()
 /*!
  *  \brief  Resets the operating time of a pump
  *
- *  \ipram  Index = Index of the pump element
+ *  \iparam  Index = Index of the pump element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1596,7 +1596,7 @@ ReturnCode_t CPressureControl::ResetPumpOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the operating time of a pump
  *
- *  \ipram  Index = Index of the pump
+ *  \iparam  Index = Index of the pump
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1626,7 +1626,7 @@ ReturnCode_t CPressureControl::GetPumpOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the speed of a ventilation fan
  *
- *  \ipram  Index = Index of the ventilation fan
+ *  \iparam  Index = Index of the ventilation fan
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code

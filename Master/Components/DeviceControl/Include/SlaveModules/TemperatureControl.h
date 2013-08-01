@@ -110,7 +110,8 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam TempCtrlStatus = Temperature ctrl. status
+     *  \iparam Status = Temperature ctrl. status
+     *  \iparam Voltage = Temperature ctrl. voltage
      */
     /****************************************************************************/
     void ReportActStatus(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status, TempCtrlMainsVoltage_t Voltage);
@@ -122,7 +123,7 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam OperatingMode = Temperature ctrl. status
+     *  \iparam Status = Temperature ctrl. status
      */
     /****************************************************************************/
     void ReportSetStatusAckn(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status);
@@ -156,6 +157,7 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam Index = Index of the heating element
      */
     /****************************************************************************/
     void ReportResetHeaterOperatingTime(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index);
@@ -195,6 +197,7 @@ signals:
      *  \iparam Heaters = Number of heating elements connected to the board
      *  \iparam Pids = Number of PID controllers in the control loop
      *  \iparam Current = Current through the heatinf circuit in milliamperes
+     *  \iparam HeaterSwitchState = Heater Switch state.
      */
     /****************************************************************************/
     void ReportHardwareStatus(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Sensors,

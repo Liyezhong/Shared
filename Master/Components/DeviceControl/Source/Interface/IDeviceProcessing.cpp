@@ -390,6 +390,8 @@ void IDeviceProcessing::OnStartNormalOperationMode(ReturnCode_t HdlInfo)
  *  \brief  Start diagnostic service
  *
  *      By calling this function the diagnostic service will start.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::StartDiagnosticService()
@@ -456,6 +458,8 @@ void IDeviceProcessing::OnDiagnosticServiceClosed(qint16 DiagnosticResult)
  *  \brief  Start adjustement service
  *
  *      By calling this function the adjustement service will start.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::StartAdjustmentService()
@@ -736,6 +740,7 @@ ReturnCode_t IDeviceProcessing::ALVaccum()
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  DelayTime = Delay time before stop pump.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -760,6 +765,7 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime)
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  DelayTime = Delay time before stop pump.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -785,7 +791,7 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime)
  *  \brief  Device interface function.
  *
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual Pressure
  */
 /****************************************************************************/
 qreal IDeviceProcessing::ALGetRecentPressure()
@@ -803,9 +809,10 @@ qreal IDeviceProcessing::ALGetRecentPressure()
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Enable temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -827,9 +834,10 @@ ReturnCode_t IDeviceProcessing::ALSetTempCtrlON(ALTempCtrlType_t Type)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Disable temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -851,9 +859,14 @@ ReturnCode_t IDeviceProcessing::ALSetTempCtrlOFF(ALTempCtrlType_t Type)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Set PID parameters for temperature control module.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -875,9 +888,14 @@ ReturnCode_t IDeviceProcessing::ALSetTemperaturePid(ALTempCtrlType_t Type, quint
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -901,9 +919,18 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControl(ALTempCtrlType_t Type,
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control with PID parameters.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -927,11 +954,13 @@ ReturnCode_t IDeviceProcessing::ALStartTemperatureControlWithPID(ALTempCtrlType_
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual temperature, UNDEFINED if failed.
  */
 /****************************************************************************/
 qreal IDeviceProcessing::ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index)
@@ -950,6 +979,7 @@ qreal IDeviceProcessing::ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 In
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  Type = Temperature control module.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1070,6 +1100,7 @@ ReturnCode_t IDeviceProcessing::ALBreakAllOperation()
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  pressureDrift = Pressure drift value.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1088,9 +1119,8 @@ ReturnCode_t IDeviceProcessing::ALSetPressureDrift(qreal pressureDrift)
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
- *
+/*!
+ *  \brief   Enable temperature control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1139,6 +1169,10 @@ ReturnCode_t IDeviceProcessing::RVSetTempCtrlOFF()
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1163,6 +1197,10 @@ ReturnCode_t IDeviceProcessing::RVSetTemperaturePid(quint16 MaxTemperature, quin
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1185,9 +1223,17 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControl(qreal NominalTemperatu
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control with PID parameters.
  *
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1210,11 +1256,12 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTe
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
  *
+ *  \iparam  Index = Actual temperature sensor index.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual temperature, UNDEFINED if failed.
  */
 /****************************************************************************/
 qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
@@ -1230,11 +1277,10 @@ qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get temperature control module's status.
  *
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Temperature control module status.
  */
 /****************************************************************************/
 TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
@@ -1254,11 +1300,10 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
 } 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
- *  Execute the move to intial position of the RV
+/*!
+ *  \brief   Request the rotary valve to move to its initial position.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
@@ -1278,11 +1323,12 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
 } 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.Position the oven cover
+/*!
+ *  \brief   Request the rotary valve to move to certain encoder disk's position.
  *
+ *  \iparam  RVPosition = Target rotary valve encoder disk's position.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
@@ -1303,11 +1349,10 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function. Request actual oven cover position
+/*!
+ *  \brief   Return rotary valve's encoder disk's position.
  *
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Current encoder disk position.
  */
 /****************************************************************************/
 RVPosition_t IDeviceProcessing::RVReqActRVPosition()
@@ -1323,9 +1368,10 @@ RVPosition_t IDeviceProcessing::RVReqActRVPosition()
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Enable temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1347,9 +1393,10 @@ ReturnCode_t IDeviceProcessing::OvenSetTempCtrlON(OVENTempCtrlType_t Type)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Disable temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1371,9 +1418,14 @@ ReturnCode_t IDeviceProcessing::OvenSetTempCtrlOFF(OVENTempCtrlType_t Type)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Set PID parameters for temperature control module.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1396,9 +1448,14 @@ ReturnCode_t IDeviceProcessing::OvenSetTemperaturePid(OVENTempCtrlType_t Type, q
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1421,9 +1478,18 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControl(OVENTempCtrlType_t T
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control with PID parameters.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1447,11 +1513,13 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControlWithPID(OVENTempCtrlT
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual temperature, UNDEFINED if failed.
  */
 /****************************************************************************/
 qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
@@ -1466,13 +1534,11 @@ qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint
     }
 }
 
-
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get the Oven lid sensor data captured in last 500 milliseconds.
  *
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual lid status, UNDEFINED if failed.
  */
 /****************************************************************************/
 quint16 IDeviceProcessing::OvenGetRecentLidStatus()
@@ -1489,11 +1555,12 @@ quint16 IDeviceProcessing::OvenGetRecentLidStatus()
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get temperature control module's status.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Temperature control module status.
  */
 /****************************************************************************/
 TempCtrlState_t IDeviceProcessing::OvenGetTemperatureControlState(OVENTempCtrlType_t Type)
@@ -1513,9 +1580,10 @@ TempCtrlState_t IDeviceProcessing::OvenGetTemperatureControlState(OVENTempCtrlTy
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Enable temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1537,9 +1605,10 @@ ReturnCode_t IDeviceProcessing::RTSetTempCtrlON(RTTempCtrlType_t Type)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Disable temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1561,9 +1630,14 @@ ReturnCode_t IDeviceProcessing::RTSetTempCtrlOFF(RTTempCtrlType_t Type)
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Set PID parameters for temperature control module.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1585,9 +1659,14 @@ ReturnCode_t IDeviceProcessing::RTSetTemperaturePid(RTTempCtrlType_t Type, quint
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1609,9 +1688,18 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControl(RTTempCtrlType_t Type,
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Start temperature control with PID parameters.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1634,11 +1722,13 @@ ReturnCode_t IDeviceProcessing::RTStartTemperatureControlWithPID(RTTempCtrlType_
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual temperature, UNDEFINED if failed.
  */
 /****************************************************************************/
 qreal IDeviceProcessing::RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
@@ -1654,11 +1744,12 @@ qreal IDeviceProcessing::RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 In
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get temperature control module's status.
  *
+ *  \iparam  Type = The target temperature contorl module to control.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Temperature control module status.
  */
 /****************************************************************************/
 TempCtrlState_t IDeviceProcessing::RTGetTemperatureControlState(RTTempCtrlType_t Type)
@@ -1678,9 +1769,8 @@ TempCtrlState_t IDeviceProcessing::RTGetTemperatureControlState(RTTempCtrlType_t
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
- *
+/*!
+ *  \brief  Unlock the retort.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1702,9 +1792,8 @@ ReturnCode_t IDeviceProcessing::RTUnlock()
 }
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
- *
+/*!
+ *  \brief  Lock the retort.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1727,11 +1816,10 @@ ReturnCode_t IDeviceProcessing::RTLock()
 
 
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
+/*!
+ *  \brief   Get the Retort lid sensor data captured in last 500 milliseconds.
  *
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ *  \return  Actual retort lock status, UNDEFINED if failed.
  */
 /****************************************************************************/
 quint16 IDeviceProcessing::RTGetRecentLockStatus()
@@ -1746,11 +1834,9 @@ quint16 IDeviceProcessing::RTGetRecentLockStatus()
     }
 }
 
-
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
- *
+/*!
+ *  \brief  Turn off the main relay.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1771,11 +1857,9 @@ ReturnCode_t IDeviceProcessing::PerTurnOffMainRelay()
     }
 }
 
-
 /****************************************************************************/
-/**
- *  \brief  Device interface function.
- *
+/*!
+ *  \brief  Turn on the main relay.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1799,8 +1883,10 @@ ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
 
 /****************************************************************************/
 /**
- *  \brief  Device interface function.
+ *  \brief  Bottle check function.
  *
+ *  \iparam  ReagentGrpID = Reagent Group ID
+ *  \iparam  TubePos = Tube position.
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */

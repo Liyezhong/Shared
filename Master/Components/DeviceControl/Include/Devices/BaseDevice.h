@@ -121,6 +121,8 @@ public:
     DeviceProcessing* GetDeviceProcessing() const { return m_pDevProc; }
 
     quint32 GetFctModInstanceFromKey(const QString &Key);
+
+    //! Get Function module key from instance ID
     QString GetFctModKeyFromInstance(const quint32 instanceID);
 
     static CANStepperMotorTask*    GetNewCANStepperMotorTask(CANStepperMotorTask::CANStepperMotorTaskID_t MotorTaskID);

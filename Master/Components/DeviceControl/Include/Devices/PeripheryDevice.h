@@ -9,6 +9,12 @@ namespace DeviceControl
 {
 class CDigitalOutput;
 
+/****************************************************************************/
+/*!
+*   \brief This class implements the functionality to configure and control a
+*          'Periphery' device
+*/
+/****************************************************************************/
 class CPeripheryDevice : public CBaseDevice
 {
     Q_OBJECT
@@ -18,6 +24,8 @@ public:
     CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString Type);
     //! destructor
     virtual ~CPeripheryDevice();
+
+    //! type for digital output fucntiom modules in this device
     typedef enum {
         PER_MAIN_RELAY = 0,
         PER_REMOTE_ALARM_CTRL  = 1,
@@ -26,6 +34,7 @@ public:
         //PER_REMOTE_ALARM_CLEAR = 3,
         PER_TOTAL_NUM = 3
     } PerDOType_t;
+
     //! general task handling function
     void HandleTasks();
 
@@ -59,13 +68,9 @@ private slots:
 
 private:
     //Function modules
-    CDigitalOutput* m_pDigitalOutputs[PER_TOTAL_NUM];
-
-
-    QMap<quint32, PerDOType_t> m_InstDOTypeMap;
-
+    CDigitalOutput* m_pDigitalOutputs[PER_TOTAL_NUM]; //!< Digital outputs FMs used in this device
+    QMap<quint32, PerDOType_t> m_InstDOTypeMap;       //!< Map between instance ID and digital output function modules
     qint16 m_TargetDOOutputValues[PER_TOTAL_NUM];     //!< Target output value; for verification of action result
-
 
     /*! error task state definitiosn */
     typedef enum {

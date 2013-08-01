@@ -96,7 +96,7 @@ void CModule::StartTimeDelay()
 /*!
  *  \brief  Time measurement
  *
- *      Returns the time passed since StartTimeDelay call.
+ *  \return  Returns the time passed since StartTimeDelay call.
  */
 /****************************************************************************/
 quint16 CModule::GetTimeDelay()

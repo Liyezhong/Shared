@@ -525,6 +525,10 @@ void CDigitalOutput::HandleCANMsgLifeTimeData(can_frame* pCANframe)
 /*!
  *  \brief    Send the CAN-message 'OutputStateSet' to set output state
  *
+ *  \iparam   OutputValue = Output value of the analog output FM
+ *  \iparam   Duration = Duration of the value
+ *  \iparam   Delay = Time delay
+ *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */
 /****************************************************************************/
@@ -602,6 +606,8 @@ ReturnCode_t CDigitalOutput::SendCANMsgLifeTimeDataReq()
  *            The task will be acknowledged by sending the signal ReportActOutputValue
  *
  *  \iparam   OutputValue = Output value to set (bit-pattern)
+ *  \iparam   Duration = Duration of the value
+ *  \iparam   Delay = Time delay
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *            otherwise DCL_ERR_INVALID_STATE

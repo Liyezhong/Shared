@@ -621,7 +621,7 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
     }
     if (IsTemperatureControlOn(Type))
     {
-        if(!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+        if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
     }
@@ -694,6 +694,7 @@ TempCtrlState_t CRetortDevice::GetTemperatureControlState(RTTempCtrlType_t Type)
  *
  *  This slot is connected to the signal, ReportActStatus
  *
+ *  \iparam InstanceID = Instance ID of the function module
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam TempCtrlStatus = Actual temperature control status
  *  \iparam MainsVoltage = Main voltage status.
@@ -922,6 +923,7 @@ ReturnCode_t CRetortDevice::GetTemperatureAsync(RTTempCtrlType_t Type, quint8 In
  *
  *  This slot is connected to the signal, ReportActTemperature
  *
+ *  \iparam InstanceID = Instance ID of the function module
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam Index = Index of the actual temperature control module.
  *  \iparam Temp = Actual temperature.

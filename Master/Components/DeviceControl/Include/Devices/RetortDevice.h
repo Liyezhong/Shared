@@ -12,6 +12,12 @@ class CTemperatureControl;
 class CDigitalOutput;
 class CDigitalInput;
 
+/****************************************************************************/
+/*!
+*   \brief This class implements the functionality to configure and control a
+*          'Retort' device
+*/
+/****************************************************************************/
 class CRetortDevice : public CBaseDevice
 {
     Q_OBJECT
@@ -87,22 +93,22 @@ private slots:
 
 private:
     //Function modules
-    CTemperatureControl* m_pTempCtrls[RT_TEMP_CTRL_NUM];
-    CDigitalOutput* m_pLockDigitalOutput;
-    CDigitalInput* m_pLockDigitalInput;
-    TempCtrlHardwareStatus_t m_HardwareStatus[RT_TEMP_CTRL_NUM];
+    CTemperatureControl* m_pTempCtrls[RT_TEMP_CTRL_NUM];              //!< Temperature control function modules used in this device
+    CDigitalOutput* m_pLockDigitalOutput;                             //!< Digital output for lock
+    CDigitalInput* m_pLockDigitalInput;                               //!< Digital input for lock
+    TempCtrlHardwareStatus_t m_HardwareStatus[RT_TEMP_CTRL_NUM];      //!< Hardware status for temperature control modules
 
-    qreal m_CurrentTemperatures[RT_TEMP_CTRL_NUM];                     //!< Current temperature
+    qreal m_CurrentTemperatures[RT_TEMP_CTRL_NUM];                    //!< Current temperature
     qreal m_TargetTemperatures[RT_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[RT_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[RT_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[RT_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
-    qint64 m_LastGetTempTime[RT_TEMP_CTRL_NUM][5];
-    QMap<quint32, RTTempCtrlType_t> m_InstTCTypeMap;
+    qint64 m_LastGetTempTime[RT_TEMP_CTRL_NUM][5];                    //!< Last get temperature time
+    QMap<quint32, RTTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperature control FMs
 
-    qint64 m_LastGetLockStatusTime;
-    qint16 m_TargetDOOutputValue;     //!< Target output value; for verification of action result
-    qint16 m_LockStatus;     //!< Target output value; for verification of action result
+    qint64 m_LastGetLockStatusTime;                                   //!< Last get lock status time
+    qint16 m_TargetDOOutputValue;                                     //!< Target output value; for verification of action result
+    qint16 m_LockStatus;                                              //!< Target output value; for verification of action result
 
 
     /*! error task state definitiosn */

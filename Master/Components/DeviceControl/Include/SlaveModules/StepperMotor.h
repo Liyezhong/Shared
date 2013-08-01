@@ -243,7 +243,7 @@ signals:
      *  \param   InstanceID = Instance identifier of this function module instance
      *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \param   Position   = Actual motor position [half steps]
-     *  \param   Speed      = Actual motor speed [half steps / sec]
+     *  \param   speed      = Actual motor speed [half steps / sec]
      *
      ****************************************************************************/
     void ReportMovementAckn(quint32 InstanceID, ReturnCode_t HdlInfo, qint32 Position, qint16 speed);
@@ -264,7 +264,7 @@ signals:
     /*!
      *  \brief    This signal is emitted to report the actual motor speed
      *
-     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   InstanCANStepperMotorceID = Instance identifier of this function module instance
      *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \param   Speed      = Actual motor speed [half steps / sec]
      *

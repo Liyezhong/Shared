@@ -11,6 +11,12 @@ namespace DeviceControl
 class CTemperatureControl;
 class CDigitalInput;
 
+/****************************************************************************/
+/*!
+*   \brief This class implements the functionality to configure and control a
+*          'Oven' device
+*/
+/****************************************************************************/
 class COvenDevice : public CBaseDevice
 {
     Q_OBJECT
@@ -74,18 +80,17 @@ private slots:
 
 private:
     //Function modules
-    CTemperatureControl* m_pTempCtrls[OVEN_TEMP_CTRL_NUM];
-    CDigitalInput* m_pLidDigitalInput;
+    CTemperatureControl* m_pTempCtrls[OVEN_TEMP_CTRL_NUM];              //!< Temperature control modules of the device
+    CDigitalInput* m_pLidDigitalInput;                                  //!< Digital input function module for the lid
 
-
-    qreal m_CurrentTemperatures[OVEN_TEMP_CTRL_NUM];                     //!< Current temperature
+    qreal m_CurrentTemperatures[OVEN_TEMP_CTRL_NUM];                    //!< Current temperature
     qreal m_TargetTemperatures[OVEN_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[OVEN_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[OVEN_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[OVEN_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
-    qint64 m_LastGetTempTime[OVEN_TEMP_CTRL_NUM][5];
-    qint64 m_LastGetLidStatusTime;
-    QMap<quint32, OVENTempCtrlType_t> m_InstTCTypeMap;
+    qint64 m_LastGetTempTime[OVEN_TEMP_CTRL_NUM][5];                    //!< Last get temperature time
+    qint64 m_LastGetLidStatusTime;                                      //!< Last get lid status time
+    QMap<quint32, OVENTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperatre control modules
     quint16 m_LidStatus;     //!< Target output value; for verification of action result
 
 
