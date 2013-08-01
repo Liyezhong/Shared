@@ -621,7 +621,7 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
     }
     if (IsTemperatureControlOn(Type))
     {
-        if(!SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+        if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
     }

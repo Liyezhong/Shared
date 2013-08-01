@@ -832,7 +832,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperatur
             return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
         }
         //ON the temperature control
-        if (!SetTemperatureControlStatus( TEMPCTRL_STATUS_ON))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus( TEMPCTRL_STATUS_ON))
         {
             // Log(tr("Not able to start temperature control"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
@@ -869,7 +869,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
     }
     if (IsTemperatureControlOn())
     {
-        if(!SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF))
+        if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
     }
@@ -887,7 +887,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
         return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
     }
     //ON the temperature control
-    if (!SetTemperatureControlStatus(TEMPCTRL_STATUS_ON))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(TEMPCTRL_STATUS_ON))
     {
         // Log(tr("Not able to start temperature control"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
