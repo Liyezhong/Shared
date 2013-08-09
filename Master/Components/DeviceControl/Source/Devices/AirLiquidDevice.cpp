@@ -933,9 +933,10 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     qreal CurrentPressure = 0;
     bool PressureHasBeenSetup = false;
     qint32 counter = 0;
-    qint32 TimeSlotPassed = 0;
+    //qint32 TimeSlotPassed = 0;
     bool WarnShowed = false;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
+    qint64 TimeNow, TimeStartPressure, TimeStartDraining;
 
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Drainging procedure.";
     qDebug() << "Device Air Liquid: INFO: Start Drainging procedure.";
@@ -952,12 +953,14 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         goto SORTIE;
     }
+    TimeStartPressure = QDateTime::currentMSecsSinceEpoch();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set target pressure finished.";
     qDebug() << "Device Air Liquid: INFO: Set target pressure finished.";
 
     while(!stop)
     {
         // if (m_LoopDrainingTimer.exec()== (-1))
+        TimeNow = QDateTime::currentMSecsSinceEpoch();
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DRAINGING_POLLING_TIME);
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
@@ -973,8 +976,18 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
             if(CurrentPressure >= DRAINGING_TARGET_THRESHOLD_PRESSURE)
             {
                 PressureHasBeenSetup = true;
+                TimeStartDraining = TimeNow;
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure has been set up";
-            qDebug() << "Device Air Liquid: INFO: Pressure has been set up";
+                qDebug() << "Device Air Liquid: INFO: Pressure has been set up";
+            }
+            else
+            {
+                if(TimeNow > (TimeStartPressure + DRAINGING_PRESSURE_BUILD_TIME))
+                {
+                    qDebug() << "Device Air Liquid: ERROR: Pressure can't be built up in 2 minutes.";
+                    RetValue = DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT;
+                    goto SORTIE;
+                }
             }
         }
         else
@@ -995,18 +1008,21 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
                 counter = 0;
             }
         }
-        TimeSlotPassed++;
-        if(((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_SETUP_WARNING_TIME) && (!WarnShowed))
+        //TimeSlotPassed++;
+        //if(((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_SETUP_WARNING_TIME) && (!WarnShowed))
+        if((TimeNow > (TimeStartDraining + DRAINGING_SETUP_WARNING_TIME)) && (!WarnShowed))
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining do not finished in expected time";
             qDebug() << "Device Air Liquid: Warning: Draining do not finished in expected time";
             WarnShowed = true;
+            RetValue = DCL_ERR_DEV_AL_DRAIN_WARNING_TIMEOUT;
         }
-        if((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_MAX_SETUP_TIME)
+        //if((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_MAX_SETUP_TIME)
+        if(TimeNow > (TimeStartDraining + DRAINGING_MAX_SETUP_TIME))
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining exceed maximum setup time(%1 seconds), exit!";
             qDebug() << "Device Air Liquid: Warning: Draining exceed maximum setup time(%1 seconds), exit!";
-            RetValue = DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT;
+            RetValue = DCL_ERR_DEV_AL_DRAIN_ERROR_TIMEOUT;
             goto SORTIE;
         }
     }
@@ -1051,12 +1067,14 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 {
     ReturnCode_t RetValue = DCL_ERR_DEV_AL_FILL_SUCCESS;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
-    quint32 counter = 0;
-    quint32 CounterStopValue = 0;
+    //quint32 counter = 0;
+    //quint32 CounterStopValue = 0;
     QList<qreal> PressureBuf;
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
+    qint64 TimeNow, TimeStartPressure, TimeStartFilling, TimeStopFilling;
+    TimeStopFilling = 0;
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
 
     //release pressure
@@ -1072,17 +1090,17 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         goto SORTIE;
     }
+    TimeStartPressure = QDateTime::currentMSecsSinceEpoch();
 
     //set timeout to 2 minutes
     while(!stop)
     {
-        // levelSensorState = m_LoopSuckingLevelSensor.exec();
+        TimeNow = QDateTime::currentMSecsSinceEpoch();
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, SUCKING_POOLING_TIME);
-        counter++;
-        //if(levelSensorState == 1)
+        //counter++;
         if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 == retCode)
         {
-            if(CounterStopValue == 0)
+            if(TimeStopFilling == 0)
             {
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Hit target level. Sucking Finished.";
                 if(DelayTime > 0)
@@ -1091,12 +1109,14 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                     if(DelayTime < SUCKING_MAX_DELAY_TIME)
                     {
                         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << DelayTime<<" milliseconds.";
-                        CounterStopValue = counter + DelayTime / SUCKING_POOLING_TIME;
+                        //CounterStopValue = counter + DelayTime / SUCKING_POOLING_TIME;
+                        TimeStopFilling = TimeNow + DelayTime;
                     }
                     else
                     {
                         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << SUCKING_MAX_DELAY_TIME<<" milliseconds.";
-                        CounterStopValue = counter + SUCKING_MAX_DELAY_TIME / SUCKING_POOLING_TIME;
+                        //CounterStopValue = counter + SUCKING_MAX_DELAY_TIME / SUCKING_POOLING_TIME;
+                        TimeStopFilling = TimeNow + SUCKING_MAX_DELAY_TIME;
                     }
                 }
                 else
@@ -1121,18 +1141,21 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
         else if(DCL_ERR_TIMER_TIMEOUT == retCode)
         {
 
-            if((counter > (SUCKING_SETUP_WARNING_TIME / SUCKING_POOLING_TIME)) && ( !WarnShowed ))
+            //if((counter > (SUCKING_SETUP_WARNING_TIME / SUCKING_POOLING_TIME)) && ( !WarnShowed ))
+            if((TimeNow > (TimeStartPressure + SUCKING_SETUP_WARNING_TIME)) && ( !WarnShowed ))
             {
                 FILE_LOG_L(laDEVPROC, llWARNING) << "Warning! Do not get level sensor data in" << (SUCKING_SETUP_WARNING_TIME / 1000)<<" seconds.";
                 WarnShowed = true;
+                RetValue = DCL_ERR_DEV_AL_FILL_WARNING_TIMEOUT;
             }
-            if(counter > (SUCKING_MAX_SETUP_TIME / SUCKING_POOLING_TIME))
+            //if(counter > (SUCKING_MAX_SETUP_TIME / SUCKING_POOLING_TIME))
+            if(TimeNow > (TimeStartPressure + SUCKING_MAX_SETUP_TIME))
             {
                 FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Do not get level sensor data in" << (SUCKING_MAX_SETUP_TIME / 1000)<<" seconds, Time out! Exit!";
-                RetValue = DCL_ERR_DEV_AL_FILL_TIMEOUT;
+                RetValue = DCL_ERR_DEV_AL_FILL_ERROR_TIMEOUT;
                 goto SORTIE;
             }
-            if((CounterStopValue!=0)&&(CounterStopValue <= counter))
+            if((TimeStopFilling!=0)&&(TimeNow >= TimeStopFilling))
             {
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay finished!";
                 goto SORTIE;

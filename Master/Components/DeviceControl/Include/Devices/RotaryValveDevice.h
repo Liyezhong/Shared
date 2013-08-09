@@ -151,6 +151,8 @@ private slots:
     QString GetLimitSwitchCode();
     RVPosition_t GetEDPosition();
     void SetEDPosition(RVPosition_t position);
+    RVPosition_t GetPrevEDPosition();
+    void SetPrevEDPosition(RVPosition_t position);
     void InitEDPosition();
     QString GetPosition();
     void RestoreLastValidParameterSet();
@@ -213,6 +215,7 @@ private:
     // Variables from process settings
     qint32 m_CurrentLimitSwitchCode;                //!< Current limit switchs' code
     RVPosition_t m_RVCurrentPosition;               //!< Current rotary valve postion
+    RVPosition_t m_RVPrevPosition;                  //!< Privious rotary valve postion
     qint32 m_CurrentPosition;                       //!< Current position (stored by asynchronous call)
     qreal m_CurrentTemperature;                     //!< Current temperature
     qreal m_TargetTemperature;                      //!< Current temperature

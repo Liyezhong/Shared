@@ -23,7 +23,7 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  */
 /****************************************************************************/
 CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
-        m_pTempCtrl(0), m_pMotorRV(0), m_RVCurrentPosition(RV_UNDEF)
+        m_pTempCtrl(0), m_pMotorRV(0), m_RVCurrentPosition(RV_UNDEF), m_RVPrevPosition(RV_UNDEF)
 {
     m_MainState      = DEVICE_MAIN_STATE_START;
     m_MainStateOld   = m_MainState;
@@ -1089,6 +1089,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
         //Log("Already At Initial Position, No Need To Move!");
         qDebug()<< "Already At Initial Position, No Need To Move!";
         SetEDPosition(RV_TUBE_1);
+        SetPrevEDPosition(RV_TUBE_1);
         return RetValue;
     }
     else if((lsCode == "request error")||(lsCode == "error"))
@@ -1118,10 +1119,12 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
             //Log(tr("Hit Initial Position!"));
             qDebug() << "Hit Initial Position";
             SetEDPosition(RV_TUBE_1);
+            SetPrevEDPosition(RV_TUBE_1);
         }
         else
         {
             SetEDPosition(RV_UNDEF);
+            SetPrevEDPosition(RV_UNDEF);
             RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
             qDebug() << "Hit unexpected position, please retry!";
         }
@@ -1129,6 +1132,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     else
     {
         SetEDPosition(RV_UNDEF);
+        SetPrevEDPosition(RV_UNDEF);
         qDebug() << "Hit unexpected position, please retry!";
         RetValue = refRunRet;
         // Log(tr("Hit unexpected position, please retry!"));
@@ -1142,7 +1146,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
 //#define REFER_RUN_TO_LOWER_LIMIT_ERR  (-3)
 //#define REFER_RUN_LOWER_LIMIT         (600)
 //#define REFER_RUN_TIMEROUT_IN_MS      (1100)
-#define REFER_RUN_RETRY_TIME          (20)
+#define   REFER_RUN_RETRY_TIME          (20)
 //#define REFER_RUN_OK                  (1)
 //#define REFER_RUN_DCL_ERR             (-1)
 //#define REFER_RUN_TO_UPPER_LIMIT_ERR  (-2)
@@ -1223,13 +1227,14 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
 {
     ReturnCode_t retCode = DCL_ERR_DEV_RV_REF_MOVE_OK;
     RVPosition_t EDPosition = GetEDPosition();
+    RVPosition_t PrevEDPosition = GetPrevEDPosition();
     float MoveSteps = 0;
     bool cw = false;
 
     QString lsCode, lsCodeDup;
     quint8 retry = 0;
 
-    if(0 == EDPosition)
+    if(RV_UNDEF == EDPosition)
     {
         lsCode = GetLimitSwitchCode();
         lsCodeDup = GetLimitSwitchCode();
@@ -1239,7 +1244,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             lsCodeDup = GetLimitSwitchCode();
             if(retry++ > 3)
             {
-                //                 Log(tr("Limit Switch code are not stable!"));
+                //Log(tr("Limit Switch code are not stable!"));
                 qDebug() << "Limit Switch code are not stable!";
                 retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
                 return retCode;
@@ -1249,6 +1254,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         {
             EDPosition = RV_TUBE_1;
             SetEDPosition(EDPosition);
+            SetPrevEDPosition(RV_TUBE_1);
         }
         else
         {
@@ -1285,10 +1291,61 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         {
             cw = (RVPosition > EDPosition ? false : true);
         }
+        if((RV_SEAL_1 == EDPosition) && (RV_TUBE_2 == PrevEDPosition) && (!cw))
+        {
+            retCode = MoveToNextPortCW();
+            if( DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+            {
+                return retCode;
+            }
+            EDPosition = GetEDPosition();
+            if(EDPosition != RV_TUBE_1)
+            {
+                qDebug()<<"Lost current position, need to run MoveToInitialPosition!";
+                retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
+                return retCode;
+            }
+            MoveSteps = ((RVPosition > EDPosition)?(RVPosition - EDPosition):(EDPosition - RVPosition));
+            if(MoveSteps > 15)
+            {
+                MoveSteps = 32 - MoveSteps;
+                cw = (RVPosition > EDPosition ? true : false);
+            }
+            else
+            {
+                cw = (RVPosition > EDPosition ? false : true);
+            }
+        }
+        if((RV_TUBE_2 == EDPosition) && (RV_SEAL_1 == PrevEDPosition) && (cw))
+        {
+            retCode = MoveToNextPortCCW();
+            if( DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+            {
+                return retCode;
+            }
+            EDPosition = GetEDPosition();
+            if(EDPosition != RV_SEAL_2)
+            {
+                qDebug()<<"Lost current position, need to run MoveToInitialPosition!";
+                retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
+                return retCode;
+            }
+            MoveSteps = ((RVPosition > EDPosition)?(RVPosition - EDPosition):(EDPosition - RVPosition));
+            if(MoveSteps > 15)
+            {
+                MoveSteps = 32 - MoveSteps;
+                cw = (RVPosition > EDPosition ? true : false);
+            }
+            else
+            {
+                cw = (RVPosition > EDPosition ? false : true);
+            }
+        }
     }
+
     if(cw)
     {
-        for(int i =0;i<MoveSteps;i++)
+        for(int i = 0; i < MoveSteps; i++)
         {
             retCode = MoveToNextPortCW();
             if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
@@ -1299,7 +1356,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     }
     else
     {
-        for(int i =0;i<MoveSteps;i++)
+        for(int i = 0; i < MoveSteps; i++)
         {
             retCode = MoveToNextPortCCW();
             if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
@@ -1336,7 +1393,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
     ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
     RVPosition_t EDPosition = GetEDPosition();
 
-    if(0 == EDPosition)
+    if(RV_UNDEF == EDPosition)
     {
         //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
         qDebug()<<"Can't find current position, please run MoveToInitialPosition first!";
@@ -1366,6 +1423,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
 
     if((ret == DCL_ERR_DEV_RV_REF_MOVE_OK) && (EDPosition == GetEDPosition()))
     {
+        SetPrevEDPosition(EDPosition);
         EDPosition = (RVPosition_t)((quint32)EDPosition - 1);
         if(EDPosition == RV_UNDEF)
         {
@@ -1380,7 +1438,9 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
         //Log(tr("Unknown error happened, lost current position, please run MoveToInitialPosition"));
         qDebug()<<"Unknown error happened, lost current position, please run MoveToInitialPosition";
         SetEDPosition(RV_UNDEF);
+        SetPrevEDPosition(RV_UNDEF);
     }
+
     return ret;
 }
 
@@ -1486,7 +1546,7 @@ quint32 CRotaryValveDevice::GetUpperLimit(quint32 CurrentEDPosition, DeviceContr
     }
     if(ChangeDirection)
     {
-        UpperLimit += 50;
+        UpperLimit += 40;
     }
     return UpperLimit;
 }
@@ -1550,7 +1610,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
     ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
     RVPosition_t EDPosition = GetEDPosition();
 
-    if(0 == EDPosition)
+    if(RV_UNDEF == EDPosition)
     {
         //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
         qDebug() << "Can't find current position, please run MoveToInitialPosition first!";
@@ -1579,6 +1639,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
 
     if((ret == DCL_ERR_DEV_RV_REF_MOVE_OK) && (EDPosition == GetEDPosition()))
     {
+        SetPrevEDPosition(EDPosition);
         quint32 tempPosition = ((quint32)EDPosition + 1);
         if(tempPosition == 33)
         {
@@ -1586,13 +1647,14 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
         }
         SetEDPosition((RVPosition_t)tempPosition);
         //Log(tr("CCW Hit Position: %1").arg(TranslateFromEDPosition(EDPosition)));
-        qDebug() << "CCW Hit Position: " << TranslateFromEDPosition(EDPosition);
+        qDebug() << "CCW Hit Position: " << TranslateFromEDPosition(tempPosition);
     }
     else
     {
         //Log(tr("Unknown error happened, lost current position, please run MoveToInitialPosition"));
         qDebug() << "Unknown error happened, lost current position, please run MoveToInitialPosition";
         SetEDPosition(RV_UNDEF);
+        SetPrevEDPosition(RV_UNDEF);
     }
     return ret;
 }
@@ -2003,6 +2065,43 @@ void CRotaryValveDevice::SetEDPosition(RVPosition_t position)
 
 /****************************************************************************/
 /*!
+ *  \brief  Helper function: Get previous encoder disk's position.
+ *
+ *  \return Encoder disk position.
+ */
+/****************************************************************************/
+RVPosition_t CRotaryValveDevice::GetPrevEDPosition()
+{
+    if(m_RVPrevPosition > 32)
+    {
+        m_RVPrevPosition = RV_UNDEF;
+    }
+
+    return m_RVPrevPosition;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Helper function: Set previous encoder disk's position.
+ *
+ *  \iparam position = Encoder disk position.
+ */
+/****************************************************************************/
+void CRotaryValveDevice::SetPrevEDPosition(RVPosition_t position)
+{
+
+    if((position < 33) && (position > 0))
+    {
+        m_RVPrevPosition = position;
+    }
+    else
+    {
+        m_RVPrevPosition = RV_UNDEF;
+    }
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Helper function: Set current encoder disk's position to initial
  *                           position.
  *
@@ -2010,7 +2109,7 @@ void CRotaryValveDevice::SetEDPosition(RVPosition_t position)
 /****************************************************************************/
 void CRotaryValveDevice::InitEDPosition()
 {
-    m_RVCurrentPosition =RV_UNDEF ;
+    m_RVCurrentPosition = RV_UNDEF;
 }
 
 /****************************************************************************/
