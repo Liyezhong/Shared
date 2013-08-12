@@ -47,6 +47,7 @@ struct MsgData{
     quint64 ID; //!< Event ID
     QString MsgString;  //!< Event String
     bool StatusBarIcon; //!< True to store event and display when status bar icon is clicked
+    int AutoQuitMsgBoxTime; //!< unit: second
 };
 
 /****************************************************************************/
@@ -81,7 +82,7 @@ private:
      */
     QHash<quint64, Global::tRefType> m_EvenIDCmdRefHash; //!< Hash of EventID(Key) and CmdRef(value)
     QTimer m_PopupTimer;    //!< When this timer times out, MsgBox will be poped out if queue not empty.
-
+    QTimer m_AutoQuitMsgBoxTimer;
     //----------------End of Members------------------------//
 
     //Methods
@@ -99,6 +100,7 @@ private slots:
     void ButtonCenterClicked();
     void ButtonRightClicked();
     void ShowMsgBoxIfQueueNotEmpty();
+    void AutoQuitMessageBox();
 
 signals:
     /*! \brief This Signal is emitted when a button on the mesg

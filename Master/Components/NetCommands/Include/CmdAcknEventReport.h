@@ -32,7 +32,8 @@ enum ClickedButton_t {
     CANCEL_BUTTON,
     STOP_BUTTON,
     RECOVERYLATER,
-    RECOVERYNOW
+    RECOVERYNOW,
+    TIMEOUT
 };
 
 /****************************************************************************/
