@@ -3,8 +3,8 @@
  *
  *  \brief Include file for ExportData class.
  *
- *  $Version:   $ 1.0
- *  $Date:      $ 2012-07-12
+ *  $Version:   $ 1.0, 2.0
+ *  $Date:      $ 2012-07-12, 2013-02-05
  *  $Author:    $ Raju
  *
  *  \b Company:
@@ -38,8 +38,8 @@ typedef QHash<QString, QStringList> FileList_t; ///< to store the archive file n
 /****************************************************************************/
 class CExportData {
 private:
-    FileList_t m_PairList; ///< pair list for the strings
-    QString m_LPKGFileName; ///< to store lpkg file name
+    FileList_t m_PairList; ///< pair list for the strings    
+    QStringList m_CreatedFileList; ///< to store created files in a list
 
     /****************************************************************************/
     /*!
@@ -55,11 +55,6 @@ private:
     /****************************************************************************/
     const CExportData & operator = (const CExportData &);
 
-public:
-    CExportData();
-
-    int CreateArchiveFiles();
-
     int StartPackTheFiles(const DataManager::CExportConfiguration &ExportConfiguration);
 
     int WriteZipFile(const DataManager::CExportConfiguration &ExportConfiguration,
@@ -70,6 +65,13 @@ public:
 
     int WriteArchiveFile(const QString &KeyName, const QList<QByteArray> &Files,
                                    const bool &Encryption, const bool &Compressed);
+
+    void RemoveFiles();
+
+public:
+    CExportData();
+
+    int CreateArchiveFiles();
 
 };
 

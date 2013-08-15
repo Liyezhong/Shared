@@ -9,8 +9,8 @@
  *         in the mounted device
  *
  *
- *  $Version:   $ 1.0
- *  $Date:      $ 2012-07-12
+ *  $Version:   $ 1.0, 2.0
+ *  $Date:      $ 2012-07-12, 2013-02-05
  *  $Author:    $ Raju
  *
  *  \b Company:
@@ -40,8 +40,8 @@ const char FILE_WRITEMODE                   = 'w'; ///< constant for file write 
 // constants for package type
 const QString PACKAGE_NONNATIVE             = "nonnative"; ///< constant for the package type
 
-// constants for package type
-const QString WILDCHAR_LOG                  = "*.log"; ///< constant for the log files
+// constants for package type // fix for IN:000970
+const QString WILDCHAR_ANY                  = "*.*"; ///< constant for the log files
 
 // constants for package type
 const QString COMMAND_ZIP                   = "zip"; ///< constant for the console command
@@ -105,6 +105,7 @@ int CExportData::CreateArchiveFiles()
     DataManager::CExportConfiguration ExportFile;
     ExportFile.SetDataVerificationMode(false);
 
+    // fix for IN:000966
     if (!ExportFile.Read(FileName)) {
         return Global::EXIT_CODE_EXPORT_INIT_CONTAINER_FAILED;
     }
@@ -117,7 +118,7 @@ int CExportData::CreateArchiveFiles()
     QStringList Parts = ExportFile.GetTargetFileName().split(DELIMITER_UNDERSCORE);
     // if the count is not greater than then verifier fails, so no need of else condition
     if (Parts.count() > 0) {
-        // this is part added ony for verification purpose. Verifier ony verifies the data for the service export and
+        // this is part added ony for verification purpose. Verifier only verifies the data for the service export and
         // user export
         if (Parts.value(1).compare(TYPEOFIMPORT_SERVICE) == 0) {
             ExportFile.SetServiceConfigurationFlag(true);
@@ -222,8 +223,7 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
             int ErrorNumber = WriteZipFile(ExportFile, KeyName, DateValue);
 
             if (ErrorNumber != 0) {
-                // if error then remove the lpkg file also
-                (void)QFile::remove(m_LPKGFileName);  //to avoid lint-534
+                RemoveFiles();
                 return ErrorNumber;
             }
         }
@@ -236,7 +236,8 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
             (void)QFile::remove(ImportExport::Constants::keyfile); //to avoid lint-534
             (void)QFile::remove(ImportExport::Constants::counter); //to avoid lint-534
 
-            if (ErrorNumber != 0) {
+            if (ErrorNumber != 0) {                
+                RemoveFiles();
                 return ErrorNumber;
             }
         }
@@ -268,12 +269,28 @@ int CExportData::WriteZipFile(const DataManager::CExportConfiguration &ExportCon
     }
 
     // always user configuration will have the list
-    if (ExportFile.GetUserConfigurationFlag()) {
-        // set the log directory path - Only user report list will have the files
+    if (ExportFile.GetUserConfigurationFlag()) {        
+        // <UserConfig> will not have the <Group> tag
+        if (ExportFile.GetUserConfiguration().GetUserReportList().GetPackageType().compare(PACKAGE_NONNATIVE) == 0) {
+            // set the log directory path - Only <userreport> will have the <Group> tag not the <userConfig>
+            QDir LogDirectory(ExportFile.GetSourceDir() + QDir::separator() +
+                              ExportFile.GetUserConfiguration().GetUserReportList().GetGroupFileName());
+            if (LogDirectory.exists()) {
+                foreach (QString FileName, LogDirectory.entryList(QStringList() << WILDCHAR_ANY, QDir::Files)) {
+                    FileList << (LogDirectory.absolutePath() + QDir::separator() + FileName);
+                }
+            }
+            else {
+                 return Global::EXIT_CODE_EXPORT_LOG_DIRECTORY_NOT_EXISTS;
+            }
+        }
+    }    
+    else if (ExportFile.GetServiceConfigurationFlag()) {
+        // set the log directory path - <serviceconfig> will have the <Group> tag
         QDir LogDirectory(ExportFile.GetSourceDir() + QDir::separator() +
-                          ExportFile.GetUserConfiguration().GetUserReportList().GetGroupFileName());
+                          ExportFile.GetServiceConfiguration().GetServiceConfigurationList().GetGroupFileName());
         if (LogDirectory.exists()) {
-            foreach (QString FileName, LogDirectory.entryList(QStringList() << WILDCHAR_LOG)) {
+            foreach (QString FileName, LogDirectory.entryList(QStringList() << WILDCHAR_ANY, QDir::Files)) {
                 FileList << (LogDirectory.absolutePath() + QDir::separator() + FileName);
             }
         }
@@ -282,6 +299,8 @@ int CExportData::WriteZipFile(const DataManager::CExportConfiguration &ExportCon
         }
     }
     const_cast<QString&>(KeyName) = KeyName.arg(DateValue);
+    // store the created file names so that if any error occurs it will delete all the created files
+    m_CreatedFileList.append(KeyName);
     FileList.insert(0, KeyName);
 
     QProcess ZipProcess;
@@ -309,9 +328,10 @@ int CExportData::WriteZipFile(const DataManager::CExportConfiguration &ExportCon
     else {
         // save the data in temporay string for the zip process it can be error or success
         QString StdOutData(ZipProcess.readAllStandardOutput());
-        if (StdOutData.contains("zip error:")) {
+        // fix for IN:000967
+        if (StdOutData.contains("zip error:") || StdOutData.contains("zip warning: name not matched")) {
             return Global::EXIT_CODE_EXPORT_ZIP_ERROR;
-        }        
+        }
         // else means zip command executed successfully
     }
 
@@ -351,7 +371,7 @@ int CExportData::WritelpkgFile(const DataManager::CExportConfiguration &ExportCo
 
         if (LogDirectory.exists()) {
 
-            foreach (QString FileName, LogDirectory.entryList(QStringList() << WILDCHAR_LOG)) {
+            foreach (QString FileName, LogDirectory.entryList(QStringList() << WILDCHAR_ANY, QDir::Files)) {
                 Files << qPrintable(LogDirectory.absolutePath() + QDir::separator() + FileName);
             }
         }
@@ -362,10 +382,31 @@ int CExportData::WritelpkgFile(const DataManager::CExportConfiguration &ExportCo
         Encryption = ExportFile.GetServiceConfiguration().GetServiceConfigurationList().GetEncryptionFlag();
         Compressed = ExportFile.GetServiceConfiguration().GetServiceConfigurationList().GetCompressedFlag();
     }
-    else {
+    else if (ExportFile.GetUserConfigurationFlag()) {
+        // check which list has the non native package value
+        if (ExportFile.GetUserConfiguration().GetUserConfigurationList().GetPackageType().compare(PACKAGE_NONNATIVE) != 0) {
+            Encryption = ExportFile.GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag();
+            Compressed = ExportFile.GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag();
+        }
+        // fix for IN:000964 and IN:000965
+        // always the user report will have the group of files
+        if (ExportFile.GetUserConfiguration().GetUserReportList().GetPackageType().compare(PACKAGE_NONNATIVE) != 0) {
+            // set the log directory path
+            QDir LogDirectory(ExportFile.GetSourceDir() + QDir::separator() +
+                              ExportFile.GetUserConfiguration().GetUserReportList().GetGroupFileName());
 
-        Encryption = ExportFile.GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag();
-        Compressed = ExportFile.GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag();
+            if (LogDirectory.exists()) {
+
+                foreach (QString FileName, LogDirectory.entryList(QStringList() << WILDCHAR_ANY, QDir::Files)) {
+                    Files << qPrintable(LogDirectory.absolutePath() + QDir::separator() + FileName);
+                }
+            }
+            else {
+                return Global::EXIT_CODE_EXPORT_LOG_DIRECTORY_NOT_EXISTS;
+            }
+            Encryption = ExportFile.GetUserConfiguration().GetUserReportList().GetEncryptionFlag();
+            Compressed = ExportFile.GetUserConfiguration().GetUserReportList().GetCompressedFlag();
+        }
     }
 
     const_cast<QString&>(KeyName) = KeyName.arg(DateValue);
@@ -404,7 +445,8 @@ int CExportData::WriteArchiveFile(const QString &KeyName, const QList<QByteArray
     try {
         // write the archive file
         ImportExport::WriteArchive(qPrintable(KeyName), Files, 1, Encryption, Compressed);
-        m_LPKGFileName = KeyName;
+        // store the created file name
+        m_CreatedFileList.append(KeyName);
     }
     catch (ImportExport::ExceptionNumber ExNumber) {
         // if error then remove the file also
@@ -463,6 +505,23 @@ int CExportData::WriteArchiveFile(const QString &KeyName, const QList<QByteArray
         return ExitCode;
     }
     return Global::EXIT_CODE_EXPORT_SUCCESS;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Remove the files if any error occured while creating the files
+ */
+/****************************************************************************/
+void CExportData::RemoveFiles()
+{
+    if (m_CreatedFileList.count() > 0) {
+        for (qint32 Counter = 0; Counter < m_CreatedFileList.count(); Counter++) {
+            if (QString(m_CreatedFileList.value(Counter)).compare("") != 0) {
+                // if error then remove the lpkg file also
+                (void)QFile::remove(m_CreatedFileList.value(Counter));  //to avoid lint-534
+            }
+        }
+    }
 }
 
 

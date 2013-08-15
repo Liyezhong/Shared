@@ -31,7 +31,7 @@ namespace Export {
 
 /****************************************************************************/
 /**
- * \brief Test class for XmlConfigFileUserSettings class.
+ * \brief Test class for ExportConfiguration.xml class.
  */
 /****************************************************************************/
 class TestMain : public QObject {

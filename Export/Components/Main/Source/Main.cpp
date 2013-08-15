@@ -6,8 +6,8 @@
  *  \b Description:
  *         Starting point to the application
  *
- *  $Version:   $ 1.0
- *  $Date:      $ 2012-07-12
+ *  $Version:   $ 1.0, 2.0
+ *  $Date:      $ 2012-07-12, 2013-02-05
  *  $Author:    $ Raju
  *
  *  \b Company:
@@ -30,7 +30,7 @@
 #include "Global/Include/SystemPaths.h"
 
 
-static const QString Version = "EXP_0.001"; ///< version string for the export component
+static const QString Version = "EXP_0.002"; ///< version string for the export component
 
 /****************************************************************************/
 /*!
