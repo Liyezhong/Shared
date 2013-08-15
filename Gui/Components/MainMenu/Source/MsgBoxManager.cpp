@@ -49,6 +49,9 @@ CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInte
     CreateMesgBox(TempMsgData);
     m_PopupTimer.setSingleShot(true);
     CONNECTSIGNALSLOT(&m_PopupTimer, timeout(), this, ShowMsgBoxIfQueueNotEmpty());
+
+    m_AutoQuitMsgBoxTimer.setSingleShot(true);
+    CONNECTSIGNALSLOT(&m_AutoQuitMsgBoxTimer, timeout(), this, AutoQuitMessageBox());
 }
 
 /****************************************************************************/
@@ -180,7 +183,7 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
     //check whether we need to display or remove the Msg Box
     if (EventStatus) {
         MsgData CurrentMsgData;
-        DS >> CurrentMsgData.MsgString >> CurrentMsgData.Time >> ButtonType >> CurrentMsgData.StatusBarIcon;
+        DS >> CurrentMsgData.MsgString >> CurrentMsgData.Time >> ButtonType >> CurrentMsgData.StatusBarIcon >> CurrentMsgData.AutoQuitMsgBoxTime;
         CurrentMsgData.ID = EventID;
         qDebug() << "Event ID in message box is" << EventID;
         CurrentMsgData.EventType = static_cast<Global::EventType>(EventType);
@@ -304,6 +307,16 @@ void CMsgBoxManager::ButtonRightClicked()
     ShowMsgBoxIfQueueNotEmpty();
 }
 
+void CMsgBoxManager::AutoQuitMessageBox()
+{
+    RemoveMsgBoxFromQueue(static_cast<Global::EventType>(m_CurrentMsgData.EventType), m_CurrentMsgBoxEventID);
+    //Removing the messages with Status as Inactive
+    MainMenu::StatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(m_CurrentMsgData.EventType) , m_CurrentMsgBoxEventID);
+
+    Global::tRefType CmdRef = m_EvenIDCmdRefHash.value(m_CurrentMsgData.ID);
+    emit EventReportAck(NetCommands::TIMEOUT, CmdRef, m_CurrentMsgData.ID);
+}
+
 /****************************************************************************/
 /*!
  *  \brief Checks if Msg Box needs to be displayed
@@ -360,6 +373,15 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
         quint32 ID =  (m_CurrentMsgData.ID & 0xffffffff00000000) >> 32;
         qDebug() << "QString::number(ID)" << QString::number(ID)<< ID;
         mp_MessageDlg->SetTitle(Date + " " + Time, QString::number(ID));
+
+        QRect scr = mp_Parent->geometry();
+        mp_MessageDlg->move( scr.center() - mp_MessageDlg->rect().center());
+
+        if (m_CurrentMsgData.AutoQuitMsgBoxTime > 0)
+        {
+            m_AutoQuitMsgBoxTimer.start(m_CurrentMsgData.AutoQuitMsgBoxTime);
+        }
+
         //Show MsgDlg
         mp_MessageDlg->Show();
         //Store Event Id currently being displayed

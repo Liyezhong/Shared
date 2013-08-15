@@ -26,6 +26,7 @@ class CDigitalOutput;
 
 #define DRAINGING_TARGET_THRESHOLD_PRESSURE  (15)
 #define DRAINGING_TARGET_FINISHED_PRESSURE   (10)
+#define DRAINGING_PRESSURE_BUILD_TIME   (120*1000) //Max time for setup pressure
 #define DRAINGING_SETUP_WARNING_TIME    (120*1000) //Td_Err
 #define DRAINGING_MAX_SETUP_TIME        (240*1000) //Td_Err
 #define DRAINGING_POLLING_TIME          (1000)
