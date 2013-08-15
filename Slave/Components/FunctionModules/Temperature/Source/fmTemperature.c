@@ -130,6 +130,8 @@ typedef struct {
 } InstanceData_t;
 
 
+static Bool TempChanged = FALSE;
+static Bool HeaterCheckSkipped = FALSE;
 //****************************************************************************/
 // Private Variables
 //****************************************************************************/
@@ -353,6 +355,11 @@ static Error_t tempModuleTask (UInt16 Instance)
                 for (i = 0; i < InstanceCount; i++) {
                     DataTable[i].State = STATE_SAMPLE;
                 }
+                
+                if ( HeaterCheckSkipped && TempChanged ) {
+                    TempChanged = FALSE;
+                    HeaterCheckSkipped = FALSE;
+                }
             }
         }
 
@@ -442,6 +449,8 @@ static Error_t tempModuleTask (UInt16 Instance)
                 
                 Data->State = STATE_IDLE;
                 TempPriority++;
+                
+                //printf("op[%d]:%d\n", Instance, OperatingTime);
                 
                 // Control the heating elements
                 Error = tempHeaterActuate (OperatingTime, TempSampleTimestamp + TempSamplingTime, Instance);
@@ -567,21 +576,29 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
         //printf("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
     }
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
-    
+
         if ( Instance == tempFindRoot () ) {
-            Error = tempHeaterCheck (Instance, Data->HeaterType);
+            if ( TempChanged ) {
+            //if (FALSE) {
+                Error = tempHeaterCheck (Instance, Data->HeaterType, FALSE);
+                HeaterCheckSkipped = TRUE;
+            }
+            else {
+                Error = tempHeaterCheck (Instance, Data->HeaterType, TRUE);
+            }
             if (Error < 0) {
                 return Error;
             }
         }       
-        
+
+  
         if (tempHeaterFailed () == TRUE) {
             *Fail = TRUE;
             //printf("I[Err]:%d ", Instance);
             bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
             bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempGetActiveStatus ());
         }
-        
+  
     }
 
 
@@ -688,7 +705,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
-            printf("Temperature out of range[%d]\n", Data->ServiceTemp[0]);
+            //printf("Temperature out of range[%d]\n", Data->ServiceTemp[0]);
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -699,7 +716,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
-            printf("Temperature in range\n");
+            //printf("Temperature in range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -933,7 +950,7 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
         TempPhase = PHASE_HEAT;
     }
     
-    printf("Id:%d, Flag:%d\n", InstanceID, Data->Flags);
+    printf("TC Id:%d, Flag:%d\n", InstanceID, Data->Flags);
     
     // Start auto-tuning
     if ((Data->Flags & MODE_AUTO_TUNE) != 0) {
@@ -950,6 +967,10 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
             //tempPidReset(&Data->PidParams[i]);
         }
         //tempHeaterReset();
+        
+        TempChanged = TRUE;
+        HeaterCheckSkipped = FALSE;
+        
         Data->State = STATE_IDLE;
         Data->SlopeSampleCnt = 0;
         Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);

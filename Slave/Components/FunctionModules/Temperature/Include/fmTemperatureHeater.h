@@ -61,7 +61,7 @@ void tempHeaterReset (void);
 Error_t tempHeaterProgress (void);
 Error_t tempSampleCurrent (TempHeaterType_t HeaterType);
 Bool tempHeaterParallel (void);
-Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType);
+Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck);
 Bool tempHeaterFailed (void);
 Error_t tempHeaterActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance);
 UInt16 tempHeaterCurrent (void);

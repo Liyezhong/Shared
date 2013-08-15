@@ -230,6 +230,7 @@ void tempHeaterReset ()
     TempHeaterData.MaxActDesiredCurrent = 0;
     TempHeaterData.MaxActDesiredCurThreshold = 0;
     TempHeaterData.MaxActiveStatus = 0;
+    TempHeaterData.MaxActiveStatus2 = 0;
 }
 
 
@@ -489,7 +490,7 @@ void tempCalcEffectiveCurrent(UInt16 Instance, TempHeaterType_t HeaterType)
  *
  ****************************************************************************/
 
-Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType)
+Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck)
 {
     Error_t Error;
     UInt16 Current = 0;
@@ -513,6 +514,12 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType)
     TempHeaterData.MaxActDesiredCurThreshold = 0;
     TempHeaterData.MaxActiveStatus2 = TempHeaterData.MaxActiveStatus;
     TempHeaterData.MaxActiveStatus = 0;
+
+
+    if ( !CurrentCheck ) {
+        return (NO_ERROR);
+    }
+
 
 
     if (HeaterType == TYPE_HEATER_DC) {
