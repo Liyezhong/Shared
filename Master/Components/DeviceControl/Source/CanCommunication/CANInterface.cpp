@@ -96,7 +96,7 @@ qint16  CANInterface::Open(const char* szOpenInterface)
     }
     FILE_LOG_L(laINIT, llDEBUG) << " try to open '" << szOpenInterface << "'";
 
-    m_sockCan = socket(PF_CAN, SOCK_RAW | SOCK_NONBLOCK, CAN_RAW);
+    m_sockCan = socket(PF_CAN, SOCK_RAW | SOCK_NONBLOCK, CAN_RAW); //lint !e641 !e655
     if (m_sockCan < 0)
     {
         perror("socket");
@@ -213,8 +213,8 @@ int CANInterface::Read(can_frame* pCanMsg)
     struct timeval TimeValue;
     qint32 ReturnValue;
 
-    FD_ZERO(&ReadFileDescriptors);
-    FD_SET(m_sockCan, &ReadFileDescriptors);
+    FD_ZERO(&ReadFileDescriptors); //lint !e529
+    FD_SET(m_sockCan, &ReadFileDescriptors); //lint !e573 !e530
 
     TimeValue.tv_sec = 0;
     TimeValue.tv_usec = 500000;

@@ -403,7 +403,7 @@ void CPeripheryDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Periphery set DO output failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Periphery set DO output failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_SET_DO_VALUE, ReturnCode);
 

@@ -25,13 +25,7 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
 CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
         m_pTempCtrl(0), m_pMotorRV(0), m_RVCurrentPosition(RV_UNDEF), m_RVPrevPosition(RV_UNDEF)
 {
-    m_MainState      = DEVICE_MAIN_STATE_START;
-    m_MainStateOld   = m_MainState;
-    //m_TaskID         = RVDEV_TASKID_INIT;
-    m_ErrorTaskState   = RV_DEV_ERRTASK_STATE_FREE;
-
-    m_instanceID = DEVICE_INSTANCE_ID_ROTARY_VALVE;
-
+    Reset();
     FILE_LOG_L(laDEV, llINFO) << "rotary valve device created";
 }
 
@@ -41,25 +35,15 @@ CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QStr
  */
 /****************************************************************************/
 CRotaryValveDevice::~CRotaryValveDevice()
-{/*
+{
     try
     {
-    m_pDevProc = 0;
-    if (m_pTempCtrl)
-    {
-        delete m_pTempCtrl;
-        m_pTempCtrl = 0;
-    }
-    if(m_pMotorRV)
-    {
-        delete m_pMotorRV;
-        m_pMotorRV = 0;
-    }
+        Reset();
     }
     catch(...)
     {
-    return;
-    }*/
+        return;
+    }
 }
 
 /****************************************************************************/
@@ -390,7 +374,7 @@ void CRotaryValveDevice::CheckSensorsData()
 {
     if(m_pTempCtrl)
     {
-        GetTemperatureAsync(0);
+        (void)GetTemperatureAsync(0);
     }
 }
 
@@ -568,7 +552,7 @@ void CRotaryValveDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: RV set temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: RV set temperature failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_TEMP, ReturnCode);
 }
@@ -682,7 +666,7 @@ void CRotaryValveDevice::OnGetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode; //lint !e641
         m_CurrentTemperature = UNDEFINED;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_GET_TEMP, ReturnCode);
@@ -793,7 +777,7 @@ void CRotaryValveDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: RV set temperature PID failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: RV set temperature PID failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_TEMP_PID, ReturnCode);
 }
@@ -2148,12 +2132,12 @@ void CRotaryValveDevice::Reset()
 
     m_instanceID = DEVICE_INSTANCE_ID_ROTARY_VALVE;
 
-    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime));
+    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
     m_TargetTempCtrlStatus = TEMPCTRL_STATUS_UNDEF;
     m_CurrentTempCtrlStatus = TEMPCTRL_STATUS_UNDEF;
     m_CurrentTemperature = 0;
     m_TargetTemperature = 0;
-    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus));
+    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
 }
 
 /****************************************************************************/

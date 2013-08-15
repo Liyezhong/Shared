@@ -72,9 +72,7 @@ public:
         CAN_OBJ_TYPE_RFID15693        = MODULE_ID_RFID15693,    ///< RFID reader
         CAN_OBJ_TYPE_TEMPERATURE_CTL  = MODULE_ID_TEMPERATURE,  ///< temperature control
         CAN_OBJ_TYPE_UART             = MODULE_ID_UART,         ///< serial interface UART
-#ifdef PRE_ALFA_TEST
         CAN_OBJ_TYPE_PRESSURE_CTL     = MODULE_ID_PRESSURE,
-#endif
         CAN_OBJ_TYPE_DEVICEMNG        = 98,                     ///< Device processing
         CAN_OBJ_TYPE_UNDEF            = 99                      ///< undefined type
     } CANObjectType_t;
@@ -262,10 +260,8 @@ public:
         position = 0;
         width = 0;
         deviation = 0;
-#ifdef PRE_ALFA_TEST
         bRotDirCheck = 0;
         hitSkip = 0;
-#endif
     }
 
     quint8  bValid;         //!< set when this position code represents a valid value
@@ -274,10 +270,8 @@ public:
     qint32  position;       //!< centered limit switch position in half-steps
     quint8  width;          //!< active limit switch width in half-steps
     quint8  deviation;      //!< tolerated deviation (+/-) in half-steps
-#ifdef PRE_ALFA_TEST
     quint8  bRotDirCheck;
     quint8  hitSkip;
-#endif
 };
 
 
@@ -338,11 +332,6 @@ public:
         sMinSpeed = 0;
         sMaxSpeed = 0;
         refRunRefPos = 1;
-/*
-#ifdef PRE_ALFA_TEST
-        refRunRefPosSkip = 0;
-#endif
-*/
         lRefRunMaxDistance = 0;
         sRefRunTimeout = 0;
         lRefRunReverseDistance = 0;
@@ -397,21 +386,12 @@ public:
     // reference run parameters
     qint8         refRunRefPos;            //!< the limit switch position code used as reference position
     qint32        lRefRunMaxDistance;      //!< maximum number of half-steps during reference run
-#ifdef PRE_ALFA_TEST
     quint16        sRefRunTimeout;         //work around, need value bigger than 32767 !< maximum duration to perform each movement in ms
-#else
-    qint16        sRefRunTimeout;          //!< maximum duration to perform each movement in ms
-#endif
+    //qint16        sRefRunTimeout;          //!< maximum duration to perform each movement in ms
     qint32        lRefRunReverseDistance;  //!< distance for reverse move between high and low speed cycle
     qint32        lRefPosOffset;           //!< offset between the reference position and internal position system
     qint16        sRefRunSlowSpeed;        //!< low speed during reference run in half-steps/sec
     qint16        sRefRunHighSpeed;        //!< high speed during reference run in half-steps/sec
-/*
-#ifdef PRE_ALFA_TEST
-    quint8        refRunRefPosSkip;
-#endif
-*/
-
     MotionProfileMap listMotionProfiles; //!< list of the motors motion profiles
 
     // supervision
@@ -538,7 +518,6 @@ public:
     quint16 sHeaterThreshold;   //!< current threshold of the heaters in mA
     QList<CANFctPidController> listPidControllers;  //!< List of PID parameter sets
 };
-#ifdef PRE_ALFA_TEST
 
 class CANPressureFctPidController
 {
@@ -595,7 +574,6 @@ public:
     QList<CANPressureFctPidController> listPidControllers;  //!< List of PID parameter sets
     CANPressureFctPwmController pwmController;
 };
-#endif
 /*! \brief This class transfers the CANoystick-Object configuration.
 *    The class contains configuration parameter of the CANoystick-Object
 *    The class is instanced while hw configuration is read. The class transfers

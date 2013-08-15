@@ -100,7 +100,7 @@ public:
 
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout);
-    void ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value);
+    void ResumeFromSyncCall(SyncCmdType_t CmdType,  ReturnCode_t RetCode);
     //! Main state typde definition
     typedef enum {
         DP_MAIN_STATE_START           = 0x00,   /**< start state, after instantiation of the class */

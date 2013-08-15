@@ -22,7 +22,6 @@
  */
 /****************************************************************************/
 
-#ifdef PRE_ALFA_TEST
 #include "DeviceControl/Include/SlaveModules/PressureControl.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
@@ -1314,7 +1313,7 @@ ReturnCode_t CPressureControl::SetPressure(quint8 flag, qreal Pressure)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1347,7 +1346,7 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1377,7 +1376,7 @@ ReturnCode_t CPressureControl::SetCalibration(bool Enable)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1414,7 +1413,7 @@ ReturnCode_t CPressureControl::SetPWMParams(quint16 maxActuatingValue, quint16 m
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1444,7 +1443,7 @@ ReturnCode_t CPressureControl::ReqActPressure(quint8 Index)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1474,7 +1473,7 @@ ReturnCode_t CPressureControl::SetOperatingMode(PressureCtrlOperatingMode_t Pres
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1500,7 +1499,7 @@ ReturnCode_t CPressureControl::ReqOperatingMode()
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1530,7 +1529,7 @@ ReturnCode_t CPressureControl::SetStatus(PressureCtrlStatus_t PressureCtrlState)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1556,7 +1555,7 @@ ReturnCode_t CPressureControl::ReqStatus()
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1586,7 +1585,7 @@ ReturnCode_t CPressureControl::ResetPumpOperatingTime(quint8 Index)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1616,7 +1615,7 @@ ReturnCode_t CPressureControl::GetPumpOperatingTime(quint8 Index)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1646,7 +1645,7 @@ ReturnCode_t CPressureControl::GetFanSpeed(quint8 Index)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1678,7 +1677,7 @@ ReturnCode_t CPressureControl::GetHardwareStatus()
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl invalid state: " << (int) m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1754,4 +1753,3 @@ void CPressureControl::ResetModuleCommand(CANPressureCtrlCmdType_t ModuleCommand
     }
 }
 } //namespace
-#endif

@@ -71,8 +71,7 @@ namespace DeviceControl
 #define CAN_TEMPCTRL_TIMEOUT_OPMODE_SET_REQ      400  //!< Timeout set request
 // operation mode req timeouts
 #define CAN_TEMPCTRL_TIMEOUT_ACTOPMODE_REQ       400  //!< Timeout read request
-
-#ifdef PRE_ALFA_TEST
+// temperature req timeouts
 #define CAN_PRESSURECTRL_TIMEOUT_TEMP_SET_ACK        400  //!< Timeout set request
 // temperature req timeouts
 #define CAN_PRESSURECTRL_TIMEOUT_ACTTEMP_REQ         400  //!< Timeout read request
@@ -85,7 +84,6 @@ namespace DeviceControl
 // operation mode req timeouts
 #define CAN_PRESSURECTRL_TIMEOUT_ACTOPMODE_REQ       400  //!< Timeout read request
 
-#endif
 
 // stepper motor timeouts
 #define CAN_STEPPERMOTOR_TIMEOUT_SET_STATE      1000  //!< Timeout SetState

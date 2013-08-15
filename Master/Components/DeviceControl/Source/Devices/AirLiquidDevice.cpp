@@ -30,7 +30,7 @@ CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString 
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Air-liquid device created";
     qDebug() <<  "airliquid device cons thread id is " << QThread::currentThreadId();
-}
+} //lint !e1566
 
 /****************************************************************************/
 /*!
@@ -39,8 +39,15 @@ CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString 
 /****************************************************************************/
 CAirLiquidDevice::~CAirLiquidDevice()
 {
-    Reset();
-}
+    try
+    {
+        Reset();
+    }
+    catch(...)
+    {
+        return;
+    }
+}    //lint !e1579
 
 /****************************************************************************/
 /*!
@@ -66,18 +73,20 @@ void CAirLiquidDevice::Reset()
     }
     m_pPressureCtrl = NULL;
     m_pFanDigitalOutput = NULL;
-    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime));
+    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
     m_LastGetPressureTime = 0;
-    memset( &m_SuckingTime, 0 , sizeof(m_SuckingTime));
-    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));
-    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus));
-    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures));
-    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures));
-    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus));
-    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));
+    memset( &m_SuckingTime, 0 , sizeof(m_SuckingTime)); //lint !e545
+    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));  //lint !e545 !e641
+    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures)); //lint !e545
+    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
+    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
+    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls)); //lint !e545
     m_TargetPressureCtrlStatus = PRESSURECTRL_STATUS_UNDEF;
     m_CurrentPressureCtrlStatus = PRESSURECTRL_STATUS_UNDEF;
     m_TargetDOOutputValue = 0;
+    m_DOLifeTime = 0;
+    m_DOLifeCycles = 0;
 
 }
 
@@ -223,7 +232,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL & 0xF)] = AL_LEVELSENSOR;
-            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR; //lint !e641
         }
     }
     else
@@ -245,7 +254,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             //m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL & 0xF)] = AL_TUBE1;
-            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL ] = AL_TUBE1;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL ] = AL_TUBE1; //lint !e641
         }
     }
     else
@@ -267,7 +276,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL & 0xF)] = AL_TUBE2;
-            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL ] = AL_TUBE2;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL ] = AL_TUBE2; //lint !e641
         }
     }
     else
@@ -492,19 +501,19 @@ void CAirLiquidDevice::CheckSensorsData()
 
     if(m_pPressureCtrl )
     {
-        GetPressureAsync();
+        (void)GetPressureAsync();
     }
     if(m_pTempCtrls[AL_LEVELSENSOR])
     {
-        GetTemperatureAsync(AL_LEVELSENSOR, 0);
+        (void)GetTemperatureAsync(AL_LEVELSENSOR, 0);
     }
     if(m_pTempCtrls[AL_TUBE1])
     {
-        GetTemperatureAsync(AL_TUBE1, 0);
+        (void)GetTemperatureAsync(AL_TUBE1, 0);
     }
     if(m_pTempCtrls[AL_TUBE2])
     {
-        GetTemperatureAsync(AL_TUBE2, 0);
+        (void)GetTemperatureAsync(AL_TUBE2, 0);
     }
 }
 
@@ -579,13 +588,21 @@ void CAirLiquidDevice::HandleErrorState()
 ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
 {
     //m_TargetPressure = NominalPressure;
-    m_TargetPressure = NominalPressure + m_PressureDrift;
-    ReturnCode_t retCode =  m_pPressureCtrl->SetPressure(flag, m_TargetPressure);
-    if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    ReturnCode_t retCode;
+    if(m_pPressureCtrl)
     {
-        return retCode;
+        m_TargetPressure = NominalPressure + m_PressureDrift;
+        retCode =  m_pPressureCtrl->SetPressure(flag, m_TargetPressure);
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE);
     }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_PRESSURE);
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     return retCode;
 }
 
@@ -600,10 +617,10 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
  *
  */
 /****************************************************************************/
-void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Pressure)
+void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal TargetPressure)
 {
     Q_UNUSED(ReturnCode)
-    if ((Pressure != m_TargetPressure)&&(UNDEFINED != Pressure))
+    if ((TargetPressure != m_TargetPressure)&&(UNDEFINED != TargetPressure))
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_FAILED);
         FILE_LOG_L(laDEVPROC, llWARNING) << " ERROR: Target pressure is not reached. ";
@@ -629,11 +646,19 @@ void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetValve(quint8 ValveIndex, quint8 ValveState)
 {
-    ReturnCode_t retCode = m_pPressureCtrl->SetValve(ValveIndex, ValveState);
-    if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
-        return retCode;
+    ReturnCode_t retCode;
+    if(m_pPressureCtrl)
+    {
+        retCode = m_pPressureCtrl->SetValve(ValveIndex, ValveState);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
+            return retCode;
+        }
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_VALVE);
     }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_VALVE);
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     return retCode;
 }
 
@@ -668,34 +693,38 @@ void CAirLiquidDevice::OnSetValve(quint32 /*InstanceID*/, ReturnCode_t ReturnCod
 /****************************************************************************/
 qreal CAirLiquidDevice::GetPressure(void)
 {
-    qreal RetValue;
+    qreal RetValue = m_CurrentPressure - m_PressureDrift;
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetPressureTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
-        ReturnCode_t retCode = m_pPressureCtrl->ReqActPressure(0);
-        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        if(m_pPressureCtrl)
         {
-            RetValue = UNDEFINED;
-        }
-        else
-        {
-            retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_PRESSURE);
-            //retCode =  (ReturnCode_t)m_LoopGetPressure.exec();
+            ReturnCode_t retCode = m_pPressureCtrl->ReqActPressure(0); //lint -esym(526, DeviceControl::ReqActPressure) -esym(628, DeviceControl::ReqActPressure)
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 RetValue = UNDEFINED;
             }
             else
             {
-                RetValue = m_CurrentPressure - m_PressureDrift;
+                retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_PRESSURE);
+                //retCode =  (ReturnCode_t)m_LoopGetPressure.exec();
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED;
+                }
+                else
+                {
+                    RetValue = m_CurrentPressure - m_PressureDrift;
+                }
             }
         }
-            m_LastGetPressureTime = Now;
+        else
+        {
+            RetValue = UNDEFINED;
+        }
+        m_LastGetPressureTime = Now;
     }
-    else
-    {
-        RetValue = m_CurrentPressure - m_PressureDrift;
-    }
+
     return RetValue;
 }
 
@@ -715,7 +744,14 @@ ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
         {
             m_LastGetPressureTime = Now;
         }
-        return m_pPressureCtrl->ReqActPressure(0);
+        if(m_pPressureCtrl)
+        {
+            return m_pPressureCtrl->ReqActPressure(0);
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -728,14 +764,14 @@ ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
  *
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam Index = Actual pressure sensor index
- *  \iparam Pressure = Actual pressure
+ *  \iparam ActPressure = Actual pressure
  *
  */
 /****************************************************************************/
-void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, qreal Pressure)
+void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, qreal ActPressure)
 {
     Q_UNUSED(Index)
-    m_CurrentPressure = Pressure;
+    m_CurrentPressure = ActPressure;
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_PRESSURE, ReturnCode);
 }
 
@@ -751,7 +787,15 @@ void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
 ReturnCode_t CAirLiquidDevice::SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus)
 {
     m_TargetPressureCtrlStatus = PressureCtrlStatus;
-    ReturnCode_t retCode = m_pPressureCtrl->SetStatus(PressureCtrlStatus);
+    ReturnCode_t retCode;
+    if(m_pPressureCtrl)
+    {
+        retCode = m_pPressureCtrl->SetStatus(PressureCtrlStatus);//lint -esym(526, DeviceControl::SetStatus) -esym(628, DeviceControl::SetStatus)
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     return retCode;
 }
 
@@ -788,7 +832,7 @@ void CAirLiquidDevice::StopCompressor(void)
 {
     //Log(tr("Shut down compressor"));
     FILE_LOG_L(laDEVPROC, llINFO) << " INFO: Shut down compressor. ";
-    SetPressure(0, UNDEFINED - m_PressureDrift);
+    (void)SetPressure(0, UNDEFINED - m_PressureDrift);
 }
 
 /****************************************************************************/
@@ -814,8 +858,8 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     //close both valve
     StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
-    SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-    SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+    (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+    (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
     qreal CurrentPressure = GetPressure();
 
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Wait for current pressure get to ZERO";
@@ -840,13 +884,13 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
             //stop compressor
             StopCompressor();
             //close both valve
-            SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-            SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-            TurnOffFan();
+            (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+            (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+            (void)TurnOffFan();
             return DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT;
         }
     }
-    TurnOffFan();
+    (void)TurnOffFan();
     qDebug() << "Device Air Liquid: Pressure released, exit now.";
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -867,16 +911,16 @@ ReturnCode_t CAirLiquidDevice::Vaccum()
         RetValue = DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED;
         goto SORTIE;
     }
-    TurnOnFan();
+    (void)TurnOnFan();
     if(DCL_ERR_FCT_CALL_SUCCESS != SetTargetPressure(9, m_WorkingPressureNegative))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         //stop compressor
         StopCompressor();
         //close both valve
-        SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-        SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        TurnOffFan();
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        (void)TurnOffFan();
     }
 SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
@@ -899,16 +943,16 @@ ReturnCode_t CAirLiquidDevice::Pressure()
         RetValue = DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED;
         goto SORTIE;
     }
-    TurnOnFan();
+    (void)TurnOnFan();
     if(DCL_ERR_FCT_CALL_SUCCESS != SetTargetPressure(1, m_WorkingPressurePositive))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         //stop compressor
         StopCompressor();
         //close both valve
-        SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-        SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        TurnOffFan();
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        (void)TurnOffFan();
     }
 SORTIE:
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
@@ -936,8 +980,9 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     //qint32 TimeSlotPassed = 0;
     bool WarnShowed = false;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
-    qint64 TimeNow, TimeStartPressure, TimeStartDraining;
-
+    qint64 TimeNow = 0;
+    qint64 TimeStartPressure = 0;
+    qint64 TimeStartDraining = 0;
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Drainging procedure.";
     qDebug() << "Device Air Liquid: INFO: Start Drainging procedure.";
     //release pressure
@@ -947,7 +992,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
         goto SORTIE;
     }
 
-    TurnOnFan();
+    (void)TurnOnFan();
     if(DCL_ERR_FCT_CALL_SUCCESS != SetTargetPressure(17, m_WorkingPressurePositive))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
@@ -1046,9 +1091,9 @@ SORTIE:
     //stop compressor
     StopCompressor();
     //close both valve
-    SetValve(VALVE_1_INDEX,VALVE_STATE_CLOSE);
-    SetValve(VALVE_2_INDEX,VALVE_STATE_CLOSE);
-    TurnOffFan();
+    (void)SetValve(VALVE_1_INDEX,VALVE_STATE_CLOSE);
+    (void)SetValve(VALVE_2_INDEX,VALVE_STATE_CLOSE);
+    (void)TurnOffFan();
 
     return RetValue;
 }
@@ -1073,7 +1118,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
-    qint64 TimeNow, TimeStartPressure, TimeStartFilling, TimeStopFilling;
+    qint64 TimeNow, TimeStartPressure, TimeStopFilling;
     TimeStopFilling = 0;
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
 
@@ -1084,7 +1129,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
         goto SORTIE;
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
-    TurnOnFan();
+    (void)TurnOnFan();
     if(DCL_ERR_FCT_CALL_SUCCESS != SetTargetPressure(25, m_WorkingPressureNegative))
     {
         RetValue = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
@@ -1227,8 +1272,8 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
 
 
 SORTIE:
-    ReleasePressure();
-    TurnOffFan();
+    (void)ReleasePressure();
+    (void)TurnOffFan();
     return RetValue;
 }
 
@@ -1261,7 +1306,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
         retCode = DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED;
         goto SORTIE;
     }
-    IsPIDDataSteady(0,  0,  0,  0, true);
+    (void)IsPIDDataSteady(0,  0,  0,  0, true);
 
     while(!stop)
     {
@@ -1287,7 +1332,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
             {
                 qDebug()<<"Warning: Pressure exceed maximum setup time, exit!";
                 //stop compressor
-                ReleasePressure();
+                (void)ReleasePressure();
                 retCode = DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT;
                 goto SORTIE;
             }
@@ -1360,17 +1405,17 @@ ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, qreal pressure)
     if(pressure > 0)
     {
         //close valve 1
-        SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         //open valve 2
-        SetValve(VALVE_2_INDEX, VALVE_STATE_OPEN);
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_OPEN);
         return  SetPressure(flag, pressure);//should be 1 or 17
     }
     else if(pressure < 0)
     {
         //open valve 1
-        SetValve(VALVE_1_INDEX, VALVE_STATE_OPEN);
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_OPEN);
         //close valve 2
-        SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
         return SetPressure(flag, pressure);//should be 9 or 25
     }
     return DCL_ERR_FCT_CALL_FAILED;
@@ -1483,17 +1528,24 @@ ReturnCode_t CAirLiquidDevice::SetTemperatureControlStatus(ALTempCtrlType_t Type
 /****************************************************************************/
 qint32 CAirLiquidDevice::GetFanOperationTime(void)
 {
-    // Log(tr("GetValue"));
-     ReturnCode_t retCode = m_pFanDigitalOutput->ReqLifeTimeData();
-     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-     {
-         return (-1);
-     }
-     retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_DO_LIFE_TIME);
-     if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
-       return (-1);
-     }
-     return m_DOLifeTime;
+    // Log(tr("GetValue"))
+    if(m_pFanDigitalOutput)
+    {
+        ReturnCode_t retCode = m_pFanDigitalOutput->ReqLifeTimeData();
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return UNDEFINED;
+        }
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_DO_LIFE_TIME);
+        if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
+            return UNDEFINED;
+        }
+    }
+    else
+    {
+        return UNDEFINED;
+    }
+    return m_DOLifeTime;
 }
 
 /****************************************************************************/
@@ -1608,9 +1660,6 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
-#ifndef PRE_ALFA_TEST
-    Log(tr("StartTemperatureControl"));
-#endif
     m_TargetTemperatures[Type] = NominalTemperature;
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
@@ -1672,13 +1721,13 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t T
         if( DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
-    }
+        }
     }
 
     retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
     if(retCode != DCL_ERR_FCT_CALL_SUCCESS)
     {
-         return retCode;
+        return retCode;
     }
     //Set the nominal temperature
     if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
@@ -1908,7 +1957,7 @@ void CAirLiquidDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set temperature failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_TEMP, ReturnCode);
 }
@@ -1996,7 +2045,7 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode; //lint !e641
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_TEMP, ReturnCode);
@@ -2017,7 +2066,7 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set AL temperature PID, type: " << Type;
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set AL temperature PID, type: " << Type; //lint !e641
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
@@ -2060,7 +2109,7 @@ void CAirLiquidDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 Ma
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set temperature PID failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set temperature PID failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_TEMP_PID, ReturnCode);
 }
@@ -2079,14 +2128,20 @@ void CAirLiquidDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 Ma
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
-    m_TargetDOOutputValue = OutputValue;
-
-    ReturnCode_t retCode = m_pFanDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
-    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    if(m_pFanDigitalOutput)
     {
-        return retCode;
+        m_TargetDOOutputValue = OutputValue;
+        ReturnCode_t retCode = m_pFanDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_DO_VALVE);
     }
-    return m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_DO_VALVE);
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
 }
 
 /****************************************************************************/
@@ -2109,7 +2164,7 @@ void CAirLiquidDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_DO_VALVE, ReturnCode);
 
@@ -2171,10 +2226,10 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
     StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
     qDebug() << "Device Airliquid: Close both valves";
-    m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-    m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+    (void)m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+    (void)m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
     qDebug() << "Device Airliquid: Stop fan";
-    m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
+    (void)m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 

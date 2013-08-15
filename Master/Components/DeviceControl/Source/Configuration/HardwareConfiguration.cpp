@@ -50,8 +50,16 @@ HardwareConfiguration::HardwareConfiguration()
 /****************************************************************************/
 HardwareConfiguration::~HardwareConfiguration()
 {
-    while (!m_DeviceCfgList.isEmpty()) {
-        delete m_DeviceCfgList.takeFirst();
+    try
+    {
+        while (!m_DeviceCfgList.isEmpty()) {
+            delete m_DeviceCfgList.takeFirst();
+        }
+    }
+    catch (...)
+    {
+        // and exit
+        return;
     }
 }
 
@@ -185,6 +193,7 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
         {
             OrderNrDevice++;
             m_DeviceCfgList.insert(m_DeviceCfgList.size(), pDevConfig);
+            delete pDevConfig;
         }
         child = child.nextSiblingElement("device");
     }
@@ -226,6 +235,7 @@ BaseDeviceConfiguration* HardwareConfiguration::ParseDeviceElement(const QDomEle
     if(pDevConfig->m_InstanceID == DEVICE_INSTANCE_ID_UNDEFINED)
     {
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
+        delete pDevConfig;
         return NULL;
     }
 
@@ -440,6 +450,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctMotorEntry->m_strKey.toStdString() <<
                                             ", Order:" << pCANObjFctMotorEntry->m_sOrderNr <<
                                             " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctMotorEntry->m_ObjectType;
+            delete pCANObjFctMotorEntry;
         }
         else
         {
@@ -465,8 +476,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctDigitInpEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctDigitInpEntry->m_strKey.toStdString() <<
-                  ", Order:" << pCANObjFctDigitInpEntry->m_sOrderNr <<
-                  " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitInpEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctDigitInpEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitInpEntry->m_ObjectType;
         }
         else
         {
@@ -493,8 +504,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctDigitOutEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctDigitOutEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctDigitOutEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitOutEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctDigitOutEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitOutEntry->m_ObjectType;
         }
         else
         {
@@ -520,8 +531,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctAnalogInEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctAnalogInEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctAnalogInEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogInEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctAnalogInEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogInEntry->m_ObjectType;
         }
         else
         {
@@ -546,8 +557,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             pCANObjFctAnalogOutEntry->m_sCANNodeIndex = pCANObjCfgNode->m_sCANNodeIndex;
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctAnalogOutEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctAnalogOutEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctAnalogOutEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogOutEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctAnalogOutEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogOutEntry->m_ObjectType;
         }
         else
         {
@@ -574,8 +585,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctRFIDEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctRFIDEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
         }
         else
         {
@@ -602,8 +613,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctRFIDEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctRFIDEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
         }
         else
         {
@@ -629,8 +640,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctTempEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctTempEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctTempEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctTempEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctTempEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctTempEntry->m_ObjectType;
         }
         else
         {
@@ -657,8 +668,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctInclEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctInclEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
         }
         else
         {
@@ -685,8 +696,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctInclEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctInclEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
         }
         else
         {
@@ -694,8 +705,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
-#ifdef PRE_ALFA_TEST
-     else if(CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL == sObjectType)
+    else if(CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL == sObjectType)
     {
         CANFctModulePressureCtrl* pCANObjFctPressureEntry;
 
@@ -713,8 +723,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctPressureEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctPressureEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctPressureEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctPressureEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctPressureEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctPressureEntry->m_ObjectType;
         }
         else
         {
@@ -722,9 +732,7 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             return DCL_ERR_FCT_CALL_FAILED;
         }
     }
-#endif
     return retCode;
-
 }
 
 /****************************************************************************/
@@ -975,11 +983,6 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     QString strProfileSpeedMin, strProfileSpeedMax, strProfileMicroSteps, strProfileRampSteps;
     QString strProfileAcc, strProfileDec, strProfileAccTime, strProfileDecTime;
     quint8  sProfileIdx;
-/*
-#ifdef PRE_ALFA_TEST
-    QString strRefRunRefPosSkip;
-#endif
-*/
 
     //  motor resolution
     child = element.firstChildElement("rotation");
@@ -1046,33 +1049,15 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     strRefRunSlowSpeed   = child.attribute("slow_speed");
     strRefRunHighSpeed   = child.attribute("high_speed");
     strRefPosOffset      = child.attribute("refpos_offset");
-/*
-#ifdef PRE_ALFA_TEST
-    strRefRunRefPosSkip  = child.attribute("refpos_skip");
-#endif
-*/
 
     pCANFctModuleStepperMotor->refRunRefPos           = strRefRunRefPos.toLong(&ok, 10);
     pCANFctModuleStepperMotor->lRefRunMaxDistance     = strRefRunMaxDistance.toLong(&ok, 10);
-#ifndef PRE_ALFA_TEST
-    pCANFctModuleStepperMotor->sRefRunTimeout         = strRefRunTimeout.toShort(&ok, 10);
-#else
     pCANFctModuleStepperMotor->sRefRunTimeout         = strRefRunTimeout.toUShort(&ok, 10);
-#endif
     pCANFctModuleStepperMotor->lRefRunReverseDistance = strRefRunReverseDist.toLong(&ok, 10);
     pCANFctModuleStepperMotor->sRefRunSlowSpeed       = strRefRunSlowSpeed.toShort(&ok, 10);
     pCANFctModuleStepperMotor->sRefRunHighSpeed       = strRefRunHighSpeed.toShort(&ok, 10);
     pCANFctModuleStepperMotor->lRefPosOffset          = strRefPosOffset.toLong(&ok, 10);
-/*
-#ifdef PRE_ALFA_TEST
-    if(strRefRunRefPosSkip.isEmpty()) {
-        pCANFctModuleStepperMotor->refRunRefPosSkip   = 0;
-    }
-    else {
-        pCANFctModuleStepperMotor->refRunRefPosSkip   = strRefRunRefPosSkip.toShort(&ok, 10);
-    }
-#endif
-*/
+
     //############################
     // position coverage
     childPosCoverage = element.firstChildElement("position_coverage");
@@ -1141,8 +1126,10 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
         quint8 posCodeIndex = strPosCodeIndex.toShort(&ok, 10);
 
         if ((posCodeIndex <= 0) || (posCodeIndex >= 4)) {
-            ErrorCleanUp(pCANFctModuleStepperMotor);
-            return 0;
+            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+            delete pCANFctModuleStepperMotor;
+            pCANFctModuleStepperMotor = NULL;
+            return pCANFctModuleStepperMotor;
         }
 
         if(posCodeIndex == 1) {
@@ -1165,8 +1152,10 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     child = element.firstChildElement("supervision");
     if(child.isNull())
     {
-        ErrorCleanUp(pCANFctModuleStepperMotor);
-        return 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
+        delete pCANFctModuleStepperMotor;
+        pCANFctModuleStepperMotor = NULL;
+        return pCANFctModuleStepperMotor;
     }
     strStepLossWarnLimit  = child.attribute("steploss_warn_limit");
     strStepLossErrorLimit = child.attribute("steploss_error_limit");
@@ -1307,21 +1296,16 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
 {
     CANFctModulePosCode PositionCode;
     QString strStop, strStopDir, strPosition, strWidth, strDeviation;
-#ifdef PRE_ALFA_TEST
     QString strRotDirCheck, strHitSkip;
-#endif
     bool ok;
-
 
     strStop = element.attribute("stop");
     strStopDir = element.attribute("stop_dir");
     strPosition = element.attribute("position");
     strWidth = element.attribute("width");
     strDeviation = element.attribute("deviation");
-#ifdef PRE_ALFA_TEST
     strRotDirCheck = element.attribute("dir_check");
     strHitSkip = element.attribute("hit_skip");
-#endif
 
     PositionCode.bStop = strStop.toShort(&ok, 10);
     if(strStopDir == "cw") {
@@ -1338,7 +1322,6 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
     PositionCode.position = strPosition.toShort(&ok, 10);
     PositionCode.width = strWidth.toShort(&ok, 10);
     PositionCode.deviation = strDeviation.toShort(&ok, 10);
-#ifdef PRE_ALFA_TEST
     if (strRotDirCheck.isEmpty()) {
         PositionCode.bRotDirCheck = 1;
     }
@@ -1352,7 +1335,6 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
     else {
         PositionCode.hitSkip = strHitSkip.toShort(&ok, 10);
     }
-#endif
 
     return PositionCode;
 }
@@ -1466,7 +1448,7 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
 
     return pCANObjFctTempCtrl;
 }
-#ifdef PRE_ALFA_TEST
+
 /****************************************************************************/
 /*!
  *  \brief  Parse pressure control element from xml
@@ -1571,7 +1553,6 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     return pCANObjFctPressureCtrl;
 }
 
-#endif
 /****************************************************************************/
 /*!
  *  \brief  Parse joystick element from xml
@@ -1833,12 +1814,10 @@ CModuleConfig::CANObjectType_t HardwareConfiguration::GetObjectTypeFromString(co
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UART;
     }
-#ifdef PRE_ALFA_TEST
     else if(strCANObjectType == "pressure_control")
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL;
     }
-#endif
     else
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UNDEF;

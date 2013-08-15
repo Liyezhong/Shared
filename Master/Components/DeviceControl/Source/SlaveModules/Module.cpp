@@ -278,7 +278,17 @@ quint16 CModule::GetCANMsgDataU16 (can_frame* pCANframe, quint8 offset)
 
     return msgData;
 }
-#ifdef PRE_ALFA_TEST
+
+/*****************************************************************************/
+/*!
+ *  \brief  Returns a qint16 from can message data
+ *
+ *  \iparam pCANframe = CAN message
+ *  \iparam offset = Byte offset in the CAN message's data field
+ *
+ *  \return CAN data as qint16
+ */
+/****************************************************************************/
 qint16 CModule::GetCANMsgDataS16 (can_frame* pCANframe, quint8 offset)
 {
     qint16 msgData = 0;
@@ -291,7 +301,6 @@ qint16 CModule::GetCANMsgDataS16 (can_frame* pCANframe, quint8 offset)
 
     return msgData;
 }
-#endif
 /*****************************************************************************/
 /*!
  *  \brief  Returns a quint32 from can message data

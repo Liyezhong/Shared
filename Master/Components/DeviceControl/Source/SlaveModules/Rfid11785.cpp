@@ -1027,7 +1027,7 @@ ReturnCode_t CRfid11785::ReqUserData(quint8 Address)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1061,7 +1061,7 @@ ReturnCode_t CRfid11785::WriteUserData(quint8 Address, quint32 Data)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1094,7 +1094,7 @@ ReturnCode_t CRfid11785::WritePassword(quint32 Password)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1131,7 +1131,7 @@ ReturnCode_t CRfid11785::WriteConfiguration(bool ReadLogin, bool WriteLogin, boo
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANRFID11785 invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;

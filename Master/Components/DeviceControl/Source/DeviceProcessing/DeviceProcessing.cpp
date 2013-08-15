@@ -145,11 +145,11 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     //Setup communication interface, usually CAN, for test purpose TCP
     retCode = InitCommunication();
     if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << retCode << "!";
+        FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << retCode << "!"; //lint !e641
         return;
     }
 
-}
+} //lint !e1566
 
 /****************************************************************************/
 /*!
@@ -884,16 +884,19 @@ ReturnCode_t DeviceProcessing::InitCommunication()
  */
 /****************************************************************************/
 void DeviceProcessing::HandleTasks()
-{
+{ 
+/*
     struct timeval tv_end;
     struct timeval tv_start;
+    static quint32 RunThruCounter = 0;
     bool PerformanceCheck = false;
+*/
 
     static quint16 stTest = 0;
-    static quint32 RunThruCounter = 0;
     static DeviceProcTask* pActiveTask = NULL;
     static DeviceProcTask::TaskID_t stTaskID = DeviceProcTask::TASK_ID_DP_UNDEF;
 
+/*
     //Performance check initialisation
     if (PerformanceCheck)
     {
@@ -903,7 +906,7 @@ void DeviceProcessing::HandleTasks()
             FILE_LOG_L(laDEVPROC, llERROR) << " Perfomance check failed!";
         }
     }
-
+*/
     pActiveTask = GetActiveTask(pActiveTask);
     if((pActiveTask != 0) && (stTaskID != pActiveTask->m_taskID))
     {
@@ -1048,7 +1051,7 @@ void DeviceProcessing::HandleTasks()
     }
 
     m_canCommunicator.DispatchPendingInMessage();
-
+/*
     if(PerformanceCheck)
     {
         if(gettimeofday(&tv_end, 0) != 0)
@@ -1070,7 +1073,7 @@ void DeviceProcessing::HandleTasks()
             }
         }
     }
-
+*/
     if (m_MainState != DP_MAIN_STATE_ERROR) {
         CheckMasterHeartbeat();
     }
@@ -2167,8 +2170,8 @@ void DeviceProcessing::BlockingTimerCallback()
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
 {
     ReturnCode_t retValue;
-   // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
-    if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
+    // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    if(CmdType < SYNC_CMD_TOTAL_NUM) //lint !e641
     {
         m_Mutex[CmdType].lock();
         if(m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType], Timeout))
@@ -2178,14 +2181,14 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
         else
         {
             retValue = DCL_ERR_TIMER_TIMEOUT;
-    }
+        }
         m_Mutex[CmdType].unlock();
     }
     else
     {
-         retValue = DCL_ERR_INVALID_PARAM;
+        retValue = DCL_ERR_INVALID_PARAM;
     }
-   // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
 
@@ -2203,10 +2206,10 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 {
     ReturnCode_t retValue;
    // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
-    if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
+    if(CmdType < SYNC_CMD_TOTAL_NUM) //lint !e641
     {
         m_Mutex[CmdType].lock();
-        m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType]);
+        (void)m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType]);
         retValue = m_SyncCallResult[CmdType];
         m_Mutex[CmdType].unlock();
     }
@@ -2223,16 +2226,16 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
  *  \brief  Resume blocked thread with specified type
  *
  *  \iparam CmdType = Command type to unblock the thread
- *  \iparam Value = Return value for the blocking caller
+ *  \iparam RetCode = Return value for the blocking caller
  */
 /****************************************************************************/
-void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
+void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType,  ReturnCode_t RetCode)
 {
-    if((CmdType >= 0)&&(CmdType < SYNC_CMD_TOTAL_NUM))
+    if(CmdType < SYNC_CMD_TOTAL_NUM)  //lint !e641
     {
         m_Mutex[CmdType].lock();
         m_WaitConditionForSyncCall[CmdType].wakeAll();
-        m_SyncCallResult[CmdType] = (ReturnCode_t)Value;
+        m_SyncCallResult[CmdType] = RetCode;
         m_Mutex[CmdType].unlock();
     }
 }

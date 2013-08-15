@@ -648,6 +648,10 @@ ReturnCode_t CFunctionModuleTaskManager::StartTask(FunctionModuleTask* pFunction
         {
             return DCL_ERR_NULL_PTR_ACCESS;
         }
+        if(pRfidCtrlTask == NULL)
+        {
+            return DCL_ERR_NULL_PTR_ACCESS;
+        }
 
         RetVal = pRFID->ReqUserData(pRfidCtrlTask->m_Address);
         pFunctionModuleTask->startTime = m_Timer.Elapsed();

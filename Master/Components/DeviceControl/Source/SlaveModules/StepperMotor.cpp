@@ -555,10 +555,8 @@ void CStepperMotor::SetupPosCodeConfigData (CANFctModulePosCode &PosCode, Config
     pc.flag.valid   = PosCode.bValid;
     pc.flag.stop    = PosCode.bStop;
     pc.flag.stopDir = SetupRotationDir(CANFctModuleStepperMotor::RotationDir_t(PosCode.bStopDir));  // stop direction
-#ifdef PRE_ALFA_TEST
     pc.flag.rotDirCheck = PosCode.bRotDirCheck;
     pc.flag.hitSkip     = PosCode.hitSkip;
-#endif
     pc.position     = ValToDB4(PosCode.position);
     pc.width        = PosCode.width;
     pc.deviation    = PosCode.deviation;
@@ -1683,7 +1681,7 @@ void CStepperMotor::HandleCANMsgReferenceMovementReqAckn(can_frame* pCANframe)
 
         SM_AckState_t ack = ackData.ack;
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement request acknowledge: '" << GetKey().toStdString() <<  "' Ack=" << ack;
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement request acknowledge: '" << GetKey().toStdString() <<  "' Ack=" << ack; //lint !e641
 
         if (SM_ACK != ack)
             emit ReportReferenceMovementAckn(GetModuleHandle(), DCL_ERR_EXTERNAL_ERROR, 0);
@@ -1716,8 +1714,8 @@ void CStepperMotor::HandleCANMsgReferenceMovementAckn(can_frame* pCANframe)
         quint8 posCode = ackData.posCode;
         SM_AckState_t ack = ackData.ack;
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement done: '" << GetKey().toStdString() << "',  Position:" << position << "' LimitSwitches:" << (int)posCode << "' Ack:" << ack;
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement: 0x" << std::hex << m_pCANObjectConfig->m_sCANNodeIndex << "  0x" << std::hex << GetModuleHandle();
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement done: '" << GetKey().toStdString() << "',  Position:" << position << "' LimitSwitches:" << (int)posCode << "' Ack:" << ack;  //lint !e641
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement: 0x" << std::hex << m_pCANObjectConfig->m_sCANNodeIndex << "  0x" << std::hex << GetModuleHandle(); //lint !e641
 
         emit ReportReferenceMovementAckn(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), position);
     }
@@ -1752,7 +1750,7 @@ void CStepperMotor::HandleCANMsgTargetPosCmdAckn(can_frame* pCANframe)
 
         SM_AckState_t ack = ackData.ack;
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::target position request acknowledge: '" << GetKey().toStdString() <<  "' Ack=" << ack;
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::target position request acknowledge: '" << GetKey().toStdString() <<  "' Ack=" << ack; //lint !e641
 
         if (SM_ACK != ack)
             emit ReportMovementAckn(GetModuleHandle(), DCL_ERR_EXTERNAL_ERROR, 0, 0);
@@ -1787,7 +1785,7 @@ void CStepperMotor::HandleCANMsgTargetSpeedCmdAckn(can_frame* pCANframe)
 
         SM_AckState_t ack = ackData.ack;
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::target speed request acknowledge: '" << GetKey().toStdString() <<  "' Ack=" << ack;
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::target speed request acknowledge: '" << GetKey().toStdString() <<  "' Ack=" << ack; //lint !e641
 
         if (SM_ACK != ack)
             emit ReportMovementAckn(GetModuleHandle(), DCL_ERR_EXTERNAL_ERROR, 0, 0);
@@ -1819,7 +1817,7 @@ void CStepperMotor::HandleCANMsgMovementAckn(can_frame* pCANframe)
         Position_t Position = DB4ToVal(ackData.pos);
         qint16 Speed        = DB2ToVal(ackData.speed);
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CANStepperMotor: movement ackn:  '" << GetKey().toStdString() << "' Pos:" << Position << ", Speed:" << Speed <<  "' Ack=" << ack;
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CANStepperMotor: movement ackn:  '" << GetKey().toStdString() << "' Pos:" << Position << ", Speed:" << Speed <<  "' Ack=" << ack; //lint !e641
 
         emit ReportMovementAckn(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), Position, Speed);
     }
@@ -1851,7 +1849,7 @@ void CStepperMotor::HandleCANMsgActPositionResp(can_frame* pCANframe)
         Position_t position = DB4ToVal(posData.pos);
         qint8 posCode = posData.posCode;
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CANStepperMotor: act. position: '" << GetKey().toStdString() << "' Pos:" << position << "' LimitSwitches:" << (int)posCode <<  "' Ack=" << ack;
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CANStepperMotor: act. position: '" << GetKey().toStdString() << "' Pos:" << position << "' LimitSwitches:" << (int)posCode <<  "' Ack=" << ack; //lint !e641
 
         emit ReportPosition(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), position, posCode);
     }
@@ -1882,7 +1880,7 @@ void CStepperMotor::HandleCANMsgActSpeedResp(can_frame* pCANframe)
         SM_AckState_t ack   = speedData.ack;
         Speed_t Speed = DB2ToVal(speedData.speed);
 
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CANStepperMotor: act. speed: '" << GetKey().toStdString() << "' Speed:" << Speed <<  "' Ack=" << ack;
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CANStepperMotor: act. speed: '" << GetKey().toStdString() << "' Speed:" << Speed <<  "' Ack=" << ack; //lint !e641
 
         emit ReportSpeed(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), Speed);
     }

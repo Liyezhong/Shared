@@ -152,9 +152,7 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     m_unCanIDNotiAutoTune       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiAutoTune", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiInRange        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiInRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
-#ifdef PRE_ALFA_TEST
     m_unCanIDLevelSensorState   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlLevelSensorState", bChannel, m_pParent->GetNodeID());
-#endif
     FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
     FILE_LOG_L(laINIT, llDEBUG) << "   EventWarning       : 0x" << std::hex << m_unCanIDEventWarning;
@@ -180,9 +178,7 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiAutoTune       : 0x" << std::hex << m_unCanIDNotiAutoTune;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiInRange        : 0x" << std::hex << m_unCanIDNotiInRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiOutOfRange     : 0x" << std::hex << m_unCanIDNotiOutOfRange;
-#ifdef PRE_ALFA_TEST
     FILE_LOG_L(laINIT, llDEBUG) << "   LevelSensorState   : 0x" << std::hex << m_unCanIDLevelSensorState;
-#endif
     return RetVal;
 }
 
@@ -238,12 +234,10 @@ ReturnCode_t CTemperatureControl::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDNotiOutOfRange, this);
     }
-#ifdef PRE_ALFA_TEST
     if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDLevelSensorState, this);
     }
-#endif
     return RetVal;
 }
 
@@ -292,15 +286,18 @@ void CTemperatureControl::HandleTasks()
                 m_mainState = FM_MAIN_STATE_ERROR;
                 return;
             }
-            for(qint32 i = 0; i < pCANObjConfTemp->listPidControllers.size(); i++) {
-                RetVal = SendCANMsgPidParametersSet(i);
-                if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
-                    FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
-                    m_mainState = FM_MAIN_STATE_ERROR;
-                    return;
+            if(pCANObjConfTemp != NULL)
+            {
+                for(qint32 i = 0; i < pCANObjConfTemp->listPidControllers.size(); i++)
+                {
+                    RetVal = SendCANMsgPidParametersSet(i);
+                    if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
+                        FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
+                        m_mainState = FM_MAIN_STATE_ERROR;
+                        return;
+                    }
                 }
             }
-
             m_subStateConfig = FM_TEMP_SUB_STATE_CONFIG_FINISHED;
             m_TaskID    = MODULE_TASKID_FREE;
             m_mainState = FM_MAIN_STATE_IDLE;
@@ -430,12 +427,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
                     m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
-
-#ifdef PRE_ALFA_TEST
-                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ*10;
-#else
-                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ;
-#endif
+                    m_ModuleCommand[idx].Timeout = CAN_TEMPCTRL_TIMEOUT_STATUS_SET_REQ * 10;
                 }
                 else
                 {
@@ -466,7 +458,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
@@ -482,7 +474,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
@@ -501,7 +493,6 @@ void CTemperatureControl::HandleCommandRequestTask()
                     emit ReportHardwareStatus(GetModuleHandle(), RetVal, 0, 0, 0, 0, 0, 0);
                 }
             }
-#ifdef PRE_ALFA_TEST
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_SET_PID)
             {
                 FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl set PID parameters";
@@ -512,10 +503,9 @@ void CTemperatureControl::HandleCommandRequestTask()
 
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 //because there is no slave acknowledge, we send our own acknowldege
-                emit ReportSetPidAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].MaxTemperature,
+                emit ReportSetPidAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].MaxTemperature,  //lint -esym(526, DeviceControl::ReportLevelSensorState) -esym(628, DeviceControl::ReportLevelSensorState)
                                       m_ModuleCommand[idx].ControllerGain, m_ModuleCommand[idx].ResetTime, m_ModuleCommand[idx].DerivativeTime);
             }
-#endif
 
             //---------------------------
             //check for success
@@ -640,15 +630,12 @@ void CTemperatureControl::HandleCanMessage(can_frame* pCANframe)
     {
         HandleCANMsgNotiRange(pCANframe, false);
     }
-#ifdef PRE_ALFA_TEST
     else if(pCANframe->can_id == m_unCanIDLevelSensorState)
     {
         HandleCANMsgLevelSensorState(pCANframe);
     }
-
-#endif
 }
-#ifdef PRE_ALFA_TEST
+
 /****************************************************************************/
 /*!
  *  \brief  Handles the 'LevelSensor' response CAN message
@@ -665,10 +652,9 @@ void CTemperatureControl::HandleCANMsgLevelSensorState(can_frame* pCANframe)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         quint8 LevelSensorState = pCANframe->data[0];
-        emit ReportLevelSensorState(GetModuleHandle(), hdlInfo, LevelSensorState);
+        emit ReportLevelSensorState(GetModuleHandle(), hdlInfo, LevelSensorState); //lint -esym(526, DeviceControl::ReportLevelSensorState) -esym(628, DeviceControl::ReportLevelSensorState)
     }
 }
-#endif
 /****************************************************************************/
 /*!
  *  \brief  Handles the 'ServiceSensor' response CAN message
@@ -689,11 +675,7 @@ void CTemperatureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         qreal ActTemperature;
-#ifdef PRE_ALFA_TEST
         ActTemperature = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
-#else
-        ActTemperature = (qreal)GetCANMsgDataU16(pCANframe, 1) / 100;
-#endif
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl Temperature received: " << ActTemperature;
         emit ReportActTemperature(GetModuleHandle(), hdlInfo, pCANframe->data[0], ActTemperature);
@@ -746,7 +728,7 @@ void CTemperatureControl::HandleCANMsgTemperature(can_frame* pCANframe)
         }
 
         FILE_LOG_L(laFCT, llDEBUG) << "   CTemperatureControl::HandleCANMsgTemperature: "
-                                   << TempCtrlStatus << ", " << TempCtrlOpMode << ", " << TempCtrlVoltage;
+                                   << TempCtrlStatus << ", " << TempCtrlOpMode << ", " << TempCtrlVoltage; //lint !e641
     }
     else
     {
@@ -1005,7 +987,6 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint8 Index)
 }
 
 
-#ifdef PRE_ALFA_TEST
 /****************************************************************************/
 /*!
  *  \brief  Send the CAN message to configure temperature PID control parameters
@@ -1048,7 +1029,6 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint16 MaxTemperat
 
     return RetVal;
 }
-#endif
 
 /****************************************************************************/
 /*!
@@ -1069,35 +1049,36 @@ ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature(qreal Temperature,
     pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
-
-    canmsg.can_id = m_unCanIDTemperatureSet;
-    canmsg.data[0] = 0;
-    if(Status == TEMPCTRL_STATUS_ON) {
-        canmsg.data[0] = 0x01;
+    if((pCANObjConfTemp == NULL)||(m_pCANCommunicator == NULL))
+    {
+        retval = DCL_ERR_NOT_INITIALIZED;
     }
-    if(OperatingMode == TEMPCTRL_OPMODE_HOLD) {
-        canmsg.data[0] |= 0x04;
+    else
+    {
+        canmsg.can_id = m_unCanIDTemperatureSet;
+        canmsg.data[0] = 0;
+        if(Status == TEMPCTRL_STATUS_ON) {
+            canmsg.data[0] = 0x01;
+        }
+        if(OperatingMode == TEMPCTRL_OPMODE_HOLD) {
+            canmsg.data[0] |= 0x04;
+        }
+
+        canmsg.data[1] = (quint8)Temperature;
+
+        FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: Data0: 0x" << std::hex << (quint8) canmsg.data[0]
+                                   << ", Data1: 0x" << std::hex << (quint8) canmsg.data[1];
+
+        canmsg.data[2] = pCANObjConfTemp->bTempTolerance;
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sSamplingPeriod, 3);
+        canmsg.data[5] = 0;
+        canmsg.data[6] = 0;
+        canmsg.data[7] = SlopeTempChange;
+        canmsg.can_dlc = 8;
+        retval = m_pCANCommunicator->SendCOB(canmsg);
+
+        FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: CanID: 0x" << std::hex << m_unCanIDTemperatureSet;
     }
-
-    canmsg.data[1] = Temperature;
-
-    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: Data0: 0x" << std::hex << (quint8) canmsg.data[0]
-                               << ", Data1: 0x" << std::hex << (quint8) canmsg.data[1];
-
-    canmsg.data[2] = pCANObjConfTemp->bTempTolerance;
-    SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sSamplingPeriod, 3);
-    canmsg.data[5] = 0;
-    canmsg.data[6] = 0;
-#ifdef PRE_ALFA_TEST
-    canmsg.data[7] = SlopeTempChange;
-    canmsg.can_dlc = 8;
-#else
-    canmsg.can_dlc = 7;
-#endif
-    retval = m_pCANCommunicator->SendCOB(canmsg);
-
-    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: CanID: 0x" << std::hex << m_unCanIDTemperatureSet;
-
     return retval;
 }
 
@@ -1273,15 +1254,13 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
     if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_TEMP, &CmdIndex))
     {
         m_ModuleCommand[CmdIndex].Temperature = Temperature;
-#ifdef PRE_ALFA_TEST
         m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
-#endif
         FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
     }
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1311,7 +1290,7 @@ ReturnCode_t CTemperatureControl::ReqActTemperature(quint8 Index)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1621,7 +1600,6 @@ void CTemperatureControl::ResetModuleCommand(CANTempCtrlCmdType_t ModuleCommandT
     }
 }
 
-#ifdef PRE_ALFA_TEST
 /****************************************************************************/
 /*!
  *  \brief  Configure temperature PID control parameters
@@ -1653,12 +1631,11 @@ ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quin
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
 }
-#endif
 
 } //namespace
 

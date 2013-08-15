@@ -27,7 +27,7 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Oven device created";
     qDebug() <<  "Oven device cons thread id is " << QThread::currentThreadId();
-}
+}//lint !e1566
 
 /****************************************************************************/
 /*!
@@ -36,8 +36,15 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
 /****************************************************************************/
 COvenDevice::~COvenDevice()
 {
-    Reset();
-}
+    try
+    {
+        Reset();
+    }
+    catch(...)
+    {
+        return;
+    }
+}//lint !e1579
 
 /****************************************************************************/
 /*!
@@ -52,14 +59,15 @@ void COvenDevice::Reset()
 
     m_instanceID = DEVICE_INSTANCE_ID_OVEN;
     m_LastGetLidStatusTime = 0;
-    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime));
-    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));
-    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus));
-    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures));
-    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures));
-    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus));
-    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));
-
+    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
+    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures)); //lint !e545 !e641
+    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
+    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
+    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));  //lint !e545
+    m_pLidDigitalInput = NULL;
+    m_LidStatus = 0;
 }
 
 /****************************************************************************/
@@ -186,7 +194,7 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         else
         {
             //m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xF)] = OVEN_TOP;
-            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;  //lint !e641
         }
     }
     else
@@ -208,7 +216,7 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         else
         {
             // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xF)] = OVEN_BOTTOM;
-            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;  //lint !e641
         }
     }
     else
@@ -358,15 +366,15 @@ void COvenDevice::CheckSensorsData()
 
     if(m_pTempCtrls[OVEN_TOP])
     {
-        GetTemperatureAsync(OVEN_TOP, 0);
+        (void)GetTemperatureAsync(OVEN_TOP, 0);
     }
     if(m_pTempCtrls[OVEN_BOTTOM])
     {
-        GetTemperatureAsync(OVEN_BOTTOM, 0);
+        (void)GetTemperatureAsync(OVEN_BOTTOM, 0);
     }
     if(m_pLidDigitalInput)
     {
-        GetLidStatusAsync();
+        (void)GetLidStatusAsync();
     }
 }
 
@@ -512,9 +520,6 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
-#ifndef PRE_ALFA_TEST
-    Log(tr("StartTemperatureControl"));
-#endif
     m_TargetTemperatures[Type] = NominalTemperature;
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
@@ -576,13 +581,13 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
         if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
-    }
+        }
     }
 
     retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
     if(retCode != DCL_ERR_FCT_CALL_SUCCESS)
     {
-         return retCode;
+        return retCode;
     }
     //Set the nominal temperature
     if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
@@ -611,31 +616,33 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
 /****************************************************************************/
 TempCtrlState_t COvenDevice::GetTemperatureControlState(OVENTempCtrlType_t Type)
 {
-    ReturnCode_t retCode = m_pTempCtrls[Type]->ReqStatus();
-    if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
-        m_CurrentTempCtrlStatus[Type] = TEMPCTRL_STATUS_UNDEF;
-        return TEMPCTRL_STATE_ERROR;
-    }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE);
     TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
-    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    if(m_pTempCtrls[Type] && m_pDevProc)
     {
-        controlstate = TEMPCTRL_STATE_ERROR;
-    }
-    else if (IsTemperatureControlOn(Type))
-    {
-        if (IsInsideRange(Type))
-        {
-            controlstate = TEMPCTRL_STATE_INSIDE_RANGE;
+        ReturnCode_t retCode = m_pTempCtrls[Type]->ReqStatus();
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
+            m_CurrentTempCtrlStatus[Type] = TEMPCTRL_STATUS_UNDEF;
+            return TEMPCTRL_STATE_ERROR;
         }
-        else if (IsOutsideRange(Type))
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE);
+        if (DCL_ERR_FCT_CALL_SUCCESS == retCode)
         {
-            controlstate = TEMPCTRL_STATE_OUTSIDE_RANGE;
+            if (IsTemperatureControlOn(Type))
+            {
+                if (IsInsideRange(Type))
+                {
+                    controlstate = TEMPCTRL_STATE_INSIDE_RANGE;
+                }
+                else if (IsOutsideRange(Type))
+                {
+                    controlstate = TEMPCTRL_STATE_OUTSIDE_RANGE;
+                }
+            }
+            else if (IsTemperatureControlOff(Type))
+            {
+                controlstate = TEMPCTRL_STATE_OFF;
+            }
         }
-    }
-    else if (IsTemperatureControlOff(Type))
-    {
-        controlstate = TEMPCTRL_STATE_OFF;
     }
     return controlstate;
 }
@@ -805,7 +812,7 @@ void COvenDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qre
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP, ReturnCode);
 }
@@ -893,7 +900,7 @@ void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven get temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven get temperature failed! " << ReturnCode; //lint !e641
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP, ReturnCode);
@@ -915,7 +922,7 @@ void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 
 /****************************************************************************/
 ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Oven temperature PID, type: " << Type;
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Oven temperature PID, type: " << Type; //lint !e641
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
@@ -958,7 +965,7 @@ void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemp
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature PID failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature PID failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID, ReturnCode);
 }
@@ -1024,7 +1031,7 @@ void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, 
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven Get DI value failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven Get DI value failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE, ReturnCode);
 }

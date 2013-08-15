@@ -37,7 +37,14 @@ CRetortDevice::CRetortDevice(DeviceProcessing* pDeviceProcessing, QString Type) 
 /****************************************************************************/
 CRetortDevice::~CRetortDevice()
 {
-    Reset();
+    try
+    {
+        Reset();
+    }
+    catch(...)
+    {
+        return;
+    }
 }
 
 /****************************************************************************/
@@ -55,12 +62,12 @@ void CRetortDevice::Reset()
 
     m_pLockDigitalOutput = NULL;
     m_pLockDigitalInput = NULL;
-    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime));
-    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));
-    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus));
-    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures));
-    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures));
-    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus));
+    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
+    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures)); //lint !e545
+    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
+    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));
     m_TargetDOOutputValue = 0;
     m_LockStatus = 0;
@@ -191,7 +198,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         else
         {
             // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xF)] = RT_BOTTOM;
-            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL] = RT_BOTTOM;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL] = RT_BOTTOM;  //lint !e641
         }
     }
     else
@@ -213,7 +220,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         else
         {
             // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xF)] = RT_SIDE;
-            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL] = RT_SIDE;
+            m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL] = RT_SIDE;  //lint !e641
         }
     }
     else
@@ -405,15 +412,15 @@ void CRetortDevice::CheckSensorsData()
 
     if(m_pTempCtrls[RT_BOTTOM])
     {
-        GetTemperatureAsync(RT_BOTTOM, 0);
+        (void)GetTemperatureAsync(RT_BOTTOM, 0);
     }
     if(m_pTempCtrls[RT_SIDE])
     {
-        GetTemperatureAsync(RT_SIDE, 0);
+        (void)GetTemperatureAsync(RT_SIDE, 0);
     }
     if(m_pLockDigitalInput)
     {
-        GetLockStatusAsync();
+        (void)GetLockStatusAsync();
     }
 }
 
@@ -560,9 +567,6 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
-#ifndef PRE_ALFA_TEST
-    Log(tr("StartTemperatureControl"));
-#endif
     m_TargetTemperatures[Type] = NominalTemperature;
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
@@ -853,7 +857,7 @@ void CRetortDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, q
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort set temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort set temperature failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP, ReturnCode);
 }
@@ -941,7 +945,7 @@ void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort get temperature failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort get temperature failed! " << ReturnCode; //lint !e641
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_TEMP, ReturnCode);
@@ -963,7 +967,7 @@ void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint
 /****************************************************************************/
 ReturnCode_t CRetortDevice::SetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
 {
-    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Retort temperature PID, type: " << Type;
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Retort temperature PID, type: " << Type; //lint !e641
     ReturnCode_t retCode;
     if(m_pTempCtrls[Type] != NULL)
     {
@@ -1006,7 +1010,7 @@ void CRetortDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTe
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort set temperature PID failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort set temperature PID failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP_PID, ReturnCode);
 }
@@ -1055,7 +1059,7 @@ void CRetortDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t Retu
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_DO_VALUE, ReturnCode);
 
@@ -1105,7 +1109,7 @@ void CRetortDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_DI_VALUE, ReturnCode);
 }
@@ -1233,7 +1237,7 @@ void CRetortDevice::OnGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnC
     }
     else
     {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode; //lint !e641
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_HW_STATUS, ReturnCode);
 }
