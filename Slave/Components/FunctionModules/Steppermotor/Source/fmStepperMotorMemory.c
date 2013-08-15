@@ -134,12 +134,12 @@ Error_t smFlushMemory(UInt16 Instance, UInt16 Interval)
             Status1 = bmSetStorageItem(Data->Memory.Handle, SM_PARAM_REV_COUNTER, LifeCycle->Revolutions.Count);
         }
 
-        if (LifeCycle->OperationTime.Hours)
+        if (LifeCycle->OperationTime.Minutes)
         {
-            Status2 = bmIncStorageItem(Data->Memory.Handle, SM_PARAM_OPERATE_HOURS, LifeCycle->OperationTime.Hours);
+            Status2 = bmIncStorageItem(Data->Memory.Handle, SM_PARAM_OPERATE_HOURS, LifeCycle->OperationTime.Minutes);
             if (Status2 == NO_ERROR)
             {
-                LifeCycle->OperationTime.Hours = 0;
+                LifeCycle->OperationTime.Minutes = 0;
             }
         }
 

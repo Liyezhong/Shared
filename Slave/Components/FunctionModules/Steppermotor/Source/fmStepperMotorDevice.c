@@ -32,7 +32,8 @@
 //****************************************************************************/
 
 
-#define SM_OPERATION_TIME_UNIT 3600000       //!< operation time is counted in hours = 60*60*1000 ms
+//#define SM_OPERATION_TIME_UNIT 3600000       //!< operation time is counted in hours = 60*60*1000 ms
+#define SM_OPERATION_TIME_UNIT 60000        //!< operation time is counted in minutes = 60*1000 ms
 
 
 
@@ -40,7 +41,7 @@ void smResetLifeCycleData(Motor_t *Motor, smMemory_t *Memory)
 {
     Motor->LifeCycle.OperationTime.Start = 0;
     Motor->LifeCycle.OperationTime.Duration = 0;
-    Motor->LifeCycle.OperationTime.Hours = 0;
+    Motor->LifeCycle.OperationTime.Minutes = 0;
 
     Motor->LifeCycle.Revolutions.FullSteps = 0;
     Motor->LifeCycle.Revolutions.Count = smGetRevolution(Memory);
@@ -203,7 +204,7 @@ void smCountOperationTime (Motor_t *Motor)
     if (Duration / SM_OPERATION_TIME_UNIT)
     {
         OperationTime->Start = bmGetTime();
-        OperationTime->Hours += (Duration / SM_OPERATION_TIME_UNIT);
+        OperationTime->Minutes += (Duration / SM_OPERATION_TIME_UNIT);
         OperationTime->Duration = Duration % SM_OPERATION_TIME_UNIT;
     }
 }

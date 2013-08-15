@@ -46,7 +46,7 @@ typedef struct
 
 typedef struct
 {
-    UInt32                  Hours;              //!< operation time in hours
+    UInt32                  Minutes;              //!< operation time in minutes
     UInt32                  Duration;           //!< duration since last measurement start time in ms
     UInt32                  Start;              //!< measurement start time in ms
 } smOperationTime_t;
