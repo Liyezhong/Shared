@@ -138,7 +138,7 @@ void ExportController::OnStopReceived() {
  * Power will fail shortly.
  */
 /****************************************************************************/
-void ExportController::OnPowerFail(const Global::PowerFailStages PowerFailStage) {
+void ExportController::OnPowerFail(/*const Global::PowerFailStages PowerFailStage*/) {
 }
 
 /****************************************************************************/

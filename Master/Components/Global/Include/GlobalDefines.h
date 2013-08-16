@@ -388,6 +388,17 @@ enum AlternateEventStringUsage {
     GUI_MSG_BOX_AND_LOGGING,
     GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE
 };
+/****************************************************************************/
+/**
+ * \brief Enumeration of power fail stages
+ */
+/****************************************************************************/
+enum PowerFailStages{
+    POWER_FAIL_STAGE_1, //!< power went off, don't shut down yet wait for a few seconds
+    POWER_FAIL_STAGE_2, //!< Looks like power won't be back! shutdown!!!
+    POWER_FAIL_REVERT   //!< Power is back, revert to normal state
+};
+
 } // end namespace Global
 
 #endif // GLOBAL_GLOBALDEFINES_H

@@ -65,7 +65,7 @@ private:
 protected:
     virtual void OnGoReceived();
     virtual void OnStopReceived();
-    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
+    virtual void OnPowerFail(/*const Global::PowerFailStages PowerFailStage*/);
     virtual void OnReadyToWork();
 
 public:
