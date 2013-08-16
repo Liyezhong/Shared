@@ -99,7 +99,12 @@ void TestExportController::utTestExportController() {
     Global::gSourceType SourceType;
     ExportController *Controller = new ExportController(SourceType);
 
-    Controller->CreateAndInitializeObjects();
+    try {
+        Controller->CreateAndInitializeObjects();
+    }
+    catch (...) {
+        // catch the exception here
+    }
 
 
     delete Controller;

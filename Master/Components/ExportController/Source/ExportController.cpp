@@ -29,11 +29,11 @@ namespace Export {
 /**
  * \brief Constructor.
  *
- * \param[in]   TheHeartBeatSource    Logging source to be used.
+ * \param[in]   ThreadID   Unique Thread ID
  */
 /****************************************************************************/
-ExportController::ExportController(Global::gSourceType TheHeartBeatSource)
-    :ExternalProcessController::ExternalProcessController(EXPORT_PROCESS_NAME, TheHeartBeatSource)
+ExportController::ExportController(quint32 ThreadID)
+    :ExternalProcessController::ExternalProcessController(EXPORT_PROCESS_NAME, ThreadID)
     , m_ProcessInitialized(false)
     , mp_ExportDevice(NULL)
 {
@@ -132,11 +132,13 @@ void ExportController::OnStopReceived() {
 /****************************************************************************/
 /**
  * \brief Power will fail shortly.
+ *  These are pure virtual function which needs to be written eventhough these
+ *  are not used by this class.
  *
  * Power will fail shortly.
  */
 /****************************************************************************/
-void ExportController::OnPowerFail() {    
+void ExportController::OnPowerFail(const Global::PowerFailStages PowerFailStage) {
 }
 
 /****************************************************************************/
@@ -149,20 +151,6 @@ void ExportController::CleanupAndDestroyObjects() {
     qDebug() << (QString)("Platform Export: CleanupAndDestroyObjects called.");
     ExternalProcessController::CleanupAndDestroyObjects();
     m_ProcessInitialized = false;
-}
-
-/****************************************************************************/
-/**
- * \brief Handler for command timeouts.
- *
- * \param[in]       Ref         The command reference.
- * \param[in]       CmdName     Name of command.
- */
-/****************************************************************************/
-void ExportController::OnCmdTimeout(Global::tRefType Ref, const QString &CmdName)
-{
-    Q_UNUSED(Ref)
-    Q_UNUSED(CmdName)    
 }
 
 }

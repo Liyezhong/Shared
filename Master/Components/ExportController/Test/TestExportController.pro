@@ -1,12 +1,11 @@
-!include("../../../Test/Himalaya.pri"):error("Himalaya.pri not found")
+!include("ExportController.pri"):error("ExportController.pri not found")
 
 TARGET = utTestExportController
 SOURCES += TestExportController.cpp
 
-INCLUDEPATH += ../../../../ \
- ../../../../../../../../Platform/Master/Components/
+INCLUDEPATH += ../../
 
-DEPENDPATH += ../../../../
-	
-UseLibs(ExportController)
-UseLibsPlatform(ExternalProcessController Threads DataLogging Global NetworkComponents StateMachines EventHandler)
+DEPENDPATH += ../../
+
+
+UseLibs(ExternalProcessController Threads DataLogging Global NetworkComponents StateMachines EventHandler ExportController)

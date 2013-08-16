@@ -1,5 +1,5 @@
 # include pri file from Himalaya/Build
 
-!include("../../../Build/Himalaya.pri") {
-    error("../../../Build/Himalaya.pri not found")
+!include("../../../Build/Platform.pri") {
+    error("../../../Build/Platform.pri not found")
 }

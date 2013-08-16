@@ -65,15 +65,14 @@ private:
 protected:
     virtual void OnGoReceived();
     virtual void OnStopReceived();
-    virtual void OnPowerFail();
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
     virtual void OnReadyToWork();
 
 public:
-    ExportController(Global::gSourceType TheHeartBeatSource);
+    ExportController(quint32 ThreadID);
     virtual ~ExportController();
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
-    virtual void OnCmdTimeout(Global::tRefType Ref, const QString &CmdName);
 };
 }
 
