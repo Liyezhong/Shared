@@ -161,7 +161,7 @@ quint32 CModule::GetModuleHandle()
     if(m_pCANObjectConfig)
     {
         moduleHandle = m_pCANObjectConfig->m_sCANNodeType;
-        moduleHandle |= (((quint32)m_pCANObjectConfig->m_sCANNodeIndex) << 8);
+        moduleHandle |= (((quint32)m_pCANObjectConfig->m_sCANNodeIndex) << 8); //lint !e571
         moduleHandle |= (((quint32)m_pCANObjectConfig->m_sChannel) << 16);
     }
 

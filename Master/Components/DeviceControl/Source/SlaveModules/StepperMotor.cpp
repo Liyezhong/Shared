@@ -100,6 +100,8 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
     m_unCanIDActPositionReq(0), m_unCanIDActPositionResp(0), m_unCanIDActSpeed(0), m_unCanIDActSpeedReq(0),
     m_unCanIDConfig(0), m_unCanIDMotionProfile(0),
     m_unCanIDDiagSoftwareReq(0), m_unCanIDDiagSoftware(0), m_unCanIDDiagHardwareReq(0), m_unCanIDDiagHardware(0),
+    m_unCanIDOpTimeDataReq(0), m_unCanIDOpTimeData(0), m_unCanIDRevCountDataReq(0), m_unCanIDRevCountData(0),
+    m_unCanIDDirCountDataReq(0), m_unCanIDDirCountData(0),
     m_unCanIDDebug(0), m_unCanIDDebug2(0),
     m_ReqTargetPosition(0), m_ReqTargetSpeed(0),
     m_ReqMovementProfile(0), m_ReqSubCommandID(0), m_ReqSubCommandData(0),
@@ -212,7 +214,7 @@ ReturnCode_t CStepperMotor::InitializeCANMessages()
     quint8 bIfaceID;
     const quint8 ModuleID = MODULE_ID_STEPPER;
 
-    bIfaceID = m_pCANObjectConfig->m_sChannel;
+    bIfaceID = m_pCANObjectConfig->m_sChannel; //lint !e613
 
     RetVal = InitializeEventCANMessages(ModuleID);
 
@@ -585,34 +587,34 @@ void CStepperMotor::HandleConfigurationState()
         {
         case LS1:
             canmsg.can_dlc = sizeof(ConfigData_LS_t) + sizeof(SubIndex_t);
-            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch1, configData.part.ls1);
+            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch1, configData.part.ls1); //lint !e613
             break;
         case LS2:
             canmsg.can_dlc = sizeof(ConfigData_LS_t) + sizeof(SubIndex_t);
-            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch2, configData.part.ls2);
+            SetupLimitSwitchConfigData(pCANObjConfMotor->LimitSwitch2, configData.part.ls2); //lint !e613
             break;
         case POS1:
             canmsg.can_dlc = sizeof(ConfigData_LSPOS_t) + sizeof(SubIndex_t);
-            SetupPosCodeConfigData(pCANObjConfMotor->PosCode1, configData.part.pos1);
+            SetupPosCodeConfigData(pCANObjConfMotor->PosCode1, configData.part.pos1); //lint !e613
             break;
         case POS2:
             canmsg.can_dlc = sizeof(ConfigData_LSPOS_t) + sizeof(SubIndex_t);
-            SetupPosCodeConfigData(pCANObjConfMotor->PosCode2, configData.part.pos2);
+            SetupPosCodeConfigData(pCANObjConfMotor->PosCode2, configData.part.pos2); //lint !e613
             break;
         case POS3:
             canmsg.can_dlc = sizeof(ConfigData_LSPOS_t) + sizeof(SubIndex_t);
-            SetupPosCodeConfigData(pCANObjConfMotor->PosCode3, configData.part.pos3);
+            SetupPosCodeConfigData(pCANObjConfMotor->PosCode3, configData.part.pos3); //lint !e613
             break;
         case ENC:
             {
                 ConfigData_ENC_t &enc = configData.part.enc;
                 canmsg.can_dlc = sizeof(ConfigData_ENC_t) + sizeof(SubIndex_t);
 
-                enc.flag.exist = (0 != pCANObjConfMotor->bEncoderType);
+                enc.flag.exist = (0 != pCANObjConfMotor->bEncoderType); //lint !e613
                 if (enc.flag.exist)
                 {
-                    enc.flag.rotDir = SetupRotationDir(pCANObjConfMotor->bEncoderDir);
-                    enc.resolution = ValToDB2(pCANObjConfMotor->sEncoderResolution);
+                    enc.flag.rotDir = SetupRotationDir(pCANObjConfMotor->bEncoderDir); //lint !e613
+                    enc.resolution = ValToDB2(pCANObjConfMotor->sEncoderResolution); //lint !e613
                 }
                 else
                 {
@@ -626,12 +628,12 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_MOT_P1_t &mot1 = configData.part.mot1;
                 canmsg.can_dlc = sizeof(ConfigData_MOT_P1_t) + sizeof(SubIndex_t);
 
-                mot1.resolution = ValToDB2(pCANObjConfMotor->sResolution);
-                mot1.run_CurrentScale = pCANObjConfMotor->runCurrentScale;
-                mot1.stop_CurrentScale = pCANObjConfMotor->stopCurrentScale;
-                mot1.stopCurrent_Delay = ValToDB2(pCANObjConfMotor->stopCurrentDelay);
+                mot1.resolution = ValToDB2(pCANObjConfMotor->sResolution); //lint !e613
+                mot1.run_CurrentScale = pCANObjConfMotor->runCurrentScale; //lint !e613
+                mot1.stop_CurrentScale = pCANObjConfMotor->stopCurrentScale; //lint !e613
+                mot1.stopCurrent_Delay = ValToDB2(pCANObjConfMotor->stopCurrentDelay); //lint !e613
 
-                switch (pCANObjConfMotor->driverType)
+                switch (pCANObjConfMotor->driverType) //lint !e613
                 {
                 case CANFctModuleStepperMotor::DRIVER_TMC26X:
                     mot1.driverType = SMOT_DRIVER_TMC26X;
@@ -660,18 +662,18 @@ void CStepperMotor::HandleConfigurationState()
 //                    //return ErrConfigData;
 //                }
 
-                mot2.flag.rotDir = SetupRotationDir(pCANObjConfMotor->bDirection);
-                mot2.minPos = ValToDB4(pCANObjConfMotor->lMinPosition);
-                mot2.resetPos = ValToDB2(pCANObjConfMotor->sResetPosition);
+                mot2.flag.rotDir = SetupRotationDir(pCANObjConfMotor->bDirection); //lint !e613
+                mot2.minPos = ValToDB4(pCANObjConfMotor->lMinPosition); //lint !e613
+                mot2.resetPos = ValToDB2(pCANObjConfMotor->sResetPosition); //lint !e613
 
-                quint8 motionProfCount = pCANObjConfMotor->listMotionProfiles.count();
+                quint8 motionProfCount = pCANObjConfMotor->listMotionProfiles.count(); //lint !e613
                 if ((motionProfCount < 1) || (motionProfCount > MAX_MOTION_PROFIL))
                     //return ErrConfigData;
                     Q_ASSERT(false);
                 mot2.flag.motionProf_cnt = motionProfCount;
 
-                m_MinPosition = pCANObjConfMotor->lMinPosition;
-                m_MaxSpeed = pCANObjConfMotor->sMaxSpeed;
+                m_MinPosition = pCANObjConfMotor->lMinPosition; //lint !e613
+                m_MaxSpeed = pCANObjConfMotor->sMaxSpeed; //lint !e613
             }
             break;
         case MOT3:
@@ -679,9 +681,9 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_MOT_P3_t &mot3 = configData.part.mot3;
                 canmsg.can_dlc = sizeof(ConfigData_MOT_P3_t) + sizeof(SubIndex_t);
 
-                mot3.maxPos = ValToDB4(pCANObjConfMotor->lMaxPosition);
+                mot3.maxPos = ValToDB4(pCANObjConfMotor->lMaxPosition); //lint !e613
 
-                m_MaxPosition = pCANObjConfMotor->lMaxPosition;
+                m_MaxPosition = pCANObjConfMotor->lMaxPosition; //lint !e613
             }
             break;
 
@@ -690,9 +692,9 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_REFRUN_P1_t &refrun = configData.part.refRun1;
                 canmsg.can_dlc = sizeof(ConfigData_REFRUN_P1_t) + sizeof(SubIndex_t);
 
-                refrun.refRun_RefPos = pCANObjConfMotor->refRunRefPos;
-                refrun.refRun_PosOffset = ValToDB4(pCANObjConfMotor->lRefPosOffset);
-                refrun.refRun_Timeout = ValToDB2(pCANObjConfMotor->sRefRunTimeout);
+                refrun.refRun_RefPos = pCANObjConfMotor->refRunRefPos; //lint !e613
+                refrun.refRun_PosOffset = ValToDB4(pCANObjConfMotor->lRefPosOffset); //lint !e613
+                refrun.refRun_Timeout = ValToDB2(pCANObjConfMotor->sRefRunTimeout); //lint !e613
             }
             break;
         case REFRUN2:
@@ -700,8 +702,8 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_REFRUN_P2_t &refrun = configData.part.refRun2;
                 canmsg.can_dlc = sizeof(ConfigData_REFRUN_P2_t) + sizeof(SubIndex_t);
 
-                refrun.refRun_MaxDist = ValToDB4(pCANObjConfMotor->lRefRunMaxDistance);
-                refrun.refRun_HighSpeed = ValToDB2(pCANObjConfMotor->sRefRunHighSpeed);
+                refrun.refRun_MaxDist = ValToDB4(pCANObjConfMotor->lRefRunMaxDistance); //lint !e613
+                refrun.refRun_HighSpeed = ValToDB2(pCANObjConfMotor->sRefRunHighSpeed); //lint !e613
             }
             break;
         case REFRUN3:
@@ -709,8 +711,8 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_REFRUN_P3_t &refrun = configData.part.refRun3;
                 canmsg.can_dlc = sizeof(ConfigData_REFRUN_P3_t) + sizeof(SubIndex_t);
 
-                refrun.refRun_ReverseDist = ValToDB4(pCANObjConfMotor->lRefRunReverseDistance);
-                refrun.refRun_LowSpeed = ValToDB2(pCANObjConfMotor->sRefRunSlowSpeed);
+                refrun.refRun_ReverseDist = ValToDB4(pCANObjConfMotor->lRefRunReverseDistance); //lint !e613
+                refrun.refRun_LowSpeed = ValToDB2(pCANObjConfMotor->sRefRunSlowSpeed); //lint !e613
             }
             break;
 /*
@@ -730,7 +732,7 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_DRV_TMC26X_t &tmc26x = configData.part.drvTMC26x;
                 canmsg.can_dlc = sizeof(ConfigData_DRV_TMC26X_t) + sizeof(SubIndex_t);
 
-                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.drvConf);
+                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.drvConf); //lint !e613
             }
             break;
         case TMC26x_SGCSCONF:
@@ -738,7 +740,7 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_DRV_TMC26X_t &tmc26x = configData.part.drvTMC26x;
                 canmsg.can_dlc = sizeof(ConfigData_DRV_TMC26X_t) + sizeof(SubIndex_t);
 
-                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.sgcsConf);
+                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.sgcsConf); //lint !e613
             }
             break;
         case TMC26x_SMARTEN:
@@ -746,7 +748,7 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_DRV_TMC26X_t &tmc26x = configData.part.drvTMC26x;
                 canmsg.can_dlc = sizeof(ConfigData_DRV_TMC26X_t) + sizeof(SubIndex_t);
 
-                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.smartEn);
+                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.smartEn); //lint !e613
             }
             break;
         case TMC26x_CHOPCONF:
@@ -754,7 +756,7 @@ void CStepperMotor::HandleConfigurationState()
                 ConfigData_DRV_TMC26X_t &tmc26x = configData.part.drvTMC26x;
                 canmsg.can_dlc = sizeof(ConfigData_DRV_TMC26X_t) + sizeof(SubIndex_t);
 
-                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.chopConf);
+                tmc26x.regVal = ValToDB3(pCANObjConfMotor->tmc26x.chopConf); //lint !e613
             }
             break;
         default:
@@ -762,9 +764,9 @@ void CStepperMotor::HandleConfigurationState()
             break;
         }
 
-        switch (pCANObjConfMotor->driverType)
+        switch (pCANObjConfMotor->driverType) //lint !e613
         {
-        case SMOT_DRIVER_TMC26X:
+        case SMOT_DRIVER_TMC26X: //lint !e408
             switch (m_subIndex.param.index)
             {
             case REFRUN3:
@@ -781,7 +783,7 @@ void CStepperMotor::HandleConfigurationState()
             }
             break;
         default:
-            if (m_subIndex.param.index < REFRUN3)
+            if (m_subIndex.param.index < REFRUN3) //lint !e641
                 m_subIndex.param.index++;
             else
             {
@@ -801,13 +803,13 @@ void CStepperMotor::HandleConfigurationState()
         FILE_LOG_L(laFCT, llINFO) << "CANStepperMotor " << GetName().toStdString() << " : MotionProfile " << (int) MotionProfileIndex << " - " << (int) MotionProfileSubIndex;
 
         //position the iterator to the motion profile whichs data should be transmitted
-        iter = pCANObjConfMotor->listMotionProfiles.constBegin();
+        iter = pCANObjConfMotor->listMotionProfiles.constBegin(); //lint !e613
         for(idx = 0; idx < m_subIndex.profile.no; idx++)
         {
             iter++;
         }
 
-        if(iter == pCANObjConfMotor->listMotionProfiles.constEnd())
+        if(iter == pCANObjConfMotor->listMotionProfiles.constEnd()) //lint !e613
         {
             FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ":  " << (int) MotionProfileIndex << " motionprofils sent";
             m_subStateConfig = FM_SM_SUB_STATE_CONFIG_FINISHED;
@@ -851,7 +853,7 @@ void CStepperMotor::HandleConfigurationState()
             }
 
             //prepare for next profile
-            if (m_subIndex.profile.index < P3)
+            if (m_subIndex.profile.index < P3) //lint !e641
                 m_subIndex.profile.index++;
             else
             {
@@ -1540,7 +1542,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
 
         // log event info string
         std::string eventString;
-        if (GetType() == m_lastErrorGroup)
+        if (GetType() == m_lastErrorGroup) //lint !e641
             eventString = m_eventString[m_lastErrorCode];
         else
             eventString = m_pParent->m_eventString[m_lastErrorCode];
@@ -1715,7 +1717,7 @@ void CStepperMotor::HandleCANMsgReferenceMovementAckn(can_frame* pCANframe)
         SM_AckState_t ack = ackData.ack;
 
         FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement done: '" << GetKey().toStdString() << "',  Position:" << position << "' LimitSwitches:" << (int)posCode << "' Ack:" << ack;  //lint !e641
-        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement: 0x" << std::hex << m_pCANObjectConfig->m_sCANNodeIndex << "  0x" << std::hex << GetModuleHandle(); //lint !e641
+        FILE_LOG_L(laFCT, llDEBUG1) << "  CStepperMotor::reference movement: 0x" << std::hex << m_pCANObjectConfig->m_sCANNodeIndex << "  0x" << std::hex << GetModuleHandle(); //lint !e641 !e613
 
         emit ReportReferenceMovementAckn(GetModuleHandle(), (SM_ACK==ack ? DCL_ERR_FCT_CALL_SUCCESS : DCL_ERR_EXTERNAL_ERROR), position);
     }
@@ -2759,7 +2761,7 @@ Speed_t CStepperMotor::GetSpeedFromPeriod(Position_t Distance, MotionProfileIdx_
 {
     Speed_t Speed;
     CANFctModuleStepperMotor *pCANObjConfMotor = dynamic_cast<CANFctModuleStepperMotor *>(m_pCANObjectConfig);
-    CANFctModuleMotionProfile &MotionProfile = pCANObjConfMotor->listMotionProfiles[MotionProfileIdx];
+    CANFctModuleMotionProfile &MotionProfile = pCANObjConfMotor->listMotionProfiles[MotionProfileIdx]; //lint !e613
     qint32 Dummy;
 
     if(Distance < 0)
@@ -2811,7 +2813,7 @@ ReturnCode_t CStepperMotor::DoReconfiguration(CANFctModuleStepperMotor *pConfig)
     // Quick&Dirty: Profile and Limit switch configuration are directly changed
     //  => get rid of pointers or write assign op/copy constructor or even better:
     // \todo use new data container
-    *pCANObjConfMotor = *pConfig;
+    *pCANObjConfMotor = *pConfig; //lint !e613
 
 //    m_TaskID = MODULE_TASKID_INIT;
     m_mainState = FM_MAIN_STATE_CONFIRMED;

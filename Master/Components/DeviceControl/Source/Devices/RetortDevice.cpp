@@ -28,7 +28,7 @@ CRetortDevice::CRetortDevice(DeviceProcessing* pDeviceProcessing, QString Type) 
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";
-}
+}//lint !e1566
 
 /****************************************************************************/
 /*!
@@ -45,7 +45,7 @@ CRetortDevice::~CRetortDevice()
     {
         return;
     }
-}
+} //lint !e1579
 
 /****************************************************************************/
 /*!
@@ -68,7 +68,7 @@ void CRetortDevice::Reset()
     memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures)); //lint !e545
     memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
-    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));
+    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls)); //lint !e545
     m_TargetDOOutputValue = 0;
     m_LockStatus = 0;
     m_LastGetLockStatusTime = 0;
@@ -628,7 +628,7 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
         if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
         {
             return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
-    }
+        }
     }
 
     retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
@@ -668,7 +668,14 @@ TempCtrlState_t CRetortDevice::GetTemperatureControlState(RTTempCtrlType_t Type)
         m_CurrentTempCtrlStatus[Type] = TEMPCTRL_STATUS_UNDEF;
         return TEMPCTRL_STATE_ERROR;
     }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_TEMP_CTRL_STATE);
+    if(m_pDevProc)
+    {
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_TEMP_CTRL_STATE);
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
@@ -713,7 +720,10 @@ void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnC
         m_CurrentTempCtrlStatus[m_InstTCTypeMap[InstanceID]] = TempCtrlStatus;
         m_MainsVoltageStatus[m_InstTCTypeMap[InstanceID]] = MainsVoltage;
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_TEMP_CTRL_STATE, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_TEMP_CTRL_STATE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -833,7 +843,14 @@ ReturnCode_t CRetortDevice::SetTemperature(RTTempCtrlType_t Type, qreal NominalT
     {
         return retCode;
     }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP);
+    if(m_pDevProc)
+    {
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP);
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     return retCode;
 }
 
@@ -859,7 +876,10 @@ void CRetortDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, q
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort set temperature failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -885,7 +905,14 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
         }
         else
         {
-            retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_TEMP);
+            if(m_pDevProc)
+            {
+                retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_TEMP);
+            }
+            else
+            {
+                retCode = DCL_ERR_NOT_INITIALIZED;
+            }
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 RetValue = UNDEFINED;
@@ -948,8 +975,10 @@ void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort get temperature failed! " << ReturnCode; //lint !e641
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_TEMP, ReturnCode);
-
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_TEMP, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -976,7 +1005,15 @@ ReturnCode_t CRetortDevice::SetTemperaturePid(RTTempCtrlType_t Type, quint16 Max
         {
             return retCode;
         }
-        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP_PID);
+        if(m_pDevProc)
+        {
+            return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_TEMP_PID);
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
+
     }
     else
     {
@@ -1012,7 +1049,10 @@ void CRetortDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTe
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort set temperature PID failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP_PID, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_TEMP_PID, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -1030,13 +1070,27 @@ void CRetortDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTe
 ReturnCode_t CRetortDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     m_TargetDOOutputValue = OutputValue;
-
-    ReturnCode_t retCode = m_pLockDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
+    ReturnCode_t retCode;
+    if(m_pLockDigitalOutput)
+    {
+        retCode = m_pLockDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         return retCode;
     }
-    return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALUE);
+    if(m_pDevProc)
+    {
+        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_SET_DO_VALUE);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
 }
 
 /****************************************************************************/
@@ -1061,8 +1115,10 @@ void CRetortDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t Retu
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_DO_VALUE, ReturnCode);
-
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_SET_DO_VALUE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -1111,7 +1167,10 @@ void CRetortDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_DI_VALUE, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_DI_VALUE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -1125,7 +1184,7 @@ quint16 CRetortDevice::GetRecentRetortLockStatus()
 {
    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    qreal RetValue;
+    quint16 RetValue;
     if((Now - m_LastGetLockStatusTime) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_LockStatus;
@@ -1150,7 +1209,14 @@ ReturnCode_t CRetortDevice::GetLockStatusAsync()
     if((Now - m_LastGetLockStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetLockStatusTime = Now;
-        return m_pLockDigitalInput->ReqActInputValue();
+        if(m_pLockDigitalInput)
+        {
+            return m_pLockDigitalInput->ReqActInputValue();
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -1165,12 +1231,27 @@ ReturnCode_t CRetortDevice::GetLockStatusAsync()
 quint16 CRetortDevice::GetLidStatus()
 {
     //Log(tr("GetValue"));
-    ReturnCode_t retCode = m_pLockDigitalInput->ReqActInputValue();
+    ReturnCode_t retCode;
+    if(m_pLockDigitalInput)
+    {
+        retCode = m_pLockDigitalInput->ReqActInputValue();
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         return UNDEFINED;
     }
-    retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_DI_VALUE);
+    if(m_pDevProc)
+    {
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_DI_VALUE);
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         return UNDEFINED;
@@ -1187,22 +1268,30 @@ quint16 CRetortDevice::GetLidStatus()
  *  \return  Temperature control module's hardware status.
  */
 /****************************************************************************/
-TempCtrlHardwareStatus_t *CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type)
+TempCtrlHardwareStatus_t CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type)
 {
+    TempCtrlHardwareStatus_t hwStatus;
+    memset( &hwStatus, 0 , sizeof(hwStatus)); //lint !e545
     if(m_pTempCtrls[Type] != NULL)
     {
         ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
-        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
-        {
-            return NULL;
-        }
-        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_HW_STATUS);
         if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
         {
-            return &m_HardwareStatus[Type];
+            if(m_pDevProc)
+            {
+                retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_HW_STATUS);
+            }
+            else
+            {
+                retCode = DCL_ERR_NOT_INITIALIZED;
+            }
+            if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
+            {
+                hwStatus = m_HardwareStatus[Type];
+            }
         }
     }
-    return NULL;
+    return hwStatus;
 }
 
 /****************************************************************************/
@@ -1239,6 +1328,9 @@ void CRetortDevice::OnGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnC
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort Get DI value failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_HW_STATUS, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RT_GET_HW_STATUS, ReturnCode);
+    }
 }
 } //namespace

@@ -628,7 +628,10 @@ void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
     }
     else
     {
-        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_SUCCESS);
+        if(m_pDevProc)
+        {
+            m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_SUCCESS);
+        }
     }
     m_TargetPressure = 0;
 }
@@ -678,7 +681,10 @@ void CAirLiquidDevice::OnSetValve(quint32 /*InstanceID*/, ReturnCode_t ReturnCod
 {
     Q_UNUSED(ValveIndex)
     Q_UNUSED(ValveState)
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_VALVE, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_VALVE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -772,7 +778,10 @@ void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t Return
 {
     Q_UNUSED(Index)
     m_CurrentPressure = ActPressure;
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_PRESSURE, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_PRESSURE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -849,12 +858,14 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     quint32 TimeSlotPassed = 0;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
 
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
-
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
+    }
     //close both valve
     StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
@@ -1428,7 +1439,10 @@ ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, qreal pressure)
 /****************************************************************************/
 void CAirLiquidDevice::VaccumTimerCB(void)
 {
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_TIMER_TIMEOUT);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_TIMER_TIMEOUT);
+    }
 }
 
 /****************************************************************************/
@@ -1438,7 +1452,10 @@ void CAirLiquidDevice::VaccumTimerCB(void)
 /****************************************************************************/
 void CAirLiquidDevice::PressureTimerCB(void)
 {
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_TIMER_TIMEOUT);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_TIMER_TIMEOUT);
+    }
 }
 
 /****************************************************************************/
@@ -1448,7 +1465,10 @@ void CAirLiquidDevice::PressureTimerCB(void)
 /****************************************************************************/
 void CAirLiquidDevice::DrainingTimerCB(void)
 {
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_TIMER_TIMEOUT);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_TIMER_TIMEOUT);
+    }
 }
 
 /****************************************************************************/
@@ -1458,7 +1478,10 @@ void CAirLiquidDevice::DrainingTimerCB(void)
 /****************************************************************************/
 void CAirLiquidDevice::ReleasePressureTimerCB(void)
 {
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_TIMER_TIMEOUT);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_TIMER_TIMEOUT);
+    }
 }
 
 /****************************************************************************/
@@ -1468,7 +1491,10 @@ void CAirLiquidDevice::ReleasePressureTimerCB(void)
 /****************************************************************************/
 void CAirLiquidDevice::SuckingTimerCB(void)
 {
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_TIMER_TIMEOUT);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_TIMER_TIMEOUT);
+    }
 }
 
 /****************************************************************************/
@@ -1489,7 +1515,10 @@ void CAirLiquidDevice::OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quin
     Q_UNUSED(ReturnCode)
     if(State == 1)
     {
-        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1);
+        if(m_pDevProc)
+        {
+            m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1);
+        }
     }
 }
 
@@ -2204,12 +2233,14 @@ ReturnCode_t CAirLiquidDevice::TurnOffFan()
 ReturnCode_t CAirLiquidDevice::BreakAllOperation(void)
 {
     qDebug() << "Device Airliquid: Start break all operation procedure";
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
-
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_UNEXPECTED_BREAK);
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_VACCUM, DCL_ERR_UNEXPECTED_BREAK);
+    }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
@@ -2226,10 +2257,16 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
     StopCompressor();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Close Both Valves";
     qDebug() << "Device Airliquid: Close both valves";
-    (void)m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
-    (void)m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+    if(m_pPressureCtrl)
+    {
+        (void)m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        (void)m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+    }
     qDebug() << "Device Airliquid: Stop fan";
-    (void)m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
+    if(m_pFanDigitalOutput)
+    {
+        (void)m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
+    }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 

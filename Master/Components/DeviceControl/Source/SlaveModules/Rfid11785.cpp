@@ -46,7 +46,8 @@ CRfid11785::CRfid11785(const CANMessageConfiguration *p_MessageConfiguration, CA
     m_unCanIDConfig(0), m_unCanIDConfigAckn(0),
     m_unCanIDLogin(0), m_unCanIDLoginAckn(0),
     m_unCanIDWriteUserData(0), m_unCanIDWritePassword(0), m_unCanIDWriteConfig(0),
-    m_unCanIDUserDataReq(0), m_unCanIDUserData(0), m_unCanIDUIDReq(0), m_unCanIDUID(0)
+    m_unCanIDUserDataReq(0), m_unCanIDUserData(0), m_unCanIDUIDReq(0), m_unCanIDUID(0),
+    m_unCanIDWriteUserDataAckn(0), m_unCanIDWritePasswordAckn(0), m_unCanIDWriteConfigAckn(0)
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
 
@@ -1019,7 +1020,7 @@ ReturnCode_t CRfid11785::ReqUserData(quint8 Address)
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex = 0;
 
-    if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_REQ), &CmdIndex)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_REQ), &CmdIndex) //lint !e506 !e534
     {
         m_ModuleCommand[CmdIndex].UserDataAddress = Address;
         FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
@@ -1052,7 +1053,7 @@ ReturnCode_t CRfid11785::WriteUserData(quint8 Address, quint32 Data)
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex = 0;
 
-    if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_WRITE), &CmdIndex)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_USER_DATA_WRITE), &CmdIndex) //lint !e506 !e534
     {
         m_ModuleCommand[CmdIndex].UserDataAddress = Address;
         m_ModuleCommand[CmdIndex].UserData = Data;
@@ -1086,7 +1087,7 @@ ReturnCode_t CRfid11785::WritePassword(quint32 Password)
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex = 0;
 
-    if(SetModuleTask(FM_RFID_CMD_TYPE_PASSWORD_WRITE), &CmdIndex)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_PASSWORD_WRITE), &CmdIndex) //lint !e506 !e534
     {
         m_ModuleCommand[CmdIndex].Password = Password;
         FILE_LOG_L(laDEV, llDEBUG) << " CANRFID11785";
@@ -1121,7 +1122,7 @@ ReturnCode_t CRfid11785::WriteConfiguration(bool ReadLogin, bool WriteLogin, boo
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex = 0;
 
-    if(SetModuleTask(FM_RFID_CMD_TYPE_CONGIG_WRITE), &CmdIndex)
+    if(SetModuleTask(FM_RFID_CMD_TYPE_CONGIG_WRITE), &CmdIndex) //lint !e506 !e534
     {
         m_ModuleCommand[CmdIndex].ReadLogin = ReadLogin;
         m_ModuleCommand[CmdIndex].WriteLogin = WriteLogin;

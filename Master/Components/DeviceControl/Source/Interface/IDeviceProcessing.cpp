@@ -97,9 +97,9 @@ IDeviceProcessing::~IDeviceProcessing()
     try
     {
         mp_DevProcThread->quit();
-        mp_DevProcThread->wait();
-    delete mp_DevProcTimer;
-    delete mp_DevProcThread;
+        (void)mp_DevProcThread->wait();
+        delete mp_DevProcTimer;
+        delete mp_DevProcThread;
         delete mp_DevProc;
     }
     catch (...)
@@ -222,7 +222,7 @@ void IDeviceProcessing::HandleTaskRequestState()
         {
             QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
             emit ReportError(m_instanceID, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_ACTIVATE_TASK_FAILED,
-                             m_reqTaskID, errorTimeStamp);
+                             m_reqTaskID, errorTimeStamp); //lint !e641
         }
     }
 }
@@ -1266,7 +1266,7 @@ ReturnCode_t IDeviceProcessing::RVStartTemperatureControlWithPID(qreal NominalTe
 /****************************************************************************/
 qreal IDeviceProcessing::RVGetRecentTemperature(quint32 Index)
 {
-    if(m_pAirLiquid)
+    if(m_pRotaryValve)
     {
         return m_pRotaryValve->GetRecentTemperature(Index);
     }
@@ -1466,14 +1466,14 @@ ReturnCode_t IDeviceProcessing::OvenStartTemperatureControl(OVENTempCtrlType_t T
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-   if(m_pOven)
+    if(m_pOven)
     {
         return m_pOven->StartTemperatureControl(Type, NominalTemperature, SlopeTempChange);
     }
     else
     {
         return DCL_ERR_NOT_INITIALIZED;
-   }
+    }
 }
 
 
@@ -1903,7 +1903,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal density = 1;
         qreal basePressure = 1.4;
 
-        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));
+        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
         {
             return retCode;
@@ -1937,7 +1937,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         {
             return retCode;
         }
-        usleep(3000*1000);
+        (void)usleep(3000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure();
 
         qDebug()<<"Bottle Check pressure: " << pressure;
@@ -1963,7 +1963,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             qDebug()<<"Bottle Check: Blockage";
         }
 
-        m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(TubePos + 1));
+        (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         return retCode;
     }
     else

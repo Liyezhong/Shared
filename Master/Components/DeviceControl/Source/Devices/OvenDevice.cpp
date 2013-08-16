@@ -668,7 +668,10 @@ void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCod
         m_CurrentTempCtrlStatus[m_InstTCTypeMap[InstanceID]] = TempCtrlStatus;
         m_MainsVoltageStatus[m_InstTCTypeMap[InstanceID]] = MainsVoltage;
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -788,7 +791,10 @@ ReturnCode_t COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalT
     {
         return retCode;
     }
-    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP);
+    if(m_pDevProc)
+    {
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP);
+    }
     return retCode;
 }
 
@@ -814,7 +820,10 @@ void COvenDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qre
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -840,7 +849,10 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
         }
         else
         {
-            retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP);
+            if(m_pDevProc)
+            {
+                retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP);
+            }
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 RetValue = UNDEFINED;
@@ -903,8 +915,10 @@ void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven get temperature failed! " << ReturnCode; //lint !e641
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP, ReturnCode);
-
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -931,7 +945,11 @@ ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 Max
         {
             return retCode;
         }
-        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID);
+        if(m_pDevProc)
+        {
+            retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID);
+        }
+        return retCode;
     }
     else
     {
@@ -967,7 +985,10 @@ void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemp
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature PID failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -980,12 +1001,23 @@ void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemp
 quint16 COvenDevice::GetLidStatus()
 {
     //Log(tr("GetValue"));
-    ReturnCode_t retCode = m_pLidDigitalInput->ReqActInputValue();
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(m_pLidDigitalInput)
+    {
+        retCode = m_pLidDigitalInput->ReqActInputValue();
+    }
+    else
+    {
+        return UNDEFINED;
+    }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         return UNDEFINED;
     }
-    retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE);
+    if(m_pDevProc)
+    {
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE);
+    }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         return UNDEFINED;
@@ -1006,7 +1038,14 @@ ReturnCode_t COvenDevice::GetLidStatusAsync()
     if((Now - m_LastGetLidStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         m_LastGetLidStatusTime = Now;
-        return m_pLidDigitalInput->ReqActInputValue();
+        if(m_pLidDigitalInput)
+        {
+            return m_pLidDigitalInput->ReqActInputValue();
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
@@ -1033,7 +1072,10 @@ void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, 
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven Get DI value failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE, ReturnCode);
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
@@ -1047,7 +1089,7 @@ quint16 COvenDevice::GetRecentOvenLidStatus()
 {
    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    qreal RetValue;
+    quint16 RetValue;
     if((Now - m_LastGetLidStatusTime) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_LidStatus;

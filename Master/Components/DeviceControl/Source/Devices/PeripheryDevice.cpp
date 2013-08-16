@@ -22,7 +22,7 @@ CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString 
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";
     qDebug() <<  "Retort device cons thread id is " << QThread::currentThreadId();
-}
+}//lint !e1566
 
 /****************************************************************************/
 /*!
@@ -31,7 +31,14 @@ CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString 
 /****************************************************************************/
 CPeripheryDevice::~CPeripheryDevice()
 {
-    Reset();
+    try
+    {
+        Reset();
+    }
+    catch(...)
+    {
+        return;
+    }
 }
 
 /****************************************************************************/
@@ -47,8 +54,8 @@ void CPeripheryDevice::Reset()
 
     m_instanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL;
 
-    memset( &m_pDigitalOutputs, 0 , sizeof(m_pDigitalOutputs));
-    memset( &m_TargetDOOutputValues, 0 , sizeof(m_TargetDOOutputValues));
+    memset( &m_pDigitalOutputs, 0 , sizeof(m_pDigitalOutputs));  //lint !e545
+    memset( &m_TargetDOOutputValues, 0 , sizeof(m_TargetDOOutputValues)); //lint !e545
 
 }
 
@@ -176,7 +183,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         else
         {
             //m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xF)] = PER_MAIN_RELAY;
-            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO] = PER_MAIN_RELAY;
+            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO] = PER_MAIN_RELAY;  //lint !e641
         }
     }
     else
@@ -210,7 +217,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         else
         {
             // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xF)] = PER_REMOTE_ALARM_CTRL;
-            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_REMOTE_ALARM_CTRL;
+            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_REMOTE_ALARM_CTRL;  //lint !e641
         }
     }
     else
@@ -231,7 +238,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         else
         {
             // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
-            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_LOCAL_ALARM_CTRL;
+            m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_LOCAL_ALARM_CTRL;  //lint !e641
         }
     }
     else
@@ -380,7 +387,15 @@ ReturnCode_t CPeripheryDevice::SetDOValue(PerDOType_t Type, quint16 OutputValue,
     {
         return retCode;
     }
-    return m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALUE);
+    if(m_pDevProc)
+    {
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_SET_DO_VALUE);
+    }
+    else
+    {
+        retCode = DCL_ERR_NOT_INITIALIZED;
+    }
+    return retCode;
 }
 
 /****************************************************************************/
@@ -405,8 +420,10 @@ void CPeripheryDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Periphery set DO output failed! " << ReturnCode; //lint !e641
     }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_SET_DO_VALUE, ReturnCode);
-
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_SET_DO_VALUE, ReturnCode);
+    }
 }
 
 /****************************************************************************/

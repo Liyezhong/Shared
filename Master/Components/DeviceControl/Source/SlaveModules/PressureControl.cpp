@@ -59,7 +59,8 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     m_unCanIDServiceSensorReq(0), m_unCanIDServiceSensor(0),
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),m_unCanIDValveSet(0),
-    m_unCanIDCalibration(0),m_unCanIDPWMParamSet(0), m_aktionTimespan(0)
+    m_unCanIDCalibration(0),m_unCanIDPWMParamSet(0), m_aktionTimespan(0),
+    m_unCanIDNotiAutoTune(0), m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -127,8 +128,14 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     quint8 bChannel;
     const quint8 ModuleID = MODULE_ID_PRESSURE;
 
-    bChannel = m_pCANObjectConfig->m_sChannel;
-
+    if(m_pCANObjectConfig)
+    {
+        bChannel = m_pCANObjectConfig->m_sChannel;
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
     RetVal = InitializeEventCANMessages(ModuleID);
 
     m_unCanIDPressureSet        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPressureSet", bChannel, m_pParent->GetNodeID());
@@ -299,7 +306,7 @@ void CPressureControl::HandleTasks()
                 m_mainState = FM_MAIN_STATE_ERROR;
                 return;
             }
-            for(qint32 i = 0; i < pCANObjConfPressure->listPidControllers.size(); i++) {
+            for(qint32 i = 0; i < pCANObjConfPressure->listPidControllers.size(); i++) { //lint !e613
                 RetVal = SendCANMsgPidParametersSet(i);
                 if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
                     FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
@@ -308,10 +315,10 @@ void CPressureControl::HandleTasks()
                 }
             }
             {
-                RetVal = SendCANMsgSetPWMParam(pCANObjConfPressure->pwmController.sMaxActuatingValue ,\
-                                               pCANObjConfPressure->pwmController.sMinActuatingValue, \
-                                               pCANObjConfPressure->pwmController.sMaxPwmDuty, \
-                                               pCANObjConfPressure->pwmController.sMinPwmDuty);
+                RetVal = SendCANMsgSetPWMParam(pCANObjConfPressure->pwmController.sMaxActuatingValue, //lint !e613
+                                               pCANObjConfPressure->pwmController.sMinActuatingValue, //lint !e613
+                                               pCANObjConfPressure->pwmController.sMaxPwmDuty,        //lint !e613
+                                               pCANObjConfPressure->pwmController.sMinPwmDuty);       //lint !e613
                 if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
                 {
                     FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
@@ -485,7 +492,7 @@ void CPressureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportPumpOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportPumpOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0); //lint !e641
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_FANSPEED)
@@ -501,7 +508,7 @@ void CPressureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0); //lint !e641
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_HARDWARE)
@@ -754,7 +761,7 @@ void CPressureControl::HandleCANMsgPressure(can_frame* pCANframe)
         }
 
         FILE_LOG_L(laFCT, llDEBUG) << "   CPressureControl::HandleCANMsgPressure: "
-                                   << PressureCtrlStatus << ", " << PressureCtrlOpMode << ", " << PressureCtrlVoltage;
+                                   << PressureCtrlStatus << ", " << PressureCtrlOpMode << ", " << PressureCtrlVoltage; //lint !e641
     }
     else
     {

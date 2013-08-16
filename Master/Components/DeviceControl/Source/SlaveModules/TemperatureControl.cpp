@@ -60,7 +60,9 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_unCanIDServiceSensorReq(0), m_unCanIDServiceSensor(0),
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),
-    m_aktionTimespan(0)
+    m_aktionTimespan(0), m_unCanIDNotiAutoTune(0),
+    m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),
+    m_unCanIDLevelSensorState(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -128,8 +130,14 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     quint8 bChannel;
     const quint8 ModuleID = MODULE_ID_TEMPERATURE;
 
-    bChannel = m_pCANObjectConfig->m_sChannel;
-
+    if(m_pCANObjectConfig)
+    {
+        bChannel = m_pCANObjectConfig->m_sChannel;
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
     RetVal = InitializeEventCANMessages(ModuleID);
 
     m_unCanIDTemperatureSet     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlTemperatureSet", bChannel, m_pParent->GetNodeID());

@@ -76,10 +76,10 @@ private slots:
     qreal GetTemperature(quint32 Index);
     ReturnCode_t SetTemperatureControlStatus(TempCtrlStatus_t TempCtrlStatus);
     void OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode, TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
-    bool SetTemperature(qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t SetTemperature(qreal NominalTemperature, quint8 SlopeTempChange);
 
     void CheckSensorsData();
-    bool GetTemperatureAsync(quint8 Index);
+    ReturnCode_t GetTemperatureAsync(quint8 Index);
     //! Oven cover motor error notification
     void StepperMotorError(quint32, quint16, quint16, quint16, QDateTime);
     //! motor set state acknowledge notification

@@ -41,7 +41,7 @@ namespace DeviceControl
  *
  ****************************************************************************/
 CJoystick::CJoystick(const CANMessageConfiguration *mp_MessageConfiguration, CANCommunicator* pCANCommunicator,
-                     CBaseModule* pParentNode) :
+                     CBaseModule* pParentNode) :  //lint !e578
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_JOYSTICK, mp_MessageConfiguration, pCANCommunicator, pParentNode),
     m_unCanIDConfig(0), m_unCanIDMechOffsetSet(0),
     m_unCanIDDisplacementReq(0), m_unCanIDDisplacement(0),
