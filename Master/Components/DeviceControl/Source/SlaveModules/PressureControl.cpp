@@ -896,9 +896,9 @@ void CPressureControl::HandleCANMsgNotiRange(can_frame* pCANframe, bool InRange)
     if(pCANframe->can_dlc == 2)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
-        qreal ActPressure;
+        float ActPressure;
 
-        ActPressure = (qreal)GetCANMsgDataU16(pCANframe, 1) / 100;
+        ActPressure = (float)GetCANMsgDataU16(pCANframe, 1) / 100;
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANPressureControl pressure range notification received: " << ActPressure;
         emit ReportPressureRange(GetModuleHandle(), hdlInfo, InRange, ActPressure);
@@ -1035,7 +1035,7 @@ ReturnCode_t CPressureControl::SendCANMsgPidParametersSet(quint8 Index)
  *  \return The return value is set from SendCOB(can_frame)
  */
 /****************************************************************************/
-ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime)
+ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, float Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime)
 {
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
@@ -1043,13 +1043,13 @@ ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, qint8 Pressure
     canmsg.can_id = m_unCanIDPressureSet;
 
     canmsg.data[0] = flag;
-    canmsg.data[1] = Pressure;
-    canmsg.data[2] = Tolerance;
+    SetCANMsgDataS16(&canmsg, (qint16)(Pressure * 100) , 1);
+    //canmsg.data[1] = Pressure;
+    canmsg.data[3] = Tolerance;
+    SetCANMsgDataU16(&canmsg, SamplingTime , 4);
+    SetCANMsgDataU16(&canmsg, DurationTime , 6);
 
-    SetCANMsgDataU16(&canmsg, SamplingTime , 3);
-    SetCANMsgDataU16(&canmsg, DurationTime , 5);
-
-    canmsg.can_dlc = 7;
+    canmsg.can_dlc = 8;
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
     FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetPressure: CanID: 0x" << std::hex << m_unCanIDPressureSet;
@@ -1305,7 +1305,7 @@ ReturnCode_t CPressureControl::SendCANMsgHardwareReq()
  *          otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CPressureControl::SetPressure(quint8 flag, qreal Pressure)
+ReturnCode_t CPressureControl::SetPressure(quint8 flag, float Pressure)
 {
     QMutexLocker Locker(&m_Mutex);
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;

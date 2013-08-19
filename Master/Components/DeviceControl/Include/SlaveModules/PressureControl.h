@@ -34,7 +34,7 @@ class CPressureControl : public CFunctionModule
     void HandleCanMessage(can_frame* pCANframe);    ///< CAN-message handling function
 
     //! Set reference pressure
-    ReturnCode_t SetPressure(quint8 flag, qreal Pressure);
+    ReturnCode_t SetPressure(quint8 flag, float Pressure);
     //! Request actual pressure
     ReturnCode_t ReqActPressure(quint8 Index);
     //! Set pressure ctrl. status
@@ -70,7 +70,7 @@ signals:
      *  \iparam Pressure = Actual pressure
      *
      ****************************************************************************/
-    void ReportActPressure(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index, qreal Pressure);
+    void ReportActPressure(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index, float Pressure);
 
     /****************************************************************************/
     /*!
@@ -81,7 +81,7 @@ signals:
      *  \iparam Pressure = Reference pressure
      */
     /****************************************************************************/
-    void ReportRefPressure(quint32 InstanceID, ReturnCode_t HdlInfo, qreal Pressure);
+    void ReportRefPressure(quint32 InstanceID, ReturnCode_t HdlInfo, float Pressure);
 
     /****************************************************************************/
     /*!
@@ -191,7 +191,7 @@ signals:
      *  \iparam Pressure = Pressure in kpa
      */
     /****************************************************************************/
-    void ReportPressureRange(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qint8 Pressure);
+    void ReportPressureRange(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, float Pressure);
     /****************************************************************************/
     /*!
      *  \brief  This signal reports the state of the valve
@@ -219,7 +219,7 @@ private:
     //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
     //! sends the can set message 'Pressure'
-    ReturnCode_t SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime);
+    ReturnCode_t SendCANMsgSetPressure(quint8 flag, float Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime);
     //! sends the can request message 'Pressure'
     ReturnCode_t SendCANMsgPressureRequest();
     //! sends the can request message 'ServiceSensor'
@@ -287,7 +287,7 @@ private:
         CANPressureCtrlCmdType_t Type;                  //!< command type
         ModuleCmdState_t State;                         //!< command state
         quint8 flag;                                    //!< flag of pressre control
-        qreal Pressure;                                 //!< pressure
+        float Pressure;                                 //!< pressure
         PressureCtrlStatus_t PressureCtrlState;         //!< pressure control state
         PressureCtrlOperatingMode_t PressureCtrlOpMode; //!< pressure control operating mode
         Global::MonotonicTime ReqSendTime;              //!< time the command was executed

@@ -100,7 +100,7 @@ public:
     qint32 GetFanOperationTime();
     ReturnCode_t BreakAllOperation(void);
     ReturnCode_t AllStop(void);
-    ReturnCode_t SetPressureDrift(qreal pressureDrift);
+    ReturnCode_t SetPressureDrift(float pressureDrift);
 
 private slots:
     void Reset();
@@ -112,16 +112,16 @@ private slots:
     //! error handling task
     void HandleErrorState();
     // void HandleErrorState();
-    ReturnCode_t SetPressure(quint8 flag, qreal NominalPressure);
+    ReturnCode_t SetPressure(quint8 flag, float NominalPressure);
     qreal GetPressure(void);
-    ReturnCode_t SetTargetPressure(quint8 flag, qreal pressure);
+    ReturnCode_t SetTargetPressure(quint8 flag, float pressure);
     ReturnCode_t SetValve(quint8 ValveIndex, quint8 ValveState);
     ReturnCode_t SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus);
     void StopCompressor(void);
 
 
     ReturnCode_t SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
-    ReturnCode_t SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    ReturnCode_t SetTemperature(ALTempCtrlType_t Type, float NominalTemperature, quint8 SlopeTempChange);
     qreal GetTemperature(ALTempCtrlType_t Type, quint8 Index);
     ReturnCode_t GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index);
     ReturnCode_t GetPressureAsync(void);
@@ -172,9 +172,9 @@ private:
     CTemperatureControl* m_pTempCtrls[AL_TEMP_CTRL_NUM]; //!< Temperature controls FMs for the heaters
     CDigitalOutput* m_pFanDigitalOutput;                 //!< Digital output FM for the fan
 
-    qreal m_TargetPressure;                              //!< Target pressure; for verification of action result.
-    qreal m_CurrentPressure;                             //!< Current pressure
-    qreal m_PressureDrift;                               //!< Current pressure drift
+    float m_TargetPressure;                              //!< Target pressure; for verification of action result.
+    float m_CurrentPressure;                             //!< Current pressure
+    float m_PressureDrift;                               //!< Current pressure drift
     qint32 m_WorkingPressurePositive;                    //!< Positive working pressure
     qint32 m_WorkingPressureNegative;                    //!< Negative working pressure
     PressureCtrlStatus_t m_TargetPressureCtrlStatus;     //!< Target pressure control status; for verification of action result.

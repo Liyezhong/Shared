@@ -585,7 +585,7 @@ void CAirLiquidDevice::HandleErrorState()
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, qreal NominalPressure)
+ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
 {
     //m_TargetPressure = NominalPressure;
     ReturnCode_t retCode;
@@ -1411,7 +1411,7 @@ bool CAirLiquidDevice::IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qr
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, qreal pressure)
+ReturnCode_t CAirLiquidDevice::SetTargetPressure(quint8 flag, float pressure)
 {
     if(pressure > 0)
     {
@@ -1946,7 +1946,7 @@ bool CAirLiquidDevice::IsTemperatureControlOff(ALTempCtrlType_t Type)
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
+ReturnCode_t CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, float NominalTemperature, quint8 SlopeTempChange)
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
@@ -2279,7 +2279,7 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::SetPressureDrift(qreal pressureDrift)
+ReturnCode_t CAirLiquidDevice::SetPressureDrift(float pressureDrift)
 {
     m_PressureDrift = pressureDrift;
     return DCL_ERR_FCT_CALL_SUCCESS;
