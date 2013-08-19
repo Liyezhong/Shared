@@ -58,7 +58,12 @@ public:
      *  \brief Destructor
      */
     /****************************************************************************/
-    virtual ~CCommandInterfaceBase(){}
+    virtual ~CCommandInterfaceBase()
+    {
+        mp_DataManager = NULL;
+        mp_MasterThreadController = NULL;
+        mp_DataContainer = NULL;
+    }
 
 protected:
     //Pointer section
@@ -130,7 +135,7 @@ protected:
     {
         if (mp_MasterThreadController) {
             mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
-            mp_MasterThreadController->SendCommand(Command, AckCommandChannel);
+            (void)mp_MasterThreadController->SendCommand(Command, AckCommandChannel);
         }
     }
 };
