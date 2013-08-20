@@ -315,8 +315,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
 {
-    if(!connect(m_pPressureCtrl, SIGNAL(ReportRefPressure(quint32, ReturnCode_t, qreal)),
-                this, SLOT(OnSetPressure(quint32, ReturnCode_t, qreal))))
+    if(!connect(m_pPressureCtrl, SIGNAL(ReportRefPressure(quint32, ReturnCode_t, float)),
+                this, SLOT(OnSetPressure(quint32, ReturnCode_t, float))))
     {
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect pressure ctrl signal 'ReportRefPressure'failed.";
@@ -331,8 +331,8 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if(!connect(m_pPressureCtrl, SIGNAL(ReportActPressure(quint32, ReturnCode_t, quint8, qreal)),
-                this, SLOT(OnGetPressure(quint32, ReturnCode_t, quint8, qreal))))
+    if(!connect(m_pPressureCtrl, SIGNAL(ReportActPressure(quint32, ReturnCode_t, quint8, float)),
+                this, SLOT(OnGetPressure(quint32, ReturnCode_t, quint8, float))))
     {
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect pressure ctrl signal 'ReportActPressure'failed.";
@@ -617,7 +617,7 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
  *
  */
 /****************************************************************************/
-void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal TargetPressure)
+void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, float TargetPressure)
 {
     Q_UNUSED(ReturnCode)
     if ((TargetPressure != m_TargetPressure)&&(UNDEFINED != TargetPressure))
@@ -774,7 +774,7 @@ ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
  *
  */
 /****************************************************************************/
-void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, qreal ActPressure)
+void CAirLiquidDevice::OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, float ActPressure)
 {
     Q_UNUSED(Index)
     m_CurrentPressure = ActPressure;

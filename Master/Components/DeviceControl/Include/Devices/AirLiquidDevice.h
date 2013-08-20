@@ -145,9 +145,9 @@ private slots:
     void CheckSensorsData();
 
 
-    void OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal TargetPressure);
+    void OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, float TargetPressure);
     void OnSetValve(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 ValveIndex, quint8 ValveState);
-    void OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, qreal ActPressure);
+    void OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, float ActPressure);
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
     void OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);

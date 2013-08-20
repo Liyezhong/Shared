@@ -193,7 +193,6 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
         {
             OrderNrDevice++;
             m_DeviceCfgList.insert(m_DeviceCfgList.size(), pDevConfig);
-            delete pDevConfig;
         }
         child = child.nextSiblingElement("device");
     }
@@ -450,7 +449,6 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctMotorEntry->m_strKey.toStdString() <<
                                             ", Order:" << pCANObjFctMotorEntry->m_sOrderNr <<
                                             " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctMotorEntry->m_ObjectType;
-            delete pCANObjFctMotorEntry;
         }
         else
         {
