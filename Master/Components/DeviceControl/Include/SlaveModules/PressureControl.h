@@ -220,7 +220,7 @@ private:
 //    //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
 //    //! sends the can set message 'Pressure'
-    ReturnCode_t SendCANMsgSetPressure(quint8 flag, qint8 Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime);
+    ReturnCode_t SendCANMsgSetPressure(quint8 flag, float Pressure, quint8 Tolerance, quint16 SamplingTime, quint16 DurationTime);
 //    //! sends the can request message 'Pressure'
     ReturnCode_t SendCANMsgPressureRequest();
 //    //! sends the can request message 'ServiceSensor'
