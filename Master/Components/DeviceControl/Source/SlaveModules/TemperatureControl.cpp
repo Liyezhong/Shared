@@ -1274,6 +1274,9 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
 #ifdef PRE_ALFA_TEST
         m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
 #endif
+#if 1 //refer to Brandon's request to combine "set temp" with "enable temp control"
+        m_ModuleCommand[CmdIndex].TempCtrlState = TEMPCTRL_STATUS_ON;
+#endif
         FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
     }
     else
