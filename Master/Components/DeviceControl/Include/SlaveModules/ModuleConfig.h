@@ -579,15 +579,19 @@ public:
     CANFctModulePressureCtrl() {
         bPressureTolerance = 0;
         sSamplingPeriod = 0;
-        sFanSpeed = 0;
+        //sFanSpeed = 0;
         sFanThreshold = 0;
         sCurrentGain = 0;
         sPumpCurrent = 0;
         sPumpThreshold = 0;
+        sFanCurrent = 0;
+        sFanCurrentGain = 0;
     }
     quint8 bPressureTolerance;      //!<
     quint16 sSamplingPeriod;    //!< sampling period in hundredth of seconds
-    quint16 sFanSpeed;          //!< fan speed in rotations per minute
+    //quint16 sFanSpeed;          //!< fan speed in rotations per minute
+    quint16 sFanCurrent;        //!< fan current
+    quint16 sFanCurrentGain;    //!< fan current gain
     quint16 sFanThreshold;      //!< fan threshold in rotations per minute
     quint16 sCurrentGain;       //!< current sensor gain in mA/V
     quint16 sPumpCurrent;       //!< current through the pumps in mA

@@ -56,6 +56,7 @@ class CPressureControl : public CFunctionModule
     ReturnCode_t GetHardwareStatus();
 //    //! Set valve status
     ReturnCode_t SetValve(quint8 ValveIndex, quint8 ValveState);
+    ReturnCode_t SetFan(quint8 State);
 //    //! Enable/Disable calibration function
     ReturnCode_t SetCalibration(bool Enable);
     ReturnCode_t SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty);
@@ -203,6 +204,8 @@ signals:
 //     */
 //    /****************************************************************************/
     void ReportRefValveState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 ValveIndex, quint8 ValveState);
+    void ReportRefFanState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 FanState);
+
   
 private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
@@ -235,6 +238,7 @@ private:
 //    //! sends the can request message 'Calibration'
     ReturnCode_t SendCANMsgCalibration(bool Enable);
     ReturnCode_t SendCANMsgSetPWMParam(quint16 MaxActuatingValue, quint16 MinActuatingValue, quint8 MaxPwmDuty, quint8 MinPwmDuty);
+    ReturnCode_t SendCANMsgSetFan(quint8 State);
 
 
 //    //! handles the receipt of can response message 'ServiceSensor'
@@ -277,7 +281,8 @@ private:
         FM_PRESSURE_CMD_TYPE_REQ_HARDWARE      = 10, //!< request hardware status
         FM_PRESSURE_CMD_TYPE_SET_VALVE         = 11,
         FM_PRESSURE_CMD_TYPE_CALIBRATION       = 12,
-        FM_PRESSURE_CMD_TYPE_SET_PWM           = 13
+        FM_PRESSURE_CMD_TYPE_SET_PWM           = 13,
+        FM_PRESSURE_CMD_TYPE_SET_FAN           = 14
     } CANPressureCtrlCmdType_t;
 
 //    /*! motor command data, used for internal data transfer*/
@@ -298,6 +303,7 @@ private:
         quint16 MinActuatingValue;
         quint8 MaxPwmDuty;
         quint8 MinPwmDuty;
+        quint8 FanState;
     } PressureCtrlCommand_t;
 
     PressureCtrlCommand_t m_ModuleCommand[MAX_PRESSURE_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -329,9 +335,10 @@ private:
     quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDValveSet;               //!< CAN-message id of 'TBD' message
+    quint32 m_unCanIDValveSet;              //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDCalibration;
     quint32 m_unCanIDPWMParamSet;
+    quint32 m_unCanIDFanSet;
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
 };

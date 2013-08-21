@@ -1505,7 +1505,7 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     QDomElement childPidControllers;
     QDomElement childPidController;
     QDomElement childPwmController;
-    QString strPressureTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
+    QString strPressureTolerance, strSamplingPeriod, strFanCurrent, strFanCurrentGain, strFanThreshold,
             strCurrentGain, strPumpCurrent, strPumpThreshold;
     QString strMaxPressure, strMinPressure, strControllerGain, strResetTime, strDerivativeTime;
     QString strMaxActuatingValue, strMinActuatingValue, strMaxPwmDuty, strMinPwmDuty;
@@ -1520,8 +1520,10 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
 
     strPressureTolerance = child.attribute("pressure_tolerance");
     strSamplingPeriod = child.attribute("sampling_period");
-    strFanSpeed = child.attribute("fan_speed");
+    //strFanSpeed = child.attribute("fan_speed");
     strFanThreshold = child.attribute("fan_threshold");
+    strFanCurrent = child.attribute("fan_current");
+    strFanCurrentGain = child.attribute("fan_current_gain");
     strCurrentGain = child.attribute("current_gain");
     strPumpCurrent = child.attribute("pump_current");
     strPumpThreshold = child.attribute("pump_threshold");
@@ -1529,11 +1531,13 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     pCANObjFctPressureCtrl = new CANFctModulePressureCtrl();
     pCANObjFctPressureCtrl->bPressureTolerance = strPressureTolerance.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sSamplingPeriod = strSamplingPeriod.toShort(&ok, 10);
-    pCANObjFctPressureCtrl->sFanSpeed = strFanSpeed.toShort(&ok, 10);
+    //pCANObjFctPressureCtrl->sFanSpeed = strFanSpeed.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sFanThreshold = strFanThreshold.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sCurrentGain = strCurrentGain.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sPumpCurrent = strPumpCurrent.toShort(&ok, 10);
     pCANObjFctPressureCtrl->sPumpThreshold = strPumpThreshold.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sFanCurrent = strFanCurrent.toShort(&ok, 10);
+    pCANObjFctPressureCtrl->sFanCurrentGain = strFanCurrentGain.toShort(&ok, 10);
 
     //############################
     // PID controller parameters
