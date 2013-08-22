@@ -78,6 +78,7 @@ class CTemperatureControl : public CFunctionModule
 #ifdef PRE_ALFA_TEST
     //! Set temperature ctrl. status
     ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 #endif
 
 signals:
@@ -214,6 +215,7 @@ signals:
 #ifdef PRE_ALFA_TEST
     void ReportLevelSensorState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 State);
     void ReportSetPidAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    void ReportSetSwitchState(quint32 InstanceID, ReturnCode_t HdlInfo, qint8 SwitchState, qint8 AutoSwitch);
 #endif
 
  private:
@@ -246,6 +248,8 @@ signals:
     ReturnCode_t SendCANMsgServiceFanReq(quint8 Index);
     //! sends the can request message 'HardwareReq'
     ReturnCode_t SendCANMsgHardwareReq();
+
+    ReturnCode_t SendCANMsgSetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 
     //! handles the receipt of can response message 'ServiceSensor'
     void HandleCANMsgServiceSensor(can_frame* pCANframe);
@@ -289,7 +293,8 @@ signals:
         FM_TEMP_CMD_TYPE_REQ_FANSPEED  = 9, //!< request fan speed
         FM_TEMP_CMD_TYPE_REQ_HARDWARE  = 10,//!< request hardware status
 #ifdef PRE_ALFA_TEST
-        FM_TEMP_CMD_TYPE_SET_PID       = 11 //!< set PID parameters
+        FM_TEMP_CMD_TYPE_SET_PID       = 11,//!< set PID parameters
+        FM_TEMP_CMD_TYPE_SET_SWITCH_STATE = 12 //!< set PID parameters
 #endif
     } CANTempCtrlCmdType_t;
 
@@ -310,6 +315,8 @@ signals:
         quint16 ControllerGain;
         quint16 ResetTime;
         quint16 DerivativeTime;
+        qint8 SwitchState;
+        qint8 AutoSwitch;
 #endif
     } TempCtrlCommand_t;
 
@@ -344,6 +351,7 @@ signals:
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
 #ifdef PRE_ALFA_TEST
     quint32 m_unCanIDLevelSensorState;
+    quint32 m_unCanIDSetSwitchState;
 #endif
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
