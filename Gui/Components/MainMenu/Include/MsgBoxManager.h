@@ -19,11 +19,8 @@
 /****************************************************************************/
 #ifndef MSGBOXMANAGER_H
 #define MSGBOXMANAGER_H
-// QT Headers
-#include <QDataStream>
-#include <QHash>
 #include <QTimer>
-#include <QDateTime>
+
 //Project headers
 #include <Global/Include/PriorityQueue.h>
 #include <Global/Include/GlobalDefines.h>
