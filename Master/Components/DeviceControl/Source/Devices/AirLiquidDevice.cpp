@@ -25,7 +25,7 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  */
 /****************************************************************************/
 CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
-        m_pPressureCtrl(0),  m_pFanDigitalOutput(0)
+        m_pPressureCtrl(0)/*,  m_pFanDigitalOutput(0)*/
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Air-liquid device created";
@@ -72,7 +72,7 @@ void CAirLiquidDevice::Reset()
         m_PIDDataList.clear();
     }
     m_pPressureCtrl = NULL;
-    m_pFanDigitalOutput = NULL;
+    //m_pFanDigitalOutput = NULL;
     memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
     m_LastGetPressureTime = 0;
     memset( &m_SuckingTime, 0 , sizeof(m_SuckingTime)); //lint !e545
@@ -283,7 +283,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
-
+/*
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALFanDOKey);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
@@ -300,6 +300,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
+ */
     return RetVal;
 }
 
@@ -341,6 +342,14 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
 
     if(!connect(m_pPressureCtrl, SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect pressure ctrl signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pPressureCtrl, SIGNAL(ReportRefFanState(quint32, ReturnCode_t, quint8)),
+                this, SLOT(OnSetFanStatus(quint32, ReturnCode_t, quint8))))
     {
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect pressure ctrl signal 'ReportError'failed.";
@@ -446,6 +455,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+/*
     if(!connect(m_pFanDigitalOutput, SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnSetDOOutputValue(quint32, ReturnCode_t, quint16))))
     {
@@ -453,7 +463,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportOutputValueAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
-
+*/
     if(!connect(m_pTempCtrls[AL_LEVELSENSOR], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
                 this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
     {
@@ -477,6 +487,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+/*
     if(!connect(m_pFanDigitalOutput, SIGNAL(ReportLifeTimeData(quint32, ReturnCode_t, quint32, quint32)),
             this, SLOT(OnGetLifeTime(quint32,  ReturnCode_t, quint32, quint32))))
     {
@@ -484,7 +495,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportLifeTimeData' failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
-
+*/
     return DCL_ERR_FCT_CALL_SUCCESS;
 
 }
@@ -569,7 +580,7 @@ void CAirLiquidDevice::HandleErrorState()
         m_pTempCtrls[AL_LEVELSENSOR] = 0;
         m_pTempCtrls[AL_TUBE1] = 0;
         m_pTempCtrls[AL_TUBE2] = 0;
-        m_pFanDigitalOutput= 0;
+        //m_pFanDigitalOutput= 0;
     }
 }
 
@@ -1063,24 +1074,25 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
             {
                 counter = 0;
             }
+
+            if((TimeNow > (TimeStartDraining + DRAINGING_SETUP_WARNING_TIME)) && (!WarnShowed))
+            {
+                FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining do not finished in expected time";
+                qDebug() << "Device Air Liquid: Warning: Draining do not finished in expected time";
+                WarnShowed = true;
+                RetValue = DCL_ERR_DEV_AL_DRAIN_WARNING_TIMEOUT;
+            }
+            //if((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_MAX_SETUP_TIME)
+            if(TimeNow > (TimeStartDraining + DRAINGING_MAX_SETUP_TIME))
+            {
+                FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining exceed maximum setup time(%1 seconds), exit!";
+                qDebug() << "Device Air Liquid: Warning: Draining exceed maximum setup time(%1 seconds), exit!";
+                RetValue = DCL_ERR_DEV_AL_DRAIN_ERROR_TIMEOUT;
+                goto SORTIE;
+            }
         }
         //TimeSlotPassed++;
         //if(((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_SETUP_WARNING_TIME) && (!WarnShowed))
-        if((TimeNow > (TimeStartDraining + DRAINGING_SETUP_WARNING_TIME)) && (!WarnShowed))
-        {
-            FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining do not finished in expected time";
-            qDebug() << "Device Air Liquid: Warning: Draining do not finished in expected time";
-            WarnShowed = true;
-            RetValue = DCL_ERR_DEV_AL_DRAIN_WARNING_TIMEOUT;
-        }
-        //if((TimeSlotPassed * DRAINGING_POLLING_TIME) > DRAINGING_MAX_SETUP_TIME)
-        if(TimeNow > (TimeStartDraining + DRAINGING_MAX_SETUP_TIME))
-        {
-            FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining exceed maximum setup time(%1 seconds), exit!";
-            qDebug() << "Device Air Liquid: Warning: Draining exceed maximum setup time(%1 seconds), exit!";
-            RetValue = DCL_ERR_DEV_AL_DRAIN_ERROR_TIMEOUT;
-            goto SORTIE;
-        }
     }
 
     //waiting for some time
@@ -1555,6 +1567,7 @@ ReturnCode_t CAirLiquidDevice::SetTemperatureControlStatus(ALTempCtrlType_t Type
  *           happend.
  */
 /****************************************************************************/
+/*
 qint32 CAirLiquidDevice::GetFanOperationTime(void)
 {
     // Log(tr("GetValue"))
@@ -1576,7 +1589,7 @@ qint32 CAirLiquidDevice::GetFanOperationTime(void)
     }
     return m_DOLifeTime;
 }
-
+*/
 /****************************************************************************/
 /*!
  *  \brief   slot associated with get fan's life-cycle data.
@@ -2155,6 +2168,7 @@ void CAirLiquidDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 Ma
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
+/*
 ReturnCode_t CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
 {
     if(m_pFanDigitalOutput)
@@ -2172,7 +2186,7 @@ ReturnCode_t CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration,
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
-
+*/
 /****************************************************************************/
 /*!
  *  \brief   slot associated with set digital output value.
@@ -2184,7 +2198,8 @@ ReturnCode_t CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration,
  *
  */
 /****************************************************************************/
-void CAirLiquidDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue)
+/*
+void CAirLiquidDevice::OnSetDOOutputValue(quint32 InstanceID, ReturnCode_t ReturnCode, quint16 OutputValue)
 {
     Q_UNUSED(OutputValue)
     if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
@@ -2198,6 +2213,22 @@ void CAirLiquidDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_DO_VALVE, ReturnCode);
 
 }
+*/
+
+void CAirLiquidDevice::OnSetFanStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 FanStatus)
+{
+    Q_UNUSED(FanStatus)
+    Q_UNUSED(InstanceID)
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: AL Set Fan status successful! ";
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set fan status failed! " << ReturnCode; //lint !e641
+    }
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_FAN_STATUS, ReturnCode);
+}
 
 /****************************************************************************/
 /*!
@@ -2208,7 +2239,18 @@ void CAirLiquidDevice::OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t R
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::TurnOnFan()
 {
-    return SetDOValue(1, 0, 0);
+    //return SetDOValue(1, 0, 0);
+    ReturnCode_t retCode = DCL_ERR_NOT_INITIALIZED;
+    if(m_pPressureCtrl)
+    {
+        retCode = m_pPressureCtrl->SetFan(1);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_FAN_STATUS);
+    }
+    return retCode;
 }
 
 /****************************************************************************/
@@ -2220,7 +2262,18 @@ ReturnCode_t CAirLiquidDevice::TurnOnFan()
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::TurnOffFan()
 {
-    return SetDOValue(0, 0, 0);
+    //return SetDOValue(0, 0, 0);
+    ReturnCode_t retCode = DCL_ERR_NOT_INITIALIZED;
+    if(m_pPressureCtrl)
+    {
+        retCode = m_pPressureCtrl->SetFan(0);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_FAN_STATUS);
+    }
+    return retCode;
 }
 
 /****************************************************************************/
@@ -2261,12 +2314,13 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
     {
         (void)m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         (void)m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        (void)m_pPressureCtrl->SetFan(0);
     }
     qDebug() << "Device Airliquid: Stop fan";
-    if(m_pFanDigitalOutput)
-    {
-        (void)m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
-    }
+    //if(m_pFanDigitalOutput)
+    //{
+    //    (void)m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
+    //}
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 

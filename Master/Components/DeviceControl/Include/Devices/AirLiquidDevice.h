@@ -97,7 +97,7 @@ public:
 
     ReturnCode_t TurnOnFan();
     ReturnCode_t TurnOffFan();
-    qint32 GetFanOperationTime();
+    //qint32 GetFanOperationTime();
     ReturnCode_t BreakAllOperation(void);
     ReturnCode_t AllStop(void);
     ReturnCode_t SetPressureDrift(float pressureDrift);
@@ -127,7 +127,7 @@ private slots:
     ReturnCode_t GetPressureAsync(void);
 
 
-    ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
+    //ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
 
 
     bool IsInsideRange(ALTempCtrlType_t Type);
@@ -151,10 +151,11 @@ private slots:
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
     void OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
-    void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
+    //void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
     void OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quint8 State);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
     void OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint32 LifeTime, quint32 LifeCycles);
+    void OnSetFanStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 FanStatus);
     //void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
 
     //! command handling task
@@ -170,7 +171,7 @@ private:
     //Function modules
     CPressureControl* m_pPressureCtrl;                   //!< Pressure control FM
     CTemperatureControl* m_pTempCtrls[AL_TEMP_CTRL_NUM]; //!< Temperature controls FMs for the heaters
-    CDigitalOutput* m_pFanDigitalOutput;                 //!< Digital output FM for the fan
+    //CDigitalOutput* m_pFanDigitalOutput;                 //!< Digital output FM for the fan
 
     float m_TargetPressure;                              //!< Target pressure; for verification of action result.
     float m_CurrentPressure;                             //!< Current pressure

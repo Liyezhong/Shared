@@ -52,7 +52,7 @@ const QString CANObjectKeyLUT::m_ALPressureCtrlKey = "AL_pressure_ctrl";        
 const QString CANObjectKeyLUT::m_ALLevelSensorTempCtrlKey = "AL_level_sensor_temp_ctrl"; //!< Air-liquid level sensor temp control
 const QString CANObjectKeyLUT::m_ALTube1TempCtrlKey = "AL_tube1_temp_ctrl";       //!< Air-liquid tube1 temp control
 const QString CANObjectKeyLUT::m_ALTube2TempCtrlKey = "AL_tube2_temp_ctrl";       //!< Air-liquid tube2 temp control
-const QString CANObjectKeyLUT::m_ALFanDOKey= "AL_fan_digital_output";               //!< Air-liquid fan digital output
+//const QString CANObjectKeyLUT::m_ALFanDOKey= "AL_fan_digital_output";               //!< Air-liquid fan digital output
 const QString CANObjectKeyLUT::m_OvenTopTempCtrlKey = "OVEN_top_temp_ctrl";       //!< Oven top temp control
 const QString CANObjectKeyLUT::m_OvenBottomTempCtrlKey = "OVEN_bottom_temp_ctrl";    //!< Oven bottom temp control
 const QString CANObjectKeyLUT::m_OvenLidDIKey = "OVEN_lid_digital_input";            //!< Oven lid digital input
@@ -2098,7 +2098,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
  *  \iparam CmdType = Command type to unblock the thread
  */
 /****************************************************************************/
-void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, qint32 Value)
+void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Value)
 {
     if(m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
     {
