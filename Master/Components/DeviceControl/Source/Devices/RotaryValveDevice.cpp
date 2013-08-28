@@ -857,7 +857,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperatur
     if (IsTemperatureControlOff())
     {
         //Set the nominal temperature
-        if (!SetTemperature( NominalTemperature, SlopeTempChange))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature( NominalTemperature, SlopeTempChange))
         {
             // Log(tr("Not able to set temperature"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
@@ -912,7 +912,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
         return retCode;
     }
     //Set the nominal temperature
-    if (!SetTemperature(NominalTemperature, SlopeTempChange))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(NominalTemperature, SlopeTempChange))
     {
         // Log(tr("Not able to set temperature"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
