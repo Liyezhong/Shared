@@ -23,8 +23,7 @@
 #include "MainMenu/Include/SemiTransparentOverlay.h"
 #include <QPainter>
 
-//lint -sem(MainMenu::CWheelPanel::AddScrollWheel, custodial(1))
-//lint -sem(MainMenu::CWheelPanel::Init, custodial(2))
+
 
 namespace MainMenu {
 
