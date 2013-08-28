@@ -21,7 +21,7 @@
 #ifndef MAINMENU_TABLEMOVING_H
 #define MAINMENU_TABLEMOVING_H
 
-#include <QAbstractTableModel>
+
 #include <QGroupBox>
 
 namespace MainMenu {

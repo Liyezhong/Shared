@@ -18,8 +18,7 @@
  *
  */
 /****************************************************************************/
-#include <QMetaType>
-#include <QDebug>
+
 
 #include <MainMenu/Include/MsgBoxManager.h>
 #include <MainMenu/Include/StatusBarManager.h>

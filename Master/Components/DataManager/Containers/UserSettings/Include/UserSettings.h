@@ -92,7 +92,7 @@ public:
     CUserSettings();
     CUserSettings(const CUserSettings &);
 
-    ~CUserSettings();    
+    virtual ~CUserSettings();
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSettings);
     friend QDataStream& operator >>(QDataStream& InDataStream, CUserSettings& UserSettings);
