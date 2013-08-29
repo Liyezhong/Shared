@@ -142,21 +142,21 @@ bool Connection::Initialize(QString ip, QString port)
     m_myPort = port;
 
     if (!QObject::connect(this, SIGNAL(readyRead()), this, SLOT(processReadyRead()))) {
-        qDebug() << "Connection: cannot connect 'readyRead' signal !";
+        LOG() << "Connection: cannot connect 'readyRead' signal !";
         return false;
     }
 
     if (!QObject::connect(&m_PingTimer, SIGNAL(timeout()), this, SLOT(sendPing()))) {
-        qDebug() << "Connection: cannot connect 'timeout' signal !";
+        LOG() << "Connection: cannot connect 'timeout' signal !";
         return false;
     }
     if (!QObject::connect(this, SIGNAL(connected()), this, SLOT(sendGreetingMessage()))) {
-        qDebug() << "Connection: cannot connect 'connected' signal !";
+        LOG() << "Connection: cannot connect 'connected' signal !";
         return false;
     }
     if (!QObject::connect(this, SIGNAL(error(QAbstractSocket::SocketError)),
                           this, SLOT(handleSocketError(QAbstractSocket::SocketError)))) {
-        qDebug() << (QString)("Connection: cannot connect 'error' signal !");
+        LOG() << (QString)("Connection: cannot connect 'error' signal !");
         return false;
     }
 
@@ -172,10 +172,10 @@ void Connection::connectToServer()
 {
     abort();
     if (m_myIp.isEmpty() || m_myPort.isEmpty()) {
-        qDebug() << (QString)("Connection: cannot connect to IP/PORT --> " + m_myIp + "/" + m_myPort);
+        LOG() << (QString)("Connection: cannot connect to IP/PORT --> " + m_myIp + "/" + m_myPort);
         return;
     }
-    qDebug() << "Connection: trying to connect to HOST ---> " + m_myIp + "/" + m_myPort;
+    LOG() << "Connection: trying to connect to HOST ---> " + m_myIp + "/" + m_myPort;
     connectToHost(QHostAddress(m_myIp), m_myPort.toUInt());
 //Note: no need to start timer here because connectToHost will emit
 //      an error signal, which we receive and process in handleSocketError.
@@ -207,7 +207,7 @@ void Connection::handleSocketError(QAbstractSocket::SocketError err)
         }
     }
 
-    qDebug() << "Connection: SOCKET ERROR ---> " + QString::number((int)err, 10);
+    LOG() << "Connection: SOCKET ERROR ---> " + QString::number((int)err, 10);
 
     // if connection was established and fails, close socket and set initial state
     disconnectFromServer();
@@ -235,7 +235,7 @@ void Connection::disconnectFromServer()
     transferTimerId = 0;
     isGreetingMessageSent = false;
 
-    qDebug() << "Connection: disconnected from Server !";
+    LOG() << "Connection: disconnected from Server !";
 }
 
 /****************************************************************************/
@@ -312,7 +312,7 @@ void Connection::sendPing()
 
     if(write("PING 1 p") == -1)
     {
-        qDebug() << "Connection: error  while writing 'PING'";
+        LOG() << "Connection: error  while writing 'PING'";
     }
 }
 
@@ -370,7 +370,7 @@ int Connection::dataLengthForCurrentDataType()
     qint64 byteAvailable = bytesAvailable();
     int readBytes = readDataIntoBuffer();
     bool fBufferEndsWithToken = m_Buffer.endsWith(SeparatorToken);
-    //qDebug() << "    DataLength:" << byteAvailable << ", " << readBytes << ", " << fBufferEndsWithToken;
+    //LOG() << "    DataLength:" << byteAvailable << ", " << readBytes << ", " << fBufferEndsWithToken;
 
     if((byteAvailable <= 0) || (readBytes <= 0) || !fBufferEndsWithToken)
         return 0;
@@ -381,7 +381,7 @@ int Connection::dataLengthForCurrentDataType()
 
     m_Buffer.chop(1);
     int number = m_Buffer.toInt();
-    //qDebug() << "  DataTypeLength:" << number;
+    //LOG() << "  DataTypeLength:" << number;
     m_Buffer.clear();
     return number;
 }
@@ -528,7 +528,7 @@ void Connection::processData()
     case Ping:
         if(write("PONG 1 p") == -1)
         {
-            qDebug() << "Connection: error  while writing 'PING'";
+            LOG() << "Connection: error  while writing 'PING'";
         }
         break;
     case Pong:

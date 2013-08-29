@@ -408,7 +408,7 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
 void CRetortDevice::CheckSensorsData()
 {
 
-    //  qDebug() <<  "AL timer thread id is " << QThread::currentThreadId();
+    //  LOG() <<  "AL timer thread id is " << QThread::currentThreadId();
 
     if(m_pTempCtrls[RT_BOTTOM])
     {

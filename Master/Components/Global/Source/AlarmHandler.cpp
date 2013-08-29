@@ -21,6 +21,7 @@
 #include <Global/Include/AlarmHandler.h>
 #include <QDebug>
 #include <QProcess>
+#include "DeviceControl/Include/Global/dcl_log.h"
 //#include <QSound>
 
 namespace Global {

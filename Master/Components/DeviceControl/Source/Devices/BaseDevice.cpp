@@ -336,7 +336,8 @@ void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, 
             if(FuncModName != "NOT FOUND")
             {break;}
         }
-        qDebug()<<"Function module: "<< FuncModName <<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
+        //LOG()<<"Function module: "<< FuncModName <<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
+        FILE_LOG_L(laDEV, llDEBUG)<<"Function module: "<< FuncModName.toStdString()<<" Error, Error Group: "<<  std::hex << ErrorGroup<<" Error Code: "<<std::hex<<ErrorCode<<" Error Data: "<<std::hex<<ErrorData<<" Error Time: "<<ErrorTime.toString().toStdString();
     }
 }
 

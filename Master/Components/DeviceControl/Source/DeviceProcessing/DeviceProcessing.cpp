@@ -2128,7 +2128,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
             m_EventLoopsForSyncCall[CmdType].endTime = Before + Timeout;
 
             timer.start((qint32)Timeout);
-            //qDebug()<<Before<<"timer start"<<CmdType<<"timer in"<<timer.interval();
+            //LOG()<<Before<<"timer start"<<CmdType<<"timer in"<<timer.interval();
             retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
         }
         return retValue;
@@ -2150,7 +2150,7 @@ void DeviceProcessing::BlockingTimerCallback()
             {
                 m_EventLoopsForSyncCall[i].timerActive = false;
                 m_EventLoopsForSyncCall[i].eventloop.exit(DCL_ERR_TIMER_TIMEOUT);
-                //qDebug()<<Now<<"timer end"<<i<<"llll:"<<(Now - m_EventLoopsForSyncCall[i].endTime);
+                //LOG()<<Now<<"timer end"<<i<<"llll:"<<(Now - m_EventLoopsForSyncCall[i].endTime);
             }
         }
     }
@@ -2170,7 +2170,7 @@ void DeviceProcessing::BlockingTimerCallback()
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
 {
     ReturnCode_t retValue;
-    // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    // LOG() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     if(CmdType < SYNC_CMD_TOTAL_NUM) //lint !e641
     {
         m_Mutex[CmdType].lock();
@@ -2188,7 +2188,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
     {
         retValue = DCL_ERR_INVALID_PARAM;
     }
-    // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    // LOG() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
 
@@ -2205,7 +2205,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
 ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
 {
     ReturnCode_t retValue;
-   // qDebug() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+   // LOG() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     if(CmdType < SYNC_CMD_TOTAL_NUM) //lint !e641
     {
         m_Mutex[CmdType].lock();
@@ -2217,7 +2217,7 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
     {
          retValue = DCL_ERR_INVALID_PARAM;
     }
-   // qDebug() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+   // LOG() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
     return retValue;
 }
 
