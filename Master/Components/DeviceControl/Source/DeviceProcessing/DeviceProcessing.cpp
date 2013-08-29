@@ -177,6 +177,10 @@ DeviceProcessing::~DeviceProcessing()
         return;
     }
 }
+void DeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
+{
+    ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+}
 
 /****************************************************************************/
 /*!
@@ -1177,10 +1181,25 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished";
             if(m_pConfigurationService != NULL)
             {
-                if(m_pConfigurationService->ConfigurationComplete() == true) {
+                if(m_pConfigurationService->ConfigurationComplete() == true)
+                {
+                    //register BaseModule's error
+                    QListIterator<CBaseModule *> iter(m_ObjectTree);
+                    CBaseModule* pCANNode;
+                    while (iter.hasNext())
+                    {
+                        pCANNode = iter.next();
+                        bool b = connect(pCANNode, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)), this, SLOT(OnError(quint32, quint16, quint16,quint16, QDateTime)));
+                        if(!b)
+                        {
+                            LOG() << "Connect error signal failed!" << pCANNode->GetNodeID();
+                        }
+                    }
+
                     emit ReportConfigurationFinished(DCL_ERR_FCT_CALL_SUCCESS);
                 }
-                else {
+                else
+                {
                     emit ReportConfigurationFinished(DCL_ERR_TIMEOUT);
                 }
             }

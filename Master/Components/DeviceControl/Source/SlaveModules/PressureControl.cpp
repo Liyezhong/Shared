@@ -1353,16 +1353,23 @@ ReturnCode_t CPressureControl::SetPressure(quint8 flag, float Pressure)
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(SetModuleTask(FM_PRESSURE_CMD_TYPE_SET_PRESSURE, &CmdIndex))
+    if((Pressure < -50)||(Pressure > 50))
     {
-        m_ModuleCommand[CmdIndex].flag = flag;
-        m_ModuleCommand[CmdIndex].Pressure = Pressure;
-        FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Pressure: " << Pressure;
+        RetVal = DCL_ERR_INVALID_PARAM;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
+        if(SetModuleTask(FM_PRESSURE_CMD_TYPE_SET_PRESSURE, &CmdIndex))
+        {
+            m_ModuleCommand[CmdIndex].flag = flag;
+            m_ModuleCommand[CmdIndex].Pressure = Pressure;
+            FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Pressure: " << Pressure;
+        }
+        else
+        {
+            RetVal = DCL_ERR_INVALID_STATE;
+            FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
+        }
     }
 
     return RetVal;

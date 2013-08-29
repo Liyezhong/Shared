@@ -33,8 +33,7 @@
 #ifdef PTS
 #define LOG() qDebug()
 #else
-#define LOG() LOG_PAR()
-//#define LOG() qDebug()
+#define LOG() LOG_PAR()<<"DBG"
 #endif
 /*-------------------------------------------------
  This file provides functionality for logging

@@ -25,6 +25,7 @@
 #include <QTextStream>
 #include <QDomNode>
 #include <QDomElement>
+#include <QtDebug>
 
 #include "DeviceControl/Include/DeviceProcessing/ConfigurationService.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
