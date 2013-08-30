@@ -1259,16 +1259,23 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_TEMP, &CmdIndex))
+    if((Temperature < 0 )||(Temperature > 130)||(SlopeTempChange > 130))
     {
-        m_ModuleCommand[CmdIndex].Temperature = Temperature;
-        m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
-        FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
+        RetVal = DCL_ERR_INVALID_PARAM;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
+        if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_TEMP, &CmdIndex))
+        {
+            m_ModuleCommand[CmdIndex].Temperature = Temperature;
+            m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
+            FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
+        }
+        else
+        {
+            RetVal = DCL_ERR_INVALID_STATE;
+            FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
+        }
     }
 
     return RetVal;
@@ -1627,19 +1634,26 @@ ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quin
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_PID, &CmdIndex))
+    if(MaxTemperature > 130)
     {
-        m_ModuleCommand[CmdIndex].MaxTemperature = MaxTemperature;
-        m_ModuleCommand[CmdIndex].ControllerGain = ControllerGain;
-        m_ModuleCommand[CmdIndex].ResetTime = ResetTime;
-        m_ModuleCommand[CmdIndex].DerivativeTime = DerivativeTime;
-        FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, MaxTemperature: " << MaxTemperature <<" ControllerGain: "<< ControllerGain
-                                  << " ResetTime: " << ResetTime << " DerivativeTime: " << DerivativeTime;
+        RetVal = DCL_ERR_INVALID_PARAM;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
+        if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_PID, &CmdIndex))
+        {
+            m_ModuleCommand[CmdIndex].MaxTemperature = MaxTemperature;
+            m_ModuleCommand[CmdIndex].ControllerGain = ControllerGain;
+            m_ModuleCommand[CmdIndex].ResetTime = ResetTime;
+            m_ModuleCommand[CmdIndex].DerivativeTime = DerivativeTime;
+            FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, MaxTemperature: " << MaxTemperature <<" ControllerGain: "<< ControllerGain
+                                      << " ResetTime: " << ResetTime << " DerivativeTime: " << DerivativeTime;
+        }
+        else
+        {
+            RetVal = DCL_ERR_INVALID_STATE;
+            FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
+        }
     }
 
     return RetVal;

@@ -87,12 +87,12 @@ bool Can2TcpClient::Initialize()
 
     // read XML config
     if (!ReadNetworkConfig(&ip, &port)) {
-        qDebug() << "CAN-TCP-CLIENT: cannot read network settings !";
+        LOG() << "CAN-TCP-CLIENT: cannot read network settings !";
         return false;
     }
 
     if (ip.isEmpty() || port.isEmpty()) {
-        qDebug() << "CAN-TCP-CLIENT: network settings are empty !";
+        LOG() << "CAN-TCP-CLIENT: network settings are empty !";
         return false;
     }
 
@@ -100,19 +100,19 @@ bool Can2TcpClient::Initialize()
         m_pConnection = new Connection(this);
     }
     catch (const std::bad_alloc &) {
-        qDebug() << "CAN-TCP-CLIENT: cannot create 'Connection' !";
+        LOG() << "CAN-TCP-CLIENT: cannot create 'Connection' !";
         return false;
     }
 
     if (!m_pConnection->Initialize(ip, port)) {
-        qDebug() << "CAN-TCP-CLIENT: cannot initialize 'Connection' !";
+        LOG() << "CAN-TCP-CLIENT: cannot initialize 'Connection' !";
         return false;
     }
 
     m_pConnection->SetGreetingMessage("TCP_User");
 
     if (!QObject::connect(m_pConnection, SIGNAL(readyForUse()), this, SLOT(readyForUse()))) {
-        qDebug() << "CAN-TCP-CLIENT: cannot connect Connection's readyForUse signal !";
+        LOG() << "CAN-TCP-CLIENT: cannot connect Connection's readyForUse signal !";
         return false;
     }
 
@@ -137,7 +137,7 @@ bool Can2TcpClient::ReadNetworkConfig(QString *ip, QString *port)
 
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qDebug() << "CAN-TCP-CLIENT: cannot open file " + filename;
+        LOG() << "CAN-TCP-CLIENT: cannot open file " + filename;
         return false;
     }
 
@@ -146,7 +146,7 @@ bool Can2TcpClient::ReadNetworkConfig(QString *ip, QString *port)
     int errorColumn;
     QDomDocument domDocument;
     if (!domDocument.setContent(&file, true, &errorStr, &errorLine, &errorColumn)) {
-        qDebug() << "CAN-TCP-CLIENT: cannot parse XML file " + filename;
+        LOG() << "CAN-TCP-CLIENT: cannot parse XML file " + filename;
         return false;
     }
 
@@ -155,7 +155,7 @@ bool Can2TcpClient::ReadNetworkConfig(QString *ip, QString *port)
     QDomElement child = root.firstChildElement("servertype");
     QString type = child.firstChildElement().text();
     if (type.isEmpty()) {
-        qDebug() << "CAN-TCP-CLIENT: no server type defined !";
+        LOG() << "CAN-TCP-CLIENT: no server type defined !";
         return false;
     }
 
@@ -163,7 +163,7 @@ bool Can2TcpClient::ReadNetworkConfig(QString *ip, QString *port)
     child = child.firstChildElement(type);
     child = child.firstChildElement("server");
     if (child.isNull()) {
-        qDebug() << "CAN-TCP-CLIENT: no servers configured for type --> " + type;
+        LOG() << "CAN-TCP-CLIENT: no servers configured for type --> " + type;
         return false;
     }
 
@@ -171,7 +171,7 @@ bool Can2TcpClient::ReadNetworkConfig(QString *ip, QString *port)
     QString myport = child.lastChildElement().text();
 
     if (myip.isEmpty() || myport.isEmpty()) {
-        qDebug() << "CAN-TCP-CLIENT: ip and port config parameters are empty !";
+        LOG() << "CAN-TCP-CLIENT: ip and port config parameters are empty !";
         return false;
     }
 
@@ -237,13 +237,13 @@ void Can2TcpClient::readyForUse()
     /*if(!connect(connection, SIGNAL(newMessage(QString,QString)),
             this, SIGNAL(newMessage(QString,QString))))
     {
-        qDebug() << "Connection: cannot connect 'newMessage' signal !";
+        LOG() << "Connection: cannot connect 'newMessage' signal !";
     }*/
 
     if(!connect(connection, SIGNAL(newCANMessage(quint32, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8)),
             this, SIGNAL(newCANMessage(quint32, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8, quint8))))
     {
-        qDebug() << "Connection: cannot connect 'newCANMessage' signal !";
+        LOG() << "Connection: cannot connect 'newCANMessage' signal !";
     }
 
 /*lint -save -e534 */
@@ -287,7 +287,7 @@ void Can2TcpClient::SendMessage(can_frame* pCANframe)
         connection = iterConnection.next();
         if(!connection->SendCANMessage(pCANframe))
         {
-            qDebug() << "Client: sendCANMessage failed !";
+            LOG() << "Client: sendCANMessage failed !";
         }
     }
 }

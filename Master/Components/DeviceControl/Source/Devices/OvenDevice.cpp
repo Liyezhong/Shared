@@ -26,7 +26,7 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Oven device created";
-    qDebug() <<  "Oven device cons thread id is " << QThread::currentThreadId();
+    LOG() <<  "Oven device cons thread id is " << QThread::currentThreadId();
 }//lint !e1566
 
 /****************************************************************************/
@@ -362,7 +362,7 @@ ReturnCode_t COvenDevice::HandleConfigurationState()
 void COvenDevice::CheckSensorsData()
 {
 
-    //  qDebug() <<  "AL timer thread id is " << QThread::currentThreadId();
+    //  LOG() <<  "AL timer thread id is " << QThread::currentThreadId();
 
     if(m_pTempCtrls[OVEN_TOP])
     {

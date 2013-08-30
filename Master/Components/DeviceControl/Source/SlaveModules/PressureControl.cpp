@@ -60,7 +60,8 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),m_unCanIDValveSet(0),
     m_unCanIDCalibration(0),m_unCanIDPWMParamSet(0), m_aktionTimespan(0),
-    m_unCanIDNotiAutoTune(0), m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0)
+    m_unCanIDNotiAutoTune(0), m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),
+	m_unCanIDFanSet(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -161,6 +162,7 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     m_unCanIDValveSet           = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlValveSet", bChannel, m_pParent->GetNodeID());
     m_unCanIDCalibration        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlCalibration", bChannel, m_pParent->GetNodeID());
     m_unCanIDPWMParamSet        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlPWMParamSet", bChannel, m_pParent->GetNodeID());
+    m_unCanIDFanSet             = mp_MessageConfiguration->GetCANMessageID(ModuleID, "PressureCtrlFanSet", bChannel, m_pParent->GetNodeID());
 
     //FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
@@ -188,6 +190,7 @@ ReturnCode_t  CPressureControl::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiInRange        : 0x" << std::hex << m_unCanIDNotiInRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiOutOfRange     : 0x" << std::hex << m_unCanIDNotiOutOfRange;
     //FILE_LOG_L(laINIT, llDEBUG) << "   ValveSet        : 0x" << std::hex << m_unCanIDValveSet;
+    FILE_LOG_L(laINIT, llDEBUG) << "   FanSet             : 0x" << std::hex << m_unCanIDFanSet;
 
     return RetVal;
 }
@@ -256,7 +259,10 @@ ReturnCode_t CPressureControl::RegisterCANMessages()
     {
         RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDPWMParamSet, this);
     }
-
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDFanSet, this);
+    }
 
     return RetVal;
 }
@@ -538,6 +544,16 @@ void CPressureControl::HandleCommandRequestTask()
 
                 //because there is no slave acknowledge, we send our own acknowldege
                 emit ReportRefValveState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].ValveIndex, m_ModuleCommand[idx].ValveState);
+            }
+            else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_SET_FAN)
+            {
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANPressureControl set fan status";
+
+                RetVal = SendCANMsgSetFan(m_ModuleCommand[idx].FanState);
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+
+                //because there is no slave acknowledge, we send our own acknowldege
+                emit ReportRefFanState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].FanState);
             }
             else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_CALIBRATION)
             {
@@ -928,9 +944,10 @@ ReturnCode_t CPressureControl::SendCANMsgFanWatchdogSet()
     {
         FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration: 0x" << std::hex << m_unCanIDFanWatchdogSet;
         canmsg.can_id = m_unCanIDFanWatchdogSet;
-        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sFanSpeed, 0);
-        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sFanThreshold, 2);
-        canmsg.can_dlc = 4;
+        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sFanCurrentGain, 0);
+        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sFanCurrent, 2);
+        SetCANMsgDataU16(&canmsg, pCANObjConfPressure->sFanThreshold, 4);
+        canmsg.can_dlc = 6;
 
         RetVal = m_pCANCommunicator->SendCOB(canmsg);
     }
@@ -1115,6 +1132,31 @@ ReturnCode_t CPressureControl::SendCANMsgSetPWMParam(quint16 MaxActuatingValue, 
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
     FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgPWMParamSet: CanID: 0x" << std::hex << m_unCanIDPWMParamSet;
+
+    return retval;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Send the CAN message to set FAN status.
+ *
+ *  \iparam State = New State of the FAN.
+ *
+ *  \return The return value is set from SendCOB(can_frame)
+ */
+/****************************************************************************/
+ReturnCode_t CPressureControl::SendCANMsgSetFan(quint8 State)
+{
+    ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
+    can_frame canmsg;
+
+    canmsg.can_id = m_unCanIDFanSet;
+    canmsg.data[0] = State;
+
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgFanSet: Data0: 0x" << std::hex << (quint8) canmsg.data[0];
+    canmsg.can_dlc = 1;
+    retval = m_pCANCommunicator->SendCOB(canmsg);
+    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgFanSet: CanID: 0x" << std::hex << m_unCanIDPWMParamSet;
 
     return retval;
 }
@@ -1311,16 +1353,23 @@ ReturnCode_t CPressureControl::SetPressure(quint8 flag, float Pressure)
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(SetModuleTask(FM_PRESSURE_CMD_TYPE_SET_PRESSURE, &CmdIndex))
+    if((Pressure < -50)||(Pressure > 50))
     {
-        m_ModuleCommand[CmdIndex].flag = flag;
-        m_ModuleCommand[CmdIndex].Pressure = Pressure;
-        FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Pressure: " << Pressure;
+        RetVal = DCL_ERR_INVALID_PARAM;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
+        if(SetModuleTask(FM_PRESSURE_CMD_TYPE_SET_PRESSURE, &CmdIndex))
+        {
+            m_ModuleCommand[CmdIndex].flag = flag;
+            m_ModuleCommand[CmdIndex].Pressure = Pressure;
+            FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Pressure: " << Pressure;
+        }
+        else
+        {
+            RetVal = DCL_ERR_INVALID_STATE;
+            FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
+        }
     }
 
     return RetVal;
@@ -1354,6 +1403,36 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID; //lint !e641
+    }
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Send status of the Fan.
+ *
+ *  \iparam State = The new state of the fan.
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
+ *          otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPressureControl::SetFan(quint8 State)
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
+
+    if(SetModuleTask(FM_PRESSURE_CMD_TYPE_SET_FAN, &CmdIndex))
+    {
+        m_ModuleCommand[CmdIndex].FanState = State;
+        FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Fan State: " << State;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CPressureControl, Invalid state: " << m_TaskID;  //lint !e641
     }
 
     return RetVal;

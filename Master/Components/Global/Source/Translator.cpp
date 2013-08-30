@@ -23,6 +23,7 @@
 #include <QStringList>
 #include <QReadLocker>
 #include <QWriteLocker>
+#include "DeviceControl/Include/Global/dcl_log.h"
 
 namespace Global {
 
