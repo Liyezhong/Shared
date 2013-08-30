@@ -11,7 +11,8 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED (999)
+#define UNDEFINED          (999)
+#define UNDEFINED_UINT16   (0xFFFF)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -74,6 +75,7 @@ void CAirLiquidDevice::Reset()
     m_pPressureCtrl = NULL;
     //m_pFanDigitalOutput = NULL;
     memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
+    memset( &m_LastGetTCCurrentTime, 0 , sizeof(m_LastGetTCCurrentTime)); //lint !e545
     m_LastGetPressureTime = 0;
     memset( &m_SuckingTime, 0 , sizeof(m_SuckingTime)); //lint !e545
     memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus));  //lint !e545 !e641
@@ -82,6 +84,7 @@ void CAirLiquidDevice::Reset()
     memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls)); //lint !e545
+    memset( &m_TCHardwareStatus, 0 , sizeof(m_TCHardwareStatus)); //lint !e545
     m_TargetPressureCtrlStatus = PRESSURECTRL_STATUS_UNDEF;
     m_CurrentPressureCtrlStatus = PRESSURECTRL_STATUS_UNDEF;
     m_TargetDOOutputValue = 0;
@@ -386,8 +389,8 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
-
     }
+
     if(!connect(m_pTempCtrls[AL_TUBE1], SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
                 this, SLOT(OnGetTemp(quint32, ReturnCode_t, quint8, qreal))))
     {
@@ -419,6 +422,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetPidAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+
     if(!connect(m_pTempCtrls[AL_TUBE2], SIGNAL(ReportSetPidAckn(quint32, ReturnCode_t, quint16, quint16, quint16, quint16)),
                 this, SLOT(OnSetTempPid(quint32, ReturnCode_t, quint16, quint16, quint16, quint16))))
     {
@@ -434,6 +438,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportLevelSensorState'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+
     if(!connect(m_pTempCtrls[AL_LEVELSENSOR], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
                 this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
     {
@@ -441,6 +446,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+
     if(!connect(m_pTempCtrls[AL_TUBE1], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
                 this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
     {
@@ -448,6 +454,7 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+
     if(!connect(m_pTempCtrls[AL_TUBE2], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
                 this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
     {
@@ -487,6 +494,31 @@ ReturnCode_t CAirLiquidDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+
+    if(!connect(m_pTempCtrls[AL_LEVELSENSOR], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[AL_TUBE1], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[AL_TUBE2], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
 /*
     if(!connect(m_pFanDigitalOutput, SIGNAL(ReportLifeTimeData(quint32, ReturnCode_t, quint32, quint32)),
             this, SLOT(OnGetLifeTime(quint32,  ReturnCode_t, quint32, quint32))))
@@ -773,6 +805,7 @@ ReturnCode_t CAirLiquidDevice::GetPressureAsync(void)
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+
 /****************************************************************************/
 /*!
  *  \brief   slot associated with Get pressure
@@ -852,7 +885,7 @@ void CAirLiquidDevice::StopCompressor(void)
 {
     //Log(tr("Shut down compressor"));
     FILE_LOG_L(laDEVPROC, llINFO) << " INFO: Shut down compressor. ";
-    (void)SetPressure(0, UNDEFINED - m_PressureDrift);
+    (void)SetPressure(0, 1);
 }
 
 /****************************************************************************/
@@ -891,7 +924,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
         CurrentPressure = GetPressure();
         //if (m_LoopReleasePressureTimer.exec() == RELEASE_PRESSURE_PROCEDURE_INTERRUPT)
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, 500);
-        LOG() << "Device Air Liquid: Sync call returned: " << retCode;
+        LOG() << "Device Air Liquid: Sync call returned: " << retCode;  //lint !e641
         if (DCL_ERR_UNEXPECTED_BREAK == retCode)
         {
             FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
@@ -2065,6 +2098,63 @@ ReturnCode_t CAirLiquidDevice::GetTemperatureAsync(ALTempCtrlType_t Type, quint8
 
 /****************************************************************************/
 /*!
+ *  \brief   Get actual current of Air-liquid's heater.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  The current of heater in mA.
+ */
+/****************************************************************************/
+quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue = m_TCHardwareStatus[Type].Current;
+    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
+        {
+            RetValue = UNDEFINED_UINT16;
+        }
+        else
+        {
+            retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS);
+            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+            {
+                RetValue = UNDEFINED_UINT16;
+            }
+            else
+            {
+                RetValue = m_TCHardwareStatus[Type].Current;
+            }
+            m_LastGetTCCurrentTime[Type] = Now;
+        }
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get actual current of Air-liquid's heater asynchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CAirLiquidDevice::GetHeaterCurrentAsync(ALTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetTCCurrentTime[Type] = Now;
+        return m_pTempCtrls[Type]->GetHardwareStatus();
+    }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+/****************************************************************************/
+/*!
  *  \brief   slot associated with get temperature.
  *
  *  This slot is connected to the signal, ReportActTemperature
@@ -2091,6 +2181,44 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
         m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_TEMP, ReturnCode);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  slot for getting the hardware information
+ *
+ *  This slot is connected to the signal ReportHardwareStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Sensors = Number of temperature sensors connected to the board
+ *  \iparam Fans = Number of ventilation fans connected to the board
+ *  \iparam Heaters = Number of heating elements connected to the board
+ *  \iparam Pids = Number of PID controllers in the control loop
+ *  \iparam Current = Current through the heatinf circuit in milliamperes
+ */
+/****************************************************************************/
+void CAirLiquidDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType)
+{
+    if (DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = Sensors;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = Fans;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = Heaters;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = Pids;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = Current;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = HeaterSwitchType;
+    }
+    else
+    {
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = 0;
+    }
+    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS, ReturnCode);
 }
 
 /****************************************************************************/

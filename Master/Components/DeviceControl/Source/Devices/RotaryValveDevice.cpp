@@ -1317,7 +1317,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     if(((qint32)RVPosition < 1)||((qint32)RVPosition > 32))
     {
         //Log(tr("The Tube No You Input: %1 is Invalid").arg(Position));
-        LOG() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;
+        LOG() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;    //lint !e641
         retCode = DCL_ERR_DEV_RV_INVALID_INPUT;
         return retCode;
     }
@@ -1325,7 +1325,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     if(EDPosition == RVPosition)
     {
         //Log(tr("Already At Target Position, No Need To Move!").arg(EDPosition));
-        LOG()<<"Already At Target Position, No Need To Move!" << RVPosition;
+        LOG()<<"Already At Target Position, No Need To Move!" << RVPosition;       //lint !e641
         retCode = DCL_ERR_DEV_RV_REF_MOVE_OK;
         return retCode;
     }
@@ -1757,7 +1757,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
     //static quint32 LastED = 0;
     RVPosition_t ED = GetEDPosition();
     //Log(tr("last ED is: %1, lower limit is: %2, upper limit is %3 ").arg(ED).arg(LowerLimit).arg(UpperLimit));
-    LOG()<<"last ED is:"<< ED <<", lower limit is: "<<LowerLimit<<", upper limit is " << UpperLimit;
+    LOG()<<"last ED is:"<< ED <<", lower limit is: "<<LowerLimit<<", upper limit is " << UpperLimit;    //lint !e641
     //RetValue = ReferenceRunWithTimeout(LowerLimit, UpperLimit);
     ret = DoReferenceRunWithStepCheck(LowerLimit, UpperLimit);
 #else
