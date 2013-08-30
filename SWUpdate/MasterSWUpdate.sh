@@ -6,9 +6,9 @@
  #  \brief: 	This updates the new Software binaries and Slave Firmware also
  #		rollback the binaries and firmware on error.
  #
- #   $Version: $ 0.3
- #   $Date:    $ 2012-11-09
- #   $Author:  $ Vikas Jhunjhunwala
+ #   $Version: $ 1.0, 2.0, 3.0
+ #   $Date:    $ 2013-04-04, 2013-05-22, 2013-06-19
+ #   $Author:  $ Hemanth Kumar
  #
  #  \b Company:
  #
@@ -24,22 +24,33 @@
 # Extract directory path from where this script is executing
 CURRDIR="$( cd "$( dirname "$0" )" && pwd )"
 
-if [ -f $CURRDIR/Include.sh ];then
-	. $CURRDIR/./Include.sh
+if [ -f $CURRDIR/Include.sh ]; then
+	. $CURRDIR/Include.sh
 else
-	Log "$CURRDIR/Include.sh file missing"
+	echo "$CURRDIR/Include.sh file missing"
+	exit 1
 fi
 
 # Extract current script name
 PROGNAME=$(basename $0) 
 
-CMDARG="Usage: $0 filename [-update/updateRollback]"
+CMDARG="Usage: $0 [-update] [-updateRollback] [baseeventid]"
 
 # Clean Temp file on Abort or terminate
 trap Clean ABRT TERM  
 
 # Rollback on keyboard interrupt
 trap Rollback INT
+
+# to declare associative arrays it is require to use -A option
+# to store all current software versions - reads from Settings/SW_Version.xml
+declare -A CurrSW
+# to store current firmware versions - reads from Settings/SW_Version.xml
+declare -A CurrFW
+# to store temporary software versions - reads from tmp/Settings/SW_Version.xml
+declare -A TmpSW
+# to store temporary firmware versions - reads from tmp/Settings/SW_Version.xml
+declare -A TmpFW
 
 #=== FUNCTION ================================================================
 # NAME: MasterSWUpdate
@@ -53,27 +64,23 @@ trap Rollback INT
 MasterSWUpdate()
 {
 	# Checking for presence of Rollback folder
-	if [ -d "$ROLLBACKDIR" ]; then
-		Log "$ROLLBACKDIR folder present"
+	if [ -d "$ROLLBACKDIR" ]; then	
 
-                # Checking for presence of SW_Version.xml on the device
-                if [ -f $SWVERFILE ]; then
-                        Log "$SWVERFILE file present" 
+                ReadXMLintoArray
+		RetVal=$?
+                if [  $RetVal == 0 ]; then
 			UpdateSWBinaries
 			UpdateSlaveFW
+
 		else
-                        Log "$SWVERFILE file not present"
-			Log "Updating all SW files"
-			
-			if [ ! -d $TMPBINDIR ]; then
-				ExitOnError "$TMPBINDIR not present"
-			fi
+
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPBINDIR/" "$ROOTDIR/"
 
 			# Updating all SW binaries
 			cp -r $TMPBINDIR/ $ROOTDIR/
 			if [ $? -ne 0 ]; then
 				RollbackSW
-				ExitOnError "Copying binaries from $TMPBINDIR/ to $ROOTDIR/" 
+				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/" "$ROOTDIR/" 
 			fi
 
 			[ -f $BINDIR/$PROGNAME ] && rm $BINDIR/$PROGNAME			
@@ -82,32 +89,39 @@ MasterSWUpdate()
 			mkdir -p $SLAVEFILEDIR 
 			if [ $? -ne 0 ]; then
 				RollbackFWAndSW
-				ExitOnError "Error in creating $SLAVEFILEDIR directory" 
+				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$SLAVEFILEDIR" 
 			fi
                         
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPFIRMWAREDIR/" "$SLAVEFILEDIR"
+
 			cp -r $TMPFIRMWAREDIR/* $SLAVEFILEDIR 
 			if [ $? -ne 0 ]; then
-				ExitOnError "Copying firmware files from $TMPFIRMWAREDIR to $SLAVEFILEDIR" 
+				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPFIRMWAREDIR" "$SLAVEFILEDIR" 
 			fi
+
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$UPDATESWVERFILE" "$SETTINGDIR/"
 
 			cp $UPDATESWVERFILE $SETTINGDIR/
 			if [ $? -ne 0 ]; then
 				RollbackFWAndSW
-				ExitOnError "Copying $UPDATESWVERFILE to $SETTINGDIR" 
+				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$UPDATESWVERFILE" "$SETTINGDIR" 
 			fi	
 		        
 			FWUpdateStatus=$(ExecuteSlaveFWUpdate)
-			if [ "$FWUpdateStatus" == "True" ]; then
-				Log "Slave FW updated"
+			if [ "$FWUpdateStatus" != "True" ]; then				
+				RollbackFWAndSW				
+				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
 			else
-				RollbackFWAndSW
-				Log "while performing Rollback"
-				ExitOnError "Slave FW update"
+				# IN1301 fix		
+				cp -r $SLAVEFILEDIR/* $FIRMWAREDIR
+				if [ $? -ne 0 ]; then
+					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SLAVEFILEDIR" "$FIRMWAREDIR"
+				fi
 			fi
 
 		fi
         else
-        	ExitOnError "$ROLLBACKDIR folder not present"
+        	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$ROLLBACKDIR"
         fi
 }
 
@@ -127,56 +141,48 @@ UpdateSlaveFW()
    	FWCount=0
 	mkdir -p $SLAVEFILEDIR 
 	if [ $? -ne 0 ]; then
-		ExitOnError "Creating $SLAVEFILEDIR directory"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$SLAVEFILEDIR"
 	fi
+
+	for Name in "${!TmpFW[@]}";do		
+		# if the name does not exist in the associative array then it returns nothing		
+		if [ "${CurrFW[$Name]}" == "" ]; then
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_XML_ATTR" "$Name" "$UPDATESWVERFILE" "$SWVERFILE"
+		else		
+			Return=$(CompareVersion ${CurrFW[$Name]} ${TmpFW[$Name]})
+		        if [ $Return == "LOWER" ]; then
+		                ((FWCount++))
+		                Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPFIRMWAREDIR/$Name" "$SLAVEFILEDIR" 
+		                cp $TMPFIRMWAREDIR/$Name $SLAVEFILEDIR
+				if [ $? -ne 0 ]; then
+					RollbackFWAndSW
+					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPFIRMWAREDIR/$Name" "$SLAVEFILEDIR"
+				fi
+
+				# Update the SW_Version.xml with latest version
+				sed '/'$Name'/{s/'${CurrFW[$Name]}'/'${TmpFW[$Name]}'/}'\
+		                $SWVERFILE > $TMPSWVERSIONFILE
+		                cp $TMPSWVERSIONFILE $SWVERFILE
+				if [ $? -ne 0 ]; then
+					RollbackFWAndSW
+					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPSWVERSIONFILE" "$SWVERFILE"
+				fi
+		        fi			
+		fi
+	done	
 	
-	for CurrName in ${CurrFWName[@]}
-        do
-		SlaveFound=0
-                TmpIndex=0
-                for TmpName in ${TmpFWName[@]}
-                do
-                        if [ $CurrName == $TmpName ]; then
-				SlaveFound=1
-                                GetCurrFWIndex $CurrName
-                                CurrIndex=$?
-                                Return=$(CompareVersion ${CurrFWVer[$CurrIndex]} ${TmpFWVer[$TmpIndex]})
-                                if [ $Return == "LOWER" ]; then
-                                        ((FWCount++))
-                                        Log "Updating $CurrName from ${CurrFWVer[$CurrIndex]} to ${TmpFWVer[$TmpIndex]}"
-                                        cp $TMPFIRMWAREDIR/$CurrName $SLAVEFILEDIR
-					if [ $? -ne 0 ]; then
-						RollbackFWAndSW
-						ExitOnError "Copying $CurrFWName to $SlaveSWUpdateFiles"
-					fi
 
-					# Update the SW_Version.xml with latest version
-					sed '/'$CurrName'/{s/'${CurrFWVer[$CurrIndex]}'/'${TmpFWVer[$TmpIndex]}'/}'\
-                                        $SWVERFILE > $TMPSWVERSIONFILE
-                                        cp $TMPSWVERSIONFILE $SWVERFILE
-					if [ $? -ne 0 ]; then
-						RollbackFWAndSW
-						ExitOnError "Copying $TMPSWVERSIONFILE to $SWVERFILE"
-					fi
-                                fi
-                        fi
-                        ((TmpIndex++))
-                done
-		
-		if [ $SlaveFound -eq 0 ]; then
-			Log "$CurrName not present at $UPDATEHWVERFILE"
-		fi	
-        done
-
-	if [ $FWCount -eq 0 ]; then
-		Log "None of Slave FW needs update"
-	 else
+	if [ $FWCount -ne 0 ]; then		
 	 	FWUpdateStatus=$(ExecuteSlaveFWUpdate)
-		if [ "$FWUpdateStatus" == "True" ]; then
-			Log "Slave FW updated"
-		else
+		if [ "$FWUpdateStatus" != "True" ]; then			
 			RollbackFWAndSW
-			ExitOnError "Slave FW update"
+			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
+		else
+			# IN1301 fix		
+			cp -r $SLAVEFILEDIR/* $FIRMWAREDIR
+			if [ $? -ne 0 ]; then
+		        	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SLAVEFILEDIR" "$FIRMWAREDIR"
+			fi
 		fi
 	fi
 }
@@ -189,9 +195,18 @@ UpdateSlaveFW()
 
 ExecuteSlaveFWUpdate()
 {
-	Log "Need to implement" 
-	# To execute SlaveFWUpdateSW with $SLAVEFILEDIR as parameter		 
-	echo "True"
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$PTSFILE"
+	# To execute SlaveFWUpdateSW with $SLAVEFILEDIR as parameter
+	# IN1303 fix
+	ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
+	ReturnValue=$?
+	if [ $ReturnValue == "0" ]; then
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_SUCCESS"
+		echo "True" 
+	else
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_FAILED"
+		echo "False"
+	fi	
 }
 
 #=== FUNCTION ================================================================
@@ -201,21 +216,20 @@ ExecuteSlaveFWUpdate()
 #=============================================================================
 
 RollbackFWAndSW()
-{
-	Log "Performing Rollback"
-	rm -r $SLAVEFILEDIR/* || ExitOnError "Deleting $SLAVEFILEDIR failed"
-	
-	cp -r $ROLLBACKDIR/Firmware/ $SLAVEFILEDIR	
+{	
+	rm -r $SLAVEFILEDIR/* || ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DELETION_FAILED" "$SLAVEFILEDIR"
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$SLAVEFILEDIR" "$ROLLBACKFIRMWAREDIR/"
+
+	cp -r $ROLLBACKFIRMWAREDIR/ $SLAVEFILEDIR	
 	if [ $? -ne 0 ]; then
-		ExitOnError "Error in copying $ROLLBACKDIR/Firmware/ to $SLAVEFILEDIR"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKFIRMWAREDIR/" "$SLAVEFILEDIR"
 	fi
 
-	 	FWUpdateStatus=$(ExecuteSlaveFWUpdate)
-		if [ "$FWUpdateStatus" == "True" ]; then
-			Log "Slave FW Rollback passed"
-		else
-			Log "Slave FW Rollback failed"
-		fi
+ 	FWUpdateStatus=$(ExecuteSlaveFWUpdate)
+	if [ "$FWUpdateStatus" != "True" ]; then			
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
+	fi
 
 	RollbackSW	
 }
@@ -228,15 +242,16 @@ RollbackFWAndSW()
 
 RollbackSW()
 {
-	Log "Performing SW Rollback"
-	cp -r $ROLLBACKDIR/bin/ $ROOTDIR/
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$ROOTDIR/" "$ROLLBACKBINDIR/"
+	cp -r $ROLLBACKBINDIR/ $ROOTDIR/
 	if [ $? -ne 0 ]; then
-		ExitOnError "Error in copying $ROLLBACKDIR/bin/ to $ROOTDIR/"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKBINDIR/" "$ROOTDIR/"
 	fi
-
+	
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$SETTINGDIR/" "$ROLLSWVERFILE" 
 	cp $ROLLSWVERFILE $SETTINGDIR/
 	if [ $? -ne 0 ]; then
-                ExitOnError "Error in copying $ROLLSWVERFILE to $SETTINGDIR"
+                ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLSWVERFILE" "$SETTINGDIR"
         fi
 }
 
@@ -247,12 +262,15 @@ RollbackSW()
 #=============================================================================
 
 UpdateRollback()
-{
-	Log "Updating Rollback folder"
+{	
 	Clean
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$BINDIR/" "$ROLLBACKDIR"
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$FIRMWAREDIR/" "$ROLLBACKDIR"
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$SETTINGDIR/" "$ROLLBACKDIR"
+
 	cp -r $BINDIR/ $FIRMWAREDIR/ $SETTINGDIR/ $ROLLBACKDIR/
 	if [ $? -ne 0 ]; then
-                ExitOnError "Error in copying $BINDIR/ $FIRMWAREDIR/ $SETTINGDIR/ to $ROLLBACKDIR"
+                ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$BINDIR/, $FIRMWAREDIR/,  $SETTINGDIR/" "$ROLLBACKDIR"
         fi
 }
 
@@ -267,97 +285,34 @@ UpdateRollback()
 
 UpdateSWBinaries()
 {
-	Log "Updating higher version of SW files from SW package"
-
 	# Counter for no. of SW files need to be updated
-	SWCount=0		
-
-	ReadXMLintoArray
+	SWCount=0
 	
-	for CurrName in ${CurrSWName[@]} 
-        do
-                TmpIndex=0
-		BinFound=0
-		for TmpName in ${TmpSWName[@]}
-                do
-			if [ $CurrName == $TmpName ]; then
-				BinFound=1
-				GetCurrSWIndex $CurrName
-                                CurrIndex=$?
-				Return=$(CompareVersion ${CurrSWVer[$CurrIndex]} ${TmpSWVer[$TmpIndex]})
-                                if [ $Return == "LOWER" ]; then
-					((SWCount++))
-                                        Log "Updating $CurrName from ${CurrSWVer[$CurrIndex]} to ${TmpSWVer[$TmpIndex]}"
-					cp $TMPBINDIR/$CurrName $BINDIR/$CurrName  &>/dev/null
-					if [ $? -ne 0 ]; then
-						RollbackSW
-						ExitOnError "Error in copying $TMPBINDIR/$CurrName to $BINDIR" 
-					fi
-					sed '/'$CurrName'/{s/'${CurrSWVer[$CurrIndex]}'/'${TmpSWVer[$TmpIndex]}'/}'\
-                                        $SWVERFILE > $TMPSWVERSIONFILE 
-					cp $TMPSWVERSIONFILE $SWVERFILE
-					if [ $? -ne 0 ]; then
-						RollbackSW
-						ExitOnError "Copying $TMPSWVERSIONFILE to $SWVERFILE" 
-					fi
-                                fi
-                        fi
-                	((TmpIndex++))
-        	done
-
-		if [ $BinFound -eq 0 ]; then
-			Log "$CurrName not present at $UPDATESWVERFILE"
+	for Name in "${!TmpSW[@]}";do
+		# if the name does not exist in the associative array then it returns nothing
+		if [ "${CurrSW[$Name]}" == "" ]; then
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_XML_ATTR" "$Name" "$UPDATESWVERFILE" "$SWVERFILE"
+		else		
+			Return=$(CompareVersion ${CurrSW[$Name]} ${TmpSW[$Name]})
+			if [ $Return == "LOWER" ]; then
+				((SWCount++))
+		                Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPBINDIR/$Name" "$BINDIR/$Name"
+				cp $TMPBINDIR/$Name $BINDIR/$Name  &>/dev/null
+				if [ $? -ne 0 ]; then
+					RollbackSW
+					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/$Name" "$BINDIR/$Name" 
+				fi
+				sed '/'$Name'/{s/'${CurrSW[$Name]}'/'${TmpSW[$Name]}'/}'\
+		                $SWVERFILE > $TMPSWVERSIONFILE 
+				cp $TMPSWVERSIONFILE $SWVERFILE
+				if [ $? -ne 0 ]; then
+					RollbackSW
+					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPSWVERSIONFILE" "$SWVERFILE" 
+				fi
+		        fi
 		fi
-		
-	done
-		
-	if [ $SWCount -eq 0 ]; then
-		Log "None of SW file needs update"
-	fi
+	done	
 	
-	Log "SW Update: finished; Starting Slave FW Update process"
-}
-
-
-
-#=== FUNCTION ================================================================
-# NAME: GetCurrSWIndex
-# DESCRIPTION: To find index position of SW file name in array
-# PARAMETER 1: SW Filename
-#=============================================================================
-
-GetCurrSWIndex()
-{
-	count=${#CurrSWName[@]} 
-	index=0
-	
-	while [ "$index" -lt "$count" ]
-	do
-        	if [ "${CurrSWName[$index]}" == "$1" ]; then
-                	return $index
-	        fi
-        	((index++))
-	done
-}
-
-#=== FUNCTION ================================================================
-# NAME: GetCurrFWIndex
-# DESCRIPTION: To find index position of FW file name in array
-# PARAMETER 1: FW Filename 
-#=============================================================================
-
-GetCurrFWIndex()
-{
-        count=${#CurrFWName[@]}
-        index=0
-
-        while [ "$index" -lt "$count" ]
-        do
-                if [ "${CurrFWName[$index]}" == "$1" ]; then
-                        return $index
-                fi
-                ((index++))
-        done
 }
 
 #=== FUNCTION ================================================================
@@ -369,25 +324,89 @@ GetCurrFWIndex()
 
 ReadXMLintoArray()
 {
-	if [ ! -f $SWVERFILE ]; then
-		ExitOnError "$SWVERFILE not present"
-	fi
 
+	# check whether SW_Version.xml file exists in the TMP directory, if not don't proceed further			
 	if [ ! -f $UPDATESWVERFILE ]; then
-		ExitOnError "$UPDATESWVERFILE not present"
-	fi
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$UPDATESWVERFILE"
+	fi	
 
-	ReadXML $SWVERFILE
-        CurrSWName=("${SWNAME[@]}")
-        CurrSWVer=("${SWVER[@]}")
-        CurrFWName=("${FWNAME[@]}")
-        CurrFWVer=("${FWVER[@]}")
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PARSING_XML" "$UPDATESWVERFILE"
 
         ReadXML $UPDATESWVERFILE
-        TmpSWName=("${SWNAME[@]}")
-        TmpSWVer=("${SWVER[@]}")
-        TmpFWName=("${FWNAME[@]}")
-        TmpFWVer=("${FWVER[@]}")
+
+        TmpSWName=(""$SWNAME"")
+        TmpSWVer=(""$SWVER"")
+
+	Index=0
+	# store the data in associative array using the key value(SW name)
+	# for this array we need not require to check the name because
+	# this data will be read from the zip file so if any problem 
+	# occurs to the unzip file then it will abort the program
+	for Name in "${TmpSWName[@]}";do
+		if [ "$Name" == "" ]; then			
+			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+		fi		
+		TmpSW[$Name]=${TmpSWVer[$Index]}
+		((Index++))
+	done
+
+        TmpFWName=(""$FWNAME"")	
+        TmpFWVer=(""$FWVER"")
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${TmpFWName[@]}";do
+		if [ "$Name" == "" ]; then			
+			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+		fi
+		TmpFW[$Name]=${TmpFWVer[$Index]}
+		((Index++))
+	done
+
+	# check whether SW_Version.xml file exists or not
+	if [ ! -f $SWVERFILE ]; then
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SWVERSION_FILE_NOT_FOUND" "$SWVERFILE"
+		return 1
+	fi
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PARSING_XML" "$SWVERFILE"
+
+	ReadXML $SWVERFILE
+
+	# converting the string to array
+	CurrSWName=(""$SWNAME"")	
+        CurrSWVer=(""$SWVER"")
+	
+	Index=0
+	
+	# store the data in associative array using the key value(SW name)
+	for Name in "${CurrSWName[@]}";do
+		# check the name exists in the array as empty or not, if empty don't create array
+		if [ "$Name" != "" ]; then			
+			CurrSW[$Name]=${CurrSWVer[$Index]}
+		else
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+			return 1
+		fi
+		((Index++))
+	done
+	CurrFWName=(""$FWNAME"")	
+	CurrFWVer=(""$FWVER"")	
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${CurrFWName[@]}";do
+		# check the name exists in the array as empty or not, if empty don't create array
+		if [ "$Name" != "" ]; then			
+			CurrFW[$Name]=${CurrFWVer[$Index]}
+		else
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+			return 1
+		fi
+		((Index++))
+	done
+
+	return 0
 }
 
 
@@ -399,68 +418,18 @@ ReadXMLintoArray()
 #=============================================================================
 
 ReadXML()
-{
-        ClearTempFile
-        ReadNamesFromXML Master_SW Filename $1
-        SWNAME=( $(cat $TMPDIR/temp.txt) )
+{        
+	# IN1425 fix
+	SWNAME="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Filename -n  "$1" 2>/dev/null)"
 
-        ClearTempFile
-        ReadVersionFromXML Master_SW Version $1
-        SWVER=( $(cat $TMPDIR/temp.txt) )
+        SWVER="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Version -n  "$1" 2>/dev/null | cut -d'_' -f2)"
 
-        ClearTempFile
-        ReadNamesFromXML Firmware Filename $1
-        FWNAME=( $(cat $TMPDIR/temp.txt) )
+        FWNAME="$(xmlstarlet sel -t -m '(/SW_Version/Firmware/file)' -v @Filename -n  "$1" 2>/dev/null)"
 
-        ClearTempFile
-        ReadVersionFromXML Firmware Version $1
-        FWVER=( $(cat $TMPDIR/temp.txt) ) 
+        FWVER="$(xmlstarlet sel -t -m '(/SW_Version/Firmware/file)' -v @Version -n  "$1" 2>/dev/null | cut -d'_' -f2)"
 
-	rm $TMPDIR/temp.txt
 }
 
-#=== FUNCTION ================================================================
-# NAME: ReadVersionFromXML
-# DESCRIPTION: To extract file versions from xml file 
-# PARAMETER 1: Master_SW or Firmware
-# PARAMETER 2: Version
-# PARAMETER 3: SW_Version.xml file path 
-#=============================================================================
-
-ReadVersionFromXML()
-{
-        for i in $(sed -n '/'$1'/,/\/'$1'/p' $3 | grep file)
-        do
-                echo "$i" | sed -n '/'$2'="/,/\"/p' | cut -d'"' -f2 | cut -d"_" -f2 1>>$TMPDIR/temp.txt
-        done
-}
-
-#=== FUNCTION ================================================================
-# NAME: ReadNamesFromXML
-# DESCRIPTION: To extract file names from xml file 
-# PARAMETER 1: Master_SW or Firmware
-# PARAMETER 2: Filename
-# PARAMETER 3: SW_Version.xml file path
-#=============================================================================
-
-ReadNamesFromXML()
-{
-        for i in $(sed -n '/'$1'/,/\/'$1'/p' $3 | grep file)
-        do
-                echo "$i" | sed -n '/'$2'="/,/\"/p' | cut -d'"' -f2 1>>$TMPDIR/temp.txt
-        done
-}
-
-#=== FUNCTION ================================================================
-# NAME: ClearTempFile
-# DESCRIPTION: To clear temp file used for parsing xml file 
-# PARAMETER : NA 
-#=============================================================================
-
-ClearTempFile()
-{
-        echo -n "" > $TMPDIR/temp.txt
-}
 
 #==============================================================
 # Script Begins from Here
@@ -469,20 +438,21 @@ ClearTempFile()
 #	    	   Slave FW files
 #==============================================================
 
-[ ! $# -eq 1 ] && { Log "$CMDARG"; exit 1; }
-
-if [ $1 = "-update" ]; then
-        	
-	Log "Update process started"
+[ ! $# -eq 2 ] && { ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"; }
+# Second argument will be  event ID
+FirstArgument=$1
+if [ $FirstArgument = "-update" ]; then
+	BASE_EVENT_ID=$2
+	IsUpdateStarted=true	
 	MasterSWUpdate
-	Log "Update Status: Passed"
+	UpdateRebootFile "Success"
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"	
 
-elif [ $1 = "-updateRollback" ]; then
-	UpdateRollback
-	
+elif [ $FirstArgument = "-updateRollback" ]; then	
+	BASE_EVENT_ID=$2	
+	UpdateRollback	
 else
-	Log "$CMDARG"
-	exit 1
+	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"	
 fi	
 
 exit 0

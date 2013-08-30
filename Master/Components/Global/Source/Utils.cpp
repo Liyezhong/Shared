@@ -22,6 +22,8 @@
 
 #include <QHash>
 #include <QStringList>
+#include <QProcess>
+#include <QDir>
 
 #include <errno.h>
 
@@ -346,4 +348,41 @@ bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
         return false;
     }
 }
+
+/****************************************************************************/
+qint32 MountStorageDevice(QString Name) {
+
+#if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM)
+    // create the QProcess
+    QProcess ProcToMountDevice;
+    QStringList CmdLineOptions;
+
+    CmdLineOptions << "mount";
+    // check whether anything needs to be  searched in the mounted device
+    if (Name.compare("") != 0) {
+        CmdLineOptions << "search" << Name;
+    }
+
+    ProcToMountDevice.start(MNT_SCRIPT, CmdLineOptions);
+    // check for the process finished
+    if (ProcToMountDevice.waitForFinished()) {
+        return ProcToMountDevice.exitCode();
+    }
+#else
+    QDir usb(Global::DIRECTORY_MNT_STORAGE);
+    if(!usb.exists()){
+        return 1;
+    }
+    return 0;
+#endif
+    return 1;
+}
+
+/****************************************************************************/
+void UnMountStorageDevice() {
+    QProcess ProcToMountDevice;
+    ProcToMountDevice.start(MNT_SCRIPT, QStringList() << "umount");
+    (void)ProcToMountDevice.waitForFinished();
+}
+
 } // end namespace Global

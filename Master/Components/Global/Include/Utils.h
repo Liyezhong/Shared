@@ -147,6 +147,25 @@
 
 namespace Global {
 
+
+/****************************************************************************/
+/**
+* \brief Storage path
+*    When USB is mounted then the device will be mounted to /mnt_storage
+*/
+/****************************************************************************/
+const QString DIRECTORY_MNT_STORAGE = "/mnt_storage";  //!< Storage path of the mounted device
+
+
+/****************************************************************************/
+/**
+* \brief Script location path
+*    location of the script where mounting of USB device is available
+*/
+/****************************************************************************/
+const QString MNT_SCRIPT = "/etc/init.d/EBox-MountUSB-Script.sh";  //!< location of the mounted script
+
+
 /****************************************************************************/
 /**
  * \brief Set al supported languages.
@@ -467,6 +486,32 @@ quint32 GetButtonCountFromButtonType(Global::GuiButtonType ButtonType);
  */
 /****************************************************************************/
 Global::GuiButtonType   StringToGuiButtonType(QString ButtonTypeString);
+
+
+
+/****************************************************************************/
+/**
+ * \brief   Mounts the storage device.
+ *          First come first serve (It means if the two devices are detected
+ *          and names are 'sda' and 'sdb' then 'sda' will be mounted.
+ *          If any of the file needs to be searched then need to pass the required
+ *          arguments (i.e. Specify the file name as argument)
+ *
+ * \iparam   Name     Search the file/folder in the mounted device
+ *
+ * \return   Exited number of the process
+ */
+/****************************************************************************/
+qint32 MountStorageDevice(QString Name = "");
+
+
+/****************************************************************************/
+/**
+ * \brief   Unmounts the storage device
+ *
+ */
+/****************************************************************************/
+void UnMountStorageDevice();
 
 } // end namespace Global
 

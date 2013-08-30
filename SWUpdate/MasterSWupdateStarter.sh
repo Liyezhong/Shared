@@ -7,9 +7,9 @@
  #	    also verifies the Slave HW version. This also invokes the 
  #	    MasterSWUpdate.sh to upgrade the SW binaries and SlaveFW 
  #
- #   $Version: $ 0.4
- #   $Date:    $ 2012-11-16
- #   $Author:  $ Vikas Jhunjhunwala
+ #   $Version: $ 1.0, 2.0, 3.0
+ #   $Date:    $ 2013-04-04, 2013-05-22, 2013-06-19
+ #   $Author:  $ Hemanth Kumar
  #
  #  \b Company:
  #
@@ -25,20 +25,21 @@
 # Extract directory path from where this script is executing
 CURRDIR="$( cd "$( dirname "$0" )" && pwd )"
 
-if [ -f $CURRDIR/Include.sh ];then
-	. $CURRDIR/./Include.sh
+if [ -f $CURRDIR/Include.sh ]; then
+	. $CURRDIR/Include.sh
 else
 	echo "$CURRDIR/Include.sh file missing"
+	exit 1
 fi		
 
 # Extract current script name
 PROGNAME=$(basename $0)	
 
-#Command line argument		
-CMDARG="Usage: $0 filename [-check USB/RemoteCare] [-update/updateRollback]"
+# Command line argument		
+readonly CMDARG="Usage: $0 [-check USB/RemoteCare] [-update] [-updateRollback] [baseeventid]"
 
 # Clean Temp file on Abort or terminate
-trap Clean ABRT TERM 		
+#trap Clean ABRT TERM 		
 
 #=== FUNCTION ======================================================================
 # NAME: MountUSB
@@ -48,42 +49,61 @@ trap Clean ABRT TERM
 
 MountUSB()
 {
-	ls /dev/sd* &>/dev/null
-	if [ $? -ne 0 ];then
-		ExitOnError "No USB device present"
+	blkid -t TYPE=vfat | grep -v "Max Touch" | grep -v "mmcblk" &>/dev/null
+	if [ $? -ne 0 ]; then
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_NO_USB_DEV_FOUND"
 	fi
-	Log "Mounting USB Device"
-	TotalMountPt=$(ls /dev/sd* | wc -l)
-	Counter=0
-	for device in $(ls /dev/sd*)
-	do
+	TotalMountPt=$(blkid -t TYPE=vfat | grep -v "Max Touch" | grep -v "mmcblk" | cut -d ":" -f1 | wc -l)
+	Counter=0		
+	for device in $(blkid -t TYPE=vfat | grep -v "Max Touch" | grep -v "mmcblk" | cut -d':' -f1);do
         	((Counter++))
+		# Unmount the devices if already mounted
+		# IN1426 fix
+		Mounted=$(mount | grep "$device" | cut -d' ' -f1 | wc -l)
+		if [ $Mounted -ne 0 ]; then
+			# Recurssively unmount all the devices
+			for mountedpath in $(mount | grep "$device" | cut -d' ' -f3);do
+				
+				umount -l $mountedpath &>/dev/null
+				# IN1296 fix
+				Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_USB_UNMOUNTED" "$mountedpath"
+				
+			done
+		fi
+
                 mount $device $PKGPATH &>/dev/null
 		local Ret=$?
 		if [ $Ret -ne 0 ]; then
-                	Log "Mounting $device on $PKGPATH failed"
+                	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MOUNTING_DEV_FAILED" "$PKGPATH"			
                 	continue
 		elif [ $Ret -eq 0 ]; then
-                	Log "Mounted USB device $device on $PKGPATH"
-			CountPackage
-			if [ $PkgFound -eq 1 ];then
+                	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MOUNTING_DEV_PASSED" "$device" "$PKGPATH"
+			# IN1300 fix
+			RetVal=$(CountPackage)
+			if [ $RetVal == "1" ]; then				
+				IsMounted=true				
 				break
-			elif [ $PkgFound -ne 1 ]; then
-                		umount $PKGPATH &>/dev/null
-				Log "SW Package not present at $device"
+			elif [ $RetVal == "0" ]; then								
+                		umount -l $PKGPATH &>/dev/null
+				# IN1296 fix
+				Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_USB_UNMOUNTED" "$PKGPATH"
+				# If all the devices are enumerated then exit from the script because thers is no point to
+				# go further
+				if [ $TotalMountPt -eq $Counter ]; then
+					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATE_PACKAGE_NOT_FOUND" "$device"
+				else
+					Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATE_PACKAGE_NOT_FOUND" "$device"
+				fi
 			fi
 		fi
-	
-		if [ $Counter -eq $TotalMountPt ]; then
-			ExitOnError "Scanned all the USB devices"
-		fi
+		
 	done
 }
 
 
 #=== FUNCTION =========================================================================
 # NAME: CountPackage
-# DESCRIPTION:  Read the number of SW Packages present in USB 
+# DESCRIPTION:  Read the number of SW Packages present in USB or in remote care
 # PARAMETER: NA
 #======================================================================================
 
@@ -91,12 +111,11 @@ CountPackage()
 {
 	ls $PKGPATH/"$DEVICENAME""$PKGFOOTER"*.zip &>/dev/null
 	local Ret=$?
-	if [ $Ret -eq 0 ] ; then
-                PkgCount=$(ls $PKGPATH/"$DEVICENAME""$PKGFOOTER"*.zip | wc -l)
-		Log "$PkgCount SW package present at $PKGPATH"
-		PkgFound=1
+	if [ $Ret -eq 0 ]; then
+                PkgCount=$(ls $PKGPATH/"$DEVICENAME""$PKGFOOTER"*.zip | wc -l)		
+		echo "1"
 	else
-		PkgFound=0
+		echo "0"
 	fi
 }
 
@@ -115,32 +134,35 @@ UnzipAndCRC()
 
 	Pkg="ls $PKGPATH/"$DEVICENAME""$PKGFOOTER""$PkgVersion"*.zip"
 	PkgDate=$(${Pkg} | cut -d'_' -f6 | sort | tail -1)
-
-        Log "$PkgVersion is highest version of update package present at $PKGPATH"
+	
 
         PkgName="$DEVICENAME""$PKGFOOTER""$PkgVersion"_"$PkgDate"
         
-        mkdir -p $UPDATEDIR || ExitOnError "Creating $UPDATEDIR folder"
-        cp $PKGPATH/$PkgName $UPDATEDIR/
+        mkdir -p $UPDATEDIR || ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$UPDATEDIR"
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$PKGPATH/$PkgName" "$UPDATEDIR"
+
+        cp $PKGPATH/$PkgName $UPDATEDIR/	
+
 	if [ $? -ne 0 ]; then
-		ExitOnError "Copying $PKGPATH/$PkgName to $UPDATEDIR folder"
-	fi
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$PKGPATH/$PkgName" "$UPDATEDIR"
+	fi	
 	
-	Log "Checking for CRC"
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UNZIP_HIGHEST_VER_UPDATE_PACKAGE" "$PkgName" "$UPDATEDIR"
 
 	# Check for CRC of zipped SW package
         unzip -t $UPDATEDIR/$PkgName &>/dev/null
         if [ $? -eq 0 ]; then
-        	Log "CRC check passed" && Log "Unzipping $PkgName package"
+        	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_CRC_CHK_PASSED"
 		
 		# Unzip SW Update Package
            	unzip -d $UPDATEPKGDIR $UPDATEDIR/$PkgName &>/dev/null
-		[ -d $UPDATEPKGDIR/bin ] && [ -d $UPDATEPKGDIR/Firmware ] && [ -d $UPDATEPKGDIR/Settings ]\
-                && [ -f $UPDATESWVERFILE ] || ExitOnError "Could not find\
-                 $UPDATEPKGDIR/bin, $UPDATEPKGDIR/Firmware, $UPDATEPKGDIR/Settings and $UPDATESWVERFILE\
-                 at $UPDATEPKGDIR"
+		[ -d $TMPBINDIR ] && [ -d $TMPFIRMWAREDIR ] && [ -d $TMPSETTINGDIR ]\
+                && [ -f $UPDATESWVERFILE ] || ExitOnError "$EVENT_SOURCE_MASTER"\
+                "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS"\
+                "$TMPBINDIR, $TMPFIRMWAREDIR, $TMPSETTINGDIR and $UPDATESWVERFILE"
 	else
-                ExitOnError "CRC check"
+                ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_CRC_CHK_FAILED"
         fi
 }
 
@@ -155,31 +177,27 @@ CheckMd5Sum()
 	cd $UPDATEPKGDIR
 
 	if [ ! -f $Md5FILE ]; then
-		ExitOnError "$Md5FILE file not present"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$MD5FILE"
 	fi
 
-	find bin/ Settings/ Firmware/ -type f -print\
-        | xargs md5sum >> $TMPDIR/md5sum.txt
-	
+#	find $FINDBINDIR $FINDSETTINGDIR $FINDFIRMWAREDIR -type f -print\
+#       | xargs md5sum >> $TMPDIRMD5FILE
+	find ./ -type f ! -iwholename './md5sum.txt' -print\
+        | xargs md5sum >> $TMPDIRMD5FILE
 
-	Log "Performing md5sum check"
-        md5sum -c $Md5FILE &>/dev/null
-	if [ $? -eq 0 ]
-        then
-	       	Log "md5sum check: No file missing/corrupted"
-	else
-               	ExitOnError "md5sum check: file missing/corrupted"
+
+        md5sum -c $MD5FILE &>/dev/null
+	if [ $? -ne 0 ]; then	       	
+               	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MD5SUM_CHK_FAILED"
         fi
 	
-	LineCountPkgMd5=$(cat $Md5FILE | wc -l)
-	LineCountGeneratedMd5=$(cat $TMPDIR/md5sum.txt | wc -l)
+	LineCountPkgMd5=$(cat $MD5FILE | wc -l)
+	LineCountGeneratedMd5=$(cat $TMPDIRMD5FILE | wc -l)
 
-	if [ $LineCountPkgMd5 -eq $LineCountGeneratedMd5 ]
-        then
-	       	Log "md5sum check: No unknown file present in SW package"
-		Log "md5sum check: Passed"
+	if [ $LineCountPkgMd5 -eq $LineCountGeneratedMd5 ]; then
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MD5SUM_CHK_PASSED"
 	else
-               	ExitOnError "md5sum check: Unknown file present in SW package"
+               	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MD5SUM_CHK_FAILED"
         fi
 	
 	cd - &>/dev/null        
@@ -194,42 +212,45 @@ CheckMd5Sum()
 CheckSlaveHWVersion()
 {
 	if [ ! -f $UPDATEHWVERFILE ]; then  
-		ExitOnError "$UPDATEHWVERFILE not present"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$UPDATEHWVERFILE"		
 	fi
 
 	if [ ! -f $HWVERFILE ]; then  
-		ExitOnError "$HWVERFILE not present"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$HWVERFILE"		
 	fi
 
-	Log "Checking for minimum Slave HW Version required to upgrade"
-	
+	UPDATEHWVERFILELINE=$(wc -l $UPDATEHWVERFILE | cut -d' ' -f1)
+	HWVERFILELINE=$(wc -l $HWVERFILE | cut -d' ' -f1)
+	if [ $UPDATEHWVERFILELINE -ne $HWVERFILELINE ]; then
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_SLAVE" "$HWVERFILE"
+	fi
+
 	SlaveFile="tail -n+2 $HWVERFILE"
-	for CurrentSlaveName in $( ${SlaveFile} | cut -d',' -f1 )
-	do
+
+	for CurrentSlaveName in $( ${SlaveFile} | cut -d',' -f1 );do
+		# When it searches the "Slave1" name in upgraded package then there is a chance that "Slave10" also takes 
+		# into search criteria and the same will be logged in log file
+		# IN1299 fix		
+		CurrentSlaveName+=","
+
 		CurrHW="grep $CurrentSlaveName $HWVERFILE"
 		ReqHW="grep $CurrentSlaveName $UPDATEHWVERFILE"
 		
-		grep $CurrentSlaveName $HWVERFILE &>/dev/null
-		if [ $? -ne 0 ]; then
-			ExitOnError "$CurrentSlaveName not present in $HWVERFILE"
-		fi
-		
 		grep $CurrentSlaveName $UPDATEHWVERFILE &>/dev/null
 		if [ $? -ne 0 ]; then
-			ExitOnError "$CurrentSlaveName not present in $UPDATEHWVERFILE"
+			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_SLAVE" "$CurrentSlaveName" "$UPDATEHWVERFILE"
 		fi
 		
 		CurrentHWVersion=$( ${CurrHW} | cut -d',' -f2)
                 RequiredHWVersion=$( ${ReqHW} |cut -d',' -f2)
-				
+		
 		Return=$(CompareVersion $CurrentHWVersion $RequiredHWVersion)
 								                
 		if [ $Return == "LOWER" ]; then
-                	ExitOnError "$CurrentSlaveName does not have required minimum version $RequiredHWVersion" 
-		elif [ $Return == "EQUAL" ]; then
-			Log "$CurrentSlaveName has equal version" 
+			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_DOESNOT_HAVE_REQ_HW_VER" "$CurrentSlaveName" "$CurrentHWVersion" "$RequiredHWVersion"		
 		else
-			Log "$CurrentSlaveName has higher version" 
+			# IN 1296 fix			
+			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_HAS_REQ_HW_VER" "$CurrentSlaveName" "$CurrentHWVersion" "$RequiredHWVersion"
 		fi
 	done
 }
@@ -241,14 +262,13 @@ CheckSlaveHWVersion()
 
 mkdir -p $LOGDIR  2> /dev/null
 if [ $? -ne 0 ]; then
-	echo "Creating $LOGDIR failed"
+	echo "Creating $LOGDIR failed"	
 	exit 1
 fi
 
 if [ ! -s $LOGDIR/$LOGFILE ]; then
 	echo -n "" >> $LOGDIR/$LOGFILE
-	echo -e "Format Version: 1 \nComponent: Master SW Update \nTimeStamp: $DATE \n" >> $LOGDIR/$LOGFILE
-	Log "Device is $DEVICENAME" 
+	echo -e "Format Version: 1 \nComponent: Master SW Update \nTimeStamp: $DATE \n" >> $LOGDIR/$LOGFILE	
 fi
 
 
@@ -262,47 +282,77 @@ fi
 #==============================================================
 
 
-[ $# -gt 2 ] || [ $# -lt 1 ] && { Log "$CMDARG"; exit 1; }
-
-if [ $1 = "-check" ]; then
-        if [ $2 = "USB" ]; then
+[ $# -gt 3 ] || [ $# -lt 2 ] && { ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"; }
+# Third argument will be  event ID
+FirstArgument=$1
+SecondArgument=$2
+if [ $FirstArgument = "-check" ]; then	        
+	# IN1297 fix
+	# Check whether at least three arguments are available or not	
+	if [ $# -lt 3 ]; then
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"
+	fi	
+	BASE_EVENT_ID=$3	
+	if [ $SecondArgument = "USB" ]; then
 		Clean
 		# Path where package is available
                 PKGPATH=$MOUNTPOINT	
 		MountUSB
                 UnzipAndCRC
-		umount $PKGPATH
-        elif [ $2 = "RemoteCare" ]; then
+		UnmountUSB		
+        elif [ $SecondArgument = "RemoteCare" ]; then
 		Clean
 		PKGPATH=$REMOTECAREPATH
-		Log "Extracting package from RemoteCare folder"
-		CountPackage
-		UnzipAndCRC
+		RetVal=$(CountPackage)
+		if [ $RetVal == "1" ];then
+			UnzipAndCRC
+		elif [ $RetVal == "0" ]; then                	
+			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATE_PACKAGE_NOT_FOUND" "$PKGPATH"			
+		fi		
 	else
-		Log "$CMDARG"
-		exit 1
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"		
 	fi
 
 	CheckMd5Sum
 	CheckSlaveHWVersion
-	Log "Check Status: Passed"
-
-elif [ $1 = "-update" ]; then
+elif [ $FirstArgument = "-update" ]; then
+	# IN1297 fix
+	# Check whether two arguments are available or not	
+	if [ ! $# -eq 2 ]; then
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"
+	fi
+	BASE_EVENT_ID=$2
 	if [ -f $TMPBINDIR/$SWUPDATESCRIPT ]; then
-		exec $TMPBINDIR/./$SWUPDATESCRIPT $1
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_STARTER_SUCCESS"
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$TMPBINDIR/$SWUPDATESCRIPT"
+		# IN1356 fix
+		# Change script file permissions		
+		chmod 755 $TMPBINDIR/$SWUPDATESCRIPT
+		exec $TMPBINDIR/$SWUPDATESCRIPT $FirstArgument $BASE_EVENT_ID 
 	else
-		ExitOnError "$TMPBINDIR/$SWUPDATESCRIPT not present"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$TMPBINDIR/$SWUPDATESCRIPT"
 	fi
 
-elif [ $1 = "-updateRollback" ]; then
+elif [ $FirstArgument = "-updateRollback" ]; then
+	# IN1297 fix
+	# Check whether at least two arguments are available or not	
+	if [ ! $# -eq 2 ]; then
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"
+	fi	
+	BASE_EVENT_ID=$2
 	if [ -f $TMPBINDIR/$SWUPDATESCRIPT ]; then
-		exec $TMPBINDIR/./$SWUPDATESCRIPT $1
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_STARTER_SUCCESS"
+		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$TMPBINDIR/$SWUPDATESCRIPT"
+		# IN1356 fix
+		# Change script file permissions
+		chmod 755 $TMPBINDIR/$SWUPDATESCRIPT
+		exec $TMPBINDIR/$SWUPDATESCRIPT $FirstArgument $BASE_EVENT_ID 
 	else
-		ExitOnError "$TMPBINDIR/$SWUPDATESCRIPT not present"
+		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$TMPBINDIR/$SWUPDATESCRIPT"
 	fi
 
 	Clean
-else
-	Log "$CMDARG"
-	exit 1
+else	
+	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"
+	
 fi
