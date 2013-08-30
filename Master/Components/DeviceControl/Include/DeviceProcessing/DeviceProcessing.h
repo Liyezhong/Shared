@@ -192,6 +192,9 @@ public:
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
 
+public slots:
+    void OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
+
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(ReturnCode_t);

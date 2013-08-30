@@ -358,7 +358,7 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
                     m_pPeriphery = (CPeripheryDevice *)pDevice;
                     break;
                 default:
-                    qDebug() << "unknown device detected";
+                    LOG() << "unknown device detected";
                     break;
                 }
             }
@@ -1940,27 +1940,27 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         (void)usleep(3000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure();
 
-        qDebug()<<"Bottle Check pressure: " << pressure;
+        LOG()<<"Bottle Check pressure: " << pressure;
 
         if(pressure < (0.4 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_EMPTY ;
-            qDebug()<<"Bottle Check: Empty";
+            LOG()<<"Bottle Check: Empty";
         }
         else if(pressure < (0.7 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
-            qDebug()<<"Bottle Check: Leakage or Not Full";
+            LOG()<<"Bottle Check: Leakage or Not Full";
         }
         else if(pressure < (2 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_OK;
-            qDebug()<<"Bottle Check: OK";
+            LOG()<<"Bottle Check: OK";
         }
         else
         {
             retCode = DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE;
-            qDebug()<<"Bottle Check: Blockage";
+            LOG()<<"Bottle Check: Blockage";
         }
 
         (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));

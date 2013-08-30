@@ -284,7 +284,8 @@ typedef enum
     SYNC_CMD_AL_GET_TEMP = 18,
     SYNC_CMD_AL_SET_TEMP_PID = 19,
     SYNC_CMD_AL_GET_TEMP_CTRL_STATE = 20,
-    SYNC_CMD_AL_SET_DO_VALVE = 21,
+    //SYNC_CMD_AL_SET_DO_VALVE = 21,
+    SYNC_CMD_AL_SET_FAN_STATUS = 21,
     SYNC_CMD_AL_GET_DO_LIFE_TIME = 22,
     SYNC_CMD_RT_SET_TEMP = 25,
     SYNC_CMD_RT_GET_TEMP = 26,
@@ -522,7 +523,7 @@ public:
     static const QString m_ALLevelSensorTempCtrlKey; //!< Air-liquid level sensor temp control
     static const QString m_ALTube1TempCtrlKey;       //!< Air-liquid tube1 temp control
     static const QString m_ALTube2TempCtrlKey;       //!< Air-liquid tube2 temp control
-    static const QString m_ALFanDOKey;               //!< Air-liquid fan digital output
+//    static const QString m_ALFanDOKey;               //!< Air-liquid fan digital output
     static const QString m_OvenTopTempCtrlKey;       //!< Oven top temp control
     static const QString m_OvenBottomTempCtrlKey;    //!< Oven bottom temp control
     static const QString m_OvenLidDIKey;            //!< Oven lid digital input

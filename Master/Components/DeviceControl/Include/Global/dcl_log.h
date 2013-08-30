@@ -24,6 +24,17 @@
 #include <sstream>
 #include <string>
 
+#ifndef PTS
+#include "EventHandler/Include/CrisisEventHandler.h"
+#endif
+
+
+
+#ifdef PTS
+#define LOG() qDebug()
+#else
+#define LOG() LOG_PAR()<<"DBG"
+#endif
 /*-------------------------------------------------
  This file provides functionality for logging
  Start Logging with the following commands:
@@ -322,6 +333,7 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
+#ifdef PTS
     FILE* pStream = Stream();
     if (!pStream)
         return;
@@ -330,6 +342,10 @@ inline void Output2FILE::Output(const std::string& msg)
 //ignoring return value of fflush
     fflush(pStream);
 /*lint -restore */
+#else
+   QString s =  QString(msg.c_str());
+   LOG() << s;
+#endif
 }
 
 
@@ -355,7 +371,6 @@ class FILELOG_DECLSPEC FILELog : public Log<Output2FILE> {};
 #define FILE_LOG_L(area, level) \
     if (level > FILELog::ReportingLevel(area) || !Output2FILE::Stream()) ; \
     else FILELog().Get(area, level, "", __FUNCTION__)
-
 /****************************************************************************/
 /*!
  *  \brief  Logging function

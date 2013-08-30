@@ -857,7 +857,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperatur
     if (IsTemperatureControlOff())
     {
         //Set the nominal temperature
-        if (!SetTemperature( NominalTemperature, SlopeTempChange))
+        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature( NominalTemperature, SlopeTempChange))
         {
             // Log(tr("Not able to set temperature"));
             return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
@@ -912,7 +912,7 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
         return retCode;
     }
     //Set the nominal temperature
-    if (!SetTemperature(NominalTemperature, SlopeTempChange))
+    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(NominalTemperature, SlopeTempChange))
     {
         // Log(tr("Not able to set temperature"));
         return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
@@ -1137,7 +1137,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     {
         //Log(tr("Already At Initial Position, No Need To Move!"));
         //Log("Already At Initial Position, No Need To Move!");
-        qDebug()<< "Already At Initial Position, No Need To Move!";
+        LOG()<< "Already At Initial Position, No Need To Move!";
         SetEDPosition(RV_TUBE_1);
         SetPrevEDPosition(RV_TUBE_1);
         return RetValue;
@@ -1146,7 +1146,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     {
         //Log(tr("Already At Initial Position, No Need To Move!"));
         //Log("Already At Initial Position, No Need To Move!");
-        qDebug()<< "Error when read LS code";
+        LOG()<< "Error when read LS code";
         RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
         return RetValue;
     }
@@ -1167,7 +1167,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
         if(lsCode == "3")
         {
             //Log(tr("Hit Initial Position!"));
-            qDebug() << "Hit Initial Position";
+            LOG() << "Hit Initial Position";
             SetEDPosition(RV_TUBE_1);
             SetPrevEDPosition(RV_TUBE_1);
         }
@@ -1176,14 +1176,14 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
             SetEDPosition(RV_UNDEF);
             SetPrevEDPosition(RV_UNDEF);
             RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
-            qDebug() << "Hit unexpected position, please retry!";
+            LOG() << "Hit unexpected position, please retry!";
         }
     }
     else
     {
         SetEDPosition(RV_UNDEF);
         SetPrevEDPosition(RV_UNDEF);
-        qDebug() << "Hit unexpected position, please retry!";
+        LOG() << "Hit unexpected position, please retry!";
         RetValue = refRunRet;
         // Log(tr("Hit unexpected position, please retry!"));
         // Log(tr("The Limit Switch code is: %1").arg(lsCode));
@@ -1243,19 +1243,19 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
             {
                 stop = false;
                 //   Log(tr("Motor running lower limit exception: retry time: %1, retry now.").arg(retry));
-                qDebug()<<"Motor running lower limit exception: retry time: "<<retry <<", retry now.";
+                LOG()<<"Motor running lower limit exception: retry time: "<<retry <<", retry now.";
             }
             else
             {
                 //  Log(tr("Motor moving retry time exceed %1, may be stucked!").arg(REFER_RUN_RETRY_TIME));
-                qDebug()<<"Motor moving retry time exceed "<< retry <<"may be stucked!";
+                LOG()<<"Motor moving retry time exceed "<< retry <<"may be stucked!";
                 ret = DCL_ERR_DEV_RV_MOVE_EXCEED_LOWER_LIMIT;
             }
         }
         else if(Step > UpperLimit)
         {
             //  Log(tr("Warning: Motor moving steps exceed upper limit: %1!").arg(UpperLimit));
-            qDebug() << "Warning: Motor moving steps exceed upper limit: " << UpperLimit;
+            LOG() << "Warning: Motor moving steps exceed upper limit: " << UpperLimit;
             ret = DCL_ERR_DEV_RV_MOVE_EXCEED_UPPER_LIMIT;
         }
 
@@ -1295,7 +1295,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             if(retry++ > 3)
             {
                 //Log(tr("Limit Switch code are not stable!"));
-                qDebug() << "Limit Switch code are not stable!";
+                LOG() << "Limit Switch code are not stable!";
                 retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
                 return retCode;
             }
@@ -1309,7 +1309,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         else
         {
             //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
-            qDebug()<<"Can't find current position, please run MoveToInitialPosition first!";
+            LOG()<<"Can't find current position, please run MoveToInitialPosition first!";
             retCode = DCL_ERR_DEV_RV_NOT_INITIALIZED;
             return retCode;
         }
@@ -1317,7 +1317,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     if(((qint32)RVPosition < 1)||((qint32)RVPosition > 32))
     {
         //Log(tr("The Tube No You Input: %1 is Invalid").arg(Position));
-        qDebug() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;
+        LOG() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;
         retCode = DCL_ERR_DEV_RV_INVALID_INPUT;
         return retCode;
     }
@@ -1325,7 +1325,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     if(EDPosition == RVPosition)
     {
         //Log(tr("Already At Target Position, No Need To Move!").arg(EDPosition));
-        qDebug()<<"Already At Target Position, No Need To Move!" << RVPosition;
+        LOG()<<"Already At Target Position, No Need To Move!" << RVPosition;
         retCode = DCL_ERR_DEV_RV_REF_MOVE_OK;
         return retCode;
     }
@@ -1351,7 +1351,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             EDPosition = GetEDPosition();
             if(EDPosition != RV_TUBE_1)
             {
-                qDebug()<<"Lost current position, need to run MoveToInitialPosition!";
+                LOG()<<"Lost current position, need to run MoveToInitialPosition!";
                 retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
                 return retCode;
             }
@@ -1376,7 +1376,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             EDPosition = GetEDPosition();
             if(EDPosition != RV_SEAL_2)
             {
-                qDebug()<<"Lost current position, need to run MoveToInitialPosition!";
+                LOG()<<"Lost current position, need to run MoveToInitialPosition!";
                 retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
                 return retCode;
             }
@@ -1446,7 +1446,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
     if(RV_UNDEF == EDPosition)
     {
         //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
-        qDebug()<<"Can't find current position, please run MoveToInitialPosition first!";
+        LOG()<<"Can't find current position, please run MoveToInitialPosition first!";
         return DCL_ERR_DEV_RV_NOT_INITIALIZED;
     }
 
@@ -1481,12 +1481,12 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
         }
         SetEDPosition(EDPosition);
         //Log(tr("CW Hit Position: %1").arg(TranslateFromEDPosition(EDPosition)));
-        qDebug()<<"CW Hit Position: " << TranslateFromEDPosition(EDPosition); //lint !e641
+        LOG()<<"CW Hit Position: " << TranslateFromEDPosition(EDPosition); //lint !e641
     }
     else
     {
         //Log(tr("Unknown error happened, lost current position, please run MoveToInitialPosition"));
-        qDebug()<<"Unknown error happened, lost current position, please run MoveToInitialPosition";
+        LOG()<<"Unknown error happened, lost current position, please run MoveToInitialPosition";
         SetEDPosition(RV_UNDEF);
         SetPrevEDPosition(RV_UNDEF);
     }
@@ -1663,7 +1663,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
     if(RV_UNDEF == EDPosition)
     {
         //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
-        qDebug() << "Can't find current position, please run MoveToInitialPosition first!";
+        LOG() << "Can't find current position, please run MoveToInitialPosition first!";
         return DCL_ERR_DEV_RV_NOT_INITIALIZED;
     }
 
@@ -1697,12 +1697,12 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
         }
         SetEDPosition((RVPosition_t)tempPosition);
         //Log(tr("CCW Hit Position: %1").arg(TranslateFromEDPosition(EDPosition)));
-        qDebug() << "CCW Hit Position: " << TranslateFromEDPosition(tempPosition);
+        LOG() << "CCW Hit Position: " << TranslateFromEDPosition(tempPosition);
     }
     else
     {
         //Log(tr("Unknown error happened, lost current position, please run MoveToInitialPosition"));
-        qDebug() << "Unknown error happened, lost current position, please run MoveToInitialPosition";
+        LOG() << "Unknown error happened, lost current position, please run MoveToInitialPosition";
         SetEDPosition(RV_UNDEF);
         SetPrevEDPosition(RV_UNDEF);
     }
@@ -1757,7 +1757,7 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
     //static quint32 LastED = 0;
     RVPosition_t ED = GetEDPosition();
     //Log(tr("last ED is: %1, lower limit is: %2, upper limit is %3 ").arg(ED).arg(LowerLimit).arg(UpperLimit));
-    qDebug()<<"last ED is:"<< ED <<", lower limit is: "<<LowerLimit<<", upper limit is " << UpperLimit;
+    LOG()<<"last ED is:"<< ED <<", lower limit is: "<<LowerLimit<<", upper limit is " << UpperLimit;
     //RetValue = ReferenceRunWithTimeout(LowerLimit, UpperLimit);
     ret = DoReferenceRunWithStepCheck(LowerLimit, UpperLimit);
 #else
@@ -1771,14 +1771,14 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
         while((Retry++) < 30)
         {
             //Log(tr("Warning: Get unexpected LS Code: %1, wait 0.5 sec to read again.").arg(lsCode));
-            qDebug() << "Warning: Get unexpected LS Code: %1, wait 0.5 sec to read again." << lsCode;
+            LOG() << "Warning: Get unexpected LS Code: %1, wait 0.5 sec to read again." << lsCode;
             (void)usleep(500*1000);
             lsCode = GetLimitSwitchCode();
         }
         if(Retry >= 30) // 2013.3.8 Frank's request
         {
             //Log(tr("Hit unexpected position! Already read LS code for 30 times"));
-            qDebug() << "Hit unexpected position! Already read LS code for 30 times";
+            LOG() << "Hit unexpected position! Already read LS code for 30 times";
             //RetValue = false; // 2013.3.8 Frank's request
         }
     }
@@ -1909,7 +1909,7 @@ void CRotaryValveDevice::OnGetPosition(quint32 /*InstanceID*/, ReturnCode_t Retu
     m_CurrentPosition = Position;
     m_CurrentLimitSwitchCode = PosCode;
     if (ReturnCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        qDebug()<< "Warning! Unexpected return code at OnGetPosition";
+        LOG()<< "Warning! Unexpected return code at OnGetPosition";
     } else {
         //m_CurrentPositionKnown = true;
     }
@@ -2333,7 +2333,7 @@ void CRotaryValveDevice::OnReferenceRun(quint32 InstanceID, ReturnCode_t ReturnC
     }
     else
     {
-        qDebug()<< "Warning! Unexpected return code at OnReferenceRun";
+        LOG()<< "Warning! Unexpected return code at OnReferenceRun";
     }
     if(m_pDevProc)
     {
@@ -2355,7 +2355,7 @@ void CRotaryValveDevice::OnSetConfiguration(quint32 /*InstanceID*/, ReturnCode_t
 {
     // exit from eventloop: 1 success, 0 timeout, -1 failure
     if (ReturnCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        qDebug()<< "Warning! Unexpected return code at OnSetConfiguration";
+        LOG()<< "Warning! Unexpected return code at OnSetConfiguration";
     }
     if(m_pDevProc)
     {
@@ -2414,7 +2414,7 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
 {
     // exit from eventloop: 1 success, 0 timeout, -1 failure
     if ( DCL_ERR_FCT_CALL_SUCCESS  !=ReturnCode) {
-        qDebug()<< "Warning! Unexpected return code at OnSetMotorState";
+        LOG()<< "Warning! Unexpected return code at OnSetMotorState";
     }
 
     if(m_pDevProc)
