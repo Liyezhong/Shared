@@ -61,7 +61,7 @@ void tempHeaterReset (void);
 Error_t tempHeaterProgress (void);
 Error_t tempSampleCurrent (TempHeaterType_t HeaterType);
 Bool tempHeaterParallel (void);
-Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck);
+Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck, Bool AutoSwitch);
 Bool tempHeaterFailed (void);
 Error_t tempHeaterActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance);
 UInt16 tempHeaterCurrent (void);
@@ -72,6 +72,7 @@ UInt16 tempGetActiveDesiredCurThreshold(void);
 //void tempResetActiveStatus(void);
 UInt8 tempHeaterSwitchState(void);
 UInt32 tempGetActiveStatus(void);
+Error_t tempSetHeaterSwitchState(UInt8 State);
 //****************************************************************************/
 
 #endif /*FMTEMPERATUREHEATER_H*/

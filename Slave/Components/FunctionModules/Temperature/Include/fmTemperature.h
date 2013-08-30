@@ -102,6 +102,9 @@
 //! Notification sent when preset temperature variation slope reached
 #define MSG_TEMP_NOTI_SLOPE_DETECTED  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0)
 
+//! Sets the switch state of the heaters
+#define MSG_TEMP_SET_SWITCH_STATE     BUILD_CAN_ID(CMD_CLASS_FUNCTION, 20, 1)
+
 //****************************************************************************/
 // Public Type Definitions 
 //****************************************************************************/

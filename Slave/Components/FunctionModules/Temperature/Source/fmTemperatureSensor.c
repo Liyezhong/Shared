@@ -173,7 +173,8 @@ static Int16 tempSensorTableGT103F[TEMP_SENSOR_MAX] = {
 
 
 /*! Conversion table for the Analog Devices AD595 in millivolts */
-static Int16 tempSensorTableAD595[TEMP_SENSOR_MAX] = {
+//static Int16 tempSensorTableAD595[TEMP_SENSOR_MAX] = {
+static const Int16 tempSensorTableAD595[TEMP_SENSOR_MAX] = {    //  Todo: how to reduce RAM size
        3,   13,   22,   32,   42,   52,   62,   72,   81,   91, //   0 to   9 degree Celsius
      101,  111,  121,  131,  141,  151,  160,  170,  180,  190, //  10 to  19 degree Celsius
      200,  210,  220,  230,  240,  250,  260,  270,  280,  290, //  20 to  29 degree Celsius
@@ -302,7 +303,9 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
         Table = tempSensorTable10K3A1I;
     }
     else if (Type == AD595) {
-        Table = tempSensorTableAD595;
+        //Table = tempSensorTableAD595;
+        //  Todo: how to reduce RAM size
+        Table = (Int16*)tempSensorTableAD595;
     }
     else if (Type == TYPET) {
         Table = tempSensorTableTypeT;

@@ -130,8 +130,6 @@ typedef struct {
 } InstanceData_t;
 
 
-static Bool TempChanged = FALSE;
-static Bool HeaterCheckSkipped = FALSE;
 //****************************************************************************/
 // Private Variables
 //****************************************************************************/
@@ -156,6 +154,13 @@ static TempHeaterParams_t *tempHeaterParams;
 /*! Total number of sensors used in all instances */
 static UInt32 TempNumSensors = 0;
 
+/*! Flag for indicating change of temperature setting */
+static Bool TempChanged = FALSE;
+/*! Flag for indicating if heater check skipped after temperature changed */
+static Bool HeaterCheckSkipped = FALSE;
+/*! Flag for AC heater auto switching between 110 and 220V */
+static Bool ACHeaterAutoSwitch = FALSE;
+
 //****************************************************************************/
 // Private Function Prototypes
 //****************************************************************************/
@@ -179,6 +184,7 @@ static Error_t tempSetFanWatchdog       (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempSetCurrentWatchdog   (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempSetPidParameters     (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempSetHeaterTime        (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetSwitchState       (UInt16 Channel, CanMessage_t* Message);
 
 static Error_t tempGetTemperature       (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempGetPidParameters     (UInt16 Channel, CanMessage_t* Message);
@@ -580,11 +586,11 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
         if ( Instance == tempFindRoot () ) {
             if ( TempChanged ) {
             //if (FALSE) {
-                Error = tempHeaterCheck (Instance, Data->HeaterType, FALSE);
+                Error = tempHeaterCheck (Instance, Data->HeaterType, FALSE, ACHeaterAutoSwitch);
                 HeaterCheckSkipped = TRUE;
             }
             else {
-                Error = tempHeaterCheck (Instance, Data->HeaterType, TRUE);
+                Error = tempHeaterCheck (Instance, Data->HeaterType, TRUE, ACHeaterAutoSwitch);
             }
             if (Error < 0) {
                 return Error;
@@ -950,7 +956,7 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
         TempPhase = PHASE_HEAT;
     }
     
-    printf("TC Id:%d, Flag:%d\n", InstanceID, Data->Flags);
+    printf("TC Id:%d, Flag:%d, Sample Time:%d\n", InstanceID, Data->Flags, TempSamplingTime);
     
     // Start auto-tuning
     if ((Data->Flags & MODE_AUTO_TUNE) != 0) {
@@ -1148,6 +1154,72 @@ static Error_t tempSetHeaterTime (UInt16 Channel, CanMessage_t* Message)
     return (E_MISSING_PARAMETERS);
 }
 
+
+/*****************************************************************************/
+/*!
+ *  \brief  Sets current watchdog parameters
+ *
+ *      This function is called by the CAN message dispatcher when a message
+ *      setting fan speed and heater current watchdog parameters is received
+ *      from the master. The parameters in the message are transfered to the
+ *      data structure of the addressed module instance. The modified settings
+ *      influence the behavior of the module task. The following settings will
+ *      be modified:
+ *
+ *      - Current sensor idle output voltage (mV)
+ *      - Current sensor gain factor (mA/V)
+ *      - Desired heater current (in milliampere)
+ *      - Heater current threshold (in milliampere)
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
+static Error_t tempSetSwitchState (UInt16 Channel, CanMessage_t* Message)
+{
+    UInt8 i;
+    Int8 State;
+    Int8 AutoSwitch;
+    InstanceData_t* Data;    
+    Bool Running = FALSE;
+    Error_t Error;
+    
+    for (i = 0; i < InstanceCount; i++) {
+        Data = &DataTable[i];
+        if ((Data->Flags & MODE_MODULE_ENABLE) != 0) {
+            Running = TRUE;
+            break;
+        }
+    }
+      
+    if (Running) {
+        return (E_TEMP_MODULE_ACTIVE);
+    }
+
+    if (Message->Length == 2) {
+    
+        State = (Int8)bmGetMessageItem (Message, 0, 1);
+        if (State >= 0) {
+            Error = tempSetHeaterSwitchState((UInt8)State);
+            if(Error < 0) {
+                return (Error);
+            }
+            printf("Switch State set to %d\n", State);
+        }
+        
+        AutoSwitch = (Int8)bmGetMessageItem (Message, 1, 1);
+        if (AutoSwitch >= 0) {
+            ACHeaterAutoSwitch = (Bool)AutoSwitch;
+            printf("Auto Switch: %d\n", AutoSwitch);
+        }
+        
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+}
 
 /*****************************************************************************/
 /*!
@@ -1607,7 +1679,8 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
         { MSG_TEMP_REQ_HEATER_TIME, tempGetHeaterTime },
         { MSG_TEMP_REQ_SERVICE_SENSOR, tempGetServiceSensor },
         { MSG_TEMP_REQ_SERVICE_FAN, tempGetServiceFan },
-        { MSG_TEMP_REQ_HARDWARE, tempGetHardware }
+        { MSG_TEMP_REQ_HARDWARE, tempGetHardware },
+        { MSG_TEMP_SET_SWITCH_STATE, tempSetSwitchState } 
     };
 
     static bmModuleInterface_t Interface = {

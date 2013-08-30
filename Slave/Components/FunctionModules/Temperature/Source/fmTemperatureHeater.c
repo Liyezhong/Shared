@@ -429,6 +429,23 @@ UInt8 tempHeaterSwitchState (void)
     return (TempHeaterData.State);
 }
 
+
+/*****************************************************************************/
+/*!
+ *  \brief  Sets heater switch state
+ *
+ *      This method sets the state of heating elements.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
+Error_t tempSetHeaterSwitchState(UInt8 State)
+{
+    return tempHeaterSwitch(TempHeaterData.HandleSwitch, (TempHeaterState_t)State);
+}
+
+
 /*****************************************************************************/
 /*!
  *  \brief  Calculates the effective current through heaters
@@ -490,7 +507,7 @@ void tempCalcEffectiveCurrent(UInt16 Instance, TempHeaterType_t HeaterType)
  *
  ****************************************************************************/
 
-Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck)
+Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck, Bool AutoSwitch)
 {
     Error_t Error;
     UInt16 Current = 0;
@@ -520,8 +537,6 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
         return (NO_ERROR);
     }
 
-
-
     if (HeaterType == TYPE_HEATER_DC) {
         // Check the current through the DC heaters
         // All heating elements are off    
@@ -531,7 +546,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
             if (TempHeaterData.EffectiveCurrent > CurrentDeviation) {
             
                 // Calculate current effective current
-                UInt16 RealEffectiveCurrent;            
+                UInt16 RealEffectiveCurrent;
                 RealEffectiveCurrent = ((Int32) CurrentGain * TempHeaterMonitor.Value) / 1000;
                             
                 if(RealEffectiveCurrent > CurrentDeviation) {
@@ -596,13 +611,15 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                 }
                 else if (TempHeaterData.State == TEMP_HEATER_STATE_UNDEFINED) {
                     
+                    if (AutoSwitch) {
                         // Switched for 110V            
-                    Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TEMP_HEATER_STATE_PARALLEL);
-                    if (Error < NO_ERROR) {
-                            printf("Switch for 110V failed\n");
-                            return (Error);
+                        Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TEMP_HEATER_STATE_PARALLEL);
+                        if (Error < NO_ERROR) {
+                                printf("Switch for 110V failed\n");
+                                return (Error);
                         }
                         printf("Switch for 110V\n");
+                    }
                 }
                 else {
                     TempHeaterData.Failed = TRUE;
@@ -623,12 +640,15 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
             // Check if the current is out of range (100 - 127V)
             if (Current / 2 + DesiredCurThreshold < DesiredCurrent ||
                     Current / 2 > DesiredCurrent + DesiredCurThreshold) {
-                // Switched for 220V
-                Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TEMP_HEATER_STATE_UNDEFINED);
-                if (Error < NO_ERROR) {
-                    return (Error);
+                    
+                if (AutoSwitch) {  //TBD: Force to switch to serial mode for safety?
+                    // Switched for 220V
+                    Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TEMP_HEATER_STATE_UNDEFINED);
+                    if (Error < NO_ERROR) {
+                        return (Error);
+                    }
+                    printf("Switch for 220V\n");
                 }
-                printf("Switch for 220V\n");
 
                 TempHeaterData.Failed = TRUE;
                 printf("110V Err:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
