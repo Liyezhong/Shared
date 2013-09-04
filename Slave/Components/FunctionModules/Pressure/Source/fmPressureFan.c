@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file fmPressureFan.c
  * 
- *  \brief Functions determining the speed of a ventilation fan.
+ *  \brief Functions controlling a fan element.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 20.08.2012
@@ -9,183 +9,350 @@
  *
  *  \b Description:
  *
- *  This file's only task the determination of speed of a ventilation fan.
- *  The unit is rotations per minute.
+ *  The methods defined here control the fan element. There are also
+ *  functions that determine the connection between various fan elements.
+ *  Furthermore, the current usage in milliamperes of the elements is computed
+ *  here.
  *
  *  \b Company:
  *
- *       Leica Biosystems Nussloch GmbH.
+ *       Leica Biosystems Shanghai.
  * 
- *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  (C) Copyright 2010 by Leica Biosystems Shanghai. All rights reserved.
  *  This is unpublished proprietary source code of Leica. The copyright notice 
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "bmError.h"
-#include "fmPressureFan.h"
+#include "bmMonitor.h"
+#include "bmTime.h"
 #include "halLayer.h"
+#include "ModuleIds.h"
+#include "fmPressure.h"
+#include "fmPressureFan.h"
 
 //****************************************************************************/
 // Private Constants and Macros 
 //****************************************************************************/
 
-static const Device_t PRESS_FAN_HAL_TIMER = HAL_PRESS_FANSPEED; //!< The timer unit for the first instance
-
 //****************************************************************************/
 // Private Type Definitions 
 //****************************************************************************/
 
-/*! Contains all variables needed for fan speed measurments */
+/*! Contains the data for the fan current measurements */
 typedef struct {
-    Handle_t Handle;            //!< Handle to access a hardware timer (HAL)
-    Handle_t *HandleControl;    //!< Handle to access digital output ports (HAL)
-    UInt8 CaptureNumber;        //!< Number of active capture channels
-    UInt32 *CountOld;           //!< Last counter value from the capture register
-    UInt32 *CountDiff;          //!< The difference between two capture events
-    Bool *TopSpeed;             //!< Indicates if the fan is at top speed or not
-    UInt32 TimeMask;            //!< The size of the timer register
-} PressureFan_t;
+    Handle_t *HandleControl;    //!< Array of handles for the fan element control outputs
+    Int16 MinValue;             //!< Minimal value of the last current half-wave
+    Int16 MaxValue;             //!< Maximal value of the last current half-wave
+    UInt16 EffectiveCurrent;    //!< Effective value of the fan element current in mA
+    PressFanParams_t Params;    //!< Parameters for the fan current measurements
+    UInt16 Instances;           //!< Total number of module instances
+    Bool*  ActiveStatus;        //!< Array of flags if fan is active or not
+    UInt16 MaxActive;           //!< Maximum number of active fan elements
+    UInt32 SampleTime;          //!< Time the last sample was taken
+    Bool Failed;                //!< The fan check failed
+} PressFanData_t;
+
+
+/*! Data structure to hold monitoring variables */
+typedef struct {
+    UInt16 Filter:8;    //!< Number of samples to average over
+    Int16 History[16];  //!< History of input values (for filtering)
+    UInt16 InCount;     //!< Number of samples in history buffer
+    UInt16 NextIn;      //!< Next-in pointer into history buffer
+    Int16 Value;        //!< Filtered input value
+    Handle_t Handle;    //!< Handle for input channel
+} PressFanMonitor_t;
 
 //****************************************************************************/
 // Private Variables 
 //****************************************************************************/
 
-static PressureFan_t *PressFanTable = NULL; //!< data table for all instances
-static UInt16 PressFanInstances = 0; //!< number of module instances
+/*! Global data for the fan element control functionality */
+static PressFanData_t PressFanData;
+/*! Global data for input filtering functionality */
+static PressFanMonitor_t PressFanMonitor;  
+
 
 //****************************************************************************/
 // Private Function Prototypes 
 //****************************************************************************/
 
-static void pressFanInterrupt (UInt32 Channel, UInt32 IntrFlags);
+static Error_t pressFanGetFilteredInput (PressFanMonitor_t *Monitor);
 
 
 /*****************************************************************************/
-/*! 
- *  \brief   Initializes the data structures for all instances 
+/*!
+ *  \brief  Initializes the handling of the fan elements
  *
- *      This method allocates the data table that holds all information
- *      required for the computation of the speed of the ventilation fans. It
- *      initializes the table for all instances. It must not be called more
- *      than once. 
- * 
- *  \iparam  Instances = Number of instances 
+ *      This methods opens the peripheral handlers needed for the control of
+ *      the fan elements. It also allocates the memory required by this
+ *      task and initializes the fan element switching circuit and the
+ *      measurement of the effective current through the elements.
+ *
+ *  \oparam  Params = Points to the public data of this module
+ *  \iparam  CurrentChannel = HAL channel for the current measurement
+ *  \iparam  ControlChannel = HAL channel for the fan control
+ *  \iparam  Instances = Total number of module instances
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+Error_t pressFanInit (PressFanParams_t **Params, Device_t CurrentChannel, Device_t ControlChannel, UInt16 Instances)
+{
+    UInt16 i;
+    //Error_t Error;
+
+    // Allocating memory
+    PressFanData.HandleControl = calloc (Instances, sizeof(Handle_t));
+    if (NULL == PressFanData.HandleControl) {
+        return (E_MEMORY_FULL);
+    }
+
+    PressFanData.ActiveStatus = calloc (Instances, sizeof(Bool));
+    if (NULL == PressFanData.ActiveStatus) {
+        return (E_MEMORY_FULL);
+    }
+    
+    // Open current measurement sensor
+    PressFanMonitor.Handle = halAnalogOpen (CurrentChannel, HAL_OPEN_READ, 0, NULL);
+    if (PressFanMonitor.Handle < 0) {
+        return (PressFanMonitor.Handle);
+    }
+    
+
+    // Open fan element control outputs
+    for (i = 0; i < Instances; i++) {
+        PressFanData.HandleControl[i] = halPortOpen (ControlChannel + i, HAL_OPEN_WRITE);
+        if (PressFanData.HandleControl[i] < 0) {
+            return (PressFanData.HandleControl[i]);
+        }
+    }
+    
+    PressFanData.Instances = Instances;
+    PressFanData.MinValue = MAX_INT16;
+    PressFanData.MaxValue = MIN_INT16;
+    PressFanData.SampleTime = bmGetTime ();
+    *Params = &PressFanData.Params;
+    
+    PressFanMonitor.Filter = 3;
+    
+    return (NO_ERROR);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief  Resets fan current measurements
+ *
+ *      This function resets all runtime parameters of the fan current
+ *      measurements to their default values. This function should always be
+ *      called, when the fan process has been stopped and it is restarted.
+ *
+ ****************************************************************************/
+
+void pressFanReset ()
+{
+    //PressFanMonitor.InCount = 0;
+    //PressFanData.MinValue = MAX_INT16;
+    //PressFanData.MaxValue = MIN_INT16;
+    PressFanData.MaxActive = 0;
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Get filtered analog input
+ *
+ *      Reads an analog input value, saves it in the data history buffer,
+ *      calculates the mean value using the history buffer and returns
+ *      the averaged result. The variable "Data->Filter" defines how many
+ *      entries in the history buffer will be taken to average over.
+ *      The filtered result is returned in "Data->Value".
+ *
+ *  \iparam  Monitor = Pointer to power monitor data structure
+ *
+ *  \return  Filtered analog input value
+ *
+ *****************************************************************************/
+
+static Error_t pressFanGetFilteredInput (PressFanMonitor_t *Monitor) {
+
+    Int32 Average = 0;
+    Error_t Status;
+    UInt16 Index;
+    UInt16 Count;
+    UInt16 i;
+
+    Status = halAnalogRead (
+        Monitor->Handle, &Monitor->History[Monitor->NextIn]);
+
+    if (Status == NO_ERROR) {
+
+        if (Monitor->InCount < ELEMENTS(Monitor->History)) {
+            Monitor->InCount++;
+        }
+        Count = MIN(Monitor->Filter+1, Monitor->InCount);
+
+        Index = Monitor->NextIn - Count;
+        if (Index >= ELEMENTS(Monitor->History)) {
+           Index += ELEMENTS(Monitor->History);
+        }
+        for (i=0; i < Count; i++) {
+            if (++Index >= ELEMENTS(Monitor->History)) {
+                Index = 0;
+            }
+            Average += Monitor->History[Index];
+        }
+        if (++Monitor->NextIn >= ELEMENTS(Monitor->History)) {
+            Monitor->NextIn = 0;
+        }
+        if (Count) {
+            Monitor->Value = Average / Count;
+        }
+    }
+    return (Status);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief  Samples effective current through fans
+ *
+ *      This function reads the analog input value delivered by the current
+ *      sensor. It should be called by the task function as often as possible.
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
  
-Error_t pressFanInit (UInt16 Instances)
+Error_t pressFanSampleCurrent(void)
 {
-    if (NULL == PressFanTable) {
-        PressFanTable = calloc (Instances, sizeof(PressureFan_t));
-        if (NULL == PressFanTable) {
-            return (E_MEMORY_FULL);
+    Error_t Error;
+    
+    if (bmTimeExpired (PressFanData.SampleTime) != 0) {
+        PressFanData.SampleTime = bmGetTime ();
+
+        // Reading analog input value from sensor
+        Error = pressFanGetFilteredInput (&PressFanMonitor);
+        if (Error < NO_ERROR) {
+            return Error;
         }
-        PressFanInstances = Instances;
-        return (NO_ERROR);
+
+        // Maximum detection
+        if (PressFanMonitor.Value > PressFanData.MaxValue) {
+            PressFanData.MaxValue = PressFanMonitor.Value;
+            //PressFanData.EffectiveCurrent = PressFanData.MaxValue;
+        }
     }
-    return (E_PARAMETER_OUT_OF_RANGE);
+    
+    return (NO_ERROR);
+}
+
+/*****************************************************************************/
+/*!
+ *  \brief  Calculates the effective current through fans
+ *
+ *      This function computes the effective current through fans. It should 
+ *      be called by the task function as often as possible.
+ *
+ *
+ ****************************************************************************/
+ 
+void pressFanCalcEffectiveCurrent(UInt16 Instance)
+{
+    PressFanParams_t *Params = &PressFanData.Params;  
+
+    // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV)
+    // => (1 / 1000)    
+    PressFanData.EffectiveCurrent = ((Int32) Params->CurrentGain * PressFanData.MaxValue) / 1000;
+    
+    PressFanData.MaxValue = MIN_INT16;
 }
 
 
 /*****************************************************************************/
-/*! 
- *  \brief   Opens the timer capture channels
+/*!
+ *  \brief  Checks the measured current through the fan
  *
- *      The function initializes a capture unit that is part of the hardware
- *      abstraction layer. The capture unit measures the time between two
- *      strobes generated by the sensor of the ventilation fans.
- * 
- *  \iparam  Instance = Instance number 
- *  \oparam  Fans = Total number of fans for this instance
+ *      This method updates active status of fans. It should be called by the 
+ *      task function as often as possible.
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-
-Error_t pressFanOpen (UInt16 Instance, UInt8 Fans)
+ 
+Error_t pressFanProgress (void)
 {
-    UInt8 i;
-    Error_t Error;
-    TimerMode_t TimerMode;
-    PressureFan_t *PressFan = &PressFanTable[Instance];
-    
-    TimerMode.Direction = TIM_MODE_COUNT_UP;
-    TimerMode.OneShot = TIM_MODE_INTERVAL;
-    TimerMode.ClkSource = TIM_MODE_INTERNAL;
-    TimerMode.ClkMode = 0;
+    UInt16 Active;
 
-    if (Fans == 0) {
-        return (NO_ERROR);
+    Active = pressFanActive ();
+    if (Active > PressFanData.MaxActive) {
+        PressFanData.MaxActive = Active;
     }
+    //printf("Active:%d\n", Active);
 
-    if (Instance >= PressFanInstances) {
-        return E_PARAMETER_OUT_OF_RANGE;
-    }
+    return (NO_ERROR);
+}
+
+/*****************************************************************************/
+/*!
+ *  \brief  Checks the measured current through the fan
+ *
+ *      This method checks if the current is in the range specified by the
+ *      master computer. If not, the module issues an error message.
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
+Error_t pressFanCheck (void)
+{
+    //Error_t Error;
+    UInt16 Current;
+    UInt16 ActiveCount = PressFanData.MaxActive;
+    PressFanParams_t *Params = &PressFanData.Params;
     
-    // Allocate fan control handles
-    PressFan->HandleControl = calloc (Fans, sizeof(Handle_t));
-    if (NULL == PressFanTable) {
-        return (E_MEMORY_FULL);
-    }
-    // Open fan control switches
-    for (i = 0; i < Fans; i++) {
-        PressFan->HandleControl[i] = halPortOpen (HAL_PRESS_FANCONTROL + i, HAL_OPEN_WRITE);
-        if (PressFan->HandleControl[i] < 0) {
-            return (PressFan->HandleControl[i]);
+    //PressFanData.EffectiveCurrent = PressFanData.MaxValue;
+    //PressFanData.MinValue = MAX_INT16;
+    
+    //PressFanData.MaxValue = MIN_INT16;
+    PressFanData.Failed = FALSE;
+    PressFanData.MaxActive = 0;
+
+    // Check the current through the fans
+    // All fan elements are off
+    if (ActiveCount == 0) {
+        printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
+        if (PressFanData.EffectiveCurrent > Params->DesiredCurThreshold) {
+        
+            // Calculate current effective current
+            UInt16 RealEffectiveCurrent;            
+            RealEffectiveCurrent = ((Int32) Params->CurrentGain * PressFanMonitor.Value) / 1000;        
+            
+            if(RealEffectiveCurrent > Params->DesiredCurThreshold) {
+                PressFanData.Failed = TRUE;
+                printf("Fan Current Err[aaa]:%d\n", PressFanData.EffectiveCurrent);
+            }
         }
+        
     }
-
-    // Open fan speed capture units
-    PressFan->Handle = halTimerOpen (PRESS_FAN_HAL_TIMER + Instance, Instance, pressFanInterrupt);
-    if (PressFan->Handle < 0) {
-        return (PressFan->Handle);
-    }
-    Error = halTimerStatus (PressFan->Handle, TIM_STAT_CLOCKRATE);
-    if (Error < NO_ERROR) {
-        return (Error);
-    }
-    Error = halTimerSetup (PressFan->Handle, &TimerMode, Error / 100000);
-    if (Error < NO_ERROR) {
-        return (Error);
-    }
-    // Request the size of the capture registers
-    Error = halTimerStatus (PressFan->Handle, TIM_STAT_MAXCOUNT);
-    if (Error < NO_ERROR) {
-        return (Error);
-    }
-    PressFan->TimeMask = Error;
-
-    Error = halTimerStatus (PressFan->Handle, TIM_STAT_UNITS);
-    if (Error < 0) {
-        return (Error);
-    }
-    else if (Error < Fans) {
-        return (E_PARAMETER_OUT_OF_RANGE);
-    }
-    
-    Error = halTimerControl (PressFan->Handle, TIM_CTRL_START);
-    if (Error < 0) {
-        return (Error);
-    }
-    
-    // Allocation of measurement variables
-    PressFan->CaptureNumber = Fans;
-    PressFanTable->CountOld = calloc (PressFan->CaptureNumber, sizeof(UInt32));
-    if (NULL == PressFanTable->CountOld) {
-        return (E_MEMORY_FULL);
-    }
-    PressFanTable->CountDiff = calloc (PressFan->CaptureNumber, sizeof(UInt32));
-    if (NULL == PressFanTable->CountDiff) {
-        return (E_MEMORY_FULL);
-    }
-    PressFanTable->TopSpeed = calloc (PressFan->CaptureNumber, sizeof(Bool));
-    if (NULL == PressFanTable->TopSpeed) {
-        return (E_MEMORY_FULL);
+    else {
+        Current = PressFanData.EffectiveCurrent / ActiveCount;
+        
+        printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
+        
+        // Check if the current is out of range
+        if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
+                Current > Params->DesiredCurrent + Params->DesiredCurThreshold) {
+                printf("Fan Current Err[bbb]:%d\n", PressFanData.EffectiveCurrent);
+                PressFanData.Failed = TRUE;
+        }
     }
     
     return (NO_ERROR);
@@ -193,129 +360,92 @@ Error_t pressFanOpen (UInt16 Instance, UInt8 Fans)
 
 
 /*****************************************************************************/
-/*! 
- *  \brief   Activates or deactivates the fans
+/*!
+ *  \brief  Returns if the current is in range
  *
- *      This method starts and stopps all ventialtion fans assigned to an
- *      instance of this function module.
- * 
- *  \iparam  Instance = Instance number 
- *  \iparam  Activate = Switch on (true) or off (false)
+ *      This method returns if the fan current measurement is in an error
+ *      state or not.
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Fan current check failed or not
  *
  ****************************************************************************/
  
-Error_t pressFanControl (UInt16 Instance, Bool Activate)
+Bool pressFanFailed ()
 {
-    UInt8 i;
-    Error_t Status;
-
-    if (Instance >= PressFanInstances) {
-        return E_PARAMETER_OUT_OF_RANGE;
-    }
-
-    for (i = 0; i < PressFanTable[Instance].CaptureNumber; i++) {
-        PressFanTable[Instance].CountOld[i] = 0;
-        PressFanTable[Instance].CountDiff[i] = 0;
-        PressFanTable[Instance].TopSpeed[i] = FALSE;
-        
-        Status = halPortWrite (PressFanTable[Instance].HandleControl[i], Activate);
-        if (Status < NO_ERROR) {
-            return (Status);
-        }
-        
-        if (Activate == TRUE) {
-            Status = halCapComControl (PressFanTable[Instance].Handle, i, TIM_INTR_ENABLE);
-        }
-        else {
-            Status = halCapComControl (PressFanTable[Instance].Handle, i, TIM_INTR_DISABLE);
-        }
-        if (Status < NO_ERROR) {
-            return (Status);
-        }
-    }
-    
-    return (Status);
+    return PressFanData.Failed;
 }
 
 
 /*****************************************************************************/
 /*! 
- *  \brief   Measures the speed of a ventilation fan
+ *  \brief   Sets the status of a fan element
  *
- *      This function converts the information fetched from a single capture
- *      channel into rotations per minute and returns the value.
+ *      This function receives the actuating variable passed from master. 
+ *      This input value is then passed to the control port.
  * 
- *  \iparam  Instance = Instance number 
- *  \iparam  Fan = Number of the ventilation fan
- *  \oparam  Speed = Fan speed in rotations per minute
+ *  \iparam  FanStatus = Fan on/off
+ *  \iparam  Instance = Instance number
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 
-Error_t pressFanSpeed (UInt16 Instance, UInt8 Fan, UInt16 *Speed)
-{
-    UInt32 Count;
-    Error_t Status = PressFanTable[Instance].TopSpeed[Fan];
-
-    if (Instance >= PressFanInstances) {
-        return E_PARAMETER_OUT_OF_RANGE;
-    }
-    if (Fan >= PressFanTable[Instance].CaptureNumber) {
-        return E_PARAMETER_OUT_OF_RANGE;
-    }
-
-    Count = PressFanTable[Instance].CountDiff[Fan];
+Error_t pressFanControl (Bool FanStatus, UInt16 Instance)
+{   
+    Error_t Error;
     
-    if (Count != 0) {
-        *Speed = 3000000 / Count;
-    }
-    else {
-        *Speed = 0;
+    Error = halPortWrite (PressFanData.HandleControl[Instance], FanStatus);
+    
+    if (Error != NO_ERROR) {
+        return Error;
     }
     
-    PressFanTable[Instance].TopSpeed[Fan] = TRUE;
-    return (Status);
+    PressFanData.ActiveStatus[Instance] = FanStatus;
+    
+    return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
 /*! 
- *  \brief   Interrupt handler reading capture channels
+ *  \brief   Returns the electric current through the fan elements
  *
- *      This interrupt handler reads all capture registers of the timer unit
- *      and computes the counter difference since the last event. These values
- *      are stored in the corresponding data struture of the function module
- *      instance.
+ *      This function returns the electric current flowing through the fan
+ *      elements in milliamperes.
  * 
- *  \iparam  Channel = user infomation
- *  \iparam  IntrFlags = interrupt flags
+ *  \return  Effective current value in milliamperes
  *
  ****************************************************************************/
 
-static void pressFanInterrupt (UInt32 Channel, UInt32 IntrFlags)
+UInt16 pressFanCurrent (void)
 {
-    UInt8 i;
-    UInt32 CountNew;
-    Error_t Error;
-    PressureFan_t *PressFan = &PressFanTable[Channel];
-    
-    // Looking for capture events
-    for (i = 0; i < PressFan->CaptureNumber; i++) {
-        // Get the captured counter value
-        Error = halCapComRead (PressFan->Handle, i, &CountNew);
-        if (Error < 0) {
-            return;
-        }
-        else if (Error == 1) {
-            PressFan->CountDiff[i] = PressFan->TimeMask & (CountNew - PressFan->CountOld[i]);
-            PressFan->CountOld[i] = CountNew;
+    return PressFanData.EffectiveCurrent;
+}
+
+
+/*****************************************************************************/
+/*! 
+ *  \brief   Returns the number of active fan elements
+ *
+ *      This function returns the number of currently active fan elements.
+ *
+ *  \return  Number of active fan elements or an error code
+ *
+ ****************************************************************************/
+
+UInt16 pressFanActive()
+{
+    UInt16 i;
+    UInt16 Active = 0;
+    UInt32 Time = bmGetTime ();
+
+    for (i = 0; i < PressFanData.Instances; i++) {
+        if (PressFanData.ActiveStatus[i]) {
+            Active++;
         }
     }
-    
-    return;
+
+    return (Active);
 }
 
 //****************************************************************************/

@@ -51,6 +51,8 @@
 #define E_PRESS_SENSOR_NOT_SUPPORTED BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 6)
 //! The parameters of the PWM controller are not set
 #define E_PRESS_PWM_NOT_CONFIGURED   BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 7)
+//! The current through the fan elements is too high or too low
+#define E_PRESS_FAN_OUT_OF_RANGE     BUILD_ERRCODE(MODULE_ID_PRESSURE, ERRCLASS_ERROR, 8)
 
 
 // Pressure module related CAN identifiers
@@ -106,6 +108,9 @@
 
 //! Set PWM controller parameters
 #define MSG_PRESS_SET_PWM_PARAMS       BUILD_CAN_ID(CMD_CLASS_FUNCTION, 21, 1)
+
+//! Set fan status 
+#define MSG_PRESS_SET_FAN              BUILD_CAN_ID(CMD_CLASS_FUNCTION, 22, 1)
 
 //****************************************************************************/
 // Public Type Definitions 

@@ -150,6 +150,8 @@ static UInt32 PressSamplingTime = 1000;
 
 /*! Public parameters for the pumping element control functionality */
 static PressPumpParams_t *pressPumpParams;
+/*! Public parameters for the fan element control functionality */
+static PressFanParams_t *pressFanParams;
 
 //****************************************************************************/
 // Private Function Prototypes
@@ -178,6 +180,7 @@ static Error_t pressSetPidParameters     (UInt16 Channel, CanMessage_t* Message)
 static Error_t pressSetPumpTime          (UInt16 Channel, CanMessage_t* Message);
 static Error_t pressSetValve             (UInt16 Channel, CanMessage_t* Message);
 static Error_t pressSetCalibration       (UInt16 Channel, CanMessage_t* Message);
+static Error_t pressSetFan               (UInt16 Channel, CanMessage_t* Message);
 #ifdef ASB15_VER_B
 static Error_t pressSetPwmParameters     (UInt16 Channel, CanMessage_t* Message);
 #endif
@@ -329,7 +332,12 @@ static Error_t pressModuleTask (UInt16 Instance)
         if (Error < 0) {
             return (pressShutDown (Data, Error, Instance));
         }
-            
+
+        Error = pressFanSampleCurrent();  
+        if (Error < 0) {
+            printf("Fan sampling current error.\n");
+        }
+                    
         //if (Instance == pressFindRoot ()) {
         if (Instance == 0) {
             if (bmTimeExpired (PressSampleTimestamp) >= PressSamplingTime) {
@@ -341,6 +349,8 @@ static Error_t pressModuleTask (UInt16 Instance)
                 }
             }
         }
+        
+        
 		if (Data->State == STATE_SAMPLE) {
         
             //printf("Pump current:%d\n", pressPumpCurrent());
@@ -359,7 +369,12 @@ static Error_t pressModuleTask (UInt16 Instance)
                 Data->Flags &= ~(MODE_MODULE_ENABLE);
                 return ((Error_t) Data->ModuleState);
             }            
-		}	    
+		}
+        
+        Error = pressFanProgress ();
+        if (Error != NO_ERROR) {
+            printf("Fan progress error.\n");
+        }
 	}
 
 
@@ -620,7 +635,8 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
     Error_t Error = NO_ERROR;
 
     if ( Instance == 0 ) {
-        pressCalcEffectiveCurrent(Instance);        
+        pressCalcEffectiveCurrent(Instance);
+        pressFanCalcEffectiveCurrent(Instance);
     }
     
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
@@ -637,7 +653,17 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
         }
             
     }
-           
+ 
+    // Measure and check fan current
+    Error = pressFanCheck();
+    if (Error < 0) {
+        return Error;
+    }
+    
+    if (pressFanFailed () == TRUE) {
+        bmSignalEvent (Data->Channel, E_PRESS_FAN_OUT_OF_RANGE, TRUE, pressFanCurrent ());
+    }
+              
 
     // Measure and check the pressure
     for (i = 0; i < Data->NumberSensors; i++) {
@@ -750,8 +776,8 @@ static Error_t pressRegulation (InstanceData_t *Data, UInt16 Instance)
 
     // PID and auto tuning algorithm
     if ((Data->Flags & MODE_AUTO_TUNE) != 0) {
-//        First = Data->AutoTunePidNumber;
-//        pressPidAutoProgress (&Data->PidParams[First], Data->DesiredPress, Data->ServicePress[First]);
+        First = Data->AutoTunePidNumber;
+        pressPidAutoProgress (&Data->PidParams[First], Data->DesiredPress, Data->ServicePress[First]);
     }
     else {
         First = 0;
@@ -866,7 +892,7 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
     Error_t Status = NO_ERROR;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
-    if (Message->Length != 7) {
+    if (Message->Length != 8) {
         return (E_MISSING_PARAMETERS);
     }
 
@@ -879,28 +905,28 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
 
     // Start parameter evaluation
     Data->Flags = bmGetMessageItem(Message, 0, 1);
-    Data->DesiredPress = (Int32)((Int8)bmGetMessageItem(Message, 1, 1)*1000);
-    Data->TolerancePress = bmGetMessageItem(Message, 2, 1)*1000;
+    Data->DesiredPress = (Int32)((Int16)bmGetMessageItem(Message, 1, 2)*10);
+    Data->TolerancePress = bmGetMessageItem(Message, 3, 1)*1000;
     //PressSamplingTime = bmGetMessageItem(Message, 3, 2) * 10;
 #ifdef ASB15_VER_A
-	PressSamplingTime = bmGetMessageItem(Message, 3, 2) * 2;
+	PressSamplingTime = bmGetMessageItem(Message, 4, 2) * 2;
 #endif
 #ifdef ASB15_VER_B    
-    PressSamplingTime = bmGetMessageItem(Message, 3, 2);
+    PressSamplingTime = bmGetMessageItem(Message, 4, 2);
 #endif
-    Data->AutoTuneDuration = bmGetMessageItem(Message, 5, 2) * 1000;
+    Data->AutoTuneDuration = bmGetMessageItem(Message, 6, 2) * 1000;
 
 #ifdef ASB15_VER_A    
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
-        Data->PidParams[i].Ts = bmGetMessageItem(Message, 3, 2);
+        Data->PidParams[i].Ts = bmGetMessageItem(Message, 4, 2);
     }
 #endif
 
 #ifdef ASB15_VER_B    
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
-        Data->PidParams[i].Ts = bmGetMessageItem(Message, 3, 2)/10;
+        Data->PidParams[i].Ts = bmGetMessageItem(Message, 4, 2)/10;
     }
 
 
@@ -998,7 +1024,7 @@ static Error_t pressSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
         pressPumpParams->CurrentGain = bmGetMessageItem (Message, 0, 2);
         pressPumpParams->DesiredCurrent = bmGetMessageItem (Message, 2, 2);
         pressPumpParams->DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
-        printf("Current watchdog:%d %d\n", pressPumpParams->DesiredCurrent, pressPumpParams->DesiredCurThreshold);
+        printf("Pump current watchdog:%d %d\n", pressPumpParams->DesiredCurrent, pressPumpParams->DesiredCurThreshold);
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
@@ -1027,19 +1053,14 @@ static Error_t pressSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
 
 static Error_t pressSetFanWatchdog (UInt16 Channel, CanMessage_t* Message)
 {
-#if 0
-    InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
-
-    if (Message->Length == 4) {
-        Data->DesiredFanSpeed = bmGetMessageItem (Message, 0, 2);
-        Data->DesiredFanThreshold = bmGetMessageItem (Message, 2, 2);
+    if (Message->Length == 6) {
+        pressFanParams->CurrentGain = bmGetMessageItem (Message, 0, 2);
+        pressFanParams->DesiredCurrent = bmGetMessageItem (Message, 2, 2);
+        pressFanParams->DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
+        printf("Fan current watchdog:%d %d\n", pressFanParams->DesiredCurrent, pressFanParams->DesiredCurThreshold);
         return (NO_ERROR);
     }
-    return (E_MISSING_PARAMETERS);
-#endif
-    
-    // Obsolete function. Only kept for compatability with master SW
-    return (NO_ERROR);
+    return (E_MISSING_PARAMETERS);    
 }
 
 
@@ -1198,7 +1219,7 @@ static Error_t pressSetPumpTime (UInt16 Channel, CanMessage_t* Message)
 
 /*****************************************************************************/
 /*!
- *  \brief  Reset the operating timers of the module
+ *  \brief  Set the valve status of the module
  *
  *      This function is called by the CAN message dispatcher when a message
  *      setting valve of the pumping elements is received from the master.
@@ -1237,6 +1258,46 @@ static Error_t pressSetValve (UInt16 Channel, CanMessage_t* Message)
     }
     return (E_MISSING_PARAMETERS);
 }
+
+
+
+/*****************************************************************************/
+/*!
+ *  \brief  Set the fan status of the module
+ *
+ *      This function is called by the CAN message dispatcher when a message
+ *      setting fan of the pumping elements is received from the master.
+ *      It turns on/off corresponding fan according to the parameter in the  
+ *      received message.
+ *
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t pressSetFan (UInt16 Channel, CanMessage_t* Message)
+{
+	UInt8 FanStatus;
+    UInt16 Instance;
+
+    Instance = bmGetInstance(Channel);
+    
+    if (Message->Length == 1) {
+
+		FanStatus = bmGetMessageItem(Message, 0, 1);
+		if (FanStatus > 1) {
+		    return (E_PARAMETER_OUT_OF_RANGE);
+		}
+
+		return pressFanControl(FanStatus, Instance);
+		        
+    }
+    return (E_MISSING_PARAMETERS);
+}
+
 
 /*****************************************************************************/
 /*!
@@ -1689,6 +1750,7 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
         { MSG_PRESS_REQ_HARDWARE,        pressGetHardware },
 		{ MSG_PRESS_SET_VALVE,           pressSetValve },
         { MSG_PRESS_SET_CALIBRATION,     pressSetCalibration },
+        { MSG_PRESS_SET_FAN,             pressSetFan },
 #ifdef ASB15_VER_B        
         { MSG_PRESS_SET_PWM_PARAMS,      pressSetPwmParameters }
 #endif        
@@ -1726,11 +1788,12 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     pressRegisterDebugNames (ModuleID);
     #endif
 
-    // Initialize fan speed measurements
-    Status = pressFanInit(Instances);
+    // Initialize fan current measurements
+    Status = pressFanInit (&pressFanParams, HAL_PRESS_FANCURRENT, HAL_PRESS_FANCONTROL, Instances);
     if (Status < NO_ERROR) {
         return (Status);
     }
+    
 	//tempPumpInit (TempPumpParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances)
     // Initialize pump control handling
 #ifdef ASB15_VER_A    
@@ -1828,11 +1891,14 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     //////////////////////////////////////////////////////////
 	// Current watchdog
-    pressPumpParams->CurrentGain = 7813;
-    pressPumpParams->DesiredCurrent = 400;
-    pressPumpParams->DesiredCurThreshold = 300;
+    pressPumpParams->CurrentGain = 1241;
+    pressPumpParams->DesiredCurrent = 600;
+    pressPumpParams->DesiredCurThreshold = 500;
 
-
+    pressFanParams->CurrentGain = 1241;
+    pressFanParams->DesiredCurrent = 600;
+    pressFanParams->DesiredCurThreshold = 500;
+    
 	//////////////////////////////////////////////////////////
 	// Set Pressure
 	 
@@ -1866,7 +1932,8 @@ Error_t pressInitializeModule (UInt16 ModuleID, UInt16 Instances)
     }
     pressPumpReset();
     Data->State = STATE_IDLE;
-    Status = pressFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
+    
+    Status = pressFanControl(TRUE, bmGetInstance(Channel));
 
 	//halPortWrite(Data->HandleValve[1], 1);  //Vacuum
 	halPortWrite(Data->HandleValve[0], 1);    //Pressure

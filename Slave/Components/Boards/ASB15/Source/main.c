@@ -89,7 +89,7 @@ static const UInt32 TestOptionList[] = {
 #endif
 
 #ifdef ASB15_VER_B
-    MODULE_ID_DIGITAL_OUT, 6, 1, 1, 1, 1, 1, 1,
+    MODULE_ID_DIGITAL_OUT, 4, 1, 1, 1, 1,
 #endif
     
     MODULE_ID_PRESSURE, 1, 0x2111
@@ -125,7 +125,7 @@ static const bmModuleParameters_t ModuleInitTable[] = {
     { MODULE_ID_DIGITAL_IN,  1, diInitializeModule }
 #endif
 #ifdef ASB15_VER_B
-    { MODULE_ID_DIGITAL_OUT, 5, doInitializeModule },
+    { MODULE_ID_DIGITAL_OUT, 4, doInitializeModule },
     { MODULE_ID_DIGITAL_IN,  2, diInitializeModule }
 #endif
 };
@@ -186,17 +186,17 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMinor    = 1;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 7;
-    InfoBlock.ProductionDay   = 15;
+    InfoBlock.ProductionMonth = 8;
+    InfoBlock.ProductionDay   = 7;
 #endif
 
 #ifdef ASB15_VER_B
     InfoBlock.VersionMajor    = 0;
-    InfoBlock.VersionMinor    = 3;
+    InfoBlock.VersionMinor    = 4;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 7;
-    InfoBlock.ProductionDay   = 15;
+    InfoBlock.ProductionMonth = 8;
+    InfoBlock.ProductionDay   = 30;
 #endif
 
     InfoBlock.EndTestYear     = 10;
@@ -251,7 +251,9 @@ static Error_t InitTestBootloaderInfoBlock (void) {
 
 int main (int argc, char **argv) {
 
+    #ifdef DEBUG
     volatile Int32 i;
+    #endif
     Error_t Status;
 
     // Wait for JTAG to synchronize

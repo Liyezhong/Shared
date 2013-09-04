@@ -53,35 +53,35 @@
 //****************************************************************************/
 #ifdef ASB15_VER_A
 
-//! Fan control signal
-#define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
+////! Fan control signal
+//#define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
 
 //! Lid control signal
-#define HAL_LIDCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_1
+#define HAL_LIDCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
 
 //! Heater relay signal
-#define HAL_HEATER_RELAY         HAL_DIGITAL_OUTPUT_2
+#define HAL_HEATER_RELAY         HAL_DIGITAL_OUTPUT_1
 
 //! Remote Alarm Control signal
-#define HAL_REMOTE_ALARM_CONTROL HAL_DIGITAL_OUTPUT_3
+#define HAL_REMOTE_ALARM_CONTROL HAL_DIGITAL_OUTPUT_2
 
 //! Remote Alarm Set signal
-#define HAL_REMOTE_ALARM_SET     HAL_DIGITAL_OUTPUT_4
+#define HAL_REMOTE_ALARM_SET     HAL_DIGITAL_OUTPUT_3
 
 //! Remote Alarm Clear signal
-#define HAL_REMOTE_ALARM_CLEAR   HAL_DIGITAL_OUTPUT_5
+#define HAL_REMOTE_ALARM_CLEAR   HAL_DIGITAL_OUTPUT_4
 
 //! Local Alarm Control signal
-#define HAL_LOCAL_ALARM_CONTROL  HAL_DIGITAL_OUTPUT_6
+#define HAL_LOCAL_ALARM_CONTROL  HAL_DIGITAL_OUTPUT_5
 
 //! Local Alarm Set signal
-#define HAL_LOCAL_ALARM_SET      HAL_DIGITAL_OUTPUT_7
+#define HAL_LOCAL_ALARM_SET      HAL_DIGITAL_OUTPUT_6
 
 //! Local Alarm Clear signal
-#define HAL_LOCAL_ALARM_CLEAR    HAL_DIGITAL_OUTPUT_8
+#define HAL_LOCAL_ALARM_CLEAR    HAL_DIGITAL_OUTPUT_7
 
 //! Valve control signal
-#define HAL_VALVECONTROL_SIGNAL  HAL_DIGITAL_OUTPUT_9
+#define HAL_VALVECONTROL_SIGNAL  HAL_DIGITAL_OUTPUT_8
 
 //! Lid status signal
 #define HAL_LIDSTATUS_SIGNAL     HAL_DIGITAL_INPUT_0
@@ -92,20 +92,20 @@
 
 #ifdef ASB15_VER_B
 
-//! Fan control signal
-#define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
+////! Fan control signal
+//#define HAL_FANCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
 
 //! Lid control signal
-#define HAL_LIDCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_1
+#define HAL_LIDCONTROL_SIGNAL    HAL_DIGITAL_OUTPUT_0
 
 //! Heater relay signal
-#define HAL_HEATER_RELAY         HAL_DIGITAL_OUTPUT_2
+#define HAL_HEATER_RELAY         HAL_DIGITAL_OUTPUT_1
 
 //! Remote Alarm Control signal
-#define HAL_REMOTE_ALARM_CONTROL HAL_DIGITAL_OUTPUT_3
+#define HAL_REMOTE_ALARM_CONTROL HAL_DIGITAL_OUTPUT_2
 
 //! Local Alarm Control signal
-#define HAL_LOCAL_ALARM_CONTROL  HAL_DIGITAL_OUTPUT_4
+#define HAL_LOCAL_ALARM_CONTROL  HAL_DIGITAL_OUTPUT_3
 
 ////! Valve control signal
 //#define HAL_VALVECONTROL_SIGNAL  HAL_DIGITAL_OUTPUT_5

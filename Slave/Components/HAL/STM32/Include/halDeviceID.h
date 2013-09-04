@@ -427,6 +427,13 @@
 #define HAL_PRESS_CURRENT_2      HAL_PRESS_CURRENT+2
 #define HAL_PRESS_CURRENT_3      HAL_PRESS_CURRENT+3
 
+// Channels used by the pressure function module (current measurement)
+#define HAL_PRESS_FANCURRENT    HAL_ANALOG_INPUTS+46
+#define HAL_PRESS_FANCURRENT_0  HAL_PRESS_FANCURRENT
+#define HAL_PRESS_FANCURRENT_1  HAL_PRESS_FANCURRENT+1
+#define HAL_PRESS_FANCURRENT_2  HAL_PRESS_FANCURRENT+2
+#define HAL_PRESS_FANCURRENT_3  HAL_PRESS_FANCURRENT+3
+
 // Channels used by the pressure function module (control valve element)
 #define HAL_PRESS_CTRLVALVE      HAL_DIGITAL_OUTPUTS+104
 #define HAL_PRESS_CTRLVALVE_0    HAL_PRESS_CTRLVALVE
