@@ -60,7 +60,7 @@ public:
     ReturnCode_t ReqMoveToRVPosition( RVPosition_t RVPosition);
     //! Request actual oven cover position
     RVPosition_t ReqActRVPosition();
-
+    quint16 GetHeaterCurrent();
     //! Request actual oven temperature
     //! Set oven nominal temperature
     //    ReturnCode_t SetTemperature(qint16 Temperatur);
@@ -125,6 +125,8 @@ private slots:
     void OnGetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    void OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
 
     ReturnCode_t MoveToNextPort(bool changeParameter, quint32 LowerLimit, quint32 UpperLimit);
     ReturnCode_t MoveToNextPortCW();
@@ -224,6 +226,8 @@ private:
     qint64 m_LastGetTempTime[50];                   //!< Last get temperature time
     TempCtrlMainsVoltage_t m_MainsVoltageStatus;    //!< Mains voltage state of the heaters
     QMutex m_Mutex;                                 //!< Protects the task handling thread from request functions
+    qint64 m_LastGetTCCurrentTime;
+    TempCtrlHardwareStatus_t m_TCHardwareStatus;
 };
 
 

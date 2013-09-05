@@ -166,6 +166,7 @@ public:
 
     //! Return function module specified by it's instance identifier
     CFunctionModule* GetFunctionModule(quint32 InstanceID) const;
+    CBaseModule* GetBaseModule(quint32 InstanceID) const;
 
     //! Returns if the function module has been detetcted and configured via CAN
     bool CheckFunctionModuleExistence(quint32 InstanceID);

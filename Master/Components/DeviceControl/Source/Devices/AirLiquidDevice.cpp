@@ -11,8 +11,6 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED          (999)
-#define UNDEFINED_UINT16   (0xFFFF)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -200,11 +198,13 @@ void CAirLiquidDevice::HandleIdleState()
 ReturnCode_t CAirLiquidDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
+    CBaseModule* pBaseModule = NULL;
     FILE_LOG_L(laDEV, llINFO) << "  CAirLiquidDevice::HandleInitializationState()";
 
     quint32 InstanceID;
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALPressureCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pPressureCtrl = (CPressureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -222,6 +222,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALLevelSensorTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     m_pTempCtrls[AL_LEVELSENSOR] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
@@ -244,6 +246,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube1TempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[AL_TUBE1] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -266,6 +270,8 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_ALTube2TempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[AL_TUBE2] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -1735,6 +1741,7 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
 /****************************************************************************/
 ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
+    ReturnCode_t retCode;
     m_TargetTemperatures[Type] = NominalTemperature;
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
@@ -1749,16 +1756,18 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControl(ALTempCtrlType_t Type, qr
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to set temperature"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+            return retCode;
         }
         //ON the temperature control
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to start temperature control"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+            return retCode;
         }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -1805,16 +1814,18 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t T
         return retCode;
     }
     //Set the nominal temperature
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to set temperature"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+        return retCode;
     }
     //ON the temperature control
-    if ( DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+    if ( DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to start temperature control"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+        return retCode;
     }
 
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -2108,26 +2119,30 @@ ReturnCode_t CAirLiquidDevice::GetTemperatureAsync(ALTempCtrlType_t Type, quint8
 quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    quint16 RetValue = m_TCHardwareStatus[Type].Current;
-    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    quint16 RetValue = UNDEFINED_UINT16;
+    if(m_pTempCtrls[Type] != NULL)
     {
-        ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
-        if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
+        if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
         {
-            RetValue = UNDEFINED_UINT16;
+            ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
+            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
+            {
+                retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS);
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED_UINT16;
+                }
+                else
+                {
+                    RetValue = m_TCHardwareStatus[Type].Current;
+                }
+                m_LastGetTCCurrentTime[Type] = Now;
+            }
         }
         else
         {
-            retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS);
-            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-            {
-                RetValue = UNDEFINED_UINT16;
-            }
-            else
-            {
-                RetValue = m_TCHardwareStatus[Type].Current;
-            }
-            m_LastGetTCCurrentTime[Type] = Now;
+
+            RetValue = m_TCHardwareStatus[Type].Current;
         }
     }
     return RetValue;
@@ -2215,7 +2230,7 @@ void CAirLiquidDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t Re
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = 0;
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = 0;
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = 0;
-        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED_UINT16;
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = 0;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS, ReturnCode);

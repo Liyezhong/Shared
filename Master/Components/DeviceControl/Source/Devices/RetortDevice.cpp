@@ -69,6 +69,7 @@ void CRetortDevice::Reset()
     memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls)); //lint !e545
+    memset( &m_HardwareStatus, 0, sizeof(m_HardwareStatus)); //lint !e545
     m_TargetDOOutputValue = 0;
     m_LockStatus = 0;
     m_LastGetLockStatusTime = 0;
@@ -181,10 +182,13 @@ void CRetortDevice::HandleIdleState()
 ReturnCode_t CRetortDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    CBaseModule* pBaseModule = NULL;
 
     FILE_LOG_L(laDEV, llINFO) << "  CRetortDevice::HandleInitializationState()";
     quint32 InstanceID;
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortBottomTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[RT_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -207,6 +211,8 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortSideTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[RT_SIDE] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -229,6 +235,8 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDOKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pLockDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -246,6 +254,8 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDIKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pLockDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -567,6 +577,7 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
+    ReturnCode_t retCode;
     m_TargetTemperatures[Type] = NominalTemperature;
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
@@ -581,16 +592,18 @@ ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to set temperature"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+            return retCode;
         }
         //ON the temperature control
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to start temperature control"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+            return retCode;
         }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -637,16 +650,18 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
          return retCode;
     }
     //Set the nominal temperature
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to set temperature"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+        return retCode;
     }
     //ON the temperature control
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to start temperature control"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+        return retCode;
     }
 
     return DCL_ERR_FCT_CALL_SUCCESS;

@@ -167,10 +167,13 @@ void CRotaryValveDevice::HandleTasks()
 ReturnCode_t CRotaryValveDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    CBaseModule* pBaseModule = NULL;
 
     FILE_LOG_L(laDEV, llINFO) << "  CRotaryValveDevice::HandleInitializationState()";
     quint32 InstanceID;
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RVTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrl = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -188,6 +191,8 @@ ReturnCode_t CRotaryValveDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RVMotorKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pMotorRV = (CStepperMotor*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -285,6 +290,13 @@ ReturnCode_t CRotaryValveDevice::HandleConfigurationState()
     {
         SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(!connect(m_pTempCtrl, SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+            this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 #if 0
@@ -843,6 +855,7 @@ void CRotaryValveDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange)
 {
+    ReturnCode_t retCode;
     m_TargetTemperature = NominalTemperature;
     m_TargetTempCtrlStatus = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState() == TEMPCTRL_STATE_ERROR)
@@ -857,16 +870,18 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControl(qreal NominalTemperatur
     if (IsTemperatureControlOff())
     {
         //Set the nominal temperature
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature( NominalTemperature, SlopeTempChange))
+        retCode = SetTemperature( NominalTemperature, SlopeTempChange);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to set temperature"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+            return retCode;
         }
         //ON the temperature control
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus( TEMPCTRL_STATUS_ON))
+        retCode = SetTemperatureControlStatus( TEMPCTRL_STATUS_ON);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to start temperature control"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+            return retCode;
         }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -900,9 +915,10 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
     }
     if (IsTemperatureControlOn())
     {
-        if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF))
+        retCode = SetTemperatureControlStatus(TEMPCTRL_STATUS_OFF);
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+            return retCode;
         }
     }
 
@@ -912,10 +928,11 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
         return retCode;
     }
     //Set the nominal temperature
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(NominalTemperature, SlopeTempChange))
+    retCode = SetTemperature(NominalTemperature, SlopeTempChange);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to set temperature"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+        return retCode;
     }
     //ON the temperature control
     if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(TEMPCTRL_STATUS_ON))
@@ -2233,6 +2250,8 @@ void CRotaryValveDevice::Reset()
     m_CurrentTemperature = 0;
     m_TargetTemperature = 0;
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
+    memset( &m_TCHardwareStatus, 0 , sizeof(m_TCHardwareStatus)); //lint !e545
+    m_LastGetTCCurrentTime = 0;
 }
 
 /****************************************************************************/
@@ -2420,6 +2439,90 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
     if(m_pDevProc)
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_MOTOR_STATE, ReturnCode);
+    }
+}
+/****************************************************************************/
+/*!
+ *  \brief   Get actual current of device's heater.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  The current of heater in mA.
+ */
+/****************************************************************************/
+quint16 CRotaryValveDevice::GetHeaterCurrent(void)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue = UNDEFINED_UINT16;
+    if(m_pTempCtrl != NULL)
+    {
+        if((Now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        {
+            ReturnCode_t retCode = m_pTempCtrl->GetHardwareStatus();
+            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
+            {
+                if(m_pDevProc)
+                {
+                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_TC_GET_HW_STATUS);
+                }
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED_UINT16;
+                }
+                else
+                {
+                    RetValue = m_TCHardwareStatus.Current;
+                }
+                m_LastGetTCCurrentTime = Now;
+            }
+        }
+        else
+        {
+            RetValue = m_TCHardwareStatus.Current;
+        }
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  slot for getting the hardware information
+ *
+ *  This slot is connected to the signal ReportHardwareStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Sensors = Number of temperature sensors connected to the board
+ *  \iparam Fans = Number of ventilation fans connected to the board
+ *  \iparam Heaters = Number of heating elements connected to the board
+ *  \iparam Pids = Number of PID controllers in the control loop
+ *  \iparam Current = Current through the heatinf circuit in milliamperes
+ */
+/****************************************************************************/
+void CRotaryValveDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType)
+{
+    Q_UNUSED(InstanceID)
+    if (DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        m_TCHardwareStatus.Sensors = Sensors;
+        m_TCHardwareStatus.Fans = Fans;
+        m_TCHardwareStatus.Heaters = Heaters;
+        m_TCHardwareStatus.Pids = Pids;
+        m_TCHardwareStatus.Current = Current;
+        m_TCHardwareStatus.HeaterSwitchType = HeaterSwitchType;
+    }
+    else
+    {
+        m_TCHardwareStatus.Sensors = 0;
+        m_TCHardwareStatus.Fans = 0;
+        m_TCHardwareStatus.Heaters = 0;
+        m_TCHardwareStatus.Pids = 0;
+        m_TCHardwareStatus.Current = UNDEFINED_UINT16;
+        m_TCHardwareStatus.HeaterSwitchType = 0;
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_TC_GET_HW_STATUS, ReturnCode);
     }
 }
 

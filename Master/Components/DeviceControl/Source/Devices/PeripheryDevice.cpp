@@ -165,11 +165,14 @@ void CPeripheryDevice::HandleIdleState()
 ReturnCode_t CPeripheryDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    CBaseModule* pBaseModule = NULL;
 
     FILE_LOG_L(laDEV, llINFO) << "  CPeripheryDevice::HandleInitializationState()";
 
     quint32 InstanceID;
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerMainRelayDOKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pDigitalOutputs[PER_MAIN_RELAY] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -204,6 +207,8 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     }
 */
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -225,6 +230,8 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerLocalAlarmCtrlDOKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -450,5 +457,52 @@ ReturnCode_t CPeripheryDevice::TurnOffMainRelay()
     return SetDOValue(PER_MAIN_RELAY, 0, 0, 0);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Turn on the local alarm.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::TurnOnLocalAlarm()
+{
+    return SetDOValue(PER_LOCAL_ALARM_CTRL,1, 0, 0);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Turn off the local alarm.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::TurnOffLocalAlarm()
+{
+    return SetDOValue(PER_LOCAL_ALARM_CTRL, 0, 0, 0);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Turn on the remote alarm.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::TurnOnRemoteAlarm()
+{
+    return SetDOValue(PER_REMOTE_ALARM_CTRL,1, 0, 0);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Turn off the remote alarm.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::TurnOffRemoteAlarm()
+{
+    return SetDOValue(PER_REMOTE_ALARM_CTRL, 0, 0, 0);
+}
 
 } //namespace
