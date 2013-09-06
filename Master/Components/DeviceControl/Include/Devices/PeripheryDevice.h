@@ -40,6 +40,10 @@ public:
 
     ReturnCode_t TurnOffMainRelay();
     ReturnCode_t TurnOnMainRelay();
+    ReturnCode_t TurnOffLocalAlarm();
+    ReturnCode_t TurnOnLocalAlarm();
+    ReturnCode_t TurnOffRemoteAlarm();
+    ReturnCode_t TurnOnRemoteAlarm();
 
 private slots:
     void Reset();

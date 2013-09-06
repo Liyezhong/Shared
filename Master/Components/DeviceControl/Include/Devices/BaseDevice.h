@@ -32,7 +32,7 @@
 
 namespace DeviceControl
 {
-
+typedef QList<CBaseModule *> ListBaseModule;
 /****************************************************************************/
 /*!
  *  \brief This is the base class of the device classes
@@ -125,6 +125,12 @@ public:
     //! Get Function module key from instance ID
     QString GetFctModKeyFromInstance(const quint32 instanceID);
 
+    ListBaseModule GetBaseModuleList() const {return m_BaseModuleList;}
+    bool InsertBaseModule(CBaseModule* pBase);
+    CBaseModule* GetCANNodeFromID(quint16 CANNodeID);
+    quint16 GetBaseModuleVoltage(quint16 CANNodeID);
+    quint16 GetBaseModuleCurrent(quint16 CANNodeID);
+
     static CANStepperMotorTask*    GetNewCANStepperMotorTask(CANStepperMotorTask::CANStepperMotorTaskID_t MotorTaskID);
     static CANRFIDTask*            GetNewCANRFIDTask(CANRFIDTask::CANRFIDTaskID_t RFIDTaskID);
     static CANDigitalOutputTask*   GetNewCANDigitalOutputTask(CANDigitalOutputTask::CANDigitalOutputTaskID_t DigOutpTaskID);
@@ -135,6 +141,8 @@ public:
 
 public slots:
     void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Voltage);
+    void OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Current);
 protected:
     /// Compact function to set the error parameter and error time by one code line
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
@@ -163,6 +171,10 @@ protected:
     qint16 m_stateTimespan;                 ///< max. time delay of current active timeout observation
 
     QString      m_TypeKey;                 ///< key, used for process settings access
+    ListBaseModule m_BaseModuleList;        /// The list contain all the base modules.
+    quint16 m_BaseModuleVoltage;            /// The base module's actual voltage
+    quint16 m_BaseModuleCurrent;            /// The base module's actual current
+
 };
 
 } //namespace

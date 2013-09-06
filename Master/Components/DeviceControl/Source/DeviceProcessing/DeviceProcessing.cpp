@@ -2036,6 +2036,28 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
 
 /****************************************************************************/
 /*!
+ *  \brief  Returns the base module with the specified instance ID
+ *
+ *  \iparam InstanceID = InstanceID of the fucntion module which belong to the
+ *                       base module
+ *
+ *  \return The CBaseModule* matches the key
+ */
+/****************************************************************************/
+CBaseModule* DeviceProcessing::GetBaseModule(quint32 InstanceID) const
+{
+    CBaseModule* pCANNode = 0;
+    quint16 canNodeID;
+
+    //canNodeID = ((quint16)(0x0fff & ((quint16)InstanceID)));
+    canNodeID = ((quint16)(0xff & (InstanceID)));
+    pCANNode = GetNodeFromID(canNodeID);
+
+    return pCANNode;
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Returns if the function module has been detetcted and configured via CAN
  *
  *  \iparam InstanceID = InstanceID of the requested fucntion module

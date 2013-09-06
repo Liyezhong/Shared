@@ -101,6 +101,7 @@ public:
     ReturnCode_t BreakAllOperation(void);
     ReturnCode_t AllStop(void);
     ReturnCode_t SetPressureDrift(float pressureDrift);
+    quint16 GetHeaterCurrent(ALTempCtrlType_t Type);
 
 private slots:
     void Reset();
@@ -125,6 +126,7 @@ private slots:
     qreal GetTemperature(ALTempCtrlType_t Type, quint8 Index);
     ReturnCode_t GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index);
     ReturnCode_t GetPressureAsync(void);
+    ReturnCode_t GetHeaterCurrentAsync(ALTempCtrlType_t Type);
 
 
     //ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
@@ -157,7 +159,8 @@ private slots:
     void OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint32 LifeTime, quint32 LifeCycles);
     void OnSetFanStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 FanStatus);
     //void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
-
+    void OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
     //! command handling task
     //  void HandleCommandRequestTask();
     //  void HandleDeviceTaskActions();
@@ -188,8 +191,10 @@ private:
     TempCtrlStatus_t m_TargetTempCtrlStatus[AL_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[AL_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[AL_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
+    TempCtrlHardwareStatus_t m_TCHardwareStatus[AL_TEMP_CTRL_NUM];    //!< Hardware status of the heaters
     quint32 m_SuckingTime[16];                                        //!< in mec, idx 1-13 is port 1-13, idx 0 is unused
     qint64 m_LastGetTempTime[AL_TEMP_CTRL_NUM][5];                    //!< Last time of getting temperature
+    qint64 m_LastGetTCCurrentTime[AL_TEMP_CTRL_NUM];                  //!< Last time of getting current
     QMap<quint32, ALTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperature control
 
     qint16 m_TargetDOOutputValue;     //!< Target output value; for verification of action result
