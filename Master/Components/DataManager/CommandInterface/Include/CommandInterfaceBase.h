@@ -20,7 +20,6 @@
 #ifndef COMMANDINTERFACEBASE_H
 #define COMMANDINTERFACEBASE_H
 
-#include <QObject>
 #include <DataManager/Include/DataManagerBase.h>
 #include <Threads/Include/MasterThreadController.h>
 #include "Threads/Include/CommandChannel.h"

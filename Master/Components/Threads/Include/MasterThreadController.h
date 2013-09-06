@@ -35,6 +35,8 @@
 #include <QPair>
 #include <QSet>
 
+//lint -sem(DataManager::MasterThreadController::AddAndConnectController, custodial(1))
+
 namespace DataManager {
     class CDataManagerBase;
     class CUserSettings;

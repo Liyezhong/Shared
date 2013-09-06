@@ -351,7 +351,7 @@ bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
 
 /****************************************************************************/
 qint32 MountStorageDevice(QString Name) {
-
+    Q_UNUSED(Name);
 #if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM)
     // create the QProcess
     QProcess ProcToMountDevice;

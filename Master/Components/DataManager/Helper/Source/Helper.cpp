@@ -19,7 +19,6 @@
 /****************************************************************************/
 
 #include <QStringList>
-#include <QDebug>
 #include <QXmlStreamWriter>
 #include <math.h>
 #include "Global/Include/GlobalDefines.h"

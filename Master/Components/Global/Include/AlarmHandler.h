@@ -54,22 +54,22 @@ public:
     /**
       @brief Includes or removes an alarm into the queue of raised alarms
       */
-    void setAlarm(quint64 eventKey, Global::AlarmType alarmType, Global::AlarmPosType alarmPosType, bool active);
+    virtual void setAlarm(quint64 eventKey, Global::AlarmType alarmType, Global::AlarmPosType alarmPosType, bool active);
 
     /**
       @brief Removes all alarms from alarm queue
       */
-    void reset();
+    virtual void reset();
 
     /**
       @brief Specifies the timeout, i.e. the time interval inbetween two alarm sounds
       */
-    void setTimeout(quint16 timeout);
+    virtual void setTimeout(quint16 timeout);
 
     /**
       @brief in non-MasterThreadController, this function should be called
      */
-    void emitSetTimeout(quint16 timeout);
+    virtual void emitSetTimeout(quint16 timeout);
 
     /**
       @brief Specifies the alarm volume related to a specific alarm type
@@ -77,19 +77,19 @@ public:
       *6 = normal
       *9 = highest
       */
-    void setVolume(Global::AlarmType alarmType, quint8 volume);
+    virtual void setVolume(Global::AlarmType alarmType, quint8 volume);
 
     /**
       @brief Specifies the sound file to be played when an alarm of type alarmType is raised
       */
-    void setSoundFile(Global::AlarmType alarmType, QString fileName);
+    virtual void setSoundFile(Global::AlarmType alarmType, QString fileName);
 
     /**
       @brief Specifies the sound-id related to a specific alarm type
       */
-    void setSoundNumber(Global::AlarmType alarmType, int number);
+    virtual void setSoundNumber(Global::AlarmType alarmType, int number);
     //void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
-    bool playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
+    virtual bool playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
 
 private:
     QHash<quint64, Global::AlarmType> m_errorList;

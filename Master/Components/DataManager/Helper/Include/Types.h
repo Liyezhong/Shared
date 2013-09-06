@@ -21,9 +21,7 @@
 #ifndef DATAMANAGER_TYPES_H
 #define DATAMANAGER_TYPES_H
 
-#include <QString>
-#include <QList>
-#include <QHash>
+
 #include "Global/Include/TranslatableString.h"
 typedef QList<QString> ListOfIDs_t;
 typedef QList<QString> ListOfKeys_t;
@@ -179,22 +177,5 @@ typedef enum
     FIRMWARE
 } SWType_t;
 
-//// this is used for any class which uses verifiers as list
-//// made generic so that all the classes can make use of it
-//template <class T>
-//QList<T*> ListOfClasses_t; ///< List to store the verifiers
 
-//// Types of water type mode
-//typedef enum
-//{
-//    WATER_TYPE_TAP,
-//    WATER_TYPE_DISTILLED
-//} WaterTypes_t;
-//const int NUMBER_OF_WATER_TYPES = 2;
-//const QString NameOfWaterTypes[2] = {"Tap", "Distilled"};
-//
-//typedef QHash<QString, WaterTypes_t> HashOfWaterTypes_t;  // filled in CDataRackList::Init()   // TODO: move to better place
-
-
-//}
 #endif // DATAMANAGER_TYPES_H
