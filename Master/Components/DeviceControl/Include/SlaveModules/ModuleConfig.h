@@ -435,10 +435,10 @@ public:
 
     //! Trinamic tmc26x configuration register
     typedef struct {
-        quint32 drvConf;
-        quint32 sgcsConf;
-        quint32 smartEn;
-        quint32 chopConf;
+        quint32 drvConf;       //!< Ref to slave module
+        quint32 sgcsConf;      //!< Ref to slave module
+        quint32 smartEn;       //!< Ref to slave module
+        quint32 chopConf;      //!< Ref to slave module
     } TMC26xReg_t;
 
     TMC26xReg_t tmc26x; //!< Trinamic tmc26x configuration register

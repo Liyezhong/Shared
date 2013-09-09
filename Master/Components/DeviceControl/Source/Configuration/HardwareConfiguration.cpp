@@ -50,8 +50,16 @@ HardwareConfiguration::HardwareConfiguration()
 /****************************************************************************/
 HardwareConfiguration::~HardwareConfiguration()
 {
-    while (!m_DeviceCfgList.isEmpty()) {
-        delete m_DeviceCfgList.takeFirst();
+    try
+    {
+        while (!m_DeviceCfgList.isEmpty()) {
+            delete m_DeviceCfgList.takeFirst();
+        }
+    }
+    catch (...)
+    {
+        // and exit
+        return;
     }
 }
 
@@ -181,8 +189,11 @@ ReturnCode_t HardwareConfiguration::ReadHWSpecification(QString HWConfigFileName
     while (!child.isNull())
     {
         pDevConfig = ParseDeviceElement(child, OrderNrDevice);
-        OrderNrDevice++;
-        m_DeviceCfgList.insert(m_DeviceCfgList.size(), pDevConfig);
+        if(pDevConfig != NULL)
+        {
+            OrderNrDevice++;
+            m_DeviceCfgList.insert(m_DeviceCfgList.size(), pDevConfig);
+        }
         child = child.nextSiblingElement("device");
     }
 
@@ -220,6 +231,12 @@ BaseDeviceConfiguration* HardwareConfiguration::ParseDeviceElement(const QDomEle
 
     InstanceID = strInstanceID.toUInt(&ok, 16);
     pDevConfig->m_InstanceID = GetDeviceIDFromValue(InstanceID);
+    if(pDevConfig->m_InstanceID == DEVICE_INSTANCE_ID_UNDEFINED)
+    {
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_DEV;
+        delete pDevConfig;
+        return NULL;
+    }
 
     pDevConfig->m_Optional = (bool) strOptional.toShort(&ok, 10);
     pDevConfig->m_OrderNr = orderNrDevice;
@@ -457,8 +474,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctDigitInpEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctDigitInpEntry->m_strKey.toStdString() <<
-                  ", Order:" << pCANObjFctDigitInpEntry->m_sOrderNr <<
-                  " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitInpEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctDigitInpEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitInpEntry->m_ObjectType;
         }
         else
         {
@@ -485,8 +502,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctDigitOutEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctDigitOutEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctDigitOutEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitOutEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctDigitOutEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctDigitOutEntry->m_ObjectType;
         }
         else
         {
@@ -512,8 +529,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctAnalogInEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctAnalogInEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctAnalogInEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogInEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctAnalogInEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogInEntry->m_ObjectType;
         }
         else
         {
@@ -538,8 +555,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             pCANObjFctAnalogOutEntry->m_sCANNodeIndex = pCANObjCfgNode->m_sCANNodeIndex;
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctAnalogOutEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctAnalogOutEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctAnalogOutEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogOutEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctAnalogOutEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctAnalogOutEntry->m_ObjectType;
         }
         else
         {
@@ -566,8 +583,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctRFIDEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctRFIDEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
         }
         else
         {
@@ -594,8 +611,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctRFIDEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctRFIDEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctRFIDEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctRFIDEntry->m_ObjectType;
         }
         else
         {
@@ -621,8 +638,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctTempEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctTempEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctTempEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctTempEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctTempEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctTempEntry->m_ObjectType;
         }
         else
         {
@@ -649,8 +666,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctInclEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctInclEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
         }
         else
         {
@@ -677,8 +694,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctInclEntry;
 
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctInclEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctInclEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctInclEntry->m_ObjectType;
         }
         else
         {
@@ -705,8 +722,8 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
 
             m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctPressureEntry;
             FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctPressureEntry->m_strKey.toStdString() <<
-                    ", Order:" << pCANObjFctPressureEntry->m_sOrderNr <<
-                    " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctPressureEntry->m_ObjectType;
+                                            ", Order:" << pCANObjFctPressureEntry->m_sOrderNr <<
+                                            " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctPressureEntry->m_ObjectType;
         }
         else
         {
@@ -1498,6 +1515,15 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     return pCANObjFctTempCtrl;
 }
 #ifdef PRE_ALFA_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Parse pressure control element from xml
+ *
+ *  \iparam element = Contains the function module's desription
+ *
+ *  \return The function module's configuration
+ */
+/****************************************************************************/
 CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomElement &element)
 {
     CANFctModulePressureCtrl* pCANObjFctPressureCtrl = 0;
@@ -1918,6 +1944,9 @@ QString HardwareConfiguration::GetLabelFromObjectType(const CModuleConfig::CANOb
             break;
         case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
             strCANObjectType = "temperature_control";
+            break;
+        case CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL:
+            strCANObjectType = "pressure_control";
             break;
         default:
             strCANObjectType = "undef";
