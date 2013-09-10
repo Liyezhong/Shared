@@ -11,7 +11,7 @@ namespace DeviceControl
 {
 
 #define CHECK_SENSOR_TIME (200) // in msecs
-#define UNDEFINED (999)
+//#define UNDEFINED (999)
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -614,7 +614,7 @@ qreal CRotaryValveDevice::GetTemperature(quint32 Index)
         }
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
         {
-            RetValue = UNDEFINED;
+            RetValue = UNDEFINED_4_BYTE;
         }
         else
         {
@@ -628,7 +628,7 @@ qreal CRotaryValveDevice::GetTemperature(quint32 Index)
             }
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                RetValue = UNDEFINED;
+                RetValue = UNDEFINED_4_BYTE;
             }
             else
             {
@@ -681,7 +681,7 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
 {
     QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    qreal RetValue = UNDEFINED;
+    qreal RetValue = UNDEFINED_4_BYTE;
     if((Now - m_LastGetTempTime[Index]) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_CurrentTemperature;
@@ -713,7 +713,7 @@ void CRotaryValveDevice::OnGetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperature = UNDEFINED;
+        m_CurrentTemperature = UNDEFINED_4_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1059,9 +1059,9 @@ bool CRotaryValveDevice::IsTemperatureControlOff()
 /****************************************************************************/
 bool CRotaryValveDevice::IsInsideRange()
 {
-    if(GetTemperature(0) != UNDEFINED)
+    if(GetTemperature(0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperature != UNDEFINED) || (m_CurrentTemperature != UNDEFINED))
+        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperature > m_TargetTemperature - TOLERANCE)||
                             (m_CurrentTemperature < m_TargetTemperature + TOLERANCE))
@@ -1087,9 +1087,9 @@ bool CRotaryValveDevice::IsInsideRange()
 /****************************************************************************/
 bool CRotaryValveDevice::IsOutsideRange()
 {
-    if(GetTemperature(0) != UNDEFINED)
+    if(GetTemperature(0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperature != UNDEFINED) || (m_CurrentTemperature != UNDEFINED))
+        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperature < m_TargetTemperature - TOLERANCE)||
                             (m_CurrentTemperature > m_TargetTemperature + TOLERANCE))
@@ -2453,7 +2453,7 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
 quint16 CRotaryValveDevice::GetHeaterCurrent(void)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    quint16 RetValue = UNDEFINED_UINT16;
+    quint16 RetValue = UNDEFINED_2_BYTE;
     if(m_pTempCtrl != NULL)
     {
         if((Now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
@@ -2467,7 +2467,7 @@ quint16 CRotaryValveDevice::GetHeaterCurrent(void)
                 }
                 if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
                 {
-                    RetValue = UNDEFINED_UINT16;
+                    RetValue = UNDEFINED_2_BYTE;
                 }
                 else
                 {
@@ -2517,7 +2517,7 @@ void CRotaryValveDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t 
         m_TCHardwareStatus.Fans = 0;
         m_TCHardwareStatus.Heaters = 0;
         m_TCHardwareStatus.Pids = 0;
-        m_TCHardwareStatus.Current = UNDEFINED_UINT16;
+        m_TCHardwareStatus.Current = UNDEFINED_2_BYTE;
         m_TCHardwareStatus.HeaterSwitchType = 0;
     }
     if(m_pDevProc)

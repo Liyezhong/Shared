@@ -54,6 +54,15 @@ public:
     virtual CUserSettingsInterface* GetUserSettingsInterface();
     virtual CDeviceConfigurationInterface* GetDeviceConfigurationInterface();
 
+    /****************************************************************************/
+    /*!
+     *  \brief get the status of initialisation
+     *
+     *  \return true or false
+     */
+    /****************************************************************************/
+    bool IsInitialized() const { return m_IsInitialized; }
+
 };
 }// namespace DataManager
 

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file Global/Include/Commands/CmdPowerFail.h
+/*! \file Global/Include/Commands/CmdShutDown.h
  *
- *  \brief Definition file for class CmdPowerFail.
+ *  \brief Definition file for class CmdShutDown
  *
  *  $Version:   $ 0.1
- *  $Date:      $ 2011-04-28
- *  $Author:    $ J.Bugariu
+ *  $Date:      $ 2013-02-19
+ *  $Author:    $ N.Kamath
  *
  *  \b Company:
  *
@@ -17,26 +17,21 @@
  *
  */
 /****************************************************************************/
-
-//lint -esym(1511, Global::Command::CopyFrom)
-//  No polymorphic behaviour desired at this point
-
-#ifndef GLOBAL_CMDPOWERFAIL_H
-#define GLOBAL_CMDPOWERFAIL_H
+#ifndef CMDSHUTDOWN_H
+#define CMDSHUTDOWN_H
 
 #include <Global/Include/Commands/Command.h>
-#include <Global/Include/GlobalDefines.h>
 
 namespace Global {
 
 /****************************************************************************/
 /**
- * \brief Class for telling that power will fail shortly.
+ * \brief Command to inform main to initiate shutdown
  *
  * \warning This class is not thread safe!
  */
 /****************************************************************************/
-class CmdPowerFail : public Command {
+class CmdShutDown : public Command {
 private:
     /****************************************************************************/
     /**
@@ -45,18 +40,16 @@ private:
      * \param[in]   rOther  Instance to copy from.
      */
     /****************************************************************************/
-    void CopyFrom(const CmdPowerFail &rOther);
+    void CopyFrom(const CmdShutDown &rOther);
 protected:
 public:
     static QString  NAME;                   ///< Command name.
-    PowerFailStages m_PowerFailStage;      ///< Power Fail stage
-
     /****************************************************************************/
     /**
      * \brief Constructor.
      */
     /****************************************************************************/
-    CmdPowerFail(PowerFailStages);
+    CmdShutDown();
     /****************************************************************************/
     /**
      * \brief Copy constructor.
@@ -64,7 +57,7 @@ public:
      * \param[in]   rOther  Instance to copy from.
      */
     /****************************************************************************/
-    CmdPowerFail(const CmdPowerFail &rOther);
+    CmdShutDown(const CmdShutDown &rOther);
     /****************************************************************************/
     /**
      * \brief Assignment operator.
@@ -73,13 +66,13 @@ public:
      * \return              Const reference to self.
      */
     /****************************************************************************/
-    const CmdPowerFail & operator = (const CmdPowerFail &rOther);
+    const CmdShutDown & operator = (const CmdShutDown &rOther);
     /****************************************************************************/
     /**
      * \brief Destructor.
      */
     /****************************************************************************/
-    virtual ~CmdPowerFail();
+    virtual ~CmdShutDown();
     /****************************************************************************/
     /**
      * \brief Get command name.
@@ -90,8 +83,6 @@ public:
     virtual QString GetName() const {
         return NAME;
     }
-}; // end class CmdPowerFail
-
-} // end namespace Global
-
-#endif // GLOBAL_CMDPOWERFAIL_H
+}; // end class CmdShutDown
+}// end of namespace global
+#endif // CMDSHUTDOWN_H

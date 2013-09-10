@@ -10,7 +10,7 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED (999)
+//#define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -557,7 +557,7 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;
 }
@@ -752,9 +752,9 @@ void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnC
 /****************************************************************************/
 bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -782,9 +782,9 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type)
 /****************************************************************************/
 bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] + TOLERANCE))
@@ -916,7 +916,7 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
         {
-            RetValue = UNDEFINED;
+            RetValue = UNDEFINED_4_BYTE;
         }
         else
         {
@@ -930,7 +930,7 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
             }
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                RetValue = UNDEFINED;
+                RetValue = UNDEFINED_4_BYTE;
             }
             else
             {
@@ -988,7 +988,7 @@ void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED_4_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1206,7 +1206,7 @@ quint16 CRetortDevice::GetRecentRetortLockStatus()
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_2_BYTE;
     }
     return RetValue;
 }
@@ -1257,7 +1257,7 @@ quint16 CRetortDevice::GetLidStatus()
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED;
+        return UNDEFINED_2_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1269,7 +1269,7 @@ quint16 CRetortDevice::GetLidStatus()
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED;
+        return UNDEFINED_2_BYTE;
     }
     return m_LockStatus;
 }

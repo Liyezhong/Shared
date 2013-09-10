@@ -61,8 +61,8 @@ void CAirLiquidDevice::Reset()
 
     m_PressureDrift = 0;
     m_instanceID = DEVICE_INSTANCE_ID_AIR_LIQUID;
-    m_TargetPressure = UNDEFINED;
-    m_CurrentPressure = UNDEFINED;
+    m_TargetPressure = UNDEFINED_4_BYTE;
+    m_CurrentPressure = UNDEFINED_4_BYTE;
 
     m_WorkingPressurePositive = 30;
     m_WorkingPressureNegative = -30;
@@ -669,7 +669,7 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
 void CAirLiquidDevice::OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, float TargetPressure)
 {
     Q_UNUSED(ReturnCode)
-    if ((TargetPressure != m_TargetPressure)&&(UNDEFINED != TargetPressure))
+    if ((TargetPressure != m_TargetPressure)&&(UNDEFINED_4_BYTE != TargetPressure))
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_PRESSURE, DCL_ERR_FCT_CALL_FAILED);
         FILE_LOG_L(laDEVPROC, llWARNING) << " ERROR: Target pressure is not reached. ";
@@ -757,7 +757,7 @@ qreal CAirLiquidDevice::GetPressure(void)
             ReturnCode_t retCode = m_pPressureCtrl->ReqActPressure(0); //lint -esym(526, DeviceControl::ReqActPressure) -esym(628, DeviceControl::ReqActPressure)
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                RetValue = UNDEFINED;
+                RetValue = UNDEFINED_4_BYTE;
             }
             else
             {
@@ -765,7 +765,7 @@ qreal CAirLiquidDevice::GetPressure(void)
                 //retCode =  (ReturnCode_t)m_LoopGetPressure.exec();
                 if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
                 {
-                    RetValue = UNDEFINED;
+                    RetValue = UNDEFINED_4_BYTE;
                 }
                 else
                 {
@@ -775,7 +775,7 @@ qreal CAirLiquidDevice::GetPressure(void)
         }
         else
         {
-            RetValue = UNDEFINED;
+            RetValue = UNDEFINED_4_BYTE;
         }
         m_LastGetPressureTime = Now;
     }
@@ -1696,7 +1696,7 @@ qreal CAirLiquidDevice::GetRecentPressure(void)
     }
     else
     {
-        return UNDEFINED;
+        return UNDEFINED_4_BYTE;
     }
 }
 
@@ -1721,7 +1721,7 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;
 }
@@ -1913,9 +1913,9 @@ void CAirLiquidDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGr
 /****************************************************************************/
 bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -1943,9 +1943,9 @@ bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
 /****************************************************************************/
 bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] + TOLERANCE))
@@ -2067,14 +2067,14 @@ qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
         {
-            RetValue = UNDEFINED;
+            RetValue = UNDEFINED_4_BYTE;
         }
         else
         {
             retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_GET_TEMP);
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                RetValue = UNDEFINED;
+                RetValue = UNDEFINED_4_BYTE;
             }
             else
             {
@@ -2119,7 +2119,7 @@ ReturnCode_t CAirLiquidDevice::GetTemperatureAsync(ALTempCtrlType_t Type, quint8
 quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    quint16 RetValue = UNDEFINED_UINT16;
+    quint16 RetValue = UNDEFINED_2_BYTE;
     if(m_pTempCtrls[Type] != NULL)
     {
         if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
@@ -2130,7 +2130,7 @@ quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
                 retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS);
                 if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
                 {
-                    RetValue = UNDEFINED_UINT16;
+                    RetValue = UNDEFINED_2_BYTE;
                 }
                 else
                 {
@@ -2193,7 +2193,7 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED_4_BYTE;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_TEMP, ReturnCode);
 }
@@ -2230,7 +2230,7 @@ void CAirLiquidDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t Re
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = 0;
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = 0;
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = 0;
-        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED_UINT16;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED_2_BYTE;
         m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = 0;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_TC_GET_HW_STATUS, ReturnCode);

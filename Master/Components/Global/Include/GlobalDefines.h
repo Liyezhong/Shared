@@ -64,10 +64,7 @@ enum EventType {
     EVTTYPE_INFO,           ///< Info.
     EVTTYPE_WARNING,        ///< Warning.
     EVTTYPE_ERROR,          ///< "Normal" error.
-    EVTTYPE_FATAL_ERROR,    ///< Fatal error.
-    EVTTYPE_SYS_ERROR,      ///< Hardware system error
-    EVTTYPE_SYS_WARNING,    ///< Hardware system warning
-    EVTTYPE_SYS_HINT        ///< Hardware system hint
+    EVTTYPE_FATAL_ERROR    ///< Fatal error.
 };
 
 enum EventLogLevel {
@@ -78,6 +75,17 @@ enum EventLogLevel {
     LOGLEVEL_UNEXPECTED
 };
 
+/****************************************************************************/
+/**
+ * \brief Enum containing Text message types displayed in the wait dialogs.
+ */
+/****************************************************************************/
+
+enum WaitDialogText_t{
+    INITIALIZING_TEXT, ///< Sytem Initializing text
+    PROCESSING_TEXT,   ///< Text related to processing
+    SOFTWARE_UPDATE_TEXT  ///< Text is displayed for SW update
+};
 /****************************************************************************/
 /**
  * \brief Enum containing all known action Types.

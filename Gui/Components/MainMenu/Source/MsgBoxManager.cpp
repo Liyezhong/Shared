@@ -76,19 +76,16 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
         //Set Title
         switch (MsgDataStruct.EventType) {
             case Global::EVTTYPE_INFO:
-            case Global::EVTTYPE_SYS_HINT:
                 mp_MessageDlg->SetTitle(tr("Information Message"));
                 //Also set Msg Box Icon
                 mp_MessageDlg->SetIcon(QMessageBox::Information);
                 break;
             case Global::EVTTYPE_WARNING:
-            case Global::EVTTYPE_SYS_WARNING:
                 mp_MessageDlg->SetTitle(tr("Warning Message"));
                 mp_MessageDlg->SetIcon(QMessageBox::Warning);
                 break;
             case Global::EVTTYPE_FATAL_ERROR:
             case Global::EVTTYPE_ERROR:
-            case Global::EVTTYPE_SYS_ERROR:
                 mp_MessageDlg->SetTitle(tr("Error Message"));
                 mp_MessageDlg->SetIcon(QMessageBox::Critical);
                 break;

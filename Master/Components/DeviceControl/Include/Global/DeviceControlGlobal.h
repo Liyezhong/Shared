@@ -33,8 +33,9 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED          (999)
-#define UNDEFINED_UINT16   (0xFFFF)
+#define UNDEFINED_1_BYTE    (0xFF)
+#define UNDEFINED_2_BYTE    (0xFFFF)
+#define UNDEFINED_4_BYTE    (0xFFFFFFFF)
 
 //****************************************************************************/
 // Module constants

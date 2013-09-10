@@ -27,6 +27,7 @@
 #include <Global/Include/UITranslator.h>
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <Global/Include/Commands/CmdSoftSwitchPressed.h>
+#include <Global/Include/AlarmPlayer.h>
 
 #include <DataManager/Include/DataManagerBase.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
@@ -51,6 +52,7 @@ namespace Threads {
 
 static const unsigned long THREAD_WAIT_TIME = 2000;             ///< Time to wait when stopping thread.
 static const QString TimeOffsetFileName = "TimeOffset.xml";     ///< Name of file in which time offset is stored.
+static const quint32 ALARM_REPEAT_MAX    =  2;                      ///< Play error tone 2 times at boot up
 
 static const CommandExecuteFunctorAckShPtr_t    NullCommandExecuteFunctor(NULL);    ///< NULL functor for command execution.
 static const CommandExecuteFunctorShPtr_t       NullCommandExecuteFunctorWithouAck(NULL); ///< Null functor command execution
@@ -74,6 +76,11 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     m_ShutdownSharedMemTimer(this),
     m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
     m_HeartBeatSourceAxeda(101),
+    m_RebootCount(0),
+    m_MainRebooted(false),
+    m_SWUpdateStatus("NA"),
+    m_SWUpdateCheckStatus("NA"),
+    m_UpdateRollBackFailed(false),
     m_CommandChannelDataLogging(this, "DataLogging", Global::EVENTSOURCE_DATALOGGER),
     m_CommandChannelEventThread(this, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER),
     mp_EventThreadController(NULL),
@@ -82,6 +89,9 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     mp_DataManagerBase(NULL),
     mp_SoftSwitchManagerThreadController(NULL),
     m_CommandChannelSoftSwitch(this, "SoftSwitch", Global::EVENTSOURCE_NONE),
+    m_UpdatingRollback(false),
+    m_SWUpdateSuccess(false),
+    m_PowerFailed(false),
     m_HeartBeatSourceSoftSwitch(100)
 
 {
@@ -101,6 +111,13 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     // we are in debug mode so we can start timer
     m_ShutdownSharedMemTimer.start();
 #endif
+    //Create Reboot file if it doesnt exits
+    QString RebootPath =  "../Settings/Reboot.txt";
+    QFile RebootFile(RebootPath);
+    if (!RebootFile.exists()) {
+        CreateRebootFile(&RebootFile);
+    }
+    ReadRebootFile(&RebootFile);
 }
 
 /****************************************************************************/
@@ -120,9 +137,7 @@ void MasterThreadController::CreateAlarmHandler()
 /****************************************************************************/
 void MasterThreadController::CreateAndInitializeObjects() {
     CHECKPTR(mp_DataManagerBase);
-    qDebug()<<" Thread EventObject" << Global::EventObject::Instance().thread();
-    qDebug()<<" thread StateHandler" << EventHandler::StateHandler::Instance().thread();
-    //Update serial number read from Device configuration xml
+     //Update serial number read from Device configuration xml
     //Serial number will be present in Log files.
     DataManager::CDataContainerCollectionBase const *p_DataContainer = mp_DataManagerBase->GetDataContainer();
     CHECKPTR(p_DataContainer);
@@ -983,9 +998,16 @@ void MasterThreadController::OnStopReceived() {
 
 /****************************************************************************/
 void MasterThreadController::Shutdown() {
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList()
-              , Global::NO_NUMERIC_DATA, false);
+    //write buffered data to disk-> refer man pages for sync
+    system("sync &");
+    std::cout <<"\n\n Shutdown Start time " << Global::AdjustedTime::Instance().GetCurrentTime().toString().toStdString();
+    //send shutdown signal to RemoteCarecontroller
+//    SendCommand(Global::CommandShPtr_t(new NetCommands::CmdRCNotifyShutdown()), m_CommandChannelRemoteCare);
 
+//    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList()
+//              , Global::NO_NUMERIC_DATA, false);
+//    Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList() <<"");
+//    SendCommand(Global::CommandShPtr_t(new Global::CmdLCDPowerControl(false)), m_CommandChannelGPIOManager);
     // send Stop signal to all thread controllers
     emit SendStop();
 
@@ -1184,5 +1206,110 @@ void MasterThreadController::StartSpecificThreadController(const int ControllerN
         //BasicThreadController ? (emit SendGoToBasicThreads()): (emit SendGo());
     }
 }
+
+void MasterThreadController::CreateRebootFile(QFile *p_RebootFile) {
+    if (p_RebootFile) {
+        if(!p_RebootFile->open(QIODevice::ReadWrite | QIODevice::Text)) {
+            //!< todo raise event.
+            qDebug()<<"Reboot file open failed";
+        }
+        QTextStream RebootFileStream(p_RebootFile);
+        RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
+        RebootFileStream << "Main_Rebooted:" << "No" << "\n" << left;
+        RebootFileStream << "Reboot_Count:" << "0" << "\n" << left;
+        RebootFileStream << "Software_Update_Status:" << "Success" << "\n" << left;
+        RebootFileStream << "Update_RollBack_Failed:" << "No" << "\n" << left;
+        RebootFileStream << "PowrFailed:"<< "No" << "\n" << left;
+        p_RebootFile->close();
+    }
+}
+
+void MasterThreadController::UpdateRebootFile() {
+    QString RebootPath = Global::SystemPaths::Instance().GetSettingsPath() + "/Reboot.txt";
+    QFile RebootFile(RebootPath);
+    if(!RebootFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
+        //!< todo raise event.
+        qDebug()<<"Reboot file open failed";
+    }
+    QTextStream RebootFileStream(&RebootFile);
+    RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
+    QMapIterator<QString, QString> RebootfileItr(m_RebootFileContent);
+    while (RebootfileItr.hasNext()) {
+        RebootfileItr.next();
+        QString Key = RebootfileItr.key();
+        QString Value = m_RebootFileContent.value(Key);
+        RebootFileStream << Key << ":" << Value << "\n" << left;
+    }
+    fsync(RebootFile.handle());
+}
+
+void MasterThreadController::ReadRebootFile(QFile *p_RebootFile) {
+    if (p_RebootFile) {
+        if(!p_RebootFile->open(QIODevice::ReadWrite | QIODevice::Text)) {
+            //!< todo raise event.
+            qDebug()<<"Reboot file open failed";
+        }
+        QString Line;
+        QTextStream RebootFileStream(p_RebootFile);
+        do {
+            Line = RebootFileStream.readLine().simplified();
+            QString RebootCount("0");
+            if (Line.contains("Main_Rebooted", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    (LineFields[1] == "Yes") ? (m_MainRebooted = true) : (m_MainRebooted = false);
+                }
+                m_RebootFileContent.insert("Main_Rebooted", LineFields[1]);
+            }
+            else if (Line.contains("Reboot_Count", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    RebootCount = LineFields[1];
+                    m_RebootCount = RebootCount.toUInt();
+                    m_RebootFileContent.insert("Reboot_Count", QString::number(m_RebootCount));
+                }
+            }
+            else if (Line.contains("Software_Update_Status", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    m_SWUpdateStatus = LineFields[1];
+                }
+                if (LineFields[1] == "Success" || LineFields[1] == "Failure") {
+                    // Skip softswitch if software update was success/failure
+                    m_MainRebooted = true;
+                }
+                m_RebootFileContent.insert("Software_Update_Status", LineFields[1]);
+            }
+            else if (Line.contains("Update_RollBack_Failed", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    (LineFields[1] == "Yes") ? (m_UpdateRollBackFailed = true) : (m_UpdateRollBackFailed = false);
+                }
+                m_RebootFileContent.insert("Update_RollBack_Failed", LineFields[1]);
+            }
+            else if (Line.contains("PowerFailed", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    if (LineFields[1] == "Yes") {
+                        // Skip softswitch if system is recovering from power failure
+                        m_MainRebooted = true;
+                    }
+                }
+                m_RebootFileContent.insert("PowerFailed", LineFields[1]);
+            }
+            else if (Line.contains("Software_Update_Check_Status", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    m_SWUpdateCheckStatus = LineFields[1];
+                }
+                m_RebootFileContent.insert("Software_Update_Check_Status", LineFields[1]);
+            }
+        } while (!Line.isNull());
+
+        p_RebootFile->close();
+    }
+}
+
+
 
 } // end namespace Threads
