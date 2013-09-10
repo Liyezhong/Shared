@@ -37,6 +37,7 @@ public:
     qreal GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
     quint16 GetRecentOvenLidStatus();
     TempCtrlState_t GetTemperatureControlState(OVENTempCtrlType_t Type);
+    quint16 GetHeaterCurrent(OVENTempCtrlType_t Type);
 
 private slots:
     void Reset();
@@ -68,6 +69,8 @@ private slots:
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
     void OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue);
+    void OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
 
     //! command handling task
     //  void HandleCommandRequestTask();
@@ -92,6 +95,8 @@ private:
     qint64 m_LastGetLidStatusTime;                                      //!< Last get lid status time
     QMap<quint32, OVENTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperatre control modules
     quint16 m_LidStatus;     //!< Target output value; for verification of action result
+    TempCtrlHardwareStatus_t m_TCHardwareStatus[OVEN_TEMP_CTRL_NUM];    //!< Hardware status of the heaters
+    qint64 m_LastGetTCCurrentTime[OVEN_TEMP_CTRL_NUM];                  //!< Last time of getting current
 
 
     /*! error task state definitiosn */

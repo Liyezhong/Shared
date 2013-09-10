@@ -316,6 +316,10 @@ ReturnCode_t CBaseModule::InitializeCANMessages()
 
         m_unCanIDReqUniqueNumber = mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqUniqueNumber", 0, m_ulCANNodeID);
         m_unCanIDUniqueNumber    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "UniqueNumber", 0, m_ulCANNodeID);
+        m_unCanIDReqVoltageState = mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqVoltageState", 0, m_ulCANNodeID);
+        m_unCanIDVoltageState    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "VoltageState", 0, m_ulCANNodeID);
+        m_unCanIDReqCurrentState = mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqCurrentState", 0, m_ulCANNodeID);
+        m_unCanIDCurrentState    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "CurrentState", 0, m_ulCANNodeID);
     }
 
     FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for node id:" << std::hex << m_ulCANNodeID;
@@ -1245,7 +1249,7 @@ void CBaseModule::HandleCommandRequestTask()
                     m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportVoltageState(GetModuleHandle(), RetVal);
+                    emit ReportVoltageState(GetModuleHandle(), RetVal, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_VOLTAGE_STATE)
@@ -1256,7 +1260,7 @@ void CBaseModule::HandleCommandRequestTask()
                     m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportVoltageState(GetModuleHandle(), RetVal);
+                    emit ReportVoltageState(GetModuleHandle(), RetVal, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_CURRENT_MON)
@@ -1267,7 +1271,7 @@ void CBaseModule::HandleCommandRequestTask()
                     m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportCurrentState(GetModuleHandle(), RetVal);
+                    emit ReportCurrentState(GetModuleHandle(), RetVal, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_CURRENT_STATE)
@@ -1278,7 +1282,7 @@ void CBaseModule::HandleCommandRequestTask()
                     m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
                 }
                 else {
-                    emit ReportCurrentState(GetModuleHandle(), RetVal);
+                    emit ReportCurrentState(GetModuleHandle(), RetVal, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_UNIQUE_NUMBER)
@@ -1290,6 +1294,17 @@ void CBaseModule::HandleCommandRequestTask()
                 }
                 else {
                     emit ReportUniqueNumber(GetModuleHandle(), RetVal);
+                }
+            }
+            else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_VOLTAGE_STATE)
+            {
+                RetVal = SendCANMsgReqVoltageState();
+                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].Timeout = CAN_NODE_TIMEOUT_DATA_REQ;
+                }
+                else {
+                    emit ReportVoltageState(GetModuleHandle(), RetVal, 0);
                 }
             }
 
@@ -1392,7 +1407,7 @@ void CBaseModule::HandleCommandRequestTask()
                 }
                 else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_VOLTAGE_STATE)
                 {
-                    emit ReportVoltageState(GetModuleHandle(), m_lastErrorHdlInfo);
+                    emit ReportVoltageState(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
                 else if(m_ModuleCommand[idx].Type == CN_CMD_CONF_CURRENT_MON)
                 {
@@ -1400,7 +1415,7 @@ void CBaseModule::HandleCommandRequestTask()
                 }
                 else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_CURRENT_STATE)
                 {
-                    emit ReportCurrentState(GetModuleHandle(), m_lastErrorHdlInfo);
+                    emit ReportCurrentState(GetModuleHandle(), m_lastErrorHdlInfo, 0);
                 }
                 else if(m_ModuleCommand[idx].Type == CN_CMD_REQ_UNIQUE_NUMBER)
                 {
@@ -2600,7 +2615,23 @@ void CBaseModule::HandleCANMsgBoardOptions(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgVoltageState(can_frame* pCANframe)
 {
-    Q_UNUSED(pCANframe);
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        ResetModuleCommand(CN_CMD_REQ_VOLTAGE_STATE);
+    }
+
+    if(pCANframe->can_dlc == 5)
+    {
+        ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
+        quint16 voltage = GetCANMsgDataU16(pCANframe, 1);
+
+        FILE_LOG_L(laFCT, llDEBUG) << " CBaseModule voltage received: " << voltage;
+        emit ReportVoltageState(GetModuleHandle(), hdlInfo, voltage);
+    }
+    else
+    {
+        emit ReportVoltageState(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0);
+    }
 }
 
 /****************************************************************************/
@@ -2612,7 +2643,23 @@ void CBaseModule::HandleCANMsgVoltageState(can_frame* pCANframe)
 /****************************************************************************/
 void CBaseModule::HandleCANMsgCurrentState(can_frame* pCANframe)
 {
-    Q_UNUSED(pCANframe);
+    if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
+    {
+        ResetModuleCommand(CN_CMD_REQ_CURRENT_STATE);
+    }
+
+    if(pCANframe->can_dlc == 5)
+    {
+        ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
+        quint16 current = GetCANMsgDataU16(pCANframe, 1);
+
+        FILE_LOG_L(laFCT, llDEBUG) << " CBaseModule voltage received: " << current;
+        emit ReportCurrentState(GetModuleHandle(), hdlInfo, current);
+    }
+    else
+    {
+        emit ReportCurrentState(GetModuleHandle(), DCL_ERR_CANMSG_INVALID, 0);
+    }
 }
 
 /****************************************************************************/
@@ -2968,7 +3015,14 @@ ReturnCode_t CBaseModule::ConfigureVoltageMonitor()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqVoltageState()
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+
+    if(!SetModuleTask(CN_CMD_REQ_VOLTAGE_STATE))
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
+    }
 
     return RetVal;
 }
@@ -2996,7 +3050,14 @@ ReturnCode_t CBaseModule::ConfigureCurrentMonitor()
 /****************************************************************************/
 ReturnCode_t CBaseModule::ReqCurrentState()
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_NOT_IMPLEMENTED;
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+
+    if(!SetModuleTask(CN_CMD_REQ_CURRENT_STATE))
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANNode '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
+    }
 
     return RetVal;
 }

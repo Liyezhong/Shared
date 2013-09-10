@@ -9,7 +9,7 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED (999)
+//#define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -66,6 +66,8 @@ void COvenDevice::Reset()
     memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));  //lint !e545
+    memset( &m_TCHardwareStatus, 0 , sizeof(m_TCHardwareStatus)); //lint !e545
+    memset( &m_LastGetTCCurrentTime, 0 , sizeof(m_LastGetTCCurrentTime)); //lint !e545
     m_pLidDigitalInput = NULL;
     m_LidStatus = 0;
 }
@@ -177,10 +179,13 @@ void COvenDevice::HandleIdleState()
 ReturnCode_t COvenDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    CBaseModule* pBaseModule = NULL;
 
     FILE_LOG_L(laDEV, llINFO) << "  COvenDevice::HandleInitializationState()";
     quint32 InstanceID;
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenTopTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[OVEN_TOP] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -203,6 +208,8 @@ ReturnCode_t COvenDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenBottomTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[OVEN_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -225,6 +232,8 @@ ReturnCode_t COvenDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pLidDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey));
@@ -333,6 +342,22 @@ ReturnCode_t COvenDevice::HandleConfigurationState()
     {
         SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
         FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -500,7 +525,7 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;
 }
@@ -534,16 +559,18 @@ ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        ReturnCode_t retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to set temperature"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+            return retCode;
         }
         //ON the temperature control
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to start temperature control"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+            return retCode;
         }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -590,16 +617,18 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
         return retCode;
     }
     //Set the nominal temperature
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to set temperature"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+        return retCode;
     }
     //ON the temperature control
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to start temperature control"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+        return retCode;
     }
 
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -685,9 +714,9 @@ void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCod
 /****************************************************************************/
 bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -715,9 +744,9 @@ bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type)
 /****************************************************************************/
 bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] + TOLERANCE))
@@ -845,7 +874,7 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
         {
-            RetValue = UNDEFINED;
+            RetValue = UNDEFINED_4_BYTE;
         }
         else
         {
@@ -855,7 +884,7 @@ qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
             }
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                RetValue = UNDEFINED;
+                RetValue = UNDEFINED_4_BYTE;
             }
             else
             {
@@ -913,7 +942,7 @@ void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED_4_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1008,11 +1037,11 @@ quint16 COvenDevice::GetLidStatus()
     }
     else
     {
-        return UNDEFINED;
+        return UNDEFINED_4_BYTE;
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED;
+        return UNDEFINED_4_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1020,7 +1049,7 @@ quint16 COvenDevice::GetLidStatus()
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED;
+        return UNDEFINED_4_BYTE;
     }
     return m_LidStatus;
 }
@@ -1096,8 +1125,94 @@ quint16 COvenDevice::GetRecentOvenLidStatus()
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_2_BYTE;
     }
     return RetValue;
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Get actual current of device's heater.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  The current of heater in mA.
+ */
+/****************************************************************************/
+quint16 COvenDevice::GetHeaterCurrent(OVENTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue = UNDEFINED_2_BYTE;
+    if(m_pTempCtrls[Type] != NULL)
+    {
+        if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        {
+            ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
+            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
+            {
+                if(m_pDevProc)
+                {
+                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_TC_GET_HW_STATUS);
+                }
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED_2_BYTE;
+                }
+                else
+                {
+                    RetValue = m_TCHardwareStatus[Type].Current;
+                }
+                m_LastGetTCCurrentTime[Type] = Now;
+            }
+        }
+        else
+        {
+
+            RetValue = m_TCHardwareStatus[Type].Current;
+        }
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  slot for getting the hardware information
+ *
+ *  This slot is connected to the signal ReportHardwareStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Sensors = Number of temperature sensors connected to the board
+ *  \iparam Fans = Number of ventilation fans connected to the board
+ *  \iparam Heaters = Number of heating elements connected to the board
+ *  \iparam Pids = Number of PID controllers in the control loop
+ *  \iparam Current = Current through the heatinf circuit in milliamperes
+ */
+/****************************************************************************/
+void COvenDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType)
+{
+    if (DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = Sensors;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = Fans;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = Heaters;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = Pids;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = Current;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = HeaterSwitchType;
+    }
+    else
+    {
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED_2_BYTE;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = 0;
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_TC_GET_HW_STATUS, ReturnCode);
+    }
+}
+
 } //namespace

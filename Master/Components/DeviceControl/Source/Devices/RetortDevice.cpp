@@ -10,7 +10,7 @@
 
 namespace DeviceControl
 {
-#define UNDEFINED (999)
+//#define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -69,6 +69,7 @@ void CRetortDevice::Reset()
     memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
     memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls)); //lint !e545
+    memset( &m_HardwareStatus, 0, sizeof(m_HardwareStatus)); //lint !e545
     m_TargetDOOutputValue = 0;
     m_LockStatus = 0;
     m_LastGetLockStatusTime = 0;
@@ -181,10 +182,13 @@ void CRetortDevice::HandleIdleState()
 ReturnCode_t CRetortDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    CBaseModule* pBaseModule = NULL;
 
     FILE_LOG_L(laDEV, llINFO) << "  CRetortDevice::HandleInitializationState()";
     quint32 InstanceID;
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortBottomTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[RT_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -207,6 +211,8 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortSideTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pTempCtrls[RT_SIDE] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -229,6 +235,8 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDOKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pLockDigitalOutput = (CDigitalOutput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -246,6 +254,8 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
     }
 
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_RetortLockDIKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
     if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
         m_pLockDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(InstanceID);
@@ -547,7 +557,7 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;
 }
@@ -567,6 +577,7 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 /****************************************************************************/
 ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
 {
+    ReturnCode_t retCode;
     m_TargetTemperatures[Type] = NominalTemperature;
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
@@ -581,16 +592,18 @@ ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal
     if (IsTemperatureControlOff(Type))
     {
         //Set the nominal temperature
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+        retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to set temperature"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+            return retCode;
         }
         //ON the temperature control
-        if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+        retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             // Log(tr("Not able to start temperature control"));
-            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+            return retCode;
         }
     }
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -637,16 +650,18 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
          return retCode;
     }
     //Set the nominal temperature
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperature(Type, NominalTemperature, SlopeTempChange))
+    retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to set temperature"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
+        return retCode;
     }
     //ON the temperature control
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON))
+    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
         // Log(tr("Not able to start temperature control"));
-        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+        return retCode;
     }
 
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -737,9 +752,9 @@ void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnC
 /****************************************************************************/
 bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] + TOLERANCE))
@@ -767,9 +782,9 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type)
 /****************************************************************************/
 bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type)
 {
-    if(GetTemperature(Type, 0) != UNDEFINED)
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED) || (m_CurrentTemperatures[Type] != UNDEFINED))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
         {
             if ((m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] - TOLERANCE)||
                             (m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] + TOLERANCE))
@@ -901,7 +916,7 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
         {
-            RetValue = UNDEFINED;
+            RetValue = UNDEFINED_4_BYTE;
         }
         else
         {
@@ -915,7 +930,7 @@ qreal CRetortDevice::GetTemperature(RTTempCtrlType_t Type, quint8 Index)
             }
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                RetValue = UNDEFINED;
+                RetValue = UNDEFINED_4_BYTE;
             }
             else
             {
@@ -973,7 +988,7 @@ void CRetortDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Retort get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED;
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED_4_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1191,7 +1206,7 @@ quint16 CRetortDevice::GetRecentRetortLockStatus()
     }
     else
     {
-        RetValue = UNDEFINED;
+        RetValue = UNDEFINED_2_BYTE;
     }
     return RetValue;
 }
@@ -1242,7 +1257,7 @@ quint16 CRetortDevice::GetLidStatus()
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED;
+        return UNDEFINED_2_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1254,7 +1269,7 @@ quint16 CRetortDevice::GetLidStatus()
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED;
+        return UNDEFINED_2_BYTE;
     }
     return m_LockStatus;
 }

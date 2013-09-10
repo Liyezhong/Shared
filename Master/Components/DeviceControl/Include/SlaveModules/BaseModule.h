@@ -241,9 +241,9 @@ signals:
     //!< report the board options
     void ReportBoardOptions(quint32 InstanceID, ReturnCode_t HdlInfo);
     //!< report the voltage state
-    void ReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo);
+    void ReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 VoltageState);
     //!< report the current state
-    void ReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo);
+    void ReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 CurrentState);
     //!< report the unique number
     void ReportUniqueNumber(quint32 InstanceID, ReturnCode_t HdlInfo);
 
