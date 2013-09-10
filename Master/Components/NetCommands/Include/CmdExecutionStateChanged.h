@@ -22,6 +22,7 @@
 #define CMDEXECUTIONSTATECHANGED_H
 
 #include <Global/Include/Commands/Command.h>
+#include <Global/Include/GlobalDefines.h>
 
 namespace NetCommands {
 
@@ -39,12 +40,20 @@ private:
     /****************************************************************************/
 
     CmdExecutionStateChanged(const CmdExecutionStateChanged &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdExecutionStateChanged & operator = (const CmdExecutionStateChanged &); ///< Not implemented.
 protected:
 public:
     static QString  NAME;           ///< Command name.
     bool m_Stop;                    ///< True - if execution is stopped
-
+    bool m_WaitDialogFlag;            ///< True - Wait dialog is displayed
+    Global::WaitDialogText_t m_WaitDialogText; ///< Wait dialog message text
     /****************************************************************************/
     /*!
      * \brief   Constructor
@@ -55,7 +64,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   DevInstanceID       Instance ID of the concerned device.
+     * \param[in]   TimeOut       Timeout for Command
      */
     /****************************************************************************/
     CmdExecutionStateChanged(int TimeOut);
@@ -91,7 +100,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdExecutionStateCh
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_Stop;
+    Stream << Cmd.m_Stop << Cmd.m_WaitDialogFlag << static_cast<int>(Cmd.m_WaitDialogText);
     return Stream;
 }
 
@@ -110,6 +119,10 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdExecutionStateChanged 
     Cmd.CopyFromStream(Stream);
     // copy internal data
     Stream >> Cmd.m_Stop;
+    Stream >> Cmd.m_WaitDialogFlag;
+    int WaitDlgText;
+    Stream >> WaitDlgText;
+    Cmd.m_WaitDialogText = (Global::WaitDialogText_t) (WaitDlgText);
     return Stream;
 }
 } // end namespace NetCommands

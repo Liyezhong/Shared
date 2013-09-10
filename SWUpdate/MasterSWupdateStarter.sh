@@ -182,7 +182,7 @@ CheckMd5Sum()
 
 #	find $FINDBINDIR $FINDSETTINGDIR $FINDFIRMWAREDIR -type f -print\
 #       | xargs md5sum >> $TMPDIRMD5FILE
-	find ./ -type f ! -iwholename './md5sum.txt' -print\
+	find ./ -type f |grep -v './md5sum.txt'\
         | xargs md5sum >> $TMPDIRMD5FILE
 
 

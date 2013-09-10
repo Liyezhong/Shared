@@ -23,7 +23,7 @@
 #include <EventHandler/Include/EventHandlerEventCodes.h>
 
 #include <QAbstractTransition>
-#include <QDebug>
+
 
 namespace EventHandler {
 
@@ -31,57 +31,62 @@ StateHandler StateHandler::m_StateHandlerInstance; //!< The instance
 
 /****************************************************************************/
 StateHandler::StateHandler()
+    : m_SimulationOn(false)
+    , m_swInitFailed(false)
+    , m_Lock(QMutex::Recursive)
 {
-    m_DefaultState = new QState();
-    m_DefaultState->setObjectName("DefaultState");
-    m_SoftSwitchMonitorState = new QState();
-    m_SoftSwitchMonitorState->setObjectName("SoftSwitchMonitorState");
-    m_InitState = new QState();
-    m_InitState->setObjectName("InitState");
-    m_idleState = new QState();
-    m_idleState->setObjectName("IdleState");
-    m_busyState = new QState();
-    m_busyState->setObjectName("BusyState");
+    mp_DefaultState = new QState();
+    mp_DefaultState->setObjectName("DefaultState");
+    mp_SoftSwitchMonitorState = new QState();
+    mp_SoftSwitchMonitorState->setObjectName("SoftSwitchMonitorState");
+    mp_InitState = new QState();
+    mp_InitState->setObjectName("InitState");
 
-    m_errorState = new QState();
-    m_errorState->setObjectName("ErrorState");
-    m_normalState = new QState();
-    m_normalState->setObjectName("NormalState");
 
-    m_operationMachine.addState(m_DefaultState);
-    m_operationMachine.addState(m_SoftSwitchMonitorState);
-    m_operationMachine.addState(m_InitState);
-    m_operationMachine.addState(m_idleState);
-    m_operationMachine.addState(m_busyState);
+    mp_idleState = new QState();
+    mp_idleState->setObjectName("IdleState");
 
-    m_availabilityMachine.addState(m_errorState);
-    m_availabilityMachine.addState(m_normalState);
+    mp_busyState = new QState();
+    mp_busyState->setObjectName("BusyState");
 
-//    QAbstractTransition *transition = m_idleState->addTransition(m_errorState);
-    m_DefaultState->addTransition(this, SIGNAL(softSwitchMonitorStart()), m_SoftSwitchMonitorState);
-    m_SoftSwitchMonitorState->addTransition(this, SIGNAL(softSwitchPressed()), m_InitState);
-    m_InitState->addTransition(this, SIGNAL(initComplete()), m_idleState);
-    m_busyState->addTransition(this, SIGNAL(enterIdleState()), m_idleState);
-    m_idleState->addTransition(this, SIGNAL(enterBusyState()), m_busyState);
+    mp_InitFailedState = new QState();
+    mp_InitFailedState->setObjectName("InitFailedState");
 
-    m_errorState->addTransition(this, SIGNAL(enterNormalState()), m_normalState);
-    m_normalState->addTransition(this, SIGNAL(enterErrorState()), m_errorState);
+    mp_errorState = new QState();
+    mp_errorState->setObjectName("ErrorState");
+    mp_normalState = new QState();
+    mp_normalState->setObjectName("NormalState");
 
-    m_operationMachine.setInitialState(m_DefaultState);
-    m_availabilityMachine.setInitialState(m_normalState);
+    m_operationMachine.addState(mp_DefaultState);
+    m_operationMachine.addState(mp_SoftSwitchMonitorState);
+    m_operationMachine.addState(mp_InitState);
+    m_operationMachine.addState(mp_idleState);
+    m_operationMachine.addState(mp_busyState);
+    m_operationMachine.addState(mp_InitFailedState);
 
-    connect(m_SoftSwitchMonitorState, SIGNAL(entered()), this, SLOT(onSoftSwitchMonitorStateEntered()));
-    connect(m_InitState, SIGNAL(entered()), this, SLOT(onInitStateEntered()));
-//    connect(m_idleState, SIGNAL(stateChanged()), this, SLOT(onStateChanged()));
-//    connect(m_busyState, SIGNAL(stateChanged()), this, SLOT(onStateChanged()));
+    m_availabilityMachine.addState(mp_errorState);
+    m_availabilityMachine.addState(mp_normalState);
 
-    connect(m_idleState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
-    connect(m_busyState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
-    connect(m_errorState, SIGNAL(entered()), this, SLOT(onAvailabilityStateChanged()));
-    connect(m_normalState, SIGNAL(entered()), this, SLOT(onAvailabilityStateChanged()));
+    mp_DefaultState->addTransition(this, SIGNAL(softSwitchMonitorStart()), mp_SoftSwitchMonitorState);
+    mp_SoftSwitchMonitorState->addTransition(this, SIGNAL(softSwitchPressed()), mp_InitState);
+    mp_InitState->addTransition(this, SIGNAL(initComplete()), mp_idleState);
+    mp_InitState->addTransition(this, SIGNAL(initFailed()), mp_InitFailedState);
+    mp_busyState->addTransition(this, SIGNAL(enterIdleState()), mp_idleState);
+    mp_idleState->addTransition(this, SIGNAL(enterBusyState()), mp_busyState);
+    mp_idleState->addTransition(this, SIGNAL(enterInitState()), mp_InitState);
 
-//    connect(m_errorState, SIGNAL(entered()), this, SLOT(onErrorState()));
-//    connect(m_normalState, SIGNAL(entered()), this, SLOT(onNormalState()));
+    mp_errorState->addTransition(this, SIGNAL(enterNormalState()), mp_normalState);
+    mp_normalState->addTransition(this, SIGNAL(enterErrorState()), mp_errorState);
+
+    m_operationMachine.setInitialState(mp_DefaultState);
+    m_availabilityMachine.setInitialState(mp_normalState);
+
+    connect(mp_SoftSwitchMonitorState, SIGNAL(entered()), this, SLOT(onSoftSwitchMonitorStateEntered()));
+    connect(mp_InitState, SIGNAL(entered()), this, SLOT(onInitStateEntered()));
+    connect(mp_idleState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
+    connect(mp_busyState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
+    connect(mp_errorState, SIGNAL(entered()), this, SLOT(onAvailabilityStateChanged()));
+    connect(mp_normalState, SIGNAL(entered()), this, SLOT(onAvailabilityStateChanged()));
 
     m_operationMachine.start();
     m_availabilityMachine.start();
@@ -94,13 +99,14 @@ StateHandler::~StateHandler()
 
 bool StateHandler::isAllowed(Global::CommandShPtr_t command)
 {
+    QMutexLocker Lock(&m_Lock);
     bool retVal = true;
 
     foreach (QAbstractState* state, m_operationMachine.configuration())
     {
-        qDebug()<<"Current State" << state->objectName();
-        if (!command.GetPointerToUserData()->isStateAllowed(state->objectName()))
+        if (!command.GetPointerToUserData()->isStateAllowed(state->objectName())) {
             retVal = false;
+        }
     }
 
     foreach (QAbstractState* state, m_availabilityMachine.configuration())
@@ -114,6 +120,7 @@ bool StateHandler::isAllowed(Global::CommandShPtr_t command)
 
 QString StateHandler::getCurrentOperationState()
 {
+    QMutexLocker Lock(&m_Lock);
     if (!m_operationMachine.configuration().empty())
     {
         QAbstractState *state = m_operationMachine.configuration().toList().at(0);
@@ -124,6 +131,7 @@ QString StateHandler::getCurrentOperationState()
 
 QString StateHandler::getCurrentAvailabilityState()
 {
+    QMutexLocker Lock(&m_Lock);
     if (!m_availabilityMachine.configuration().empty())
     {
         QAbstractState *state = m_availabilityMachine.configuration().toList().at(0);
@@ -134,6 +142,7 @@ QString StateHandler::getCurrentAvailabilityState()
 
 void StateHandler::setActivityUpdate(bool active, quint32 activityId)
 {
+    QMutexLocker Lock(&m_Lock);
     if (active)
     {
         m_rackList.append(activityId);
@@ -151,6 +160,7 @@ void StateHandler::setActivityUpdate(bool active, quint32 activityId)
 
 void StateHandler::setInitState()
 {
+    QMutexLocker Lock(&m_Lock);
     if (getCurrentOperationState() == "SoftSwitchMonitorState") {
         emit softSwitchPressed();
     }
@@ -159,16 +169,50 @@ void StateHandler::setInitState()
 
 void StateHandler::setIdleState()
 {
-    qDebug()<<"Settin Idle state"<<getCurrentOperationState();
+    QMutexLocker Lock(&m_Lock);
     if (getCurrentOperationState() == "InitState") {
         emit initComplete();
-        qDebug()<<"INIT COMPLETE RECEIVERS: "<<receivers(SIGNAL(initComplete()));
-        qDebug()<<"THREAD ID"<<this->thread();
     }
 }
 
+quint8 StateHandler::getInitStageProgress()
+{
+    QMutexLocker Lock(&m_Lock);
+    return m_initStage.count();
+}
+
+void StateHandler::setInitStageProgress(quint8 stage, bool success)
+{
+    QMutexLocker Lock(&m_Lock);
+    if (success)
+    {
+        if (getCurrentOperationState() != "InitState") {
+            emit enterInitState();
+        }
+        if ((stage != 1) || (!m_swInitFailed)) {
+            m_initStage.insert(stage, success);
+            if (m_initStage.count() == 3)
+            {
+                m_initStage.clear();
+                Global::EventObject::Instance().RaiseEvent(EVENT_INIT_SUCCESS);
+                setIdleState();
+            }
+        }
+    }
+    else
+    {
+        if (stage == 1) {
+            m_swInitFailed = true;
+        }
+        m_initStage.remove(stage);
+        setAvailability(true, EVENT_INIT_FAILED);
+    }
+}
+
+
 void StateHandler::setStateToSoftSwitchMonitorState()
 {
+    QMutexLocker Lock(&m_Lock);
     if (getCurrentOperationState() == "DefaultState") {
         emit softSwitchMonitorStart();
     }
@@ -176,12 +220,13 @@ void StateHandler::setStateToSoftSwitchMonitorState()
 
 void StateHandler::setAvailability(bool active, quint32 eventId)
 {
+    QMutexLocker Lock(&m_Lock);
     if (active)
     {
         m_errorList.append(eventId);
         if (m_errorList.count() == 1)
         {
-            Global::EventObject::Instance().RaiseEvent(EVENT_ERROR_STATE);
+            Global::EventObject::Instance().RaiseEvent(EVENT_ERROR_STATE, Global::FmtArgs() << eventId);
             emit enterErrorState();
         }
     }
@@ -198,26 +243,35 @@ void StateHandler::setAvailability(bool active, quint32 eventId)
 
 void StateHandler::onAvailabilityStateChanged()
 {
+    QMutexLocker Lock(&m_Lock);
     QString state = getCurrentAvailabilityState();
     emit stateChanged(state);
 }
 
 void StateHandler::onOperationStateChanged()
 {
+    QMutexLocker Lock(&m_Lock);
     QString state = getCurrentOperationState();
     emit stateChanged(state);
 }
 
 void StateHandler::onInitStateEntered()
 {
+    QMutexLocker Lock(&m_Lock);
     emit enteredInitState();
 }
 
 void StateHandler::onSoftSwitchMonitorStateEntered()
 {
+    QMutexLocker Lock(&m_Lock);
     emit enteredSoftSwitchMonitorState();
 }
 
+void StateHandler::SetInitializationFailed()
+{
+    QMutexLocker Lock(&m_Lock);
+    emit initFailed();
+}
 
 //void StateHandler::onNormalState()
 //{

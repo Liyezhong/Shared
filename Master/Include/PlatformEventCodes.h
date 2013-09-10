@@ -24,4 +24,25 @@
 #include <QtGlobal>
 const quint32 EVENT_GROUP_SOURCENAME                        = 0x0000;
 #include "../../../Himalaya/HimalayaMain/Master/Include/HimalayaEventCodes.h"
+
+
+// Note : Add event groups for your platform components here
+/// Event group for platform
+const quint32 EVENT_GROUP_PLATFORM                          = 0x01;
+
+/// Event group for global stuff
+const quint32 EVENT_GROUP_PLATFORM_GLOBAL                   = ((EVENT_GROUP_PLATFORM << 8) + 0x01) << 16;
+/// Event group for thread stuff
+const quint32 EVENT_GROUP_PLATFORM_THREADS                  = ((EVENT_GROUP_PLATFORM << 8) + 0x02) << 16;
+/// Event group for data logging
+const quint32 EVENT_GROUP_PLATFORM_DATALOGGING              = ((EVENT_GROUP_PLATFORM << 8) + 0x03) << 16;
+/// Event group for event handler.
+const quint32 EVENT_GROUP_PLATFORM_EVENTHANDLER             = ((EVENT_GROUP_PLATFORM << 8) + 0x04) << 16;
+
+
+
+const quint32 EVENT_INIT_FAILED                     = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0005; ///< Event for Init failed
+const quint32 EVENT_INIT_SUCCESS                    = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0006; ///< Event for Init Success
+
+
 #endif // namespace PLATFORMEVENTCODES_H
