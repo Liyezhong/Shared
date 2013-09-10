@@ -342,9 +342,11 @@ void pressCalcEffectiveCurrent(UInt16 Instance)
  
 Error_t pressPumpProgress (Bool PumpControl)
 {
-    UInt16 i;
-    UInt16 Active;
+#ifdef ASB15_VER_B
+    UInt16 i;    
     Error_t Error;
+#endif
+    UInt16 Active;
 
     Active = pressPumpActive ();
     if (Active > PressPumpData.MaxActive) {

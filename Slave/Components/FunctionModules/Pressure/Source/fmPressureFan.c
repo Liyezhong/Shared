@@ -328,7 +328,7 @@ Error_t pressFanCheck (void)
     // Check the current through the fans
     // All fan elements are off
     if (ActiveCount == 0) {
-        printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
+        //printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
         if (PressFanData.EffectiveCurrent > Params->DesiredCurThreshold) {
         
             // Calculate current effective current
@@ -345,7 +345,7 @@ Error_t pressFanCheck (void)
     else {
         Current = PressFanData.EffectiveCurrent / ActiveCount;
         
-        printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
+        //printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
         
         // Check if the current is out of range
         if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
@@ -437,7 +437,6 @@ UInt16 pressFanActive()
 {
     UInt16 i;
     UInt16 Active = 0;
-    UInt32 Time = bmGetTime ();
 
     for (i = 0; i < PressFanData.Instances; i++) {
         if (PressFanData.ActiveStatus[i]) {

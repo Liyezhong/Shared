@@ -135,8 +135,6 @@ static UInt16 ModuleIdentifier = 0;     //!< module identifier
 
 static InstanceData_t* DataTable;  //!< data table for all instances
 
-/*! Current pumping priority for hold mode */
-static UInt8 PressPriority;
 /*! Pump or hold phase */
 static PressPumpPhase_t PressPhase;
 /*! Pressure or Vacuum mode */
@@ -343,7 +341,6 @@ static Error_t pressModuleTask (UInt16 Instance)
             if (bmTimeExpired (PressSampleTimestamp) >= PressSamplingTime) {
                 // Update the sampling time
                 PressSampleTimestamp = bmGetTime();
-                PressPriority = 0;
                 for (i = 0; i < InstanceCount; i++) {
                     DataTable[i].State = STATE_SAMPLE;
                 }
@@ -412,7 +409,7 @@ static Error_t pressModuleTask (UInt16 Instance)
 
 #if 1 
         else if (Data->State == STATE_CONTROL && ((Data->Flags & MODE_MODULE_ENABLE) != 0)) {
-            if ((PressPhase == PHASE_PUMP) /*|| (pressPumpActive () == 0 && Data->Priority == PressPriority)*/) {
+            if ((PressPhase == PHASE_PUMP)) {
             
 #ifdef ASB15_VER_A            
                 UInt32 OperatingTime = 0;
@@ -422,7 +419,6 @@ static Error_t pressModuleTask (UInt16 Instance)
 			    }
                 
                 Data->State = STATE_IDLE;
-                PressPriority++;
                 
                 // Control the pumping elements
                 Error = pressPumpActuate (OperatingTime, PressSampleTimestamp + PressSamplingTime, Instance);
@@ -444,7 +440,6 @@ static Error_t pressModuleTask (UInt16 Instance)
                     //printf("PWM: %d\n", ActuatingPwmWidth);
     
                     Data->State = STATE_IDLE;
-                    PressPriority++;
                     
                     // Control the pumping elements
                     Error = pressPumpActuatePwm (ActuatingPwmWidth, PressSampleTimestamp + PressSamplingTime, Instance, &OperatingTime);
@@ -463,7 +458,6 @@ static Error_t pressModuleTask (UInt16 Instance)
                     //printf("Opt[Be]: %d\n", OperatingTime);
                     
                     Data->State = STATE_IDLE;
-                    PressPriority++;
                     
                     // Control the pumping elements
                     Error = pressPumpActuate (&OperatingTime, PressSampleTimestamp + PressSamplingTime, Instance);
@@ -499,7 +493,6 @@ static Error_t pressModuleTask (UInt16 Instance)
                 //printf("PWM: %d\n", ActuatingPwmWidth);                
                 
                 Data->State = STATE_IDLE;
-                PressPriority++;
                 
                 // Control the pumping elements
                 Error = pressPumpActuate (ActuatingPwmWidth, PressSampleTimestamp + PressSamplingTime, Instance, &OperatingTime);

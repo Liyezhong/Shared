@@ -129,7 +129,7 @@ static Error_t bmWritePartitionDescriptor (Handle_t Handle);
 
 Error_t bmCreatePartition (UInt32 PartitionID, UInt16 Mode, UInt16 Size) {
 
-    Handle_t FreeEntry, FreeBlock;
+    Handle_t FreeEntry, FreeBlock = 0;
     Error_t Status;
     UInt32 Address;
 
@@ -143,10 +143,11 @@ Error_t bmCreatePartition (UInt32 PartitionID, UInt16 Mode, UInt16 Size) {
             return (E_PARTITION_TABLE_FULL);
         }
         // find free block of memory in storage
-        for (FreeBlock=0; Partitions[FreeBlock].Free < Size; FreeBlock++) {
+        while (Partitions[FreeBlock].Free < Size) {
             if (FreeBlock >= PartitionTableSize) {
                 return (E_MEMORY_FULL);
             }
+            FreeBlock++;
         }
         if (WriteProtected) {
             return (E_STORAGE_PROTECTED);

@@ -165,8 +165,8 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMinor    = 1;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 7;
-    InfoBlock.ProductionDay   = 15;
+    InfoBlock.ProductionMonth = 8;
+    InfoBlock.ProductionDay   = 7;
 #endif    
 
 #ifdef ASB3_VER_B
@@ -174,8 +174,8 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMinor    = 3;
 
     InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 7;
-    InfoBlock.ProductionDay   = 15;
+    InfoBlock.ProductionMonth = 8;
+    InfoBlock.ProductionDay   = 12;
 #endif    
 
     InfoBlock.EndTestYear     = 10;
@@ -231,7 +231,9 @@ static Error_t InitTestBootloaderInfoBlock (void) {
 
 int main (int argc, char **argv) {
 
+    #ifdef DEBUG
     volatile Int32 i;
+    #endif
     Error_t Status;
 
     // Wait for JTAG to synchronize
