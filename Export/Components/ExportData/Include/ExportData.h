@@ -67,6 +67,7 @@ private:
                                    const bool &Encryption, const bool &Compressed);
 
     void RemoveFiles();
+    bool CheckUSBSpace(QString Destination);
 
 public:
     CExportData();
