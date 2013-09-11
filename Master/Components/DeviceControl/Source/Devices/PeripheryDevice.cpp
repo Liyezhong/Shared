@@ -21,7 +21,7 @@ CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString 
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";
-    LOG() <<  "Retort device cons thread id is " << QThread::currentThreadId();
+    //LOG() <<  "Retort device cons thread id is " << QThread::currentThreadId();
 }//lint !e1566
 
 /****************************************************************************/

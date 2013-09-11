@@ -26,7 +26,7 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Oven device created";
-    LOG() <<  "Oven device cons thread id is " << QThread::currentThreadId();
+    //LOG() <<  "Oven device cons thread id is " << QThread::currentThreadId();
 }//lint !e1566
 
 /****************************************************************************/
@@ -1037,11 +1037,11 @@ quint16 COvenDevice::GetLidStatus()
     }
     else
     {
-        return UNDEFINED_4_BYTE;
+        return UNDEFINED_2_BYTE;
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED_4_BYTE;
+        return UNDEFINED_2_BYTE;
     }
     if(m_pDevProc)
     {
@@ -1049,7 +1049,7 @@ quint16 COvenDevice::GetLidStatus()
     }
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        return UNDEFINED_4_BYTE;
+        return UNDEFINED_2_BYTE;
     }
     return m_LidStatus;
 }
