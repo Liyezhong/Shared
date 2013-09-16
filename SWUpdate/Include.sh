@@ -23,7 +23,7 @@
 #****************************************************************************/
 
 
-readonly ROOTDIR="/sd"					# Path of Root Directory 
+readonly ROOTDIR="$(pwd)/.."					# Path of Root Directory 
 if [ ! -d $ROOTDIR ]; then
 	echo "$ROOTDIR does not exist"
 	exit 1
