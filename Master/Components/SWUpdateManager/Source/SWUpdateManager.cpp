@@ -97,11 +97,11 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
                 emit WaitDialog(true, Global::SOFTWARE_UPDATE_TEXT);
                 #if defined(__arm__)
                 //On Target we execute as root. sudo is not needed
-                mp_SWUpdateStarter->StartProcess(QString("./%1 %2 %3 %4 %5").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
+                mp_SWUpdateStarter->StartProcess(QString("./%1 %2 %3 %4").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
                                                  arg(Option).
                                                  arg(UpdateFrom).
-                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).
-                                                 arg("ST8200"));
+                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)));
+                                                 //arg("ST8200"));
                 #else
                 //Need "sudo" on Desktop
                 mp_SWUpdateStarter->StartProcess(QString("sudo ./%1 %2 %3 %4").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
@@ -193,14 +193,14 @@ void SWUpdateManager::SWUpdateProcessExited(const QString &ScriptName, int ExitC
             //Inform user
             emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
             emit SWUpdateStatus(false);
-            Global::EventObject::Instance().RaiseEvent(ExitCode);
+            Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
             m_MasterThreadControllerRef.SetSWUpdateStatus(false);
         }
     }
     else if (m_UpdateOption == SW_UPDATE_OPTION_UPDATEROLLBACK) {
         if (ExitCode != SW_UPDATE_CHECK_SUCCESS) {
             //Inform User
-            Global::EventObject::Instance().RaiseEvent(ExitCode);
+            Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
             EventHandler::StateHandler::Instance().setInitStageProgress(1, false); // Initialization failed
             m_MasterThreadControllerRef.SetSWUpdateStatus(false);
             UpdateRebootFile("Yes");
