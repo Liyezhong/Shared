@@ -160,7 +160,7 @@ UpdateSlaveFW()
 				fi
 
 				# Update the SW_Version.xml with latest version
-				sed '/'$Name'/{s/'${CurrFW[$Name]}'/'${TmpFW[$Name]}'/}'\
+				sed '/'$Name' *"/{s/'${CurrFW[$Name]}'/'${TmpFW[$Name]}'/}'\
 		                $SWVERFILE > $TMPSWVERSIONFILE
 		                cp $TMPSWVERSIONFILE $SWVERFILE
 				if [ $? -ne 0 ]; then
@@ -302,7 +302,7 @@ UpdateSWBinaries()
 					RollbackSW
 					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/$Name" "$BINDIR/$Name" 
 				fi
-				sed '/'$Name'/{s/'${CurrSW[$Name]}'/'${TmpSW[$Name]}'/}'\
+				sed '/'$Name' *"/{s/'${CurrSW[$Name]}'/'${TmpSW[$Name]}'/}'\
 		                $SWVERFILE > $TMPSWVERSIONFILE 
 				cp $TMPSWVERSIONFILE $SWVERFILE
 				if [ $? -ne 0 ]; then

@@ -59,7 +59,8 @@ namespace EventHandler {
  *
  ****************************************************************************/
 EventHandlerThreadController::EventHandlerThreadController(Global::gSourceType TheHeartBeatSource) :
-    Threads::ThreadController(TheHeartBeatSource, "EventHandler"), m_UserRole(Global::OPERATOR)
+    Threads::ThreadController(TheHeartBeatSource, "EventHandler"), m_UserRole(Global::OPERATOR),
+    m_GuiAvailable(false)
 {
     //    CreateAndInitializeObjects();
     // Register LoggingSource Templates with moc
@@ -837,7 +838,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
     // if eventList is not available yet, place event into pendingList
     if (ErrorCode == EVENT_GUI_AVAILABLE)
     {
-            SetGuiAvailable(true);
+            SetGuiAvailable(IsResolved);
             //We dont need to log this particular event ,
             //instead we log for eg.EVENT_PROCESS_HIMALAYA_GUI_CONNECTED
             return;
@@ -1167,7 +1168,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
 
 void EventHandlerThreadController::SetGuiAvailable(const bool active)
 {
-    qDebug() << "ActionHandler::SetGuiAvailable" << active;
+    qDebug() << "ActionHandler::SetGuiAvailable" << active << " " << mPendingGuiEventList.size();
     m_GuiAvailable = active;
 
     if (active)
