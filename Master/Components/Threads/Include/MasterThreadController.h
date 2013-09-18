@@ -52,6 +52,9 @@ namespace DataLogging {
 namespace SoftSwitchManager {
     class SoftSwitchManagerThreadController;
 }
+namespace SWUpdate {
+    class SWUpdateManager;
+}
 namespace Threads {
 
 typedef enum {
@@ -90,6 +93,7 @@ typedef QVector<CommandChannel *>                   tCommandChannelVector;      
 class MasterThreadController : public BaseThreadController {
 
     Q_OBJECT
+    friend class SWUpdate::SWUpdateManager;
 private:
     QString                                     m_OperatingMode;                    ///< Operating mode.
     QString                                     m_EventLoggerBaseFileName;          ///< Base for file name for event logging.
@@ -119,6 +123,7 @@ private:
     QTimer                                      m_ShutdownSharedMemTimer;           ///< Timer for checking external request for system shutdown. Will work only in debug mode!
 
     tControllerMap                              m_BasicControllersMap;              //!< Basic thread controllers; Key- Controller number, value- tControllerPair
+    quint32                                     m_RebootCount;                      ///< Number of times the system has rebooted
     Threads::CommandChannel                     m_CommandChannelAxeda;                  ///< Command channel for Axeda thread controller.
     Global::gSourceType                         m_HeartBeatSourceAxeda;             //!< Heart Beat source of Axeda Thread Controller
 
@@ -132,6 +137,8 @@ private:
      * \brief Cleanup all controllers in the reverse order they were initialized.
      *
      * Calls \ref CleanupAndDestroyObjects for each controller.
+     *
+     * \iparam BasicThreadController
      */
     /****************************************************************************/
     void CleanupControllers(bool BasicThreadController = false);
@@ -142,6 +149,8 @@ private:
      *
      * We wait for a specific time amount THREAD_WAIT_TIME. If the thread does not
      * terminate we throw an exception
+     *
+     * \iparam BasicThreadController
      */
     /****************************************************************************/
     void WaitForThreads(bool BasicThreadController = false);
@@ -149,11 +158,11 @@ private:
     /**
      * \brief Connect data logging signals.
      *
-     * We connect the data logging signals (see \ref EventObject) of a controller
+     * \note We connect the data logging signals (see \ref EventObject) of a controller
      * to the event handler controller (\ref EmitEventEntry) and to the
      * data logger controller (\ref EmitDayOperationEntry and \ref EmitComponentTestEntry)
      *
-     * \param[in]   pController     Pointer to controller.
+     * \iparam   pController     Pointer to controller.
      */
     /****************************************************************************/
     void ConnectDataLoggingSignals(const BaseThreadController *pController);
@@ -162,7 +171,7 @@ private:
      * \brief Get command channel for routing by command name.
      *
      * Returns NULL if functor not found.
-     * \param[in]   CommandName     Name of command.
+     * \iparam   CommandName     Name of command.
      * \return                      The command channels.
      */
     /****************************************************************************/
@@ -172,7 +181,7 @@ private:
      * \brief Get command channel for routing by component type.
      *
      * Returns NULL if functor not found.
-     * \param[in]   component     Type of component.
+     * \iparam   component     Type of component.
      * \return                      The command channels.
      */
     /****************************************************************************/
@@ -194,9 +203,9 @@ private:
      * attached thread controllers.
      * Additional documentation in base class.
      *
-     * \param[in]   Ref                 Command reference.
-     * \param[in]   Cmd                 Command.
-     * \param[in]   AckCommandChannel   Command channel for acknowledges.
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     * \iparam   AckCommandChannel   Command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void CmdDataChangedReceived(Global::tRefType Ref, const Global::CmdDataChanged &Cmd, CommandChannel &AckCommandChannel);
@@ -208,9 +217,9 @@ private:
      * the command is dispatched to the responsible processing function
      * Additional documentation in base class.
      *
-     * \param[in]   Ref                 Command reference.
-     * \param[in]   Cmd                 Command.
-     * \param[in]   AckCommandChannel   Command channel for acknowledges.
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     * \iparam   AckCommandChannel   Command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void CmdPowerFailReceived(Global::tRefType Ref, const Global::CmdPowerFail &Cmd, CommandChannel &AckCommandChannel);
@@ -220,7 +229,7 @@ private:
      *
      * The command will be broadcasted to all connected thread controllers.
      *
-     * \param[in]   Cmd         The command.
+     * \iparam   Cmd         The command.
      */
     /****************************************************************************/
     virtual void DoSendDataChanged(const Global::CommandShPtr_t &Cmd);
@@ -234,7 +243,15 @@ private:
     /****************************************************************************/
     virtual void StartStatemachine() = 0;
 
-
+    /****************************************************************************/
+    /**
+     * \brief Function is called on SoftSwitch pressed at startUp.
+     *
+     * \iparam Ref
+     * \iparam Cmd
+     * \iparam AckCommandChannel
+     */
+    /****************************************************************************/
     void OnSoftSwitchPressedAtStartup(Global::tRefType Ref, const Global::CmdSoftSwitchPressed &Cmd,
                                                               Threads::CommandChannel &AckCommandChannel);
 
@@ -283,6 +300,26 @@ signals:
     /****************************************************************************/
     void CheckLoggingEnabled();
 
+    /****************************************************************************/
+    /**
+     * \brief Signals when export is finished
+     *
+     * \iparam FileName - File name of the log file
+     */
+    /****************************************************************************/
+    void RemoteCareExportFinished(const QString FileName);
+
+    /****************************************************************************/
+    /**
+     * \brief Signals when remote care requests for export
+     *
+     * \iparam LogFiles - Number of log files
+     */
+    /****************************************************************************/
+    void RemoteCareExport(const quint8 &LogFiles);
+
+    void PlayAlarmTone(bool AlarmTypeFlag, quint8 AlarmVolume, quint8 AlarmNumber);
+
 private slots:
     /****************************************************************************/
     /**
@@ -310,6 +347,36 @@ protected:
     SoftSwitchManager::SoftSwitchManagerThreadController    *mp_SoftSwitchManagerThreadController; //!< Thread controller to monitor softswitch
     CommandChannel                              m_CommandChannelSoftSwitch;         //!< Command channel for SoftSwitch Manager
     Global::gSourceType                         m_HeartBeatSourceSoftSwitch;        //!< Heart beat source of softswitch
+    bool                                        m_MainRebooted;                 ///< Flag indicating if the Main Software rebooted
+    QString                                     m_SWUpdateStatus;               ///< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
+    QString                                     m_SWUpdateCheckStatus;               ///< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
+    bool                                        m_UpdateRollBackFailed;         ///< Flag to indicating if updating rollback failed
+    bool                                        m_SWUpdateSuccess;              //!< true indicate sw update is success , including Rollback , else false
+    QMap<QString, QString>                      m_RebootFileContent;            ///< Map containing reboot file content.
+    bool                                        m_UpdatingRollback;             ///< true- Indicates update rollback is in progress.
+    bool                                        m_PowerFailed;                  ///< true- Power failed during previous run , false - no power failure
+    /****************************************************************************/
+    /**
+     * \brief Set S/W update status
+     *
+     * \iparam Status = True for success, false for failure
+     */
+    /****************************************************************************/
+    inline void SetSWUpdateStatus(const bool Status) {
+        m_SWUpdateSuccess = Status;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get S/W update status
+     *
+     * \return True for success, false for failure
+     */
+    /****************************************************************************/
+    inline bool GetSWUpdateStatus() const {
+        return m_SWUpdateSuccess;
+    }
+
     /****************************************************************************/
     /**
      * \brief Get serial number.
@@ -331,13 +398,22 @@ protected:
     inline int GetControllersCount() const {
         return m_ControllerMap.count();
     }
-
+    /****************************************************************************/
+    /**
+     * \brief Gets Basic Controllers Count
+     *
+     * \return Controller map count
+     */
+    /****************************************************************************/
     inline int GetBasicControllersCount() const {
         return m_BasicControllersMap.count();
     }
     /****************************************************************************/
     /**
      * \brief Stop the specified controllers and threads.
+     *
+     * \iparam ControllerNumber
+     * \iparam BasicThreadController
      */
     /****************************************************************************/
     void StopSpecificThreadController(const int ControllerNumber, const bool BasicThreadController = false);
@@ -345,6 +421,10 @@ protected:
     /****************************************************************************/
     /**
      * \brief Remove controllers and threads from the list.
+     *
+     * \iparam ControllerNumber = Controller number
+     * \iparam p_Channel = Thread command channel
+     * \iparam BasicThreadController = Base thread control number
      */
     /****************************************************************************/
     void RemoveSpecificThreadController(const int ControllerNumber, const bool BasicThreadController = false);
@@ -400,12 +480,17 @@ protected:
     /**
      * \brief Starts the export controller thread
      *
+     * \iparam ControllerNumber
+     * \iparam BasicThreadController
+     *
      ****************************************************************************/
     void StartSpecificThreadController(const int ControllerNumber, const bool BasicThreadController = false);
 
     /****************************************************************************/
     /**
      * \brief Destroy all registered controllers and threads.
+     *
+     * \iparam BasicThreadController
      */
     /****************************************************************************/
     void DestroyControllersAndThreads(const bool BasicThreadController = false);
@@ -416,6 +501,8 @@ protected:
      * Initiate the shutdown process. Make some project specific tasks the call
      * \ref Shutdown to shut down software.
      * Must be implemented in derived classes.
+     *
+     * \iparam Reboot
      */
     /****************************************************************************/
     virtual void InitiateShutdown() = 0;
@@ -427,8 +514,10 @@ protected:
      * connecting their \ref Go and \ref Stop slots, connecting them to the
      * data logging mechanism and so on.
      *
-     * \param[in]   pController         Pointer to controller.
-     * \param[in]   pCommandChannel     Pointer to command channel.
+     * \iparam   pController         Pointer to controller.
+     * \iparam   pCommandChannel     Pointer to command channel.
+     * \iparam   ControllerNumber    Controller Number
+     * \iparam   BasicThreadController
      */
     /****************************************************************************/
     void AddAndConnectController(ThreadController *pController, CommandChannel *pCommandChannel, int ControllerNumber, bool BasicThreadController = false);
@@ -472,7 +561,7 @@ protected:
      *          create and initialize RemoteCareHandler's derived class object;
      *          set the connection;
      *
-     * \param[in]  pRemoteCareHandler = pointer to the system's RemoteCare Controller object
+     * \iparam  pRemoteCareHandler = pointer to the system's RemoteCare Controller object
      */
     /****************************************************************************/
     void SetRemoteCareConnection(const EventHandler::RemoteCareHandler *pRemoteCareHandler) const;
@@ -483,8 +572,8 @@ protected:
      * These consist of the language resulting from current operation mode and the
      * fallback language.
      *
-     * \param[in]   Language            The desired language.
-     * \param[in]   FallbackLanguage    The desired fallback language.
+     * \iparam   Language            The desired language.
+     * \iparam   FallbackLanguage    The desired fallback language.
      */
     /****************************************************************************/
     void ReadEventTranslations(QLocale::Language Language, QLocale::Language FallbackLanguage) const ;
@@ -492,8 +581,8 @@ protected:
     /**
      * \brief Read set of needed UI string translations.
      *
-     * \param[in]       UserLanguage        The desired user language.
-     * \param[in]       FallbackLanguage    The desired fallback language.
+     * \iparam       UserLanguage        The desired user language.
+     * \iparam       FallbackLanguage    The desired fallback language.
      */
     /****************************************************************************/
     void ReadUITranslations(QLocale::Language UserLanguage, QLocale::Language FallbackLanguage) const;
@@ -503,7 +592,7 @@ protected:
      *
      * The offset from the current date time is compared to the maximal allowed
      * offset and then set.
-     * \param[in]   NewDateTime     New date time.
+     * \iparam   NewDateTime     New date time.
      * \return                      True on success
      */
     /****************************************************************************/
@@ -512,8 +601,8 @@ protected:
     /**
      * \brief Register a command execution functor.
      *
-     * \param[in]   CommandName     Name of command.
-     * \param[in]   Functor         Shared pointer of functor to register.
+     * \iparam   CommandName     Name of command.
+     * \iparam   Functor         Shared pointer of functor to register.
      */
     /****************************************************************************/
     void RegisterCommandExecuteFunctor(const QString &CommandName, const CommandExecuteFunctorAckShPtr_t &Functor);
@@ -521,8 +610,8 @@ protected:
     /**
      * \brief Register a command execution functor without Ack.
      *
-     * \param[in]   CommandName     Name of command.
-     * \param[in]   Functor         Shared pointer of functor to register.
+     * \iparam   CommandName     Name of command.
+     * \iparam   Functor         Shared pointer of functor to register.
      */
     /****************************************************************************/
     void RegisterCommandExecuteFunctor(const QString &CommandName, const CommandExecuteFunctorShPtr_t &Functor);
@@ -533,7 +622,7 @@ protected:
      * Get command execute functor by name. If functor is not found
      * NullCommandExecuteFunctor will be returned.
      *
-     * \param[in]   CommandName     Name of command.
+     * \iparam   CommandName     Name of command.
      * \return                      The functor or NullCommandExecuteFunctor.
      */
     /****************************************************************************/
@@ -545,7 +634,7 @@ protected:
      * Get command execute functor by name. If functor is not found
      * NullCommandExecuteFunctor will be returned.
      *
-     * \param[in]   CommandName     Name of command.
+     * \iparam   CommandName     Name of command.
      * \return                      The functor or NullCommandExecuteFunctor.
      */
     /****************************************************************************/
@@ -554,8 +643,8 @@ protected:
     /**
      * \brief Register a command route functor.
      *
-     * \param[in]   CommandName             Name of command.
-     * \param[in]   pTargetCommandChannel   The target command channel.
+     * \iparam   CommandName             Name of command.
+     * \iparam   pTargetCommandChannel   The target command channel.
      */
     /****************************************************************************/
     void RegisterCommandRoutingChannel(const QString &CommandName, CommandChannel *pTargetCommandChannel);
@@ -563,7 +652,7 @@ protected:
     /**
      * \brief Register a command for routing.
      *
-     * \param[in]   pTargetCommandChannel   Pointer to command channel to which command has to be routed.
+     * \iparam   pTargetCommandChannel   Pointer to command channel to which command has to be routed.
      */
     /****************************************************************************/
     template<class TCCmdClass>
@@ -575,9 +664,9 @@ protected:
     /**
      * \brief Register a command for processing.
      *
-     * \param[in]   pCommandProcessor   Pointer to thread controller instance which processes the command.
-     * \param[in]   FunctionPointer     Function which processes the command.
-     * \param[in]   pTargetCommandChannel   Pointer to command channel to which command has to be routed.
+     * \iparam   pCommandProcessor   Pointer to thread controller instance which processes the command.
+     * \iparam   FunctionPointer     Function which processes the command.
+     * \iparam   pTargetCommandChannel   Pointer to command channel to which command has to be routed.
      *
      */
     /****************************************************************************/
@@ -597,8 +686,8 @@ protected:
      * \warning This method should be called only from within \ref CommandChannel::CommandChannelRx
      * \warning Do not let exceptions escape this method!
      *
-     * \param[in]       Ref                 The command reference.
-     * \param[in]       Cmd                 The command.
+     * \iparam       Ref                 The command reference.
+     * \iparam       Cmd                 The command.
      * \param[in, out]  AckCommandChannel   The command channel for acknowledges.
      */
     /****************************************************************************/
@@ -611,8 +700,8 @@ protected:
      * \warning This method should be called only from within \ref CommandChannel::CommandChannelTxAck
      * \warning Do not let exceptions escape this method!
      *
-     * \param[in]       Ref         The command reference.
-     * \param[in]       Ack         The received acknowledge.
+     * \iparam       Ref         The command reference.
+     * \iparam       Ack         The received acknowledge.
      */
     /****************************************************************************/
     virtual void OnProcessAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack);
@@ -622,8 +711,8 @@ protected:
      *
      * Is called when an command timeout has to be processed.
      *
-     * \param[in]       Ref         The command reference.
-     * \param[in]       CmdName     Name of command.
+     * \iparam       Ref         The command reference.
+     * \iparam       CmdName     Name of command.
      */
     /****************************************************************************/
     virtual void OnProcessTimeout(Global::tRefType Ref, const QString &CmdName);
@@ -632,9 +721,9 @@ protected:
     /**
      * \brief Send an acknowledge over a specific command channel.
      *
-     * \param[in]   Ref         The acknowledge reference.
-     * \param[in]   Ack         The acknowledge.
-     * \param[in]   CmdChannel  The command channel for the command
+     * \iparam   Ref         The acknowledge reference.
+     * \iparam   Ack         The acknowledge.
+     * \iparam   CmdChannel  The command channel for the command
      */
     /****************************************************************************/
     void SendAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack, CommandChannel &CmdChannel);
@@ -659,15 +748,52 @@ protected:
      * \brief Initialize all controllers in the order they were created.
      *
      * Calls \ref CreateAndInitializeObjects for each.
+     *
+     * \iparam BasicThreadController
      */
     /****************************************************************************/
     void InitializeControllers(bool BasicThreadController = false);
     /****************************************************************************/
     /**
      * \brief Attach controllers to corresponding threads and start threads.
+     *
+     * \iparam BasicController
      */
     /****************************************************************************/
     void AttachControllersAndStartThreads(bool BasicController = false);
+
+    /****************************************************************************/
+    /**
+     * \brief Reboot
+     */
+    /****************************************************************************/
+    virtual void Reboot() {}
+    /****************************************************************************/
+    /**
+     * \brief Creates Reboot file
+     *
+     * \iparam p_RebootFile
+     */
+    /****************************************************************************/
+    void CreateRebootFile(QFile *p_RebootFile);
+    /****************************************************************************/
+    /**
+     * \brief Update Reboot FileReboot
+     *
+     * \iparam p_RebootFile
+     * \iparam Shutdown
+     */
+    /****************************************************************************/
+    void UpdateRebootFile();
+    /****************************************************************************/
+    /**
+     * \brief Reads Reboot file
+     *
+     * \iparam p_RebootFile Pointer to reboot file.
+     *
+     */
+    /****************************************************************************/
+    void ReadRebootFile(QFile *p_RebootFile);
 
 public:
     /****************************************************************************/
@@ -694,7 +820,7 @@ public:
     /**
      * \brief Set operating mode string.
      *
-     * \param[in]   OperatingMode   the operating mode
+     * \iparam   OperatingMode   the operating mode
      */
     /****************************************************************************/
     inline void SetOperatingMode(const QString &OperatingMode) {
@@ -704,12 +830,31 @@ public:
     /**
      * \brief Set base of file name for even logging.
      *
-     * \param[in]   EventLoggerBaseFileName     Base of file name for even logging.
+     * \iparam   EventLoggerBaseFileName     Base of file name for even logging.
      */
     /****************************************************************************/
     inline void SetEventLoggerBaseFileName(const QString &EventLoggerBaseFileName) {
         m_EventLoggerBaseFileName = EventLoggerBaseFileName;
     }
+
+
+    /****************************************************************************/
+    /**
+     * \brief Get base of file name for even logging.
+     *
+     * \return   Base of file name for even logging.
+     */
+    /****************************************************************************/
+    inline QString GetEventLoggerBaseFileName() {
+        return m_EventLoggerBaseFileName;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set the serial number
+     *
+     * \iparam   SerialNumber
+     */
+    /****************************************************************************/
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
     }
@@ -742,7 +887,7 @@ public:
      * \brief Set maximal file size for event logger.
      *
      * 0 means no maximal file size monitoring!
-     * \param[in]   MaxFileSize     Max file size.
+     * \iparam   MaxFileSize     Max file size.
      */
     /****************************************************************************/
     inline void SetEventLoggerMaxFileSize(qint64 MaxFileSize) {
@@ -753,7 +898,7 @@ public:
      * \brief Set maximal file count for day operation logger.
      *
      * 0 means no maximal file count monitoring!
-     * \param[in]   MaxFileCount    Max file count.
+     * \iparam   MaxFileCount    Max file count.
      */
     /****************************************************************************/
     inline void SetDayEventLoggerMaxFileCount(int MaxFileCount) {
@@ -798,11 +943,19 @@ public:
     /**
      * \brief Register a command for processing.
      *
-     * \param[in]   pCommandProcessor   Pointer to thread controller instance which processes the command.
-     * \param[in]   FunctionPointer     Function which processes the command.
+     * \iparam   pCommandProcessor   Pointer to thread controller instance which processes the command.
+     * \iparam   FunctionPointer     Function which processes the command.
      */
     /****************************************************************************/
     template<class CmdClass, class CommandProcessorClass>
+    /****************************************************************************/
+    /**
+     * \brief Register a command for processing.
+     *
+     * \iparam   pCommandProcessor   Pointer to thread controller instance which processes the command.
+     * \iparam   FunctionPointer     Function which processes the command.
+     */
+    /****************************************************************************/
     void RegisterCommandForProcessing(void(CommandProcessorClass::*FunctionPointer)(Global::tRefType, const CmdClass &, CommandChannel &),
                                       CommandProcessorClass *pCommandProcessor)
     {
@@ -815,7 +968,7 @@ public:
     /**
      * \brief Broadcast a command to all controllers.
      *
-     * \param[in]       Cmd         The command.
+     * \iparam       Cmd         The command.
      */
     /****************************************************************************/
     void BroadcastCommand(const Global::CommandShPtr_t &Cmd);
@@ -825,8 +978,8 @@ public:
      *
      * Create a positive acknwoledge of type \ref Global::AckOKNOK and send it.
      *
-     * \param[in]   Ref         Acknowledge reference.
-     * \param[in]   CmdChannel  The command channel for the command
+     * \iparam   Ref         Acknowledge reference.
+     * \iparam   CmdChannel  The command channel for the command
      */
     /****************************************************************************/
     void SendAcknowledgeOK(Global::tRefType Ref, CommandChannel &CmdChannel);
@@ -836,10 +989,10 @@ public:
      *
      * Create a negative acknwoledge of type \ref Global::AckOKNOK and send it.
      *
-     * \param[in]   Ref         Acknowledge reference.
-     * \param[in]   CmdChannel  The command channel for the command
-     * \param[in]   Text        Text of message.
-     * \param[in]   Type        Type of message.
+     * \iparam   Ref         Acknowledge reference.
+     * \iparam   CmdChannel  The command channel for the command
+     * \iparam   Text        Text of message.
+     * \iparam   Type        Type of message.
      */
     /****************************************************************************/
     void SendAcknowledgeNOK(Global::tRefType Ref, CommandChannel &CmdChannel, const QString &Text = "", Global::GUIMessageType Type = Global::GUIMSGTYPE_ERROR);
@@ -848,8 +1001,8 @@ public:
      * \brief Send a command over a specific command channel.
      *
      *
-     * \param[in]   Cmd         The command.
-     * \param[in]   CmdChannel  The command channel for the command
+     * \iparam   Cmd         The command.
+     * \iparam   CmdChannel  The command channel for the command
      * \return                  The command reference.
      */
     /****************************************************************************/

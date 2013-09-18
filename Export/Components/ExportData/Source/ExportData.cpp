@@ -102,6 +102,7 @@ int CExportData::CreateArchiveFiles()
     if (!QFile::exists(FileName)) {
         return Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION;
     }
+
     DataManager::CExportConfiguration ExportFile;
     ExportFile.SetDataVerificationMode(false);
 
@@ -195,6 +196,9 @@ int CExportData::CreateArchiveFiles()
         return Global::EXIT_CODE_EXPORT_INVALID_EXPORT;
     }
 
+    if(!CheckUSBSpace(ExportFile.GetTargetDir())){
+        return Global::EXIT_CODE_EXPORT_NO_ENOUGH_SPACE_ON_USB;
+    }
     return StartPackTheFiles(ExportFile);
 }
 
@@ -524,5 +528,64 @@ void CExportData::RemoveFiles()
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief Remove the files if any error occured while creating the files
+ *
+ *
+ *  \return true: USB has enough space to export, or false
+ */
+/****************************************************************************/
+bool CExportData::CheckUSBSpace(QString Destination)
+{
+    Q_UNUSED(Destination)
+#if defined(__arm__)
+    QString CommandExpSize = "du -s " + Global::SystemPaths::Instance().GetTempPath()
+            + QDir::separator() + DIRECTORY_EXPORT + "| cut -f1 >size.txt";
+    if(system(CommandExpSize.toLatin1().data())){
+        system("rm size.txt");
+        return false;
+    }
+
+    
+    QString CommandAvailableSize = "df | grep mnt_storage | awk '{print $4}' >>size.txt";
+    if(system(CommandAvailableSize.toLatin1().data())){
+        system("rm size.txt");
+        return false;
+    }
+    QFile Size("size.txt");
+    if(Size.open(QFile::ReadOnly | QFile::Text)){
+        QTextStream in(&Size);
+
+        qlonglong ExportSize = 0;
+        qlonglong AvailSize = 0;
+        bool ok;
+
+        QString line;
+        if (!in.atEnd()) {
+            line = in.readLine();
+            ExportSize = line.toLongLong(&ok);
+         }
+         if (!in.atEnd()) {
+             line = in.readLine();
+             AvailSize = line.toLongLong(&ok);
+          }
+         Size.close();
+          if(ExportSize != 0 && AvailSize != 0 && ExportSize < AvailSize){
+              system("rm size.txt");
+              return true;
+          }
+          else{
+              system("rm size.txt");
+              return false;
+          }
+    }
+    else{
+        return false;
+    }
+#else
+    return true;
+#endif
+}
 
 } // end namespace Export

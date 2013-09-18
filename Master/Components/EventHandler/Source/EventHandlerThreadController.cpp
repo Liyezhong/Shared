@@ -59,7 +59,8 @@ namespace EventHandler {
  *
  ****************************************************************************/
 EventHandlerThreadController::EventHandlerThreadController(Global::gSourceType TheHeartBeatSource) :
-    Threads::ThreadController(TheHeartBeatSource, "EventHandler"), m_UserRole(Global::OPERATOR)
+    Threads::ThreadController(TheHeartBeatSource, "EventHandler"), m_UserRole(Global::OPERATOR),
+    m_GuiAvailable(false)
 {
     //    CreateAndInitializeObjects();
     // Register LoggingSource Templates with moc
@@ -131,10 +132,6 @@ void EventHandlerThreadController::AddEventTypes(){
     m_EventTypeEnumMap.insert("FATAL ERROR", Global::EVTTYPE_FATAL_ERROR);
     m_EventTypeEnumMap.insert("UNDEFINED", Global::EVTTYPE_UNDEFINED);
     m_EventTypeEnumMap.insert("DEBUG", Global::EVTTYPE_DEBUG);
-    m_EventTypeEnumMap.insert("L_ERROR", Global::EVTTYPE_SYS_ERROR);
-    m_EventTypeEnumMap.insert("L_WARNING", Global::EVTTYPE_SYS_WARNING);
-    m_EventTypeEnumMap.insert("L_HINT", Global::EVTTYPE_SYS_HINT);
-    m_EventTypeEnumMap.insert("L_INFO", Global::EVTTYPE_SYS_HINT);
 }
 
 void EventHandlerThreadController::AddEventLogLevels() {
@@ -244,18 +241,14 @@ void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEven
     Global::AlarmType AlarmType = Global::ALARM_NONE;
 
     if((EventEntry.GetEventType() == Global::EVTTYPE_ERROR ||
-        EventEntry.GetEventType() == Global::EVTTYPE_WARNING ||
-        EventEntry.GetEventType() == Global::EVTTYPE_SYS_ERROR ||
-        EventEntry.GetEventType() == Global::EVTTYPE_SYS_WARNING)) {
+        EventEntry.GetEventType() == Global::EVTTYPE_WARNING)) {
         if (EventEntry.GetAlarmPosType() != Global::ALARMPOS_NONE)
         {
             //We need Alarm
-            if ((EventEntry.GetEventType() == Global::EVTTYPE_ERROR) ||
-                    (EventEntry.GetEventType() == Global::EVTTYPE_SYS_ERROR)) {
+            if ((EventEntry.GetEventType() == Global::EVTTYPE_ERROR)) {
                 AlarmType = Global::ALARM_ERROR;
             }
-            else if ( (EventEntry.GetEventType() == Global::EVTTYPE_WARNING) ||
-                      (EventEntry.GetEventType() == Global::EVTTYPE_SYS_WARNING)) {
+            else if ( (EventEntry.GetEventType() == Global::EVTTYPE_WARNING)) {
                 AlarmType = Global::ALARM_WARNING;
             }
             mpAlarmHandler->emitSetTimeout(1000);// to be set after final discussion with team / Michael
@@ -845,7 +838,7 @@ void EventHandlerThreadController::ProcessEvent(const quint32 ErrorCode,
     // if eventList is not available yet, place event into pendingList
     if (ErrorCode == EVENT_GUI_AVAILABLE)
     {
-            SetGuiAvailable(true);
+            SetGuiAvailable(IsResolved);
             //We dont need to log this particular event ,
             //instead we log for eg.EVENT_PROCESS_HIMALAYA_GUI_CONNECTED
             return;
@@ -1175,7 +1168,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
 
 void EventHandlerThreadController::SetGuiAvailable(const bool active)
 {
-    qDebug() << "ActionHandler::SetGuiAvailable" << active;
+    qDebug() << "ActionHandler::SetGuiAvailable" << active << " " << mPendingGuiEventList.size();
     m_GuiAvailable = active;
 
     if (active)
@@ -1324,9 +1317,6 @@ bool EventHandlerThreadController::VerifyEventType(Global::EventType EventType) 
     case Global::EVTTYPE_ERROR:
     case Global::EVTTYPE_WARNING:
     case Global::EVTTYPE_INFO:
-    case Global::EVTTYPE_SYS_HINT:
-    case Global::EVTTYPE_SYS_WARNING:
-    case Global::EVTTYPE_SYS_ERROR:
         return true;
     default:
         return false;

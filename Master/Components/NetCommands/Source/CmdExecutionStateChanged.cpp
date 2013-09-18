@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdExecutionStateChanged.cpp
+/*! \file Platform/Master/Components/NetCommands/Source/CmdExecutionStateChanged.cpp
  *
  *  \brief Implementation file for class CmdExecutionStateChanged.
  *
@@ -26,13 +26,19 @@ QString CmdExecutionStateChanged::NAME           = "NetCommands::CmdExecutionSta
 
 /****************************************************************************/
 CmdExecutionStateChanged::CmdExecutionStateChanged(int TimeOut) :
-    Global::Command(TimeOut)
+    Global::Command(TimeOut),
+    m_Stop(false),
+    m_WaitDialogFlag(false),
+    m_WaitDialogText(Global::INITIALIZING_TEXT)
 {
 }
 
 /****************************************************************************/
 CmdExecutionStateChanged::CmdExecutionStateChanged():
-    Global::Command(0)
+    Global::Command(0),
+    m_Stop(false),
+    m_WaitDialogFlag(false),
+    m_WaitDialogText(Global::INITIALIZING_TEXT)
 {
 
 }

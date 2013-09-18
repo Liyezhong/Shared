@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file Global/Source/Commands/CmdPowerFail.cpp
+/*! \file Global/Source/Commands/CmdShutDown.cpp
  *
- *  \brief Implementation file for class CmdPowerFail.
+ *  \brief Implementation file for class CmdShutDown.
  *
  *  $Version:   $ 0.1
- *  $Date:      $ 2011-04-28
- *  $Author:    $ J.Bugariu
+ *  $Date:      $ 2013-02-19
+ *  $Author:    $ N.Kamath
  *
  *  \b Company:
  *
@@ -18,32 +18,31 @@
  */
 /****************************************************************************/
 
-#include <Global/Include/Commands/CmdPowerFail.h>
+#include <Global/Include/Commands/CmdShutDown.h>
 
 namespace Global {
 
-QString CmdPowerFail::NAME = "Global::CmdPowerFail";
+QString CmdShutDown::NAME = "Global::CmdShutDown";
 
 /****************************************************************************/
-CmdPowerFail::CmdPowerFail(PowerFailStages PowerFailStage) :
-    Command(NOTIMEOUT),
-    m_PowerFailStage(PowerFailStage)
+CmdShutDown::CmdShutDown() :
+    Command(NOTIMEOUT)
 {
 }
 
 /****************************************************************************/
-CmdPowerFail::CmdPowerFail(const CmdPowerFail &rOther) :
+CmdShutDown::CmdShutDown(const CmdShutDown &rOther) :
     Command(rOther)
 {
     CopyFrom(rOther);
 }
 
 /****************************************************************************/
-CmdPowerFail::~CmdPowerFail() {
+CmdShutDown::~CmdShutDown() {
 }
 
 /****************************************************************************/
-const CmdPowerFail & CmdPowerFail::operator = (const CmdPowerFail &rOther) {
+const CmdShutDown & CmdShutDown::operator = (const CmdShutDown &rOther) {
     if(this != &rOther) {
         Command::operator =(rOther);
         CopyFrom(rOther);
@@ -52,8 +51,8 @@ const CmdPowerFail & CmdPowerFail::operator = (const CmdPowerFail &rOther) {
 }
 
 /****************************************************************************/
-void CmdPowerFail::CopyFrom(const CmdPowerFail &rOther) {
-    m_PowerFailStage = rOther.m_PowerFailStage;
+void CmdShutDown::CopyFrom(const CmdShutDown &/*rOther*/) {
 }
 
 } // end namespace Global
+

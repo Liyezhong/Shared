@@ -54,7 +54,7 @@ const qint32  EXIT_CODE_EXPORT_HMAC_COMPUTATION_STARTED                        =
 const qint32  EXIT_CODE_EXPORT_ZIP_ERROR                                       = 0x019; ///< Unable to zip the files
 const qint32  EXIT_CODE_EXPORT_ZIP_COMMAND_NOT_FOUND                           = 0x01a; ///< Zip command not found in the system
 const qint32  EXIT_CODE_EXPORT_ZIP_IS_TAKING_LONGTIME                          = 0x01b; ///< zip is taking long time to complete the request
-
+const qint32  EXIT_CODE_EXPORT_NO_ENOUGH_SPACE_ON_USB                          = 0X01C; ///< No enouth space on USB storage!
 
 } // end namespace Global
 

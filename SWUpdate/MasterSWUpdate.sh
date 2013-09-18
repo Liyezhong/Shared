@@ -160,7 +160,7 @@ UpdateSlaveFW()
 				fi
 
 				# Update the SW_Version.xml with latest version
-				sed '/'$Name'/{s/'${CurrFW[$Name]}'/'${TmpFW[$Name]}'/}'\
+				sed '/'$Name' *"/{s/'${CurrFW[$Name]}'/'${TmpFW[$Name]}'/}'\
 		                $SWVERFILE > $TMPSWVERSIONFILE
 		                cp $TMPSWVERSIONFILE $SWVERFILE
 				if [ $? -ne 0 ]; then
@@ -198,7 +198,21 @@ ExecuteSlaveFWUpdate()
 	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$PTSFILE"
 	# To execute SlaveFWUpdateSW with $SLAVEFILEDIR as parameter
 	# IN1303 fix
-	ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
+	SlaveUpdatePar=""
+	for fm in `ls $SLAVEFILEDIR`
+	do
+		if [ $fm = "ASB3_0.bin" ]; then
+			SlaveUpdatePar=$SlaveUpdatePar" 3 "$SLAVEFILEDIR"/ASB3_0.bin"
+		fi
+		if [ $fm = "ASB5_0.bin" ]; then
+			SlaveUpdatePar=$SlaveUpdatePar" 5 "$SLAVEFILEDIR"/ASB5_0.bin"
+		fi
+		if [ $fm = "ASB15_0.bin" ]; then
+			SlaveUpdatePar=$SlaveUpdatePar" 15 "$SLAVEFILEDIR"/ASB15_0.bin"
+		fi
+	done
+	#ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
+	ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SlaveUpdatePar")"
 	ReturnValue=$?
 	if [ $ReturnValue == "0" ]; then
 		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_SUCCESS"
@@ -302,7 +316,7 @@ UpdateSWBinaries()
 					RollbackSW
 					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/$Name" "$BINDIR/$Name" 
 				fi
-				sed '/'$Name'/{s/'${CurrSW[$Name]}'/'${TmpSW[$Name]}'/}'\
+				sed '/'$Name' *"/{s/'${CurrSW[$Name]}'/'${TmpSW[$Name]}'/}'\
 		                $SWVERFILE > $TMPSWVERSIONFILE 
 				cp $TMPSWVERSIONFILE $SWVERFILE
 				if [ $? -ne 0 ]; then
