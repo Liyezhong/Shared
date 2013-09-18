@@ -538,8 +538,8 @@ void CExportData::RemoveFiles()
 /****************************************************************************/
 bool CExportData::CheckUSBSpace(QString Destination)
 {
+    Q_UNUSED(Destination)
 #if defined(__arm__)
-    int ExitCode;
     QString CommandExpSize = "du -s " + Global::SystemPaths::Instance().GetTempPath()
             + QDir::separator() + DIRECTORY_EXPORT + "| cut -f1 >size.txt";
     if(system(CommandExpSize.toLatin1().data())){
@@ -547,35 +547,43 @@ bool CExportData::CheckUSBSpace(QString Destination)
         return false;
     }
 
-    QString CommandAvailableSize = "df | grep " + Destination + "| awk '{print $4}' >>size.txt";
+    
+    QString CommandAvailableSize = "df | grep mnt_storage | awk '{print $4}' >>size.txt";
     if(system(CommandAvailableSize.toLatin1().data())){
         system("rm size.txt");
         return false;
     }
     QFile Size("size.txt");
-    if (Size.open(QIODevice::ReadOnly | QIODevice::Text)){
+    if(Size.open(QFile::ReadOnly | QFile::Text)){
+        QTextStream in(&Size);
+
         qlonglong ExportSize = 0;
         qlonglong AvailSize = 0;
-        if (!Size.atEnd()) {
-            QByteArray line = Size.readLine();
-            ExportSize = line.toLongLong();
-            if (!Size.atEnd()) {
-                line = Size.readLine();
-                AvailSize = line.toLongLong();
-            }
-        }
-        Size.close();
-        if(ExportSize != 0 && AvailSize != 0 && ExportSize < AvailSize){
-            system("rm size.txt");
-            return true;
-        }
-        else{
-            system("rm size.txt");
-            return false;
-        }
+        bool ok;
+
+        QString line;
+        if (!in.atEnd()) {
+            line = in.readLine();
+            ExportSize = line.toLongLong(&ok);
+         }
+         if (!in.atEnd()) {
+             line = in.readLine();
+             AvailSize = line.toLongLong(&ok);
+          }
+         Size.close();
+          if(ExportSize != 0 && AvailSize != 0 && ExportSize < AvailSize){
+              system("rm size.txt");
+              return true;
+          }
+          else{
+              system("rm size.txt");
+              return false;
+          }
+    }
+    else{
+        return false;
     }
 #else
-    Q_UNUSED(Destination)
     return true;
 #endif
 }
