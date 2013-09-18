@@ -106,7 +106,7 @@ ReturnCode_t CANMessageConfiguration::ReadCANMessageConfigurationFile()
     QDomElement root = domDocument.documentElement();
     if (root.tagName() != "himalaya_fct_module_spec")
     {
-        errorMsg = QObject::tr("The file is not a colorado function module specification file. Tag 'colorado_fct_module_spec' missed!");
+        errorMsg = QObject::tr("The file is not a himalaya function module specification file. Tag 'himalaya_fct_module_spec' missed!");
         FILE_LOG_L(laCONFIG_FILE, llERROR) << errorMsg.toStdString();
 
         m_usErrorID = ERROR_DCL_CONFIG_CAN_MSG_CFG_FORMAT_ERROR;
