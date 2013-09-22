@@ -28,7 +28,7 @@ CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString 
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Air-liquid device created";
-    LOG() <<  "airliquid device cons thread id is " << QThread::currentThreadId();
+    //LOG() <<  "airliquid device cons thread id is " << QThread::currentThreadId();
 } //lint !e1566
 
 /****************************************************************************/

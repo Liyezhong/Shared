@@ -50,8 +50,13 @@ const quint32 CBootLoader::m_Crc32InitialValue = 0xFFFFFFFF;
 CBootLoader::CBootLoader(const CANMessageConfiguration *p_CanMsgConfig, const quint32 CanNodeId,
                          DeviceControl::CANCommunicator *p_CanCommunicator, DeviceControl::CBaseModule *p_BaseModule) :
     mp_CanCommunicator(p_CanCommunicator), mp_BaseModule(p_BaseModule),
-    m_UpdateRequired(false), m_WaitForUpdate(false), mp_Info(NULL), m_State(IDLE), m_UpdateType(0), m_InfoSize(0),m_Count(0)
+    m_UpdateRequired(false), mp_Info(NULL), m_State(IDLE), m_UpdateType(0), m_InfoSize(0),m_Count(0)
 {
+#ifdef SLAVE_UPDATER
+    m_WaitForUpdate = true;
+#else
+    m_WaitForUpdate = false;
+#endif
     if (p_CanMsgConfig == NULL) {
         THROW(EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR);
     }
