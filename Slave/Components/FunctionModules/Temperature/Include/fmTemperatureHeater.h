@@ -69,7 +69,6 @@ UInt16 tempHeaterActive(void);
 void tempCalcEffectiveCurrent(UInt16 Instance, TempHeaterType_t HeaterType);
 UInt16 tempGetActiveDesiredCurrent(void);
 UInt16 tempGetActiveDesiredCurThreshold(void);
-//void tempResetActiveStatus(void);
 UInt8 tempHeaterSwitchState(void);
 UInt32 tempGetActiveStatus(void);
 Error_t tempSetHeaterSwitchState(UInt8 State);

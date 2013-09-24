@@ -43,7 +43,7 @@
 #endif
 
 // For new ASB board
-#ifdef ASB5_VER_B
+#ifdef ASB15_VER_B
 #define TEMP_SENSOR_RESISTANCE  2700 //!< Pullup resistance connected to NTC 10K3A1I
 #endif
 
@@ -121,7 +121,7 @@ static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
 };
 #endif
 
-#ifdef ASB5_VER_B
+#ifdef ASB15_VER_B
 /*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
 static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
     32767, 32177, 30523, 28965, 27497, 26114, 24809, 23578, 22416, 21319, //   0 to   9 degree Celsius
@@ -289,8 +289,7 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
      }
      
      AdcValue = AdcValue2;
-    
-     //printf("AD:(%d) ", AdcValue);
+
 #endif     
     
     if (Type == TYPEK) {

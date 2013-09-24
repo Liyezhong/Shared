@@ -25,7 +25,6 @@
  */
 /****************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "bmError.h"
@@ -35,6 +34,7 @@
 #include "ModuleIds.h"
 #include "fmTemperature.h"
 #include "fmTemperatureHeater.h"
+#include "bmDebug.h"
 
 //****************************************************************************/
 // Private Constants and Macros 
@@ -476,7 +476,6 @@ void tempCalcEffectiveCurrent(UInt16 Instance, TempHeaterType_t HeaterType)
         // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV) / sqrt(2)
         // => (1 / 1000 * 10000) / 14142 = 10 / 14142
         TempHeaterData.EffectiveCurrent = (((Int32) Params[Instance].CurrentGain * Diff) * 10) / 14142;
-        //TempHeaterData.EffectiveCurrent = (((Int32) Params[0].CurrentGain * Diff) * 10) / 14142;
         
         TempHeaterData.MinValue = MAX_INT16;   
     }
@@ -484,12 +483,10 @@ void tempCalcEffectiveCurrent(UInt16 Instance, TempHeaterType_t HeaterType)
         // EffectiveCurrent (mA) = CurrentGain (mA/V) * Amplitude (mV)
         // => (1 / 1000)
         TempHeaterData.EffectiveCurrent = ((Int32) Params[Instance].CurrentGain * TempHeaterData.MaxValue) / 1000;   
-        //TempHeaterData.EffectiveCurrent = ((Int32) Params[0].CurrentGain * TempHeaterData.MaxValue) / 1000;
         
         TempHeaterData.MaxValue = MIN_INT16;
     }
     
-    //printf("Max:%d Min:%d EC:%d\n", TempHeaterData.MaxValue, TempHeaterData.MinValue, TempHeaterData.EffectiveCurrent);
 }
 
 
@@ -518,11 +515,8 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
     UInt16 ActiveCount = TempHeaterData.MaxActive;
     
     TempHeaterParams_t *Params = TempHeaterData.Params;
-    //DesiredCurThreshold = Params->DesiredCurThreshold;
     CurrentDeviation = Params[Instance].CurrentDeviation;
-    //CurrentDeviation = Params[0].CurrentDeviation;
     CurrentGain = Params[Instance].CurrentGain;
-    //CurrentGain = Params[0].CurrentGain;
     
 
     TempHeaterData.Failed = FALSE;
@@ -541,7 +535,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
         // Check the current through the DC heaters
         // All heating elements are off    
         if (ActiveCount == 0) {
-            //printf("DC[0]:%d %d %d %d\n", TempHeaterData.EffectiveCurrent, TempHeaterMonitor.Value, DesiredCurrent, CurrentDeviation);
+            //dbgPrint("DC[0]:%d %d %d %d\n", TempHeaterData.EffectiveCurrent, TempHeaterMonitor.Value, DesiredCurrent, CurrentDeviation);
                         
             if (TempHeaterData.EffectiveCurrent > CurrentDeviation) {
             
@@ -551,7 +545,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                             
                 if(RealEffectiveCurrent > CurrentDeviation) {
                     TempHeaterData.Failed = TRUE;
-                    printf("DC[0] Err:%d %d %d [%d]\n", RealEffectiveCurrent, DesiredCurrent, CurrentDeviation, ActiveCount);
+                    dbgPrint("DC[0] Err:%d %d %d [%d]\n", RealEffectiveCurrent, DesiredCurrent, CurrentDeviation, ActiveCount);
                 }
             }
         }
@@ -559,13 +553,13 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
             Current = TempHeaterData.EffectiveCurrent / ActiveCount;
             DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
             DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
-            //printf("DC:%d %d %d [%d][%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount, TempHeaterData.MaxActiveStatus2);
+            //dbgPrint("DC:%d %d %d [%d][%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount, TempHeaterData.MaxActiveStatus2);
             
             // Check if the current is out of range
             if (Current + DesiredCurThreshold < DesiredCurrent ||
                     Current > DesiredCurrent + DesiredCurThreshold) {
                     TempHeaterData.Failed = TRUE;
-                    printf("DC Err:%d %d %d [%d][%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount, TempHeaterData.MaxActiveStatus2);
+                    dbgPrint("DC Err:%d %d %d [%d][%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount, TempHeaterData.MaxActiveStatus2);
             }
         }
     }
@@ -574,7 +568,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
         // Check the current through the AC heaters
         // All heating elements are off
         if (ActiveCount == 0) {
-            //printf("AC[0]:%d %d %d [%d]\n", TempHeaterData.EffectiveCurrent, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            //dbgPrint("AC[0]:%d %d %d [%d]\n", TempHeaterData.EffectiveCurrent, DesiredCurrent, DesiredCurThreshold, ActiveCount);
             if (TempHeaterData.EffectiveCurrent > CurrentDeviation) {
                 
                 // Calculate current effective current
@@ -589,7 +583,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                 
                 if (RealEffectiveCurrent > CurrentDeviation) {
                     TempHeaterData.Failed = TRUE;
-                    printf("AC[0] Err:%d %d %d [%d]\n", RealEffectiveCurrent, DesiredCurrent, CurrentDeviation, ActiveCount);
+                    dbgPrint("AC[0] Err:%d %d %d [%d]\n", RealEffectiveCurrent, DesiredCurrent, CurrentDeviation, ActiveCount);
                 }
             }
         }
@@ -598,7 +592,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
             Current = TempHeaterData.EffectiveCurrent / ActiveCount;
             DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
             DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
-            //printf("220V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            //dbgPrint("220V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
             
             // Check if the current is out of range (200 - 240V)
             if (Current + DesiredCurThreshold < DesiredCurrent ||
@@ -607,7 +601,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                 if (Current + DesiredCurThreshold / 2 < DesiredCurrent / 2 ||
                         Current > DesiredCurrent / 2 + DesiredCurThreshold / 2) {
                     TempHeaterData.Failed = TRUE;
-                    printf("220V ErrA:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
+                    dbgPrint("220V ErrA:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
                 }
                 else if (TempHeaterData.State == TEMP_HEATER_STATE_UNDEFINED) {
                     
@@ -615,10 +609,10 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                         // Switched for 110V            
                         Error = tempHeaterSwitch(TempHeaterData.HandleSwitch, TEMP_HEATER_STATE_PARALLEL);
                         if (Error < NO_ERROR) {
-                                printf("Switch for 110V failed\n");
+                                dbgPrint("Switch for 110V failed\n");
                                 return (Error);
                         }
-                        printf("Switch for 110V\n");
+                        dbgPrint("Switch for 110V\n");
                     }
                 }
                 else {
@@ -635,7 +629,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
             DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
             DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
             
-            //printf("110V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            //dbgPrint("110V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
             
             // Check if the current is out of range (100 - 127V)
             if (Current / 2 + DesiredCurThreshold < DesiredCurrent ||
@@ -647,11 +641,11 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                     if (Error < NO_ERROR) {
                         return (Error);
                     }
-                    printf("Switch for 220V\n");
+                    dbgPrint("Switch for 220V\n");
                 }
 
                 TempHeaterData.Failed = TRUE;
-                printf("110V Err:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
+                dbgPrint("110V Err:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
             }
         }
     
@@ -874,15 +868,4 @@ UInt32 tempGetActiveStatus(void)
 {
     return TempHeaterData.MaxActiveStatus2;
 }
-
-/*
-void tempResetActiveStatus(void)
-{
-    UInt16 i;
- 
-    for (i = 0; i < TempHeaterData.Instances; i++) {
-        TempHeaterData.ActiveStatus[i] = FALSE;
-    }
-}
-*/
 
