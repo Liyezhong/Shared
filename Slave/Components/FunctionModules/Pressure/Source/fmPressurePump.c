@@ -25,7 +25,6 @@
  */
 /****************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "bmError.h"
@@ -35,6 +34,7 @@
 #include "ModuleIds.h"
 #include "fmPressure.h"
 #include "fmPressurePump.h"
+#include "bmDebug.h"
 
 //****************************************************************************/
 // Private Constants and Macros 
@@ -211,9 +211,6 @@ Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Devi
 
 void pressPumpReset ()
 {
-    //PressPumpMonitor.InCount = 0;
-    //PressPumpData.MinValue = MAX_INT16;
-    //PressPumpData.MaxValue = MIN_INT16;
     PressPumpData.MaxActive = 0;
 }
 
@@ -352,7 +349,7 @@ Error_t pressPumpProgress (Bool PumpControl)
     if (Active > PressPumpData.MaxActive) {
         PressPumpData.MaxActive = Active;
     }
-    //printf("Active:%d\n", Active);
+    //dbgPrint("Active:%d\n", Active);
 
 #ifdef ASB15_VER_A
 #if 0
@@ -419,22 +416,17 @@ Error_t pressPumpProgress (Bool PumpControl)
  
 Error_t pressPumpCheck (void)
 {
-    //Error_t Error;
     UInt16 Current;
     UInt16 ActiveCount = PressPumpData.MaxActive;
     PressPumpParams_t *Params = &PressPumpData.Params;
     
-    //PressPumpData.EffectiveCurrent = PressPumpData.MaxValue;
-    //PressPumpData.MinValue = MAX_INT16;
-    
-    //PressPumpData.MaxValue = MIN_INT16;
     PressPumpData.Failed = FALSE;
     PressPumpData.MaxActive = 0;
 
     // Check the current through the pumps
     // All pumping elements are off
     if (ActiveCount == 0) {
-        //printf("Pump Current[aaa]:%d\n", PressPumpData.EffectiveCurrent);
+        //dbgPrint("Pump Current[aaa]:%d\n", PressPumpData.EffectiveCurrent);
         if (PressPumpData.EffectiveCurrent > Params->DesiredCurThreshold) {
         
             // Calculate current effective current
@@ -443,7 +435,7 @@ Error_t pressPumpCheck (void)
             
             if(RealEffectiveCurrent > Params->DesiredCurThreshold) {
                 PressPumpData.Failed = TRUE;
-                printf("Pump Current Err[aaa]:%d\n", PressPumpData.EffectiveCurrent);
+                dbgPrint("Pump Current Err[aaa]:%d\n", PressPumpData.EffectiveCurrent);
             }
         }
         
@@ -451,12 +443,12 @@ Error_t pressPumpCheck (void)
     else {
         Current = PressPumpData.EffectiveCurrent / ActiveCount;
         
-        //printf("Pump Current[bbb]:%d\n", PressPumpData.EffectiveCurrent);
+        //dbgPrint("Pump Current[bbb]:%d\n", PressPumpData.EffectiveCurrent);
         
         // Check if the current is out of range
         if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
                 Current > Params->DesiredCurrent + Params->DesiredCurThreshold) {
-                printf("Pump Current Err[bbb]:%d\n", PressPumpData.EffectiveCurrent);
+                dbgPrint("Pump Current Err[bbb]:%d\n", PressPumpData.EffectiveCurrent);
                 PressPumpData.Failed = TRUE;
         }
     }
@@ -562,7 +554,7 @@ Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance
     }
     
     //if (OperatingTime != NULL) {
-        //printf("Opt[ONOFF]:%d\n", PressPumpData.OperatingTime[Instance]);
+        //dbgPrint("Opt[ONOFF]:%d\n", PressPumpData.OperatingTime[Instance]);
     //}
 #endif    
 
@@ -627,7 +619,7 @@ Error_t pressPumpActuatePwm (Int32 ActuatingPwmWidth, UInt32 EndTime, UInt16 Ins
         if (OperatingTime != NULL) {
             *OperatingTime = 0;
         }
-        //printf("Opt[PWM]:%d\n", 0);
+        //dbgPrint("Opt[PWM]:%d\n", 0);
         return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], 0));
     }
     else {
@@ -635,12 +627,10 @@ Error_t pressPumpActuatePwm (Int32 ActuatingPwmWidth, UInt32 EndTime, UInt16 Ins
         if (OperatingTime != NULL) {
             *OperatingTime = PressPumpData.OperatingTime[Instance];
         }
-        //printf("Opt[PWM]:%d\n", PressPumpData.OperatingTime[Instance]);
+        //dbgPrint("Opt[PWM]:%d\n", PressPumpData.OperatingTime[Instance]);
         return (halAnalogWrite(PressPumpData.HandlePWMControl[Instance], ActuatingPwmWidth*0xFFFF/100));
     }
-
- 
-   //return (NO_ERROR);   
+   
 }
 #endif
 

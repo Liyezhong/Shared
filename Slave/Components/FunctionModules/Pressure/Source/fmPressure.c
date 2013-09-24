@@ -27,7 +27,6 @@
  */
 /****************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "Basemodule.h"
@@ -333,7 +332,7 @@ static Error_t pressModuleTask (UInt16 Instance)
 
         Error = pressFanSampleCurrent();  
         if (Error < 0) {
-            printf("Fan sampling current error.\n");
+            dbgPrint("Fan sampling current error.\n");
         }
                     
         //if (Instance == pressFindRoot ()) {
@@ -350,7 +349,7 @@ static Error_t pressModuleTask (UInt16 Instance)
         
 		if (Data->State == STATE_SAMPLE) {
         
-            //printf("Pump current:%d\n", pressPumpCurrent());
+            //dbgPrint("Pump current:%d\n", pressPumpCurrent());
             
             if ((Data->Flags & MODE_MODULE_ENABLE) == 0 ) {
                 Data->State = STATE_CONTROL;
@@ -370,7 +369,7 @@ static Error_t pressModuleTask (UInt16 Instance)
         
         Error = pressFanProgress ();
         if (Error != NO_ERROR) {
-            printf("Fan progress error.\n");
+            dbgPrint("Fan progress error.\n");
         }
 	}
 
@@ -437,7 +436,7 @@ static Error_t pressModuleTask (UInt16 Instance)
                         ActuatingPwmWidth = Data->ActuatingPwmWidth;
                     }
                     
-                    //printf("PWM: %d\n", ActuatingPwmWidth);
+                    //dbgPrint("PWM: %d\n", ActuatingPwmWidth);
     
                     Data->State = STATE_IDLE;
                     
@@ -455,7 +454,7 @@ static Error_t pressModuleTask (UInt16 Instance)
     				    OperatingTime = (Data->ActuatingValue * PressSamplingTime) / (MAX_INT16);
     			    }
                     
-                    //printf("Opt[Be]: %d\n", OperatingTime);
+                    //dbgPrint("Opt[Be]: %d\n", OperatingTime);
                     
                     Data->State = STATE_IDLE;
                     
@@ -473,7 +472,7 @@ static Error_t pressModuleTask (UInt16 Instance)
                     return (pressShutDown (Data, Error, Instance));
                 }
                 
-                //printf("Opt[Af]: %d\n", OperatingTime);
+                //dbgPrint("Opt[Af]: %d\n", OperatingTime);
             }
             
 #ifdef ASB15_VER_B_PWMHOLD
@@ -490,7 +489,7 @@ static Error_t pressModuleTask (UInt16 Instance)
                     }
                 }
                 
-                //printf("PWM: %d\n", ActuatingPwmWidth);                
+                //dbgPrint("PWM: %d\n", ActuatingPwmWidth);                
                 
                 Data->State = STATE_IDLE;
                 
@@ -661,7 +660,7 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
     // Measure and check the pressure
     for (i = 0; i < Data->NumberSensors; i++) {
         if ((Error = pressSensorRead (Data->HandlePress[i], Data->SensorType, Data->AtmPress, &Data->ServicePress[i])) < 0) {
-		    //printf("%d:E ",i);
+		    //dbgPrint("%d:E ",i);
             
             if ( Data->SensorErrTimestamp[i] == 0 ) {
                 Data->SensorErrTimestamp[i] = bmGetTime();
@@ -683,7 +682,7 @@ static Error_t pressFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fai
             }
 		}
     }
-	//printf("\n");
+	//dbgPrint("\n");
 
     return (NO_ERROR);
 }
@@ -717,7 +716,7 @@ static Error_t pressNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_PRESS_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServicePress[0]/10, 0, 2);
-            printf("Pressure out of range\n");
+            dbgPrint("Pressure out of range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -728,7 +727,7 @@ static Error_t pressNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_PRESS_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServicePress[0]/10, 0, 2);
-            printf("Pressure in range\n");
+            dbgPrint("Pressure in range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -921,21 +920,9 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
     for (i = 0; i < Data->NumberPid; i++) {
         Data->PidParams[i].Ts = bmGetMessageItem(Message, 4, 2)/10;
     }
-
-
-/*     
-    Data->PwmParams->MaxActuatingValue = 8000;
-    Data->PwmParams->MinActuatingValue = 200;
-    Data->PwmParams->MaxPwmDuty = 90;
-    Data->PwmParams->MinPwmDuty = 50;
-    
-    Data->PwmParams->PwmCoeff1 = (Int32)((Data->PwmParams->MaxPwmDuty - Data->PwmParams->MinPwmDuty)*10000.0/(Data->PwmParams->MaxActuatingValue - Data->PwmParams->MinActuatingValue) + 0.5);
-    Data->PwmParams->PwmCoeff2 = (Int32)(Data->PwmParams->MinPwmDuty*10000.0 - Data->PwmParams->PwmCoeff1*Data->PwmParams->MinActuatingValue + 0.5);
-*/
-    
 #endif
         
-    printf("Sample Time:%d\n", PressSamplingTime);
+    dbgPrint("Sample Time:%d\n", PressSamplingTime);
 
     // Set operating phase
     if((Data->Flags & MODE_PRESS_PHASE) != 0) {
@@ -975,7 +962,6 @@ static Error_t pressSetPressure (UInt16 Channel, CanMessage_t* Message)
         }
         pressPumpReset();
         Data->State = STATE_IDLE;
-        //Status = pressFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
     }
     
 #ifdef ASB15_VER_B    
@@ -1017,7 +1003,7 @@ static Error_t pressSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
         pressPumpParams->CurrentGain = bmGetMessageItem (Message, 0, 2);
         pressPumpParams->DesiredCurrent = bmGetMessageItem (Message, 2, 2);
         pressPumpParams->DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
-        printf("Pump current watchdog:%d %d\n", pressPumpParams->DesiredCurrent, pressPumpParams->DesiredCurThreshold);
+        dbgPrint("Pump current watchdog:%d %d\n", pressPumpParams->DesiredCurrent, pressPumpParams->DesiredCurThreshold);
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
@@ -1050,7 +1036,7 @@ static Error_t pressSetFanWatchdog (UInt16 Channel, CanMessage_t* Message)
         pressFanParams->CurrentGain = bmGetMessageItem (Message, 0, 2);
         pressFanParams->DesiredCurrent = bmGetMessageItem (Message, 2, 2);
         pressFanParams->DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
-        printf("Fan current watchdog:%d %d\n", pressFanParams->DesiredCurrent, pressFanParams->DesiredCurThreshold);
+        dbgPrint("Fan current watchdog:%d %d\n", pressFanParams->DesiredCurrent, pressFanParams->DesiredCurThreshold);
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);    
@@ -1099,7 +1085,7 @@ static Error_t pressSetPidParameters (UInt16 Channel, CanMessage_t* Message)
         Data->PidParams[Number].Td = bmGetMessageItem(Message, 7, 1);
 
 #if 1
-		printf("PID: %d %d %d %d %d\n", 
+		dbgPrint("PID: %d %d %d %d %d\n", 
 		Data->PidParams[Number].MaxPress,
 		Data->PidParams[Number].MinPress,
 		Data->PidParams[Number].Kc,
@@ -1146,7 +1132,6 @@ static Error_t pressSetPidParameters (UInt16 Channel, CanMessage_t* Message)
 #ifdef ASB15_VER_B
 static Error_t pressSetPwmParameters (UInt16 Channel, CanMessage_t* Message)
 {
-    //UInt8 Number;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 6) {
@@ -1323,7 +1308,7 @@ static Error_t pressSetCalibration (UInt16 Channel, CanMessage_t* Message)
         else {
             Data->AtmPress = 0;
         }
-        printf("Set Atm. pressure to %d\n", Data->AtmPress);
+        dbgPrint("Set Atm. pressure to %d\n", Data->AtmPress);
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);

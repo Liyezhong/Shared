@@ -24,7 +24,6 @@
  */
 /****************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "bmError.h"
@@ -34,6 +33,7 @@
 #include "ModuleIds.h"
 #include "fmPressure.h"
 #include "fmPressureFan.h"
+#include "bmDebug.h"
 
 //****************************************************************************/
 // Private Constants and Macros 
@@ -158,9 +158,6 @@ Error_t pressFanInit (PressFanParams_t **Params, Device_t CurrentChannel, Device
 
 void pressFanReset ()
 {
-    //PressFanMonitor.InCount = 0;
-    //PressFanData.MinValue = MAX_INT16;
-    //PressFanData.MaxValue = MIN_INT16;
     PressFanData.MaxActive = 0;
 }
 
@@ -247,7 +244,6 @@ Error_t pressFanSampleCurrent(void)
         // Maximum detection
         if (PressFanMonitor.Value > PressFanData.MaxValue) {
             PressFanData.MaxValue = PressFanMonitor.Value;
-            //PressFanData.EffectiveCurrent = PressFanData.MaxValue;
         }
     }
     
@@ -295,7 +291,7 @@ Error_t pressFanProgress (void)
     if (Active > PressFanData.MaxActive) {
         PressFanData.MaxActive = Active;
     }
-    //printf("Active:%d\n", Active);
+    //dbgPrint("Active:%d\n", Active);
 
     return (NO_ERROR);
 }
@@ -313,22 +309,17 @@ Error_t pressFanProgress (void)
  
 Error_t pressFanCheck (void)
 {
-    //Error_t Error;
     UInt16 Current;
     UInt16 ActiveCount = PressFanData.MaxActive;
     PressFanParams_t *Params = &PressFanData.Params;
     
-    //PressFanData.EffectiveCurrent = PressFanData.MaxValue;
-    //PressFanData.MinValue = MAX_INT16;
-    
-    //PressFanData.MaxValue = MIN_INT16;
     PressFanData.Failed = FALSE;
     PressFanData.MaxActive = 0;
 
     // Check the current through the fans
     // All fan elements are off
     if (ActiveCount == 0) {
-        //printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
+        //dbgPrint("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
         if (PressFanData.EffectiveCurrent > Params->DesiredCurThreshold) {
         
             // Calculate current effective current
@@ -337,7 +328,7 @@ Error_t pressFanCheck (void)
             
             if(RealEffectiveCurrent > Params->DesiredCurThreshold) {
                 PressFanData.Failed = TRUE;
-                printf("Fan Current Err[aaa]:%d\n", PressFanData.EffectiveCurrent);
+                dbgPrint("Fan Current Err[aaa]:%d\n", PressFanData.EffectiveCurrent);
             }
         }
         
@@ -345,12 +336,12 @@ Error_t pressFanCheck (void)
     else {
         Current = PressFanData.EffectiveCurrent / ActiveCount;
         
-        //printf("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
+        //dbgPrint("Fan Current[%d]:%d\n", ActiveCount, PressFanData.EffectiveCurrent);
         
         // Check if the current is out of range
         if (Current + Params->DesiredCurThreshold < Params->DesiredCurrent ||
                 Current > Params->DesiredCurrent + Params->DesiredCurThreshold) {
-                printf("Fan Current Err[bbb]:%d\n", PressFanData.EffectiveCurrent);
+                dbgPrint("Fan Current Err[bbb]:%d\n", PressFanData.EffectiveCurrent);
                 PressFanData.Failed = TRUE;
         }
     }
