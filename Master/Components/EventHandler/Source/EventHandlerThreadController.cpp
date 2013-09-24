@@ -59,8 +59,9 @@ namespace EventHandler {
  *
  ****************************************************************************/
 EventHandlerThreadController::EventHandlerThreadController(Global::gSourceType TheHeartBeatSource) :
-    Threads::ThreadController(TheHeartBeatSource, "EventHandler"), m_UserRole(Global::OPERATOR),
-    m_GuiAvailable(false)
+    Threads::ThreadController(TheHeartBeatSource, "EventHandler"),
+    m_GuiAvailable(false),
+     m_UserRole(Global::OPERATOR)
 {
     //    CreateAndInitializeObjects();
     // Register LoggingSource Templates with moc
