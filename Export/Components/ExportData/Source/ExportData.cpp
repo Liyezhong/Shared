@@ -538,7 +538,6 @@ void CExportData::RemoveFiles()
 /****************************************************************************/
 bool CExportData::CheckUSBSpace(QString Destination)
 {
-    Q_UNUSED(Destination)
 #if defined(__arm__)
     QString CommandExpSize = "du -s " + Global::SystemPaths::Instance().GetTempPath()
             + QDir::separator() + DIRECTORY_EXPORT + "| cut -f1 >size.txt";
@@ -547,11 +546,15 @@ bool CExportData::CheckUSBSpace(QString Destination)
         return false;
     }
 
-    
-    QString CommandAvailableSize = "df | grep mnt_storage | awk '{print $4}' >>size.txt";
-    if(system(CommandAvailableSize.toLatin1().data())){
-        system("rm size.txt");
-        return false;
+    QString CheckRCExport = "df | grep " + Destination;
+    QString CommandAvailableSize = "df | grep " + Destination + " | awk '{print $4}' >>size.txt";
+    if(!system(CheckRCExport.toLatin1().data())){
+        if(system(CommandAvailableSize.toLatin1().data())){
+            system("rm size.txt");
+            return false;
+        }
+    }else{ // RC Export
+        return true;
     }
     QFile Size("size.txt");
     if(Size.open(QFile::ReadOnly | QFile::Text)){
@@ -584,6 +587,7 @@ bool CExportData::CheckUSBSpace(QString Destination)
         return false;
     }
 #else
+    Q_UNUSED(Destination)
     return true;
 #endif
 }
