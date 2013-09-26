@@ -216,7 +216,7 @@ ExecuteSlaveFWUpdate()
 		fi
 	done
 	#ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
-	timeout "$PTS_TIMEOUT" "$PTSFILE" "$SlaveUpdatePar" >/dev/null
+	$(timeout $PTS_TIMEOUT $PTSFILE $SlaveUpdatePar >/dev/null)
 	ReturnValue=$?
 	if [ $ReturnValue -eq 0 ]; then
 		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_SUCCESS"
