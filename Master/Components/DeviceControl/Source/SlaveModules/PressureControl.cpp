@@ -725,7 +725,7 @@ void CPressureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
     if(pCANframe->can_dlc == 3)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
-        qreal ActPressure = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
+        float ActPressure = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
 
         FILE_LOG_L(laFCT, llDEBUG) << " CANPressureControl Pressure received: " << ActPressure;
         emit ReportActPressure(GetModuleHandle(), hdlInfo, pCANframe->data[0], ActPressure);
