@@ -166,11 +166,11 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, Glo
 
                     FileData.append(STRING_NEWLINE);
                 }
-                else if(ReadData.contains("DBG")){ // print DBG message
-                    FileData.append(ReadData);
+//                else if(ReadData.contains("DBG")){ // print DBG message
+//                    FileData.append(ReadData);
 
-                    FileData.append(STRING_NEWLINE);
-                }
+//                    FileData.append(STRING_NEWLINE);
+//                }
             }
         }
     }
