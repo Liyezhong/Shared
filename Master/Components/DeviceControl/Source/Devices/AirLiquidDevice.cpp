@@ -28,7 +28,7 @@ CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString 
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Air-liquid device created";
-    LOG() <<  "airliquid device cons thread id is " << QThread::currentThreadId();
+    //LOG() <<  "airliquid device cons thread id is " << QThread::currentThreadId();
 } //lint !e1566
 
 /****************************************************************************/
@@ -1105,7 +1105,6 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
                 {
                     FILE_LOG_L(laDEVPROC, llINFO) << "Drain finished!";
                     LOG() << "Device Air Liquid: Drain finished!";
-                    RetValue = DCL_ERR_DEV_AL_DRAIN_SUCCESS;
                     stop = true;
                 }
             }

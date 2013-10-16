@@ -238,7 +238,7 @@ EventType[$EVENT_SWUPDATE_REBOOT_UPDATE_ENTRY_MISSING]="Info"
 
 BASE_EVENT_ID=0				# Store the base event id with zero, this will be updated when Main sends the starting number
 SWUPDATESCRIPT="MasterSWUpdate.sh"	# Store the script file name
-PTS_TIMEOUT=60				# Store the time out value for PTS
+PTS_TIMEOUT="10m"				# Store the time out value for PTS
 IsMounted=false			# Store the mount value
 IsUpdateStarted=false			# Store the SW update start value
 

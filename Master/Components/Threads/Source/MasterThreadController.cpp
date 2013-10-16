@@ -74,13 +74,9 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     m_HeartbeatCheckTimer(this),
     m_ShutdownSharedMemName(ShutdownSharedMemName),
     m_ShutdownSharedMemTimer(this),
+    m_RebootCount(0),
     m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
     m_HeartBeatSourceAxeda(101),
-    m_RebootCount(0),
-    m_MainRebooted(false),
-    m_SWUpdateStatus("NA"),
-    m_SWUpdateCheckStatus("NA"),
-    m_UpdateRollBackFailed(false),
     m_CommandChannelDataLogging(this, "DataLogging", Global::EVENTSOURCE_DATALOGGER),
     m_CommandChannelEventThread(this, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER),
     mp_EventThreadController(NULL),
@@ -89,10 +85,14 @@ MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSour
     mp_DataManagerBase(NULL),
     mp_SoftSwitchManagerThreadController(NULL),
     m_CommandChannelSoftSwitch(this, "SoftSwitch", Global::EVENTSOURCE_NONE),
-    m_UpdatingRollback(false),
+    m_HeartBeatSourceSoftSwitch(100),
+    m_MainRebooted(false),
+    m_SWUpdateStatus("NA"),
+    m_SWUpdateCheckStatus("NA"),
+    m_UpdateRollBackFailed(false),
     m_SWUpdateSuccess(false),
-    m_PowerFailed(false),
-    m_HeartBeatSourceSoftSwitch(100)
+    m_UpdatingRollback(false),
+    m_PowerFailed(false)
 
 {
     // register the metytype for gSourceType

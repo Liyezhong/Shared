@@ -369,6 +369,7 @@ qint32 MountStorageDevice(QString Name) {
         return ProcToMountDevice.exitCode();
     }
 #else
+    Q_UNUSED(Name)
     QDir usb(Global::DIRECTORY_MNT_STORAGE);
     if(!usb.exists()){
         return 1;

@@ -68,7 +68,7 @@ MasterSWUpdate()
 
                 ReadXMLintoArray
 		RetVal=$?
-                if [  $RetVal == 0 ]; then
+                if [  $RetVal -eq 0 ]; then
 			UpdateSWBinaries
 			UpdateSlaveFW
 
@@ -139,6 +139,10 @@ UpdateSlaveFW()
 {
 	# Counter for no. of FW files needs update
    	FWCount=0
+	if [ -e $SLAVEFILEDIR ]; then
+		rm -r $SLAVEFILEDIR
+	fi
+
 	mkdir -p $SLAVEFILEDIR 
 	if [ $? -ne 0 ]; then
 		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$SLAVEFILEDIR"
@@ -198,9 +202,23 @@ ExecuteSlaveFWUpdate()
 	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$PTSFILE"
 	# To execute SlaveFWUpdateSW with $SLAVEFILEDIR as parameter
 	# IN1303 fix
-	ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
+	SlaveUpdatePar=""
+	for fm in `ls $SLAVEFILEDIR`
+	do
+		if echo "$fm" | grep ASB3 >/dev/null; then
+			SlaveUpdatePar=$SlaveUpdatePar" 3 "$SLAVEFILEDIR/$fm
+		fi
+		if echo "$fm" | grep ASB5 >/dev/null; then
+			SlaveUpdatePar=$SlaveUpdatePar" 5 "$SLAVEFILEDIR/$fm
+		fi
+		if echo "$fm" | grep ASB15 >/dev/null; then
+			SlaveUpdatePar=$SlaveUpdatePar" 15 "$SLAVEFILEDIR/$fm
+		fi
+	done
+	#ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
+	$(timeout $PTS_TIMEOUT $PTSFILE $SlaveUpdatePar >/dev/null)
 	ReturnValue=$?
-	if [ $ReturnValue == "0" ]; then
+	if [ $ReturnValue -eq 0 ]; then
 		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_SUCCESS"
 		echo "True" 
 	else
@@ -221,7 +239,7 @@ RollbackFWAndSW()
 
 	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$SLAVEFILEDIR" "$ROLLBACKFIRMWAREDIR/"
 
-	cp -r $ROLLBACKFIRMWAREDIR/ $SLAVEFILEDIR	
+	cp -r $ROLLBACKFIRMWAREDIR/* $SLAVEFILEDIR	
 	if [ $? -ne 0 ]; then
 		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKFIRMWAREDIR/" "$SLAVEFILEDIR"
 	fi
