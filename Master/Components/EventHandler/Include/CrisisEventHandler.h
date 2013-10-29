@@ -167,7 +167,11 @@ private:
 
 } // end namespace EventHandler
 
+#if 0
 #define LOG_PAR() EventHandler::CrisisEventHandler::Instance().RaiseLog()
+#else
+#define LOG_PAR() qDebug()
+#endif
 #define LOG_STR_ARG(Id, Args) EventHandler::CrisisEventHandler::Instance().RaiseLog(Id,Args)
 #define LOG_STR(Id) EventHandler::CrisisEventHandler::Instance().RaiseLog(Id)
 #endif // EVENTHANDLER_CRISISEVENTHANDLER_H
