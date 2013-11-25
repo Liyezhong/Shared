@@ -296,5 +296,7 @@
         <file>HimalayaImages/Icons/Program/IconEmpty.png</file>
         <file>HimalayaImages/Icons/MISC/LeicaLogo.png</file>
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLineRed.png</file>
+        <file>HimalayaImages/Icons/Program/Leica_Biopsie.png</file>
+        <file>HimalayaImages/Icons/Program/Leica_Overnight.png</file>
     </qresource>
 </RCC>
