@@ -253,7 +253,9 @@
         <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Background_Grayed.png</file>
         <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Cover.png</file>
         <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Cover_Grayed.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Enabled.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Unlocked.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Locked01.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Locked02.png</file>
         <file>HimalayaImages/StatusBar/StatusBar_Background.png</file>
         <file>HimalayaImages/Icons/Maintabs/Maintabs_Programs.png</file>
         <file>HimalayaImages/Icons/Maintabs/Maintabs_Reagents.png</file>
