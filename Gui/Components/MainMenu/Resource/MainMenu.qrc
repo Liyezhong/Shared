@@ -261,18 +261,6 @@
         <file>HimalayaImages/Icons/Maintabs/Maintabs_User.png</file>
         <file>HimalayaImages/Icons/Dashboard/EndTime/EndTime_Background.png</file>
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLine_Background.png</file>
-        <file>HimalayaImages/Color/Color_1026.png</file>
-        <file>HimalayaImages/Color/Color_2005.png</file>
-        <file>HimalayaImages/Color/Color_3015.png</file>
-        <file>HimalayaImages/Color/Color_3018.png</file>
-        <file>HimalayaImages/Color/Color_3020.png</file>
-        <file>HimalayaImages/Color/Color_5002.png</file>
-        <file>HimalayaImages/Color/Color_5017.png</file>
-        <file>HimalayaImages/Color/Color_5024.png</file>
-        <file>HimalayaImages/Color/Color_6037.png</file>
-        <file>HimalayaImages/Color/Color_6038.png</file>
-        <file>HimalayaImages/Color/Color_7045.png</file>
-        <file>HimalayaImages/Color/Color_9003.png</file>
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow1.png</file>
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow2.png</file>
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow3.png</file>
@@ -297,6 +285,16 @@
         <file>HimalayaImages/Icons/MISC/LeicaLogo.png</file>
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLineRed.png</file>
         <file>HimalayaImages/Icons/Program/Leica_Biopsie.png</file>
+        <file>HimalayaImages/Icons/Maintabs/Maintabs_Dashboard.png</file>
         <file>HimalayaImages/Icons/Program/Leica_Overnight.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Groups_act.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Groups.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_RMS_act.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_RMS.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Stations_act.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Stations.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Status_act.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Status.png</file>
+        <file>HimalayaImages/Icons/MISC/Start_Background.png</file>
     </qresource>
 </RCC>
