@@ -13,7 +13,7 @@ namespace DeviceControl
 class CANCommunicator;
 
 #define MAX_PRESSURE_MODULE_CMD_IDX (4)   ///< up to 4 module commands can be handled simultaneously
-
+#define VALVE_NUM (2)
 /****************************************************************************/
 /*!
  *  \brief This class implements the functionality to configure and control a
@@ -62,6 +62,9 @@ class CPressureControl : public CFunctionModule
     ReturnCode_t SetCalibration(bool Enable);
     //! Set PWM parameters
     ReturnCode_t SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty);
+
+    quint32 GetValveOperationTime(quint32 ValveIndex);
+    ReturnCode_t ResetValveOperationTime();
 signals:
     /****************************************************************************/
     /*!
@@ -267,6 +270,11 @@ private:
     //! command handling function
     void HandleCommandRequestTask();
 
+    ReturnCode_t AddValveOperationTime(quint8 ValveIndex);
+    ReturnCode_t ReadValveOperationTime();
+    ReturnCode_t WriteValveOperationTime();
+
+
     /*! configuration state definitions */
     typedef enum {
         FM_PRESSURE_SUB_STATE_CONFIG_INIT     = 0,  ///< Initialisation state
@@ -352,6 +360,7 @@ private:
     quint32 m_unCanIDFanSet;
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
+    quint32 m_valveOperationTime[2];
 };
 
 } //namespace
