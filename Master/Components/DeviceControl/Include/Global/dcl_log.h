@@ -322,6 +322,9 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
+#if 1
+    return; //based on Jeffrey's request 2013 12 23, disable logging on Ebox
+#endif
     FILE* pStream = Stream();
     if (!pStream)
         return;
@@ -355,7 +358,6 @@ class FILELOG_DECLSPEC FILELog : public Log<Output2FILE> {};
 #define FILE_LOG_L(area, level) \
     if (level > FILELog::ReportingLevel(area) || !Output2FILE::Stream()) ; \
     else FILELog().Get(area, level, "", __FUNCTION__)
-
 /****************************************************************************/
 /*!
  *  \brief  Logging function
