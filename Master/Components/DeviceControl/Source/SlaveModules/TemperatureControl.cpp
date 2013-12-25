@@ -161,6 +161,8 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     m_unCanIDNotiInRange        = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiInRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDLevelSensorState   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlLevelSensorState", bChannel, m_pParent->GetNodeID());
+    m_unCanIDSetSwitchState     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlSetSwitchState", bChannel, m_pParent->GetNodeID());
+
     FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
     FILE_LOG_L(laINIT, llDEBUG) << "   EventWarning       : 0x" << std::hex << m_unCanIDEventWarning;
@@ -513,6 +515,18 @@ void CTemperatureControl::HandleCommandRequestTask()
                 //because there is no slave acknowledge, we send our own acknowldege
                 emit ReportSetPidAckn(GetModuleHandle(), RetVal, m_ModuleCommand[idx].MaxTemperature,  //lint -esym(526, DeviceControl::ReportLevelSensorState) -esym(628, DeviceControl::ReportLevelSensorState)
                                       m_ModuleCommand[idx].ControllerGain, m_ModuleCommand[idx].ResetTime, m_ModuleCommand[idx].DerivativeTime);
+            }
+            else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_SET_SWITCH_STATE)
+            {
+                FILE_LOG_L(laFCT, llDEBUG1) << " CANTemperatureControl set Switch state";
+
+                //send the PID parameters to the slave
+                RetVal = SendCANMsgSetSwitchState(m_ModuleCommand[idx].SwitchState, m_ModuleCommand[idx].AutoSwitch);
+
+                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                //because there is no slave acknowledge, we send our own acknowldege
+                emit ReportSetSwitchState(GetModuleHandle(), RetVal, m_ModuleCommand[idx].SwitchState, m_ModuleCommand[idx].AutoSwitch);
+
             }
 
             //---------------------------
@@ -1115,6 +1129,23 @@ ReturnCode_t CTemperatureControl::SendCANMsgTemperatureRequest()
     return retval;
 }
 
+ReturnCode_t CTemperatureControl::SendCANMsgSetSwitchState(qint8 SwitchState, qint8 AutoSwitch)
+{
+    ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
+    can_frame canmsg;
+
+    canmsg.can_id = m_unCanIDSetSwitchState;
+    memcpy(&canmsg.data[0], &SwitchState, sizeof(SwitchState));
+    memcpy(&canmsg.data[1], &AutoSwitch, sizeof(AutoSwitch));
+    canmsg.can_dlc = 2;
+
+    retval = m_pCANCommunicator->SendCOB(canmsg);
+
+    FILE_LOG_L(laFCT, llDEBUG) << "   CTemperatureControl::SendCANMsgSetSwitchState canID: 0x"
+                               << std::hex << m_unCanIDSetSwitchState;
+
+    return retval;
+}
 /****************************************************************************/
 /*!
  *  \brief  Send the CAN message to request the 'HeaterTimeSet' CAN-Message
@@ -1281,6 +1312,26 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
     return RetVal;
 }
 
+ReturnCode_t CTemperatureControl::SetSwitchState(qint8 SwitchState, qint8 AutoSwitch)
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 CmdIndex;
+
+    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_SWITCH_STATE, &CmdIndex))
+    {
+        m_ModuleCommand[CmdIndex].SwitchState = SwitchState;
+        m_ModuleCommand[CmdIndex].AutoSwitch = AutoSwitch;
+        FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Switch State: " << SwitchState <<"Auto Switch: " <<AutoSwitch;
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+    }
+
+    return RetVal;
+}
 /****************************************************************************/
 /*!
  *  \brief  Request the actual temperature

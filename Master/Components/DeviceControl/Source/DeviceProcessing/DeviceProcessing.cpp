@@ -1434,18 +1434,9 @@ void DeviceProcessing::RegisterMetaTypes()
 {
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<NodeState_t>("NodeState_t");
-    //qRegisterMetaType<BlockState_t>("BlockState_t");
-    //qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
-    //qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
-    //qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
-    //qRegisterMetaType<AgitationSpeed_t>("AgitationSpeed_t");
-    //qRegisterMetaType<WaterValveID_t>("WaterValveID_t");
-    //qRegisterMetaType<OvenCoverPosition_t>("OvenCoverPosition_t");
     qRegisterMetaType<TempCtrlStatus_t>("TempCtrlStatus_t");
     qRegisterMetaType<TempCtrlOperatingMode_t>("TempCtrlOperatingMode_t");
     qRegisterMetaType<TempCtrlMainsVoltage_t>("TempCtrlMainsVoltage_t");
-    //qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
-    //qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
 }
 
 /****************************************************************************/
