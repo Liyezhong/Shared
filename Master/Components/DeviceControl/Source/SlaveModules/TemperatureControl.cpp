@@ -60,7 +60,9 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_unCanIDServiceSensorReq(0), m_unCanIDServiceSensor(0),
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),
-    m_aktionTimespan(0), m_unCanIDSetSwitchState(0)
+    m_aktionTimespan(0), m_unCanIDNotiAutoTune(0),
+    m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),
+    m_unCanIDLevelSensorState(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -128,8 +130,14 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     quint8 bChannel;
     const quint8 ModuleID = MODULE_ID_TEMPERATURE;
 
-    bChannel = m_pCANObjectConfig->m_sChannel;
-
+    if(m_pCANObjectConfig)
+    {
+        bChannel = m_pCANObjectConfig->m_sChannel;
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
     RetVal = InitializeEventCANMessages(ModuleID);
 
     m_unCanIDTemperatureSet     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlTemperatureSet", bChannel, m_pParent->GetNodeID());
@@ -293,15 +301,18 @@ void CTemperatureControl::HandleTasks()
                 m_mainState = FM_MAIN_STATE_ERROR;
                 return;
             }
-            for(qint32 i = 0; i < pCANObjConfTemp->listPidControllers.size(); i++) {
-                RetVal = SendCANMsgPidParametersSet(i);
-                if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
-                    FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
-                    m_mainState = FM_MAIN_STATE_ERROR;
-                    return;
+            if(pCANObjConfTemp != NULL)
+            {
+                for(qint32 i = 0; i < pCANObjConfTemp->listPidControllers.size(); i++)
+                {
+                    RetVal = SendCANMsgPidParametersSet(i);
+                    if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
+                        FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
+                        m_mainState = FM_MAIN_STATE_ERROR;
+                        return;
+                    }
                 }
             }
-
             m_subStateConfig = FM_TEMP_SUB_STATE_CONFIG_FINISHED;
             m_TaskID    = MODULE_TASKID_FREE;
             m_mainState = FM_MAIN_STATE_IDLE;
@@ -680,7 +691,7 @@ void CTemperatureControl::HandleCANMsgLevelSensorState(can_frame* pCANframe)
     {
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         quint8 LevelSensorState = pCANframe->data[0];
-        emit ReportLevelSensorState(GetModuleHandle(), hdlInfo, LevelSensorState);
+        emit ReportLevelSensorState(GetModuleHandle(), hdlInfo, LevelSensorState); //lint -esym(526, DeviceControl::ReportLevelSensorState) -esym(628, DeviceControl::ReportLevelSensorState)
     }
 }
 #endif
@@ -761,7 +772,7 @@ void CTemperatureControl::HandleCANMsgTemperature(can_frame* pCANframe)
         }
 
         FILE_LOG_L(laFCT, llDEBUG) << "   CTemperatureControl::HandleCANMsgTemperature: "
-                                   << TempCtrlStatus << ", " << TempCtrlOpMode << ", " << TempCtrlVoltage;
+                                   << TempCtrlStatus << ", " << TempCtrlOpMode << ", " << TempCtrlVoltage; //lint !e641
     }
     else
     {
@@ -1072,6 +1083,7 @@ ReturnCode_t CTemperatureControl::SendCANMsgPidParametersSet(quint16 MaxTemperat
  *  \iparam Temperature = Reference temperature in 0.1 °C steps
  *  \iparam OperatingMode = Hold or heating phase
  *  \iparam Status = Module on or off
+ *  \iparam SlopeTempChange = Slop of temperature change
  *
  *  \return The return value is set from SendCOB(can_frame)
  */
@@ -1083,15 +1095,20 @@ ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature(qreal Temperature,
     pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
     can_frame canmsg;
-
-    canmsg.can_id = m_unCanIDTemperatureSet;
-    canmsg.data[0] = 0;
-    if(Status == TEMPCTRL_STATUS_ON) {
-        canmsg.data[0] = 0x01;
+    if((pCANObjConfTemp == NULL)||(m_pCANCommunicator == NULL))
+    {
+        retval = DCL_ERR_NOT_INITIALIZED;
     }
-    if(OperatingMode == TEMPCTRL_OPMODE_HOLD) {
-        canmsg.data[0] |= 0x04;
-    }
+    else
+    {
+        canmsg.can_id = m_unCanIDTemperatureSet;
+        canmsg.data[0] = 0;
+        if(Status == TEMPCTRL_STATUS_ON) {
+            canmsg.data[0] = 0x01;
+        }
+        if(OperatingMode == TEMPCTRL_OPMODE_HOLD) {
+            canmsg.data[0] |= 0x04;
+        }
 
     canmsg.data[1] = Temperature;
 
@@ -1110,8 +1127,8 @@ ReturnCode_t CTemperatureControl::SendCANMsgSetTemperature(qreal Temperature,
 #endif
     retval = m_pCANCommunicator->SendCOB(canmsg);
 
-    FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: CanID: 0x" << std::hex << m_unCanIDTemperatureSet;
-
+        FILE_LOG_L(laFCT, llDEBUG) << "   SendCANMsgSetTemperature: CanID: 0x" << std::hex << m_unCanIDTemperatureSet;
+    }
     return retval;
 }
 
@@ -1287,6 +1304,9 @@ ReturnCode_t CTemperatureControl::SendCANMsgHardwareReq()
  *  \brief  Set the target temperature
  *
  *  \iparam Temperature = Reference temperature
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1362,7 +1382,7 @@ ReturnCode_t CTemperatureControl::ReqActTemperature(quint8 Index)
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CANTemperatureControl invalid state: " << m_TaskID; //lint !e641
     }
 
     return RetVal;
@@ -1484,7 +1504,7 @@ ReturnCode_t CTemperatureControl::ReqStatus()
 /*!
  *  \brief  Resets the operating time of a heater
  *
- *  \ipram  Index = Index of the heating element
+ *  \iparam  Index = Index of the heating element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1514,7 +1534,7 @@ ReturnCode_t CTemperatureControl::ResetHeaterOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the operating time of a heater
  *
- *  \ipram  Index = Index of the heating element
+ *  \iparam  Index = Index of the heating element
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1544,7 +1564,7 @@ ReturnCode_t CTemperatureControl::GetHeaterOperatingTime(quint8 Index)
 /*!
  *  \brief  Gets the speed of a ventilation fan
  *
- *  \ipram  Index = Index of the ventilation fan
+ *  \iparam  Index = Index of the ventilation fan
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code
@@ -1692,19 +1712,26 @@ ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quin
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_PID, &CmdIndex))
+    if(MaxTemperature > 130)
     {
-        m_ModuleCommand[CmdIndex].MaxTemperature = MaxTemperature;
-        m_ModuleCommand[CmdIndex].ControllerGain = ControllerGain;
-        m_ModuleCommand[CmdIndex].ResetTime = ResetTime;
-        m_ModuleCommand[CmdIndex].DerivativeTime = DerivativeTime;
-        FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, MaxTemperature: " << MaxTemperature <<" ControllerGain: "<< ControllerGain
-                                  << " ResetTime: " << ResetTime << " DerivativeTime: " << DerivativeTime;
+        RetVal = DCL_ERR_INVALID_PARAM;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+        if(SetModuleTask(FM_TEMP_CMD_TYPE_SET_PID, &CmdIndex))
+        {
+            m_ModuleCommand[CmdIndex].MaxTemperature = MaxTemperature;
+            m_ModuleCommand[CmdIndex].ControllerGain = ControllerGain;
+            m_ModuleCommand[CmdIndex].ResetTime = ResetTime;
+            m_ModuleCommand[CmdIndex].DerivativeTime = DerivativeTime;
+            FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, MaxTemperature: " << MaxTemperature <<" ControllerGain: "<< ControllerGain
+                                      << " ResetTime: " << ResetTime << " DerivativeTime: " << DerivativeTime;
+        }
+        else
+        {
+            RetVal = DCL_ERR_INVALID_STATE;
+            FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID; //lint !e641
+        }
     }
 
     return RetVal;

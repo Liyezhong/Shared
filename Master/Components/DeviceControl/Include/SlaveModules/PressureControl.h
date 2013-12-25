@@ -360,7 +360,7 @@ private:
     quint32 m_unCanIDFanSet;
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
-    quint32 m_valveOperationTime[2];
+    quint32 m_valveOperationTime[VALVE_NUM];
 };
 
 } //namespace

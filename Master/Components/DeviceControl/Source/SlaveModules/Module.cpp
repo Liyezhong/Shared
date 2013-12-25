@@ -96,7 +96,7 @@ void CModule::StartTimeDelay()
 /*!
  *  \brief  Time measurement
  *
- *      Returns the time passed since StartTimeDelay call.
+ *  \return  Returns the time passed since StartTimeDelay call.
  */
 /****************************************************************************/
 quint16 CModule::GetTimeDelay()
@@ -161,7 +161,7 @@ quint32 CModule::GetModuleHandle()
     if(m_pCANObjectConfig)
     {
         moduleHandle = m_pCANObjectConfig->m_sCANNodeType;
-        moduleHandle |= (((quint32)m_pCANObjectConfig->m_sCANNodeIndex) << 8);
+        moduleHandle |= (((quint32)m_pCANObjectConfig->m_sCANNodeIndex) << 8); //lint !e571
         moduleHandle |= (((quint32)m_pCANObjectConfig->m_sChannel) << 16);
     }
 
@@ -279,6 +279,16 @@ quint16 CModule::GetCANMsgDataU16 (can_frame* pCANframe, quint8 offset)
     return msgData;
 }
 #ifdef PRE_ALFA_TEST
+/*****************************************************************************/
+/*!
+ *  \brief  Returns a qint16 from can message data
+ *
+ *  \iparam pCANframe = CAN message
+ *  \iparam offset = Byte offset in the CAN message's data field
+ *
+ *  \return CAN data as qint16
+ */
+/****************************************************************************/
 qint16 CModule::GetCANMsgDataS16 (can_frame* pCANframe, quint8 offset)
 {
     qint16 msgData = 0;

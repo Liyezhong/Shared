@@ -66,6 +66,8 @@ CFunctionModule::~CFunctionModule()
  *      The CAN-IDs are read from the CAN-Message configuration class.
  *      The CAN-ID for event notification are determined here
  *
+ *  \iparam ModuleID = Funtion module ID
+ *
  *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
  */
 /****************************************************************************/

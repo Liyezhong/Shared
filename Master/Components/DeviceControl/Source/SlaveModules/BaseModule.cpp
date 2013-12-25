@@ -1432,7 +1432,7 @@ CBootLoader *CBaseModule::GetBootLoader()
 /*!
  *  \brief  Communicates the current boot loader state to the base module
  *
- *  \iparam Boot loader state
+ *  \iparam State = Boot loader state
  */
 /****************************************************************************/
 void CBaseModule::BootLoaderUpdate(CBootLoader::State_t State)
@@ -1481,6 +1481,8 @@ ReturnCode_t CBaseModule::SendConfigurationRequest()
 /****************************************************************************/
 /*!
  *  \brief  Set the slave's real time clock
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBaseModule::SendCANMsgRealTime()
@@ -1527,6 +1529,8 @@ ReturnCode_t CBaseModule::SendCANMsgRealTime()
 /****************************************************************************/
 /*!
  *  \brief  Set the slave's heartbeat configuration (slave and master heartbeat)
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBaseModule::SendCANMsgHeartbeatConfig()

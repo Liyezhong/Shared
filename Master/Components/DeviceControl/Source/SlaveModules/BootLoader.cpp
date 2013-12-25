@@ -429,6 +429,8 @@ void CBootLoader::SetState(State_t State)
  *  \brief  Handle the reception of a update required message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame)
@@ -458,6 +460,8 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame
  *  \brief  Handle the reception of a update mode acknowledge message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame)
@@ -511,6 +515,8 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame)
  *  \brief  Handle the reception of a update header acknowledge message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateHeaderAck(const can_frame *p_CanFrame)
@@ -543,6 +549,8 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateHeaderAck(const can_frame *p_CanFram
  *  \brief  Handle the reception of a update data acknowledge message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateAck(const can_frame *p_CanFrame)
@@ -605,6 +613,8 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateAck(const can_frame *p_CanFrame)
  *  \brief  Handle the reception of a update trailer acknowledge message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateTrailerAck(const can_frame *p_CanFrame)
@@ -645,6 +655,8 @@ void CBootLoader::TimeoutHandler()
  *  \brief  Handle the reception of a update info init acknowledge message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoInitAck(const can_frame *p_CanFrame)
@@ -674,6 +686,8 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoInitAck(const can_frame *p_CanFr
  *  \brief  Handle the reception of a update info acknowledge message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoAck(const can_frame *p_CanFrame)
