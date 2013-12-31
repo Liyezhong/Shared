@@ -40,6 +40,7 @@ class TestWriteArchive: public QObject
 
     private:
         QList<QByteArray> m_workfiles;
+        QString DirPath;
         QByteArray getFileContents(const char* filename);
         void createWorkfiles(QList<int> sizes);
         void createFileStringList(QStringList &filelist);

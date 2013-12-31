@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file VerifierInterface.cpp
+/*! \file Master/Components/DataManager/Helper/Source/Helper.cpp
  *
  *  \brief Implementation file for general purpose functions.
  *
@@ -19,22 +19,44 @@
 /****************************************************************************/
 
 #include <QStringList>
+#include <QDebug>
 #include <QXmlStreamWriter>
 #include <math.h>
 #include "Global/Include/GlobalDefines.h"
 #include "Global/Include/UITranslator.h"
 #include "DataManager/Helper/Include/Helper.h"
-#include <HimalayaDataContainer/Helper/Include/HimalayaDataManagerEventCodes.h>
+//#include <ColoradoDataContainer/Helper/Include/ColoradoDataManagerEventCodes.h>
+#include <DataManager/Helper/Include/DataManagerEventCodes.h>
 #include <Global/Include/EventObject.h>
 #include <qdatetime.h>
 
 namespace DataManager {
 
 
+/****************************************************************************/
+/**
+ * \brief Constructor.
+ */
+/****************************************************************************/
 Helper::Helper()
 {
 }
 
+/****************************************************************************/
+/**
+ * \brief Convert seconds to time string.
+ *
+ * The Leica configuration files use a specific format for time durations,
+ * e.g. 3d 4h 12m 45s.
+ * Internally seconds are used to define time durations.
+ * This method converts a given number of seconds into an string value
+ * containing the corresponding formated string for this time duration.
+ *
+ * \param[in]   TimeDurationInSeconds       Time duration given in seconds.
+ *
+ * \return  QString     Leica specific format for time durations.
+ */
+/****************************************************************************/
 QString Helper::ConvertSecondsToTimeString(int TimeDurationInSeconds)
 {
     const float SecondsPerDay = 60*60*24.0;
@@ -49,33 +71,31 @@ QString Helper::ConvertSecondsToTimeString(int TimeDurationInSeconds)
     }
 
     // days
-    int ValueD = trunc(TimeDurationInSeconds / SecondsPerDay);
+    int ValueD = (int)trunc(TimeDurationInSeconds / SecondsPerDay);
     if (ValueD > 0) {
-        TimeDurationInSeconds -= ValueD * SecondsPerDay;
+        TimeDurationInSeconds -=(int) (ValueD * SecondsPerDay);
         (void)StringValue.setNum(ValueD); //to suppress lint-534
         Result.append(StringValue);
         Result.append("d");
     }
 
     // hours
-    int ValueH = trunc(TimeDurationInSeconds / SecondsPerHour);
+    int ValueH = (int)trunc(TimeDurationInSeconds / SecondsPerHour);
     if (ValueH > 0) {
-        TimeDurationInSeconds -= ValueH * SecondsPerHour;
+        TimeDurationInSeconds -= (int) (ValueH * SecondsPerHour);
         if (Result.size() > 0) Result.append(" ");
         (void)StringValue.setNum(ValueH); //to suppress lint-534
         Result.append(StringValue);
-        //Result.append(QString::number(ValueH));
         Result.append("h");
     }
 
     // minutes
-    int ValueM = trunc(TimeDurationInSeconds / SecondsPerMinute);
+    int ValueM = (int)trunc(TimeDurationInSeconds / SecondsPerMinute);
     if (ValueM > 0) {
-        TimeDurationInSeconds -= ValueM * SecondsPerMinute;
+        TimeDurationInSeconds -= (int) (ValueM * SecondsPerMinute);
         if (Result.size() > 0) Result.append(" ");
         (void)StringValue.setNum(ValueM); //to suppress lint-534
         Result.append(StringValue);
-        //Result.append(QString::number(ValueM));
         Result.append("m");
     }
 
@@ -85,7 +105,6 @@ QString Helper::ConvertSecondsToTimeString(int TimeDurationInSeconds)
         if (Result.size() > 0) Result.append(" ");
         (void)StringValue.setNum(ValueS); //to suppress lint-534
         Result.append(StringValue);
-        //Result.append(QString::number(ValueS));
         Result.append("s");
     }
 
@@ -94,6 +113,21 @@ QString Helper::ConvertSecondsToTimeString(int TimeDurationInSeconds)
     return Result;
 }
 
+/****************************************************************************/
+/**
+ * \brief Convert time string to seconds.
+ *
+ * The Leica configuration files use a specific format for time durations,
+ * e.g. 3d 4h 12m 45s.
+ * Internally seconds are used to define time durations.
+ * This method converts a given string into an integer value containing
+ * the corresponding number of seconds.
+ *
+ * \param[in]   TimeDuration       Time duration given in seconds.
+ *
+ * \return  int     Time duration in seconds.
+ */
+/****************************************************************************/
 // for time strings like "4d 1h 30m 15s"
 int Helper::ConvertTimeStringToSeconds(QString TimeDuration)
 {
@@ -116,17 +150,17 @@ int Helper::ConvertTimeStringToSeconds(QString TimeDuration)
             SplitString.chop(1);
             Value = SplitString.toInt(&ok);
             if(!ok) qDebug() << "##### CProgramStep::ConvertTimeStringToSeconds failed ";
-            Result += Value * SecondsPerDay;
+            Result += (int) (Value * SecondsPerDay);
         } else if (SplitString.endsWith("h")) {
             SplitString.chop(1);
             Value = SplitString.toInt(&ok);
             if(!ok) qDebug() << "##### CProgramStep::ConvertTimeStringToSeconds failed ";
-            Result += Value * SecondsPerHour;
+            Result += (int) (Value * SecondsPerHour);
         } else if (SplitString.endsWith("m")) {
             SplitString.chop(1);
             Value = SplitString.toInt(&ok);
             if(!ok) qDebug() << "##### CProgramStep::ConvertTimeStringToSeconds failed ";
-            Result += Value * SecondsPerMinute;
+            Result += (int) (Value * SecondsPerMinute);
         } else if (SplitString.endsWith("s")) {
             SplitString.chop(1);
             Value = SplitString.toInt(&ok);
@@ -138,7 +172,19 @@ int Helper::ConvertTimeStringToSeconds(QString TimeDuration)
     return Result;
 }
 
-// converting QString of form 2011-11-01 to QDate format
+/****************************************************************************/
+/**
+ * \brief convert QString of form YYYY-MM-DD(2011-11-01) to QDate format
+ *
+ * The Leica configuration files use a specific format for date,
+ * e.g. 2011-11-01.
+ * This method converts a given string into a QDate format
+ *
+ * \param[in]   Date       date string.
+ *
+ * \return  QDate     QDate format.
+ */
+/****************************************************************************/
 QDate Helper::ConvertDateStringToQDate(QString Date)
 {
     //    qDebug() << "Entering ConvertDateStringToQDate";
@@ -282,29 +328,48 @@ bool Helper::ReadNode(QXmlStreamReader& XmlStreamReader, QString NodeName)
     return Result;
 }
 
+
+/****************************************************************************/
+/*!
+ *  \brief Generate Error string for the list of errors passed.
+ *         The erros would be formatted one below the other.
+ *  \iparam ErrorList = Reference to the list of errors
+ *  \iparam ErrorString = Generated Error string
+ */
+/****************************************************************************/
 void Helper::ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString)
 {
-
     while(!ErrorList.isEmpty()) {
-        ErrorHash_t *p_ErrorHash = ErrorList.first();
-        QHashIterator<quint32, Global::tTranslatableStringList> It(*p_ErrorHash);
+        qint32 ErrorCount = 0;
+        ErrorMap_t *p_ErrorMap = ErrorList.first();
+        QMapIterator<quint32, Global::tTranslatableStringList> It(*p_ErrorMap);
+        bool MaxErrors = false;
         while(It.hasNext()) {
             //this is Java style iterator , hence points inbetween items in list!
             It.next();
-            ErrorString += Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(It.key(), It.value()), true);
+            if (Q_LIKELY(ErrorCount < 5)) {
+                ErrorString += Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(It.key(), It.value()), true);
+            }
+            else {
+                // When error count is more than 5 , we append a string in the end requesting user to check user log for
+                // more info
+                ErrorString += Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(EVENT_DM_CHECK_USER_LOG_FOR_MORE_INFO, Global::tTranslatableStringList()), true);
+                MaxErrors = true;
+                break;
+            }
             ErrorString += "\n";
+            ErrorCount++;
         }
         // clear the hash
-        p_ErrorHash->clear();
-        //! warning dont delte below statement, else will lead to forever loop !
+        p_ErrorMap->clear();
+        //! \warning dont delte below statement, else will lead to forever loop !
         ErrorList.removeFirst();
+        if (MaxErrors) {
+            break;
+        }
     }
     //Clear the error list
     ErrorList.clear();
 }
 
-QString Helper::TranslateString(quint32 StringID)
-{
-    return Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(StringID),false);
-}
 }  // namespace DataManager

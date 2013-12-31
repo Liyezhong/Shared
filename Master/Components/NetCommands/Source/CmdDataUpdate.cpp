@@ -29,14 +29,17 @@ QString CmdDataUpdate::NAME = "NetCommands::CmdDataUpdate";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   Station     QByteArray containing station.
+ * \iparam   Timeout                  Timeout for command.
+ * \iparam   DataUpdateDataStream
+ * \iparam   CmdType                  Type of Command.
+ * \iparam   DlgStatus   Dialog display status
  */
 /****************************************************************************/
-CmdDataUpdate::CmdDataUpdate(int Timeout, const QDataStream &DataUpdateDataStream, DataUpdateType CmdType)
+CmdDataUpdate::CmdDataUpdate(int Timeout, const QDataStream &DataUpdateDataStream, DataUpdateType CmdType, bool DlgStatus)
     : Command(Timeout)
 //    , m_RelatedClass(relatedClass)
     , m_CmdType(CmdType)
+    ,m_DlgStatus(DlgStatus)
 {
     m_DataUpdateByteArray = static_cast< QBuffer *>(DataUpdateDataStream.device())->data();
 }
@@ -69,6 +72,18 @@ CmdDataUpdate::~CmdDataUpdate()
 QString CmdDataUpdate::GetName() const
 {
     return NAME;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   This function returns the dialog displaying status
+ *
+ *  \return  true if the dialog needs to be displayed
+ */
+/****************************************************************************/
+bool CmdDataUpdate::GetDialogStatus() const
+{
+    return m_DlgStatus;
 }
 
 } // end namespace MsgClasses

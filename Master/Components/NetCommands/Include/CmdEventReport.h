@@ -30,7 +30,7 @@ namespace NetCommands {
 //!< Data Structure containing EventReportData
 struct EventReportDataStruct{
     quint64 ID; //!< Event ID
-    quint32 EventKey;
+    quint32 EventKey;   //!< Event Key
     QString MsgString;  //!< Event String
     bool EventStatus;  //!< True - event active , else inactive
     Global::EventType EventType; //!< EventType
@@ -61,6 +61,7 @@ public:
     /****************************************************************************/
     /**
      * \brief Get the EventReport Data
+     *
      * \return Byte array.
      */
     /****************************************************************************/
@@ -68,9 +69,15 @@ public:
 
 private:
     CmdEventReport(const CmdEventReport &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdEventReport & operator = (const CmdEventReport &);   ///< Not implemented.
-    QByteArray m_EventReportByteArray;
-
+    QByteArray m_EventReportByteArray;  ///< ByteArray for storing Event Report data.
 }; // end class CmdEventReport
 
 /****************************************************************************/
@@ -78,7 +85,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -96,7 +103,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdEventReport &Cmd
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

@@ -37,6 +37,10 @@ CONFIG(debug, debug|release) {
     CONFIG_SUFFIX = dbg
 } else {
     CONFIG_SUFFIX = rel
+    DEFINES += QT_NO_DEBUG \
+               QT_NO_DEBUG_OUTPUT \
+                           DBT_TRACE_DISCARD \
+               NDEBUG
     CONFIG(gcov) {
         QMAKE_CXXFLAGS_RELEASE += -fprofile-arcs -ftest-coverage
         QMAKE_LFLAGS_RELEASE += -fprofile-arcs

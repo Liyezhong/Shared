@@ -58,21 +58,26 @@ CommunicationRetry::~CommunicationRetry()
 ****************************************************************************/
 bool CommunicationRetry::OnEntry(StateMachines::StateEvent et)
 {
-    Q_UNUSED(et)
     qDebug() << "CommunicationRetryState entered.";
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
+        //StateMachines::StateEvent et1;
+        //et1.SetIndex(EP_NULL_CTRL_POINTER);
         if (!State::DispatchEvent(Global::AsInt(EP_NULL_CTRL_POINTER))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << ""
+                                                                                    << "EP_NULL_CTRL_POINTER"
+                                                                                     << FILE_LINE);
         }
         return false;
     }
+    m_myController->OnStopWorking();
+    m_myController->KillAndRestartProcess();
 
-    // restart device's powerup login timer
-    m_myController->m_myDevice->StartLoginGuard();
-
-    return true;
+    return HandleEvent(et);
 }
 
 /****************************************************************************/
@@ -117,21 +122,6 @@ bool CommunicationRetry::HandleEvent(StateMachines::StateEvent et)
         return false;
     }
 
-    switch (et.GetIndex()) {
-    case EP_EXTPROCESS_LOGIN_TIMEOUT:
-        // login timedout -> try to kill and restart the process
-        if (!m_myController->m_myProcess->KillProcess()) {
-            qDebug() << (QString)("CommunicationRetryState: Cannot kill the External Process !");
-            /// \todo log error
-            if (!State::DispatchEvent(Global::AsInt(EP_CANNOT_KILL_EXTPROCESS))) {
-                /// \todo log error
-            }
-            return false;
-        }
-        break;
-    default:
-        break;
-    }
     return true;
 }
 

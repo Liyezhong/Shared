@@ -41,7 +41,17 @@ const QStringList SetDateAndTimeAttr = QStringList() << "dt";
 class SetDateAndTime : public ProtocolRxCommand {
     Q_OBJECT
 
+    /// all test classes are friends:
+    friend class TestProtocolCommand;
+
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(SetDateAndTime)
     DECLARE_REG_CLASS(ProtocolRxCommand, SetDateAndTime);   ///< Declaration of static registration instance.
 
 public:

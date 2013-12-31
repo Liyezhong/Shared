@@ -33,7 +33,7 @@ namespace NetworkBase {
 
 class NetworkDevice;
 
-const quint16 ACK_TIMEOUT = 3000; ///< communication timeout for Acks.
+const quint16 ACK_TIMEOUT = 10000; ///< communication timeout for Acks.
 
 /****************************************************************************/
 /*!
@@ -66,6 +66,15 @@ public:
 
     ProtocolTxCommand();
     virtual ~ProtocolTxCommand();
+
+private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ProtocolTxCommand)
 
 public:
 

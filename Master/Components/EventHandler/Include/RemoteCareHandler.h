@@ -53,6 +53,13 @@ protected:
 private:
 
     RemoteCareHandler();
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(RemoteCareHandler)
 
 public slots:
     virtual void ForwardEventToRemoteCare(const DataLogging::DayEventEntry &) = 0;

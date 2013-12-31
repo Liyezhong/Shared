@@ -5,7 +5,7 @@
  *
  *   $Version: $ 0.2
  *   $Date:    $ 23.04.2012
- *   $Author:  $ Raju123
+ *   $Author:  $ Raju123, Ramya GJ
  *
  *  \b Company:
  *
@@ -26,7 +26,6 @@
 #include "DataManager/Containers/UserSettings/Include/UserSettingsInterface.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 #include "Global/Include/EventObject.h"
-
 //lint -e1540
 
 namespace DataManager {
@@ -58,20 +57,27 @@ public:
 
     bool VerifyData(CDataContainerBase* p_UserSettingsInterface);  // use concrete class for concrete verifier
 
-    ErrorHash_t &GetErrors();
+    ErrorMap_t &GetErrors();
 
-    void ResetLastErrors();
+    void ResetErrors();
     bool IsLocalVerifier();
 
 protected:
-    CUserSettingsInterface* mp_USettingsInterface;   ///< Local pointer to user setting interface
-    ErrorHash_t m_ErrorHash;          //!< To store Error ID and any arguments associated
-
+    CUserSettingsInterface* mp_USettingsInterface;   ///< Local pointer to a rack list
+    ErrorMap_t m_ErrorMap;          //!< To store Error ID and any arguments associated
 private:
     void CheckSoundLevelWarnings(CUserSettings* p_UserSettings, bool& VerifiedData);
     void CheckNetWorkSettings(CUserSettings* p_UserSettings, bool& VerifiedData);
     bool CheckProxyIPAddress(CUserSettings* p_UserSettings);
     bool CheckProxyIPPort(CUserSettings *p_UserSettings);
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CUserSettingsVerifier)
 };
 
 } // namespace DataManager

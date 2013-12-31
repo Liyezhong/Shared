@@ -22,7 +22,10 @@
 
 namespace Global {
 
-//bool Global::AppSettings::SimulationEnabled = false;
-//bool Global::AppSettings::ExtendedLoggingEnabled = false;
+bool Global::AppSettings::SimulationEnabled = false;
+bool Global::AppSettings::ExtendedLoggingEnabled = false;
+bool Global::AppSettings::TraceDebugMessagesEnabled = false;
+bool Global::AppSettings::DCPLoggingEnabled = false;
+QString Global::AppSettings::RevisionNumber = "";
 
 } // end namespace Global

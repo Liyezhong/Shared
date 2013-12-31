@@ -355,7 +355,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->AddState(dummy);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }
@@ -365,7 +365,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->RemoveState(dummy);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }
@@ -375,7 +375,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->AddTransition(dummy, dummy, (StateEventIndexType_t)1234);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }
@@ -384,7 +384,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->RemoveTransition(dummy, m_StateA, (StateEventIndexType_t)10);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }
@@ -393,7 +393,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->RemoveTransition(m_StateB, dummy, (StateEventIndexType_t)10);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }
@@ -418,7 +418,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->Start(StateName, (StateEventIndexType_t)10);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }
@@ -431,7 +431,7 @@ void TestStateEngine::utTestBadInputHandling()
         m_myStateEngine->SetState(StateName, (StateEventIndexType_t)10);
         QFAIL("You should never get here...");
     } catch(const Global::Exception &E) {
-        QCOMPARE(E.GetErrorCode(), EVENT_GLOBAL_ERROR_NULL_POINTER);
+        QCOMPARE(E.GetErrorCode(), Global::EVENT_GLOBAL_ERROR_NULL_POINTER);
     } catch(...) {
         QFAIL("You should never get here...");
     }

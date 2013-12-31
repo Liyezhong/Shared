@@ -58,8 +58,13 @@ public:
 private:
 
     MessageChecker();                                           ///< Not implemented.
-    MessageChecker(const MessageChecker &);                     ///< Not implemented.
-    const MessageChecker & operator = (const MessageChecker &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(MessageChecker)
 
     MessageCheckerErrorType_t LoadMessages();
 
@@ -74,6 +79,7 @@ private:
     /*! List of Server message validators sorted according to message ID
         Format: <ServerMessageID, ServerMessageValidator > */
     QHash<QString, QXmlSchemaValidator*> m_MessageCmdToSchema;
+    QList<QXmlSchema *> m_ListOfXmlSchedma;
 };
 
 } // end namespace NetworkBase

@@ -20,6 +20,9 @@
 
 #include <NetworkComponents/Include/ProtocolRxCommands/Ack.h>
 #include <NetworkComponents/Include/ProtocolTxCommand.h>
+#include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -46,10 +49,10 @@ Ack::~Ack()
 /*!
  *  \brief   Send acknowledge
  *
- *  \param[in]  pNd = pointer to the NetworkDevice
- *  \param[in]  Ref = protocol message reference
- *  \param[in]  CmdName = name of acknowledged command
- *  \param[in]  Status = status of command execution
+ *  \iparam  pNd = pointer to the NetworkDevice
+ *  \iparam  Ref = protocol message reference
+ *  \iparam  CmdName = name of acknowledged command
+ *  \iparam  Status = status of command execution
  *
  *  \return  true if ack was sent, false otherwise
  *
@@ -82,6 +85,8 @@ bool Ack::Execute()
 
     if (m_myDevice == NULL) {
         qDebug() << (QString)"Ack: ERROR -> m_myDevice = NULL !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << "" << FILE_LINE);
         return false;
     }
 
@@ -94,6 +99,8 @@ bool Ack::Execute()
     if ((cmd.isEmpty()) || (cmd == "NULL")) {
         // ack is not complete - do not know what to do with it
         qDebug() << (QString)"Ack: ERROR -> cmd or ref is empty !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_NOT_COMPLETE,
+                                                   Global::tTranslatableStringList() << cmd << FILE_LINE);
         return false;
     }
 
@@ -102,6 +109,8 @@ bool Ack::Execute()
     if (scmd == NULL) {
         // no such command running - do not know what to do with it
         qDebug() << (QString)"Ack: ERROR -> cannot fetch running command !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_NOT_RUNNING,
+                                                   Global::tTranslatableStringList() << m_myRef << FILE_LINE);
         return false;
     }
 
@@ -109,6 +118,8 @@ bool Ack::Execute()
     if (cmd != scmd->GetName()) {
         // cmd name does not correspond to reference - do not know what to do with it
         qDebug() << (QString)"Ack: ERROR -> ackCmdName (" << cmd << ") != fetchedCmdName (" << scmd->GetName() << ") !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_INVALID_REFERENCE,
+                                                   Global::tTranslatableStringList() << cmd << FILE_LINE);
         return false;
     }
 
@@ -116,6 +127,8 @@ bool Ack::Execute()
     if ((status.isEmpty()) || (status == "NULL")) {
         // ack is not complete - do not know what to do with it
         qDebug() << (QString)"Ack: ERROR -> status empty !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_NOT_COMPLETE,
+                                                   Global::tTranslatableStringList() << status << FILE_LINE);
         return false;
     }
 

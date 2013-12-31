@@ -54,7 +54,7 @@ private:
     void CopyFrom(const CmdByteArray &rOther);
 
 private:
-    QByteArray m_ByteArray;
+    QByteArray m_ByteArray; //!< The data field of the command
 
 }; // end class CmdByteArray
 

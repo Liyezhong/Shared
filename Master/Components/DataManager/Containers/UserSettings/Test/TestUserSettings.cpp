@@ -24,7 +24,11 @@
 #include "DataManager/Containers/UserSettings/Include/UserSettingsVerifier.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdChangeUserSettings.h"
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdRmsOnOff.h"
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdSetWaterStations.h"
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdWaterStationUpdate.h"
 
 namespace DataManager {
 
@@ -78,16 +82,22 @@ private slots:
 
     /****************************************************************************/
     /**
-     * \brief Test write and read user settings of the verifier.
+     * \brief Test CmdUserSettings
      */
     /****************************************************************************/
-    void utTestWriteReadUserSettingsVerifier();
+    void utTestCmdUserSettings();
+    /****************************************************************************/
+    /**
+     * \brief Test write and read of Sepia user settings
+     */
+    /****************************************************************************/
+    void utTestWriteReadUserSettingsInterfaceSepia();
 }; // end class TestUserSettings
 
 /****************************************************************************/
-void TestUserSettings::initTestCase() {    
+void TestUserSettings::initTestCase() {
     // init languages
-    Global::InitSupportedLanguages();
+    //Global::InitSupportedLanguages();
 }
 
 /****************************************************************************/
@@ -160,7 +170,8 @@ void TestUserSettings::utTestUserSettings() {
     QCOMPARE(Settings1->GetProxyIPPort(), 8080);
 
     // Use copy constructor
-    CUserSettings *Settings2(Settings1);
+
+    CUserSettings *Settings2 = new CUserSettings(*Settings1);
 
 
     // now test settings
@@ -188,6 +199,16 @@ void TestUserSettings::utTestUserSettings() {
     QCOMPARE(Settings1->GetProxyPassword(), Settings2->GetProxyPassword());
     QCOMPARE(Settings1->GetProxyIPAddress(), Settings2->GetProxyIPAddress());
     QCOMPARE(Settings1->GetProxyIPPort(), Settings2->GetProxyIPPort());
+
+    // create the datastream and check whether copying data is working or not
+    QByteArray* p_TempByteArray = new QByteArray();
+    QDataStream DataStream(p_TempByteArray, QIODevice::ReadWrite);
+    DataStream.setVersion(QDataStream::Qt_4_0);
+    p_TempByteArray->clear();
+    DataStream << *Settings2;
+    DataStream.device()->reset();
+    DataStream >> *Settings1;
+    QCOMPARE(Settings2->GetProxyIPPort(), Settings1->GetProxyIPPort());
 }
 
 
@@ -200,17 +221,17 @@ void TestUserSettings::utTestWriteReadUserSettingsInterface() {
     // store the application path to write the test files
     FilesPathWrite = QCoreApplication::applicationDirPath() + "/";
 
-    QCOMPARE(SettingsInterface.Read(RESOURCE_FILENAME), true);
+    //QCOMPARE(SettingsInterface.Read(RESOURCE_FILENAME), true);
 
     SettingsInterface.SetDataVerificationMode(false);
-    QCOMPARE(SettingsInterface.Read(RESOURCE_FILENAME), true);
+    QCOMPARE(SettingsInterface.Read(":/Xml/UserSettings.xml"), true);
     SettingsInterface.SetDataVerificationMode(true);
 
     CUserSettings *Settings = new CUserSettings();
     Settings = SettingsInterface.GetUserSettings();
 
     // check all the values
-    QCOMPARE(Settings->GetLanguage(), QLocale::English);
+
     QCOMPARE(Settings->GetDateFormat(), Global::DATE_ISO);
     QCOMPARE(Settings->GetTimeFormat(), Global::TIME_24);
     QCOMPARE(Settings->GetTemperatureFormat(), Global::TEMP_FORMAT_CELSIUS);
@@ -232,30 +253,10 @@ void TestUserSettings::utTestWriteReadUserSettingsInterface() {
     QCOMPARE(Settings->GetProxyIPAddress(), QString("123.145.046.60"));
     QCOMPARE(Settings->GetProxyIPPort(), 1234);
 
-    // change all the settings
-    Settings->SetValue("Agitation_Speed", 5);
-    Settings->SetValue("Leica_AgitationSpeed", 3);
-    Settings->SetDateFormat(Global::DATE_INTERNATIONAL);
-    Settings->SetLanguage(QLocale::German);
-    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_AFTER_STARTUP));
-    Settings->SetValue("Oven_Temp", 40);
-    Settings->SetValue("Leica_OvenTemp", 40);
-    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_OFF));
-    Settings->SetSoundLevelError(5);
-    Settings->SetSoundLevelWarning(6);
-    Settings->SetSoundNumberError(7);
-    Settings->SetSoundNumberWarning(8);
-    Settings->SetTimeFormat(Global::TIME_12);
-    Settings->SetRemoteCare(Global::ONOFFSTATE_ON);
-    Settings->SetDirectConnection(Global::ONOFFSTATE_OFF);
-    Settings->SetProxyUserName("Colorado");
-    Settings->SetProxyPassword("Colorado@1234");
-    Settings->SetProxyIPAddress("123.234.121.111");
-    Settings->SetProxyIPPort(8080);
-    SettingsInterface.UpdateUserSettings(Settings);
-
     // write the settings in to a file
-    SettingsInterface.Write(FilesPathWrite + "UserSettings_Test.xml");
+    //SettingsInterface.Write("UserSettings_Test.xml");
+
+    QCOMPARE(SettingsInterface.Write("UserSettings_Test.xml"), true);
 
     // change all the settings again
     Settings->SetValue("Agitation_Speed", 20);
@@ -304,532 +305,151 @@ void TestUserSettings::utTestWriteReadUserSettingsInterface() {
 
     Settings = SettingsInterface.GetUserSettings();
     // now test settings
-    QCOMPARE(Settings->GetValue("Agitation_Speed").toInt(),      5);
-    QCOMPARE(Settings->GetValue("Leica_AgitationSpeed").toInt(), 3);
-    QCOMPARE(Settings->GetDateFormat(),          Global::DATE_INTERNATIONAL);
-    QCOMPARE(Settings->GetLanguage(),            QLocale::German);
-    QCOMPARE(Settings->GetValue("Oven_StartMode"),      Global::OvenStartModeToString(Global::OVENSTART_AFTER_STARTUP));
-    QCOMPARE(Settings->GetValue("Oven_Temp").toInt(),            40);
-    QCOMPARE(Settings->GetValue("Leica_OvenTemp").toInt(),       40);
-    QCOMPARE(Settings->GetValue("Rms_State"),           Global::OnOffStateToString(Global::ONOFFSTATE_OFF));
-    QCOMPARE(Settings->GetSoundLevelError(),     5);
-    QCOMPARE(Settings->GetSoundLevelWarning(),   6);
-    QCOMPARE(Settings->GetSoundNumberError(),    7);
-    QCOMPARE(Settings->GetSoundNumberWarning(),  8);
-    QCOMPARE(Settings->GetTimeFormat(),          Global::TIME_12);
+
+    QCOMPARE(Settings->GetDateFormat(), Global::DATE_ISO);
+    QCOMPARE(Settings->GetTimeFormat(), Global::TIME_24);
+    QCOMPARE(Settings->GetTemperatureFormat(), Global::TEMP_FORMAT_CELSIUS);
+    QCOMPARE(Settings->GetSoundNumberError(), 1);
+    QCOMPARE(Settings->GetSoundNumberWarning(), 2);
+    QCOMPARE(Settings->GetSoundLevelError(), 9);
+    QCOMPARE(Settings->GetSoundLevelWarning(), 9);
+    QCOMPARE(Settings->GetValue("Agitation_Speed").toInt(), 1);
+    QCOMPARE(Settings->GetValue("Leica_AgitationSpeed").toInt(), 1);
+    QCOMPARE(Settings->GetValue("Oven_StartMode"), Global::OvenStartModeToString(Global::OVENSTART_BEFORE_PROGRAM));
+    QCOMPARE(Settings->GetValue("Oven_Temp").toInt(), 70);
+    QCOMPARE(Settings->GetValue("Leica_OvenTemp").toInt(), 45);
+    QCOMPARE(Settings->GetValue("Rms_State"), Global::OnOffStateToString(Global::ONOFFSTATE_ON));
+    QCOMPARE(Settings->GetValue("Water_Type"), Global::WaterTypeToString(Global::WATER_TYPE_TAP));
     QCOMPARE(Settings->GetRemoteCare(),  Global::ONOFFSTATE_ON);
     QCOMPARE(Settings->GetDirectConnection(), Global::ONOFFSTATE_OFF);
     QCOMPARE(Settings->GetProxyUserName(), QString("Colorado"));
-    QCOMPARE(Settings->GetProxyPassword(), QString("Colorado@1234"));
-    QCOMPARE(Settings->GetProxyIPAddress(), QString("123.234.121.111"));
-    QCOMPARE(Settings->GetProxyIPPort(), 8080);
-
+    QCOMPARE(Settings->GetProxyPassword(), QString("Colorado"));
+    QCOMPARE(Settings->GetProxyIPAddress(), QString("123.145.046.60"));
+    QCOMPARE(Settings->GetProxyIPPort(), 1234);
 
     // remove dummy file again
     QFile::remove(FilesPathWrite + "UserSettings_Test.xml");
-}
 
-void TestUserSettings::utTestWriteReadUserSettingsVerifier() {
+}
+/****************************************************************************/
+void TestUserSettings::utTestWriteReadUserSettingsInterfaceSepia() {
 
     CUserSettingsInterface SettingsInterface;
-    IVerifierInterface *p_UserSettingsVerifier;
-    p_UserSettingsVerifier = new CUserSettingsVerifier();
-    SettingsInterface.AddVerifier(p_UserSettingsVerifier);
+    QString FilesPathWrite;
 
-    QCOMPARE(SettingsInterface.Read(RESOURCE_FILENAME), true);
-    // make the data verification mode to false, so that whenever it reads a file then
-    // it won't verify the details again and again.
-    //SettingsInterface.SetDataVerificationMode(false);
+    // store the application path to write the test files
+    FilesPathWrite = QCoreApplication::applicationDirPath() + "/";
 
-    CUserSettings *Settings = SettingsInterface.GetUserSettings();
+    //QCOMPARE(SettingsInterface.Read(RESOURCE_FILENAME), true);
 
-    //********************* Language ********************
-    // change to all supported languages and verify it
-    Settings->SetLanguage(QLocale::English);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::German);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::French);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Italian);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Spanish);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Portuguese);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Dutch);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Swedish);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Norwegian);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Danish);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Polish);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Czech);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetLanguage(QLocale::Russian);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
+    SettingsInterface.SetDataVerificationMode(false);
+    QCOMPARE(SettingsInterface.Read(":/Xml/SepiaUserSettings.xml"), true);
+    SettingsInterface.SetDataVerificationMode(true);
 
-    // change the language which is not supported by the application
-    Settings->SetLanguage(QLocale::Hindi);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetLanguage(QLocale::Arabic);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetLanguage(QLocale::Telugu);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetLanguage(QLocale::Kannada);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetLanguage(QLocale::Korean);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetLanguage(QLocale::Chinese);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
+    CUserSettings *Settings = new CUserSettings();
     Settings = SettingsInterface.GetUserSettings();
+    CUserSettings SettingsTemp;
+    SettingsTemp = *Settings;
 
-    //********************* Date format ********************
-    // change to all supported date formats and verify it
-    Settings->SetDateFormat(Global::DATE_INTERNATIONAL);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetDateFormat(Global::DATE_ISO);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
+    // check all the values
+
+    //QCOMPARE(Settings->GetDateFormat(), Global::DATE_US);
+    QCOMPARE(Settings->GetTimeFormat(), Global::TIME_24);
+    QCOMPARE(Settings->GetTemperatureFormat(), Global::TEMP_FORMAT_FAHRENHEIT);
+    QCOMPARE(Settings->GetSoundNumberError(), 3);
+    QCOMPARE(Settings->GetSoundNumberWarning(), 1);
+    QCOMPARE(Settings->GetSoundLevelError(), 5);
+    QCOMPARE(Settings->GetSoundLevelWarning(), 3);
+    QCOMPARE(Settings->GetRemoteCare(),  Global::ONOFFSTATE_ON);
+    QCOMPARE(Settings->GetDirectConnection(), Global::ONOFFSTATE_OFF);
+    QCOMPARE(Settings->GetProxyUserName(), QString("Colorado"));
+    QCOMPARE(Settings->GetProxyPassword(), QString("Colorado"));
+    //QCOMPARE(Settings->GetProxyIPAddress(), QString("012.126.123.123"));
+    QCOMPARE(Settings->GetProxyIPPort(), 1234);
+
+    // write the settings in to a file
+    SettingsInterface.Write(FilesPathWrite + "SepiaUserSettings_Test.xml");
+
+    // change all the settings again
     Settings->SetDateFormat(Global::DATE_US);
-
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the date format which is not supported by the application
-    Settings->SetDateFormat(Global::DATE_UNDEFINED);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetDateFormat((Global::DateFormat)5);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Time format ********************
-    // change to all supported time formats and verify it
-    Settings->SetTimeFormat(Global::TIME_12);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetTimeFormat(Global::TIME_24);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the time format which is not supported by the application
-    Settings->SetTimeFormat(Global::TIME_UNDEFINED);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetTimeFormat((Global::TimeFormat)10);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Temperature format ********************
-    // change to all supported temperature formats and verify it
-    Settings->SetTemperatureFormat(Global::TEMP_FORMAT_CELSIUS);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetTemperatureFormat(Global::TEMP_FORMAT_FAHRENHEIT);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the temperature format which is not supported by the application
-    Settings->SetTemperatureFormat(Global::TEMP_FORMAT_UNDEFINED);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetTemperatureFormat((Global::TemperatureFormat)8);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Sound Error Number ********************
-    // checking the boundry values
-    Settings->SetSoundNumberError(6);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundNumberError(1);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundNumberError(3);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetSoundNumberError(0);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundNumberError(7);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundNumberError(25);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundNumberError(-7);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Sound Error Level ********************
-    // checking the boundry values
-    Settings->SetSoundLevelError(9);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundLevelError(2);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundLevelError(5);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetSoundLevelError(1);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundLevelError(10);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundLevelError(15);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundLevelError(0);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Sound Warning Number ********************
-    // checking the boundry values
-    Settings->SetSoundNumberWarning(6);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundNumberWarning(1);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundNumberWarning(3);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetSoundNumberWarning(0);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundNumberWarning(7);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundNumberWarning(25);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundNumberWarning(-7);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Sound Warning Level ********************
-    // checking the boundry values
-    Settings->SetSoundLevelWarning(9);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundLevelWarning(2);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetSoundLevelWarning(5);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetSoundLevelWarning(1);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundLevelWarning(10);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundLevelWarning(15);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetSoundLevelWarning(0);    
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Agitation Speed ********************
-    // checking the boundry values
-    Settings->SetValue("Agitation_Speed", 5);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Agitation_Speed", 0);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Agitation_Speed", 3);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetValue("Agitation_Speed", -1);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Agitation_Speed", 6);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Agitation_Speed", 10);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Agitation_Speed", -5);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Oven start mode ********************
-    // change to all supported oven start modes and verify it
-    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_AFTER_STARTUP));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_BEFORE_PROGRAM));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the oven start mode which is not supported by the application
-    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_UNDEFINED));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString((Global::OvenStartMode)8));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Oven temperature ********************
-    // checking the boundry values
-    Settings->SetValue("Oven_Temp", 70);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Oven_Temp", 40);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Oven_Temp", 60);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetValue("Oven_Temp", 71);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Oven_Temp", 39);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Oven_Temp", 25);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Oven_Temp", 90);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    // temperature values increases by the step of 5
-    Settings->SetValue("Oven_Temp", 66);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Oven_Temp", 59);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* RMS State ********************
-    // change to all supported RMS states and verify it
-    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_OFF));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_ON));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the RMS states which is not supported by the application
-    Settings->SetValue("RMS_State", Global::OnOffStateToString(Global::ONOFFSTATE_UNDEFINED));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("RMS_State", Global::OnOffStateToString((Global::OnOffState)4));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Leica Agitation Speed ********************
-    // checking the boundry values
-    Settings->SetValue("Leica_AgitationSpeed", 5);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Leica_AgitationSpeed", 0);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Leica_AgitationSpeed", 3);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetValue("Leica_AgitationSpeed", -1);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_AgitationSpeed", 6);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_AgitationSpeed", 10);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_AgitationSpeed", -5);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Leica Oven temperature ********************
-    // checking the boundry values
-    Settings->SetValue("Leica_OvenTemp", 70);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Leica_OvenTemp", 40);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Leica_OvenTemp", 60);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    // checking the outside the boundry values
-    Settings->SetValue("Leica_OvenTemp", 71);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_OvenTemp", 39);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_OvenTemp", 25);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_OvenTemp", 90);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    // temperature values increases by the step of 5
-    Settings->SetValue("Leica_OvenTemp", 66);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Leica_OvenTemp", 59);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    //********************* Water type ********************
-    // change to all supported water types and verify it
-    Settings->SetValue("Water_Type", Global::WaterTypeToString(Global::WATER_TYPE_DISTILLED));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Water_Type", Global::WaterTypeToString(Global::WATER_TYPE_TAP));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the water types which is not supported by the application
-    Settings->SetValue("Water_Type", Global::WaterTypeToString((Global::WaterType)-1));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Water_Type", Global::WaterTypeToString((Global::WaterType)4));
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-    // check the Loader reagent IDs
-    Settings->SetValue("Loader_Reagent1", "");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Loader_Reagent1", "R89");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent1", "S1");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent1", "L45");
-
-    Settings->SetValue("Loader_Reagent2", "");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Loader_Reagent2", "R89");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent2", "S1");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent2", "U45");
-
-    Settings->SetValue("Loader_Reagent3", "");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Loader_Reagent3", "R89");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent3", "S1");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent3", "U12");
-
-    Settings->SetValue("Loader_Reagent4", "");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Loader_Reagent4", "R89");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent4", "S1");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent4", "L98");
-
-    Settings->SetValue("Loader_Reagent5", "");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetValue("Loader_Reagent5", "R89");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent5", "S1");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetValue("Loader_Reagent5", "L12");
-
-    //********************* Network Settings ********************
-    // change to all supported RemoteCare states and verify it
-    Settings->SetRemoteCare(Global::ONOFFSTATE_ON);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
+    Settings->SetLanguage(QLocale::English);
+    Settings->SetSoundLevelError(6);
+    Settings->SetSoundLevelWarning(7);
+    Settings->SetSoundNumberError(8);
+    Settings->SetSoundNumberWarning(9);
+    Settings->SetTimeFormat(Global::TIME_24);
     Settings->SetRemoteCare(Global::ONOFFSTATE_OFF);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the RemoteCare states which is not supported by the application
-    Settings->SetRemoteCare(Global::ONOFFSTATE_UNDEFINED);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    // change to all supported DirectConnection states and verify it
     Settings->SetDirectConnection(Global::ONOFFSTATE_ON);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetDirectConnection(Global::ONOFFSTATE_OFF);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-
-    // change the DirectConnection states which is not supported by the application
-    Settings->SetDirectConnection(Global::ONOFFSTATE_UNDEFINED);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
-
-    // check Proxy UserName.
     Settings->SetProxyUserName("Colorado_Sepia");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyUserName("");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyUserName("Colorado_Sepia1234");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
+    Settings->SetProxyPassword("Sepia@1234");
+    Settings->SetProxyIPAddress("113.134.199.001");
+    Settings->SetProxyIPPort(2380);
 
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
+    // now test settings
+    QCOMPARE(Settings->GetDateFormat(),          Global::DATE_US);
+    QCOMPARE(Settings->GetLanguage(),            QLocale::English);
+    QCOMPARE(Settings->GetSoundLevelError(),     6);
+    QCOMPARE(Settings->GetSoundLevelWarning(),   7);
+    QCOMPARE(Settings->GetSoundNumberError(),    8);
+    QCOMPARE(Settings->GetSoundNumberWarning(),  9);
+    QCOMPARE(Settings->GetTimeFormat(),          Global::TIME_24);
+    QCOMPARE(Settings->GetRemoteCare(),  Global::ONOFFSTATE_OFF);
+    QCOMPARE(Settings->GetDirectConnection(), Global::ONOFFSTATE_ON);
+    QCOMPARE(Settings->GetProxyUserName(), QString("Colorado_Sepia"));
+    QCOMPARE(Settings->GetProxyPassword(), QString("Sepia@1234"));
+    QCOMPARE(Settings->GetProxyIPAddress(), QString("113.134.199.001"));
+    QCOMPARE(Settings->GetProxyIPPort(), 2380);
+    QCOMPARE(Settings->GetNumberOfCorrectionModules(), 2);
+    QCOMPARE(Settings->GetValueListCount(), 0);
+
+    // now read settings from the file
+    SettingsInterface.Read(FilesPathWrite + "UserSettings_Test.xml");
+
     Settings = SettingsInterface.GetUserSettings();
 
-    // check Proxy Password.
-    Settings->SetProxyPassword("Colorado");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyPassword("");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyPassword("Col");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyPassword("Colorado_Sepia123421");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
+    // remove dummy file again
+    QFile::remove(FilesPathWrite + "UserSettings_Test.xml");
 
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
 
-    // check Proxy IP Address
-    Settings->SetProxyIPAddress("123.121.111.011");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyIPAddress("256.121.111.011");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyIPAddress("123.256.111.011");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyIPAddress("123.255.256.011");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyIPAddress("123.254.111.256");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
-    Settings->SetProxyIPAddress("123.256.111.011.123");
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
 
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
+}
 
-    // check Proxy IP Port number
-    Settings->SetProxyIPPort(001);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyIPPort(65535);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), true);
-    Settings->SetProxyIPPort(65536);
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
+/****************************************************************************/
+void TestUserSettings::utTestCmdUserSettings()
+{
+    // Command AlarmTestTone
+    MsgClasses::CmdAlarmToneTest *p_CmdAlarmToneTest = new MsgClasses::CmdAlarmToneTest();
+    p_CmdAlarmToneTest->NAME = "MsgClasses::CmdAlarmToneTest";
 
-    // data is modified, so reload the file from the resource
-    SettingsInterface.Read(RESOURCE_FILENAME);
-    Settings = SettingsInterface.GetUserSettings();
+    QCOMPARE(p_CmdAlarmToneTest->GetName(), QString(tr("MsgClasses::CmdAlarmToneTest")));
 
-    // checking some random scenarios
 
-    Settings->SetValue("Agitation_Speed", 500);
-    Settings->SetValue("Leica_AgitationSpeed", 250);
-    Settings->SetDateFormat(Global::DATE_UNDEFINED);
-    Settings->SetLanguage(QLocale::Japanese);
-    Settings->SetValue("Oven_StartMode", Global::OvenStartModeToString(Global::OVENSTART_UNDEFINED));
-    Settings->SetValue("Oven_Temp", 500);
-    Settings->SetValue("Leica_OvenTemp", 500);
-    Settings->SetValue("RMS_State", Global::OnOffStateToString((Global::ONOFFSTATE_UNDEFINED)));
-    Settings->SetSoundLevelError(98);
-    Settings->SetSoundLevelWarning(78);
-    Settings->SetSoundNumberError(98);
-    Settings->SetSoundNumberWarning(75);
-    Settings->SetTimeFormat(Global::TIME_UNDEFINED);
-    Settings->SetRemoteCare(Global::ONOFFSTATE_UNDEFINED);
-    Settings->SetDirectConnection(Global::ONOFFSTATE_UNDEFINED);
-    Settings->SetProxyUserName("      ");
-    Settings->SetProxyPassword("");
-    Settings->SetProxyIPAddress("123.234.121.111.122");
-    Settings->SetProxyIPPort(6556);
-    SettingsInterface.UpdateUserSettings(Settings);
-    // update the user settings in the wrapper class
-    QCOMPARE(SettingsInterface.UpdateUserSettings(Settings), false);
+    MsgClasses::CmdAlarmToneTest *p_CmdAlarmToneTestParam = new MsgClasses::CmdAlarmToneTest(1000,(quint32)3,(quint32)4,true);
+    QCOMPARE(p_CmdAlarmToneTestParam->GetName(), QString(tr("MsgClasses::CmdAlarmToneTest")));
+    delete p_CmdAlarmToneTestParam;
+    delete p_CmdAlarmToneTest;
+
+    //Command ChangeUserSettins
+    MsgClasses::CmdChangeUserSettings *p_CmdChangeUserSettings = new MsgClasses::CmdChangeUserSettings();
+    p_CmdChangeUserSettings->NAME = "MsgClasses::CmdChangeUserSettings";
+
+    QCOMPARE(p_CmdChangeUserSettings->GetName(), QString(tr("MsgClasses::CmdChangeUserSettings")));
+
+    delete p_CmdChangeUserSettings;
+
+
+    //Command CmdWaterStationUpdate
+    MsgClasses::CmdWaterStationUpdate *p_CmdWaterStationUpdate = new MsgClasses::CmdWaterStationUpdate();
+    p_CmdWaterStationUpdate->NAME = "MsgClasses::CmdWaterStationUpdate";
+
+    QCOMPARE(p_CmdWaterStationUpdate->GetName(), QString(tr("MsgClasses::CmdWaterStationUpdate")));
+
+    MsgClasses::CmdWaterStationUpdate *p_CmdSetWaterStationsParam = new MsgClasses::CmdWaterStationUpdate(1000,"Id",false);
+    QCOMPARE(p_CmdSetWaterStationsParam->GetName(), QString(tr("MsgClasses::CmdWaterStationUpdate")));
+    delete p_CmdSetWaterStationsParam;
+    delete p_CmdWaterStationUpdate;
+
+
 }
 
 } // end namespace DataManagement

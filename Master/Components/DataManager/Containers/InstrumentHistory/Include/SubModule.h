@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file SubModule.h
+/*! \file DataManager/Containers/InstrumentHistory/Include/SubModule.h
  *
  *  \brief Definition file for class CSubSystem.
  *  This class provides functions to read SybSystem and Parameter information
@@ -31,15 +31,17 @@
 #include <QHash>
 #include <QDebug>
 
+//lint -e429
+
 namespace DataManager
 {
 
 //!< Structure for Parameter list of Subsystem.
 typedef struct {
-    QString ParameterName;
-    QString ParameterUnit;
-    QString ParameterValue;
-} Parameter_t;
+    QString ParameterName;  //!< name of the Parameter for Module
+    QString ParameterUnit;  //!< unit of the Parameter for Module
+    QString ParameterValue; //!< Parameter value for Module
+} Parameter_t;  //!< structure variable or Parameter
 
 class CSubModule;
 
@@ -66,21 +68,22 @@ class CSubModule
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
     friend class CModule;
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CSubModule&  SubModule);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CSubModule& SubModule);
+    friend QDataStream& operator <<(QDataStream& OutDataStream, const CSubModule&  SubModuleInfo);
+    friend QDataStream& operator >>(QDataStream& InDataStream, CSubModule& SubModuleInfo);
 
 public:
     CSubModule();
     CSubModule(QString);
     CSubModule(QString, QString, QString);
-    CSubModule(const CSubModule&);
+    CSubModule(const CSubModule&);  //!< Copy Constructor
+    void CopyFromOther(const CSubModule &SubModuleInfo);
     ~CSubModule();
-    CSubModule& operator=(const CSubModule&);
+    CSubModule& operator=(const CSubModule&);   //!< Assignment Operator Overloading
 
     /****************************************************************************/
     /*!
      *  \brief  To set SubModule Name
-     *  \iparam Value = Name to set
+     *  \iparam value = Name to set
      */
     /****************************************************************************/
     void SetSubModuleName(const QString value) { m_SubModuleName = value; }
@@ -96,7 +99,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To set SubModule Type
-     *  \iparam Value = Type to set
+     *  \iparam value = Type to set
      */
     /****************************************************************************/
     void SetSubModuleType(const QString value) { m_SubModuleType = value; }
@@ -112,7 +115,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To set SubModule description
-     *  \iparam Value = description
+     *  \iparam value = description
      */
     /****************************************************************************/
     void SetSubModuleDescription(const QString value) { m_SubModuleDescription = value; }
@@ -128,7 +131,9 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To set SubModule's Parameter Info
-     *  \iparam Value = Name, unit and value of Parameter
+     *  \iparam name = Name of Parameter
+     *  \iparam unit = Unit of Parameter
+     *  \iparam value = value of Parameter
      */
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString unit, const QString value)
@@ -141,12 +146,14 @@ public:
 
         m_ParameterNames.append(StructParameter->ParameterName);
         m_ListOfParameters.insert(StructParameter->ParameterName, StructParameter);
-    }           
+
+    }
 
     /****************************************************************************/
     /*!
      *  \brief  To set SubModule's Parameter Info
-     *  \iparam Value = Name and value of Parameter
+     *  \iparam name = Name of Parameter
+     *  \iparam value = value of Parameter
      */
     /****************************************************************************/
     void AddParameterInfo(const QString name, const QString value)
@@ -159,12 +166,14 @@ public:
 
         m_ParameterNames.append(StructParameter->ParameterName);
         m_ListOfParameters.insert(StructParameter->ParameterName, StructParameter);
+
     }
 
     /****************************************************************************/
     /*!
      *  \brief  To update SubModule's Parameter Info
-     *  \iparam Value = Name and value of Parameter
+     *  \iparam ParameterName = Name of Parameter
+     *  \iparam ParameterValue = Value of Parameter
      *  \return true if update is successful, false if unsuccessful
      */
     /****************************************************************************/
@@ -187,7 +196,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief Returns the Parameter Information
-     *  \iparam Value = Name Parameter
+     *  \iparam ParameterName = Name Parameter
      *  \return Parameter Struct
      */
     /****************************************************************************/
@@ -212,7 +221,8 @@ public:
         QString ParameterName = m_ParameterNames.at(Index);
         if (m_ListOfParameters.contains(ParameterName))
         {
-            return m_ListOfParameters.value(ParameterName);
+            Parameter_t *Param = m_ListOfParameters.value(ParameterName);
+            return Param;
         }
         return NULL;
     }
@@ -228,10 +238,9 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Deletes all the Parameters in the list
-     *  \return true - delete success , false - delete failure
      */
     /****************************************************************************/
-    bool DeleteAllParameters();
+    void DeleteAllParameters();
 
 };
 

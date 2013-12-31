@@ -37,18 +37,18 @@ CommandChannel::CommandChannel(BaseThreadController *pParent, QString name, Glob
 }
 
 /****************************************************************************/
-void CommandChannel::EmitCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd) {
+void CommandChannel::EmitCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd) const {
     // check if our signal is connected
     if(receivers(SIGNAL(CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &))) > 0)
     {
-        qDebug() << "CommandChannel::EmitCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName << "receivers" << receivers(SIGNAL(CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &)));
+//        qDebug() << "CommandChannel::EmitCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName << "receivers" << receivers(SIGNAL(CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &)));
         // signal connected.
         emit CommandChannelTx(Ref, Cmd);
     }
     else
     {
         // signal is not connected. Send error.
-        LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED, Global::FmtArgs() << Cmd.GetPointerToUserData()->GetName() << this->m_channelName);
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED, Global::FmtArgs() << Cmd.GetPointerToUserData()->GetName() << this->m_channelName)
 //                  "CommandChannel::CommandChannelTx(Global::tRefType, const Global::CommandShPtr_t &))");
     }
 }
@@ -56,7 +56,7 @@ void CommandChannel::EmitCommand(Global::tRefType Ref, const Global::CommandShPt
 /****************************************************************************/
 void CommandChannel::EmitAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack)
 {
-    qDebug() << "CommandChannel::EmitAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName() << "Channel" << m_channelName;
+//    qDebug() << "CommandChannel::EmitAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName() << "Channel" << m_channelName;
     // check if our signal is connected
     if(receivers(SIGNAL(CommandChannelRxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &))) > 0) {
         // signal connected.
@@ -65,7 +65,7 @@ void CommandChannel::EmitAcknowledge(Global::tRefType Ref, const Global::Acknowl
     } else {
         qDebug() << "CommandChannel::EmitAcknowledge, Signal not connected" << Ref;
         // signal is not connected. Send error.
-        LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED, Global::FmtArgs() << Ack.GetPointerToUserData()->GetName() << this->m_channelName);
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED, Global::FmtArgs() << Ack.GetPointerToUserData()->GetName() << this->m_channelName)
 //                  "CommandChannel::CommandChannelRxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &))");
     }
 }
@@ -73,14 +73,13 @@ void CommandChannel::EmitAcknowledge(Global::tRefType Ref, const Global::Acknowl
 /****************************************************************************/
 void CommandChannel::CommandChannelRx(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd) {
     try  {
-        qDebug() << "CommandChannel::CommandChannelRx" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName;
+//        qDebug() << "CommandChannel::CommandChannelRx" << Ref << Cmd.GetPointerToUserData()->GetName() << "channel" << m_channelName;
 
         CHECKPTR(m_pBaseThreadController);
         // execute command
         m_pBaseThreadController->OnExecuteCommand(Ref, Cmd, *this);
-    } catch (...) {
-        /// \todo JB: log error, but how?!? Then allow exception throwing in OnExecuteCommand
     }
+    CATCHALL();
 }
 
 /****************************************************************************/
@@ -92,9 +91,8 @@ void CommandChannel::CommandChannelTxAck(Global::tRefType Ref, const Global::Ack
         CHECKPTR(m_pBaseThreadController);
         // acknowledge received
         m_pBaseThreadController->OnProcessAcknowledge(Ref, Ack);
-    } catch (...) {
-        /// \todo JB: log error, but how?!? Then allow exception throwing in OnProcessAcknowledge
     }
+    CATCHALL();
 }
 
 } // end namespace Threads

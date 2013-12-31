@@ -160,8 +160,8 @@ void CDateTime::RefreshDateTime(Global::TimeFormat TimeFormat)
         }
         else {
             QPixmap Pixmap = (i < 12) ? 
-                            QPixmap(QString(":/%1/Digits/Digit_AM.png").arg(Application::CLeicaStyle::GetProjectNameString())) :
-                            QPixmap(QString(":/%1/Digits/Digit_PM.png").arg(Application::CLeicaStyle::GetProjectNameString())) ;
+                            QPixmap(QString(":/%1/Digits/Digit_AM.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())) :
+                            QPixmap(QString(":/%1/Digits/Digit_PM.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())) ;
             qint32 Hour = (i % 12 == 0) ? 12 : i % 12;
             mp_HourWheel->AddItem(QString("%1").arg(Hour, 2, 10, QChar('0')), i, Pixmap);
         }

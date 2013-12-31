@@ -9,5 +9,5 @@ TARGET = utTestDayLogFileInformation
 SOURCES += TestDayLogFileInformation.cpp
 
 
-UseLibs(DataLogging Global)
+UseLibs(DataLogging EventHandler Global)
 

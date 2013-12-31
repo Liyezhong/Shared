@@ -22,6 +22,8 @@
 
 #include <ExternalProcessController/Include/ConfigLoader.h>
 #include <Global/Include/SystemPaths.h>
+#include <Global/Include/Utils.h>
+#include <ExternalProcessController/Include/ExternalProcessControlEventCodes.h>
 
 namespace ExternalProcessControl {
 
@@ -59,6 +61,9 @@ ConfigLoaderErrorType_t ConfigLoader::ReadSettings(QString *startCommand, QStrin
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_CONFIG_ERROR_OPEN_FILE,
+                                                   Global::tTranslatableStringList() << m_ProcessName
+                                                   << fileName);
         return CLD_CANNOT_OPEN_CONFIG_FILE;
     }
 

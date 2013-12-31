@@ -20,6 +20,7 @@
 
 #include <NetworkComponents/Include/MasterLinkController.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
 
 namespace NetworkBase {
 
@@ -27,8 +28,9 @@ namespace NetworkBase {
 /*!
  *  \brief    Constructor
  *
- *  \param    ip = server's ip
- *  \param    port = server's port
+ *  \iparam    ip = server's ip
+ *  \iparam    port = server's port
+ *  \iparam    clientType
  *
  ****************************************************************************/
 MasterLinkController::MasterLinkController(const QString &ip, const QString &port, const NetworkBase::NetworkClientType_t clientType) :
@@ -52,9 +54,7 @@ MasterLinkController::~MasterLinkController()
             m_myNetClient = NULL;
         }
     }
-    catch (...) {
-        // to pLease Lint.
-    }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -70,14 +70,13 @@ bool MasterLinkController::Initialize()
         // parent shall be NULL if NetworkClientDevice need to run in a diferent thread!
         m_myNetClient = new NetworkBase::NetworkClientDevice(m_clientType, m_IP, m_Port, "", NULL);
     }
-    catch  (const std::bad_alloc &) {
-        qDebug() << "MasterLinkController: Cannot create MasterClient !\n";
-        return false;
-    }
+    CATCHALL_RETURN(false)
 
     if (!m_myNetClient->InitializeDevice()) {
         qDebug() << "MasterLinkController: Cannot initialize MasterClient !\n";
         m_myNetClient->deleteLater();
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_INIT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << FILE_LINE);
         return false;
     }
 
@@ -86,18 +85,24 @@ bool MasterLinkController::Initialize()
     // the Network Layer will start as soon as thread emits "started" signal
     if(!QObject::connect(&m_NetworkThread, SIGNAL(started()), m_myNetClient, SLOT(StartDevice()))) {
         qDebug() << "MasterLinkController: cannot connect LinkDevice's StartDevice slot !\n";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "started");
         return false;
     }
     // Signal which delivers an incoming from Master message
     if (!QObject::connect(m_myNetClient, SIGNAL(ForwardMessageToUpperLayer(const QString &, const QByteArray &)),
                           this, SLOT(ForwardMsgToRecipient(const QString &, const QByteArray &)))) {
         qDebug() << "MasterLinkController: Cannot connect ACK signal-slot pair !\n";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "ForwardMessageToUpperLayer");
         return false;
     }
     // Signal which sends message to Master
     if (!QObject::connect(this, SIGNAL(SigSendMessageToMaster(const QString &, const QByteArray &, Global::tRefType)),
                           m_myNetClient, SLOT(SendOutgoingCommand(const QString &, const QByteArray &, Global::tRefType)))) {
         qDebug() << "MasterLinkController: Cannot connect message sending signal-slot pair !\n";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "SigSendMessageToMaster");
         return false;
     }
 
@@ -105,18 +110,31 @@ bool MasterLinkController::Initialize()
     // Signal/slot for DateAndTime reporting
     if (!connect(m_myNetClient, SIGNAL(SigDateAndTime(QDateTime)), this, SIGNAL(SigDateAndTime(QDateTime)))) {
         qDebug() << "MasterLinkController: cannot connect 'DateAndTime' signal";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "SigDateAndTime");
         return false;
     }
     // Signal indicating a valid connection to Master
     if (!QObject::connect(m_myNetClient, SIGNAL(SigPeerConnected(const QString &)),
                           this, SIGNAL(SigMasterConnected(const QString &)))) {
         qDebug() << "MasterLinkController: Cannot connect LinkDevice's ConnectedToMaster signal !\n";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "SigPeerConnected");
         return false;
     }
     // Signal indicating a disconnection from Master
     if (!QObject::connect(m_myNetClient, SIGNAL(SigPeerDisconnected(const QString &)),
                           this, SIGNAL(SigMasterDisconnected(const QString &)))) {
         qDebug() << "MasterLinkController: Cannot connect LinkDevice's DisconnectedFromMaster signal !\n";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "SigPeerDisconnected");
+        return false;
+    }
+    // Signal for forwarding stuff from Master
+    if (!QObject::connect(m_myNetClient, SIGNAL(StartConnectionLostTimer()),
+                          this, SIGNAL(StartConnectionLostTimer()))) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << m_IP << "StartConnectionLostTimer");
         return false;
     }
 
@@ -151,15 +169,16 @@ void MasterLinkController::Stop()
 {
     // stop the network thread
     m_NetworkThread.quit();
+    m_NetworkThread.wait();
 }
 
 /****************************************************************************/
 /*!
  *  \brief    This function forwards message to the NetLayer
  *
- *  \param[in]     msgname = name of the message
- *  \param[in]     bArr = payload
- *  \param[in]     Ref = application command reference for tracking
+ *  \iparam     msgname = name of the message
+ *  \iparam     bArr = payload
+ *  \iparam     Ref = application command reference for tracking
  *
  *  \return   true if message forwarded successfully, false otherwise
  *
@@ -171,6 +190,7 @@ bool MasterLinkController::SendMessageToMaster(const QString &msgname, const QBy
     // check signal connection
     if (receivers(SIGNAL(SigSendMessageToMaster(const QString &, const QByteArray &, Global::tRefType))) == 0) {
         qDebug() << "MasterLinkController: message emitting signal is not connected !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLC_SIGNAL_NOT_CONNECTED, Global::tTranslatableStringList() << m_IP);
         return false;
     }
 
@@ -182,13 +202,13 @@ bool MasterLinkController::SendMessageToMaster(const QString &msgname, const QBy
 /*!
  *  \brief    \todo comment and implement
  *
- *  \param[in]     msgname = name of the message
- *  \param[in]     barray = payload
+ *  \iparam     msgname = name of the message
+ *  \iparam     barray = payload
  */
 /****************************************************************************/
 void MasterLinkController::ForwardMsgToRecipient(const QString &msgname, const QByteArray &barray)
 {
-    DEBUGWHEREAMI;
+//    DEBUGWHEREAMI;
     emit SigForwardMsgToRecipient(msgname, barray);
 }
 

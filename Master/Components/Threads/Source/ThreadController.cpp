@@ -22,13 +22,16 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <QDebug>
 
+#include <unistd.h>
+
+
 namespace Threads {
 
 static const CommandExecuteFunctorShPtr_t          NullCommandExecuteFunctor(NULL);        ///< NULL functor for command execution.
 
 /****************************************************************************/
-ThreadController::ThreadController(Global::gSourceType TheHeartBeatSource, QString name) :
-    BaseThreadController(TheHeartBeatSource),
+ThreadController::ThreadController(quint32 ThreadID, QString name) :
+    BaseThreadController(ThreadID, name),
     m_CommandChannel(this, name)
 {
     qDebug() << "xxxxxx ThreadController::ThreadController" << name;
@@ -61,7 +64,7 @@ void ThreadController::ConnectToOtherCommandChannel(CommandChannel *pCommandChan
 void ThreadController::CmdDataChangedReceived(Global::tRefType /*Ref*/, const Global::CmdDataChanged &Cmd) {
     // check if command has timeout
     if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
-        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
+        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName())
     }
     // process command
     DispatchDataChangedCommand(Cmd);
@@ -72,10 +75,10 @@ void ThreadController::CmdDataChangedReceived(Global::tRefType /*Ref*/, const Gl
 void ThreadController::CmdPowerFailReceived(Global::tRefType /*Ref*/, const Global::CmdPowerFail &Cmd) {
     // check if command has timeout
     if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
-        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
+        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName())
     }
     // process command
-    OnPowerFail();
+    OnPowerFail(Cmd.m_PowerFailStage);
     // no acknowledge for CmdPowerFailReceived required
 }
 
@@ -94,7 +97,14 @@ void ThreadController::DoSendDataChanged(const Global::CommandShPtr_t &Cmd) {
 void ThreadController::SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd)
 {
     // send command using own command channel
-    qDebug() << "++++ Threads::ThreadController::SendCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "Channel" << m_CommandChannel.m_channelName << "Timeout" << Cmd.GetPointerToUserData()->GetTimeout() << "Thread" << this->thread();
+    qDebug() << "Threads::ThreadController::SendCommand, Time=" << Global::AdjustedTime::Instance().GetCurrentDateTime().toString()
+             << ", Ref=" << Ref
+             << ", Command=" << Cmd.GetPointerToUserData()->GetName()
+             << ", Channel=" << m_CommandChannel.m_channelName
+             << ", Timeout=" << Cmd.GetPointerToUserData()->GetTimeout()
+             << ", Thread=" << this->thread();
+
+
 
     DoSendCommand(Ref, Cmd, m_CommandChannel);
     // return computed Ref
@@ -105,6 +115,8 @@ void ThreadController::SendAcknowledge(Global::tRefType Ref, const Global::Ackno
 {
 //    qDebug() << "ThreadController::SendAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName() << "channel" << m_CommandChannel.m_channelName;
     // send command using own command channel
+    //Global::EventObject::Instance().LogThreadId(this->m_CommandChannel.m_channelName , syscall(SYS_gettid));
+
     DoSendAcknowledge(Ref, Ack, m_CommandChannel);
 }
 
@@ -113,7 +125,7 @@ void ThreadController::RegisterCommandExecuteFunctor(const QString &CommandName,
 {
     // check if already registered
     if(m_CommandExecuteFunctors.contains(CommandName)) {
-        LOGANDTHROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName)
     }
 
     qDebug() << "ThreadController::RegisterCommandExecuteFunctor" << CommandName;
@@ -152,30 +164,29 @@ void ThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::Comm
         if (IsCommandAllowed(Cmd))
         {
             // get command pointer
-            if(Cmd.IsNull()) {
-                LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
-            }
+            CHECKPTR(Cmd.GetPointerToUserData());
+
 //            SEND_DEBUG(WHEREAMI + " " +
 //                       QString("Ref = ") + QString::number(Ref, 10) +
 //                       QString("Name = ") + Cmd->GetName());
             // OK, now get functor and execute
             CommandExecuteFunctorShPtr_t Functor = GetCommandExecuteFunctor(Cmd->GetName());
             if(Functor == NullCommandExecuteFunctor) {
-                // throw exception
-                LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName());
                 qDebug()<<"ThreadController" << Cmd->GetName();
+                // throw exception
+                LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName())                
             }
             // execute
             Functor.GetPointerToUserData()->Execute(Ref, Cmd.GetPointerToUserData());
         }
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
-    } catch(...) {
-        // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
     }
+    CATCHALL();
+}
+
+/****************************************************************************/
+void ThreadController::SendAcknowledgeOKNOK(Global::tRefType Ref, bool status) {
+    // create acknowledge and send
+    SendAcknowledge(Ref, Global::AcknowledgeShPtr_t(new Global::AckOKNOK(status)));
 }
 
 /****************************************************************************/

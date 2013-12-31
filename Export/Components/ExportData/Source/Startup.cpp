@@ -33,7 +33,7 @@ namespace Export {
  *  \brief Constructor
  */
 /****************************************************************************/
-CStartup::CStartup() : QObject()
+CStartup::CStartup()
 {
 
 }

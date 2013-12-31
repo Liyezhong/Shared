@@ -24,6 +24,7 @@
 #include <NetworkComponents/Include/ProtocolRxCommands/Ack.h>
 #include <NetworkComponents/Include/ProtocolRxCommands/HeartBeatClient.h>
 #include <NetworkComponents/Include/ProtocolRxCommands/HeartBeatServer.h>
+#include <NetworkComponents/Include/ProtocolRxCommands/SetDateAndTime.h>
 #include <NetworkComponents/Include/NetworkServerDevice.h>
 
 namespace NetworkBase {

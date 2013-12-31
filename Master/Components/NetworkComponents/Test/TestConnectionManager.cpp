@@ -80,7 +80,7 @@ void TestConnectionManager::cleanup()
 void TestConnectionManager::initTestCase()
 {
     // initialize settings path:
-    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/Master/Components/Main/Build/Settings");
+    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Colorado/Master/Components/Main/Build/Settings");
 
     // make a list of some available connections (Name + Version):
     m_myConnections.insert((QString)"Client-1", (QString)"1.0");

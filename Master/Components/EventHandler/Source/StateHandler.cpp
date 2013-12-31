@@ -21,19 +21,18 @@
 #include <EventHandler/Include/StateHandler.h>
 #include "Global/Include/Commands/CmdEventUpdate.h"
 #include <EventHandler/Include/EventHandlerEventCodes.h>
-
 #include <QAbstractTransition>
-
+#include <QReadLocker>
+#include <QWriteLocker>
 
 namespace EventHandler {
 
-StateHandler StateHandler::m_StateHandlerInstance; //!< The instance
 
 /****************************************************************************/
 StateHandler::StateHandler()
     : m_SimulationOn(false)
     , m_swInitFailed(false)
-    , m_Lock(QMutex::Recursive)
+    , m_powerFailStage(Global::POWER_FAIL_NONE)
 {
     mp_DefaultState = new QState();
     mp_DefaultState->setObjectName("DefaultState");
@@ -83,6 +82,7 @@ StateHandler::StateHandler()
 
     connect(mp_SoftSwitchMonitorState, SIGNAL(entered()), this, SLOT(onSoftSwitchMonitorStateEntered()));
     connect(mp_InitState, SIGNAL(entered()), this, SLOT(onInitStateEntered()));
+    connect(mp_InitState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
     connect(mp_idleState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
     connect(mp_busyState, SIGNAL(entered()), this, SLOT(onOperationStateChanged()));
     connect(mp_errorState, SIGNAL(entered()), this, SLOT(onAvailabilityStateChanged()));
@@ -99,7 +99,6 @@ StateHandler::~StateHandler()
 
 bool StateHandler::isAllowed(Global::CommandShPtr_t command)
 {
-    QMutexLocker Lock(&m_Lock);
     bool retVal = true;
 
     foreach (QAbstractState* state, m_operationMachine.configuration())
@@ -120,7 +119,6 @@ bool StateHandler::isAllowed(Global::CommandShPtr_t command)
 
 QString StateHandler::getCurrentOperationState()
 {
-    QMutexLocker Lock(&m_Lock);
     if (!m_operationMachine.configuration().empty())
     {
         QAbstractState *state = m_operationMachine.configuration().toList().at(0);
@@ -131,7 +129,6 @@ QString StateHandler::getCurrentOperationState()
 
 QString StateHandler::getCurrentAvailabilityState()
 {
-    QMutexLocker Lock(&m_Lock);
     if (!m_availabilityMachine.configuration().empty())
     {
         QAbstractState *state = m_availabilityMachine.configuration().toList().at(0);
@@ -142,7 +139,6 @@ QString StateHandler::getCurrentAvailabilityState()
 
 void StateHandler::setActivityUpdate(bool active, quint32 activityId)
 {
-    QMutexLocker Lock(&m_Lock);
     if (active)
     {
         m_rackList.append(activityId);
@@ -160,7 +156,6 @@ void StateHandler::setActivityUpdate(bool active, quint32 activityId)
 
 void StateHandler::setInitState()
 {
-    QMutexLocker Lock(&m_Lock);
     if (getCurrentOperationState() == "SoftSwitchMonitorState") {
         emit softSwitchPressed();
     }
@@ -169,7 +164,6 @@ void StateHandler::setInitState()
 
 void StateHandler::setIdleState()
 {
-    QMutexLocker Lock(&m_Lock);
     if (getCurrentOperationState() == "InitState") {
         emit initComplete();
     }
@@ -177,15 +171,24 @@ void StateHandler::setIdleState()
 
 quint8 StateHandler::getInitStageProgress()
 {
-    QMutexLocker Lock(&m_Lock);
     return m_initStage.count();
 }
 
-void StateHandler::setInitStageProgress(quint8 stage, bool success)
+void StateHandler::setInitStageProgress(quint8 stage, bool success, bool restricted)
 {
-    QMutexLocker Lock(&m_Lock);
     if (success)
     {
+        // do we have restrictions limiting the later usage of the instrument ?
+        if (restricted) {
+            m_stageRestrictions.insert(stage, restricted);
+        }
+
+        if (restricted) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_INIT_RESTRICTED_STAGE_SUCCESS, Global::FmtArgs() << stage);
+        }
+        else {
+            Global::EventObject::Instance().RaiseEvent(EVENT_INIT_STAGE_SUCCESS, Global::FmtArgs() << stage);
+        }
         if (getCurrentOperationState() != "InitState") {
             emit enterInitState();
         }
@@ -193,26 +196,33 @@ void StateHandler::setInitStageProgress(quint8 stage, bool success)
             m_initStage.insert(stage, success);
             if (m_initStage.count() == 3)
             {
+                if ((m_stageRestrictions.value(1, false)) || (m_stageRestrictions.value(2, false)) || (m_stageRestrictions.value(3, false))) {
+                    Global::EventObject::Instance().RaiseEvent(EVENT_INIT_RESTRICTED_SUCCESS);
+                }
+                else {
+                    Global::EventObject::Instance().RaiseEvent(EVENT_INIT_SUCCESS);
+                }
                 m_initStage.clear();
-                Global::EventObject::Instance().RaiseEvent(EVENT_INIT_SUCCESS);
+                m_stageRestrictions.clear();
                 setIdleState();
             }
         }
     }
     else
     {
+        Global::EventObject::Instance().RaiseEvent(EVENT_INIT_STAGE_FAILURE, Global::FmtArgs() << stage);
         if (stage == 1) {
             m_swInitFailed = true;
         }
         m_initStage.remove(stage);
         setAvailability(true, EVENT_INIT_FAILED);
+        SetInitializationFailed();
     }
 }
 
 
 void StateHandler::setStateToSoftSwitchMonitorState()
 {
-    QMutexLocker Lock(&m_Lock);
     if (getCurrentOperationState() == "DefaultState") {
         emit softSwitchMonitorStart();
     }
@@ -220,7 +230,6 @@ void StateHandler::setStateToSoftSwitchMonitorState()
 
 void StateHandler::setAvailability(bool active, quint32 eventId)
 {
-    QMutexLocker Lock(&m_Lock);
     if (active)
     {
         m_errorList.append(eventId);
@@ -243,79 +252,29 @@ void StateHandler::setAvailability(bool active, quint32 eventId)
 
 void StateHandler::onAvailabilityStateChanged()
 {
-    QMutexLocker Lock(&m_Lock);
     QString state = getCurrentAvailabilityState();
     emit stateChanged(state);
 }
 
 void StateHandler::onOperationStateChanged()
 {
-    QMutexLocker Lock(&m_Lock);
     QString state = getCurrentOperationState();
     emit stateChanged(state);
 }
 
 void StateHandler::onInitStateEntered()
 {
-    QMutexLocker Lock(&m_Lock);
     emit enteredInitState();
 }
 
 void StateHandler::onSoftSwitchMonitorStateEntered()
 {
-    QMutexLocker Lock(&m_Lock);
     emit enteredSoftSwitchMonitorState();
 }
 
 void StateHandler::SetInitializationFailed()
 {
-    QMutexLocker Lock(&m_Lock);
     emit initFailed();
 }
 
-//void StateHandler::onNormalState()
-//{
-//    DeviceCommandProcessor::CmdExecutionStateChanged *p_CmdExecutionState = new DeviceCommandProcessor::CmdExecutionStateChanged(DeviceControl::DEVICE_INSTANCE_ID_GRAPPLER_1);
-//    p_CmdExecutionState->m_Stop = false;
-////    p_CmdExecutionState->m_eventId = Cmd.m_eventId;
-//    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_CmdExecutionState));
-
-//    NetCommands::CmdExecutionStateChanged *p_CmdExecutionStateGUI = new NetCommands::CmdExecutionStateChanged(1000);
-//    p_CmdExecutionStateGUI->m_Stop = false;
-//    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_CmdExecutionStateGUI));
-//}
-
-//void StateHandler::onErrorState()
-//{
-//    DeviceCommandProcessor::CmdExecutionStateChanged *p_CmdExecutionState = new DeviceCommandProcessor::CmdExecutionStateChanged(DeviceControl::DEVICE_INSTANCE_ID_GRAPPLER_1);
-//    p_CmdExecutionState->m_Stop = true;
-////    p_CmdExecutionState->m_eventId = Cmd.m_eventId;
-//    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_CmdExecutionState));
-
-//    NetCommands::CmdExecutionStateChanged *p_CmdExecutionStateGUI = new NetCommands::CmdExecutionStateChanged(1000);
-//    p_CmdExecutionStateGUI->m_Stop = true;
-//    SendCommand(GetNewCommandRef(), Global::CommandShPtr_t(p_CmdExecutionStateGUI));
-//}
-
-//HimalayaStartupState::HimalayaStartupState(HimalayaThreadController *threadController)
-//    : QState()
-//    , m_threadController(threadController)
-//{
-
-//}
-
-//void HimalayaStartupState::onEntry(QEvent* event)
-//{
-//    // doing reference runs
-
-//    qDebug() << "HimalayaStartupState::onEntry" << this->objectName();
-////    emit SIGNAL(stateChanged());
-//}
-
-//void HimalayaStartupState::onExit(QEvent* event)
-//{
-//    qDebug() << "HimalayaState::onExit" << this->objectName();
-////    emit SIGNAL(stateChanged());
-//}
-
-} // end namespace Himalaya
+} // end namespace Colorado

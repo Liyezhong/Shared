@@ -37,9 +37,9 @@ CPanelFrame::CPanelFrame(QWidget *p_Parent) : QWidget(p_Parent), mp_FrameUi(new 
 {
     mp_FrameUi->setupUi(this);
     m_IsDialog = false;
-    Application::ProjectId_t eProjId = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetProjectId();
+    Application::DeviceType_t eDeviceID = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetCurrentDeviceType();
 
-    if(eProjId == Application::SEPIA_PROJECT) {
+    if(eDeviceID == Application::DEVICE_SEPIA) {
         mp_FrameUi->verticalLayout->setContentsMargins(10, 10, 10, 10);
         mp_FrameUi->panelTitle->setMinimumHeight(36);
     }
@@ -167,24 +167,24 @@ void CPanelFrame::paintEvent(QPaintEvent *)
     Target.fill(Qt::transparent);
 
     if (m_IsDialog == false) {
-        Source = QPixmap(QString(":/%1/Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        Source = QPixmap(QString(":/%1/Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
     }
     else {
-        Source = QPixmap(QString(":/%1/Popup/Popup.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        Source = QPixmap(QString(":/%1/Popup/Popup.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
     }
 
-    switch(Application::CLeicaStyle::GetProjectId()) {
-        case Application::COLORADO_PROJECT:
+    switch(Application::CLeicaStyle::GetCurrentDeviceType()) {
+        case Application::DEVICE_COLORADO:
         {
            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
         }
         break;
-        case Application::SEPIA_PROJECT:
+        case Application::DEVICE_SEPIA:
         {
             Application::CLeicaStyle::BorderPixmap(&Target, &Source, 29, 46, 29, 29);
         }
         break;
-        case Application::HIMALAYA_PROJECT:
+        case Application::DEVICE_HIMALAYA:
         {
             Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
         }

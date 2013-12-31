@@ -90,6 +90,9 @@ public:
                            Global::tTranslatableStringList msgRdArgs,
                            bool isResolved = false)
     {
+        Q_UNUSED(msgArgs)
+        Q_UNUSED(msgRdArgs)
+        Q_UNUSED(isResolved)
         quint32 ErrorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventCode,Scenario);
 
         quint64 EventCodeScenario = EventCode;
@@ -97,7 +100,7 @@ public:
         EventCodeScenario |=Scenario;
         if(ErrorCode)
         {
-            Global::EventObject::Instance().RaiseEvent(ErrorCode, msgArgs, isResolved,Global::NOT_APPLICABLE, msgRdArgs,EventCodeScenario);
+//            Global::EventObject::Instance().RaiseEvent(ErrorCode, msgArgs, isResolved,Global::NOT_APPLICABLE, msgRdArgs,EventCodeScenario);
         }
     }
 
@@ -110,20 +113,23 @@ public:
     /****************************************************************************/
     inline void RaiseEvent(quint32 EventCode, quint32 Scenario, quint32 EventKey, bool isResolved)
     {
+        Q_UNUSED(EventKey)
+        Q_UNUSED(isResolved)
         quint32 ErrorCode = EventHandler::CrisisEventHandler::Instance().findErrorCode(EventCode,Scenario);
+        Q_UNUSED(ErrorCode)
         quint64 EventCodeScenario = EventCode;
         EventCodeScenario <<= 32;
         EventCodeScenario |=Scenario;
 
-        if(ErrorCode)
-        {
-            Global::EventObject::Instance().RaiseEvent(ErrorCode,
-                                                       Global::tTranslatableStringList(),
-                                                       isResolved,EventKey,
-                                                       Global::NOT_APPLICABLE,
-                                                       Global::tTranslatableStringList(),
-                                                       EventCodeScenario);
-        }
+//        if(ErrorCode)
+//        {
+//            Global::EventObject::Instance().RaiseEvent(ErrorCode,
+//                                                       Global::tTranslatableStringList(),
+//                                                       isResolved,EventKey,
+//                                                       Global::NOT_APPLICABLE,
+//                                                       Global::tTranslatableStringList(),
+//                                                       EventCodeScenario);
+//        }
     }
 
     /****************************************************************************/

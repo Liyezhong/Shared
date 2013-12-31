@@ -1,12 +1,12 @@
 /****************************************************************************/
-/*! \file CmdDataExport.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Commands/Source/CmdDataExport.cpp
  *
  *  \brief CmdDataExport command implementation.
  *         This command class is used for the data export (Service or user export)
  *
  *   $Version: $ 0.1
  *   $Date:    $ 18.03.2010
- *   $Author:  $ Y.Novak
+ *   $Author:  $ Y.Novak, Ramya GJ
  *
  *  \b Company:
  *
@@ -38,6 +38,9 @@ CmdDataExport::CmdDataExport(int Timeout, const QDataStream &DataStream) :
     Command(Timeout)
 {
     m_ExportByteArray = static_cast< QBuffer *>(DataStream.device())->data();
+//    setIdleStateAllowed(true);
+//    setErrorStateAllowed(true);
+    setBusyStateAllowed(false);
 }
 
 /****************************************************************************/

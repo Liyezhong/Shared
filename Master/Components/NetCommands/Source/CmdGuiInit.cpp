@@ -29,8 +29,8 @@ QString CmdGuiInit::NAME = "NetCommands::CmdGuiInit";
 /*!
  *  \brief   Constructor for sending
  *
- * \param[in]   Timeout                 Timeout for command.
- * \param[in]   EventStringsDataStream   Datastream of Event Strings Data.
+ * \iparam   Timeout                 Timeout for command.
+ * \iparam   InitStatus              Status of GuiInit.True if GUI Init complete
  */
 /****************************************************************************/
 CmdGuiInit::CmdGuiInit(int Timeout, const bool InitStatus) :

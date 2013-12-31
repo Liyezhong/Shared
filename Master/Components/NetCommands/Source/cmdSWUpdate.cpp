@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CmdSWUpdate.cpp
+/*! \file cmdSWUpdate.cpp
  *
  *  \brief CmdSWUpdate command implementation.
  *
@@ -29,8 +29,8 @@ QString CmdSWUpdate::NAME = "NetCommands::CmdSWUpdate";
 /*!
  *  \brief   Constructor for sending
  *
- * \param[in]   Timeout        Timeout for command.
- * \param[in]   USBUpdate      true-Update SW from USB else from Remote care
+ * \iparam   Timeout        Timeout for command.
+ * \iparam   USBUpdate      true-Update SW from USB else from Remote care
  *
  */
 /****************************************************************************/

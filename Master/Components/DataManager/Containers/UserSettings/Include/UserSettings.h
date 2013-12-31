@@ -5,7 +5,7 @@
  *
  *  $Version:   $ 0.2
  *  $Date:      $ 2012-04-23
- *  $Author:    $ Raju123
+ *  $Author:    $ Raju123, Ramya GJ
  *
  *  \b Company:
  *
@@ -34,9 +34,21 @@
 #include "DataManager/Helper/Include/Helper.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
+//lint -sem(AddCorrectionModuleInfo,custodial(1))
 
 namespace DataManager {
 
+//!< Structure for Correction Module list.
+typedef struct {
+    QString ModuleId;  //!< name of the Module for Correction
+    QString ModuleLength40; //!< Module value for Correction
+    QString ModuleLength50; //!< Module value for Correction
+    QString ModuleLength55; //!< Module value for Correction
+    QString ModuleLength60; //!< Module value for Correction
+} CorrectionModule_t;  //!< structure variable or Module
+class CUserSettings;
+typedef QList<QString> ListOfModuleNames_t;       //!< QList of ModuleNames.
+typedef QHash<QString, CorrectionModule_t> ListOfCorrectionModules_t;    //!< QHash for List of Modules.
 /****************************************************************************/
 /**
  * \brief Class for reading / writing XML based configuration file for user settings.
@@ -56,22 +68,18 @@ private:
     int                         m_SoundLevelError;      ///< Sound level for errors.
     int                         m_SoundNumberWarning;   ///< Sound number for warnings.
     int                         m_SoundLevelWarning;    ///< Sound level for warnings.
-    ErrorHash_t                 m_ErrorHash;            //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+    ErrorMap_t                  m_ErrorMap;             //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
     Global::OnOffState          m_RemoteCare;           ///< True(On) if RemoteCare software is used else False(Off).
     Global::OnOffState          m_DirectConnection;     ///< True(On) if the device is directly connected esle False(Off).
     QString                     m_ProxyUserName;        ///< ProxyUserName
     QString                     m_ProxyPassword;        ///< ProxyPassword
     QString                     m_ProxyIPAddress;       ///< ProxyIPAddress
     int                         m_ProxyIPPort;          ///< ProxyIPPort
-    QHash<QString, QString>     m_ValueList;            ///< User Settings Hash
+    QMap<QString, QString>      m_ValueList; //!< User Settings Map
     /****************************************************************************/
 
-    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
-
-    bool ReadSoundSettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadLocalization(QXmlStreamReader& XmlStreamReader);
-    bool ReadNetworkSettings(QXmlStreamReader& XmlStreamReader);
+    virtual bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
+    virtual bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
     /****************************************************************************/
     /*!
@@ -82,25 +90,32 @@ private:
     /****************************************************************************/
     void SetVersion(int Value)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_Version = Value;
     }
 
 protected:
+    bool ReadSoundSettings(QXmlStreamReader& XmlStreamReader);
+    bool ReadLocalization(QXmlStreamReader& XmlStreamReader);
+    bool ReadNetworkSettings(QXmlStreamReader& XmlStreamReader);
+    bool ReadCorrectionSettings(QXmlStreamReader& XmlStreamReader);
 public:
 
     CUserSettings();
     CUserSettings(const CUserSettings &);
+    void CopyFromOther(const CUserSettings &UserSettings);
 
-    virtual ~CUserSettings();
+    ~CUserSettings();
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettings& UserSettings);
     friend QDataStream& operator >>(QDataStream& InDataStream, CUserSettings& UserSettings);
     CUserSettings & operator = (const CUserSettings &);
+    ListOfCorrectionModules_t             m_ListOfCorrectionModules;      //!< Module Information in QHash
+    ListOfModuleNames_t m_ModuleNames;    //!< List of Module Name;
 
     void SetDefaultAttributes();
 
-    ErrorHash_t &GetErrors();
+    ErrorMap_t &GetErrors();
+    QMap<QString ,QString> GetValueList() const;
 
 
     /****************************************************************************/
@@ -112,9 +127,8 @@ public:
     /****************************************************************************/
     int GetVersion() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_Version;
-    }    
+    }
 
     /****************************************************************************/
     /*!
@@ -125,7 +139,6 @@ public:
     /****************************************************************************/
     QLocale::Language GetLanguage() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_Language;
     }
 
@@ -138,7 +151,6 @@ public:
     /****************************************************************************/
     void SetLanguage(QLocale::Language TheLanguage)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_Language = TheLanguage;
     }
 
@@ -151,7 +163,6 @@ public:
     /****************************************************************************/
     Global::DateFormat GetDateFormat() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_DateFormat;
     }
 
@@ -164,7 +175,6 @@ public:
     /****************************************************************************/
     void SetDateFormat(Global::DateFormat TheDateFormat)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_DateFormat = TheDateFormat;
     }
 
@@ -177,7 +187,6 @@ public:
     /****************************************************************************/
     Global::TimeFormat GetTimeFormat() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_TimeFormat;
     }
 
@@ -190,7 +199,6 @@ public:
     /****************************************************************************/
     void SetTimeFormat(Global::TimeFormat TheTimeFormat)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_TimeFormat = TheTimeFormat;
     }
 
@@ -203,7 +211,6 @@ public:
     /****************************************************************************/
     Global::TemperatureFormat GetTemperatureFormat() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_TemperatureFormat;
     }
 
@@ -216,7 +223,6 @@ public:
     /****************************************************************************/
     void SetTemperatureFormat(Global::TemperatureFormat TheFormat)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_TemperatureFormat = TheFormat;
     }
 
@@ -229,7 +235,6 @@ public:
     /****************************************************************************/
     int GetSoundNumberError() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_SoundNumberError;
     }
 
@@ -242,7 +247,6 @@ public:
     /****************************************************************************/
     void SetSoundNumberError(int SoundNumberError)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_SoundNumberError = SoundNumberError;
     }
 
@@ -255,7 +259,6 @@ public:
     /****************************************************************************/
     int GetSoundNumberWarning() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_SoundNumberWarning;
     }
 
@@ -268,7 +271,6 @@ public:
     /****************************************************************************/
     void SetSoundNumberWarning(int SoundNumberWarning)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_SoundNumberWarning = SoundNumberWarning;
     }
 
@@ -281,7 +283,6 @@ public:
     /****************************************************************************/
     int GetSoundLevelError() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_SoundLevelError;
     }
 
@@ -294,7 +295,6 @@ public:
     /****************************************************************************/
     void SetSoundLevelError(int SoundLevel)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_SoundLevelError = SoundLevel;
     }
 
@@ -307,7 +307,6 @@ public:
     /****************************************************************************/
     int GetSoundLevelWarning() const
     {
-        //QReadLocker locker(mp_ReadWriteLock);
         return m_SoundLevelWarning;
     }
 
@@ -320,7 +319,6 @@ public:
     /****************************************************************************/
     void SetSoundLevelWarning(int SoundLevel)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_SoundLevelWarning = SoundLevel;
     }
 
@@ -365,7 +363,6 @@ public:
     /****************************************************************************/
     Global::OnOffState GetRemoteCare() const
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         return m_RemoteCare;
     }
 
@@ -379,7 +376,6 @@ public:
     /****************************************************************************/
     void SetRemoteCare(Global::OnOffState RemoteCareOnOffState)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_RemoteCare = RemoteCareOnOffState;
     }
 
@@ -390,9 +386,8 @@ public:
      *  \return DirectConnection value.
      */
     /****************************************************************************/
-     Global::OnOffState GetDirectConnection() const
+    Global::OnOffState GetDirectConnection() const
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         return m_DirectConnection;
     }
     /****************************************************************************/
@@ -404,7 +399,6 @@ public:
     /****************************************************************************/
     void SetDirectConnection( Global::OnOffState DeviceConnected)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_DirectConnection = DeviceConnected;
     }
 
@@ -417,7 +411,6 @@ public:
     /****************************************************************************/
     QString GetProxyUserName() const
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyUserName;
     }
 
@@ -430,7 +423,6 @@ public:
     /****************************************************************************/
     void SetProxyUserName(QString ProxyUserName)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_ProxyUserName = ProxyUserName;
     }
 
@@ -443,7 +435,6 @@ public:
     /****************************************************************************/
     QString GetProxyPassword() const
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyPassword;
     }
 
@@ -456,7 +447,6 @@ public:
     /****************************************************************************/
     void SetProxyPassword(QString ProxyPassword)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_ProxyPassword = ProxyPassword;
     }
 
@@ -469,7 +459,6 @@ public:
     /****************************************************************************/
     QString GetProxyIPAddress() const
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyIPAddress;
     }
 
@@ -482,7 +471,6 @@ public:
     /****************************************************************************/
     void SetProxyIPAddress(QString ProxyIPAddress)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_ProxyIPAddress = ProxyIPAddress;
     }
 
@@ -495,7 +483,6 @@ public:
     /****************************************************************************/
     int GetProxyIPPort() const
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         return m_ProxyIPPort;
     }
 
@@ -508,9 +495,111 @@ public:
     /****************************************************************************/
     void SetProxyIPPort(int ProxyIPPort)
     {
-        //QWriteLocker locker(mp_ReadWriteLock);
         m_ProxyIPPort = ProxyIPPort;
     }
+    /****************************************************************************/
+    /*!
+     *  \brief  To set Corrections's Module Info
+     *  \iparam Id
+     *  \iparam Length40
+     *  \iparam Length50
+     *  \iparam Length55
+     *  \iparam Length60
+     */
+    /****************************************************************************/
+    void AddCorrectionModuleInfo(const QString Id, const QString Length40, const QString Length50, const QString Length55, const QString Length60)
+    {
+        CorrectionModule_t StructModule;
+
+        StructModule.ModuleId = Id;
+        StructModule.ModuleLength40 = Length40;
+        StructModule.ModuleLength50 = Length50;
+        StructModule.ModuleLength55 = Length55;
+        StructModule.ModuleLength60 = Length60;
+
+        m_ModuleNames.append(StructModule.ModuleId);
+        m_ListOfCorrectionModules.insert(StructModule.ModuleId, StructModule);
+    }
+
+
+    /****************************************************************************/
+    /*!
+     *  \brief  To Update Corrections's Module Info
+     *  \iparam Id
+     *  \iparam Correction
+     *
+     * \return Result
+     */
+    /****************************************************************************/
+    bool UpdateCorrcetionModuleInfo(const QString Id, const CorrectionModule_t &Correction)
+    {
+
+        if (m_ListOfCorrectionModules.contains(Id)) {
+
+            m_ListOfCorrectionModules.remove(Id);
+            m_ListOfCorrectionModules.insert(Id, Correction);
+            return true;
+        }
+        return false;
+    }
+    /****************************************************************************/
+    /*!
+     *  \brief Returns the Module Information
+     *  \iparam ModuleId
+     *  \iparam Mod
+     *  \return Module Struct
+     */
+    /****************************************************************************/
+    bool GetCorrectionModuleInfo(QString ModuleId, CorrectionModule_t &Mod) const
+    {
+        if (m_ListOfCorrectionModules.contains(ModuleId)) {
+            Mod = m_ListOfCorrectionModules.value(ModuleId);
+            return true;
+        }
+        return false;
+
+    }
+    /****************************************************************************/
+    /*!
+     *  \brief Returns the Module Information based on Index
+     *  \iparam Index
+     *  \iparam Module
+     *  \return Module Struct
+     */
+    /****************************************************************************/
+    bool GetCorrectionModuleInfo(const unsigned int Index,CorrectionModule_t &Module) const
+    {
+        QString ModuleId = m_ModuleNames.at(Index);
+        if (m_ListOfCorrectionModules.contains(ModuleId))
+        {
+            Module = m_ListOfCorrectionModules.value(ModuleId);
+            return true;
+        }
+        return false;
+
+    }
+    /****************************************************************************/
+    /*!
+     *  \brief Returns number of Modules in the list
+     *  \return number of Modules in the list
+     */
+    /****************************************************************************/
+    int GetNumberOfCorrectionModules() const { return m_ListOfCorrectionModules.count(); }
+    /****************************************************************************/
+    /*!
+     *  \brief Returns the count of value list
+     *  \return value list count
+     */
+    /****************************************************************************/
+    int GetValueListCount() const { return m_ValueList.count(); }
+    /****************************************************************************/
+    /*!
+     *  \brief  Deletes all the Correction module in the list
+     */
+    /****************************************************************************/
+    void DeleteAllCorrectionModules();
+
+
 }; // end class CUserSettings
 
 } // end namespace DataManager

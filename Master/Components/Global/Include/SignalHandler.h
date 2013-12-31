@@ -39,10 +39,38 @@ class SignalHandler : public QObject {
 public:
     SignalHandler();
 //    ~SignalHandler();
+    /****************************************************************************/
+    /**
+     * \brief initialization method.
+     */
+    /****************************************************************************/
     void init();
 
+    /****************************************************************************/
+    /**
+     * \brief handler for system crash
+     * \iparam  sig = signal received
+     */
+    /****************************************************************************/
     static void crashHandler(int sig);
-    static QStringList getBackTrace();
+
+    /****************************************************************************/
+    /**
+     * \brief gets back trace
+     * \iparam depth = number of backtrace function calls
+     * \return back trace string
+     */
+    /****************************************************************************/
+    static QStringList getBackTrace(int depth = 20);
+
+private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(SignalHandler)
 };
 
 }

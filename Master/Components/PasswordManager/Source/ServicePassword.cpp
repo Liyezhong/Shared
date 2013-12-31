@@ -27,6 +27,7 @@
 #include "DataManager/Helper/Include/Helper.h"
 #include "Global/Include/AdjustedTime.h"
 #include "Global/Include/EventObject.h"
+#include "Global/Include/Utils.h"
 #include "PasswordManager/Include/PasswordManagerEventCodes.h"
 
 
@@ -64,7 +65,7 @@ const QString XML_NODE_MOBILEID             = "mobileID"; ///< mobile ID node st
 const QString STRING_SPACE                  = " "; ///< constant string for space
 const QString STRING_NEWLINE                = "\n"; ///< constant string for new line
 
-const QString FILE_LBSACCESS                = "LBSaccess.key"; ///< service key file name
+const QString FILE_LBSACCESS                = "LBSaccess.xml"; ///< service key file name
 
 /****************************************************************************/
 CServicePassword::CServicePassword(const QString &PinValue, const QString &DeviceName):
@@ -72,87 +73,39 @@ CServicePassword::CServicePassword(const QString &PinValue, const QString &Devic
     m_DeviceName(DeviceName) {
 
     m_ServiceFileContent.clear();
+    m_Authentication = AUTHENTICATION_VALID;
 }
 
 /****************************************************************************/
-bool CServicePassword::SearchAndMountTheDevice() {    
-    // create the QProcess
-    QProcess ProcToMountUSB;
-    bool DevicesExists = false;
-    // set the working directory "/dev"
-    (void)ProcToMountUSB.setWorkingDirectory(DIRECTORY_DEV); //to avoid lint-534
+bool CServicePassword::ReadTheServiceKeyFile() {
 
-    QStringList Options;
-    // -c option for shell and ls is to search for the sda, sdb devices "ls sd*"
-    Options << COMMAND_ARGUMENT_C << COMMAND_LS + DIRECTORY_SD + WILDCHAR_ASTRIK;
-    // start the process with grep command  "/bin/sh"
-    ProcToMountUSB.start(DIRECTORY_SH, Options);
-    // check for the process finished
-    if (ProcToMountUSB.waitForFinished()) {
-        // store all the device names from the standard input
-        QString Devices(ProcToMountUSB.readAllStandardOutput());
-        if (Devices.length() > 0) {
-            DevicesExists = true;
-            if (Devices.split(STRING_NEWLINE).length() > 0) {
-                for (int DeviceCount = 0; DeviceCount < Devices.split(STRING_NEWLINE).length(); DeviceCount++) {
-                    if (ProcToMountUSB.waitForFinished()) {
-                        // mount one device at a time
-                        if (MountTheSpecificDevice(ProcToMountUSB, Devices.split(STRING_NEWLINE).value(DeviceCount))) {
-                            return true;
-                        }
-                    }
+    // check for the file existence in the mounted device.
+    qint32 MountedValue = Global::MountStorageDevice(FILE_LBSACCESS);
+
+    switch (MountedValue) {
+        default:
+            Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_NO_USB_DEVICE_EXISTS);
+            break;
+
+        case 3:
+            Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_KEY_FILE_NOT_FOUND);
+            break;
+
+        case 0:
+            QFile ServiceFile(Global::DIRECTORY_MNT_STORAGE + QDir::separator() + FILE_LBSACCESS);
+            if (ServiceFile.open(QIODevice::ReadOnly)) {
+                m_ServiceFileContent.clear();
+                while(!ServiceFile.atEnd()) {
+                    m_ServiceFileContent.append(ServiceFile.readLine().trimmed());
                 }
+                ServiceFile.close();
             }
-        }
+            // unmount the device once the task is done
+            Global::UnMountStorageDevice();
+            return true;
     }
-
-    if (!DevicesExists) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_NO_USB_DEVICE_EXISTS);
-    }
-    else {
-        Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_KEY_FILE_NOT_FOUND);
-    }
+    m_Authentication = NO_SERVICE_KEY_FILE;
     return false;
-}
-
-/****************************************************************************/
-bool CServicePassword::MountTheSpecificDevice(const QProcess &Process,
-                                                          QString DeviceName) {    
-    bool ReadTheFile = false;
-    QProcess& ProcToMount = const_cast<QProcess&>(Process);
-    // remove the const cast
-    // "mount /dev/sda /mnt"
-    QString CommandName = COMMAND_MOUNT + DIRECTORY_DEV + QDir::separator()
-            + DeviceName + STRING_SPACE
-            + DIRECTORY_MNT;
-    // merge the channels so that all the data on the stdout can be read easily
-    ProcToMount.setProcessChannelMode(QProcess::MergedChannels);
-    // mount the device
-    ProcToMount.start(CommandName);
-
-    if (ProcToMount.waitForFinished()) {
-        // save the data in temporay string
-        QString StdOutData(ProcToMount.readAllStandardOutput());
-        // if the mount is successful then standrad output will be empty string
-        if (StdOutData.length() == 0) {
-            if (QFile::exists(DIRECTORY_MNT + QDir::separator() + FILE_LBSACCESS)) {
-
-                QFile ServiceFile(DIRECTORY_MNT + QDir::separator() + FILE_LBSACCESS);
-                if (ServiceFile.open(QIODevice::ReadOnly)) {
-                    m_ServiceFileContent.clear();
-                    while(!ServiceFile.atEnd()) {
-                        m_ServiceFileContent.append(ServiceFile.readLine().trimmed());
-                    }
-                    ServiceFile.close();
-                    ReadTheFile = true;
-                }
-            }
-        }
-    }
-    // unmount the device - most of the times it unmounts the device  "umount /mnt"
-    ProcToMount.start(COMMAND_UNMOUNT + DIRECTORY_MNT);
-
-    return ReadTheFile;
 }
 
 /****************************************************************************/
@@ -199,6 +152,7 @@ bool CServicePassword::CompareTheCheckSum() {
             return true;
         }
     }
+    m_Authentication = CHECKSUM_NOT_MATCHING;
     Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_CHECKSUM_NOT_MATCHED);
     return false;
 }
@@ -210,7 +164,7 @@ bool CServicePassword::ReadDeviceNameTagsExistence() {
 
     bool InstrumentNode = false;
     bool DeviceNameExists = false;
-    bool LogDeviveNameExistence = false;
+    bool LogDeviceNameExistence = false;
 
     (void)ServiceStreamReader.readElementText(QXmlStreamReader::IncludeChildElements); //lint -e534
 
@@ -233,7 +187,7 @@ bool CServicePassword::ReadDeviceNameTagsExistence() {
                         // check the device name existence
                         if (ServiceStreamReader.readElementText().compare(m_DeviceName) == 0) {
                             DeviceNameExists = true;
-                            LogDeviveNameExistence = false;
+                            LogDeviceNameExistence = true;
                         }
                     }
                     if (DeviceNameExists) {
@@ -257,10 +211,12 @@ bool CServicePassword::ReadDeviceNameTagsExistence() {
         }
     }
 
-    if (LogDeviveNameExistence) {
+    if (!LogDeviceNameExistence) {
+        m_Authentication = NO_DEVICE_TAG;
         Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_DEVICENAME_NOT_EXISTS);
     }
     else {
+        m_Authentication = BASIC_TAG_NOT_MATCHING;
         Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_BASIC_TAG_VALUE_IS_WRONG);
     }
 
@@ -285,6 +241,7 @@ bool CServicePassword::CompareDate() {
             return true;
         }
     }
+    m_Authentication = DATE_EXPIRED;
     Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_DATE_IS_EXPIRED);
     return false;
 }
@@ -299,6 +256,7 @@ bool CServicePassword::CompareHash() {
             return true;
         }
     }
+    m_Authentication = HASH_NOT_MATCHING;
     Global::EventObject::Instance().RaiseEvent(EVENT_PASSWORDMANAGER_HASH_NOT_MATCHED);
     return false;
 }
@@ -319,18 +277,8 @@ QString CServicePassword::ReadServiceID() {
 /****************************************************************************/
 bool CServicePassword::ValidateAuthentication() {
 
-    QFile ServiceFile(DIRECTORY_MNT + QDir::separator() + FILE_LBSACCESS);
-
-    ServiceFile.open(QIODevice::ReadOnly);
-    m_ServiceFileContent.clear();
-    while(!ServiceFile.atEnd()) {
-        m_ServiceFileContent.append(ServiceFile.readLine().trimmed());
-    }
-    ServiceFile.close();
-    m_DeviceName = "ST8200";
-
     bool CheckSumMatched = false;
-    if (SearchAndMountTheDevice()) {
+    if (ReadTheServiceKeyFile()) {
         if (CompareHash()) {
             if (CompareTheCheckSum()) {
                 CheckSumMatched = true;
@@ -343,7 +291,7 @@ bool CServicePassword::ValidateAuthentication() {
             // log the service ID
             Global::EventObject::Instance().RaiseEvent
                     (EVENT_PASSWORDMANAGER_LOG_SERVICE_ID, Global::FmtArgs() << ReadServiceID(), true);
-
+            m_Authentication = AUTHENTICATION_VALID;
             return true;
         }
     }

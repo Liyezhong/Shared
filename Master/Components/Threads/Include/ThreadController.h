@@ -42,11 +42,16 @@ class ThreadController : public BaseThreadController {
     Q_OBJECT
 private:
     CommandExecuteFunctorHash_t     m_CommandExecuteFunctors;   ///< Functors of supported commands.
-    CommandChannel                  m_CommandChannel;           ///< Command channel.
+
     /****************************************************************************/
     ThreadController();                                             ///< Not implemented.
-    ThreadController(const ThreadController &);                     ///< Not implemented.
-    const ThreadController & operator = (const ThreadController &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ThreadController)
     /****************************************************************************/
     /**
      * \brief Data in some data container has changed.
@@ -55,8 +60,8 @@ private:
      * processing function.
      * Additional documentation in base class.
      *
-     * \param[in]   Ref     Command reference.
-     * \param[in]   Cmd     Command.
+     * \iparam   Ref     Command reference.
+     * \iparam   Cmd     Command.
      */
     /****************************************************************************/
     virtual void CmdDataChangedReceived(Global::tRefType Ref, const Global::CmdDataChanged &Cmd);
@@ -67,8 +72,8 @@ private:
      * The command is dispatched to the responsible processing function.
      * Additional documentation in base class.
      *
-     * \param[in]   Ref     Command reference.
-     * \param[in]   Cmd     Command.
+     * \iparam   Ref     Command reference.
+     * \iparam   Cmd     Command.
      */
     /****************************************************************************/
     virtual void CmdPowerFailReceived(Global::tRefType Ref, const Global::CmdPowerFail &Cmd);
@@ -78,18 +83,19 @@ private:
      *
      * The command will be send via \ref SendCommand.
      *
-     * \param[in]   Cmd     The command.
+     * \iparam   Cmd     The command.
      */
     /****************************************************************************/
     virtual void DoSendDataChanged(const Global::CommandShPtr_t &Cmd);
 protected:
+    CommandChannel                  m_CommandChannel;           ///< Command channel.
     /****************************************************************************/
     /**
      * \brief Send a command over its command channel.
      *
      *
-     * \param[in]   Cmd     The command.
-     * \param[in]   Ref     The command reference.
+     * \iparam   Cmd     The command.
+     * \iparam   Ref     The command reference.
      */
     /****************************************************************************/
     virtual void SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
@@ -97,8 +103,8 @@ protected:
     /**
      * \brief Send a acknowledge over its command channel.
      *
-     * \param[in]   Ref     Acknowledge reference.
-     * \param[in]   Ack     The acknowledge.
+     * \iparam   Ref     Acknowledge reference.
+     * \iparam   Ack     The acknowledge.
      */
     /****************************************************************************/
     virtual void SendAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack);
@@ -106,8 +112,8 @@ protected:
     /**
      * \brief Register a command execution functor.
      *
-     * \param[in]   CommandName     Name of command.
-     * \param[in]   Functor         Shared pointer of functor to register.
+     * \iparam   CommandName     Name of command.
+     * \iparam   Functor         Shared pointer of functor to register.
      */
     /****************************************************************************/
     void RegisterCommandExecuteFunctor(const QString &CommandName, const CommandExecuteFunctorShPtr_t &Functor);
@@ -118,7 +124,7 @@ protected:
      * Get command execute functor by name. If functor is not found
      * NullCommandExecuteFunctor will be returned.
      *
-     * \param[in]   CommandName     Name of command.
+     * \iparam   CommandName     Name of command.
      * \return                      The functor or NullCommandExecuteFunctor.
      */
     /****************************************************************************/
@@ -127,8 +133,8 @@ protected:
     /**
      * \brief Register a command for processing.
      *
-     * \param[in]   pCommandProcessor   Pointer to thread controller instance which processes the command.
-     * \param[in]   FunctionPointer     Function which processes the command.
+     * \iparam   pCommandProcessor   Pointer to thread controller instance which processes the command.
+     * \iparam   FunctionPointer     Function which processes the command.
      */
     /****************************************************************************/
     template<class CmdClass, class CommandProcessorClass>
@@ -148,20 +154,32 @@ protected:
      * \warning This method should be called only from within \ref CommandChannel::CommandChannelRx
      * \warning Do not let exceptions escape this method!
      *
-     * \param[in]       Ref                 The command reference.
-     * \param[in]       Cmd                 The command.
-     * \param[in, out]  AckCommandChannel   The command channel for acknowledges.
+     * \iparam       Ref                 The command reference.
+     * \iparam       Cmd                 The command.
+     * \iparam  AckCommandChannel   The command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel);
 public:
+
+    /****************************************************************************/
+    /**
+     * \brief Send a positive acknowledge over its command channel.
+     *
+     * \note Create a positive acknwoledge of type \ref Global::AckOKNOK and send it.
+     *
+     * \iparam   Ref     Acknowledge reference.
+     * \iparam   status  OK/NOK
+     */
+    /****************************************************************************/
+    void SendAcknowledgeOKNOK(Global::tRefType Ref, bool status);
     /****************************************************************************/
     /**
      * \brief Send a positive acknowledge over its command channel.
      *
      * Create a positive acknwoledge of type \ref Global::AckOKNOK and send it.
      *
-     * \param[in]   Ref     Acknowledge reference.
+     * \iparam   Ref     Acknowledge reference.
      */
     /****************************************************************************/
     void SendAcknowledgeOK(Global::tRefType Ref);
@@ -169,11 +187,11 @@ public:
     /**
      * \brief Send a negative acknowledge over its command channel.
      *
-     * Create a negative acknwoledge of type \ref Global::AckOKNOK and send it.
+     * \note Create a negative acknwoledge of type \ref Global::AckOKNOK and send it.
      *
-     * \param[in]   Ref     Acknowledge reference.
-     * \param[in]   Text        Text of message.
-     * \param[in]   Type        Type of message.
+     * \iparam   Ref     Acknowledge reference.
+     * \iparam   Text        Text of message.
+     * \iparam   Type        Type of message.
      */
     /****************************************************************************/
     void SendAcknowledgeNOK(Global::tRefType Ref, const QString &Text = "", Global::GUIMessageType Type = Global::GUIMSGTYPE_ERROR);
@@ -181,10 +199,11 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   TheHeartBeatSource    Source to set in log entry.
+     * \iparam   ThreadID   Thread Id
+     * \iparam   name
      */
     /****************************************************************************/
-    ThreadController(Global::gSourceType TheHeartBeatSource, QString name);
+    ThreadController(quint32 ThreadID, QString name);
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -197,7 +216,7 @@ public:
      *
      * Connect to another command channel.
      *
-     * \param[in]   pCommandChannel Command channel to connect to.
+     * \iparam   pCommandChannel Command channel to connect to.
      */
     /****************************************************************************/
     void ConnectToOtherCommandChannel(CommandChannel *pCommandChannel) const;

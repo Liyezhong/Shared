@@ -48,6 +48,13 @@ public slots:
     void TestConnectionError(NetworkBase::DisconnectType_t, const QString &);
     void TestDestroyConnection(NetworkBase::DisconnectType_t);
 
+    void utTestGetFreeConnectionNumber();
+    void utTestServerTypeStringLookup();     ///< Test N1
+    void utTestReferenceGeneration();        ///< Test N2
+    void utTestDisconnectSignal();           ///< Test N3
+    void utTestWorkFunctions();              ///< Test N4
+    void utTestBadInputHandling();           ///< Test N5
+
 private slots:
 
     void initTestCase();
@@ -57,11 +64,11 @@ private slots:
 
     /// \warning: Each test case builds on the output of the previous one.
     /// All tests shall be run exactly in the order as they are listed here:
-    void utTestServerTypeStringLookup();     ///< Test N1
-    void utTestReferenceGeneration();        ///< Test N2
-    void utTestDisconnectSignal();           ///< Test N3
-    void utTestWorkFunctions();              ///< Test N4
-    void utTestBadInputHandling();           ///< Test N5
+//    void utTestServerTypeStringLookup();     ///< Test N1
+//    void utTestReferenceGeneration();        ///< Test N2
+//    void utTestDisconnectSignal();           ///< Test N3
+//    void utTestWorkFunctions();              ///< Test N4
+//    void utTestBadInputHandling();           ///< Test N5
 
 private:
 

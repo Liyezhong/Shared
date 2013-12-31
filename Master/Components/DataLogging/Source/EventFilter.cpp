@@ -3,9 +3,13 @@
  *
  *  \brief Implementation file for class EventFilter.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *\b Description:
+ *      It must be send, if for a specified file name and line number, the
+ *      sending is allowed.
+ *
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *

@@ -44,7 +44,13 @@ class HeartBeatServer : public ProtocolRxCommand {
     friend class TestProtocolCommand;
 
 private:
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(HeartBeatServer)
     DECLARE_REG_CLASS(ProtocolRxCommand, HeartBeatServer);   ///< Declaration of static registration instance.
 
 public:

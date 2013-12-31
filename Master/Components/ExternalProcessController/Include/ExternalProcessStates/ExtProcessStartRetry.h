@@ -60,19 +60,17 @@ public:
     bool OnExit(StateMachines::StateEvent et);
 
 private:
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ExtProcessStartRetry)
     bool HandleEvent(StateMachines::StateEvent et);
-
-private slots:
-
-    void OnWindowTimerTimeout();
-
-private:
 
     /// pointer to the working object
     ExternalProcessController *m_myController;
-    /// timer for the restart window
-    QTimer m_myTimer;
 };
 
 } // end namespace ExternalProcessControl

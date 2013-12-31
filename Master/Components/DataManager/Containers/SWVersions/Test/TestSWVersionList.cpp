@@ -109,13 +109,13 @@ void TestSWVersionList::utTestSWDetails() {
     // set all the parameters
     SWDetails1.SetSWDate("2012-01-12");
     SWDetails1.SetSWVersion("MAIN_1.123");
-    SWDetails1.SetSWName("Himalaya");
+    SWDetails1.SetSWName("Colorado");
     SWDetails1.SetSWType(MASTERSOFTWARE);
 
     // compare the data
     QCOMPARE(SWDetails1.GetSWDate(), QString("2012-01-12"));
     QCOMPARE(SWDetails1.GetSWVersion(), QString("MAIN_1.123"));
-    QCOMPARE(SWDetails1.GetSWName(), QString("Himalaya"));
+    QCOMPARE(SWDetails1.GetSWName(), QString("Colorado"));
     QCOMPARE(SWDetails1.GetSWType(), (SWType_t) MASTERSOFTWARE);
 
     // check the copy constructor
@@ -147,27 +147,37 @@ void TestSWVersionList::utTestSWDetails() {
 
 /****************************************************************************/
 void TestSWVersionList::utTestSWVersionList() {
-    CSWVersionList VersionList;
+    CSWVersionList *VersionList= new CSWVersionList();
     QString FilesPathWrite;
 
     // store the application path to write the test files
     FilesPathWrite = QCoreApplication::applicationDirPath() + "/";
 
+    // get the container type
+    QCOMPARE(VersionList->GetDataContainerType(), SWVERSION);
+    // by default no file name will be available
+    QCOMPARE(VersionList->GetFilename(), QString(""));
+
     CSWDetails* SWDetails1 = new CSWDetails();
     // set all the parameters
     SWDetails1->SetSWDate("2012-01-12");
     SWDetails1->SetSWVersion("MAIN_1.123");
-    SWDetails1->SetSWName("Himalaya");
+    SWDetails1->SetSWName("Colorado");
     SWDetails1->SetSWType(MASTERSOFTWARE);
     // no verification is required
-    VersionList.SetDataVerificationMode(false);
+    VersionList->SetDataVerificationMode(false);
+
+    QCOMPARE(VersionList->GetDataVerificationMode(), false);
+
     // add sw details to the list
-    VersionList.AddSWDetails(SWDetails1);
-    QCOMPARE(VersionList.GetNumberOfSWDetails(), 1);
+    VersionList->AddSWDetails(SWDetails1);
+    QCOMPARE(VersionList->GetNumberOfSWDetails(), 1);
+    CSWVersionList VersionList4;
+    VersionList4 = *VersionList;
 
     // check the content of the data from the list
     CSWDetails SWDetails;
-    QCOMPARE(VersionList.GetSWDetails("Himalaya", SWDetails), true);
+    QCOMPARE(VersionList->GetSWDetails("Colorado", SWDetails), true);
     // compare the data with other class data
     QCOMPARE(SWDetails.GetSWDate(), SWDetails1->GetSWDate());
     QCOMPARE(SWDetails.GetSWVersion(), SWDetails1->GetSWVersion());
@@ -183,14 +193,14 @@ void TestSWVersionList::utTestSWVersionList() {
     SWDetails2->SetSWName("SABb.bin");
     SWDetails2->SetSWType(FIRMWARE);
     // write the test files
-    VersionList.Write(FilesPathWrite + "SW_Version_Test.xml");
+    VersionList->Write(FilesPathWrite + "SW_Version_Test.xml");
 
     // add to the list
-    VersionList.AddSWDetails(SWDetails2);
-    QCOMPARE(VersionList.GetNumberOfSWDetails(), 2);
-    QCOMPARE(VersionList.GetSWDetails("NEW", SWDetails), false);
+    VersionList->AddSWDetails(SWDetails2);
+    QCOMPARE(VersionList->GetNumberOfSWDetails(), 2);
+    QCOMPARE(VersionList->GetSWDetails("NEW", SWDetails), false);
 
-    QCOMPARE(VersionList.GetSWDetails("SABb.bin", SWDetails), true);
+    QCOMPARE(VersionList->GetSWDetails("SABb.bin", SWDetails), true);
 
     // compare the data with other class data
     QCOMPARE(SWDetails.GetSWDate(), SWDetails2->GetSWDate());
@@ -199,21 +209,39 @@ void TestSWVersionList::utTestSWVersionList() {
     QCOMPARE(SWDetails.GetSWType(), SWDetails2->GetSWType());
 
     // update the sw details
-    SWDetails2->SetSWVersion("SABB_4.558");
-    QCOMPARE(VersionList.UpdateSWDetails(SWDetails2), true);
-    QCOMPARE(VersionList.GetSWDetails("SABb.bin", SWDetails), true);
+    SWDetails2->SetSWVersion("SABB_1.123");
+    SWDetails2->SetSWName("SABb.xxx");
+    QCOMPARE(VersionList->UpdateSWDetails(SWDetails2), false);
+    QCOMPARE(VersionList->GetSWDetails("SABb.bin", SWDetails), true);
     QCOMPARE(SWDetails.GetSWVersion(), SWDetails2->GetSWVersion());
 
     // remove the sw details
-    VersionList.DeleteSWDetails(1);
-    QCOMPARE(VersionList.GetNumberOfSWDetails(), 1);
+    VersionList->DeleteSWDetails(1);
+    QCOMPARE(VersionList->GetNumberOfSWDetails(), 1);
 
-    QCOMPARE(VersionList.GetSWDetails("MAIN_1.123", SWDetails), false);
+    QCOMPARE(VersionList->GetSWDetails("MAIN_1.123", SWDetails), false);
+
+   // CSWVersionList *VersionList1= new CSWVersionList(*VersionList);
+    CSWVersionList *VersionList3 = new CSWVersionList();
+    VersionList3 = VersionList;
+    // create the datastream and check whether copying data is working or not
+    QByteArray* p_TempByteArray = new QByteArray();
+    QDataStream DataStream(p_TempByteArray, QIODevice::ReadWrite);
+    DataStream.setVersion(QDataStream::Qt_4_0);
+    p_TempByteArray->clear();
+    DataStream << *VersionList3;
+    DataStream.device()->reset();
+    DataStream >> *VersionList;
+    QCOMPARE(VersionList3->GetNumberOfSWDetails(), VersionList->GetNumberOfSWDetails());
+
+
+
 
     // delete the pointers
     delete SWDetails1;
     delete SWDetails2;
-    // remove th file
+
+    // remove the file
     QFile::remove(FilesPathWrite + "SW_Version_Test.xml");
 
 }
@@ -234,7 +262,7 @@ void TestSWVersionList::utTestSWVersionListVerifier() {
     // check the content of the data from the list
     CSWDetails SWDetails;
     QCOMPARE(VersionList.GetSWDetails("SABb.bin", SWDetails), true);
-    QCOMPARE(VersionList.GetSWDetails("Himalaya", SWDetails), true);
+    QCOMPARE(VersionList.GetSWDetails("Colorado", SWDetails), true);
     QCOMPARE(VersionList.GetSWDetails("BLG", SWDetails), true);
     QCOMPARE(VersionList.GetSWDetails("ASB1.bin", SWDetails), true);
     QCOMPARE(VersionList.GetSWDetails("RemoteCare", SWDetails), true);
@@ -242,6 +270,7 @@ void TestSWVersionList::utTestSWVersionListVerifier() {
     QCOMPARE(VersionList.GetSWDetails("ASB15.bin", SWDetails), false);
     QCOMPARE(VersionList.GetSWDetails("Hello", SWDetails), false);
     QCOMPARE(VersionList.GetSWDetails("No SW", SWDetails), false);
+
 
 }
 

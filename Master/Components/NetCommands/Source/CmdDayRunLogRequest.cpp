@@ -31,12 +31,13 @@ QString CmdDayRunLogRequest::NAME = "NetCommands::CmdDayRunLogRequest";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   Request     request for the files.
+ *  \iparam   UserLevel       User level
+ *  \iparam   Timeout         Timeout of the command
+ *
  */
 /****************************************************************************/
-CmdDayRunLogRequest::CmdDayRunLogRequest(int Timeout) :
-    Command(Timeout)
+CmdDayRunLogRequest::CmdDayRunLogRequest(int Timeout, int UserLevel) :
+    Command(Timeout), m_UserLevel(UserLevel)
 {
 }
 
@@ -45,7 +46,7 @@ CmdDayRunLogRequest::CmdDayRunLogRequest(int Timeout) :
  *  \brief   Constructor
  */
 /****************************************************************************/
-CmdDayRunLogRequest::CmdDayRunLogRequest() : Command(0)
+CmdDayRunLogRequest::CmdDayRunLogRequest() : Command(0), m_UserLevel(0)
 {
 }
 
@@ -56,6 +57,18 @@ CmdDayRunLogRequest::CmdDayRunLogRequest() : Command(0)
 /****************************************************************************/
 CmdDayRunLogRequest::~CmdDayRunLogRequest()
 {
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the user level
+ *
+ *  \return  user level
+ */
+/****************************************************************************/
+int CmdDayRunLogRequest::GetUserLevel() const
+{
+    return m_UserLevel;
 }
 
 /****************************************************************************/

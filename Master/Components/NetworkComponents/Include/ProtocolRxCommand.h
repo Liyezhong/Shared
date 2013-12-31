@@ -98,7 +98,13 @@ protected:
     bool CheckStatus(const QString &status);
 
 private:
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ProtocolRxCommand)
     void PrintMessageDataTree();
 
 protected:

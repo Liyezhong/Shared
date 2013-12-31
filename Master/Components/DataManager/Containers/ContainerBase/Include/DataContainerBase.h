@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataContainerBase.h
+/*! \file Platform/Master/Components/DataManager/Containers/ContainerBase/Include/DataContainerBase.h
  *
  *  \brief Definition file for class CDataContainerBase.
  *
  *  $Version:   $ 0.2
  *  $Date:      $ 2012-05-20
- *  $Author:    $ Nikhil, Raju
+ *  $Author:    $ Nikhil, Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -37,6 +37,8 @@ namespace DataManager {
 /**
  * \brief	Name of the Temporary Data Container File,
  *			Written to this before Overwriting the original file.
+ *
+ * \return
  */
 /****************************************************************************/
 const QString TEMP_CONTAINER_XMLFILE("TempDataContainer.xml");  //!< Name of Temporary File
@@ -53,6 +55,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Gets the data container type
+     *
+     *  \return The type of data container
      */
     /****************************************************************************/
     virtual DataContainerType_t GetDataContainerType() = 0;
@@ -60,6 +64,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Get the file name of the file
+     *
+     *  \return The data container file name
      */
     /****************************************************************************/
     virtual QString GetFilename() = 0;
@@ -93,7 +99,7 @@ public:
      */
     /****************************************************************************/
     /*! \warning DON'T implement(override) in derived classes! */
-    void SetErrorList(ErrorHash_t *p_ErrorHash)
+    void SetErrorList(ErrorMap_t *p_ErrorHash)
     {
         m_ListOfErrors.append(p_ErrorHash);
     }
@@ -108,10 +114,8 @@ public:
     /*! \warning DON'T implement(override) in derived classes! */
     bool VerifyData(bool GroupVerification = false, bool VerifyAll = false);
 
-    /*! \warning DON'T implement(override) in derived classes! */
-    bool Write(QString Filename);
-    /*! \warning DON't implement(override) in derived classes! */
-    bool Write();
+    virtual bool Write(QString Filename);
+    virtual bool Write();
 
 
 protected:

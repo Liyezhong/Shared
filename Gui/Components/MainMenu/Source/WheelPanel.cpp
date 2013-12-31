@@ -41,7 +41,7 @@ CWheelPanel::CWheelPanel(QWidget *p_Parent) : QWidget(p_Parent)
     setPalette(Palette);
 
     mp_SemiTransparentOverlay = new CSemiTransparentOverlay(this);
-    m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
 
     mp_Layout = new QGridLayout(this);
     mp_Layout->setContentsMargins(9, 3, 10, 8);
@@ -134,12 +134,12 @@ void CWheelPanel::SetThreeDigitMode(bool Mode)
 {
     if (Mode) {
 	setMinimumSize(137,277);
-        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel_3_digits.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
         mp_Layout->setContentsMargins(5, 3, 5, 8);
     }
     else {
 	setMinimumSize(105,277);
-        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
         mp_Layout->setContentsMargins(9, 3, 10, 8);
     }
 }
@@ -194,10 +194,10 @@ void CWheelPanel::AddSeparator(SeparatorType_t Type, qint32 Position)
 {
     switch (Type) {
         case COLON:
-            m_SeparatorList[Position]->setPixmap(QPixmap(QString(":/%1/Digits/Digit_Colon.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(7, 43, 4, 188));
+            m_SeparatorList[Position]->setPixmap(QPixmap(QString(":/%1/Digits/Digit_Colon.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(7, 43, 4, 188));
             break;
         case FULLSTOP:
-            m_SeparatorList[Position]->setPixmap(QPixmap(QString(":/%1/Digits/Digit_FullStopp.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(7, 43, 4, 188));
+            m_SeparatorList[Position]->setPixmap(QPixmap(QString(":/%1/Digits/Digit_FullStopp.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(7, 43, 4, 188));
             break;
         default:
             break;
@@ -212,7 +212,7 @@ void CWheelPanel::AddSeparator(SeparatorType_t Type, qint32 Position)
 void CWheelPanel::paintEvent(QPaintEvent *)
 {
     QPainter Painter(this);
-    QPixmap Source(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    QPixmap Source(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
     QPixmap Target(size());
     Target.fill(Qt::transparent);
     Application::CLeicaStyle::BorderPixmap(&Target, &Source, 17, 0, 18, 0);

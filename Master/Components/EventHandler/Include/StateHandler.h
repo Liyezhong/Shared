@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file EventHandler/Include/StateHandler.h
  *
- *  \brief Definition file for class StateHandler (previously HimalayaMasterThread/Include/HimalayaStateHandler.h)
+ *  \brief Definition file for class StateHandler (previously ColoradoMasterThread/Include/ColoradoStateHandler.h)
  *
  *  $Version:   $ 0.2
  *  $Date:      $ 2012-07-17
@@ -22,7 +22,7 @@
 #define EVENTHANDLER_STATEHANDLER_H
 
 #include <QStateMachine>
-#include <QMutex>
+#include <QReadWriteLock>
 #include <QDebug>
 
 #include "Global/Include/Commands/Command.h"
@@ -51,8 +51,9 @@ public:
      * \return      Reference to instance.
      */
     /****************************************************************************/
-    static inline StateHandler &Instance()
+    static StateHandler &Instance()
     {
+        static StateHandler m_StateHandlerInstance; //!< Static instance
         return m_StateHandlerInstance;
     }
     /****************************************************************************/
@@ -124,9 +125,10 @@ public:
      *
      * \iparam stage
      * \iparam success
+     * \iparam restricted
      */
     /****************************************************************************/
-    void setInitStageProgress(quint8 stage, bool success);
+    void setInitStageProgress(quint8 stage, bool success, bool restricted = false);
     /****************************************************************************/
     /**
      * \brief Gets the Init stage progress count
@@ -136,8 +138,20 @@ public:
     /****************************************************************************/
     quint8 getInitStageProgress();
 
+    /****************************************************************************/
+    /**
+     * \brief  Set if simulation is ON or NOT
+     * \param simulationOn = true if simulation is ON
+     */
+    /****************************************************************************/
     void setSimulationMode(bool simulationOn) { m_SimulationOn = simulationOn; }
 
+    /****************************************************************************/
+    /**
+     * \brief  get if simulation is ON or NOT
+     * \return true if simulation is ON
+     */
+    /****************************************************************************/
     bool getSimulationMode() { return m_SimulationOn; }
 
     /****************************************************************************/
@@ -147,11 +161,40 @@ public:
     /****************************************************************************/
     void SetInitializationFailed();
 
+    /****************************************************************************/
+    /**
+     * \brief  Set the power fail stage
+     * \iparam  stage = power fail stage
+     */
+    /****************************************************************************/
+    void SetPowerFailStage(Global::PowerFailStages stage) { m_powerFailStage = stage; }
+
+    /****************************************************************************/
+    /**
+     * \brief  get the power fail stage
+     * \return power fail stage
+     */
+    /****************************************************************************/
+    Global::PowerFailStages GetPowerFailStage() { return m_powerFailStage; }
+
+    /****************************************************************************/
+    /**
+     * \brief  clear init stages
+     */
+    /****************************************************************************/
+    void ClearInitStages() { m_initStage.clear(); }
+
+    /****************************************************************************/
+    /**
+     * \brief  clear restriction stages
+     */
+    /****************************************************************************/
+    void ClearRestrictionStages() { m_stageRestrictions.clear();}
 
 private:
     StateHandler();
     ~StateHandler();
-    static StateHandler m_StateHandlerInstance; //!< Static instance
+
     Q_DISABLE_COPY(StateHandler ) //!< Disable Copy and assignment
 
     QStateMachine m_operationMachine; //!< Stores Operation Machines States
@@ -175,9 +218,10 @@ private:
 
     QMap<quint8, bool> m_initStage; //!< Map which stores the Initial Stages
 
-    bool m_SimulationOn;
+    bool m_SimulationOn;        //!< simulation if on or not
     bool m_swInitFailed;//!< true indicates software initialization failed
-    QMutex m_Lock;  //!< Mutex for thread safety
+    Global::PowerFailStages m_powerFailStage;   //!< power stage fail
+    QHash<quint8, bool> m_stageRestrictions;    //!< Hash table for stage restrictions
 
 private slots:
     /****************************************************************************/

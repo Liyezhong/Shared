@@ -5,7 +5,7 @@
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-05-17
- *   $Author:  $ M.Scherer
+ *   $Author:  $ M.Scherer,Shuvasmita.S
  *
  *  \b Company:
  *
@@ -37,8 +37,7 @@ class CApplication : public QApplication
     Q_OBJECT
 
 public:
-    explicit CApplication(int Argc, char* p_Argv[], Application::ProjectId_t m_ProjId);
-
+    CApplication(int &Argc, char* p_Argv[], DeviceType_t DeviceType);
 protected:
     bool notify(QObject * receiver, QEvent * event );
 

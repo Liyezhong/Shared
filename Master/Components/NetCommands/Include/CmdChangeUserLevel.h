@@ -45,8 +45,15 @@ public:
 	QString GetPassword() const;
 private:
     
-    //CmdChangeUserLevel(const CmdChangeUserLevel &);                       ///< Not implemented.
-    //const CmdChangeUserLevel & operator = (const CmdChangeUserLevel &);   ///< Not implemented.
+    CmdChangeUserLevel(const CmdChangeUserLevel &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
+    const CmdChangeUserLevel & operator = (const CmdChangeUserLevel &);   ///< Not implemented.
 private:
     Global::GuiUserLevel  m_UserLevel;      ///< Type of the user
     QString         m_Password;	   ///< password
@@ -57,7 +64,7 @@ private:
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream into.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/
@@ -75,7 +82,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdChangeUserLevel 
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream from.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/

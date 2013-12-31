@@ -1,12 +1,12 @@
 /****************************************************************************/
-/*! \file SWDetails.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/SWVersions/Source/SWDetails.cpp
  *
  *  \brief Implementation file for class CSWDetails.
  *         This class reads the SW information from the "SW_version.xml" file
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-07
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -41,7 +41,8 @@ namespace DataManager {
 CSWDetails::CSWDetails() :
     m_SWName(""),
     m_SWVersion(""),
-    m_SWDate("")
+    m_SWDate(""),
+    m_SWType(MASTERSOFTWARE)
 {
 }
 
@@ -49,12 +50,15 @@ CSWDetails::CSWDetails() :
 /*!
  *  \brief  Parameterized Constructor
  *
+ *  \iparam SWName = Name of software component
+ *
  */
 /****************************************************************************/
 CSWDetails::CSWDetails(const QString SWName) :
     m_SWName(SWName),
     m_SWVersion(""),
-    m_SWDate("")
+    m_SWDate(""),
+    m_SWType(MASTERSOFTWARE)
 {
 }
 
@@ -69,11 +73,30 @@ CSWDetails::CSWDetails(const QString SWName) :
 /****************************************************************************/
 CSWDetails::CSWDetails(const CSWDetails& SWDetails)
 {
-    CSWDetails* p_TempSWDetails = const_cast<CSWDetails*>(&SWDetails);
-
-    *this = *p_TempSWDetails;
+    CopyFromOther(SWDetails);
 }
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+.*  \note  Method for internal use only
+ *
+ *  \iparam SWDetails = Instance of the CSWDetails class
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CSWDetails::CopyFromOther(const CSWDetails &SWDetails)
+{
+    CSWDetails &OtherSWDetails = const_cast<CSWDetails &>(SWDetails);
+    m_SWName  = OtherSWDetails.GetSWName();
+    m_SWVersion = OtherSWDetails.GetSWVersion();
+    m_SWDate = OtherSWDetails.GetSWDate();
+    m_SWType = OtherSWDetails.GetSWType();
 
+}
 /****************************************************************************/
 /*!
  *  \brief Writes from the CSWDetails object to a IODevice.
@@ -203,8 +226,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CSWDetails& SWDetails
 
     if (!p_TempSWDetails->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CSWDetails::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -226,12 +247,9 @@ QDataStream& operator >>(QDataStream& InDataStream, CSWDetails& SWDetails)
 
     if (!Helper::ReadNode(XmlStreamReader, QString("file"))) {
         qDebug() << "CSWDetails::Operator Streaming (DeSerializeContent) Node not found: file";
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     if (!SWDetails.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CSWDetails::Operator Streaming (DeSerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -251,14 +269,7 @@ CSWDetails& CSWDetails::operator=(const CSWDetails& SourceSWDetails)
     // make sure not same object
     if (this != &SourceSWDetails)
     {
-        QByteArray TempByteArray;
-        CSWDetails* p_TempSWDetails = const_cast<CSWDetails*>(&SourceSWDetails);
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        TempByteArray.clear();
-        DataStream << *p_TempSWDetails;
-        (void)DataStream.device()->reset(); //to avoid lint-534
-        DataStream >> *this;
+        CopyFromOther(SourceSWDetails);
     }
     return *this;
 }

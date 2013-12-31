@@ -44,8 +44,13 @@ private:
     REFTYPE         m_LastRef;      ///< Last used command reference.
     QSet<REFTYPE>   m_BlockedRefs;  ///< Do not use this Refs anymore since they were already used in "timeouted" commands.
     /****************************************************************************/
-    RefManager(const RefManager&);                          ///< Not implemented.
-    const RefManager & operator = (const RefManager &);     ///< Not implemented.
+    /****************************************************************************/
+    /**
+     * \brief Disable copy and assignment
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(RefManager)
 protected:
 public:
     /****************************************************************************/
@@ -76,7 +81,7 @@ public:
      * Compute new command reference. The computed reference is marked as blocked
      * and will not be reused until it is unblocked.
      *
-     * return   New command reference.
+     * \return   New command reference.
      */
     /****************************************************************************/
     inline REFTYPE GetNewRef() {

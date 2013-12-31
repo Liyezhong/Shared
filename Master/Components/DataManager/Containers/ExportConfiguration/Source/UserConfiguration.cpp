@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file UserConfiguration.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Source/UserConfiguration.cpp
  *
  *  \brief Implementation file for class CUserConfiguration.
  *         This class reads the "User" tag information from
@@ -7,7 +7,7 @@
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -56,12 +56,29 @@ CUserConfiguration::CUserConfiguration()
 /****************************************************************************/
 CUserConfiguration::CUserConfiguration(const CUserConfiguration& ExportConfiguration)
 {
-    CUserConfiguration* p_TempExportConfiguration = const_cast<CUserConfiguration*>(&ExportConfiguration);
-    // for user config there is no Group configuration
-    m_UserConfigList.SetGroupListFlag(false);
-    *this = *p_TempExportConfiguration;
+    CopyFromOther(ExportConfiguration);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \iparam Other = Instance of the CUserConfiguration class
+.*  \note  Method for internal use only
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CUserConfiguration::CopyFromOther(const CUserConfiguration &Other)
+{
+    //QReadWriteLock is not copied. We use the existing lock object
+    CUserConfiguration &OtherUserConfig = const_cast<CUserConfiguration &>(Other);
+    m_UserConfigList.SetGroupListFlag(false);
+    m_UserConfigList.CopyFromOther(OtherUserConfig.GetUserConfigurationList());
+    m_UserReportList.CopyFromOther(OtherUserConfig.GetUserReportList());
+}
 /****************************************************************************/
 /*!
  *  \brief Writes from the CUserConfiguration object to a IODevice.
@@ -79,14 +96,12 @@ bool CUserConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, boo
     XmlStreamWriter.writeStartElement("UserConfig");
     // serialize the content
     if (!m_UserConfigList.SerializeContent(XmlStreamWriter, CompleteData)) {
-        /// \todo need to write error handling code
         return false;
     }
     // start the element
     XmlStreamWriter.writeStartElement("UserReport");
     // serialize the content
     if (!m_UserReportList.SerializeContent(XmlStreamWriter, CompleteData)) {
-        /// \todo need to write error handling code
         return false;
     }
     // write the end element
@@ -168,8 +183,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserConfiguration& E
 
     if (!p_TempExportConfiguration->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CUserConfiguration::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -191,8 +204,6 @@ QDataStream& operator >>(QDataStream& InDataStream, CUserConfiguration& ExportCo
 
     if (!ExportConfiguration.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CUserConfiguration::Operator Streaming (DeSerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -212,14 +223,7 @@ CUserConfiguration& CUserConfiguration::operator=(const CUserConfiguration& Sour
     // make sure not same object
     if (this != &SourceExportConfiguration)
     {
-        QByteArray TempByteArray;
-        CUserConfiguration* p_TempExportConfiguration = const_cast<CUserConfiguration*>(&SourceExportConfiguration);
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        TempByteArray.clear();
-        DataStream << *p_TempExportConfiguration;
-        (void)DataStream.device()->reset(); //to avoid lint-534
-        DataStream >> *this;
+        CopyFromOther(SourceExportConfiguration);
     }
     return *this;
 }

@@ -29,14 +29,14 @@ const int       Command::MAXTIMEOUT    = 0x7FFFFFFF;
 /****************************************************************************/
 Command::Command(int Timeout)
     : m_Timeout(Timeout)
-    , m_stateGuard(5, true)
+    , m_stateGuard(7, true)
 {
 }
 
 /****************************************************************************/
 Command::Command(const Command &rOther)
     : m_Timeout(0)
-    , m_stateGuard(5, true)
+    , m_stateGuard(7, true)
 {
     CopyFrom(rOther);
 }
@@ -76,8 +76,11 @@ bool Command::isStateAllowed(QString state)
     if ((state == "InitState"))
         return true;
 
-//    if ((state == "SoftSwitchMonitorState"))
-//        return true;
+    if ((state == "InitFailedState") && isInitFailedStateAllowed())
+         return true;
+
+    if ((state == "SoftSwitchMonitorState") && (isSoftSwitchStateAllowed()))
+        return true;
 
     return false;
 }

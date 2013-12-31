@@ -38,6 +38,7 @@ class TestReadArchive: public QObject
         TestReadArchive();           // default constructor
 
     private:
+        QString DirPath;
         QByteArray m_keydata;
 
     private slots:

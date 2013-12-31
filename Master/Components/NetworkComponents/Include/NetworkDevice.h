@@ -82,7 +82,7 @@ const QString DATEANDTIME_FORMAT = "dd.MM.yyyy hh:mm:ss";
  * \brief This is a base class for a project specific NetworkDevice.
  *
  * Object, derived from this calss, shall implement a project specific
- * Network Device (e.g. Sepia in Himalaya).
+ * Network Device (e.g. Sepia in Colorado).
  *
  */
 /****************************************************************************/
@@ -119,7 +119,7 @@ public:
     /*!
      *  \brief Check if Base Class has a particular registered command instance.
      *
-     *  \param[in]  Name - class name
+     *  \iparam  Name - class name
      *
      *  \return  true if class registered, false otherwise
      */
@@ -202,6 +202,13 @@ signals:
       ****************************************************************************/
      void SigDateTimeSyncError(const QString &error);
 
+     /****************************************************************************/
+     /*!
+      *  \brief    This signal is emitted to inform Fatal error in device
+      *
+      ****************************************************************************/
+     void SigFatalError();
+
 public slots:
 
     /****************************************************************************/
@@ -240,8 +247,8 @@ protected:
      *  \brief  This method creates a new Incoming protocol command.
      *
      *
-     *  \param[in]  cmdname - name of the command
-     *  \param[in]  domD - incoming message as XML document
+     *  \iparam  cmdname - name of the command
+     *  \iparam  domD - incoming message as XML document
      *
      *  \return     pointer to the created command
      */
@@ -270,9 +277,9 @@ protected:
      *  \brief  This method creates a new Incoming protocol command.
      *
      *
-     *  \param[in]  cmdname - name of the command
-     *  \param[in]  ref - the command reference
-     *  \param[in]  bArr - incoming log file
+     *  \iparam  cmdname - name of the command
+     *  \iparam  ref - the command reference
+     *  \iparam  bArr - incoming log file
      *
      *  \return     pointer to the created command
      */
@@ -301,7 +308,7 @@ protected:
      *  \brief  This method creates a new outgoing protocol command.
      *
      *
-     *  \param[in]  cmdname - name of the command
+     *  \iparam  cmdname - name of the command
      *
      *  \return     pointer to the created command
      */
@@ -348,8 +355,13 @@ protected:
 private:
 
     NetworkDevice();                                            ///< Not implemented.
-    NetworkDevice(const NetworkDevice &);                       ///< Not implemented.
-    const NetworkDevice & operator = (const NetworkDevice &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(NetworkDevice)
 
     quint32 GetNewCmdReference();
     void ParseNetLayerMessage(const QByteArray &ba);

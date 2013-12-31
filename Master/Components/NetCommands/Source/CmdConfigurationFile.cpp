@@ -30,9 +30,9 @@ QString CmdConfigurationFile::NAME = "NetCommands::CmdConfigurationFile";
 /*!
  *  \brief  Constructor to send commands
  *
- *  \param[in]  Timeout     Timeout for command.
- *  \param[in]  FileType    Configuration file type.
- *  \param[in]  FileContent Configuration file content.
+ *  \iparam  Timeout     Timeout for command.
+ *  \iparam  FileType    Configuration file type.
+ *  \iparam  FileContent Configuration file content.
  */
 /****************************************************************************/
 CmdConfigurationFile::CmdConfigurationFile(int Timeout, const FileType_t FileType, const QDataStream &FileContent) :
@@ -46,7 +46,6 @@ CmdConfigurationFile::CmdConfigurationFile(int Timeout, const FileType_t FileTyp
 /*!
  *  \brief  Constructor to receive commands
  *
- *  \param[in]  Timeout     Timeout for command.
  */
 /****************************************************************************/
 CmdConfigurationFile::CmdConfigurationFile() : Command(0)

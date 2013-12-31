@@ -74,7 +74,13 @@ public:
     ConfigLoaderErrorType_t ReadSettings(QString *startCommand, QString *remoteFlag, int *timeOut);
 
 private:
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ConfigLoader)
     ConfigLoaderErrorType_t ParseDocument(const QString &processName, const QDomElement &rootElement);
     ConfigLoaderErrorType_t LoadFile(QIODevice &device, const QString &tag);
     ConfigLoaderErrorType_t ParseProcessSection(const QDomElement &processSection);

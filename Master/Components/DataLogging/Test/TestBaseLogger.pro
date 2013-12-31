@@ -12,6 +12,6 @@ SOURCES +=  TestBaseLogger.cpp \
 HEADERS +=  DirectoryHelper.h \
             TestBaseLogger.h
 
-UseLibs(DataLogging Global)
+UseLibs(DataLogging EventHandler Global)
 
 

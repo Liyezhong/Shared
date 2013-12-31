@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file NetCommands/Source/CmdAcknEventReport.h
+/*! \file NetCommands/Include/CmdAcknEventReport.h
  *
  *  \brief CmdAcknEventReport command definition
  *
@@ -23,17 +23,21 @@
 #include <QDataStream>
 
 namespace NetCommands {
+
+/****************************************************************************/
+/**
+ * \brief Enum for Clicked Button type.
+ */
+/****************************************************************************/
 enum ClickedButton_t {
-    No_Set = -1,
-    OK_BUTTON = 0,
+    OK_BUTTON,
     YES_BUTTON,
     CONTINUE_BUTTON,
-    NO_BUTTON,
+    NOT_SPECIFIED,
     CANCEL_BUTTON,
     STOP_BUTTON,
-    RECOVERYLATER,
-    RECOVERYNOW,
-    TIMEOUT
+    TIMEOUT,
+    NO_BUTTON
 };
 
 /****************************************************************************/
@@ -51,10 +55,17 @@ private:
     /****************************************************************************/
 
     CmdAcknEventReport(const CmdAcknEventReport &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdAcknEventReport & operator = (const CmdAcknEventReport &); ///< Not implemented.
     //quint64 m_EventID;      //!< 64 bit event id (4 bytes original event ID + lower four bytes for occurence cout)
     ClickedButton_t m_ClickedButton; //!< Button clicked by user in Msg Box
-    quint64 m_EventKey;   //! Higher 4 bytes Event Id + Lower 4 Bytes Unique key
+    quint64 m_EventKey;   //!< Higher 4 bytes Event Id + Lower 4 Bytes Unique key
 
 protected:
 public:
@@ -65,8 +76,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   EventKey
-     * \param[in]   ClickedBtn
+     * \iparam   EventKey
+     * \iparam   ClickedBtn
      */
     /****************************************************************************/
     CmdAcknEventReport(quint64 EventKey, ClickedButton_t ClickedBtn);
@@ -118,7 +129,7 @@ public:
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream into.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/
@@ -136,7 +147,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdAcknEventReport 
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream from.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/

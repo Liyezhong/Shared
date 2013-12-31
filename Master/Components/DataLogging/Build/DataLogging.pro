@@ -5,7 +5,5 @@
 TARGET = DataLogging
 
 HEADERS +=  ../Include/*.h \
-            ../Include/Commands/*.h
 
 SOURCES +=  ../Source/*.cpp \
-            ../Source/Commands/*.cpp

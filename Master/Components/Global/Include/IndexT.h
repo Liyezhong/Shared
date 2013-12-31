@@ -54,7 +54,7 @@
 
 // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //                                                                                Platform Specific
-extern uint qHash(int);
+extern uint qHash(int);     //!< hash variable
 
 namespace Global {
 
@@ -163,6 +163,7 @@ namespace Global {
          * @note
          * This is resolved at COMPILE TIME.
          * Using \c MyIndexType::first() incures NO OVERHEAD compared to using a literal constant.
+         * @return   minimum value
         */
         static
         IndexType first() {
@@ -175,6 +176,7 @@ namespace Global {
          * @note
          * This is resolved at COMPILE TIME.
          * Using \c MyIndexType::last() incures NO OVERHEAD compared to using a literal constant.
+         * @return   maximum value
         */
         static
         IndexType last() {
@@ -291,6 +293,7 @@ namespace Global {
          * Check if valid.
          *
          * @throw   (never throws)
+         *@return   true if valid
         */
         bool isValid() const {
             return val != NotValid;
@@ -315,6 +318,7 @@ namespace Global {
          * @post    compares less than previous value or is invalid
          *
          * Can be called 'maxVal-minVal+1' times from NotValid until again NotValid.
+         * @return   decremented new value
         */
         IndexType operator--() {
             if (--val < NotValid)
@@ -329,6 +333,7 @@ namespace Global {
          * @post    compares less to previous value or is invalid
          *
          * Can be called 'maxVal-minVal+1' times from NotValid until again NotValid.
+         * @return   decremented old value
         */
         IndexType operator--(int) {
             const int oldval(val);
@@ -343,6 +348,7 @@ namespace Global {
          * @post    compares greater to previous value or is invalid
          *
          * Can be called 'maxVal-minVal+1' times from NotValid until again NotValid.
+         * @return  incremented new value
         */
         IndexType operator++() {
             if (++val > maxVal)
@@ -357,6 +363,7 @@ namespace Global {
          * @post    compares greater to previous value or is invalid
          *
          * Can be called 'maxVal-minVal+1' times from NotValid until again NotValid.
+         * @return incremented old value
         */
         IndexType operator++(int) {
             const int oldval(val);

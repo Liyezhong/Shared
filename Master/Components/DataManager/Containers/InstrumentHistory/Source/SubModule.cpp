@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file SubModule.cpp
+/*! \file DataManager/Containers/InstrumentHistory/Source/SubModule.cpp
  *
  *  \brief Implementation file for class CSubModule.
  *
@@ -18,6 +18,10 @@
  */
 /****************************************************************************/
 
+
+#include <Global/Include/Exception.h>
+#include <Global/Include/EventObject.h>
+#include <Global/Include/Utils.h>
 
 #include "DataManager/Containers/InstrumentHistory/Include/SubModule.h"
 #include "DataManager/Helper/Include/Helper.h"
@@ -54,6 +58,9 @@ CSubModule::CSubModule(QString SubModuleName)
 /****************************************************************************/
 /*!
  *  \brief Parameterized Constructor
+ *  \iparam SubModuleName = name of the SubModule
+ *  \iparam SubModuleType = type of the SubModule
+ *  \iparam SubModuleDescription = Description of the SubModule
  */
 /****************************************************************************/
 CSubModule::CSubModule(QString SubModuleName, QString SubModuleType, QString SubModuleDescription)
@@ -72,6 +79,23 @@ CSubModule::CSubModule(QString SubModuleName, QString SubModuleType, QString Sub
 /****************************************************************************/
 CSubModule::CSubModule(const CSubModule& SubModuleInfo)
 {
+    CopyFromOther(SubModuleInfo);
+}
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \note  Method for internal use only
+ *
+ *  \iparam SubModuleInfo = Instance of the CSubModule class
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CSubModule::CopyFromOther(const CSubModule &SubModuleInfo)
+{
     QString Name = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleName();
     QString Unit = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleType();
     QString Type = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleDescription();
@@ -82,7 +106,7 @@ CSubModule::CSubModule(const CSubModule& SubModuleInfo)
 
     int Count = const_cast<CSubModule&>(SubModuleInfo).GetNumberOfParameters();
 
-    for(size_t  i=0; i<Count; i++)
+    for(int i=0; i<Count; i++)
     {
         Parameter_t* StructParameter = new Parameter_t;
 
@@ -102,49 +126,25 @@ CSubModule::CSubModule(const CSubModule& SubModuleInfo)
 /****************************************************************************/
 CSubModule::~CSubModule()
 {
-    DeleteAllParameters();
+    try {
+        (void)DeleteAllParameters(); // to avoid lint-534
+    }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
 /*!
  *  \brief  Deletes all the submodules in the list
- *  \return true - delete success , false - delete failure
  */
 /****************************************************************************/
-bool CSubModule::DeleteAllParameters()
+void CSubModule::DeleteAllParameters()
 {
-    bool Result = true;
-    for(int i=0; i<m_ParameterNames.count(); i++)
-    {
-        QString ParameterName = m_ParameterNames.value(i);
-
-        if (m_ListOfParameters.contains(ParameterName)) {
-            //get Parameter from ParameterList and free memory
-            delete m_ListOfParameters.value(ParameterName);
-
-            //remove pointer to parameter struct from ParameterList
-            m_ListOfParameters.remove(ParameterName);
-
-            //remove parameter from list
-            int IndexCount = -1;
-            for (int i=0; i<m_ParameterNames.count(); i++)
-            {
-                if (m_ParameterNames[i] == ParameterName) {
-                    IndexCount = i;
-                    break;
-                }
-            }
-            Q_ASSERT(IndexCount != -1);
-            m_ParameterNames.removeAt(IndexCount);
-        }
-        else {
-            return false;
-        }
+    // get parameter pointer for each entry and free memory
+    foreach(Parameter_t* p, m_ListOfParameters) {
+        delete p;
     }
     m_ListOfParameters.clear();
     m_ParameterNames.clear();
-    //delete m_StructParameter;
-    return Result;
 }
 
 /****************************************************************************/
@@ -161,24 +161,8 @@ CSubModule& CSubModule::operator=(const CSubModule& SubModuleInfo)
     if(this != &SubModuleInfo) {
 
         this->DeleteAllParameters();
+        CopyFromOther(SubModuleInfo);
 
-        QString Name = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleName();
-        QString Unit = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleType();
-        QString Type = const_cast<CSubModule&>(SubModuleInfo).GetSubModuleDescription();
-
-        this-> SetSubModuleName(Name);
-        this-> SetSubModuleType(Unit);
-        this-> SetSubModuleDescription(Type);
-
-        int Count = const_cast<CSubModule&>(SubModuleInfo).GetNumberOfParameters();
-
-        for(size_t  i=0; i<Count; i++)
-        {
-            QString PName = SubModuleInfo.GetParameterInfo(i)->ParameterName;
-            QString PUnit = SubModuleInfo.GetParameterInfo(i)->ParameterUnit;
-            QString PValue = SubModuleInfo.GetParameterInfo(i)->ParameterValue;
-            this->AddParameterInfo(PName, PUnit, PValue);
-        }
     }
     return *this;
 }
@@ -187,7 +171,7 @@ CSubModule& CSubModule::operator=(const CSubModule& SubModuleInfo)
 /*!
  *  \brief Reads the CSubModule Data from QIODevice
  *
- *  \iparam IODevice = Instance of the IODevice - Buffer or File
+ *  \iparam XmlStreamReader = Xml reader to read the XML contents
  *  \iparam CompleteData = bool type if true writes Complete data of object
  *
  *  \return True or False
@@ -240,17 +224,17 @@ bool CSubModule::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool Comp
                 }
                 QString ParamUnit = XmlStreamReader.attributes().value("unit").toString();
 
-                AddParameterInfo(ParamName, ParamUnit, XmlStreamReader.readElementText());               
+                AddParameterInfo(ParamName, ParamUnit, XmlStreamReader.readElementText());
             }
         } // end of start element comparison
         else if(XmlStreamReader.isEndElement() && XmlStreamReader.name().toString() == "SubModule") {
-            qDebug() << XmlStreamReader.name().toString();
+            //            qDebug() << XmlStreamReader.name().toString();
             break;
         }
     } // end of while loop
 
     if (CompleteData) {
-    // Future use
+        // Future use
     }
 
     return Result;
@@ -261,7 +245,7 @@ bool CSubModule::DeserializeContent(QXmlStreamReader &XmlStreamReader, bool Comp
  *
  *  \brief Writes the CSubModule Data to QIODevice
  *
- *  \iparam IODevice = Instance of the IODevice might be Buffer or File
+ *  \iparam XmlStreamWriter = Xml stream writer to write the XML contents
  *  \iparam CompleteData = bool type if true writes Complete data of object
  *l
  *  \return True or False
@@ -290,7 +274,7 @@ bool CSubModule::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool Comple
     XmlStreamWriter.writeEndElement();
 
     if (CompleteData) {
-    // Future Use
+        // Future Use
     }
 
     return Result;
@@ -301,7 +285,7 @@ bool CSubModule::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool Comple
  *  \brief Output Stream Operator which streams data
  *
  *  \iparam OutDataStream = Instance of the QDataStream
- *  \iparam CSubModule = CSubModule class object
+ *  \iparam SubModuleInfo = CSubModule class object
  *
  *  \return Output Stream
  */
@@ -323,7 +307,7 @@ QDataStream& operator << (QDataStream& OutDataStream, const CSubModule& SubModul
  *  \brief Input stream Operator which reads the data from Input parameter.
  *
  *  \iparam InDataStream = Instance of the DataStream
- *  \iparam CSubModule = CSubModule class object
+ *  \iparam SubModuleInfo = CSubModule class object
  *
  *  \return Input Stream
  */

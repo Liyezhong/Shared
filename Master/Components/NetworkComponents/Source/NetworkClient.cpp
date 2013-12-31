@@ -23,6 +23,8 @@
 #include <QtNetwork>
 #include <NetworkComponents/Include/NetworkClient.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -48,8 +50,8 @@ NetworkClient::NetworkClient(NetworkClientType_t type, const QString &ip, const 
       m_Ip(ip),
       m_port(port),
       m_authStage(NC_INIT),
-      m_timer(this),
-      m_BlockSize(0)
+      m_BlockSize(0),
+      mp_Connectiontimer(NULL)
 {
 }
 
@@ -82,7 +84,7 @@ void NetworkClient::ConnectToServer()
  ****************************************************************************/
 void NetworkClient::HandleSocketError(QAbstractSocket::SocketError err)
 {
-//    qDebug() << "xxxxx NetworkClient::HandleSocketError";
+    //    qDebug() << "xxxxx NetworkClient::HandleSocketError";
     /*
      * if these errors happen, we shall continue pinging:
              QAbstractSocket::ConnectionRefusedError
@@ -90,12 +92,33 @@ void NetworkClient::HandleSocketError(QAbstractSocket::SocketError err)
      *
      * in all other cases we go down.
      */
+    static int Count;
+
+    if (m_authStage == NC_AUTHENTICATED) {
+        if ((err == QAbstractSocket::RemoteHostClosedError ||
+             err == QAbstractSocket::ConnectionRefusedError)) {
+            if (mp_Connectiontimer == NULL) {
+                mp_Connectiontimer = new QTimer(this);
+                connect(mp_Connectiontimer, SIGNAL(timeout()), this, SLOT(DisconnectConnection()));
+                m_authStage = NC_INIT;
+                emit StartConnectionLostTimer();
+                mp_Connectiontimer->start(60000);
+                qDebug() << "In Timer start";
+            }
+            qDebug() << "Error is "<<err << Count;
+            QTimer::singleShot(5000, this, SLOT(ConnectToServer()));
+            Global::EventObject::Instance().RaiseEvent(EVENT_NC_SOCKET_ERROR,
+                                                       Global::tTranslatableStringList() << m_myName
+                                                       << QString::number((int)err));
+            return;
+        }
+    }
 
     if (m_authStage == NC_INIT) {
         // if connection was not yet established, client shall try
         // to ping server for connection.
         if ((err == QAbstractSocket::ConnectionRefusedError) ||
-            (err == QAbstractSocket::SocketTimeoutError)) {
+                (err == QAbstractSocket::SocketTimeoutError)) {
             //qDebug() << "NETCLIENT: pinging server again !";
             QTimer::singleShot(5000, this, SLOT(ConnectToServer()));
             return;
@@ -107,6 +130,9 @@ void NetworkClient::HandleSocketError(QAbstractSocket::SocketError err)
     DisconnectFromServer();
     // working connection failed --> we have to report that "peer disconnected"
     emit ConnectionLost(m_myName);
+
+    Global::EventObject::Instance().RaiseEvent(EVENT_NC_CONNECTION_LOST,
+                                               Global::tTranslatableStringList() << m_myName);
 }
 
 /****************************************************************************/
@@ -129,6 +155,8 @@ void NetworkClient::HandleAuthTimeout()
     // destroy connection:
     DisconnectFromServer();
     EmitConnectionFailed(NC_AUTHENTICATION_FAILED);
+    Global::EventObject::Instance().RaiseEvent(EVENT_NC_AUTHENTICATION_FAILED,
+                                               Global::tTranslatableStringList() << m_myName);
 }
 
 /****************************************************************************/
@@ -213,6 +241,8 @@ void NetworkClient::HandleInitAction(const QByteArray &msg)
     else {
         DisconnectFromServer();
         EmitConnectionFailed(NC_WRONG_SERVER_MESSAGE);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_WRONG_SERVER_MESSAGE,
+                                                   Global::tTranslatableStringList() << m_myName);
     }
 }
 
@@ -231,6 +261,7 @@ void NetworkClient::HandleInitAction(const QByteArray &msg)
 void NetworkClient::HandleAuthAction(const QByteArray &msg)
 {
     qDebug() << "xxxxx NetworkClient::HandleAuthAction";
+    static int SignalsConnected = 0;
     // stop the authentication timer:
     static_cast<void>(
             // cannot use return value here anyway
@@ -246,25 +277,42 @@ void NetworkClient::HandleAuthAction(const QByteArray &msg)
         if (m_msgHdlr == 0) {
             DisconnectFromServer();
             EmitConnectionFailed(NC_MSGHANDLER_POINTER_NULL);
+            Global::EventObject::Instance().RaiseEvent(EVENT_NC_MSGHANDLER_POINTER_NULL,
+                                                       Global::tTranslatableStringList() << m_myName << FILE_LINE);
             return;
         }
 
         try {
-            CONNECTSIGNALSLOT(this, ForwardToMessageHandler(quint8, QByteArray &),
-                              m_msgHdlr, GetIncomingMsg(quint8, QByteArray &));
-            CONNECTSIGNALSLOT(m_msgHdlr, SendMessage(quint8, const QByteArray &),
-                              this, SendMessage(quint8, const QByteArray &));
-        } catch (...) {
+            try {
+                if (SignalsConnected == 0) {
+                    CONNECTSIGNALSLOT(this, ForwardToMessageHandler(quint8, QByteArray &),
+                                      m_msgHdlr, GetIncomingMsg(quint8, QByteArray &));
+                    CONNECTSIGNALSLOT(m_msgHdlr, SendMessage(quint8, const QByteArray &),
+                                      this, SendMessage(quint8, const QByteArray &));
+                    SignalsConnected++;
+                }
+            }
+            CATCHALL_RETHROW();
+        }
+        catch (...) {
             DisconnectFromServer();
             EmitConnectionFailed(NC_SIGNAL_CONNECT_FAILED);
             return;
         }
         // inform users about successful connection
         emit ConnectionEstablished(m_myName);
+        if (mp_Connectiontimer) {
+            qDebug() << "In Connection established again" ;
+            mp_Connectiontimer->stop();
+            delete mp_Connectiontimer;
+            mp_Connectiontimer = NULL;
+        }
     }
     else {
         DisconnectFromServer();
         EmitConnectionFailed(NC_WRONG_SERVER_MESSAGE);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_WRONG_SERVER_MESSAGE,
+                                                   Global::tTranslatableStringList() << m_myName);
     }
 
 }
@@ -287,6 +335,8 @@ bool NetworkClient::RegisterMessageHandler(NetworkDevice *pH)
     // check pointer
     if (pH == NULL) {
         qDebug() << (QString)("NetworkClient: my MessageHandler is NULL !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_MSGHANDLER_POINTER_NULL,
+                                                   Global::tTranslatableStringList() << m_myName);
         return false;
     }
 
@@ -317,12 +367,16 @@ void NetworkClient::AckConnection()
     if (!domD.setContent(str, true, &err, &errL, &errC)) {
         /// \todo: log error?
         qDebug() << (QString)("NetworkClient: cannot convert outgoing QString message to QDomDocument! Error: " + err);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_OUTGOINGMSG_CONVERT_ERROR,
+                                                   Global::tTranslatableStringList() << m_myName << err);
         return;
     }
     QByteArray ba = domD.toByteArray(-1);
     if (ba.isEmpty()) {
         /// \todo: log error?
         qDebug() << (QString)("NetworkDevice: outgoing QByteArray is empty !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_OUTGOING_MSG_EMPTY,
+                                                   Global::tTranslatableStringList() << m_myName);
         return;
     }
 
@@ -353,7 +407,8 @@ void NetworkClient::SendMessage(quint8 type, const QByteArray &ba)
     int nofbytes = out.writeRawData(ba.data(), bsize);
     // send the buffer
     if ((m_tcpSocket.write(block) < (bsize + 1 + sizeof(qint32))) || nofbytes != bsize) {
-        /// \todo: log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_SOCKET_WRITE_ERROR,
+                                            Global::tTranslatableStringList() << m_myName);
     }
 }
 
@@ -409,6 +464,8 @@ bool NetworkClient::Initialize()
     // fetch configuration strings
     if (SetConfigParameters() == NCE_TYPE_INVALID) {
         /// \todo: handle error
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_CONFIG_PARASET_FAILED,
+                                            Global::tTranslatableStringList() << m_myName);
         qDebug() << (QString)("NETCLIENT: setting config parameters failed !");
         return false;
     }
@@ -416,6 +473,8 @@ bool NetworkClient::Initialize()
     if ((m_Ip.isEmpty())||(m_port.isEmpty())||(m_myName.isEmpty())||(m_myVersion.isEmpty())) {
         /// \todo: handle error
         qDebug() << (QString)("NETCLIENT: config parameter(s) missing !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_CONFIG_PARA_EMPTY,
+                                            Global::tTranslatableStringList() << m_myName);
         return false;
     }
 
@@ -423,16 +482,16 @@ bool NetworkClient::Initialize()
         CONNECTSIGNALSLOT(&m_tcpSocket, readyRead(), this, ReadRawSocket());
         CONNECTSIGNALSLOT(&m_tcpSocket, error(QAbstractSocket::SocketError), this, HandleSocketError(QAbstractSocket::SocketError));
         CONNECTSIGNALSLOT(&m_timer, timeout(), this, HandleAuthTimeout());
-    } catch(...) {
-        /// \todo: handle error
-        return false;
+
+        qDebug() << "NetworkClient: my network settings --> ";
+        qDebug() << "IP: " + m_Ip;
+        qDebug() << "Port: " + m_port;
+
+        return true;
     }
-
-    qDebug() << "NetworkClient: my network settings --> ";
-    qDebug() << "IP: " + m_Ip;
-    qDebug() << "Port: " + m_port;
-
-    return true;
+    CATCHALL();
+    /// \todo: handle error
+    return false;
 }
 
 /****************************************************************************/
@@ -472,5 +531,26 @@ void NetworkClient::EmitConnectionFailed(NetworkClientErrorType_t err)
 {
     emit ConnectionFailed(err);
 }
+/****************************************************************************/
+/*!
+ *  \brief    This function will set the Timer and disconnects from master
+ *
+ *
+ ****************************************************************************/
+void NetworkClient::DisconnectConnection()
+{
+    if (mp_Connectiontimer) {
+        qDebug() << "In DisconnectConnection method";
+        mp_Connectiontimer->stop();
+        delete mp_Connectiontimer;
+        mp_Connectiontimer = NULL;
+        DisconnectFromServer();
+        m_authStage = NC_CONNECT_FAILED;
+        // working connection failed --> we have to report that "peer disconnected"
+        emit ConnectionLost(m_myName);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NC_CONNECTION_LOST,
+                                            Global::tTranslatableStringList() << m_myName);
 
+    }
+}
 } // end namespace NetworkBase

@@ -80,8 +80,13 @@ public slots:
 private:
 
     NetworkServerDevice();                                                  ///< Not implemented.
-    NetworkServerDevice(const NetworkServerDevice &);                       ///< Not implemented.
-    const NetworkServerDevice & operator = (const NetworkServerDevice &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(NetworkServerDevice)
     bool InitializeNetwork();
 
 private:

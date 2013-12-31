@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file SWDetails.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/SWVersions/Include/SWDetails.h
  *
  *  \brief Implementation file for class CSWDetails.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-07
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -54,6 +54,7 @@ public:
     CSWDetails(const QString SWName);
 
     CSWDetails(const CSWDetails& SWDetails);
+    void CopyFromOther(const CSWDetails &SWDetails);
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CSWDetails& SWDetails);
     friend QDataStream& operator >>(QDataStream& InDataStream, CSWDetails& SWDetails);
@@ -146,6 +147,39 @@ public:
             return m_SWVersion.toFloat();
         }
     }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Get the SW version major number from the SW version
+     *  \return Major version number
+     */
+    /****************************************************************************/
+    inline float GetSWMajorVersionNumber()
+    {
+        return QString::number(GetSWVersionNumber()).split(".").value(0).toFloat();
+
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief Get the SW version minor number from the SW version
+     *  \return minor version number
+     */
+    /****************************************************************************/
+    inline float GetSWMinorVersionNumber()
+    {
+
+        QString MinorSWVersionNumber = QString::number(GetSWVersionNumber());
+
+        if (MinorSWVersionNumber.split(".").count() >= 2) {
+            return MinorSWVersionNumber.split(".").value(1).toFloat();
+        }
+        else {
+            return 0;
+        }
+
+    }
+
 
 };
 }

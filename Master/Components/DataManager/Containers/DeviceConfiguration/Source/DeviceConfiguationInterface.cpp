@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguationInterface.cpp
+/*! \file Components/DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguationInterface.cpp
  *
  *  \brief DeviceConfigurationInterface class implementation.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-09-04
- *   $Author:  $ Ningu
+ *   $Author:  $ Ningu123, Ramya GJ
  *
  *  \b Company:
  *
@@ -37,10 +37,11 @@ namespace DataManager {
  *  \brief Constructor
  */
 /****************************************************************************/
-CDeviceConfigurationInterface::CDeviceConfigurationInterface() :
-    mp_ReadWriteLock(NULL)
-    ,m_DataVerificationMode(true)
-    ,mp_DeviceConfig(NULL)
+CDeviceConfigurationInterface::CDeviceConfigurationInterface()
+    : mp_ReadWriteLock(NULL)
+    , m_DataVerificationMode(true)
+    , mp_DeviceConfig(NULL)
+    , m_FileName("DeviceConfiguration.xml")
 {
     // set default values
     SetDefaultAttributes();
@@ -57,15 +58,31 @@ CDeviceConfigurationInterface::CDeviceConfigurationInterface() :
 /****************************************************************************/
 CDeviceConfigurationInterface::CDeviceConfigurationInterface(const CDeviceConfigurationInterface& DeviceConfigterface) : CDataContainerBase()
 {
-    // remove constant cast from the object
-    CDeviceConfigurationInterface* p_DevConfigInterface = const_cast<CDeviceConfigurationInterface*>(&DeviceConfigterface);
-    // set the data to default values
-    SetDefaultAttributes();
-    m_DataVerificationMode = true;
-    // create deep copy of the object
-    *this = *p_DevConfigInterface;
+    // create the Read write lock for threads
+           mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+           mp_DeviceConfig = new CDeviceConfiguration();
+           CopyFromOther(DeviceConfigterface);
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \iparam Other = Instance of the CDataStationList class
+.*  \note  Method for internal use only
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CDeviceConfigurationInterface::CopyFromOther(const CDeviceConfigurationInterface &Other)
+{
+    //QReadWriteLock is not copied. We use the existing lock object
+    CDeviceConfigurationInterface &OtherDeviceConfigList = const_cast<CDeviceConfigurationInterface &>(Other);
+    m_FileName  = OtherDeviceConfigList.GetFilename();
+    m_DataVerificationMode = OtherDeviceConfigList.GetDataVerificationMode();
+    mp_DeviceConfig->CopyFromOther(*(OtherDeviceConfigList.GetDeviceConfiguration()));
+}
 /****************************************************************************/
 /*!
  *  \brief Destructor
@@ -76,17 +93,13 @@ CDeviceConfigurationInterface::~CDeviceConfigurationInterface()
     try {
         delete mp_ReadWriteLock;
     }
-    catch(...) {
-        //to please PClint
-    }
+    CATCHALL_DTOR();
     // clear the device configuration
 
     try {
         delete mp_DeviceConfig;
     }
-    catch(...) {
-        //to please PClint
-    }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -113,18 +126,12 @@ void CDeviceConfigurationInterface::SetDefaultAttributes()
 /****************************************************************************/
 bool CDeviceConfigurationInterface::UpdateDeviceConfiguration(const CDeviceConfiguration* p_DeviceConfig)
 {
-    try {
-        CHECKPTR(p_DeviceConfig);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    }
+    CHECKPTR_RETURN(p_DeviceConfig, false);
 
     bool Result = false;
     // check the verification flags
     if (m_DataVerificationMode) {
-        ErrorHash_t ErrorHash;
+        ErrorMap_t ErrorHash;
         // create the temporary CDataRackList class object
         CDeviceConfigurationInterface* p_DCI_Verification = new CDeviceConfigurationInterface();
 
@@ -149,8 +156,8 @@ bool CDeviceConfigurationInterface::UpdateDeviceConfiguration(const CDeviceConfi
                     // If the control reaches here means Error hash is empty
                     // Considering only the first element in Hash since
                     // verfier can atmost add only one Hash has to the error list
-                    m_ErrorHash = *(ErrorList.first());
-                    SetErrorList(&m_ErrorHash);
+                    m_ErrorMap = *(ErrorList.first());
+                    SetErrorList(&m_ErrorMap);
                 }
             }
         }
@@ -165,9 +172,14 @@ bool CDeviceConfigurationInterface::UpdateDeviceConfiguration(const CDeviceConfi
     }
     else {
         QWriteLocker locker(mp_ReadWriteLock);
-        // replace the old class object with updated class object
-        *mp_DeviceConfig = *p_DeviceConfig;
-        Result = true;
+        if (mp_DeviceConfig) {
+            // replace the old class object with updated class object
+            *mp_DeviceConfig = *p_DeviceConfig;
+            Result = true;
+        }
+        else {
+            Result = false;
+        }
     }
 
     return Result;
@@ -183,13 +195,8 @@ bool CDeviceConfigurationInterface::UpdateDeviceConfiguration(const CDeviceConfi
 /****************************************************************************/
 CDeviceConfiguration* CDeviceConfigurationInterface::GetDeviceConfiguration(bool CopyConfiguration)
 {
-    try {
-        CHECKPTR(mp_DeviceConfig);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    }
+    CHECKPTR_RETURN(mp_DeviceConfig, NULL)
+
     if (!CopyConfiguration) {
         return mp_DeviceConfig;
     }
@@ -216,26 +223,11 @@ bool CDeviceConfigurationInterface::SerializeContent(QIODevice& IODevice, bool C
 {
     QXmlStreamWriter XmlStreamWriter; ///< Xml stream writer object to write the Xml contents in a file
 
-    try {
-        CHECKPTR(mp_DeviceConfig);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    }
-
-
-//    QFile file("TestDevice2.xml");
-//    if (!file.open(QIODevice::WriteOnly))
-//    {
-//        return false;
-//    }
-//    XmlStreamWriter.setDevice(&file);
+    CHECKPTR_RETURN(mp_DeviceConfig, false)
 
     XmlStreamWriter.setDevice(&IODevice);
 
     XmlStreamWriter.setAutoFormatting(true);
-    //XmlStreamWriter.setAutoFormattingIndent(4);
     // start the XML Document
     XmlStreamWriter.writeStartDocument();
     XmlStreamWriter.writeDTD("<!DOCTYPE DeviceConfiguration>");
@@ -246,8 +238,6 @@ bool CDeviceConfigurationInterface::SerializeContent(QIODevice& IODevice, bool C
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_XML_SERIALIZE_FAILED, Global::tTranslatableStringList() << "DeviceConfiguartion", true);
         return false;
     }
-    //XmlStreamWriter.writeEndElement();
-
     // store the Class temporary data
     if(CompleteData) {
         //Need to be added the temporary members
@@ -290,13 +280,7 @@ bool CDeviceConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool
 {
     QXmlStreamReader XmlStreamReader;
 
-   try {
-        CHECKPTR(mp_DeviceConfig);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    }
+    CHECKPTR_RETURN(mp_DeviceConfig, false)
 
     XmlStreamReader.setDevice(&IODevice);
 
@@ -311,7 +295,7 @@ bool CDeviceConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool
     {
         while ((XmlStreamReader.name() != "ClassTemporaryData") && (!XmlStreamReader.atEnd()))
         {
-            XmlStreamReader.readNextStartElement();
+            (void)XmlStreamReader.readNextStartElement();
         }
 
         // File name
@@ -322,7 +306,7 @@ bool CDeviceConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool
         }
         m_FileName = XmlStreamReader.attributes().value("FileName").toString();
 
-         // VerificationMode
+        // VerificationMode
         if (!XmlStreamReader.attributes().hasAttribute("VerificationMode")) {
             qDebug() << "### attribute <VerificationMode> is missing => abort reading";
             Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "VerificationMode", true);
@@ -386,13 +370,9 @@ bool CDeviceConfigurationInterface::Read(QString FileName)
                 // If the control reaches here means Error hash is empty
                 // Considering only the first element in Hash since
                 // verfier can atmost add only one Hash has to the error list
-                m_ErrorHash = *(ErrorList.first());
-                SetErrorList(&m_ErrorHash);
+                m_ErrorMap = *(ErrorList.first());
+                SetErrorList(&m_ErrorMap);
             }
-            else {
-                Global::EventObject::Instance().RaiseEvent(EVENT_DM_DEVICE_CONFIG_VERIFICATION_FAILED, Global::tTranslatableStringList() << "", true);
-                Result = false;
-            }            
         }
         // delete test clone
         delete p_DeviceConfig_Verification;
@@ -445,8 +425,8 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfigurationI
     if (!p_TempDCInterface->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CDeviceConfigurationInterface::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        const_cast<CDeviceConfigurationInterface &>(DCInterface).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        const_cast<CDeviceConfigurationInterface &>(DCInterface).m_ErrorMap.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
 
     }
@@ -470,8 +450,8 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfigurationInterfac
     if (!DCInterface.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CDeviceConfigurationInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         // throws an exception
-        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        DCInterface.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        DCInterface.m_ErrorMap.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
 
     }
@@ -492,30 +472,7 @@ CDeviceConfigurationInterface& CDeviceConfigurationInterface::operator=(const CD
     // make sure not same object
     if (this != &SourceConfiguration)
     {
-        // create the byte array
-        QByteArray* p_TempByteArray = new QByteArray();
-        // create the data stream to write into a file
-        QDataStream DataStream(p_TempByteArray, QIODevice::ReadWrite);
-        DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-        p_TempByteArray->clear();
-        // write the data into data stream from source
-        DataStream << SourceConfiguration;
-        // reset the IO device pointer to starting position
-        (void)DataStream.device()->reset(); //to avoid lint-534
-
-        // copy the local verification flag in a temporary variable
-        bool VerificationModeLocal = GetDataVerificationMode();
-        // make verification flag to false, so that verification is not required
-        // for deep copy
-        if (VerificationModeLocal) {
-            SetDataVerificationMode(false);
-        }
-
-        // read the data from data stream to destination object
-        DataStream >> *this;
-
-        delete p_TempByteArray;
-        SetDataVerificationMode(VerificationModeLocal);
+        CopyFromOther(SourceConfiguration);
     }
     return *this;
 }

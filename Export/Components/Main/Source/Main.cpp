@@ -28,6 +28,7 @@
 #include "Main/Include/Main.h"
 #include "ExportData/Include/Startup.h"
 #include "Global/Include/SystemPaths.h"
+#include "Global/Include/GlobalExitCodes.h"
 
 
 static const QString Version = "EXP_0.002"; ///< version string for the export component
@@ -81,6 +82,6 @@ int main(int argc, char *argv[]) {
         return ReturnCode;
 
     }
-    return 1;
+    return Global::EXIT_CODE_EXPORT_FAILED;
 
 }

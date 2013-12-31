@@ -42,11 +42,9 @@ namespace ExternalProcessControl {
 ExternalProcessDevice::ExternalProcessDevice(NetworkBase::NetworkServerType_t server, const QString &client, \
                                              const QString &path, ExternalProcessController *pController, QObject *pParent) :
         NetworkServerDevice::NetworkServerDevice(server, client, path, pParent),
-        m_LoginTimer(this),
         m_RemoteLoginEnabled("No"),
         m_RemoteLoginTimeout(-1),
         m_myController(pController)
-
 {
     this->setParent(pParent);
 }
@@ -95,15 +93,23 @@ bool ExternalProcessDevice::InitializeDevice()
  ****************************************************************************/
 bool ExternalProcessDevice::InitializeDeviceWithParameters(const QString &remoteLoginEnabled, int remoteLoginTimeout)
 {
-    qDebug() << "ExternalProcessDevice: initializing ExternalProcess...";
+//    qDebug() << "ExternalProcessDevice: initializing ExternalProcess...";
 
     if (m_myController == NULL) {
         qDebug() << "ExternalProcessDevice: Device's Controller is NULL !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         return false;
     }
 
     if (!NetworkServerDevice::InitializeDevice()) {
         qDebug() << "ExternalProcessDevice: cannot initialize Network Server Device.";
+        if(m_myController) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_INIT_FAILED,
+                                                   Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                    << FILE_LINE);
+        }
         return false;
     }
 
@@ -113,11 +119,12 @@ bool ExternalProcessDevice::InitializeDeviceWithParameters(const QString &remote
     // guard the login timeout: if ExternalProcess fails to connect before timeout - not good. :)
     try {
         CONNECTSIGNALSLOT(&m_LoginTimer, timeout(), this, LoginTimedout());
-    } catch (...) {
-        return false;
-    }
 
-    return true;
+        return true;
+    }
+    CATCHALL();
+
+    return false;
 }
 
 /****************************************************************************/
@@ -133,12 +140,15 @@ bool ExternalProcessDevice::InitializeDeviceWithParameters(const QString &remote
 /****************************************************************************/
 bool ExternalProcessDevice::ProcessIncomingMessage(const QString &msgname, const QString &ref, const QByteArray &bArray)
 {
-    qDebug() << "ExternalProcessDevice: " << msgname << " reference: " << ref << " received !\n";
+//    qDebug() << "ExternalProcessDevice: " << msgname << " reference: " << ref << " received !\n";
     bool result = false;
     QString status = NetworkBase::CMH_MSG_SENDING_NACK;
 
     if (msgname.isEmpty() || ref.isEmpty()) {
-        /// \todo log error
+        if(m_myController) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPD_MISSING_INPUT,
+                                                   Global::tTranslatableStringList() << m_myController->GetProcessName());
+        }
         qDebug() << "\nExternalProcessDevice: oops. missing input !\n";
         static_cast<void> (NetworkBase::Ack::SendAcknowledge(this, ref, msgname, status));
         return result;
@@ -182,6 +192,10 @@ bool ExternalProcessDevice::StartDevice()
 {
     // start server
     if (!NetworkServerDevice::StartDevice()) {
+        if(m_myController) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPD_NETWORK_DEVICE_NOT_STARTED,
+                                                   Global::tTranslatableStringList() << m_myController->GetProcessName());
+        }
         return false;
     }
     // start login timeout timer
@@ -247,7 +261,7 @@ void ExternalProcessDevice::PeerDisconnected(const QString &name)
 
 /****************************************************************************/
 /*!
- *  \brief    This function disconnects Himalaya from ExternalProcess
+ *  \brief    This function disconnects Colorado from ExternalProcess
  *
  *
  ****************************************************************************/
@@ -303,6 +317,11 @@ void ExternalProcessDevice::LoginTimedout()
     // stop the login timer
     StopLoginGuard();
     qDebug() << "ExternalProcessDevice: ExternalProcess login timedout !";
+
+    if(m_myController) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPD_EP_LOGIN_TIMEDOUT,
+                                               Global::tTranslatableStringList() << m_myController->GetProcessName());
+    }
     emit SigLoginTimeout();
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Module.cpp
+/*! \file DataManager/Containers/InstrumentHistory/Source/Module.cpp
  *
  *  \brief Implementation file for class CModule.
  *
@@ -24,6 +24,10 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include <Global/Include/Exception.h>
+#include <Global/Include/EventObject.h>
+#include <Global/Include/Utils.h>
+
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DataManager/Helper/Include/Helper.h"
 
@@ -39,7 +43,10 @@ CModule::CModule() :m_ModuleName(""),
     m_ModuleDescription(""),
     m_SerialNumber(""),    
     m_OperatingHours(""),
-    m_DateOfProduction("")
+    m_CalibrationDate(""),
+    m_CalibrationResult(""),
+    m_TestDate(""),
+    m_TestResult("")
 {
 
 }
@@ -61,13 +68,12 @@ CModule::CModule(QString ModuleName)
  *  \brief Parameterized Constructor
  */
 /****************************************************************************/
-CModule::CModule(QString ModuleName, QString Description, QString SerialNumber, QString OperatingHrs, QString DateOfProduction)
+CModule::CModule(QString ModuleName, QString Description, QString SerialNumber, QString OperatingHrs)
 {
     m_ModuleName = ModuleName;
     m_ModuleDescription = Description;
     m_SerialNumber = SerialNumber;
     m_OperatingHours = OperatingHrs;
-    m_DateOfProduction = DateOfProduction;
 }
 
 /****************************************************************************/
@@ -80,7 +86,82 @@ CModule::CModule(QString ModuleName, QString Description, QString SerialNumber, 
 /****************************************************************************/
 CModule::CModule(const CModule& Module)
 {
-    *this = Module;
+   CopyFromOther(Module);
+}
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \iparam ModuleInfo = Instance of the CModule class
+.*  \note  Method for internal use only
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CModule::CopyFromOther(const CModule &Other)
+{
+    CModule &OtherModule = const_cast<CModule&>(Other);
+
+    m_ModuleName = OtherModule.GetModuleName();
+    m_ModuleDescription = OtherModule.GetModuleDescription();
+    m_SerialNumber = OtherModule.GetSerialNumber();
+    m_OperatingHours = OtherModule.GetOperatingHours();
+    m_CalibrationDate = OtherModule.GetCalibrationDate();
+    m_CalibrationResult = OtherModule.GetCalibrationResult();
+    m_TestDate = OtherModule.GetTestDate();
+    m_TestResult = OtherModule.GetTestResult();
+
+    //qDebug() <<"SubModuleList Keys"<< m_SubModuleList.keys().toSet();
+    //qDebug()<<"Other SubModuleList keys" << Other.GetSubModuleIdList().toSet();
+    QSet<QString> SubModulesInOurList(static_cast< QSet<QString> >(m_SubModuleList.keys().toSet()));
+    QSet<QString> SubModulesInOtherList(Other.GetSubModuleIdList().toSet());
+    //we get a list of SubModules that are not there in new list but present in our list, they are to be deleted.
+    QSet<QString> SubModulesToDelete(SubModulesInOurList.subtract(SubModulesInOtherList));
+    QSetIterator<QString> Itr(SubModulesToDelete);
+    while (Itr.hasNext()) {
+        DeleteSubModule(Itr.next());
+    }
+
+    //Recreate SubModules in our list
+    SubModulesInOurList = m_SubModuleList.keys().toSet();
+    //Update SubModules which are present in our list and other list
+    QSet<QString> SubModulesToUpdate(static_cast< QSet<QString> >(SubModulesInOurList.intersect(SubModulesInOtherList)));
+    QSetIterator<QString> UpdateItr(SubModulesToUpdate);
+    while (UpdateItr.hasNext()) {
+        const QString SubModuleID = UpdateItr.next();
+        const CSubModule *p_OtherSubModule = Other.GetSubModuleInfo(SubModuleID);
+        CSubModule *p_OurSubModule = GetSubModuleInfo(SubModuleID);
+        if (p_OtherSubModule && p_OurSubModule) {
+            //There exist a SubModule with similar ID in the other SubModulelist.
+            //update our SubModule with values from other.
+             *p_OurSubModule = *p_OtherSubModule;
+        }
+    }
+
+    //Finally create SubModules which are not present in our list but in other list.
+    QSet<QString> SubModulesToCreate(SubModulesInOtherList.subtract(SubModulesInOurList));
+    QSetIterator<QString> CreateItr(SubModulesToCreate);
+    while (CreateItr.hasNext()) {
+        const CSubModule *p_OtherSubModule = Other.GetSubModuleInfo(CreateItr.next());
+        AddSubModuleInfo(p_OtherSubModule);
+    }
+
+    m_OrderedSubModuleList.clear();
+    m_OrderedSubModuleList = OtherModule.m_OrderedSubModuleList;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Returns the ID's of all sub modules present in the list
+ *
+ *  \return QStringList = list ofsub  moduled Ids
+ */
+/****************************************************************************/
+QStringList CModule::GetSubModuleIdList() const
+{
+    return m_SubModuleList.keys();
 }
 
 /****************************************************************************/
@@ -90,7 +171,10 @@ CModule::CModule(const CModule& Module)
 /****************************************************************************/
 CModule::~CModule()
 {
-    DeleteAllSubModule();
+    try {
+        (void)DeleteAllSubModule(); // to avoid lint-534
+    }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -135,7 +219,7 @@ bool CModule::ReadSubModuleInfo(QXmlStreamReader& XmlStreamReader, bool Complete
             }
         }
         else if (XmlStreamReader.isEndElement() && XmlStreamReader.name().toString() == "Module") {
-            qDebug() << XmlStreamReader.name().toString();
+//            qDebug() << XmlStreamReader.name().toString();
             break; // exit from while loop
         }
     }
@@ -155,8 +239,8 @@ bool CModule::AddSubModuleInfo(CSubModule const* p_SubModule)
     bool Result = true;
     if(p_SubModule == NULL) return false;
 
-    QString name = const_cast<CSubModule*>(p_SubModule)->GetSubModuleName();
-    if(m_SubModuleList.contains(name)){
+    QString Name = const_cast<CSubModule*>(p_SubModule)->GetSubModuleName();
+    if(m_OrderedSubModuleList.contains(Name)){
         qDebug() << "Name already exists";
         return false;
     }
@@ -164,8 +248,8 @@ bool CModule::AddSubModuleInfo(CSubModule const* p_SubModule)
     CSubModule *p_TempSubModule = new CSubModule();
     *p_TempSubModule = *p_SubModule;
 
-    m_SubModuleList.insert(p_TempSubModule->GetSubModuleName(), p_TempSubModule);
-    m_OrderedSubModuleList.append(p_TempSubModule->GetSubModuleName());
+    m_SubModuleList.insert(Name, p_TempSubModule);
+    m_OrderedSubModuleList.append(Name);    
 
     return Result;
 }
@@ -216,7 +300,9 @@ bool CModule::DeleteSubModule(const QString SubModuleName)
             }
         }
         // IndexCount MUST never be -1
-        Q_ASSERT(IndexCount != -1);
+        if (IndexCount == -1) {
+            return false;
+        }
         m_OrderedSubModuleList.removeAt(IndexCount);
     }
     else {
@@ -285,7 +371,7 @@ bool CModule::UpdateSubModule(const CSubModule* p_SubModule)
 /*!
  *  \brief Reads the CModule Data from QIODevice
  *
- *  \iparam IODevice = Instance of the IODevice - Buffer or File
+ *  \iparam XmlStreamReader = Xml reader to read the XML contents
  *  \iparam CompleteData = bool type if true writes Complete data of object
  *
  *  \return True or False
@@ -321,14 +407,35 @@ bool CModule::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool Complet
         qDebug() << "DeserializeContent: abort reading. Node not found: OperatingHours";
         return false;
     }
-    SetOperatingHours(XmlStreamReader.readElementText());
+    SetOperatingHours(XmlStreamReader.readElementText());    
 
-    //Date of production
-    if (!Helper::ReadNode(XmlStreamReader, "DateOfProduction")) {
-        qDebug() << "DeserializeContent: abort reading. Node not found: DateOfProduction";
+    //Calibration Date
+    if (!Helper::ReadNode(XmlStreamReader, "CalibrationDate")) {
+        qDebug() << "DeserializeContent: abort reading. Node not found: CalibrationDate";
         return false;
     }
-    SetDateOfProduction(XmlStreamReader.readElementText());   
+    SetCalibrationDate(XmlStreamReader.readElementText());
+
+    //Calibration Result
+    if (!Helper::ReadNode(XmlStreamReader, "CalibrationResult")) {
+        qDebug() << "DeserializeContent: abort reading. Node not found: CalibrationResult";
+        return false;
+    }
+    SetCalibrationResult(XmlStreamReader.readElementText());
+
+    //Test Date
+    if (!Helper::ReadNode(XmlStreamReader, "TestDate")) {
+        qDebug() << "DeserializeContent: abort reading. Node not found: TestDate";
+        return false;
+    }
+    SetTestDate(XmlStreamReader.readElementText());
+
+    //Test Result
+    if (!Helper::ReadNode(XmlStreamReader, "TestResult")) {
+        qDebug() << "DeserializeContent: abort reading. Node not found: TestResult";
+        return false;
+    }
+    SetTestResult(XmlStreamReader.readElementText());
 
     Result = ReadSubModuleInfo(XmlStreamReader, CompleteData);
 
@@ -339,7 +446,7 @@ bool CModule::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool Complet
 /*!
  *  \brief Writes the CModule Data to QIODevice
  *
- *  \iparam IODevice = Instance of the IODevice might be Buffer or File
+ *  \iparam XmlStreamWriter = Xml stream writer to write the XML contents
  *  \iparam CompleteData = bool type if true writes Complete data of object
  *
  *  \return True or False
@@ -361,9 +468,21 @@ bool CModule::SerializeContent(QXmlStreamWriter &XmlStreamWriter, bool CompleteD
     XmlStreamWriter.writeCharacters(GetOperatingHours());
     XmlStreamWriter.writeEndElement(); // OperatingHours
 
-    XmlStreamWriter.writeStartElement("DateOfProduction");
-    XmlStreamWriter.writeCharacters(GetDateOfProduction());
-    XmlStreamWriter.writeEndElement(); // DateOfProduction
+    XmlStreamWriter.writeStartElement("CalibrationDate");
+    XmlStreamWriter.writeCharacters(GetCalibrationDate());
+    XmlStreamWriter.writeEndElement(); // CalibrationDate
+
+    XmlStreamWriter.writeStartElement("CalibrationResult");
+    XmlStreamWriter.writeCharacters(GetCalibrationResult());
+    XmlStreamWriter.writeEndElement(); // CalibrationResult
+
+    XmlStreamWriter.writeStartElement("TestDate");
+    XmlStreamWriter.writeCharacters(GetTestDate());
+    XmlStreamWriter.writeEndElement(); // TestDate
+
+    XmlStreamWriter.writeStartElement("TestResult");
+    XmlStreamWriter.writeCharacters(GetTestResult());
+    XmlStreamWriter.writeEndElement(); // TestResult
 
     for (int i = 0; i < GetNumberofSubModules(); i++)
     {
@@ -410,28 +529,10 @@ CModule& CModule::operator=(const CModule& ModuleInfo)
 {
     if(this != &ModuleInfo) {
 
-        this->DeleteAllSubModule();
-
-        QString Name = const_cast<CModule&>(ModuleInfo).GetModuleName();
-        QString Description = const_cast<CModule&>(ModuleInfo).GetModuleDescription();
-        QString SerialNumber = const_cast<CModule&>(ModuleInfo).GetSerialNumber();
-        QString OpHrs = const_cast<CModule&>(ModuleInfo).GetOperatingHours();
-        QString DateOProd = const_cast<CModule&>(ModuleInfo).GetDateOfProduction();
-
-        this->SetModuleName(Name);
-        this->SetModuleDescription(Description);
-        this->SetSerialNumber(SerialNumber);
-        this->SetOperatingHours(OpHrs);
-        this->SetDateOfProduction(DateOProd);
-
-        int Count = const_cast<CModule&>(ModuleInfo).GetNumberofSubModules();
-
-        for(size_t i=0; i<Count; i++)
-        {
-            CSubModule *SubModule = const_cast<CModule&>(ModuleInfo).GetSubModuleInfo(i);
-            this->AddSubModuleInfo(SubModule);
-        }
+        //this->DeleteAllSubModule();
+        CopyFromOther(ModuleInfo);
     }
+
     return *this;
 }
 
@@ -440,7 +541,7 @@ CModule& CModule::operator=(const CModule& ModuleInfo)
  *  \brief Output Stream Operator which streams data
  *
  *  \iparam OutDataStream = Instance of the QDataStream
- *  \iparam CModule = CModule class object
+ *  \iparam Moduleinfo = CModule class object
  *
  *  \return Output Stream
  */
@@ -462,7 +563,7 @@ QDataStream& operator << (QDataStream& OutDataStream, const CModule& Moduleinfo)
  *  \brief Input stream Operator which reads the data from Input parameter.
  *
  *  \iparam InDataStream = Instance of the DataStream
- *  \iparam CModule = CModule class object
+ *  \iparam Moduleinfo = CModule class object
  *
  *  \return Input Stream
  */

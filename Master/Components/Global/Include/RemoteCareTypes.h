@@ -126,16 +126,17 @@ typedef enum {
     RDI_DataInvalid
 } RCDataItemQuality_t;
 
-const QString RC_DATAITEM_REQUEST_REMOTE_SESSION    = "RequestRemoteSession";
-const QString RC_DATAITEM_REQUEST_ASSET_INFO        = "RequestAssetInformation";
-const QString RC_DATAITEM_SET_EVENT_CLASS           = "SetEventClass";
-const QString RC_DATAITEM_SET_EVENT_PRIORITY        = "SetEventPriority";
-const QString RC_DATAITEM_SET_LOG_NUMBER            = "SetLogNumber";
-const QString RC_DATAITEM_SET_SUBSCRIPTION          = "SetSubscription";
-const QString RC_DATAITEM_SET_UPDATE_AVAILABLE      = "SetUpdateAvailable";
-const QString RC_DATAITEM_SET_DOWNLOAD_FINISHED     = "SetDownloadFinished";
-const QString RC_DATAITEM_ENABLE_SOFTWARE_UPDATE    = "EnableSoftwareUpdate";
-const QString RC_DATAITEM_STATE_ASSET_COMPLETE      = "StateAssetComplete";
+const QString RC_DATAITEM_REQUEST_REMOTE_SESSION    = "RequestRemoteSession";   ///< Request remote session
+const QString RC_DATAITEM_REQUEST_ASSET_INFO        = "RequestAssetInformation"; ///< request asset info
+const QString RC_DATAITEM_SET_EVENT_CLASS           = "SetEventClass";          ///< set event class
+const QString RC_DATAITEM_SET_EVENT_PRIORITY        = "SetEventPriority";       ///< set event priority
+const QString RC_DATAITEM_SET_LOG_NUMBER            = "SetLogNumber";           ///< set number of log files
+const QString RC_DATAITEM_SET_SUBSCRIPTION          = "SetSubscription";        ///< set subscription
+const QString RC_DATAITEM_SET_UPDATE_AVAILABLE      = "SetUpdateAvailable";     ///< set update available
+const QString RC_DATAITEM_SET_DOWNLOAD_FINISHED     = "SetDownloadFinished";    ///< set download finished
+const QString RC_DATAITEM_SET_PING_RATE             = "SetPingRate";            ///< set ping rate
+const QString RC_DATAITEM_ENABLE_SOFTWARE_UPDATE    = "EnableSoftwareUpdate";   ///< enable software update
+const QString RC_DATAITEM_STATE_ASSET_COMPLETE      = "StateAssetComplete";     ///< state asset complete
 
 } // end namespace
 

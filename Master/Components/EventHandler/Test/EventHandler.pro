@@ -6,3 +6,4 @@ TEMPLATE = subdirs
 
 SUBDIRS =  TestEventCSVInfo.pro\
            TestEventHandlerThreadController.pro\
+           TestStateHandler.pro

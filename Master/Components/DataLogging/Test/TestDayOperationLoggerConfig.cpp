@@ -117,25 +117,27 @@ void TestDayOperationLoggerConfig::utDefaultConstructor() {
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utConstructorWithData() {
     // test constructor with data
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1);
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2);
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
 
     QCOMPARE(TestObject1.m_OperatingMode,   QString("assembly"));
     QCOMPARE(TestObject1.m_SerialNumber,    QString("SerNum1"));
     QCOMPARE(TestObject1.m_Path,            QString("Path1"));
     QCOMPARE(TestObject1.m_MaxFileCount,    1);
+    QCOMPARE(TestObject1.m_BaseFileName,    QString("Leica_"));
 
     QCOMPARE(TestObject2.m_OperatingMode,   QString("production"));
     QCOMPARE(TestObject2.m_SerialNumber,    QString("SerNum2"));
     QCOMPARE(TestObject2.m_Path,            QString("Path2"));
     QCOMPARE(TestObject2.m_MaxFileCount,    2);
+    QCOMPARE(TestObject2.m_BaseFileName,    QString("Leica_ST_"));
 }
 
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utCopyConstructor() {
     // test copy constructor
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1);
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2);
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
     DayEventLoggerConfig TestObject3(TestObject1);
     DayEventLoggerConfig TestObject4(TestObject2);
 
@@ -143,28 +145,32 @@ void TestDayOperationLoggerConfig::utCopyConstructor() {
     QCOMPARE(TestObject1.m_SerialNumber,    QString("SerNum1"));
     QCOMPARE(TestObject1.m_Path,            QString("Path1"));
     QCOMPARE(TestObject1.m_MaxFileCount,    1);
+    QCOMPARE(TestObject1.m_BaseFileName,    QString("Leica_"));
 
     QCOMPARE(TestObject2.m_OperatingMode,   QString("production"));
     QCOMPARE(TestObject2.m_SerialNumber,    QString("SerNum2"));
     QCOMPARE(TestObject2.m_Path,            QString("Path2"));
     QCOMPARE(TestObject2.m_MaxFileCount,    2);
+    QCOMPARE(TestObject2.m_BaseFileName,    QString("Leica_ST_"));
 
     QCOMPARE(TestObject3.m_OperatingMode,   QString("assembly"));
     QCOMPARE(TestObject3.m_SerialNumber,    QString("SerNum1"));
     QCOMPARE(TestObject3.m_Path,            QString("Path1"));
     QCOMPARE(TestObject3.m_MaxFileCount,    1);
+    QCOMPARE(TestObject3.m_BaseFileName,    QString("Leica_"));
 
     QCOMPARE(TestObject4.m_OperatingMode,   QString("production"));
     QCOMPARE(TestObject4.m_SerialNumber,    QString("SerNum2"));
     QCOMPARE(TestObject4.m_Path,            QString("Path2"));
     QCOMPARE(TestObject4.m_MaxFileCount,    2);
+    QCOMPARE(TestObject4.m_BaseFileName,    QString("Leica_ST_"));
 }
 
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utAssignmentOperator() {
     // test assignment operator
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1);
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2);
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
     DayEventLoggerConfig TestObject3;
     DayEventLoggerConfig TestObject4;
     DayEventLoggerConfig TestObject5;
@@ -175,21 +181,25 @@ void TestDayOperationLoggerConfig::utAssignmentOperator() {
     QCOMPARE(TestObject1.m_SerialNumber,    QString("SerNum1"));
     QCOMPARE(TestObject1.m_Path,            QString("Path1"));
     QCOMPARE(TestObject1.m_MaxFileCount,    1);
+    QCOMPARE(TestObject1.m_BaseFileName,    QString("Leica_"));
 
     QCOMPARE(TestObject2.m_OperatingMode,   QString("production"));
     QCOMPARE(TestObject2.m_SerialNumber,    QString("SerNum2"));
     QCOMPARE(TestObject2.m_Path,            QString("Path2"));
     QCOMPARE(TestObject2.m_MaxFileCount,    2);
+    QCOMPARE(TestObject2.m_BaseFileName,    QString("Leica_ST_"));
 
     QCOMPARE(TestObject3.m_OperatingMode,   QString("assembly"));
     QCOMPARE(TestObject3.m_SerialNumber,    QString("SerNum1"));
     QCOMPARE(TestObject3.m_Path,            QString("Path1"));
     QCOMPARE(TestObject3.m_MaxFileCount,    1);
+    QCOMPARE(TestObject3.m_BaseFileName,    QString("Leica_"));
 
     QCOMPARE(TestObject4.m_OperatingMode,   QString("production"));
     QCOMPARE(TestObject4.m_SerialNumber,    QString("SerNum2"));
     QCOMPARE(TestObject4.m_Path,            QString("Path2"));
     QCOMPARE(TestObject4.m_MaxFileCount,    2);
+    QCOMPARE(TestObject4.m_BaseFileName,    QString("Leica_ST_"));
 
     TestObject5 = TestObject4 = TestObject3;
     QCOMPARE(TestObject3.m_OperatingMode,   QString("assembly"));
@@ -217,18 +227,20 @@ void TestDayOperationLoggerConfig::utAssignmentOperator() {
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utGet() {
     // test get methods
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1);
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2);
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
 
     QCOMPARE(TestObject1.GetOperatingMode(),    QString("assembly"));
     QCOMPARE(TestObject1.GetSerialNumber(),     QString("SerNum1"));
     QCOMPARE(TestObject1.GetPath(),             QString("Path1"));
     QCOMPARE(TestObject1.GetMaxFileCount(),     1);
+    QCOMPARE(TestObject1.GetBaseFileName(),     QString("Leica_"));
 
     QCOMPARE(TestObject2.GetOperatingMode(),    QString("production"));
     QCOMPARE(TestObject2.GetSerialNumber(),     QString("SerNum2"));
     QCOMPARE(TestObject2.GetPath(),             QString("Path2"));
     QCOMPARE(TestObject2.GetMaxFileCount(),     2);
+    QCOMPARE(TestObject2.GetBaseFileName(),     QString("Leica_ST_"));
 }
 
 } // end namespace DataLogging

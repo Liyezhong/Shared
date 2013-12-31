@@ -64,7 +64,7 @@ QByteArray ReadAndBuffer::read(int size)
  *
  * \iparam archive_name - absolute pathname of archive;
  *                      the archive name must have the structure
- *                      Himalaya_zzz_xxx_yyy.cea
+ *                      Colorado_zzz_xxx_yyy.cea
  *                      where xxx is the serial number and yyy is
  *                      a time stamp in ISO format (date and time
  *                      in UTC). zzz denotes the archive kind or

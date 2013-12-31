@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file General.ccp
+/*! \file General.cpp
  *
  *  \brief general constants and utilities
  *
@@ -124,8 +124,8 @@ FailSafeOpen::FailSafeOpen(): mp_fd(0)
  *
  * throw ImexException if fails
  *
- * iparam name - filename
- * iparam mode - open for write ('w') or read ('r')
+ * \iparam name - filename
+ * \iparam mode - open for write ('w') or read ('r')
  */
 /****************************************************************************/
 FailSafeOpen::FailSafeOpen(QString name, char mode): mp_fd(0)
@@ -253,7 +253,7 @@ int FailSafeOpen::size()
 /****************************************************************************/
 void FailSafeOpen::write(QByteArray data)
 {
-    qint64 written = -1;
+    qint64 written = 0;
 
     if(!mp_fd)
     {

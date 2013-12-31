@@ -28,8 +28,8 @@ QString CmdChangeUserLevelReply::NAME = "NetCommands::CmdChangeUserLevelReply";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   UserLevel   Type of the user
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   UserLevel   Type of the user
  */
 /****************************************************************************/
 CmdChangeUserLevelReply::CmdChangeUserLevelReply(int Timeout, const Global::GuiUserLevel &UserLevel) :

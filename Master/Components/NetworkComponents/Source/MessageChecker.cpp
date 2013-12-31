@@ -21,6 +21,9 @@
 
 #include <NetworkComponents/Include/NetworkDevice.h>
 #include <NetworkComponents/Include/MessageChecker.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
+#include <Global/Include/Utils.h>
 
 namespace NetworkBase {
 
@@ -59,9 +62,9 @@ MessageChecker::~MessageChecker()
                 delete values[i];
             }
         }
-    } catch (...) {
-        // to please PCLint...
+        qDeleteAll(m_ListOfXmlSchedma);
     }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -81,11 +84,15 @@ MessageCheckerErrorType_t MessageChecker::LoadMessages()
         return CMH_ALL_OK;
     }
     MessageLoader cml(m_myType, m_myDocType, m_myPath, this);
+    QXmlSchema *p_Schema = new QXmlSchema();
+    m_ListOfXmlSchedma.append(p_Schema);
     MessageLoaderErrorType_t err =
-                 cml.LoadMessages(&m_MessageCmdToSchema);
+                 cml.LoadMessages(&m_MessageCmdToSchema, p_Schema);
 
     if (err != CML_ALL_OK) {
         qDebug() << "\nMSGHDLR: cannot load messages! Error = " << static_cast<int>(err) << "\n";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MC_ERROR_LOADING_MSG,
+                                                   Global::tTranslatableStringList() << m_myPath << QString::number((int)err));
         return CMH_CANNOT_LOAD_MESSAGES;
     }
     return CMH_ALL_OK;
@@ -116,11 +123,15 @@ bool MessageChecker::CheckMsgSchema(const QString & msgid, QDomDocument *domD)
 
     if (vdtr == NULL) {
         qDebug() << "MessageChecker ERROR: validator is NULL !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MC_NULL_VALIDATOR,
+                                                   Global::tTranslatableStringList() << msgid);
         return false;
     }
 
     if (!vdtr->validate(barr)) {
         qDebug() << "MessageChecker ERROR: incoming MSG document is invalid !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_MC_INVALID_MSG,
+                                                   Global::tTranslatableStringList() << msgid);
         return false;
     }
 

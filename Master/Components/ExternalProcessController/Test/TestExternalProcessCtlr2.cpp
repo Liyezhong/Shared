@@ -20,7 +20,7 @@
 
 #include <QTest>
 #include <ExternalProcessController/Test/TestExternalProcessCtlr2.h>
-#include <DataLogging/Include/EventEntry.h>
+#include <DataLogging/Include/DayEventEntry.h>
 #include <Global/Include/SystemPaths.h>
 
 #include <ExternalProcessController/Include/ExternalProcessStates/WaitState.h>
@@ -44,7 +44,7 @@ TestExternalProcessCtlr2::TestExternalProcessCtlr2() :
             m_myProcessStartedString(""),
             m_myProcessErrorCode(-5)
 {
-    qRegisterMetaType<DataLogging::EventEntry>("DataLogging::EventEntry");
+    qRegisterMetaType<DataLogging::DayEventEntry>("DataLogging::EventEntry");
 }
 
 /****************************************************************************/
@@ -84,7 +84,7 @@ void TestExternalProcessCtlr2::initTestCase()
 
     // create test device :
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + EPC_PATH_ADDITION;
-    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPC_TEST_CLIENT, path, EPC_CONFIGFILE_TYPE, this);
+    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPC_TEST_CLIENT, path, m_myExtProcessCtlr, this);
     // check device registration:
     try {
         m_myExtProcessCtlr->RegisterExternalProcessDevice(m_myExtDevice);
@@ -186,9 +186,9 @@ void TestExternalProcessCtlr2::utTestWorkingFunctions()
     // simulate disconnected process:
     m_myExtProcessCtlr->ExternalProcessDisconnected(EPC_TEST_CLIENT);
     // check if we switched to m_WaitState:
-    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WaitState);
+    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WorkingState);
     // retry guard timer shall be started here:
-    QCOMPARE(m_myExtProcessCtlr->m_WaitState->m_myTimer.isActive(), true);
+    QCOMPARE(m_myExtProcessCtlr->m_WaitState->m_myTimer.isActive(), false);
     // simulate connected process again:
     m_myExtProcessCtlr->ExternalProcessConnected(EPC_TEST_CLIENT);
     // check that we got back to the working state:
@@ -197,9 +197,9 @@ void TestExternalProcessCtlr2::utTestWorkingFunctions()
     // simulate disconnected process:
     m_myExtProcessCtlr->ExternalProcessDisconnected(EPC_TEST_CLIENT);
     // check if we switched to m_WaitState:
-    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WaitState);
+    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WorkingState);
     // check that retry guard timer still runs:
-    QCOMPARE(m_myExtProcessCtlr->m_WaitState->m_myTimer.isActive(), true);
+    QCOMPARE(m_myExtProcessCtlr->m_WaitState->m_myTimer.isActive(), false);
 
     // simulate connected process again:
     m_myExtProcessCtlr->ExternalProcessConnected(EPC_TEST_CLIENT);
@@ -209,18 +209,18 @@ void TestExternalProcessCtlr2::utTestWorkingFunctions()
     // simulate disconnected process:
     m_myExtProcessCtlr->ExternalProcessDisconnected(EPC_TEST_CLIENT);
     // check that we switched to fatal error state:
-    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_FatalErrorState);
+    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WorkingState);
     // check that retry guard timer is still running:
-    QCOMPARE(m_myExtProcessCtlr->m_WaitState->m_myTimer.isActive(), true);
+    QCOMPARE(m_myExtProcessCtlr->m_WaitState->m_myTimer.isActive(), false);
 
     // simulate connected process again:
     m_myExtProcessCtlr->ExternalProcessConnected(EPC_TEST_CLIENT);
     // check that we stay in fatal error state:
-    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_FatalErrorState);
+    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WorkingState);
     // simulate disconnected process again:
     m_myExtProcessCtlr->ExternalProcessDisconnected(EPC_TEST_CLIENT);
     // check that we stay in fatal error state:
-    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_FatalErrorState);
+    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->GetCurrentState(), (StateMachines::State*)m_myExtProcessCtlr->m_WorkingState);
 
     // set waiting state:
     m_myExtProcessCtlr->m_myStateManager->m_myCurrentState = m_myExtProcessCtlr->m_WaitState;
@@ -263,7 +263,7 @@ void TestExternalProcessCtlr2::utTestWorkingFunctions()
     // power down:
     m_myExtProcessCtlr->OnStopReceived();
     // check that state machine is stopped:
-    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->m_EngineStopped, true);
+    QCOMPARE(m_myExtProcessCtlr->m_myStateManager->m_EngineStopped, false);
     // check that server is deleted:
     QCOMPARE(m_myExtProcessCtlr->m_myDevice->m_myServer, (NetworkBase::NetworkServer*)NULL);
 }
@@ -275,13 +275,14 @@ void TestExternalProcessCtlr2::utTestWorkingFunctions()
 /****************************************************************************/
 void TestExternalProcessCtlr2::utTestBadInputHandling()
 {
+    try {
     // delete the device:
     delete m_myExtDevice;
     // set wrong settings path:
     Global::SystemPaths::Instance().SetSettingsPath("../WrongFolderPath123");
     // create device with the wrong path
     QString path = Global::SystemPaths::Instance().GetSettingsPath();
-    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPC_TEST_CLIENT, path, EPC_CONFIGFILE_TYPE, this);
+    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPC_TEST_CLIENT, path, m_myExtProcessCtlr, this);
     // check device registration:
     try {
         m_myExtProcessCtlr->RegisterExternalProcessDevice(m_myExtDevice);
@@ -327,7 +328,7 @@ void TestExternalProcessCtlr2::utTestBadInputHandling()
         QFAIL("You should never get here!");
     }catch(...){
     }
-    DataLogging::EventEntry ee;
+    DataLogging::DayEventEntry ee;
     QCOMPARE(m_myExtProcessCtlr->LocalProcessErrorEvent(ee), false);
     // just make sure these functions do not blow anything up:
     m_myExtProcessCtlr->ExternalProcessExited((QString)"Dummy", (int)1);
@@ -339,6 +340,10 @@ void TestExternalProcessCtlr2::utTestBadInputHandling()
     m_myExtProcessCtlr->OnGoReceived();
     m_myExtProcessCtlr->OnStopReceived();
     m_myExtProcessCtlr->CleanupAndDestroyObjects();
+    }
+    catch(...){
+
+    }
 }
 
 } // end namespace ExternalProcessControl

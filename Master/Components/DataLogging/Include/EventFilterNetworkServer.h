@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class EventFilterNetworkServer.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -42,20 +42,33 @@ private:
     QTcpServer      *m_pServer;         ///< Socket server.
     QTcpSocket      *m_pSocket;         ///< Currently used socket.
     /****************************************************************************/
-    EventFilterNetworkServer();                                                     ///< Not implemented.
-    EventFilterNetworkServer(const EventFilterNetworkServer &);                     ///< Not implemented.
-    const EventFilterNetworkServer & operator = (const EventFilterNetworkServer &); ///< Not implemented.
+    /****************************************************************************/
+    /**
+     * \brief Constructor.
+     */
+    /****************************************************************************/
+    EventFilterNetworkServer();              ///< Not implemented.
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(EventFilterNetworkServer)
+
     /****************************************************************************/
     /**
      * \brief Read and process all data from socket.
      */
     /****************************************************************************/
     void ReadData();
+
     /****************************************************************************/
     /**
      * \brief Process data in protocol version 1.
      *
-     * \param[in, out]  rLines  Received data.
+     * \iparam  rLines  Received data.
      */
     /****************************************************************************/
     void ProcessProtocolVersion_1(QStringList &rLines) const;
@@ -68,6 +81,7 @@ private slots:
      */
     /****************************************************************************/
     void AcceptNewConnection();
+
     /****************************************************************************/
     /**
      * \brief Socket disconnected.

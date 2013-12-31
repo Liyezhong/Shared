@@ -24,7 +24,8 @@
 
 namespace ImportExport {
 
-static const char* Archname = "Himalaya_arch_deviceID_20110815T20:59:43";
+static const char* Archname = "Colorado_User_deviceID_20110815_205943.lpkg";
+
 /****************************************************************************/
 /*!
  * \brief empty constructor
@@ -45,6 +46,7 @@ void TestReadArchive::init()
     QByteArray keybytes(Constants::KEYFILESIZE, 0);
     keybytes[2*Constants::HASH_SIZE-1] = 1;
     m_keydata = keybytes;
+    DirPath = QDir::cleanPath(QDir::cleanPath(QCoreApplication::applicationDirPath()) + "/../testresults") + QDir::separator();
 }
 
 /****************************************************************************/
@@ -67,7 +69,7 @@ void TestReadArchive::utTestNoFiles()
     RAMFile fp;
 
     QFile::remove(Archname);
-    QFile::copy("testresults/NoFiles", Archname);
+    QFile::copy(DirPath + "NoFiles", Archname);
 
     try
     {
@@ -89,7 +91,7 @@ void TestReadArchive::utTestPlainFiles()
     RAMFile fp;
 
     QFile::remove(Archname);
-    QFile::copy("testresults/PlainFiles", Archname);
+    QFile::copy(DirPath + "PlainFiles", Archname);
 
     try
     {
@@ -99,15 +101,12 @@ void TestReadArchive::utTestPlainFiles()
     {
         //QFAIL(e.getMsg().toAscii().data());
     }
-
     // test contents
 
     QHash<QString, QByteArray> res = fp.getFiles();
 
-    foreach(QString key, res.keys())
-    {
-        qDebug("file %s: %d bytes", key.toAscii().data(), res[key].size());
-    }
+    QCOMPARE(res.count(), 3);
+
 }
 
 /****************************************************************************/
@@ -120,7 +119,7 @@ void TestReadArchive::utTestPlainBigFiles()
     RAMFile fp;
 
     QFile::remove(Archname);
-    QFile::copy("testresults/PlainBigFiles", Archname);
+    QFile::copy(DirPath + "PlainBigFiles", Archname);
 
     try
     {
@@ -134,10 +133,8 @@ void TestReadArchive::utTestPlainBigFiles()
 
     QHash<QString, QByteArray> res = fp.getFiles();
 
-    foreach(QString key, res.keys())
-    {
-        qDebug("file %s: %d bytes", key.toAscii().data(), res[key].size());
-    }
+    QCOMPARE(res.count(), 3);
+
 }
 
 /****************************************************************************/
@@ -150,7 +147,7 @@ void TestReadArchive::utTestEncryptFiles()
     RAMFile fp;
 
     QFile::remove(Archname);
-    QFile::copy("testresults/EncryptFiles", Archname);
+    QFile::copy(DirPath + "EncryptFiles", Archname);
 
     try
     {
@@ -164,10 +161,8 @@ void TestReadArchive::utTestEncryptFiles()
 
     QHash<QString, QByteArray> res = fp.getFiles();
 
-    foreach(QString key, res.keys())
-    {
-        qDebug("file %s: %d bytes", key.toAscii().data(), res[key].size());
-    }
+    QCOMPARE(res.count(), 3);
+
 }
 
 /****************************************************************************/
@@ -180,7 +175,7 @@ void TestReadArchive::utTestEncryptBigFiles()
     RAMFile fp;
 
     QFile::remove(Archname);
-    QFile::copy("testresults/EncryptBigFiles", Archname);
+    QFile::copy(DirPath + "EncryptBigFiles", Archname);
 
     try
     {
@@ -195,10 +190,7 @@ void TestReadArchive::utTestEncryptBigFiles()
 
     QHash<QString, QByteArray> res = fp.getFiles();
 
-    foreach(QString key, res.keys())
-    {
-        qDebug("file %s: %d bytes", key.toAscii().data(), res[key].size());
-    }
+    QCOMPARE(res.count(), 3);
 }
 
 /****************************************************************************/
@@ -211,7 +203,7 @@ void TestReadArchive::utTestEncryptManyFiles()
     VoidFile fp;
 
     QFile::remove(Archname);
-    QFile::copy("testresults/EncryptManyFiles", Archname);
+    QFile::copy(DirPath + "EncryptManyFiles", Archname);
 
     try
     {

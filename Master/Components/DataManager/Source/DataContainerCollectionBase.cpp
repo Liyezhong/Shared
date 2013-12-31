@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataContainerCollectionBase.cpp
+/*! \file Master/Components/DataManager/Source/DataContainerCollectionBase.cpp
  *
  *  \brief Implementation file for class CDataContainerCollectionBase.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-11-19
- *  $Author:    $ Michael Thiel
+ *  $Author:    $ Michael Thiel, Ramya GJ
  *
  *  \b Company:
  *
@@ -24,99 +24,79 @@
 
 #include "DataManager/Containers/UserSettings/Include/UserSettingsVerifier.h"
 #include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h"
+#include "DataManager/Containers/RCConfiguration/Include/RCConfigurationInterface.h"
 
 namespace DataManager {
 
+/****************************************************************************/
+/*!
+ *  \brief Constructor
+ *
+ *  \iparam p_MasterThreadController = pointer to master thread controller
+ */
+/****************************************************************************/
 CDataContainerCollectionBase::CDataContainerCollectionBase(Threads::MasterThreadController *p_MasterThreadController) :
     m_IsDeInitialised(false), m_IsInitialized(false),
     mp_MasterThreardController(p_MasterThreadController),
     SettingsInterface(NULL),
-    DeviceConfigurationInterface(NULL)
+    DeviceConfigurationInterface(NULL),
+    RCConfigurationInterface(NULL)
 {
 
 }
 
+/****************************************************************************/
+/*!
+ *  \brief Destructor
+ */
+/****************************************************************************/
 CDataContainerCollectionBase::~CDataContainerCollectionBase()
 {
-    if (!m_IsDeInitialised && !DeinitContainers()) {
-        qDebug() << "CDataContainer::Destructor / DeinitContainers failed";
+    try {
+        if (!m_IsDeInitialised && !DeinitContainers()) {
+            qDebug() << "CDataContainer::Destructor / DeinitContainers failed";
+        }
     }
+    CATCHALL_DTOR();
 }
 
+/****************************************************************************/
+/*!
+ *  \brief Intialise the data containers
+ *
+ *  \return Success or failure
+ */
+/****************************************************************************/
 bool CDataContainerCollectionBase::InitContainers()
 {
     //! m_IsInitialized shall be set to true in derived class implementations of InitContainers.
     if (m_IsInitialized == true) {
         qDebug() << "CDataContainer::InitContainers was already called";
-        Q_ASSERT(false);
         return false;
     }
 
     SettingsInterface = new CUserSettingsInterface();
-    if (!ResetDCUserSettings()) {
-        qDebug() << "CDataContainer::InitContainers failed, because ResetDCSettings failed!";
-        return false;
-    }
-
-
     DeviceConfigurationInterface = new CDeviceConfigurationInterface();
-    if (!ResetDCDeviceConfiguration()) {
-        qDebug() << "CDataContainer::InitContainers failed, because ResetDCDeviceConfiguration failed.";
-        return false;
-    }
+    RCConfigurationInterface = new CRCConfigurationInterface();
+	
     //! \todo create other platform containers here.
    return true;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief De initialise the data containers
+ *
+ *  \return Success or failure
+ */
+/****************************************************************************/
 bool CDataContainerCollectionBase::DeinitContainers()
 {
-    if (m_IsInitialized != true) {
-        // nothing to do
-        return true;
-    }
     delete SettingsInterface;
     delete DeviceConfigurationInterface;
+    delete RCConfigurationInterface;
+	mp_MasterThreardController = NULL;
     m_IsDeInitialised = true;
-    qDebug()<<"CDataContainerCollectionBase !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\n\n #####";
-    return true;
-}
-
-
-
-bool CDataContainerCollectionBase::ResetDCUserSettings()
-{
-    if (m_IsInitialized == true) {
-        qDebug() << "CDataContainer::ResetDCUserSettings was already called";
-        return false;
-    }
-
-    // create a verifier object for this data container, if not done before
-    static IVerifierInterface *p_DataUserSettingVerifier = NULL;
-    if (p_DataUserSettingVerifier == NULL) {
-        p_DataUserSettingVerifier = new CUserSettingsVerifier();
-    }
-    // register this verifier object in the data container (=> dependency injection)
-    SettingsInterface->AddVerifier(p_DataUserSettingVerifier);
-
-    return true;
-}
-
-
-bool CDataContainerCollectionBase::ResetDCDeviceConfiguration()
-{
-    if (m_IsInitialized == true) {
-        qDebug() << "CDataContainer::ResetDCDeviceConfiguration was already called";
-        return false;
-    }
-
-    // create a verifier object for this data container, if not done before
-    static IVerifierInterface *p_DataDeviceConfigurationVerifier = NULL;
-    if (p_DataDeviceConfigurationVerifier == NULL) {
-        p_DataDeviceConfigurationVerifier = new CDeviceConfigurationVerifier();
-    }
-    // register this verifier object in the data container (=> dependency injection)
-    DeviceConfigurationInterface->AddVerifier(p_DataDeviceConfigurationVerifier);
-
     return true;
 }
 

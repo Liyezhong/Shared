@@ -33,7 +33,7 @@ namespace StateMachines {
 /*!
 *  \brief    Constructor.
 *
-*  \param[in]    pParent = pointer to parent
+*  \iparam    pParent = pointer to parent
 *
 ****************************************************************************/
 StateMachineEngine::StateMachineEngine(QObject *pParent) :
@@ -61,16 +61,14 @@ StateMachineEngine::~StateMachineEngine()
         // clear list of registered states
         StatesList.clear();
     }
-    catch(...) {
-        // to please Lint
-    }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
 /*!
 *  \brief    Adds state to the state machine.
 *
-*  \param[in]    st = pointer to state object
+*  \iparam    st = pointer to state object
 *
 ****************************************************************************/
 void StateMachineEngine::AddState(State *st)
@@ -79,7 +77,7 @@ void StateMachineEngine::AddState(State *st)
     StatesList.insert(st->GetName(), st);
     // check for name
     if (StatesList.value(st->GetName()) != st) {
-        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_ADD_STATE_FAILED, st->GetName());
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_ADD_STATE_FAILED, st->GetName())
     }
     // connect signals
     CONNECTSIGNALSLOT(st,   SigSetNewState(const StateMachines::StateNameType_t &, StateMachines::StateEvent),
@@ -91,7 +89,7 @@ void StateMachineEngine::AddState(State *st)
 *  \brief    Removes state from the state machine.
 *
 *
-*  \param[in]    st = pointer to state object
+*  \iparam    st = pointer to state object
 *
 *  \warning  This function will throw an exception if it is attempted to
 *            remove the current state. Current state cannot be removed.
@@ -108,7 +106,7 @@ void StateMachineEngine::RemoveState(State *st)
     if (m_myCurrentState != NULL) {
         if (m_myCurrentState->GetName() == stname) {
             // cannot remove current state!
-            LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_CURRENT_STATE, stname);
+            LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_CURRENT_STATE, stname)
         }
     }
 
@@ -117,7 +115,7 @@ void StateMachineEngine::RemoveState(State *st)
     // check if removed
     if(StatesList.contains(stname)) {
         // state not removed correctly
-        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_STATE_FAILED, stname);
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_STATE_FAILED, stname)
     }
 
     // notify all states which have transitions to the "st" that this state is dead
@@ -140,9 +138,9 @@ void StateMachineEngine::RemoveState(State *st)
 *
 *       Transit from state s1 to state s2 upon event with "index"
 *
-*  \param[in]    s1 = pointer to state object to exit. If it is NULL, all states (excluding s2) will get the transition
-*  \param[in]    s2 = pointer to state object to enter
-*  \param[in]    Index = event index to cause the transition
+*  \iparam    s1 = pointer to state object to exit. If it is NULL, all states (excluding s2) will get the transition
+*  \iparam    s2 = pointer to state object to enter
+*  \iparam    Index = event index to cause the transition
 *
 ****************************************************************************/
 void StateMachineEngine::AddTransition(State *s1, State *s2, StateEventIndexType_t Index)
@@ -168,9 +166,9 @@ void StateMachineEngine::AddTransition(State *s1, State *s2, StateEventIndexType
 *  \brief    This function removes state transition from the state machine.
 *
 *
-*  \param[in]    s1 = pointer to state object to exit
-*  \param[in]    s2 = pointer to state object to enter
-*  \param[in]    Index = event index to cause the transition
+*  \iparam    s1 = pointer to state object to exit
+*  \iparam    s2 = pointer to state object to enter
+*  \iparam    Index = event index to cause the transition
 *
 ****************************************************************************/
 void StateMachineEngine::RemoveTransition(State *s1, State *s2, StateEventIndexType_t Index)
@@ -186,8 +184,8 @@ void StateMachineEngine::RemoveTransition(State *s1, State *s2, StateEventIndexT
 *  \brief    This function starts state machine operation.
 *
 *
-*  \param[in]    name = name of state to start from
-*  \param[in]    e = initial event
+*  \iparam    name = name of state to start from
+*  \iparam    e = initial event
 *
 *  \return   TRUE if executed successfully, FALSE otherwise
 *
@@ -196,7 +194,7 @@ bool StateMachineEngine::Start(const StateNameType_t &name, StateEvent e)
 {
     if (!StatesList.contains(name)) {
         // throw exception
-        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name);
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name)
     }
     m_myCurrentState = StatesList.value(name);
     CHECKPTR(m_myCurrentState);
@@ -213,8 +211,8 @@ bool StateMachineEngine::Start(const StateNameType_t &name, StateEvent e)
 *  \brief    This function starts state machine operation.
 *
 *
-*  \param[in]    name = name of state to start from
-*  \param[in]    ei = initial event index
+*  \iparam    name = name of state to start from
+*  \iparam    ei = initial event index
 *
 *  \return   TRUE if executed successfully, FALSE otherwise
 *
@@ -242,7 +240,7 @@ void StateMachineEngine::Stop()
 *  \brief    This function forwards external event to the current state.
 *
 *
-*  \param[in]   et = the event to dispatch
+*  \iparam   et = the event to dispatch
 *
 *  \return   TRUE if Engine is started and executed successfully, FALSE otherwise
 *
@@ -262,15 +260,15 @@ bool StateMachineEngine::DispatchEvent(StateEvent et)
 *  \brief    This function changes current state machine's state.
 *
 *
-*  \param[in]    name = name of state to switch to
-*  \param[in]    et = the event which caused the transition
+*  \iparam    name = name of state to switch to
+*  \iparam    et = the event which caused the transition
 *
 ****************************************************************************/
 void StateMachineEngine::SetState(const StateNameType_t &name, StateEvent et)
 {
     if (!StatesList.contains(name)) {
         // throw exception
-        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name);
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name)
     }
     m_myCurrentState = StatesList.value(name);
     CHECKPTR(m_myCurrentState);

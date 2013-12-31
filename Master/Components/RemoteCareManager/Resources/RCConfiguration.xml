@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE RCConfiguration>
+<RCConfiguration Version="0">
+    <General 	QueueSize="2000000"
+                HTTPConnectionPersistence="On"
+                Debug="On"/>
+    <SecureConnection
+                HTTPSecureConnection="On"
+                EncryptionLevel="Medium"
+                Authentication="Off"
+                CertificateFileName="Certificate FileName"/>
+    <RemoteCareServer
+                ExecTime="5"
+                ServerType="Primary"
+                TargetDataBase="drm-data_source"
+                ServerURL="https://leica-sandbox.axeda.com:443/eMessage"
+                ServerId="15"/>
+    <LocalDevice
+                DeviceType="Master"
+                DeviceId="15"/>
+    <LocalNetworkProxy
+                ProxyProtocol="SOCKS">
+    <RemoteSession
+                RemoteSessionSetup="Off"
+                RemoteSessionName="ColoradoRemote"
+                RemoteSessionType="desktop"
+                RemoteSessionIPAddress="127.0.0.1"
+                RemoteSessionIPPort="5900"/>
+    <FileUpload
+                Compression="Off"
+                MaxChunkSize="60000"/>
+    <DataItems>
+      <DataItem Name="RequestRemoteSession" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="RequestAssetInformation" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="SetEventClass" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="SetEventPriority" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="SetLogNumber" Type="Analog" Quality="DataGood" Value="4"/>
+      <DataItem Name="SetSubscription" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="SetUpdateAvailable" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="SetDownloadFinished" Type="Analog" Quality="DataGood" Value="0"/>
+      <DataItem Name="SetPingRate" Type="Analog" Quality="DataGood" Value="60"/>
+      <DataItem Name="EnableSoftwareUpdate" Type="Analog" Quality="DataGood" Value="0"/>
+    </DataItems>
+</RCConfiguration>

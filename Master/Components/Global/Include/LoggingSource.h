@@ -83,6 +83,7 @@ public:
      *  \brief   Assignment operator.
      *
      *  \param   rOther = the instrance to copy
+     *  \return  Instance of this
      *
      ****************************************************************************/
     inline const LoggingSource & operator = (const LoggingSource &rOther)

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ExportTypes.h
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Include/ImportExportTypes.h
  *
  *  \brief User defined data Templates for ExportConfiguration
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-11
- *  $Author:    $ Aparna AL
+ *  $Author:    $ Aparna AL, Ramya GJ
  *
  *  \b Company:
  *
@@ -25,7 +25,11 @@
 #include <QList>
 
 
-// type of users for file export
+/****************************************************************************/
+/**
+ * \brief type of users for file export
+ */
+/****************************************************************************/
 typedef enum
 {
     USERCONFIG,
@@ -35,14 +39,18 @@ typedef enum
     USERREPORT
 } ImportExportConfig_t;
 
-//Attributes of files/groups for export
+/****************************************************************************/
+/**
+ * \brief Scheduler action struct
+ */
+/****************************************************************************/
 typedef struct
 {
-    bool isPackageTypeNative;
-    bool isPacked;
-    bool isEncrypted;
-    bool isCertified;
-    bool isCompressed;
+    bool isPackageTypeNative;       ///< package type
+    bool isPacked;                  ///< packed status
+    bool isEncrypted;               ///< encrypted status
+    bool isCertified;               ///< certified status
+    bool isCompressed;              ///< compressed status
 }StructArchiveAttribs_t;
 
 #endif // EXPORTTYPES_H

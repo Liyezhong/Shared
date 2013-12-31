@@ -7,6 +7,7 @@ INCLUDEPATH += ../../../../Common/Components
 TARGET = HeartBeatManager
 
 HEADERS +=  ../Include/*.h \
-    #../Include/HeartBeatManagerThreadController.h
+            ../Include/Commands/*.h
 
-SOURCES +=  ../Source/*.cpp
+SOURCES +=  ../Source/*.cpp \
+            ../Source/Commands/*.cpp

@@ -28,13 +28,16 @@ QString CmdStationsDefect::NAME = "NetCommands::CmdStationsDefect"; ///< Name of
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout         Timeout for command.
- * \param[in]   ProcessState    Flag for the Process state.
+ * \iparam   Timeout                  Timeout for command.
+ * \iparam   StationList              List of defective Stations
+ * \iparam   IsDefective              true if defective, else false
  */
 /****************************************************************************/
-CmdStationsDefect::CmdStationsDefect(int Timeout, const QStringList DefectiveStationsList) :
+CmdStationsDefect::CmdStationsDefect(int Timeout, const QStringList StationList,
+                                      bool IsDefective) :
     Command(Timeout),
-    m_DefectiveStationList(DefectiveStationsList)
+    m_StationList(StationList),
+    m_IsDefective(IsDefective)
 {
 }
 
@@ -70,14 +73,26 @@ QString CmdStationsDefect::GetName() const
 
 /****************************************************************************/
 /*!
- *  \brief   This function returns Defective station list
+ *  \brief   Gets the flag indicating station status (Defective or Corrected)
  *
- *  \return  RackRfid
+ *  \return  True = Defective station/False = Corrected station
  */
 /****************************************************************************/
-QStringList CmdStationsDefect::GetDefectiveStations() const
+bool CmdStationsDefect::GetListDefectiveFlag() const
 {
-    return m_DefectiveStationList;
+    return m_IsDefective;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   This function returns Defective station list
+ *
+ *  \return   List of defective Stations
+ */
+/****************************************************************************/
+QStringList CmdStationsDefect::GetStationList() const
+{
+    return m_StationList;
 }
 
 }//End of namespace NetCommands

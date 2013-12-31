@@ -1,5 +1,6 @@
 /****************************************************************************/
-/*! \file CmdExecutionStateChanged.h
+/*! \file Platform/Master/Components/NetCommands/Include/CmdExecutionStateChanged.h
+
  *
  *  \brief Definition file for class CmdExecutionStateChanged.
  *
@@ -54,6 +55,7 @@ public:
     bool m_Stop;                    ///< True - if execution is stopped
     bool m_WaitDialogFlag;            ///< True - Wait dialog is displayed
     Global::WaitDialogText_t m_WaitDialogText; ///< Wait dialog message text
+    bool m_InitiateShutdown;        //!< If set main controller shall intiate shutdown
     /****************************************************************************/
     /*!
      * \brief   Constructor
@@ -64,7 +66,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   TimeOut       Timeout for Command
+     * \iparam   TimeOut       Timeout for Command
      */
     /****************************************************************************/
     CmdExecutionStateChanged(int TimeOut);
@@ -91,7 +93,7 @@ public:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -100,7 +102,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdExecutionStateCh
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_Stop << Cmd.m_WaitDialogFlag << static_cast<int>(Cmd.m_WaitDialogText);
+    Stream << Cmd.m_Stop << Cmd.m_WaitDialogFlag << static_cast<int>(Cmd.m_WaitDialogText) << Cmd.m_InitiateShutdown;
     return Stream;
 }
 
@@ -109,7 +111,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdExecutionStateCh
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -123,6 +125,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdExecutionStateChanged 
     int WaitDlgText;
     Stream >> WaitDlgText;
     Cmd.m_WaitDialogText = (Global::WaitDialogText_t) (WaitDlgText);
+    Stream >> Cmd.m_InitiateShutdown;
     return Stream;
 }
 } // end namespace NetCommands

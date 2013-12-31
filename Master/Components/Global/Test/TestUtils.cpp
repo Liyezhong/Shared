@@ -234,7 +234,7 @@ private slots:
 
 /****************************************************************************/
 void TestUtils::initTestCase() {
-    Global::InitSupportedLanguages();
+    //Global::InitSupportedLanguages();
 }
 
 /****************************************************************************/
@@ -251,65 +251,65 @@ void TestUtils::cleanupTestCase() {
 
 /****************************************************************************/
 void TestUtils::utLanguageToString() {
-    QCOMPARE(Global::LanguageToString(QLocale::C),          QString("C"));
-    QCOMPARE(Global::LanguageToString(QLocale::German),     QString("German"));
-    QCOMPARE(Global::LanguageToString(QLocale::English),    QString("English"));
-    QCOMPARE(Global::LanguageToString(QLocale::French),     QString("French"));
-    QCOMPARE(Global::LanguageToString(QLocale::Italian),    QString("Italian"));
-    QCOMPARE(Global::LanguageToString(QLocale::Spanish),    QString("Spanish"));
-    QCOMPARE(Global::LanguageToString(QLocale::Portuguese), QString("Portuguese"));
-    QCOMPARE(Global::LanguageToString(QLocale::Dutch),      QString("Dutch"));
-    QCOMPARE(Global::LanguageToString(QLocale::Swedish),    QString("Swedish"));
-    QCOMPARE(Global::LanguageToString(QLocale::Norwegian),  QString("Norwegian"));
-    QCOMPARE(Global::LanguageToString(QLocale::Danish),     QString("Danish"));
-    QCOMPARE(Global::LanguageToString(QLocale::Polish),     QString("Polish"));
-    QCOMPARE(Global::LanguageToString(QLocale::Czech),      QString("Czech"));
-    QCOMPARE(Global::LanguageToString(QLocale::Russian),    QString("Russian"));
+    QCOMPARE(Global::LanguageToString(QLocale::C),          QString(""));
+    QCOMPARE(Global::LanguageToString(QLocale::German),     QString("de"));
+    QCOMPARE(Global::LanguageToString(QLocale::English),    QString("en"));
+    QCOMPARE(Global::LanguageToString(QLocale::French),     QString("fr"));
+    QCOMPARE(Global::LanguageToString(QLocale::Italian),    QString("it"));
+    QCOMPARE(Global::LanguageToString(QLocale::Spanish),    QString("es"));
+    QCOMPARE(Global::LanguageToString(QLocale::Portuguese), QString("pt"));
+    QCOMPARE(Global::LanguageToString(QLocale::Dutch),      QString("nl"));
+    QCOMPARE(Global::LanguageToString(QLocale::Swedish),    QString("sv"));
+    QCOMPARE(Global::LanguageToString(QLocale::Norwegian),  QString("nb"));
+    QCOMPARE(Global::LanguageToString(QLocale::Danish),     QString("da"));
+    QCOMPARE(Global::LanguageToString(QLocale::Polish),     QString("pl"));
+    QCOMPARE(Global::LanguageToString(QLocale::Czech),      QString("cs"));
+    QCOMPARE(Global::LanguageToString(QLocale::Russian),    QString("ru"));
 }
 
 /****************************************************************************/
 void TestUtils::utStringToLanguage() {
     QCOMPARE(StringToLanguage("c"),             QLocale::C);
     QCOMPARE(StringToLanguage("C"),             QLocale::C);
-    QCOMPARE(StringToLanguage("German"),        QLocale::German);
-    QCOMPARE(StringToLanguage("german"),        QLocale::German);
-    QCOMPARE(StringToLanguage("GERMAN"),        QLocale::German);
-    QCOMPARE(StringToLanguage("English"),       QLocale::English);
-    QCOMPARE(StringToLanguage("english"),       QLocale::English);
-    QCOMPARE(StringToLanguage("ENGLISH"),       QLocale::English);
-    QCOMPARE(StringToLanguage("French"),        QLocale::French);
-    QCOMPARE(StringToLanguage("french"),        QLocale::French);
-    QCOMPARE(StringToLanguage("FRENCH"),        QLocale::French);
-    QCOMPARE(StringToLanguage("Italian"),       QLocale::Italian);
-    QCOMPARE(StringToLanguage("italian"),       QLocale::Italian);
-    QCOMPARE(StringToLanguage("ITALIAN"),       QLocale::Italian);
-    QCOMPARE(StringToLanguage("Spanish"),       QLocale::Spanish);
-    QCOMPARE(StringToLanguage("spanish"),       QLocale::Spanish);
-    QCOMPARE(StringToLanguage("SPANISH"),       QLocale::Spanish);
-    QCOMPARE(StringToLanguage("Portuguese"),    QLocale::Portuguese);
-    QCOMPARE(StringToLanguage("portuguese"),    QLocale::Portuguese);
-    QCOMPARE(StringToLanguage("PORTUGUESE"),    QLocale::Portuguese);
-    QCOMPARE(StringToLanguage("Dutch"),         QLocale::Dutch);
-    QCOMPARE(StringToLanguage("dutch"),         QLocale::Dutch);
-    QCOMPARE(StringToLanguage("DUTCH"),         QLocale::Dutch);
-    QCOMPARE(StringToLanguage("Swedish"),       QLocale::Swedish);
-    QCOMPARE(StringToLanguage("swedish"),       QLocale::Swedish);
-    QCOMPARE(StringToLanguage("SWEDISH"),       QLocale::Swedish);
-    QCOMPARE(StringToLanguage("Norwegian"),     QLocale::Norwegian);
-    QCOMPARE(StringToLanguage("norwegian"),     QLocale::Norwegian);
-    QCOMPARE(StringToLanguage("NORWEGIAN"),     QLocale::Norwegian);
-    QCOMPARE(StringToLanguage("Danish"),        QLocale::Danish);
-    QCOMPARE(StringToLanguage("danish"),        QLocale::Danish);
-    QCOMPARE(StringToLanguage("DANISH"),        QLocale::Danish);
-    QCOMPARE(StringToLanguage("Polish"),        QLocale::Polish);
-    QCOMPARE(StringToLanguage("polish"),        QLocale::Polish);
-    QCOMPARE(StringToLanguage("POLISH"),        QLocale::Polish);
-    QCOMPARE(StringToLanguage("Czech"),         QLocale::Czech);
-    QCOMPARE(StringToLanguage("czech"),         QLocale::Czech);
-    QCOMPARE(StringToLanguage("CZECH"),         QLocale::Czech);
-    QCOMPARE(StringToLanguage("Russian"),       QLocale::Russian);
-    QCOMPARE(StringToLanguage("russian"),       QLocale::Russian);
-    QCOMPARE(StringToLanguage("RUSSIAN"),       QLocale::Russian);
+    QCOMPARE(StringToLanguage("de"),        QLocale::German);
+    QCOMPARE(StringToLanguage("DE"),        QLocale::German);
+    QCOMPARE(StringToLanguage("De"),        QLocale::German);
+    QCOMPARE(StringToLanguage("en"),       QLocale::English);
+    QCOMPARE(StringToLanguage("En"),       QLocale::English);
+    QCOMPARE(StringToLanguage("EN"),       QLocale::English);
+    QCOMPARE(StringToLanguage("fr"),        QLocale::French);
+    QCOMPARE(StringToLanguage("Fr"),        QLocale::French);
+    QCOMPARE(StringToLanguage("FR"),        QLocale::French);
+    QCOMPARE(StringToLanguage("it"),       QLocale::Italian);
+    QCOMPARE(StringToLanguage("IT"),       QLocale::Italian);
+    QCOMPARE(StringToLanguage("iT"),       QLocale::Italian);
+    QCOMPARE(StringToLanguage("eS"),       QLocale::Spanish);
+    QCOMPARE(StringToLanguage("es"),       QLocale::Spanish);
+    QCOMPARE(StringToLanguage("ES"),       QLocale::Spanish);
+    QCOMPARE(StringToLanguage("Pt"),    QLocale::Portuguese);
+    QCOMPARE(StringToLanguage("pt"),    QLocale::Portuguese);
+    QCOMPARE(StringToLanguage("PT"),    QLocale::Portuguese);
+    QCOMPARE(StringToLanguage("Nl"),         QLocale::Dutch);
+    QCOMPARE(StringToLanguage("nl"),         QLocale::Dutch);
+    QCOMPARE(StringToLanguage("NL"),         QLocale::Dutch);
+    QCOMPARE(StringToLanguage("sV"),       QLocale::Swedish);
+    QCOMPARE(StringToLanguage("sv"),       QLocale::Swedish);
+    QCOMPARE(StringToLanguage("SV"),       QLocale::Swedish);
+    QCOMPARE(StringToLanguage("Nb"),     QLocale::Norwegian);
+    QCOMPARE(StringToLanguage("nb"),     QLocale::Norwegian);
+    QCOMPARE(StringToLanguage("NB"),     QLocale::Norwegian);
+    QCOMPARE(StringToLanguage("Da"),        QLocale::Danish);
+    QCOMPARE(StringToLanguage("da"),        QLocale::Danish);
+    QCOMPARE(StringToLanguage("DA"),        QLocale::Danish);
+    QCOMPARE(StringToLanguage("pl"),        QLocale::Polish);
+    QCOMPARE(StringToLanguage("pL"),        QLocale::Polish);
+    QCOMPARE(StringToLanguage("PL"),        QLocale::Polish);
+    QCOMPARE(StringToLanguage("Cs"),         QLocale::Czech);
+    QCOMPARE(StringToLanguage("cs"),         QLocale::Czech);
+    QCOMPARE(StringToLanguage("CS"),         QLocale::Czech);
+    QCOMPARE(StringToLanguage("Ru"),       QLocale::Russian);
+    QCOMPARE(StringToLanguage("ru"),       QLocale::Russian);
+    QCOMPARE(StringToLanguage("RU"),       QLocale::Russian);
     QCOMPARE(StringToLanguage("gnagna"),        QLocale::C);
 }
 

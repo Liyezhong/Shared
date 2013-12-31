@@ -32,8 +32,14 @@ QString CmdSystemAction::NAME = "NetCommands::CmdSystemAction";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   theStrErrorInfo  The new bath layout.
+ * \iparam   Timeout               Timeout for command.
+ * \iparam   theStrErrorInfo
+ * \iparam   Ack
+ * \iparam   NumberOfRetries
+ * \iparam   UserRetryFlag
+ * \iparam   EventKey              Unique Event Key.
+ * \iparam   EventID               Event Id.
+ * \iparam   EventSource
  */
 /****************************************************************************/
 CmdSystemAction::CmdSystemAction(int Timeout, const QString &theStrErrorInfo, bool  Ack, qint8 NumberOfRetries,
@@ -53,12 +59,10 @@ CmdSystemAction::CmdSystemAction(int Timeout, const QString &theStrErrorInfo, bo
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   Bathlayout  The new bath layout.
  */
 /****************************************************************************/
 CmdSystemAction::CmdSystemAction() :
-    Command(5000)
+    Command(15000)
 {
 }
 

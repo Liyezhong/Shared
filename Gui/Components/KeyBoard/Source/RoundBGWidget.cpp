@@ -62,7 +62,7 @@ CRoundWidget::~CRoundWidget()
 void CRoundWidget::Init()
 {
     mp_Target = new QPixmap(size());
-    m_Pixmap.load(":/Large/SpellerButtons/Speller_BG.png");
+    (void)m_Pixmap.load(":/Large/SpellerButtons/Speller_BG.png");
     mp_Target->fill(Qt::transparent);
     Application::CLeicaStyle::BorderPixmap(mp_Target, &m_Pixmap, 20, 33, 22, 23);
 }
@@ -70,17 +70,16 @@ void CRoundWidget::Init()
 /****************************************************************************/
 /*!
  *  \brief Draws the background widget
+ *  \iparam p_PaintEvent = Paint event for drawing
  */
 /****************************************************************************/
 void CRoundWidget::paintEvent(QPaintEvent *p_PaintEvent)
 {
     p_PaintEvent->accept();
     QPainter Painter(this);
-    //Painter.save();
     if (mp_Target) {
         Painter.drawPixmap(0, 0, *mp_Target);
     }
-    //Painter.restore();
 }
 
 }

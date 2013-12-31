@@ -1,13 +1,13 @@
 /****************************************************************************/
-/*! @file ExportController.cpp
+/*! \file ExportController.cpp
  *
- *  @brief Implementation file for class ExportController.
+ *  \brief Implementation file for class ExportController.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2012-07-11
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
  *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -33,7 +33,7 @@ namespace Export {
  */
 /****************************************************************************/
 ExportController::ExportController(quint32 ThreadID)
-    :ExternalProcessController::ExternalProcessController(EXPORT_PROCESS_NAME, ThreadID)
+    :ExternalProcessController::ExternalProcessController(EXPORT_PROCESS_NAME, ThreadID, true)
     , m_ProcessInitialized(false)
     , mp_ExportDevice(NULL)
 {
@@ -52,9 +52,8 @@ ExportController::~ExportController() {
             delete mp_ExportDevice;
         }
         mp_ExportDevice = NULL;
-    } catch(...) {
-        // to please PCLint...
     }
+    CATCHALL_DTOR();
 }
 
 
@@ -105,14 +104,9 @@ void ExportController::OnGoReceived() {
 /****************************************************************************/
 void ExportController::OnReadyToWork() {
     qDebug() << "ExportController: ready to work called.";
-
     if (mp_ExportDevice == NULL) {
         return;
-    }
-
-    // start sending DateAndTime (supply Zero to use the default period)
-    if (!mp_ExportDevice->StartDateTimeSync(0)) {
-    }
+    }    
 }
 
 /****************************************************************************/
@@ -136,9 +130,11 @@ void ExportController::OnStopReceived() {
  *  are not used by this class.
  *
  * Power will fail shortly.
+ *\iparam   PowerFailStage = powerfail stage
  */
 /****************************************************************************/
-void ExportController::OnPowerFail(/*const Global::PowerFailStages PowerFailStage*/) {
+void ExportController::OnPowerFail(const Global::PowerFailStages PowerFailStage) {
+    Q_UNUSED(PowerFailStage)
 }
 
 /****************************************************************************/
@@ -151,6 +147,22 @@ void ExportController::CleanupAndDestroyObjects() {
     qDebug() << (QString)("Platform Export: CleanupAndDestroyObjects called.");
     ExternalProcessController::CleanupAndDestroyObjects();
     m_ProcessInitialized = false;
+}
+
+/****************************************************************************/
+/**
+ * \brief  Informs Master Thread controller that Export process has stopped
+ *         working.
+ * \iparam StopForEver = true indicates to stop working for ever, since no
+ *                       more retries would be carried out. When this happens
+ *                      Export work flow needs to be stopped
+ */
+/****************************************************************************/
+void ExportController::OnStopWorking(bool StopForEver)
+{
+    if(StopForEver) {
+        emit ProcessStoppedForEver();
+    }
 }
 
 }

@@ -20,6 +20,7 @@
 
 #include "NetworkComponents/Include/MasterLinkDevice.h"
 #include "Global/Include/Commands/CmdDateAndTime.h"
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
 
 #include <QMetaType>
 
@@ -30,6 +31,10 @@ const CreatorFunctorShPtr_t NullCreatorFunctor(NULL);   ///< NULL functor.
 /****************************************************************************/
 /*!
  *  \brief Constructor
+ *
+ *  \iparam ip
+ *  \iparam port
+ *  \iparam clientType
  */
 /****************************************************************************/
 CMasterLinkDevice::CMasterLinkDevice(QString ip, QString port, const NetworkBase::NetworkClientType_t clientType)
@@ -57,48 +62,66 @@ CMasterLinkDevice::~CMasterLinkDevice()
         mp_NetworkObject->Stop();
         delete mp_NetworkObject;
     }
-    catch (...) {}
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
 /*!
  *  \brief Initializes the network layers
+ *
+ *  \return
  */
 /****************************************************************************/
-qint32 CMasterLinkDevice::NetworkInit()
+bool CMasterLinkDevice::NetworkInit()
 {
     if (!mp_NetworkObject) {
-        return -1;
+        return false;
     }
     if (!mp_NetworkObject->Initialize()) {
-        return -1;
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLD_NETOBJECT_INIT_FAILED);
+        return false;
     }
 
     // Signal/slot for DateAndTime reporting
     if (!connect(mp_NetworkObject, SIGNAL(SigDateAndTime(QDateTime)), this, SIGNAL(SigDateAndTime(QDateTime)))) {
         qDebug() << "CMasterLinkDevice: cannot connect 'DateAndTime' signal";
-        return -1;
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLD_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << "SigDateAndTime");
+        return false;
     }
     // Signal indicating a valid connection to Master
     if (!QObject::connect(mp_NetworkObject, SIGNAL(SigMasterConnected(const QString &)),
                           this, SIGNAL(SigMasterConnected(const QString &)))) {
         qDebug() << "CMasterLinkDevice: Cannot connect LinkDevice's ConnectedToMaster signal !\n";
-        return -1;
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLD_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << "SigMasterConnected");
+        return false;
     }
     // Signal indicating a disconnection from Master
     if (!QObject::connect(mp_NetworkObject, SIGNAL(SigMasterDisconnected(const QString &)),
                           this, SIGNAL(SigMasterDisconnected(const QString &)))) {
         qDebug() << "CMasterLinkDevice: Cannot connect LinkDevice's DisconnectedFromMaster signal !\n";
-        return -1;
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLD_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << "SigMasterDisconnected");
+        return false;
     }
     // Signal for forwarding stuff from Master
     if (!QObject::connect(mp_NetworkObject, SIGNAL(SigForwardMsgToRecipient(QString,QByteArray)),
                           this, SLOT(ProcessNetMessage(QString,QByteArray)))) {
         qDebug() << "CMasterLinkDevice: Cannot connect LinkDevice's SigForwardMsgToRecipient signal !\n";
-        return -1;
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLD_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << "SigForwardMsgToRecipient");
+        return false;
+    }
+    // Signal for forwarding stuff from Master
+    if (!QObject::connect(mp_NetworkObject, SIGNAL(StartConnectionLostTimer()),
+                          this, SIGNAL(StartConnectionLostTimer()))) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_MLD_CONNECT_FAILED,
+                                                   Global::tTranslatableStringList() << "StartConnectionLostTimer");
+        return false;
     }
     mp_NetworkObject->Go();
-    return 0;
+    return true;
 }
 
 /****************************************************************************/
@@ -107,12 +130,12 @@ qint32 CMasterLinkDevice::NetworkInit()
  *
  * Deserialize net message (command and acknowledge) and call appropriate processing function.
  *
- * \param[in]   msgname     SERIALIZERSTRING for command or acknowledge.
- * \param[in]   barray      Serialized message.
+ * \iparam   msgname     SERIALIZERSTRING for command or acknowledge.
+ * \iparam   barray      Serialized message.
  */
 /****************************************************************************/
 void CMasterLinkDevice::ProcessNetMessage(const QString &msgname, const QByteArray &barray) {
-    DEBUGWHEREAMI;
+    //DEBUGWHEREAMI;
     if((msgname != Global::Command::SERIALIZERSTRING) &&
        (msgname != Global::Acknowledge::SERIALIZERSTRING))
     {
@@ -162,8 +185,8 @@ void CMasterLinkDevice::ProcessNetMessage(const QString &msgname, const QByteArr
  *
  * Register a creator functor.
  *
- * \param[in]   Name        Name for functor.
- * \param[in]   Functor     The functor to register.
+ * \iparam   Name        Name for functor.
+ * \iparam   Functor     The functor to register.
  */
 /****************************************************************************/
 void CMasterLinkDevice::RegisterCreatorFunctor(const QString &Name, const CreatorFunctorShPtr_t &Functor) {
@@ -187,7 +210,7 @@ void CMasterLinkDevice::RegisterCreatorFunctor(const QString &Name, const Creato
  * Get registered creator functor for name CmdName. return NullCreatorFunctor
  * if no functor registered for this name.
  *
- * \param[in]   CmdName     Rame of registred functor.
+ * \iparam CmdName     Rame of registred functor.
  * \return                  Registered functor or NullCreatorFunctor if not found.
  */
 /****************************************************************************/
@@ -209,13 +232,13 @@ CreatorFunctorShPtr_t CMasterLinkDevice::GetCreatorFunctor(const QString &CmdNam
  * Slot called if a command sent to master times out. It deletes the according
  * pending command descriptor and calls the timeout processing method.
  *
- * \param[in]   Ref             Reference of command which timed out.
- * \param[in]   CommandName     Name of command which timed out.
+ * \iparam Ref             Reference of command which timed out.
+ * \iparam CommandName     Name of command which timed out.
  */
 /****************************************************************************/
 void CMasterLinkDevice::OnCommandTimeoutSlot(Global::tRefType Ref, QString CommandName) {
-    DEBUGWHEREAMI;
-    qDebug() << "Ref = " << Ref << " Name = " << CommandName;
+    //DEBUGWHEREAMI;
+//    qDebug() << "CMasterLinkDevice::OnCommandTimeoutSlot, Ref = " << Ref << " Name = " << CommandName;
     // check if in
     if(m_PendingCommands.contains(Ref)) {
         // remove from list of pending commands
@@ -231,7 +254,10 @@ void CMasterLinkDevice::OnCommandTimeoutSlot(Global::tRefType Ref, QString Comma
             return;
         }
         // execute
-        Command->CopyAndCall(Ref, Global::AckOKNOK(false));
+        if (Command != NULL) {
+            /// Commented below line to diffentiate between timeout of a command and NACK ACK.
+           // Command->CopyAndCall(Ref, Global::AckOKNOK(false));
+        }
         /// \todo still emit this signal?
         emit SigCmdTimeout(Ref, CommandName);
     } else {
@@ -247,13 +273,13 @@ void CMasterLinkDevice::OnCommandTimeoutSlot(Global::tRefType Ref, QString Comma
  *
  * An acknowledge of type Global::AckOKNOK was received.
  *
- * \param[in]   Ref     Acknowledge reference.
- * \param[in]   Ack     The acknowledge.
+ * \iparam Ref         Acknowledge reference.
+ * \iparam Acknowledge The acknowledge.
  */
 /****************************************************************************/
-void CMasterLinkDevice::OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Ack) {
-    DEBUGWHEREAMI;
-    qDebug() << "Ref = " << Ref << " Ack = " << Ack.GetName();
+void CMasterLinkDevice::OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Acknowledge) {
+    //DEBUGWHEREAMI;
+//    qDebug() << "CMasterLinkDevice::OnAckOKNOK, Ref = " << Ref << " Ack = " << Acknowledge.GetName();
     // get acknowledge receiver
     CreatorFunctorShPtr_t Rcv = m_AckAndTOReceivers.value(Ref, NULL);
     CommandCreatorFunctor<Global::AckOKNOK> *Command =
@@ -261,11 +287,13 @@ void CMasterLinkDevice::OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK 
     // a receiver must still be there!
     if(Rcv == NullCreatorFunctor) {
         /// \todo throw exception
-        qDebug() << "No creator functor found for " << Ack.GetName();
+        qDebug() << "No creator functor found for " << Acknowledge.GetName();
         return;
     }
     // execute
-    Command->CopyAndCall(Ref, Ack);
+    if (Command != NULL) {
+        Command->CopyAndCall(Ref, Acknowledge);
+    }
 }
 
 } // end namespace NetLayer

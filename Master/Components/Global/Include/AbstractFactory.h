@@ -161,8 +161,12 @@ friend class TestAbstractFactory;
 private:
     static TMap     *m_pMap;    /// The map containing the registered classes and their creation function.
     /****************************************************************************/
-    AbstractFactory(const AbstractFactory &);                       ///< Not implemented.
-    const AbstractFactory & operator = (const AbstractFactory &);   ///< Not implemented.
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(AbstractFactory)
 protected:
     /****************************************************************************/
     /**
@@ -176,6 +180,8 @@ protected:
      * \brief Get the map pointer.
      *
      * If no map exists, one is created.
+     *
+     * \return map pointer
      */
     /****************************************************************************/
     static TMap *GetMap() {

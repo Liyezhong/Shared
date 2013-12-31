@@ -27,6 +27,7 @@
 #include "Global/Include/Utils.h"
 #include "ExportData/Include/ExportData.h"
 #include "ExportData/Include/Startup.h"
+#include "Global/Include/GlobalExitCodes.h"
 
 
 namespace Export {
@@ -36,7 +37,7 @@ static QString FilesPathWrite;  ///< Path to where we can write some files.
 
 /****************************************************************************/
 /**
- * \brief Test class for XmlConfigFileUserSettings class.
+ * \brief Test class for ExportConfiguration.xml class.
  */
 /****************************************************************************/
 class TestExportData : public QObject {
@@ -99,15 +100,15 @@ void TestExportData::utTestExportData() {
     CStartup StartUp;
 
 // For No Temporary folder in the Test
-    QCOMPARE(Export.CreateArchiveFiles(), 2);
+    QCOMPARE(Export.CreateArchiveFiles(), Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
     QCOMPARE(Export.CreateArchiveFiles(), StartUp.Archive());
 
  //For Temporary/Export/TempExportConfiguration
-    QCOMPARE(Export.CreateArchiveFiles(), 2);
+    QCOMPARE(Export.CreateArchiveFiles(), Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
     QCOMPARE(Export.CreateArchiveFiles(), StartUp.Archive());
 
 //For Wrong FileName inside Temporary/Export
-    QCOMPARE(Export.CreateArchiveFiles(), 2);
+    QCOMPARE(Export.CreateArchiveFiles(), Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
     QCOMPARE(Export.CreateArchiveFiles(), StartUp.Archive());
 
 }

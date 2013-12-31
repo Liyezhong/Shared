@@ -35,8 +35,13 @@ private:
     static EventTranslator  m_Instance;             ///< Own instance.
     static Translator       m_TranslatorInstance;   ///< Instance of translator.
     /****************************************************************************/
-    EventTranslator(const EventTranslator &);                       ///< Not implemented.
-    const EventTranslator & operator = (const EventTranslator &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(EventTranslator)
     /****************************************************************************/
     /**
      * \brief Default constructor.

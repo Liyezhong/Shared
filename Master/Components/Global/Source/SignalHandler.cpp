@@ -46,16 +46,17 @@ void SignalHandler::init()
     signal(SIGFPE, SignalHandler::crashHandler);
     signal(SIGABRT, SignalHandler::crashHandler);
     signal(SIGILL, SignalHandler::crashHandler);
+//    signal(SIGPIPE, SIG_IGN);   // ignore broken pipe errors
 }
 
-QStringList SignalHandler::getBackTrace()
+QStringList SignalHandler::getBackTrace(int depth)
 {
     QRegExp regexp("([^(]+)\\(([^)^+]+)(\\+[^)]+)\\)\\s(\\[[^]]+\\])");
 
     void *array[20];
     size_t nfuncs;
 
-    nfuncs = backtrace(array, 20);
+    nfuncs = backtrace(array, depth);
 
     char** symbols = backtrace_symbols(array, nfuncs);
 
@@ -82,7 +83,7 @@ QStringList SignalHandler::getBackTrace()
             if (demangled)
             {
                 symbol = demangled;
-                delete demangled;
+                free(demangled);
             }
 
             //put this all together
@@ -97,7 +98,7 @@ QStringList SignalHandler::getBackTrace()
             QStringList words = QString(symbols[i])
                                     .split(" ", QString::SkipEmptyParts);
 
-            if (words.count() == 6 and words[4] == "+")
+            if (words.count() == 6 && words[4] == "+")
             {
                 //get the library or app that contains this symbol
                 QString unit = words[1];
@@ -116,7 +117,7 @@ QStringList SignalHandler::getBackTrace()
                 if (demangled)
                 {
                     symbol = demangled;
-                    delete demangled;
+                    free(demangled);
                 }
 
                 //put this all together
@@ -163,7 +164,12 @@ void SignalHandler::crashHandler(int sig)
         file.close();
     }
 
-    exit(1);
+    if (sig == SIGTERM) {
+        exit(0);
+    }
+    else {
+        exit(1);
+    }
 }
 
 

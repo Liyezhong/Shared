@@ -23,7 +23,7 @@
 
 #include <Global/Include/Commands/Command.h>
 #include <QByteArray>
-
+#include <QLocale>
 namespace NetCommands {
 
 /****************************************************************************/
@@ -40,23 +40,41 @@ class CmdLanguageFile : public Global::Command {
 public:
     static QString NAME;    ///< Command name.
     /****************************************************************************/
-    CmdLanguageFile(int Timeout, const QDataStream &LanguageFileDataStream);
+    CmdLanguageFile(int Timeout, const QDataStream &LanguageFileDataStream, const QLocale::Language CurrentLanguage);
     CmdLanguageFile();
     ~CmdLanguageFile();
     virtual QString GetName() const;
     /****************************************************************************/
     /**
      * \brief Get the Language file data
+     *
      * \return Byte array.
      */
     /****************************************************************************/
     QByteArray const & GetLanguageData() const { return m_LanguageFileByteArray;}
 
+    /****************************************************************************/
+    /**
+     * \brief Get the current language
+     *
+     * \return Current Language
+     */
+    /****************************************************************************/
+    QLocale::Language GetCurrentLanuage() const { return m_CurrentLangauge; }
+
 private:
     CmdLanguageFile(const CmdLanguageFile &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdLanguageFile & operator = (const CmdLanguageFile &); ///< Not implemented.
 
     QByteArray m_LanguageFileByteArray; //!< Byte array for Language file
+    QLocale::Language m_CurrentLangauge;//!< Current Language in Set by user
 }; // end class CmdLanguageFile
 
 /****************************************************************************/
@@ -64,7 +82,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -73,7 +91,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdLanguageFile &Cm
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream <<Cmd.m_LanguageFileByteArray;
+    Stream <<Cmd.m_LanguageFileByteArray << static_cast<int>(Cmd.m_CurrentLangauge);
     return Stream;
 }
 
@@ -82,7 +100,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdLanguageFile &Cm
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -92,6 +110,9 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdLanguageFile &Cmd)
     Cmd.CopyFromStream(Stream);
     // copy internal data
     Stream >> Cmd.m_LanguageFileByteArray;
+    int CurrentLanguage;
+    Stream >> CurrentLanguage;
+    Cmd.m_CurrentLangauge = QLocale::Language(CurrentLanguage);
     return Stream;
 }
 

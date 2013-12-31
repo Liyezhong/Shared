@@ -26,7 +26,7 @@
 namespace ExternalProcessControl {
 
 const QString DC_TEST_CMD = "nop";            ///< erroneous process name
-const QString DC_TEST_NAME = "Himalaya GUI";  ///< real process name
+const QString DC_TEST_NAME = "Colorado GUI";  ///< real process name
 
 /****************************************************************************/
 /**
@@ -44,7 +44,7 @@ private:
     friend class TestExternalProcessCtlr;
 
 protected:
-    virtual void OnPowerFail();
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
 
 public:
 

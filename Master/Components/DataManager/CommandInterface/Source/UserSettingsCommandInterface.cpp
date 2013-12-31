@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file Components/DataManager/CommandInterface/Source/UserSettingsCommandInterface.cpp
+/*! \file Platform/Master/Components/DataManager/CommandInterface/Source/UserSettingsCommandInterface.cpp
  *
  *  \brief UserSettings Command Interface  Implementation
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-30
- *  $Author:    $ N.Kamath
+ *  $Author:    $ N.Kamath, Ramya GJ
  *
  *  \b Company:
  *
@@ -19,7 +19,9 @@
 /****************************************************************************/
 #include "DataManager/CommandInterface/Include/UserSettingsCommandInterface.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
-
+#include "NetCommands/Include/CmdRCNotifyReconnection.h"
+#include "Global/Include/AlarmPlayer.h"
+#include "RemoteCareManager/Include/RemoteCareManager.h"
 #include <QDebug>
 
 namespace DataManager {
@@ -34,25 +36,30 @@ namespace DataManager {
 CUserSettingsCommandInterface::CUserSettingsCommandInterface(CDataManagerBase *p_DataManager,
                                                              Threads::MasterThreadController *p_MasterThreadController,
                                                              CDataContainerCollectionBase *p_DataContainer):
-    CCommandInterfaceBase(p_DataManager, p_MasterThreadController, p_DataContainer)
+    CCommandInterfaceBase(p_DataManager, p_MasterThreadController, p_DataContainer), m_ConnToOtherProcess(false)
+
 {
     RegisterCommands();
+    (void)connect(this, SIGNAL(PlayTestTone(bool, quint8, quint8)),
+            &Global::AlarmPlayer::Instance(), SLOT(playTestTone(bool, quint8, quint8)));
 }
 
 /****************************************************************************/
-/**
+/*!
  * \brief Register Commands related to Settings Container
  */
 /****************************************************************************/
 void CUserSettingsCommandInterface::RegisterCommands() {
-    mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdChangeUserSettings, DataManager::CUserSettingsCommandInterface>
-            (&CUserSettingsCommandInterface::SettingsUpdateHandler, this);
-    mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdAlarmToneTest, DataManager::CUserSettingsCommandInterface>
-            (&CUserSettingsCommandInterface::AlarmTestToneHandler, this);
+    if(mp_MasterThreadController) {
+        mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdChangeUserSettings, DataManager::CUserSettingsCommandInterface>
+                (&CUserSettingsCommandInterface::SettingsUpdateHandler, this);
+        mp_MasterThreadController->RegisterCommandForProcessing<MsgClasses::CmdAlarmToneTest, DataManager::CUserSettingsCommandInterface>
+                (&CUserSettingsCommandInterface::AlarmTestToneHandler, this);
+    }
 }
 
 /****************************************************************************/
-/**
+/*!
  * \brief Function which handles CmdChangeUserSettings
  *  \iparam Ref = Command reference
  *  \iparam Cmd = Command
@@ -70,6 +77,7 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         SettingsDataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
         CUserSettings Settings;
         SettingsDataStream >> Settings;
+        bool ProxySettingsChanged = false;
 
         // compare the previous settings with the present settings and log the events
         bool LanguageChanged = false;
@@ -83,8 +91,8 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             // For now we send only default message , since user cant exceed any of the constraints
             // in the verifier , from GUI.s
             while(!ErrorList.isEmpty()) {
-                ErrorHash_t *p_ErrorHash = ErrorList.first();
-                p_ErrorHash->clear();
+                ErrorMap_t *p_ErrorMap = ErrorList.first();
+                p_ErrorMap->clear();
                 ErrorList.removeFirst();
             }
             SendNackToGUI(Ref,AckCommandChannel, ErrorList, EVENT_DM_SETTINGS_UPDATE_FAILED);
@@ -93,20 +101,26 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         else {
 
             // Set volume values for UserSettings
-            Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
-            if (p_AlarmHandler) {
-                p_AlarmHandler->setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
-                p_AlarmHandler->setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
-                p_AlarmHandler->setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
-                p_AlarmHandler->setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
-            }
+            Global::AlarmPlayer::Instance().setVolume(Global::ALARM_WARNING, Settings.GetSoundLevelWarning());
+            Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_WARNING, Settings.GetSoundNumberWarning());
+            Global::AlarmPlayer::Instance().setVolume(Global::ALARM_ERROR, Settings.GetSoundLevelError());
+            Global::AlarmPlayer::Instance().setSoundNumber(Global::ALARM_ERROR, Settings.GetSoundNumberError());
 
             // raise the event if the language is changed
             if (TempSettings.GetLanguage() != Settings.GetLanguage()) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_GLOBAL_USER_ACTIVITY_US_LANGUAGE_CHANGED,
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_LANGUAGE_CHANGED,
                                                            Global::FmtArgs() << QLocale::languageToString(Settings.GetLanguage()));
                 LanguageChanged = true;
             }
+            // raise the event if the oven temperature is changed
+            if (TempSettings.GetValue("Oven_Temp") != Settings.GetValue("Oven_Temp")) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_TEMP_CHANGED,
+                                                           Global::FmtArgs() << Settings.GetValue("Oven_Temp"));
+            }
+//            // raise the event if the oven temperature is changed
+//            if (TempSettings.GetValue("Leica_OvenTemp") != Settings.GetValue("Leica_OvenTemp")) {
+//                OvenTemperatureValue = Settings.GetValue("Leica_OvenTemp");
+//            }
             // raise the event if the network settings is changed
             if (TempSettings.GetProxyIPAddress() != Settings.GetProxyIPAddress() ||
                     TempSettings.GetProxyIPPort() != Settings.GetProxyIPPort() ||
@@ -114,11 +128,108 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                     TempSettings.GetProxyPassword() != Settings.GetProxyPassword() ||
                     TempSettings.GetRemoteCare() != Settings.GetRemoteCare() ||
                     TempSettings.GetDirectConnection() != Settings.GetDirectConnection()) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_GLOBAL_USER_ACTIVITY_US_NETWORK_SETTINGS_ADDED);
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_NETWORK_SETTINGS_ADDED);
+                ProxySettingsChanged = true;
+            }
+
+            // raise the event if the agitation speed is changed
+            if (TempSettings.GetValue("Agitation_Speed") != Settings.GetValue("Agitation_Speed")) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_AGITATION_SPEED_CHANGED,
+                                                           Global::FmtArgs() << Settings.GetValue("Agitation_Speed"));
+            }
+
+            // raise the event if the RMS state is changed
+            if (TempSettings.GetValue("RMS_State") != Settings.GetValue("RMS_State")) {
+                QString Value = Settings.GetValue("RMS_State");
+                if (Value.compare("ON", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_ON);
+                }
+                else {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_STATE_CHANGED_OFF);
+                }
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_RMS_STATE_CHANGED,
+                                                           Global::FmtArgs() << Value);
+            }
+
+            // raise the event if the water type is changed
+            if (TempSettings.GetValue("Water_Type") != Settings.GetValue("Water_Type")) {
+                QString Value = Settings.GetValue("Water_Type");
+                if (Value.compare("Tap", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_TAP);
+
+                    emit UserSettingsWaterTypeChanged(true);
+                }
+                else {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED_DISTILLED);
+
+                    emit UserSettingsWaterTypeChanged(false);
+                }
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED,
+                                                           Global::FmtArgs() << Value);
+            }
+
+            // raise the event if the oven start mode is changed
+            if (TempSettings.GetValue("Oven_Startmode") != Settings.GetValue("Oven_Startmode")) {
+                QString Value = Settings.GetValue("Oven_Startmode");
+                if (Value.compare("AfterStartup", Qt::CaseInsensitive) == 0) {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PERMANENT);
+                }
+                else {
+                    Value = Global::UITranslator::TranslatorInstance().Translate
+                            (Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED_PROGSTART);
+                }
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_START_MODE_CHANGED,
+                                                           Global::FmtArgs() << Value);
+            }
+
+            // raise the event if the temprature format is changed
+            if (TempSettings.GetTemperatureFormat() != Settings.GetTemperatureFormat()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_TEMPERATURE_FORMAT_CHANGED,
+                                                           Global::FmtArgs() << Global::TemperatureFormatToString
+                                                           (Settings.GetTemperatureFormat()));
+            }
+
+            // raise the event if the time format is changed
+            if (TempSettings.GetTimeFormat() != Settings.GetTimeFormat()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_TIME_FORMAT_CHANGED,
+                                                           Global::FmtArgs() << Global::TimeFormatToString
+                                                           (Settings.GetTimeFormat()) + "h");
+            }
+
+            // raise the event if the date format is changed
+            if (TempSettings.GetDateFormat() != Settings.GetDateFormat()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_DATE_FORMAT_CHANGED,
+                                                           Global::FmtArgs() << Global::DateFormatToString
+                                                           (Settings.GetDateFormat()));
+            }
+
+            // raise the event if the error sound note is changed
+            if (TempSettings.GetSoundNumberError() != Settings.GetSoundNumberError()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_ERROR_SOUND_NOTE_CHANGED);
+            }
+
+            // raise the event if the error volume tone is changed
+            if (TempSettings.GetSoundLevelError() != Settings.GetSoundLevelError()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_ERROR_VOLUME_NOTE_CHANGED);
+            }
+
+            // raise the event if the warning sound tone is changed
+            if (TempSettings.GetSoundNumberWarning() != Settings.GetSoundNumberWarning()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_WARN_SOUND_NOTE_CHANGED);
+            }
+
+            // raise the event if the warning volume tone is changed
+            if (TempSettings.GetSoundLevelWarning() != Settings.GetSoundLevelWarning()) {
+                Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_ALARAM_WARN_VOLUME_NOTE_CHANGED);
             }
 
             if (!mp_DataContainer->SettingsInterface->VerifyData(true)) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_DM_GV_FAILED);
+                Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_GV_FAILED);
                 SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
                 return;
             }
@@ -129,21 +240,33 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
             }
             emit UserSettingsChanged(LanguageChanged);
 
-            SettingsDataStream.device()->reset();
+            (void)SettingsDataStream.device()->reset();
             SendAckAndUpdateGUI(Ref, AckCommandChannel, Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)));
+            // if the another process is availble other than colorado (other process means it is Sepia)
+            if (m_ConnToOtherProcess) {
+                //send usersettings changed command to sepia
+                (void)mp_MasterThreadController->SendCommand(
+                            Global::CommandShPtr_t(new MsgClasses::CmdChangeUserSettings(5000, SettingsDataStream)),
+                            mp_MasterThreadController->GetCommandChannel(5));
+            }
+
+            //if the proxy settings has been changed and the data is valid, send the command to Remote Care
+            if(ProxySettingsChanged) {
+                (const_cast<RemoteCare::RemoteCareManager*>(mp_MasterThreadController->GetRemoteCareManager()))->SendNotifyReconnectToRemoteCare();
+            }
+
             qDebug()<<"\n\n User Settings Update Success";
         }
+
+        return;
     }
-    catch (Global::Exception &E) {
-        Global::EventObject::Instance().RaiseEvent(E.GetErrorCode(),E.GetAdditionalData(),true);
-        SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
-    }
-    catch (...) {
-        SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
-    }
+    CATCHALL();
+
+    SendNackToGUIWithDefaultMsg(Ref, AckCommandChannel, EVENT_DM_SETTINGS_UPDATE_FAILED);
 }
+
 /****************************************************************************/
-/**
+/*!
  * \brief Function which handles CmdAlarmToneTest
  *  \iparam Ref = Command reference
  *  \iparam Cmd = Command
@@ -152,20 +275,21 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
 /****************************************************************************/
 void CUserSettingsCommandInterface::AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel)
 {
-    bool Result = false;
-    qDebug()<<"Alarm Test- Type:"<<Cmd.GetAlarmType() <<"Sound:"<< Cmd.GetSound()<<"Volume:" << Cmd.GetVolume();
     if (mp_MasterThreadController) {
         mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
-        Global::AlarmHandler *p_AlarmHandler = mp_MasterThreadController->GetAlarmHandler();
-        if (p_AlarmHandler) {
-            Result = p_AlarmHandler->playTestTone(Cmd.GetAlarmType(), Cmd.GetVolume(), Cmd.GetSound());
-            qDebug()<<Result;
-        }
-        if (!Result) {
-            Global::EventObject::Instance().RaiseEvent(EVENT_DM_CANCEL_PLAY_ALARM_TEST_TONE);
-
-        }
+        emit PlayTestTone(Cmd.GetAlarmType(), Cmd.GetVolume(), Cmd.GetSound());
     }
+}
+
+/****************************************************************************/
+/**
+ * \brief This slot is used if any other process is connected means it is Sepia
+ * \iparam Connected = true if sepia is connected
+ */
+/****************************************************************************/
+void CUserSettingsCommandInterface::ConnectedToOtherProcess(bool Connected)
+{
+    m_ConnToOtherProcess = Connected;
 }
 
 }// End of Namespace DataManager

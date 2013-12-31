@@ -61,22 +61,11 @@ private slots:
     void cleanupTestCase();
     /****************************************************************************/
     /**
-     * \brief Test default constructor
+     * \brief Test constructor
      */
     /****************************************************************************/
-    void utDefaultConstructor();
-    /****************************************************************************/
-    /**
-     * \brief Test constructor without additional data list
-     */
-    /****************************************************************************/
-    void utConstructorNoData();
-    /****************************************************************************/
-    /**
-     * \brief Test constructor with translatable string
-     */
-    /****************************************************************************/
-    void utConstructorWithTranslatableString();
+    void utConstructor();
+
     /****************************************************************************/
     /**
      * \brief Test copy constructor and assignment operator.
@@ -85,10 +74,10 @@ private slots:
     void utCopy();
     /****************************************************************************/
     /**
-     * \brief Test get methods.
+     * \brief Test set and get methods.
      */
     /****************************************************************************/
-    void utGet();
+    void utSetAndGet();
 }; // end class TestDayOperationEntry
 
 /****************************************************************************/
@@ -108,59 +97,24 @@ void TestDayOperationEntry::cleanupTestCase() {
 }
 
 /****************************************************************************/
-void TestDayOperationEntry::utDefaultConstructor() {
+void TestDayOperationEntry::utConstructor() {
     // test default constructor
-    DayEventEntry TestObject;
-    QCOMPARE(TestObject.m_TimeStamp.isNull(),               true);
-    //QCOMPARE(TestObject.m_String.GetStringID(),             EVENT_GLOBAL_UNKNOWN_STRING_ID);
-    //QCOMPARE(TestObject.m_String.GetArgumentList().size(),  0);
-}
+    DayEventEntry TestObject1;
+    QCOMPARE(TestObject1.m_TimeStamp.isNull(),               false);
+    QCOMPARE(TestObject1.m_String.length(),             0);
 
-/****************************************************************************/
-void TestDayOperationEntry::utConstructorNoData() {
-    // test constructor without additional data
-//    QTest::qSleep(DayOpSleepTime);
-//    QDateTime TimeStamp1 = Global::AdjustedTime::Instance().GetCurrentDateTime();
-//    QTest::qSleep(DayOpSleepTime);
-//    QDateTime TimeStamp2 = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    QDateTime DateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    Global::tTranslatableStringList StringList;
+    StringList<< "String1" << "String2";
+    DayEventEntry TestObject2(DateTime, StringList);
+    QCOMPARE(TestObject2.m_TimeStamp, DateTime);
+    QCOMPARE(TestObject2.m_String.count(), StringList.count());
 
-    // create objects
-    //DayEventEntry TestObject1(TimeStamp1, 1);
-    //DayEventEntry TestObject2(TimeStamp2, 2);
+    for (qint32 Counter = 0; Counter < StringList.count(); Counter++) {
+        QCOMPARE(((Global::TranslatableString)TestObject2.m_String.value(Counter)).GetString(),
+                  ((Global::TranslatableString)StringList.value(Counter)).GetString());
+    }
 
-    // check data
-    //QCOMPARE(TestObject1.m_TimeStamp,                       TimeStamp1);
-    //QCOMPARE(TestObject1.m_String.GetStringID(),            quint32(1));
-    //QCOMPARE(TestObject1.m_String.GetArgumentList().size(), 0);
-
-    //QCOMPARE(TestObject2.m_TimeStamp,                       TimeStamp2);
-    //QCOMPARE(TestObject2.m_String.GetStringID(),            quint32(2));
-    //QCOMPARE(TestObject2.m_String.GetArgumentList().size(), 0);
-}
-
-/****************************************************************************/
-void TestDayOperationEntry::utConstructorWithTranslatableString() {
-    // test constructor with additional data
-    QTest::qSleep(DayOpSleepTime);
-    QDateTime TimeStamp1 = Global::AdjustedTime::Instance().GetCurrentDateTime();
-    QTest::qSleep(DayOpSleepTime);
-    QDateTime TimeStamp2 = Global::AdjustedTime::Instance().GetCurrentDateTime();
-
-    Global::tTranslatableStringList AdditionalData1 = Global::tTranslatableStringList() << "D11" << "D12";
-    Global::tTranslatableStringList AdditionalData2 = Global::tTranslatableStringList() << "D21" << "D22" << "D23";
-    Global::TranslatableString String1(1, AdditionalData1);
-    Global::TranslatableString String2(2, AdditionalData2);
-
-    //DayEventEntry TestObject1(TimeStamp1, String1);
-    //DayEventEntry TestObject2(TimeStamp2, String2);
-
-    //QCOMPARE(TestObject1.m_TimeStamp,                       TimeStamp1);
-    //QCOMPARE(TestObject1.m_String.GetStringID(),            quint32(1));
-    //QCOMPARE(TestObject1.m_String.GetArgumentList().size(), 2);
-
-    //QCOMPARE(TestObject2.m_TimeStamp,                       TimeStamp2);
-    //QCOMPARE(TestObject2.m_String.GetStringID(),            quint32(2));
-    //QCOMPARE(TestObject2.m_String.GetArgumentList().size(), 3);
 }
 
 /****************************************************************************/
@@ -216,19 +170,66 @@ void TestDayOperationEntry::utCopy() {
 }
 
 /****************************************************************************/
-void TestDayOperationEntry::utGet() {
-    // test get methods
+void TestDayOperationEntry::utSetAndGet() {
+    QDateTime DateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    Global::tTranslatableStringList StringList;
+    StringList<< "String1" << "String2";
+    EventHandler::EventCSVInfo CSV;
+    Global::LoggingSource LogSource;
+    CSV.SetActionNegative(Global::ACNTYPE_STOP);
+    CSV.SetActionPositive(Global::ACNTYPE_IDLE);
+    CSV.SetAlarmStatus(false);
+    CSV.SetButtonType(Global::OK);
 
-    QTest::qSleep(DayOpSleepTime);
-    QDateTime TimeStamp1 = Global::AdjustedTime::Instance().GetCurrentDateTime();
-    QTest::qSleep(DayOpSleepTime);
-    QDateTime TimeStamp2 = Global::AdjustedTime::Instance().GetCurrentDateTime();
-    Global::TranslatableString TS1(1, Global::tTranslatableStringList() << "D11" << "D12");
-    Global::TranslatableString TS2(2, Global::tTranslatableStringList() << "D21" << "D22" << "D23");
-    //DayEventEntry TestObject1(TimeStamp1, TS1);
-    //DayEventEntry TestObject2(TimeStamp2, TS2);
-    //DayEventEntry TestObject3(TestObject1);
-    //DayEventEntry TestObject4(TestObject2);
+    CSV.SetEventName("Test event");
+    CSV.SetEventSource(Global::EVENTSOURCE_NONE);
+    CSV.SetEventType(Global::EVTTYPE_INFO);
+    CSV.SetFinalAction(Global::ACNTYPE_SHUTDOWN);
+    CSV.SetGUIOptions(Global::YES_NO);
+    CSV.SetLogLevel(Global::LOGLEVEL_NONE);
+    CSV.SetMessageType("Info");
+    CSV.SetRetries(3);
+    CSV.SetRunLogStatus(true);
+    CSV.SetSource(LogSource);
+    CSV.SetStatusBarIcon(true);
+    CSV.SetStatusIcon(false);
+
+    DayEventEntry TestObject(DateTime, StringList);
+    TestObject.SetEventCSVInfo(CSV);
+    TestObject.SetAltStringUsage(Global::NOT_APPLICABLE);
+    TestObject.SetDateTime(DateTime);
+    TestObject.SetEventKey(1234);
+    TestObject.SetTranslatableStringList(StringList);
+    TestObject.SetEventCode(5678);
+    TestObject.SetAckReqStatus(false);
+
+
+    QCOMPARE(TestObject.GetAltStringUsageType(), Global::NOT_APPLICABLE);
+    QCOMPARE(TestObject.GetTimeStamp(), DateTime);
+    QCOMPARE(TestObject.GetString().count(), StringList.count());
+    QCOMPARE(TestObject.GetAckValue(), NetCommands::NOT_SPECIFIED);
+    QCOMPARE(TestObject.GetEventKey(), quint32(1234));
+    QCOMPARE(TestObject.IsEventActive(), false);
+
+    QCOMPARE(TestObject.GetShowInRunLogStatus(), true);
+    QCOMPARE(TestObject.GetEventType(), Global::EVTTYPE_INFO);
+    QCOMPARE(TestObject.GetEventId(), quint32(5678));
+    QCOMPARE(TestObject.GetEventName(), QString("Test event"));
+    QCOMPARE(TestObject.GetLogLevel(), Global::LOGLEVEL_NONE);
+    QCOMPARE(TestObject.GetAlarmStatus(), false);
+    QCOMPARE(TestObject.GetRetryAttempts(), 3);
+    QCOMPARE(TestObject.GetActionNegative(), Global::ACNTYPE_STOP);
+    QCOMPARE(TestObject.GetActionPositive(), Global::ACNTYPE_IDLE);
+    QCOMPARE(TestObject.GetFinalAction(), Global::ACNTYPE_SHUTDOWN);
+    QCOMPARE(TestObject.GetStatusIcon(), false);
+    QCOMPARE(TestObject.GetAckReqStatus(), false);
+    QCOMPARE(TestObject.GetActionType(),  Global::ACNTYPE_SHUTDOWN);
+    QCOMPARE(TestObject.GetButtonType(), Global::YES_NO);
+    QCOMPARE(TestObject.GetGUIMessageBoxOptions(), Global::YES_NO);
+    QCOMPARE(TestObject.GetSourceComponent(), Global::EVENTSOURCE_NONE);
+
+
+
 #if 0
     QCOMPARE(TestObject1.GetTimeStamp(),                    TimeStamp1);
     //QCOMPARE(TestObject1.m_String.GetStringID(),            quint32(1));

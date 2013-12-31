@@ -27,7 +27,7 @@ namespace EventHandler {
 /*!
  *  \brief    Constructor for the RemoteCareHandler
  *
- *  \param[in]    LoggingSource = logging source
+ *  \iparam   TheHeartBeatSource
  *
  *  \return
  *
@@ -58,12 +58,13 @@ RemoteCareHandler::~RemoteCareHandler()
  *        the EventHandler can forward system errors to the local Axeda
  *        Client Controller.
  *
- * \param[in]  EventEntry = event (originally) from the system error handler
+ * \iparam  &DayEventEntrydata = event (originally) from the system error handler
  */
 /****************************************************************************/
-void RemoteCareHandler::ForwardEventToRemoteCare(const DataLogging::DayEventEntry &)
+void RemoteCareHandler::ForwardEventToRemoteCare(const DataLogging::DayEventEntry &DayEventEntrydata)
 {
     ///< WARNING: Implement this SLOT in your derived class!!
+    Q_UNUSED(DayEventEntrydata)
 }
 
 } // end namespace EventHandler

@@ -29,7 +29,7 @@
 namespace ExternalProcessControl {
 
 /// Waiting time after which we have to kill the process
-const int PROCESS_KILL_TIMEOUT = 1000; // 1000 ms = 1 sec
+const int PROCESS_KILL_TIMEOUT = 5000; // 5000 ms = 5 sec
 
 /****************************************************************************/
 /**
@@ -56,6 +56,14 @@ public:
     bool StartProcess(const QString &cmd, const QStringList &args);
     bool TerminateProcess();
     bool KillProcess();
+    /****************************************************************************/
+    /*!
+     *  \brief    gets the process running state
+     *
+     *  \return    process running state
+     */
+     /****************************************************************************/
+    QProcess::ProcessState IsRunning() { return m_myProcess->state();}
 
 signals:
 
@@ -100,8 +108,13 @@ private slots:
 private:
 
     ExternalProcess();                                              ///< Not implemented.
-    ExternalProcess(const ExternalProcess &);                       ///< Not implemented.
-    const ExternalProcess & operator = (const ExternalProcess &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ExternalProcess)
 
     /// Internal name of the process
     QString      m_myName;

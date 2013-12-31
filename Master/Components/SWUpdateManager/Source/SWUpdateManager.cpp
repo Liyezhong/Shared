@@ -47,6 +47,7 @@ const quint32 TIMEOUT_FOR_SW_UPDATE_STARTER = 100000; //!< 10 [s] .
 /****************************************************************************/
 /*!
  *  \brief    Constructor
+ *  \iparam     MasterThreadRef
  */
 /****************************************************************************/
 SWUpdateManager::SWUpdateManager(Threads::MasterThreadController &MasterThreadRef)
@@ -130,13 +131,14 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
             Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
             emit SWUpdateStatus(false);
         }
+
+        return;
     }
-    catch(Global::Exception &E) {
-        emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
-        Global::EventObject::Instance().RaiseException(E);
-        Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
-        emit SWUpdateStatus(false);
-    }
+    CATCHALL();
+
+    emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
+    Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
+    emit SWUpdateStatus(false);
 }
 
 /****************************************************************************/
@@ -312,7 +314,18 @@ void SWUpdateManager::UpdateRebootFile(const QString UpdateStatus, const QString
         QString Value = m_MasterThreadControllerRef.m_RebootFileContent.value(Key);
         RebootFileStream << Key << ":" << Value << "\n" << left;
     }
-    fsync(RebootFile.handle());
+    RebootFile.close();
+    (void)fsync(RebootFile.handle());
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Slot is called when new SW is downloaded from RCA
+ */
+/****************************************************************************/
+void SWUpdateManager::OnSWUpdateFromRC()
+{
+    UpdateSoftware(SW_UPDATE_OPTION_CHECK, "RemoteCare");
 }
 
 } //End of namespace SWUpdate

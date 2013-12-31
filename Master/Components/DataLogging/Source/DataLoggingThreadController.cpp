@@ -3,9 +3,14 @@
  *
  *  \brief Implementation file for class DataLoggingThreadController.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *\b Description:
+ *      This class creates, configures and destroys all the loggers: EventLogger,
+ *      ComponentTestLogger and DayEventLogger.
+ *
+ *
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -20,9 +25,10 @@
 
 #include <DataLogging/Include/DataLoggingThreadController.h>
 #include <DataLogging/Include/EventFilterNetworkServer.h>
-#include <DataLogging/Include/Commands/CmdForceCaching.h>
 #include <Global/Include/SystemPaths.h>
 #include <Global/Include/Utils.h>
+#include <Global/Include/GlobalDefines.h>
+#include <DataLogging/Include/DataLoggingEventCodes.h>
 
 
 
@@ -33,16 +39,22 @@ namespace DataLogging {
 const Global::gSubComponentType SUBCOMPONENT_EVENTLOGGER    = 0x0001;   ///< Subcomponent id for event logger.
 const Global::gSubComponentType SUBCOMPONENT_DAYOPLOGGER    = 0x0002;   ///< Subcomponent id for day operation logger.
 const Global::gSubComponentType SUBCOMPONENT_COMPTESTLOGGER = 0x0003;   ///< Subcomponent id for component test logger.
-const Global::gSourceType DUMMY =100;
+const QString EMPTY_STRING                  = "";///< empty string
+const QString FILEEXTENSION_LOG             = ".log";///< Extension for the log files
+const QString MULTIPLEFILES                 = "*.log";///< Multiple log files string
+const QString STRINGUNDERSCORE              = "_";///< Underscore string
+
+
+
 /****************************************************************************/
-DataLoggingThreadController::DataLoggingThreadController(Global::gSourceType TheHeartBeatSource, const QString& fileNamePrefix) :
-    Threads::ThreadController(TheHeartBeatSource, "DataLogging"),
+DataLoggingThreadController::DataLoggingThreadController(quint32 ThreadID,
+                                                         const QString& FileNamePrefix) :
+    Threads::ThreadController(ThreadID, "DataLogging"),
     m_oPowerFail(false),
     m_EventLoggerMaxFileSize(0),
     m_DayEventLoggerMaxFileCount(0),
-    m_DayEventLogger(NULL, "DataLogging", fileNamePrefix),
-    m_pEventFilterNetworkServer(NULL)
-{
+    m_DayEventLogger(NULL, "DataLogging", FileNamePrefix),
+    m_pEventFilterNetworkServer(NULL) {
 
     qRegisterMetaType<DataLogging::DayEventEntry>("DataLogging::DayEventEntry");
 
@@ -59,33 +71,31 @@ DataLoggingThreadController::~DataLoggingThreadController() {
 
 /****************************************************************************/
 void DataLoggingThreadController::CreateAndInitializeObjects() {
-    // first of all create objects
-    // pointers should be NULL at this point.
-    Q_ASSERT(m_pEventFilterNetworkServer == NULL);
 
 #if !defined QT_NO_DEBUG
     // create network filter server but only in debug mode
     m_pEventFilterNetworkServer = new EventFilterNetworkServer(this, 9876);
 #endif
 
+    // create the log files folder
     QDir Directory(Global::SystemPaths::Instance().GetLogfilesPath());
     // check the path of the log directory
     if (!Directory.exists()) {
         if (!Directory.mkdir(Directory.absolutePath())) {
-            /// \todo Raise a exception
+            // disable permanently and inform to GUI
+            Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED);
             // return from the function, there is no point configure the logger
             return;
         }
     }
 
     m_DayEventLogger.Configure(DayEventLoggerConfig(m_OperatingMode,
-                                                            m_SerialNumber,
-                                                            Global::SystemPaths::Instance().GetLogfilesPath(),
-                                                            m_DayEventLoggerMaxFileCount,
-                                                            m_EventLoggerBaseFileName));
-
-    RegisterCommandForProcessing<DataLogging::CmdForceCaching, DataLoggingThreadController>
-            (&DataLoggingThreadController::OnForceCaching, this);
+                                                    m_SerialNumber,
+                                                    Global::SystemPaths::Instance().GetLogfilesPath(),
+                                                    m_DayEventLoggerMaxFileCount,
+                                                    m_EventLoggerBaseFileName));
+    RegisterAcknowledgeForProcessing<Global::AckOKNOK, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnAcknowledge, this);
     RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequest, DataLoggingThreadController>
             (&DataLoggingThreadController::OnRunLogRequest, this);
     RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequestFile, DataLoggingThreadController>
@@ -106,16 +116,23 @@ void DataLoggingThreadController::OnGoReceived() {
 
 /****************************************************************************/
 void DataLoggingThreadController::OnStopReceived() {
-    // nothing to do
+    m_DayEventLogger.CloseFile();
 }
 
 /****************************************************************************/
-void DataLoggingThreadController::OnPowerFail() {
-    // try to log
-    //! \todo inform EventHandler
-    m_DayEventLogger.CloseFile();
+void DataLoggingThreadController::OnPowerFail(const Global::PowerFailStages PowerFailStage) {
     // switch to state power fail
-    m_oPowerFail = true;
+    if (PowerFailStage == Global::POWER_FAIL_STAGE_2) {
+        m_DayEventLogger.CloseFile();
+        m_oPowerFail = true;
+    }
+}
+
+/****************************************************************************/
+void DataLoggingThreadController::OnAcknowledge(Global::tRefType Ref, const Global::AckOKNOK &Ack)
+{
+    Q_UNUSED(Ref)
+    Q_UNUSED(Ack)
 }
 
 /****************************************************************************/
@@ -131,61 +148,101 @@ void DataLoggingThreadController::CheckLoggingEnabled() {
     m_DayEventLogger.CheckLoggingEnabled();
 }
 
-/****************************************************************************/
-void DataLoggingThreadController::OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd) {
-    /// \todo implement
-    Q_UNUSED(Ref);
-    Q_UNUSED(Cmd);
-}
-
 
 /****************************************************************************/
-void DataLoggingThreadController::OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd) {
+void DataLoggingThreadController::OnRunLogRequest(Global::tRefType Ref,
+                                                  const NetCommands::CmdDayRunLogRequest &Cmd) {
 
     Q_UNUSED(Cmd);
     // send the acknowledgement
     SendAcknowledgeOK(Ref);
-    // create object to create the file
-    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
 
     QStringList FileNames;
-    DayRunFilesInformation.CreateAndListDailyRunLogFileName(FileNames);
+    QDir LogDirectory(Global::SystemPaths::Instance().GetLogfilesPath());
+
+    // check the user level - for service user raw data(event log) shall be displayed
+    switch(Cmd.GetUserLevel()) {
+        case Global::SERVICE:
+            // iterate each file and remove the log extension
+            foreach (QString LogFileName,
+                     LogDirectory.entryList(QStringList() << (m_EventLoggerBaseFileName + m_SerialNumber + STRINGUNDERSCORE + MULTIPLEFILES))) {
+                LogFileName.replace(FILEEXTENSION_LOG, EMPTY_STRING);
+                // replace the .log extension and put the empty string
+                FileNames.append(LogFileName);
+            }
+            qSort(FileNames.begin(), FileNames.end(), qGreater<QString>());
+            break;
+        default:
+        {
+            DayLogFileInformation *p_DayRunFilesInformation = NULL;
+            // create object to create the file
+            p_DayRunFilesInformation = new DayLogFileInformation(Global::SystemPaths::Instance().GetLogfilesPath(),
+                                                                 Global::SystemPaths::Instance().GetLogfilesPath(),
+                                                                 m_EventLoggerBaseFileName + m_SerialNumber + STRINGUNDERSCORE);
+
+            p_DayRunFilesInformation->CreateAndListDailyRunLogFileName(FileNames);
+            delete p_DayRunFilesInformation;
+            break;
+        }
+    }
+
     // get the new command reference
     Global::tRefType NewRef = GetNewCommandRef();
     SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReply(1000, FileNames)));
 }
 
 /****************************************************************************/
-void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequestFile &Cmd) {
-
-    // send the acknowledgement
-    SendAcknowledgeOK(Ref);
-
-    // create object to create the file
-    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref,
+                                                      const NetCommands::CmdDayRunLogRequestFile &Cmd) {
 
     QByteArray FileContent;
 
-    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(), Cmd.GetCurrentUserRole(), FileContent);
+    QFile File;
+    // check the user level - for service user raw data (event log) shall be displayed
+    switch(Cmd.GetUserLevel()) {
+        case Global::SERVICE:
+            File.setFileName(Global::SystemPaths::Instance().GetLogfilesPath() + QDir::separator()
+                             + Cmd.GetFileName() + FILEEXTENSION_LOG);
+            if (File.open(QIODevice::ReadOnly)) {
+                FileContent = File.readAll();
+            }
+            break;
+        default:
+        {
+            DayLogFileInformation *p_DayRunFilesInformation = NULL;
+            // create object to create the file
+            p_DayRunFilesInformation = new DayLogFileInformation(Global::SystemPaths::Instance().GetLogfilesPath(),
+                                                                 Global::SystemPaths::Instance().GetLogfilesPath(),
+                                                                 m_EventLoggerBaseFileName + m_SerialNumber + STRINGUNDERSCORE);
+
+            p_DayRunFilesInformation->CreateSpecificDailyRunLogFile(Cmd.GetFileName(), FileContent);
+            delete p_DayRunFilesInformation;
+            break;
+        }
+    }
     // get the new command reference
     Global::tRefType NewRef = GetNewCommandRef();
     SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReplyFile(1000, FileContent)));
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
 }
 
 /****************************************************************************/
-void DataLoggingThreadController::OnExportDayRunLogRequest(Global::tRefType Ref, const NetCommands::CmdExportDayRunLogRequest &Cmd) {
+void DataLoggingThreadController::OnExportDayRunLogRequest(Global::tRefType Ref,
+                                                           const NetCommands::CmdExportDayRunLogRequest &Cmd) {
 
     Q_UNUSED(Cmd);
     // send the acknowledgement
     SendAcknowledgeOK(Ref);
     // create object to create the file
-    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath(),
+                                                 Cmd.GetFolderPath(), m_EventLoggerBaseFileName + m_SerialNumber + STRINGUNDERSCORE);
 
     QStringList FileNames;
-    DayRunFilesInformation.CreateDailyRunLogFiles(FileNames, Cmd.GetCurrenUserRole());
+    DayRunFilesInformation.CreateDailyRunLogFiles(FileNames);
     // get the new command reference
     Global::tRefType NewRef = GetNewCommandRef();
-    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdExportDayRunLogReply(1000, FileNames)));
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdExportDayRunLogReply(5000, FileNames)));
 }
 
 } // end namespace DataLogging

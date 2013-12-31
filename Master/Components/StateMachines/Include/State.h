@@ -69,7 +69,7 @@ public:
     /*!
     *  \brief    This function is called when the State is entered.
     *
-    *  \param[in]    et = the event
+    *  \iparam    et = the event
     *
     *  \return   TRUE if executed successfully, FALSE otherwise
     *
@@ -79,7 +79,7 @@ public:
     /*!
     *  \brief    This function is called when the State is exited.
     *
-    *  \param[in]    et = the event
+    *  \iparam    et = the event
     *
     *  \return   TRUE if executed successfully, FALSE otherwise
     *
@@ -101,15 +101,20 @@ signals:
 private:
 
     State();                                    ///< Not implemented.
-    State(const State &);                       ///< Not implemented.
-    const State & operator = (const State &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(State)
 
 
     /****************************************************************************/
     /*!
     *  \brief    This function processes state's internal event.
     *
-    *  \param[in]    et = the event
+    *  \iparam    et = the event
     *
     *  \return   TRUE if executed successfully, FALSE otherwise
     *

@@ -42,6 +42,13 @@ class HeartBeat : public ProtocolTxCommand {
     friend class TestProtocolCommand;
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(HeartBeat)
 
     DECLARE_REG_CLASS(ProtocolTxCommand, HeartBeat);   ///< Declaration of static registration instance.
 

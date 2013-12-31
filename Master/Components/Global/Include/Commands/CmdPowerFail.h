@@ -27,6 +27,8 @@
 #include <Global/Include/Commands/Command.h>
 #include <Global/Include/GlobalDefines.h>
 
+//lint-sem(Global::CmdPowerFail::CopyFrom,initializer)
+
 namespace Global {
 
 /****************************************************************************/

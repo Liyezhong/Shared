@@ -9,7 +9,6 @@ SUBDIRS =   TestBaseLogger.pro \
             TestDayOperationLoggerConfig.pro \
             TestDayOperationEntry.pro \
             TestEventFilter.pro \
-            TestLoggingObject.pro \
 	    TestDayLogFileInformation.pro
 
 CONFIG += ordered

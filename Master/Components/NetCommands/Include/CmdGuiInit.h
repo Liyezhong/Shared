@@ -1,3 +1,22 @@
+/****************************************************************************/
+/*! \file CmdGuiInit.h
+ *
+ *  \brief CmdGuiInit command definition
+ *
+ *   $Version: $ 0.1
+ *   $Date:    $ 17.12.2012
+ *   $Author:  $ N.Kamath
+ *
+ *  \b Company:
+ *
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
+ *
+ */
+/****************************************************************************/
 #ifndef CMDGUIINIT_H
 #define CMDGUIINIT_H
 #include <Global/Include/Commands/Command.h>
@@ -24,6 +43,13 @@ public:
 
 private:
     CmdGuiInit(const CmdGuiInit &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdGuiInit & operator = (const CmdGuiInit &); ///< Not implemented.
 
 }; // end class CmdGuiInit
@@ -33,7 +59,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -51,7 +77,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdGuiInit &Cmd)
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

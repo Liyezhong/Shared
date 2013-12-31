@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Xml">
         <file>UserSettings.xml</file>
+        <file>SepiaUserSettings.xml</file>
     </qresource>
 </RCC>

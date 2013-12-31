@@ -114,15 +114,6 @@ void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
                 mp_MessageDlg->SetButtonText(3, tr("Stop"));
                 mp_MessageDlg->HideCenterButton();
                 break;
-            case Global::RECOVERYLATER_RECOVERYNOW:
-                mp_MessageDlg->SetButtonText(1, tr("Recovery Later"));
-                mp_MessageDlg->SetButtonText(3, tr("Recovery Now"));
-                mp_MessageDlg->HideCenterButton();
-                break;
-            case Global::RECOVERYNOW:
-                mp_MessageDlg->SetButtonText(1, tr("Recovery Now"));
-                mp_MessageDlg->HideButtons();
-                break;
             case Global::OK_CANCEL:
                 mp_MessageDlg->SetButtonText(1, tr("Ok"));
                 mp_MessageDlg->SetButtonText(3, tr("Cancel"));
@@ -211,10 +202,6 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
 void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgData)
 {
 
-    //no button, no msg box
-    if(CurrentMsgData.BtnType == Global::NO_BUTTON){
-        return;
-    }
     //Store reference in Hash
     m_EvenIDCmdRefHash.insert(CurrentMsgData.ID, Ref);
     //Add EventID to Priority Queue & EventId Hash
@@ -242,12 +229,6 @@ void CMsgBoxManager::ButtonLeftClicked()
     if (m_CurrentMsgData.BtnType == Global::OK_CANCEL) {
         emit EventReportAck(NetCommands::CANCEL_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
-           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
-       }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYNOW) {
-           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
-       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::STOP_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
@@ -283,12 +264,6 @@ void CMsgBoxManager::ButtonRightClicked()
     if (m_CurrentMsgData.BtnType == Global::OK_CANCEL) {
         emit EventReportAck(NetCommands::OK_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
-          emit EventReportAck(NetCommands::RECOVERYLATER, CmdRef, m_CurrentMsgData.ID);
-    }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYNOW) {
-           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
-       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::CONTINUE_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
