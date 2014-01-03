@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file SWVersionListVerifier.h
+/*! \file Platform/Master/Components/DataManager/Containers/SWVersions/Include/SWVersionListVerifier.h
  *
  *  \brief Definition file for class CExportConfigurationVerifier.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-07
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -46,23 +46,25 @@ public:
 
     bool VerifyData(CDataContainerBase* p_Configuration);  // use concrete class for concrete verifier
 
-    ErrorHash_t &GetErrors();
+    ErrorMap_t &GetErrors();
 
-    void ResetLastErrors();
+    void ResetErrors();
 
     bool IsLocalVerifier();
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Destructor
-     */
-    /****************************************************************************/
-    virtual ~CSWVersionListVerifier() {}
 private:
     CSWVersionList* mp_SWVL;              //!< SWVersionList Data Container
-    ErrorHash_t m_ErrorsHash;            //!< To store Error ID and any arguments associated
+    ErrorMap_t m_ErrorMap;            //!< To store Error ID and any arguments associated
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CSWVersionListVerifier)
 };
 
-} // namespace HimalayaDataManager
+} // namespace ColoradoDataContainer
 
 #endif // DATAMANAGER_SWVERSIONLISTVERIFIER_H

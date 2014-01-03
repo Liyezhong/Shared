@@ -86,16 +86,21 @@ public:
 
 public:
 
-    MessageLoaderErrorType_t LoadMessages(QHash<QString, QXmlSchemaValidator*> *schemaMap);
+    MessageLoaderErrorType_t LoadMessages(QHash<QString, QXmlSchemaValidator*> *schemaMap, QXmlSchema *schema);
 
 private:
 
     MessageLoader();                                            ///< Not implemented.
-    MessageLoader(const MessageLoader &);                       ///< Not implemented.
-    const MessageLoader & operator = (const MessageLoader &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(MessageLoader)
 
-    MessageLoaderErrorType_t ParseCommands(QDomElement *element);
-    bool LoadSchema(const QString & msgid);
+    MessageLoaderErrorType_t ParseCommands(QDomElement *element, QXmlSchema *schema);
+    bool LoadSchema(const QString & msgid, QXmlSchema *schema);
 
 private:
     /*! Pointer to list of Server message validators sorted according to message ID

@@ -51,15 +51,20 @@ private:
     tTranslations           m_Translations;         ///< Translations for all loaded languages.
     mutable QReadWriteLock  m_SyncObject;           ///< Synchronisation object.
     /****************************************************************************/
-    Translator(const Translator &);                         ///< Not impemented.
-    const Translator & operator = (const Translator &);     ///< Not implemented.
+    /****************************************************************************/
+    /**
+     * \brief Disable copy and assignment
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(Translator)
     /****************************************************************************/
     /**
      * \brief Generate a minimal language independent string for displaying a string.
      *
      * This will look like this: '"StringID":'
      *
-     * \param[in]   StringID    ID to insert.
+     * \iparam   StringID    ID to insert.
      * \return                  The generated string.
      */
     /****************************************************************************/
@@ -78,10 +83,11 @@ private:
      * <b>Remember that counting for placeholders starts by 1.</b>
      *
      * \param[in,out]   rString         String in which arguments have to be inserted.
-     * \param[in]       ArgumentList    List with arguments to insert.
+     * \iparam       ArgumentList    List with arguments to insert.
+     * \iparam       ChopArguments   true indicates Chop arguments
      */
     /****************************************************************************/
-    void InsertArguments(QString &rString, const QStringList &ArgumentList) const;
+    void InsertArguments(QString &rString, const QStringList &ArgumentList, const bool ChopArguments) const;
     /****************************************************************************/
     /**
      * \brief Translate.
@@ -106,12 +112,15 @@ private:
      *       - if it succeeds
      *         - insert arguments
      *
-     * \param[in]   TheLanguage     Language to translate into.
-     * \param[in]   String          String to translate.
+     * \iparam   TheLanguage     Language to translate into.
+     * \iparam   String          String to translate.
+     * \iparam   ChopArguments   true indicates chop arguments
+     * \iparam   UseAlternateString   true indicates alternate string to be used
      * \return                      The translation.
      */
     /****************************************************************************/
-    QString TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString = false) const;
+    QString TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString = false,
+                                const bool ChopArguments = false) const;
 protected:
 public:
     /****************************************************************************/
@@ -141,10 +150,10 @@ public:
      * Any existing data for the language will be replaced by the new data. If
      * wanted, the language will be marked as fallback language.
      *
-     * \param[in]   TheLanguage             The language to set.
-     * \param[in]   LanguageData            Data for the specific language.
-     * \param[in]   SetAsDefaultLanguage    If true, the default language will be set to this language.
-     * \param[in]   SetAsFallbackLanguage   If true, the fallback language will be set to this language.
+     * \iparam   TheLanguage             The language to set.
+     * \iparam   LanguageData            Data for the specific language.
+     * \iparam   SetAsDefaultLanguage    If true, the default language will be set to this language.
+     * \iparam   SetAsFallbackLanguage   If true, the fallback language will be set to this language.
      */
     /****************************************************************************/
     void SetLanguageData(QLocale::Language TheLanguage, const tLanguageData &LanguageData,
@@ -157,7 +166,7 @@ public:
      * nothing happens. If it was the fallback language, the fallback language will
      * be set to QLocale::C.
      *
-     * \param[in]   TheLanguage     The language to remove.
+     * \iparam   TheLanguage     The language to remove.
      */
     /****************************************************************************/
     void RemoveLanguageData(QLocale::Language TheLanguage);
@@ -168,7 +177,7 @@ public:
      * If desired language does not exist, the default language is not changed and
      * false is returned.
      *
-     * \param[in]   TheLanguage     The language to set.
+     * \iparam   TheLanguage     The language to set.
      */
     /****************************************************************************/
     void SetDefaultLanguage(QLocale::Language TheLanguage);
@@ -187,7 +196,7 @@ public:
      * If desired language does not exist, the fallback language is not changed and
      * false is returned.
      *
-     * \param[in]   TheLanguage     The language to set.
+     * \iparam   TheLanguage     The language to set.
      */
     /****************************************************************************/
     void SetFallbackLanguage(QLocale::Language TheLanguage);
@@ -205,11 +214,13 @@ public:
      *
      * See documentation to \ref TranslateToLanguage.
      *
-     * \param[in]   String          String to translate.
+     * \iparam   String          String to translate.
+     * \iparam   ChopArguments   true indicates chop arguments
+     * \iparam   UseAlternateString   true indicates alternate string to be used
      * \return                      The translation.
      */
     /****************************************************************************/
-    QString Translate(const TranslatableString &String, const bool UseAlternateString = false) const;
+    QString Translate(const TranslatableString &String, const bool UseAlternateString = false, const bool ChopArguments = false) const;
     /****************************************************************************/
     /**
      * \brief Get languages.

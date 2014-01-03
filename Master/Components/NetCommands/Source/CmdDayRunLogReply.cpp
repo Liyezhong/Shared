@@ -31,8 +31,8 @@ QString CmdDayRunLogReply::NAME = "NetCommands::CmdDayRunLogReply";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   FileList    List file names.
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   FileList    List file names.
  */
 /****************************************************************************/
 CmdDayRunLogReply::CmdDayRunLogReply(int Timeout, const QStringList &FileList) :

@@ -40,6 +40,13 @@ private:
     /****************************************************************************/
 
     CmdScheduledStations(const CmdScheduledStations &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdScheduledStations & operator = (const CmdScheduledStations &); ///< Not implemented.
 protected:
 public:
@@ -56,7 +63,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   DevInstanceID       Instance ID of the concerned device.
+     * \iparam   TimeOut       timeout for Command.
      */
     /****************************************************************************/
     CmdScheduledStations(int TimeOut);
@@ -83,7 +90,7 @@ public:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -101,7 +108,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdScheduledStation
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

@@ -46,15 +46,23 @@ public:
     virtual ~CModuleDataListVerifier() {}
 
     bool VerifyData(CDataContainerBase* p_ModuleDataList);
-    ErrorHash_t &GetErrors();
+    ErrorMap_t &GetErrors();
 
-    void ResetLastErrors();
+    void ResetErrors();
 
     bool IsLocalVerifier();
 
 private:
     CModuleDataList *mp_MDL;  //!< Module List Container
-    ErrorHash_t m_ErrorsHash; //!< To store Error ID and any arguments associated
+    ErrorMap_t m_ErrorMap; //!< To store Error ID and any arguments associated
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CModuleDataListVerifier)
 
 };
 

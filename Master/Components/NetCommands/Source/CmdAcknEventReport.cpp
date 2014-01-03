@@ -28,14 +28,14 @@ QString CmdAcknEventReport::NAME = "NetCommands::CmdAcknEventReport";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   CmdType     Type of the command
- * \param[in]   Password    Password of the admin
+ * \iparam   EventKey      = Key for the Event.
+ * \iparam   ClickedBtn = Type of Button clicked.
+ *
  */
 /****************************************************************************/
-CmdAcknEventReport::CmdAcknEventReport(const quint64 EventKey, const ClickedButton_t ClickedButton) :
+CmdAcknEventReport::CmdAcknEventReport(const quint64 EventKey, const ClickedButton_t ClickedBtn) :
     Global::Acknowledge(),
-    m_ClickedButton(ClickedButton),
+    m_ClickedButton(ClickedBtn),
     m_EventKey(EventKey)
 {
 }

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFileStrings.h
+/*! \file DataManager/Helper/Include/XmlConfigFileStrings.h
  *
  *  \brief Definition file for class XmlConfigFileStrings.
  *
@@ -52,8 +52,8 @@ private:
     /**
      * \brief Read element of type "string" for format version 1.
      *
-     * \param[in, out]  rReader         xml stream reader.
-     * \param[in, out]  rLanguageData   Language data.
+     * \oparam  rReader         xml stream reader.
+     * \oparam  rLanguageData   Language data.
      */
     /****************************************************************************/
     void ReadStringEntry_V1(QXmlStreamReader &rReader, Global::tLanguageData &rLanguageData);
@@ -61,8 +61,8 @@ private:
     /**
      * \brief Read element of type "language" for format version 1.
      *
-     * \param[in, out]  rReader         xml stream reader.
-     * \param[in, out]  rLanguageList   List of languages to read.
+     * \oparam  rReader         xml stream reader.
+     * \oparam  rLanguageList   List of languages to read.
      */
     /****************************************************************************/
     void ReadLanguage_V1(QXmlStreamReader &rReader, QSet<QLocale::Language> &rLanguageList);
@@ -70,8 +70,8 @@ private:
     /**
      * \brief Read strings for format version1.
      *
-     * \param[in, out]  rReader         xml stream reader.
-     * \param[in, out]  rLanguageList   List of languages to read.
+     * \oparam  rReader         xml stream reader.
+     * \oparam  rLanguageList   List of languages to read.
      */
     /****************************************************************************/
     void ReadStrings_V1(QXmlStreamReader &rReader, QSet<QLocale::Language> &rLanguageList);
@@ -107,8 +107,8 @@ public:
      *
      * Read strings for a list of languages.
      *
-     * \param[in]       FileName        File from which configuration is to be read.
-     * \param[in, out]  rLanguageList   List of languages to read.
+     * \iparam       FileName        File from which configuration is to be read.
+     * \oparam  rLanguageList   List of languages to read.
      */
     /****************************************************************************/
     void ReadStrings(const QString &FileName, QSet<QLocale::Language> &rLanguageList);

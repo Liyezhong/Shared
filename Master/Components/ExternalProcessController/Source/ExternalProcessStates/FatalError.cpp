@@ -59,22 +59,30 @@ FatalError::~FatalError()
 ****************************************************************************/
 bool FatalError::OnEntry(StateMachines::StateEvent et)
 {
-    qDebug() << "FatalErrorState entered for process" << this->m_myController->GetProcessName();
+    if (m_myController == NULL || m_myController->m_myProcess == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
+        /// \todo we cannot switch further, do something here :)
+        return false;
+    }
+
 
     if (this->m_myController->GetProcessName().contains("Sepia"))
     {
         qDebug() << "Sepia FatalError";
     }
 
-    if (m_myController == NULL) {
-        /// \todo log error
-        /// \todo we cannot switch further, do something here :)
-        return false;
+    if (m_myController->DoesExternalProcessUseNetCommunication()) {
+        // stop device's powerup login timer if it is runnning
+        m_myController->m_myDevice->StopLoginGuard();
+    }
+    if (et.GetIndex() == EP_TOO_MANY_RESTARTS) {
+        m_myController->OnStopWorking(true);
     }
 
-    // stop device's powerup login timer if it is runnning
-    m_myController->m_myDevice->StopLoginGuard();
-
+    //Kill if process is running
+    m_myController->m_myProcess->KillProcess();
     return HandleEvent(et);
 }
 
@@ -90,7 +98,9 @@ bool FatalError::OnEntry(StateMachines::StateEvent et)
 bool FatalError::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "FatalErrorState exited for process" << this->m_myController->GetProcessName();
+    if(m_myController) {
+        qDebug() << "FatalErrorState exited for process" << this->m_myController->GetProcessName();
+    }
     return true;
 }
 
@@ -108,14 +118,18 @@ bool FatalError::HandleEvent(StateMachines::StateEvent et)
     qDebug() << "FatalErrorState handles internal event " + QString::number(et.GetIndex(), 10);
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         return false;
     }
 
     switch (et.GetIndex())
     {
     case EP_EXTPROCESS_CONNECTED:
-        m_myController->m_myDevice->DisconnectPeer();
+        if (m_myController->DoesExternalProcessUseNetCommunication()) {
+            m_myController->m_myDevice->DisconnectPeer();
+        }
         break;
     default:
         break;

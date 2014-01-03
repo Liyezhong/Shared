@@ -23,6 +23,8 @@
 
 #include <Threads/Include/BaseThreadController.h>
 #include <Threads/Include/CommandFunctors.h>
+#include <Threads/Include/ThreadController.h>
+#include <HeartBeatManager/Include/HeartBeatThread.h>
 
 #include <NetCommands/Include/CmdSystemAction.h>
 
@@ -35,7 +37,7 @@
 #include <QPair>
 #include <QSet>
 
-//lint -sem(DataManager::MasterThreadController::AddAndConnectController, custodial(1))
+#include <NetCommands/Include/CmdRCRequestRemoteSession.h>
 
 namespace DataManager {
     class CDataManagerBase;
@@ -51,26 +53,39 @@ namespace DataLogging {
     class DataLoggingThreadController;
 }
 
-namespace SoftSwitchManager {
-    class SoftSwitchManagerThreadController;
+namespace GPIOManager {
+    class GPIOThreadController;
 }
+
+namespace HeartBeatManager {
+    class HeartBeatThreadController;
+}
+
+namespace RemoteCare {
+    class RemoteCareManager;
+}
+
 namespace SWUpdate {
     class SWUpdateManager;
 }
+
 namespace Threads {
 
+//! Enumeration for Basic threads
 typedef enum {
     UNDEFINED_BASIC_THREAD,
     DATA_LOGGING_THREAD,
     EVENT_HANDLER_THREAD,
-    SOFT_SWTICH_MANAGER_THREAD
+    GPIO_MANAGER_THREAD
 } BasicThreads_t;
 
+//! Enumeration for Specific threads
 typedef enum {
     UNDEFINED_PLATFORM_THREAD = 100,
     AXEDA_CONTROLLER_THREAD = 101
 } PlatformThreads_t;
 
+//! Enumeration for CommandChannelSelector
 enum CommandChannelSelector_t {
     UNDEFINED = 100
 };
@@ -78,12 +93,12 @@ typedef Global::SharedPointer<CommandExecuteFunctorAck>     CommandExecuteFuncto
 typedef QHash<QString, CommandExecuteFunctorAckShPtr_t>     CommandExecuteFunctorAckHash_t;     ///< Typedef for the CommandExecuteFunctorShPtr_t functor hash.
 
 typedef QPair<ThreadController *, QThread *>        tControllerPair;            ///< Typedef for a pair consisting of a thread controller and a thread. Both as pointers.
-typedef QMap<int, tControllerPair>                  tControllerMap;             ///< Map of tControllerPair and controller number
+typedef QMap<quint32, tControllerPair>                  tControllerMap;             ///< Map of tControllerPair and controller number
 typedef QHash<QString, CommandChannel *>            tTCCommandChannelHash;      ///< Typedef for the TCCommandRouteFunctor functor hash.
 typedef QPair<Global::tRefType, CommandChannel *>   tRefChannelPair;            ///< Typedef for pair of tRefType and CommandChannel *
 typedef QHash<Global::tRefType, tRefChannelPair >   tTCAckChannelHash;          ///< Typedef for the TCCommandRouteFunctor functor hash.
 typedef QVector<CommandChannel *>                   tCommandChannelVector;      ///< Typedef for command channel vector.
-
+typedef QList<const BaseThreadController *>               tBaseThreadControllerList;  ///< Typefef for BaseThreadController pointer list
 /****************************************************************************/
 /**
  * \brief This class is the base class for master threads.
@@ -95,7 +110,9 @@ typedef QVector<CommandChannel *>                   tCommandChannelVector;      
 class MasterThreadController : public BaseThreadController {
 
     Q_OBJECT
+    friend class RemoteCare::RemoteCareManager;
     friend class SWUpdate::SWUpdateManager;
+
 private:
     QString                                     m_OperatingMode;                    ///< Operating mode.
     QString                                     m_EventLoggerBaseFileName;          ///< Base for file name for event logging.
@@ -103,10 +120,12 @@ private:
     qint64                                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                                         m_DayEventLoggerMaxFileCount;       ///< Max number of files for day operation logger.
     int                                         m_MaxAdjustedTimeOffset;            ///< Max alowed offset to system time [seconds]. 0 means no check has to be done.
-    Global::gSourceType                         m_HeartBeatSourceDataLogging;        ///< Heart Beat Source ID of the DataLogging component.
+    quint32                                     m_ThreadIDDataLogging;              ///< Heart Beat Source ID of the DataLogging component.
     DataLogging::DataLoggingThreadController    *mp_DataLoggingThreadController;    ///< Pointer to the DataLoggingComponent
-    Global::gSourceType                         m_HeartBeatSourceEventHandler;      ///< Heart Beat Source ID of the Event Handler.
-
+    quint32                                     m_ThreadIDEventHandler;             ///< Heart Beat Source ID of the Event Handler.
+    QThread                                     *mp_HeartBeatThread;                ///< HeartBeat Thread
+    HeartBeatManager::HeartBeatThreadController *mp_HeartBeatThreadController;      ///< Pointer to HeartBeatThreadController
+    quint32                                     m_ThreadIDHeartBeat;                ///< Heart Beat thread ID.
     // command executing stuff
     CommandExecuteFunctorAckHash_t              m_CommandExecuteFunctors;           ///< Functors of supported commands.
     CommandExecuteFunctorHash_t                 m_CommandExecuteWithoutAckFunctors; ///< Functors of commands without Ack.
@@ -115,24 +134,26 @@ private:
     tTCAckChannelHash                           m_TCAcknowledgeRoutes;              ///< Acknowledge routing.
     // command broadcasting stuff
     tCommandChannelVector                       m_BroadcastChannels;                ///< Vector of channels for broadcasting commands.
-    // heartbeat check stuff
-    int                                         m_ControllerHeartbeatTimeout;       ///< Timeout for controller heartbeat. Default = 1000 ms. 0 means no heartbeat signal is send!
-    int                                         m_HeartbeatCheckTimeout;            ///< Timeout for checking controller heartbeat. Default = 3000 ms. 0 means no heartbeat signal check is done!
-    QTimer                                      m_HeartbeatCheckTimer;              ///< Timer for controller heartbeat check.
-    QSet<Global::gSourceType>                   m_HeartbeatSources;                 ///< All registered logging sources for heartbeat check.
-    QSet<Global::gSourceType>                   m_ArrivedHeartbeats;                ///< All logging sources for which we received a heartbeat.
+
     QString                                     m_ShutdownSharedMemName;            ///< Name of shared memory for inducing a system shutdown. Will work only in debug mode!
     QTimer                                      m_ShutdownSharedMemTimer;           ///< Timer for checking external request for system shutdown. Will work only in debug mode!
 
     tControllerMap                              m_BasicControllersMap;              //!< Basic thread controllers; Key- Controller number, value- tControllerPair
+    quint32                                     m_ThreadIDRemoteCare;               ///< Heart Beat source of remote care Thread Controller
     quint32                                     m_RebootCount;                      ///< Number of times the system has rebooted
-    Threads::CommandChannel                     m_CommandChannelAxeda;                  ///< Command channel for Axeda thread controller.
-    Global::gSourceType                         m_HeartBeatSourceAxeda;             //!< Heart Beat source of Axeda Thread Controller
+    QStringList                                 m_EventStringFileList;              ///< Store all the event string file list
+    tBaseThreadControllerList                   m_PendingForHeartBeatCheck;         ///< List of threadcontrollers that are yet to be added for heartbeat check
+
 
     /****************************************************************************/
     MasterThreadController();                                                       ///< Not implemented.
-    MasterThreadController(const MasterThreadController &);                         ///< Not implemented.
-    const MasterThreadController & operator = (const MasterThreadController &);     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(MasterThreadController)
 
     /****************************************************************************/
     /**
@@ -156,18 +177,6 @@ private:
      */
     /****************************************************************************/
     void WaitForThreads(bool BasicThreadController = false);
-    /****************************************************************************/
-    /**
-     * \brief Connect data logging signals.
-     *
-     * \note We connect the data logging signals (see \ref EventObject) of a controller
-     * to the event handler controller (\ref EmitEventEntry) and to the
-     * data logger controller (\ref EmitDayOperationEntry and \ref EmitComponentTestEntry)
-     *
-     * \iparam   pController     Pointer to controller.
-     */
-    /****************************************************************************/
-    void ConnectDataLoggingSignals(const BaseThreadController *pController);
     /****************************************************************************/
     /**
      * \brief Get command channel for routing by command name.
@@ -257,6 +266,17 @@ private:
     void OnSoftSwitchPressedAtStartup(Global::tRefType Ref, const Global::CmdSoftSwitchPressed &Cmd,
                                                               Threads::CommandChannel &AckCommandChannel);
 
+    /****************************************************************************/
+    /**
+     * \brief Function for adding a thread controller for heartbeat check.
+     *         - Doesn't add heartbeat thread for check
+     *
+     * \iparam p_Controller = Thread controller pointer
+     *
+     */
+    /****************************************************************************/
+    void AddControllerForHeartBeatCheck(const Threads::BaseThreadController *p_Controller);
+
 signals:
     /****************************************************************************/
     /**
@@ -278,6 +298,12 @@ signals:
     void SendStop();
     /****************************************************************************/
     /**
+     * \brief Stop signal for all basic threads
+     */
+    /****************************************************************************/
+    void SendStopToBasicThread();
+    /****************************************************************************/
+    /**
      * \brief Emit this signal if you want to terminate yourself.
      *
      * It must be processed outside of this object. A good idea is to connect this
@@ -296,11 +322,11 @@ signals:
 
     /****************************************************************************/
     /**
-     * \brief Emit this signal whenever the Main connects to GUI. If logging failed
-     *        then GUI should be informed by Main
+     * \brief Emit this signal whenever the Main connects to GUI. So that who-ever
+     *        connects this signal can send the data as soon as GUI is available
      */
     /****************************************************************************/
-    void CheckLoggingEnabled();
+    void GUIConnected();
 
     /****************************************************************************/
     /**
@@ -320,15 +346,65 @@ signals:
     /****************************************************************************/
     void RemoteCareExport(const quint8 &LogFiles);
 
-    void PlayAlarmTone(bool AlarmTypeFlag, quint8 AlarmVolume, quint8 AlarmNumber);
-
-private slots:
     /****************************************************************************/
     /**
-     * \brief Check if all controllers have send their heartbeat signals.
+     * \brief plays error alarm or sound tone
+     *
+     * \iparam AlarmTypeFlag = true if alram, or false
+     * \iparam AlarmVolume = volume
+     * \iparam AlarmNumber = alarm number
      */
     /****************************************************************************/
-    void HeartbeatCheck();
+    void PlayAlarmTone(bool AlarmTypeFlag, quint8 AlarmVolume, quint8 AlarmNumber);
+
+    /****************************************************************************/
+    /**
+     * \brief Signals when sw from remote care is requested
+     */
+    /****************************************************************************/
+    void UpdateSoftwareFromRC();
+
+    /****************************************************************************/
+    /**
+     * \brief Signals when SW update is success or failure
+     *
+     * \iparam Status - true or false
+     */
+    /****************************************************************************/
+    void InformRCSWUpdateStatus(bool Status);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is to send command to GUI from RemoteCareManager
+     *
+     *  \iparam Cmd = command to be sent to gui
+     */
+    /****************************************************************************/
+    void SendRCCmdToGui(const Global::CommandShPtr_t &Cmd);
+
+    /****************************************************************************/
+    /**
+     * \brief Signals thread controllers to start heartbeat timer.
+     *
+     */
+    /****************************************************************************/
+    void SigHeartBeatTimerStart();
+    /****************************************************************************/
+    /**
+     * \brief Signals thread controllers to stop heartbeat timer.
+     *
+     */
+    /****************************************************************************/
+    void SigHeartBeatTimerStop();
+    /****************************************************************************/
+    /**
+     * \brief Signal heartbeat thread to monitor thread with Id passed in arg
+     * \iparam ThreadID = unique thread ID of the thread to be monitored
+     */
+    /****************************************************************************/
+    void AddControllerForHeartBeatCheck(quint32 ThreadID) ;
+
+private slots:
     /****************************************************************************/
     /**
      * \brief Checks if an external request for system shutdown arrived.
@@ -337,18 +413,32 @@ private slots:
     /****************************************************************************/
     void ExternalMemShutdownCheck();
 
-protected:
+    /****************************************************************************/
+    /**
+     * \brief Slot called when a thread controller is started. At the moment, this
+     *        function shall add this thread controller for heart beat monitoring.
+     *        any new features which should be introduced on thread start can be
+     *        added here.
+     *  \iparam p_BaseThreadController = pointer to the thread controller which
+     *                                   was started
+     */
+    /****************************************************************************/
+    void OnThreadControllerStarted(const BaseThreadController *p_BaseThreadController);
+
+protected: 
     tControllerMap                              m_ControllerMap;                ///< Thread controller
     CommandChannel                              m_CommandChannelDataLogging;    ///< Command channel for DataLogging.
     CommandChannel                              m_CommandChannelEventThread;    ///< Command channel for EventHandler.
     EventHandler::EventHandlerThreadController  *mp_EventThreadController;      ///< Pointer to the system event handling object.
     QHash<QString, Threads::CommandChannel*>    m_channelList;                  ///< Hash of command channels connected related to its name
-    Global::AlarmHandler                        *mp_alarmHandler;               ///< The Alarm handler
     DataManager::CUserSettings                  *mp_UserSettings;               ///< The user settings.
-    DataManager::CDataManagerBase               *mp_DataManagerBase; //!< The DataManager.\warning Dont delete this, Pointer points to address in stack.
-    SoftSwitchManager::SoftSwitchManagerThreadController    *mp_SoftSwitchManagerThreadController; //!< Thread controller to monitor softswitch
-    CommandChannel                              m_CommandChannelSoftSwitch;         //!< Command channel for SoftSwitch Manager
-    Global::gSourceType                         m_HeartBeatSourceSoftSwitch;        //!< Heart beat source of softswitch
+    DataManager::CDataManagerBase               *mp_DataManagerBase;            //!< The DataManager.\warning Dont delete this, Pointer points to address in stack.
+    GPIOManager::GPIOThreadController           *mp_GPIOThreadController;       //!< Thread controller to monitor softswitch
+    CommandChannel                              m_CommandChannelGPIOManager;    //!< Command channel for SoftSwitch Manager
+    quint32                                     m_ThreadIDGPIOManager;          //!< Heart beat source of softswitch
+    CommandChannel                              m_CommandChannelHeartBeat;      //!< Command channel for SoftSwitch Manager
+    Threads::CommandChannel                     m_CommandChannelRemoteCare;     ///< Command channel for remote care thread controller.
+    RemoteCare::RemoteCareManager               *mp_RemoteCareManager;          //!< pointer to remote care manager
     bool                                        m_MainRebooted;                 ///< Flag indicating if the Main Software rebooted
     QString                                     m_SWUpdateStatus;               ///< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
     QString                                     m_SWUpdateCheckStatus;               ///< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
@@ -357,6 +447,43 @@ protected:
     QMap<QString, QString>                      m_RebootFileContent;            ///< Map containing reboot file content.
     bool                                        m_UpdatingRollback;             ///< true- Indicates update rollback is in progress.
     bool                                        m_PowerFailed;                  ///< true- Power failed during previous run , false - no power failure
+    bool                                        m_RaiseGUIEvent;                        ///< Store GUI event flag
+    bool                                        m_GUIEventStatus;                       ///< Store GUI event status
+
+
+    /****************************************************************************/
+    /**
+     * \brief Set event string file list
+     *
+     * \iparam FileList = list of the files
+     */
+    /****************************************************************************/
+    inline void SetEventStringFileList(QStringList FileList) {
+        m_EventStringFileList = FileList;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Add a new EventConfig.
+     *
+     * \iparam File = EventConfig file
+     */
+    /****************************************************************************/
+    inline void AppendEventStringFileList(QString File) {
+        m_EventStringFileList.append(File);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get event string file list
+     *
+     * \return List of the files
+     */
+    /****************************************************************************/
+    inline QStringList GetEventStringFileList() const {
+        return m_EventStringFileList;
+    }
+
     /****************************************************************************/
     /**
      * \brief Set S/W update status
@@ -377,18 +504,7 @@ protected:
     /****************************************************************************/
     inline bool GetSWUpdateStatus() const {
         return m_SWUpdateSuccess;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get serial number.
-     *
-     * \return Serial number.
-     */
-    /****************************************************************************/
-    inline QString GetSerialNumber() const {
-        return m_SerialNumber;
-    }
+    }    
 
     /****************************************************************************/
     /**
@@ -418,7 +534,7 @@ protected:
      * \iparam BasicThreadController
      */
     /****************************************************************************/
-    void StopSpecificThreadController(const int ControllerNumber, const bool BasicThreadController = false);
+    void StopSpecificThreadController(const quint32 ControllerNumber, const bool BasicThreadController = false);
 
     /****************************************************************************/
     /**
@@ -429,7 +545,9 @@ protected:
      * \iparam BasicThreadController = Base thread control number
      */
     /****************************************************************************/
-    void RemoveSpecificThreadController(const int ControllerNumber, const bool BasicThreadController = false);
+    void RemoveSpecificThreadController(const quint32 ControllerNumber,
+                                        CommandChannel *p_Channel = NULL,
+                                        const bool BasicThreadController = false);
 
     /****************************************************************************/
     /**
@@ -483,10 +601,9 @@ protected:
      * \brief Starts the export controller thread
      *
      * \iparam ControllerNumber
-     * \iparam BasicThreadController
      *
      ****************************************************************************/
-    void StartSpecificThreadController(const int ControllerNumber, const bool BasicThreadController = false);
+    void StartSpecificThreadController(const quint32 ControllerNumber);
 
     /****************************************************************************/
     /**
@@ -496,18 +613,7 @@ protected:
      */
     /****************************************************************************/
     void DestroyControllersAndThreads(const bool BasicThreadController = false);
-    /****************************************************************************/
-    /**
-     * \brief Initiate the shutdown process.
-     *
-     * Initiate the shutdown process. Make some project specific tasks the call
-     * \ref Shutdown to shut down software.
-     * Must be implemented in derived classes.
-     *
-     * \iparam Reboot
-     */
-    /****************************************************************************/
-    virtual void InitiateShutdown() = 0;
+
     /****************************************************************************/
     /**
      * \brief Add controller and thread to list of handled controllers.
@@ -522,32 +628,9 @@ protected:
      * \iparam   BasicThreadController
      */
     /****************************************************************************/
-    void AddAndConnectController(ThreadController *pController, CommandChannel *pCommandChannel, int ControllerNumber, bool BasicThreadController = false);
-    /****************************************************************************/
-    /**
-     * \brief Set system ErrorHandler's parent and connect it.
-     *
-     * System's ErrorHandler shall run in the EventHandler context. It is done
-     * by setting EventHandler as ErrorHandler's parent. EventHandler will be
-     * moved to its thread and its children will be also automatically moved to
-     * this thread.
-     *
-     * WARNING! Call this function to attach ErrorHandler before
-     *          moving EventHandler to its thread!
-     * Workflow:
-     *          create and initialize EventHandler;
-     *          create and initialize ErrorHandler;
-     *          attach ErrorHandler;
-     *          move EventHandler to its Thread.
-     *
-     * \param[in]  pErrorHandler = pointer to the system's ErrorHandler object
-     */
-    /****************************************************************************/
-   // void AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler);
-    /****************************************************************************/
+    void AddAndConnectController(ThreadController *pController, CommandChannel *pCommandChannel, quint32 ControllerNumber, bool BasicThreadController = false);
 
-
-
+    /****************************************************************************/
     /**
      * \brief Set connection between EventHandler and RemoteCare Controller.
      *
@@ -588,17 +671,7 @@ protected:
      */
     /****************************************************************************/
     void ReadUITranslations(QLocale::Language UserLanguage, QLocale::Language FallbackLanguage) const;
-    /****************************************************************************/
-    /**
-     * \brief Try to set new date and time offset.
-     *
-     * The offset from the current date time is compared to the maximal allowed
-     * offset and then set.
-     * \iparam   NewDateTime     New date time.
-     * \return                      True on success
-     */
-    /****************************************************************************/
-    bool SetAdjustedDateTimeOffset(const QDateTime &NewDateTime);
+
     /****************************************************************************/
     /**
      * \brief Register a command execution functor.
@@ -690,7 +763,7 @@ protected:
      *
      * \iparam       Ref                 The command reference.
      * \iparam       Cmd                 The command.
-     * \param[in, out]  AckCommandChannel   The command channel for acknowledges.
+     * \iparam  AckCommandChannel   The command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel);
@@ -758,11 +831,9 @@ protected:
     /****************************************************************************/
     /**
      * \brief Attach controllers to corresponding threads and start threads.
-     *
-     * \iparam BasicController
      */
     /****************************************************************************/
-    void AttachControllersAndStartThreads(bool BasicController = false);
+    void AttachControllersAndStartBasicThreads();
 
     /****************************************************************************/
     /**
@@ -781,9 +852,6 @@ protected:
     /****************************************************************************/
     /**
      * \brief Update Reboot FileReboot
-     *
-     * \iparam p_RebootFile
-     * \iparam Shutdown
      */
     /****************************************************************************/
     void UpdateRebootFile();
@@ -797,21 +865,61 @@ protected:
     /****************************************************************************/
     void ReadRebootFile(QFile *p_RebootFile);
 
+    /****************************************************************************/
+    /**
+     * \brief Send data container list to the command channel passes
+     *
+     * \iparam rCommandChannel = command channel
+     *
+     */
+    /****************************************************************************/
+    virtual void SendDCLContainerTo(Threads::CommandChannel &rCommandChannel);
+
 public:
+    /****************************************************************************/
+    /**
+     * \brief Initiate the shutdown process.
+     *
+     * Initiate the shutdown process. Make some project specific tasks the call
+     * \ref Shutdown to shut down software.
+     * Must be implemented in derived classes.
+     *
+     * \iparam Reboot
+     */
+    /****************************************************************************/
+    virtual void InitiateShutdown(bool Reboot = false) = 0;
+
+    /****************************************************************************/
+    /**
+     * \brief Get serial number.
+     *
+     * \return Serial number.
+     */
+    /****************************************************************************/
+    inline QString GetSerialNumber() const {
+        return m_SerialNumber;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Try to set new date and time offset.
+     *
+     * The offset from the current date time is compared to the maximal allowed
+     * offset and then set.
+     * \iparam   NewDateTime     New date time.
+     * \return                      True on success
+     */
+    /****************************************************************************/
+    bool SetAdjustedDateTimeOffset(const QDateTime &NewDateTime);
+
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \param[in]   LoggingSourceController     Source for thread controller.
-     * \param[in]   LoggingSourceDataLogging    Sources for data logging component.
-     * \param[in]   LoggingSourceEventHandler   Source for event handler component.
-     * \param[in]   ShutdownSharedMemName       Name for shared memory used for shutdown. For debugging purposes only.
+     * \iparam   ShutdownSharedMemName       Name for shared memory used for shutdown. For debugging purposes only.
      */
     /****************************************************************************/
-    MasterThreadController(Global::gSourceType HeartBeatSourceController,
-                           Global::gSourceType HeartBeatSourcesDataLogging,
-                           Global::gSourceType HeartBeatSourceEventHandler,
-                           const QString &ShutdownSharedMemName);
+    MasterThreadController(const QString &ShutdownSharedMemName);
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -860,16 +968,6 @@ public:
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
     }
-
-    /****************************************************************************/
-    /**
-     * \brief Create and initialize used objects.
-     *
-     * We try to read the hardware configuration file.
-     */
-    /****************************************************************************/
-    virtual void CreateAlarmHandler();
-
     /****************************************************************************/
     /**
      * \brief Create and initialize used objects.
@@ -925,7 +1023,7 @@ public:
      * \brief Set max alowed offset to system time.
      *
      * 0 means no check has to be done!
-     * \param[in]   MaxAdjustedTimeOffset   Max alowed offset to system time [seconds]. 0 means no check has to be done.
+     * \iparam   MaxAdjustedTimeOffset   Max alowed offset to system time [seconds]. 0 means no check has to be done.
      */
     /****************************************************************************/
     inline void SetMaxAdjustedTimeOffset(int MaxAdjustedTimeOffset) {
@@ -1008,11 +1106,20 @@ public:
      * \return                  The command reference.
      */
     /****************************************************************************/
-    Global::tRefType SendCommand(const Global::CommandShPtr_t &Cmd, CommandChannel &CmdChannel);
+    Global::tRefType SendCommand(const Global::CommandShPtr_t &Cmd, const CommandChannel &CmdChannel);
 
-    Global::AlarmHandler* GetAlarmHandler() {return mp_alarmHandler; }
-
+    /**
+     * \brief Send a command over a specific command channel.
+     *
+     *
+     * \iparam   Ref         The command reference.
+     * \iparam   Cmd         The command.
+     * \iparam   CmdChannel  The command channel for the command
+     */
     /****************************************************************************/
+    void SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, const CommandChannel &CmdChannel);
+
+     /****************************************************************************/
     /**
      * \brief Get Pointer to DataManager Object
      * \return DataManager Pointer
@@ -1026,16 +1133,31 @@ public:
      * \return CommandChannel object
      */
     /****************************************************************************/
-    //virtual Threads::CommandChannel & GetCommandChannel(CommandChannelSelector_t CommandChannelSelector) =0;
-public slots:
+    virtual const Threads::CommandChannel & GetCommandChannel(const int CommandChannelSelector) =0;
+
     /****************************************************************************/
     /**
-     * \brief Receive a heartbeat signals.
-     *
-     * \param[in]   TheHeartBeatSource    Logging source of sender.
+     * \brief Get Pointer to Remote Care Manager Object
+     * \return RemoteCareManager Pointer
      */
     /****************************************************************************/
-    void HeartbeatSlot(const Global::gSourceType &TheHeartBeatSource);
+    const RemoteCare::RemoteCareManager *GetRemoteCareManager() { return mp_RemoteCareManager; }
+
+private slots:
+    /****************************************************************************/
+    /**
+     * \brief Plays error alram tone during boot up, every second.
+     */
+    /****************************************************************************/
+    void AlarmTest();
+
+    /****************************************************************************/
+    /**
+     * \brief Slot for raising an event when GUI available
+     *
+     */
+    /****************************************************************************/
+    void SendEventReportToGUI();
 }; // end class MasterThreadController
 
 } // end namespace Threads

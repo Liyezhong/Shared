@@ -94,10 +94,7 @@ void TestServicePassword::utServiceData() {
     CServicePassword Service("1234", "ST8200");
     QDateTime Today;
 
-    QCOMPARE(Service.SearchAndMountTheDevice(), false);
-
-    QProcess Process;
-    QCOMPARE(Service.MountTheSpecificDevice(Process, "Some device"), false);
+    QCOMPARE(Service.ReadTheServiceKeyFile(), false);
 
     // check the date comaprision
     Service.m_ServiceFileContent = "<validto>0000000</validto>";

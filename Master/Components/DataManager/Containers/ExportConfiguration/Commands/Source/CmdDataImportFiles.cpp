@@ -32,7 +32,7 @@ QString CmdDataImportFiles::NAME = "MsgClasses::CmdDataImportFiles";
  *  \brief   Constructor
  *
  * \param[in]   Timeout     Timeout for command.
- * \param[in]   DataStream  Data stream to import.
+ * \param[in]   FileList    File List
  */
 /****************************************************************************/
 CmdDataImportFiles::CmdDataImportFiles(int Timeout, const QStringList FileList) :

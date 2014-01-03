@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file DataLogging/Source/EventObject.cpp
+/*! \file Global/Source/EventObject.cpp
  *
  *  \brief Implementation file for class EventObject.
  *
@@ -25,7 +25,6 @@
 #include <QMetaType>
 namespace Global {
 
-EventObject EventObject::m_EventObjectInstance; //!< The instance
 
 /****************************************************************************/
 EventObject::EventObject() :
@@ -34,6 +33,23 @@ EventObject::EventObject() :
     qRegisterMetaType<Global::tTranslatableStringList>("Global::tTranslatableStringList");
 }
 
+void EventObject::LogThreadId(QString threadName, long lwp)
+{
+    QMutexLocker Lock(&m_Lock);
+    if (!m_threadList.contains(threadName)) {
+        if (file2.fileName() == "") {
+            file2.setFileName(Global::SystemPaths::Instance().GetLogfilesPath() + QDir::separator() + "ThreadIds.log");
+            if (!file2.open(QIODevice::WriteOnly | QIODevice::Text))
+                return;
+        }
+
+        m_threadList.insert(threadName, lwp);
+        //qDebug() << "Thread started" << threadName << lwp;
+        QTextStream out(&file2);
+        out << threadName << ": " << lwp << "\n";
+        out.flush();
+    }
+}
 
 void EventObject::LogToTemporaryFile(quint32 ErrorCode) {
     m_TemporaryLogFile.setFileName(Global::SystemPaths::Instance().GetLogfilesPath() + "/Logfile.tmp");

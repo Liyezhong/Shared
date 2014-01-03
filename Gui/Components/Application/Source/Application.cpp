@@ -34,15 +34,15 @@ namespace Application {
  *  \iparam p_Argv = List of strings containing the command line arguments
  */
 /****************************************************************************/
-CApplication::CApplication(int Argc, char* p_Argv[],
-                           Application::ProjectId_t m_ProjId) : QApplication(Argc, p_Argv)
+CApplication::CApplication(int& Argc, char* p_Argv[],
+                           Application::DeviceType_t DeviceType) : QApplication(Argc, p_Argv)
 {
     QFont Font;
     Font.setPointSize(11);
     Font.setFamily("FreeSans");
     setFont(Font);
     setStyle(new CLeicaStyle()); //lint !e1524
-    Application::CLeicaStyle::SetProjectId(m_ProjId);
+    Application::CLeicaStyle::SetCurrentDeviceType(DeviceType);
 }
 
 

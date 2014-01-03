@@ -26,16 +26,16 @@
 #include <QTimer>
 #include <QMutex>
 #include <QProcess>
-#include <Global/Include/GlobalDefines.h>
 
-#include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
+#include <Global/Include/GlobalDefines.h>
 #include <Global/Include/SystemPaths.h>
 
 namespace Global {
-
+const quint32 DEFAULT_ALARM_TIMEOUT = 10000; //!< 10 seconds
 /****************************************************************************/
 /**
- * \brief Alarm handler for Himalaya application.
+ * \brief This class manages Alarms generated in response to request from
+ *        event handler
  */
 /****************************************************************************/
 class AlarmHandler : public QObject
@@ -43,72 +43,75 @@ class AlarmHandler : public QObject
     Q_OBJECT
 
 public:
-    AlarmHandler(quint16 timeout, QObject *parent);
+    /****************************************************************************/
+    /**
+     * \brief constructor
+     *
+     * \iparam p_Parent = parent object
+     * \iparam TimeOut = alarm timeout
+     *
+     */
+    /****************************************************************************/
+    AlarmHandler(QObject *p_Parent = NULL, quint16 TimeOut = DEFAULT_ALARM_TIMEOUT);
     ~AlarmHandler();
 
+    /****************************************************************************/
     /**
-      @brief Includes or removes an alarm into the queue of raised alarms
-      */
+     * \brief Includes or removes an alarm into the queue of raised alarms
+     *
+     * \iparam eventKey = event key
+     * \iparam alarmType = type of alarm
+     * \iparam active = true if event is active, else false
+     *
+     */
+    /****************************************************************************/
     void setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active);
 
+    /****************************************************************************/
     /**
-      @brief Includes or removes an alarm into the queue of raised alarms
-      */
-    virtual void setAlarm(quint64 eventKey, Global::AlarmType alarmType, Global::AlarmPosType alarmPosType, bool active);
-
-    /**
-      @brief Removes all alarms from alarm queue
-      */
-    virtual void reset();
-
-    /**
-      @brief Specifies the timeout, i.e. the time interval inbetween two alarm sounds
-      */
-    virtual void setTimeout(quint16 timeout);
-
-    /**
-      @brief in non-MasterThreadController, this function should be called
+     * \brief Removes all alarms from alarm queue
      */
-    virtual void emitSetTimeout(quint16 timeout);
+    /****************************************************************************/
+    void reset();
 
+    /****************************************************************************/
     /**
-      @brief Specifies the alarm volume related to a specific alarm type
-      *1 = lowest
-      *6 = normal
-      *9 = highest
-      */
-    virtual void setVolume(Global::AlarmType alarmType, quint8 volume);
+     * \brief Specifies the timeout, i.e. the time interval inbetween two alarm sounds
+     *
+     * \iparam timeout = time out for alarm
+     */
+    /****************************************************************************/
+    void setTimeout(quint16 timeout);
 
-    /**
-      @brief Specifies the sound file to be played when an alarm of type alarmType is raised
-      */
-    virtual void setSoundFile(Global::AlarmType alarmType, QString fileName);
-
-    /**
-      @brief Specifies the sound-id related to a specific alarm type
-      */
-    virtual void setSoundNumber(Global::AlarmType alarmType, int number);
-    //void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
-    virtual bool playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
 
 private:
-    QHash<quint64, Global::AlarmType> m_errorList;
-    QHash<quint64, Global::AlarmType> m_warningList;
-    QHash<Global::AlarmType, QString> m_soundList;
-    QHash<Global::AlarmType, quint8> m_volumeList;
-    quint8 m_volume;
-    QTimer* m_Timer;
-    QMutex* m_mutex;
-    QProcess* m_processPlay;
-    QProcess* m_processSetVolume;
-    QTimer *m_alarmToneTimer;
-    //QString m_soundPath;
-    void emitAlarm (Global::AlarmType alarmType, bool Active = true, QString Filename = "", quint8 Volume = 1);
+    QHash<quint64, Global::AlarmType> m_errorList;      ///< list of alarms for errors
+    QHash<quint64, Global::AlarmType> m_warningList;    ///< list of alarms for warnings
+    QTimer* m_Timer;                                    ///< timer
 
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(AlarmHandler)
 
 private slots:
+    /****************************************************************************/
+    /**
+     * \brief slot called when time out occurs
+     */
+    /****************************************************************************/
     void onTimeout();
-    void StopPlayAlarm();
+
+signals:
+    /****************************************************************************/
+    /**
+     * \brief emit alarm signal
+     */
+    /****************************************************************************/
+    void emitAlarm(Global::AlarmType);
 
 }; // end class
 

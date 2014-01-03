@@ -28,14 +28,15 @@ QString CmdSwitchToService::NAME = "NetCommands::CmdSwitchToService";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   Pin         Pin.
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   Pin         Pin.
  */
 /****************************************************************************/
 CmdSwitchToService::CmdSwitchToService(int Timeout, const QString &Pin) :
     Command(Timeout),
     m_Pin(Pin)
 {
+    setBusyStateAllowed(false);
 }
 
 /****************************************************************************/

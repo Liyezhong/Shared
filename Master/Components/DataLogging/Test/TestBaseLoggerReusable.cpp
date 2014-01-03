@@ -119,8 +119,8 @@ void TestBaseLoggerReusable::cleanupTestCase() {
 /****************************************************************************/
 void TestBaseLoggerReusable::utConstructor() {
     // test constructor
-    Global::LoggingSource LS1(1,2);
-    Global::LoggingSource LS2(3,4);
+    QString LS1("Logger1");
+    QString LS2("Logger2");
     BaseLoggerReusable TestObject1(NULL, LS1, 33);
     BaseLoggerReusable TestObject2(NULL, LS2, 42);
 
@@ -140,8 +140,8 @@ void TestBaseLoggerReusable::utConstructor() {
 /****************************************************************************/
 void TestBaseLoggerReusable::utConfigure() {
 
-    Global::LoggingSource LS1(1,2);
-    Global::LoggingSource LS2(3,4);
+    QString LS1("Logger1");
+    QString LS2("Logger2");
     BaseLoggerReusable TestObject1(NULL, LS1, 33);
     BaseLoggerReusable TestObject2(NULL, LS2, 42);
     // configure
@@ -157,6 +157,7 @@ void TestBaseLoggerReusable::utConfigure() {
     QCOMPARE(TestObject1.GetOperatingMode(),    QString("production"));
     QCOMPARE(TestObject1.GetSerialNumber(),     QString("sernum1"));
     QCOMPARE(TestObject1.GetPath(),             QString("path1"));
+    QCOMPARE(TestObject1.GetTimeStampFileName(), Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyyMMdd"));
 
     QCOMPARE(TestObject2.GetLoggingSource(),    LS2);
     QCOMPARE(TestObject2.GetFormatVersion(),    42);
@@ -166,57 +167,59 @@ void TestBaseLoggerReusable::utConfigure() {
     QCOMPARE(TestObject2.GetOperatingMode(),    QString("service"));
     QCOMPARE(TestObject2.GetSerialNumber(),     QString("sernum2"));
     QCOMPARE(TestObject2.GetPath(),             QString("path2"));
+    QCOMPARE(TestObject2.GetTimeStampFileName(), Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyyMMdd"));
+    QCOMPARE(TestObject2.TimeStampToString(Global::AdjustedTime::Instance().GetCurrentDateTime()),
+             Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
+
 }
 
 /****************************************************************************/
 void TestBaseLoggerReusable::utWriteHeader() {
 
-    Global::LoggingSource LS1(1,2);
+    QString LS1("Logger1");
     BaseLoggerReusable TestObject1(NULL, LS1, 33);
     TestObject1.SetConfiguration("assembly", "sernum1", m_DirHelper.GetDir());
     QString FileName = m_DirHelper.AbsoluteFileName("file1.log");
 
-    try {
-        // open file
-        TestObject1.OpenFileForAppend(FileName);
-        QString TS1 = TestObject1.GetTimeStampHeader();
-        // write header
-        TestObject1.WriteHeader();
-        TestObject1.CloseFile();
-        QString TS2 = TestObject1.GetTimeStampHeader();
-        // test timestamps.
-        QVERIFY2(TS1 <= TS2, "If this failed, the day changed between computing TS1 and TS2. Please repeat the test");
+    // open file
+    TestObject1.OpenFileForAppend(FileName);
+    QString TS1 = TestObject1.GetTimeStampHeader();
+    // write header
+    TestObject1.WriteHeader();
+    TestObject1.CloseFile();
+    QString TS2 = TestObject1.GetTimeStampHeader();
+    // test timestamps.
+    QVERIFY2(TS1 <= TS2, "If this failed, the day changed between computing TS1 and TS2. Please repeat the test");
 
-        // now check if header written is OK
-        QFile File(FileName);
-        QVERIFY(File.open(QIODevice::ReadOnly | QIODevice::Text));
-        // read data
-        QByteArray Data = File.readAll().trimmed();
-        File.close();
-        // check data
-        QVERIFY(Data.size() > 0);
-        QList<QByteArray> Tokens = Data.split(';');
-        QCOMPARE(Tokens.size(), 5);
-        // check file name
-        QCOMPARE(Tokens[0], QByteArray("file1"));
-        // check timestamp
-        QString TS3(Tokens[1]);
-        QVERIFY(TS1 <= TS3);
-        QVERIFY(TS3 <= TS2);
-        // check operating mode
-        QCOMPARE(Tokens[2], QByteArray("assembly"));
-        // check format version
-        QCOMPARE(Tokens[3], QByteArray("33"));
-        // check serial number
-        QCOMPARE(Tokens[4], QByteArray("sernum1"));
+    // now check if header written is OK
+    QFile File(FileName);
+    QVERIFY(File.open(QIODevice::ReadOnly | QIODevice::Text));
+    // read data
+    QByteArray Data = File.readAll().trimmed();
+    File.close();
+    // check data
+    QVERIFY(Data.size() > 0);
+    QList<QByteArray> Tokens = Data.split('\n');
+    // there will empty blank line when the log file is created
+    QCOMPARE(Tokens.size(), 9);
+    // check format version
+    QCOMPARE(Tokens[0], QByteArray("Format Version: 33"));
+    // check file name
+    QCOMPARE(Tokens[2], QByteArray("FileName: file1"));
+    // check timestamp
+    QString TS3(Tokens[4]);
+    TS3 = TS3.replace("TimeStamp: ", "");
+    QVERIFY(TS1 <= TS3);
+    QVERIFY(TS3 <= TS2);
+    // check operating mode
+    QCOMPARE(Tokens[6], QByteArray("OperatingMode: assembly"));
+    // check serial number
+    QCOMPARE(Tokens[8], QByteArray("Serial Number: sernum1"));
 
-    } catch(const Global::Exception & E) {
-        QString ErrorString =   QString("Global::Exception caught!") + QString::number(E.GetErrorCode()) +
-                                " " + E.GetFile() + "(" + QString::number(E.GetLine()) + ")";
-        QFAIL(ErrorString.toUtf8().constData());
-    } catch(...) {
-        QFAIL("Exception caught!");
-    }
+
+    QString SecondFileName = m_DirHelper.AbsoluteFileName("file1.log");
+    TestObject1.SwitchToFile(SecondFileName);
+    QVERIFY(TestObject1.CheckHeaderFormat(SecondFileName));
 }
 
 } // end namespace DataLogging

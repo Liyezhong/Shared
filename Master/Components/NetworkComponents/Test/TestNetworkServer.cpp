@@ -80,8 +80,7 @@ void TestNetworkServer::cleanup()
 void TestNetworkServer::initTestCase()
 {
     // initialize settings path:
-    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings");
-
+    Global::SystemPaths::Instance().SetSettingsPath("../Settings");
     // create server
     m_myServer = new NetworkServer(NSE_TYPE_NORMAL_GUI, this);
     QCOMPARE(m_myServer->m_connectionCounter, (quint32)0);
@@ -127,12 +126,44 @@ void TestNetworkServer::initTestCase()
 
     // create message handler:
     QString path =  Global::SystemPaths::Instance().GetSettingsPath() + "/Communication";
-    m_myNetworkDevice = new NetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Himalaya Device GUI", path, (QString)"netlayer_messages", this);
+    m_myNetworkDevice = new NetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Colorado Device GUI", path,  this);
     QCOMPARE(m_myNetworkDevice->InitializeDevice(), true);
 
     // test message handler registration:
-    // "Himalaya Device GUI" is the real client name read from config XML file!!!
-    QCOMPARE(m_myServer->RegisterMessageHandler(m_myNetworkDevice, (QString)"Himalaya Device GUI"), true);
+    // "Colorado Device GUI" is the real client name read from config XML file!!!
+    QCOMPARE(m_myServer->RegisterMessageHandler(m_myNetworkDevice, (QString)"Colorado Device GUI"), true);
+
+    m_myServer->GetFreeConnectionNumber();
+    QCOMPARE(m_myServer->GetFreeConnectionNumber(),quint32(0));
+
+    // check reference generation:
+    QCOMPARE(m_myServer->GenerateReference(), true);
+    QCOMPARE(m_myServer->m_connectionCounter, (quint32)1);
+    QCOMPARE(m_myServer->m_connectionCounterRolledOver, (ConnectionCounterType_t)NS_NO);
+    // simulate max allowed number of connections taken:
+    m_myServer->m_connectionCounter = NS_MAX_CONNECTIONS;
+    QCOMPARE(m_myServer->GenerateReference(), true);
+    QCOMPARE(m_myServer->m_connectionCounter, (quint32)0);
+    // rolled-over flag shall be set now:
+    QCOMPARE(m_myServer->m_connectionCounterRolledOver, (ConnectionCounterType_t)NS_YES);
+    QCOMPARE(m_myServer->GenerateReference(), true);
+    // refs shall be given from the list of free refs now:
+    QCOMPARE(m_myServer->m_connectionCounter, (quint32)0);
+    // put some dummy connections in:
+    m_myServer->m_connectionsList.insert((quint32)0, NULL);
+    m_myServer->m_connectionsList.insert((quint32)1, NULL);
+    m_myServer->m_connectionsList.insert((quint32)2, NULL);
+    m_myServer->m_connectionsList.insert((quint32)4, NULL);
+    // fetch free reference number. it shall be "3", not "5":
+    QCOMPARE(m_myServer->GenerateReference(), true);
+    QVERIFY(m_myServer->m_connectionCounter != (quint32)5);
+    QCOMPARE(m_myServer->m_connectionCounter, (quint32)3);
+    // reset rolled-over flag:
+    m_myServer->m_connectionCounterRolledOver = (ConnectionCounterType_t)NS_NO;
+    QCOMPARE(m_myServer->GenerateReference(), true);
+    // reference shall be generated normally (was: 3, now shall be: 4):
+    QCOMPARE(m_myServer->m_connectionCounter, (quint32)4);
+
 }
 
 /****************************************************************************/
@@ -308,18 +339,18 @@ void TestNetworkServer::utTestWorkFunctions()
     QCOMPARE(m_myServer->m_takenConnections.size(), (int)0);
     int ACSize = m_myServer->m_availableConnections.size();
     // register simulated connection:
-    m_myServer->RegisterConnection((quint32)22, (QString)"Himalaya Device GUI");
+    m_myServer->RegisterConnection((quint32)22, (QString)"Colorado Device GUI");
     // check that connection moved from "available" to "taken" list:
     QCOMPARE(m_myServer->m_takenConnections.size(), (int)1);
     QCOMPARE(m_myServer->m_availableConnections.size(), (ACSize-1));
     // destroy connection:
-    m_myServer->DestroyManager((quint32)22, (QString)"Himalaya Device GUI", (DisconnectType_t)UNKNOWN_ERROR);
+    m_myServer->DestroyManager((quint32)22, (QString)"Colorado Device GUI", (DisconnectType_t)UNKNOWN_ERROR);
     // check that connection moved from "taken" to "available" list:
     QCOMPARE(m_myServer->m_takenConnections.size(), (int)0);
     QCOMPARE(m_myServer->m_availableConnections.size(), ACSize);
     // check that disconnect happend with UNKNOWN_ERROR code:
     QCOMPARE(m_DisconnectType, (DisconnectType_t)UNKNOWN_ERROR);
-    QCOMPARE(m_ClientName, (QString)"Himalaya Device GUI");
+    QCOMPARE(m_ClientName, (QString)"Colorado Device GUI");
     QCOMPARE(m_FlagConnectionError, true);
     // reset flags:
     m_FlagConnectionError = false;
@@ -327,15 +358,25 @@ void TestNetworkServer::utTestWorkFunctions()
     m_ClientName = "";
 
     // try to register an allowed connection, but without connected client:
-    m_myServer->RegisterConnection((quint32)12714, (QString)"Himalaya Device GUI");
+    m_myServer->RegisterConnection((quint32)12714, (QString)"Colorado Device GUI");
     // check that disconnect happend with NULL_POINTER_IN_HASH code:
     QCOMPARE(m_DisconnectType, (DisconnectType_t)NULL_POINTER_IN_HASH);
-    QCOMPARE(m_ClientName, (QString)"Himalaya Device GUI");
+    QCOMPARE(m_ClientName, (QString)"Colorado Device GUI");
     QCOMPARE(m_FlagConnectionError, true);
     // reset flags:
     m_FlagConnectionError = false;
     m_DisconnectType = (DisconnectType_t)0;
     m_ClientName = "";
+}
+/****************************************************************************/
+/**
+ * \brief Test to get free connection number.
+ */
+/****************************************************************************/
+void TestNetworkServer::utTestGetFreeConnectionNumber()
+{
+    m_myServer->GetFreeConnectionNumber();
+    QCOMPARE(m_myServer->GetFreeConnectionNumber(),quint32(3));
 }
 
 /****************************************************************************/

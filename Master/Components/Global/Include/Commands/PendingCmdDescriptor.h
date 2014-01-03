@@ -45,8 +45,13 @@ private:
     QTimer      m_Timer;    ///< Timer for timeout signal.
     /****************************************************************************/
     PendingCmdDescriptor();                                                 ///< Not implemented.
-    PendingCmdDescriptor(const PendingCmdDescriptor &);                     ///< Not implemented.
-    const PendingCmdDescriptor & operator = (const PendingCmdDescriptor &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(PendingCmdDescriptor)
 private slots:
     /****************************************************************************/
     /**
@@ -57,6 +62,7 @@ private slots:
      */
     /****************************************************************************/
     void OnTimeout() {
+//        qDebug() << "PendingCmdDescriptor::OnTimeOut" << m_Name << m_Timer.interval();
         emit TimeoutOccured(m_Ref, m_Name);
     }
 protected:
@@ -86,6 +92,12 @@ public:
      */
     /****************************************************************************/
     inline ~PendingCmdDescriptor() {
+        // stop the timer before deleting the objects, so that connected signals
+        // will not work
+        try {
+            m_Timer.stop();
+        }
+        CATCHALL_DTOR();
     }
     /****************************************************************************/
     /**

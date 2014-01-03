@@ -27,6 +27,8 @@
 #include <NetworkComponents/Include/NetworkServer.h>
 #include <NetworkComponents/Include/NetSettings.h>
 #include <Global/Include/SystemPaths.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -62,6 +64,8 @@ NetSettingsErrorType_t NetSettings::ReadSettings()
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qDebug() << (QString)("ERROR: Cannot open NetSettings File: " + fileName);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_ERROR_FILE_OPEN,
+                                                   Global::tTranslatableStringList() << fileName);
         return NST_CANNOT_OPEN_CONFIG_FILE;
     }
 
@@ -93,16 +97,22 @@ NetSettingsErrorType_t NetSettings::LoadFile(QIODevice &device, const QString & 
 
     if (!m_domDocument.setContent(&device, true, &errorStr, &errorLine,
                                 &errorColumn)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_CONFIG_FILE_PARSING_FAILED,
+                                Global::tTranslatableStringList() << errorStr);
         return NST_CONFIG_FILE_PARSING_FAILED;
     }
 
     QDomElement root = m_domDocument.documentElement();
     if (root.tagName() != tag) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_CONFIG_ELEMENT_TAG_MISMATCH,
+                                Global::tTranslatableStringList() << tag << root.tagName());
         return NST_CONFIG_ELEMENT_TAG_MISMATCH;
     }
 
     if (root.hasAttribute(NST_ATTR_VERSION)
                && root.attribute(NST_ATTR_VERSION) != NST_CURRENT_VERSION) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_CONFIG_FILE_VERSION_MISMATCH,
+                                Global::tTranslatableStringList() << NST_ATTR_VERSION);
         return NST_CONFIG_FILE_VERSION_MISMATCH;
     }
 
@@ -138,6 +148,8 @@ NetSettingsErrorType_t NetSettings::LoadFile(QIODevice &device, const QString & 
 NetSettingsErrorType_t NetSettings::ParseNetSection(QDomElement *element)
 {
     if (element == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << FILE_LINE);
         return NST_NULL_POINTER;
     }
 
@@ -145,6 +157,7 @@ NetSettingsErrorType_t NetSettings::ParseNetSection(QDomElement *element)
     child = child.firstChildElement(m_myType);
     child = child.firstChildElement(NST_NET_ELEMENT);
     if (child.isNull()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_CONNECTION_SETTINGS_EMPTY);
         return NST_CONNECTION_SETTINGS_EMPTY;
     }
 
@@ -159,6 +172,7 @@ NetSettingsErrorType_t NetSettings::ParseNetSection(QDomElement *element)
     m_myPort = child.lastChildElement().text();
 
     if ((m_myIp.isEmpty()) || (m_myPort.isEmpty())) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_CONNECTION_SETTINGS_EMPTY);
         return NST_CONNECTION_SETTINGS_EMPTY;
     }
 
@@ -178,6 +192,8 @@ NetSettingsErrorType_t NetSettings::ParseNetSection(QDomElement *element)
 void NetSettings::ParseNetElement(QDomElement *element)
 {
     if (element == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << FILE_LINE);
         return;
     }
 
@@ -203,6 +219,8 @@ void NetSettings::ParseNetElement(QDomElement *element)
 NetSettingsErrorType_t NetSettings::ParseClientSection(QDomElement *element)
 {
     if (element == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << FILE_LINE);
         return NST_NULL_POINTER;
     }
 
@@ -210,6 +228,7 @@ NetSettingsErrorType_t NetSettings::ParseClientSection(QDomElement *element)
     child = child.firstChildElement(m_myType);
     child = child.firstChildElement(NST_CLIENT_ELEMENT);
     if (child.isNull()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NO_VALID_CLIENT_CONNECTIONS);
         return NST_NO_VALID_CLIENT_CONNECTIONS;
     }
 
@@ -219,6 +238,7 @@ NetSettingsErrorType_t NetSettings::ParseClientSection(QDomElement *element)
     }
 
     if (m_availableConnections.isEmpty()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NO_VALID_CLIENT_CONNECTIONS);
         return NST_NO_VALID_CLIENT_CONNECTIONS;
     }
 
@@ -258,12 +278,15 @@ void NetSettings::ParseClientElement(QDomElement *element)
 NetSettingsErrorType_t NetSettings::ParseAuthenticationSection(QDomElement *element)
 {
     if (element == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << FILE_LINE);
         return NST_NULL_POINTER;
     }
 
     QDomElement child = element->firstChildElement(NST_AUTHENTICATION_SECTION);
 
     if (child.isNull()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NO_AUTHENTICATION_VALUES);
         return NST_NO_AUTHENTICATION_VALUES;
     }
 
@@ -274,6 +297,7 @@ NetSettingsErrorType_t NetSettings::ParseAuthenticationSection(QDomElement *elem
     QString str = child.text();
 
     if (m_authReq.isEmpty() || m_authConf.isEmpty() || str.isEmpty()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NST_NO_AUTHENTICATION_VALUES);
         return NST_NO_AUTHENTICATION_VALUES;
     }
 

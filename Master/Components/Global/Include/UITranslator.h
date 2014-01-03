@@ -35,8 +35,13 @@ private:
     static UITranslator     m_Instance;             ///< Own instance.
     static Translator       m_TranslatorInstance;   ///< Instance of translator.
     /****************************************************************************/
-    UITranslator(const UITranslator &);                     ///< Not implemented.
-    const UITranslator & operator = (const UITranslator &); ///< Not implemented.
+    /****************************************************************************/
+    /**
+     * \brief Disable copy and assignment
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(UITranslator)
     /****************************************************************************/
     /**
      * \brief Default constructor.

@@ -59,18 +59,26 @@ Working::~Working()
 bool Working::OnEntry(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WorkingState of process " << m_myController->m_ProcessName << " entered";
+    if(m_myController) {
+        qDebug() << "WorkingState of process " << m_myController->m_ProcessName << " entered";
+    }
 
     if (m_myController == NULL)
     {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         if (!State::DispatchEvent(Global::AsInt(EP_NULL_CTRL_POINTER))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << ""
+                                                                                    << "EP_NULL_CTRL_POINTER"
+                                                                                     << FILE_LINE);
         }
         return false;
     }
-
-    m_myController->m_myDevice->StopLoginGuard();
+    if (m_myController->DoesExternalProcessUseNetCommunication()) {
+        m_myController->m_myDevice->StopLoginGuard();
+    }
     m_myController->OnReadyToWork();
 
     return true;
@@ -88,8 +96,6 @@ bool Working::OnEntry(StateMachines::StateEvent et)
 bool Working::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WorkingState exited for process" << this->m_myController->GetProcessName();
-    m_myController->OnStopWorking();
     return true;
 }
 

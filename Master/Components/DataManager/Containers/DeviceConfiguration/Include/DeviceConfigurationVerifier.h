@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h
+/*! \file Components/DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationVerifier.h
  *
  *  \brief DeviceConfigurationVerifier definition.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-09-04
- *   $Author:  $ Ningu
+ *   $Author:  $ Ningu, Ramya GJ
  *
  *  \b Company:
  *
@@ -40,21 +40,23 @@ public:
 
     bool VerifyData(CDataContainerBase* p_DataDeviceConfigList);  // use concrete class for concrete verifier
 
-    ErrorHash_t &GetErrors();
+    ErrorMap_t &GetErrors();
 
-    void ResetLastErrors();
+    void ResetErrors();
     bool IsLocalVerifier();
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Destructor
-     */
-    /****************************************************************************/
-    virtual ~CDeviceConfigurationVerifier() {}
+protected:
+    CDeviceConfigurationInterface* mp_DeviceConfigInterface;   ///< Local pointer to a DeviceConfig list
+    ErrorMap_t         m_ErrorMap;                     //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
 
 private:
-    CDeviceConfigurationInterface* mp_DeviceConfigInterface;   ///< Local pointer to a DeviceConfig list
-    ErrorHash_t         m_ErrorHash;                     //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CDeviceConfigurationVerifier)
 }; // CDeviceConfigurationVerifier
 
 } // namespace DataManager

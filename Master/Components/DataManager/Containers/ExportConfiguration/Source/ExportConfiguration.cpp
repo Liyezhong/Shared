@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file ExportConfiguration.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Source/ExportConfiguration.cpp
  *
  *  \brief Implementation file for class CExportConfiguration.
  *         This class reads the "ExportConfiguration.xml" file and
@@ -7,7 +7,7 @@
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -29,6 +29,9 @@
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
 #include "DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
+#include "DataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/GlobalEventCodes.h"
+#include "Global/Include/EventObject.h"
 
 
 namespace DataManager {
@@ -71,11 +74,35 @@ CExportConfiguration::CExportConfiguration(const CExportConfiguration& ExportCon
     m_DataVerificationMode(true),
     m_Filename("")
 {
-    CExportConfiguration* p_TempExportConfiguration = const_cast<CExportConfiguration*>(&ExportConfiguration);
-
-    *this = *p_TempExportConfiguration;
+    CopyFromOther(ExportConfiguration);
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \iparam Other = Instance of the CExportConfiguration class
+.*  \note  Method for internal use only
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CExportConfiguration::CopyFromOther(const CExportConfiguration &Other)
+{
+    //QReadWriteLock is not copied. We use the existing lock object
+    CExportConfiguration &OtherExportConfig = const_cast<CExportConfiguration &>(Other);
+    m_SourceDir  = OtherExportConfig.GetSourceDir();
+    m_TargetDir = OtherExportConfig.GetTargetDir();
+    m_TargetFileName = OtherExportConfig.GetTargetFileName();
+    m_Version = OtherExportConfig.GetVersion();
+    m_UserConfigurationFlag = OtherExportConfig.GetUserConfigurationFlag();
+    m_ServiceConfigurationFlag = OtherExportConfig.GetServiceConfigurationFlag();
+    m_Filename = OtherExportConfig.GetFilename();
+    m_DataVerificationMode = OtherExportConfig.m_DataVerificationMode;
+    m_UserConfiguration.CopyFromOther(OtherExportConfig.GetUserConfiguration());
+    m_ServiceConfiguration.CopyFromOther(OtherExportConfig.GetServiceConfiguration());
+}
 /****************************************************************************/
 /*!
  *  \brief Writes from the CExportConfiguration object to a IODevice.
@@ -112,13 +139,11 @@ bool CExportConfiguration::SerializeContent(QIODevice& IODevice, bool CompleteDa
 
     // serialize the service configuration data
     if (!m_ServiceConfiguration.SerializeContent(XmlStreamWriter, CompleteData)) {
-        /// \todo need to add error code
         return false;
     }
 
     // serialize the service configuration data
     if (!m_UserConfiguration.SerializeContent(XmlStreamWriter, CompleteData)) {
-        /// \todo need to add error code
         return false;
     }
 
@@ -141,33 +166,6 @@ bool CExportConfiguration::SerializeContent(QIODevice& IODevice, bool CompleteDa
         else {
             XmlStreamWriter.writeAttribute("ServiceConfigFlag", "false");
         }
-
-        //        // store the verifier count
-        //        XmlStreamWriter.writeAttribute("VerifierCount", QString::number(m_VerifierList.count()));
-        //        for (qint32 I = 0; I < m_VerifierList.count(); I++) {
-        //            QString VerifierPtr;
-        //            // make the text stream input as string
-        //            QTextStream VerifierPointer(&VerifierPtr);
-        //            // get the verifier list pointer address
-        //            VerifierPointer << m_VerifierList.at(I);
-        //            qDebug() << "\n\n Real Verifier Pointer" << m_VerifierList.at(I);
-        //            XmlStreamWriter.writeAttribute(QString("Verifier%1Pointer").arg(I + 1), VerifierPointer.readAll());
-        //        }
-        // check for the error string
-        //        if (m_ErrorList.count() > 0) {
-        //            // start the special tag for error list to store
-        //            XmlStreamWriter.writeStartElement("ErrorData");
-        //            for (int ErrorListCount = 0; ErrorListCount < m_ErrorList.count(); ErrorListCount++) {
-        //                // start of the error string
-        //                XmlStreamWriter.writeStartElement("Error");
-        //                // write the description of the error string
-        //                XmlStreamWriter.writeAttribute("Description", m_ErrorList.value(ErrorListCount));
-        //                // end of the error string
-        //                XmlStreamWriter.writeEndElement();
-        //            }
-        //            // end element for the error data
-        //            XmlStreamWriter.writeEndElement();
-        //        }
 
         XmlStreamWriter.writeEndElement(); // for ClassTemporaryData
 
@@ -240,12 +238,10 @@ bool CExportConfiguration::DeserializeContent(QIODevice& IODevice, bool Complete
 
     // desrialize the content
     if (!m_ServiceConfiguration.DeserializeContent(XmlStreamReader, CompleteData)) {
-        /// \todo need to write error code here
         return false;
     }
     // deserialize the content
     if (!m_UserConfiguration.DeserializeContent(XmlStreamReader, CompleteData)) {
-        /// \todo need to write error code here
         return false;
     }
 
@@ -280,31 +276,6 @@ bool CExportConfiguration::DeserializeContent(QIODevice& IODevice, bool Complete
             SetServiceConfigurationFlag(Value);
         }
 
-        //                    // get the verifier count
-        //                    int VerifierCount = XmlStreamReader.attributes().value("VerifierCount").toString().toInt();
-        //                    // clear the list
-        //                    m_VerifierList.clear();
-        //
-        //                    // start adding the verifiers
-        //                    for (qint32 I = 0; I < VerifierCount; I++) {
-        //                        if (!XmlStreamReader.attributes().hasAttribute(QString("Verifier%1Pointer").arg(I + 1))) {
-        //                            qDebug() << "### attribute <VerifierPointer> is missing";
-        //                            return false;
-        //                        }
-        //                        // get the verifier interface address from the XML file
-        //                        IVerifierInterface* p_VerifierInterface = reinterpret_cast<IVerifierInterface*>(XmlStreamReader.attributes().
-        //                                                                                                   value(QString("Verifier%1Pointer").
-        //                                                                                                         arg(I + 1)).toString().toInt(0, 16));
-        //                        qDebug() << "\n\n Verifier Pointer" << p_VerifierInterface;
-        //                        // append the verifier
-        //                        m_VerifierList.append(p_VerifierInterface);
-        //                    }
-
-        // this node is not a compulsory node, so we don't require to return
-        // unsuccessful(false)
-        //                    if (Helper::ReadNode(XmlStreamReader, "ErrorData")) {
-        //                        ReadErrorList(XmlStreamReader);
-        //                    }
     }
     //======NODE=END====Temporary Data Variables=========================
 
@@ -328,8 +299,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CExportConfiguration&
 
     if (!p_TempExportConfiguration->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CExportConfiguration::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -348,8 +317,6 @@ QDataStream& operator >>(QDataStream& InDataStream, CExportConfiguration& Export
 {
     if (!ExportConfiguration.DeserializeContent(*InDataStream.device(), true)) {
         qDebug() << "CExportConfiguration::Operator Streaming (DeSerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -369,14 +336,7 @@ CExportConfiguration& CExportConfiguration::operator=(const CExportConfiguration
     // make sure not same object
     if (this != &SourceExportConfiguration)
     {
-        QByteArray TempByteArray;
-        CExportConfiguration* p_TempExportConfiguration = const_cast<CExportConfiguration*>(&SourceExportConfiguration);
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        TempByteArray.clear();
-        DataStream << *p_TempExportConfiguration;
-        (void)DataStream.device()->reset(); //to avoid lint-534
-        DataStream >> *this;
+        CopyFromOther(SourceExportConfiguration);
     }
     return *this;
 }
@@ -394,13 +354,14 @@ bool CExportConfiguration::Read(QString Filename)
 {
     //check if file exists
     if (!QFile::exists(Filename)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_XML_FILE_NOT_EXISTS, Global::tTranslatableStringList() << Filename, true);
         qDebug("File doesn't exists");
         return false;
     }
     bool Result = true;
 
     if (m_DataVerificationMode) {
-//        QWriteLocker locker(mp_ReadWriteLock);
+        //        QWriteLocker locker(mp_ReadWriteLock);
         // create instance of CExportConfiguration for verification
         CExportConfiguration* p_EC_Verification = new CExportConfiguration();
         *p_EC_Verification = *this;
@@ -424,12 +385,13 @@ bool CExportConfiguration::Read(QString Filename)
         delete p_EC_Verification;
 
     } else {
-//        QWriteLocker locker(mp_ReadWriteLock);
+        //        QWriteLocker locker(mp_ReadWriteLock);
 
         m_Filename = "UNDEFINED";
         QFile File (Filename);
         if (!File.open(QFile::ReadOnly | QFile::Text)) {
             qDebug() << "open file failed in Read: " << Filename;
+            Global::EventObject::Instance().RaiseEvent(EVENT_DM_FILE_OPEN_FAILED, Global::tTranslatableStringList() <<  Filename, true);
             return false;
         }
         if (!DeserializeContent(File, false)) {

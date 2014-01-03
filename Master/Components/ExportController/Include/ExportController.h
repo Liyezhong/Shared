@@ -1,13 +1,13 @@
 /****************************************************************************/
-/*! @file ExportController.h
+/*! \file ExportController.h
  *
- *  @brief Definition file for class ExportController.
+ *  \brief Definition file for class ExportController.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-11
  *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -36,43 +36,43 @@ const QString EXPORT_PROCESS_NAME = "Platform Export"; ///< internal name of the
 /****************************************************************************/
 class ExportController: public ExternalProcessControl::ExternalProcessController
 {
+    friend class TestExportController;
+
     Q_OBJECT
 private:
     bool m_ProcessInitialized; ///< To store the process initialization    
     ExternalProcessControl::ExternalProcessDevice   *mp_ExportDevice; ///< Network Device for communication with GUI
 
     /****************************************************************************/
-    /**
-     * \brief Constructor.
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
      */
     /****************************************************************************/
-    ExportController(); ///< not implemented
-
-    /****************************************************************************/
-    /**
-     * \brief Copy Constructor.
-     */
-    /****************************************************************************/
-    ExportController(const ExportController &); ///< not implemented
-
-    /****************************************************************************/
-    /**
-     * \brief Assignment Operator which copies from rhs to lhs.
-     */
-    /****************************************************************************/
-    const ExportController & operator = (const ExportController &); ///< not implemented
+    Q_DISABLE_COPY(ExportController)
 
 protected:
     virtual void OnGoReceived();
     virtual void OnStopReceived();
-    virtual void OnPowerFail(/*const Global::PowerFailStages PowerFailStage*/);
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
     virtual void OnReadyToWork();
+    virtual void OnStopWorking(bool StopForEver = false);
 
 public:
     ExportController(quint32 ThreadID);
     virtual ~ExportController();
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
+
+signals:
+
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted when external Process has stopped working.
+     *
+     */
+     /****************************************************************************/
+    void ProcessStoppedForEver();
 };
 }
 

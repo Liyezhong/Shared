@@ -84,9 +84,24 @@ signals:
      *
      ****************************************************************************/
     void ForwardMessageToUpperLayer(const QString &name, const QByteArray &payload);
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted to start timer , when working
+     *            connection with Server fails
+     *
+     *
+     ****************************************************************************/
+     void StartConnectionLostTimer();
 
 private:
 
+     /****************************************************************************/
+     /*!
+      *  \brief Disable copy and assignment operator.
+      *
+      */
+     /****************************************************************************/
+     Q_DISABLE_COPY(NetworkClientDevice)
     bool InitializeNetwork();
 
 private:

@@ -10,7 +10,7 @@ INCLUDEPATH += ../../..
 #INCLUDEPATH += ../Include
 
 HEADERS += ../Include/Hmac.h
-HEADERS += ../../General/Include/*.cpp
+HEADERS += ../../General/Include/*.h
 HEADERS += TestHmac.h
 
 SOURCES += ../Source/Hmac.cpp

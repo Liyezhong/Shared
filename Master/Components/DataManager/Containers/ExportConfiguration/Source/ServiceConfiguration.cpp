@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file ServiceConfiguration.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Source/ServiceConfiguration.cpp
  *
  *  \brief Implementation file for class CServiceConfiguration.
  *         This class reads the "Service" tag information from
@@ -7,7 +7,7 @@
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -55,10 +55,26 @@ CServiceConfiguration::CServiceConfiguration()
 /****************************************************************************/
 CServiceConfiguration::CServiceConfiguration(const CServiceConfiguration& ExportConfiguration)
 {
-    CServiceConfiguration* p_TempExportConfiguration = const_cast<CServiceConfiguration*>(&ExportConfiguration);
-    *this = *p_TempExportConfiguration;
+    CopyFromOther(ExportConfiguration);
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \iparam Other = Instance of the CServiceConfiguration class
+.*  \note  Method for internal use only
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CServiceConfiguration::CopyFromOther(const CServiceConfiguration &Other)
+{
+    //QReadWriteLock is not copied. We use the existing lock object
+    CServiceConfiguration &OtherServiceConfig = const_cast<CServiceConfiguration &>(Other);
+    m_ServiceConfigList.CopyFromOther(OtherServiceConfig.GetServiceConfigurationList());
+}
 /****************************************************************************/
 /*!
  *  \brief Writes from the CServiceConfiguration object to a IODevice.
@@ -77,7 +93,6 @@ bool CServiceConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, 
 
     // serialize the service configuration
     if (!m_ServiceConfigList.SerializeContent(XmlStreamWriter, CompleteData)) {
-        /// \todo need to write error handling code
         return false;
     }
 
@@ -142,8 +157,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CServiceConfiguration
 
     if (!p_TempExportConfiguration->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CServiceConfiguration::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -165,8 +178,6 @@ QDataStream& operator >>(QDataStream& InDataStream, CServiceConfiguration& Expor
 
     if (!ExportConfiguration.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CServiceConfiguration::Operator Streaming (DeSerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -186,14 +197,7 @@ CServiceConfiguration& CServiceConfiguration::operator=(const CServiceConfigurat
     // make sure not same object
     if (this != &SourceExportConfiguration)
     {
-        QByteArray TempByteArray;
-        CServiceConfiguration* p_TempExportConfiguration = const_cast<CServiceConfiguration*>(&SourceExportConfiguration);
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        TempByteArray.clear();
-        DataStream << *p_TempExportConfiguration;
-        (void)DataStream.device()->reset(); //to avoid lint-534
-        DataStream >> *this;
+        CopyFromOther(SourceExportConfiguration);
     }
     return *this;
 }

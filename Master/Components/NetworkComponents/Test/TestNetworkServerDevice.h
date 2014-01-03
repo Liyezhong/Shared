@@ -40,8 +40,8 @@ public:
     ///  \param[in] doctype = type of configuration file to load
     ///  \param[in] pParent = pointer to parent
     DerivedNetworkServerDevice(NetworkServerType_t stype, const QString & client,
-                               const QString & path, const QString & doctype, QObject * pParent) :
-            NetworkServerDevice(stype, client, path, doctype, pParent),
+                               const QString & path, /*const QString & doctype,*/ QObject * pParent) :
+            NetworkServerDevice(stype, client, path, /*doctype,*/ pParent),
             m_FlagCommandExecuted(false)  {}
     /// Destructor
     virtual ~DerivedNetworkServerDevice() {}

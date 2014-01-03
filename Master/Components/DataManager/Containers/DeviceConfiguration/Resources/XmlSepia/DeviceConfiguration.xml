@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DeviceConfiguration>
+<DeviceConfiguration>
+    <Device VERSION="8" WORKSTATIONMODE="Yes" DEVICENAME="CV 8020" 
+     SERIALNUMBER="12345678" STAINERNAME="ST 8020"/>
+</DeviceConfiguration>
+

@@ -29,13 +29,16 @@ QString CmdLanguageFile::NAME = "NetCommands::CmdLanguageFile";
 /*!
  *  \brief   Constructor for sending
  *
- * \param[in]   Timeout                 Timeout for command.
- * \param[in]   EventStringsDataStream   Datastream of Event Strings Data.
+ * \iparam   Timeout                 Timeout for command.
+ * \iparam   LanguageFileDataStream  Language File Datastream.
+ * \iparam   CurrentLanguage         Current Language in Set by user
  */
 /****************************************************************************/
-CmdLanguageFile::CmdLanguageFile(int Timeout, const QDataStream &LanguageFileDataStream) :
+CmdLanguageFile::CmdLanguageFile(int Timeout, const QDataStream &LanguageFileDataStream, const QLocale::Language CurrentLanguage) :
     Command(Timeout),
-    m_LanguageFileByteArray(LanguageFileDataStream.device()->readAll())
+    m_LanguageFileByteArray(LanguageFileDataStream.device()->readAll()),
+    m_CurrentLangauge(CurrentLanguage)
+
 {
 
 }

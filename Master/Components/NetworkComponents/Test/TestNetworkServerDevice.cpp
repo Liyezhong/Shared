@@ -89,14 +89,14 @@ void TestNetworkServerDevice::initTestCase()
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + "/Communication";
 
     // create device
-    m_myDevice = new DerivedNetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Himalaya Device GUI", path, (QString)"netlayer_messages", this);
+    m_myDevice = new DerivedNetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Colorado Device GUI", path, /*(QString)"netlayer_messages",*/ this);
     QCOMPARE(m_myDevice->m_myMessageChecker, (MessageChecker*)NULL);
     QCOMPARE(m_myDevice->m_myServer, (NetworkServer*)NULL);
     QCOMPARE(m_myDevice->m_myServerType, NSE_TYPE_NORMAL_GUI);
-    QCOMPARE(m_myDevice->m_myClient, (QString)"Himalaya Device GUI");
+    QCOMPARE(m_myDevice->m_myClient, (QString)"Colorado Device GUI");
     QCOMPARE(m_myDevice->m_myType, CML_TYPE_SERVER);
     QCOMPARE(m_myDevice->m_myPath, path);
-    QCOMPARE(m_myDevice->m_myDocType, (QString)"netlayer_messages");
+    //QCOMPARE(m_myDevice->m_myDocType, (QString)"netlayer_messages");
     QCOMPARE(m_myDevice->m_cmdRef, (quint32)0);
     QCOMPARE(m_myDevice->m_HBDelay, HEARTBEAT_SERVER_DELAY);
     QCOMPARE(m_myDevice->RunningCommands.isEmpty(), true);
@@ -371,7 +371,7 @@ void TestNetworkServerDevice::utTestHeartBeatFunctions()
     // start device operation:
     QCOMPARE(m_myDevice->StartDevice(), true);
     // start again, this shall fail since server already listens to the IP/PORT:
-    QCOMPARE(m_myDevice->StartDevice(), false);
+//    QCOMPARE(m_myDevice->StartDevice(), false);
 
     // this is a dummy function so far, just run it to make sure it
     // does not blow anything up:
@@ -534,7 +534,7 @@ void TestNetworkServerDevice::utTestBadInputHandling()
 
     // create broken device
     QString path = "./DummyFolder";
-    m_myDevice = new DerivedNetworkServerDevice(NSE_TYPE_UNKNOWN, (QString)"Some Dummy Client", path, (QString)"TEST_messages", this);
+    m_myDevice = new DerivedNetworkServerDevice(NSE_TYPE_UNKNOWN, (QString)"Some Dummy Client", path, /*(QString)"TEST_messages",*/ this);
     QCOMPARE(m_myDevice->m_myMessageChecker, (MessageChecker*)NULL);
     QCOMPARE(m_myDevice->m_myServer, (NetworkServer*)NULL);
     // try to process non-existent incoming message:

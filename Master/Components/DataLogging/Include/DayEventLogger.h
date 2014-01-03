@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class DayEventLogger.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -43,12 +43,23 @@ private:
     QDate   m_LastLogDate;      ///< Date when last logging was done.
     QDate   m_LastLogDateBackUp;      ///< Backup of lastlog date
     int     m_MaxFileCount;     ///< Maximal file count. 0 means no maximal file count monitoring!
-    bool    m_RemoveOldestFile; ///< If Set to true - delete oldest file
-    QString m_FileNamePrefix;
+    QString m_FileNamePrefix;   ///< Prefix of the file name
+    /****************************************************************************/
+    /****************************************************************************/
+    /**
+     * \brief Constructor
+     */
     /****************************************************************************/
     DayEventLogger();                                                   ///< Not implemented.
-    DayEventLogger(const DayEventLogger &);                         ///< Not implemented.
-    const DayEventLogger & operator = (const DayEventLogger &);     ///< Not implemented.
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(DayEventLogger)
+
     /****************************************************************************/
     /**
      * \brief Compute new file name.
@@ -57,6 +68,7 @@ private:
      */
     /****************************************************************************/
     QString ComputeFileName() const;
+
     /****************************************************************************/
     /**
      * \brief Compute file name regular expression for searching old files.
@@ -65,6 +77,7 @@ private:
      */
     /****************************************************************************/
     QString ComputeFileNameRegExp() const;
+
     /****************************************************************************/
     /**
      * \brief Switch to new file.
@@ -75,7 +88,18 @@ private:
      */
     /****************************************************************************/
     void SwitchToNewFile();
-protected:
+
+
+    /****************************************************************************/
+    /**
+     * \brief Creates the temporary log file
+     *
+     * If any error occurs while creating the log files or if any event repeated
+     * which is belonging to data logging component(for file opening, flushing and
+     * writing the data) then it created the temporary log file
+     */
+    /****************************************************************************/
+    void CreateTemporaryLogFile();
 public:
     /****************************************************************************/
     /**
@@ -83,9 +107,11 @@ public:
      *
      * \iparam   pParent             Parent.
      * \iparam   TheLoggingSource    Source to set in log entry.
+     * \iparam   FileNamePrefix      Prefix of the file name
      */
     /****************************************************************************/
-    DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& fileNamePrefix);
+    DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& FileNamePrefix);
+
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -126,6 +152,15 @@ public:
     /****************************************************************************/
     void CheckLoggingEnabled();
 
+    /****************************************************************************/
+    /**
+     * \brief Removes outdated files from the system
+     *
+     * \iparam      Prefix      Prefix of the file name
+     * \iparam      DaysBack    Number of days
+     */
+    /****************************************************************************/
+    static void RemoveOutdatedFiles(QString Prefix, quint8 DaysBack);
 
 }; // end class DayEventLogger
 

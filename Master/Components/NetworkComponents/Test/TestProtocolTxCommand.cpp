@@ -32,7 +32,8 @@ namespace NetworkBase {
 TestProtocolTxCommand::TestProtocolTxCommand() :
         m_TxCommand(NULL),
         m_HeartBeat(NULL),
-        m_myDevice(NULL)
+        m_myDevice(NULL),
+        m_DateTime(NULL)
 {
 }
 
@@ -74,12 +75,12 @@ void TestProtocolTxCommand::cleanup()
 void TestProtocolTxCommand::initTestCase()
 {
     // initialize settings path:
-    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/Master/Components/Main/Build/Settings");
+    Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Colorado/Master/Components/Main/Build/Settings");
     // get path to settings:
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + "/Communication/gui";
 
     // create device
-    m_myDevice = new NetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Himalaya Device GUI", path, (QString)"gui_messages", this);
+    m_myDevice = new NetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Colorado Device GUI", path, /*(QString)"gui_messages",*/ this);
 }
 
 /****************************************************************************/

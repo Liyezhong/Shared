@@ -30,8 +30,8 @@ namespace StateMachines {
 /**
  *  \brief Constructor.
  *
- *  \param[in] name = name of the state
- *  \param[in] pParent = object's parent
+ *  \iparam name = name of the state
+ *  \iparam pParent = object's parent
  */
 /****************************************************************************/
 DerivedState::DerivedState(const StateNameType_t &name, QObject *pParent) :
@@ -58,7 +58,7 @@ DerivedState::~DerivedState()
 /**
  *  \brief Implementing State's pure virtual "OnEntry" function
  *
- *  \param[in] et = event to handle
+ *  \iparam et = event to handle
  */
 /****************************************************************************/
 bool DerivedState::OnEntry(StateEvent et)
@@ -72,7 +72,7 @@ bool DerivedState::OnEntry(StateEvent et)
 /**
  *  \brief Implementing State's pure virtual "OnExit" function
  *
- *  \param[in] et = event to handle
+ *  \iparam et = event to handle
  */
 /****************************************************************************/
 bool DerivedState::OnExit(StateEvent et)
@@ -86,7 +86,7 @@ bool DerivedState::OnExit(StateEvent et)
 /**
  *  \brief Implementing State's pure virtual "HandleEvent" function
  *
- *  \param[in] et = event to handle
+ *  \iparam et = event to handle
  */
 /****************************************************************************/
 bool DerivedState::HandleEvent(StateEvent et)

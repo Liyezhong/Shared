@@ -36,6 +36,8 @@
 
 namespace ExternalProcessControl {
 
+const quint32 MAX_RETRIES = 2;      ///< maximum number of retries for restarting the external process
+
 class Initial;
 class ExtProcessStartRetry;
 class FatalError;
@@ -60,7 +62,8 @@ typedef enum {
     EP_COMMUNICATION_RETRY,          ///< 12: Network communication problem
     EP_POWERDOWN,                    ///< 13: User pressed PowerDown button -> stop.
     EP_SIGNALCONNECT_FAILED,         ///< 14: QObject::connect failed -> we're dead
-    EP_TOO_MANY_RESTARTS             ///< 15: External process keeps crashing and restarting -> we're dead
+    EP_TOO_MANY_RESTARTS,            ///< 15: External process keeps crashing and restarting -> we're dead
+    EP_FATAL_ERROR_DEVICE            ///< 16: Network device indicated fatal error->switch to fatal error state
 } ExternalProcessStateEvents_t;
 
 typedef Global::SharedPointer<Threads::CreatorFunctor>  CreatorFunctorShPtr_t;  ///< Typedef or a shared pointer of CreatorFunctor.
@@ -98,8 +101,13 @@ class ExternalProcessController : public Threads::ThreadController
 private:
 
     ExternalProcessController();                                                      ///< Not implemented.
-    ExternalProcessController(const ExternalProcessController &);                     ///< Not implemented.
-    const ExternalProcessController & operator = (const ExternalProcessController &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ExternalProcessController)
     bool LocalProcessErrorEvent(const DataLogging::DayEventEntry & TheDayEventEntry);
 
     bool InitializeProcessManager();
@@ -110,7 +118,13 @@ private:
     void DeleteActiveObjects();
     void DeleteActiveStateObjects();
     void RegisterCreatorFunctor(const QString &ClassName, const CreatorFunctorShPtr_t &Functor);
+
     CreatorFunctorShPtr_t GetCreatorFunctor(const QString &CmdName) const;
+
+protected:
+
+    virtual void OnGoReceived();
+    virtual void OnStopReceived();
     /****************************************************************************/
     /**
      * \brief Send message (command or acknowledge) to external process.
@@ -122,7 +136,8 @@ private:
      */
     /****************************************************************************/
     template<class MSG> void SendMsgToExternalProcess(Global::tRefType Ref, const MSG &Msg) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__, Global::NO_NUMERIC_DATA, false);
+        //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__, Global::NO_NUMERIC_DATA, false);
+//        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, Global::tTranslatableStringList() << __PRETTY_FUNCTION__);
         // serialize data
         QByteArray Data;
         // create data stream
@@ -139,10 +154,6 @@ private:
         m_myDevice->SendOutgoingCommand(MSG::SERIALIZERSTRING, Data, Ref);
     }
 
-protected:
-
-    virtual void OnGoReceived();
-    virtual void OnStopReceived();
     /****************************************************************************/
     /**
      * \brief Register a network message for processing.
@@ -173,7 +184,14 @@ protected:
     /****************************************************************************/
     virtual void OnReadyToWork() = 0;
 
-    virtual void OnStopWorking() {};
+    /****************************************************************************/
+    /**
+     * \brief This method is called to inform process controller to stop working
+     * \iparam StopForEver = true indicates to stop working for ever, since no
+     *                       more retries would be carried out.
+     */
+    /****************************************************************************/
+    virtual void OnStopWorking(bool StopForEver = false) {Q_UNUSED(StopForEver)}
 
     /****************************************************************************/
     /**
@@ -188,8 +206,10 @@ protected:
      */
     /****************************************************************************/
     template<class CmdClass> void SendCmdToExternalProcess(Global::tRefType Ref, const CmdClass &Cmd) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
-                  , Global::NO_NUMERIC_DATA, false);
+//        qDebug() << "ExternalProcessController::SendCmdToExternalProcess, Ref=" << Ref
+//                 << ", cmdType=" << Cmd.NAME
+//                 << ", managedProcess=" << m_ProcessName;
+
         SendMsgToExternalProcess<CmdClass>(Ref, Cmd);
     }
 
@@ -209,22 +229,26 @@ protected:
     template<class AckClass> void SendAckToExternalProcess(Global::tRefType Ref, const AckClass &Ack) {
         // check if we know Ref
         if(!m_RefMapper.contains(Ref)) {
-            // error unknown reference
-            LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_UNKNOWN_REFERENCE, QString::number(Ref));
+            /* The below logic is added to prevent forwarding of Ack sent by main
+              to External Process controller Thread (Not to External Process)
+            */
+            if (m_RefInternalCommands.contains(Ref)) {
+                int Index = m_RefInternalCommands.indexOf(Ref);
+                m_RefInternalCommands.removeAt(Index);
+                return;
+            }
+            else {
+                // error unknown reference
+                LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_UNKNOWN_REFERENCE, Global::FmtArgs() << QString::number(Ref))
+            }
 
         }
+        //Ack is meant for external process
         // get old reference
         Global::tRefType OldRef = m_RefMapper.value(Ref);
         // remove from list of references
         m_RefMapper.remove(Ref);
-        /* The below logic is added to prevent forwarding of Ack sent by main
-          to External Process controller Thread (Not to External Process)
-        */
-        if (m_RefInternalCommands.contains(Ref)) {
-            int Index = m_RefInternalCommands.indexOf(Ref);
-            m_RefInternalCommands.removeAt(Index);
-            return;
-        }
+
         SendMsgToExternalProcess<AckClass>(OldRef, Ack);
     }
 
@@ -241,8 +265,6 @@ protected:
      */
     /****************************************************************************/
     template<class CmdClass> void ForwardCmdFromExternalProcess(Global::tRefType Ref, CmdClass *pCmd) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
-                  , Global::NO_NUMERIC_DATA, false);
         SendCmd(Ref, pCmd);
     }
 
@@ -251,37 +273,36 @@ protected:
      * \brief Send Command to Main Controller
      *
      * \param[in]   Ref         Command reference.
-     * \param[in]   pCmd        Command to send.
+     * \param[in]   Cmd        Command to send.
      * \param[in]   ExternalCmd True - Command was sent from External process,
      *                          False - Locally created command
      */
     /****************************************************************************/
-    void SendCmd(Global::tRefType Ref, Global::Command *pCmd, bool ExternalCmd = true) {
-        CHECKPTR(pCmd);
-         /// \todo JB: what about timeout and so on?
+    virtual void SendCmd(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, bool ExternalCmd = true) {
         Global::tRefType NewRef ;
         if (ExternalCmd) {
             NewRef = GetNewCommandRef();
+            if(m_RefMapper.contains(NewRef)) {
+                // first insert then throw exeption
+                m_RefMapper.insert(NewRef, Ref);
+                LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_REFERENCE_ALREADY_REGISTERED, Global::tTranslatableStringList() <<
+                          QString::number(NewRef))
+            }
+            else {
+                // insert reference
+                m_RefMapper.insert(NewRef, Ref);
+            }
         }
         else {
             NewRef = Ref;
+            // Create a list of commands which are sent by External process controller and
+            // not External Process. This will be used to prevent forwarding of Acks meant for
+            // External Process Controller to External Process.
+            if (!ExternalCmd) {
+                m_RefInternalCommands.append(Ref);
+            }
         }
-        if(m_RefMapper.contains(NewRef)) {
-            // first insert then throw exeption
-            /// \todo JB: insert and throw or just log error?
-            m_RefMapper.insert(NewRef, Ref);
-            LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_REFERENCE_ALREADY_REGISTERED, Global::tTranslatableStringList() <<
-                      QString::number(NewRef));
-        }
-        // insert reference
-        m_RefMapper.insert(NewRef, Ref);
-        // Create a list of commands which are sent by External process controller and
-        // not External Process. This will be used to prevent forwarding of Acks ment for
-        // External Process Controller to External Process.
-        if (!ExternalCmd) {
-            m_RefInternalCommands.append(Ref);
-        }
-        SendCommand(NewRef, Global::CommandShPtr_t(pCmd));
+        SendCommand(NewRef, Cmd);
     }
 
     /****************************************************************************/
@@ -295,8 +316,9 @@ protected:
      */
     /****************************************************************************/
     template<class AckClass> void ForwardAckFromExternalProcess(Global::tRefType Ref, AckClass *pAck) {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
-                  , Global::NO_NUMERIC_DATA, false);
+        //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, __PRETTY_FUNCTION__
+          //        , Global::NO_NUMERIC_DATA, false);
+//        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, Global::tTranslatableStringList() << __PRETTY_FUNCTION__);
         CHECKPTR(pAck);
         SendAcknowledge(Ref, Global::AcknowledgeShPtr_t(pAck));
     }
@@ -312,22 +334,45 @@ protected:
         m_RestartProcess = StartFlag;
     }
 
+    QHash<Global::tRefType, Global::tRefType>   m_RefMapper;                    ///< Mapper for references.
 
 public:
 
-    ExternalProcessController(const QString &prname, Global::gSourceType TheHeartBeatSource);
+    ExternalProcessController(const QString &prname, quint32 ThreadID,
+                              const bool ExternalProcessWithoutNetCommunication = false);
     virtual ~ExternalProcessController();
     void RegisterExternalProcessDevice(ExternalProcessDevice *gd);
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
     virtual bool ForwardMsgToRecepient(const QByteArray &bArr);
+    void KillAndRestartProcess();
+    /****************************************************************************/
+    /*!
+     *  \brief    gets the process name
+     *
+     *  \return    process name string
+     */
+     /****************************************************************************/
     QString GetProcessName() { return m_ProcessName; }
-
+    bool RetryPreconditionCheck();
+    void RestartProcess(const bool PreconditionChecked = false);
+    /****************************************************************************/
+    /*!
+     *  \brief   Checks if external process uses network communication
+     *
+     *  \return  true if it uses, else false.
+     */
+     /****************************************************************************/
+    bool DoesExternalProcessUseNetCommunication() { return !m_ExtProcessWithoutNetCommunication; }
 signals:
+    /****************************************************************************/
+    /*!
+     *  \brief    signal is emitted when process is exited
+     */
+    /****************************************************************************/
     void ProcessExited(const QString &, int);
 
-public slots:
-
+private slots:
     void ExternalProcessConnected(const QString &str);
     void ExternalProcessDisconnected(const QString &str);
     void LoginTimeout();
@@ -335,14 +380,17 @@ public slots:
     void ExternalProcessExited(const QString &, int);
     void ExternalProcessStarted(const QString &);
     void ExternalProcessError(int);
+    void DisConnected();
 
+private slots:
+    void OnFatalErrorInDevice();
 private:
 
     ExternalProcessDevice  *m_myDevice;     ///< Network Device for communication with ExternalProcess
     ExternalProcess        *m_myProcess;    ///< External process manager
     QString                 m_myCommand;    ///< Process start command (as string)
     QString                 m_ProcessName;  ///< Name of the managed process
-    /*! Shall Master wait till remote process loggs in or shall Master start local process: Yes(for remote)/No(for local) */
+    /*! Shall Master wait till remote process log1s in or shall Master start local process: Yes(for remote)/No(for local) */
     QString                 m_RemoteLoginEnabled;
     /*! Timeout for remote login option, in seconds. Zero means infinite waiting. */
     int                     m_RemoteLoginTimeout;
@@ -357,9 +405,11 @@ private:
     Final                                       *m_FinalState;                  ///< Power down state
     WaitState                                   *m_WaitState;                   ///< State to wait for incoming connections
     CreatorFunctorHash_t                        m_CreatorFunctors;              ///< Creator functors.
-    QHash<Global::tRefType, Global::tRefType>   m_RefMapper;                    ///< Mapper for references.
     QList<Global::tRefType>                     m_RefInternalCommands;          ///< Reference of command sent from this thread controller to Main,not from external process
     bool                                        m_RestartProcess;               ///< Restart flag
+    bool                                        m_ProcessExited;   ///< true indicates process exited.
+    quint32                                     m_RetryCount; //!< Number of times external process is restarted
+    bool                                        m_ExtProcessWithoutNetCommunication; //!< External process doesnt use network layer
 };
 
 } // end namespace ExternalProcessControl

@@ -70,8 +70,13 @@ public slots:
 
 private:
     StateMachineEngine();                                                   ///< Not implemented.
-    StateMachineEngine(const StateMachineEngine&);                          ///< Not implemented.
-    const StateMachineEngine & operator = (const StateMachineEngine &);     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(StateMachineEngine)
 
     /// list of all states in the state machine
     QHash<StateNameType_t, State*>       StatesList;

@@ -20,6 +20,8 @@
 
 #include "DataManager/Containers/InstrumentHistory/Include/ModuleDataListVerifier.h"
 
+//lint -e613
+
 namespace DataManager
 {
 
@@ -35,6 +37,8 @@ CModuleDataListVerifier::CModuleDataListVerifier(): mp_MDL(NULL)
 /****************************************************************************/
 /*!
  *  \brief Verifies the data present in the module list against constraints.
+ *  \iparam p_ModuleDataList
+ *  \return true - verify success , false - verify failure
  */
 /****************************************************************************/
 bool CModuleDataListVerifier::VerifyData(CDataContainerBase *p_ModuleDataList)
@@ -43,46 +47,53 @@ bool CModuleDataListVerifier::VerifyData(CDataContainerBase *p_ModuleDataList)
 
     mp_MDL = static_cast<CModuleDataList*>(p_ModuleDataList);
 
-    if(!mp_MDL) {
+    if(mp_MDL == NULL) {
         qDebug() << "Module List Data container is empty" << endl;
         VerifiedData = false;
     }
 
     QString InstrumentName = mp_MDL->GetInstrumentName();
-    if(InstrumentName == "ST8200") {
+    if(InstrumentName != "ST8200") {
         qDebug() << "Instrument Does not Exists" << endl;
         VerifiedData = false;
     }
 
     //!< Check the content of each Module
-    CModule *p_Module;
+    CModule *p_Module = new CModule();
     QStringList ModuleList;
-    ModuleList << "Drawer left" << "Drawer Right" << "Oven" << "YZ_Arm_Left" << "YZ_Arm_Right"
+    ModuleList << "Drawer Left" << "Drawer Right" << "Oven" << "YZ_Arm_Left" << "YZ_Arm_Right"
                << "X-Arm" << "Agitator" << "Transfer" << "E Box" << "SlideID" << "HeatedCuvetts"
                << "Water" << "Exhaust" << "Display" << "Cover" << "JoyStic" << "RFID Consumables";
 
 
     for(qint32 i=0; i<mp_MDL->GetNumberofModules(); i++)
     {
-        p_Module = mp_MDL->GetModule(i);
+        *p_Module = *mp_MDL->GetModule(i);
 
-        QString ModuleName = p_Module->GetModuleName();
+        if (p_Module) {
 
-        if(!ModuleList.contains(ModuleName, Qt::CaseSensitive)) {
-            qDebug() << "Unkown Module Name" << endl;
-            VerifiedData = false;
+            QString ModuleName = p_Module->GetModuleName();
+
+            if(!ModuleList.contains(ModuleName, Qt::CaseSensitive)) {
+                qDebug() << "Unkown Module Name" << endl;
+                VerifiedData = false;
+            }
         }
     }
 
-    CSubModule *p_SubModule;
+    CSubModule *p_SubModule = new CSubModule();
     for(qint32 j=0; j<p_Module->GetNumberofSubModules(); j++)
     {
-        p_SubModule = p_Module->GetSubModuleInfo(j);
+        *p_SubModule = *p_Module->GetSubModuleInfo(j);
+
         if(!p_SubModule) {
             qDebug() << "Sub Module Data does not Exist" << endl;
             VerifiedData = false;
         }
     }
+
+    delete p_SubModule;
+    delete p_Module;
 
     return VerifiedData;
 }
@@ -94,10 +105,10 @@ bool CModuleDataListVerifier::VerifyData(CDataContainerBase *p_ModuleDataList)
  *  \return QStringList - List of the errors occured
  */
 /****************************************************************************/
-ErrorHash_t& CModuleDataListVerifier::GetErrors()
+ErrorMap_t& CModuleDataListVerifier::GetErrors()
 {
     // return the last error which is occured in the verifier
-    return m_ErrorsHash;
+    return m_ErrorMap;
 }
 
 /****************************************************************************/
@@ -105,14 +116,15 @@ ErrorHash_t& CModuleDataListVerifier::GetErrors()
  *  \brief  Resets the last error which is done by verifier
  */
 /****************************************************************************/
-void CModuleDataListVerifier::ResetLastErrors()
+void CModuleDataListVerifier::ResetErrors()
 {
-    m_ErrorsHash.clear();
+    m_ErrorMap.clear();
 }
 
 /****************************************************************************/
 /*!
  *  \brief  Resets the last error which is done by verifier
+ *  \return true
  */
 /****************************************************************************/
 bool CModuleDataListVerifier::IsLocalVerifier()

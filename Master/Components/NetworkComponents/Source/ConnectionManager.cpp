@@ -29,6 +29,7 @@
 #include <NetworkComponents/Include/ConnectionManager.h>
 #include <NetworkComponents/Include/NetworkDevice.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
 
 namespace NetworkBase {
 
@@ -52,11 +53,11 @@ ConnectionManager::ConnectionManager(QHash<QString, QString> hash,
                                      m_myNumber(number),
                                      m_myClient(""),
                                      m_authenticationStringsList(hash),
-                                     m_timer(this),
                                      m_authRequest(req),
                                      m_authConfirm(conf),
                                      m_replySection(d),
-                                     m_connectionState(CM_NOT_AUTHENTICATED)
+                                     m_connectionState(CM_NOT_AUTHENTICATED),
+                                     m_BlockSize(0)
 
 {
 }
@@ -103,18 +104,19 @@ void ConnectionManager::HandleNewConnection(int socketDescriptor)
 
         CONNECTSIGNALSLOT(&m_TcpSocket, disconnected(), this, HandleSocketDisconnect());
         CONNECTSIGNALSLOT(&m_TcpSocket, readyRead(), this, ReadSocket());
-    } catch (...) {
-        // error logging is done by the Server
-        DestroyConnection(CONNECT_SIGNAL_FAIL);
+
+        // initiate authentication:
+        m_authRequest = CMH_AUTHENTICATION_REQ;
+        ForwardMessage(m_authRequest);
+
+        // start timer to check for authentication timeout
+        m_timer.start(CM_AUTHENTICATION_TIMEOUT);
+
         return;
     }
-
-    // initiate authentication:
-    m_authRequest = CMH_AUTHENTICATION_REQ;
-    ForwardMessage(m_authRequest);
-
-    // start timer to check for authentication timeout
-    m_timer.start(CM_AUTHENTICATION_TIMEOUT);
+    CATCHALL();
+    // error logging is done by the Server
+    DestroyConnection(CONNECT_SIGNAL_FAIL);
 }
 
 /****************************************************************************/
@@ -154,7 +156,6 @@ void ConnectionManager::ReadSocket()
     in.setDevice(&m_TcpSocket);
     in.setVersion(static_cast<int>(QDataStream::Qt_4_0));
     quint8 MarkerByte = 0;
-    quint32 BlockSize = 0;
 
     // The TcpSocket's readyRead signal will only be emitted one time if new
     // data is available. This means if we are too slow to fetch data, any
@@ -164,23 +165,25 @@ void ConnectionManager::ReadSocket()
     // the next readyRead signal:
     do {  // while -->
 
-        if (BlockSize == 0) {
+        if (m_BlockSize == 0) {
             if (m_TcpSocket.bytesAvailable() < (int)sizeof(quint32)) {
                 return;
             }
-            in >> BlockSize;
+            in >> m_BlockSize;
         }
 
         // make sure message came with marker byte (therefore "+ 1"):
-        if (m_TcpSocket.bytesAvailable() < (BlockSize + 1)) {
+        if (m_TcpSocket.bytesAvailable() < (m_BlockSize + 1)) {
             //qDebug() << "CMANAGER: message not yet complete...";
+            Global::EventObject::Instance().RaiseEvent(EVENT_CM_ERROR_MSG_INCOMPLETE,
+                                                       Global::tTranslatableStringList() << m_myClient);
             return;
         }
 
         // get the MarkerByte value
         in >> MarkerByte;
         // read payload data
-        QByteArray incoming_data = m_TcpSocket.read(BlockSize);
+        QByteArray incoming_data = m_TcpSocket.read(m_BlockSize);
 
         // if the connection is already authenticated, data shall be
         // forwarded to the Protocol Handler:
@@ -198,7 +201,7 @@ void ConnectionManager::ReadSocket()
             }
         }
         MarkerByte = 0;
-        BlockSize = 0;
+        m_BlockSize = 0;
     } while (m_TcpSocket.bytesAvailable());
 }
 /****************************************************************************/
@@ -230,6 +233,8 @@ bool ConnectionManager::CheckAuthenticationResponse(QByteArray *ba)
     QDomDocument domDoc;
     if (!domDoc.setContent(str, true, &err, &errL, &errC)) {
         qDebug() << ((QString)"Parsing incoming XML Doc failed: " + err);
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_ERROR_XML_PARSING,
+                                                   Global::tTranslatableStringList() << m_myClient << FILE_LINE);
         return false;
     }
 
@@ -267,10 +272,14 @@ bool ConnectionManager::ParseAuthenticationResponse(QDomDocument *d)
     QDomElement elmt = root.firstChildElement(CM_CMD_TAG_NAME);
     if (elmt.isNull()) {
         qDebug() << (QString)("ConnectionManager: cannot parse incoming XML doc !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_ERROR_XML_PARSING,
+                                                   Global::tTranslatableStringList() << m_myClient << FILE_LINE);
         return false;
     }
     if (elmt.text() != m_replySection.firstChildElement().text()) {
         qDebug() << (QString)("ConnectionManager: cannot parse incoming XMl doc !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_ERROR_XML_PARSING,
+                                                   Global::tTranslatableStringList() << m_myClient << FILE_LINE);
         return false;
     }
 
@@ -288,10 +297,14 @@ bool ConnectionManager::ParseAuthenticationResponse(QDomDocument *d)
         m_connectionState = CM_AUTHENTICATED;
         // inform TcpServer about successful connection:
         qDebug() << (QString)("Client connected! \nClient Name: " + name + "\nClient Version: " + version);
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_CLIENT_CONNECTED,
+                                                   Global::tTranslatableStringList() << m_myClient << name << version);
     }
     else {
         // authentication failed
         qDebug() << (QString)("Authentication failed! \nClient Name: " + name + "\nClient Version: " + version);
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_CLIENT_AUTHENTICATION_FAILED,
+                                                   Global::tTranslatableStringList() << m_myClient << name << version);
 
         qDebug() << "xxxxx available connection strings:";
 
@@ -323,12 +336,16 @@ void ConnectionManager::ForwardMessage(const QString &str)
     if (!domD.setContent(str, true, &err, &errL, &errC)) {
         /// \todo: how do we inform the sender?
         qDebug() << (QString)("ConnectionManager: cannot convert outgoing QString message to QDomDocument! Error: " + err);
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_OUTGOINGMSG_CONVERT_ERROR,
+                                                   Global::tTranslatableStringList() << m_myClient << err);
         return;
     }
     QByteArray ba = domD.toByteArray(-1);
     if (ba.isEmpty()) {
         /// \todo: how do we inform the sender?
         qDebug() << (QString)("ConnectionManager: outgoing QByteArray is empty !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_OUTGOINGMSG_EMPTY,
+                                                   Global::tTranslatableStringList() << m_myClient);
         return;
     }
     ForwardMessage(static_cast<quint8>(NET_NETLAYER_MESSAGE), ba);
@@ -354,11 +371,13 @@ void ConnectionManager::ForwardMessage(quint8 mbyte, const QByteArray & ba)
     out << mbyte;
 
     int nofbytes = out.writeRawData(ba.data(), bsize);
-    qDebug() << "\n\n Bytes Written \t"<<bsize;
+//    qDebug() << "\n\n Bytes Written \t"<<bsize;
     // check if data was actually written: bsize + markerbyte + packet size
     if ((m_TcpSocket.write(block) < (bsize + 1 + sizeof(qint32))) || nofbytes != bsize) {
         /// \todo: how do we inform the sender?
         qDebug() << (QString)("ConnectionManager: writing outgoing data to Socket failed !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_CM_OUTGOINGMSG_WRITE_FAILED,
+                                                   Global::tTranslatableStringList() << m_myClient);
     }
     m_TcpSocket.flush();
 }

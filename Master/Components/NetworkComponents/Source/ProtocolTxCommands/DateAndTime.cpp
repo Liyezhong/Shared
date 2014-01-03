@@ -19,7 +19,9 @@
 /****************************************************************************/
 
 #include <NetworkComponents/Include/ProtocolTxCommands/DateAndTime.h>
-
+#include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 namespace NetworkBase {
 
 /****************************************************************************/
@@ -88,6 +90,8 @@ void DateAndTime::HandleAck(const QString &status)
     if (status != NetworkBase::CMH_MSG_SENDING_OK) {
         qDebug() << "DateAndTime: negative _ACK_ received with status: " << status;
         m_myDevice->ReportFailedDateTimeSync(NetworkBase::CMH_MSG_SENDING_FAILED);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_CMH_MSG_SENDING_FAILED,
+                                                   Global::tTranslatableStringList() << status);
     }
 
     // tell Device to deregister and destroy the command:

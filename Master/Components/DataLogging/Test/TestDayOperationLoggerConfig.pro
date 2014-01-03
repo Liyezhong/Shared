@@ -9,5 +9,5 @@ TARGET = utTestDayOperationLoggerConfig
 SOURCES += TestDayOperationLoggerConfig.cpp
 
 
-UseLibs(DataLogging DataManagement Global)
+UseLibs(DataLogging EventHandler Global)
 

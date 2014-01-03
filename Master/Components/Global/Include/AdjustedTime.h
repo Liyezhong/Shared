@@ -38,12 +38,17 @@ namespace Global {
 class AdjustedTime {
 friend class TestAdjustedTime;
 private:
-    static AdjustedTime         m_Instance;         ///< The instance.
+
     int                         m_OffsetSeconds;    ///< Offset to add to current time [s].
     mutable QReadWriteLock      m_SyncObject;       ///< Synchronisation object.
     /****************************************************************************/
-    AdjustedTime(const AdjustedTime &);                     ///< Not implemented.
-    const AdjustedTime & operator = (const AdjustedTime &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(AdjustedTime)
     /****************************************************************************/
     /**
      * \brief Constructor.
@@ -67,7 +72,8 @@ public:
      * \return      Reference to instance.
      */
     /****************************************************************************/
-    static inline AdjustedTime &Instance() {
+    static AdjustedTime &Instance() {
+        static AdjustedTime         m_Instance;         ///< The instance.
         return m_Instance;
     }
     /****************************************************************************/

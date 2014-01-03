@@ -54,7 +54,7 @@ private:
     /**
      * \brief Copy from other instance.
      *
-     * \param[in]   rOther  Instance to copy from.
+     * \iparam   rOther  Instance to copy from.
      */
     /****************************************************************************/
     inline void CopyFrom(const TranslatableString &rOther) {
@@ -79,7 +79,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   StringID        StringID
+     * \iparam   StringID        StringID
      */
     /****************************************************************************/
     inline TranslatableString(quint32 StringID) :
@@ -91,7 +91,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   String          The plain string.
+     * \iparam   String          The plain string.
      */
     /****************************************************************************/
     inline TranslatableString(const QString &String) :
@@ -104,7 +104,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pcString        The plain string.
+     * \iparam   pcString        The plain string.
      */
     /****************************************************************************/
     inline TranslatableString(const char *pcString) :
@@ -117,8 +117,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   StringID        StringID
-     * \param[in]   ArgumentList    Argument list.
+     * \iparam   StringID        StringID
+     * \iparam   ArgumentList    Argument list.
      */
     /****************************************************************************/
     inline TranslatableString(quint32 StringID, const tTranslatableStringList &ArgumentList) :
@@ -131,7 +131,7 @@ public:
     /**
      * \brief Copy constructor.
      *
-     * \param[in]   rOther  Instance to copy from.
+     * \iparam   rOther  Instance to copy from.
      */
     /****************************************************************************/
     inline TranslatableString(const TranslatableString &rOther) :
@@ -151,7 +151,8 @@ public:
     /**
      * \brief Assignment operator.
      *
-     * \param[in]   rOther  Instance to copy from.
+     * \iparam   rOther  Instance to copy from.
+     * \return      Instance of this
      */
     /****************************************************************************/
     inline const TranslatableString & operator = (const TranslatableString &rOther) {

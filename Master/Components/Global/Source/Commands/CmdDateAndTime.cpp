@@ -41,13 +41,16 @@ CmdDateAndTime::CmdDateAndTime() :
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
+ * \iparam   Timeout     Timeout for command.
+ * \iparam      dt          DateTime
  *
  ****************************************************************************/
 CmdDateAndTime::CmdDateAndTime(int Timeout, const QDateTime &dt) :
     Command(Timeout),
     m_DateAndTime(dt)
 {
+    setBusyStateAllowed(false);
+    setErrorStateAllowed(false);
 }
 
 /****************************************************************************/
@@ -56,7 +59,7 @@ CmdDateAndTime::CmdDateAndTime(int Timeout, const QDateTime &dt) :
  *
  * Copy constructor.
  *
- * \param[in]   rOther  Instance to copy from.
+ * \iparam   rOther  Instance to copy from.
  */
 /****************************************************************************/
 CmdDateAndTime::CmdDateAndTime(const CmdDateAndTime &rOther) :
@@ -79,7 +82,7 @@ CmdDateAndTime::~CmdDateAndTime()
 /**
  * \brief Assignment operator.
  *
- * \param[in]   rOther  Instance to copy from.
+ * \iparam   rOther  Instance to copy from.
  * \return              Const reference to self.
  */
 /****************************************************************************/
@@ -97,7 +100,7 @@ const CmdDateAndTime & CmdDateAndTime::operator = (const CmdDateAndTime &rOther)
  *
  * Copy from other instance.
  *
- * \param[in]   rOther  Instance to copy from.
+ * \iparam   rOther  Instance to copy from.
  */
 /****************************************************************************/
 void CmdDateAndTime::CopyFrom(const CmdDateAndTime &rOther) {

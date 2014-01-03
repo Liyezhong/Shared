@@ -52,7 +52,7 @@ class CMasterLinkDevice : public QObject
 public:
     CMasterLinkDevice(QString ip, QString port, const NetworkBase::NetworkClientType_t clientType);
     virtual ~CMasterLinkDevice();
-    qint32 NetworkInit();
+    bool NetworkInit();
 
     /****************************************************************************/
     /**
@@ -60,9 +60,9 @@ public:
      *
      * Send a command to the master.
      *
-     * \param[in]   Cmd     The command.
-     * \param[in]   pRcv    The function pointer called on ack or timeout.
-     * \param[in]   pProcessorInstance  The instance containing the ack handler.
+     * \iparam   Cmd     The command.
+     * \iparam   pRcv    The function pointer called on ack or timeout.
+     * \iparam   pProcessorInstance  The instance containing the ack handler.
      * \return              The command's reference.
      */
     /****************************************************************************/
@@ -72,6 +72,10 @@ public:
         CHECKPTR(pRcv);
         // compute new reference
         Global::tRefType Ref = m_RefManager.GetNewRef();
+//        qDebug() << "MasterLinkDevice::SendCmdToMaster, newRef=" << Ref
+//                 << ", cmdType=" << Cmd.GetName()
+//                 << ", timeout=" << Cmd.GetTimeout();
+
         // register OnTimeout
         if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
             // create descriptor
@@ -105,8 +109,8 @@ public:
      *
      * Send an acknowledge to the master.
      *
-     * \param[in]   Ref     Command reference.
-     * \param[in]   Ack     The acknowledge.
+     * \iparam   Ref     Command reference.
+     * \iparam   Ack     The acknowledge.
      */
     /****************************************************************************/
     template<class ACKNOWLEDGE> inline void SendAckToMaster(Global::tRefType Ref, const ACKNOWLEDGE &Ack) {
@@ -120,8 +124,8 @@ public:
      *
      * Register a network message (command or acknowledge) for processing.
      *
-     * \param[in]   FunctionPointer     The function pointer to register.
-     * \param[in]   pProcessorInstance  The instance which will process the message.
+     * \iparam   FunctionPointer     The function pointer to register.
+     * \iparam   pProcessorInstance  The instance which will process the message.
      */
     /****************************************************************************/
     template<class TheClass, class ProcessorClass>
@@ -142,6 +146,13 @@ private:
     Global::PendingCmdDescriptorPtrHash_t   m_PendingCommands;      ///< Commands waiting for acknowledge.
     AckAndTORcvHash_t                       m_AckAndTOReceivers;    ///< Receivers for acknowledges and timeouts.
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CMasterLinkDevice)
     void RegisterCreatorFunctor(const QString &Name, const CreatorFunctorShPtr_t &Functor);
     CreatorFunctorShPtr_t GetCreatorFunctor(const QString &CmdName) const;
 
@@ -151,12 +162,12 @@ private:
      *
      * Serialize a message (command or acknowledge) and send it to the master.
      *
-     * \param[in]   Ref     Message reference.
-     * \param[in]   Msg     The message.
+     * \iparam   Ref     Message reference.
+     * \iparam   Msg     The message.
      */
     /****************************************************************************/
     template<class MSG> void SendMsgToMaster(Global::tRefType Ref, const MSG &Msg) {
-        DEBUGWHEREAMI;
+        //DEBUGWHEREAMI;
         // serialize data
         QByteArray Data;
         // create data stream
@@ -177,7 +188,7 @@ private:
     /**
      * \brief Remove a command from Pending commands.
      *
-     * \param[in]   Ref     Command reference.
+     * \iparam   Ref     Command reference.
      */
     /****************************************************************************/
     inline void RemoveFromPendingCommands(Global::tRefType Ref) {
@@ -187,7 +198,7 @@ private:
         m_PendingCommands.remove(Ref);
     }
 
-    void OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Ack);
+    void OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Acknowledge);
 private slots:
     void OnCommandTimeoutSlot(Global::tRefType Ref, QString CommandName);
     void ProcessNetMessage(const QString &msgname, const QByteArray &barray);
@@ -227,6 +238,14 @@ signals:
      *
      ****************************************************************************/
     void SigMasterDisconnected(const QString &name);
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted to start timer , when working
+     *            connection with Server fails
+     *
+     *
+     ****************************************************************************/
+     void StartConnectionLostTimer();
 };
 
 } // end namespace NetLayer

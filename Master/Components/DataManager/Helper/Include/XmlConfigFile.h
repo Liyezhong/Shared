@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFile.h
+/*! \file Master/Components/DataManager/Helper/Include/XmlConfigFile.h
  *
  *  \brief Definition file for class XmlConfigFile.
  *
@@ -22,7 +22,7 @@
 #define DATAMANAGEMENT_XMLCONFIGFILE_H
 
 #include <Global/Include/GlobalDefines.h>
-
+#include <Global/Include/EventObject.h>
 #include <QXmlStreamReader>
 #include <QLocale>
 #include <QFile>
@@ -40,54 +40,63 @@ namespace DataManager {
 class XmlConfigFile {
 friend class TestXmlConfigFile;
 private:
+
     /****************************************************************************/
     XmlConfigFile(const XmlConfigFile &);                       ///< Not implemented.
     const XmlConfigFile & operator = (const XmlConfigFile &);   ///< Not implemented.
-protected:
+
     /****************************************************************************/
     /**
      * \brief Initialize stream reader.
      *
-     * \param[in, out]  rReader     Reference to the stream reader.
-     * \param[in, out]  rFile       Reference to IO device.
-     * \param[in]       FileName    File name.
-     */
-    /****************************************************************************/
-    void InitStreamReader(QXmlStreamReader &rReader, QFile &rFile, const QString &FileName);
-    /****************************************************************************/
-    /**
-     * \brief Initialize stream reader.
-     *
-     * \param[in, out]  rReader     Reference to the stream reader.
-     * \param[in, out]  rDevice     Reference to IO device.
+     * \oparam  rReader     Reference to the stream reader.
+     * \oparam  rDevice     Reference to IO device.
      */
     /****************************************************************************/
     void InitStreamReader(QXmlStreamReader &rReader, QIODevice &rDevice);
+
     /****************************************************************************/
     /**
      * \brief Initialize stream writer.
      *
-     * \param[in, out]  rWriter     Reference to the stream writer.
-     * \param[in, out]  rFile       Reference to IO device.
-     * \param[in]       FileName    File name.
-     */
-    /****************************************************************************/
-    void InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, const QString &FileName);
-    /****************************************************************************/
-    /**
-     * \brief Initialize stream writer.
-     *
-     * \param[in, out]  rWriter     Reference to the stream writer.
-     * \param[in, out]  rDevice     Reference to IO device.
+     * \oparam  rWriter     Reference to the stream writer.
+     * \oparam  rDevice     Reference to IO device.
      */
     /****************************************************************************/
     void InitStreamWriter(QXmlStreamWriter &rWriter, QIODevice &rDevice);
+
+
+protected:    
+    QString m_FileName;                                         ///< Store the file name locally to log the data
+
+    /****************************************************************************/
+    /**
+     * \brief Initialize stream reader.
+     *
+     * \oparam  rReader     Reference to the stream reader.
+     * \oparam  rFile       Reference to IO device.
+     * \iparam       FileName    File name.
+     */
+    /****************************************************************************/
+    void InitStreamReader(QXmlStreamReader &rReader, QFile &rFile, const QString &FileName);
+
+    /****************************************************************************/
+    /**
+     * \brief Initialize stream writer.
+     *
+     * \oparam  rWriter     Reference to the stream writer.
+     * \oparam  rFile       Reference to IO device.
+     * \iparam       FileName    File name.
+     */
+    /****************************************************************************/
+    void InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, const QString &FileName);
+
     /****************************************************************************/
     /**
      * \brief Read attribute as string.
      *
-     * \param[in, out]  rReader         Reference to the stream reader.
-     * \param[in]       AttributeName   Attribute name.
+     * \oparam  rReader         Reference to the stream reader.
+     * \iparam       AttributeName   Attribute name.
      * \return                          Attribute value.
      */
     /****************************************************************************/
@@ -96,8 +105,8 @@ protected:
     /**
      * \brief Read attribute as quint32.
      *
-     * \param[in, out]  rReader         Reference to the stream reader.
-     * \param[in]       AttributeName   Attribute name.
+     * \oparam  rReader         Reference to the stream reader.
+     * \iparam       AttributeName   Attribute name.
      * \return                          Attribute value.
      */
     /****************************************************************************/
@@ -106,8 +115,8 @@ protected:
     /**
      * \brief Read attribute as QLocale::Language.
      *
-     * \param[in, out]  rReader         Reference to the stream reader.
-     * \param[in]       AttributeName   Attribute name.
+     * \oparam  rReader         Reference to the stream reader.
+     * \iparam       AttributeName   Attribute name.
      * \return                          Attribute value.
      */
     /****************************************************************************/
@@ -116,8 +125,8 @@ protected:
     /**
      * \brief Read attribute as OnOffState.
      *
-     * \param[in, out]  rReader         Reference to the stream reader.
-     * \param[in]       AttributeName   Attribute name.
+     * \oparam  rReader         Reference to the stream reader.
+     * \iparam       AttributeName   Attribute name.
      * \return                          Attribute value.
      */
     /****************************************************************************/
@@ -126,8 +135,8 @@ protected:
     /**
      * \brief Read next start element.
      *
-     * \param[in, out]  rReader         Reference to the stream reader.
-     * \param[in]       ElementName     Expected element name.
+     * \oparam  rReader         Reference to the stream reader.
+     * \iparam       ElementName     Expected element name.
      */
     /****************************************************************************/
     void ReadStartElement(QXmlStreamReader &rReader, const QString &ElementName);
@@ -138,8 +147,8 @@ protected:
      * Reads the start element with name RootTagName and then tries to read
      * the attribute with name "version" as string.
      *
-     * \param[in, out]  rReader         Reference to the stream reader.
-     * \param[in]       RootTagName     Root tag name.
+     * \oparam  rReader         Reference to the stream reader.
+     * \iparam       RootTagName     Root tag name.
      * \return                          Version.
      */
     /****************************************************************************/
@@ -151,9 +160,9 @@ protected:
      * Writes the start element with name RootTagName and then writes
      * the attribute with name "version" as string.
      *
-     * \param[in, out]  rWriter         Reference to the stream writer.
-     * \param[in]       RootTagName     Root tag name.
-     * \param[in]       Version         Version.
+     * \oparam  rWriter         Reference to the stream writer.
+     * \iparam       RootTagName     Root tag name.
+     * \iparam       Version         Version.
      */
     /****************************************************************************/
     void WriteFormatVersion(QXmlStreamWriter &rWriter, const QString &RootTagName, const QString &Version);

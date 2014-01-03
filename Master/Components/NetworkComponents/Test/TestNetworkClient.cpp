@@ -82,9 +82,9 @@ void TestNetworkClient::cleanup()
 void TestNetworkClient::initTestCase()
 {
     // create client
-    m_myClient = new NetworkClient(NCE_TYPE_HIMALAYA_GUI, UT_TEST_IP, UT_TEST_PORT, this);
+    m_myClient = new NetworkClient(NCE_TYPE_COLORADO_GUI, UT_TEST_IP, UT_TEST_PORT, this);
     QCOMPARE(m_myClient->m_myName, (QString)"");
-    QCOMPARE(m_myClient->m_myType, (NetworkClientType_t)NCE_TYPE_HIMALAYA_GUI);
+    QCOMPARE(m_myClient->m_myType, (NetworkClientType_t)NCE_TYPE_COLORADO_GUI);
     QCOMPARE(m_myClient->m_msgHdlr, (NetworkDevice*)NULL);
     QCOMPARE(m_myClient->m_myVersion, (QString)"");
     QCOMPARE(m_myClient->m_Ip, UT_TEST_IP);
@@ -93,7 +93,7 @@ void TestNetworkClient::initTestCase()
 
     // initialize client:
     QCOMPARE(m_myClient->Initialize(), true);
-    QCOMPARE(m_myClient->m_myName, (QString)"Himalaya Device GUI");
+    QCOMPARE(m_myClient->m_myName, (QString)"Colorado Device GUI");
     QCOMPARE(m_myClient->m_myVersion, (QString)"1.0");
     QCOMPARE(m_myClient->m_Ip, UT_TEST_IP);
     QCOMPARE(m_myClient->m_port, UT_TEST_PORT);
@@ -127,7 +127,7 @@ void TestNetworkClient::initTestCase()
     // create message handler:
     //QString path =  Global::SystemPaths::Instance().GetSettingsPath() + "/Communication/gui";
     QString path = "SomeDummyPath"; // (schould) not (be) relevant for Client
-    m_myNetworkDevice = new NetworkClientDevice(NCE_TYPE_HIMALAYA_GUI, UT_TEST_IP, UT_TEST_PORT, path, (QString)"gui_messages", this);
+    m_myNetworkDevice = new NetworkClientDevice(NCE_TYPE_COLORADO_GUI, UT_TEST_IP, UT_TEST_PORT, path, this);
     QCOMPARE(m_myNetworkDevice->InitializeDevice(), true);
 
     // test message handler registration:
@@ -210,11 +210,11 @@ void TestNetworkClient::utTestConfigParametersSetting()
 
 
     // set working parameters back again:
-    m_myClient->m_myType = (NetworkClientType_t)NCE_TYPE_HIMALAYA_GUI;
+    m_myClient->m_myType = (NetworkClientType_t)NCE_TYPE_COLORADO_GUI;
     m_myClient->m_Ip = UT_TEST_IP;
     m_myClient->m_port = UT_TEST_PORT;
     m_myClient->m_authStage = (ClientConnectionStateType_t)NC_INIT;
-    m_myClient->m_myName = (QString)"Himalaya Device GUI";
+    m_myClient->m_myName = (QString)"Colorado Device GUI";
     m_myClient->m_myVersion = (QString)"1.0";
 }
 
@@ -492,10 +492,10 @@ void TestNetworkClient::utTestBadInputHandling()
     m_myClient->m_authStage = (ClientConnectionStateType_t)NC_AUTHENTICATED;
     m_myClient->HandleSocketError(QAbstractSocket::NetworkError);
     // give process some time:
-    QTest::qWait(500);
+//    QTest::qWait(500);
     // check that error signal was sent:
     QCOMPARE(m_FlagConnectionLost, true);
-    QCOMPARE(m_String, (QString)"Himalaya Device GUI");
+    QCOMPARE(m_String, (QString)"Colorado Device GUI");
     // reset flags:
     m_FlagConnectionLost = false;
     m_String = "";

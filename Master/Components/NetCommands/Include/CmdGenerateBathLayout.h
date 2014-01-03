@@ -46,6 +46,13 @@ public:
     QByteArray const& GetProgramSequenceBlgTempFile() const;
 private:
     CmdGenerateBathLayout(const CmdGenerateBathLayout &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdGenerateBathLayout & operator = (const CmdGenerateBathLayout &);   ///< Not implemented.
 
 private:
@@ -57,7 +64,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -74,7 +81,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdGenerateBathLayo
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

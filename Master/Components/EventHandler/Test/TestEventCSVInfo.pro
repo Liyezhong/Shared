@@ -2,7 +2,7 @@
     error("EventHandler.pri not found")
 }
 
-TARGET = TestEventCSVInfo
+TARGET = utTestEventCSVInfo
 
 SOURCES += TestEventCSVInfo.cpp
 

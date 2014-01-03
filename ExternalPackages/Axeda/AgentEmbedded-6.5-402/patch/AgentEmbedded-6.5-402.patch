@@ -1,0 +1,391 @@
+From e52cce10baf2ebbdf4e474d94ad6fe144d2ad91d Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Thu, 17 Oct 2013 16:33:49 +0200
+Subject: [PATCH 1/5] Integrate C++98-compliance patch
+
+---
+ .../Axeda/AgentEmbedded-6.5-402/Include/AeError.h  |  2 +-
+ .../Axeda/AgentEmbedded-6.5-402/Include/AeOS.h     |  6 +++---
+ .../Axeda/AgentEmbedded-6.5-402/Include/AeTypes.h  | 24 +++++++++++-----------
+ 3 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeError.h b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeError.h
+index d92798d..38e6111 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeError.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeError.h
+@@ -16,7 +16,6 @@
+ #ifndef _AE_ERROR_H_
+ #define _AE_ERROR_H_
+ 
+-typedef enum _AeError AeError;
+ 
+ enum _AeError
+ {
+@@ -57,5 +56,6 @@ enum _AeError
+     AeENetHostUnreach,              /* 34 */
+     AeBadURL                        /* 35 */
+ };
++typedef enum _AeError AeError;
+ 
+ #endif
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeOS.h b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeOS.h
+index c6ebb5e..c9f1c1b 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeOS.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeOS.h
+@@ -44,8 +44,6 @@
+ #endif /* AE_BIG_ENDIAN */
+ 
+ typedef struct _AeNetAddress AeNetAddress;
+-typedef enum _AeLogRecordType AeLogRecordType;
+-typedef AeLogRecordType AeLogLevel;
+ 
+ /* IP address and port number in the network byte order. */
+ struct _AeNetAddress
+@@ -64,6 +62,8 @@ enum _AeLogRecordType
+     AeLogDebug,
+     AeLogTrace
+ };
++typedef enum _AeLogRecordType AeLogRecordType;
++typedef AeLogRecordType AeLogLevel;
+ 
+ /* Log message category values (may be OR-ed) */
+ #define AE_LOG_CATEGORY_NONE            0
+@@ -162,7 +162,6 @@ void        AeMutexLock(AeMutex *pMutex);
+ /* Unlocks the mutex object. */
+ void        AeMutexUnlock(AeMutex *pMutex);
+ 
+-
+ /* Retrieves the current date/time with a microsecond resolution. */
+ void        AeGetCurrentTime(AeTimeValue *pTime);
+ 
+@@ -170,6 +169,7 @@ void        AeGetCurrentTime(AeTimeValue *pTime);
+    point in the past (for example, system start-up time). */
+ void        AeGetElapsedTime(AeTimeValue *pTime);
+ 
++
+ /* Opens (initilizes) logging facility. */
+ AeError     AeLogOpen(void);
+ 
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeTypes.h b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeTypes.h
+index 4af9a84..a2e2b84 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeTypes.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Include/AeTypes.h
+@@ -39,15 +39,6 @@ typedef unsigned long   AeUInt32;
+ #define AeFalse         0
+ 
+ typedef struct _AeTimeValue AeTimeValue;
+-typedef enum _AeWebVersion AeWebVersion;
+-typedef enum _AeWebProxyProtocol AeWebProxyProtocol;
+-typedef enum _AeWebCryptoLevel AeWebCryptoLevel;
+-typedef enum _AeDRMDeviceType AeDRMDeviceType;
+-typedef enum _AeDRMServerConfigType AeDRMServerConfigType;
+-typedef enum _AeDRMQueuePriority AeDRMQueuePriority;
+-typedef enum _AeDRMQueueStatus AeDRMQueueStatus;
+-typedef enum _AeDRMDataType AeDRMDataType;
+-typedef enum _AeDRMDataQuality AeDRMDataQuality;
+ typedef struct _AeDRMDataValue AeDRMDataValue;
+ typedef struct _AeDRMDataItem AeDRMDataItem;
+ typedef struct _AeDRMAlarm AeDRMAlarm;
+@@ -57,9 +48,6 @@ typedef struct _AeDRMSOAPCommandStatus AeDRMSOAPCommandStatus;
+ typedef struct _AeDRMSOAPCommandId AeDRMSOAPCommandId;
+ typedef struct _AeDRMPingRate AeDRMPingRate;
+ 
+-typedef enum _AeFileType AeFileType;
+-typedef enum _AeFileCompression AeFileCompression;
+-typedef enum _AeFileTransferEvent AeFileTransferEvent;
+ typedef struct _AeFileStat AeFileStat;
+ typedef struct _AeFileUploadSpec AeFileUploadSpec;
+ typedef struct _AeFileUploadRequestParam AeFileUploadRequestParam;
+@@ -136,6 +124,7 @@ enum _AeWebVersion
+     AeWebHTTP10,                    /* HTTP/1.0 */
+     AeWebHTTP11                     /* HTTP/1.1 */
+ };
++typedef enum _AeWebVersion AeWebVersion;
+ 
+ /* Proxy server protocol. */
+ enum _AeWebProxyProtocol
+@@ -144,6 +133,7 @@ enum _AeWebProxyProtocol
+     AeWebProxyProtoSOCKS,           /* SOCKS proxy */
+     AeWebProxyProtoHTTP             /* HTTP proxy */
+ };
++typedef enum _AeWebProxyProtocol AeWebProxyProtocol;
+ 
+ /* SSL encryption level. */
+ enum _AeWebCryptoLevel
+@@ -153,6 +143,7 @@ enum _AeWebCryptoLevel
+     AeWebCryptoMedium,              /* medium-strength cipher */
+     AeWebCryptoHigh                 /* high-strength cipher */
+ };
++typedef enum _AeWebCryptoLevel AeWebCryptoLevel;
+ 
+ /* Device type. */
+ enum _AeDRMDeviceType
+@@ -160,6 +151,7 @@ enum _AeDRMDeviceType
+     AeDRMDeviceMaster,              /* master device */
+     AeDRMDeviceManaged              /* managed device (Gateway only) */
+ };
++typedef enum _AeDRMDeviceType AeDRMDeviceType;
+ 
+ /* Configuration type for the Enterprise server - Primary, Backup, Additional.*/
+ enum _AeDRMServerConfigType
+@@ -168,6 +160,7 @@ enum _AeDRMServerConfigType
+     AeDRMServerConfigAdditional,    /* additional Enterprise server */
+     AeDRMServerConfigBackup         /* backup Enterprise server */
+ };
++typedef enum _AeDRMServerConfigType AeDRMServerConfigType;
+ 
+ /* Priority of item sent to the data queue - could be a file, data item value, alarm, event.*/
+ enum _AeDRMQueuePriority
+@@ -176,6 +169,7 @@ enum _AeDRMQueuePriority
+     AeDRMQueuePriorityNormal,       /* normal priority */
+     AeDRMQueuePriorityUrgent        /* high priority */
+ };
++typedef enum _AeDRMQueuePriority AeDRMQueuePriority;
+ 
+ /* Status of the data queue. */
+ enum _AeDRMQueueStatus
+@@ -184,6 +178,7 @@ enum _AeDRMQueueStatus
+     AeDRMQueueNonEmpty,             /* the queue is non-empty */
+     AeDRMQueueFull                  /* the queue is full */
+ };
++typedef enum _AeDRMQueueStatus AeDRMQueueStatus;
+ 
+ /* Type of data item value. */
+ enum _AeDRMDataType
+@@ -192,6 +187,7 @@ enum _AeDRMDataType
+     AeDRMDataDigital,               /* digital (0/1) */
+     AeDRMDataString                 /* string */
+ };
++typedef enum _AeDRMDataType AeDRMDataType;
+ 
+ /* Quality of the data item value. */
+ enum _AeDRMDataQuality
+@@ -200,6 +196,7 @@ enum _AeDRMDataQuality
+     AeDRMDataBad,                   /* bad */
+     AeDRMDataUncertain              /* uncertain (undefined) */
+ };
++typedef enum _AeDRMDataQuality AeDRMDataQuality;
+ 
+ /* Structure for a data item value. */
+ struct _AeDRMDataValue
+@@ -296,6 +293,7 @@ enum _AeFileType
+     AeFileTypeRegular,
+     AeFileTypeDirectory
+ };
++typedef enum _AeFileType AeFileType;
+ 
+ /* Type of compression for file transfer (None disables compression.)*/
+ enum _AeFileCompression
+@@ -303,6 +301,7 @@ enum _AeFileCompression
+     AeFileCompressionNone,
+     AeFileCompressionTarGzip
+ };
++typedef enum _AeFileCompression AeFileCompression;
+ 
+ /* Structure for File description. 
+    The structure is used to communicate file attributes from Agent Embedded
+@@ -335,6 +334,7 @@ enum _AeFileTransferEvent
+     AeFileTransferPreempted,
+     AeFileTransferReactivated
+ };
++typedef enum _AeFileTransferEvent AeFileTransferEvent;
+ 
+ /* File upload specification structure.
+    The application uses this structure to request a file upload (one
+-- 
+1.8.4
+
+
+From 31dcfc98f9d0a7e640f88bef05b080ed4c82d30a Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Thu, 17 Oct 2013 16:35:59 +0200
+Subject: [PATCH 2/5] Fix compilation and warnings
+
+---
+ ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOS.c      | 2 +-
+ ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOSLocal.h | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOS.c b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOS.c
+index c72b02b..d886259 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOS.c
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOS.c
+@@ -56,7 +56,7 @@ void *AeRealloc(void* memptr,int NewSize)
+ AeError AeNetInitialize(void)
+ {
+     struct sigaction sa;
+-    memset(&sa, sizeof(sa), 0);
++    memset(&sa, 0, sizeof(sa));
+     sigemptyset(&sa.sa_mask);
+     sa.sa_flags = SA_RESTART;
+ 
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOSLocal.h b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOSLocal.h
+index 7128154..0e94100 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOSLocal.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Sysdeps/Unix/AeOSLocal.h
+@@ -3,8 +3,6 @@
+ #ifndef _AE_OS_LOCAL_H_
+ #define _AE_OS_LOCAL_H_
+ 
+-#define _GNU_SOURCE
+-
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+-- 
+1.8.4
+
+
+From f0a6d5b5591b692d787d89b0921d2ebd987068f0 Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Thu, 17 Oct 2013 16:41:48 +0200
+Subject: [PATCH 3/5] Extend Makefile
+
+---
+ ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile
+index 056ba72..2735dde 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile
+@@ -2,13 +2,13 @@
+ 
+ # Linux/i368 settings
+ PLATFORM = linux-i386
+-CROSS_COMPILE =
+-EXTRA_CFLAGS =
+-EXTRA_LDFLAGS =
++CROSS_COMPILE = 
++EXTRA_CFLAGS = ${EXTRA_ARCH}
++EXTRA_LDFLAGS = ${EXTRA_ARCH}
+ BIG_ENDIAN = no
+ HAVE_OPENSSL = yes
+ HAVE_PTHREADS = yes
+-ENABLE_LARGEFILE64 = yes
++ENABLE_LARGEFILE64 = no
+ 
+ # uClinux/m68k-pic-coff settings
+ #PLATFORM = uClinux-m68k-coff
+@@ -104,7 +104,7 @@ AE_LIB = libAgentEmbedded.a
+ 
+ all:
+ 	for n in $(LIB_SRC_DIRS); do \
+-		$(MAKE) -C $$n $(EXTRA_CFLAGS) $(MAKE_FLAGS) install || exit 1; \
++		$(MAKE) -C $$n $(MAKE_FLAGS) install || exit 1; \
+ 	done
+ 	$(CC) -MM $(CFLAGS) $(AE_SRC_DIR)/*.c > .dep
+ 	$(MAKE) -C . $(AE_LIB)
+-- 
+1.8.4
+
+
+From 46f0f60b9e24215d4db05ac77aee991f7956faf2 Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Tue, 22 Oct 2013 08:00:22 +0200
+Subject: [PATCH 4/5] AgentEmbedded: reduce build to internal needs
+
+---
+ .../Axeda/AgentEmbedded-6.5-402/Makefile           | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile
+index 2735dde..d274d3d 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/Makefile
+@@ -1,10 +1,20 @@
+ # Specify target platform settings and set of features
+ 
+-# Linux/i368 settings
+-PLATFORM = linux-i386
+-CROSS_COMPILE = 
+-EXTRA_CFLAGS = ${EXTRA_ARCH}
+-EXTRA_LDFLAGS = ${EXTRA_ARCH}
++# run 'make HOST=1' for Linux/i368 build
++ifdef HOST
++  # Linux/i368 settings
++  PLATFORM = linux-i386
++  CROSS_COMPILE =
++  EXTRA_CFLAGS  = $(EXTRA_ARCH)
++  EXTRA_LDFLAGS = $(EXTRA_ARCH)
++else
++  # E-Box settings
++  PATH := /opt/poky/1.3.2/sysroots/i686-pokysdk-linux/usr/bin/armv6-vfp-poky-linux-gnueabi:$(PATH)
++  PLATFORM =
++  CROSS_COMPILE = arm-poky-linux-gnueabi-
++  EXTRA_CFLAGS = -I/opt/poky/1.3.2/sysroots/armv6-vfp-poky-linux-gnueabi/usr/include
++  EXTRA_LDFLAGS = -L/opt/poky/1.3.2/sysroots/armv6-vfp-poky-linux-gnueabi/usr/lib
++endif
+ BIG_ENDIAN = no
+ HAVE_OPENSSL = yes
+ HAVE_PTHREADS = yes
+@@ -108,7 +118,7 @@ all:
+ 	done
+ 	$(CC) -MM $(CFLAGS) $(AE_SRC_DIR)/*.c > .dep
+ 	$(MAKE) -C . $(AE_LIB)
+-	$(MAKE) -C $(DEMO_DIR) $(MAKE_FLAGS) all
++	#$(MAKE) -C $(DEMO_DIR) $(MAKE_FLAGS) all
+ 
+ clean:
+ 	rm -f *.o *.a .dep
+-- 
+1.8.4
+
+
+From 1101b7fa1cc6fe1b628e84707e515798f613f89f Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Tue, 22 Oct 2013 08:02:08 +0200
+Subject: [PATCH 5/5] AgentEmbedded: Fix warnings
+
+---
+ ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeInterface.c          | 2 +-
+ ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeRemoteDesktopProbe.c | 2 +-
+ ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeWebCommon.c          | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeInterface.c b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeInterface.c
+index 6c241ef..51b1784 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeInterface.c
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeInterface.c
+@@ -749,7 +749,7 @@ AeError AeWebSetProxy(AeWebProxyProtocol iProto, AeChar *pHost, AeUInt16 iPort,
+ AeError AeWebSetSSL(AeWebCryptoLevel iLevel, AeBool bServerAuth, AeChar *pCACertFile)
+ {
+ #if defined(HAVE_OPENSSL) && defined(ENABLE_SSL)
+-    SSL_METHOD *sslMethod;
++    const SSL_METHOD *sslMethod;
+     int rc;
+ 
+     rc = 1;
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeRemoteDesktopProbe.c b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeRemoteDesktopProbe.c
+index 9209f69..23a1a6e 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeRemoteDesktopProbe.c
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeRemoteDesktopProbe.c
+@@ -14,7 +14,7 @@ static void AeRemoteDesktopProbeOnIOError(AeRemoteDesktopProbe *pDP, AeError iEr
+ static AeBool AeRemoteDesktopProbeOnConnectionReadable(AeRemoteDesktopProbe *pDP);
+ static AeBool AeRemoteDesktopProbeOnConnectionWritable(AeRemoteDesktopProbe *pDP);
+ 
+-static AeBool AeRemoteDesktopProbeSetPreamble(AeRemoteDesktopProbe *pDP, AeRemoteSession *pSession);
++//static AeBool AeRemoteDesktopProbeSetPreamble(AeRemoteDesktopProbe *pDP, AeRemoteSession *pSession);
+ 
+ AeWebTaskVTable g_aeRemoteDesktopProbeVTable =
+ {
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeWebCommon.c b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeWebCommon.c
+index 0015815..e0c556f 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeWebCommon.c
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.5-402/AeWebCommon.c
+@@ -232,10 +232,10 @@ AeChar *AeWebHeadersGet(AeWebHeaders *pHeaders, AeChar *pName)
+ /******************************************************************************/
+ void AeWebHeadersRemove(AeWebHeaders *pHeaders, AeChar *pName)
+ {
+-    AeWebHeader keyHeader;
++//    AeWebHeader keyHeader;
+     AeListItem *pItem;
+ 
+-    keyHeader.pName = pName;
++//    keyHeader.pName = pName;
+     pItem = AeListFind(pHeaders, pName);
+     if (pItem)
+     {
+-- 
+1.8.4
+

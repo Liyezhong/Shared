@@ -45,6 +45,14 @@ public:
 private:
     CmdProblemReportReply();                                                    ///< Not implemented.
     CmdProblemReportReply(const CmdProblemReportReply &);                       ///< Not implemented.
+
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdProblemReportReply & operator = (const CmdProblemReportReply &);   ///< Not implemented.
 private:
     QStringList     m_Report;   ///< The prblem report reply.

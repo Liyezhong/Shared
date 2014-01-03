@@ -36,45 +36,55 @@ class CmdDayRunLogRequest : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdDayRunLogRequest &);
 public:
     static QString NAME;    ///< Command name.
-    CmdDayRunLogRequest(int Timeout);
+    CmdDayRunLogRequest(int Timeout, int UserLevel);
     CmdDayRunLogRequest();
     ~CmdDayRunLogRequest();
     virtual QString GetName() const;
+    int GetUserLevel() const;
 private:
-
+    int m_UserLevel;                ///< Store the user level
     CmdDayRunLogRequest(const CmdDayRunLogRequest &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdDayRunLogRequest & operator = (const CmdDayRunLogRequest &);   ///< Not implemented.
 }; // end class CmdDayRunLogRequest
 
 /****************************************************************************/
-/**
-     * \brief Streaming operator.
-     *
-     * \param[in,out]   Stream      Stream to stream into.
-     * \param[in]       Cmd         The command to stream.
-     * \return                      Stream.
-     */
+/*!
+ * \brief Streaming operator.
+ *
+ * \oparam   Stream      Stream to stream into.
+ * \iparam   Cmd         The command to stream.
+ * \return                      Stream.
+ */
 /****************************************************************************/
 inline QDataStream & operator << (QDataStream &Stream, const CmdDayRunLogRequest &Cmd)
-{
+{    
     // copy base class data
     Cmd.CopyToStream(Stream);
+    Stream << Cmd.m_UserLevel;
     return Stream;
 }
 
 /****************************************************************************/
-/**
-     * \brief Streaming operator.
-     *
-     * \param[in,out]   Stream      Stream to stream from.
-     * \param[in]       Cmd         The command to stream.
-     * \return                      Stream.
-     */
+/*!
+ * \brief Streaming operator.
+ *
+ * \oparam   Stream      Stream to stream from.
+ * \iparam   Cmd         The command to stream.
+ * \return                      Stream.
+ */
 /****************************************************************************/
 inline QDataStream & operator >> (QDataStream &Stream, CmdDayRunLogRequest &Cmd)
-{
+{    
     // copy base class data
     Cmd.CopyFromStream(Stream);
+    Stream >> Cmd.m_UserLevel;
     return Stream;
 }
 

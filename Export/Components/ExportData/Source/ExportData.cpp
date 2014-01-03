@@ -102,7 +102,6 @@ int CExportData::CreateArchiveFiles()
     if (!QFile::exists(FileName)) {
         return Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION;
     }
-
     DataManager::CExportConfiguration ExportFile;
     ExportFile.SetDataVerificationMode(false);
 
@@ -226,7 +225,7 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
 
             int ErrorNumber = WriteZipFile(ExportFile, KeyName, DateValue);
 
-            if (ErrorNumber != 0) {
+            if (ErrorNumber != Global::EXIT_CODE_EXPORT_SUCCESS) {
                 RemoveFiles();
                 return ErrorNumber;
             }
@@ -240,13 +239,13 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
             (void)QFile::remove(ImportExport::Constants::keyfile); //to avoid lint-534
             (void)QFile::remove(ImportExport::Constants::counter); //to avoid lint-534
 
-            if (ErrorNumber != 0) {                
+            if (ErrorNumber != Global::EXIT_CODE_EXPORT_SUCCESS) {
                 RemoveFiles();
                 return ErrorNumber;
             }
         }
     }
-    // if the function succeeded then return 0
+    // if the function succeeded then return 1
     return Global::EXIT_CODE_EXPORT_SUCCESS;
 }
 

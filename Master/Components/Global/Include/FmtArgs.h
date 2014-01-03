@@ -22,6 +22,7 @@
 #define GLOBAL_FMTARGS_H
 
 #include "Global/Include/TranslatableString.h"
+#include <QStringList>
 
 namespace Global {
 
@@ -45,6 +46,16 @@ class FmtArgs: public Global::tTranslatableStringList
             this->append(strg);
             return *this;
         }
+
+        /// << operator for strings must be redefined for child class!
+        FmtArgs& operator<<(const QStringList& strgList)
+        {
+            foreach (QString strg, strgList) {
+                this->append(strg);
+            }
+            return *this;
+        }
+
 };
 
 } // end namespace GLOBAL

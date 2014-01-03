@@ -26,7 +26,7 @@
 namespace NetworkBase {
 
 /// Type of network client to create
-//const NetworkBase::NetworkClientType_t MY_CLIENT_TYPE = NetworkBase::NCE_TYPE_HIMALAYA_GUI;
+//const NetworkBase::NetworkClientType_t MY_CLIENT_TYPE = NetworkBase::NCE_TYPE_COLORADO_GUI;
 
 /****************************************************************************/
 /**
@@ -87,6 +87,14 @@ signals:
      *
      ****************************************************************************/
     void SigMasterDisconnected(const QString &name);
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted to start timer , when working
+     *            connection with Server fails
+     *
+     *
+     ****************************************************************************/
+     void StartConnectionLostTimer();
 
 public slots:
     void Go();
@@ -99,7 +107,15 @@ private:
     QThread           m_NetworkThread;  ///< thread to move network communication to
     QString           m_IP;             ///< IP to connect to
     QString           m_Port;           ///< port to connect to
-    NetworkBase::NetworkClientType_t m_clientType;
+    NetworkBase::NetworkClientType_t m_clientType; ///< client type
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(MasterLinkController)
 }; // class
 
 }  // namespace

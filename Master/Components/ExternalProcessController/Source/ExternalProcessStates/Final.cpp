@@ -61,7 +61,9 @@ bool Final::OnEntry(StateMachines::StateEvent et)
     qDebug() << "FinalState entered.";
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         /// \todo what here?
         return false;
     }
@@ -99,14 +101,18 @@ bool Final::HandleEvent(StateMachines::StateEvent et)
     qDebug() << "FinalState handles internal event " + QString::number(et.GetIndex(), 10);
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         return false;
     }
 
     switch (et.GetIndex())
     {
     case EP_EXTPROCESS_CONNECTED:
-        m_myController->m_myDevice->DisconnectPeer();
+        if (m_myController->DoesExternalProcessUseNetCommunication()) {
+            m_myController->m_myDevice->DisconnectPeer();
+        }
         break;
     default:
         break;

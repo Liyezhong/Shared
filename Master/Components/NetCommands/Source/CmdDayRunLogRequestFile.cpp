@@ -31,15 +31,16 @@ QString CmdDayRunLogRequestFile::NAME = "NetCommands::CmdDayRunLogRequestFile";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout         Timeout for command.
- * \param[in]   FileName        name of the file.
+ * \iparam   Timeout         Timeout for command.
+ * \iparam   UserLevel       User level
+ * \iparam   FileName        name of the file.
  */
 /****************************************************************************/
-CmdDayRunLogRequestFile::CmdDayRunLogRequestFile(int Timeout, const QString &FileName,
-                                                 Global::GuiUserLevel CurrentUserRole) :
+CmdDayRunLogRequestFile::CmdDayRunLogRequestFile
+(int Timeout, int UserLevel, const QString &FileName) :
     Command(Timeout),
-    m_FileName(FileName),
-    m_CurrentUserRole(CurrentUserRole)
+    m_UserLevel(UserLevel),
+    m_FileName(FileName)
 {
 }
 
@@ -48,7 +49,9 @@ CmdDayRunLogRequestFile::CmdDayRunLogRequestFile(int Timeout, const QString &Fil
  *  \brief   Constructor
  */
 /****************************************************************************/
-CmdDayRunLogRequestFile::CmdDayRunLogRequestFile() : Command(0)
+CmdDayRunLogRequestFile::CmdDayRunLogRequestFile() : Command(0),
+    m_UserLevel(0),
+    m_FileName("")
 {
 }
 
@@ -87,14 +90,14 @@ QString CmdDayRunLogRequestFile::GetFileName() const
 
 /****************************************************************************/
 /*!
- *  \brief   This function returns the current user role
+ *  \brief   Get the user level
  *
- *  \return  the current user role
+ *  \return  user level
  */
 /****************************************************************************/
-Global::GuiUserLevel CmdDayRunLogRequestFile::GetCurrentUserRole() const
+int CmdDayRunLogRequestFile::GetUserLevel() const
 {
-    return m_CurrentUserRole;
+    return m_UserLevel;
 }
 
 } // end namespace NetCommands

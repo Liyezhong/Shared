@@ -116,6 +116,13 @@ class RAMFile: public AbstractFile
         void open(QString name);
         void write(QByteArray data);
         void close();
+        /****************************************************************************/
+        /*!
+         * \brief get the filename and file data
+         *
+         * \return hash of file names and file data
+         */
+        /****************************************************************************/
         inline QHash<QString, QByteArray> getFiles() {return m_filedict;}
 
     private:
@@ -138,6 +145,13 @@ class VoidFile: public AbstractFile
         void open(QString name);
         void write(QByteArray data);
         void close();
+        /****************************************************************************/
+        /*!
+         * \brief get the filenames
+         *
+         * \return list of file names
+         */
+        /****************************************************************************/
         inline QSet<QString> getFilenames() {return m_filenames;}
 
     private:

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file CTestKeyBoard.cpp
+/*! \file TestKeyBoard.cpp
  *
  *  \brief Unit test for KeyBoard widget
  *
@@ -86,8 +86,6 @@ void CTestKeyBoard::cleanupTestCase() {
 /****************************************************************************/
 void CTestKeyBoard::utTestKeyBoard() {
      KeyBoard::CKeyBoard *p_KeyBoardWidget = new KeyBoard::CKeyBoard;
-     p_KeyBoardWidget->SetValidationType(KeyBoard::VALIDATION_3);
-     QCOMPARE(p_KeyBoardWidget->m_ValidationType, KeyBoard::VALIDATION_3);
      p_KeyBoardWidget->SetPasswordMode(true);
      QCOMPARE(p_KeyBoardWidget->mp_LineEdit->echoMode(), QLineEdit::Password);
      p_KeyBoardWidget->SetMaxCharLength(16);
@@ -96,6 +94,22 @@ void CTestKeyBoard::utTestKeyBoard() {
      QCOMPARE(p_KeyBoardWidget->m_MinEnteredCharLen,(unsigned int) 4);
      p_KeyBoardWidget->mp_LineEdit->setText("Test");
      QCOMPARE(p_KeyBoardWidget->GetLineEditString(), QString("Test"));
+     p_KeyBoardWidget->MoveCharacters(true);
+     p_KeyBoardWidget->SetNumericMode(true);
+     p_KeyBoardWidget->SetLineEditContent("Test String");
+     QCOMPARE(p_KeyBoardWidget->GetLineEditString(), QString("TestTest String"));
+     p_KeyBoardWidget->DisplayNumericKeyBoard();
+     p_KeyBoardWidget->SetCaps(true);
+     p_KeyBoardWidget->InitSizeAttributes();
+     p_KeyBoardWidget->CreateLineEditWidget();
+     p_KeyBoardWidget->MoveKeyboard(35,100);
+     qint32 XPos = 0;
+     qint32 YPos = 0;
+     p_KeyBoardWidget->GetKeyboardCoordinates(XPos, YPos);
+     QCOMPARE(XPos, 35);
+     QCOMPARE(YPos, 100);
+     p_KeyBoardWidget->GetDisplayMode();
+     p_KeyBoardWidget->GetCapsStatus();
 }
 
 } // end namespace KeyBoard

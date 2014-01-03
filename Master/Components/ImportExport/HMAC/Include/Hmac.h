@@ -42,7 +42,7 @@ class Hmac
         static QByteArray hash(const QByteArray data);
 
     private:
-        static const int HASHBLOCKSIZE = 64;
+        static const int HASHBLOCKSIZE = 64;    ///< size of hash block
 
         bool m_computed; ///< flag for the computation of the hmac
         QCryptographicHash m_innerhash; ///< inner cryptographic hash

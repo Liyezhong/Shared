@@ -42,7 +42,7 @@ class CmdDateAndTime : public Command {
 friend QDataStream & operator << (QDataStream &, const CmdDateAndTime &);
 friend QDataStream & operator >> (QDataStream &, CmdDateAndTime &);
 public:
-    static QString NAME;
+    static QString NAME;    ///< Name of the command
 
     CmdDateAndTime();
     CmdDateAndTime(int Timeout, const QDateTime &dt);
@@ -59,7 +59,7 @@ private:
 
 private:
 
-    QDateTime      m_DateAndTime;
+    QDateTime      m_DateAndTime;       ///< Date and time
 
 }; // end class CmdDateAndTime
 

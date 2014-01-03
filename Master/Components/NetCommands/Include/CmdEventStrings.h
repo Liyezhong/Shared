@@ -55,6 +55,13 @@ public:
 
 private:
     CmdEventStrings(const CmdEventStrings &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdEventStrings & operator = (const CmdEventStrings &); ///< Not implemented.
 
     QByteArray m_EventStringsByteArray; //!< Byte array for Event Strings
@@ -65,7 +72,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -83,7 +90,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdEventStrings &Cm
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

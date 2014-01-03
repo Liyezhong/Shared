@@ -30,13 +30,16 @@ QString CmdGenerateBathLayout::NAME = "NetCommands::CmdGenerateBathLayout";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
+ * \iparam   Timeout                          Timeout for command.
+ * \iparam   ProgramSequenceBlgTempFile       The ProgramSequenceBlgTemp file
  */
 /****************************************************************************/
 CmdGenerateBathLayout::CmdGenerateBathLayout(int Timeout, const QDataStream &ProgramSequenceBlgTempFile) :
     Command(Timeout),
     m_ProgramSeqBlgTemp(static_cast<QBuffer *> (ProgramSequenceBlgTempFile.device())->data())
 {
+    setBusyStateAllowed(false);
+    setErrorStateAllowed(false);
 }
 
 /****************************************************************************/
@@ -64,7 +67,6 @@ QString CmdGenerateBathLayout::GetName() const
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
  */
 /****************************************************************************/
 CmdGenerateBathLayout::CmdGenerateBathLayout() :

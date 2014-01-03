@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguation.cpp
+/*! \file Components/DataManager/Containers/DeviceConfiguration/Source/DeviceConfiguation.cpp
  *
  *  \brief DeviceConfiguration class implementation.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-09-04
- *   $Author:  $ Ningu
+ *   $Author:  $ Ningu123, Ramya GJ
  *
  *  \b Company:
  *
@@ -37,13 +37,6 @@ namespace DataManager {
 /****************************************************************************/
 CDeviceConfiguration::CDeviceConfiguration() :
     m_Version("")
-//    m_StainerDeviceName("ST 8200"),
-//    m_StainerSerialNumber(""),
-//    m_CoverSlipperDeviceName("CV 8020"),
-//    m_WorkStation(false),
-//    m_HeatedCuevettesAvailable(false),
-//    m_CameraSlideIdAvailable(false)
-
 {
     // set default values
     m_LanguageList.clear();
@@ -61,12 +54,29 @@ CDeviceConfiguration::CDeviceConfiguration() :
 /****************************************************************************/
 CDeviceConfiguration::CDeviceConfiguration(const CDeviceConfiguration& DeviceConfig)
 {
-    // remove the constant using type cast
-    CDeviceConfiguration* p_TempDeviceConfig = const_cast<CDeviceConfiguration*>(&DeviceConfig);
-    // do a deep copy of the data
-    *this = *p_TempDeviceConfig;
+    CopyFromOther(DeviceConfig);
 }
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \note  Method for internal use only
+ *
+ *  \iparam DeviceConfiguration = Instance of the DeviceConfiguration class
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CDeviceConfiguration::CopyFromOther(const CDeviceConfiguration &DeviceConfiguration)
+{
+    CDeviceConfiguration &OtherDeviceConfig = const_cast<CDeviceConfiguration &>(DeviceConfiguration);
+    m_Version  = OtherDeviceConfig.GetVersion();
+    m_LanguageList     = OtherDeviceConfig.GetLanguageList();
+    m_ValueList = OtherDeviceConfig.GetValueList();
 
+ }
 /****************************************************************************/
 /*!
  *  \brief Destructor
@@ -83,22 +93,19 @@ CDeviceConfiguration::~CDeviceConfiguration()
 /****************************************************************************/
 void CDeviceConfiguration::SetDefaultAttributes()
 {
-    m_Version                       = "1";   
-//    m_StainerDeviceName             = "ST 8200";
-//    m_StainerSerialNumber           = "12345678";
-//    m_CoverSlipperDeviceName        = "CV 8020";
-//    m_WorkStation                   = false;
-//    m_HeatedCuevettesAvailable      = false;
-//    m_CameraSlideIdAvailable        = false;
-    /*m_LanguageList.append("English");
-    m_LanguageList.append("German");
-    m_LanguageList.append("French");
-    m_LanguageList.append("Italian");
-    m_LanguageList.append("Spanish");
-    m_LanguageList.append("Portuguese");*/
-
+    m_Version = "1";
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Returns the Value list
+ *
+ *  \return ValueList
+ */
+/****************************************************************************/
+QMap<QString ,QString> CDeviceConfiguration::GetValueList() const
+{
+    return m_ValueList;
+}
 /****************************************************************************/
 /*!
  *  \brief Writes from the CDeviceConfiguration object to a IODevice.
@@ -115,10 +122,10 @@ bool CDeviceConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, b
     XmlStreamWriter.writeStartElement("Device");
 //    XmlStreamWriter.writeAttribute("Version", GetVersion());
 
-    QHashIterator<QString, QString> i(m_ValueList);
+    QMapIterator<QString, QString> i(m_ValueList);
     while (i.hasNext())
     {
-        i.next();
+        (void)i.next();
         XmlStreamWriter.writeAttribute(i.key(), i.value());
     }
     XmlStreamWriter.writeEndElement();
@@ -147,7 +154,7 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
 {            
     while ((XmlStreamReader.name() != "Device") && (!XmlStreamReader.atEnd()))
     {
-        XmlStreamReader.readNextStartElement();
+        (void)XmlStreamReader.readNextStartElement();
     }
 
     if (XmlStreamReader.name() != "Device")
@@ -164,43 +171,7 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
         return false;
     }
     SetVersion(XmlStreamReader.attributes().value("VERSION").toString());
-    /// \todo: Commented below code to avoid Sepia Data manager verfication fail
-//    // Read attribute SLIDEIDCAMERA
-//    if (!XmlStreamReader.attributes().hasAttribute("SLIDEIDCAMERA")) {
-//        qDebug() << "### attribute <SLIDEIDCAMERA> is missing => abort reading";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SLIDEIDCAMERA", true);
-//        return false;
-//    }
-//    // Read attribute WORKSTATIONMODE
-//    if (!XmlStreamReader.attributes().hasAttribute("WORKSTATIONMODE")) {
-//        qDebug() << "### attribute <WORKSTATIONMODE> is missing => abort reading";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "WORKSTATIONMODE", true);
-//        return false;
-//    }
-//    // Read attribute DEVICENAME
-//    if (!XmlStreamReader.attributes().hasAttribute("DEVICENAME")) {
-//        qDebug() << "### attribute <DEVICENAME> is missing => abort reading";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "DEVICENAME", true);
-//        return false;
-//    }
-//    // Read attribute SERIALNUMBER
-//    if (!XmlStreamReader.attributes().hasAttribute("SERIALNUMBER")) {
-//        qDebug() << "### attribute <SERIALNUMBER> is missing => abort reading";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "SERIALNUMBER", true);
-//        return false;
-//    }
-//    // Read attribute COVERSLIPPERNAME
-//    if (!XmlStreamReader.attributes().hasAttribute("COVERSLIPPERNAME")) {
-//        qDebug() << "### attribute <COVERSLIPPERNAME> is missing => abort reading";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "COVERSLIPPERNAME", true);
-//        return false;
-//    }
-//    // Read attribute HEATEDCUEVETTES
-//    if (!XmlStreamReader.attributes().hasAttribute("HEATEDCUEVETTES")) {
-//        qDebug() << "### attribute <HEATEDCUEVETTES> is missing => abort reading";
-//        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "HEATEDCUEVETTES", true);
-//        return false;
-//    }
+
     if (!XmlStreamReader.atEnd() && !XmlStreamReader.hasError())
     {
         QXmlStreamAttributes attributes = XmlStreamReader.attributes();
@@ -230,15 +201,9 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
 /****************************************************************************/
 bool CDeviceConfiguration::ReadCompleteData(QXmlStreamReader& XmlStreamReader)
 {
-//    // read Language list
-//    if (!Helper::ReadNode(XmlStreamReader, "LanguageList")) {
-//        qDebug() << "CDeviceConfiguration::ReadCompleteData: abort reading. Node not found: LanguageList";
-//        return false;
-//    }
-
     while ((XmlStreamReader.name() != "LanguageList") && (!XmlStreamReader.atEnd()))
     {
-        XmlStreamReader.readNextStartElement();
+        (void)XmlStreamReader.readNextStartElement();
     }
 
     if (!XmlStreamReader.attributes().hasAttribute("Languages")) {
@@ -278,8 +243,8 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfiguration&
     if (!p_TempDeviceConfig->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
-        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorHash.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorMap.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
     }
 
@@ -310,10 +275,10 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfiguration& Device
     // deserialize the content of the xml
     if (!DeviceConfig.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (DeSerializeContent) failed.";
-        DeviceConfig.m_ErrorHash.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        DeviceConfig.m_ErrorMap.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
         // throws an exception
-        //THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -333,20 +298,7 @@ CDeviceConfiguration& CDeviceConfiguration::operator=(const CDeviceConfiguration
     // make sure not same object
     if (this != &DeviceConfig)
     {
-        // create the byte array
-        QByteArray* p_TempByteArray = new QByteArray();
-        // create the data stream to write into a file
-        QDataStream DataStream(p_TempByteArray, QIODevice::ReadWrite);
-        (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        p_TempByteArray->clear();
-        // write the data into data stream from source
-        DataStream << DeviceConfig;
-        // reset the IO device pointer to starting position
-        (void)DataStream.device()->reset(); //to avoid lint 534
-        // read the data from data stream to destination object
-        DataStream >> *this;
-
-        delete p_TempByteArray;
+        CopyFromOther(DeviceConfig);
     }
     return *this;
 }

@@ -5,7 +5,7 @@
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-04-23
- *  $Author:    $ Raju123
+ *  $Author:    $ Raju123, Ramya GJ
  *
  *  \b Company:
  *
@@ -50,18 +50,21 @@ private:
     DataManager::CHimalayaUserSettings*      mp_UserSettings;        ///< Store the user settings
     QString                     m_FileName;             ///< Store the file name
     bool                        m_WorkStationMode;      ///< Store the workstation mode
+    int                         m_Version;              ///< Stores the Version
     /****************************************************************************/
 
 
     bool SerializeContent(QIODevice& p_Device, bool CompleteData);
     bool DeserializeContent(QIODevice& p_Device, bool CompleteData);
-    ErrorHash_t m_ErrorHash;
+    ErrorMap_t m_ErrorMap;  //!< Event List for GUI. This member is not copied when using copy constructor/Assignment operator
 
 protected:
 public:
 
     CUserSettingsInterface();
+    CUserSettingsInterface(CHimalayaUserSettings *p_UserSettings);
     CUserSettingsInterface(const CUserSettingsInterface &);
+    void CopyFromOther(const CUserSettingsInterface &Other);
 
     ~CUserSettingsInterface();
 
@@ -69,6 +72,25 @@ public:
     friend QDataStream& operator >>(QDataStream& InDataStream, CUserSettingsInterface& USInterface);
 
     CUserSettingsInterface & operator = (const CUserSettingsInterface &);
+    /****************************************************************************/
+    /*!
+     *  \brief Sets the version of The Settings File
+     *
+     *  \iparam Value = Version number
+     *
+     *  \return
+     */
+    /****************************************************************************/
+    void SetVersion(const int Value){m_Version = Value;}
+    /****************************************************************************/
+    /*!
+     *  \brief Get's the version of The Settings  File
+     *
+     *  \return Version Number
+     */
+    /****************************************************************************/
+    int  GetVersion() const {return m_Version;}
+
 
     /****************************************************************************/
     /*!
@@ -123,9 +145,8 @@ public:
 
     bool Read(QString FileName);
 
-    bool UpdateUserSettings(const CUserSettings *p_UserSettings);
+    bool UpdateUserSettings(const CUserSettings* p_UserSettings);
     // not required now, because by default the interface class does this.
-    //CUserSettings* CreateUserSettings();
     CUserSettings* GetUserSettings(bool CopySettings);
 
     /****************************************************************************/

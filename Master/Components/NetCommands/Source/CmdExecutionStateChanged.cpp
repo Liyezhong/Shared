@@ -29,7 +29,8 @@ CmdExecutionStateChanged::CmdExecutionStateChanged(int TimeOut) :
     Global::Command(TimeOut),
     m_Stop(false),
     m_WaitDialogFlag(false),
-    m_WaitDialogText(Global::INITIALIZING_TEXT)
+    m_WaitDialogText(Global::DEFAULT_TEXT),
+    m_InitiateShutdown(false)
 {
 }
 
@@ -38,7 +39,8 @@ CmdExecutionStateChanged::CmdExecutionStateChanged():
     Global::Command(0),
     m_Stop(false),
     m_WaitDialogFlag(false),
-    m_WaitDialogText(Global::INITIALIZING_TEXT)
+    m_WaitDialogText(Global::DEFAULT_TEXT),
+    m_InitiateShutdown(false)
 {
 
 }

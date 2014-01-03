@@ -43,6 +43,13 @@ public:
 private:
     
     CmdChangeAdminPasswordReply(const CmdChangeAdminPasswordReply &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdChangeAdminPasswordReply & operator = (const CmdChangeAdminPasswordReply &);   ///< Not implemented.
 private:
     QString      m_CmdType;        ///< Type of the command	
@@ -53,7 +60,7 @@ private:
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream into.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/
@@ -71,7 +78,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdChangeAdminPassw
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream from.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file StationBase.h
+/*! \file Platform/Master/Components/DataManager/Containers/Stations/Include/StationBase.h
  *
  *  \brief Definition for CStationBase class.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-11-29
- *   $Author:  $ Michael Thiel
+ *   $Author:  $ Michael Thiel, Ramya GJ
  *
  *  \b Company:
  *
@@ -29,10 +29,10 @@
 #include "DataManager/Helper/Include/Helper.h"
 #include "Global/Include/GlobalDefines.h"
 
+//lint -sem(DataManager::CStationBase::CopyFromOther,initializer)
+
 namespace DataManager {
 
-//const char LEICA_REAGENT_START_CHARACTER = 'L';     //!< Leica reagent start character
-//const char SPECIAL_REAGENT_START_CHARACTER = 'S';   //!< Leica reagent start character
 
 /****************************************************************************/
 /*!
@@ -41,7 +41,7 @@ namespace DataManager {
 /****************************************************************************/
 class CStationBase
 {
-    friend class CDashboardDataStationList;
+    friend class CDataStationList;
 private:
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
@@ -158,7 +158,7 @@ public:
     /*!
      *  \brief Sets the Station Defect State
      *
-     *  \iparam Defect = True or false, bool type
+     *  \iparam Disabled = True or false, bool type
      *
      *  \return
      */

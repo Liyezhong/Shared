@@ -45,7 +45,11 @@ class TestActionHandler : public QObject {
 public:
     friend class EventHandler::ActionHandler;
 private slots:
-
+    /****************************************************************************/
+    /**
+     * \brief Receive Events Test Case.
+     */
+    /****************************************************************************/
     void ReceiveEventTestCase();
     /****************************************************************************/
     /**

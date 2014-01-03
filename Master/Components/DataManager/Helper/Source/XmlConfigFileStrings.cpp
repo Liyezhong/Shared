@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFileStrings.cpp
+/*! \file DataManager/Helper/Source/XmlConfigFileStrings.cpp
  *
  *  \brief Implementation file for class XmlConfigFileStrings.
  *
@@ -64,7 +64,8 @@ void XmlConfigFileStrings::ReadLanguage_V1(QXmlStreamReader &rReader, QSet<QLoca
                 // Found a string. Read it.
                 ReadStringEntry_V1(rReader, LanguageData);
             } else {
-                THROWARG(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
+                THROWARGS(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT,
+                          Global::tTranslatableStringList() << rReader.name().toString() << "string" << m_FileName);
             }
         }
         // append language data to result
@@ -82,7 +83,8 @@ void XmlConfigFileStrings::ReadStrings_V1(QXmlStreamReader &rReader, QSet<QLocal
             // Found a language.
             ReadLanguage_V1(rReader, rLanguageList);
         } else {
-            THROWARG(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
+            THROWARGS(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT,
+                      Global::tTranslatableStringList() << rReader.name().toString() << "language" << m_FileName);
         }
     }
 }
@@ -92,25 +94,24 @@ void XmlConfigFileStrings::ReadStrings(const QString &FileName, QSet<QLocale::La
     // reset data
     ResetData();
 
-    try {
-        // init stream reader
-        QXmlStreamReader rReader;
-        QFile File;
-        InitStreamReader(rReader, File, FileName);
-        // now read format version
-        QString Version = ReadFormatVersion(rReader, "strings");
-        if(Version == "1") {
-            // read project file in version 1
-            ReadStrings_V1(rReader, rLanguageList);
-        } else {
-            // not a supported version
-            THROWARG(EVENT_DM_ERROR_UNSUPPORTED_VERSION, Version);
-        }
-    } catch(...) {
-        // reset data
-        ResetData();
-        throw;
+    // init stream reader
+    QXmlStreamReader rReader;
+    QFile File;
+    m_FileName = FileName;
+    InitStreamReader(rReader, File, FileName);
+    // now read format version
+    QString Version = ReadFormatVersion(rReader, "strings");
+    if(Version == "1") {
+        // read project file in version 1
+        ReadStrings_V1(rReader, rLanguageList);
     }
+    else {
+        ResetData();
+        // not a supported version
+        THROWARGS(EVENT_DM_ERROR_UNSUPPORTED_VERSION,
+                  Global::tTranslatableStringList() << Version << m_FileName);
+    }
+
 }
 
 } // end namespace DataManager

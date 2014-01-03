@@ -36,7 +36,7 @@ CScrollTable::CScrollTable(QWidget *p_Parent) : CContentScroller(p_Parent), m_Pi
 {
     layout()->setMargin(11);
     layout()->setSpacing(1);
-    m_PixmapTableGrid.load(QString(":/%1/Grid/Grid-BG.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    m_PixmapTableGrid.load(QString(":/%1/Grid/Grid-BG.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
 }
 
 /****************************************************************************/

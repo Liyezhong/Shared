@@ -127,7 +127,7 @@ LogArgs& CrisisEventHandler::RaiseLog()
         {
             info += " " + *it;
         }
-        Global::EventObject::Instance().RaiseLog(info);
+       // Global::EventObject::Instance().RaiseLog(info);
         OneLogInfo.clear();
     }
     return OneLogInfo;

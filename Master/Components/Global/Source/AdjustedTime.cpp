@@ -22,7 +22,6 @@
 
 namespace Global {
 
-AdjustedTime AdjustedTime::m_Instance;
 
 /****************************************************************************/
 AdjustedTime::AdjustedTime() :

@@ -28,8 +28,8 @@ QString CmdEventReport::NAME = "NetCommands::CmdEventReport";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout        Timeout for command.
- * \param[in]   EventReportDataStruct  Event Report DataStruct
+ * \iparam   Timeout                 Timeout for command.
+ * \iparam   EventReportData         Event Report DataStruct
  */
 /****************************************************************************/
 CmdEventReport::CmdEventReport(int Timeout, EventReportDataStruct &EventReportData) :

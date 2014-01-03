@@ -3,9 +3,13 @@
  *
  *  \brief Implementation file for class EventFilterNetworkServer.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  \b Description:
+ *      This class listens to a socket port, accepts incoming connections, reads
+ *      data and feeds processed information to the EventFilter.
+ *
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -32,8 +36,7 @@ namespace DataLogging {
 EventFilterNetworkServer::EventFilterNetworkServer(QObject *pParent, quint16 Port) :
     QObject(pParent),
     m_pServer(NULL),
-    m_pSocket(NULL)
-{
+    m_pSocket(NULL) {
     // may throw an exeption, but it does not matter
     m_pServer = new QTcpServer(this);
     // set max pending connections to only one
@@ -41,7 +44,8 @@ EventFilterNetworkServer::EventFilterNetworkServer(QObject *pParent, quint16 Por
     // now connect signals of server to our slots
     try {
         CONNECTSIGNALSLOT(m_pServer, newConnection(), this, AcceptNewConnection());
-    } catch (...) {
+    }
+    catch (...) {
         Global::ToConsole("QObject::connect(m_pServer, SIGNAL(newConnection()), this, SLOT(AcceptNewConnection())) failed");
     }
     // listen
@@ -58,14 +62,13 @@ EventFilterNetworkServer::~EventFilterNetworkServer() {
         m_pSocket = NULL;
         delete m_pServer;
         m_pServer = NULL;
-    } catch(...) {
+    }
+    catch (...) {
     }
 }
 
 /****************************************************************************/
 void EventFilterNetworkServer::AcceptNewConnection() {
-    Q_ASSERT(m_pSocket == NULL);
-    Q_ASSERT(m_pServer != NULL);
     if(m_pServer != NULL) {
         m_pSocket = m_pServer->nextPendingConnection();
         if(m_pSocket == NULL) {
@@ -77,7 +80,8 @@ void EventFilterNetworkServer::AcceptNewConnection() {
         try {
             // connect new connections signals to our slots
             CONNECTSIGNALSLOT(m_pSocket, disconnected(), this, ConnectionDisconnected());
-        } catch (...) {
+        }
+        catch (...) {
             Global::ToConsole("QObject::connect(m_pSocket, SIGNAL(disconnected()), this, SLOT(ConnectionDisconnected())) failed");
         }
     }
@@ -121,7 +125,6 @@ void EventFilterNetworkServer::ProcessProtocolVersion_1(QStringList &rLines) con
 
 /****************************************************************************/
 void EventFilterNetworkServer::ReadData() {
-    Q_ASSERT(m_pSocket != NULL);
     if(m_pSocket == NULL) {
         return;
     }

@@ -25,6 +25,8 @@
 #include <Global/Include/GlobalEventCodes.h>
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 /****************************************************************************/
 /**
@@ -37,9 +39,9 @@ namespace NetworkBase {
 /*!
  *  \brief  Constructor
  *
- *  \param[in]  ptype - type of message loader
- *  \param[in]  path - path to settings
- *  \param[in]  pParent - pointer to the parent object
+ *  \iparam  ptype - type of message loader
+ *  \iparam  path - path to settings
+ *  \iparam  pParent - pointer to the parent object
  */
 /****************************************************************************/
 NetworkDevice::NetworkDevice(MessageLoaderType_t ptype, const QString &path, QObject *pParent) :
@@ -47,8 +49,7 @@ NetworkDevice::NetworkDevice(MessageLoaderType_t ptype, const QString &path, QOb
         m_myMessageChecker(NULL),
         m_myType(ptype),
         m_myPath(path),
-        m_cmdRef(0),
-        m_HeartBeatTimer(this)
+        m_cmdRef(0)
 {
     RunningCommands.clear();
     switch (ptype) {
@@ -84,9 +85,8 @@ NetworkDevice::~NetworkDevice()
                 delete itr.value();
             }
         }
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -115,18 +115,20 @@ bool NetworkDevice::InitializeDevice()
             CONNECTSIGNALSLOT(&m_HeartBeatTimer, timeout(), this, HandleHeartBeatTimeout());
         } else {
             qDebug() << "NetworkDevice: cannot initialize wrong type of device : " << static_cast<int>(m_myType);
+            Global::EventObject::Instance().RaiseEvent(EVENT_ND_WRONG_DEVICE_TYPE,
+                                                       Global::tTranslatableStringList() << QString::number((int)m_myType));
             return false;
         }
-    } catch (...) {
-        /// \todo: handle error
-        return false;
+
+        // configure static members of abstract factory commands
+        BaseTxPCmd::Initialize();
+        BaseRxPCmd::Initialize();
+
+        return true;
     }
-
-    // configure static members of abstract factory commands
-    BaseTxPCmd::Initialize();
-    BaseRxPCmd::Initialize();
-
-    return true;
+    CATCHALL();
+    /// \todo: handle error
+    return false;
 }
 
 /****************************************************************************/
@@ -151,14 +153,11 @@ bool NetworkDevice::InitializeMessaging()
             qDebug() << "NetworkDevice: cannot load messages";
             delete m_myMessageChecker;
             m_myMessageChecker = NULL;
+            Global::EventObject::Instance().RaiseEvent(EVENT_ND_ERROR_LOADING_MSGS);
             return false;
         }
     }
-    catch (const std::bad_alloc &) {
-        /// \todo: handle error
-        qDebug() << "NetworkDevice: Cannot allocate memory!";
-        return false;
-    }
+    CATCHALL_RETURN(false)
 
     return true;
 }
@@ -191,8 +190,8 @@ quint32 NetworkDevice::GetNewCmdReference()
  *          duration of the "Execute" call, shall insert itself into this
  *          list. E.g. if command sends request and waits for answer, etc.
  *
- *  \param[in]  ref - unique command reference
- *  \param[in]  cmd - pointer to the command object
+ *  \iparam  ref - unique command reference
+ *  \iparam  cmd - pointer to the command object
  */
 /****************************************************************************/
 void NetworkDevice::RegisterRunningCommand(quint32 ref, ProtocolTxCommand *cmd)
@@ -202,6 +201,8 @@ void NetworkDevice::RegisterRunningCommand(quint32 ref, ProtocolTxCommand *cmd)
         /// \todo: handle error
         // Command with this reference is already running, this shall never happen!
         qDebug() << "NetworkDevice: command with this REF is already in hash !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_COMMAND_ALREADY_EXISTS,
+                                                   Global::tTranslatableStringList() << QString::number((int)ref));
         return;
     }
     RunningCommands.insert(ref, cmd);
@@ -214,8 +215,8 @@ void NetworkDevice::RegisterRunningCommand(quint32 ref, ProtocolTxCommand *cmd)
  *          As soon as command has finished, it shall call this function to
  *          remove itself from the list of running commands.
  *
- *  \param[in]  ref - unique command reference
- *  \param[in]  cmd - pointer to the command object
+ *  \iparam  ref - unique command reference
+ *  \iparam  cmd - pointer to the command object
  */
 /****************************************************************************/
 void NetworkDevice::DeregisterRunningCommand(quint32 ref, ProtocolTxCommand *cmd)
@@ -234,7 +235,7 @@ void NetworkDevice::DeregisterRunningCommand(quint32 ref, ProtocolTxCommand *cmd
  *          When reply from peer is received, this function shall be used
  *          to fetch a command which shall process this reply.
  *
- *  \param[in]  ref - unique command reference
+ *  \iparam  ref - unique command reference
  *
  *  \return pointer to ProtocolCommand or NULL if no such element in Hash
  */
@@ -251,7 +252,7 @@ ProtocolTxCommand* NetworkDevice::FetchRunningCommand(quint32 ref)
 /*!
  *  \brief  This member reports missing HeartBeats to upper layers
  *
- *  \param[in] problem = error description
+ *  \iparam problem = error description
  */
 /****************************************************************************/
 void NetworkDevice::ReportHeartBeatProblem(const QString &problem)
@@ -263,7 +264,7 @@ void NetworkDevice::ReportHeartBeatProblem(const QString &problem)
 /*!
  *  \brief  This member reports problem with DateTime sync process
  *
- *  \param[in] problem = error description
+ *  \iparam problem = error description
  */
 /****************************************************************************/
 void NetworkDevice::ReportFailedDateTimeSync(const QString &problem)
@@ -288,6 +289,8 @@ void NetworkDevice::HandleHeartBeat()
     if (pC == NULL) {
         qDebug() << "NetworkDevice: creating HeartBeat command failed !";
         ReportHeartBeatProblem(CMH_MSG_SENDING_FAILED);
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_COMMAND_CREATE_ERROR,
+                                                   Global::tTranslatableStringList() << "HeartBeat");
         return;
     }
 
@@ -295,6 +298,8 @@ void NetworkDevice::HandleHeartBeat()
     if (!pC->Execute()) {
         qDebug() << "NetworkDevice: command execution failed :     HeartBeat";
         ReportHeartBeatProblem(CMH_MSG_SENDING_FAILED);
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_COMMAND_EXECUTION_ERROR,
+                                                   Global::tTranslatableStringList() << "HeartBeat");
         return;
     }
 }
@@ -396,11 +401,11 @@ void NetworkDevice::DisconnectPeer()
  ****************************************************************************/
 void NetworkDevice::GetIncomingMsg(quint8 type, QByteArray &ba)
 {
-    qDebug() << "xxxxxxx NetworkDevice::GetIncomingMsg, path="
-             << this->m_myPath
-             << ", myType=" << this->m_myType
-             << ", msgType=" << type
-             << ", data=" << ba.toUInt();
+//    qDebug() << "xxxxxxx NetworkDevice::GetIncomingMsg, path="
+//             << this->m_myPath
+//             << ", myType=" << this->m_myType
+//             << ", msgType=" << type
+//             << ", data=" << ba.toUInt();
     switch (static_cast<NetMessageType_t>(type)) {
     case NET_NETLAYER_MESSAGE:
         ParseNetLayerMessage(ba);
@@ -411,6 +416,8 @@ void NetworkDevice::GetIncomingMsg(quint8 type, QByteArray &ba)
     default:
         /// \todo: handle error?
         // unknown message type: reply with error?
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_UNKNOWN_MSG_TYPE,
+                                                   Global::tTranslatableStringList() << QString::number((int)type));
         break;
     }
 
@@ -438,6 +445,8 @@ void NetworkDevice::ParseNetLayerMessage(const QByteArray &ba)
         // emit error signal
         emit MessageParsingFailed();
         qDebug() << (QString)("NetworkDevice: cannot parse incoming QByteArray's message! Error: " + err);
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_MSG_PARSING_ERROR,
+                                                   Global::tTranslatableStringList() << err);
         return;
     }
 
@@ -494,8 +503,8 @@ void NetworkDevice::ParseApplicationMessage(QByteArray &ba)
  *
  *          This method is called by the ProtocolHandler.
  *
- *  \param[in]  cmdname - name of the command
- *  \param[in]  domD - message as XML document
+ *  \iparam  cmdname - name of the command
+ *  \iparam  domD - message as XML document
  *
  *  \return true if success, false otherwise
  */
@@ -508,6 +517,8 @@ bool NetworkDevice::ProcessIncomingMessage(const QString &cmdname, const QDomDoc
     if (pC == NULL) {
         /// \todo: handle error
         qDebug() << "NetworkDevice: command creation failed :" << cmdname;
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_COMMAND_CREATE_ERROR,
+                                                   Global::tTranslatableStringList() << cmdname);
         return false;
     }
     // run created command:
@@ -524,9 +535,9 @@ bool NetworkDevice::ProcessIncomingMessage(const QString &cmdname, const QDomDoc
  *
  *          This method is called by the ProtocolHandler.
  *
- *  \param[in]  cmdname - name of the command
- *  \param[in]  ref - net message reference
- *  \param[in]  bA  - message payload as byte array
+ *  \iparam  cmdname - name of the command
+ *  \iparam  ref - net message reference
+ *  \iparam  bA  - message payload as byte array
  *
  *  \return true if success, false otherwise
  */
@@ -546,7 +557,7 @@ bool NetworkDevice::ProcessIncomingMessage(const QString &cmdname, const QString
  *  \brief    This function extracts cmd name and checks XML schema
  *
  *
- *  \param[in]    msg = pointer to the XML message
+ *  \iparam    msg = pointer to the XML message
  *  \param[out]   CmdName = pointer to command name
  *
  *  \return   true if schema check was successfull,
@@ -564,6 +575,8 @@ bool NetworkDevice::CheckIncomingMsgSchema(QDomDocument *msg, QString *CmdName)
         if (!m_myMessageChecker->CheckMsgSchema(*CmdName, msg)) {
             /// \todo: handle error
             qDebug() << ((QString)"NetworkDevice: msg parsing failed -> schema check failed !");
+            Global::EventObject::Instance().RaiseEvent(EVENT_ND_MSG_PARSING_ERROR,
+                                                       Global::tTranslatableStringList() << "schema check failed");
             return false;
         }
     }
@@ -592,12 +605,16 @@ QString NetworkDevice::ExtractCommandName(QDomDocument *domD)
     if (elmt.isNull()) {
         qDebug() << "NetworkDevice: no cmd element !";
         // calling function shall send an error reply
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_CMD_ELEMENT_DOESNOT_EXISTS,
+                                                   Global::tTranslatableStringList() << CMH_CMD_TAG_NAME);
         return (QString)"";
     }
     QString cmdname = elmt.attribute(CMH_CMDNAME);
     if (cmdname == "") {
         // calling function shall send an error reply
         qDebug() << ((QString)"NetworkDevice: msg parsing failed -> cmd element empty !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_CMD_ELEMENT_EMPTY,
+                                                   Global::tTranslatableStringList() << CMH_CMDNAME);
         return (QString)"";
     }
 
@@ -622,12 +639,16 @@ QString NetworkDevice::ExtractCommandReference(QDomDocument *domD)
     if (elmt.isNull()) {
         qDebug() << "NetworkDevice: no cmd element !";
         // calling function shall send an error reply
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_CMD_ELEMENT_DOESNOT_EXISTS,
+                                                   Global::tTranslatableStringList() << CMH_CMD_TAG_NAME);
         return (QString)"";
     }
     QString ref = elmt.attribute(CMH_REFERENCE);
     if (ref == "") {
         // calling function shall send an error reply
         qDebug() << ((QString)"NetworkDevice: msg parsing failed -> cmd element empty !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_CMD_ELEMENT_EMPTY,
+                                                   Global::tTranslatableStringList() << CMH_REFERENCE);
         return (QString)"";
     }
 
@@ -670,6 +691,8 @@ bool NetworkDevice::ExtractProtocolMessage(QByteArray *ba, QDomDocument *message
         // emit error signal
         emit MessageParsingFailed();
         qDebug() << (QString)("NetworkDevice: cannot parse incoming QByteArray's message! Error: " + err);
+        Global::EventObject::Instance().RaiseEvent(EVENT_ND_MSG_PARSING_ERROR,
+                                                   Global::tTranslatableStringList() << err);
         return false;
     }
 
@@ -718,7 +741,7 @@ bool NetworkDevice::SendCommand(const QString &cmd)
  ****************************************************************************/
 bool NetworkDevice::SendCommand(NetMessageType_t cmdtype, const QByteArray &ba)
 {
-    qDebug() << "xxxxx NetworkDevice::SendCommand";
+//    qDebug() << "xxxxx NetworkDevice::SendCommand";
     // Check for valid "connection" to SLOT. If signal is not
     // connected, report error.
     if (receivers(SIGNAL(SendMessage(quint8, const QByteArray &))) == 0) {
@@ -734,9 +757,9 @@ bool NetworkDevice::SendCommand(NetMessageType_t cmdtype, const QByteArray &ba)
 /*!
  *  \brief  This method creates and sends a new outgoing protocol command.
  *
- *  \param[in]  cmdname - name of the command
- *  \param[in]  bArray - payload as byte array
- *  \param[in]  Ref - reference of the application command
+ *  \iparam  cmdname - name of the command
+ *  \iparam  bArray - payload as byte array
+ *  \iparam  Ref - reference of the application command
  *
  */
 /****************************************************************************/
@@ -746,13 +769,15 @@ void NetworkDevice::SendOutgoingCommand(const QString &cmdname, const QByteArray
     try {
         // create command processing object
         ProtocolTxCommand *pC = new ProtocolTxCommand();
-        qDebug() << (QString)("ProtocolTxCommand created : " + cmdname);
+//        qDebug() << (QString)("ProtocolTxCommand created : " + cmdname);
         // generate reference:
         quint32 netRef = GetNewCmdReference();
         // init the outgoing command
         if (!pC->Initialize(cmdname, netRef, Ref, bArray, this)) {
             // command init failed: inform upper layer
             qDebug() << (QString)("ProtocolTxCommand " + cmdname + " cannot be initialized !");
+            Global::EventObject::Instance().RaiseEvent(EVENT_ND_COMMAND_INIT_FAILED,
+                                                       Global::tTranslatableStringList() << cmdname);
             delete pC;
             MessageSendingResult(Ref, status);
             return;
@@ -769,10 +794,8 @@ void NetworkDevice::SendOutgoingCommand(const QString &cmdname, const QByteArray
         // set the sending status to OK though
         status = CMH_MSG_SENDING_OK;
     }
-    catch (const std::bad_alloc &) {
-        /// \todo: log error?
-        qDebug() << (QString)("ProtocolTxCommand " + cmdname + " cannot be initialized !");
-    }
+    CATCHALL();
+
     // operation failed: inform upper layer
     MessageSendingResult(Ref, status);
 }
@@ -781,8 +804,8 @@ void NetworkDevice::SendOutgoingCommand(const QString &cmdname, const QByteArray
 /*!
  *  \brief  This method informs upper layer of command execution result
  *
- *  \param[in]  ref - application command reference
- *  \param[in]  status - command execution status (Ack/Nack/Timeout/CannotBeSent)
+ *  \iparam  ref - application command reference
+ *  \iparam  status - command execution status (Ack/Nack/Timeout/CannotBeSent)
  */
 /****************************************************************************/
 void NetworkDevice::MessageSendingResult(Global::tRefType ref, const QString &status)

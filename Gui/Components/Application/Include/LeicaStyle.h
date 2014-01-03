@@ -5,7 +5,7 @@
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-07-20
- *   $Author:  $ M.Scherer
+ *   $Author:  $ M.Scherer,Shuvasmita.S
  *
  *  \b Company:
  *
@@ -23,13 +23,16 @@
 
 #include <QWindowsStyle>
 
+//lint -e616
+//lint -e527
 namespace Application {
 
 typedef enum {
-    COLORADO_PROJECT,
-    SEPIA_PROJECT,
-    HIMALAYA_PROJECT
-} ProjectId_t;
+    DEVICE_UNDEFINED,
+    DEVICE_COLORADO,
+    DEVICE_SEPIA,
+    DEVICE_HIMALAYA
+} DeviceType_t;
 
 /****************************************************************************/
 /**
@@ -52,13 +55,12 @@ public:
     static void BorderPixmap(QPixmap *p_Target, QPixmap *p_Source, qint32 Left, qint32 Top, qint32 Right, qint32 Bottom);
     static QString PushButtonPath(QColor Color, QStyle::State State);
 
-    static void SetProjectId(Application::ProjectId_t eProj);
-    static Application::ProjectId_t GetProjectId();
-    static QString GetProjectNameString();
+    static void SetCurrentDeviceType(Application::DeviceType_t DeviceType);
+    static Application::DeviceType_t GetCurrentDeviceType();
+    static QString GetDeviceImagesPath();
 
 private:
-    static Application::ProjectId_t m_ProjId;    //!< Differentiating factor for the different projects under Leica
-
+    static Application::DeviceType_t m_DeviceType;    //!< Current device type
 };
 
 } // end namespace Application

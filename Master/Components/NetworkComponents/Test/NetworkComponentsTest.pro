@@ -10,6 +10,7 @@ SUBDIRS += TestNetworkServer.pro \
            TestNetworkClientDevice.pro \
            TestConnectionManager.pro \
            TestProtocolRxCommand.pro \
-           TestProtocolTxCommand.pro
+           TestProtocolTxCommand.pro \
+           TestCreatorFunctor.pro
 
 CONFIG += ordered

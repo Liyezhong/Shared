@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file ModuleDataList.h
+/*! \file DataManager/Containers/InstrumentHistory/Include/ModuleDataList.h
  *
  *  \brief Definition file for class CModuleDataList.
  *  Reads all Module information from XML, stores in a container (QHash) and also writes
@@ -35,8 +35,7 @@
 #include "DataManager/Helper/Include/Types.h"
 #include "Global/Include/Translator.h"
 
-//#include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
-//#include "HimalayaDataContainer/Helper/Include/HimalayaDataManagerEventCodes.h"
+//lint -e429
 
 namespace DataManager
 {
@@ -54,16 +53,18 @@ typedef QList<QString> ListofOrderedModules_t; //!< List for module names
 class CModuleDataList : public CDataContainerBase
 {
 
+    friend class TestDataModuleList;
+    friend class CInstrumentHistoryArchive;
+
     QString m_InstrumentName;   //!< name of the Instrument
     QString m_ModuleTimeStamp;  //!< Time Stamp of the Module
+    bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
     ListofModules_t m_ModuleList;   //!< Module List
     ListofOrderedModules_t m_ListofModules; //!< List of Module Names
     QString m_FileName; //!< XML file name
 
-    QReadWriteLock *mp_ReadWriteLock;
-    ErrorHash_t m_ErrorHash;
-
-    bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
+    QReadWriteLock *mp_ReadWriteLock; //!< Synchronization for data access
+    ErrorMap_t m_ErrorMap;      //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
 
     bool SerializeContent(QIODevice& IODevice, bool CompleteData);
     bool DeserializeContent(QIODevice& IODevice, bool CompleteData);
@@ -71,6 +72,8 @@ class CModuleDataList : public CDataContainerBase
     /****************************************************************************/
     /*!
      *  \brief  To read module info from xml
+     *  \iparam XmlStreamReader = Xml reader to read the XML contents
+     *  \iparam CompleteData = bool type if true writes Complete data of object
      *  \return true on success, false on failure
      */
     /****************************************************************************/
@@ -79,14 +82,19 @@ class CModuleDataList : public CDataContainerBase
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CModuleDataList&  ModuleList);
     friend QDataStream& operator >>(QDataStream& InDataStream, CModuleDataList& ModuleList);
 
+    QStringList GetModuleIdList() const;
+    void AddModuleWithoutVerification(CModule const* p_Module);
+
 public:
     CModuleDataList();
     CModuleDataList(QString TimeStamp);
-    CModuleDataList(const CModuleDataList&);
+    CModuleDataList(const CModuleDataList&);    //!< Copy Constructor
     ~CModuleDataList();
-    CModuleDataList& operator=(const CModuleDataList&);
+    void CopyFromOther(const CModuleDataList &ListofModules);
+    CModuleDataList& operator=(const CModuleDataList&); //!< Assignment Operator Overloading
 
-    /****************************************************************************/
+    /********************************************* QReadWriteLock* mp_ReadWriteLock;   ///< Synchronisation for data access
+*******************************/
     /*!
      *  \brief returns the  Data container type
      *  \return Data container type
@@ -97,7 +105,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To set Instrument Name
-     *  \iparam Value = Name to set
+     *  \iparam value = Name to set
      */
     /****************************************************************************/
     void SetInstrumentName(const QString value) { m_InstrumentName = value; }
@@ -113,7 +121,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To set module timestamp
-     *  \iparam Value = Timestamp to set
+     *  \iparam value = Timestamp to set
      */
     /****************************************************************************/
     void SetModuleTimeStamp(const QString value) { m_ModuleTimeStamp = value; }
@@ -137,14 +145,18 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To get module info using module name
+     *  \iparam ModuleName = name of the Module
      *  \return Module info
      */
     /****************************************************************************/
-    CModule const* GetModule(const QString ModuleName) {return m_ModuleList.value(ModuleName, NULL);}
+    CModule* GetModule(const QString ModuleName) const {
+            return m_ModuleList.value(ModuleName, NULL);
+    }
 
     /****************************************************************************/
     /*!
      *  \brief  To get module info using Index
+     *  \iparam Index
      *  \return Module info
      */
     /****************************************************************************/
@@ -153,6 +165,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To get module info using ModuleName
+     *  \iparam ModuleName = name of the Module
+     *  \iparam Module = Module Object
      *  \return Module info
      */
     /****************************************************************************/
@@ -161,6 +175,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To read XML file
+     *  \iparam FileName
      *  \return true on success, false on failure
      */
     /****************************************************************************/
@@ -169,6 +184,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  To writes data to container
+     *  \iparam p_Module = Module Object
      *  \return true on success, false on failure
      */
     /****************************************************************************/
@@ -219,7 +235,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief Sets verification mode
-     *  \iparam Value = true-verification on, false - verification off
+     *  \iparam value = true-verification on, false - verification off
      */
     /****************************************************************************/
     void SetDataVerificationMode(const bool value) { m_DataVerificationMode = value; }
@@ -232,6 +248,13 @@ public:
     /****************************************************************************/
     bool GetDataVerificationMode() { return m_DataVerificationMode; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  To update module info to XML
+     *  \iparam p_Module = Object of Module
+     *  \return true on success, false on failure
+     */
+    /****************************************************************************/
     bool UpdateModule(CModule const* p_Module);  // content of p_Module will be copied  => delete outside!
 
 };

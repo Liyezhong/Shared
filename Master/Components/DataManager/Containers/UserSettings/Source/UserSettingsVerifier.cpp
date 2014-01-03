@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file  Components/DataManager/Containers/UserSettings/Source/UserSettingsVerifier.cpp
+/*! \file  Platform/Master/Components/DataManager/Containers/UserSettings/Source/UserSettingsVerifier.cpp
  *
  *  \brief Implementation file for class UserSettingsVerifier.
  *
  *  $Version:   $ 0.2
  *  $Date:      $ 2012-04-23
- *  $Author:    $ Raju123
+ *  $Author:    $ Raju123, Ramya GJ
  *
  *  \b Company:
  *
@@ -54,27 +54,26 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
     bool VerifiedData = true;
     try {
         CHECKPTR(p_UserSettingsInterface)
-        // to store the error description
-        QString ErrorDescription;
+                // to store the error description
+                //QString ErrorDescription;
 
-
-        // assign pointer to member variable
-        mp_USettingsInterface = static_cast<CUserSettingsInterface*>(p_UserSettingsInterface);
+                // assign pointer to member variable
+                mp_USettingsInterface = static_cast<CUserSettingsInterface*>(p_UserSettingsInterface);
         CHECKPTR(mp_USettingsInterface)
-        // check content of user settings
-        CUserSettings* p_UserSettings = mp_USettingsInterface->GetUserSettings();
+                // check content of user settings
+                CUserSettings* p_UserSettings = mp_USettingsInterface->GetUserSettings();
         CHECKPTR(p_UserSettings)
-        // check the language
-        switch (p_UserSettings->GetLanguage()) {
-        case QLocale::C:
-            qDebug() << "Unsupported language is detected";
-            m_ErrorHash.insert(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() << p_UserSettings->GetLanguage());
-            Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() <<p_UserSettings->GetLanguage(), true);
-            VerifiedData = false;
-            break;
-        default:
-            // nothing to do
-            break;
+                // check the language
+                switch (p_UserSettings->GetLanguage()) {
+            case QLocale::C:
+                qDebug() << "Unsupported language is detected";
+                m_ErrorMap.insert(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() << p_UserSettings->GetLanguage());
+                Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() <<p_UserSettings->GetLanguage(), true);
+                VerifiedData = false;
+                break;
+            default:
+                // nothing to do
+                break;
         }
 
 
@@ -86,7 +85,7 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
             break;
         default:
             qDebug() << "Date format is not valid";
-            m_ErrorHash.insert(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetDateFormat());
+            m_ErrorMap.insert(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetDateFormat());
             Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_DATEFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetDateFormat(), true);
             VerifiedData = false;
             break;
@@ -99,7 +98,7 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
             break;
         default:
             qDebug() << "Time format is not valid";
-            m_ErrorHash.insert(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetTimeFormat());
+            m_ErrorMap.insert(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetTimeFormat());
             Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TIMEFORMAT, Global::tTranslatableStringList() <<p_UserSettings->GetTimeFormat(), true);
             VerifiedData = false;
             break;
@@ -112,7 +111,7 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
             break;
         default:
             qDebug() << "Tempeature format is not valid";
-            m_ErrorHash.insert(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetTemperatureFormat());
+            m_ErrorMap.insert(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() << p_UserSettings->GetTemperatureFormat());
             Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_TEMPFORMAT, Global::tTranslatableStringList() <<p_UserSettings->GetTemperatureFormat(), true);
             VerifiedData = false;
             break;
@@ -123,29 +122,25 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
 
         // check network settings parameters
         CheckNetWorkSettings(p_UserSettings, VerifiedData);
-    }
-    catch (Global::Exception &E) {
-        Global::EventObject::Instance().RaiseEvent(E.GetErrorCode(),E.GetAdditionalData(),true);
-        VerifiedData = false;
-    }
-    catch (...) {
-        VerifiedData = false;
-    }
-    return VerifiedData;
 
+        return VerifiedData;
+    }
+    CATCHALL();
+
+    return false;
 }
 
 /****************************************************************************/
 /*!
- *  \brief  Gets the last errors which is done by verifier
+ *  \brief  Retrieve errors occured during verification
  *
- *  \return QStringList - List of the errors occured
+ *  \return  ErrorMap
  */
 /****************************************************************************/
-ErrorHash_t& CUserSettingsVerifier::GetErrors()
+ErrorMap_t& CUserSettingsVerifier::GetErrors()
 {
     // return the last error which is occured in the verifier
-    return m_ErrorHash;
+    return m_ErrorMap;
 }
 
 /****************************************************************************/
@@ -153,9 +148,9 @@ ErrorHash_t& CUserSettingsVerifier::GetErrors()
  *  \brief  Resets the last error which is done by verifier
  */
 /****************************************************************************/
-void CUserSettingsVerifier::ResetLastErrors()
+void CUserSettingsVerifier::ResetErrors()
 {
-    m_ErrorHash.clear();
+    m_ErrorMap.clear();
 }
 
 /****************************************************************************/
@@ -185,28 +180,28 @@ void CUserSettingsVerifier::CheckSoundLevelWarnings(CUserSettings* p_UserSetting
     // check the error tones for the sound
     if (!((p_UserSettings->GetSoundNumberError() >= MIN_SOUND_NUMBER) && (p_UserSettings->GetSoundNumberError() <= MAX_SOUND_NUMBER))) {
         qDebug() << "Unknown error tone is detected for the sound";
-        m_ErrorHash.insert(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        m_ErrorMap.insert(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 
     if (!((p_UserSettings->GetSoundLevelError() >= MIN_SOUND_LEVEL) && (p_UserSettings->GetSoundLevelError() <= MAX_SOUND_LEVEL))) {
         qDebug() << "Unknown sound number error volume tone is detected";
-        m_ErrorHash.insert(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        m_ErrorMap.insert(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 
     if (!((p_UserSettings->GetSoundNumberWarning() >= MIN_SOUND_NUMBER) && (p_UserSettings->GetSoundNumberWarning() <= MAX_SOUND_NUMBER))) {
         qDebug() << "Unknown warning warning tone is detected for the sound";
-        m_ErrorHash.insert(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
+        m_ErrorMap.insert(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() << "");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_NUMBER_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
 
     if (!((p_UserSettings->GetSoundLevelWarning() >= MIN_SOUND_LEVEL_FOR_WARNING) && (p_UserSettings->GetSoundLevelWarning() <= MAX_SOUND_LEVEL_FOR_WARNING))) {
         qDebug() << "Unknown sound number warning volume tone is detected";
-        m_ErrorHash.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"");
+        m_ErrorMap.insert(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_WARN_SOUND_LEVEL_OUT_OF_RANGE, Global::tTranslatableStringList() <<"", true);
         VerifiedData = false;
     }
@@ -226,22 +221,22 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
 {
     if (!((p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_ON || p_UserSettings->GetRemoteCare() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS REMOTE CONNECTION IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare());
+        m_ErrorMap.insert(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_REMOTECARE_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetRemoteCare(), true);
         VerifiedData = false;
     }
 
     if (!((p_UserSettings->GetDirectConnection() == Global::ONOFFSTATE_ON || p_UserSettings->GetDirectConnection() == Global::ONOFFSTATE_OFF))) {
         qDebug() << "NETWORK SETTINGS DIRECT CONNECTION IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetDirectConnection());
+        m_ErrorMap.insert(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetDirectConnection());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_DIRECT_CONNECTION_ONOFFSTATE, Global::tTranslatableStringList() << p_UserSettings->GetDirectConnection(), true);
         VerifiedData = false;
     }
 
     if (!((p_UserSettings->GetProxyUserName().isEmpty() != true  && p_UserSettings->GetProxyUserName().length() >= MIN_PROXY_USERNAME_LENGTH &&
-          p_UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
+           p_UserSettings->GetProxyUserName().length() <= MAX_PROXY_USERNAME_LENGTH))) {
         qDebug() << "PROXY USERNAME IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_INVALID_PROXY_USERNAME_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName());
+        m_ErrorMap.insert(EVENT_DM_INVALID_PROXY_USERNAME_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_PROXY_USERNAME_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyUserName(), true);
         VerifiedData = false;
     }
@@ -249,21 +244,21 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
     if (!((p_UserSettings->GetProxyPassword().isEmpty() != true && p_UserSettings->GetProxyPassword().length() >= MIN_PROXY_PASSWORD_LENGTH &&
            p_UserSettings->GetProxyPassword().length() <= MAX_PROXY_PASSWORD_LENGTH))) {
         qDebug() << "PROXY PASSWORD IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_INVALID_PROXY_PASSWORD_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword());
+        m_ErrorMap.insert(EVENT_DM_INVALID_PROXY_PASSWORD_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_INVALID_PROXY_PASSWORD_CHAR_COUNT, Global::tTranslatableStringList() << p_UserSettings->GetProxyPassword(), true);
         VerifiedData = false;
     }
 
     if (!(CheckProxyIPAddress(p_UserSettings))) {
         qDebug() << "PROXY IP ADDRESS NOT IS NOT VALID";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPAddress());
+        m_ErrorMap.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() << p_UserSettings->GetProxyIPAddress());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_ADDRESS, Global::tTranslatableStringList() <<  p_UserSettings->GetProxyIPAddress(), true);
         VerifiedData = false;
     }
 
     if (!(CheckProxyIPPort(p_UserSettings))) {
         qDebug() << "PROXY IP PORT NUMBER NOT IN RANGE";
-        m_ErrorHash.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()));
+        m_ErrorMap.insert(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()));
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_INVALID_PROXY_IP_PORT, Global::tTranslatableStringList() << QString::number(p_UserSettings->GetProxyIPPort()), true);
         VerifiedData = false;
     }
@@ -281,7 +276,7 @@ void CUserSettingsVerifier::CheckNetWorkSettings(CUserSettings* p_UserSettings, 
 bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings *p_UserSettings)
 {
     QString ProxyIPAddress = p_UserSettings->GetProxyIPAddress();
-    qDebug()<<"\n\n Count= "<< ProxyIPAddress.split(".").count();
+    qDebug() << "CUserSettingsVerifier::CheckProxyIPAddress Count= " << ProxyIPAddress.split(".").count();
     bool VerifiedIPAddress = false;
     if (ProxyIPAddress.split(".").count() == 4) {
         for (int SplitCount = 0; SplitCount < ProxyIPAddress.split(".").count(); SplitCount++)
@@ -291,7 +286,7 @@ bool CUserSettingsVerifier::CheckProxyIPAddress(CUserSettings *p_UserSettings)
                 bool Result = false;
                 int AddressNumber = AddressNumberString.toInt(&Result, 10);
                 if (Result) {
-                    qDebug()<<"\n\n AddressNumber ="<< AddressNumber;
+                    qDebug() << "CUserSettingsVerifier::CheckProxyIPAddress AddressNumber ="<< AddressNumber;
                     if (AddressNumber < MIN_IP_ADDRESS_NUMBER || AddressNumber > MAX_IP_ADDRESS_NUMBER || AddressNumberString == "") {
                         return false;
                     }

@@ -62,11 +62,13 @@ void DerivedController::OnReadyToWork()
 /****************************************************************************/
 /**
  * \brief Power will fail shortly.
+ * \iparam PowerFailStage
  */
 /****************************************************************************/
-void DerivedController::OnPowerFail()
+void DerivedController::OnPowerFail(const Global::PowerFailStages PowerFailStage)
 {
+    Q_UNUSED(PowerFailStage);
 }
 
-} // end namespace HimalayaGui
+} // end namespace ColoradoGui
 

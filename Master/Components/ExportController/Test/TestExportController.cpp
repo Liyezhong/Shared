@@ -106,6 +106,16 @@ void TestExportController::utTestExportController() {
         // catch the exception here
     }
 
+    try {
+        Controller->OnGoReceived();
+        Controller->OnStopReceived();
+        Controller->OnPowerFail(Global::POWER_FAIL_REVERT);
+        Controller->CleanupAndDestroyObjects();
+    }
+    catch (...) {
+        // catch the exception here
+    }
+
 
     delete Controller;
 

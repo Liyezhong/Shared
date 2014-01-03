@@ -41,20 +41,23 @@ class CPasswordManager {
 friend class TestPasswordManager;
 private:
     QHash<QString, QString>     m_Passwords;            ///< List of names with password hashes.
-    QString                     m_MasterPasswordHash;   ///< Hash for master password.
     QString                     m_NewPassword;          ///< New password for the current user
     bool                        m_FallbackPassword;     ///< Fallback password flag
     /****************************************************************************/
-    CPasswordManager();                                              ///< Not implemented.
-    CPasswordManager(const CPasswordManager &);                       ///< Not implemented.
-    const CPasswordManager & operator = (const CPasswordManager &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CPasswordManager)
     /****************************************************************************/
     /**
      * \brief Compute hash from a value.
      *
      * The computed hash is converted to upper string.
      *
-     * \param[in]   Value   String to compute a hash from.
+     * \iparam   Value   String to compute a hash from.
      * \return              Hash as hex string.
      */
     /****************************************************************************/
@@ -66,7 +69,8 @@ private:
      * Check if password format is OK:
      * The password has to be at least 4 and at most 16 characters long.
      *
-     * \param[in]   Password    The password.
+     * \iparam   Password    The password.
+     * \return      true if format iscorrect.
      */
     /****************************************************************************/
     static bool CheckPasswordFormat(const QString &Password);
@@ -84,7 +88,7 @@ private:
     /**
      * \brief Set the fall back password flag.
      *
-     * \param[in]   Value  Fall back pwd flag value.
+     * \iparam   Value  Fall back pwd flag value.
      */
     /****************************************************************************/
     inline void SetFallbackPasswordFlag(const bool &Value) {
@@ -96,11 +100,9 @@ public:
     /****************************************************************************/
     /**
      * \brief Constructor.
-     *
-     * \param[in]   MasterPasswordHash  hash of master password.
      */
     /****************************************************************************/
-    CPasswordManager(const QString &MasterPasswordHash);
+    CPasswordManager();
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -126,7 +128,7 @@ public:
      *
      * The password will be compread against to the confirm password.
      *
-     * \param[in]   Password    The password.
+     * \iparam   Password    The password.
      */
     /****************************************************************************/
     inline void SetNewPassword(const QString &Password) {
@@ -151,8 +153,8 @@ public:
      * The hash of the password string is computed and saved, not the password itself.
      * If the password does not meet the requirements an exception will be thrown.
      *
-     * \param[in]   Name        The name.
-     * \param[in]   Password    The password.
+     * \iparam   Name        The name.
+     * \iparam   Password    The password.
      */
     /****************************************************************************/
     void SetPassword(const QString &Name, const QString &Password);
@@ -162,8 +164,8 @@ public:
      *
      * The password is already a hash. We can not check it any more.
      *
-     * \param[in]   Name    The name.
-     * \param[in]   Hash    The password hash.
+     * \iparam   Name    The name.
+     * \iparam   Hash    The password hash.
      */
     /****************************************************************************/
     void SetPasswordHash(const QString &Name, const QString &Hash);
@@ -180,8 +182,8 @@ public:
      * First the built in Administrator password is checked. Then the hash of the
      * provided password is computed and verified.
      *
-     * \param[in]   Name        The name.
-     * \param[in]   Password    The password.
+     * \iparam   Name        The name.
+     * \iparam   Password    The password.
      * \return                  True on success.
      */
     /****************************************************************************/
@@ -202,7 +204,7 @@ public:
      * \brief Check the fallback pasword against with entered password.
      *
      *
-     * \param[in]   Password    The password.
+     * \iparam   Password    The password.
      *
      * \return                  True on success.
      */
@@ -214,8 +216,8 @@ public:
      * \brief Check the service pasword against with entered password.
      *
      *
-     * \param[in]   Password    The password.
-     * \param[in]   DeviceName  Name of the device.
+     * \iparam   Password    The password.
+     * \iparam   DeviceName  Name of the device.
      *
      * \return                  True on success.
      */

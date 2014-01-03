@@ -28,8 +28,8 @@ QString CmdProcessState::NAME = "NetCommands::CmdProcessState"; ///< Name of the
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout         Timeout for command.
- * \param[in]   ProcessState    Flag for the Process state.
+ * \iparam   Timeout         Timeout for command.
+ * \iparam   ProcessState    Flag for the Process state.
  */
 /****************************************************************************/
 CmdProcessState::CmdProcessState(int Timeout, const bool &ProcessState) :

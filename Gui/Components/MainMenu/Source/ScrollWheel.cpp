@@ -47,8 +47,8 @@ CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessW
 
 
     m_Offset = QPoint(0, 0);
-    m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
-    m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
+    m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
+    m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
 
     m_ItemAlignment = Qt::AlignCenter;
     m_ItemHeight = 70;
@@ -305,12 +305,12 @@ void CScrollWheel::SetThreeDigitMode(bool Mode)
 {
     m_ThreeDigitMode = Mode;
     if (Mode) {
-        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 126, 188);
-        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 126, 188);
+        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background_3_digits.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 126, 188);
+        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover_3_digits.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 126, 188);
     }
     else {
-        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
-        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
+        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
+        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
     }
 }
 

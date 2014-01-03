@@ -2,12 +2,15 @@
     error("EventHandler.pri not found")
 }
 
-TARGET = TestEventHandlerThreadController
+TARGET = utTestEventHandlerThreadController
 
 SOURCES += TestEventHandlerThreadController.cpp
 
 INCLUDEPATH += ../..
-HEADERS +=
+#HEADERS +=  ../Include/Main.h \
+#            ../../../Include/ColoradoEventCodes.h \
+#            ../../../Include/DataLoggingSources.h \
+#            ../../../Include/ColoradoProcessExitCodes.h
 
 UseLibs(Global DataLogging EventHandler Threads NetCommands Global)
 

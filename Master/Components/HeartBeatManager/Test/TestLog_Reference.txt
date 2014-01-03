@@ -1,0 +1,11 @@
+TESTPATH:  ./Test
+TESTNAME:  utTestHeartBeatThread
+TIMESTAMP: 2013-08-12 11:27:17
+********* Start testing of HeartBeatManager::TestHeartBeatThread *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : HeartBeatManager::TestHeartBeatThread::initTestCase()
+PASS   : HeartBeatManager::TestHeartBeatThread::utTestHeartbeat()
+PASS   : HeartBeatManager::TestHeartBeatThread::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped
+********* Finished testing of HeartBeatManager::TestHeartBeatThread *********
+

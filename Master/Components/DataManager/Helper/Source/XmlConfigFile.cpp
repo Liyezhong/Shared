@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFile.cpp
+/*! \file DataManager/Helper/Source/XmlConfigFile.cpp
  *
  *  \brief Implementation file for class XmlConfigFile.
  *
@@ -24,10 +24,11 @@
 #include <Global/Include/Utils.h>
 
 
+
 namespace DataManager {
 
 /****************************************************************************/
-XmlConfigFile::XmlConfigFile() {
+XmlConfigFile::XmlConfigFile() : m_FileName("") {
 }
 
 /****************************************************************************/
@@ -39,9 +40,11 @@ void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QFile &rFile, co
     // check if we can open file
     rFile.close();
     rFile.setFileName(FileName);
+
     if(!rFile.open(QIODevice::Text | QIODevice::ReadOnly)) {
-        THROWARG(EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
+        THROWARG(Global::EVENT_GLOBAL_ERROR_FILE_OPEN, FileName);
     }
+    m_FileName = FileName;
     // set stream reader device
     rReader.setDevice(&rFile);
 }
@@ -51,7 +54,7 @@ void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QIODevice &rDevi
     // check if we can open device
     rDevice.close();
     if(!rDevice.open(QIODevice::Text | QIODevice::ReadOnly)) {
-        THROW(EVENT_GLOBAL_ERROR_FILE_OPEN);
+        THROW(Global::EVENT_GLOBAL_ERROR_FILE_OPEN);
     }
     // set stream reader device
     rReader.setDevice(&rDevice);
@@ -61,9 +64,11 @@ void XmlConfigFile::InitStreamReader(QXmlStreamReader &rReader, QIODevice &rDevi
 void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, const QString &FileName) {
     rFile.close();
     rFile.setFileName(FileName);
+
     if(!rFile.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate)) {
-        THROWARG(EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
+        THROWARG(Global::EVENT_GLOBAL_ERROR_FILE_CREATE, FileName);
     }
+    m_FileName = FileName;
     // set stream writer device
     rWriter.setDevice(&rFile);
     rWriter.setCodec("UTF-8");
@@ -75,7 +80,7 @@ void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QFile &rFile, co
 void XmlConfigFile::InitStreamWriter(QXmlStreamWriter &rWriter, QIODevice &rDevice) {
     rDevice.close();
     if(!rDevice.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate)) {
-        THROW(EVENT_GLOBAL_ERROR_FILE_CREATE);
+        THROW(Global::EVENT_GLOBAL_ERROR_FILE_CREATE);
     }
     // set stream writer device
     rWriter.setDevice(&rDevice);
@@ -89,7 +94,8 @@ QString XmlConfigFile::ReadAttributeString(QXmlStreamReader &rReader, const QStr
     QXmlStreamAttributes Attr = rReader.attributes();
     if(!Attr.hasAttribute(AttributeName)) {
         // attribute not found. throw exception
-        THROWARG(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, AttributeName);
+        THROWARGS(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND,
+                  Global::tTranslatableStringList() << AttributeName << m_FileName);
     }
     // return attribute as string
     return Attr.value(AttributeName).toString();
@@ -102,7 +108,8 @@ quint32 XmlConfigFile::ReadAttributequint32(QXmlStreamReader &rReader, const QSt
     quint32 Value = ValueStr.toULongLong(&OK, 10);
     if(!OK) {
         // not a valid number
-        THROWARG(EVENT_DM_ERROR_NO_VALID_NUMBER, ValueStr);
+        THROWARGS(EVENT_DM_ERROR_NO_VALID_NUMBER,
+                  Global::tTranslatableStringList() << ValueStr << m_FileName);
     }
     return Value;
 }
@@ -113,7 +120,8 @@ QLocale::Language XmlConfigFile::ReadAttributeLanguage(QXmlStreamReader &rReader
     QLocale::Language TheLanguage = Global::StringToLanguage(LangName);
     if(TheLanguage == QLocale::C) {
         // wrong value. throw exception
-        THROWARG(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, LangName);
+        THROWARGS(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE,
+                  Global::tTranslatableStringList() << LangName << m_FileName);
     }
     return TheLanguage;
 }
@@ -124,7 +132,8 @@ Global::OnOffState XmlConfigFile::ReadAttributeOnOff(QXmlStreamReader &rReader, 
     Global::OnOffState Value = Global::StringToOnOffState(ValueStr, false);
     if(Value == Global::ONOFFSTATE_UNDEFINED) {
         // wrong value. throw exception
-        THROWARG(EVENT_DM_INVALID_RMS_ONOFFSTATE, ValueStr);
+        THROWARGS(EVENT_DM_INVALID_RMS_ONOFFSTATE,
+                  Global::tTranslatableStringList() << ValueStr << m_FileName);
     }
     return Value;
 }
@@ -132,11 +141,12 @@ Global::OnOffState XmlConfigFile::ReadAttributeOnOff(QXmlStreamReader &rReader, 
 /****************************************************************************/
 void XmlConfigFile::ReadStartElement(QXmlStreamReader &rReader, const QString &ElementName) {
     if(!rReader.readNextStartElement()) {
-        THROWARG(EVENT_DM_ERROR_READING_XML_STARTELEMENT, ElementName);
+        THROWARGS(EVENT_DM_ERROR_READING_XML_STARTELEMENT,
+                  Global::tTranslatableStringList() << ElementName << m_FileName);
     }
     if (rReader.name() != ElementName) {
         THROWARGS(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT,
-                  Global::tTranslatableStringList() << rReader.name().toString() << ElementName);
+                  Global::tTranslatableStringList() << rReader.name().toString() << ElementName << m_FileName);
     }
 }
 
@@ -148,7 +158,8 @@ QString XmlConfigFile::ReadFormatVersion(QXmlStreamReader &rReader, const QStrin
 }
 
 /****************************************************************************/
-void XmlConfigFile::WriteFormatVersion(QXmlStreamWriter &rWriter, const QString &RootTagName, const QString &Version) {
+void XmlConfigFile::WriteFormatVersion(QXmlStreamWriter &rWriter,
+                                       const QString &RootTagName, const QString &Version) {
     // write start
     rWriter.writeStartElement(RootTagName);
     // write version

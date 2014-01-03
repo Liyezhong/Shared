@@ -55,7 +55,13 @@ public:
     bool OnExit(StateMachines::StateEvent et);
 
 private:
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CommunicationRetry)
     bool HandleEvent(StateMachines::StateEvent et);
 
 private:

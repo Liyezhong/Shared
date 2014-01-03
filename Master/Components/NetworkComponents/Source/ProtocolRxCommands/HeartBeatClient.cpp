@@ -21,6 +21,9 @@
 #include <NetworkComponents/Include/ProtocolRxCommands/HeartBeatClient.h>
 #include <NetworkComponents/Include/ProtocolTxCommands/HeartBeat.h>
 #include <NetworkComponents/Include/ProtocolTxCommand.h>
+#include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -56,6 +59,8 @@ bool HeartBeatClient::Execute()
 //    qDebug() << (QString)"HeartBeatClient: Server RECEIVER called !";
 
     if (m_myDevice == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << "" << FILE_LINE);
         return false;
     }
 
@@ -64,6 +69,8 @@ bool HeartBeatClient::Execute()
     QString nr = (emt.firstChildElement("dataitems")).attribute("nr", "NULL");
     if ((nr.isEmpty()) || (nr == "NULL")) {
         // command is not complete - do not know what to do with it
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_NOT_COMPLETE,
+                                                   Global::tTranslatableStringList() << nr << FILE_LINE);
         return false;
     }
 
@@ -71,12 +78,16 @@ bool HeartBeatClient::Execute()
     ProtocolTxCommand*  scmd = m_myDevice->FetchRunningCommand(m_myRef.toULong());
     if (scmd == NULL) {
         // no such command running - do not know what to do with it
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_NOT_RUNNING,
+                                                   Global::tTranslatableStringList() << m_myRef << FILE_LINE);
         return false;
     }
 
     // check if this is a correct command:
     if ("HeartBeat" != scmd->GetName()) {
         // cmd name does not correspond to reference - do not know what to do with it
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_INVALID_REFERENCE,
+                                                   Global::tTranslatableStringList() << "HeartBeat" << FILE_LINE);
         return false;
     }
 

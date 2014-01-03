@@ -75,36 +75,33 @@ friend void CommandChannel::CommandChannelRx(Global::tRefType, const Global::Com
 friend void CommandChannel::CommandChannelTxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &);  ///< For calling \ref OnProcessAcknowledge.
 private:
     int                                     m_HeartbeatTimeout;             ///< Timeout for heartbeat functionality. Default = 0 ms = off.
-    QTimer                                  m_HeartbeatTimer;               ///< Timer for heartbeat functionality.
+    QTimer                                  *mp_HeartbeatTimer;               ///< Timer for heartbeat functionality.
     Global::RefManager<Global::tRefType>    m_RefManager;                   ///< Manager for command references.
     Global::PendingCmdDescriptorPtrHash_t   m_PendingCommands;              ///< Commands waiting for acknowledge.
     AcknowledgeProcessorFunctorHash_t       m_AcknowledgeProcessorFunctors; ///< Functors of supported acknowledges.
     TimeoutProcessorFunctorHash_t           m_TimeoutProcessorFunctors;     ///< Functors of supported command timeouts.
     CmdDataChangedFunctorHash_t             m_DataChangedFunctors;          ///< Functors of supported CmdDataChanged commands.
-    Global::gSourceType                     m_HeartBeatSource;              ///< Heart Beat source. ThreadControllers other than MasterThread.
+    quint32                                 m_ThreadID;                     ///< Unique Thread ID
+    QString                                 m_ThreadName;                   ///< Thread name ->usually cmd channel name
+
+
     /****************************************************************************/
     BaseThreadController();                                                 ///< Not implemented.
-    BaseThreadController(const BaseThreadController &);                     ///< Not implemented.
-    const BaseThreadController & operator = (const BaseThreadController &); ///< Not implemented.
     /****************************************************************************/
-    /**
-     * \brief Start the heartbeat timer.
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
      */
     /****************************************************************************/
-    void StartHeartbeatTimer();
-    /****************************************************************************/
-    /**
-     * \brief Stop the heartbeat timer.
-     */
-    /****************************************************************************/
-    void StopHeartbeatTimer();
+    Q_DISABLE_COPY(BaseThreadController)
+
     /****************************************************************************/
     /**
      * \brief Send a data changed command.
      *
      * Must be implemented in derived classes.
      *
-     * \param[in]   Cmd     The command.
+     * \iparam   Cmd     The command.
      */
     /****************************************************************************/
     virtual void DoSendDataChanged(const Global::CommandShPtr_t &Cmd) = 0;
@@ -117,10 +114,21 @@ signals:
      *
      * The period can be changed by calling \ref SetHeartbeatTimeout.
      *
-     * \param[in]   TheHeartBeatSource    The logging source of emiting thread.
+     * \iparam   ThreadId    unique thread id.
      */
     /****************************************************************************/
-    void HeartbeatSignal(const Global::gSourceType &TheHeartBeatSource);
+    void HeartbeatSignal(quint32 ThreadId);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted to indicate the thread is started
+     *
+     *
+     * \iparam   p_BaseThreadController  "this" pointer
+     */
+    /****************************************************************************/
+    void ThreadControllerStarted(const BaseThreadController *p_BaseThreadController);
+
 private slots:
     /****************************************************************************/
     /**
@@ -134,12 +142,20 @@ private slots:
      *
      * Is called when an command timeout has to be processed.
      *
-     * \param[in]       Ref         The command reference.
-     * \param[in]       CmdName     Name of command.
+     * \iparam       Ref         The command reference.
+     * \iparam       CmdName     Name of command.
      */
     /****************************************************************************/
     void OnProcessTimeoutSlot(Global::tRefType Ref, QString CmdName);
+
+
 protected:
+
+    QStringList m_ListOfAcksToRouteAndProcess;  ///< List of Acks to route and process.
+
+    QMutex      m_StopMutex;    //!< used to synchronise OnStopReceived (called within own thread) and CleanupAndDestroyObjects (called by master thread)
+    QMutex      m_Lock;         //!< use for locking/synchronising in general
+
 
     /****************************************************************************/
     /**
@@ -149,21 +165,21 @@ protected:
      * connected (if timeout > 0). After that, the descriptor is added to the list
      * of pending commands.
      *
-     * \param[in]   Ref         The command reference.
-     * \param[in]   Cmd         The command.
-     * \param[in]   CmdChannel  The command channel.
+     * \iparam   Ref         The command reference.
+     * \iparam   Cmd         The command.
+     * \iparam   CmdChannel  The command channel.
      */
     /****************************************************************************/
-    void DoSendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &CmdChannel);
+    void DoSendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, const CommandChannel &CmdChannel);
     /****************************************************************************/
     /**
      * \brief Send an acknowledge over a specific command channel.
      *
      * Send an acknowledge over a specific command channel
      *
-     * \param[in]   Ref         The acknowledge reference.
-     * \param[in]   Ack         The acknowledge.
-     * \param[in]   CmdChannel  The command channel.
+     * \iparam   Ref         The acknowledge reference.
+     * \iparam   Ack         The acknowledge.
+     * \iparam   CmdChannel  The command channel.
      */
     /****************************************************************************/
     void DoSendAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack, CommandChannel &CmdChannel);
@@ -175,9 +191,9 @@ protected:
      * \warning This method should be called only from within \ref CommandChannel::CommandChannelRx
      * \warning Do not let exceptions escape this method!
      *
-     * \param[in]       Ref                 The command reference.
-     * \param[in]       Cmd                 The command.
-     * \param[in, out]  AckCommandChannel   The command channel for acknowledges.
+     * \iparam       Ref                 The command reference.
+     * \iparam       Cmd                 The command.
+     * \iparam      AckCommandChannel   The command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel) = 0;
@@ -189,8 +205,8 @@ protected:
      * \warning This method should be called only from within \ref CommandChannel::CommandChannelTxAck
      * \warning Do not let exceptions escape this method!
      *
-     * \param[in]       Ref         The command reference.
-     * \param[in]       Ack         The received acknowledge.
+     * \iparam       Ref         The command reference.
+     * \iparam       Ack         The received acknowledge.
      */
     /****************************************************************************/
     virtual void OnProcessAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack);
@@ -200,8 +216,8 @@ protected:
      *
      * Is called when an command timeout has to be processed.
      *
-     * \param[in]       Ref         The command reference.
-     * \param[in]       CmdName     Name of command.
+     * \iparam       Ref         The command reference.
+     * \iparam       CmdName     Name of command.
      */
     /****************************************************************************/
     virtual void OnProcessTimeout(Global::tRefType Ref, const QString &CmdName);
@@ -224,22 +240,36 @@ protected:
      * We are still running in our own thread.\n
      * Do whatever you must do before normal operation ends.\n
      * Has to be implemented in derived classes.
+     * Should return within STOP_TIMEOUT, otherwise it can get interrupted by
+     * CleanupAndDestroyObjects() which is called by main thread.
      */
     /****************************************************************************/
     virtual void OnStopReceived() = 0;
     /****************************************************************************/
     /**
      * \brief Power will fail shortly.
+     * \iparam PowerFailStage = Type of power fail stage
      *
-     * Must be implemented in derived classes.
+     *   Must be implemented in derived classes.
      */
     /****************************************************************************/
-    virtual void OnPowerFail() = 0;
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage) = 0;
+    /****************************************************************************/
+    /**
+     * \brief Cleanup and destroy used objects.
+     *
+     * Destroy all created objects.
+     * <b>Remember, you are not running in your own thread, but in the thread that called
+     * this method.</b>\n
+     * Has to be implemented in derived classes.
+     */
+    /****************************************************************************/
+    virtual void CleanupAndDestroyObjects() = 0;
     /****************************************************************************/
     /**
      * \brief Remove a command from Pending commands.
      *
-     * \param[in]   Ref     Command reference.
+     * \iparam   Ref     Command refe)rence.
      */
     /****************************************************************************/
     inline void RemoveFromPendingCommands(Global::tRefType Ref)
@@ -252,8 +282,8 @@ protected:
     /**
      * \brief Register a acknowledge processor functor.
      *
-     * \param[in]   AckName         Name of acknowledge.
-     * \param[in]   Functor         Shared pointer of functor to register.
+     * \iparam   AckName         Name of acknowledge.
+     * \iparam   Functor         Shared pointer of functor to register.
      */
     /****************************************************************************/
     void RegisterAcknowledgeProcessorFunctor(const QString &AckName, const AcknowledgeProcessorFunctorShPtr_t &Functor);
@@ -264,7 +294,7 @@ protected:
      * Get acknowledge processor functor by name. If functor is not found
      * NullAcknowledgeProcessorFunctor will be returned.
      *
-     * \param[in]   AckName     Name of acknowledge.
+     * \iparam   AckName     Name of acknowledge.
      * \return                  The functor or NullAcknowledgeProcessorFunctor.
      */
     /****************************************************************************/
@@ -273,8 +303,8 @@ protected:
     /**
      * \brief Register a command timeout functor.
      *
-     * \param[in]   CmdName         Name of command.
-     * \param[in]   Functor         Shared pointer of functor to register.
+     * \iparam   CmdName         Name of command.
+     * \iparam   Functor         Shared pointer of functor to register.
      */
     /****************************************************************************/
     void RegisterTimeoutProcessingFunctor(const QString &CmdName, const TimeoutProcessorFunctorShPtr_t &Functor);
@@ -285,7 +315,7 @@ protected:
      * Get timeout processor functor by name. If functor is not found
      * NullTimeoutProcessorFunctor will be returned.
      *
-     * \param[in]   CmdName     Name of command.
+     * \iparam   CmdName     Name of command.
      * \return                  The functor or NullTimeoutProcessorFunctor.
      */
     /****************************************************************************/
@@ -294,8 +324,8 @@ protected:
     /**
      * \brief Register a functor for processing DataChanged command for a specific data container.
      *
-     * \param[in]   DataContainerName   Name of data container with changed data.
-     * \param[in]   Functor             Shared pointer of functor to register.
+     * \iparam   DataContainerName   Name of data container with changed data.
+     * \iparam   Functor             Shared pointer of functor to register.
      */
     /****************************************************************************/
     void RegisterOnDataChangedProcessingFunctor(const QString &DataContainerName, const CmdDataChangedFunctorShPtr_t &Functor);
@@ -305,7 +335,7 @@ protected:
      *
      * Get functor for processing DataChanged command for a specific data container.
      *
-     * \param[in]   DataContainerName   Name of data container.
+     * \iparam   DataContainerName   Name of data container.
      * \return                          The functor.
      */
     /****************************************************************************/
@@ -314,8 +344,8 @@ protected:
     /**
      * \brief Register a acknowledge for processing.
      *
-     * \param[in]   pAcknowledgeProcessor   Pointer to thread controller instance which processes the command acknowledge.
-     * \param[in]   FunctionPointer         Function which processes the command acknowledge.
+     * \iparam   pAcknowledgeProcessor   Pointer to thread controller instance which processes the command acknowledge.
+     * \iparam   FunctionPointer         Function which processes the command acknowledge.
      */
     /****************************************************************************/
     template<class AckClass, class AcknowledgeProcessorClass>
@@ -329,10 +359,28 @@ protected:
     }
     /****************************************************************************/
     /**
+     * \brief Register a acknowledge for processing & Routing
+     *
+     * \iparam   pAcknowledgeProcessor   Pointer to thread controller instance which processes the command acknowledge.
+     * \iparam   FunctionPointer         Function which processes the command acknowledge.
+     */
+    /****************************************************************************/
+    template<class AckClass, class AcknowledgeProcessorClass>
+    void RegisterAcknowledgeForRoutingAndProcessing(void(AcknowledgeProcessorClass::*FunctionPointer)(Global::tRefType, const AckClass &),
+                                          AcknowledgeProcessorClass *pAcknowledgeProcessor)
+    {
+        // create functor
+        AcknowledgeProcessorFunctorShPtr_t Functor(new TemplateAcknowledgeProcessorFunctor<AcknowledgeProcessorClass, AckClass> (pAcknowledgeProcessor, FunctionPointer));
+        // register functor
+        RegisterAcknowledgeProcessorFunctor(AckClass::NAME, Functor);
+        m_ListOfAcksToRouteAndProcess.append(AckClass::NAME);
+    }
+    /****************************************************************************/
+    /**
      * \brief Register a command timeout for processing.
      *
-     * \param[in]   pTimeoutProcessor       Pointer to thread controller instance which processes the command timeout.
-     * \param[in]   FunctionPointer         Function which processes the command timeout.
+     * \iparam   pTimeoutProcessor       Pointer to thread controller instance which processes the command timeout.
+     * \iparam   FunctionPointer         Function which processes the command timeout.
      */
     /****************************************************************************/
     template<class CmdClass, class TimeoutProcessorClass>
@@ -348,8 +396,8 @@ protected:
     /**
      * \brief Register a function for processing DataChanged command for a specific data container.
      *
-     * \param[in]   pDataChangedProcessor   Pointer to thread controller instance which processes the DataChanged command.
-     * \param[in]   FunctionPointer         Function which processes the specific DataChanged command.
+     * \iparam   pDataChangedProcessor   Pointer to thread controller instance which processes the DataChanged command.
+     * \iparam   FunctionPointer         Function which processes the specific DataChanged command.
      */
     /****************************************************************************/
     template<class TDataContainerClass, class TDataChangedProcessorClass>
@@ -368,7 +416,7 @@ protected:
      * Depending on the type of data container, the responsible function is determined
      * and called.
      *
-     * \param[in]   Cmd     The command.
+     * \iparam   Cmd     The command.
      */
     /****************************************************************************/
     void DispatchDataChangedCommand(const Global::CmdDataChanged &Cmd) const;
@@ -378,8 +426,8 @@ protected:
      *
      * Will be called when no other handler is installed. Does nothing.
      *
-     * \param[in]       Ref         The command reference.
-     * \param[in]       CmdName     Name of command.
+     * \iparam       Ref         The command reference.
+     * \iparam       CmdName     Name of command.
      */
     /****************************************************************************/
     virtual void OnCmdTimeout(Global::tRefType Ref, const QString &CmdName) {
@@ -388,15 +436,45 @@ protected:
         Q_UNUSED(CmdName);
     }
 
+    /****************************************************************************/
+    /**
+     * \brief Function to check if command is allowed
+     *
+     * \iparam Cmd - Command
+     *
+     * \return   True if cmd allowed else false
+     */
+    /****************************************************************************/
     virtual bool IsCommandAllowed(const Global::CommandShPtr_t &Cmd) {
         Q_UNUSED(Cmd);
         return true;
     }
+protected slots :
+    /****************************************************************************/
+    /**
+     * \brief Start the heartbeat timer.
+     */
+    /****************************************************************************/
+    void StartHeartbeatTimer();
+
+    /****************************************************************************/
+    /**
+     * \brief Stop the heartbeat timer.
+     */
+    /****************************************************************************/
+    void StopHeartbeatTimer();
 
 public:
-    Global::gSourceType & GetHeartBeatSource()
+    /****************************************************************************/
+    /**
+     * \brief Function to get the Thread Ids.
+     *
+     * \return   m_ThreadID
+     */
+    /****************************************************************************/
+    quint32 GetThreadID() const
     {
-        return m_HeartBeatSource;
+        return m_ThreadID;
     }
     /****************************************************************************/
     /**
@@ -406,10 +484,11 @@ public:
      * parent Object in the constructor, but set it to NULL. This allows calls to
      * moveToThread without reparenting us.
      *
-     * \param[in]   TheHeartBeatSource    Heart Beat source
+     * \iparam   ThreadID  =  Unique Thread id
+     * \iparam   ThreadName = Unique Thread name
      */
     /****************************************************************************/
-    BaseThreadController(Global::gSourceType TheHeartBeatSource);
+    BaseThreadController(const quint32 ThreadID, const QString ThreadName);
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -420,7 +499,7 @@ public:
     /**
      * \brief Compute new command reference.
      *
-     * return   New command reference.
+     * \return   New command reference.
      */
     /****************************************************************************/
     virtual Global::tRefType GetNewCommandRef()
@@ -431,7 +510,7 @@ public:
     /**
      * \brief Unblock command reference.
      *
-     * \param[in]   Ref     Command reference to unblock.
+     * \iparam   Ref     Command reference to unblock.
      */
     /****************************************************************************/
     inline void UnblockCommandRef(Global::tRefType Ref) {
@@ -453,13 +532,14 @@ public:
     /**
      * \brief Cleanup and destroy used objects.
      *
-     * Destroy all created objects.
+     * Potects call of overwriteable method CleanupAndDestroyObjects
+     * to be execute while OnStopReceived() is executed (and vice versa).
      * <b>Remember, you are not running in your own thread, but in the thread that called
      * this method.</b>\n
      * Has to be implemented in derived classes.
      */
     /****************************************************************************/
-    virtual void CleanupAndDestroyObjects() = 0;
+    virtual void DoCleanupAndDestroyObjects();
     /****************************************************************************/
     /**
      * \brief Send a data changed command with specific type.
@@ -472,6 +552,7 @@ public:
         // create command and send it
         DoSendDataChanged(Global::CommandShPtr_t(new Global::CmdDataChanged(TDataContainerClass::NAME)));
     }
+
 public slots:
     /****************************************************************************/
     /**
@@ -497,7 +578,7 @@ public slots:
      * \warning Changing the timeout after we received the \ref Go signal will not
      * affect the timeout in any way!
      *
-     * \param[in]   Timeout     The new timeout in ms. 0 means disabled.
+     * \iparam   Timeout     The new timeout in ms. 0 means disabled.
      */
     /****************************************************************************/
     void SetHeartbeatTimeout(int Timeout);

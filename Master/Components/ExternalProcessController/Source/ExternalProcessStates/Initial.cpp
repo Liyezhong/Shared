@@ -59,30 +59,46 @@ Initial::~Initial()
 bool Initial::OnEntry(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "InitialState entered for process" << this->m_myController->GetProcessName();
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         if (!State::DispatchEvent(Global::AsInt(EP_NULL_CTRL_POINTER))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << ""
+                                                                                    << "EP_NULL_CTRL_POINTER"
+                                                                                     << FILE_LINE);
         }
         return false;
     }
 
-    if (!m_myController->m_myDevice->StartDevice()) {
-        /// \todo log error
+    qDebug() << "InitialState entered for process" << this->m_myController->GetProcessName();
+
+    if (m_myController->DoesExternalProcessUseNetCommunication() && !m_myController->m_myDevice->StartDevice()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_DEVICE_PROCESS,
+                                                   Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                    << FILE_LINE);
         qDebug() << "InitialState: Cannot start ExternalProcessDevice!";
         if (!State::DispatchEvent(Global::AsInt(EP_CANNOT_START_DEVICE))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                        << "EP_CANNOT_START_DEVICE"
+                                                                                         << FILE_LINE);
         }
         return false;
     }
 
     if (!m_myController->m_myProcess->StartProcess(m_myController->m_myCommand)) {
         qDebug() << (QString)("InitialState: Cannot start the External Process !");
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_DEVICE_PROCESS,
+                                                   Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                    << FILE_LINE);
         if (!State::DispatchEvent(Global::AsInt(EP_CANNOT_START_EXTPROCESS))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                        << "EP_CANNOT_START_EXTPROCESS"
+                                                                                         << FILE_LINE);
         }
         return false;
     }
@@ -102,7 +118,9 @@ bool Initial::OnEntry(StateMachines::StateEvent et)
 bool Initial::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "InitialState exited for process" << this->m_myController->GetProcessName();
+    if(m_myController) {
+        qDebug() << "InitialState exited for process" << this->m_myController->GetProcessName();
+    }
     return true;
 }
 
@@ -120,24 +138,10 @@ bool Initial::HandleEvent(StateMachines::StateEvent et)
     qDebug() << "InitialState handles internal event " + QString::number(et.GetIndex(), 10);
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                   << FILE_LINE);
         return false;
-    }
-
-    switch (et.GetIndex()) {
-    case EP_EXTPROCESS_LOGIN_TIMEOUT:
-        // login timedout -> try to kill and restart the process
-        if (!m_myController->m_myProcess->KillProcess()) {
-            qDebug() << (QString)("InitialState: Cannot kill the External Process !");
-            /// \todo log error
-            if (!State::DispatchEvent(Global::AsInt(EP_CANNOT_KILL_EXTPROCESS))) {
-                /// \todo log error
-            }
-            return false; ///< \todo it shall probably be true here, not false. false means "cannot process or internal error"
-        }
-        break;
-    default:
-        break;
     }
     return true;
 }

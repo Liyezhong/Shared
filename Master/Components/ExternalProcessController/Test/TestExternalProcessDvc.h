@@ -28,7 +28,7 @@
 namespace ExternalProcessControl {
 
 /// String for ProtocolHandler initialization:
-const QString EPD_TEST_CLIENT     = "Himalaya Device GUI";
+const QString EPD_TEST_CLIENT     = "Colorado Device GUI";
 /// Type of configuration document
 const QString EPD_CONFIGFILE_TYPE = "netlayer_messages";
 /// Path ending to find config files under Settings directory

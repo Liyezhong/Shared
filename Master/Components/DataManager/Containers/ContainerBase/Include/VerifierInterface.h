@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file VerifierInterface.h
+/*! \file Platform/Master/Components/DataManager/Containers/ContainerBase/Include/VerifierInterface.h
  *
  *  \brief Definition file for interface IVerifierInterface.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2011-07-20
- *  $Author:    $ F. Toth, M.Scherer
+ *  $Author:    $ F. Toth, M.Scherer, Ramya GJ
  *
  *  \b Company:
  *
@@ -40,25 +40,29 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Verifies the container data
+     *
+     *  \iparam p_DataContainer = pointer to the data container to be verified
+     *
+     *  \return true or false verification status
      */
     /****************************************************************************/
     virtual bool VerifyData(CDataContainerBase* p_DataContainer) = 0;
 
     /****************************************************************************/
     /*!
-     *  \brief  Resets the last error which is done by verifier
+     *  \brief  Resets the errors occured during verification
      */
     /****************************************************************************/
-    virtual void ResetLastErrors() = 0;
+    virtual void ResetErrors() = 0;
 
     /****************************************************************************/
     /*!
      *  \brief  Returns Error ID's for errors which occured during verification
      *
-     *  \return Hash of Error ID's and arguments
+     *  \return MAP of Error ID's and arguments
      */
     /****************************************************************************/
-    virtual ErrorHash_t& GetErrors() = 0;
+    virtual ErrorMap_t& GetErrors() = 0;
 
     /****************************************************************************/
     /*!

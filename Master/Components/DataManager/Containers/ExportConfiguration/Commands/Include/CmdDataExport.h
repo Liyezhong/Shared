@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file CmdDataExport.h
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataExport.h
  *
  *  \brief CmdDataExport command definition.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 17.03.2011
- *   $Author:  $ Y.Novak
+ *   $Author:  $ Y.Novak, Ramya GJ
  *
  *  \b Company:
  *
@@ -51,6 +51,13 @@ public:
     QByteArray GetCommandData() { return m_ExportByteArray; }
 private:
     CmdDataExport(const CmdDataExport &);                       ///< Not implemented.
+    /****************************************************************************/
+    /**
+         * \brief Not Implemented
+         *
+         * \return
+         */
+    /****************************************************************************/
     const CmdDataExport & operator = (const CmdDataExport &);   ///< Not implemented.
 private:
     QByteArray      m_ExportByteArray;      ///< Type of export which shall be performed.

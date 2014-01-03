@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Types.h
+/*! \file Master/Components/DataManager/Helper/Include/Types.h
  *
  *  \brief Definition file for Types used from DataManager
  *
@@ -21,14 +21,17 @@
 #ifndef DATAMANAGER_TYPES_H
 #define DATAMANAGER_TYPES_H
 
-
+#include <QString>
+#include <QList>
+#include <QHash>
 #include "Global/Include/TranslatableString.h"
-typedef QList<QString> ListOfIDs_t;
-typedef QList<QString> ListOfKeys_t;
-typedef QHash<QString, int> ListOfForecastValues_t;
-typedef QHash<quint32, Global::tTranslatableStringList> ErrorHash_t; //!< Self Explaining.
+
+typedef QList<QString> ListOfIDs_t;     //!< Self Explaining.
+typedef QList<QString> ListOfKeys_t;    //!< Self Explaining.
+typedef QHash<QString, int> ListOfForecastValues_t; //!< Self Explaining.
+typedef QMap<quint32, Global::tTranslatableStringList> ErrorMap_t; //!< Self Explaining.
 //!< List of hash tables with Error IDs
-typedef QList<ErrorHash_t *>  ListOfErrors_t;
+typedef QList<ErrorMap_t *>  ListOfErrors_t;    //!< Self Explaining.
 
 //Types of Stations
 typedef enum {
@@ -57,16 +60,29 @@ typedef enum {
     INVALID_STATUS
 }DashboardStationStatus_t;
 
-// Types of reagents
+
+typedef qint32 Position_t;          //!< Stepper motor position, [half steps]
+typedef quint8 MotionProfileIdx_t;  //!< Stepper motor motion profile index
+
+/****************************************************************************/
+/**
+ * \brief Types of reagents
+ */
+/****************************************************************************/
 typedef enum
 {
     SPECIAL_REAGENT,
     LEICA_REAGENT,
     USER_REAGENT,
+    CONSUMABLES_REAGENT,
     UNDEFINED_REAGENT_TYPE
 } ReagentType_t;
 
-// Types of stations
+/****************************************************************************/
+/**
+ * \brief Types of stations
+ */
+/****************************************************************************/
 typedef enum
 {
     DRY,
@@ -79,27 +95,48 @@ typedef enum
     TRANSFER,
     UNLOAD,
     WATER,
+    CONSUMABLES,
     MACRO,      // only admissible in programs/macros
+    ROTATION,
+    COVERSLIP,
+    EMPTY,
     INVALID_TYPE
 } StationsType_t;
 
-const int NUMBER_OF_STATION_TYPES = 12;
-const QString NameOfStationTypes[12] = {"Dry", "Heated", "Load", "Oven", "Park", "Reagent", "Slide", "Transfer", "Unload", "Water", "Macro", "Invalid_Type"};
 
-typedef QHash<QString, StationsType_t> HashOfStationTypes_t;  // filled in CDataProgramList::Init()   // TODO: move to better place
+const int NUMBER_OF_STATION_TYPES = 12;     //!< Self Explaining.
 
-// Types of heating start modes
+const QString NameOfStationTypes[12] = {"Dry", "Heated", "Load", "Oven",
+                                        "Park", "Reagent", "Slide", "Transfer",
+                                        "Unload", "Water", "Macro", "Invalid_Type"}; //!< Self Explaining.
+
+// filled in CDataProgramList::Init()   // TODO: move to better place
+typedef QHash<QString, StationsType_t> HashOfStationTypes_t;    //!< Self Explaining.
+
+/****************************************************************************/
+/**
+ * \brief Types of heating start modes
+ */
+/****************************************************************************/
 typedef enum
 {
     AT_DEVICE_START,
     AT_PROGRAM_START,
-    UNDEFINED
+    AT_UNDEFINED
 } HeatingStartMode_t;
-const int NUMBER_OF_HEATING_START_MODES = 2;
-const QString NameOfHeatingStartModes[2] = {"AtDeviceStart", "AtProgramStart"};
 
-typedef QHash<QString, HeatingStartMode_t> HashOfHeatingStartMode_t;  // filled in CDataReagentList::Init()   // TODO: move to better place
+const int NUMBER_OF_HEATING_START_MODES = 2;     //!< Self Explaining.
 
+const QString NameOfHeatingStartModes[2] = {"AtDeviceStart", "AtProgramStart"}; //!< Self Explaining.
+
+// filled in CDataReagentList::Init()   // TODO: move to better place
+typedef QHash<QString, HeatingStartMode_t> HashOfHeatingStartMode_t;  //!< Self Explaining.
+
+/****************************************************************************/
+/**
+ * \brief Types of data containers
+ */
+/****************************************************************************/
 typedef enum
 {
     PROGRAMS,
@@ -118,10 +155,17 @@ typedef enum
     ADJUSTMENT,
     PARAMETER,
     INVALID_CONTAINER_TYPE,
-    INSTRUMENTHISTORY
+    INSTRUMENTHISTORY,
+    RCCONFIGURATION,
+    ADJUSTMENT_XYZG
 } DataContainerType_t;
 
 
+/****************************************************************************/
+/**
+ * \brief Types of nodes in programs xml file
+ */
+/****************************************************************************/
 typedef enum
 {
     NODE_PROGRAM_LIST,
@@ -146,6 +190,11 @@ typedef enum
     NODE_OPERATING_MODE
 } NodesOfProgramList_t;
 
+/****************************************************************************/
+/**
+ * \brief Types of nodes in reagent xml file
+ */
+/****************************************************************************/
 typedef enum
 {
     RL_NODE_REAGENT_LIST,
@@ -162,20 +211,32 @@ typedef enum
     RL_NODE_EXPIRY_DATE
 } NodesOfReagentList_t;
 
+/****************************************************************************/
+/**
+ * \brief Types of station zone types
+ */
+/****************************************************************************/
 typedef enum
 {
     LEFT_ZONE,
     COLLISION_ZONE,
     RIGHT_ZONE,
+    MID_ZONE,
     INVALID_ZONE
 } StationZoneType_t;
 
-// Types of SW type
+
+
+
+/****************************************************************************/
+/**
+ * \brief Types of SW types
+ */
+/****************************************************************************/
 typedef enum
 {
     MASTERSOFTWARE,
     FIRMWARE
 } SWType_t;
-
 
 #endif // DATAMANAGER_TYPES_H

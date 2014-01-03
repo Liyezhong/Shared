@@ -25,6 +25,8 @@
 
 #include <NetworkComponents/Include/MessageLoader.h>
 #include <Global/Include/SystemPaths.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -65,11 +67,12 @@ MessageLoader::~MessageLoader()
  *      fills in the corresponding message & schema lists.
  *
  *  \param    schemaMap = pointer to list of corresponding XML schemas
+ *  \param    schema    = schema for validation
  *
  *  \return   CML_ALL_OK if success, otherwise error
  *
  ****************************************************************************/
-MessageLoaderErrorType_t MessageLoader::LoadMessages(QHash<QString, QXmlSchemaValidator*> *schemaMap)
+MessageLoaderErrorType_t MessageLoader::LoadMessages(QHash<QString, QXmlSchemaValidator*> *schemaMap, QXmlSchema *schema)
 {
     QString errorStr;
     int errorLine;
@@ -85,22 +88,28 @@ MessageLoaderErrorType_t MessageLoader::LoadMessages(QHash<QString, QXmlSchemaVa
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_ERROR_FILE_OPEN,
+                                                   Global::tTranslatableStringList() << fileName);
         return CML_CANNOT_OPEN_CONFIG_FILE;
     }
 
     QDomDocument domDocument;
     if (!domDocument.setContent(&file, true, &errorStr, &errorLine, &errorColumn)) {
         file.close();
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_ERROR_FILE_PARSING,
+                                                   Global::tTranslatableStringList() << fileName);
         return CML_CONFIG_FILE_PARSING_FAILED;
     }
     file.close();
 
     QDomElement root = domDocument.documentElement();
     if (root.tagName() != m_myDocType) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_ERROR_ELEMENT_TAG_MISMATCH,
+                                                   Global::tTranslatableStringList() << fileName << root.tagName());
         return CML_CONFIG_ELEMENT_TAG_MISMATCH;
     }
 
-    MessageLoaderErrorType_t err = ParseCommands(&root);
+    MessageLoaderErrorType_t err = ParseCommands(&root, schema);
 
     return err;
 }
@@ -113,11 +122,11 @@ MessageLoaderErrorType_t MessageLoader::LoadMessages(QHash<QString, QXmlSchemaVa
  *      all defined/allowed peer messages.
  *
  *  \param    element = pointer to top level XML element
- *
+ *  \param    schema = schema for validation
  *  \return   GMR_ALL_OK if success, otherwise error
  *
  ****************************************************************************/
-MessageLoaderErrorType_t MessageLoader::ParseCommands(QDomElement *element)
+MessageLoaderErrorType_t MessageLoader::ParseCommands(QDomElement *element, QXmlSchema *schema)
 {
     if ((element == NULL) || (m_MessageCmdToSchema == NULL)) {
         return CML_NULL_POINTER;
@@ -137,11 +146,15 @@ MessageLoaderErrorType_t MessageLoader::ParseCommands(QDomElement *element)
 
     QDomElement child = element->firstChildElement(peer);
     if (child.isNull()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_NO_VALID_MSGS,
+                                                   Global::tTranslatableStringList());
         return CML_NO_VALID_MSGS;
     }
 
     child = child.firstChildElement(CML_MSG_ELEMENT);
     if (child.isNull()) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_NO_VALID_MSGS,
+                                                   Global::tTranslatableStringList());
         return CML_NO_VALID_MSGS;
     }
 
@@ -157,7 +170,7 @@ MessageLoaderErrorType_t MessageLoader::ParseCommands(QDomElement *element)
                 return CML_EMPTY_CMD_ATTRIBUTE;
             }
             // load corresponding schema:
-            if (!LoadSchema(cmdstring)) {
+            if (!LoadSchema(cmdstring, schema)) {
                 return CML_NO_VALID_XMLSCHEMA;
             }
         }
@@ -179,13 +192,14 @@ MessageLoaderErrorType_t MessageLoader::ParseCommands(QDomElement *element)
  *      defined/allowed Server message.
  *
  *  \param    msgid = ID of the Server message
+ *  \param    schema = schema for validation
  *
  *  \return   true if schema is loaded and valid, false if not
  *
  ****************************************************************************/
-bool MessageLoader::LoadSchema(const QString &msgid)
+bool MessageLoader::LoadSchema(const QString &msgid, QXmlSchema *schema)
 {
-    if  (m_MessageCmdToSchema == NULL) {
+    if  (m_MessageCmdToSchema == NULL || schema == NULL) {
         return false;
     }
 
@@ -193,20 +207,23 @@ bool MessageLoader::LoadSchema(const QString &msgid)
 
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_ERROR_FILE_OPEN,
+                                                   Global::tTranslatableStringList() << filename);
         return false;
     }
 
-    QXmlSchema schema;
-    if (!schema.load(&file, QUrl::fromLocalFile(file.fileName()))) {
+    if (!schema->load(&file, QUrl::fromLocalFile(file.fileName()))) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_ML_ERROR_FILE_PARSING,
+                                                   Global::tTranslatableStringList() << filename);
         file.close();
         return false;
     }
 
     file.close();
 
-    if (schema.isValid()) {
+    if (schema->isValid()) {
         QXmlSchemaValidator *vdtr = NULL;
-        vdtr = new QXmlSchemaValidator(schema);
+        vdtr = new QXmlSchemaValidator(*schema);
         if (vdtr == NULL) {
             return false;
         }

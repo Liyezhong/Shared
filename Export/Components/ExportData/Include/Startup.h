@@ -31,10 +31,8 @@ namespace Export {
  * \brief This class handles the initialization for the CExportData class.
  */
 /****************************************************************************/
-class CStartup : public QObject
+class CStartup
 {
-    Q_OBJECT
-
 public:
     CStartup();
 

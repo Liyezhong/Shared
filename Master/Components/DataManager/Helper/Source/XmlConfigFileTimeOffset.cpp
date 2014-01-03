@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFileTimeOffset.cpp
+/*! \file DataManager/Helper/Source/XmlConfigFileTimeOffset.cpp
  *
  *  \brief Implementation file for class XmlConfigFileTimeOffset.
  *
@@ -41,25 +41,23 @@ void XmlConfigFileTimeOffset::ReadTimeOffset(const QString &FileName, int &rTime
     // reset data
     rTimeOffset = 0;
 
-    try {
-        // init stream reader
-        QXmlStreamReader Reader;
-        QFile File;
-        InitStreamReader(Reader, File, FileName);
-        // now read format version
-        QString Version = ReadFormatVersion(Reader, "timeoffset");
-        if(Version == "1") {
-            // read project file in version 1
-            ReadTimeOffset_V1(Reader, rTimeOffset);
-        } else {
-            // not a supported version
-            THROWARG(EVENT_DM_ERROR_UNSUPPORTED_VERSION, Version);
-        }
-    } catch(...) {
-        // reset data
-        rTimeOffset = 0;
-        throw;
+    // init stream reader
+    QXmlStreamReader Reader;
+    QFile File;
+    InitStreamReader(Reader, File, FileName);
+    // now read format version
+    QString Version = ReadFormatVersion(Reader, "timeoffset");
+    if(Version == "1") {
+        // read project file in version 1
+        ReadTimeOffset_V1(Reader, rTimeOffset);
     }
+    else {
+        rTimeOffset = 0;
+        // not a supported version
+        THROWARGS(EVENT_DM_ERROR_UNSUPPORTED_VERSION,
+                  Global::tTranslatableStringList() << Version << m_FileName);
+    }
+
 }
 
 /****************************************************************************/

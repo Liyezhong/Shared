@@ -28,9 +28,9 @@ QString CmdChangeUserLevel::NAME = "NetCommands::CmdChangeUserLevel";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   UserLevel   Type of the user
- * \param[in]   Password    Password of the admin
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   UserLevel   Type of the user
+ * \iparam   Password    Password of the admin
  */
 /****************************************************************************/
 CmdChangeUserLevel::CmdChangeUserLevel(int Timeout, const Global::GuiUserLevel &UserLevel, const QString &Password) :

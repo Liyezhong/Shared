@@ -25,7 +25,9 @@
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-
+#include "DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataExport.h"
+#include "DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataImport.h"
+#include "DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataImportFiles.h"
 
 namespace DataManager {
 
@@ -90,7 +92,30 @@ private slots:
      */
     /****************************************************************************/
     void utTestExportConfigurationVerifier();
-
+    /****************************************************************************/
+    /**
+     * \brief Test CmdDataExport
+     */
+    /****************************************************************************/
+    void utTestCmdDataExport();
+    /****************************************************************************/
+    /**
+     * \brief Test CmdDataImport
+     */
+    /****************************************************************************/
+    void utTestCmdDataImport();
+    /****************************************************************************/
+    /**
+     * \brief Test CmdDataImportFiles
+     */
+    /****************************************************************************/
+    void utTestCmdDataImportFiles();
+    /****************************************************************************/
+    /**
+     * \brief Test read XmlFiles.
+     */
+    /****************************************************************************/
+    void utTestReadXmlFiles();
 }; // end class TestExportConfiguration
 
 /****************************************************************************/
@@ -197,7 +222,7 @@ void TestExportConfiguration::utTestUserConfiguration() {
     QCOMPARE(Configuration.GetCertifiedFlag(), User.GetUserConfigurationList().GetCertifiedFlag());
     QCOMPARE(Configuration.GetCompressedFlag(), User.GetUserConfigurationList().GetCompressedFlag());
     QCOMPARE(Configuration.GetEncryptionFlag(), User.GetUserConfigurationList().GetEncryptionFlag());
-    QCOMPARE(QString(""), User.GetUserConfigurationList().GetGroupFileName());
+    QCOMPARE(Configuration.GetGroupFileName(), User.GetUserConfigurationList().GetGroupFileName());
     QCOMPARE(Configuration.GetGroupListFlag(), User.GetUserConfigurationList().GetGroupListFlag());
     QCOMPARE(Configuration.GetPackageType(), User.GetUserConfigurationList().GetPackageType());
     QCOMPARE(Configuration.GetFileList(), User.GetUserConfigurationList().GetFileList());
@@ -281,7 +306,7 @@ void TestExportConfiguration::utTestUserConfiguration() {
 
 /****************************************************************************/
 void TestExportConfiguration::utTestExportConfiguration() {
-    CExportConfiguration Export;
+    CExportConfiguration *Export= new CExportConfiguration();
     CServiceConfiguration Service;
     CConfigurationList Configuration;
     CUserConfiguration User;
@@ -291,17 +316,17 @@ void TestExportConfiguration::utTestExportConfiguration() {
     // store the application path to write the test files
     FilesPathWrite = QCoreApplication::applicationDirPath() + "/";
 
-    Export.SetSourceDir("../Source");
-    Export.SetTargetDir("../Target");
-    Export.SetTargetFileName("../Target/dd.txt");
-    Export.SetServiceConfigurationFlag(true);
-    Export.SetUserConfigurationFlag(true);
+    Export->SetSourceDir("../Source");
+    Export->SetTargetDir("../Target");
+    Export->SetTargetFileName("../Target/dd.txt");
+    Export->SetServiceConfigurationFlag(true);
+    Export->SetUserConfigurationFlag(true);
 
-    QCOMPARE(Export.GetSourceDir(), QString("../Source"));
-    QCOMPARE(Export.GetTargetDir(), QString("../Target"));
-    QCOMPARE(Export.GetTargetFileName(), QString("../Target/dd.txt"));
-    QCOMPARE(Export.GetServiceConfigurationFlag(), true);
-    QCOMPARE(Export.GetUserConfigurationFlag(), true);
+    QCOMPARE(Export->GetSourceDir(), QString("../Source"));
+    QCOMPARE(Export->GetTargetDir(), QString("../Target"));
+    QCOMPARE(Export->GetTargetFileName(), QString("../Target/dd.txt"));
+    QCOMPARE(Export->GetServiceConfigurationFlag(), true);
+    QCOMPARE(Export->GetUserConfigurationFlag(), true);
 
     // set the service configuration
     // set all the attributes for the configuration
@@ -314,22 +339,22 @@ void TestExportConfiguration::utTestExportConfiguration() {
     Configuration.SetFileList(QStringList("File"));
     Service.SetServiceConfigurationList(Configuration);
     // set the service configuration
-    Export.SetServiceConfiguration(Service);
+    Export->SetServiceConfiguration(Service);
 
     QCOMPARE(Configuration.GetCertifiedFlag(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetCertifiedFlag());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetCertifiedFlag());
     QCOMPARE(Configuration.GetEncryptionFlag(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetEncryptionFlag());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetEncryptionFlag());
     QCOMPARE(Configuration.GetCompressedFlag(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetCompressedFlag());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetCompressedFlag());
     QCOMPARE(Configuration.GetGroupFileName(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetGroupFileName());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetGroupFileName());
     QCOMPARE(Configuration.GetGroupListFlag(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetGroupListFlag());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetGroupListFlag());
     QCOMPARE(Configuration.GetPackageType(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetPackageType());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetPackageType());
     QCOMPARE(Configuration.GetFileList(),
-                Export.GetServiceConfiguration().GetServiceConfigurationList().GetFileList());
+                Export->GetServiceConfiguration().GetServiceConfigurationList().GetFileList());
 
 
     // set the user configuration
@@ -342,23 +367,28 @@ void TestExportConfiguration::utTestExportConfiguration() {
     Configuration.SetPackageType("native");
     Configuration.SetFileList(QStringList("File"));
     User.SetUserConfigurationList(Configuration);
-    Export.SetUserConfiguration(User);
+    Export->SetUserConfiguration(User);
 
     QCOMPARE(Configuration.GetCertifiedFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetCertifiedFlag());
+                Export->GetUserConfiguration().GetUserConfigurationList().GetCertifiedFlag());
     QCOMPARE(Configuration.GetEncryptionFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag());
+                Export->GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag());
     QCOMPARE(Configuration.GetCompressedFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag());
-    QCOMPARE(QString(""),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetGroupFileName());
+                Export->GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag());
+    QCOMPARE(Configuration.GetGroupFileName(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetGroupFileName());
     QCOMPARE(Configuration.GetGroupListFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetGroupListFlag());
+                Export->GetUserConfiguration().GetUserConfigurationList().GetGroupListFlag());
     QCOMPARE(Configuration.GetPackageType(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetPackageType());
+                Export->GetUserConfiguration().GetUserConfigurationList().GetPackageType());
     QCOMPARE(Configuration.GetFileList(),
-               Export.GetUserConfiguration().GetUserConfigurationList().GetFileList());
+               Export->GetUserConfiguration().GetUserConfigurationList().GetFileList());
 
+
+    CExportConfiguration *Export11= new CExportConfiguration(*Export);
+
+    QCOMPARE(Configuration.GetFileList(),
+               Export11->GetUserConfiguration().GetUserConfigurationList().GetFileList());
 
     CExportConfiguration Export1;
     CUserConfiguration User1;
@@ -389,60 +419,60 @@ void TestExportConfiguration::utTestExportConfiguration() {
     ReportConfiguration.SetFileList(FileList);
 
     User.SetUserReportList(ReportConfiguration);
-    Export.SetUserConfiguration(User);
+    Export->SetUserConfiguration(User);
 
     QCOMPARE(ReportConfiguration.GetCertifiedFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetCertifiedFlag());
+                Export->GetUserConfiguration().GetUserReportList().GetCertifiedFlag());
     QCOMPARE(ReportConfiguration.GetEncryptionFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetEncryptionFlag());
+                Export->GetUserConfiguration().GetUserReportList().GetEncryptionFlag());
     QCOMPARE(ReportConfiguration.GetCompressedFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetCompressedFlag());
+                Export->GetUserConfiguration().GetUserReportList().GetCompressedFlag());
     QCOMPARE(ReportConfiguration.GetGroupFileName(),
-                Export.GetUserConfiguration().GetUserReportList().GetGroupFileName());
+                Export->GetUserConfiguration().GetUserReportList().GetGroupFileName());
     QCOMPARE(ReportConfiguration.GetGroupListFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetGroupListFlag());
+                Export->GetUserConfiguration().GetUserReportList().GetGroupListFlag());
     QCOMPARE(ReportConfiguration.GetPackageType(),
-                Export.GetUserConfiguration().GetUserReportList().GetPackageType());
+                Export->GetUserConfiguration().GetUserReportList().GetPackageType());
     QCOMPARE(ReportConfiguration.GetFileList(),
-                Export.GetUserConfiguration().GetUserReportList().GetFileList());
+                Export->GetUserConfiguration().GetUserReportList().GetFileList());
 
-    Export.Write(FilesPathWrite + "ExportConfiguration_Test.xml");
-    CExportConfiguration Export2;
+    Export->Write(FilesPathWrite + "ExportConfiguration_Test.xml");
+    CExportConfiguration *Export2;
 
     // checkin the assignment operator
     Export2 = Export;
 
     // updated the configuration
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetCertifiedFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetCertifiedFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetGroupFileName(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetGroupFileName());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetGroupListFlag(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetGroupListFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetPackageType(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetPackageType());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserConfigurationList().GetFileList(),
-                Export.GetUserConfiguration().GetUserConfigurationList().GetFileList());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetCertifiedFlag(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetCertifiedFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetCompressedFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetEncryptionFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetGroupFileName(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetGroupFileName());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetGroupListFlag(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetGroupListFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetPackageType(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetPackageType());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserConfigurationList().GetFileList(),
+                Export->GetUserConfiguration().GetUserConfigurationList().GetFileList());
 
     // compare each item in the configuration class with service configuration class
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetCertifiedFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetCertifiedFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetCompressedFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetCompressedFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetEncryptionFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetEncryptionFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetGroupFileName(),
-                Export.GetUserConfiguration().GetUserReportList().GetGroupFileName());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetGroupListFlag(),
-                Export.GetUserConfiguration().GetUserReportList().GetGroupListFlag());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetPackageType(),
-                Export.GetUserConfiguration().GetUserReportList().GetPackageType());
-    QCOMPARE(Export2.GetUserConfiguration().GetUserReportList().GetFileList(),
-                Export.GetUserConfiguration().GetUserReportList().GetFileList());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetCertifiedFlag(),
+                Export->GetUserConfiguration().GetUserReportList().GetCertifiedFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetCompressedFlag(),
+                Export->GetUserConfiguration().GetUserReportList().GetCompressedFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetEncryptionFlag(),
+                Export->GetUserConfiguration().GetUserReportList().GetEncryptionFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetGroupFileName(),
+                Export->GetUserConfiguration().GetUserReportList().GetGroupFileName());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetGroupListFlag(),
+                Export->GetUserConfiguration().GetUserReportList().GetGroupListFlag());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetPackageType(),
+                Export->GetUserConfiguration().GetUserReportList().GetPackageType());
+    QCOMPARE(Export2->GetUserConfiguration().GetUserReportList().GetFileList(),
+                Export->GetUserConfiguration().GetUserReportList().GetFileList());
 
     QFile::remove(FilesPathWrite + "ExportConfiguration_Test.xml");
 
@@ -464,7 +494,7 @@ void TestExportConfiguration::utTestExportConfigurationVerifier() {
     Export.SetTargetFileName("../Target/dd.txt");
     Export.SetServiceConfigurationFlag(true);
     Export.SetUserConfigurationFlag(true);
-    QCOMPARE(ConfigVerifier->VerifyData(&Export), true);
+    QCOMPARE(ConfigVerifier->VerifyData(&Export), false);
 
     CExportConfiguration Export1;
     Export1.SetSourceDir("../Sggg");
@@ -482,21 +512,75 @@ void TestExportConfiguration::utTestExportConfigurationVerifier() {
     Configuration.SetGroupListFlag(true);
     User.SetUserConfigurationList(Configuration);
     Export.SetUserConfiguration(User);
-    QCOMPARE(ConfigVerifier->VerifyData(&Export), true);
+    QCOMPARE(ConfigVerifier->VerifyData(&Export), false);
     QCOMPARE(ConfigVerifier->VerifyData(&Export1), false);
 
     Service.SetServiceConfigurationList(Configuration);
     Export1.SetServiceConfiguration(Service);
     QCOMPARE(ConfigVerifier->VerifyData(&Export1), false);
-    QCOMPARE(ConfigVerifier->VerifyData(&Export), true);
+    QCOMPARE(ConfigVerifier->VerifyData(&Export), false);
 
     ReportConfiguration.SetFileList(FileList);
     User.SetUserReportList(ReportConfiguration);
     Export.SetUserConfiguration(User);
     QCOMPARE(ConfigVerifier->VerifyData(&Export1), false);
-    QCOMPARE(ConfigVerifier->VerifyData(&Export), true);
+    QCOMPARE(ConfigVerifier->VerifyData(&Export), false);
 
 
+}
+/****************************************************************************/
+void TestExportConfiguration::utTestReadXmlFiles()
+{
+    CExportConfiguration *p_ParameterSrc = new CExportConfiguration();
+    CExportConfigurationVerifier *p_Verifier = new CExportConfigurationVerifier();
+    QString XmlFileNameTest;
+
+//    XmlFileNameTest = ":/Xml/ExportConfiguration.xml";
+//    // Add verifier before read
+//    p_ParameterSrc->AddVerifier(p_Verifier);
+//    QCOMPARE(p_ParameterSrc->Read(XmlFileNameTest), true);
+
+    XmlFileNameTest = ":/Xml/ExportConfiguration.xml";
+    p_ParameterSrc->AddVerifier(p_Verifier);
+    p_ParameterSrc->SetDataVerificationMode(false);
+    QCOMPARE(p_ParameterSrc->Read(XmlFileNameTest), true);
+
+
+    delete p_ParameterSrc;
+    delete p_Verifier;
+}
+/****************************************************************************/
+void TestExportConfiguration::utTestCmdDataExport()
+{
+    MsgClasses::CmdDataExport *p_CmdDataExport = new MsgClasses::CmdDataExport();
+    p_CmdDataExport->NAME = "MsgClasses::CmdDataExport";
+
+    QCOMPARE(p_CmdDataExport->GetName(), QString(tr("MsgClasses::CmdDataExport")));
+
+
+    delete p_CmdDataExport;
+}
+/****************************************************************************/
+void TestExportConfiguration::utTestCmdDataImport()
+{
+    MsgClasses::CmdDataImport *p_CmdDataImport = new MsgClasses::CmdDataImport();
+    p_CmdDataImport->NAME = "MsgClasses::CmdDataImport";
+
+    QCOMPARE(p_CmdDataImport->GetName(), QString(tr("MsgClasses::CmdDataImport")));
+
+
+    delete p_CmdDataImport;
+}
+/****************************************************************************/
+void TestExportConfiguration::utTestCmdDataImportFiles()
+{
+    MsgClasses::CmdDataImportFiles *p_CmdDataImportFiles = new MsgClasses::CmdDataImportFiles();
+    p_CmdDataImportFiles->NAME = "MsgClasses::CmdDataImportFiles";
+
+    QCOMPARE(p_CmdDataImportFiles->GetName(), QString(tr("MsgClasses::CmdDataImportFiles")));
+
+
+    delete p_CmdDataImportFiles;
 }
 
 } // end namespace DataManagement

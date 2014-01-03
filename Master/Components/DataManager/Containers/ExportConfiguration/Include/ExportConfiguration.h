@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ExportConfiguration.h
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h
  *
  *  \brief Definition file for class CExportConfiguration.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-06
- *  $Author:    $ Aparna AL
+ *  $Author:    $ Aparna AL, Ramya GJ
  *
  *  \b Company:
  *
@@ -80,8 +80,9 @@ protected:
 
 public:
     CExportConfiguration();
-    CExportConfiguration(const ImportExportConfig_t ConfigType); //UserType
+
     CExportConfiguration(const CExportConfiguration&);
+    void CopyFromOther(const CExportConfiguration &Other);
     virtual ~CExportConfiguration() {}
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CExportConfiguration& ExportConfiguration);

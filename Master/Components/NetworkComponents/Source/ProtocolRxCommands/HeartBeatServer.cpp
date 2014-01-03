@@ -19,6 +19,9 @@
 /****************************************************************************/
 
 #include <NetworkComponents/Include/ProtocolRxCommands/HeartBeatServer.h>
+#include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -56,6 +59,8 @@ bool HeartBeatServer::Execute()
     qDebug() << (QString)"HeartBeatServer: Client RECEIVER called !";
 
     if (m_myDevice == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << "" << FILE_LINE);
         return false;
     }
 
@@ -64,6 +69,8 @@ bool HeartBeatServer::Execute()
     QString nr = (emt.firstChildElement("dataitems")).attribute("nr", "NULL");
     if ((nr.isEmpty()) || (nr == "NULL")) {
         // command is not complete - do not know what to do with it
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_COMMAND_NOT_COMPLETE,
+                                                   Global::tTranslatableStringList() << nr << FILE_LINE);
         return false;
     }
 

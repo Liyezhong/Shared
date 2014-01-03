@@ -1,12 +1,12 @@
 /****************************************************************************/
-/*! \file SWVersionListVerifier.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/SWVersions/Source/SWVersionListVerifier.cpp
  *
  *  \brief Implementation file for class CSWVersionListVerifier.
  *         This class verifies the data of the CSWVersion class
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-07
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -22,7 +22,10 @@
 #include <QDebug>
 #include <QDir>
 #include "DataManager/Containers/SWVersions/Include/SWVersionListVerifier.h"
-
+#include <Global/Include/EventObject.h>
+#include "DataManager/Helper/Include/DataManagerEventCodes.h"
+#include "Global/Include/GlobalEventCodes.h"
+#include "Global/Include/Utils.h"
 
 namespace DataManager {
 
@@ -47,21 +50,39 @@ CSWVersionListVerifier::CSWVersionListVerifier() : mp_SWVL(NULL)
 /****************************************************************************/
 bool CSWVersionListVerifier::VerifyData(CDataContainerBase* p_Configuration)
 {
-    // to store the error description
-    QString ErrorDescription;
     // by default make the verification flag to true
     bool VerifiedData = true;
-    // assign pointer to member variable
-    mp_SWVL = static_cast<CSWVersionList*>(p_Configuration);
 
-    // check the existence of the container
-    if (mp_SWVL != NULL) {
+    try {
+        // check the existence of the container
+        CHECKPTR(p_Configuration);
+        // assign pointer to member variable
+        mp_SWVL = static_cast<CSWVersionList*>(p_Configuration);
+
+        CHECKPTR(mp_SWVL);
+
         // all the details should be available in the SW_version.xml file
         if (mp_SWVL->GetSWReleaseDate().compare("") == 0) {
+            qDebug() <<"The release date/version is empty in SW_Version.xml";
+
+            m_ErrorMap.insert(EVENT_SWVERSION_RELEASE_DATE_VERION_EMPTY,
+                              Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_SWVERSION_RELEASE_DATE_VERION_EMPTY,
+                                                       Global::tTranslatableStringList() << "",
+                                                       true,
+                                                       Global::GUI_MSG_BOX);
             VerifiedData = false;
         }
 
         if (mp_SWVL->GetSWReleaseVersion().compare("") == 0) {
+            qDebug() <<"The release date/version is empty in SW_Version.xml";
+
+            m_ErrorMap.insert(EVENT_SWVERSION_RELEASE_DATE_VERION_EMPTY,
+                              Global::tTranslatableStringList() << "");
+            Global::EventObject::Instance().RaiseEvent(EVENT_SWVERSION_RELEASE_DATE_VERION_EMPTY,
+                                                       Global::tTranslatableStringList() << "",
+                                                       true,
+                                                       Global::GUI_MSG_BOX);
             VerifiedData = false;
         }
         // iterate each item from the list and verify the data
@@ -69,25 +90,49 @@ bool CSWVersionListVerifier::VerifyData(CDataContainerBase* p_Configuration)
             CSWDetails SWDetails;
             if (mp_SWVL->GetSWDetails(SWDetailsCount, SWDetails)) {
                 if (SWDetails.GetSWDate().compare("") == 0) {
+                    qDebug() <<"The release date/version of component ### is empty in SW_Version.xml"
+                               << SWDetails.GetSWName();
+
+                    m_ErrorMap.insert(EVENT_SWVERSION_SW_DATE_VERION_EMPTY,
+                                      Global::tTranslatableStringList() << SWDetails.GetSWName());
+                    Global::EventObject::Instance().RaiseEvent(EVENT_SWVERSION_SW_DATE_VERION_EMPTY,
+                                        Global::tTranslatableStringList() << SWDetails.GetSWName(),
+                                                               true,
+                                                               Global::GUI_MSG_BOX);
                     VerifiedData = false;
                 }
                 if (SWDetails.GetSWName().compare("") == 0) {
+                    qDebug() <<"The SW component name is empty in SW_Version.xml";
+
+                    m_ErrorMap.insert(EVENT_SWVERSION_SW_NAME_EMPTY,
+                                      Global::tTranslatableStringList() << "");
+                    Global::EventObject::Instance().RaiseEvent(EVENT_SWVERSION_SW_NAME_EMPTY,
+                                                               Global::tTranslatableStringList() << "",
+                                                               true,
+                                                               Global::GUI_MSG_BOX);
                     VerifiedData = false;
                 }
                 if (SWDetails.GetSWVersion().compare("") == 0) {
+                    qDebug() <<"The release date/version of component ### is empty in SW_Version.xml"
+                               << SWDetails.GetSWName();
+
+                    m_ErrorMap.insert(EVENT_SWVERSION_SW_DATE_VERION_EMPTY,
+                                      Global::tTranslatableStringList() << SWDetails.GetSWName());
+                    Global::EventObject::Instance().RaiseEvent(EVENT_SWVERSION_SW_DATE_VERION_EMPTY,
+                                        Global::tTranslatableStringList() << SWDetails.GetSWName(),
+                                                               true,
+                                                               Global::GUI_MSG_BOX);
                     VerifiedData = false;
                 }
             }
         }
 
-        if (!VerifiedData) {
-            // store error string with verification code
-            //m_ErrorsList.append(QString("0,") + ErrorDescription);
-        }
+        // return the boolean flag
+        return VerifiedData;
     }
+    CATCHALL();
 
-    // return the boolean flag
-    return VerifiedData;
+    return false;
 }
 
 
@@ -98,10 +143,10 @@ bool CSWVersionListVerifier::VerifyData(CDataContainerBase* p_Configuration)
  *  \return QStringList - List of the errors occured
  */
 /****************************************************************************/
-ErrorHash_t& CSWVersionListVerifier::GetErrors()
+ErrorMap_t& CSWVersionListVerifier::GetErrors()
 {
     // return the last error which is occured in the verifier
-    return m_ErrorsHash;
+    return m_ErrorMap;
 }
 
 /****************************************************************************/
@@ -109,14 +154,16 @@ ErrorHash_t& CSWVersionListVerifier::GetErrors()
  *  \brief  Resets the last error which is done by verifier
  */
 /****************************************************************************/
-void CSWVersionListVerifier::ResetLastErrors()
+void CSWVersionListVerifier::ResetErrors()
 {
-    m_ErrorsHash.clear();
+    m_ErrorMap.clear();
 }
 
 /****************************************************************************/
 /*!
  *  \brief  Resets the last error which is done by verifier
+ *
+ *  \return verification status , true or false
  */
 /****************************************************************************/
 bool CSWVersionListVerifier::IsLocalVerifier()

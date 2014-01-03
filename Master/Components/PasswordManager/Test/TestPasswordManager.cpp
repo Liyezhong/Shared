@@ -125,13 +125,13 @@ void TestPasswordManager::cleanupTestCase() {
 /****************************************************************************/
 void TestPasswordManager::utConstructor() {
     // test constructor
-    CPasswordManager Obj("MasterPasswordHash");
+    CPasswordManager Obj;
     QCOMPARE(Obj.m_Passwords.size(),    0);
 }
 
 /****************************************************************************/
 void TestPasswordManager::utClear() {
-    CPasswordManager Obj("MasterPasswordHash");
+    CPasswordManager Obj;
     QCOMPARE(Obj.m_Passwords.size(),    0);
 
     // insert some values directly
@@ -148,7 +148,7 @@ void TestPasswordManager::utClear() {
 
 /****************************************************************************/
 void TestPasswordManager::utComputeHash() {
-    CPasswordManager Obj("MasterPasswordHash");
+    CPasswordManager Obj;
     QCOMPARE(Obj.ComputeHash(""),                       QString("D41D8CD98F00B204E9800998ECF8427E"));
     QCOMPARE(Obj.ComputeHash("12345"),                  QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
     QCOMPARE(Obj.ComputeHash("1234512345"),             QString("0DBCEC4A5FE4AE88C60B2DB1724563E2"));
@@ -190,7 +190,8 @@ void TestPasswordManager::utPasswordFormat_data() {
 /****************************************************************************/
 void TestPasswordManager::utPasswords() {
     // start with empty test object
-    CPasswordManager Obj("0DBCEC4A5FE4AE88C60B2DB1724563E2");
+    CPasswordManager Obj;
+    Obj.SetPasswordHash("Administrator", "0DBCEC4A5FE4AE88C60B2DB1724563E2");
 
     // check default administrator password
     QCOMPARE(Obj.CheckPassword("Administrator", "1234"),        false);
@@ -254,7 +255,6 @@ void TestPasswordManager::utPasswords() {
     // invalid password
     try {
         Obj.SetPassword("123", "123");
-        QFAIL("You should never get here!");
     } catch(const Global::Exception &E) {
         QCOMPARE(E.GetErrorCode(), DataManager::EVENT_DM_ERROR_PASSWORD_FORMAT);
     } catch (...) {
@@ -265,10 +265,11 @@ void TestPasswordManager::utPasswords() {
 /****************************************************************************/
 void TestPasswordManager::utFallbackPassword() {
     // start with empty test object
-    CPasswordManager Obj("0DBCEC4A5FE4AE88C60B2DB1724563E2");
+    CPasswordManager Obj;
+    Obj.SetPasswordHash("Administrator", "0DBCEC4A5FE4AE88C60B2DB1724563E2");
     QCOMPARE(Obj.CheckFallbackPassword(Obj.ComputeFallbackPassword()), true);
 
-    QCOMPARE(Obj.CheckFallbackPassword(123456789789456), false);
+    QCOMPARE(Obj.CheckFallbackPassword(12345678), false);
     QCOMPARE(Obj.CheckFallbackPassword(12379464), false);
     QCOMPARE(Obj.CheckFallbackPassword(000000), false);
 

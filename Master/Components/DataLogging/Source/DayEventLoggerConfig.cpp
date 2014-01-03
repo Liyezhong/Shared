@@ -3,9 +3,15 @@
  *
  *  \brief Implementation file for class DayEventLoggerConfig.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *\b Description:
+ *      This class can be used to deliver the configuration for the DayOperation
+ *      logger using the signal / slot mechanism. It contains the operating
+ *      mode, serial number and the max file age. If latter one is 0, no monitoring
+ *      of file age is done!
+ *
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -24,8 +30,7 @@ namespace DataLogging {
 
 /****************************************************************************/
 DayEventLoggerConfig::DayEventLoggerConfig() :
-    m_MaxFileCount(0)
-{
+    m_MaxFileCount(0) {
 }
 
 /****************************************************************************/
@@ -35,15 +40,13 @@ DayEventLoggerConfig::DayEventLoggerConfig(const QString &OperatingMode, const Q
     m_SerialNumber(SerialNumber),
     m_Path(Path),
     m_MaxFileCount(MaxFileCount),
-    m_BaseFileName(BaseFileName)
-{
+    m_BaseFileName(BaseFileName) {
 }
 
 /****************************************************************************/
-DayEventLoggerConfig::DayEventLoggerConfig(const DayEventLoggerConfig &rOther) :
-    m_MaxFileCount(0)
-{
-    CopyFrom(rOther);
+DayEventLoggerConfig::DayEventLoggerConfig(const DayEventLoggerConfig &Other) :
+    m_MaxFileCount(0) {
+    CopyFrom(Other);
 }
 
 /****************************************************************************/
@@ -56,6 +59,7 @@ void DayEventLoggerConfig::CopyFrom(const DayEventLoggerConfig &rOther) {
     m_SerialNumber  = rOther.m_SerialNumber;
     m_Path          = rOther.m_Path;
     m_MaxFileCount  = rOther.m_MaxFileCount;
+    m_BaseFileName  = rOther.m_BaseFileName;
 }
 
 /****************************************************************************/
