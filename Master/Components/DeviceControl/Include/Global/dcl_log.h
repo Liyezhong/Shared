@@ -344,7 +344,7 @@ inline void Output2FILE::Output(const std::string& msg)
 /*lint -restore */
 #else
    QString s =  QString(msg.c_str());
-   LOG() << s;
+   //LOG() << s; //disbale the log now, or will get too much information on debug output
 #endif
 }
 
