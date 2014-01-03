@@ -27,7 +27,9 @@ namespace EventHandler {
 /****************************************************************************/
 EventXMLInfo::EventXMLInfo(const QString& XMLFile)
     : m_XMLFile(XMLFile),
-      m_pXMLReader(NULL)
+      m_pXMLReader(NULL),
+      m_pESEXMLInfo(NULL),
+      m_ESEXMLInfoStatus(false)
 {
 }
 
@@ -213,6 +215,24 @@ void EventXMLInfo::constructXMLEvent(const QString& strSrcName)
         }
     }
 
+}
+
+bool EventXMLInfo::initESEXMLInfoParser(const QString& ESEXMLFile)
+{
+	m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo(ESEXMLFile));
+	m_ESEXMLInfoStatus = m_pESEXMLInfo->initXMLInfo();
+
+	return m_ESEXMLInfoStatus;
+}
+
+QString EventXMLInfo::getESEErrorCode(const QString& eventId, const QString& scenarioId)
+{
+	if (m_ESEXMLInfoStatus == false)
+	{
+		return "";
+	}
+
+	return m_pESEXMLInfo->getErrorCode(eventId, scenarioId);
 }
 
 } // end namespace EventHandler

@@ -26,7 +26,7 @@
 #include <Global/Include/Utils.h>
 #include <QStringList>
 #include <QXmlStreamReader>
-#include <QVector>
+#include <EventHandler/Include/EventScenarioErrorXMLInfo.h>
 #include <QSharedPointer>
 
 namespace EventHandler{
@@ -213,10 +213,29 @@ public:
     /****************************************************************************/
     const QHash< QString, QSharedPointer<XMLEvent> >& getEventList() const { return m_pXMLEventList; }
 
+    /****************************************************************************/
+    /**
+     * \brief Initalize ESE XML parser for later use
+     * \param[in] ESEXMLFile    XML file containing ESE map info
+     * \return true - success, false - failed
+     */
+    /****************************************************************************/
+    bool  initESEXMLInfoParser(const QString& ESEXMLFile);
+
+    /****************************************************************************/
+    /**
+     * \brief get Error code based on Event Id and Scenario ID.
+     * \param[in] eventId		Event Id
+     * \param[in] scenarioId	Scenario Id
+     */
+    /****************************************************************************/
+    QString  getESEErrorCode(const QString& eventId, const QString& scenarioId="");
 private:
     QString                                 		m_XMLFile;			///< XML file
     QSharedPointer<QXmlStreamReader>        		m_pXMLReader;		///< QT XML parser
     QHash< QString, QSharedPointer<XMLEvent> >		m_pXMLEventList;	///< XML Event list
+    QSharedPointer<EventScenarioErrXMLInfo>       	m_pESEXMLInfo;		///< Event-Scenario-Error parser
+    bool                                           	m_ESEXMLInfoStatus;	///< Event-Scenario-Error parser
 
     /****************************************************************************/
     /**

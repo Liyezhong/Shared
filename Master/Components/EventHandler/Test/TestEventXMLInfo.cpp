@@ -104,6 +104,23 @@ void TestEventXMLInfo::UTAll()
         QCOMPARE(id,QString::number(i));
     }
 
+    //"single" type
+    QString errorId = m_pEventXMLInfo->getESEErrorCode("500030001", "520000-000200");
+    QString id = "513030001";
+    QCOMPARE(errorId, id);
+    //"range" type
+    errorId = m_pEventXMLInfo->getESEErrorCode("500010001", "520000-000211");
+    id = "513010001";
+    QCOMPARE(errorId, id);
+    //"all" type
+    errorId = m_pEventXMLInfo->getESEErrorCode("500050001");
+    id = "513050001";
+    QCOMPARE(errorId, id);
+
+    //error case;
+    errorId = m_pEventXMLInfo->getESEErrorCode("500030021", "520000-000276");
+    id = "";
+    QCOMPARE(errorId, id);
 
 }
 
@@ -112,6 +129,7 @@ void TestEventXMLInfo::initTestCase()
 {
     m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo("EventConfigure.xml"));
     m_pEventXMLInfo->initXMLInfo();
+    m_pEventXMLInfo->initESEXMLInfoParser("ese.xml");
 }
 
 /****************************************************************************/
