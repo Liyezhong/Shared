@@ -1897,6 +1897,7 @@ ReturnCode_t CPressureControl::WriteValveOperationTime()
         fprintf(pFile, "%s", msg.toStdString().c_str());
         fflush(pFile);
         fclose(pFile);
+        system("sync");
         return DCL_ERR_FCT_CALL_SUCCESS;
     }
     else
