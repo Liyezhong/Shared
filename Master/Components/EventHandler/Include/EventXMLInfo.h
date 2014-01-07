@@ -46,7 +46,7 @@ public:
      * \param[in] strType	Step Type (ACT or MSG)	
      */
     /****************************************************************************/
-	explicit EventStep(const QString& strId, const QString& strType)
+    explicit EventStep(const QString& strId, const QString& strType)
 	: m_Id(strId),
 	  m_Type(strType)	
 	{ }
@@ -58,7 +58,7 @@ public:
      * \return Step Id	
      */
     /****************************************************************************/
-    const QString& getId() const { return m_Id; }
+    const QString& GetId() const { return m_Id; }
 
     /****************************************************************************/
     /**
@@ -67,7 +67,88 @@ public:
      * \return Step Type	
      */
     /****************************************************************************/
-    const QString& getType() const {return m_Type; }
+    const QString& GetType() const { return m_Type; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get Action attribute
+     * 
+     * \return Action Type	
+     */
+    /****************************************************************************/
+    const QString& GetAction() const { return m_Action; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get NextStepOnFail attribute
+     * 
+     * \return NextStepOnFail Type	
+     */
+    /****************************************************************************/
+    const QString& GetNextStepOnFail() const { return m_NextStepOnFail; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get NextStepOnSuccess attribute
+     * 
+     * \return NextStepOnSuccess Type	
+     */
+    /****************************************************************************/
+    const QString& GetNextStepOnSuccess() const { return m_NextStepOnSuccess; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get StringID attribute
+     * 
+     * \return StringID Type	
+     */
+    /****************************************************************************/
+    const QString& GetStringID() const { return m_StringId; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get TimeOut attribute
+     * 
+     * \return TimeOut Type	
+     */
+    /****************************************************************************/
+    const QString& GetTimeOut() const { return m_TimeOut; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get ButtonType attribute
+     * 
+     * \return ButtonType Type	
+     */
+    /****************************************************************************/
+    const QString& GetButtonType() const { return m_ButtonType; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get ButtonEnableConditon attribute
+     * 
+     * \return ButtonEnableConditon Type	
+     */
+    /****************************************************************************/
+    const QString& GetButtonEnableConditon() const { return m_ButtonEnableConditon; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get NextStepOnTimeOut attribute
+     * 
+     * \return NextStepOnTimeOut Type	
+     */
+    /****************************************************************************/
+    const QString& GetNextStepOnTimeOut() const { return m_NextStepOnTimeOut; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get StatusBar attribute
+     * 
+     * \return StatusBar Type	
+     */
+    /****************************************************************************/
+    const QString& GetStatusBar() const { return m_StatusBar; }
 private:
 	QString		m_Id;					///< Step Id
 	QString		m_Type;					///< Step Type 
@@ -116,21 +197,30 @@ public:
     /****************************************************************************/
     /**
      * \brief explicit XMLEvent class constructor
-     * \param[in] strCode	Event Code Id	
+     * \param[in] strErrID	Error Id	
      */
     /****************************************************************************/
-	explicit XMLEvent(const QString& strCode)
-	  : m_Code(strCode)
+	explicit XMLEvent(const QString& strErrID)
+	  : m_ErrorId(strErrID)
 	{ }
 
     /****************************************************************************/
     /**
      * \brief Get XML Step list in the XMLEvent object 
-     * 
-     * \return	Const Reference of Event Step list 	
+     * \param[in] stepId	Step Id	
+     * \return Pointer to Eventstep object 
      */
     /****************************************************************************/
-    const QHash< QString, QSharedPointer<EventStep> >& getEventStepList() const { return m_pEventStepList; }
+    const EventStep*  GetStep(const QString& stepId) const;
+
+    /****************************************************************************/
+    /**
+     * \brief Get ErrorId attribute in XML Event  
+     * 
+     * \return ErrorId attribute	
+     */
+    /****************************************************************************/
+    const QString& GetErrorId() const { return m_ErrorId; }
 
     /****************************************************************************/
     /**
@@ -149,10 +239,37 @@ public:
      */
     /****************************************************************************/
     const QString& getCode() const { return m_Code; }
+
+    /****************************************************************************/
+    /**
+     * \brief AuthorityType attribute in XML Event  
+     * 
+     * \return AuthorityType attribute	
+     */
+    /****************************************************************************/
+    const QString& getAuthType() const { return m_AuthType; }
+
+    /****************************************************************************/
+    /**
+     * \brief AlarmType attribute in XML Event  
+     * 
+     * \return AlarmType attribute	
+     */
+    /****************************************************************************/
+    const QString& getAlarmType() const { return m_AlarmType; }
+
+    /****************************************************************************/
+    /**
+     * \brief RootStep attribute in XML Event  
+     * 
+     * \return RootStep attribute	
+     */
+    /****************************************************************************/
+    const QString& getRootStep() const { return m_RootStep; }
 private:
+    QString                                 		m_ErrorId;			///< Error Code
     QString                                 		m_Source;			///< Source Name
     QString                                 		m_Code;				///< Code
-    QString                                 		m_ErrorId;			///< Error Code
     QString                                 		m_AuthType;			///< Authority Type
     QString                                 		m_AlarmType;		///< Alarm Type
     QString                                 		m_RootStep;			///< Root Step
@@ -190,10 +307,11 @@ public:
     /****************************************************************************/
     /**
      * \brief explicit EventXMLInfo class constructor
-     * \param[in] XMLFile	XML file 	
+     * \param[in]   eventXMLFileList    XML file list containing all events
+     ** \param[in]  ESEXMLFile          XML file containing event-scenario-error map list
      */
     /****************************************************************************/
-    explicit  EventXMLInfo(const QString& XMLFile);
+    explicit  EventXMLInfo(const QStringList& eventXMLFileList, const QString& ESEXMLFile="");
 
     /****************************************************************************/
     /**
@@ -202,7 +320,7 @@ public:
      * \return true - success, false - failed 
      */
     /****************************************************************************/
-    bool  initXMLInfo();
+    bool  InitXMLInfo();
 
     /****************************************************************************/
     /**
@@ -211,31 +329,24 @@ public:
      * \return	Const Reference of XMLEvent list 	
      */
     /****************************************************************************/
-    const QHash< QString, QSharedPointer<XMLEvent> >& getEventList() const { return m_pXMLEventList; }
+    const QHash< QString, QSharedPointer<XMLEvent> >& GetEventList() const { return m_pXMLEventList; }
 
     /****************************************************************************/
     /**
-     * \brief Initalize ESE XML parser for later use
-     * \param[in] ESEXMLFile    XML file containing ESE map info
-     * \return true - success, false - failed
-     */
-    /****************************************************************************/
-    bool  initESEXMLInfoParser(const QString& ESEXMLFile);
-
-    /****************************************************************************/
-    /**
-     * \brief get Error code based on Event Id and Scenario ID.
+     * \brief get XMLEvent object based on Event Id and Scenario ID.
      * \param[in] eventId		Event Id
      * \param[in] scenarioId	Scenario Id
+     * \return		pointer to the XML Event object
      */
     /****************************************************************************/
-    QString  getESEErrorCode(const QString& eventId, const QString& scenarioId="");
+    const XMLEvent* GetEvent( const QString& eventId, const QString& scenarioId="");
 private:
-    QString                                 		m_XMLFile;			///< XML file
+    QStringList                                		m_eventXMLFileList;	///< XML file list containing all events
+    QString                                         m_ESEXMLFile;       ///< XML file containing event-scenario-error map list
     QSharedPointer<QXmlStreamReader>        		m_pXMLReader;		///< QT XML parser
+    bool											m_ParsingStatus;	///< XML Parsing status
     QHash< QString, QSharedPointer<XMLEvent> >		m_pXMLEventList;	///< XML Event list
     QSharedPointer<EventScenarioErrXMLInfo>       	m_pESEXMLInfo;		///< Event-Scenario-Error parser
-    bool                                           	m_ESEXMLInfoStatus;	///< Event-Scenario-Error parser
 
     /****************************************************************************/
     /**
@@ -243,7 +354,7 @@ private:
      * \param[in] strSrcName	Source Name 	
      */
     /****************************************************************************/
-	void  constructXMLEvent(const QString& strSrcName);
+    void  ConstructXMLEvent(const QString& strSrcName);
 private:
     /****************************************************************************/
     /**

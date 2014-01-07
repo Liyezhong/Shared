@@ -25,56 +25,71 @@
 namespace EventHandler {
 
 /****************************************************************************/
-EventXMLInfo::EventXMLInfo(const QString& XMLFile)
-    : m_XMLFile(XMLFile),
+EventXMLInfo::EventXMLInfo(const QStringList& eventXMLFileList, const QString& ESEXMLFile)
+    : m_eventXMLFileList(eventXMLFileList),
+      m_ESEXMLFile(ESEXMLFile),
       m_pXMLReader(NULL),
-      m_pESEXMLInfo(NULL),
-      m_ESEXMLInfoStatus(false)
+      m_pESEXMLInfo(NULL)
 {
 }
 
-bool EventXMLInfo::initXMLInfo()
+bool EventXMLInfo::InitXMLInfo()
 {
-	QFile xmlFile(m_XMLFile);
-	if (xmlFile.exists())
-	{
-		if (xmlFile.open(QIODevice::ReadOnly))
-		{
-            m_pXMLReader = QSharedPointer<QXmlStreamReader>(new QXmlStreamReader(xmlFile.readAll()));
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
+    m_ParsingStatus = false; // set parsing status false
 
-    while (!m_pXMLReader->atEnd())
+    // For EventList configuration file list, we store them into m_pXMLEventList
+    QStringList::iterator iter = m_eventXMLFileList.begin();
+    for (; iter !=m_eventXMLFileList.end(); ++iter)
     {
-        m_pXMLReader->readNextStartElement();
-
-        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "Source")
+        QFile xmlFile(*iter);
+        if (xmlFile.exists())
         {
-            if (!m_pXMLReader->attributes().hasAttribute("Name"))
+            if (xmlFile.open(QIODevice::ReadOnly))
             {
-                return false;
+                m_pXMLReader = QSharedPointer<QXmlStreamReader>(new QXmlStreamReader(xmlFile.readAll()));
             }
             else
             {
-                QString strSrcName = m_pXMLReader->attributes().value("Name").toString();
-                this->constructXMLEvent(strSrcName);
+                return false;
             }
+        }
+        else
+        {
+            return false;
+        }
 
+        while (!m_pXMLReader->atEnd())
+        {
+            m_pXMLReader->readNextStartElement();
+
+            if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "Source")
+            {
+                if (!m_pXMLReader->attributes().hasAttribute("Name"))
+                {
+                    return false;
+                }
+                else
+                {
+                    QString strSrcName = m_pXMLReader->attributes().value("Name").toString();
+                    this->ConstructXMLEvent(strSrcName);
+                }
+
+            }
         }
     }
 
+    //For Event-Scenaro-Error map list, we store it into m_pXMLEventList
+    m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo(m_ESEXMLFile));
+    if (m_pESEXMLInfo->InitXMLInfo() == false)
+    {
+        return false;
+    }
+
+    m_ParsingStatus = true;
     return true;
 }
 
-void EventXMLInfo::constructXMLEvent(const QString& strSrcName)
+void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
 {
     QSharedPointer<XMLEvent> pXMLEvent;
     while (m_pXMLReader->name()!="Source" || !m_pXMLReader->isEndElement())
@@ -119,7 +134,7 @@ void EventXMLInfo::constructXMLEvent(const QString& strSrcName)
             }
 
             // construct XMLEvent object
-            pXMLEvent = QSharedPointer<XMLEvent>(new XMLEvent(code));
+            pXMLEvent = QSharedPointer<XMLEvent>(new XMLEvent(errorId));
             pXMLEvent->m_Source = strSrcName;
             pXMLEvent->m_ErrorId = errorId;
             pXMLEvent->m_AuthType = authType;
@@ -128,7 +143,11 @@ void EventXMLInfo::constructXMLEvent(const QString& strSrcName)
         }
         else if (m_pXMLReader->name() == "Event" && m_pXMLReader->isEndElement())
         {
-            m_pXMLEventList.insert(pXMLEvent->m_Code, pXMLEvent);
+            // Check if the event has been in the list
+            if (m_pXMLEventList.find(pXMLEvent->m_ErrorId) == m_pXMLEventList.end())
+            {
+                m_pXMLEventList.insert(pXMLEvent->m_ErrorId, pXMLEvent);
+            }
         }
         else if (m_pXMLReader->name() == "Step"&& !m_pXMLReader->isEndElement()) // For the "Step" elements
         {
@@ -217,22 +236,35 @@ void EventXMLInfo::constructXMLEvent(const QString& strSrcName)
 
 }
 
-bool EventXMLInfo::initESEXMLInfoParser(const QString& ESEXMLFile)
+const XMLEvent* EventXMLInfo::GetEvent(const QString& eventId, const QString& scenarioId)
 {
-	m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo(ESEXMLFile));
-	m_ESEXMLInfoStatus = m_pESEXMLInfo->initXMLInfo();
+    // First check if XML parsing succeeds or not
+    if (m_ParsingStatus  == false)
+    {
+        return NULL;
+    }
 
-	return m_ESEXMLInfoStatus;
+    //In this case, strErrid is the same as ErrorID in EventConfigure.xml
+    QString strErrId = m_pESEXMLInfo->GetErrorCode(eventId, scenarioId);
+    QHash< QString, QSharedPointer<XMLEvent> >::iterator iter = m_pXMLEventList.find(strErrId);
+    if (iter == m_pXMLEventList.end())
+    {
+        return NULL;
+    }
+
+    return iter.value().data();
 }
 
-QString EventXMLInfo::getESEErrorCode(const QString& eventId, const QString& scenarioId)
+const EventStep* XMLEvent::GetStep(const QString& stepId) const
 {
-	if (m_ESEXMLInfoStatus == false)
-	{
-		return "";
-	}
+    QHash< QString, QSharedPointer<EventStep> >::const_iterator iter = m_pEventStepList.find(stepId);
+    if (iter == m_pEventStepList.end())
+    {
+        return NULL;
+    }
 
-	return m_pESEXMLInfo->getErrorCode(eventId, scenarioId);
+    return iter.value().data();
 }
+
 
 } // end namespace EventHandler

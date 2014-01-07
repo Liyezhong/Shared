@@ -55,6 +55,7 @@ private:
     quint32 m_EventID; //!< Event ID
     Global::EventSourceType m_SourceComponent; ///< Source Component Type.
     Global::tTranslatableStringList m_StringList;                ///< The translatable string.
+    QString m_ActionString;                     ///< next Action
 public:
     static QString NAME;    ///< Command name.
 
@@ -151,6 +152,27 @@ public:
     /****************************************************************************/
     inline void SetAction(Global::ActionType  ActionType) {
         m_Action = ActionType;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief   This function gets the Action Type
+     *
+     *  \return   QString Type
+     */
+    /****************************************************************************/
+    inline QString GetActionString() const {
+        return m_ActionString;
+    }
+    /****************************************************************************/
+    /*!
+     *  \brief       This function sets the Action Type
+     *
+     *  \iparam   QString   Type of Action
+     */
+    /****************************************************************************/
+    inline void SetActionString(QString  ActionType) {
+        m_ActionString = ActionType;
     }
     /****************************************************************************/
     /*!

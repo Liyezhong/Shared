@@ -266,6 +266,37 @@ public:
     }
 
     /****************************************************************************/
+    /*!
+     *  \brief    This SLOT handles all incoming events.
+     *
+     *      This SLOT shall be used to process all events and their current
+     *      status.
+     *
+     *  \iparam    EventKey
+     *  \iparam    EventID
+     *  \iparam    Scenario
+     *  \bparam    Active
+     *  \bparam    ActionResult
+     *  \lparam    EventStringParList
+     *  \lparam    EventRDStringParList
+     *
+     *
+     ****************************************************************************/
+    virtual void RaiseEvent(const quint32 EventKey, const quint32 EventID, const quint32 Scenario,
+                              const bool ActionResult, const bool Active = true,
+                              const Global::tTranslatableStringList &EventStringParList = Global::tTranslatableStringList(),
+                              const Global::tTranslatableStringList &EventRDStringParList = Global::tTranslatableStringList())
+    {
+        quint32 key = EventKey;
+        if(EventKey <= 0){
+            key = GetEventKey();
+        }
+        quint64 EventIDScenario = EventID;
+        EventIDScenario = (EventIDScenario<<32) | Scenario;
+        emit ForwardEvent(key, EventIDScenario, Active, ActionResult,EventStringParList,EventRDStringParList);
+    }
+
+    /****************************************************************************/
     /**
      * \brief Raise Event (this version should be used to log catched exception in a destructor)
      * \iparam EventCode    = 32 bit unique event code
@@ -336,6 +367,17 @@ signals:
      */
     /****************************************************************************/
     void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is used to connect EventObject to Event Handler thread
+     *        controller
+     */
+    /****************************************************************************/
+    void ForwardEvent(const quint32 EventKey, const quint64 EventIDScenario,
+                      const bool Active, const bool ActionResult,
+                      const Global::tTranslatableStringList &EventStringParList,
+                      const Global::tTranslatableStringList &EventRDStringParList);
 
 }; // end class EventObject
 

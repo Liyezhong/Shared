@@ -194,7 +194,7 @@ public:
      *
      */
     /****************************************************************************/
-    inline void ConnectToEventObject() {
+    virtual inline void ConnectToEventObject() {
         Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
         CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage),
                           this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage));
@@ -203,8 +203,8 @@ public:
 
 protected:
 
-    void OnGoReceived();
-    void OnStopReceived();
+    virtual void OnGoReceived();
+    virtual void OnStopReceived();
     virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
 
     /****************************************************************************/
@@ -215,7 +215,7 @@ protected:
      * \iparam   ack -- received acknowledge instance.
      */
     /****************************************************************************/
-    void OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack);
+    virtual void OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack);
 
     /****************************************************************************/
     /**
@@ -282,6 +282,7 @@ private:
      */
     /****************************************************************************/
     Q_DISABLE_COPY(EventHandlerThreadController)
+
 
     void AddActionTypes();
     void AddEventTypes();
@@ -354,11 +355,31 @@ private:
 
 public slots:
 
-    void ProcessEvent(const quint32 EventID,
+    virtual void ProcessEvent(const quint32 EventID,
                       const Global::tTranslatableStringList &EventStringList,
                       const bool EventStatus, const quint32 EventKeyRef, const Global::AlternateEventStringUsage AltStringUsuage);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief    This SLOT handles all incoming events.
+     *
+     *      This SLOT shall be used to process all events and their current
+     *      status.
+     *
+     *  \iparam    EventKey
+     *  \iparam    EventIDScenario
+     *  \bparam    Active
+     *  \bparam    ActionResult
+     *  \lparam    EventStringParList
+     *  \lparam    EventRDStringParList
+     *
+     *
+     ****************************************************************************/
+    virtual void ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
+                              const bool Active, const bool ActionResult,
+                              const Global::tTranslatableStringList &EventStringParList,
+                              const Global::tTranslatableStringList &EventRDStringParList) = 0;
     /****************************************************************************/
     /**
      * \brief Set operating mode string.

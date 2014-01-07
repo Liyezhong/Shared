@@ -44,7 +44,7 @@
 #include <RemoteCareManager/Include/RemoteCareManager.h>
 #include <NetCommands/Include/CmdRCNotifyShutdown.h>
 
-#include <EventHandler/Include/EventHandlerThreadController.h>
+#include <EventHandler/Include/HimalayaEventHandlerThreadController.h>
 #include <EventHandler/Include/EventHandlerEventCodes.h>
 #include <QMetaType>
 #include <QSharedMemory>
@@ -268,7 +268,7 @@ void MasterThreadController::CreateBasicControllersAndThreads() {
 
     // create system's event handler
     // if an exception occures, the instance must be deleted manually!
-    mp_EventThreadController = new EventHandler::EventHandlerThreadController(m_ThreadIDEventHandler, m_RebootCount,
+    mp_EventThreadController = new EventHandler::HimalayaEventHandlerThreadController(m_ThreadIDEventHandler, m_RebootCount,
                                                                               m_EventStringFileList);
 
     mp_EventThreadController->ConnectToEventObject();

@@ -31,7 +31,7 @@ EventScenarioErrXMLInfo::EventScenarioErrXMLInfo(const QString& XMLFile)
 {
 }
 
-bool EventScenarioErrXMLInfo::initXMLInfo()
+bool EventScenarioErrXMLInfo::InitXMLInfo()
 {
 	QFile xmlFile(m_XMLFile);
 	if (xmlFile.exists())
@@ -208,7 +208,7 @@ bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
 	return true;
 }
 
-QString EventScenarioErrXMLInfo::getErrorCode(const QString& eventId, const QString& scenarioId)
+QString EventScenarioErrXMLInfo::GetErrorCode(const QString& eventId, const QString& scenarioId)
 {
 	QHash< QString, QSharedPointer<ESEInfo> >::iterator iter = m_EventScenarioErrList.find(eventId);
 	if (iter == m_EventScenarioErrList.end())

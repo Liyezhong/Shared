@@ -37,6 +37,8 @@ struct EventReportDataStruct{
     Global::GuiButtonType BtnType; //!< GUI button type
     QString Time; //!< Time at which event occured
     bool StatusBarIcon; //!< True to store event and display when status bar icon is clicked
+    QString BtnEnableConditions; //!< button enable conditions: RT_LID_OPEN_CLOSE
+    QString Timeout; //< timeout for the message if no user responsing
 };
 
 /****************************************************************************/

@@ -109,7 +109,7 @@ public:
      * \return true - success, false - failed 
      */
     /****************************************************************************/
-    bool  initXMLInfo();
+    bool  InitXMLInfo();
 
     /****************************************************************************/
     /**
@@ -136,7 +136,7 @@ public:
      * \param[in] scenarioId	Scenario Id 
      */
     /****************************************************************************/
-	QString  getErrorCode(const QString& eventId, const QString& scenarioId="");
+    QString  GetErrorCode(const QString& eventId, const QString& scenarioId="");
 private:
     QString                                 		m_XMLFile;					///< XML file
     QSharedPointer<QXmlStreamReader>        		m_pXMLReader;				///< QT XML parser
