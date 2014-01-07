@@ -654,7 +654,7 @@ QString CUserSettings::GetValue(QString key) const
     else
     {
         qDebug() << "UserSettings::GetValue, key not found" << key;
-        return " ";
+        return "";
     }
 }
 /****************************************************************************/
