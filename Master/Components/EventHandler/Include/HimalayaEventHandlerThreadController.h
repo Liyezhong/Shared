@@ -202,6 +202,7 @@ private:
     QHash<quint32,EventRuntimeInfo_t> m_ActiveEvents;//!< Hash of event key and pending event
     bool m_GuiAvailable;                        //!< index Gui is available or not
     QList<quint32> m_PendingGuiEvent;           //!< store all eventkey that should be send to Gui after gui available
+    QHash<Global::tRefType, quint32> m_EventKeyRefMap;//!< Hash of Event Key Reference Map
 
 };
 } //end if namespace EventHandler

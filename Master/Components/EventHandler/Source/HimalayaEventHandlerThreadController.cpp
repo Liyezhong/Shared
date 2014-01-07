@@ -160,8 +160,8 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventID,
 
 void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack)
 {
-    Q_UNUSED(ref)
-    quint32 EventKey = ack.GetEventKey();
+    quint32 EventKey = m_EventKeyRefMap.value(ref);
+    m_EventKeyRefMap.remove(ref);
     if(m_ActiveEvents.contains(EventKey)){
         const XMLEvent* pEvent = NULL; // current Event
         const EventStep* pCurrentStep = NULL; // current step
@@ -175,7 +175,7 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                 switch(clicked){
                 case NetCommands::OK_BUTTON:
                     NextStepID = pCurrentStep->GetNextStepOnTimeOut();
-                default:
+                default: //time out
                     NextStepID = pCurrentStep->GetNextStepOnTimeOut();
                 }
                 if(!NextStepID.isEmpty()){
@@ -262,6 +262,7 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
         if (m_GuiAvailable)
         {
             Global::tRefType Ref = GetNewCommandRef();
+            m_EventKeyRefMap.insert(Ref,EventKey);
             SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
         }
         else
