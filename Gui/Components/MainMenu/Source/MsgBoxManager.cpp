@@ -26,6 +26,7 @@
 #include <MainMenu/Include/MessageDlg.h>
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
+#include "DataManager/Helper/Include/Helper.h"
 
 
 
@@ -42,7 +43,8 @@ namespace MainMenu {
 CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface)
     :mp_MessageDlg(NULL),
     mp_Parent(p_Parent),
-    mp_SettingsInterface(p_SettingsInterface)
+    mp_SettingsInterface(p_SettingsInterface),
+    m_bMsgWaiting(false)
 {
     MsgData TempMsgData;
     CreateMesgBox(TempMsgData);
@@ -170,7 +172,7 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
     //check whether we need to display or remove the Msg Box
     if (EventStatus) {
         MsgData CurrentMsgData;
-        DS >> CurrentMsgData.MsgString >> CurrentMsgData.Time >> ButtonType >> CurrentMsgData.StatusBarIcon >> CurrentMsgData.AutoQuitMsgBoxTime;
+        DS >> CurrentMsgData.MsgString >> CurrentMsgData.Time >> ButtonType >> CurrentMsgData.StatusBarIcon >> CurrentMsgData.BtnEnableConditions >> CurrentMsgData.AutoQuitMsgBoxTime;
         CurrentMsgData.ID = EventID;
         qDebug() << "Event ID in message box is" << EventID;
         CurrentMsgData.EventType = static_cast<Global::EventType>(EventType);
@@ -193,6 +195,15 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
         //Removing the messages with Status as Inactive
         MainMenu::StatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(EventType) , EventID);
     }
+}
+
+void CMsgBoxManager::EnableOKButton()
+{
+  if (m_bMsgWaiting && mp_MessageDlg)
+  {
+      mp_MessageDlg->EnableButton(1, true);
+      m_bMsgWaiting = false;
+  }
 }
 /****************** **********************************************************/
 /*!
@@ -348,10 +359,22 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
         QRect scr = mp_Parent->geometry();
         mp_MessageDlg->move( scr.center() - mp_MessageDlg->rect().center());
 
-        if (m_CurrentMsgData.AutoQuitMsgBoxTime > 0)
+        if ("" != m_CurrentMsgData.AutoQuitMsgBoxTime)
         {
-            m_AutoQuitMsgBoxTimer.start(m_CurrentMsgData.AutoQuitMsgBoxTime);
+            int timeInSeconds = DataManager::Helper::ConvertTimeStringToSeconds(m_CurrentMsgData.AutoQuitMsgBoxTime);
+            m_AutoQuitMsgBoxTimer.start(timeInSeconds);
         }
+
+        //disable "OK"
+        if ("" != m_CurrentMsgData.BtnEnableConditions)
+        {
+            if (m_CurrentMsgData.BtnEnableConditions == "RT_LID_OPEN_CLOSE")
+            {
+                mp_MessageDlg->EnableButton(1, false);
+                m_bMsgWaiting = true;
+            }
+        }
+
 
         //Show MsgDlg
         mp_MessageDlg->Show();
