@@ -1289,6 +1289,12 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                 if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM))
                 {
                     LOG() << "Overflow occured! Exit now";
+#if 1
+                    for(qint32 i = 0; i < PressureBuf.length(); i++)
+                    {
+                        LOG() << "Pressur buf: "<<PressureBuf.at(i);
+                    }
+#endif
                     RetValue = DCL_ERR_DEV_AL_FILL_OVERFLOW;
                     goto SORTIE;
                 }
