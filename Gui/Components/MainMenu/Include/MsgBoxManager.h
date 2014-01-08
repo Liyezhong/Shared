@@ -44,7 +44,8 @@ struct MsgData{
     quint64 ID; //!< Event ID
     QString MsgString;  //!< Event String
     bool StatusBarIcon; //!< True to store event and display when status bar icon is clicked
-    int AutoQuitMsgBoxTime; //!< unit: second
+    QString BtnEnableConditions; //!< button enable conditions: RT_LID_OPEN_CLOSE
+    QString AutoQuitMsgBoxTime; //< timeout for the message if no user responsing
 };
 
 /****************************************************************************/
@@ -60,7 +61,7 @@ public:
     ~CMsgBoxManager();
     void Manage(QDataStream &DS, Global::tRefType Ref);
     //!< Data Structure containing Data Sent from EventReport
-
+    void EnableOKButton();
 private:
     //Data Members
     Global::PriorityQueue <quint64> m_PriorityQueue;  //!< Priority Queue consisting of EventID's
@@ -80,6 +81,7 @@ private:
     QHash<quint64, Global::tRefType> m_EvenIDCmdRefHash; //!< Hash of EventID(Key) and CmdRef(value)
     QTimer m_PopupTimer;    //!< When this timer times out, MsgBox will be poped out if queue not empty.
     QTimer m_AutoQuitMsgBoxTimer;
+    bool m_bMsgWaiting;    //!<it has a "OK" button, but it is disabled.
     //----------------End of Members------------------------//
 
     //Methods
