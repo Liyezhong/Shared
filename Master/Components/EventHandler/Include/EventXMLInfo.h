@@ -296,7 +296,7 @@ public:
      * \return AlarmType attribute	
      */
     /****************************************************************************/
-    Global::AlarmType GetAlarmType() const { return m_AlarmType; }
+    Global::AlarmPosType GetAlarmType() const { return m_AlarmType; }
 
     /****************************************************************************/
     /**
@@ -321,8 +321,8 @@ private:
     QString                                 		m_Source;			///< Source Name
     QString                                 		m_Code;				///< Code
     Global::EventType                          m_ErrorType;		///< Error Type
-    Global::GuiUserLevel                            m_AuthType;			///< Authority Type
-    Global::AlarmType                               m_AlarmType;		///< Alarm Type
+    Global::GuiUserLevel                          m_AuthType;			///< Authority Type
+    Global::AlarmPosType                               m_AlarmType;		///< Alarm Type
     quint32                                 		m_RootStep;			///< Root Step
     Global::EventSourceType                         m_EventSource;		///< Event Source
     QHash< quint32, QSharedPointer<EventStep> >		m_pEventStepList;	///< XML Step List

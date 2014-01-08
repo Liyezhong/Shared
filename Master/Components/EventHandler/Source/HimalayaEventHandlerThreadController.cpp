@@ -50,7 +50,7 @@ HimalayaEventHandlerThreadController::~HimalayaEventHandlerThreadController()
 void HimalayaEventHandlerThreadController::CreateAndInitializeObjects()
 {
     // now register commands
-    (void)m_EventManager.InitXMLInfo();
+    bool ret = m_EventManager.InitXMLInfo();
     RegisterCommands();
 }
 
