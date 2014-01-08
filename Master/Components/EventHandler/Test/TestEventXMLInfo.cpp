@@ -71,65 +71,35 @@ private slots:
 void TestEventXMLInfo::UTAll()
 {
    // number of XMLEvent
-    QCOMPARE( m_pEventXMLInfo->getEventList().size(), 2);
+    QCOMPARE( m_pEventXMLInfo->GetEventList().size(), 5);
 
     //Source in each XMLEvent
     QString source = "Platform";
-    QCOMPARE((m_pEventXMLInfo->getEventList())["01"]->getSource(), source);
-    QCOMPARE((m_pEventXMLInfo->getEventList())["02"]->getSource(), source);
+    QCOMPARE((m_pEventXMLInfo->GetEventList())[513010000]->GetSource(), source);
+    QCOMPARE((m_pEventXMLInfo->GetEventList())[513030001]->GetSource(), source);
 
     //Code of each XMLEvent;
-    QString code = "01";
-    QCOMPARE((m_pEventXMLInfo->getEventList())["01"]->getCode(), code);
-    code = "02";
-    QCOMPARE((m_pEventXMLInfo->getEventList())["02"]->getCode(), code);
-
-    //size of EventStep list in XMLEvent
-    int size1 = m_pEventXMLInfo->getEventList()["01"]->getEventStepList().size();
-    QCOMPARE(size1,6);
-    int size2 = m_pEventXMLInfo->getEventList()["02"]->getEventStepList().size();
-    QCOMPARE(size2,7);
-
-    // EventStep IDs in the first XMLEvent
-    for (int i=0; i<size1; i++)
-    {
-        QString id = (m_pEventXMLInfo->getEventList()["01"]->getEventStepList())[QString::number(i)]->getId();
-        QCOMPARE(id,QString::number(i));
-    }
-
-    // EventStep IDs in the second XMLEvent
-    for (int i=0; i<size2; i++)
-    {
-        QString id = (m_pEventXMLInfo->getEventList()["02"]->getEventStepList())[QString::number(i)]->getId();
-        QCOMPARE(id,QString::number(i));
-    }
+    QString code = "03";
+    QCOMPARE((m_pEventXMLInfo->GetEventList())[513010002]->GetCode(), code);
+    code = "05";
+    QCOMPARE((m_pEventXMLInfo->GetEventList())[513010003]->GetCode(), code);
 
     //"single" type
-    QString errorId = m_pEventXMLInfo->getESEErrorCode("500030001", "520000-000200");
-    QString id = "513030001";
-    QCOMPARE(errorId, id);
-    //"range" type
-    errorId = m_pEventXMLInfo->getESEErrorCode("500010001", "520000-000211");
-    id = "513010001";
-    QCOMPARE(errorId, id);
-    //"all" type
-    errorId = m_pEventXMLInfo->getESEErrorCode("500050001");
-    id = "513050001";
-    QCOMPARE(errorId, id);
+   const EventStep* step = m_pEventXMLInfo->GetEvent(500010001, 200)->GetStep(3);
+   QString type = "ACT";
+   QCOMPARE(step->GetType(), type);
 
-    //error case;
-    errorId = m_pEventXMLInfo->getESEErrorCode("500030021", "520000-000276");
-    id = "";
-    QCOMPARE(errorId, id);
 
 }
 
 /******************************************************************ls**********/
 void TestEventXMLInfo::initTestCase()
 {
-    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo("EventConfigure.xml"));
-    m_pEventXMLInfo->initXMLInfo();
-    m_pEventXMLInfo->initESEXMLInfoParser("ese.xml");
+    QStringList list;
+    list.append("EventConfigure01.xml");
+    list.append("EventConfigure02.xml");
+    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list, "ese.xml"));
+    m_pEventXMLInfo->InitXMLInfo();
 }
 
 /****************************************************************************/
