@@ -51,7 +51,8 @@ CmdSystemAction::CmdSystemAction(int Timeout, const QString &theStrErrorInfo, bo
     m_UserRetry(UserRetryFlag),
     m_EventKey(EventKey),
     m_EventID(EventID),
-    m_SourceComponent(EventSource)
+    m_SourceComponent(EventSource),
+    m_ActionString("")
 {
 }
 

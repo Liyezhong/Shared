@@ -103,7 +103,7 @@ public:
      * \return StringID Type	
      */
     /****************************************************************************/
-    const QString& GetStringID() const { return m_StringId; }
+    const quint32 & GetStringID() const { return m_StringId; }
 
     /****************************************************************************/
     /**
@@ -186,7 +186,7 @@ private:
     quint32		m_NextStepOnSuccess;	///< Next step when current action succeeds
 
 	//For MSg type
-    QString                     m_StringId;				///< Msg String Id
+    quint32                     m_StringId;				///< Msg String Id
     quint32                     m_TimeOut;				///< Time Out
     Global::GuiButtonType		m_ButtonType;			///< Button Type
     QString                     m_ButtonEnableConditon;	///< Condition on button enabled

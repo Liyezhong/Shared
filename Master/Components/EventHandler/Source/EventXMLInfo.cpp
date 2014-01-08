@@ -318,10 +318,11 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             }
 
 			// for "MSG" type
-            QString StringId = "";
+            quint32 StringId = EVENT_GLOBAL_UNKNOWN_STRING_ID;
             if (m_pXMLReader->attributes().hasAttribute("StringID"))
             {
-                StringId = m_pXMLReader->attributes().value("StringID").toString();
+                bool ok;
+                StringId = m_pXMLReader->attributes().value("StringID").toString().toUInt(&ok);
             }
 
             quint32 TimeOut = 0;
