@@ -70,34 +70,34 @@ private slots:
 
 void TestEventScenarioErrorXMLInfo::UTAll()
 {
-    QHash< QString,QSharedPointer<ESEInfo> > ESEInfoList = m_pESEXMLInfo->getESEInfoList();
-    QHash< QString,QSharedPointer<ESEInfo> >::iterator iter = ESEInfoList.begin();
+    QHash< quint32,QSharedPointer<ESEInfo> > ESEInfoList = m_pESEXMLInfo->GetESEInfoList();
+    QHash< quint32,QSharedPointer<ESEInfo> >::iterator iter = ESEInfoList.begin();
     while (iter != ESEInfoList.end())
     {
-       // qDebug()<<"key is:"<<iter.key();
-      //  qDebug()<<"size of scenario/error pair is:"<<iter.value()->getScenarioErrorList().size();
-        iter++;
+     // qDebug()<<"key is:"<<iter.key();
+      //qDebug()<<"size of scenario/error pair is:"<<iter.value()->getScenarioErrorList().size();
+      iter++;
     }
     //qDebug()<<"size of ESEInfo list is:"<<m_pESEXMLInfo->getESEInfoList().size();
 
     //"single" type
-    QString errorId = m_pESEXMLInfo->getErrorCode("500030001", "520000-000200");
-    QString id = "513030001";
+    quint32 errorId = m_pESEXMLInfo->GetErrorCode(500030001, 200);
+    quint32 id = 513030001;
     QCOMPARE(errorId, id);
 
     //"range" type
-    errorId = m_pESEXMLInfo->getErrorCode("500010001", "520000-000211");
-    id = "513010001";
+    errorId = m_pESEXMLInfo->GetErrorCode(500010001, 211);
+    id = 513010001;
     QCOMPARE(errorId, id);
 
     //"all" type
-    errorId = m_pESEXMLInfo->getErrorCode("500050001");
-    id = "513050001";
+    errorId = m_pESEXMLInfo->GetErrorCode(500050001);
+    id = 513050001;
     QCOMPARE(errorId, id);
 
     //error case;
-    errorId = m_pESEXMLInfo->getErrorCode("500030021", "520000-000276");
-    id = "";
+    errorId = m_pESEXMLInfo->GetErrorCode(500030021, 276);
+    id = 0;
     QCOMPARE(errorId, id);
 }
 
@@ -105,7 +105,7 @@ void TestEventScenarioErrorXMLInfo::UTAll()
 void TestEventScenarioErrorXMLInfo::initTestCase()
 {
     m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo("ese.xml"));
-    m_pESEXMLInfo->initXMLInfo();
+    m_pESEXMLInfo->InitXMLInfo();
 }
 
 /****************************************************************************/
