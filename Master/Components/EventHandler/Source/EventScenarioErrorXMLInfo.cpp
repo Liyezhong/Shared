@@ -63,7 +63,7 @@ bool EventScenarioErrXMLInfo::InitXMLInfo()
 				m_pXMLReader->readNextStartElement();
 				if (m_pXMLReader->name() == "scenario" && !m_pXMLReader->isEndElement())
 				{
-					QString id = m_ScenarioPrefix  + m_pXMLReader->attributes().value("id").toString();
+                    QString id = m_ScenarioPrefix  + m_pXMLReader->attributes().value("id").toString();
 					QString name = m_pXMLReader->attributes().value("name").toString();	
 					m_ScenarioList.insert(id, name);
 				}
@@ -72,13 +72,16 @@ bool EventScenarioErrXMLInfo::InitXMLInfo()
 		//Insert all the events into m_EventScenarioErrList
         if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "eventlist")
 		{
-            constructESEInfoList();
+            if (false ==ConstructESEInfoList())
+            {
+                return false;
+            }
 		}
 
 		// Get eventId-errorID-scenarioID map for each ESSInfo object
         if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "correspondinglist")
 		{
-			if (constructSEMap4ESEInfo() == false)
+            if (ConstructSEMap4ESEInfo() == false)
 			{
 				return false;
 			}	
@@ -88,7 +91,7 @@ bool EventScenarioErrXMLInfo::InitXMLInfo()
     return true;
 }
 
-void EventScenarioErrXMLInfo::constructESEInfoList()
+bool EventScenarioErrXMLInfo::ConstructESEInfoList()
 {
     QSharedPointer<ESEInfo> pESEObj;
     while (m_pXMLReader->name()!="eventlist" || !m_pXMLReader->isEndElement())
@@ -104,10 +107,15 @@ void EventScenarioErrXMLInfo::constructESEInfoList()
         }
         else if (m_pXMLReader->name() == "event" && !m_pXMLReader->isEndElement())
         {
-			QString id="";
+            quint32 id = 0;
 			if (m_pXMLReader->attributes().hasAttribute("id"))
 			{
-				id = m_pXMLReader->attributes().value("id").toString();
+                bool ok = false;
+                id = m_pXMLReader->attributes().value("id").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
 			}
 
 			QString name="";
@@ -119,12 +127,13 @@ void EventScenarioErrXMLInfo::constructESEInfoList()
             m_EventScenarioErrList.insert(id, pESEObj);
         }
     }
+    return true;
 }
 
-bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
+bool EventScenarioErrXMLInfo::ConstructSEMap4ESEInfo()
 {
-	QString strErrId = "";
-	QHash< QString, QSharedPointer<ESEInfo> >::iterator iter = m_EventScenarioErrList.end();
+    quint32 errorId = 0;
+    QHash< quint32, QSharedPointer<ESEInfo> >::iterator iter = m_EventScenarioErrList.end();
 
     while (m_pXMLReader->name()!="correspondinglist" || !m_pXMLReader->isEndElement())
     {
@@ -134,13 +143,17 @@ bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
         {
 			if ( m_pXMLReader->attributes().hasAttribute("eventid") )
 			{
-				QString strEventId = m_pXMLReader->attributes().value("eventid").toString();
-				iter = m_EventScenarioErrList.find(strEventId);
+                bool ok = false;
+                quint32 eventId = m_pXMLReader->attributes().value("eventid").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+                iter = m_EventScenarioErrList.find(eventId);
 
 				// Check if the eventid is in the m_EventScenarioErrList 
 				if (iter == m_EventScenarioErrList.end())
 				{
-                    qDebug()<<"I come here false - event";
 					return false;
 				}
 				
@@ -150,7 +163,12 @@ bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
 		{
 			if ( m_pXMLReader->attributes().hasAttribute("errorid") )
 			{
-				strErrId = m_pXMLReader->attributes().value("errorid").toString();
+                bool ok = false;
+                errorId = m_pXMLReader->attributes().value("errorid").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
 			}
         }
         else if (m_pXMLReader->name() == "scenario" && !m_pXMLReader->isEndElement())
@@ -177,7 +195,7 @@ bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
 				{
 					return false;
 				}
-				iter.value()->m_ScenarioErrorList.insert(scenarioId, strErrId);
+                iter.value()->m_ScenarioErrorList.insert(scenarioId, errorId);
 			}
 			else if (type == "range")
 			{
@@ -194,13 +212,13 @@ bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
 							return false;
 						}
 
-						iter.value()->m_ScenarioErrorList.insert(m_ScenarioPrefix+QString::number(i), strErrId);
+                        iter.value()->m_ScenarioErrorList.insert(m_ScenarioPrefix+QString::number(i), errorId);
 					}
 				}
 			}
 			else if (type == "all")
 			{
-				iter.value()->m_ScenarioErrorList.insert("all", strErrId);
+                iter.value()->m_ScenarioErrorList.insert("all", errorId);
 			}
 		}
 	}
@@ -208,31 +226,31 @@ bool EventScenarioErrXMLInfo::constructSEMap4ESEInfo()
 	return true;
 }
 
-QString EventScenarioErrXMLInfo::GetErrorCode(const QString& eventId, const QString& scenarioId)
+quint32 EventScenarioErrXMLInfo::GetErrorCode(quint32 eventId, quint32 scenarioId)
 {
-	QHash< QString, QSharedPointer<ESEInfo> >::iterator iter = m_EventScenarioErrList.find(eventId);
+    QHash< quint32, QSharedPointer<ESEInfo> >::iterator iter = m_EventScenarioErrList.find(eventId);
 	if (iter == m_EventScenarioErrList.end())
 	{
-		return "";
+        return 0;
 	}
 
-	QHash<QString, QString> scenarioErrList = iter.value()->m_ScenarioErrorList;
+    QHash<QString, quint32> scenarioErrList = iter.value()->m_ScenarioErrorList;
 
 	int size = scenarioErrList.size();
-	QHash<QString, QString>::iterator sceErrIter = scenarioErrList.begin();
+    QHash<QString, quint32>::iterator sceErrIter = scenarioErrList.begin();
 	// If scenarioId is empty, we suppose scenario type is "all" and there is only one element in the list
-    if (scenarioId.isEmpty() && size == 1 && sceErrIter.key() == "all")
+    if (scenarioId == 0 && size == 1 && sceErrIter.key() == "all")
 	{
 		return sceErrIter.value();
 	}
 
-	sceErrIter = scenarioErrList.find(scenarioId);
+    sceErrIter = scenarioErrList.find(m_ScenarioPrefix + QString::number(scenarioId));
 	if (sceErrIter != scenarioErrList.end())
 	{
 		return sceErrIter.value();
 	}
 
-	return "";
+    return 0;
 }
 
 } // end namespace EventHandler

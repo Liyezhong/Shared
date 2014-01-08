@@ -21,6 +21,7 @@
 
 #include <EventHandler/Include/EventXMLInfo.h>
 #include <QFile>
+using namespace Global;
 
 namespace EventHandler {
 
@@ -71,7 +72,10 @@ bool EventXMLInfo::InitXMLInfo()
                 else
                 {
                     QString strSrcName = m_pXMLReader->attributes().value("Name").toString();
-                    this->ConstructXMLEvent(strSrcName);
+                    if (false == this->ConstructXMLEvent(strSrcName))
+                    {
+                        return false;
+                    }
                 }
 
             }
@@ -89,7 +93,7 @@ bool EventXMLInfo::InitXMLInfo()
     return true;
 }
 
-void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
+bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
 {
     QSharedPointer<XMLEvent> pXMLEvent;
     while (m_pXMLReader->name()!="Source" || !m_pXMLReader->isEndElement())
@@ -103,43 +107,154 @@ void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 code = m_pXMLReader->attributes().value("Code").toString();
             }
 
-            QString errorId = "";
+            quint32 errorId = 0;
             if (m_pXMLReader->attributes().hasAttribute("ErrorID"))
             {
-                errorId = m_pXMLReader->attributes().value("ErrorID").toString();
+                bool ok = false;
+                errorId = m_pXMLReader->attributes().value("ErrorID").toString().toInt(&ok);
+                if (ok == false)
+                {
+                    return false;
+                }
             }
 
-            QString errorType = "";
+            Global::EventType errorType = EVTTYPE_UNDEFINED;
             if (m_pXMLReader->attributes().hasAttribute("ErrorType"))
             {
-                errorType = m_pXMLReader->attributes().value("ErrorType").toString();
+                QString strRet = m_pXMLReader->attributes().value("ErrorType").toString();
+                if (strRet.trimmed() == "ERROR")
+                {
+                    errorType = EVTTYPE_ERROR;
+                }
+                else if (strRet.trimmed() == "WARNING")
+                {
+                    errorType = EVTTYPE_WARNING;
+                }
+                else if (strRet.trimmed() == "INFO")
+                {
+                   errorType = EVTTYPE_INFO;
+                }
             }
 
-            QString authType = "";
+            Global::GuiUserLevel authType;
             if (m_pXMLReader->attributes().hasAttribute("AuthorityType"))
             {
-                authType = m_pXMLReader->attributes().value("AuthorityType").toString();
+                QString strRet = m_pXMLReader->attributes().value("AuthorityType").toString();
+                if (strRet.trimmed() == "Auth_ADMIN")
+                {
+                    authType = ADMIN;
+                }
+                else if (strRet.trimmed() == "Auth_OPERATOR")
+                {
+                    authType = OPERATOR;
+                }
+                else if (strRet.trimmed() == "Auth_SERVICE")
+                {
+                    authType = SERVICE;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            QString alarmType = "";
+            Global::AlarmType alarmType;
             if (m_pXMLReader->attributes().hasAttribute("AlarmType"))
             {
-                alarmType = m_pXMLReader->attributes().value("AlarmType").toString();
+                QString strRet = m_pXMLReader->attributes().value("AlarmType").toString();
+                if (strRet.trimmed() == "AL_NONE")
+                {
+                    alarmType = ALARM_NONE;
+                }
+                else if (strRet.trimmed() == "AL_WARNING")
+                {
+                    alarmType = ALARM_WARNING;
+                }
+                else if (strRet.trimmed() == "AL_ERROR")
+                {
+                    alarmType = ALARM_ERROR;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            QString rootStep = "";
+            quint32 rootStep = 0;
             if (m_pXMLReader->attributes().hasAttribute("RootStep"))
             {
-                rootStep = m_pXMLReader->attributes().value("RootStep").toString();
+                bool ok = false;
+                rootStep = m_pXMLReader->attributes().value("RootStep").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+            }
+
+            Global::EventSourceType eventSource = EVENTSOURCE_NONE;
+            if (m_pXMLReader->attributes().hasAttribute("EventSource"))
+            {
+                QString strRet = m_pXMLReader->attributes().value("EventSource").toString();
+                if (strRet.trimmed() == "MAIN")
+                {
+                    eventSource = EVENTSOURCE_MAIN;
+                }
+                else if (strRet.trimmed() == "DEVICECOMMANDPROCESSOR")
+                {
+                    eventSource = EVENTSOURCE_DEVICECOMMANDPROCESSOR;
+                }
+                else if (strRet.trimmed() == "SCHEDULER")
+                {
+                    eventSource = EVENTSOURCE_SCHEDULER;
+                }
+                else if (strRet.trimmed() == "EXPORT")
+                {
+                    eventSource = EVENTSOURCE_EXPORT;
+                }
+                else if (strRet.trimmed() == "IMPORTEXPORT")
+                {
+                    eventSource = EVENTSOURCE_IMPORTEXPORT;
+                }
+                else if (strRet.trimmed() == "BLG")
+                {
+                    eventSource = EVENTSOURCE_BLG;
+                }
+                else if (strRet.trimmed() == "EVENTHANDLER")
+                {
+                    eventSource = EVENTSOURCE_EVENTHANDLER;
+                }
+                else if (strRet.trimmed() == "SEPIA")
+                {
+                    eventSource = EVENTSOURCE_SEPIA;
+                }
+                else if (strRet.trimmed() == "NONE")
+                {
+                    eventSource = EVENTSOURCE_NONE;
+                }
+                else if (strRet.trimmed() == "DATALOGGER")
+                {
+                    eventSource = EVENTSOURCE_DATALOGGER;
+                }
+                else if (strRet.trimmed() == "NOTEXIST")
+                {
+                    eventSource = EVENTSOURCE_NOTEXIST;
+                }
+                else if (strRet.trimmed() == "COLORADO")
+                {
+                    eventSource = EVENTSOURCE_COLORADO;
+                }
             }
 
             // construct XMLEvent object
             pXMLEvent = QSharedPointer<XMLEvent>(new XMLEvent(errorId));
             pXMLEvent->m_Source = strSrcName;
+            pXMLEvent->m_Code = code;
             pXMLEvent->m_ErrorId = errorId;
+            pXMLEvent->m_ErrorType = errorType;
             pXMLEvent->m_AuthType = authType;
             pXMLEvent->m_AlarmType = alarmType;
             pXMLEvent->m_RootStep = rootStep;
+            pXMLEvent->m_EventSource = eventSource;
         }
         else if (m_pXMLReader->name() == "Event" && m_pXMLReader->isEndElement())
         {
@@ -151,10 +266,15 @@ void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
         }
         else if (m_pXMLReader->name() == "Step"&& !m_pXMLReader->isEndElement()) // For the "Step" elements
         {
-            QString Id = "";
+            quint32 Id = 0;
             if (m_pXMLReader->attributes().hasAttribute("ID"))
             {
-                Id = m_pXMLReader->attributes().value("ID").toString();
+                bool ok = false;
+                Id = m_pXMLReader->attributes().value("ID").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
             }
 
             QString Type = "";
@@ -170,16 +290,26 @@ void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             }
 
 			// for "ACT" type
-            QString NextStepOnFail = "";
+            quint32 NextStepOnFail = 0;
             if (m_pXMLReader->attributes().hasAttribute("NextStepOnFail"))
             {
-                NextStepOnFail = m_pXMLReader->attributes().value("NextStepOnFail").toString();
+                bool ok = false;
+                NextStepOnFail = m_pXMLReader->attributes().value("NextStepOnFail").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
             }
 
-            QString NextStepOnSuccess = "";
+            quint32 NextStepOnSuccess = 0;
             if (m_pXMLReader->attributes().hasAttribute("NextStepOnSuccess"))
             {
-                NextStepOnSuccess = m_pXMLReader->attributes().value("NextStepOnSuccess").toString();
+                bool ok = false;
+                NextStepOnSuccess = m_pXMLReader->attributes().value("NextStepOnSuccess").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
             }
 
 			// for "MSG" type
@@ -189,16 +319,45 @@ void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 StringId = m_pXMLReader->attributes().value("StringID").toString();
             }
 
-            QString TimeOut = "";
+            quint32 TimeOut = 0;
             if (m_pXMLReader->attributes().hasAttribute("TimeOut"))
             {
-                TimeOut = m_pXMLReader->attributes().value("TimeOut").toString();
+                bool ok = false;
+                TimeOut = m_pXMLReader->attributes().value("TimeOut").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
             }
 
-            QString ButtonType = "";
+            Global::GuiButtonType ButtonType = NOT_SPECIFIED;
             if (m_pXMLReader->attributes().hasAttribute("ButtonType"))
             {
-                ButtonType = m_pXMLReader->attributes().value("ButtonType").toString();
+                QString strRet = m_pXMLReader->attributes().value("ButtonType").toString();
+                if (strRet.trimmed() == "OK")
+                {
+                    ButtonType = OK;
+                }
+                else if (strRet.trimmed() == "YES_NO")
+                {
+                    ButtonType = YES_NO;
+                }
+                else if (strRet.trimmed() == "CONTINUE_STOP")
+                {
+                    ButtonType = CONTINUE_STOP;
+                }
+                else if (strRet.trimmed() == "OK_CANCEL")
+                {
+                    ButtonType = OK_CANCEL;
+                }
+                else if (strRet.trimmed() == "WITHOUT_BUTTONS")
+                {
+                    ButtonType = WITHOUT_BUTTONS;
+                }
+                else if (strRet.trimmed() == "INVISIBLE")
+                {
+                    ButtonType = INVISIBLE;
+                }
             }
 
             QString ButtonEnableCondition = "";
@@ -207,16 +366,62 @@ void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 ButtonEnableCondition = m_pXMLReader->attributes().value("ButtonEnableCondition").toString();
             }
 
-            QString NextStepOnTimeOut = "";
+            quint32 NextStepOnTimeOut = 0;
             if (m_pXMLReader->attributes().hasAttribute("NextStepOnTimeOut"))
             {
-                NextStepOnTimeOut = m_pXMLReader->attributes().value("NextStepOnTimeOut").toString();
+                bool ok = false;
+                NextStepOnTimeOut = m_pXMLReader->attributes().value("NextStepOnTimeOut").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
             }
 
-            QString StatusBar = "";
+            quint32 nextStepOnClickOk = 0;
+            if (m_pXMLReader->attributes().hasAttribute("NextStepOnClickOK"))
+            {
+                bool ok = false;
+                nextStepOnClickOk = m_pXMLReader->attributes().value("NextStepOnClickOK").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+            }
+
+            quint32 nextStepOnClickYES = 0;
+            if (m_pXMLReader->attributes().hasAttribute("NextStepOnClickYES"))
+            {
+                bool ok = false;
+                nextStepOnClickYES = m_pXMLReader->attributes().value("NextStepOnClickYES").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+            }
+
+            quint32 nextStepOnClickNO = 0;
+            if (m_pXMLReader->attributes().hasAttribute("NextStepOnClickNO"))
+            {
+                bool ok = false;
+                nextStepOnClickNO = m_pXMLReader->attributes().value("NextStepOnClickNO").toString().toInt(&ok);
+                if (false == ok)
+                {
+                    return false;
+                }
+            }
+
+            bool StatusBar = true;
             if (m_pXMLReader->attributes().hasAttribute("StatusBar"))
             {
-                StatusBar = m_pXMLReader->attributes().value("StatusBar").toString();
+                QString strRet = m_pXMLReader->attributes().value("StatusBar").toString();
+                if (strRet.trimmed() == "YES")
+                {
+                    StatusBar = true;
+                }
+                else
+                {
+                    StatusBar = false;
+                }
             }
 
             QSharedPointer<EventStep> pEventStep(new EventStep(Id, Type));
@@ -228,15 +433,18 @@ void EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             pEventStep->m_ButtonType = ButtonType;
             pEventStep->m_ButtonEnableConditon = ButtonEnableCondition;
             pEventStep->m_NextStepOnTimeOut = NextStepOnTimeOut;
+            pEventStep->m_NextStepOnClickOk = nextStepOnClickOk;
+            pEventStep->m_NextStepOnClickYES = nextStepOnClickYES;
+            pEventStep->m_NextStepOnClickNO = nextStepOnClickNO;
             pEventStep->m_StatusBar = StatusBar;
 
             pXMLEvent->m_pEventStepList.insert(Id, pEventStep);
         }
     }
-
+    return true;
 }
 
-const XMLEvent* EventXMLInfo::GetEvent(const QString& eventId, const QString& scenarioId)
+const XMLEvent* EventXMLInfo::GetEvent(quint32 eventId, quint32 scenarioId) const
 {
     // First check if XML parsing succeeds or not
     if (m_ParsingStatus  == false)
@@ -245,8 +453,12 @@ const XMLEvent* EventXMLInfo::GetEvent(const QString& eventId, const QString& sc
     }
 
     //In this case, strErrid is the same as ErrorID in EventConfigure.xml
-    QString strErrId = m_pESEXMLInfo->GetErrorCode(eventId, scenarioId);
-    QHash< QString, QSharedPointer<XMLEvent> >::iterator iter = m_pXMLEventList.find(strErrId);
+    quint32 errorId = m_pESEXMLInfo->GetErrorCode(eventId, scenarioId);
+    if (0 == errorId)
+    {
+        return NULL;
+    }
+    QHash< quint32, QSharedPointer<XMLEvent> >::const_iterator iter = m_pXMLEventList.find(errorId);
     if (iter == m_pXMLEventList.end())
     {
         return NULL;
@@ -255,9 +467,9 @@ const XMLEvent* EventXMLInfo::GetEvent(const QString& eventId, const QString& sc
     return iter.value().data();
 }
 
-const EventStep* XMLEvent::GetStep(const QString& stepId) const
+const EventStep* XMLEvent::GetStep(quint32 stepId) const
 {
-    QHash< QString, QSharedPointer<EventStep> >::const_iterator iter = m_pEventStepList.find(stepId);
+    QHash< quint32, QSharedPointer<EventStep> >::const_iterator iter = m_pEventStepList.find(stepId);
     if (iter == m_pEventStepList.end())
     {
         return NULL;
@@ -265,6 +477,5 @@ const EventStep* XMLEvent::GetStep(const QString& stepId) const
 
     return iter.value().data();
 }
-
 
 } // end namespace EventHandler

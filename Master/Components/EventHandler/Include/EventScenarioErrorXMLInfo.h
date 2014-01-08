@@ -45,8 +45,8 @@ public:
      * \param[in] strId   Event Id   
      */
     /****************************************************************************/
-    explicit ESEInfo(const QString& strId, const QString& strName, const QString& strGroup)
-      : m_Id(strId),
+    explicit ESEInfo(quint32 id, const QString& strName, const QString& strGroup)
+      : m_Id(id),
 		m_Name(strName),
 		m_Group(strGroup)
     { }
@@ -58,12 +58,12 @@ public:
      * \return  Const Reference of Error list  
      */
     /****************************************************************************/
-    const QHash<QString, QString>& getScenarioErrorList() const { return m_ScenarioErrorList; }
+    const QHash<QString, quint32>& GetScenarioErrorList() const { return m_ScenarioErrorList; }
 private:
-	QString					m_Id;					///< Event Id
+	quint32					m_Id;					///< Event Id
 	QString					m_Name;					///< Event Name 
 	QString					m_Group;				///< Event Group 
-	QHash<QString, QString>	m_ScenarioErrorList;	///< Error List, key:scenario,value:error
+	QHash<QString, quint32>	m_ScenarioErrorList;	///< Error List, key:scenario,value:error
 private:
 	/****************************************************************************/
     /**
@@ -118,7 +118,7 @@ public:
      * \return	Const Reference of QHash<QString, QString> type of Scenario List
      */
     /****************************************************************************/
-    const QHash<QString, QString>& getScenarioList() const { return m_ScenarioList; }
+    const QHash<QString, QString>& GetScenarioList() const { return m_ScenarioList; }
 
     /****************************************************************************/
     /**
@@ -127,30 +127,31 @@ public:
      * \return	Const Reference of Event-Scenaro-Error list 	
      */
     /****************************************************************************/
-    const QHash< QString, QSharedPointer<ESEInfo> >& getESEInfoList() const { return m_EventScenarioErrList; }
+    const QHash< quint32, QSharedPointer<ESEInfo> >& GetESEInfoList() const { return m_EventScenarioErrList; }
 
     /****************************************************************************/
     /**
      * \brief get Error code based on Event Id and Scenario ID.  
      * \param[in] eventId		Event Id 
      * \param[in] scenarioId	Scenario Id 
+     * \return Error ID. If failed, return zero	
      */
     /****************************************************************************/
-    QString  GetErrorCode(const QString& eventId, const QString& scenarioId="");
+    quint32  GetErrorCode(quint32 eventId, quint32 scenarioId=0);
 private:
     QString                                 		m_XMLFile;					///< XML file
     QSharedPointer<QXmlStreamReader>        		m_pXMLReader;				///< QT XML parser
     QString                                 		m_ScenarioPrefix;			///< Scenario Prefix 
     QHash<QString, QString>							m_ScenarioList;	    		///< Scenario list
-    QHash< QString, QSharedPointer<ESEInfo> >		m_EventScenarioErrList;    	///< Event-Scenaro-Error list
+    QHash< quint32, QSharedPointer<ESEInfo> >		m_EventScenarioErrList;    	///< Event-Scenaro-Error list
 
     /****************************************************************************/
     /**
      * \brief  construct ESEInfo objects list and sort into m_EventScenarioErrList
-     * 
+     * \return true - success, false - failed  
      */
     /****************************************************************************/
-	void  constructESEInfoList();
+	bool  ConstructESEInfoList();
 
     /****************************************************************************/
     /**
@@ -158,7 +159,7 @@ private:
      * \return true - success, false - failed  
      */
     /****************************************************************************/
-	bool  constructSEMap4ESEInfo();
+	bool  ConstructSEMap4ESEInfo();
 private:
     /****************************************************************************/
     /**

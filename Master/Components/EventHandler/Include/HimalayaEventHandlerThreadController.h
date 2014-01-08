@@ -195,7 +195,7 @@ private:
      *  \param    pStep EventStep
      */
     /****************************************************************************/
-    void SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep);
+    void SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep, bool EventStatus);
 
 private:
     EventXMLInfo m_EventManager; //!< use to read event configure from xml

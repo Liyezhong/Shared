@@ -33,7 +33,7 @@ namespace EventHandler {
 
 HimalayaEventHandlerThreadController::HimalayaEventHandlerThreadController(quint32 ThreadID, quint32 RebootCount, QStringList FileList)
     :EventHandlerThreadController(ThreadID,RebootCount,QStringList())
-    ,m_EventManager(FileList, Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventMap.xml")
+    ,m_EventManager(FileList, Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventScenarioErrorMap.xml")
     ,m_GuiAvailable(false)
 {
     m_ActiveEvents.clear();
@@ -83,7 +83,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
 {
     if(Active){
         quint32 EventID = EventIDScenario >> 32;
-        quint32 Scenario = EventIDScenario & 0x00000000ffffffff;
+        quint32 Scenario = EventIDScenario & 0xffffffff;
         if (EventID == EVENT_GUI_AVAILABLE) {
                 SetGuiAvailable(true);
                 return;
@@ -92,11 +92,11 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
         const XMLEvent* pEvent = NULL; // current Event
         const EventStep* pCurrentStep = NULL; // current step
         const EventStep* pNextStep = NULL; // Next step
-        QString NextStepID = "";
+        quint32 NextStepID = 0;
         if(! m_ActiveEvents.contains(EventKey)){ // first coming
-            pEvent = m_EventManager.GetEvent(QString("%1").arg(EventID),QString("%1").arg(Scenario));
+            pEvent = m_EventManager.GetEvent(EventID,Scenario);
             if(pEvent){
-                pNextStep = pEvent->GetStep(QString("%1").arg(0));
+                pNextStep = pEvent->GetStep(0);
                 if(pEvent && pNextStep){ // insert to active event list
                     EventRuntimeInfo_t EventInfo;
                     EventInfo.EventKey = EventKey;
@@ -112,7 +112,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
         }
         else{ //move to next step
             pEvent = m_ActiveEvents[EventKey].Event;
-            pCurrentStep = pEvent->GetStep(QString("%1").arg(m_ActiveEvents[EventKey].CurrentStep));
+            pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
             if(pEvent && pCurrentStep){ //caculate the next step
                 if(pCurrentStep->GetType().compare("ACT") == 0){ //action step
                     if(ActionResult){
@@ -121,10 +121,9 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     else{
                         NextStepID = pCurrentStep->GetNextStepOnFail();
                     }
-                    if(!NextStepID.isEmpty()){
+                    if(NextStepID != 0){
                         pNextStep = pEvent->GetStep(NextStepID);
-                        bool ok;
-                        m_ActiveEvents[EventKey].CurrentStep = NextStepID.toUInt(&ok); //move to next step
+                        m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
                     }
                 }
                 else{ // this case should be processed in onAcknowledge()
@@ -137,8 +136,11 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 SendACTCommand(EventKey, pEvent, pNextStep);
             }
             else{ //send cmd to GUI
-                SendMSGCommand(EventKey, pEvent, pNextStep);
+                SendMSGCommand(EventKey, pEvent, pNextStep,Active);
             }
+        }
+        else if(pEvent && ! pNextStep){ // event finished
+            m_ActiveEvents.remove(EventKey);
         }
 
     }
@@ -166,9 +168,9 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
         const XMLEvent* pEvent = NULL; // current Event
         const EventStep* pCurrentStep = NULL; // current step
         const EventStep* pNextStep = NULL; // Next step
-        QString NextStepID = "";
+        quint32 NextStepID = 0;
         pEvent = m_ActiveEvents[EventKey].Event;
-        pCurrentStep = pEvent->GetStep(QString("%1").arg(m_ActiveEvents[EventKey].CurrentStep));
+        pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
         if(pEvent && pCurrentStep){ //caculate the next step
             if(pCurrentStep->GetType().compare("MSG") == 0){ //msg step
                 NetCommands::ClickedButton_t clicked = ack.GetButtonClicked();
@@ -178,10 +180,9 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                 default: //time out
                     NextStepID = pCurrentStep->GetNextStepOnTimeOut();
                 }
-                if(!NextStepID.isEmpty()){
+                if(NextStepID != 0){
                     pNextStep = pEvent->GetStep(NextStepID);
-                    bool ok;
-                    m_ActiveEvents[EventKey].CurrentStep = NextStepID.toUInt(&ok); //move to next step
+                    m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
                 }
             }
             else{ // this case should be processed in processEvent()
@@ -192,7 +193,7 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                 SendACTCommand(EventKey, pEvent, pNextStep);
             }
             else{ //send cmd to GUI
-                SendMSGCommand(EventKey, pEvent, pNextStep);
+                SendMSGCommand(EventKey, pEvent, pNextStep,true);
             }
         }
 
@@ -228,11 +229,10 @@ void HimalayaEventHandlerThreadController::RegisterCommands()
 void HimalayaEventHandlerThreadController::SendACTCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep)
 {
     NetCommands::CmdSystemAction *p_CmdSystemAction;
-    bool ok;
     p_CmdSystemAction = new NetCommands::CmdSystemAction();
     p_CmdSystemAction->SetEventKey(EventKey);
-    p_CmdSystemAction->SetEventID(pEvent->GetErrorId().toUInt(&ok));
-    p_CmdSystemAction->SetSource(Global::EVENTSOURCE_SCHEDULER);
+    p_CmdSystemAction->SetEventID(pEvent->GetErrorId());
+    p_CmdSystemAction->SetSource(pEvent->GetEventSource());
     p_CmdSystemAction->SetActionString(pStep->GetAction());
 
     Global::tRefType NewRef = GetNewCommandRef();
@@ -240,24 +240,24 @@ void HimalayaEventHandlerThreadController::SendACTCommand(quint32 EventKey, cons
     DEBUGWHEREAMI;
 }
 
-void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep)
+void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep, bool EventStatus)
 {
     if (pStep && pEvent && (pStep->GetType().compare("MSG") == 0))
     {
         NetCommands::EventReportDataStruct EventReportData;
-//        EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
-        EventReportData.EventType = Global::EVTTYPE_ERROR;
+        EventReportData.EventStatus = EventStatus; //False means event not active, True if event active.
+        EventReportData.EventType = pEvent->GetErrorType();
         EventReportData.ID = EventKey;
         EventReportData.EventKey = EventKey;
 
 //        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventId(), TheEvent.GetString()),
 //                                                                                            UseAltEventString, true); //"Event String translated to the set langauge";
         EventReportData.MsgString = pStep->GetStringID();
-//        EventReportData.Time = TheEvent.GetTimeStamp().toString();   // Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
+        EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.Timeout = pStep->GetTimeOut();
         EventReportData.BtnEnableConditions = pStep->GetButtonEnableConditon();
-        EventReportData.BtnType = Global::OK;
-        EventReportData.StatusBarIcon = pStep->GetStatusBar().compare("YES");   //true if GUI must set status bar icon.
+        EventReportData.BtnType = pStep->GetButtonType();
+        EventReportData.StatusBarIcon = pStep->GetStatusBar();   //true if GUI must set status bar icon.
 
         if (m_GuiAvailable)
         {
