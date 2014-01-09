@@ -325,15 +325,10 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 StringId = m_pXMLReader->attributes().value("StringID").toString().toUInt(&ok);
             }
 
-            quint32 TimeOut = 0;
+            QString TimeOut="";
             if (m_pXMLReader->attributes().hasAttribute("TimeOut"))
             {
-                bool ok = false;
-                TimeOut = m_pXMLReader->attributes().value("TimeOut").toString().toInt(&ok);
-                if (false == ok)
-                {
-                    return false;
-                }
+                TimeOut = m_pXMLReader->attributes().value("TimeOut").toString();
             }
 
             Global::GuiButtonType ButtonType = NOT_SPECIFIED;

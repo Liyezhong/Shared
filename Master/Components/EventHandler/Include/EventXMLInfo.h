@@ -112,7 +112,7 @@ public:
      * \return TimeOut Type	
      */
     /****************************************************************************/
-    quint32 GetTimeOut() const { return m_TimeOut; }
+    QString GetTimeOut() const { return m_TimeOut; }
 
     /****************************************************************************/
     /**
@@ -187,7 +187,7 @@ private:
 
 	//For MSg type
     quint32                     m_StringId;				///< Msg String Id
-    quint32                     m_TimeOut;				///< Time Out
+    QString                     m_TimeOut;				///< Time Out
     Global::GuiButtonType		m_ButtonType;			///< Button Type
     QString                     m_ButtonEnableConditon;	///< Condition on button enabled
     quint32                     m_NextStepOnTimeOut;	///< Next step on time out
