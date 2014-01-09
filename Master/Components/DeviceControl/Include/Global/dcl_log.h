@@ -24,17 +24,10 @@
 #include <sstream>
 #include <string>
 
-#ifndef PTS
-#include "EventHandler/Include/CrisisEventHandler.h"
-#endif
 
 
-
-#ifdef PTS
 #define LOG() qDebug()
-#else
-#define LOG() LOG_PAR()<<"DBG"
-#endif
+
 /*-------------------------------------------------
  This file provides functionality for logging
  Start Logging with the following commands:
