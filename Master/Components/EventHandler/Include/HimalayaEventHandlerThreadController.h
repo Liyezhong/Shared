@@ -46,8 +46,9 @@ struct EventRuntimeInfo_t
 };
 
 class HimalayaEventHandlerThreadController : public EventHandlerThreadController
-{
+{ 
 public:
+    friend class TestHimalayaEventHandlerThreadController;
     /****************************************************************************/
     /*!
      *  \brief    Constructor for the HimalayaEventHandlerThreadController

@@ -379,7 +379,7 @@ public slots:
     virtual void ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
                               const bool Active, const bool ActionResult,
                               const Global::tTranslatableStringList &EventStringParList,
-                              const Global::tTranslatableStringList &EventRDStringParList) = 0;
+                              const Global::tTranslatableStringList &EventRDStringParList);
     /****************************************************************************/
     /**
      * \brief Set operating mode string.
