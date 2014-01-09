@@ -322,7 +322,7 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
-#if 1
+#if defined(__arm__)
     return; //based on Jeffrey's request 2013 12 23, disable logging on Ebox
 #endif
     FILE* pStream = Stream();
