@@ -50,7 +50,7 @@ HimalayaEventHandlerThreadController::~HimalayaEventHandlerThreadController()
 void HimalayaEventHandlerThreadController::CreateAndInitializeObjects()
 {
     // now register commands
-    (void)m_EventManager.InitXMLInfo();
+    bool ret = m_EventManager.InitXMLInfo();
     RegisterCommands();
 }
 
@@ -250,9 +250,8 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
         EventReportData.ID = EventKey;
         EventReportData.EventKey = EventKey;
 
-//        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventId(), TheEvent.GetString()),
-//                                                                                            UseAltEventString, true); //"Event String translated to the set langauge";
-        EventReportData.MsgString = pStep->GetStringID();
+        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(pStep->GetStringID(), Global::tTranslatableStringList())); //"Event String translated to the set langauge";
+//        EventReportData.MsgString = pStep->GetStringID();
         EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.Timeout = pStep->GetTimeOut();
         EventReportData.BtnEnableConditions = pStep->GetButtonEnableConditon();

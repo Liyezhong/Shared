@@ -103,7 +103,7 @@ public:
      * \return StringID Type	
      */
     /****************************************************************************/
-    const QString& GetStringID() const { return m_StringId; }
+    const quint32 & GetStringID() const { return m_StringId; }
 
     /****************************************************************************/
     /**
@@ -186,7 +186,7 @@ private:
     quint32		m_NextStepOnSuccess;	///< Next step when current action succeeds
 
 	//For MSg type
-    QString                     m_StringId;				///< Msg String Id
+    quint32                     m_StringId;				///< Msg String Id
     quint32                     m_TimeOut;				///< Time Out
     Global::GuiButtonType		m_ButtonType;			///< Button Type
     QString                     m_ButtonEnableConditon;	///< Condition on button enabled
@@ -296,7 +296,7 @@ public:
      * \return AlarmType attribute	
      */
     /****************************************************************************/
-    Global::AlarmType GetAlarmType() const { return m_AlarmType; }
+    Global::AlarmPosType GetAlarmType() const { return m_AlarmType; }
 
     /****************************************************************************/
     /**
@@ -321,8 +321,8 @@ private:
     QString                                 		m_Source;			///< Source Name
     QString                                 		m_Code;				///< Code
     Global::EventType                          m_ErrorType;		///< Error Type
-    Global::GuiUserLevel                            m_AuthType;			///< Authority Type
-    Global::AlarmType                               m_AlarmType;		///< Alarm Type
+    Global::GuiUserLevel                          m_AuthType;			///< Authority Type
+    Global::AlarmPosType                               m_AlarmType;		///< Alarm Type
     quint32                                 		m_RootStep;			///< Root Step
     Global::EventSourceType                         m_EventSource;		///< Event Source
     QHash< quint32, QSharedPointer<EventStep> >		m_pEventStepList;	///< XML Step List

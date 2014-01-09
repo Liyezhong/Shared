@@ -357,6 +357,18 @@ enum AlarmType {
 
 /****************************************************************************/
 /**
+ * \brief Enum containing all alarm position Types.
+ */
+/****************************************************************************/
+enum AlarmPosType {
+    ALARMPOS_NONE,          ///< No alarm
+    ALARMPOS_DEVICE,        ///< only device alarm .
+    ALARMPOS_LOCAL,         ///< alarm includes device and local
+    ALARMPOS_REMOTE         ///< alarm includes device, local and remote site
+};
+
+/****************************************************************************/
+/**
  * \brief Enum for GUI button type in Msg Box
  */
 /****************************************************************************/

@@ -34,7 +34,8 @@ namespace NetCommands {
  */
 /****************************************************************************/
 class CmdSystemAction : public Global::Command {
-
+    friend QDataStream & operator << (QDataStream &, const CmdSystemAction &);
+    friend QDataStream & operator >> (QDataStream &, CmdSystemAction &);
 private:
     CmdSystemAction(const CmdSystemAction &);                       ///< Not implemented.
     /****************************************************************************/
@@ -262,6 +263,42 @@ public:
 
 
 }; // end class CmdSystemAction
+
+/****************************************************************************/
+/**
+ * \brief Streaming operator.
+ *
+ * \param[in,out]   Stream      Stream to stream into.
+ * \iparam       Cmd         The command to stream.
+ * \return                      Stream.
+ */
+/****************************************************************************/
+inline QDataStream & operator << (QDataStream &Stream, const CmdSystemAction &Cmd)
+{
+    // copy base class data
+    Cmd.CopyToStream(Stream);
+    // copy internal data
+    Stream << Cmd.m_EventKey << Cmd.m_ActionString;
+    return Stream;
+}
+
+/****************************************************************************/
+/**
+ * \brief Streaming operator.
+ *
+ * \param[in,out]   Stream      Stream to stream from.
+ * \iparam       Cmd         The command to stream.
+ * \return                      Stream.
+ */
+/****************************************************************************/
+inline QDataStream & operator >> (QDataStream &Stream, CmdSystemAction &Cmd)
+{
+    // copy base class data
+    Cmd.CopyFromStream(Stream);
+    // copy internal data
+    Stream >> Cmd.m_EventKey >> Cmd.m_EventKey;;
+    return Stream;
+}
 
 }// end namespace NetCommands
 

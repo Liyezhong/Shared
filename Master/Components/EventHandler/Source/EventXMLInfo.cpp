@@ -20,6 +20,7 @@
 /****************************************************************************/
 
 #include <EventHandler/Include/EventXMLInfo.h>
+#include <Global/Include/GlobalDefines.h>
 #include <QFile>
 using namespace Global;
 
@@ -158,21 +159,25 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
-            Global::AlarmType alarmType;
+            Global::AlarmPosType alarmType;
             if (m_pXMLReader->attributes().hasAttribute("AlarmType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("AlarmType").toString();
                 if (strRet.trimmed() == "AL_NONE")
                 {
-                    alarmType = ALARM_NONE;
+                    alarmType = ALARMPOS_NONE;
                 }
-                else if (strRet.trimmed() == "AL_WARNING")
+                else if (strRet.trimmed() == "AL_LOCAL")
                 {
-                    alarmType = ALARM_WARNING;
+                    alarmType = ALARMPOS_LOCAL;
                 }
-                else if (strRet.trimmed() == "AL_ERROR")
+                else if (strRet.trimmed() == "AL_DEVICE")
                 {
-                    alarmType = ALARM_ERROR;
+                    alarmType = ALARMPOS_DEVICE;
+                }
+                else if (strRet.trimmed() == "AL_REMOTE")
+                {
+                    alarmType = ALARMPOS_REMOTE;
                 }
                 else
                 {
@@ -313,10 +318,11 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             }
 
 			// for "MSG" type
-            QString StringId = "";
+            quint32 StringId = EVENT_GLOBAL_UNKNOWN_STRING_ID;
             if (m_pXMLReader->attributes().hasAttribute("StringID"))
             {
-                StringId = m_pXMLReader->attributes().value("StringID").toString();
+                bool ok;
+                StringId = m_pXMLReader->attributes().value("StringID").toString().toUInt(&ok);
             }
 
             quint32 TimeOut = 0;

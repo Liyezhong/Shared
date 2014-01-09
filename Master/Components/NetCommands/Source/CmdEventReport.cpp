@@ -40,7 +40,8 @@ CmdEventReport::CmdEventReport(int Timeout, EventReportDataStruct &EventReportDa
     // EventStatus, EventType, EventID, EventString,  Time, btn Type,StatusBar Icon
     Stream << EventReportData.EventStatus << EventReportData.EventType << EventReportData.ID
            << EventReportData.MsgString << EventReportData.Time << EventReportData.BtnType
-           << EventReportData.StatusBarIcon;
+           << EventReportData.StatusBarIcon << EventReportData.EventKey << EventReportData.BtnEnableConditions
+              << EventReportData.Timeout;
 
 }
 
