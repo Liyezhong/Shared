@@ -298,5 +298,8 @@
         <file>HimalayaImages/Icons/Configuration/Configuration_Status_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Status.png</file>
         <file>HimalayaImages/Icons/MISC/Start_Background.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Service.png</file>
     </qresource>
 </RCC>
