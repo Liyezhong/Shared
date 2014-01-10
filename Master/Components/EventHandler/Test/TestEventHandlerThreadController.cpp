@@ -41,6 +41,7 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
+#include <Threads/Include/PlatformThreadIDs.h>
 
 
 #include <Threads/Include/MasterThreadController.h>
@@ -203,7 +204,7 @@ void TestEventHandlerThreadController::initTestCase() {
     mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(m_HeartBeatSourceDataLogging, m_EventLoggerBaseFileName);
 
 
-    mp_EventHandlerThreadController = new EventHandler::EventHandlerThreadController(m_HeartBeatSourceEventHandler, 0, QStringList());
+    mp_EventHandlerThreadController = new EventHandler::EventHandlerThreadController(THREAD_ID_EVENTHANDLER, 0, QStringList());
 
 
     CONNECTSIGNALSLOT(mp_EventHandlerThreadController, LogEventEntry(const DataLogging::DayEventEntry &),
@@ -226,7 +227,7 @@ void TestEventHandlerThreadController::initTestCase() {
     mp_EventHandlerThreadController->VerifyAlarmEventTypeDependency(CSVInfo);
     mp_EventHandlerThreadController->VerifyStatusbarGUIOptionDependency(CSVInfo);
     mp_EventHandlerThreadController->InformAlarmHandler(EventEntry,quint64(234),true);
-    mp_EventHandlerThreadController->CreateEventEntry(EventEntry,CSVInfo,true,quint32 (123),EventStringList,quint32(345),AltStringUsage);
+  //  mp_EventHandlerThreadController->CreateEventEntry(EventEntry,CSVInfo,true,quint32 (123),EventStringList,quint32(345),AltStringUsage);
    // mp_EventHandlerThreadController->HandleInactiveEvent(EventEntry,quint64(34));
     mp_EventHandlerThreadController->UpdateEventDataStructures(quint32(123),quint64(3556),EventEntry,true,true);
     mp_EventHandlerThreadController->ProcessEvent(quint32(23),EventStringList,true,quint32(34),AltStringUsage);
