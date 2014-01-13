@@ -24,7 +24,6 @@
 #include <QString>
 #include <QIODevice>
 
-#include "HimalayaDataManager/Containers/Reagents/Include/DataReagentList.h"
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
 #include "TestStubDataManager/Containers/Racks/Include/RackList.h"
 
