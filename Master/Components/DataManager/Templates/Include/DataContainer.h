@@ -24,7 +24,6 @@
 #include <QString>
 #include <QIODevice>
 
-#include "DataManager/Containers/StainingPrograms/Include/DataProgramList.h"
 #include "DataManager/Containers/StainingReagents/Include/DataReagentList.h"
 #include "DataManager/Containers/Stations/Include/DataStationList.h"
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
