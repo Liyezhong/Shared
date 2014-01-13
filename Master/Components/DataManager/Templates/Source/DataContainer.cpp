@@ -375,34 +375,4 @@ bool CDataContainer::CompareSteps(CProgramStep& CurrentProgramStep, CProgramStep
     }
 }
 
-<<<<<<< .mine
-=======
-/****************************************************************************/
-/*!
- *  \brief Retrieves Program step for the index given
- *
- *  \return true - retrieve success , false - retrieve failure
- */
-/****************************************************************************/
-bool CDataContainer::GetProgramStepExpanded(const unsigned int Index,const CProgram* p_Program, CProgramStep* p_ProgStep)
-{
-    // Before calling this , expanded step list should be filled
-    // Expanded step list is filled by refreshexpanded steplist
-    // Refreshexpanded step list is called whenever a new step is added or deleted
-    // or when station id list is to be generated.
-//    if (p_Program) {
-//        if (!(p_Program->GetExpandedProgramStep(Index, p_ProgStep))) {
-//            qDebug()<<"### CDataContainer::GetProgramStepExpanded() failed";
-//            return false;
-//        }
-//        else {
-//            return true;
-//        }
-//    }
-//    else {
-//        return false;
-//    }
-}
-
->>>>>>> .r7492
 }// namespace DataManager
