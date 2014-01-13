@@ -24,12 +24,9 @@
 #include <QString>
 #include <QIODevice>
 
-#include "DataManager/Containers/StainingReagents/Include/DataReagentList.h"
-#include "DataManager/Containers/Stations/Include/DataStationList.h"
+#include "HimalayaDataManager/Containers/StainingReagents/Include/DataReagentList.h"
 #include "DataManager/Containers/UserSettings/Include/UserSettings.h"
-#include "DataManager/Containers/ProgramSequence/Include/ProgramSequenceList.h"
-#include "DataManager/Containers/Racks/Include/RackList.h"
-#include "DataManager/Containers/StationsGrid/Include/DataStationMatrix.h"
+#include "TestStubDataManager/Containers/Racks/Include/RackList.h"
 
 namespace DataManager {
 //!<  List containing macro steps and normal program steps
