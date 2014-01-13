@@ -25,7 +25,6 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 
 //Adaption to device processing
-#include "DeviceControl/Include/Global/DeviceControl.h"
 //#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 
 //#include "HimalayaDataContainer/Include/DataManager.h"
