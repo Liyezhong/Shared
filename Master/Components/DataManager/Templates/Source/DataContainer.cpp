@@ -20,19 +20,8 @@
 
 #include <QDebug>
 #include "DataManager/Templates/Include/DataContainer.h"
-
-#include "DataManager/Containers/StainingPrograms/Include/DataProgramListVerifier.h"
-
-#include "DataManager/Containers/ProgramSequence/Include/ProgramSequenceVerifier.h"
-
-#include "DataManager/Containers/StainingReagents/Include/DataReagentListVerifier.h"
-
-#include "DataManager/Containers/Stations/Include/DataStationListVerifier.h"
-
-#include "DataManager/Containers/Racks/Include/RackList.h"
-#include "DataManager/Containers/Racks/Include/RackListVerifier.h"
-#include "DataManager/SpecialVerifiers/Include/SpecialVerifierGroupA.h"
-
+#include "TestStubDataManager/Containers/Racks/Include/RackList.h"
+#include "TestStubDataManager/Containers/Racks/Include/RackListVerifier.h"
 
 namespace DataManager {
 
