@@ -145,17 +145,13 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 {
                     authType = ADMIN;
                 }
-                else if (strRet.trimmed() == "Auth_OPERATOR")
-                {
-                    authType = OPERATOR;
-                }
                 else if (strRet.trimmed() == "Auth_SERVICE")
                 {
                     authType = SERVICE;
                 }
                 else
                 {
-                    return false;
+                    authType = OPERATOR;
                 }
             }
 
@@ -163,11 +159,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("AlarmType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("AlarmType").toString();
-                if (strRet.trimmed() == "AL_NONE")
-                {
-                    alarmType = ALARMPOS_NONE;
-                }
-                else if (strRet.trimmed() == "AL_LOCAL")
+                if (strRet.trimmed() == "AL_LOCAL")
                 {
                     alarmType = ALARMPOS_LOCAL;
                 }
@@ -181,7 +173,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
                 else
                 {
-                    return false;
+                    alarmType = ALARMPOS_NONE;
                 }
             }
 
@@ -335,27 +327,27 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("ButtonType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("ButtonType").toString();
-                if (strRet.trimmed() == "OK")
+                if (strRet.trimmed().compare("OK",Qt::CaseInsensitive))
                 {
                     ButtonType = OK;
                 }
-                else if (strRet.trimmed() == "YES_NO")
+                else if (strRet.trimmed().compare("YES_NO",Qt::CaseInsensitive))
                 {
                     ButtonType = YES_NO;
                 }
-                else if (strRet.trimmed() == "CONTINUE_STOP")
+                else if (strRet.trimmed().compare("CONTINUE_STOP",Qt::CaseInsensitive))
                 {
                     ButtonType = CONTINUE_STOP;
                 }
-                else if (strRet.trimmed() == "OK_CANCEL")
+                else if (strRet.trimmed().compare("OK_CANCEL",Qt::CaseInsensitive))
                 {
                     ButtonType = OK_CANCEL;
                 }
-                else if (strRet.trimmed() == "WITHOUT_BUTTONS")
+                else if (strRet.trimmed().compare("WITHOUT_BUTTONS",Qt::CaseInsensitive))
                 {
                     ButtonType = WITHOUT_BUTTONS;
                 }
-                else if (strRet.trimmed() == "INVISIBLE")
+                else if (strRet.trimmed().compare("INVISIBLE",Qt::CaseInsensitive))
                 {
                     ButtonType = INVISIBLE;
                 }
@@ -415,7 +407,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("StatusBar"))
             {
                 QString strRet = m_pXMLReader->attributes().value("StatusBar").toString();
-                if (strRet.trimmed() == "YES")
+                if (strRet.trimmed().compare("YES",Qt::CaseInsensitive))
                 {
                     StatusBar = true;
                 }
