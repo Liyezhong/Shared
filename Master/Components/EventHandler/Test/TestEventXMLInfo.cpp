@@ -70,22 +70,18 @@ private slots:
 
 void TestEventXMLInfo::UTAll()
 {
-   // number of XMLEvent
-    QCOMPARE( m_pEventXMLInfo->GetEventList().size(), 5);
-
     //Source in each XMLEvent
-    QString source = "Platform";
-    QCOMPARE((m_pEventXMLInfo->GetEventList())[513010000]->GetSource(), source);
+    QString source = "Himalaya";
     QCOMPARE((m_pEventXMLInfo->GetEventList())[513030001]->GetSource(), source);
+    source = "Platform";
+    QCOMPARE((m_pEventXMLInfo->GetEventList())[16842755]->GetSource(), source);
 
-    //Code of each XMLEvent;
-    QString code = "03";
-    QCOMPARE((m_pEventXMLInfo->GetEventList())[513010002]->GetCode(), code);
-    code = "05";
-    QCOMPARE((m_pEventXMLInfo->GetEventList())[513010003]->GetCode(), code);
+   //Code of each XMLEvent;
+   QString code = "";
+   QCOMPARE((m_pEventXMLInfo->GetEventList())[513030091]->GetCode(), code);
 
-    //"single" type
-   const EventStep* step = m_pEventXMLInfo->GetEvent(500010001, 200)->GetStep(3);
+   //"single" type
+   const EventStep* step = m_pEventXMLInfo->GetEvent(500030001, 200)->GetStep(3);
    QString type = "ACT";
    QCOMPARE(step->GetType(), type);
 
@@ -96,10 +92,13 @@ void TestEventXMLInfo::UTAll()
 void TestEventXMLInfo::initTestCase()
 {
     QStringList list;
-    list.append("EventConfigure01.xml");
-    list.append("EventConfigure02.xml");
-    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list, "ese.xml"));
-    m_pEventXMLInfo->InitXMLInfo();
+    list.append("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventConfigure.xml");
+    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list, "../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventScenarioErrorMap.xml"));
+    if (m_pEventXMLInfo->InitXMLInfo() == false)
+    {
+        exit(-1);
+    }
+
 }
 
 /****************************************************************************/
