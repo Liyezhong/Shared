@@ -27,15 +27,6 @@
 #include <DeviceCommandProcessor/Include/Commands/CmdDeviceProcessingCleanup.h>
 
 #include <Global/Include/Commands/AckOKNOK.h>
-
-
-#include "DeviceControl/Include/Devices/DeviceAgitation.h"
-#include "DeviceControl/Include/Devices/DeviceDrawer.h"
-#include "DeviceControl/Include/Devices/DeviceHeatedCuvettes.h"
-#include "DeviceControl/Include/Devices/DeviceHood.h"
-#include "DeviceControl/Include/Devices/DeviceOven.h"
-#include "DeviceControl/Include/Devices/DeviceRackTransfer.h"
-
 #include <stdlib.h>
 #include <math.h>
 

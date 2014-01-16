@@ -20,19 +20,8 @@
 
 #include <QDebug>
 #include "DataManager/Templates/Include/DataContainer.h"
-
-#include "DataManager/Containers/StainingPrograms/Include/DataProgramListVerifier.h"
-
-#include "DataManager/Containers/ProgramSequence/Include/ProgramSequenceVerifier.h"
-
-#include "DataManager/Containers/StainingReagents/Include/DataReagentListVerifier.h"
-
-#include "DataManager/Containers/Stations/Include/DataStationListVerifier.h"
-
-#include "DataManager/Containers/Racks/Include/RackList.h"
-#include "DataManager/Containers/Racks/Include/RackListVerifier.h"
-#include "DataManager/SpecialVerifiers/Include/SpecialVerifierGroupA.h"
-
+#include "TestStubDataManager/Containers/Racks/Include/RackList.h"
+#include "TestStubDataManager/Containers/Racks/Include/RackListVerifier.h"
 
 namespace DataManager {
 
@@ -386,34 +375,4 @@ bool CDataContainer::CompareSteps(CProgramStep& CurrentProgramStep, CProgramStep
     }
 }
 
-<<<<<<< .mine
-=======
-/****************************************************************************/
-/*!
- *  \brief Retrieves Program step for the index given
- *
- *  \return true - retrieve success , false - retrieve failure
- */
-/****************************************************************************/
-bool CDataContainer::GetProgramStepExpanded(const unsigned int Index,const CProgram* p_Program, CProgramStep* p_ProgStep)
-{
-    // Before calling this , expanded step list should be filled
-    // Expanded step list is filled by refreshexpanded steplist
-    // Refreshexpanded step list is called whenever a new step is added or deleted
-    // or when station id list is to be generated.
-//    if (p_Program) {
-//        if (!(p_Program->GetExpandedProgramStep(Index, p_ProgStep))) {
-//            qDebug()<<"### CDataContainer::GetProgramStepExpanded() failed";
-//            return false;
-//        }
-//        else {
-//            return true;
-//        }
-//    }
-//    else {
-//        return false;
-//    }
-}
-
->>>>>>> .r7492
 }// namespace DataManager

@@ -104,7 +104,7 @@ void TestEventScenarioErrorXMLInfo::UTAll()
 /******************************************************************ls**********/
 void TestEventScenarioErrorXMLInfo::initTestCase()
 {
-    m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo("ese.xml"));
+    m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventScenarioErrorMap.xml"));
     m_pESEXMLInfo->InitXMLInfo();
 }
 

@@ -2,7 +2,7 @@
     error("EventHandler.pri not found")
 }
 
-TARGET = TestEventXMLInfo
+TARGET = utTestEventXMLInfo
 
 SOURCES += TestEventXMLInfo.cpp
 
