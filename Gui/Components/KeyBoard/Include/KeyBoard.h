@@ -56,12 +56,6 @@ typedef enum {
     QWERTZ_KEYBOARD
 }KeyBoardType_t;
 
-//! < Type of input from the Keyboard
-typedef enum {
-    VALIDATION_1 = 1,
-    VALIDATION_2,
-    VALIDATION_3,
-}ValidationType_t;
 //! Enumeration of Button indexes , the order in which they are laid on keyboard.
 typedef enum {
     LETTER_Q_INDEX = 1,

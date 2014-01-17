@@ -239,9 +239,6 @@
         <file>HimalayaImages/Popup/Popup-Rack-white.png</file>
         <file>HimalayaImages/Popup/Popup-Rack-yellow.png</file>
         <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Background.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Background_Grayed.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Cover.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Cover_Grayed.png</file>
         <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Large.png</file>
         <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Large_Grayed.png</file>
         <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Small.png</file>
@@ -298,5 +295,9 @@
         <file>HimalayaImages/Icons/Configuration/Configuration_Status_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Status.png</file>
         <file>HimalayaImages/Icons/MISC/Start_Background.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Service.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Handle.png</file>
     </qresource>
 </RCC>

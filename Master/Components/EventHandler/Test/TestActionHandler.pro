@@ -2,7 +2,7 @@
     error("EventHandler.pri not found")
 }
 
-TARGET = TestActionHandler
+TARGET = utTestActionHandler
 
 SOURCES += TestActionHandler.cpp \
 
