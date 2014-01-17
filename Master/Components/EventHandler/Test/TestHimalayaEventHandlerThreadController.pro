@@ -2,7 +2,7 @@
     error("EventHandler.pri not found")
 }
 
-TARGET = TestHimalayaEventHandlerThreadController
+TARGET = utTestHimalayaEventHandlerThreadController
 
 SOURCES += TestHimalayaEventHandlerThreadController.cpp
 

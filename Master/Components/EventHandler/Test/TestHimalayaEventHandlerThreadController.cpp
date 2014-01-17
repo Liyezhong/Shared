@@ -129,11 +129,24 @@ private slots:
 
 
 void TestHimalayaEventHandlerThreadController::TestOnAcknowledge() {
+    NetCommands::CmdAcknEventReport ack;
+    EventRuntimeInfo_t ActiveEvent;
+    ActiveEvent.EventID = 500030001;
+    ActiveEvent.Scenario = 200;
+    ActiveEvent.CurrentStep = 2;
+    ActiveEvent.EventKey = 2;
+    ActiveEvent.Event = NULL;
+    ActiveEvent.Event = mp_HimalayaEventHandlerThreadController->m_EventManager.GetEvent(500030001,200);
+    QVERIFY(ActiveEvent.Event != NULL);
+    mp_HimalayaEventHandlerThreadController->m_ActiveEvents.insert(2,ActiveEvent);
+    mp_HimalayaEventHandlerThreadController->m_EventKeyRefMap.insert(2,2);
+    mp_HimalayaEventHandlerThreadController->OnAcknowledge(2,ack);
+    EventRuntimeInfo_t evt = mp_HimalayaEventHandlerThreadController->m_ActiveEvents.value(2);
+    QVERIFY(evt.CurrentStep == 2);
 }
 
 void TestHimalayaEventHandlerThreadController::TestProcessEvents(){
 
-    mp_HimalayaEventHandlerThreadController->ConnectToEventObject();
     Global::EventObject::Instance().RaiseEvent(0,500030001,200,true);
     QCOMPARE(mp_HimalayaEventHandlerThreadController->m_ActiveEvents.size(),1);
 }
@@ -146,6 +159,11 @@ void TestHimalayaEventHandlerThreadController::TestReadEventConfigurationFile() 
 void TestHimalayaEventHandlerThreadController::initTestCase() {
 
 
+}
+
+/****************************************************************************/
+void TestHimalayaEventHandlerThreadController::init()
+{
     Global::EventObject::Instance();
     m_EventLoggerBaseFileName = "Base";
     mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(THREAD_ID_DATALOGGING, m_EventLoggerBaseFileName);
@@ -153,14 +171,8 @@ void TestHimalayaEventHandlerThreadController::initTestCase() {
     mp_HimalayaEventHandlerThreadController = new EventHandler::HimalayaEventHandlerThreadController(THREAD_ID_EVENTHANDLER, 0,
                                                                     QStringList() << Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventConfigure.xml");
     mp_HimalayaEventHandlerThreadController->CreateAndInitializeObjects();
+    mp_HimalayaEventHandlerThreadController->ConnectToEventObject();
 
-
-
-}
-
-/****************************************************************************/
-void TestHimalayaEventHandlerThreadController::init()
-{
 }
 /****************************************************************************/
 void TestHimalayaEventHandlerThreadController::cleanup() {

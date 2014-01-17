@@ -175,10 +175,11 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
             if(pCurrentStep->GetType().compare("MSG") == 0){ //msg step
                 NetCommands::ClickedButton_t clicked = ack.GetButtonClicked();
                 switch(clicked){
-                case NetCommands::OK_BUTTON:
-                    NextStepID = pCurrentStep->GetNextStepOnTimeOut();
-                default: //time out
-                    NextStepID = pCurrentStep->GetNextStepOnTimeOut();
+                    case NetCommands::OK_BUTTON:
+                        NextStepID = pCurrentStep->GetNextStepOnClickOK();
+                        break;
+                    default: //time out
+                        NextStepID = pCurrentStep->GetNextStepOnTimeOut();
                 }
                 if(NextStepID != 0){
                     pNextStep = pEvent->GetStep(NextStepID);
