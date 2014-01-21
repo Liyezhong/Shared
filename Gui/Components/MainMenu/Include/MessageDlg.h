@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file MessageDlg.h
  *
- *  \brief MessageDlg definition.
+ *  \brief Header file for class CMessageDlg.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-09-28
@@ -38,9 +38,17 @@ namespace Ui {
 class CMessageDlg : public CDialogFrame
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 private:
     Ui::CMessageDlg *mp_Ui; //!< User interface
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CMessageDlg)
 
 public:
     //! Enum describes the message severity
@@ -61,12 +69,10 @@ public:
     void HideCenterButton();
     void HideButtons();
     void HideButtonsOneAndTwo();
+    void HideAllButtons();
 
 public slots:
     void Show();
-
-protected:
-    void changeEvent(QEvent *p_Event);
 
 private slots:
     /****************************************************************************/
@@ -103,9 +109,27 @@ private slots:
     }
 
 signals:
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when right corner button is clicked
+     */
+    /****************************************************************************/
     void ButtonRightClicked();
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when left corner button is clicked
+     */
+    /****************************************************************************/
     void ButtonLeftClicked();
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when centre button is clicked
+     */
+    /****************************************************************************/
     void ButtonCenterClicked();
+
 };
 
 } // end namespace MainMenu

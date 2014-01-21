@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file ScrollWheel.cpp
  *
- *  \brief ScrollWheel implementation.
+ *  \brief Implementation of file for class CScrollWheel.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying scroll wheel
+ *          widgets.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-20
@@ -38,27 +42,25 @@ namespace MainMenu {
 /****************************************************************************/
 CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessWindowHint), m_ThreeDigitMode(false)
 {
+
     QFont Font = font();
-    Font.setPointSize(46);
-    setFont(Font);
     //chose a multiple of m_ItemHeight, if multiple was not chosen ,the item position was
     //getting an offset of about 10 pixels in the begining.
     m_ScrollableHeight = 98000;
-
-
     m_Offset = QPoint(0, 0);
-    m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
-    m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
-
-    m_ItemAlignment = Qt::AlignCenter;
-    m_ItemHeight = 70;
-    m_NonContinuous = false;
-
+    Font.setPointSize(46);
+    m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").
+                                 arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
+    m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").
+                                   arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
+    setMinimumSize(86, 188);
     if (QtScroller::grabGesture(this, QtScroller::LeftMouseButtonGesture) < Qt::CustomGesture) {
         qDebug() << "CScrollWheel: invalid gesture type";
     }
-
-    setMinimumSize(86, 188);
+    m_ItemAlignment = Qt::AlignCenter;
+    m_NonContinuous = false;
+    m_ItemHeight = 70;
+    setFont(Font);
     setAttribute(Qt::WA_OpaquePaintEvent, true);
 }
 
@@ -107,6 +109,59 @@ void CScrollWheel::paintEvent(QPaintEvent *p_PaintEvent)
     QPainter Painter(this);
     //draw the scaled BG image
     Painter.fillRect(p_PaintEvent->rect(), QColor(39, 47, 58));
+    Painter.setPen(Qt::white);
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+
+        if (m_ScrollType == "Large") {
+            Painter.drawPixmap(0, 10, m_BackgroundPixmap);
+        }
+        else {
+            Painter.drawPixmap(0, 0, m_BackgroundPixmap);
+        }
+
+        qint32 Items = height() / m_ItemHeight;
+        qint32 Start = m_Offset.y() / m_ItemHeight - Items / 2     ;
+        qint32 End = Start + height() / m_ItemHeight + Items / 2 + 1 ;
+        qint32 YPos = Start * m_ItemHeight - m_Offset.y() + height() / 2 + 2;
+
+        for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
+            qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
+
+            Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
+
+            if(!m_ItemPixmaps[Index].isNull()) {
+                Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+            }
+        }
+
+        // draw the scaled cover
+        if (m_ScrollType == "Large") {
+            Painter.drawPixmap(0,-10, m_SelectedItemPixmap);
+        }
+        else {
+            Painter.drawPixmap(0, 0, m_SelectedItemPixmap);
+        }
+    }
+    else if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_COLORADO) {
+        Painter.drawPixmap(0, 0, m_BackgroundPixmap);
+        qint32 Items = height() / m_ItemHeight;
+        qint32 Start = m_Offset.y() / m_ItemHeight - Items / 2 - 1;
+        qint32 End = Start + height() / m_ItemHeight + Items / 2 + 2;
+        qint32 YPos = Start * m_ItemHeight - m_Offset.y() + height() / 2 + 2;
+        for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
+            qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
+
+            Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
+
+            if (!m_ItemPixmaps[Index].isNull()) {
+                Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+            }
+        }
+        // draw the scaled cover
+        Painter.drawPixmap(0, 0, m_SelectedItemPixmap);
+    }
+	else if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_HIMALAYA)
+   {
     Painter.drawPixmap(0, 0, m_BackgroundPixmap);
 
     if (m_Items.count() > 0) {
@@ -139,6 +194,8 @@ void CScrollWheel::paintEvent(QPaintEvent *p_PaintEvent)
     }
     // draw the scaled cover
     Painter.drawPixmap(0, 0, m_SelectedItemPixmap);
+ }
+	
 }
 
 /****************************************************************************/
@@ -166,7 +223,7 @@ bool CScrollWheel::event(QEvent *p_Event)
                 p_ScrollEvent->setContentPos(QPointF(0.0, scrollOffset().y()));
             }
             else {
-                p_ScrollEvent->setContentPos(QPointF(0.0, scrollOffset().y() + (m_ScrollableHeight/2)));
+                p_ScrollEvent->setContentPos(QPointF(0.0, scrollOffset().y() + (float)(m_ScrollableHeight/2)));
             }
             p_ScrollEvent->accept();
             return true;
@@ -287,7 +344,7 @@ void CScrollWheel::SetNonContinuous()
     m_ScrollableHeight = (m_Items.count() - 1) * m_ItemHeight;
     //Dummy data to hide roll over values
     QPixmap Pixmap;
-    for(qint32 I = 0; I < 4; I++) {
+    for (qint32 I = 0; I < 4 ; I++) {
         m_ItemData.append("");
         m_Items.append("");
         m_ItemPixmaps.append(Pixmap);
@@ -299,6 +356,8 @@ void CScrollWheel::SetNonContinuous()
 /*!
  *  \brief Sets the scroller pixmap based on whether the scroller should display
  *         three digits or two digits.
+ *
+ *  \iparam Mode = True if Three digits mode else False.
  */
 /****************************************************************************/
 void CScrollWheel::SetThreeDigitMode(bool Mode)
@@ -311,6 +370,38 @@ void CScrollWheel::SetThreeDigitMode(bool Mode)
     else {
         m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
         m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())).copy(2, 43, 86, 188);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the background image and selected images.
+ *
+ *  \iparam Type = Large for Sepia Date/Time and Small for other scroll wheels.
+ */
+/****************************************************************************/
+void CScrollWheel::InitScrollWheel(QString Type)
+{
+    QFont Font = font();
+    m_ScrollType = Type;
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        if (Type == "Large") {
+            m_BackgroundPixmap = QPixmap(":/Small/Digits/Digit_Large_Background.png").copy(19, 39, 52, 206);
+            m_SelectedItemPixmap = QPixmap(":/Small/Digits/Digit_Large_Cover.png").copy(20, 21, 52, 206);
+            m_ItemHeight = 70;
+            Font.setPointSize(18);
+            setMinimumSize(54, 170);
+            setMaximumSize(54, 170);
+        }
+        else {
+            m_BackgroundPixmap = QPixmap(":/Small/Digits/Digit_Background.png").copy(19, 47, 52, 206);
+            m_SelectedItemPixmap = QPixmap(":/Small/Digits/Digit_Cover.png").copy(20, 29, 52, 206);
+            setMinimumSize(54, 120);
+            setMaximumSize(54, 120);
+            m_ItemHeight = 50;
+            Font.setPointSize(19);
+        }
+        setFont(Font);
     }
 }
 

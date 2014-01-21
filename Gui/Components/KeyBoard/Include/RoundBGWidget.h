@@ -36,6 +36,13 @@ private:
     QPixmap m_Pixmap;   //!< Speller background pixmap
     QPixmap *mp_Target; //!< Speller background pixmap stretched
     void paintEvent(QPaintEvent *p_PaintEvent);
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CRoundWidget)
 
 public:
     explicit CRoundWidget(QWidget *p_Parent = 0);

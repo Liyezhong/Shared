@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file SemiTransparentOverlay.h
  *
- *  \brief WheelPanel definition.
+ *  \brief Header file for class CSemiTransparentOverlay.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-01-17
@@ -22,6 +22,8 @@
 
 #include <QWidget>
 
+//lint -e1540
+
 namespace MainMenu {
 
 class CWheelPanel;
@@ -35,17 +37,34 @@ class CSliderControl;
 /****************************************************************************/
 class CSemiTransparentOverlay:public QWidget{
     Q_OBJECT
+    friend class  CTestMainMenu;
 public:
     CSemiTransparentOverlay(CWheelPanel *p_Parent = NULL);
     CSemiTransparentOverlay(CSliderControl *p_SliderParent = NULL);
     ~CSemiTransparentOverlay(){mp_Parent = 0;}
+
+    /****************************************************************************/
+    /**
+     * \brief This methods sets the visibility of SemiTransparentOverlay.
+     *
+     *  \iparam Enabled = True if enable else False.
+     */
+    /****************************************************************************/
     void SetEnabled(bool Enabled){ m_Enabled = Enabled; }
+
 private:
     void paintEvent(QPaintEvent *);
     CWheelPanel *mp_Parent; //!< Parent Wheel panel widget
     CSliderControl *mp_SliderParent;  //!< Slider widget
     bool m_Enabled;         //!< True- widget is enabled
     bool m_SliderControl;    //!< True - Slider widget is enabled
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CSemiTransparentOverlay)
 };
 
 }//End of namespace MainMenu

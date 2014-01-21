@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file TextPanel.cpp
  *
- *  \brief TextPanel implementation.
+ *  \brief Implementation of file for class CTextPanel.
+ *
+ *  \b Description:
+ *          This class implements a base widget,which is used for
+ *          displaying Panel frames for Text dialog widgets.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-28
@@ -163,7 +167,7 @@ void CTextPanel::AddTextItem(QString Identifier, QString Description, QString Va
 /****************************************************************************/
 void CTextPanel::UpdateTextItem(QString Identifier, QString Value)
 {
-    m_Value[Identifier]->setText(tr("%1").arg(Value));
+    m_Value[Identifier]->setText(QString("%1").arg(Value));
 }
 
 } // end namespace MainMenu

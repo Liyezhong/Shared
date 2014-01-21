@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file WaitIndicator.cpp
  *
- *  \brief WaitIndicator implementation.
+ *  \brief Implementation of file for class CWaitIndicator.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying the wait
+ *          indicators.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22

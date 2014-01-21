@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file StatusBarManager.h
  *
- *  \brief Definition file for class StatsuBarManager.
+ *  \brief Header file for class CStatusBarManager.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-11-02
@@ -15,7 +15,7 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- * \warning This object lives in HimalayaMaster Thread
+ * \warning This object lives in ColoradoMaster Thread
  */
 /****************************************************************************/
 
@@ -36,51 +36,61 @@
 #include <QDebug>
 #include <MainMenu/Include/MsgBoxManager.h>
 
-//namespace StatusBar {
-//    class CErrorMsgDlg;
-//    class CWarningMsgDlg;
-//}
 
 namespace MainMenu {
 
-class StatusBarManager : public QWidget {
+/****************************************************************************/
+/**
+ *  \brief Status Bar manager managing status bar icons.
+ */
+/****************************************************************************/
+class CStatusBarManager : public QWidget {
+
     Q_OBJECT
+    friend class  CTestMainMenu;
+
 private:
-    static StatusBarManager *mp_StatusBarMgrInstance; //!< Static instance
-    StatusBarManager(const StatusBarManager &);   ///< Not implemented.
-    CErrorMsgDlg *mp_ErrorMsgDlg; //!< Error Dialog instance
-    CWarningMsgDlg *mp_WarningMsgDlg;//!< Warning Dialog Instance
-    MainMenu::CMainWindow *mp_MainWindow;           //!< Main window of the GUI
+    static CStatusBarManager *mp_StatusBarMgrInstance;   //!< Static instance
+    CErrorMsgDlg *mp_ErrorMsgDlg;                       //!< Error Dialog instance
+    CWarningMsgDlg *mp_WarningMsgDlg;                   //!< Warning Dialog Instance
+    MainMenu::CMainWindow *mp_MainWindow;               //!< Main window of the GUI
     DataManager::CUserSettingsInterface *mp_UsrSettingsInterface; //!< UserSettings interface pointer
-    //MainMenu::MsgData EventMsgStruct; //!< Event Message Structure
-    //QHash <quint64, MsgData> m_ErrorIDMsgHash; //!< Hash for Error Messages
-    //QHash <quint64, MsgData> m_WarningIDMsgHash; //!< Hash for Warning Messages
-    QList <MsgData> m_ErrorMsgList; //!< List for Error Messages Struct
-    QList <MsgData> m_WarningMsgList; //!< List for Warning Messages Struct
+    QList <MsgData> m_ErrorMsgList;                     //!< List for Error Messages Struct
+    QList <MsgData> m_WarningMsgList;                   //!< List for Warning Messages Struct
+    QList <quint64> m_ErrorEventIDList;                 //!< List containing Error Event ID's
+    QList <quint64> m_WarningEventIDList;               //!< List containing Warning Event ID's
+
+
     /****************************************************************************/
     /**
      * \brief Constructor.
      */
     /****************************************************************************/
-    StatusBarManager();
+    CStatusBarManager();
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CStatusBarManager)
 
 
 public:
-
 
     /****************************************************************************/
     /**
      * \brief Destructor.
      */
     /****************************************************************************/
-    virtual ~StatusBarManager() {
-    }
+    virtual ~CStatusBarManager();
+
     /****************************************************************************/
     /**
      * \brief Argumented constructor.
      */
     /****************************************************************************/
-    StatusBarManager(MainMenu::CMainWindow *p_Window,DataManager::CUserSettingsInterface *p_UsrSettingsInterface);
+    CStatusBarManager(MainMenu::CMainWindow *p_Window,DataManager::CUserSettingsInterface *p_UsrSettingsInterface);
 
     /****************************************************************************/
     /**
@@ -89,45 +99,70 @@ public:
      * \return      pointer to instance.
      */
     /****************************************************************************/
-    static inline StatusBarManager *GetInstance() {
+    static inline CStatusBarManager *GetInstance() {
             return mp_StatusBarMgrInstance;
     }
 
     /****************************************************************************/
     /**
      * \brief Adding event messages to the List
-     * \iparam EventMsgStream = EventMessage data in the data stream format
      *
+     * \iparam EventMsgStream = EventMessage data in the data stream format
      */
     /****************************************************************************/
     void AddEventMessages(QDataStream &EventMsgStream);
+
     /****************************************************************************/
     /**
      * \brief Removing event messages From the List
+     *
      * \iparam  EventType = Event type
-     * \iparam  ID = Event Id
+     * \iparam  EventID = Event Id
      */
     /****************************************************************************/
-    void RemoveEventMessages(Global::EventType EventType, quint64 ID);
+    void RemoveEventMessages(Global::EventType EventType, quint64 EventID);
+
     /****************************************************************************/
     /**
      * \brief Get pointer to StatusBarManager. This method is called for the first time
      *        to get the pointer to StatusBarManager.
+     *
      * \iparam p_MainWindow = Pointer to the mainwindow
-     * \return      pointer to StatusBarManager instance.
+     *  \iparam p_UserSettingsInterface = UserSettingsInterface object
+     *
+     * \return Pointer to StatusBarManager instance.
      */
     /****************************************************************************/
-    static StatusBarManager *CreateInstance(MainMenu::CMainWindow *p_MainWindow,DataManager::CUserSettingsInterface *p_UserSettingsInterface) {
+    static CStatusBarManager *CreateInstance(MainMenu::CMainWindow *p_MainWindow,
+                                            DataManager::CUserSettingsInterface *p_UserSettingsInterface) {
 
         if (!mp_StatusBarMgrInstance) {
-            mp_StatusBarMgrInstance = new StatusBarManager(p_MainWindow,p_UserSettingsInterface);
+            mp_StatusBarMgrInstance = new CStatusBarManager(p_MainWindow,p_UserSettingsInterface);
             return mp_StatusBarMgrInstance;
         }
         else
             return mp_StatusBarMgrInstance;
     }
+
+public slots:
+    void SetProcessState(bool &ProcessState);
+    void SetRemoteCareState(bool &RemoteCareState);
+
 signals:
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted whenever error event message is sent from Main.
+     *
+     */
+    /****************************************************************************/
     void ShowErrorPopup();
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted whenever warning event message is sent from Main.
+     *
+     */
+    /****************************************************************************/
     void ShowWarningPopup();
 
 }; // end class StatusBarManager

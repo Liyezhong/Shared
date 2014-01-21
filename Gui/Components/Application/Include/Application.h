@@ -46,6 +46,14 @@ signals:
 
 private:
     QPoint m_MousePos;
+	
+  /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CApplication)
 };
 
 } // end namespace Application

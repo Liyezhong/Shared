@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file MenuGroup.h
  *
- *  \brief MenuGroup definition.
+ *  \brief Header file for class CMenuGroup.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-05-17
@@ -27,6 +27,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+//lint -e429
+
 namespace MainMenu {
 
 namespace Ui {
@@ -42,12 +44,14 @@ namespace Ui {
 class CMenuGroup : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CMenuGroup(QWidget *p_Parent = 0);
     virtual ~CMenuGroup();
 
     void AddPanel (QString Title, QWidget *p_Content);
+    void AddSettingsPanel (QString Title, QWidget *p_Content);
     QWidget *GetCurrentPanel();
 
 private:
@@ -60,11 +64,29 @@ private:
     QButtonGroup *mp_ButtonGroup;       //!< Group containing the menu buttons
     int m_ItemCount;                    //!< Number of items grouped by this screen
 
+    QWidget *mp_Widget;
+    int m_ButtonNumber;
+    int m_CurrentTabIndex;
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CMenuGroup)
+
 protected:
     void changeEvent(QEvent *p_Event);
 
+signals:
+    void PanelChanged();
+
 private slots:
     void ButtonPressed(int Number);
+
+public slots:
+    void SetCurrentTabIndex(int TabIndex);
+    void ShowWidget(int);
 };
 
 } // end namespace MainMenu

@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file DialogFrame.cpp
  *
- *  \brief DialogFrame implementation.
+ *  \brief Implementation of file for class CDialogFrame.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display Dialogs.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-08
@@ -30,11 +33,12 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CDialogFrame::CDialogFrame(QWidget *p_Parent) : QDialog(p_Parent, Qt::FramelessWindowHint), mp_DialogUi(new Ui::CDialogFrame)
+CDialogFrame::CDialogFrame(QWidget *p_Parent) : QDialog(p_Parent, Qt::FramelessWindowHint),
+    mp_DialogUi(new Ui::CDialogFrame)
 {
     mp_DialogUi->setupUi(this);
     mp_DialogUi->widget->SetTitleCenter();
-
+    (void) connect(mp_DialogUi->widget, SIGNAL(LanguageChanged()), this, SIGNAL(DialogLangaugeChanged()));
     setAttribute(Qt::WA_TranslucentBackground);
 }
 
@@ -79,15 +83,16 @@ void CDialogFrame::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 void CDialogFrame::SetDialogTitle(QString Title)
 {
-    mp_DialogUi->widget->SetPanelTitle(tr("%1").arg(Title));
+    mp_DialogUi->widget->SetPanelTitle(QString("%1").arg(Title));
+    mp_DialogUi->widget->SetTitleCenter();
 }
 
 /****************************************************************************/
 /*!
  *  \brief Sets two titles, one at left corner and other at right corner
  *
- *  \iparam TitleLeft  = Title at left corner
- *  \iparam TitleRight = Title at right corner
+ *  \iparam TitleLeftCorner  = Title at left corner
+ *  \iparam TitleRightCorner = Title at right corner
  */
 /****************************************************************************/
 void CDialogFrame::SetDialogTitle(QString TitleLeftCorner, QString TitleRightCorner)
@@ -119,4 +124,17 @@ QWidget *CDialogFrame::GetContentFrame()
     return mp_DialogUi->widget->GetContentFrame();
 }
 
+/****************************************************************************/
+/*!
+ *  \brief Chop dialog title's text as per the maximum title string length.
+ *
+ *  \iparam StringLength = Maximum string lenght of dialog title.
+ *  \iparam TitleText = String to be set
+ *
+ */
+/****************************************************************************/
+void CDialogFrame::SetMaxStringDialogTitle(qint32 StringLength, QString TitleText)
+{
+    mp_DialogUi->widget->SetMaxStringPanelTitle(StringLength, TitleText);
+}
 } // end namespace MainMenu

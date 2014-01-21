@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file SliderControl.h
  *
- *  \brief SliderControl definition.
+ *  \brief Header file for class CSliderControl.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-08-02
@@ -35,6 +35,7 @@ namespace MainMenu {
 class CSliderControl : public QSlider
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     //! Left or right position of the slider
@@ -55,7 +56,13 @@ Q_SIGNALS:
 private:
     Position_t m_Position;  //!< Position of the slider
     CSemiTransparentOverlay *mp_SemiTransparentOverlay; //!< Semitransparent widget to give disabled look.
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CSliderControl)
 
 private slots:
     void OnValueChanged(int Value);

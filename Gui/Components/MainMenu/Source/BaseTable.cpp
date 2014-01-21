@@ -1,11 +1,14 @@
 /****************************************************************************/
 /*! \file BaseTable.cpp
  *
- *  \brief BaseTable implementation.
+ *  \brief Implementation of file for class CBaseTable.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display Table view.
  *
  *   $Version: $ 0.1
- *   $Date:    $ 2011-07-08 , 2013-02-27
- *   $Author:  $ M.Scherer ,Swati Tiwari
+ *   $Date:    $ 2011-07-08
+ *   $Author:  $ M.Scherer
  *
  *  \b Company:
  *
@@ -70,6 +73,18 @@ CBaseTable::CBaseTable(QWidget *p_Parent) : QTableView(p_Parent)
 void CBaseTable::SetVisibleRows(qint32 Rows , qint32 HeaderHeight ,qint32 RowHeight)
 {
     setFixedHeight(HeaderHeight + RowHeight * Rows);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Ignores mouse movement.
+ *
+ *  \iparam p_Event = event object of the mouse event class.
+ */
+/****************************************************************************/
+void CBaseTable::mouseMoveEvent(QMouseEvent *p_Event)
+{
+    p_Event->ignore();
 }
 
 } // end namespace MainMenu

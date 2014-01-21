@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file DialogFrame.h
  *
- *  \brief DialogFrame definition.
+ *  \brief Header file for class CDialogFrame.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-08
@@ -37,14 +37,17 @@ namespace Ui {
 class CDialogFrame : public QDialog
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CDialogFrame(QWidget *p_Parent = 0);
+  //  explicit CDialogFrame(QWidget *p_Parent = 0, Qt::WindowFlags f = 0);
     virtual ~CDialogFrame();
 
     void SetDialogTitle(QString Title);
     void SetDialogTitle(QString TitleLeftCorner, QString TitleRightCorner);
     void SetContent(QLayout *p_Content);
+    void SetMaxStringDialogTitle(qint32 StringLength, QString TitleText);
 
 protected:
     QWidget *GetContentFrame();
@@ -52,6 +55,15 @@ protected:
 
 private:
     Ui::CDialogFrame *mp_DialogUi;  //!< User interface
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CDialogFrame)
+signals:
+    void DialogLangaugeChanged();
 };
 
 } // end namespace MainMenu

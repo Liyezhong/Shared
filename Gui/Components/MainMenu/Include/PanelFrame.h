@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file PanelFrame.h
  *
- *  \brief PanelFrame definition.
+ *  \brief Header file for class CPanelFrame.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-05-17
@@ -37,6 +37,7 @@ namespace Ui {
 class CPanelFrame : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CPanelFrame(QWidget *p_Parent = 0);
@@ -47,14 +48,28 @@ public:
     void SetTitleCenter();
     void SetContent(QLayout *p_Content);
     QWidget *GetContentFrame();
+    void SetContentsMargins(int Left, int Top, int Right, int Bottom);
+    void SetPanelTitleMinimumHeight(int MinimumHeight);
+    void SetTitleVerticalCenter();
+    void SetMaxStringPanelTitle(qint32 StringLength, QString TitleText);
+    void SetPanelTitlePixmap(QPixmap TitlePixmap);
 
 private:
     void paintEvent(QPaintEvent *);
     Ui::CPanelFrame *mp_FrameUi;    //!< User interface
     bool m_IsDialog;    //!< Indicates if the frame belongs to a dialog
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CPanelFrame)
 
 protected:
     void changeEvent(QEvent *p_Event);
+signals:
+    void LanguageChanged();
 };
 
 } // end namespace MainMenu

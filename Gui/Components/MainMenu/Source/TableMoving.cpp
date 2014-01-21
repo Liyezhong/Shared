@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file TableMoving.cpp
  *
- *  \brief TableMoving implementation.
+ *  \brief Implementation of file for class CTableMoving.
+ *
+ *  \b Description:
+ *          This class implements a base widget,which will give the moving
+ *          functionality with in a Table widget.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-08-23
@@ -34,10 +38,10 @@ CTableMoving::CTableMoving(QWidget *p_Parent) : QGroupBox(p_Parent), mp_Ui(new U
 {
     mp_Ui->setupUi(this);
 
-    connect(mp_Ui->beginButton, SIGNAL(clicked()), this, SIGNAL(OnBeginButtonClicked()));
-    connect(mp_Ui->upButton, SIGNAL(clicked()), this, SIGNAL(OnUpButtonClicked()));
-    connect(mp_Ui->downButton, SIGNAL(clicked()), this, SIGNAL(OnDownButtonClicked()));
-    connect(mp_Ui->endButton, SIGNAL(clicked()), this, SIGNAL(OnEndButtonClicked()));
+    (void) connect(mp_Ui->beginButton, SIGNAL(clicked()), this, SIGNAL(OnBeginButtonClicked()));
+    (void) connect(mp_Ui->upButton, SIGNAL(clicked()), this, SIGNAL(OnUpButtonClicked()));
+    (void) connect(mp_Ui->downButton, SIGNAL(clicked()), this, SIGNAL(OnDownButtonClicked()));
+    (void) connect(mp_Ui->endButton, SIGNAL(clicked()), this, SIGNAL(OnEndButtonClicked()));
 }
 
 /****************************************************************************/
@@ -63,11 +67,27 @@ void CTableMoving::changeEvent(QEvent *p_Event)
     QGroupBox::changeEvent(p_Event);
     switch (p_Event->type()) {
         case QEvent::LanguageChange:
-            mp_Ui->retranslateUi(this);
             break;
         default:
             break;
     }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets title as per the maximum title string length.
+ *
+ *  \iparam StringLength = Maximum string lenght of dialog title.
+ *  \iparam TitleText = String to be set
+ *
+ */
+/****************************************************************************/
+void CTableMoving::SetTitle(qint32 StringLength, QString TitleText)
+{
+    if (TitleText.length() > StringLength) {
+        (void) TitleText.remove(StringLength, TitleText.length() - StringLength);
+    }
+    setTitle(TitleText);
 }
 
 } // end namespace MainMenu

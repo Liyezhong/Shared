@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file SliderControl.cpp
  *
- *  \brief SliderControl implementation.
+ *  \brief Implementation of file for class CSliderControl.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying/Controlling the
+ *          slider widget.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-08-02
@@ -24,6 +28,9 @@
 
 namespace MainMenu {
 
+const int  SIZE_OFFSET = 10;                //!< Offset added to the width and height
+
+
 /****************************************************************************/
 /*!
  *  \brief Constructor
@@ -38,9 +45,8 @@ CSliderControl::CSliderControl(QWidget *p_Parent) : QSlider(p_Parent)
     setMinimumWidth(149);
     setTracking(false);
     mp_SemiTransparentOverlay = new CSemiTransparentOverlay(this);
-    mp_SemiTransparentOverlay->setFixedSize(width(),height());
-    connect(this, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int)));
-
+    mp_SemiTransparentOverlay->setFixedSize(width()+SIZE_OFFSET,height()+SIZE_OFFSET);
+    (void) connect(this, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int)));
 }
 
 /****************************************************************************/
@@ -50,8 +56,13 @@ CSliderControl::CSliderControl(QWidget *p_Parent) : QSlider(p_Parent)
 /****************************************************************************/
 CSliderControl::~CSliderControl()
 {
-    if (mp_SemiTransparentOverlay) {
-        delete mp_SemiTransparentOverlay;
+    try {
+        if (mp_SemiTransparentOverlay) {
+            delete mp_SemiTransparentOverlay;
+        }
+    }
+    catch (...) {
+        // to please Lint.
     }
 }
 /****************************************************************************/

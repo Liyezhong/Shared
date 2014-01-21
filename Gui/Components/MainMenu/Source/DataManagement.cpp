@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file DataManagement.cpp
  *
- *  \brief DataManagement implementation.
+ *  \brief Implementation of file for class CDataManagement.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display Data management menu.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22
@@ -33,11 +36,15 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CDataManagement::CDataManagement(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CDataManagement)
+CDataManagement::CDataManagement(QWidget *p_Parent) : QWidget(p_Parent),
+    mp_Ui(new Ui::CDataManagement),
+    mp_ServiceExportDlg(NULL)
 {
     mp_Ui->setupUi(this);
 
     mp_Dialog = new MainMenu::CWaitDialog(this);
+    // Disable RemoteSWUpdate button at start up. Enable it when RemoteSWUpdate is available from Main.
+    mp_Ui->remoteSWUpdateButton->setEnabled(false);
 
     if (!connect(mp_Ui->exportButton, SIGNAL(clicked()), this, SLOT(ExportDialog()))) {
         qDebug() << "CDataManagement: cannot connect 'clicked' signal";
@@ -46,6 +53,14 @@ CDataManagement::CDataManagement(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(n
         qDebug() << "CDataManagement: cannot connect 'clicked' signal";
     }
     if (!connect(mp_Ui->serviceExportButton, SIGNAL(clicked()), this, SLOT(ServiceExportDialog()))) {
+        qDebug() << "CDataManagement: cannot connect 'clicked' signal";
+    }
+
+    if (!connect(mp_Ui->remoteSWUpdateButton, SIGNAL(clicked()), this, SLOT(OnRemoteSWUpdate()))) {
+        qDebug() << "CDataManagement: cannot connect 'clicked' signal";
+    }
+
+    if (!connect(mp_Ui->softwareUpdateButton, SIGNAL(clicked()), this, SLOT(OnSoftwareUpdate()))) {
         qDebug() << "CDataManagement: cannot connect 'clicked' signal";
     }
 }
@@ -85,11 +100,19 @@ void CDataManagement::changeEvent(QEvent *p_Event)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief This slot is called when a widget is shown.
+ *
+ *  \iparam p_Event = Show event
+ */
+/****************************************************************************/
 void CDataManagement::showEvent(QShowEvent *p_Event)
 {
     Q_UNUSED(p_Event);
     ResetButtons();
 }
+
 /****************************************************************************/
 /*!
  *  \brief Starts the export procedure and the wait dialog
@@ -99,13 +122,7 @@ void CDataManagement::ExportDialog()
 {
     QStringList Type;
     Type << "User";
-
     emit ExecSending("DataExport", Type);
-
-//    mp_Dialog->SetDialogTitle(tr("User Export"));
-//    mp_Dialog->SetText(tr("Exporting user data ..."));
-
-//    mp_Dialog->show();
 }
 
 /****************************************************************************/
@@ -115,14 +132,7 @@ void CDataManagement::ExportDialog()
 /****************************************************************************/
 void CDataManagement::ImportDialog()
 {
-    QStringList Type;
-//    Type << "all";
-
-    emit ExecSending("DataImport", Type);
-//    mp_Dialog->SetDialogTitle(tr("Import"));
-//    mp_Dialog->SetText(tr("Importing data ..."));
-
-//    mp_Dialog->show();
+    emit ExecSending("DataImport", QStringList());
 }
 
 /****************************************************************************/
@@ -132,14 +142,40 @@ void CDataManagement::ImportDialog()
 /****************************************************************************/
 void CDataManagement::ServiceExportDialog()
 {
-    QStringList Type;
-    Type << "Service";
-    emit ExecSending("DataExport", Type);
-//    mp_Dialog->SetDialogTitle(tr("Service Export"));
-//    mp_Dialog->SetText(tr("Exporting service data ..."));
+    // show the file selection dialog
+    if (!mp_ServiceExportDlg) {
+        mp_ServiceExportDlg = new MainMenu::CServiceExportDlg(this);
+        CONNECTSIGNALSLOTGUI(mp_ServiceExportDlg, ExportNoOfFiles(int), this, OnServiceExportFileSelection(int));
+    }
+    mp_ServiceExportDlg->setModal(true);
+    mp_ServiceExportDlg->show();
+}
 
-//    mp_Dialog->show();
+/****************************************************************************/
+/*!
+ *  \brief Slot for export file selection dialog acceptance.
+ *
+ *  \iparam NoOfFiles = Number of files.
+ *
+ */
+/****************************************************************************/
+void CDataManagement::OnServiceExportFileSelection(int NoOfFiles)
+{
+    QStringList DataList;
+    DataList << "Service" << QString::number(NoOfFiles);
+    // check the service dialog object exists or not
+    if (mp_ServiceExportDlg) {
+        // delete the dialog
+        try {
+            delete mp_ServiceExportDlg;
+        }
+        catch (...) {
 
+        }
+        mp_ServiceExportDlg = NULL;
+    }
+
+    emit ExecSending("DataExport", DataList);
 }
 
 /****************************************************************************/
@@ -150,6 +186,28 @@ void CDataManagement::ServiceExportDialog()
 void CDataManagement::OnUserRoleChanged()
 {
     ResetButtons();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief This slot is called when Remote Software Update button is clicked.
+ */
+/****************************************************************************/
+void CDataManagement::OnRemoteSWUpdate()
+{
+    // Emit signal update software to inform Main.
+    emit UpdateSoftwareFromRC();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief This slot is called when Software Update button is clicked.
+ */
+/****************************************************************************/
+void CDataManagement::OnSoftwareUpdate()
+{
+    // Emit Software Update signal to inform Main.
+    emit UpdateSoftware(true);
 }
 
 /****************************************************************************/
@@ -198,15 +256,30 @@ void CDataManagement::ResetButtons()
 
 /****************************************************************************/
 /*!
+ *  \brief Sets the remote SW button state.
+ *
+ *  \iparam Status = True for enable and False for disable.
+ *
+ */
+/****************************************************************************/
+void CDataManagement::SetRemoteSWButtonState(bool Status)
+{
+    mp_Ui->remoteSWUpdateButton->setEnabled(Status);
+}
+
+/****************************************************************************/
+/*!
  *  \brief Used to set pointer to mainwindow, used to retreive user role and
  *         process state changed.
+ *
+ *  \iparam p_MainWindow = MainWindow pointer.
  */
 /****************************************************************************/
 void CDataManagement::SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow)
 {
     mp_MainWindow = p_MainWindow;
-    CONNECTSIGNALSLOT(mp_MainWindow, UserRoleChanged(), this, OnUserRoleChanged());
-    CONNECTSIGNALSLOT(mp_MainWindow, ProcessStateChanged(), this, OnProcessStateChanged());
+    CONNECTSIGNALSLOTGUI(mp_MainWindow, UserRoleChanged(), this, OnUserRoleChanged());
+    CONNECTSIGNALSLOTGUI(mp_MainWindow, ProcessStateChanged(), this, OnProcessStateChanged());
 }
 
 /****************************************************************************/
@@ -216,10 +289,14 @@ void CDataManagement::SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow)
 /****************************************************************************/
 void CDataManagement::RetranslateUI()
 {
-   mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CDataManagement", "Import", 0, QApplication::UnicodeUTF8));
-   mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CDataManagement", "Export", 0, QApplication::UnicodeUTF8));
-   mp_Dialog->SetText(QApplication::translate("MainMenu::CDataManagement", "Importing data ...", 0, QApplication::UnicodeUTF8));
-   mp_Dialog->SetText(QApplication::translate("MainMenu::CDataManagement", "Exporting data ...", 0, QApplication::UnicodeUTF8));
+   mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CDataManagement", "Import",
+                                                     0, QApplication::UnicodeUTF8));
+   mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CDataManagement", "Export",
+                                                     0, QApplication::UnicodeUTF8));
+   mp_Dialog->SetText(QApplication::translate("MainMenu::CDataManagement", "Importing data ...",
+                                              0, QApplication::UnicodeUTF8));
+   mp_Dialog->SetText(QApplication::translate("MainMenu::CDataManagement", "Exporting data ...",
+                                              0, QApplication::UnicodeUTF8));
 }
 
 } // end namespace MainMenu

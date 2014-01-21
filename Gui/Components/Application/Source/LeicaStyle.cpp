@@ -259,9 +259,9 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                 QPixmap Target(p_Option->rect.size());
                 Target.fill(Qt::transparent);
 
-                    if (p_Option->state & QStyle::State_Enabled) {
-                        if (p_Option->state & QStyle::State_On) {
-                            if (p_Option->state & QStyle::State_Sunken) {
+                if (p_Option->state & QStyle::State_Enabled) {
+                    if (p_Option->state & QStyle::State_On) {
+                        if (p_Option->state & QStyle::State_Sunken) {
                             qDebug()<<"Selected Pressed";
                             Source = QPixmap(QString(":/%1/TextButton/TextButton-SelectedPressed.png").arg(GetDeviceImagesPath()));
                         }
@@ -287,33 +287,34 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                 else {
                     Source = QPixmap(QString(":/%1/TextButton/TextButton-Disabled.png").arg(GetDeviceImagesPath()));
                 }
-                    BorderPixmap(&Target, &Source, 18, 0, 18, 0);
-                    p_Painter->drawPixmap(0, 0, Target);
-                }
+                BorderPixmap(&Target, &Source, 24, 0, 24, 0);
+               // BorderPixmap(&Target, &Source, 20, 0, 20, 0);
+                p_Painter->drawPixmap(0, 0, Target);
             }
-            break;
         }
-        case CE_TabBarTabLabel:
-        {
-            const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+        break;
+    }
+    case CE_TabBarTabLabel:
+    {
+        const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
 
-            if (p_Tab->shape == QTabBar::RoundedNorth) {
-                QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
-            }
-            else {
-                QTransform Transform = QTransform::fromTranslate(0, -12);
-                p_Painter->setTransform(Transform);
-                QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
-                Transform = QTransform::fromTranslate(0, 0);
-                p_Painter->setTransform(Transform);
-            }
-            break;
+        if (p_Tab->shape == QTabBar::RoundedNorth) {
+            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
         }
-        case CE_TabBarTabShape:
-        {
-            QPixmap Source;
-            QPixmap Target;
-            const QStyleOptionTab *pTab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+        else {
+            QTransform Transform = QTransform::fromTranslate(0, -12);
+            p_Painter->setTransform(Transform);
+            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+            Transform = QTransform::fromTranslate(0, 0);
+            p_Painter->setTransform(Transform);
+        }
+        break;
+    }
+    case CE_TabBarTabShape:
+    {
+        QPixmap Source;
+        QPixmap Target;
+        const QStyleOptionTab *pTab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
 
             if (p_Option->state & QStyle::State_Selected) {
                 Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Down.png").arg(GetDeviceImagesPath()));
@@ -341,7 +342,7 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                             Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnFirst-Up.png").arg(GetDeviceImagesPath()));
                         }
                         else if (GetCurrentDeviceType() == Application::DEVICE_HIMALAYA) {
-                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnFirst-Up.png").arg(GetDeviceImagesPath()));
+                            Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Top_Up.png").arg(GetDeviceImagesPath()));
                         }
                 }
                 else {
@@ -349,27 +350,27 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                 }
             }
 
-            if (pTab->shape == QTabBar::RoundedNorth) {
-                Target = QPixmap(p_Option->rect.width() - 4, p_Option->rect.height());
-            }
-            else {
-                Target = QPixmap(p_Option->rect.width(), p_Option->rect.height() - 4);
-            }
-            Target.fill(Qt::transparent);
-
-            if (pTab->shape == QTabBar::RoundedNorth) {
-                QTransform Transform;
-            	(void)Transform.rotate(90.0);
-                Source = Source.transformed(Transform);
-                BorderPixmap(&Target, &Source, 18, 24, 18, 5);
-            }
-            else {
-                BorderPixmap(&Target, &Source, 24, 18, 5, 18);
-            }
-
-            p_Painter->drawPixmap(p_Option->rect.topLeft(), Target);
-            break;
+        if (pTab->shape == QTabBar::RoundedNorth) {
+            Target = QPixmap(p_Option->rect.width() - 4, p_Option->rect.height());
         }
+        else {
+            Target = QPixmap(p_Option->rect.width(), p_Option->rect.height() - 4);
+        }
+        Target.fill(Qt::transparent);
+
+        if (pTab->shape == QTabBar::RoundedNorth) {
+            QTransform Transform;
+            (void)Transform.rotate(90.0);
+            Source = Source.transformed(Transform);
+            BorderPixmap(&Target, &Source, 18, 24, 18, 5);
+        }
+        else {
+            BorderPixmap(&Target, &Source, 24, 18, 5, 18);
+        }
+
+        p_Painter->drawPixmap(p_Option->rect.topLeft(), Target);
+        break;
+    }
         // For now button fonts are not fat
         /*case CE_PushButtonLabel:
         {
@@ -379,29 +380,15 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
             QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
             break;
         }*/
-        case CE_HeaderSection:
-        {
-            p_Painter->setPen(QColor(177, 175, 181));
-            p_Painter->drawLine(p_Option->rect.topRight(), p_Option->rect.bottomRight());
-            p_Painter->drawLine(p_Option->rect.bottomLeft(), p_Option->rect.bottomRight());
-            break;
-        }
-        case CE_ComboBoxLabel:
-        {
-            QPixmap Source;
-
-            Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetDeviceImagesPath()));
-            if (p_Option->state & QStyle::State_Enabled) {
-                Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Enable.png").arg(GetDeviceImagesPath()));
-            } else if(p_Option->state & QStyle::State_Selected) {
-                Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Pressed.png").arg(GetDeviceImagesPath()));
-            }
-             p_Painter->drawPixmap(0, 0, Source);
-             break;
-
-        }
-        default:
-            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+    case CE_HeaderSection:
+    {
+        p_Painter->setPen(QColor(177, 175, 181));
+        p_Painter->drawLine(p_Option->rect.topRight(), p_Option->rect.bottomRight());
+        p_Painter->drawLine(p_Option->rect.bottomLeft(), p_Option->rect.bottomRight());
+        break;
+    }
+    default:
+        QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -418,35 +405,23 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
 void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionComplex *p_Option, QPainter *p_Painter, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case CC_Slider:
-        {
-            const QStyleOptionSlider *p_Slider = qstyleoption_cast<const QStyleOptionSlider *>(p_Option);
-            QRect Handle = proxy()->subControlRect(CC_Slider, p_Slider, SC_SliderHandle, p_Widget);
+    case CC_Slider:
+    {
+        const QStyleOptionSlider *p_Slider = qstyleoption_cast<const QStyleOptionSlider *>(p_Option);
+        QRect Handle = proxy()->subControlRect(CC_Slider, p_Slider, SC_SliderHandle, p_Widget);
 
-            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/SlideSwitch/SlideSwitch-BG.png").arg(GetDeviceImagesPath())));
+        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/SlideSwitch/SlideSwitch-BG.png").arg(GetDeviceImagesPath())));
 
-            if (p_Option->state & QStyle::State_Sunken) {
-                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Pressed.png").arg(GetDeviceImagesPath())));
-            }
-            else {
-                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Enabled.png").arg(GetDeviceImagesPath())));
-            }
-            break;
+        if (p_Option->state & QStyle::State_Sunken) {
+            p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Pressed.png").arg(GetDeviceImagesPath())));
         }
-        case CC_ComboBox:
-        {
-            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetDeviceImagesPath())));
-
-            if (p_Option->state & QStyle::State_Enabled) {
-                p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Enable.png").arg(GetDeviceImagesPath())));
-            }
-            else {
-                p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Pressed.png").arg(GetDeviceImagesPath())));
-            }
-            break;
+        else {
+            p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Enabled.png").arg(GetDeviceImagesPath())));
         }
-        default:
-            QWindowsStyle::drawComplexControl(Which, p_Option, p_Painter, p_Widget);
+        break;
+    }
+    default:
+        QWindowsStyle::drawComplexControl(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -465,78 +440,70 @@ void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionCom
 QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Option, const QSize &ContentsSize, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case CT_HeaderSection:
-        {
-            QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
-            Size.setHeight(28);
-            return Size;
-        }
-        case CT_PushButton:
-        {
-            const QStyleOptionButton *p_Button = qstyleoption_cast<const QStyleOptionButton *>(p_Option);
-            if (!(p_Button->features & QStyleOptionButton::Flat)) {
-                if(p_Widget->minimumHeight() >= 62) {
-                    return QSize(71, 62);
+    case CT_HeaderSection:
+    {
+        QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+        Size.setHeight(28);
+        return Size;
+    }
+    case CT_PushButton:
+    {
+        const QStyleOptionButton *p_Button = qstyleoption_cast<const QStyleOptionButton *>(p_Option);
+        if (!(p_Button->features & QStyleOptionButton::Flat)) {
+            if(p_Widget->minimumHeight() >= 62) {
+                return QSize(71, 62);
+            }
+            else {
+                QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+                if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+                    //Small push button icon height
+                    // Size.setHeight(58);
+                    Size.setHeight(42);
+                }
+                else if ((GetCurrentDeviceType() == Application::DEVICE_COLORADO) || (GetCurrentDeviceType() == Application::DEVICE_HIMALAYA)){
+                    //Large push button icon height
+                    Size.setHeight(38);
                 }
                 else {
-                    QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
-                    Size.setHeight(38);
-                    Size.setWidth(Size.width() + 45);
-                    return Size;
+                    // to please lint
                 }
-            }
-            else {
-                return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+                Size.setWidth(Size.width() + 45);
+                return Size;
             }
         }
-        case CT_TabBarTab:
-        {
-            const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
-            switch(m_DeviceType) {
-                case Application::DEVICE_COLORADO:
-                {
-            if (p_Tab->shape == QTabBar::RoundedNorth) {
-                return QSize(ContentsSize.width() + 18, 48);
-            }
-            else {
-                    return QSize(79, 92);
-                }
-
-                }
-                break;
-            case Application::DEVICE_SEPIA:
-                {
-                    if (p_Tab->shape == QTabBar::RoundedNorth) {
-                        return QSize(ContentsSize.width() + 18, 48);
-                    }
-                else{
-                    return QSize(92, 148);
-                }
-            }
-                break;
-            case Application::DEVICE_HIMALAYA:
-                {
-                    if (p_Tab->shape == QTabBar::RoundedNorth) {
-                        return QSize(ContentsSize.width() + 18, 48);
-                    }
-                    else {
-                        return QSize(79, 111);
-                    }
-                }
-                break;
-                default:
-                {
-                    return QSize(0,0); // Undefined Value
-
-                }
-            }    // end of inside switch
-        }
-        case CT_Slider:
-            return QSize(149, 37);
-        case CT_ComboBox:
-            return QSize(300, 53);
-        default:
+        else {
             return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+        }
+    }
+    case CT_TabBarTab:
+    {
+        const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+        if (p_Tab->shape == QTabBar::RoundedNorth) {
+            return QSize(ContentsSize.width() + 18, 48);
+        }
+        else {
+            if (m_DeviceType == Application::DEVICE_COLORADO)
+                return QSize(79, 92);
+			else if (m_DeviceType == Application::DEVICE_HIMALAYA)
+			    return QSize(79, 111); 
+            else if (m_DeviceType == Application::DEVICE_SEPIA)
+                return QSize(92, 99);
+       }
+    }
+    case CT_Slider:
+        if (GetCurrentDeviceType() == Application::DEVICE_COLORADO || GetCurrentDeviceType() == Application::DEVICE_HIMALAYA) {
+            return QSize(149, 37);
+        }
+        else if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            return QSize(149, 48);
+        }
+
+    case CT_RadioButton:
+        if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            return QSize(149, 45);
+        }
+    default:
+        return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
     }
 }
 
@@ -555,10 +522,10 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
 int CLeicaStyle::styleHint(StyleHint Which, const QStyleOption *p_Option, const QWidget *p_Widget, QStyleHintReturn *p_ReturnData) const
 {
     switch (Which) {
-        case SH_EtchDisabledText:
-            return 0;
-        default:
-            return QWindowsStyle::styleHint(Which, p_Option, p_Widget, p_ReturnData);
+    case SH_EtchDisabledText:
+        return 0;
+    default:
+        return QWindowsStyle::styleHint(Which, p_Option, p_Widget, p_ReturnData);
     }
 }
 
@@ -576,36 +543,35 @@ int CLeicaStyle::styleHint(StyleHint Which, const QStyleOption *p_Option, const 
 QRect CLeicaStyle::subElementRect(SubElement Which, const QStyleOption *p_Option, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case SE_RadioButtonIndicator:
-            return QRect(0, 0, 37, 37);
-        case SE_CheckBoxIndicator:
-        case SE_ItemViewItemCheckIndicator:
-            return QRect(p_Option->rect.left(), p_Option->rect.top(), 37, 34);
-        case SE_TabWidgetTabContents:
-        {
-            const QStyleOptionTabWidgetFrame *p_TabWidgetFrame = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(p_Option);
+    case SE_RadioButtonIndicator:
+         return QRect(0, 0, 37, 37);
+    case SE_CheckBoxIndicator:
+    case SE_ItemViewItemCheckIndicator:
+        return QRect(p_Option->rect.left(), p_Option->rect.top(), 37, 34);
+    case SE_TabWidgetTabContents:
+    {
+        const QStyleOptionTabWidgetFrame *p_TabWidgetFrame = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(p_Option);
 
-            QRect Rect;
-            if (p_TabWidgetFrame->shape == QTabBar::RoundedNorth) {
-                Rect.setLeft(p_Option->rect.left() + 6);
-                Rect.setTop(p_TabWidgetFrame->tabBarSize.height() + p_Option->rect.top() + 4);
-            }
-            else {
-                Rect.setLeft(p_TabWidgetFrame->tabBarSize.width() + p_Option->rect.left() + 6);
-                Rect.setTop(p_Option->rect.top() + 4);
-            }
-            Rect.setRight(p_Option->rect.right() - 4);
-            Rect.setBottom(p_Option->rect.bottom() - 1);
-            return Rect;
+        QRect Rect;
+        if (p_TabWidgetFrame->shape == QTabBar::RoundedNorth) {
+            Rect.setLeft(p_Option->rect.left() + 6);
+            Rect.setTop(p_TabWidgetFrame->tabBarSize.height() + p_Option->rect.top() + 4);
         }
-        case SE_CheckBoxFocusRect:
-        case SE_PushButtonFocusRect:
-        case SE_RadioButtonFocusRect:
-            return QRect(0, 0, 0, 0);
-        case SE_ComboBoxFocusRect:
-            return QRect(0,0, 300, 53);
-        default:
-            return QWindowsStyle::subElementRect(Which, p_Option, p_Widget);
+        else {
+            Rect.setLeft(p_TabWidgetFrame->tabBarSize.width() + p_Option->rect.left() + 6);
+            Rect.setTop(p_Option->rect.top() + 4);
+        }
+        Rect.setRight(p_Option->rect.right() - 4);
+        Rect.setBottom(p_Option->rect.bottom() - 1);
+        return Rect;
+    }
+    case SE_CheckBoxFocusRect:
+    case SE_PushButtonFocusRect:
+       // return QRect(0, 0, 0, 0);
+    case SE_RadioButtonFocusRect:
+        return QRect(0, 0, 0, 0);
+    default:
+        return QWindowsStyle::subElementRect(Which, p_Option, p_Widget);
     }
 }
 
@@ -675,12 +641,12 @@ void CLeicaStyle::BorderPixmap(QPixmap *p_Target, QPixmap *p_Source, qint32 Left
  *  \brief Returns the path to a colored button pixmap
  *
  *  \iparam Color = Button color as it is specified in the data manager
- *  \iparam State = State of the button (e.g. pressed or not)
+ *  \iparam ButtonState = State of the button (e.g. pressed or not)
  *
  *  \return Path to the image
  */
 /****************************************************************************/
-QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State State)
+QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State ButtonState)
 {
     QString ColorString;
 
@@ -713,7 +679,7 @@ QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State State)
     }
 
     if (ColorString.isNull()) {
-        if (State & QStyle::State_Sunken) {
+        if (ButtonState & QStyle::State_Sunken) {
             return (QString(":/%1/TextButton/TextButton-Pressed.png").arg(GetDeviceImagesPath()));
         }
         else {
@@ -721,7 +687,7 @@ QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State State)
         }
     }
     else {
-        if (State & QStyle::State_Sunken) {
+        if (ButtonState & QStyle::State_Sunken) {
             return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-").arg(GetDeviceImagesPath())) + ColorString + "-Pressed.png";
         }
         else {

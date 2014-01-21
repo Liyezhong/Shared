@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file WarningMsgDlg.cpp
  *
- *  \brief WarningMsgDlg implementation.
+ *  \brief Implementation of file for class CWarningMsgDlg.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display warning messages dialog.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-10-29
@@ -22,6 +25,7 @@
 #include "Global/Include/Exception.h"
 #include "MainMenu/Include/WarningMsgDlg.h"
 #include "ui_WarningMsgDlg.h"
+#include "Application/Include/LeicaStyle.h"
 
 namespace MainMenu {
 
@@ -34,19 +38,23 @@ namespace MainMenu {
  *  \iparam p_UserSettingsInterface = User Settings Interface object
  */
 /****************************************************************************/
-CWarningMsgDlg::CWarningMsgDlg(QWidget *p_Parent, QWidget *p_MainWindow,DataManager::CUserSettingsInterface *p_UserSettingsInterface) : MainMenu::CDialogFrame(p_Parent),
+CWarningMsgDlg::CWarningMsgDlg(QWidget *p_Parent, QWidget *p_MainWindow,
+                               DataManager::CUserSettingsInterface *p_UserSettingsInterface) :
+    MainMenu::CDialogFrame(p_Parent),
     mp_Ui(new Ui::CWarningMsgDlg),
     mp_SettingsInterface(p_UserSettingsInterface)
 {
     mp_Ui->setupUi(GetContentFrame());
-    mp_TextEdit = new QTextEdit(mp_Ui->widget);
+    mp_TextEdit = new QTextEdit(this);
     mp_TextEdit->setReadOnly(true);
+    setModal(true);
     mp_TextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
-    mp_Ui->widget->SetContent(mp_TextEdit);
+    mp_Ui->scrollTable->SetContent(mp_TextEdit);
     mp_MainWidow = static_cast<MainMenu::CMainWindow *>(p_MainWindow);
     QPalette Palette = mp_TextEdit->palette();
     Palette.setColor(QPalette::Window, Qt::white);
     mp_TextEdit->setPalette(Palette);
+    CONNECTSIGNALSLOTGUI(this, DialogLangaugeChanged(), this, RetranslateUI());
     if (!connect(mp_Ui->closeButton, SIGNAL(clicked()), this, SLOT(accept()))) {
         qDebug() << "CWarningMsgDlg: cannot connect 'clicked' signal";
     }
@@ -77,6 +85,7 @@ CWarningMsgDlg::~CWarningMsgDlg()
 void CWarningMsgDlg::changeEvent(QEvent *p_Event)
 {
     QDialog::changeEvent(p_Event);
+
     switch (p_Event->type()) {
         case QEvent::LanguageChange:
             mp_Ui->retranslateUi(this);
@@ -87,10 +96,9 @@ void CWarningMsgDlg::changeEvent(QEvent *p_Event)
     }
 }
 
-
 //****************************************************************************/
 /*!
- *  \brief Sets the Warningmessages list to the Text Edit
+ *  \brief Sets the Warning messages list to the Text Edit
  */
 /****************************************************************************/
 void CWarningMsgDlg::SetWarningMsgList()
@@ -98,20 +106,18 @@ void CWarningMsgDlg::SetWarningMsgList()
     QStringList WarningText;
     QList<MsgData>::Iterator WarnMsgIterator;
     //Iterating through the List
-    for (WarnMsgIterator = m_WarnMsgList.begin(); WarnMsgIterator!= m_WarnMsgList.end();WarnMsgIterator++)
+    for (WarnMsgIterator = m_WarnMsgList.begin(); WarnMsgIterator!= m_WarnMsgList.end(); WarnMsgIterator++)
     {
         MsgData WarnMsgStruct = *WarnMsgIterator;
         //Get the DateTime string as per the userSettings Date Format
         QString DateTimeStr = GetDateAndTime(WarnMsgStruct.Time);
-        quint32 ID =  (WarnMsgStruct.ID & 0xffffffff00000000) >> 32;
+        quint64 ID =  (WarnMsgStruct.ID & 0xffffffff00000000) >> 32;
         //Appending TimeStamp, EventIdand Event string to a String list
-        WarningText.append(DateTimeStr + ";  "+QString::number(ID) +";  "+QString(tr("%1").arg(WarnMsgStruct.MsgString))+"\n");
+        WarningText.append(DateTimeStr + ";  "+QString::number(ID) +";  "+
+                           QString("%1").arg(WarnMsgStruct.MsgString)+"\n");
     }
-    //Sorting the string list,Latest will be put at the Top
-    //qSort(WarningText.begin(), WarningText.end(), qGreater<QString>());
     //Setting the warning Messages to Text Edit
-    SetText(WarningText);
-
+    SetText(WarningText);    
 }
 
 /****************************************************************************/
@@ -130,17 +136,24 @@ void CWarningMsgDlg::SetCaption(QString Caption)
 /*!
  *  \brief Sets the content of the text view
  *
- *  \iparam Text = Text file
+ *  \iparam MsgList = Message list.
  */
 /****************************************************************************/
 void CWarningMsgDlg::SetText(QStringList MsgList)
 {
     mp_TextEdit->clear();
-    mp_TextEdit->setFontPointSize(11);
-    for (int Msg = MsgList.count()-1;Msg >=0;Msg--) {
-        mp_TextEdit->append(tr("%1").arg(MsgList.at(Msg)));
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_TextEdit->setFontPointSize(8);
     }
+    else {
+        mp_TextEdit->setFontPointSize(11);
+    }    QStringList MessagesList;
+    for (int Msg = MsgList.count()-1;Msg >=0;Msg--) {
+        MessagesList.append(MsgList.at((Msg)));
+    }
+    mp_TextEdit->setText(MessagesList.join("\n"));
 }
+
 
 /****************************************************************************/
 /*!
@@ -150,13 +163,22 @@ void CWarningMsgDlg::SetText(QStringList MsgList)
 void CWarningMsgDlg::PopUp()
 {
     //Setting Warning messages List to the Text Edit
-    SetWarningMsgList();
-    //Setting Title and Caption label
-    SetCaption(tr("Warning Messages"));
-    SetDialogTitle(tr("Warning Messages"));
-    mp_MainWidow->SetTabWidgetIndex();
-    resize(mp_MainWidow->width()-150,mp_MainWidow->height()-75);
-    move(80, 35);
+    SetWarningMsgList();    
+   //Setting Title and Caption label    
+    SetDialogTitle(QApplication::translate("MainMenu::CWarningMsgDlg",
+                                           "Warning Messages", 0, QApplication::UnicodeUTF8));
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_Ui->captionLabel->hide();
+        resize(mp_MainWidow->width() - 50, mp_MainWidow->height() - 40);
+        move(50, 35);
+    }
+    else {
+        SetCaption(QApplication::translate("MainMenu::CWarningMsgDlg",
+                                           "Warning Messages", 0, QApplication::UnicodeUTF8));
+        resize(mp_MainWidow->width() - 150, mp_MainWidow->height() - 75);
+        move(80, 35);
+    }
+
     show();
 }
 
@@ -167,13 +189,17 @@ void CWarningMsgDlg::PopUp()
 /****************************************************************************/
 void CWarningMsgDlg::RetranslateUI()
 {
-   MainMenu::CDialogFrame::SetDialogTitle(QApplication::translate("MainMenu::CWarningMsgDlg", "Warning Messages", 0, QApplication::UnicodeUTF8));
+    SetCaption(QApplication::translate("MainMenu::CWarningMsgDlg",
+                                       "Warning Messages", 0, QApplication::UnicodeUTF8));
+    SetDialogTitle(QApplication::translate("MainMenu::CWarningMsgDlg",
+                                           "Warning Messages", 0, QApplication::UnicodeUTF8));
 }
 
 /****************************************************************************/
 /**
  * \brief Retriving the Event ID and Warning Message from Warning Message Hash
- * \iparam  WarningIdMsgHash = Hash with Warning Id and Error Msg data
+ *
+ * \iparam  WarnIDStructList = Hash with Warning Id and Error Msg data
  *
  */
 /****************************************************************************/
@@ -181,10 +207,13 @@ void CWarningMsgDlg::WarningMsgList(QList <MsgData> WarnIDStructList)
 {
     m_WarnMsgList = WarnIDStructList;
 }
+
 /****************************************************************************/
 /*!
  *  \brief Sending the Messages to the Status bar Manager
+ *
  *  \iparam DateTimeStr - Dateand time string in seconds
+ *
  *  \return Date and time string as per the UserSettings
  */
 /****************************************************************************/
@@ -208,19 +237,12 @@ QString CWarningMsgDlg::GetDateAndTime(QString DateTimeStr)
         else {
             Date = DateTime.date().toString("MM/dd/yyyy");
         }
-        Time = DateTime.time().toString("hh:mm");
-        /*if (TimeFmt == Global::TIME_24) {
-            Time = DateTime.time().toString("hh:mm");
-        }
-        else {
-            Time = DateTime.time().toString("hh:mm a");
-        }*/
+        Time = DateTime.time().toString("hh:mm");        
     }
-    //Caoncatenating the Date and Time Strings
+
+    //Concatenating the Date and Time Strings
     QString TimeStamp = Date + " " + Time;
     return TimeStamp;
 }
 
 } // end namespace MainMenu
-
-

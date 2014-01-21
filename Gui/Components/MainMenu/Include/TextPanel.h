@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file TextPanel.h
  *
- *  \brief TextPanel definition.
+ *  \brief Header file for class CTextPanel.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-28
@@ -27,6 +27,8 @@
 #include <QMap>
 #include <QScrollArea>
 
+//lint -e429
+
 namespace MainMenu {
 
 /****************************************************************************/
@@ -37,6 +39,7 @@ namespace MainMenu {
 class CTextPanel : public CContentScroller
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CTextPanel(QWidget *p_Parent = 0);
@@ -57,6 +60,13 @@ private:
     QList<QLabel *> m_Caption;              //!< List of captions
     QMap<QString, QLabel *> m_Description;  //!< The descriptions displayed on the screen
     QMap<QString, QLabel *> m_Value;        //!< The values displayed on the right side of the screen
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CTextPanel)
 };
 
 } // end namespace MainMenu

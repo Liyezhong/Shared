@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file TextDialog.h
  *
- *  \brief TextDialog definition.
+ *  \brief Header file for class CTextDialog.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-30
@@ -38,20 +38,35 @@ namespace Ui {
 class CTextDialog : public MainMenu::CDialogFrame
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CTextDialog(QWidget *p_Parent = 0);
     virtual ~CTextDialog();
     void SetCaption(QString Caption);
     void SetText(QString Text);
+    void SetPlainText(QString Text);
+    void AppendText(QString Text);
+    void SetNintyPercentScroll(bool Status);
+
 
 private:
     Ui::CTextDialog *mp_Ui; //!< User interface
     QTextEdit *mp_TextEdit; //!< Widget displaying a text file
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CTextDialog)
 
-
+signals:
+    void LanguageChanged();    
 protected:
     void changeEvent(QEvent *p_Event);
+private slots:
+    void CloseDailog();
 };
 
 } // end namespace MainMenu

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">MainWindow</string>
+   <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -94,6 +94,12 @@
        </item>
        <item>
         <widget class="QFrame" name="frame">
+         <property name="minimumSize">
+          <size>
+           <width>96</width>
+           <height>33</height>
+          </size>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -164,7 +170,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_23">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -307,6 +313,12 @@
           </item>
           <item>
            <widget class="QLabel" name="labelUser">
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>33</height>
+             </size>
+            </property>
             <property name="text">
              <string/>
             </property>

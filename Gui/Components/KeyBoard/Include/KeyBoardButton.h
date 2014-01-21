@@ -79,6 +79,13 @@ private:
     QPixmap m_PixmapTurnRed;//!< Red pixmap for Shiftlock also used during subspeller pops up
     QPixmap m_PixmapDefault;//!< Default pixmap
     QList<QString> m_ButtonTextList;//!< This list holds the buttons for which subspeller is not required
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CKeyBoardButton)
 
 public:
     static qint32 m_ButtonWidth;//!< Width of the button

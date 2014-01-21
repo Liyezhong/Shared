@@ -178,6 +178,13 @@ private:
     CKeyBoardButton *CreateNewKey(QString IconType, QString PrimaryText,
                                   QString BtnText2, bool IconPresent,
                                   int ButtonType);
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CKeyBoard)
     void CreateKeyboard(void);
     void SetCaps(bool IsCaps);
     void MoveCharacters(bool Checked);

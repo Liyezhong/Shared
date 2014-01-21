@@ -75,6 +75,13 @@ private:
     void InitSubSpellerGUI(qint32 LookUpIndex, qint32 Offset, qint32 XCoordinate, qint32 YCoordinate, Model_t Model, KeyBoardType_t KeyBoardType);
     void GenerateCoordinates(qint32 LookUpIndex, qint32 Offset, KeyBoard::Model_t Model,
                              KeyBoard::KeyBoardType_t KeyBoardType, qint32 &XCoordinate, qint32 &YCoordinate);
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CSubSpeller)
 
 public:
     static QString m_Model;//!< Used to check if model is SIZE_1 or SIZE_2

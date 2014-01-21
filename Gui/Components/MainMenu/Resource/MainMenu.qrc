@@ -135,6 +135,44 @@
         <file>Small/Icons/Main_Tabs/Monitor.png</file>
         <file>Small/Icons/Main_Tabs/Setup.png</file>
         <file>Small/Icons/Main_Tabs/User.png</file>
+	     <file>Large/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/153_MB_help.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png</file>
+        <file>Large/Icons/MISC/WaterTab_15.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Service.png</file>
+        <file>Large/Icons/User_Status/User_Manufaturing.png</file>
+        <file>Small/Icons/Main_Tabs/Modul_Status.png</file>
+        <file>Small/Icons/Main_Tabs/Parameter_Sets.png</file>
+        <file>Small/Icons/Main_Tabs/Unloader.png</file>
+        <file>Small/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Small/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Small/Icons/User_Status_PushButton/Icon_User_Service.png</file>
+        <file>Small/Icons/Configuration/Configuration_Alarm_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_CountrySpecific_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_DataManagement_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_DateTime_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Coverslip_Correction.png</file>
+        <file>Small/Icons/Configuration/Configuration_Coverslip_Correction_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Log.png</file>
+        <file>Small/Icons/Configuration/Configuration_Log_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Service_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Network.png</file>
+        <file>Small/Icons/Configuration/Configuration_Network_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Language_act.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_down_end_active.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_down_end_passive.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_up_end_active.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_up_end_passive.png</file>
+        <file>Small/Icons/Status_Bar/Error_small.png</file>
+        <file>Small/Icons/Status_Bar/RemoteCare_small.png</file>
+        <file>Small/Icons/Status_Bar/Status_small.png</file>
+        <file>Small/Icons/Status_Bar/Warning_small.png</file>
+        <file>Small/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png</file>
+        <file>Small/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png</file>
+        <file>Small/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png</file>
         <file>HimalayaImages/Panel.png</file>
         <file>HimalayaImages/Digits/Digit_AM.png</file>
         <file>HimalayaImages/Digits/Digit_Background.png</file>
