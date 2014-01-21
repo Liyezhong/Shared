@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Small/GroupBox">
+        <file>GroupBox.png</file>
+        <file>GroupBox_Cover_Text.png</file>
+    </qresource>
+</RCC>
