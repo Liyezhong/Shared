@@ -233,6 +233,8 @@ signals:
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
 #ifdef PRE_ALFA_TEST
     ReturnCode_t SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    ReturnCode_t SendCANMsgAcCurrentWatchdogSet();
+    ReturnCode_t SendCANMsgAcCurrentWatchdogSetExt();
 #endif
     //! sends the can set message 'Temperature'
     ReturnCode_t SendCANMsgSetTemperature(qreal Temperature, TempCtrlOperatingMode_t OperatingMode, TempCtrlStatus_t Status, quint8 SlopeTempChange=0);
@@ -352,6 +354,8 @@ signals:
 #ifdef PRE_ALFA_TEST
     quint32 m_unCanIDLevelSensorState;
     quint32 m_unCanIDSetSwitchState;
+    quint32 m_unCanIDAcCurrentWatchdogSet;    //!< CAN-message id of 'TBD' message
+    quint32 m_unCanIDAcCurrentWatchdogSetExt; //!< CAN-message id of 'TBD' message
 #endif
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection

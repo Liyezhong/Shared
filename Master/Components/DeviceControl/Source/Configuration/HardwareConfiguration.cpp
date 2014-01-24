@@ -1451,8 +1451,9 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     QDomElement childPidControllers;
     QDomElement childPidController;
     QString strTempTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
-            strCurrentGain, strHeaterCurrent, strHeaterThreshold;
+            strCurrentGain, strHeaterCurrent, strHeaterThreshold, strCurrentDeviation;
     QString strMaxTemperature, strControllerGain, strResetTime, strDerivativeTime;
+    QString strCurrentMin230_Serial, strCurrentMax230_Serial, strCurrentMin100_Serial, strCurrentMax100_Serial, strCurrentMin100_Parallel, strCurrentMax100_Parallel;
     bool ok;
 
     child = element.firstChildElement("configuration");
@@ -1469,6 +1470,13 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     strCurrentGain = child.attribute("current_gain");
     strHeaterCurrent = child.attribute("heater_current");
     strHeaterThreshold = child.attribute("heater_threshold");
+    strCurrentDeviation = child.attribute("current_deviation");
+    strCurrentMin230_Serial = child.attribute("current_min_230_serial");
+    strCurrentMax230_Serial = child.attribute("current_max_230_serial");
+    strCurrentMin100_Serial = child.attribute("current_min_100_serial");
+    strCurrentMax100_Serial = child.attribute("current_max_100_serial");
+    strCurrentMin100_Parallel = child.attribute("current_min_100_parallel");
+    strCurrentMax100_Parallel = child.attribute("current_max_100_parallel");
 
     pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
     pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toShort(&ok, 10);
@@ -1478,6 +1486,13 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     pCANObjFctTempCtrl->sCurrentGain = strCurrentGain.toShort(&ok, 10);
     pCANObjFctTempCtrl->sHeaterCurrent = strHeaterCurrent.toShort(&ok, 10);
     pCANObjFctTempCtrl->sHeaterThreshold = strHeaterThreshold.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentDeviation = strCurrentDeviation.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMin230_Serial = strCurrentMin230_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMax230_Serial = strCurrentMax230_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMin100_Serial = strCurrentMin100_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMax100_Serial = strCurrentMax100_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMin100_Parallel = strCurrentMin100_Parallel.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMax100_Parallel = strCurrentMax100_Parallel.toShort(&ok, 10);
 
     //############################
     // PID controller parameters

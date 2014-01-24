@@ -528,6 +528,13 @@ public:
         sCurrentGain = 0;
         sHeaterCurrent = 0;
         sHeaterThreshold = 0;
+        sCurrentDeviation = 0;
+        sCurrentMin230_Serial = 0;
+        sCurrentMax230_Serial = 0;
+        sCurrentMin100_Serial = 0;
+        sCurrentMax100_Serial = 0;
+        sCurrentMin100_Parallel = 0;
+        sCurrentMax100_Parallel = 0;
     }
     quint8 bTempTolerance;      //!< temperature tolerance in degree Celsius
     quint16 sSamplingPeriod;    //!< sampling period in hundredth of seconds
@@ -536,6 +543,13 @@ public:
     quint16 sCurrentGain;       //!< current sensor gain in mA/V
     quint16 sHeaterCurrent;     //!< current through the heaters in mA
     quint16 sHeaterThreshold;   //!< current threshold of the heaters in mA
+    quint16 sCurrentDeviation;  //!< current deviation in mA
+    quint16 sCurrentMin230_Serial;
+    quint16 sCurrentMax230_Serial;
+    quint16 sCurrentMin100_Serial;
+    quint16 sCurrentMax100_Serial;
+    quint16 sCurrentMin100_Parallel;
+    quint16 sCurrentMax100_Parallel;
     QList<CANFctPidController> listPidControllers;  //!< List of PID parameter sets
 };
 #ifdef PRE_ALFA_TEST
