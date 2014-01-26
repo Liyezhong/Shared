@@ -25,9 +25,10 @@
 namespace EventHandler {
 
 /****************************************************************************/
-EventScenarioErrXMLInfo::EventScenarioErrXMLInfo(const QString& XMLFile)
+EventScenarioErrXMLInfo::EventScenarioErrXMLInfo(const QString& XMLFile, bool genRetCode)
     : m_XMLFile(XMLFile),
-      m_pXMLReader(NULL)
+      m_pXMLReader(NULL),
+      m_GenRetCode(genRetCode)
 {
 }
 
@@ -125,6 +126,10 @@ bool EventScenarioErrXMLInfo::ConstructESEInfoList()
 			}
 			pESEObj = QSharedPointer<ESEInfo>(new ESEInfo(id, name, group));
             m_EventScenarioErrList.insert(id, pESEObj);
+            if (true == m_GenRetCode)
+            {
+                m_ESEInfoList.push_back(pESEObj);
+            }
         }
     }
     return true;

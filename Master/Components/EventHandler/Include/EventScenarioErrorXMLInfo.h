@@ -59,6 +59,15 @@ public:
      */
     /****************************************************************************/
     const QHash<QString, quint32>& GetScenarioErrorList() const { return m_ScenarioErrorList; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get name attribute in the ESEInfo object 
+     * 
+     * \return  value of name class member  
+     */
+    /****************************************************************************/
+    const QString& GetName() const { return m_Name; }
 private:
 	quint32					m_Id;					///< Event Id
 	QString					m_Name;					///< Event Name 
@@ -100,7 +109,7 @@ public:
      * \param[in] XMLFile	XML file 	
      */
     /****************************************************************************/
-    explicit  EventScenarioErrXMLInfo(const QString& XMLFile);
+    explicit  EventScenarioErrXMLInfo(const QString& XMLFile, bool genRetCode=false);
 
     /****************************************************************************/
     /**
@@ -127,7 +136,7 @@ public:
      * \return	Const Reference of Event-Scenaro-Error list 	
      */
     /****************************************************************************/
-    const QHash< quint32, QSharedPointer<ESEInfo> >& GetESEInfoList() const { return m_EventScenarioErrList; }
+    const QVector< QSharedPointer<ESEInfo> >& GetESEInfoList() const { return m_ESEInfoList; }
 
     /****************************************************************************/
     /**
@@ -144,6 +153,8 @@ private:
     QString                                 		m_ScenarioPrefix;			///< Scenario Prefix 
     QHash<QString, QString>							m_ScenarioList;	    		///< Scenario list
     QHash< quint32, QSharedPointer<ESEInfo> >		m_EventScenarioErrList;    	///< Event-Scenaro-Error list
+    QVector< QSharedPointer<ESEInfo> >              m_ESEInfoList;              ///< ESE list used to generate ReturnCode_t
+    bool                                            m_GenRetCode;               ///< Generate Return Code or not
 
     /****************************************************************************/
     /**
