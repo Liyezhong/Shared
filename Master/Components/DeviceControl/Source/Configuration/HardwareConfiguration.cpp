@@ -750,7 +750,7 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     CANFctModuleDigitInput* pCANObjFctDigitInEntry = 0;
 
     QDomElement child;
-    QString strEnabled, strTimestamp, strPolarity, strSupervision, strInterval, strDebounce;
+    QString strEnabled, strTimestamp, strPolarity, strThreshold, strInterval, strDebounce;
     bool ok;
 
     child = element.firstChildElement("configuration");
@@ -762,7 +762,7 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     strEnabled = child.attribute("enabled");
     strTimestamp = child.attribute("timestamp");
     strPolarity = child.attribute("polarity");
-    strSupervision = child.attribute("supervision");
+    strThreshold = child.attribute("threshold");
     strInterval = child.attribute("interval");
     strDebounce = child.attribute("debounce");
 
@@ -770,7 +770,7 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_bTimeStamp = strTimestamp.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_sSupervision = strSupervision.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_sThreshold = strThreshold.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_bInterval = strInterval.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toShort(&ok, 10);
 
