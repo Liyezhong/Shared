@@ -131,12 +131,21 @@ public:
 
     /****************************************************************************/
     /**
-     * \brief Get Event-Scenaro-Error list in the EventScenarioErrXMLInfo object 
+     * \brief Get Event-Scenaro-Error list (with QVector format) in the EventScenarioErrXMLInfo object 
      * 
      * \return	Const Reference of Event-Scenaro-Error list 	
      */
     /****************************************************************************/
     const QVector< QSharedPointer<ESEInfo> >& GetESEInfoList() const { return m_ESEInfoList; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get Event-Scenaro-Error list (with QHash format) in the EventScenarioErrXMLInfo object 
+     * 
+     * \return	Const Reference of Event-Scenaro-Error list 	
+     */
+    /****************************************************************************/
+    const QHash< quint32, QSharedPointer<ESEInfo> >& GetHashESEInfoList() const { return m_EventScenarioErrList; }
 
     /****************************************************************************/
     /**

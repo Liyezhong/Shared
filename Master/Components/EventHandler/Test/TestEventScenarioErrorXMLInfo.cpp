@@ -70,7 +70,7 @@ private slots:
 
 void TestEventScenarioErrorXMLInfo::UTAll()
 {
-    QHash< quint32,QSharedPointer<ESEInfo> > ESEInfoList = m_pESEXMLInfo->GetESEInfoList();
+    QHash< quint32,QSharedPointer<ESEInfo> > ESEInfoList = m_pESEXMLInfo->GetHashESEInfoList();
     QHash< quint32,QSharedPointer<ESEInfo> >::iterator iter = ESEInfoList.begin();
     while (iter != ESEInfoList.end())
     {
