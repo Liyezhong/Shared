@@ -50,6 +50,12 @@ typedef struct {
     UInt16 DesiredCurrent;          //!< Desired value of the effective current in milliamperes
     UInt16 DesiredCurThreshold;     //!< Desired current threshold in milliamperes
     UInt16 CurrentDeviation;        //!< Current deviation in milliamperes when heater is off
+    UInt16 CurrentMin230_Serial;    //!< Desired minimal effective current in mA for 230 VAC in Serial mode
+    UInt16 CurrentMax230_Serial;    //!< Desired maximal effective current in mA for 230 VAC in Serial mode
+    UInt16 CurrentMin100_Serial;    //!< Desired minimal effective current in mA for 100 VAC in Serial mode
+    UInt16 CurrentMax100_Serial;    //!< Desired maximal effective current in mA for 100 VAC in Serial mode
+    UInt16 CurrentMin100_Parallel;  //!< Desired minimal effective current in mA for 100 VAC in Parallel mode
+    UInt16 CurrentMax100_Parallel;  //!< Desired maximal effective current in mA for 100 VAC in Parallel mode
 } TempHeaterParams_t;
 
 //****************************************************************************/
@@ -58,7 +64,7 @@ typedef struct {
 
 Error_t tempHeaterInit (TempHeaterParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, TempHeaterType_t HeaterType, UInt16 Instances);
 void tempHeaterReset (void);
-Error_t tempHeaterProgress (void);
+Error_t tempHeaterProgress (TempHeaterType_t HeaterType);
 Error_t tempSampleCurrent (TempHeaterType_t HeaterType);
 Bool tempHeaterParallel (void);
 Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool CurrentCheck, Bool AutoSwitch);
@@ -72,6 +78,8 @@ UInt16 tempGetActiveDesiredCurThreshold(void);
 UInt8 tempHeaterSwitchState(void);
 UInt32 tempGetActiveStatus(void);
 Error_t tempSetHeaterSwitchState(UInt8 State);
+void tempGetActiveAcCurrentSerial(UInt16* CurMin230_S, UInt16* CurMax230_S, UInt16* CurMin100_S, UInt16* CurMax100_S);
+void tempGetActiveAcCurrentParallel(UInt16* CurMin100_P, UInt16* CurMax100_P);
 //****************************************************************************/
 
 #endif /*FMTEMPERATUREHEATER_H*/

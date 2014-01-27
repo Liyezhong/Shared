@@ -65,6 +65,14 @@ typedef struct {
     UInt16 MaxActDesiredCurrent;//!< Maximum desired current of active heating elements
     UInt16 MaxActDesiredCurThreshold;
                                 //!< Maximum desired current threshold of active heating elements
+
+    UInt16 MaxActCurrentMin230_S;//!< Maximum desired current of active heating elements
+    UInt16 MaxActCurrentMax230_S;//!< Maximum desired current of active heating elements
+    UInt16 MaxActCurrentMin100_S;//!< Maximum desired current of active heating elements
+    UInt16 MaxActCurrentMax100_S;//!< Maximum desired current of active heating elements
+    UInt16 MaxActCurrentMin100_P;//!< Maximum desired current of active heating elements
+    UInt16 MaxActCurrentMax100_P;//!< Maximum desired current of active heating elements
+
     UInt32 MaxActiveStatus;     //!< Status flag bits of maximum active heating elements
     UInt32 MaxActiveStatus2;    //!< Status flag bits of maximum active heating elements (only for debug)
     Bool *ActiveStatus;         //!< Active status for each heating element
@@ -231,6 +239,13 @@ void tempHeaterReset ()
     TempHeaterData.MaxActDesiredCurThreshold = 0;
     TempHeaterData.MaxActiveStatus = 0;
     TempHeaterData.MaxActiveStatus2 = 0;
+
+    TempHeaterData.MaxActCurrentMin230_S = 0;
+    TempHeaterData.MaxActCurrentMax230_S = 0;
+    TempHeaterData.MaxActCurrentMin100_S = 0;
+    TempHeaterData.MaxActCurrentMax100_S = 0;
+    TempHeaterData.MaxActCurrentMin100_P = 0;
+    TempHeaterData.MaxActCurrentMax100_P = 0;
 }
 
 
@@ -301,10 +316,13 @@ static Error_t tempHeaterGetFilteredInput (TempHeaterMonitor_t *Monitor) {
  *
  ****************************************************************************/
 
-Error_t tempHeaterProgress ()
+Error_t tempHeaterProgress (TempHeaterType_t HeaterType)
 {
     UInt16 i;
     UInt16 Active, ActiveDesiredCurrent, ActiveDesiredCurThreshold;
+    UInt16 ActCurrentMin230_S = 0, ActCurrentMax230_S = 0;
+    UInt16 ActCurrentMin100_S = 0, ActCurrentMax100_S = 0;
+    UInt16 ActCurrentMin100_P = 0, ActCurrentMax100_P = 0;
     Error_t Error;
 
     Active = tempHeaterActive ();
@@ -312,16 +330,57 @@ Error_t tempHeaterProgress ()
         TempHeaterData.MaxActive = Active;
         TempHeaterData.MaxActiveStatus = ActiveStatus;
     }
-    
-    ActiveDesiredCurrent = tempGetActiveDesiredCurrent ();
-    if (ActiveDesiredCurrent > TempHeaterData.MaxActDesiredCurrent) {
-        TempHeaterData.MaxActDesiredCurrent = ActiveDesiredCurrent;
+
+    if (HeaterType == TYPE_HEATER_DC) {
+
+        ActiveDesiredCurrent = tempGetActiveDesiredCurrent ();
+        if (ActiveDesiredCurrent > TempHeaterData.MaxActDesiredCurrent) {
+            TempHeaterData.MaxActDesiredCurrent = ActiveDesiredCurrent;
+        }
+        
+        ActiveDesiredCurThreshold = tempGetActiveDesiredCurThreshold ();
+        if (ActiveDesiredCurThreshold > TempHeaterData.MaxActDesiredCurThreshold) {
+            TempHeaterData.MaxActDesiredCurThreshold = ActiveDesiredCurThreshold;
+        }
+
     }
-    
-    ActiveDesiredCurThreshold = tempGetActiveDesiredCurThreshold ();
-    if (ActiveDesiredCurThreshold > TempHeaterData.MaxActDesiredCurThreshold) {
-        TempHeaterData.MaxActDesiredCurThreshold = ActiveDesiredCurThreshold;
-    }    
+    else {
+        // Heating elements are switched serially
+        if (TempHeaterData.State != TEMP_HEATER_STATE_PARALLEL) {
+
+            tempGetActiveAcCurrentSerial(&ActCurrentMin230_S, &ActCurrentMax230_S, 
+                                         &ActCurrentMin100_S, &ActCurrentMax100_S);
+
+            if (ActCurrentMin230_S > TempHeaterData.MaxActCurrentMin230_S) {
+                TempHeaterData.MaxActCurrentMin230_S = ActCurrentMin230_S;
+            }
+            if (ActCurrentMax230_S > TempHeaterData.MaxActCurrentMax230_S) {
+                TempHeaterData.MaxActCurrentMax230_S = ActCurrentMax230_S;
+            }
+            if (ActCurrentMin100_S > TempHeaterData.MaxActCurrentMin100_S) {
+                TempHeaterData.MaxActCurrentMin100_S = ActCurrentMin100_S;
+            }
+            if (ActCurrentMax100_S > TempHeaterData.MaxActCurrentMax100_S) {
+                TempHeaterData.MaxActCurrentMax100_S = ActCurrentMax100_S;
+            }
+            
+        }
+        // Heating elements are switched parallely
+        else {
+
+            tempGetActiveAcCurrentParallel(&ActCurrentMin100_P, &ActCurrentMax100_P);
+
+            if (ActCurrentMin100_P > TempHeaterData.MaxActCurrentMin100_P) {
+                TempHeaterData.MaxActCurrentMin100_P = ActCurrentMin100_P;
+            }
+            if (ActCurrentMax100_P > TempHeaterData.MaxActCurrentMax100_P) {
+                TempHeaterData.MaxActCurrentMax100_P = ActCurrentMax100_P;
+            }
+                        
+        }
+
+    }
+        
 
     // Switch off the heating elements
     for (i = 0; i < TempHeaterData.Instances; i++) {
@@ -510,19 +569,45 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
     UInt16 Current = 0;
     UInt16 DesiredCurThreshold = 0, DesiredCurrent = 0;
     UInt16 CurrentDeviation = 0, CurrentGain = 0;
-    UInt16 ActiveDesiredCurrent = TempHeaterData.MaxActDesiredCurrent;
-    UInt16 ActiveDesiredCurThreshold = TempHeaterData.MaxActDesiredCurThreshold;
+    UInt16 CurMin230_S, CurMax230_S, CurMin100_S, CurMax100_S;
+    UInt16 CurMin100_P, CurMax100_P;
+    UInt16 ActiveDesiredCurrent;
+    UInt16 ActiveDesiredCurThreshold;
+    UInt16 ActCurrentMin230_S, ActCurrentMax230_S, ActCurrentMin100_S, ActCurrentMax100_S;
+    UInt16 ActCurrentMin100_P, ActCurrentMax100_P;
     UInt16 ActiveCount = TempHeaterData.MaxActive;
-    
+
     TempHeaterParams_t *Params = TempHeaterData.Params;
     CurrentDeviation = Params[Instance].CurrentDeviation;
     CurrentGain = Params[Instance].CurrentGain;
-    
+
+    if (HeaterType == TYPE_HEATER_DC) {
+        ActiveDesiredCurrent = TempHeaterData.MaxActDesiredCurrent;
+        ActiveDesiredCurThreshold = TempHeaterData.MaxActDesiredCurThreshold;
+
+        TempHeaterData.MaxActDesiredCurrent = 0;
+        TempHeaterData.MaxActDesiredCurThreshold = 0;
+    }
+    else {
+        ActCurrentMin230_S = TempHeaterData.MaxActCurrentMin230_S;
+        ActCurrentMax230_S = TempHeaterData.MaxActCurrentMax230_S;
+        ActCurrentMin100_S = TempHeaterData.MaxActCurrentMin100_S;
+        ActCurrentMax100_S = TempHeaterData.MaxActCurrentMax100_S;
+        ActCurrentMin100_P = TempHeaterData.MaxActCurrentMin100_P;
+        ActCurrentMax100_P = TempHeaterData.MaxActCurrentMax100_P;
+
+        TempHeaterData.MaxActCurrentMin230_S = 0;
+        TempHeaterData.MaxActCurrentMax230_S = 0;
+        TempHeaterData.MaxActCurrentMin100_S = 0;
+        TempHeaterData.MaxActCurrentMax100_S = 0;
+        TempHeaterData.MaxActCurrentMin100_P = 0;
+        TempHeaterData.MaxActCurrentMax100_P = 0;
+    }    
 
     TempHeaterData.Failed = FALSE;
     TempHeaterData.MaxActive = 0;
-    TempHeaterData.MaxActDesiredCurrent = 0;
-    TempHeaterData.MaxActDesiredCurThreshold = 0;
+    //TempHeaterData.MaxActDesiredCurrent = 0;
+    //TempHeaterData.MaxActDesiredCurThreshold = 0;
     TempHeaterData.MaxActiveStatus2 = TempHeaterData.MaxActiveStatus;
     TempHeaterData.MaxActiveStatus = 0;
 
@@ -590,18 +675,21 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
         // Heating elements are switched serially
         else if (TempHeaterData.State != TEMP_HEATER_STATE_PARALLEL) {
             Current = TempHeaterData.EffectiveCurrent / ActiveCount;
-            DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
-            DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
-            //dbgPrint("220V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            CurMin230_S = ActCurrentMin230_S / ActiveCount;
+            CurMax230_S = ActCurrentMax230_S / ActiveCount;
+            CurMin100_S = ActCurrentMin100_S / ActiveCount;
+            CurMax100_S = ActCurrentMax100_S / ActiveCount;
+            //dbgPrint("220V:%d %d %d %d %d[%d]\n", Current, 
+            //    CurMin230_S, CurMax230_S, CurMin100_S, CurMax100_S, ActiveCount);
             
-            // Check if the current is out of range (200 - 240V)
-            if (Current + DesiredCurThreshold < DesiredCurrent ||
-                    Current > DesiredCurrent + DesiredCurThreshold) {                    
-                // Check if the current is out of range (100 - 127V)
-                if (Current + DesiredCurThreshold / 2 < DesiredCurrent / 2 ||
-                        Current > DesiredCurrent / 2 + DesiredCurThreshold / 2) {
+            // Check if the current is out of range (230V)
+            if (Current < CurMin230_S || Current > CurMax230_S) {                  
+                // Check if the current is out of range (100V)
+                if (Current < CurMin100_S || Current > CurMax100_S) {
                     TempHeaterData.Failed = TRUE;
-                    dbgPrint("220V ErrA:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
+                    dbgPrint("220V ErrA:%d %d %d %d %d[%d]\n", Current, 
+                        CurMin230_S, CurMax230_S, CurMin100_S, CurMax100_S,
+                        ActiveCount);
                 }
                 else if (TempHeaterData.State == TEMP_HEATER_STATE_UNDEFINED) {
                     
@@ -626,14 +714,13 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
         // Heating elements are switched parallelly
         else {
             Current = TempHeaterData.EffectiveCurrent / ActiveCount;
-            DesiredCurrent = ActiveDesiredCurrent / ActiveCount;
-            DesiredCurThreshold = ActiveDesiredCurThreshold / ActiveCount;
+            CurMin100_P = ActCurrentMin100_P / ActiveCount;
+            CurMax100_P = ActCurrentMax100_P / ActiveCount;
             
-            //dbgPrint("110V:%d %d %d [%d]\n", Current, DesiredCurrent, DesiredCurThreshold, ActiveCount);
+            //dbgPrint("110V:%d %d %d [%d]\n", Current, CurMin100_P, CurMax100_P, ActiveCount);
             
-            // Check if the current is out of range (100 - 127V)
-            if (Current / 2 + DesiredCurThreshold < DesiredCurrent ||
-                    Current / 2 > DesiredCurrent + DesiredCurThreshold) {
+            // Check if the current is out of range (100V)
+            if (Current < CurMin100_P || Current > CurMax100_P) {
                     
                 if (AutoSwitch) {  //TBD: Force to switch to serial mode for safety?
                     // Switched for 220V
@@ -645,7 +732,7 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
                 }
 
                 TempHeaterData.Failed = TRUE;
-                dbgPrint("110V Err:%d %d %d\n", Current, DesiredCurrent, DesiredCurThreshold);
+                dbgPrint("110V Err:%d %d %d\n", Current, CurMin100_P, CurMax100_P);
             }
         }
     
@@ -852,6 +939,35 @@ UInt16 tempGetActiveDesiredCurThreshold(void)
     
     return (DesiredCurThreshold);  
 }
+
+
+void tempGetActiveAcCurrentSerial(UInt16* CurMin230_S, UInt16* CurMax230_S, UInt16* CurMin100_S, UInt16* CurMax100_S)
+{
+    UInt16 i;
+    
+    for (i = 0; i < TempHeaterData.Instances; i++) {
+        if (TempHeaterData.ActiveStatus[i]) {
+            *CurMin230_S += TempHeaterData.Params[i].CurrentMin230_Serial;
+            *CurMax230_S += TempHeaterData.Params[i].CurrentMax230_Serial;
+            *CurMin100_S += TempHeaterData.Params[i].CurrentMin100_Serial;
+            *CurMax100_S += TempHeaterData.Params[i].CurrentMax100_Serial;
+        }
+    }
+}
+
+
+void tempGetActiveAcCurrentParallel(UInt16* CurMin100_P, UInt16* CurMax100_P)
+{
+    UInt16 i;
+    
+    for (i = 0; i < TempHeaterData.Instances; i++) {
+        if (TempHeaterData.ActiveStatus[i]) {
+            *CurMin100_P += TempHeaterData.Params[i].CurrentMin100_Parallel;
+            *CurMax100_P += TempHeaterData.Params[i].CurrentMax100_Parallel;
+        }
+    }
+}
+
 
 /*****************************************************************************/
 /*! 
