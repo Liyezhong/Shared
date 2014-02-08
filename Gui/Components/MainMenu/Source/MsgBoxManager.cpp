@@ -411,8 +411,11 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
         quint32 ID =  (m_CurrentMsgData.ID & 0xffffffff00000000) >> 32;
         mp_MessageDlg->SetTitle(Date + " " + Time, QString::number(ID));
 
-        QRect scr = mp_Parent->geometry();
-        mp_MessageDlg->move( scr.center() - mp_MessageDlg->rect().center());
+        if (mp_Parent)
+        {
+            QRect scr = mp_Parent->geometry();
+            mp_MessageDlg->move( scr.center() - mp_MessageDlg->rect().center());
+        }
 
         if ("" != m_CurrentMsgData.AutoQuitMsgBoxTime)
         {
