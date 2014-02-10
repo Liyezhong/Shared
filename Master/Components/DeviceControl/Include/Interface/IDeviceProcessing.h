@@ -63,7 +63,7 @@ class IDeviceProcessing : public QObject
 
 public:
     IDeviceProcessing();
-    virtual ~IDeviceProcessing();
+    ~IDeviceProcessing();
 
     //! Returns the serial number from config file
     static bool GetSerialNumber(QString& SerialNo);
