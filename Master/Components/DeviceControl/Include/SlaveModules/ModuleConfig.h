@@ -102,14 +102,14 @@ public:
     CANFctModuleDigitInput() { m_bEnabled = 0;
                                m_bTimeStamp = 0;
                                m_sPolarity = 0;
-                               m_sSupervision = 0;
+                               m_sThreshold = 0;
                                m_bInterval = 0;
                                m_bDebounce = 0;
-                              };
+                              }
     quint8  m_bEnabled;     //!< Enabled flag
     quint8  m_bTimeStamp;   //!< Time stamp flag
     quint16 m_sPolarity;    //!< input polarity
-    quint16 m_sSupervision; //!< Supervision flag
+    quint16 m_sThreshold; //!< Supervision flag
     quint8  m_bInterval;    //!< Read intervall
     quint8  m_bDebounce;    //!< Input value debounce setting
 };
@@ -626,7 +626,7 @@ public:
     CANFctModuleJoystick() { m_bCommModeThresHold = 0;
                              m_sSampleRate = 0;
                              m_sUpperThreshold = 0;
-                             m_sLowerThreshold = 0;};
+                             m_sLowerThreshold = 0;}
 
     quint8  m_bCommModeThresHold;  //!< threshold
     quint16 m_sSampleRate;        //!< input sample rate
@@ -649,7 +649,7 @@ public:
                          m_bParityEnabled = 0;
                          m_bParity = 0;
                          m_sBaudrate = 0;
-                       };
+                       }
 
     quint8  m_bEnabled;               //!< module enabled / disabled
     quint8  m_bReadCommunicationMode; //!< read communication mode
