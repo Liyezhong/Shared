@@ -1546,7 +1546,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
         if (GetType() == m_lastErrorGroup) //lint !e641
             eventString = m_eventString[m_lastErrorCode];
         else
-            eventString = m_pParent->m_eventString[m_lastErrorCode];
+            eventString = m_pParent->m_EventString[m_lastErrorCode];
         if ("" == eventString)
             eventString = "unknown";
         FILE_LOG_L(laFCT, llERROR) << " " << eventString;

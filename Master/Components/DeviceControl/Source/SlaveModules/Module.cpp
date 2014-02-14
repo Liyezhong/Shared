@@ -45,6 +45,7 @@ CModule::CModule(CModuleConfig::CANObjectType_t eObjectType, const CANMessageCon
     m_pCANCommunicator(pCANCommunicator), mp_MessageConfiguration(p_MessageConfiguration), m_pCANObjectConfig(0),
     m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS), m_lastErrorGroup(0), m_lastErrorCode(0), m_lastErrorData(0),
     m_unCanIDEventInfo(0), m_unCanIDEventWarning(0), m_unCanIDEventError(0), m_unCanIDEventFatalError(0),
+    m_unCanIDReqDataReset(0), m_unCanIDAcknDataReset(0),
     m_eObjectType(eObjectType), m_sOrderNr(0)
 {
     m_TaskID = MODULE_TASKID_INIT;
@@ -170,6 +171,32 @@ quint32 CModule::GetModuleHandle()
 
 /****************************************************************************/
 /*!
+ *  \brief  Send the CAN message to request the data reset
+ *
+ *      The request will be acknowledge from slave by sending the CAN message
+ *      'm_unCanIDAcknPartitionDataReset'
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed in transmit queue
+ *          otherwise the return code from SendCOB(..)
+ */
+/****************************************************************************/
+ReturnCode_t CModule::SendCANMsgReqDataReset()
+{
+    ReturnCode_t result;
+    can_frame canmsg;
+
+    FILE_LOG_L(laCOMM, llDEBUG)  << "CANNode " << GetName().toStdString() << ": send partition data reset req.: 0x" << std::hex << m_unCanIDReqDataReset;
+
+    canmsg.can_id = m_unCanIDReqDataReset;
+    canmsg.can_dlc = 2;
+    SetCANMsgDataU16(&canmsg, ComputePassword(), 0);
+    result = m_pCANCommunicator->SendCOB(canmsg);
+
+    return result;
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Handles the reception of error-CAN message
  *
  *  \iparam pCANframe = struct contains the data of the received CAN message
@@ -218,6 +245,109 @@ void CModule::HandleCANMsgError(can_frame* pCANframe)
         // this error was reported from external (CAN-bus)
         m_lastErrorHdlInfo = DCL_ERR_EXTERNAL_ERROR;
     }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Handle the reception of date reset acknowledgements
+ *
+ *      The reset of the module command has to be done in the subclass.
+ *
+ *  \iparam pCANframe = Received CAN message
+ */
+/****************************************************************************/
+void CModule::HandleCANMsgAcknDataReset(can_frame* pCANframe)
+{
+    FILE_LOG_L(laCONFIG, llDEBUG) << "CANNode " << GetName().toStdString() << ": Acknowledge data reset received:"
+                                  << (int) pCANframe->data[0];
+    if(pCANframe->can_dlc == 1)
+    {
+        ReturnCode_t HdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
+
+        if(pCANframe->data[0] == 0)
+        {
+            //the command was not successfully executed
+            HdlInfo = DCL_ERR_FCT_CALL_FAILED;
+        }
+
+        emit ReportDataResetAckn(GetModuleHandle(), HdlInfo);
+    }
+    else
+    {
+        emit ReportDataResetAckn(GetModuleHandle(), DCL_ERR_CANMSG_INVALID);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Initialize the module's event CAN message IDs
+ *
+ *      The CAN-IDs are read from the CAN-Message configuration class. The
+ *      CAN-ID for event notification are determined here.
+ *
+ *  \iparam ModuleID = Identifier of the function module
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ */
+/****************************************************************************/
+ReturnCode_t CModule::InitializeEventCANMessages(quint8 ModuleID)
+{
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    quint8 bIfaceID;
+
+    if(m_pCANObjectConfig == 0)
+    {
+        return DCL_ERR_NULL_PTR_ACCESS;
+    }
+
+    bIfaceID = m_pCANObjectConfig->m_sChannel;
+
+    m_unCanIDEventInfo       = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventInfo", bIfaceID, GetNodeID());
+    m_unCanIDEventWarning    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventWarning", bIfaceID, GetNodeID());
+    m_unCanIDEventError      = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventError", bIfaceID, GetNodeID());
+    m_unCanIDEventFatalError = mp_MessageConfiguration->GetCANMessageID(ModuleID, "EventFatalError", bIfaceID, GetNodeID());
+
+    m_unCanIDReqDataReset    = mp_MessageConfiguration->GetCANMessageID(ModuleID, "ReqDataReset", bIfaceID, GetNodeID());
+    m_unCanIDAcknDataReset   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "AcknDataReset", bIfaceID, GetNodeID());
+
+    return RetVal;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Register the receive event CAN-messages to communication layer
+ *
+ *      Each receiveable CAN-message must be registered to the communication
+ *      layer. This enables the communication layer to call the
+ *      'HandleCANMessage(..)' function of this instance after receiption of
+ *      the message.
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS or error code
+ */
+/****************************************************************************/
+ReturnCode_t CModule::RegisterEventCANMessages()
+{
+    ReturnCode_t RetVal;
+
+    RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventInfo, this);
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventWarning, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventError, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDEventFatalError, this);
+    }
+    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        RetVal = m_pCANCommunicator->RegisterCOB(m_unCanIDAcknDataReset, this);
+    }
+
+    return RetVal;
 }
 
 /*****************************************************************************/
@@ -358,6 +488,28 @@ quint64 CModule::GetCANMsgDataU64 (can_frame* pCANframe)
 
 /*****************************************************************************/
 /*!
+ *  \brief  Set bytes in CAN message's data from quint64
+ *
+ *  \iparam pCANframe = CAN message
+ *  \iparam msgData = Data to be set
+ */
+/****************************************************************************/
+void CModule::SetCANMsgDataU64 (can_frame* pCANframe, quint64 msgData)
+{
+    quint8 offset = 0;
+
+    pCANframe->data[offset++] = (quint8) ((msgData & 0xFF00000000000000ull) >> 56);
+    pCANframe->data[offset++] = (quint8) ((msgData & 0x00FF000000000000ull) >> 48);
+    pCANframe->data[offset++] = (quint8) ((msgData & 0x0000FF0000000000ull) >> 40);
+    pCANframe->data[offset++] = (quint8) ((msgData & 0x000000FF00000000ull) >> 32);
+    pCANframe->data[offset++] = (quint8) ((msgData & 0x00000000FF000000ull) >> 24);
+    pCANframe->data[offset++] = (quint8) ((msgData & 0x0000000000FF0000ull) >> 16);
+    pCANframe->data[offset++] = (quint8) ((msgData & 0x000000000000FF00ull) >> 8);
+    pCANframe->data[offset]   = (quint8) (msgData & 0x00000000000000FFull);
+}
+
+/*****************************************************************************/
+/*!
  *  \brief  Set byte in CAN message data from qint16
  *
  *  \iparam pCANframe = CAN message
@@ -390,4 +542,19 @@ void CModule::SetCANMsgDataU16(can_frame* pCANframe, quint16 msgData, quint8 off
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Computes the password for partition reset and format
+ *
+ *  \return Password
+ */
+/****************************************************************************/
+quint16 CModule::ComputePassword()
+{
+    QDateTime CurrentDateTime = Global::AdjustedTime::Instance().GetCurrentDateTime();
+    QDate CurrentDate = CurrentDateTime.date();
+    QTime CurrentTime = CurrentDateTime.time();
+
+    return ((CurrentDate.year() * CurrentDate.month() * CurrentDate.day()) + CurrentTime.hour()) ^ 0x8320u;
+}
 } //namespace

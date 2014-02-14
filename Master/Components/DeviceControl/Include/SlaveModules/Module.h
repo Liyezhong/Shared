@@ -154,9 +154,42 @@ signals:
      */
     /****************************************************************************/
     void ReportError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  This signal is emitted when an error was detected or received from slave
+     *
+     *  \iparam EventCode = Event code
+     *  \iparam EventData = Event data
+     *  \iparam EventTime = Event time
+     */
+    /****************************************************************************/
+    void ReportEvent(quint32 EventCode, quint16 EventData, QDateTime EventTime);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Report the data reset acknowledge
+     *
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     */
+    /****************************************************************************/
+    void ReportDataResetAckn(quint32 InstanceID, ReturnCode_t HdlInfo);
 
 protected:
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the node ID of the function module's node
+     *
+     *  \return Node ID
+     */
+    /****************************************************************************/
+    virtual quint32 GetNodeID() const = 0;
+
+    ReturnCode_t SendCANMsgReqDataReset();
     void HandleCANMsgError(can_frame* pCANframe);
+    ReturnCode_t InitializeEventCANMessages(quint8 ModuleID);
+    ReturnCode_t RegisterEventCANMessages();
+    void HandleCANMsgAcknDataReset(can_frame* pCANframe);   //!< Handles the receipt of can message 'AcknDataReset'
 
     static void SetCANMsgDataU32(can_frame* pCANframe, quint32 msgData, quint8 offset);
     static void SetCANMsgDataS32(can_frame* pCANframe, qint32 msgData, quint8 offset);
@@ -168,7 +201,8 @@ protected:
 #endif
     static quint32 GetCANMsgDataU32(can_frame* pCANframe, quint8 offset);
     static quint64 GetCANMsgDataU64(can_frame* pCANframe);
-
+    static void SetCANMsgDataU64 (can_frame* pCANframe, quint64 msgData);
+    quint16 ComputePassword();
     CANCommunicator* m_pCANCommunicator;                    //!< Communicator object
     const CANMessageConfiguration* mp_MessageConfiguration; //!< Message configuration
 
@@ -186,6 +220,8 @@ protected:
     quint32 m_unCanIDEventWarning;      //!< CAN-ID 'Event Warning' message */
     quint32 m_unCanIDEventError;        //!< CAN-ID 'Error' message */
     quint32 m_unCanIDEventFatalError;   //!< CAN-ID 'FatalError' message */
+    quint32 m_unCanIDReqDataReset;      /*!< CAN-ID 'ReqDataReset' message */
+    quint32 m_unCanIDAcknDataReset;     /*!< CAN-ID 'AcknDataReset' message */
 
     /*! Node command state */
     typedef enum {
