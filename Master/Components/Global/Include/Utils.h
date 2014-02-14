@@ -23,7 +23,7 @@
 
 #include <Global/Include/GlobalDefines.h>
 #include <Global/Include/AdjustedTime.h>
-
+#include <Global/Include/Exception.h>
 #include <QString>
 #include <QLocale>
 

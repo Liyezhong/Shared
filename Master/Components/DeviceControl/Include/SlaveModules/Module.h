@@ -60,6 +60,18 @@ public:
     //! Task handling function
     virtual void HandleTasks() = 0;
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Request a data reset
+     *
+     *      Default implementation for this function. Can be overridden by
+     *      modules that actually need it.
+     *
+     *  \return Returns DCL_ERR_FCT_NOT_IMPLEMENTED
+     */
+    /****************************************************************************/
+    virtual ReturnCode_t ReqDataReset() { return DCL_ERR_FCT_NOT_IMPLEMENTED; }
+	
     //pure virtual method for can message receive
     /****************************************************************************/
     /**
