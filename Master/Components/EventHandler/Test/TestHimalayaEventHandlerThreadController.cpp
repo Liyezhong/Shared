@@ -21,7 +21,7 @@
 #include <QTest> 
 #include <QVector>
 #include <QPair>
-#include <qdom.h>
+//#include <qdom.h>
 #include <QString>
 #include <QSignalSpy>
 
