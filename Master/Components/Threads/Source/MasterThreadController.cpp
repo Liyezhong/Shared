@@ -170,7 +170,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
     }
 
 
-    mp_GPIOThreadController->SkipSoftSwitchAtBoot(m_MainRebooted);
+    mp_GPIOThreadController->SkipSoftSwitchAtBoot(true);
 
 }
 
