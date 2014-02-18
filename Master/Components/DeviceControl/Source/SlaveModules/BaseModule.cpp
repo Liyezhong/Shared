@@ -1075,6 +1075,7 @@ void CBaseModule::HandleCommandRequestTask()
     {
         ModuleCommand_t *p_ModuleCommand = Iterator.next();
         bool RemoveCommand = false;
+
         if(p_ModuleCommand->State == MODULE_CMD_STATE_REQ)
         {
             //General:
@@ -1413,6 +1414,7 @@ void CBaseModule::HandleCommandRequestTask()
                 }
             }
         }
+
         if (RemoveCommand == true)
         {
             delete p_ModuleCommand;
@@ -2307,7 +2309,6 @@ void CBaseModule::HandleCANMsgConfig(can_frame* pCANframe)
         }
         else
         {
-            /// \todo
             //pfui, da hat er ne Configuration-message empfangen, evtl. wegen reboot des Slaves?
             QDateTime errorTimeStamp;
 

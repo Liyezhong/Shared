@@ -32,6 +32,7 @@
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/SlaveModules/BootLoader.h"
 #include "DeviceControl/Include/SlaveModules/FunctionModule.h"
+#include "DeviceControl/Include/SlaveModules/Module.h"
 
 namespace DeviceControl
 {

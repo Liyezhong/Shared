@@ -306,6 +306,7 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
         if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
         {
             retCode = InitCANMessages();
+#if 0 //merged on 2014.2.17
             if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
             {
                 retCode = ReadProcessSettings();
@@ -314,6 +315,7 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
             {
                 m_LastErrorGroup = EVENT_GRP_DCL_CONFIGURATION;
             }
+#endif //merged on 2014.2.17
         }
         else
         {
@@ -1182,7 +1184,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
                 bool NonIdleFound = false;
 
                 HandleCANNodesTask();
-                HandleDevicesTask();
+                //HandleDevicesTask(); //merged on 2014.2.17
 
                 while (iter.hasNext())
                 {
@@ -1211,6 +1213,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished";
             if(m_pConfigurationService != NULL)
             {
+                m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
                 if(m_pConfigurationService->ConfigurationComplete() == true) {
                     emit ReportConfigurationFinished(DCL_ERR_FCT_CALL_SUCCESS);
                 }
@@ -1221,7 +1224,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             m_SubStateConfig = DP_SUB_STATE_CONFIG_FINISHED;
             TaskFinished(pActiveTask);
             //m_MainState = DP_MAIN_STATE_WAIT_FOR_ADJUST;
-            m_MainState = DP_MAIN_STATE_IDLE;
+            //m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
             break;
         case (DP_SUB_STATE_CONFIG_ERROR):
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished with error";
@@ -1260,7 +1263,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_RUN)
     {
         HandleCANNodesTask();
-        HandleDevicesTask();
+        //HandleDevicesTask(); //merged on 2014.2.17
     }
     else if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_START)
     {
@@ -1270,7 +1273,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     else if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_CONFIG)
     {
         HandleCANNodesTask();
-        HandleDevicesTask();
+        //HandleDevicesTask(); //merged on 2014.2.17
         m_SubStateNormalOp = DP_SUB_STATE_NORMAL_OP_RUN;
         emit ReportStartNormalOperationMode(DCL_ERR_FCT_CALL_SUCCESS);
     }
@@ -1449,6 +1452,9 @@ void DeviceProcessing::RegisterMetaTypes()
 {
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<NodeState_t>("NodeState_t");
+    qRegisterMetaType<EmergencyStopReason_t>("EmergencyStopReason_t");
+    qRegisterMetaType<PowerState_t>("PowerState_t");
+    qRegisterMetaType<TestResult_t>("TestResult_t");
     qRegisterMetaType<BlockState_t>("BlockState_t");
     qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
     qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
