@@ -366,10 +366,11 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
                 }
 
                 mp_Ui->statusLabel1->show();
-                m_ProcessRunning = false;
-                emit ProcessStateChanged();
-                result = true;
             }
+            //todo:after process icon can be loaded, move the following 3 lines into the above block {}
+            m_ProcessRunning = false;
+            emit ProcessStateChanged();
+            result = true;
         }
         break;
     case RemoteCare:
