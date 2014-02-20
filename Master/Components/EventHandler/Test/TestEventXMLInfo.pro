@@ -7,5 +7,3 @@ TARGET = utTestEventXMLInfo
 SOURCES += TestEventXMLInfo.cpp
 
 UseLibs(Global DataLogging EventHandler)
-
-HEADERS +=
