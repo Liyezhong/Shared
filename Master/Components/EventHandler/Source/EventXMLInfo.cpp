@@ -327,27 +327,27 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("ButtonType"))
             {
                 QString strRet = m_pXMLReader->attributes().value("ButtonType").toString();
-                if (strRet.trimmed().compare("OK",Qt::CaseInsensitive))
+                if (strRet.trimmed().compare("OK",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = OK;
                 }
-                else if (strRet.trimmed().compare("YES_NO",Qt::CaseInsensitive))
+                else if (strRet.trimmed().compare("YES_NO",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = YES_NO;
                 }
-                else if (strRet.trimmed().compare("CONTINUE_STOP",Qt::CaseInsensitive))
+                else if (strRet.trimmed().compare("CONTINUE_STOP",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = CONTINUE_STOP;
                 }
-                else if (strRet.trimmed().compare("OK_CANCEL",Qt::CaseInsensitive))
+                else if (strRet.trimmed().compare("OK_CANCEL",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = OK_CANCEL;
                 }
-                else if (strRet.trimmed().compare("WITHOUT_BUTTONS",Qt::CaseInsensitive))
+                else if (strRet.trimmed().compare("WITHOUT_BUTTONS",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = WITHOUT_BUTTONS;
                 }
-                else if (strRet.trimmed().compare("INVISIBLE",Qt::CaseInsensitive))
+                else if (strRet.trimmed().compare("INVISIBLE",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = INVISIBLE;
                 }
@@ -447,6 +447,10 @@ const XMLEvent* EventXMLInfo::GetEvent(quint32 eventId, quint32 scenarioId) cons
 
     //In this case, strErrid is the same as ErrorID in EventConfigure.xml
     quint32 errorId = m_pESEXMLInfo->GetErrorCode(eventId, scenarioId);
+
+    if(scenarioId == 0){
+        errorId = eventId;
+    }
     if (0 == errorId)
     {
         return NULL;

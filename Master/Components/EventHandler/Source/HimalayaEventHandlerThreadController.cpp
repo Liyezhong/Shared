@@ -136,7 +136,9 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 SendACTCommand(EventKey, pEvent, pNextStep);
             }
             else{ //send cmd to GUI
-                SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+                if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
+                    SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+                }
             }
         }
         else if(pEvent && ! pNextStep){ // event finished
