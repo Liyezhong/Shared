@@ -462,13 +462,21 @@ FirstArgument=$1
 if [ $FirstArgument = "-update" ]; then
 	BASE_EVENT_ID=$2
 	IsUpdateStarted=true	
+	exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Running.png -qws & 
+	lcd on	
 	MasterSWUpdate
 	UpdateRebootFile "Success"
 	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"	
+	kill -9 $(pidof ImageTestApp)
 
 elif [ $FirstArgument = "-updateRollback" ]; then	
 	BASE_EVENT_ID=$2	
 	UpdateRollback	
+elif [ $FirstArgument = "-Rollback" ]; then
+	lcd on
+	exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Rollback.png -qws & 
+	RollbackFWAndSW
+	Clean
 else
 	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"	
 fi	
