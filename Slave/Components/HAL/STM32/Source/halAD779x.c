@@ -293,7 +293,7 @@ Error_t halAd779xTask (void) {
  *
  ****************************************************************************/
 
-static Bool halAdcScanChannel (Ad779xData_t *Channel) {                       
+static Bool halAdcScanChannel (Ad779xData_t *Channel) {
 
     static Bool ScanInProgress = FALSE;
     UInt32 ModeReg;
@@ -357,7 +357,7 @@ static Bool halAdcScanChannel (Ad779xData_t *Channel) {
                 Channel->Flags |=  FLAG_IS_SCANNED;
                 Channel->Data = DataReg;
             }
-            ScanInProgress = FALSE;               
+            ScanInProgress = FALSE;
         }
     }
     return (ScanInProgress);
@@ -396,7 +396,7 @@ Error_t halAd779xAttach (UInt16 Channel) {
                 return (E_ADC_INPUT_USED_TWICE);
             }
             // Zero calibration not required in chopper mode
-            if (~Descriptor->Mode & ADC_MR_NoCHOP) {            
+            if (~Descriptor->Mode & ADC_MR_NoCHOP) {
                 Data->Flags |= FLAG_ZERO_SCALED;
             }
             Data->ScanRate = Descriptor->ScanRate;
@@ -588,7 +588,7 @@ Error_t halAd779xInit (void) {
 
             // Open SPI bus interface
             SpiBus = halSpiOpen (Descriptor->DeviceID, 0, NULL);
-            if (SpiBus < 0) {                                                                
+            if (SpiBus < 0) {
                 return (SpiBus);
             }
             // Init SPI data format (bitrate is left at default)

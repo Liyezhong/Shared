@@ -122,6 +122,7 @@ typedef struct {
     UInt16 DataIdx;     //!< Scan buffer index
     Handle_t Handle;    //!< Handle of a peripheral (only for PWM, SPI)
     InterruptVector_t IntrVector;   //!< Interrupt vector of the channel
+    Bool IntrActive;    //!< Enable / disable flag of the interrupt
 } AioDevice_t;
 
 
@@ -205,6 +206,7 @@ Error_t halAnalogOpen (Device_t DeviceID, UInt16 Mode, UInt32 UserTag, halIntrHa
                 // Enable end of conversion interrupt
                 DataTable[Index].IntrVector.Handler = Handler;
                 DataTable[Index].IntrVector.UserTag = UserTag;
+                DataTable[Index].IntrActive = TRUE;
                 ADC->CR1 |= ADC_CR1_EOCIE;
                 halInterruptEnable (INTERRUPT_ADC1_2, IRQ_PRIO_DEFAULT);
             }
@@ -239,6 +241,7 @@ Error_t halAnalogClose (Handle_t Handle) {
         
         if (Channel->Interface == BUS_TYPE_INTERN && Channel->Direction == DIR_INPUT) {
             DataTable[Index].IntrVector.Handler = NULL;
+            DataTable[Index].IntrActive = FALSE;
         }
         return (NO_ERROR);
     }
@@ -341,6 +344,7 @@ Error_t halAnalogRead (Handle_t Handle, Int16 *Buffer) {
     return (Status);
 }
 
+
 /*****************************************************************************/
 /*!
  *  \brief   Write to an analog channel
@@ -381,7 +385,10 @@ Error_t halAnalogWrite (Handle_t Handle, UInt16 Data) {
             }
         }
         else if (Channel->Interface == BUS_TYPE_SPI) {
-            Error_t Status = halSpiTransfer (DataTable[Index].Handle, (UInt8 *)&Data, (Channel->BitCount > 8) ? 2 : 1);
+            Error_t Status;
+
+            Data = Data >> (16 - Channel->BitCount);
+            Status = halSpiTransfer (DataTable[Index].Handle, (UInt8 *)&Data, (Channel->BitCount > 8) ? 2 : 1);
             if (Status < NO_ERROR) {
                 return (Status);
             }
@@ -406,7 +413,7 @@ Error_t halAnalogWrite (Handle_t Handle, UInt16 Data) {
  *      - Maximum analog value (scaled)
  *      - Number of bits (hardware converter)
  *
- *      If a unsupported StatusID is supplied, a 0 is returned.
+ *      If an unsupported StatusID is supplied, a 0 is returned.
  *
  *  \iparam  Handle   = Handle of open analog channel
  *  \iparam  StatusID = Type of status
@@ -436,6 +443,52 @@ Error_t halAnalogStatus (Handle_t Handle, AnalogStatID_t StatusID) {
     return (Index);
 }
 
+
+/*****************************************************************************/
+/*!
+ *  \brief   Controls an analog channel
+ *
+ *      Controls the operation of the analog channel associated with Handle.
+ *      What operation to control depends on the supplied ControlID. The
+ *      following controls can be set:
+ *
+ *      - Enable channel interrupt
+ *      - Disable channel interrupt
+ *
+ *      If an unsupported ControlID is supplied, a 0 is returned.
+ *
+ *  \iparam  Handle   = Handle of open analog channel
+ *  \iparam  ControlID = Type of control
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+Error_t halAnalogControl (Handle_t Handle, AnalogCtrlID_t ControlID) {
+
+    const Int32 Index = halAnalogGetIndex(Handle, HAL_OPEN_RW);
+
+    if (Index >= 0) {
+        const halAnalogDescriptor_t *Channel = &halAnalogDescriptors[Index];
+
+        if (Channel->Interface == BUS_TYPE_INTERN && Channel->Direction == DIR_INPUT) {
+            switch (ControlID) {
+                case AIO_INTR_ENABLE:
+                    DataTable[Index].IntrActive = TRUE;
+                    break;
+                case AIO_INTR_DISABLE:
+                    DataTable[Index].IntrActive = FALSE;
+                    break;
+                default:
+                    return (E_UNKNOWN_CONTROL_ID);
+            }
+        }
+        return (NO_ERROR);
+    }
+    return (Index);
+}
+
+
 /*****************************************************************************/
 /*!
  *  \brief   Analog end of conversion interrupt handler
@@ -455,12 +508,13 @@ void halAnalogInterruptHandler (void) {
     const UInt32 IntrFlags = ADC->SR & ADC_SR_EOC & (ADC->CR1 >> 4);
 
     for (Index = 0; Index < halAnalogDescriptorCount; Index++) {
-        if (DataTable[Index].IntrVector.Handler != NULL) {
+        if (DataTable[Index].IntrVector.Handler != NULL && DataTable[Index].IntrActive == TRUE) {
             DataTable[Index].IntrVector.Handler (DataTable[Index].IntrVector.UserTag, IntrFlags);
         }
     }
     ADC->SR = ~IntrFlags;
 }
+
 
 /*****************************************************************************/
 /*!
@@ -594,9 +648,8 @@ static Error_t halAnalogInitOutputs (void) {
                 return (E_DEVICE_READ_ONLY);
             }
             else if (Channel->Interface == BUS_TYPE_PWM) {
-                const PwmMode_t PwmMode = { 
-                    TIM_MODE_COUNT_UP, TIM_MODE_INTERVAL, TIM_MODE_INTERNAL, 0 };
-            
+                const PwmMode_t PwmMode = { TIM_MODE_COUNT_UP, TIM_MODE_INTERVAL, TIM_MODE_INTERNAL, 0 };
+
                 DataTable[i].Handle = halPwmOpen (Channel->PeripheralID, Channel->PortNo, NULL);
                 if (DataTable[i].Handle < NO_ERROR) {
                     return (DataTable[i].Handle);
@@ -612,10 +665,9 @@ static Error_t halAnalogInitOutputs (void) {
                 DataTable[i].Flags = HAL_FLAG_INITZED;
             }
             else if (Channel->Interface == BUS_TYPE_SPI) {
-                const UInt32 SpiFormat =
-                    SPI_FORMAT_MSB1ST | SPI_FORMAT_CLK_PHASE2 | SPI_FORMAT_CLK_IDLE_1;
+                const UInt32 SpiFormat = SPI_FORMAT_MSB1ST | SPI_FORMAT_CLK_PHASE2 | SPI_FORMAT_CLK_IDLE_1;
                 UInt32 Initial = Channel->Initial;
-            
+
                 DataTable[i].Handle = halSpiOpen (Channel->PeripheralID, Channel->PortNo, NULL);
                 if (DataTable[i].Handle < NO_ERROR) {
                     return (DataTable[i].Handle);

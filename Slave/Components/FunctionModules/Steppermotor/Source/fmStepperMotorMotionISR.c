@@ -136,7 +136,8 @@ void smMotionISR (UInt32 UserTag, UInt32 IntrFlags)
     #ifdef STEPPER_ISR_TIME_OPTIMIZATION_OFF
         halCapComWrite(smHandleTimer, Instance, pMove->CCR.LastValue);
     #else
-        halCapComWriteTimer1_Simplified(Instance, pMove->CCR.LastValue);
+        //halCapComWriteTimer1_Simplified(Instance, pMove->CCR.LastValue);
+        halCapComWrite_Simplified(smTimerNo, Instance, pMove->CCR.LastValue);
     #endif
 #endif /*SIMULATION*/
 

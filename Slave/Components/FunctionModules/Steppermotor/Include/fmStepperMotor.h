@@ -114,6 +114,7 @@ Error_t smInitializeModule(UInt16 ModuleID, UInt16 NumberOfInstances);
 //****************************************************************************/               
 extern smData_t *smDataTable;       //!< Data table for all instances
 extern Handle_t  smHandleTimer;     //!< Timer handle, one timer for up to four motors
+extern UInt16    smTimerNo;         //!< Physical timer number
 
 
 #endif /*FMSTEPPERMOTOR_H_*/

@@ -12,7 +12,7 @@
  *      This module contains functions to control the processor internal
  *      flash memory. This includes writing/erasing the flash memory.
  *
- *      The functions implemented in this module are entended to be used
+ *      The functions implemented in this module are intended to be used
  *      HAL internal only. Use the Storage functions to access the flash
  *      and other memory types from outside the HAL.
  *

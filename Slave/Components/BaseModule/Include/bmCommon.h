@@ -32,16 +32,16 @@
 #define INFOBLOCK_SIGNATURE      0x91827364 //!< Signature of info block
 
 /* basemodule's software version informations */
-#define SOFTWARE_VERSION         0x0002     //!< Software version number
+#define SOFTWARE_VERSION         0x0009     //!< Software version number
 #define SOFTWARE_CREATION_YEAR   2013       //!< Software creation date (year)
-#define SOFTWARE_CREATION_MONTH  2          //!< Software creation date (month)
-#define SOFTWARE_CREATION_DAY    11          //!< Software creation date (day)
+#define SOFTWARE_CREATION_MONTH  10         //!< Software creation date (month)
+#define SOFTWARE_CREATION_DAY    25         //!< Software creation date (day)
 
 /* basemodule global identifiers */
 #define BASEMODULE_CHANNEL       0          //!< Base module's channel ID
 #define BASEMODULE_MODULE_ID     0          //!< Base module's module ID
 #define BASEMODULE_TASK_ID       0          //!< Base module's taskID
-#define BASEMODULE_VERSION       0x0001     //!< Base module's version number
+#define BASEMODULE_VERSION       0x0002     //!< Base module's version number
 #define BASEMODULE_PARTITION_ID  0          //!< Base module's partition-ID
 
 /* basemodule pseudo instance numbers for bmGetBoardOptions() */

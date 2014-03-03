@@ -286,8 +286,8 @@ Error_t halFlashErase (UInt32 Address, UInt32 Count) {
             // Verify erased page
             for (k=0; k < FlashBlockSize; k++) {
                 if (Target[k] != 0xFF) {
-              	    return (E_FLASH_ERASE);
-                }	       
+                    return (E_FLASH_ERASE);
+                }       
             }
             Target += FlashBlockSize;
         }

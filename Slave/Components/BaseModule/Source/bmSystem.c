@@ -15,7 +15,7 @@
  *       - Configuration management (master/slave)
  *       - Mode change requests
  *       - Heartbeat handling
- *       - Emergency stop handling (notstopp)
+ *       - Emergency stop handling
  *       - Node reset
  *
  *  \b Company:
@@ -69,7 +69,8 @@
 typedef enum {
     RESET_EMERGENCY_STOP = 0,   //!< Clear emergency stop state
     STOPPED_BY_HEARTBEAT = 1,   //!< Emergency stop by heartbeat loss
-    STOPPED_BY_NOTSTOP   = 2    //!< Emergency stop by master command
+    STOPPED_BY_NOTSTOP   = 2,   //!< Emergency stop by master command
+    STOPPED_BY_VOLTAGE   = 4    //!< Emergency stop by supply voltage error
 } bmEmergencyStopReason_t;
 
 //! Contains all variables to maintain heartbeats
@@ -112,7 +113,6 @@ static Error_t bmConfigureHeartbeat (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmRequestModeChange  (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmRequestNodeState   (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmNotifyNodeState    (void);
-static Error_t bmUpdateFirmware     (void);
 
 
 /*****************************************************************************/
@@ -167,10 +167,10 @@ bmNodeState_t bmSetNodeState (bmNodeState_t NewState) {
             bmWriteProtectStorage(PROTECT_BY_NODE_STATE, FALSE);
         }
         NodeState = NewState;
-
-        dbgPrintNodeState (NewState);
-        bmNotifyNodeState();
     }
+    dbgPrintNodeState (NewState);
+    bmNotifyNodeState();
+
     return (OldState);
 }
 
@@ -186,7 +186,7 @@ bmNodeState_t bmSetNodeState (bmNodeState_t NewState) {
  *       - NORMAL   = normal operation mode
  *       - SERVICE  = service mode
  *       - UPDATE   = firmware update
- *       - STOPPED  = emergency stopp
+ *       - STOPPED  = emergency stop
  *       - STANDBY  = standby (ready for power off
  *       - SHUTDOWN = normal shutdown (finishes running actions)
  *
@@ -222,7 +222,6 @@ bmNodeState_t bmProcessModeChange (void) {
         if (ModeRequest == NODE_STATE_SHUTDOWN) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
             bmSetGlobalControl (MODULE_CONTROL_SHUTDOWN);
-            bmSetNodeState (ModeRequest);
         }
         else if (ModeRequest == NODE_STATE_IDENTIFY) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
@@ -234,11 +233,9 @@ bmNodeState_t bmProcessModeChange (void) {
             canFlushMessages (1000);
             halHardwareReset(); 
         }
-        else if (ModeRequest == NODE_STATE_UPDATE) {
+        else if (ModeRequest == NODE_STATE_ASSEMBLY) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
             bmSetGlobalControl (MODULE_CONTROL_RESET);
-            bmUpdateFirmware();
-            bmSetNodeState (NODE_STATE_STANDBY);
         }
         if (ModeRequest < NODE_STATE_SHUTDOWN) {
             if (OldState >= NODE_STATE_SHUTDOWN) {
@@ -272,7 +269,7 @@ static Error_t bmRequestModeChange (UInt16 Channel, CanMessage_t *Message) {
     if (Message->Length >= 1) {
 
         bmNodeState_t NewState = (bmNodeState_t) Message->Data[0];
-                        
+
         // Check if requested state is a valid state
         if (NewState >= NUMBER_OF_NODE_STATES || 
             NewState == NODE_STATE_UNDEFINED) {
@@ -283,7 +280,7 @@ static Error_t bmRequestModeChange (UInt16 Channel, CanMessage_t *Message) {
             return (E_ILLEGAL_MODE_CHANGE);
         }
         // Change to update mode is allowed only out of standby mode
-        if (NewState == NODE_STATE_UPDATE && NodeState < NODE_STATE_STANDBY) {
+        if (NewState == NODE_STATE_ASSEMBLY && NodeState < NODE_STATE_ASSEMBLY) {
             return (E_ILLEGAL_MODE_CHANGE);
         }
         // Standby/startup state can't be entered directly
@@ -548,10 +545,38 @@ Error_t bmProcessEmergencyStop (void) {
             bmSignalErrorLed (LED_BLINK_4HZ, FALSE);
         }
         OldEmergencyState = EmergencyStop;
-        dbgPrint ("Notstopp = %d", EmergencyStop);
+        dbgPrint ("EmergencyStop = %d", EmergencyStop);
         bmNotifyNodeState();
     }
     return (NO_ERROR);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Emergency stop by power fail of monitored supply voltage
+ *
+ *      This function is called by the supply voltage monitor, whenever a
+ *      monitored voltage drops below or raises back again the voltage
+ *      threshold. It sets or clears the STOPPED_BY_VOLTAGE bit in
+ *      the global variable EmergencyStop. Further processing of this
+ *      situation is handled in the emergency stop task function
+ *      (see bmProcessEmergencyStop).
+ *
+ *  \iparam  PowerFail = true to set, false to reset emergency stop
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+void bmEmergencyStopByVoltage (Bool PowerFail) {
+
+    if (PowerFail) {
+        EmergencyStop |= STOPPED_BY_VOLTAGE;
+    }
+    else {
+        EmergencyStop &= ~STOPPED_BY_VOLTAGE;
+    }
 }
 
 
@@ -606,7 +631,7 @@ Bool bmGetEmergencyStop (void) {
  *  \brief   Send hardware identification message
  *
  *      This function sends hardware identification messages to the master
- *      (one per second), until the master resonses with a hardware ID
+ *      (one per second), until the master responses with a hardware ID
  *      confirmation message. The receive of a confirmation message is
  *      signaled by the global variable IdentificationDone and handled
  *      by bmConfirmHardwareID(). The hardware ID message contains:
@@ -736,7 +761,7 @@ static Error_t bmSendConfiguration (UInt16 Channel, CanMessage_t *Message) {
  *      received within a time span, before the reset is really performed.
  *      If the maximal allowed time between two reset commands is exceeded
  *      or the expected data pattern in one of the commands doesn't match,
- *      the sequence must be restartet.
+ *      the sequence must be restarted.
  *
  *      This function is called by the message dispatcher, whenever a
  *      node reset message from the master is received.
@@ -772,10 +797,11 @@ static Error_t bmProcessNodeReset (UInt16 Channel, CanMessage_t *Message) {
         }
         if (PatternIndex >= ELEMENTS(PatternSequence)) {
             bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
+            bmSetGlobalControl (MODULE_CONTROL_RESET);
             canFlushMessages (1000);
 
             // Do hardware reset (should never return)
-            halHardwareReset();         
+            halHardwareReset();
             PatternIndex = 0;
 
             return (E_HARDWARE_RESET_FAILED);
@@ -784,38 +810,6 @@ static Error_t bmProcessNodeReset (UInt16 Channel, CanMessage_t *Message) {
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
-}
-
-
-/*****************************************************************************/
-/*!
- *  \brief   Firmware update
- *
- *      Calls the bootloader to perform a firmware update. If the call is
- *      successfull, the function never returns. Instead of this, the new
- *      firmware is started after the update is done. If the bootloader
- *      can't be called, an error message is send.
- *
- *  \return   NO_ERROR or (negative) error code
- *
- ****************************************************************************/
-
-static Error_t bmUpdateFirmware (void) {
-
-    const UInt32 *Signature =
-        (UInt32*) halGetAddress(ADDRESS_BOOTLOADER_SIGNATURE);
-
-    if (*Signature == INFOBLOCK_SIGNATURE) {
-
-        bmBootLoaderVector *FirmwareUpdateManager =
-            (bmBootLoaderVector*) halGetAddress(ADDRESS_BOOTLOADER_UPDATE);
-
-        // call bootloader to do firmware update (should not return)
-        (*FirmwareUpdateManager)();
-
-    }
-    bmSignalEvent (BASEMODULE_CHANNEL, E_BOOTLOADER_MISSING, TRUE, 0);
-    return (E_BOOTLOADER_MISSING);
 }
 
 

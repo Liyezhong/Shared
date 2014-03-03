@@ -15,7 +15,7 @@
  *       - Configuration management (master/slave)
  *       - Mode change requests
  *       - Heartbeat handling
- *       - Emergency stop handling (notstopp)
+ *       - Emergency stop handling
  *       - Node reset
  *
  *  \b Company:
@@ -46,7 +46,6 @@ typedef enum {
     NODE_STATE_ASSEMBLY  = 6,    //!< Assembly mode
     NODE_STATE_SHUTDOWN  = 7,    //!< Shutdown (going to standby)
     NODE_STATE_STANDBY   = 8,    //!< Standby
-    NODE_STATE_UPDATE    = 9,    //!< Firmware update
     NUMBER_OF_NODE_STATES        //!  MUST be last element in enum list
 } bmNodeState_t;
 
@@ -60,6 +59,8 @@ Error_t bmProcessHeartbeat      (void);
 Error_t bmProcessEmergencyStop  (void);
 Error_t bmInitSystemCommands    (void);
 Bool    bmGetEmergencyStop      (void);
+void    bmEmergencyStopByVoltage (Bool PowerFail);
+
 
 bmNodeState_t bmProcessModeChange (void);
 bmNodeState_t bmSetNodeState (bmNodeState_t NewState);

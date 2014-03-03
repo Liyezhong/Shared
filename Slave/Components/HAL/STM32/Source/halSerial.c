@@ -692,8 +692,8 @@ Error_t halSerialInit (void) {
                 }
                 // Check if interface already initialized
                 if (DataTable[UnitNo].Flags & HAL_FLAG_INITZED) {
-                    return (E_BUS_ALLOCATED_TWICE);                            
-                }                                                                      
+                    return (E_BUS_ALLOCATED_TWICE);
+                }
                 halPeripheralClockEnable (
                     DataTable[UnitNo].PeripheralID, ON);
 

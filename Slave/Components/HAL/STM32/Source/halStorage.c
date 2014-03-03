@@ -148,8 +148,9 @@ Error_t halStorageClose (Handle_t Handle) {
             }
         }
         DataTable[Index].Flags &= ~HAL_OPEN_MODE;
+        return (NO_ERROR);
     }
-    return (NO_ERROR);
+    return (Index);
 }
 
 
@@ -374,6 +375,39 @@ Error_t halStorageProtect (Handle_t Handle, Bool State) {
 
 /*****************************************************************************/
 /*!
+ *  \brief   Waits until all actvities on the storage are finished
+ *
+ *      This function waits until all read and write operations on the storage
+ *      are finished. This function is important, when caching is enabled. It
+ *      must always be called before the microcontroller is reset.
+ *
+ *  \iparam  Handle = Handle of logical memory
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+Error_t halStorageWait (Handle_t Handle) {
+
+    const Int32 Index = halStorageGetIndex (Handle, HAL_OPEN_WRITE);
+
+    if (Index >= 0) {
+        switch (halStorageDescriptors[Index].Class) {
+            case MEM_CLASS_FRAM:
+                return (halEepromWait ());
+            case MEM_CLASS_FLASH:
+                return (NO_ERROR);
+            case MEM_CLASS_RAM:
+                return (NO_ERROR);
+        }
+        return (E_STORAGE_CLASS);
+    }
+    return (Index);
+}
+
+
+/*****************************************************************************/
+/*!
  *  \brief   Get size of logical memory
  *
  *      Returns the size of the logical memory associated with Handle.
@@ -382,7 +416,7 @@ Error_t halStorageProtect (Handle_t Handle, Bool State) {
  *
  *  \iparam  Handle = Handle of logical memory
  *
- *  \return  Memory size or (negative) error code
+ *  \return  Memory size or null in case of errors
  *
  ****************************************************************************/
 
@@ -393,7 +427,7 @@ UInt32 halStorageSize (Handle_t Handle) {
     if (Index >= 0) {
         return (halStorageDescriptors[Index].Size);
     }
-    return (Index);
+    return (0);
 }
 
 
@@ -406,7 +440,7 @@ UInt32 halStorageSize (Handle_t Handle) {
  *
  *  \iparam  Handle = Handle of logical memory
  *
- *  \return  Memory size or (negative) error code
+ *  \return  Base address or 0xFFFFFFFF in case of errors
  *
  ****************************************************************************/
 
@@ -417,7 +451,7 @@ UInt32 halStorageBase (Handle_t Handle) {
     if (Index >= 0) {
         return (halStorageDescriptors[Index].Address);
     }
-    return (Index);
+    return (MAX_UINT32);
 }
 
 

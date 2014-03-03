@@ -9,8 +9,15 @@
  *
  *  \b Description:
  *
- *       This module initializes the bootloader, the base module, and the HAL
- *       by calling their init functions.
+ *       This module is the boot loader of the microcontroller. At every start
+ *       of the controller the boot loader checks, if a loadable firmware
+ *       image is present in the flash memory of the microcontroller. If this
+ *       is the case, a CRC check is performed on the firmware image and the
+ *       actual firmware is started. The bootloader is also able to write a
+ *       new image into flash memory. The update process can be started, when
+ *       no firmware image is stored in the memory or when the boot loader is
+ *       explicitly started from the base module for this purpose. The update
+ *       is controlled over CAN bus.
  *
  *  \b Company:
  *
@@ -31,6 +38,6 @@
 // Public Function Prototypes
 //****************************************************************************/
 
-Error_t blStartBootloader (void);
+void blStartBootloader (void);
 
 #endif /*BL_MAIN_H*/

@@ -446,7 +446,6 @@
 #define HAL_PRESS_PWM_CTRL_1     HAL_PRESS_PWM_CTRL+1
 #define HAL_PRESS_PWM_CTRL_2     HAL_PRESS_PWM_CTRL+2
 
-
 //****************************************************************************/
 
 #endif /*HAL_DEVICES_H*/

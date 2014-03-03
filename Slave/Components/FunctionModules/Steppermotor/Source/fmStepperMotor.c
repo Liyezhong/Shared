@@ -67,7 +67,7 @@ static UInt8  smInstanceCount = 0;        //!< Number of module instances
 //****************************************************************************/
 smData_t *smDataTable = NULL;   //!< Data table for all instances
 Handle_t  smHandleTimer = 0;    //!< Timer handle, one timer for up to four motors
-
+UInt16    smTimerNo = 0;                //!< Physical timer number
 
 /*****************************************************************************/
 /*! 
@@ -563,38 +563,47 @@ Error_t smInitTimer(void)
         TIM_MODE_COUNT_UP, TIM_MODE_INTERVAL, TIM_MODE_INTERNAL, 0
     };
 
-    const UInt16 TimerPrescale = 36000;   
+    const UInt16 TimerPrescale = 36000;
 
-    //Open the timer, there is one timer for up to four motors
+    // Open the timer, there is one timer for up to four motors
     // and register the timer's interrupt handler, which will be called on capture compare events as well
     if ((RetCode = halTimerOpen(HAL_STEPPER1_TIMER, 5, smMotionISR)) < 0) {
         return RetCode;
     }
     smHandleTimer = RetCode;
 
+    // Get physical timer number
+    RetCode = halTimerStatus (smHandleTimer, TIM_STAT_UNITNO);
+
     //setup the timer with mode and prescaler settings
-    RetCode = halTimerSetup(smHandleTimer, &TimerMode, TimerPrescale);
-    
+    if (RetCode >= 0) {
+        smTimerNo = RetCode;
+        RetCode = halTimerSetup(smHandleTimer, &TimerMode, TimerPrescale);
+    }
+
     // set the timer's prescaler.
     // with a cycle time of 1sec/72MHz = 13.889 ns a prescaler value of 6 lets the timer count with
     // a cycle time of 83.33 ns
-    if (RetCode >= 0)
+    if (RetCode >= 0) {
         RetCode = halTimerWrite(smHandleTimer, TIM_REG_PRESCALER, 0x0006);
+    }
 
     // the timers reload register is set to 0xffff. 
-    if (RetCode >= 0)
+    if (RetCode >= 0) {
         RetCode = halTimerWrite(smHandleTimer, TIM_REG_RELOAD, 0xffff);
+    }
 
     // start the timer
-    if (RetCode >= 0)
+    if (RetCode >= 0) {
         RetCode = halTimerControl(smHandleTimer, TIM_CTRL_START);
+    }
 
     //halTimerControl(DataTable[instance].HandleTimer, TIM_INTR_ENABLE);
 
-    if (RetCode < 0)
-    {
+    if (RetCode < 0) {
         halTimerClose (smHandleTimer);
         smHandleTimer = 0;
+        smTimerNo = 0;
         return RetCode;
     }
 

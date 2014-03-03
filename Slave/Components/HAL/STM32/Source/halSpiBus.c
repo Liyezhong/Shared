@@ -177,8 +177,7 @@ static Error_t halSpiLock       (Handle_t Handle, Bool State);
 
 Error_t halSpiOpen (Device_t DeviceID, UInt32 UserTag, halIntrHandler_t Handler) {
 
-    
-    UInt32 Index;   // Logical SPI device index
+    UInt32 Index = 0;   // Logical SPI device index
     Int32 SerialIndex;  // Index in the serial descriptor table
     Error_t Status;
 
@@ -656,9 +655,9 @@ Error_t halSpiInit (void) {
                     return (E_PORT_NOT_EXISTS);
                 }
                 // Check if interface already initialized
-                if (DataTable[k].Flags & HAL_FLAG_INITZED) {                                   
-                    return (E_BUS_ALLOCATED_TWICE);                            
-                }                                                                      
+                if (DataTable[k].Flags & HAL_FLAG_INITZED) {
+                    return (E_BUS_ALLOCATED_TWICE);
+                }
                 halPeripheralClockEnable (SpiParams[UnitNo].PeripheralID, ON);
 
                 DataTable[k].SpiNo = UnitNo;

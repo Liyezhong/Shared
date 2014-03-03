@@ -22,11 +22,11 @@
  *
  *      This implementation uses only one of the ADCs to convert the up to
  *      16 analog input channels. It would be possible to use two ADCs and
- *      distribute the input channels to these two ADCs using simultainous
+ *      distribute the input channels to these two ADCs using simultaneous
  *      or interleaved mode. This could half the overall conversion time,
  *      with the impact, that the conversion times of the channels must
  *      be carefully paired. Since this would drastically complicate the
- *      configuration of the HAL, this solution wasn't choosen.
+ *      configuration of the HAL, this solution wasn't chosen.
  *
  *  \b Company:
  *
@@ -49,9 +49,15 @@
 
 //! Status IDs for requesting the state of analog I/Os
 typedef enum {
-    AIO_STAT_BITCOUNT,    //!< Request number of converter bits
-    AIO_STAT_MAXVALUE,    //!< Request maximal value
+    AIO_STAT_BITCOUNT,  //!< Request number of converter bits
+    AIO_STAT_MAXVALUE,  //!< Request maximal value
 } AnalogStatID_t;
+
+//! Control IDs for controlling analog I/O operation
+typedef enum {
+    AIO_INTR_ENABLE,    //!< Enables the interrupt
+    AIO_INTR_DISABLE,   //!< Disables the interrupt
+} AnalogCtrlID_t;
 
 //****************************************************************************/
 // Public Function Prototypes
@@ -61,10 +67,11 @@ Error_t halAnalogOpen   (Device_t Device, UInt16 Mode, UInt32 UserTag, halIntrHa
 Error_t halAnalogClose  (Handle_t Handle);
 Error_t halAnalogInit   (void);
 
-Error_t halAnalogRead   (Handle_t Handle, Int16 *Value);
-Error_t halAnalogRead32 (Handle_t Handle, Int32 *Value);
-Error_t halAnalogWrite  (Handle_t Handle, UInt16 Value);
-Error_t halAnalogStatus (Handle_t Handle, AnalogStatID_t StatusID);
+Error_t halAnalogRead    (Handle_t Handle, Int16 *Value);
+Error_t halAnalogRead32  (Handle_t Handle, Int32 *Value);
+Error_t halAnalogWrite   (Handle_t Handle, UInt16 Value);
+Error_t halAnalogStatus  (Handle_t Handle, AnalogStatID_t StatusID);
+Error_t halAnalogControl (Handle_t Handle, AnalogCtrlID_t ControlID);
 
 //****************************************************************************/
 

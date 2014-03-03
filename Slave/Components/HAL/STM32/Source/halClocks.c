@@ -424,7 +424,7 @@ static Error_t halInitializePLL (UInt16 Multiplier, UInt16 Divider) {
     RCC->AHBENR = RCC->APB2ENR = RCC->APB1ENR = 0;
 
     // Enable HSE clock oszillator
-    RCC->CR = RCC_CR_HSE_ON;
+    RCC->CR |= RCC_CR_HSE_ON;
     while (!(RCC->CR & RCC_CR_HSE_RDY)) {}
 
     // Select HSE as PLL clock source

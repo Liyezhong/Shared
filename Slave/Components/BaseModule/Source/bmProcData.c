@@ -142,7 +142,7 @@ Error_t bmMonitorProcessData (UInt16 Channel, bmModuleState_t ModuleState) {
  *  \brief   Send message containing process data
  *
  *      Sends supplied data value as a process data message via the
- *      specified "Channel". Futhermore, the time of sending and the
+ *      specified "Channel". Furthermore, the time of sending and the
  *      last sent value in the process data structure are updated.
  *      The message contains the process data value.
  *
@@ -295,7 +295,7 @@ static UInt32 bmGetProcessTime (bmProcessData_t *Data) {
  *      This function returns time expired since setting the "TimeStamp"
  *      in the data structure pointed to by "Data". The time base used
  *      depends on the "Mode" setting in the supplied "Data" structure.
- *      It can be eigther the internal time base (ms) or the system
+ *      It can be either the internal time base (ms) or the system
  *      wide sysclock.
  *
  *  \iparam  Data = Pointer to task's process data

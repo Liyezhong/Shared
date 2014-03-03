@@ -72,6 +72,8 @@ typedef enum {
     TIM_CTRL_START,       //!< Start timer
     TIM_CTRL_STOP,        //!< Stop timer
     TIM_CTRL_RELOAD,      //!< Reload timer
+    TIM_CTRL_IOP_RESET,   //!< Input polarity non-inverted / output polarity active high
+    TIM_CTRL_IOP_SET,     //!< Input polarity inverted / output polarity active low
     TIM_INTR_ENABLE,      //!< Enable timer interrupt
     TIM_INTR_DISABLE,     //!< Disable timer interrupt
     TIM_INTR_CLEAR        //!< Clear interrupt flag
@@ -128,7 +130,7 @@ Error_t halCapComWrite   (Handle_t Handle, UInt16 UnitNo, UInt32 Value);
 Error_t halCapComStatus  (Handle_t Handle, UInt16 UnitNo, TimStatID_t StatusID);
 Error_t halCapComControl (Handle_t Handle, UInt16 UnitNo, TimCtrlID_t ControlID);
 
-void    halCapComWriteTimer1_Simplified (UInt16 UnitNo, UInt32 Value);
+void    halCapComWrite_Simplified (UInt16 TimerNo, UInt16 UnitNo, UInt32 Value);
 
 //****************************************************************************/
 

@@ -44,8 +44,8 @@
 
 #define DEFAULT_NODE_INDEX      0       //!< Node index (if no DIP switch)
 
-#define VOLTAGE_LIMIT_WARNING   20000   //!< Supply voltage warning limit [mV]
-#define VOLTAGE_LIMIT_FAILURE   16000   //!< Supply voltage error limit [mV]
+#define VOLTAGE_LIMIT_WARNING   21600   //!< Supply voltage warning limit [mV]
+#define VOLTAGE_LIMIT_FAILURE   21000   //!< Supply voltage error limit [mV]
 #define CURRENT_LIMIT_WARNING   300     //!< Supply current warning limit [mA]
 #define CURRENT_LIMIT_FAILURE   400     //!< Supply current error limit [mA]
 
@@ -84,6 +84,7 @@ static const UInt32 TestOptionList[] = {
     MODULE_ID_ANALOG_IN, 0
 };
 
+
 //****************************************************************************/
 // Private Function Prototypes
 //****************************************************************************/
@@ -114,15 +115,24 @@ static const bmModuleParameters_t ModuleInitTable[] = {
 static const int NumberOfModules = ELEMENTS(ModuleInitTable);
 
 
+//****************************************************************************/
+// Private Function Prototypes
+//****************************************************************************/
+
+static Error_t InitTestBootloaderInfoBlock (void);
+static Error_t InitTestBoardOptionBlock (void);
+static Error_t InitTestBoardInfoBlock (void);
+
+
 /*****************************************************************************/
 /*!
  *  \brief   Define board option list
  *
- *      Defines a debug board option list. Normally, the board options
+ *      Defines a default board option list. Normally, the board options
  *      are programmed during manufacturing external to this firmware.
- *      This is for debug only
+ *      This is for fallback only.
  *
- *  \return  Should never return
+ *  \return  NO_ERROR
  *
  ****************************************************************************/
 
@@ -150,7 +160,17 @@ static Error_t InitTestBoardOptionBlock (void) {
 }
 
 
-//****************************************************************************/
+/*****************************************************************************/
+/*!
+ *  \brief   Define board info block
+ *
+ *      Defines the default board information block. Normally, the board
+ *      information block is programmed during manufacturing external to this
+ *      firmware. This is for fallback only.
+ *
+ *  \return  NO_ERROR
+ *
+ ****************************************************************************/
 
 static Error_t InitTestBoardInfoBlock (void) {
 
@@ -182,7 +202,18 @@ static Error_t InitTestBoardInfoBlock (void) {
     return (NO_ERROR);
 }
 
-//****************************************************************************/
+
+/*****************************************************************************/
+/*!
+ *  \brief   Define boot loader info block
+ *
+ *      Defines the default boot loader information block. Normally, the boot
+ *      loader information block is programmed during manufacturing external
+ *      to this firmware. This is for fallback only.
+ *
+ *  \return  NO_ERROR
+ *
+ ****************************************************************************/
 
 static Error_t InitTestBootloaderInfoBlock (void) {
 

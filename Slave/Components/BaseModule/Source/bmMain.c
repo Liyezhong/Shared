@@ -44,6 +44,7 @@
 #include "bmError.h"
 #include "bmStorage.h"
 #include "bmMain.h"
+#include "bmUpdate.h"
 
 
 //****************************************************************************/
@@ -96,7 +97,7 @@ static Error_t bmInitFunctionModules (
  *      w/o identify itself to the master. This is usefull especially
  *      during debugging or testing.
  *
- *      At the end the task scheduler is called, which is reponsible to
+ *      At the end the task scheduler is called, which is responsible to
  *      call all registered task function endlessly.
  *
  *      ATTENTION: This function should never return, unless there is an
@@ -228,6 +229,9 @@ static Error_t bmInitCoreModules (UInt16 ModuleCount, UInt16 TaskCount) {
         return (Status);
     }
     if ((Status = bmInitSystemCommands()) != NO_ERROR) {
+        return (Status);
+    }
+    if ((Status = bmInitUpdate()) != NO_ERROR) {
         return (Status);
     }
     return (NO_ERROR);
@@ -430,7 +434,7 @@ static Error_t bmBaseModuleTask (UInt16 Instance) {
     }
     else if (NodeState != NODE_STATE_STANDBY) {
 
-        if (NodeState == NODE_STATE_NORMAL) {
+        if (NodeState == NODE_STATE_NORMAL || NodeState == NODE_STATE_ASSEMBLY) {
             bmProcessEmergencyStop();
             bmProcessHeartbeat();
         }
@@ -493,8 +497,7 @@ static Error_t bmBaseModuleControl (UInt16 Instance, bmModuleControlID_t Control
 
         case MODULE_CONTROL_SHUTDOWN:
             ModuleState = MODULE_STATE_STANDBY;
-            bmFlushPartitions();
-            break;
+            return (bmFlushPartitions());
 
         case MODULE_CONTROL_WAKEUP:
             ModuleState = MODULE_STATE_READY;
@@ -507,9 +510,7 @@ static Error_t bmBaseModuleControl (UInt16 Instance, bmModuleControlID_t Control
             return (bmResetPartition());
 
         case MODULE_CONTROL_RESET:
-            // TODO: Alle BM-Funktionen deaktivieren (diese 
-            // Funktion wird bisher noch nicht benutzt
-            break;
+            return (bmFlushPartitions());
     }
     return (NO_ERROR);
 }

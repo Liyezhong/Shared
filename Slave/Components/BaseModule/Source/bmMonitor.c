@@ -14,7 +14,7 @@
  *       supply current of the board.
  *
  *       If voltage falls below a minimal level, or current exceeds a max.
- *       level, an error message is send to the master. Furthermode, the
+ *       level, an error message is send to the master. Furthermore, the
  *       master can request the actual voltage and current.
  *
  *       The thresholds for voltage and current are configurable by
@@ -108,8 +108,7 @@ static Error_t bmSendCurrentState     (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmSendSafeState        (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmGetFilteredInput     (bmPowerMonitorState_t *Monitor);
 
-static Error_t bmConfigPowerMonitor (
-                    bmPowerMonitorState_t *Monitor, CanMessage_t *Message);
+static Error_t bmConfigPowerMonitor (bmPowerMonitorState_t *Monitor, CanMessage_t *Message);
 
 static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index);
 static bmPowerState_t bmGetSupplyCurrentState (void);
@@ -242,7 +241,7 @@ static Error_t bmSetMasterPowerState (UInt16 Channel, CanMessage_t *Message) {
 static Error_t bmMonitorSupplyVoltageIndex (UInt8 Index) {
 
     if (Voltage[Index].Enabled || Voltage[Index].ErrFlag) {
-        if (bmTimeExpired(Voltage[Index].SampleTime) > Voltage[Index].SampleRate) {
+        if (bmTimeExpired(Voltage[Index].SampleTime) >= Voltage[Index].SampleRate) {
 
             bmPowerState_t State =
                 Voltage[Index].Enabled ? bmGetSupplyVoltageState(Index) : POWER_GOOD;
@@ -255,6 +254,7 @@ static Error_t bmMonitorSupplyVoltageIndex (UInt8 Index) {
                         bmSignalEvent (0,
                             E_SUPPLY_VOLTAGE_LOW, FALSE, Voltage[Index].Value);
                         Voltage[Index].ErrFlag = FALSE;
+                        bmEmergencyStopByVoltage(FALSE);
                     }
                 }
                 else if (State == POWER_FAILED) {
@@ -267,6 +267,7 @@ static Error_t bmMonitorSupplyVoltageIndex (UInt8 Index) {
                             Voltage[Index].Failures++;
                         }
                         Voltage[Index].ErrFlag = TRUE;
+                        bmEmergencyStopByVoltage(TRUE);
                     }
                     bmSetGlobalControl (MODULE_CONTROL_FLUSH_DATA);
                 }
@@ -354,7 +355,7 @@ Error_t bmMonitorSupplySafe (void) {
 Error_t bmMonitorSupplyCurrent (void) {
 
     if (Current.Enabled || Current.ErrFlag) {
-        if (bmTimeExpired(Current.SampleTime) > Current.SampleRate) {
+        if (bmTimeExpired(Current.SampleTime) >= Current.SampleRate) {
 
             bmPowerState_t State =
                 Current.Enabled ? bmGetSupplyCurrentState() : POWER_GOOD;
@@ -415,9 +416,9 @@ Error_t bmMonitorSupplyCurrent (void) {
 static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
 
     if (Voltage[Index].Handle >= 0) {
+        Error_t Status = bmGetFilteredInput(&Voltage[Index]);
 
-        if (bmGetFilteredInput(&Voltage[Index]) == NO_ERROR) {
-
+        if (Status > NO_ERROR) {
             if (Voltage[Index].Value >= Voltage[Index].Threshold2) {
                 return (POWER_GOOD);
             }
@@ -425,6 +426,9 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
                 return (POWER_FAILED);
             }
             return (POWER_WARNING);
+        }
+        else if (Status == NO_ERROR) {
+            return (POWER_GOOD);
         }
     }
     return (POWER_UNKNOWN);
@@ -443,7 +447,7 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
  *      - POWER_FAILED
  *      - POWER_UNKNOWN
  *
- *      POWER_UNKNOWN ist returned, if the current can not be read due to an
+ *      POWER_UNKNOWN is returned, if the current can not be read due to an
  *      error accessing the input channel.
  *
  *  \return  Power state (see description)
@@ -453,13 +457,9 @@ static bmPowerState_t bmGetSupplyVoltageState (UInt8 Index) {
 static bmPowerState_t bmGetSupplyCurrentState (void) {
 
     if (Current.Handle >= 0) {
-        if (bmGetFilteredInput(&Current) == NO_ERROR) {
+        Error_t Status = bmGetFilteredInput(&Current);
 
-/*
-            if (Current.Value > Current.Threshold1-100) {
-                printf("C:%d\n", Current.Value);
-            }
-*/            
+        if (Status > NO_ERROR) {
             if (Current.Value <= Current.Threshold1) {
                 return (POWER_GOOD);
             }
@@ -467,6 +467,9 @@ static bmPowerState_t bmGetSupplyCurrentState (void) {
                 return (POWER_FAILED);
             }
             return (POWER_WARNING);
+        }
+        else if (Status == NO_ERROR) {
+            return (POWER_GOOD);
         }
     }
     return (POWER_UNKNOWN);
@@ -485,7 +488,7 @@ static bmPowerState_t bmGetSupplyCurrentState (void) {
  *
  *  \iparam  Monitor = Pointer to power monitor data structure
  *
- *  \return  Filtered analog input value
+ *  \return  Filter state (1 = ready) or negative error code
  *
  *****************************************************************************/
 
@@ -496,7 +499,6 @@ static Error_t bmGetFilteredInput (bmPowerMonitorState_t *Monitor) {
     UInt16 Index;
     UInt16 Count;
     UInt16 i;
-    
 
     Status = halAnalogRead (
         Monitor->Handle, &Monitor->History[Monitor->NextIn]);
@@ -524,8 +526,8 @@ static Error_t bmGetFilteredInput (bmPowerMonitorState_t *Monitor) {
         if (Count) {
             Monitor->Value = Average / Count;
         }
+        return (Monitor->Filter < Monitor->InCount);
     }
-
     return (Status);
 }
 
@@ -921,7 +923,7 @@ void bmInitVoltageMonitor (void) {
  *      connected to the board safe supply voltage and setting up the  
  *      structure holding the state of the voltage monitor. All data   
  *      elements in this structure are assumed to be set to 0 before  
- *      calling this function.																			   
+ *      calling this function.
  *
  *      Voltage thresholds are looked up in the board options for the base
  *      module. If the voltage thresholds are defined there, they are taken

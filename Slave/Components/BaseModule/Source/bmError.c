@@ -96,7 +96,7 @@ static Error_t bmEnqueEvent (
  *      class (error, warning, info, fatal) from the error code and uses
  *      it to determine the CAN ID to be used. The error message is send
  *      in the "name" of the module with the supplied ChannelID. A time-
- *      stamp is added to the message (the millicesond of the day).
+ *      stamp is added to the message (the millisecond of the day).
  *
  *      If the node is in standby/shutdown, the event will be ignored.
  *      If the node is in master/slave configuration state, events will
@@ -138,7 +138,7 @@ Error_t bmSignalEvent (UInt16 Channel, Error_t ErrCode, Bool ErrState, UInt32 Er
  *      class (error, warning, info, fatal) from the error code and uses
  *      it to determine the CAN ID to be used. The error message is send
  *      in the "name" of the module with the supplied ChannelID. A time-
- *      stamp is added to the message (the millicesond of the day).
+ *      stamp is added to the message (the millisecond of the day).
  *
  *  \iparam  Channel   = Channel ID
  *  \iparam  ErrCode   = Error code

@@ -167,10 +167,10 @@ Error_t halPwmSetup (Handle_t Handle, PwmMode_t Mode, UInt32 Period) {
         if (Mode.Direction & PWM_MODE_COUNT_UPDN) {
             Period /= 2;
         }
-        Prescale = (Period / MAX_UINT16) + 1;            
+        Prescale = (Period / MAX_UINT16) + 1;
 
         // Setup period (prescale) register
-        Status = halTimerWrite (Handle, TIM_REG_RELOAD, Period / Prescale);
+        Status = halTimerWrite (Handle, TIM_REG_RELOAD, Period / Prescale - 1);
         if (Status < 0) {
             return (Status);
         }
@@ -204,7 +204,7 @@ Error_t halPwmSetup (Handle_t Handle, PwmMode_t Mode, UInt32 Period) {
  ****************************************************************************/
 
 Error_t halPwmRead (Handle_t Handle, UInt16 UnitNo, UInt16 *Width) {
-    
+
     Error_t Status;
     UInt32 Period;
     UInt32 Value;
@@ -214,7 +214,7 @@ Error_t halPwmRead (Handle_t Handle, UInt16 UnitNo, UInt16 *Width) {
         Status = halCapComRead (Handle, UnitNo, &Value);
 
         if (Width != NULL) {
-            *Width = Value * MAX_UINT16 / Period;
+            *Width = Value * MAX_UINT16 / (Period + 1);
         }
     }
     return (Status);
@@ -246,7 +246,7 @@ Error_t halPwmWrite (Handle_t Handle, UInt16 UnitNo, UInt16 Width) {
 
     Status = halTimerRead (Handle, TIM_REG_RELOAD, &Period);
     if (Status == NO_ERROR) {
-        UInt32 Value = (UInt32) Period * Width / MAX_UINT16;
+        UInt32 Value = (UInt32) (Period + 1) * Width / MAX_UINT16;
 
         return (halCapComWrite (Handle, UnitNo, Value));    
     }
@@ -353,7 +353,7 @@ Error_t halPwmStatus (Handle_t Handle, UInt16 UnitNo, PwmStatID_t StatusID) {
             if (Status != NO_ERROR) {
                 return (Status);
             }
-            return (Period);
+            return (Period + 1);
     }
     return (E_UNKNOWN_STATUS_ID);
 }
@@ -373,7 +373,7 @@ Error_t halPwmStatus (Handle_t Handle, UInt16 UnitNo, PwmStatID_t StatusID) {
 
 Error_t halPwmInit (void) {
 
-    return (NO_ERROR);   
+    return (NO_ERROR);
 }
 
 //****************************************************************************/

@@ -13,7 +13,7 @@
  *       the following:
  *
  *       - Local system ticks (local free running counter)
- *       - System clock (suppied by master)
+ *       - System clock (supplied by master)
  *       - Real time and date (supplied by master)
  *
  *       The tick counter is intended to measure time differences, the system

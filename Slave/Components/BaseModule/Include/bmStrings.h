@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file bmStrings.h
  *
- *  \brief Debug string table defintion
+ *  \brief Debug string table definition
  *
  *  $Version: $ 0.2
  *  $Date:    $ 27.01.2011

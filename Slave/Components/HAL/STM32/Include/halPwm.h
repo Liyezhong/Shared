@@ -12,7 +12,7 @@
  *      This module contains functions to access and manage pulse width 
  *      modulated outputs. Since the STM32 has no dedicated PWM hardware, 
  *      the timers are used for this purpose. To be able to port the 
- *      software to other hardware plattforms (which might have dedicated 
+ *      software to other hardware platforms (which might have dedicated
  *      PWM units), a dedicated software interface is provided, that hides 
  *      the fact that standard timers are used on STM32 hardware.
  *

@@ -9,7 +9,7 @@
  *
  *  \b Description:
  *
- *       This is the plattform-wide module ID definition file, which contains
+ *       This is the platform-wide module ID definition file, which contains
  *       all module identifiers of all function modules. Each module ID must
  *       be unique, i.e. can only be assigned once.
  *

@@ -66,7 +66,9 @@
 #define PARAM_LAUNCH_DAY        BUILD_PARAMETER(8,2)
 #define PARAM_OPERATION_TIME    BUILD_PARAMETER(10,4)
 #define PARAM_STARTUP_CYCLES    BUILD_PARAMETER(14,2)
-#define PARAM_RESERVE_SOME      BUILD_PARAMETER(16,16)
+#define PARAM_MODULE_SN_HIGH    BUILD_PARAMETER(16,4)
+#define PARAM_MODULE_SN_LOW     BUILD_PARAMETER(20,4)
+#define PARAM_RESERVE_SOME      BUILD_PARAMETER(24,8)
 #define PARAM_TOTAL_SIZE        32
 //@} End of doxygen group
 
@@ -95,7 +97,9 @@ static const bmParamRange_t ParamTable[] = {
     { PARAM_LAUNCH_MONTH,   1, 12,  1 },
     { PARAM_LAUNCH_DAY,     1, 31,  1 },
     { PARAM_OPERATION_TIME, 0,  0,  0 },
-    { PARAM_STARTUP_CYCLES, 0,  0,  0 }
+    { PARAM_STARTUP_CYCLES, 0,  0,  0 },
+    { PARAM_MODULE_SN_HIGH, 0, MAX_UINT32, 0 },
+    { PARAM_MODULE_SN_LOW,  0, MAX_UINT32, 0 }
 };
 
 static bmBoardInfoBlock_t *InfoBlock;   //!< Pointer to board info block
@@ -116,6 +120,8 @@ static Error_t bmSendSoftwareInfo  (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmSendLoaderInfo    (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmSendLifeCycleInfo (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmResetPermData     (UInt16 Channel, CanMessage_t *Message);
+static Error_t bmSendModuleSerial  (UInt16 Channel, CanMessage_t *Message);
+static Error_t bmSetModuleSerial   (UInt16 Channel, CanMessage_t *Message);
 static Bool    bmUpdateLaunchDate  (void);
 static Error_t bmVerifyPartition   (void);
 static Error_t bmUpgradePartition  (void);
@@ -204,7 +210,7 @@ static Bool bmUpdateLaunchDate (void) {
  *  \brief   Format non volatile memory
  *
  *      Reformats the non-volatile memory. The message contains the
- *      maximum number of partitions to be creatable on the storage.
+ *      maximum number of partitions that can be created on the storage.
  *      After formatting, all data and all partitions are lost.
  *
  *      This function is intended to be uses during manufacturing only.
@@ -235,7 +241,7 @@ static Error_t bmFormatPermStorage (UInt16 Channel, CanMessage_t *Message) {
     Error_t Status;
     Bool Success;
 
-    if (Message->Length >= 1) {
+    if (Message->Length == 3) {
 
         Password = bmGetMessageItem (Message, 0, 2);
         if (!bmCheckPassword (Password)) {
@@ -244,7 +250,6 @@ static Error_t bmFormatPermStorage (UInt16 Channel, CanMessage_t *Message) {
         PartitionTableSize = bmGetMessageItem (Message, 2, 1);
 
         if (bmFormatStorage(PartitionTableSize) == NO_ERROR) {
-//        if (bmInvalidateStorage(PartitionTableSize) == NO_ERROR) {        
             Success = TRUE;
         }
         else {
@@ -304,7 +309,7 @@ static Error_t bmResetPermData (UInt16 Channel, CanMessage_t *Message) {
     Error_t Status;
     UInt16 Password;
 
-    if (Message->Length >= 1) {
+    if (Message->Length == 2) {
 
         Password = bmGetMessageItem (Message, 0, 2);
         if (!bmCheckPassword (Password)) {
@@ -339,7 +344,7 @@ static Error_t bmResetPermData (UInt16 Channel, CanMessage_t *Message) {
  *      via CAN to the master. The info block must be written to a fixed
  *      memory location during manufacturing of the board. The format of
  *      the serial number is not defined; therefore it is coded and send
- *      as a formatless string.
+ *      as a plain string.
  *
  *      Since the length of the serial number exceeds the capacity of a
  *      single CAN message, multiple messages are used. Each message
@@ -570,6 +575,9 @@ static Error_t bmSendLaunchDate (UInt16 Channel, CanMessage_t *Message) {
     CanMessage_t Response;
 
     if (bmStorage >= 0) {
+        if (!LaunchDateSaved) {
+            LaunchDateSaved = bmUpdateLaunchDate();
+        }
 
         bmSetMessageItem (&Response,
             bmGetStorageItem (bmStorage, PARAM_LAUNCH_STATE, 0), 0, 1);
@@ -807,6 +815,73 @@ static Error_t bmSendBoardOptions (UInt16 Channel, CanMessage_t *Message) {
 
 /*****************************************************************************/
 /*!
+ *  \brief   Send the module serial number
+ *
+ *      Sends the module serial number. The serial number consists of eight
+ *      bytes. It can be set through the "set module serial" message.
+ *
+ *      This function is called by the message dispatcher whenever the
+ *      service command "request module serial" is received.
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t bmSendModuleSerial (UInt16 Channel, CanMessage_t *Message) {
+
+    CanMessage_t Response;
+
+    Response.CanID = MSG_SRV_MODULE_SERIAL;
+    bmSetMessageItem (&Response, bmGetStorageItem (bmStorage, PARAM_MODULE_SN_HIGH, 0), 0, 4);
+    bmSetMessageItem (&Response, bmGetStorageItem (bmStorage, PARAM_MODULE_SN_LOW, 0), 4, 4);
+    Response.Length = 8;
+
+    return (canWriteMessage(Channel, &Response));
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Set the module serial number
+ *
+ *      Sets the module serial number. The serial number consists of eight
+ *      bytes. It can be requested through the "request module serial"
+ *      message.
+ *
+ *      This function is called by the message dispatcher whenever the
+ *      service command "set module serial" is received.
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t bmSetModuleSerial (UInt16 Channel, CanMessage_t *Message) {
+
+    if (Message->Length == 8) {
+        Error_t Status;
+
+        Status = bmSetStorageItem (bmStorage, PARAM_MODULE_SN_HIGH, bmGetMessageItem(Message, 0, 4));
+        if (Status < NO_ERROR) {
+            return (Status);
+        }
+        Status = bmSetStorageItem (bmStorage, PARAM_MODULE_SN_LOW, bmGetMessageItem(Message, 4, 4));
+        if (Status < NO_ERROR) {
+            return (Status);
+        }
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+}
+
+
+/*****************************************************************************/
+/*!
  *  \brief   Verify base module's partition
  *
  *      Verifies the base module's data partition in non-volatile storage
@@ -867,7 +942,8 @@ Error_t bmResetPartition (void) {
     if (bmStorage >= 0) {
 
         bmSignalEvent(0, I_PARTITION_RESET, 1, 0);
-        LifeTime.ErrCount = LifeTime.Duration = 0;
+        LifeTime.Duration = LifeTime.ErrCount = 0;
+        LifeTime.LastUpdate = bmGetTime();
 
         return (bmResetStorageItems (
             bmStorage, ParamTable, ELEMENTS(ParamTable)));
@@ -883,7 +959,7 @@ Error_t bmResetPartition (void) {
  *      This function is called, when the data layout version number of this
  *      software release is higher than the layout version stored in the
  *      data partition. Its purpose is to convert (upgrade) an outdated
- *      data layout into the format requirered by the actual software.
+ *      data layout into the format required by the actual software.
  *
  *      Since this is the 1st release of the software, no conversion is
  *      necessary. This function is just a placeholder for the future.
@@ -932,7 +1008,9 @@ Error_t bmInitServiceModule (void) {
         { MSG_SRV_REQ_LAUNCH_DATE,    bmSendLaunchDate    },
         { MSG_SRV_REQ_MEMORY_FORMAT,  bmFormatPermStorage },
         { MSG_SRV_REQ_BOARD_NAME,     bmSendBoardName     },
-        { MSG_SRV_REQ_UNIQUE_NUMBER,  bmSendUniqueNumber  }
+        { MSG_SRV_REQ_UNIQUE_NUMBER,  bmSendUniqueNumber  },
+        { MSG_SRV_REQ_MODULE_SERIAL,  bmSendModuleSerial  },
+        { MSG_SRV_SET_MODULE_SERIAL,  bmSetModuleSerial   }
     };
     static bmCallbackEntry_t Broadcasts[] = {
         { MSG_SRV_REQ_RESET_DATA, bmResetPermData }
@@ -945,7 +1023,8 @@ Error_t bmInitServiceModule (void) {
         bmVerifyPartition();
         bmIncStorageItem (bmStorage, PARAM_STARTUP_CYCLES, 1);
     }
-    LifeTime.LastUpdate = LifeTime.Duration = LifeTime.ErrCount = 0;
+    LifeTime.Duration = LifeTime.ErrCount = 0;
+    LifeTime.LastUpdate = bmGetTime();
     LaunchDateSaved = bmGetStorageItem (bmStorage, PARAM_LAUNCH_STATE, 0);
 
     // register CAN message to handle by this module

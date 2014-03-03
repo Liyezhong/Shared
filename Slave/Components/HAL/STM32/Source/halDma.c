@@ -256,7 +256,7 @@ Error_t halDmaRead (UInt16 Channel, volatile void *Address, UInt16 Count) {
         return (NO_ERROR);
     }
     return (E_DEVICE_NOT_EXISTS);
-}
+}   //lint !e429
 
 
 /*****************************************************************************/

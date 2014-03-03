@@ -107,7 +107,7 @@ static Error_t bmWritePartitionDescriptor (Handle_t Handle);
  *      The partition content is cleared to zero. "Size" determines the size
  *      of the created partition, "Mode" the access mode. The partition can
  *      later be opened only in a mode that is compatible with the mode
- *      specfified during creation.
+ *      specified during creation.
  *
  *      If a partition with the same partition ID already exists and the mode
  *      bit MODE_OPEN_EXISTING is set, that partition is opened instead of
@@ -387,7 +387,7 @@ Error_t bmErasePartition (Handle_t Handle) {
  *      Closes an open partition. If the global ChecksumUpdateOnClose flag
  *      is set to true, the checksum is not written on every write operation
  *      to the partition, but now. This mode of operation might be dangerous
- *      if it can't be garanteed, that bmClosePartition() being called before
+ *      if it can't be guaranteed, that bmClosePartition() being called before
  *      power goes down. Saver (but slower) is to update the checksum on every
  *      write, i.e. set ChecksumUpdateOnClose to false.
  *
@@ -436,29 +436,31 @@ Error_t bmClosePartition (Handle_t Handle) {
 
 Error_t bmFlushPartitions (void) {
 
-    Error_t Status = NO_ERROR;
-    Handle_t Handle;
+    Error_t ErrCode = NO_ERROR;
+    Error_t Status;
+    UInt32 Index;   //!< Partitiontable index
 
-    if (UpdateChecksumOnWrite) {
-        return (NO_ERROR);
-    }
     if (WriteProtected) {
         return (E_STORAGE_PROTECTED);
     }
-    for (Handle=0; Handle < PartitionTableSize; Handle++) {
+    for (Index=0; Index < PartitionTableSize; Index++) {
+        if ((Partitions[Index].Mode & FLAG_MODIFIED) &&
+           (~Partitions[Index].Mode & FLAG_CHKSUM_ERROR) && !UpdateChecksumOnWrite) {
+            UInt16 CheckSum = bmCalculateChecksum(Index);
 
-        if ((Partitions[Handle].Mode & FLAG_MODIFIED) &&
-           (~Partitions[Handle].Mode & FLAG_CHKSUM_ERROR)) {
-
-            UInt16 CheckSum = bmCalculateChecksum(Handle);
-
-            if (bmWritePartitionChecksum(Handle, CheckSum) < 0) {
-                Status = E_CHECKSUM_WRITE_ERROR;
+            if ((Status = bmWritePartitionChecksum(Index, CheckSum)) < NO_ERROR) {
+                ErrCode = Status;
+                continue;
             }
-            Partitions[Handle].Mode &= ~FLAG_MODIFIED;
+            Partitions[Index].Mode &= ~FLAG_MODIFIED;
         }
     }
-    return (Status);
+
+    if ((Status = halStorageWait (Device)) < NO_ERROR) {
+        ErrCode = Status;
+    }
+
+    return (ErrCode);
 }
 
 
@@ -493,7 +495,7 @@ UInt16 bmGetPartitionSize (UInt32 PartitionID) {
  *      Deletes a partition and frees the associated memory. The deleted
  *      memory block and the free memory following that block are added
  *      to the free block size of the partition associated with the memory
- *      block immediately preceeding the deleted memory block.
+ *      block immediately preceding the deleted memory block.
  *
  *  \iparam  PartitionID = Partition identifier
  *
@@ -956,7 +958,7 @@ static Error_t bmReadPartitionTable (void) {
 /*!
  *  \brief   Search partition ID in partition table
  *
- *      Seaches the partition descriptor table for a partition with the
+ *      Searches the partition descriptor table for a partition with the
  *      supplied partition ID and returns the table index to the found
  *      descriptor. The index can be used as a partition handle. If the
  *      partition in question doesn't exist, an error is returned.
@@ -986,7 +988,7 @@ static Error_t bmSearchPartition (UInt32 PartitionID) {
 /*!
  *  \brief   Find free partition table entry
  *
- *      Seaches the partition descriptor table for an unused partition
+ *      Searches the partition descriptor table for an unused partition
  *      descriptor and returns the table index to that descriptor.
  *      If a free descriptor can't be find, an error is returned.
  *

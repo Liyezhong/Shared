@@ -20,7 +20,7 @@
  *      - Logical memory descriptors
  *      - Logical serial busses (I2C, SPI)
  *      - External interrupt inputs
- *      - Logical motor decriptors
+ *      - Logical motor descriptors
  *
  *      This file works in conjunction with the halConfigure.c source
  *      file, which must also be adopted to the boards needs.

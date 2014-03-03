@@ -38,8 +38,8 @@
 // Private Constants and Macros
 //****************************************************************************/
 
-#define CAN_SEND_QUEUE_SIZE    16    //!< Size of transmit queue (messages)
-#define CAN_RECV_QUEUE_SIZE    16    //!< Size of receive queue (messages)
+#define CAN_SEND_QUEUE_SIZE    24    //!< Size of transmit queue (messages)
+#define CAN_RECV_QUEUE_SIZE    24    //!< Size of receive queue (messages)
 
 //! Macro to extract the channel number out of a CAN-ID
 #define GET_CANiD_CHANNEL(i)   (((i) >> CANiD_SHIFT_CHANNEL) & CANiD_MAX_CHANNEL)
@@ -81,6 +81,7 @@ static Error_t canReadQueue   (bmCanQueue_t *Queue, CanMessage_t *Message);
 static Error_t canTestQueue   (bmCanQueue_t *Queue, CanMessage_t *Message);
 static Error_t canSkipQueue   (bmCanQueue_t *Queue, UInt16 Elements);
 static Error_t canQueueCount  (bmCanQueue_t *Queue);
+static Error_t canSetupAcceptFilters (CanIdFilter_t *Filters, UInt32 Size);
 
 static void canHandleInterrupts  (UInt32 UserTag, UInt32 IntrFlags);
 static void canHandleTxInterrupt (void);
@@ -267,7 +268,9 @@ static void canHandleTxInterrupt (void) {
         if (halCanWrite (CanHandle, &Message) > 0) {
             canSkipQueue (&SendQueue, 1);
         }
-        else break;
+        else {
+            break;
+        }
     }
     if (canQueueCount(&SendQueue) == 0) {
         halCanControl (CanHandle, CAN_INTR_TxREADY, OFF);
@@ -344,34 +347,6 @@ static Error_t canCreateQueue (bmCanQueue_t *Queue, UInt16 Elements) {
     }
     Queue->Size = 0;
     return (E_MEMORY_FULL);
-}
-
-
-/*****************************************************************************/
-/*!
- *  \brief   Delete all messages in queue
- *
- *      Destroys the given "Queue".
- *
- *  \xparam  Queue = Queue descriptor pointer
- *
- *  \return  NO_ERROR or (negative) error code
- *
- ****************************************************************************/
-
-/*static*/ Error_t canDeleteQueue (bmCanQueue_t *Queue) {
-
-    if (Queue == NULL) {
-        return (E_PARAMETER_OUT_OF_RANGE);
-    }
-    if (Queue->Data != NULL) {
-        free (Queue->Data);
-    }
-    Queue->NextIn = Queue->NextOut = 0;
-    Queue->Count  = 0;
-    Queue->Size   = 0;
-
-    return (NO_ERROR);
 }
 
 
@@ -607,7 +582,7 @@ Error_t canTaskFunction (void) {
  *
  ****************************************************************************/
 
-Error_t canSetupAcceptFilters (CanIdFilter_t *Filters, UInt32 Size) {
+static Error_t canSetupAcceptFilters (CanIdFilter_t *Filters, UInt32 Size) {
 
     NodeAddress = bmGetNodeAddress();
 
@@ -654,7 +629,7 @@ Error_t canInitializeLayer (void) {
     if ((Count = canSetupAcceptFilters (Filters, ELEMENTS(Filters))) < 0) {
         return (CanHandle);
     }
-    if ((CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, canHandleInterrupts)) < 0) {
+    if ((CanHandle = halCanOpen(HAL_CAN_SYSTEM, 0, canHandleInterrupts, TRUE)) < 0) {
         return (CanHandle);
     }
     if ((Status = halCanSetup(CanHandle, Filters, Count)) < 0) {

@@ -12,7 +12,7 @@
  *      This module contains functions to access stepper motor controllers
  *      of the type "Trinamic TMC26x" connected via serial SPI ports. It
  *      supports any number of stepper motors. Only stepper motors using
- *      different SPI interfaces can run simultainously, steppers connected
+ *      different SPI interfaces can run simultaneously, steppers connected
  *      to the same SPI can run only alternative. Chip select outputs are
  *      used to distinguish different stepper controllers on the SPI port.
  *

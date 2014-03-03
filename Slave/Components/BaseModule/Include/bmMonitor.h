@@ -14,7 +14,7 @@
  *       supply current of the board.
  *
  *       If voltage falls below a minimal level, or current exceeds a max.
- *       level, an error message is send to the master. Furthermode, the
+ *       level, an error message is send to the master. Furthermore, the
  *       master can request the actual voltage and current.
  *
  *       The thresholds for voltage and current are configurable by

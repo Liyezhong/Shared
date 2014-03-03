@@ -25,8 +25,8 @@
  *
  *       This module supports separate LEDs for status and errors, but
  *       also a single shared LED. In case of a shared LED, errors have
- *       preceedence over status, i.e. as long as an error is signalled,
- *       status blinks will be surpressed (but not forgotten).
+ *       precedence over status, i.e. as long as an error is signalled,
+ *       status blinks will be suppressed (but not forgotten).
  *
  *  \b Company:
  *
@@ -74,9 +74,9 @@ typedef struct {
     UInt8  PortOff;     //!< Port value to switch LED off
 } bmBlinkPattern_t;
 
-//! State maschine status - contains state for one LED
+//! State machine status - contains state for one LED
 typedef struct {
-    UInt16 State;       //!< State of blink state maschine
+    UInt16 State;       //!< State of blink state machine
     UInt16 Code;        //!< Actual blink code
     UInt32 Time;        //!< Blink phase start time
     UInt16 Delay;       //!< Blink phase duration
@@ -138,8 +138,8 @@ static UInt16 bmGetNextBlinkCode (UInt16 LedNr);
  *      Blink code LED_OFF can be used to reset ALL scheduled blink codes,
  *      i,e. to stop blinking without the need to stop each single code.
  *
- *  \param    BlinkCode = blink code
- *  \param    State     = start (TRUE) or stop (FALSE) blink code
+ *  \iparam   BlinkCode = blink code
+ *  \iparam   State     = start (TRUE) or stop (FALSE) blink code
  *
  *  \return   NO_ERROR or (negative) error code
  *
@@ -158,10 +158,10 @@ Error_t bmSignalErrorLed (bmBlinkCode_t BlinkCode, Bool State) {
     // determine highest priority blink code
     if (BlinkCode < NUMBER_OF_BLINKCODES) {
         if (State) {
-            PriorityBitmask |=  (1U << BlinkCode);
+            PriorityBitmask |=  BIT(BlinkCode);
         }
         else {
-            PriorityBitmask &= ~(1U << BlinkCode);
+            PriorityBitmask &= ~BIT(BlinkCode);
         }
         Bitmask = PriorityBitmask;
 
@@ -187,10 +187,10 @@ Error_t bmSignalErrorLed (bmBlinkCode_t BlinkCode, Bool State) {
  *      specifies the blink sequence. Other than on the error LED, new
  *      blink codes overrides existing ones; there is no priorization.
  *      If status and error codes share a single LED, error codes have
- *      preceedence over status code. The status code is displayed not
+ *      precedence over status code. The status code is displayed not
  *      before the last error code is removed.
  *
- *  \param    BlinkCode = blink code
+ *  \iparam   BlinkCode = blink code
  *
  *  \return   NO_ERROR or (negative) error code
  *
@@ -201,7 +201,7 @@ Error_t bmSignalStatusLed (bmBlinkCode_t BlinkCode) {
     if (BlinkCode < NUMBER_OF_BLINKCODES) {
 
         if (BlinkCode != BlinkStateCode) {
-            //dbgPrint ("Status Blink Code %d", BlinkCode);
+            dbgPrint ("Status Blink Code %d", BlinkCode);
         }
         BlinkStateCode = BlinkCode;
         return (NO_ERROR);
@@ -218,7 +218,7 @@ Error_t bmSignalStatusLed (bmBlinkCode_t BlinkCode) {
  *         error LED. Depending on the fact, how many LEDs are present,
  *         status and error codes are displayed on two different LEDs or
  *         share a common LED. If a common LED is used, errors have
- *         preceedence over status, i.e. status codes are not displayed
+ *         precedence over status, i.e. status codes are not displayed
  *         before the last error code is removed.
  *
  *         Once started, a blink code is output until finished. A new blink
@@ -288,11 +288,11 @@ Error_t bmStatusLedTask (void) {
  *         Returns the next blink code for the given LED. If two LEDs are
  *         present, the 1st one is used to signal errors, the 2nd one
  *         to signal the actual node state. If only one LED is present,
- *         errors and states are signalled on the same LED. Errors have
- *         preceedence over state signalling, i.e. states are signalled
+ *         errors and states are signaled on the same LED. Errors have
+ *         precedence over state signalling, i.e. states are signalled
  *         only if there is no error to signal.
  *
- *  \param   LedNr = LED number
+ *  \iparam  LedNr = LED number
  *
  *  \return  Blink code (0 = no blinking)
  *
@@ -316,7 +316,7 @@ static UInt16 bmGetNextBlinkCode (UInt16 LedNr) {
  *
  *         This function initializes this module. It must be called once
  *         before using any of the functions in this module. It opens the
- *         LED output port(s) and initializes the state maschine.
+ *         LED output port(s) and initializes the state machine.
  *
  *  \return  NO_ERROR or (negative) error code
  *

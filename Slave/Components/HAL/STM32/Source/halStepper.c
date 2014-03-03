@@ -59,6 +59,8 @@
 #define TMC_DRVCTR_CB       0x000FF   //!< Phase B current mask
 #define TMC_DRVCFG_CFR      0xE0000   //!< DRV configuration register select
 #define TMC_DRVCFG_SDOFF    0x00080   //!< Step/direction mode off
+#define TMC_DRVCFG_RDSEL    0x00030   //!< select value for read out mask
+#define TMC_DRVCFG_RDSEL_SE 0x00020   //!< read back stallGuard and smart current level
 #define TMC_DRVCFG_SGCS     0xC0000   //!< SGCS configuration register select
 #define TMC_SGCSCONF_CS     0x0001F   //!< Current scale mask
 
@@ -137,7 +139,9 @@ typedef struct {
     Handle_t HandleEN;      //!< Handle to enable output pin
     Handle_t HandleCS;      //!< Handle to chip select output
     SpiRegFile_t *SPI;      //!< Pointer to SPI register file
-    Bool   OwnBusLock;      //!< SPI bus lock is owned by this stepper
+    Bool OwnBusLock;        //!< SPI bus lock is owned by this stepper
+    UInt16 CheckPattern;    //!< check pattern to detect SPI transmission errors
+    volatile Bool PatternIsValid;   //!< check pattern have valid value
 } StepDevice_t;
 
 //! Structure to hold the state of a SPI device
@@ -170,7 +174,7 @@ static StepDevice_t *DataTable = NULL;
 //****************************************************************************/
 
 static inline Error_t halStepperGetIndex (Handle_t Handle);
-static inline Error_t halStepperExchange (const StepDevice_t *Stepper, UInt32 Data);
+static inline Error_t halStepperExchange (StepDevice_t *Stepper, UInt32 Data);
 static inline Error_t halStepperError (UInt32 ErrFlags);
 
 static Error_t halStepperFindDevice (Device_t DeviceID);
@@ -266,9 +270,18 @@ Error_t halStepperOpenExt (Device_t DeviceID, const UInt32 *Mode, UInt16 Count) 
             // setup controller
             Status = halStepperSetup (Handle, Mode, Count);
             if (NO_ERROR == Status) {
-                halStepperWrite (DeviceID, 0);
+                // wait until last spi data transfer is finished
+                while (DataTable[Index].SPI->SR & SPI_SR_BSY) {}
                 // Enable driver transistors
                 Status = halStepperControl (Handle, STP_CTRL_ENABLE, ON);
+                if (NO_ERROR == Status) {
+                    Status = halStepperWrite (DeviceID, 0);
+                    // ignore 'stalled' and 'open load' error
+                    if (   (E_STEPPER_MOTOR_STALLED == Status)
+                        || (E_STEPPER_OPEN_LOAD == Status)) {
+                        Status = NO_ERROR;
+                    }
+                }
             }
         }
         // unlock bus
@@ -375,7 +388,7 @@ Error_t halStepperWrite (Handle_t Handle, UInt32 SinIndex) {
     Error_t Status;
 
     if (Index >= 0) {
-        const StepDevice_t *Data = &DataTable[Index];
+        StepDevice_t *Data = &DataTable[Index];
         UInt32 PhaseA = SinusTable[SinIndex & SINUS_INDEX_MASK];
         UInt32 PhaseB = SinusTable[CosIndex & SINUS_INDEX_MASK];
         UInt32 ErrFlags;
@@ -394,6 +407,12 @@ Error_t halStepperWrite (Handle_t Handle, UInt32 SinIndex) {
         if (Status != NO_ERROR) {
             return (Status);
         }
+
+        // verify smart energy current settings
+        if (!((ErrFlags >> 10) & TMC_SGCSCONF_CS)) {
+            return E_STEPPER_UNDERVOLTAGE;
+        }
+
         return (halStepperError(ErrFlags));
     }
     return (Index);
@@ -426,9 +445,10 @@ Error_t halStepperWrite_Simplified (Int32 Index, UInt32 SinIndex) {
 
     const UInt32 CosIndex = SinIndex + STEP_RESOLUTION;
 
-    const StepDevice_t *Data = &DataTable[Index];
+    StepDevice_t *Data = &DataTable[Index];
     UInt32 PhaseA = SinusTable[SinIndex & SINUS_INDEX_MASK];
     UInt32 PhaseB = SinusTable[CosIndex & SINUS_INDEX_MASK];
+    UInt32 Status = (Data->Status >> 12);
     UInt32 Control;
 
     if (!(SinIndex & SINUS_SEGMENT)) {
@@ -438,6 +458,16 @@ Error_t halStepperWrite_Simplified (Int32 Index, UInt32 SinIndex) {
        PhaseB |= TMC_DRVCTR_PHASE;
     }
     Control  = (PhaseA << 9) | PhaseB;
+
+    // verify smart energy current settings
+    if (!((Status >> 10) & TMC_SGCSCONF_CS)) {
+        return E_STEPPER_UNDERVOLTAGE;
+    }
+
+    // check error flags
+    if (Status & (TMC_STATUS_OT | TMC_STATUS_S2GA | TMC_STATUS_S2GB)) {
+        return (halStepperError(Status));
+    }
 
     return halStepperExchange (Data, Control);
 }
@@ -463,12 +493,19 @@ Error_t halStepperCurrent (Handle_t Handle, UInt8 Current) {
     Error_t Status;
 
     if (Index >= 0) {
-        const StepDevice_t *Data = &DataTable[Index];
+        StepDevice_t *Data = &DataTable[Index];
         UInt32 Control;
 
         Control  = ((Data->SGCSConf & ~TMC_SGCSCONF_CS) | (Current & TMC_SGCSCONF_CS));
+        Data->SGCSConf = Control;
 
         Status = halStepperExchange (Data, Control);
+
+        // wait until data transfer is finished
+        while (!Data->PatternIsValid) {}
+        // to avoid E_STEPPER_UNDERVOLTAGE if next SPI data transfer is a step command
+        Data->Status = ((Data->Status & (~(TMC_SGCSCONF_CS << 22))) | ((Current & TMC_SGCSCONF_CS) << 22));
+
         return (Status);
     }
     return (Index);
@@ -512,6 +549,11 @@ Error_t halStepperSetup (Handle_t Handle, const UInt32 *Mode, UInt16 Count) {
     if (Index >= 0) {
         StepDevice_t *Data = &DataTable[Index];
 
+        // initialize check pattern
+        Data->Status = 0;
+        Data->CheckPattern = 0;
+        Data->PatternIsValid = TRUE;
+
         // if Mode is NULL use settings from configuration file
         if (Mode == NULL) {
             Count = ELEMENTS(halStepperDescriptors[0].Mode);
@@ -530,8 +572,11 @@ Error_t halStepperSetup (Handle_t Handle, const UInt32 *Mode, UInt16 Count) {
                 Data->SGCSConf = Control; // store value for later modification of current scale
             }
             // Force SPI mode bit in DRVCONF register
+            // Force RDSEL to read back smart current level in DRVCONF register
             if ((~Control & TMC_DRVCFG_CFR) == 0) {
                 Control |= TMC_DRVCFG_SDOFF;
+                Control &= ~TMC_DRVCFG_RDSEL;
+                Control |= TMC_DRVCFG_RDSEL_SE;
             }
             // Transfer value to the stepper controller
             while (halStepperExchange (Data, Control) == E_STEPPER_BUSY) {}
@@ -638,6 +683,8 @@ Error_t halStepperControl (Handle_t Handle, StepCtrlID_t ControlID, Bool State) 
             case STP_CTRL_CLEAR_ERROR:
                 if (State) {
                     Data->Status = 0;
+                    Data->CheckPattern = 0;
+                    Data->PatternIsValid = TRUE;
                 }
                 return (NO_ERROR);
                 
@@ -646,12 +693,14 @@ Error_t halStepperControl (Handle_t Handle, StepCtrlID_t ControlID, Bool State) 
                     UInt32 SpiNo =Data->SpiNo;
                     // check if lock / unlock is allowed
                     if (State) { // only can get lock if not owned by another fm
-                        if (!Data->OwnBusLock && SpiData[SpiNo].Locked)
+                        if (!Data->OwnBusLock && SpiData[SpiNo].Locked) {
                             return E_DEVICE_LOCKED;
+                        }
                     }
                     else {  // only owner can unlock
-                        if (!Data->OwnBusLock)
+                        if (!Data->OwnBusLock) {
                             return E_STEPPER_NO_BUS;
+                        }
                     }
                     // perform lock / unlock
                     SpiData[SpiNo].Locked = State;
@@ -732,26 +781,40 @@ static inline Error_t halStepperError (UInt32 ErrFlags) {
  *  \return  TRUE: Successful, FALSE: Failed, SPI busy
  *
  ****************************************************************************/
+static inline Error_t halStepperExchange (StepDevice_t *Stepper, UInt32 Data) {
 
-static inline Error_t halStepperExchange (const StepDevice_t *Stepper, UInt32 Data) {
-
-    SpiRegFile_t *SPI = Stepper->SPI;     
+    SpiRegFile_t *SPI = Stepper->SPI;
 
     if (!Stepper->OwnBusLock) {
         return (E_STEPPER_NO_BUS);
     }
 
     if (!(SPI->SR & SPI_SR_BSY)) {
+
+        while (!Stepper->PatternIsValid) {}
+        // verity ckeck pattern from preceeding transmission
+        if ((Stepper->Status & 0xfff) != (Stepper->CheckPattern & 0xfff)) {
+            Stepper->Status = 0;
+            Stepper->CheckPattern = 0;
+            Stepper->PatternIsValid = TRUE;
+            return E_STEPPER_SPI_PATTERN;
+        }
+        Stepper->PatternIsValid = FALSE;
+
         halGlobalInterruptDisable();
 
         // Activate slave select output (NSS)
         *Stepper->SelPort = Stepper->SelMask << 16;
 
-        //while (!(SPI->SR & SPI_SR_TXE)) {}
-        SPI->DR = (UInt16) (Data >> 16);
+        // append the check pattern
+        ((StepDevice_t *)Stepper)->CheckPattern++;
+        Data |=(Stepper->CheckPattern << 20);
 
+        // send all data
+        SPI->DR = (UInt16) (Data >> 16);
         while (!(SPI->SR & SPI_SR_TXE)) {}
         SPI->DR = (UInt16) Data;
+
         halGlobalInterruptEnable();
 
         return (NO_ERROR);
@@ -777,12 +840,20 @@ void halStepperInterruptHandler (UInt32 SpiNo) {
 
     if (SpiNo < ELEMENTS(SpiData)) {
         StepDevice_t *Stepper = SpiData[SpiNo].Stepper;
+        Bool OverRun = (Stepper->SPI->SR & SPI_SR_OVR);
 
+        Stepper->Status = (Stepper->Status << 16) | Stepper->SPI->DR;
         // Deactivate slave select output 
         if (!(Stepper->SPI->SR & SPI_SR_BSY)) {
             *Stepper->SelPort = Stepper->SelMask;
+            Stepper->PatternIsValid = TRUE;
         }
-        Stepper->Status = (Stepper->Status << 16) | Stepper->SPI->DR;
+
+        // discard status in case of overrun error to avoid false errors
+        if (OverRun) {
+            Stepper->Status = 0;
+            Stepper->CheckPattern = 0;
+        }
     }
 }
 
@@ -818,7 +889,7 @@ static Error_t halStepperSpiSetup (UInt32 SpiNo) {
         
         SpiData[SpiNo].SPI->CR2 |= SPI_CR2_SSOE;
         SpiData[SpiNo].SPI->CR1 = 
-            SPI_CR1_MSTR | SPI_BR_DIVIDE8 | SPI_CR1_CPOL | SPI_CR1_CPHA| SPI_CR1_DFF;
+            SPI_CR1_MSTR | SPI_BR_DIVIDE8 | SPI_CR1_CPOL | SPI_CR1_CPHA| SPI_CR1_DFF | SPI_CR1_SSM;
         SpiData[SpiNo].SPI->CR1 |= SPI_CR1_SPE;
 //        SpiData[SpiNo].Stepper = NULL;
 
@@ -927,9 +998,9 @@ Error_t halStepperInit (void) {
         DataTable = calloc (halStepperDescriptorCount, sizeof(StepDevice_t));
         if (DataTable == NULL) {
             return (E_HEAP_MEMORY_FULL);
-        }    
+        }
         for (i=0; i < halStepperDescriptorCount; i++) {
-    
+
             StepDevice_t *Data = &DataTable[i];
 
             // Get SPI channel number and verify it
