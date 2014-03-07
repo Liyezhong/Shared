@@ -28,7 +28,7 @@ if [ ! -d $ROOTDIR ]; then
 	echo "$ROOTDIR does not exist"
 	exit 1
 fi
-readonly BINDIR="$ROOTDIR/bin"				# Path of SW binaries
+readonly BINDIR="$ROOTDIR/Bin"				# Path of SW binaries
 readonly FIRMWAREDIR="$ROOTDIR/Firmware"		# Path of Firmware binaries
 readonly LOGDIR="$ROOTDIR/Logfiles"				# Path of Log folder
 readonly ROLLBACKDIR="$ROOTDIR/Rollback"		# Path of Rollback folder 
@@ -38,7 +38,7 @@ readonly TMPDIR="$ROOTDIR/tmp"				# Temporary folder
 readonly UPDATEDIR="$TMPDIR/MasterSWUpdate"		# Path to Master SW Update directory		
 readonly UPDATEPKGDIR="$UPDATEDIR/UpdatePackage"		# Path to update package
 readonly TMPSETTINGDIR="$UPDATEPKGDIR/Settings" 		# Temporary settings folder
-readonly TMPBINDIR="$UPDATEPKGDIR/bin"				# Temporary SW binary folder
+readonly TMPBINDIR="$UPDATEPKGDIR/Bin"				# Temporary SW binary folder
 readonly TMPFIRMWAREDIR="$UPDATEPKGDIR/Firmware"		# Temporary Firmware binary
 readonly SLAVEFILEDIR="$UPDATEDIR/SlaveSWUpdateFiles"	# Path to slave SW update files
 readonly MOUNTPOINT="/mnt" 					# USB Mount point
@@ -51,13 +51,13 @@ readonly TMPSWVERSIONFILE=$TMPDIR/temp_SW_Version.xml		 # Temporary file used fo
 readonly UPDATESWVERFILE="$TMPSETTINGDIR/SW_Version.xml"	 # SW_Version.xml file in SW package
 readonly MD5FILE="$UPDATEPKGDIR/md5sum.txt"		# md5 location in package directory
 readonly TMPDIRMD5FILE="$TMPDIR/md5sum.txt"		# md5 file
-readonly ROLLBACKBINDIR="$ROLLBACKDIR/bin"		 	# Rollback bin directory
+readonly ROLLBACKBINDIR="$ROLLBACKDIR/Bin"		 	# Rollback bin directory
 readonly ROLLBACKFIRMWAREDIR="$ROLLBACKDIR/Firmware"	# Rollback firmware directory
 readonly PTSFILE="$TMPBINDIR/PTS"		 		# PTS file
 readonly SLAVEUPDATEFILE="$TMPBINDIR/SlaveUpdate.js"	# Slave update java script file
 readonly REBOOTFILE="$SETTINGDIR/Reboot.txt"		# Reboot.txt file present on device
 
-readonly FINDBINDIR="bin/"				# Path of bin directory folder - used for md5checksum
+readonly FINDBINDIR="Bin/"				# Path of bin directory folder - used for md5checksum
 readonly FINDFIRMWAREDIR="Firmware/"				# Path of Firmware directory folder - used for md5checksum
 readonly FINDSETTINGDIR="Settings/"				# Path of Settings directory folder - used for md5checksum
 
