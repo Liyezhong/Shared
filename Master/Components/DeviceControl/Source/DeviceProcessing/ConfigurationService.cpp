@@ -49,6 +49,7 @@
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/Utils.h"
 
 namespace DeviceControl
 {
@@ -503,6 +504,10 @@ CBaseModule* CConfigurationService::CreateAndGetCANNode(qint16 sCANNodeType, qin
 {
     CBaseModule* pCANNode = 0;
     pCANNode = new CBaseModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, sCANNodeType, sCANNodeIndex);
+
+    // Register Signal-Signal forwarding
+    CONNECTSIGNALSIGNAL(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                        m_pDeviceProcessing->GetParent(), ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
     return pCANNode;
 }
 
@@ -522,6 +527,10 @@ void CConfigurationService::CreateAndAddFunctionModule(CBaseModule* pCANNode, CM
     ReturnCode_t RetValFctModule;
     TFunctionModule* pFunctionModule = 0;
     pFunctionModule = new TFunctionModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, pCANNode);
+
+    // Register Signal-Signal forwarding
+    CONNECTSIGNALSIGNAL(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                        m_pDeviceProcessing->GetParent(), ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
 
     pFunctionModule->SetCANConfiguration(pCANObjectConfigFct);
     RetValFctModule = pFunctionModule->Initialize();

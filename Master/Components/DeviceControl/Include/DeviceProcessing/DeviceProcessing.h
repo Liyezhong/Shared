@@ -98,6 +98,9 @@ public:
     //! Return the hardware config file name
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
 
+    //! Return the parent object 
+	QObject* GetParent() const { return mp_Parent; }
+
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout);
     void ResumeFromSyncCall(SyncCmdType_t CmdType,  ReturnCode_t RetCode);
@@ -355,6 +358,7 @@ private:
     struct timeb m_tbTimerHeartbeatTime;    //!< Measurement of heartbeat interval
     void CheckMasterHeartbeat();
 
+	QObject* mp_Parent;					//!< Parent Object 
     quint32  m_ulCANNodeIDMaster;       //!< Master CAN-Node ID
     quint32  m_ulCanIDMasterHeartbeat;  //!< CAN-ID master heartbeat
 
