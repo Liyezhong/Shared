@@ -506,8 +506,8 @@ CBaseModule* CConfigurationService::CreateAndGetCANNode(qint16 sCANNodeType, qin
     pCANNode = new CBaseModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, sCANNodeType, sCANNodeIndex);
 
     // Register Signal-Signal forwarding
-    CONNECTSIGNALSIGNAL(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
-                        m_pDeviceProcessing->GetParent(), ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(pCANNode, ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime),
+                      m_pDeviceProcessing->GetParent(), OnError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
     return pCANNode;
 }
 
@@ -529,8 +529,8 @@ void CConfigurationService::CreateAndAddFunctionModule(CBaseModule* pCANNode, CM
     pFunctionModule = new TFunctionModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, pCANNode);
 
     // Register Signal-Signal forwarding
-    CONNECTSIGNALSIGNAL(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
-                        m_pDeviceProcessing->GetParent(), ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(pFunctionModule, ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime),
+                      m_pDeviceProcessing->GetParent(), OnError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
 
     pFunctionModule->SetCANConfiguration(pCANObjectConfigFct);
     RetValFctModule = pFunctionModule->Initialize();

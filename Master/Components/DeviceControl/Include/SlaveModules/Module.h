@@ -125,8 +125,7 @@ public:
     /****************************************************************************/
     QString GetKey() const { return m_pCANObjectConfig->m_strKey; }
 
-    /// \todo rename to InstanceID
-    quint32 GetModuleHandle();
+    DevInstanceID_t GetModuleHandle();
 
     /****************************************************************************/
     /**
@@ -153,7 +152,7 @@ signals:
      *  \iparam ErrorTime = Error time
      */
     /****************************************************************************/
-    void ReportError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    void ReportError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
 
 protected:
     void HandleCANMsgError(can_frame* pCANframe);

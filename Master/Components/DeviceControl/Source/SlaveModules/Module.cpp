@@ -154,9 +154,9 @@ void CModule::StopTimeDelay()
  *  \return The module handle
  */
 /****************************************************************************/
-quint32 CModule::GetModuleHandle()
+DevInstanceID_t CModule::GetModuleHandle()
 {
-    quint32 moduleHandle = 0;
+    quint32 moduleHandle = DEVICE_INSTANCE_ID_UNDEFINED;
 
     if(m_pCANObjectConfig)
     {
@@ -165,7 +165,7 @@ quint32 CModule::GetModuleHandle()
         moduleHandle |= (((quint32)m_pCANObjectConfig->m_sChannel) << 16);
     }
 
-    return moduleHandle;
+    return static_cast<DevInstanceID_t>(moduleHandle);
 }
 
 /****************************************************************************/

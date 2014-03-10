@@ -169,7 +169,10 @@ signals:
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
-
+public slots:
+    //! Get error information from DeviceProcessing
+    void OnError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+                 quint16 usErrorData, QDateTime timeStamp);
 private slots:
     //! Task handling
     void HandleTasks();
@@ -181,10 +184,6 @@ private slots:
     void OnConfigurationFinished(ReturnCode_t);
     //! Forward the 'normal operation mode started' notification
     void OnStartNormalOperationMode(ReturnCode_t);
-
-    //! Get error information from DeviceProcessing
-    void OnError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
-                 quint16 usErrorData, QDateTime timeStamp);
     //! Get error information from DeviceProcessing
     void OnErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
                          quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
