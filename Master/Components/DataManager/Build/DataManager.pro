@@ -28,6 +28,7 @@ SOURCES += ../Helper/Source/*.cpp \
  ../Containers/UserSettings/Source/*.cpp \
  ../Containers/UserSettings/Commands/Source/*.cpp \
  ../Containers/InstrumentHistory/Source/*.cpp \
+ ../Containers/InstrumentHistory/Commands/Source/*.cpp \
  ../CommandInterface/Source/*.cpp \
  ../Source/*.cpp \
  ../Containers/RCConfiguration/Source/*.cpp \

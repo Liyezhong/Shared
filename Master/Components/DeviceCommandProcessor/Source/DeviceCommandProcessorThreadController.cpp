@@ -106,7 +106,7 @@ void DeviceCommandProcessorThreadController::DestroyObjects()
 /****************************************************************************/
 void DeviceCommandProcessorThreadController::OnGoReceived() {
     if (m_pDeviceProcessing) {
-        m_pDeviceProcessing->Start();
+        //m_pDeviceProcessing->Start();
     }
 }
 
