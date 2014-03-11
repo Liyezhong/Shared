@@ -599,6 +599,29 @@ void UnMountStorageDevice();
 /****************************************************************************/
 void DumpToConsole(const QString StringToDump);
 
+/****************************************************************************/
+/**
+ * \brief  Thread Priority types
+ *
+ */
+/****************************************************************************/
+typedef enum {
+    LOW_PRIO = 1, //!< Thread running as LOW_PRIO would only run when the processor would otherwise be idle
+    BATCH_PRIO, //!< Batch style execution
+    DEFAULT_PRIO, //!< default prio -> simple round robin mechanism
+    HIGH_PRIO, //!< Thread will be given more priority -> real time round robin mechanism
+}ThreadPrio_t;
+
+/****************************************************************************/
+/**
+ * \brief  This function sets the priority for a running thread.
+ * //!\warning Setting thread priority can lead to race conditions!
+ *
+ * \iparam ThreadPriority = Low/Default/High
+ */
+/****************************************************************************/
+void SetThreadPriority(const ThreadPrio_t ThreadPriority);
+
 } // end namespace Global
 
 #endif // GLOBAL_UTILS_H

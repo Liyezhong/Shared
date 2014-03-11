@@ -53,10 +53,11 @@ DataLoggingThreadController::DataLoggingThreadController(quint32 ThreadID,
     m_oPowerFail(false),
     m_EventLoggerMaxFileSize(0),
     m_DayEventLoggerMaxFileCount(0),
-    m_DayEventLogger(NULL, "DataLogging", FileNamePrefix),
+    mp_DayEventLogger(NULL),
     m_pEventFilterNetworkServer(NULL) {
-
+    mp_DayEventLogger = new DayEventLogger(this, "DataLogging",FileNamePrefix);
     qRegisterMetaType<DataLogging::DayEventEntry>("DataLogging::DayEventEntry");
+    m_ImmediateLog = false;
 
 }
 
@@ -72,6 +73,7 @@ DataLoggingThreadController::~DataLoggingThreadController() {
 /****************************************************************************/
 void DataLoggingThreadController::CreateAndInitializeObjects() {
 
+    Global::EventObject::Instance().RaiseEvent(Global::EVENT_THREAD_CREATE_AND_INITIALIZE, Global::FmtArgs() << "Datalogging controller");
 #if !defined QT_NO_DEBUG
     // create network filter server but only in debug mode
     m_pEventFilterNetworkServer = new EventFilterNetworkServer(this, 9876);
@@ -89,11 +91,12 @@ void DataLoggingThreadController::CreateAndInitializeObjects() {
         }
     }
 
-    m_DayEventLogger.Configure(DayEventLoggerConfig(m_OperatingMode,
+    mp_DayEventLogger->Configure(DayEventLoggerConfig(m_OperatingMode,
                                                     m_SerialNumber,
                                                     Global::SystemPaths::Instance().GetLogfilesPath(),
                                                     m_DayEventLoggerMaxFileCount,
                                                     m_EventLoggerBaseFileName));
+    mp_DayEventLogger->FlushDataToFile(m_ImmediateLog);
     RegisterAcknowledgeForProcessing<Global::AckOKNOK, DataLoggingThreadController>
             (&DataLoggingThreadController::OnAcknowledge, this);
     RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequest, DataLoggingThreadController>
@@ -111,19 +114,21 @@ void DataLoggingThreadController::CleanupAndDestroyObjects() {
 
 /****************************************************************************/
 void DataLoggingThreadController::OnGoReceived() {
+    Global::EventObject::Instance().RaiseEvent(Global::EVENT_THREAD_ON_GO_RECEIVED, Global::FmtArgs() << "Datalogging controller");
+    Global::SetThreadPriority(Global::LOW_PRIO);
     // nothing to do
 }
 
 /****************************************************************************/
 void DataLoggingThreadController::OnStopReceived() {
-    m_DayEventLogger.CloseFile();
+    mp_DayEventLogger->CloseFile();
 }
 
 /****************************************************************************/
 void DataLoggingThreadController::OnPowerFail(const Global::PowerFailStages PowerFailStage) {
     // switch to state power fail
     if (PowerFailStage == Global::POWER_FAIL_STAGE_2) {
-        m_DayEventLogger.CloseFile();
+        mp_DayEventLogger->CloseFile();
         m_oPowerFail = true;
     }
 }
@@ -139,13 +144,13 @@ void DataLoggingThreadController::OnAcknowledge(Global::tRefType Ref, const Glob
 void DataLoggingThreadController::SendToDayEventLogger(const DayEventEntry &Entry) {
     // silently discard entry if power fails
     if(!m_oPowerFail) {
-        m_DayEventLogger.Log(Entry);
+        mp_DayEventLogger->Log(Entry);
     }
 }
 
 /****************************************************************************/
 void DataLoggingThreadController::CheckLoggingEnabled() {
-    m_DayEventLogger.CheckLoggingEnabled();
+    mp_DayEventLogger->CheckLoggingEnabled();
 }
 
 
@@ -198,6 +203,8 @@ void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref,
     QByteArray FileContent;
 
     QFile File;
+    // first flush the data to disk then do further processing
+    mp_DayEventLogger->FlushToDisk();
     // check the user level - for service user raw data (event log) shall be displayed
     switch(Cmd.GetUserLevel()) {
         case Global::SERVICE:
@@ -208,7 +215,7 @@ void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref,
             }
             break;
         default:
-        {
+        {            
             DayLogFileInformation *p_DayRunFilesInformation = NULL;
             // create object to create the file
             p_DayRunFilesInformation = new DayLogFileInformation(Global::SystemPaths::Instance().GetLogfilesPath(),
@@ -234,6 +241,8 @@ void DataLoggingThreadController::OnExportDayRunLogRequest(Global::tRefType Ref,
     Q_UNUSED(Cmd);
     // send the acknowledgement
     SendAcknowledgeOK(Ref);
+    // first flush the data to disk then do further processing
+    mp_DayEventLogger->FlushToDisk();
     // create object to create the file
     DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath(),
                                                  Cmd.GetFolderPath(), m_EventLoggerBaseFileName + m_SerialNumber + STRINGUNDERSCORE);
