@@ -109,7 +109,7 @@ public:
     quint8  m_bEnabled;     //!< Enabled flag
     quint8  m_bTimeStamp;   //!< Time stamp flag
     quint16 m_sPolarity;    //!< input polarity
-    quint16 m_sThreshold; //!< Supervision flag
+    quint16 m_sThreshold; //!< Threshold flag
     quint8  m_bInterval;    //!< Read intervall
     quint8  m_bDebounce;    //!< Input value debounce setting
 };
