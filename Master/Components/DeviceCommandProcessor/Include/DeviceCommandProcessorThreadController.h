@@ -26,7 +26,7 @@
 
 //Adaption to device processing
 //#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
-
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 //#include "HimalayaDataContainer/Include/DataManager.h"
 
 #include <QMutex>
@@ -200,7 +200,7 @@ protected:
                                  QStringList& CommandNameList);
 
 private:
-    ReturnCode_t ReqRFIDData(LoaderRFIDChannel_t RfidChannel);
+    //ReturnCode_t ReqRFIDData(LoaderRFIDChannel_t RfidChannel);
 
 
 
