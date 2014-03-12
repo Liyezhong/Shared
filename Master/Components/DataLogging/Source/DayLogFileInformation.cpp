@@ -37,6 +37,7 @@ namespace DataLogging {
 
 const char DELIMITER_SEMICOLON              = ';';///< Delimiter for semicolon
 const char DELIMITER_UNDERSCORE             = '_';///< Delimiter for underscore
+const char DELIMITER_COLON                  = ':';///< Delimiter for colon
 const QString FLAG_VALUE                    = "true";///< user log flag value
 const QString EMPTY_STRING                  = "";///< empty string
 const QString STRING_NEWLINE                = "\n";///< new line
@@ -53,12 +54,6 @@ const QString COMMAND_ARGUMENT_R            = "-rf"; ///< constant string for th
 const QString COMMAND_RM                    = "rm "; ///< constant string for the command 'rm'
 
 // event type translations
-const QString STRING_UNDEFINEDTYPE          = "Undefined Type"; ///< string for undefined event type
-const QString STRING_FATAL_ERROR            = "FatalError"; ///< string for fatal error event type
-const QString STRING_ERROR                  = "Error"; ///< string for error type
-const QString STRING_WARNING                = "Warning"; ///< string for warning type
-const QString STRING_INFO                   = "Info"; ///< string for information type
-const QString STRING_DEBUG                  = "Debug"; ///< string for debug event type
 const QString STRING_RESOLVED               = "Resolved:"; ///< string for resolved
 const QString STRING_ACKNOWLEDGED           = "Acknowledged by user:"; ///< string for acknowledged
 // constants for wildcharacters
@@ -78,10 +73,27 @@ const qint32 EVENTSTRING_PARAMETERS         = 6; ///< event log parameters numbe
 /****************************************************************************/
 DayLogFileInformation::DayLogFileInformation(QString FilePath, QString DailyRunLogPath, QString FileNamePrefix) :
     m_LogFilePath(FilePath), m_DailyRunLogPath(DailyRunLogPath), m_FileNamePrefix(FileNamePrefix) {
+
+    // Store the events in the list so that these can be tranlsated in other languages
+    m_ListOfEventIds << Global::EVENT_GLOBAL_STRING_ID_RESOLVED
+                     << Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED;
+
+
+    /// These events are more like concatenation of a string e.g "User acknowledged by pressing button". Here the button
+    /// name should be placed.
+    /// So these events also needs to be translated. These are stored in the below list
+    m_ListOfBtnEventIds << EVENT_USER_ACK_BUTTON_OK
+                        << EVENT_USER_ACK_BUTTON_CANCEL
+                        << EVENT_USER_ACK_BUTTON_YES
+                        << EVENT_USER_ACK_BUTTON_NO
+                        << EVENT_USER_ACK_BUTTON_CONTINUE
+                        << EVENT_USER_ACK_BUTTON_STOP;
+
+
     // store the event ids which needs to be translated when the daily run log file is created
     // these events are required when-ever the mode is changed for Water type, RMS state, Oven start mode
     // and Heated cuvvette mode.
-    /// These events are events more like arguments for e.g "Mode is changed to %1". Here "%1" is a argument
+    /// These events are more like arguments for e.g "Mode is changed to %1". Here "%1" is a argument
     /// This "%1" will be replaced with english string. So for the translated file it should not be english
     /// So these events also needs to be translated. These are stored in the below list
     m_EventIDs << Global::EVENT_GLOBAL_USER_ACTIVITY_US_WATER_TYPE_CHANGED
@@ -137,7 +149,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
                             (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(1)).toInt(),
                                                         TranslateStringList), UseAlternateText);
 
-                    if (EventData.compare(EMPTY_STRING) == 0 || EventData.contains(TRANSLATE_RETURN_VALUE_1) ||
+                    if (EventData.isEmpty() || EventData.contains(TRANSLATE_RETURN_VALUE_1) ||
                           EventData.compare("\"" + QString(ReadData.split(DELIMITER_SEMICOLON).
                                                            value(EVENTSTRING_EVENTID)) +"\":") == 0 ||
                           EventData.compare(QString(ReadData.split(DELIMITER_SEMICOLON).
@@ -145,16 +157,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
 
                         // get the event string from the file
                         EventData = ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_EVENTSTRING);
-                        // check the starting value
-                        if (EventData.startsWith(STRING_ACKNOWLEDGED)) {
-                            // only replace the starting text not all the text
-                            EventData = EventData.mid(0, STRING_ACKNOWLEDGED.length()).replace(STRING_ACKNOWLEDGED, "")
-                                    + EventData.mid(STRING_ACKNOWLEDGED.length());
-                        }
-                        else if (EventData.startsWith(STRING_RESOLVED)) {
-                            EventData = EventData.mid(0, STRING_RESOLVED.length()).replace(STRING_RESOLVED, "")
-                                    + EventData.mid(STRING_RESOLVED.length());
-                        }
+
                         // raise the event if the event id does not exist in the event string file
                         Global::EventObject::Instance().RaiseEvent
                                 (EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
@@ -274,7 +277,7 @@ bool DayLogFileInformation::CheckAndTranslateTheEventID(const QString &Translate
         EventType = Global::UITranslator::TranslatorInstance().Translate(EventIDList.value(Index));
         QString Value = "\"" + QString::number(EventIDList.value(Index)) +"\":";
         // did not find the event type in the translator
-        if (EventType.compare(EMPTY_STRING) == 0 || EventType.contains(TRANSLATE_RETURN_VALUE_1) ||
+        if (EventType.isEmpty() || EventType.contains(TRANSLATE_RETURN_VALUE_1) ||
               EventType.compare(Value) == 0 ||
               EventType.compare(QString::number(EventIDList.value(Index))) == 0) {
             Global::EventObject::Instance().RaiseEvent
@@ -301,8 +304,12 @@ void DayLogFileInformation::TranslateEventType(const QString &TranslatedString) 
     QString EventType;
 
     // first store all the events in the string list
-    EventTypeList << STRING_UNDEFINEDTYPE << STRING_FATAL_ERROR << STRING_ERROR << STRING_WARNING
-                  << STRING_INFO << STRING_DEBUG;
+    EventTypeList << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED)
+                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR)
+                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR)
+                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING)
+                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO)
+                  << Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG);
     // store all the event Ids in the list
     EventTypeIDList << Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED
                     << Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR
@@ -317,7 +324,7 @@ void DayLogFileInformation::TranslateEventType(const QString &TranslatedString) 
         EventType = Global::UITranslator::TranslatorInstance().Translate(EventTypeIDList.value(Index));
         QString Value = "\"" + QString::number(EventTypeIDList.value(Index)) +"\":";
         // did not find the event type in the translator
-        if (EventType.compare(EMPTY_STRING) == 0 || EventType.contains(TRANSLATE_RETURN_VALUE_1) ||
+        if (EventType.isEmpty() || EventType.contains(TRANSLATE_RETURN_VALUE_1) ||
               EventType.compare(Value) == 0 ||
               EventType.compare(QString::number(EventTypeIDList.value(Index))) == 0) {
             Global::EventObject::Instance().RaiseEvent
@@ -339,43 +346,65 @@ void DayLogFileInformation::TranslateEventType(const QString &TranslatedString) 
 /****************************************************************************/
 bool DayLogFileInformation::FindAndTranslateNonActiveText(const QString &TranslatedString) {
 
-    quint32 EventID;
-    bool IsAcknowledged = false;
     // check the starting value
-    if (TranslatedString.startsWith(STRING_ACKNOWLEDGED)) {
-        EventID = Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED;
-        IsAcknowledged = true;
-    }
-    else if (TranslatedString.startsWith(STRING_RESOLVED)) {
-        EventID = Global::EVENT_GLOBAL_STRING_ID_RESOLVED;
-    }
-    else {
-        // this event is not a non active event
-        return false;
-    }
+    foreach (quint32 EventIdValue, m_ListOfEventIds) {
+        QString Value = "\"" + QString::number(EventIdValue) +"\":";
 
-    // check the event type exist in the list- if it available then translate it
-    QString NonActiveEventText = Global::UITranslator::TranslatorInstance().Translate(EventID);
-    QString Value = "\"" + QString::number(EventID) +"\":";
-    // did not find the event type in the translator
-    if (NonActiveEventText.compare(EMPTY_STRING) == 0 || NonActiveEventText.contains(TRANSLATE_RETURN_VALUE_1) ||
-          NonActiveEventText.compare(Value) == 0 ||
-          NonActiveEventText.compare(QString::number(EventID)) == 0) {
-        Global::EventObject::Instance().RaiseEvent
-                (EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
-                 Global::FmtArgs() << EventID, true);
-        // event ID does not exist, so we will keep the same string
-        if (IsAcknowledged) {
-            NonActiveEventText = STRING_ACKNOWLEDGED;
+        // get the english text
+        QString NonActiveEventText = Global::EventTranslator::TranslatorInstance().Translate(EventIdValue);
+
+        if (!NonActiveEventText.isEmpty() && TranslatedString.startsWith(NonActiveEventText)) {
+            // get the tranlsated text for the current language
+            QString NonActiveEventTranslatedText = Global::UITranslator::TranslatorInstance().Translate(EventIdValue);
+            // did not find the event type in the translator
+            if (NonActiveEventTranslatedText.isEmpty() || NonActiveEventTranslatedText.contains(TRANSLATE_RETURN_VALUE_1) ||
+                  NonActiveEventTranslatedText.compare(Value) == 0 ||
+                  NonActiveEventTranslatedText.compare(QString::number(EventIdValue)) == 0) {
+                // raise the event if event not available and log it
+                Global::EventObject::Instance().RaiseEvent
+                        (EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
+                         Global::FmtArgs() << EventIdValue, true);
+                // if the event ID does not exist then we retain english text
+                NonActiveEventTranslatedText = NonActiveEventText;
+            }
+
+            // if the string consists of "User acknowleged by pressing button" then string needs to append the
+            // button value to the string
+            if (Global::EventTranslator::TranslatorInstance().Translate(
+                        Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED).compare(NonActiveEventText) == 0) {
+                QString ButtonValue = TranslatedString.mid(NonActiveEventText.length()).trimmed().split(DELIMITER_COLON).value(0);
+                // check the starting value
+                foreach (quint32 BtnEventIdValue, m_ListOfBtnEventIds) {
+                    // get the english string for the button value
+                    QString BtnName = Global::EventTranslator::TranslatorInstance().Translate(BtnEventIdValue);
+                    if (BtnName.compare(ButtonValue) == 0) {
+                        QString Value = "\"" + QString::number(EventIdValue) +"\":";
+                        QString TranlatedButtonText = Global::UITranslator::TranslatorInstance().
+                                Translate(BtnEventIdValue);
+                        // did not find the event type in the translator
+                        if (TranlatedButtonText.isEmpty() || TranlatedButtonText.contains(TRANSLATE_RETURN_VALUE_1) ||
+                              TranlatedButtonText.compare(Value) == 0 ||
+                              TranlatedButtonText.compare(QString::number(BtnEventIdValue)) == 0) {
+                            // raise the event if event not available and log it
+                            Global::EventObject::Instance().RaiseEvent
+                                    (EVENT_DATALOGGING_ERROR_EVENT_ID_NOT_EXISTS,
+                                     Global::FmtArgs() << BtnEventIdValue, true);
+                            // if the event ID does not exist then we retain english text
+                            TranlatedButtonText = BtnName;
+                        }
+                        NonActiveEventTranslatedText += STRING_SPACE + TranlatedButtonText + DELIMITER_COLON + STRING_SPACE;
+                        break;
+                    }
+                }
+                const_cast<QString&>(TranslatedString) = NonActiveEventTranslatedText;
+
+                return true;
+
+            }
         }
-        else {
-            NonActiveEventText = STRING_RESOLVED;
-        }
     }
 
-    const_cast<QString&>(TranslatedString) = NonActiveEventText;
-
-    return true;
+    return false;
 }
 
 

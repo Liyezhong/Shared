@@ -33,7 +33,7 @@
 namespace DataLogging {
 
 /****************************************************************************/
-BaseLoggerReusable::BaseLoggerReusable(Global::EventObject *pParent,
+BaseLoggerReusable::BaseLoggerReusable(QObject *pParent,
                                        const QString & TheLoggingSource, int FormatVersion) :
     BaseLogger(pParent, TheLoggingSource, FormatVersion) {
 }

@@ -153,7 +153,7 @@ public:
      * \iparam   FormatVersion       Format version for output file.
      */
     /****************************************************************************/
-    BaseLoggerReusable(Global::EventObject *pParent, const QString &TheLoggingSource, int FormatVersion);
+    BaseLoggerReusable(QObject *pParent, const QString &TheLoggingSource, int FormatVersion);
 
     /****************************************************************************/
     /**
