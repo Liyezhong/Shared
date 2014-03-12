@@ -1935,9 +1935,9 @@ QString HardwareConfiguration::GetLabelFromObjectType(const CModuleConfig::CANOb
  *  \return Device instance ID as DevInstanceID_t
  */
 /****************************************************************************/
-DevInstanceID_t HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
+quint32 HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
 {
-    DevInstanceID_t DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
+    quint32 DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;
 
     switch (DeviceValue)
     {

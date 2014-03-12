@@ -645,7 +645,7 @@ public:
     }
 
     QString m_Type;                     //!< device type
-    DevInstanceID_t m_InstanceID;       //!< Instance id
+    quint32 m_InstanceID;       //!< Instance id
     bool m_Optional;                    //!< optional device
     quint8 m_OrderNr;                   //!< creation order number
     DeviceFctModList m_DevFctModList;   //!< list of the function modules need by the device

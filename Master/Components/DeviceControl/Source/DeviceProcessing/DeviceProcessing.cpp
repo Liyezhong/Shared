@@ -184,28 +184,6 @@ void DeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 E
 
 /****************************************************************************/
 /*!
- *  \brief  Forwards the error information from a device to IDeviceProcessing
- *
- *      The function forwards the error information to the IDeviceProcessing interface class
- *      (which finally throws the signal assigned to the errors)
- *
- *  \iparam InstanceID = The instance identifier of the device class which brought up the error
- *  \iparam ErrorGroup = Error group ID of the thrown error
- *  \iparam ErrorID = Error ID of the thrown error
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Time of error detection
- */
-/****************************************************************************/
-void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID,
-                                  quint16 ErrorData, QDateTime ErrorTime)
-{
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << (int) InstanceID <<
-                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
-}
-
-/****************************************************************************/
-/*!
  *  \brief  Forwards the error information from a function module to IDeviceProcessing
  *
  *      The function forwards the error information to the IDeviceProcessing interface class
@@ -223,7 +201,7 @@ void DeviceProcessing::ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint1
 {
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -249,7 +227,7 @@ void DeviceProcessing::ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
     //emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
-    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -1840,7 +1818,7 @@ void DeviceProcessing::Initialize()
  *  \return CBaseDevice* matches the parameter
  */
 /****************************************************************************/
-CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
+CBaseDevice* DeviceProcessing::GetDevice(quint32 InstanceID)
 {
     QListIterator<CBaseDevice*> iter(m_DeviceList);
     CBaseDevice* pDevice;

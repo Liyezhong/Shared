@@ -90,7 +90,7 @@ public:
     ReturnCode_t StartAdjustmentService();
 
     //! Returns Device derived class pointer specified by instanceID
-    CBaseDevice* GetDevice(DevInstanceID_t InstanceID);
+    CBaseDevice* GetDevice(quint32 InstanceID);
     //! Return the pointer to the CBaseModule which is next in list
     CBaseModule* GetNode(bool First);
     //Air liquid device funcs
@@ -155,23 +155,23 @@ public:
     ReturnCode_t IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos);
 signals:
     //! Forward the 'intitialisation finished' notification
-    void ReportInitializationFinished(DevInstanceID_t, ReturnCode_t);
+    void ReportInitializationFinished(quint32, ReturnCode_t);
     //! Forward the 'configuration finished' notification
-    void ReportConfigurationFinished(DevInstanceID_t, ReturnCode_t);
+    void ReportConfigurationFinished(quint32, ReturnCode_t);
     //! Forward the 'normal operation mode started' notification
-    void ReportStartNormalOperationMode(DevInstanceID_t, ReturnCode_t);
+    void ReportStartNormalOperationMode(quint32, ReturnCode_t);
 
     //! Forward error information
-    void ReportError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+    void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                      quint16 usErrorData, QDateTime timeStamp);
     //! Forward error information
-    void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+    void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
 public slots:
     //! Get error information from DeviceProcessing
-    void OnError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+    void OnError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                  quint16 usErrorData, QDateTime timeStamp);
 private slots:
     //! Task handling
@@ -185,7 +185,7 @@ private slots:
     //! Forward the 'normal operation mode started' notification
     void OnStartNormalOperationMode(ReturnCode_t);
     //! Get error information from DeviceProcessing
-    void OnErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID,
+    void OnErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                          quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
     //! Device control layer diagnostic service acknwoledge
@@ -226,7 +226,7 @@ private:
     quint16 m_reqTaskParameter1;                    //!< Task parameter 1
     quint16 m_reqTaskParameter2;                    //!< Task parameter 2
 
-    DevInstanceID_t m_instanceID;                   //!< Instance identification
+    quint32 m_instanceID;                   //!< Instance identification
     CRotaryValveDevice *m_pRotaryValve;             //!< Rotary Valve device
     CAirLiquidDevice *m_pAirLiquid;                 //!< Air-liquid device
     CRetortDevice *m_pRetort;                       //!< Retort device

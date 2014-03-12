@@ -462,30 +462,27 @@ typedef qint16 Speed_t;            //!< stepper motor speed, [half steps/sec]
 typedef quint8 MotionProfileIdx_t; //!< stepper motor motion profile index
 
 /*! Device instance ID definitions */
-typedef enum {
-    DEVICE_INSTANCE_ID_UNDEFINED      = 0x00000000,  //!< undefine. used for initialization
-    DEVICE_INSTANCE_ID_DEVPROC        = 0x00008000,  //!< the device processing itself
-    DEVICE_INSTANCE_ID_GRAPPLER_1     = 0x00008010,  //!< the left grappler
-    DEVICE_INSTANCE_ID_GRAPPLER_2     = 0x00008011,  //!< the right grappler
-    DEVICE_INSTANCE_ID_LOADER         = 0x00008020,  //!< loader
-    DEVICE_INSTANCE_ID_UNLOADER       = 0x00008021,  //!< unloader
-    //DEVICE_INSTANCE_ID_OVEN           = 0x00008030,  //!< oven
-    DEVICE_INSTANCE_ID_HVESSELS       = 0x00008040,  //!< heated vessels
-    DEVICE_INSTANCE_ID_AGITATION      = 0x00008050,  //!< agitation
-    DEVICE_INSTANCE_ID_RACKTRANSFER   = 0x00008060,  //!< rack transfer
-    DEVICE_INSTANCE_ID_EXHAUST        = 0x00008070,  //!< exhaust, includes fan control an supervision
-    DEVICE_INSTANCE_ID_WATER          = 0x00008080,  //!< water, six valves and the liquid level sensor
-    DEVICE_INSTANCE_ID_INCLINOMETER   = 0x00008090,  //!< inclination
-    DEVICE_INSTANCE_ID_COVERLINE_1    = 0x000080A0,  //!< cover line unit 1
-    DEVICE_INSTANCE_ID_COVERLINE_2    = 0x000080A1,  //!< cover line unit 2
-    DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0,  //!< rack handling
-    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,  //!< device cover (hood)
-    DEVICE_INSTANCE_ID_ROTARY_VALVE   = 0x000080C0,   //!< Rotary valve
-    DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1,   //!< Air liquid system
-    DEVICE_INSTANCE_ID_OVEN           = 0x000080C2,   //!< Oven
-    DEVICE_INSTANCE_ID_RETORT         = 0x000080C3,   //!< Retort
-    DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4    //!< Main Control
-} DevInstanceID_t;
+const quint32 DEVICE_INSTANCE_ID_UNDEFINED      = 0x00000000;  //!< undefine. used for initialization
+const quint32 DEVICE_INSTANCE_ID_DEVPROC        = 0x00008000;  //!< the device processing itself
+const quint32 DEVICE_INSTANCE_ID_GRAPPLER_1     = 0x00008010;  //!< the left grappler
+const quint32 DEVICE_INSTANCE_ID_GRAPPLER_2     = 0x00008011;  //!< the right grappler
+const quint32 DEVICE_INSTANCE_ID_LOADER         = 0x00008020;  //!< loader
+const quint32 DEVICE_INSTANCE_ID_UNLOADER       = 0x00008021;  //!< unloader
+const quint32 DEVICE_INSTANCE_ID_HVESSELS       = 0x00008040;  //!< heated vessels
+const quint32 DEVICE_INSTANCE_ID_AGITATION      = 0x00008050;  //!< agitation
+const quint32 DEVICE_INSTANCE_ID_RACKTRANSFER   = 0x00008060;  //!< rack transfer
+const quint32 DEVICE_INSTANCE_ID_EXHAUST        = 0x00008070;  //!< exhaust, includes fan control an supervision
+const quint32 DEVICE_INSTANCE_ID_WATER          = 0x00008080;  //!< water, six valves and the liquid level sensor
+const quint32 DEVICE_INSTANCE_ID_INCLINOMETER   = 0x00008090;  //!< inclination
+const quint32 DEVICE_INSTANCE_ID_COVERLINE_1    = 0x000080A0;  //!< cover line unit 1
+const quint32 DEVICE_INSTANCE_ID_COVERLINE_2    = 0x000080A1;  //!< cover line unit 2
+const quint32 DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0;  //!< rack handling
+const quint32 DEVICE_INSTANCE_ID_HOOD           = 0x000080B1;  //!< device cover (hood)
+const quint32 DEVICE_INSTANCE_ID_ROTARY_VALVE   = 0x000080C0;   //!< Rotary valve
+const quint32 DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1;   //!< Air liquid system
+const quint32 DEVICE_INSTANCE_ID_OVEN           = 0x000080C2;   //!< Oven
+const quint32 DEVICE_INSTANCE_ID_RETORT         = 0x000080C3;   //!< Retort
+const quint32 DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4;   //!< Main Control
 
 /*! Air-liquid device's temperature control function module*/
 typedef enum {
