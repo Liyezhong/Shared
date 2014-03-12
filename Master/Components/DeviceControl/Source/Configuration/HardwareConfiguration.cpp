@@ -768,9 +768,33 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
 
     pCANObjFctDigitInEntry = new CANFctModuleDigitInput();
     pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitInEntry->m_bEnabled < 0)||(pCANObjFctDigitInEntry->m_bEnabled >65535)) {
+        delete pCANObjFctDigitInEntry;
+        pCANObjFctDigitInEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitInEntry;
+    }
+#endif
     pCANObjFctDigitInEntry->m_bTimeStamp = strTimestamp.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitInEntry->m_sPolarity < 0)||(pCANObjFctDigitInEntry->m_sPolarity >65535)) {
+        delete pCANObjFctDigitInEntry;
+        pCANObjFctDigitInEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitInEntry;
+    }
+#endif
     pCANObjFctDigitInEntry->m_sThreshold = strThreshold.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitInEntry->m_sThreshold < 0)||(pCANObjFctDigitInEntry->m_sThreshold >65535)) {
+        delete pCANObjFctDigitInEntry;
+        pCANObjFctDigitInEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitInEntry;
+    }
+#endif
     pCANObjFctDigitInEntry->m_bInterval = strInterval.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toShort(&ok, 10);
 
@@ -811,11 +835,51 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
     pCANObjFctDigitOutEntry = new CANFctModuleDigitOutput();
 
     pCANObjFctDigitOutEntry->m_bEnabled           = strEnabled.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_bEnabled < 0)||(pCANObjFctDigitOutEntry->m_bEnabled >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_bInaktivAtShutdown < 0)||(pCANObjFctDigitOutEntry->m_bInaktivAtShutdown >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop < 0)||(pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_sPolarity          = strPolarity.toShort(&ok, 10);
     pCANObjFctDigitOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_sOutvalInactiv < 0)||(pCANObjFctDigitOutEntry->m_sOutvalInactiv >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_sLivetimeLimit < 0)||(pCANObjFctDigitOutEntry->m_sLivetimeLimit >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
 
     return pCANObjFctDigitOutEntry;
 }
