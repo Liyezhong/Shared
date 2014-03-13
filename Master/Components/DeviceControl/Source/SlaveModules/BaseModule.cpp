@@ -1329,6 +1329,9 @@ void CBaseModule::HandleCommandRequestTask()
                 m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
 
+                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                                 Global::AdjustedTime::Instance().GetCurrentDateTime());
+
                 if(m_ModuleCommand[idx].Type == CN_CMD_SET_NODE_STATE)
                 {
                     FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString() << "': SetNodeState timeout error.";
