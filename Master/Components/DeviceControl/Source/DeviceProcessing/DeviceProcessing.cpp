@@ -826,6 +826,8 @@ ReturnCode_t DeviceProcessing::InitCommunication()
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     qint16 sResult;
     Can2TcpClient* pClient;
+    CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                        this->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
 
     if(m_TcpInterface == "1")
     {

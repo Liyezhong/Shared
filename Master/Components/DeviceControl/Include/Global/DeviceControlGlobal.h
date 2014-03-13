@@ -204,6 +204,10 @@ typedef enum {
     DCL_ERR_UNEXPECTED_BREAK      = 23,   //!< Current program was breaked by other program
     DCL_ERR_SNYC_CALL_BUSY        = 24,   //!< Current program was breaked by other program
     DCL_ERR_TIMER_TIMEOUT         = 25,
+    DCL_ERR_CANCOMMUTOR_START				= 0x0026,
+    DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN		= 0x0027,
+    DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT		= 0x0028,
+    DCL_ERR_CANCOMMUTOR_COMM_FAILED			= 0x0029,
 
     DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_DIGITAL_SIGNAL_0), //!< Get level sensor state 0
     DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_DIGITAL_SIGNAL_1), //!< Get level sensor state 1
@@ -483,6 +487,7 @@ const quint32 DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1;   //!< Air liquid 
 const quint32 DEVICE_INSTANCE_ID_OVEN           = 0x000080C2;   //!< Oven
 const quint32 DEVICE_INSTANCE_ID_RETORT         = 0x000080C3;   //!< Retort
 const quint32 DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4;   //!< Main Control
+const quint32 DEVICE_INSTANCE_ID_CAN_COMMUTOR   = 0x000080C5;   //!< CAN Communicator 
 
 /*! Air-liquid device's temperature control function module*/
 typedef enum {
