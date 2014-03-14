@@ -156,7 +156,7 @@ void CModule::StopTimeDelay()
 /****************************************************************************/
 quint32 CModule::GetModuleHandle()
 {
-    quint32 moduleHandle = 0;
+    quint32 moduleHandle = DEVICE_INSTANCE_ID_UNDEFINED;
 
     if(m_pCANObjectConfig)
     {

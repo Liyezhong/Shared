@@ -45,6 +45,8 @@ private:
     QString                     m_LogFilePath;                      ///< Path of the event log files
     QString                     m_DailyRunLogPath;                  ///< Pah of the daily run log files
     QString                     m_FileNamePrefix;                   ///< Prefix of the file name
+    QList<quint32>              m_ListOfEventIds;                  ///< To store common string event Ids e.g. Resolved, Acknowledged by user
+    QList<quint32>              m_ListOfBtnEventIds;               ///< To store button string event Ids e.g. OK, Cancel etc.
     QList<quint32>              m_EventIDs;                         ///< Store the event ids
 
 

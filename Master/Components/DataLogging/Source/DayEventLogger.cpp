@@ -36,11 +36,12 @@ namespace DataLogging {
 static const int DAYEVENTLOGGER_FORMAT_VERSION = 1;     ///< Format version.
 
 /****************************************************************************/
-DayEventLogger::DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource,
+DayEventLogger::DayEventLogger(QObject *pParent, const QString & TheLoggingSource,
                                const QString& FileNamePrefix)
     : BaseLoggerReusable(pParent, TheLoggingSource, DAYEVENTLOGGER_FORMAT_VERSION)
     , m_MaxFileCount(0)
     , m_FileNamePrefix(FileNamePrefix)  /*e.g. 'Leica_ST_'*/ {
+    m_FlushImmediately = false;
 
 }
 
@@ -171,6 +172,8 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             case NetCommands::NO_BUTTON:
             ButtonEventName = EVENT_USER_ACK_BUTTON_NO;
             break;
+        default:
+            break;
         }
 
         TrEventMessage = Global::EventTranslator::TranslatorInstance().Translate(Global::EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED)
@@ -227,10 +230,16 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
         {
             CreateTemporaryLogFile();
         }
+        /// m_FlushImmediately flag sets true then thread (Means who uses data logging)
+        /// wants to flush the data immediately, so need not require to change the data
+        bool FlushData = m_FlushImmediately;
+        if (!FlushData) {
+            FlushData = (EventType != Global::EVTTYPE_INFO ? true : false);
+        }
 
         // append data to file and flush
         //qDebug() << "DayEventLogger::Log" << LoggingString;
-        AppendLine(LoggingString);
+        AppendLine(LoggingString, FlushData);
     }
 
 }
@@ -250,6 +259,12 @@ void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
     // switch to new file
     SwitchToNewFile();
 
+}
+
+
+/****************************************************************************/
+void DayEventLogger::FlushDataToFile(bool Enable) {
+    m_FlushImmediately = Enable;
 }
 
 /****************************************************************************/

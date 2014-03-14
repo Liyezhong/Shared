@@ -29,11 +29,13 @@
 #include <deque>
 #include <QMutex>
 #include <QObject>
+#include <QDateTime>
 
 #include <sys/socket.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
+#include "Global/Include/AdjustedTime.h"
 
 namespace DeviceControl
 {
@@ -59,8 +61,9 @@ typedef std::deque <can_frame> COBDeque;
  *      object.
  */
 /****************************************************************************/
-class CANCommunicator
+class CANCommunicator : public QObject
 {
+    Q_OBJECT
 public:
     CANCommunicator();
     virtual ~CANCommunicator();
@@ -103,6 +106,9 @@ public:
     bool IsInMessagePending();
     can_frame PopPendingOutMessage();
     can_frame PopPendingInMessage();
+signals:
+    //! Forward error information to IDeviceProcessing
+    void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
 
 private:
     CANReceiveThread*  m_pCANReceiveThread;     ///< receive thread

@@ -322,14 +322,14 @@ void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, 
     QString FuncModName = "";
     if(m_pDevProc)
     {
-        QList<DevInstanceID_t> list;
+        QList<quint32> list;
         list <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
               << DEVICE_INSTANCE_ID_AIR_LIQUID
               << DEVICE_INSTANCE_ID_OVEN
               << DEVICE_INSTANCE_ID_RETORT
               << DEVICE_INSTANCE_ID_MAIN_CONTROL;
 
-        DevInstanceID_t id;
+        quint32 id;
         foreach (id, list)
         {
             CBaseDevice* pBaseDevice;

@@ -44,6 +44,7 @@ private:
     QDate   m_LastLogDateBackUp;      ///< Backup of lastlog date
     int     m_MaxFileCount;     ///< Maximal file count. 0 means no maximal file count monitoring!
     QString m_FileNamePrefix;   ///< Prefix of the file name
+    bool m_FlushImmediately;           ///< Flush the data to disk as soon as it receives the data
     /****************************************************************************/
     /****************************************************************************/
     /**
@@ -110,7 +111,7 @@ public:
      * \iparam   FileNamePrefix      Prefix of the file name
      */
     /****************************************************************************/
-    DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& FileNamePrefix);
+    DayEventLogger(QObject *pParent, const QString & TheLoggingSource, const QString& FileNamePrefix);
 
     /****************************************************************************/
     /**
@@ -131,6 +132,15 @@ public:
     /****************************************************************************/
     void Configure(const DataLogging::DayEventLoggerConfig &Config);
 
+    /****************************************************************************/
+    /**
+     * \brief Flush the data immediately
+     *
+     * \iparam   Enable      Logs the data immediately.
+     */
+    /****************************************************************************/
+    void FlushDataToFile(bool Enable);
+
 
     /****************************************************************************/
     /**
@@ -148,6 +158,7 @@ public:
     /**
      * \brief Checks whether data logging enabled. If not enabled then it raises
      *        event to GUI
+     *
      */
     /****************************************************************************/
     void CheckLoggingEnabled();

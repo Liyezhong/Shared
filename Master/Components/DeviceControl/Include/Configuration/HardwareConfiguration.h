@@ -95,7 +95,7 @@ private:
     //! Parse device element from xml
     BaseDeviceConfiguration* ParseDeviceElement(const QDomElement &element, quint8 orderNrDevice);
 
-    DevInstanceID_t GetDeviceIDFromValue(quint32 DeviceValue);
+    quint32 GetDeviceIDFromValue(quint32 DeviceValue);
 
     // The list contains all the CANObjectConfiguration* instance addresses
     //! List of object configuration objects (data container)

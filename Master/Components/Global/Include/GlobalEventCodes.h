@@ -25,36 +25,22 @@
 
 namespace Global {
 
-//const quint32 EVENT_GLOBAL_UNDEFINED                        = EVENT_GROUP_PLATFORM_GLOBAL + 0xFFFF; ///< undefined. Used for initialisations
 const quint32 EVENT_GLOBAL_UNKNOWN_STRING_ID                = EVENT_GROUP_PLATFORM_GLOBAL + 0x0001; ///< Unknown string id: %1.
 const quint32 EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION          = EVENT_GROUP_PLATFORM_GLOBAL + 0x0002; ///< Unknown exception caught: file: %1 line: %2.
 const quint32 EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION          = EVENT_GROUP_PLATFORM_GLOBAL + 0x0003; ///< Memory allocation error: file: %1 line: %2.
 const quint32 EVENT_GLOBAL_ERROR_NULL_POINTER               = EVENT_GROUP_PLATFORM_GLOBAL + 0x0004; ///< Pointer is NULL: %1 file: %2 line: %3.
-//const quint32 EVENT_GLOBAL_ERROR_NOT_NULL_POINTER           = EVENT_GROUP_PLATFORM_GLOBAL + 0x0005; ///< Pointer is not NULL: %1 file: %2 line: %3.
 const quint32 EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED       = EVENT_GROUP_PLATFORM_GLOBAL + 0x0006; ///< Signal not connected: %1.
 const quint32 EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT        = EVENT_GROUP_PLATFORM_GLOBAL + 0x0007; ///< Error connecting signal %1::%2 to slot %3::%4 in file: %5 line: %6.
 const quint32 EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT      = EVENT_GROUP_PLATFORM_GLOBAL + 0x0008; ///< Error connecting signal %1::%2 to signal %3::%4 in file: %5 line: %6.
-//const quint32 EVENT_GLOBAL_ERROR_INVOKEMETHOD               = EVENT_GROUP_PLATFORM_GLOBAL + 0x0009; ///< Call of invokeMethod for method '%1' in object '%2' failed.
-const quint32 EVENT_GLOBAL_ERROR_READ_CONFIG_FILE           = EVENT_GROUP_PLATFORM_GLOBAL + 0x000A; ///< Error reading config file %1.
 const quint32 EVENT_GLOBAL_ERROR_MONOTONIC_CLOCK            = EVENT_GROUP_PLATFORM_GLOBAL + 0x000B; ///< Error reading monotonic clock.
-const quint32 EVENT_GLOBAL_ERROR_FALLBACK_LANGUAGE          = EVENT_GROUP_PLATFORM_GLOBAL + 0x000C; ///< Could not set fallback language to '%1'.
 const quint32 EVENT_GLOBAL_ERROR_FILE_CREATE                = EVENT_GROUP_PLATFORM_GLOBAL + 0x000D; ///< Error creating file %1.
 const quint32 EVENT_GLOBAL_ERROR_FILE_OPEN                  = EVENT_GROUP_PLATFORM_GLOBAL + 0x000E; ///< Error opening file %1.
-const quint32 EVENT_GLOBAL_ERROR_FILE_REMOVE                = EVENT_GROUP_PLATFORM_GLOBAL + 0x000F; ///< Error deleting file %1.
-const quint32 EVENT_GLOBAL_ERROR_FILE_WRITE                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x0010; ///< Error writing data: File %1. %2 bytes of %3 written.
-const quint32 EVENT_GLOBAL_ERROR_FILE_FLUSH                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x0011; ///< Error flushing file %1.
-const quint32 EVENT_GLOBAL_ERROR_FILE_RENAME                = EVENT_GROUP_PLATFORM_GLOBAL + 0x0012; ///< Error could not rename file %1 to %2.
-const quint32 EVENT_GLOBAL_ERROR_FILE_SEEK                  = EVENT_GROUP_PLATFORM_GLOBAL + 0x0013; ///< Error seeking in file %1.
-const quint32 EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE      = EVENT_GROUP_PLATFORM_GLOBAL + 0x0014; ///< Time offset is too large '%1' seconds. Allowed: '%2' seconds.
-const quint32 EVENT_GLOBAL_ERROR_READING_SERIAL_NUMBER      = EVENT_GROUP_PLATFORM_GLOBAL + 0x0015; ///< Error reading serial number.
 const quint32 EVENT_GLOBAL_ERROR_COMPUTING_NEW_REF          = EVENT_GROUP_PLATFORM_GLOBAL + 0x0016; ///< Unable to compute new command ref.
 const quint32 EVENT_GLOBAL_ERROR_SIGNAL_RECEIVED            = EVENT_GROUP_PLATFORM_GLOBAL + 0x0017; ///< We have an unexpected signal (possibly crash)
 const quint32 EVENT_GLOBAL_UNCAUGHT_EXCEPTION               = EVENT_GROUP_PLATFORM_GLOBAL + 0x0018; ///< We have catched an unexpected exception
 const quint32 EVENT_GLOBAL_EXCEPTION                        = EVENT_GROUP_PLATFORM_GLOBAL + 0x0019; ///< We have catched an application exception
 const quint32 EVENT_GLOBAL_STD_EXCEPTION                    = EVENT_GROUP_PLATFORM_GLOBAL + 0x001A; ///< We have catched an std exception
-const quint32 EVENT_GLOBAL_NETWORK_INIT_FAILED              = EVENT_GROUP_PLATFORM_GLOBAL + 0x001B; ///< Network initialization is failed
 
-//const quint32 EVENT_GLOBAL_DUMMY_ERROR                      = EVENT_GROUP_PLATFORM_GLOBAL + 0xFFFE; ///< Dummy error. Should be replaced by correct error. File: %1 line: %2.
 
 // log user activities of the data manager starts from 0x0200
 /// don't start the number for events(EVENT_GROUP_PLATFORM_GLOBAL) from 0x0200
@@ -74,7 +60,7 @@ const quint32 EVENT_GLOBAL_USER_ACTIVITY_WHITE_RACK_PROGRAM_ASSOCIATED  = EVENT_
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_ADMIN_LOGIN                    = EVENT_GROUP_PLATFORM_GLOBAL + 0x020D; ///< Administrator Login
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_OPERATOR_LOGIN                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x020E; ///< Operator Login
 const quint32 EVENT_GLOBAL_RMS_ACTIVITY_STATION_DC_UPDATED              = EVENT_GROUP_PLATFORM_GLOBAL + 0x0210; ///< Station DC updated by RMS
-const quint32 EVENT_GLOBAL_RMS_ACTIVITY_STATION_DC_UPDATE_FAILED        = EVENT_GROUP_PLATFORM_GLOBAL + 0x0211; ///< Station DC updation by RMS failed
+const quint32 EVENT_GLOBAL_CMS_ACTIVITY_STATION_DC_UPDATED              = EVENT_GROUP_PLATFORM_GLOBAL + 0x0211; ///< Station DC updated by CMS
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_BATHLAYOUT_CHANGE_FAILED       = EVENT_GROUP_PLATFORM_GLOBAL + 0x0212; ///< Bathlayout changed by user
 const quint32 EVENT_GLOBAL_USER_ACTIVITY_BATHLAYOUT_CHANGED             = EVENT_GROUP_PLATFORM_GLOBAL + 0x0213; ///< Bathlayout change by user failed
 
@@ -115,14 +101,14 @@ const quint32 EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR          = EVENT_GROUP_PLATFO
 const quint32 EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING        = EVENT_GROUP_PLATFORM_GLOBAL + 0x1004; ///< Warning
 const quint32 EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO           = EVENT_GROUP_PLATFORM_GLOBAL + 0x1005; ///< Info
 const quint32 EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG          = EVENT_GROUP_PLATFORM_GLOBAL + 0x1006; ///< Debug
-//const quint32 EVENT_GLOBAL_STRING_ID_EVTSTAT_ON             = EVENT_GROUP_PLATFORM_GLOBAL + 0x1007; ///< On
-//const quint32 EVENT_GLOBAL_STRING_ID_EVTSTAT_OFF            = EVENT_GROUP_PLATFORM_GLOBAL + 0x1008; ///< Off
 const quint32 EVENT_GLOBAL_STRING_TERMINATING               = EVENT_GROUP_PLATFORM_GLOBAL + 0x1009; ///< Terminating software.
-const quint32 EVENT_GLOBAL_SET_DATE_TIME                    = EVENT_GROUP_PLATFORM_GLOBAL + 0x100A; ///< Setting date / time to '%1'.
 const quint32 EVENT_GLOBAL_CURRENT_TIME_OFFSET              = EVENT_GROUP_PLATFORM_GLOBAL + 0x100B; ///< Current time offset is '%1' seconds.
-const quint32 EVENT_GLOBAL_POWER_FAIL                       = EVENT_GROUP_PLATFORM_GLOBAL + 0x100C; ///< Power fail.
 const quint32 EVENT_GLOBAL_STRING_ID_RESOLVED               = EVENT_GROUP_PLATFORM_GLOBAL + 0x100D; ///< Resolved:
 const quint32 EVENT_GLOBAL_STRING_ID_ACKNOWLEDGED           = EVENT_GROUP_PLATFORM_GLOBAL + 0x100E; ///< Acknowledged by user:
+
+const quint32 EVENT_SHUTDOWN_REQUEST_TOUSER                 = EVENT_GROUP_PLATFORM_GLOBAL + 0x100F; ///< ask user to shutdown
+const quint32 EVENT_SHUTDOWN_ON_SYSTEM_ERROR                = EVENT_GROUP_PLATFORM_GLOBAL + 0x1010; ///< shutdown the system
+
 
 // string IDs for Export
 // Event codes for the Export process
@@ -159,8 +145,17 @@ const quint32 EVENT_EXPORT_ZIP_ERROR                                        = EV
 const quint32 EVENT_EXPORT_ZIP_COMMAND_NOT_FOUND                            = EVENT_GROUP_PLATFORM_EXPORT + 0x001F; ///< Zip command not found in the system
 const quint32 EVENT_EXPORT_ZIP_IS_TAKING_LONGTIME                           = EVENT_GROUP_PLATFORM_EXPORT + 0x0020; ///< zip is taking long time to complete the request
 const quint32 EVENT_EXPORT_STOPPED_FOREVER                                  = EVENT_GROUP_PLATFORM_EXPORT + 0x0021; ///< Export process stopped working forever
+const quint32 EVENT_EXPORT_UNABLE_TO_CREATE_FILE_CMS_STATUS                 = EVENT_GROUP_PLATFORM_EXPORT + 0x0022; ///< Unable to create the CMS_Status.csv file
+
 
 const quint32 EVENT_COVERGLASS_REFILL                                       = EVENT_GROUP_SHARED_EVENTS + 0x0001; ///< Fill coverglass and/or mountant
+const quint32 EVENT_STOP_ACCEPT_NEW_RACK                                    = EVENT_GROUP_SHARED_EVENTS + 0x0002; ///< Stop accepting new racks/data
+const quint32 EVENT_THREAD_ON_GO_RECEIVED                                   = EVENT_GROUP_SHARED_EVENTS + 0x0003; ///< Debug message: %1 thread on go received
+const quint32 EVENT_THREAD_CREATE_AND_INITIALIZE                            = EVENT_GROUP_SHARED_EVENTS + 0x0004; ///< Debug message: %1 thread create and initialize is called
+const quint32 EVENT_THREAD_CONTROL_STARTED                                  = EVENT_GROUP_SHARED_EVENTS + 0x0005; ///< Debug message: Specific thread controller %1 is started
+                                                                                                                  ///< (For Device command processor-0x0101,Gui-0x0102,Scheduler-0x0103,ImportExport Thread-0x0104,Export-0x0105,Sepia-0x0106,BLG-0x0107)
+
+
 
 
 } // end namespace Global

@@ -360,4 +360,50 @@ void DumpToConsole(const QString StringToDump) {
 #endif
 }
 
+void SetThreadPriority(const ThreadPrio_t ThreadPriority)
+{
+    int ReturnVal;
+    // We'll operate on the currently running thread.
+    pthread_t this_thread = pthread_self();
+
+    // struct sched_param is used to store the scheduling priority
+    struct sched_param params;
+
+    if (ThreadPriority == LOW_PRIO) {
+        //For schedule idle, priority must be set to 0, else
+        //setting priority will fail.
+        params.__sched_priority = 0;
+
+        // Attempt to set thread priority to the SCHED_IDLE policy
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_IDLE | SCHED_RESET_ON_FORK, &params);
+    }
+    else if (ThreadPriority == HIGH_PRIO) {
+        // We'll set the priority to the maximum.
+        params.sched_priority = sched_get_priority_min(SCHED_RR);
+
+        // Attempt to set thread real-time priority to the SCHED_FIFO policy
+        //SCHED_RESET_ON_FORK -> Reset prio to SCHED_OTHER for child processes and threads.
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_RR | SCHED_RESET_ON_FORK, &params);
+    }
+    else if (ThreadPriority == BATCH_PRIO) {
+        params.sched_priority = 0;
+
+        // Attempt to set thread priority to the SCHED_BATCH policy
+        //SCHED_RESET_ON_FORK -> Reset prio to SCHED_OTHER for child processes and threads.
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_BATCH | SCHED_RESET_ON_FORK, &params);
+    }
+    else {
+        params.sched_priority = 0;
+
+        // Attempt to set thread priority to the SCHED_OTHER policy
+        //SCHED_RESET_ON_FORK -> Reset prio to SCHED_OTHER for child processes and threads.
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_OTHER | SCHED_RESET_ON_FORK, &params);
+    }
+    if (ReturnVal != 0) {
+        // Print the error
+        std::cout << "Unsuccessful in setting thread realtime prio" << std::endl;
+    }
+
+}
+
 } // end namespace Global

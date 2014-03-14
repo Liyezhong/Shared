@@ -118,6 +118,11 @@ qint16 CANCommunicator::StartComm(const char* ifaceCAN)
             FILE_LOG_L(laINIT, llDEBUG) << " start transmit thread: " << m_pCANTransmitThread;
             m_pCANTransmitThread->start();
         }
+        else
+        {
+            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_START, DCL_ERR_CANCOMMUTOR_START,
+                             DCL_ERR_CANCOMMUTOR_START,Global::AdjustedTime::Instance().GetCurrentDateTime());
+        }
     }
     else
     {
@@ -126,6 +131,9 @@ qint16 CANCommunicator::StartComm(const char* ifaceCAN)
 
         if (!m_pClient->Initialize()) {
             FILE_LOG_L(laINIT, llDEBUG) << "  CANCommunicator ERROR: cannot initialize TCP-Client... ";
+            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
+                             DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
+                             Global::AdjustedTime::Instance().GetCurrentDateTime());
             sReturn = -1;
         }
         else
@@ -237,6 +245,11 @@ qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
         /// \todo open with iface
         sRetval = m_pCANInterface->Open(ifaceCAN);
         FILE_LOG_L(laINIT, llDEBUG) << " can open returns " <<  sRetval;
+        if (sRetval < 0)
+        {
+            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN, DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,
+                             DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,Global::AdjustedTime::Instance().GetCurrentDateTime());
+        }
     }
 
     return sRetval;
@@ -252,6 +265,8 @@ qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
 /****************************************************************************/
 void CANCommunicator::SetCommunicationError(qint16 nError, qint16 nErrorAdditionalInfo)
 {
+    emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_COMM_FAILED, DCL_ERR_CANCOMMUTOR_COMM_FAILED,
+                     DCL_ERR_CANCOMMUTOR_COMM_FAILED,Global::AdjustedTime::Instance().GetCurrentDateTime());
     //pthread_mutex_lock( &mutexCOB );
     if(nError != m_nErrorCode)
     {
@@ -402,6 +417,11 @@ ReturnCode_t CANCommunicator::SendCOB(can_frame& canmsg)
         retval = DCL_ERR_CANBUS_ERROR; // in case of an existing error, the message will not be send
     }
 
+    if (DCL_ERR_FCT_CALL_SUCCESS != retval)
+    {
+        emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, retval, retval, retval,
+                         Global::AdjustedTime::Instance().GetCurrentDateTime());
+    }
     return retval;
 
 }

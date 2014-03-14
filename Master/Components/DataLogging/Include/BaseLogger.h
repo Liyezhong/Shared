@@ -78,14 +78,6 @@ private:
     /****************************************************************************/
     void CheckEventRepeatingForTempFile();
 
-private slots:
-    /****************************************************************************/
-    /**
-     * \brief Flush the data to disk
-     *
-     */
-    /****************************************************************************/
-    void FlushToDisk();
 protected:
     /****************************************************************************/
     /**
@@ -240,18 +232,6 @@ protected:
         return TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz");
     }
 
-    /****************************************************************************/
-    /**
-     * \brief Get current time stamp as string.
-     *
-     * The format is suitable for writing the header information. "yyyy-MM-dd hh:mm:ss.zzz"
-     *
-     * \return  Current time stamp.
-     */
-    /****************************************************************************/
-    inline QString GetTimeStampHeader() const {
-        return Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
-    }
 
     /****************************************************************************/
     /**
@@ -266,18 +246,16 @@ protected:
         return Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyyMMdd");
     }
 
-    /****************************************************************************/
-    /**
-     * \brief Append a line to current open log file.
-     *
-     * Append a line to current open log file. The trailing "\n" is also appended.
-     *
-     * \iparam   Line    line to append (without trailing "\n")
-     */
-    /****************************************************************************/
-    void AppendLine(QString Line);
 
 public:
+    /****************************************************************************/
+    /**
+     * \brief Flush the data to disk
+     *
+     */
+    /****************************************************************************/
+    void FlushToDisk();
+
     /****************************************************************************/
     /**
      * \brief Constructor.
@@ -287,7 +265,7 @@ public:
      * \iparam   FormatVersion       Format version for output file.
      */
     /****************************************************************************/
-    BaseLogger(Global::EventObject *pParent, const QString &TheLoggingSource, int FormatVersion);
+    BaseLogger(QObject *pParent, const QString &TheLoggingSource, int FormatVersion);
 
     /****************************************************************************/
     /**
@@ -297,6 +275,31 @@ public:
      */
     /****************************************************************************/
     virtual ~BaseLogger() {
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Append a line to current open log file.
+     *
+     * Append a line to current open log file. The trailing "\n" is also appended.
+     *
+     * \iparam   Line           line to append (without trailing "\n")
+     * \iparam   FlushData      Flush the data to disk
+     */
+    /****************************************************************************/
+    void AppendLine(QString Line, bool FlushData = true);
+
+    /****************************************************************************/
+    /**
+     * \brief Get current time stamp as string.
+     *
+     * The format is suitable for writing the header information. "yyyy-MM-dd hh:mm:ss.zzz"
+     *
+     * \return  Current time stamp.
+     */
+    /****************************************************************************/
+    inline QString GetTimeStampHeader() const {
+        return Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
     }
 
     /****************************************************************************/
@@ -316,6 +319,8 @@ public:
         m_RequiredToFlush = false;        
         m_File.setFileName("");
     }
+
+
 }; // end class BaseLogger
 
 } // end namespace DataLogging

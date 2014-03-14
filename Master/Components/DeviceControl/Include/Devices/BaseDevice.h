@@ -82,7 +82,7 @@ public:
      *  \return Instance identifier
      */
     /*****************************************************************************/
-    DevInstanceID_t GetInstanceID() const { return m_instanceID; }
+    quint32 GetInstanceID() const { return m_instanceID; }
 
     /*****************************************************************************/
     /*!
@@ -165,7 +165,7 @@ protected:
     quint16      m_lastErrorData;           ///< additional error data, filled by the error causing functionality
     QDateTime    m_lastErrorTime;           ///< time of error detection
 
-    DevInstanceID_t m_instanceID;           ///< identifier for instance identification
+    quint32 m_instanceID;           ///< identifier for instance identification
 
     Global::MonotonicTime m_stateTimer;     ///< timer for timeout observation
     qint16 m_stateTimespan;                 ///< max. time delay of current active timeout observation

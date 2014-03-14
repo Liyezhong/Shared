@@ -58,8 +58,9 @@ private:
     QString                     m_SerialNumber;                     ///< Serial number.
     qint64                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
-    DayEventLogger              m_DayEventLogger;               ///< Day operation logger.
+    DayEventLogger              *mp_DayEventLogger;               ///< Day operation logger.
     EventFilterNetworkServer    *m_pEventFilterNetworkServer;       ///< Socket server for EventFilter.
+    bool                        m_ImmediateLog;                     ///< Flag for immediate logging
     /****************************************************************************/
     /****************************************************************************/
     /**
@@ -183,6 +184,21 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief Enables immediate logging.
+     *        This is required by few components where it wants to flush the data
+     *        as soon as event receives by data logging. By default this option is
+     *        disabled. But can be enabled by calling this interface with true as
+     *        as argument.
+     *
+     * \iparam   Enable   Enables the flag.
+     */
+    /****************************************************************************/
+    inline void EnableImmediateLogging(bool Enable = false) {
+        m_ImmediateLog = Enable;
+    }
+
+    /****************************************************************************/
+    /**
      * \brief Set base of file name for even logging.
      *
      * \iparam   EventLoggerBaseFileName     Base of file name for even logging.
@@ -262,7 +278,6 @@ public slots:
      */
     /****************************************************************************/
     void CheckLoggingEnabled();
-
 
 }; // end class DataLoggingThreadController
 

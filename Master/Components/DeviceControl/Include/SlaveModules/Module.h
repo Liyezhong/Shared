@@ -125,7 +125,6 @@ public:
     /****************************************************************************/
     QString GetKey() const { return m_pCANObjectConfig->m_strKey; }
 
-    /// \todo rename to InstanceID
     quint32 GetModuleHandle();
 
     /****************************************************************************/

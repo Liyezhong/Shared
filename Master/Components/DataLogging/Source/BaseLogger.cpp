@@ -31,7 +31,8 @@
 namespace DataLogging {
 
 /****************************************************************************/
-BaseLogger::BaseLogger(Global::EventObject *pParent, const QString & LoggingSource, int FormatVersion) :
+BaseLogger::BaseLogger(QObject *pParent, const QString & LoggingSource, int FormatVersion) :
+    QObject(pParent),
     m_LoggingSource(LoggingSource),
     m_FormatVersion(FormatVersion),
     m_FlushEventCount(0),
@@ -58,7 +59,7 @@ void BaseLogger::CreateNewFile(const QString &FileName) {
     m_IsEventRepeated = false;
     m_RequiredToFlush = false;
     // flush the data if data is written to file
-    QTimer::singleShot(10000, this, SLOT(FlushToDisk()));
+//    QTimer::singleShot(10000, this, SLOT(FlushToDisk()));
 
     // do not log creation of file in here, since it may be the event log file and
     // the header is not created at this point!
@@ -89,6 +90,7 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
             m_FlushEventCount = 0;
             // don't log the data - disable permanently
             Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED);
+            Global::EventObject::Instance().RaiseEvent(Global::EVENT_STOP_ACCEPT_NEW_RACK);
             return;
         }
         else {
@@ -100,12 +102,10 @@ void BaseLogger::OpenFileForAppend(const QString &FileName) {
     m_FlushEventCount = 0;
     m_IsEventRepeated = false;
     m_RequiredToFlush = false;
-    // flush the data if data is written to file
-    QTimer::singleShot(10000, this, SLOT(FlushToDisk()));
 }
 
 /****************************************************************************/
-void BaseLogger::AppendLine(QString Line) {
+void BaseLogger::AppendLine(QString Line, bool FlushData) {
     // log file is having some problem in writing the data
     if (IsLogFileError()) {                
         return;
@@ -136,6 +136,10 @@ void BaseLogger::AppendLine(QString Line) {
         // reset the counter
         m_WriteFileEventCount = 0;
     }
+    // for warnings and errors data shall be flushed immediately
+    if (FlushData) {
+        FlushToDisk();
+    }
 }
 
 /****************************************************************************/
@@ -156,7 +160,6 @@ void BaseLogger::FlushToDisk() {
             m_FlushEventCount = 0;
         }
     }
-    QTimer::singleShot(10000, this, SLOT(FlushToDisk()));
 }
 
 

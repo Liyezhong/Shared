@@ -88,7 +88,6 @@ public:
     DeviceProcessing(QObject *p_Parent);
     virtual ~DeviceProcessing();
 
-    void ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
     void ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
     void ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime, QString ErrorInfo);
 
@@ -97,6 +96,9 @@ public:
 
     //! Return the hardware config file name
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
+
+    //! Return the parent object 
+	QObject* GetParent() const { return mp_Parent; }
 
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout);
@@ -147,7 +149,7 @@ public:
     void AddDevice(CBaseDevice* pBaseDevice) { m_DeviceList.insert(m_DeviceList.size(), pBaseDevice); }
 
     //! Returns a device from the internal list
-    CBaseDevice* GetDevice(DevInstanceID_t InstanceID);
+    CBaseDevice* GetDevice(quint32 InstanceID);
 
     //! Active the specified task
     ReturnCode_t ActivateTask(DeviceProcTask::TaskID_t taskID, quint16 taskParameter1, quint16 taskParameter2);
@@ -205,9 +207,9 @@ signals:
     void ReportStartNormalOperationMode(ReturnCode_t);
 
     //! Forward error information to IDeviceProcessing
-    void ReportError(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
+    void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
     //! Forward error information to IDeviceProcessing
-    void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
+    void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
     //! Forward the 'Diagnostics service closed' to IDeviceProcessing
     void ReportDiagnosticServiceClosed(qint16 DiagnosticResult);
@@ -355,6 +357,7 @@ private:
     struct timeb m_tbTimerHeartbeatTime;    //!< Measurement of heartbeat interval
     void CheckMasterHeartbeat();
 
+	QObject* mp_Parent;					//!< Parent Object 
     quint32  m_ulCANNodeIDMaster;       //!< Master CAN-Node ID
     quint32  m_ulCanIDMasterHeartbeat;  //!< CAN-ID master heartbeat
 

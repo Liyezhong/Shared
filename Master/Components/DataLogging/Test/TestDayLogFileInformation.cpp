@@ -193,9 +193,9 @@ void TestDayLogFileInformation::utCheckTranslations() {
                                          DayLogFileData.m_EventIDs, EmptyNameList), false);
 
 
-    QString TestString(STRING_UNDEFINEDTYPE);
+    QString TestString("UndefinedType");
     DayLogFileData.TranslateEventType(TestString);
-    QCOMPARE(TestString, STRING_UNDEFINEDTYPE);
+    QCOMPARE(TestString, QString("UndefinedType"));
 }
 
 } // end namespace DataLogging
