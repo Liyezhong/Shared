@@ -515,7 +515,7 @@ typedef enum {
 /*! \class CANObjectKeyLUT
  *
  *  \brief this classes elements containing the can object keys, used for
- *         object identification by string at the colorado project
+ *         object identification by string at the himalaya project
  *
  */
 /****************************************************************************/
@@ -554,6 +554,7 @@ public:
     //!< can object IDs, used for identification by Id
     typedef enum
     {
+        FCTMOD_INVALID                = 0x0000,   //!< node invalid
 
         FCTMOD_RV_MOTOR               = 0x30003,  //!< Rotary valve motor
         FCTMOD_RV_TEMPCONTROL         = 0x40003,  //!< Rotary valve temperature control
@@ -581,5 +582,6 @@ public:
 }
 
 Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
+Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
 
 #endif /* DEVICE_CONTROL_GLOBAL_H */
