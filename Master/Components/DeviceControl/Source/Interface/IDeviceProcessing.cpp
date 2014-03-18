@@ -1303,7 +1303,7 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
 /*!
  *  \brief   Request the rotary valve to move to its initial position.
  *
- *  \return  DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
@@ -1328,7 +1328,7 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
  *
  *  \iparam  RVPosition = Target rotary valve encoder disk's position.
  *
- *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
@@ -1904,7 +1904,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal basePressure = 1.4;
 
         retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
-        if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
@@ -1933,7 +1933,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             basePressure = 0.6;
         }
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
-        if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
@@ -1944,22 +1944,22 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         if(pressure < (0.4 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_EMPTY ;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY ;
             LOG()<<"Bottle Check: Empty";
         }
         else if(pressure < (0.7 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_INSUFFICIENT;
             LOG()<<"Bottle Check: Leakage or Not Full";
         }
         else if(pressure < (2 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_OK;
+            retCode = DCL_ERR_FCT_CALL_SUCCESS;
             LOG()<<"Bottle Check: OK";
         }
         else
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_BLOCKAGE;
             LOG()<<"Bottle Check: Blockage";
         }
 

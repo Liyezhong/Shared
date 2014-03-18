@@ -741,7 +741,7 @@ ReturnCode_t CRotaryValveDevice::SetTemperatureControlStatus(TempCtrlStatus_t Te
     }
     else
     {
-        return DCL_ERR_DEV_RV_NOT_INITIALIZED;
+        return DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR;
     }
 }
 
@@ -1110,13 +1110,13 @@ bool CRotaryValveDevice::IsOutsideRange()
 /*!
  *  \brief   Request the rotary valve to move to its initial position.
  *
- *  \return  DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
 {
     QString lsCode;
-    ReturnCode_t RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS;
+    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     bool ParaChange = false;
     //reconfig for original position
     if(GetConfigLS2Exists()==0)
@@ -1164,7 +1164,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
         //Log(tr("Already At Initial Position, No Need To Move!"));
         //Log("Already At Initial Position, No Need To Move!");
         LOG()<< "Error when read LS code";
-        RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
+        RetValue = DCL_ERR_DEV_RV_MOTOR_CANNOTGET_ORIGINALPOSITION;
         return RetValue;
     }
 #if 1
@@ -1174,7 +1174,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
     RetValue = DoReferenceRun();
 #endif
     lsCode = GetLimitSwitchCode();
-    if(refRunRet == DCL_ERR_DEV_RV_REF_MOVE_OK)
+    if(refRunRet == DCL_ERR_FCT_CALL_SUCCESS)
     {
         quint32 retry = 0;
         while((lsCode != "3")&&(retry++ < 3))
@@ -1192,7 +1192,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
         {
             SetEDPosition(RV_UNDEF);
             SetPrevEDPosition(RV_UNDEF);
-            RetValue = DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS;
+            RetValue = DCL_ERR_DEV_RV_MOTOR_CANNOTGET_ORIGINALPOSITION;
             LOG() << "Hit unexpected position, please retry!";
         }
     }
@@ -1228,12 +1228,12 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
  *  \iparam  LowerLimit = The lower limit of the movement to initial position.
  *  \iparam  UpperLimit = The upper limit of the movement to initial position.
  *
- *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit, quint32 UpperLimit)
 {
-    ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
+    ReturnCode_t ret = DCL_ERR_FCT_CALL_SUCCESS;
 
     bool stop = false;
     quint8 retry = 0;
@@ -1266,14 +1266,14 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
             {
                 //  Log(tr("Motor moving retry time exceed %1, may be stucked!").arg(REFER_RUN_RETRY_TIME));
                 LOG()<<"Motor moving retry time exceed "<< retry <<"may be stucked!";
-                ret = DCL_ERR_DEV_RV_MOVE_EXCEED_LOWER_LIMIT;
+                ret = DCL_ERR_DEV_RV_MOTOR_INTERNALSTEPS_RETRY;
             }
         }
         else if(Step > UpperLimit)
         {
             //  Log(tr("Warning: Motor moving steps exceed upper limit: %1!").arg(UpperLimit));
             LOG() << "Warning: Motor moving steps exceed upper limit: " << UpperLimit;
-            ret = DCL_ERR_DEV_RV_MOVE_EXCEED_UPPER_LIMIT;
+            ret = DCL_ERR_DEV_RV_MOTOR_INTERNALSTEPS_EXCEEDUPPERLIMIT;
         }
 
     }
@@ -1287,12 +1287,12 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
  *
  *  \iparam  RVPosition = Target rotary valve encoder disk's position.
  *
- *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
 {
-    ReturnCode_t retCode = DCL_ERR_DEV_RV_REF_MOVE_OK;
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     RVPosition_t EDPosition = GetEDPosition();
     RVPosition_t PrevEDPosition = GetPrevEDPosition();
     quint32 MoveSteps = 0;
@@ -1313,7 +1313,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             {
                 //Log(tr("Limit Switch code are not stable!"));
                 LOG() << "Limit Switch code are not stable!";
-                retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
+                retCode = DCL_ERR_DEV_RV_MOTOR_INTERNALSTEPS_RETRY;
                 return retCode;
             }
         }
@@ -1327,15 +1327,15 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         {
             //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
             LOG()<<"Can't find current position, please run MoveToInitialPosition first!";
-            retCode = DCL_ERR_DEV_RV_NOT_INITIALIZED;
+            retCode = DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
             return retCode;
         }
     }
     if(((qint32)RVPosition < 1)||((qint32)RVPosition > 32))
     {
         //Log(tr("The Tube No You Input: %1 is Invalid").arg(Position));
-        LOG() << "The Tube Posotion No You Input: %1 is Invalid" << RVPosition;    //lint !e641
-        retCode = DCL_ERR_DEV_RV_INVALID_INPUT;
+        LOG() << "The Tube Posotion %1 is Invalid" << RVPosition;    //lint !e641
+        retCode = DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
         return retCode;
     }
 
@@ -1343,7 +1343,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
     {
         //Log(tr("Already At Target Position, No Need To Move!").arg(EDPosition));
         LOG()<<"Already At Target Position, No Need To Move!" << RVPosition;       //lint !e641
-        retCode = DCL_ERR_DEV_RV_REF_MOVE_OK;
+        retCode = DCL_ERR_FCT_CALL_SUCCESS;
         return retCode;
     }
     else
@@ -1361,7 +1361,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         if((RV_SEAL_1 == EDPosition) && (RV_TUBE_2 == PrevEDPosition) && (!cw))
         {
             retCode = MoveToNextPortCW();
-            if( DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+            if( DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 return retCode;
             }
@@ -1369,7 +1369,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             if(EDPosition != RV_TUBE_1)
             {
                 LOG()<<"Lost current position, need to run MoveToInitialPosition!";
-                retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
+                retCode = DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
                 return retCode;
             }
             MoveSteps = ((RVPosition > EDPosition)?(RVPosition - EDPosition):(EDPosition - RVPosition));//lint !e656 !e641
@@ -1386,7 +1386,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         if((RV_TUBE_2 == EDPosition) && (RV_SEAL_1 == PrevEDPosition) && (cw))
         {
             retCode = MoveToNextPortCCW();
-            if( DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+            if( DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 return retCode;
             }
@@ -1394,7 +1394,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
             if(EDPosition != RV_SEAL_2)
             {
                 LOG()<<"Lost current position, need to run MoveToInitialPosition!";
-                retCode = DCL_ERR_DEV_RV_UNEXPECTED_POS;
+                retCode = DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
                 return retCode;
             }
             MoveSteps = ((RVPosition > EDPosition)?(RVPosition - EDPosition):(EDPosition - RVPosition)); //lint !e656 !e641
@@ -1415,7 +1415,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         for(quint32 i = 0; i < MoveSteps; i++)
         {
             retCode = MoveToNextPortCW();
-            if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+            if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 return retCode;
             }
@@ -1426,7 +1426,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
         for(quint32 i = 0; i < MoveSteps; i++)
         {
             retCode = MoveToNextPortCCW();
-            if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+            if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
                 return retCode;
             }
@@ -1452,19 +1452,19 @@ RVPosition_t CRotaryValveDevice::ReqActRVPosition()
  *  \brief   Request the rotary valve to move to next clockwise encoder disk position.
  *
  *
- *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
 {
-    ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
+    ReturnCode_t ret = DCL_ERR_FCT_CALL_SUCCESS;
     RVPosition_t EDPosition = GetEDPosition();
 
     if(RV_UNDEF == EDPosition)
     {
         //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
         LOG()<<"Can't find current position, please run MoveToInitialPosition first!";
-        return DCL_ERR_DEV_RV_NOT_INITIALIZED;
+        return DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
     }
 
     if( DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW == (DeviceControl::CANFctModuleStepperMotor::RotationDir_t)GetRotationDirection())
@@ -1481,14 +1481,14 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCW()
                              GetUpperLimit((quint32)EDPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false));
     }
 
-    if((DCL_ERR_DEV_RV_REF_MOVE_OK == ret) && (3 == (quint32)EDPosition))
+    if((DCL_ERR_FCT_CALL_SUCCESS == ret) && (3 == (quint32)EDPosition))
     {
         ret = MoveToNextPort(false, \
                              GetLowerLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false), \
                              GetUpperLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW, false));
     }
 
-    if((ret == DCL_ERR_DEV_RV_REF_MOVE_OK) && (EDPosition == GetEDPosition()))
+    if((ret == DCL_ERR_FCT_CALL_SUCCESS) && (EDPosition == GetEDPosition()))
     {
         SetPrevEDPosition(EDPosition);
         EDPosition = (RVPosition_t)((quint32)EDPosition - 1);
@@ -1669,19 +1669,19 @@ quint32 CRotaryValveDevice::GetLowerLimit(quint32 CurrentEDPosition, DeviceContr
 /*!
  *  \brief  Helper function: Let the rotary valve move to next port counter-clockwisly.
  *
- *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
 {
-    ReturnCode_t ret = DCL_ERR_DEV_RV_REF_MOVE_OK;
+    ReturnCode_t ret = DCL_ERR_FCT_CALL_SUCCESS;
     RVPosition_t EDPosition = GetEDPosition();
 
     if(RV_UNDEF == EDPosition)
     {
         //Log(tr("Can't find current position, please run MoveToInitialPosition first!"));
         LOG() << "Can't find current position, please run MoveToInitialPosition first!";
-        return DCL_ERR_DEV_RV_NOT_INITIALIZED;
+        return DCL_ERR_DEV_RV_MOTOR_LOSTCURRENTPOSITION;
     }
 
     if( DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CW == GetRotationDirection()) //lint !e641
@@ -1697,14 +1697,14 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPortCCW()
                              GetLowerLimit((quint32)EDPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false), \
                              GetUpperLimit((quint32)EDPosition, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false));
     }
-    if((DCL_ERR_DEV_RV_REF_MOVE_OK == ret) && (2 == EDPosition)) //lint !e641
+    if((DCL_ERR_FCT_CALL_SUCCESS == ret) && (2 == EDPosition)) //lint !e641
     {
         ret = MoveToNextPort(false, \
                              GetLowerLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false), \
                              GetUpperLimit(99, DeviceControl::CANFctModuleStepperMotor::ROTATION_DIR_CCW, false));
     }
 
-    if((ret == DCL_ERR_DEV_RV_REF_MOVE_OK) && (EDPosition == GetEDPosition()))
+    if((ret == DCL_ERR_FCT_CALL_SUCCESS) && (EDPosition == GetEDPosition()))
     {
         SetPrevEDPosition(EDPosition);
         quint32 tempPosition = ((quint32)EDPosition + 1);
