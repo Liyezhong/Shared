@@ -47,6 +47,7 @@ namespace DeviceControl
 #define CAN_NODE_TIMEOUT_CONFIG_RECEIVE         3000  //!< Timeout configuration procedure
 #define CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES     3000  //!< Timeout function module configuration procedure
 #define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE      5000  //!< Timeout heartbeat failure
+#define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE_DBG  60*60*1000  //!< Timeout heartbeat failure (for debug build)
 #define CAN_NODE_TIMEOUT_SETINITOPDATA           500  //!< Timeout setting initial operation data
 #define CAN_NODE_TIMEOUT_DATA_REQ                500  //!< Timeout for several requests with data transfer
 #define CAN_NODE_TIMEOUT_MEMORY_OPERATION       1000  //!< Timeout for memory operation, eg. reset or format partition
@@ -239,11 +240,34 @@ typedef enum {
     NODE_STATE_IDENTIFY  = 3,    //!< Node identification
     NODE_STATE_CONFIGURE = 4,    //!< Node configuration
     NODE_STATE_NORMAL    = 5,    //!< Normal operation mode
-    NODE_STATE_SERVICE   = 6,    //!< Service mode
+    NODE_STATE_ASSEMBLY  = 6,    //!< Assembly mode
     NODE_STATE_SHUTDOWN  = 7,    //!< Shutdown (going to standby)
     NODE_STATE_STANDBY   = 8,    //!< Standby
-    NODE_STATE_UPDATE    = 9     //!< Firmware update
+    NODE_STATE_SERVICE   = 9    //!< Service mode
 } NodeState_t;
+
+/*! Enumeration to control emergency stops */
+typedef enum {
+    RESET_EMERGENCY_STOP = 0,   //!< Clear emergency stop state
+    STOPPED_BY_HEARTBEAT = 1,   //!< Emergency stop by heartbeat loss
+    STOPPED_BY_NOTSTOP   = 2,   //!< Emergency stop by master command
+    STOPPED_BY_VOLTAGE   = 4    //!< Emergency stop by supply voltage error
+} EmergencyStopReason_t;
+
+/*! Power supply states (applies to both: voltage and current) */
+typedef enum {
+    POWER_GOOD    = 0,  //!< Power is ok
+    POWER_WARNING = 1,  //!< Power isn't good, but still acceptable
+    POWER_FAILED  = 2,  //!< Power is bad
+    POWER_UNKNOWN = 9   //!< Power is unknown (can't be read)
+} PowerState_t;
+
+/*! Test result code, e.g. for the end test */
+typedef enum {
+    TEST_OPEN   = 0,    //!< Test has not been executed yet
+    TEST_PASSED = 1,    //!< The test was successful
+    TEST_FAILED = 2     //!< The test failed
+} TestResult_t;
 
 /*! requested action for station positioning */
 typedef enum {

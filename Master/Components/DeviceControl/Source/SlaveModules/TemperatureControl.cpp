@@ -62,7 +62,7 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),
     m_aktionTimespan(0), m_unCanIDNotiAutoTune(0),
     m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),
-    m_unCanIDLevelSensorState(0)
+    m_unCanIDLevelSensorState(0), m_unCanIDAcCurrentWatchdogSet(0), m_unCanIDAcCurrentWatchdogSetExt(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -162,6 +162,8 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     m_unCanIDNotiOutOfRange     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlNotiOutOfRange", bChannel, m_pParent->GetNodeID());
     m_unCanIDLevelSensorState   = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlLevelSensorState", bChannel, m_pParent->GetNodeID());
     m_unCanIDSetSwitchState     = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlSetSwitchState", bChannel, m_pParent->GetNodeID());
+    m_unCanIDAcCurrentWatchdogSet = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlAcCurrentWatchdogSet", bChannel, m_pParent->GetNodeID());
+    m_unCanIDAcCurrentWatchdogSetExt = mp_MessageConfiguration->GetCANMessageID(ModuleID, "TempCtrlAcCurrentWatchdogSetExt", bChannel, m_pParent->GetNodeID());
 
     FILE_LOG_L(laINIT, llDEBUG) << " CAN-messages for fct-module:" << GetName().toStdString() << ",node id:" << std::hex << m_pParent->GetNodeID();
     FILE_LOG_L(laINIT, llDEBUG) << "   EventInfo          : 0x" << std::hex << m_unCanIDEventInfo;
@@ -189,6 +191,8 @@ ReturnCode_t  CTemperatureControl::InitializeCANMessages()
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiInRange        : 0x" << std::hex << m_unCanIDNotiInRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   NotiOutOfRange     : 0x" << std::hex << m_unCanIDNotiOutOfRange;
     FILE_LOG_L(laINIT, llDEBUG) << "   LevelSensorState   : 0x" << std::hex << m_unCanIDLevelSensorState;
+    FILE_LOG_L(laINIT, llDEBUG) << "   CurrentAcWatchdogSet : 0x" << std::hex << m_unCanIDAcCurrentWatchdogSet;
+    FILE_LOG_L(laINIT, llDEBUG) << "   CurrentAcWatchdogSetExt : 0x" << std::hex << m_unCanIDAcCurrentWatchdogSetExt;
     return RetVal;
 }
 
@@ -291,6 +295,18 @@ void CTemperatureControl::HandleTasks()
                 return;
             }
             RetVal = SendCANMsgCurrentWatchdogSet();
+            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
+                FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
+                m_mainState = FM_MAIN_STATE_ERROR;
+                return;
+            }
+            RetVal = SendCANMsgAcCurrentWatchdogSet();
+            if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
+                FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
+                m_mainState = FM_MAIN_STATE_ERROR;
+                return;
+            }
+            RetVal = SendCANMsgAcCurrentWatchdogSetExt();
             if(RetVal != DCL_ERR_FCT_CALL_SUCCESS) {
                 FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": config failed, SendCOB returns" << (int) RetVal;
                 m_mainState = FM_MAIN_STATE_ERROR;
@@ -468,7 +484,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index, 0);
+                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
@@ -484,7 +500,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].Index, 0);
+                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
@@ -956,7 +972,8 @@ ReturnCode_t CTemperatureControl::SendCANMsgCurrentWatchdogSet()
         SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentGain, 0);
         SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sHeaterCurrent, 2);
         SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sHeaterThreshold, 4);
-        canmsg.can_dlc = 6;
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentDeviation, 6);
+        canmsg.can_dlc = 8;
 
         RetVal = m_pCANCommunicator->SendCOB(canmsg);
     }
@@ -970,6 +987,63 @@ ReturnCode_t CTemperatureControl::SendCANMsgCurrentWatchdogSet()
     return RetVal;
 }
 
+ReturnCode_t CTemperatureControl::SendCANMsgAcCurrentWatchdogSet()
+{
+    CANFctModuleTempCtrl* pCANObjConfTemp;
+    pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
+    can_frame canmsg;
+    ReturnCode_t RetVal;
+
+    //the following parameters must be send to the temperature control:
+    if(pCANObjConfTemp)
+    {
+        FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration: 0x" << std::hex << m_unCanIDAcCurrentWatchdogSet;
+        canmsg.can_id = m_unCanIDAcCurrentWatchdogSet;
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentMin230_Serial, 0);
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentMax230_Serial, 2);
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentMin100_Serial, 4);
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentMax100_Serial, 6);
+        canmsg.can_dlc = 8;
+
+        RetVal = m_pCANCommunicator->SendCOB(canmsg);
+    }
+    else
+    {
+        FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
+        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    return RetVal;
+}
+
+ReturnCode_t CTemperatureControl::SendCANMsgAcCurrentWatchdogSetExt()
+{
+    CANFctModuleTempCtrl* pCANObjConfTemp;
+    pCANObjConfTemp = (CANFctModuleTempCtrl*) m_pCANObjectConfig;
+    can_frame canmsg;
+    ReturnCode_t RetVal;
+
+    //the following parameters must be send to the temperature control:
+    if(pCANObjConfTemp)
+    {
+        FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration: 0x" << std::hex << m_unCanIDAcCurrentWatchdogSetExt;
+        canmsg.can_id = m_unCanIDAcCurrentWatchdogSetExt;
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentMin100_Parallel, 0);
+        SetCANMsgDataU16(&canmsg, pCANObjConfTemp->sCurrentMax100_Parallel, 2);
+        canmsg.can_dlc = 4;
+
+        RetVal = m_pCANCommunicator->SendCOB(canmsg);
+    }
+    else
+    {
+        FILE_LOG_L(laCONFIG, llERROR) << " Module " << GetName().toStdString() << ": configuration not available";
+        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    return RetVal;
+}
 /****************************************************************************/
 /*!
  *  \brief  Send the CAN message to set the heater current parameters
@@ -1302,6 +1376,9 @@ ReturnCode_t CTemperatureControl::SetTemperature(qreal Temperature, quint8 Slope
         {
             m_ModuleCommand[CmdIndex].Temperature = Temperature;
             m_ModuleCommand[CmdIndex].SlopeTempChange = SlopeTempChange;
+#if 1      //refer to Brandon's request to combine "set temp" with "enable temp control"
+            m_ModuleCommand[CmdIndex].TempCtrlState = TEMPCTRL_STATUS_ON;
+#endif
             FILE_LOG_L(laDEV, llINFO) << " CTemperatureControl, Temperature: " << Temperature;
         }
         else

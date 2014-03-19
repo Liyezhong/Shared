@@ -747,7 +747,7 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     CANFctModuleDigitInput* pCANObjFctDigitInEntry = 0;
 
     QDomElement child;
-    QString strEnabled, strTimestamp, strPolarity, strSupervision, strInterval, strDebounce;
+    QString strEnabled, strTimestamp, strPolarity, strThreshold, strInterval, strDebounce;
     bool ok;
 
     child = element.firstChildElement("configuration");
@@ -759,15 +759,39 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     strEnabled = child.attribute("enabled");
     strTimestamp = child.attribute("timestamp");
     strPolarity = child.attribute("polarity");
-    strSupervision = child.attribute("supervision");
+    strThreshold = child.attribute("threshold");
     strInterval = child.attribute("interval");
     strDebounce = child.attribute("debounce");
 
     pCANObjFctDigitInEntry = new CANFctModuleDigitInput();
     pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitInEntry->m_bEnabled < 0)||(pCANObjFctDigitInEntry->m_bEnabled >65535)) {
+        delete pCANObjFctDigitInEntry;
+        pCANObjFctDigitInEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitInEntry;
+    }
+#endif
     pCANObjFctDigitInEntry->m_bTimeStamp = strTimestamp.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_sSupervision = strSupervision.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitInEntry->m_sPolarity < 0)||(pCANObjFctDigitInEntry->m_sPolarity >65535)) {
+        delete pCANObjFctDigitInEntry;
+        pCANObjFctDigitInEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitInEntry;
+    }
+#endif
+    pCANObjFctDigitInEntry->m_sThreshold = strThreshold.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitInEntry->m_sThreshold < 0)||(pCANObjFctDigitInEntry->m_sThreshold >65535)) {
+        delete pCANObjFctDigitInEntry;
+        pCANObjFctDigitInEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitInEntry;
+    }
+#endif
     pCANObjFctDigitInEntry->m_bInterval = strInterval.toShort(&ok, 10);
     pCANObjFctDigitInEntry->m_bDebounce = strDebounce.toShort(&ok, 10);
 
@@ -808,11 +832,51 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
     pCANObjFctDigitOutEntry = new CANFctModuleDigitOutput();
 
     pCANObjFctDigitOutEntry->m_bEnabled           = strEnabled.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_bEnabled < 0)||(pCANObjFctDigitOutEntry->m_bEnabled >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_bInaktivAtShutdown < 0)||(pCANObjFctDigitOutEntry->m_bInaktivAtShutdown >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop < 0)||(pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_sPolarity          = strPolarity.toShort(&ok, 10);
     pCANObjFctDigitOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_sOutvalInactiv < 0)||(pCANObjFctDigitOutEntry->m_sOutvalInactiv >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
     pCANObjFctDigitOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
+    if((pCANObjFctDigitOutEntry->m_sLivetimeLimit < 0)||(pCANObjFctDigitOutEntry->m_sLivetimeLimit >65535)) {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+#endif
 
     return pCANObjFctDigitOutEntry;
 }
@@ -1028,20 +1092,20 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     pCANFctModuleStepperMotor->stopCurrentDelay = strStopCurrentDelay.toShort(&ok, 10);
 
 #ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
-        if(pCANFctModuleStepperMotor->runCurrentScale >31) {
+        if((pCANFctModuleStepperMotor->runCurrentScale < 0)||(pCANFctModuleStepperMotor->runCurrentScale >31)) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return pCANFctModuleStepperMotor;
         }
-        if(pCANFctModuleStepperMotor->stopCurrentScale >31) {
+        if((pCANFctModuleStepperMotor->stopCurrentScale < 0)||(pCANFctModuleStepperMotor->stopCurrentScale >31)) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return pCANFctModuleStepperMotor;
         }
         quint32 stopCurrentDelay = strStopCurrentDelay.toUInt(&ok, 10);
-        if(stopCurrentDelay >65535) {
+        if((stopCurrentDelay < 0)||(stopCurrentDelay >65535)) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
@@ -1154,10 +1218,8 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
         quint8 posCodeIndex = strPosCodeIndex.toShort(&ok, 10);
 
         if ((posCodeIndex <= 0) || (posCodeIndex >= 4)) {
-            m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
-            delete pCANFctModuleStepperMotor;
-            pCANFctModuleStepperMotor = NULL;
-            return pCANFctModuleStepperMotor;
+            ErrorCleanUp(pCANFctModuleStepperMotor);
+            return 0;
         }
 
         if(posCodeIndex == 1) {
@@ -1180,10 +1242,8 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     child = element.firstChildElement("supervision");
     if(child.isNull())
     {
-        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_SLV;
-        delete pCANFctModuleStepperMotor;
-        pCANFctModuleStepperMotor = NULL;
-        return pCANFctModuleStepperMotor;
+        ErrorCleanUp(pCANFctModuleStepperMotor);
+        return 0;
     }
     strStepLossWarnLimit  = child.attribute("steploss_warn_limit");
     strStepLossErrorLimit = child.attribute("steploss_error_limit");
@@ -1422,8 +1482,9 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     QDomElement childPidControllers;
     QDomElement childPidController;
     QString strTempTolerance, strSamplingPeriod, strFanSpeed, strFanThreshold,
-            strCurrentGain, strHeaterCurrent, strHeaterThreshold;
+            strCurrentGain, strHeaterCurrent, strHeaterThreshold, strCurrentDeviation;
     QString strMaxTemperature, strControllerGain, strResetTime, strDerivativeTime;
+    QString strCurrentMin230_Serial, strCurrentMax230_Serial, strCurrentMin100_Serial, strCurrentMax100_Serial, strCurrentMin100_Parallel, strCurrentMax100_Parallel;
     bool ok;
 
     child = element.firstChildElement("configuration");
@@ -1440,6 +1501,13 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     strCurrentGain = child.attribute("current_gain");
     strHeaterCurrent = child.attribute("heater_current");
     strHeaterThreshold = child.attribute("heater_threshold");
+    strCurrentDeviation = child.attribute("current_deviation");
+    strCurrentMin230_Serial = child.attribute("current_min_230_serial");
+    strCurrentMax230_Serial = child.attribute("current_max_230_serial");
+    strCurrentMin100_Serial = child.attribute("current_min_100_serial");
+    strCurrentMax100_Serial = child.attribute("current_max_100_serial");
+    strCurrentMin100_Parallel = child.attribute("current_min_100_parallel");
+    strCurrentMax100_Parallel = child.attribute("current_max_100_parallel");
 
     pCANObjFctTempCtrl = new CANFctModuleTempCtrl();
     pCANObjFctTempCtrl->bTempTolerance = strTempTolerance.toShort(&ok, 10);
@@ -1449,6 +1517,13 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
     pCANObjFctTempCtrl->sCurrentGain = strCurrentGain.toShort(&ok, 10);
     pCANObjFctTempCtrl->sHeaterCurrent = strHeaterCurrent.toShort(&ok, 10);
     pCANObjFctTempCtrl->sHeaterThreshold = strHeaterThreshold.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentDeviation = strCurrentDeviation.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMin230_Serial = strCurrentMin230_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMax230_Serial = strCurrentMax230_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMin100_Serial = strCurrentMin100_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMax100_Serial = strCurrentMax100_Serial.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMin100_Parallel = strCurrentMin100_Parallel.toShort(&ok, 10);
+    pCANObjFctTempCtrl->sCurrentMax100_Parallel = strCurrentMax100_Parallel.toShort(&ok, 10);
 
     //############################
     // PID controller parameters

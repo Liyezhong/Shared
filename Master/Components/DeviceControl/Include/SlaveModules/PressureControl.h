@@ -224,11 +224,9 @@ private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
 
-    //!< configuration task handling function
-    void SendConfiguration();
-    //!< idle task handling function
-    void HandleIdleState();
-    //! sends the can message 'FanWatchdog'
+//    void SendConfiguration();   //!< configuration task handling function
+    void HandleIdleState();     //!< idle task handling function
+//    //! sends the can message 'FanWatchdog'
     ReturnCode_t SendCANMsgFanWatchdogSet();
     //! sends the can message 'CurrentWatchdog'
     ReturnCode_t SendCANMsgCurrentWatchdogSet();
