@@ -23,9 +23,10 @@
 /****************************************************************************/
 #ifndef DEVICE_CONTROL_GLOBAL_H
 #define DEVICE_CONTROL_GLOBAL_H
-
 #include <QObject>
 #include <QMetaType>
+
+#include "DeviceControl/Include/Global/DeviceControlReturnCode.h"
 
 /* if TESTVERSION is defined, the executable is compiled with the /DeviceControl test gui */
 //#define TESTVERSION
@@ -179,94 +180,6 @@ namespace DeviceControl
 #define EVENT_CODE_DIGITAL_SIGNAL_1          0x11    //!< Event Code: Digital input signal 1
 #define EVENT_CODE_TIMEOUT_WARNING           0x12    //!< Event Code: Timeout for Warning
 #define EVENT_CODE_TIMEOUT_ERROR             0x13    //!< Event Code: Timeout for Error
-
-
-
-/*! general return codes, will be used as return value by methods, and as hdlInfo variable by signals
-   these return codes will not appear as an error code in EventEntrys errorID. Anstead they will be transmitted in errorData variable */
-typedef enum {
-    DCL_ERR_FCT_CALL_SUCCESS      =  0,  //!< function was executed successfully
-    DCL_ERR_FCT_CALL_FAILED       =  1,  //!< function was failed, no further information available
-    DCL_ERR_FCT_CALL_NOT_FOUND    =  2,  //!< inside the function, a parameter concerning action was not done because anything was not found
-    DCL_ERR_FCT_NOT_IMPLEMENTED   =  3,  //!< Temporary return value for bare functions, should be removed at the end
-    DCL_ERR_INVALID_STATE         = 10,  //!< a method was called while the internal state machine was not able to process the functionality
-    DCL_ERR_NOT_INITIALIZED       = 11,  //!< A method was called before complete initialisation was done
-    DCL_ERR_TIMEOUT               = 12,  //!< A timeout appeared (typically a CAN-Bus timeout, while waiting for an answer)
-    DCL_ERR_INVALID_PARAM         = 13,  //!< One ore more invalid parameters were passed to the method
-    DCL_ERR_INTERNAL_ERR          = 14,  //!< The error reason is internal, further information is available at ...
-    DCL_ERR_EXTERNAL_ERROR        = 15,  //!< The error reason is external, it was reported via CAN-bus
-    DCL_ERR_EXTERNAL_WARNING      = 16,  //!< The warning reason is external, it was reported via CAN-bus
-    DCL_ERR_EXTERNAL_INFO         = 17,  //!< The information reason is external, it was reported via CAN-bus
-    DCL_ERR_NULL_PTR_ACCESS       = 18,  //!< A null pointer would be accessed, but there was an instruction to avoid its direct access
-    DCL_ERR_CANMSG_INVALID        = 20,  //!< An invalid CAN-message was received (e.g. dlc not correct)
-    DCL_ERR_CANBUS_NOT_READY      = 21,  //!< A CAN-message was tried to be send while the CAN bus is in error state
-    DCL_ERR_CANBUS_ERROR          = 22,  //!< A CAN-message was tried to be send while an 'unknown' CAN bus error is active
-    DCL_ERR_UNEXPECTED_BREAK      = 23,   //!< Current program was breaked by other program
-    DCL_ERR_SNYC_CALL_BUSY        = 24,   //!< Current program was breaked by other program
-    DCL_ERR_TIMER_TIMEOUT         = 25,
-    DCL_ERR_CANCOMMUTOR_START				= 0x0026,
-    DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN		= 0x0027,
-    DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT		= 0x0028,
-    DCL_ERR_CANCOMMUTOR_COMM_FAILED			= 0x0029,
-
-    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_DIGITAL_SIGNAL_0), //!< Get level sensor state 0
-    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_DIGITAL_SIGNAL_1), //!< Get level sensor state 1
-
-    DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_RELEASE_PRESSURE) << 8)| EVENT_CODE_TIMEOUT),//!< Release pressure timeout
-    DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_RELEASE_PRESSURE) << 8)| EVENT_CODE_FAIL),//!< Release pressure failed
-    DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_SET_PRESSURE) << 8)| EVENT_CODE_FAIL),//!< Setup pressure failed
-    DCL_ERR_DEV_AL_DRAIN_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Draining succeed
-    DCL_ERR_DEV_AL_DRAIN_WARNING_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_WARNING),//!< Draing timeout
-    DCL_ERR_DEV_AL_DRAIN_ERROR_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_ERROR),//!< Draing timeout
-    DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Draing setup pressure timeout
-    DCL_ERR_DEV_AL_DRAIN_GENERAL_ERR = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_GENERAL_ERROR),//!< Draining general error
-    DCL_ERR_DEV_AL_DRAIN_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Draining has been interrupted
-
-    DCL_ERR_DEV_AL_FILL_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Filling succeed
-    DCL_ERR_DEV_AL_FILL_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Filling has been interrupted
-    DCL_ERR_DEV_AL_FILL_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Filling timeout
-    DCL_ERR_DEV_AL_FILL_WARNING_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_WARNING),//!< Filling warning timeout
-    DCL_ERR_DEV_AL_FILL_ERROR_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_ERROR),//!< Filling error timeout
-    DCL_ERR_DEV_AL_FILL_OVERFLOW = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_OVERFLOW),//!< Filling overflow
-
-    DCL_ERR_DEV_AL_VACCUM_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_VACCUM_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Vaccum succeed
-    DCL_ERR_DEV_AL_VACCUM_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_VACCUM_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Vaccum has been interrupted
-    DCL_ERR_DEV_AL_VACCUM_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_VACCUM_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Vaccum timeout
-    DCL_ERR_DEV_AL_PRESSURE_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_PRESSURE_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Pressure procedure has been interrupted
-    DCL_ERR_DEV_AL_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_PRESSURE_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Pressure procedure timeout
-    DCL_ERR_DEV_AL_PRESSURE_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_PRESSURE_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Pressure procedure succeed
-
-    DCL_ERR_DEV_TEMP_CTRL_STATE_ERR = 43,//!< Temperatuer control state error
-    DCL_ERR_DEV_TEMP_CTRL_ALREADY_ON = 44,//!< Temperatuer control is already on
-    DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR = 45,//!< Temperatuer control set temperature error
-    DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR = 46,//!< Temperatuer control set state error
-
-    DCL_ERR_DEV_BOTTLE_CHECK_OK = ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_OK),//!< Bottle check succeed
-    DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL = ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_NOTFULL),//!< Bottle check result: Not full
-    DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_BLOCKAGE),//!< Bottle check result: Blockage
-    DCL_ERR_DEV_BOTTLE_CHECK_EMPTY =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_EMPTY),//!< Bottle check result: Empty
-    DCL_ERR_DEV_BOTTLE_CHECK_ERROR =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_FAIL),//!< Bottle check error
-    DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_TIMEOUT),//!< Bottle check timeout
-
-    DCL_ERR_DEV_RV_MOVE_TO_INIT_FUNC = (((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_INIT_POS) << 8),//!< Move to initial position fucntion
-    DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_INIT_POS) << 8)| EVENT_CODE_SUCCESS),//!< Move to initial position succeed
-    DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_INIT_POS) << 8)| EVENT_CODE_MOTOR_UNEXPECTED_POS),//!< Move to initial position failed
-
-   // DCL_ERR_DEV_RV_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_RV_POS) << 8)| EVENT_CODE_SUCCESS),
-    DCL_ERR_DEV_RV_REF_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_SUCCESS),//!< Motor reference run ok
-    DCL_ERR_DEV_RV_REF_MOVE_FAILED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_FAIL),//!< Motor reference run failed
-    DCL_ERR_DEV_RV_MOVE_EXCEED_UPPER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT),//!< Motor reference run exceed code disk's upper limit
-    DCL_ERR_DEV_RV_MOVE_EXCEED_LOWER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT),//!< Motor reference run exceed code disk's lower limit
-    DCL_ERR_DEV_RV_INVALID_INPUT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_INVALID_INPUT),//!< Invalid input for motor reference run
-    DCL_ERR_DEV_RV_NOT_INITIALIZED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_NOT_INITIALIZED),//!< Motor has not been initialized
-    DCL_ERR_DEV_RV_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_UNEXPECTED_POS),//!< Motor encouter unexpected position
-
-    DCL_ERR_DEV_RV_MOVE_LS_ERROR = 54,//!< Motor reference run read limit switch error
-    DCL_ERR_DEV_RV_MOVE_GENERAL_ERROR = 55,//!< Motor reference run general error
-
-
-    DCL_ERR_UNDEFINED             = 99   //!< The return code was not set
-} ReturnCode_t;
 
 /*! Synchronized functions definitions */
 typedef enum
@@ -515,7 +428,7 @@ typedef enum {
 /*! \class CANObjectKeyLUT
  *
  *  \brief this classes elements containing the can object keys, used for
- *         object identification by string at the colorado project
+ *         object identification by string at the himalaya project
  *
  */
 /****************************************************************************/
@@ -554,6 +467,7 @@ public:
     //!< can object IDs, used for identification by Id
     typedef enum
     {
+        FCTMOD_INVALID                = 0x0000,   //!< node invalid
 
         FCTMOD_RV_MOTOR               = 0x30003,  //!< Rotary valve motor
         FCTMOD_RV_TEMPCONTROL         = 0x40003,  //!< Rotary valve temperature control
@@ -580,6 +494,6 @@ public:
 
 }
 
-Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
-
+//Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
+Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
 #endif /* DEVICE_CONTROL_GLOBAL_H */
