@@ -243,7 +243,7 @@ signals:
      *  \param   InstanceID = Instance identifier of this function module instance
      *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \param   Position   = Actual motor position [half steps]
-     *  \param   Speed      = Actual motor speed [half steps / sec]
+     *  \param   speed      = Actual motor speed [half steps / sec]
      *
      ****************************************************************************/
     void ReportMovementAckn(quint32 InstanceID, ReturnCode_t HdlInfo, qint32 Position, qint16 speed);
@@ -264,7 +264,7 @@ signals:
     /*!
      *  \brief    This signal is emitted to report the actual motor speed
      *
-     *  \param   InstanceID = Instance identifier of this function module instance
+     *  \param   InstanCANStepperMotorceID = Instance identifier of this function module instance
      *  \param   HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
      *  \param   Speed      = Actual motor speed [half steps / sec]
      *
@@ -441,28 +441,11 @@ private:
         FM_SM_CMD_TYPE_TECH_DATA1_REQ      = 0x08,  //!< technical data group 1 request
         FM_SM_CMD_TYPE_TECH_DATA2_REQ      = 0x09,  //!< technical data group 1 request
         FM_SM_CMD_TYPE_DEBUG_CMD_1         = 0x0a,  //!< debug request
-#if 1
         FM_SM_CMD_TYPE_OPTIME_DATA_REQ     = 0x0b,  //!< operation time data request
         FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ   = 0x0c,  //!< revolution count data request
         FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ   = 0x0d  //!< direction change count data request
-#endif
     } CANStepperMotorMotionCmdType_t;
-#if 0
-    /*! motor movement command type */
-    typedef enum {
-        FM_SM_CMD_TYPE_UNDEF               = 0x00,  //!< undefined movement type
-        FM_SM_CMD_TYPE_STATE               = 0x01,  //!< set motor state
-        FM_SM_CMD_TYPE_REFRUN              = 0x02,  //!< reference run request
-        FM_SM_CMD_TYPE_POS                 = 0x03,  //!< movement to target position
-        FM_SM_CMD_TYPE_SPEED               = 0x04,  //!< movement with target speed
-        FM_SM_CMD_TYPE_ACTPOS_REQ          = 0x05,  //!< actual position request
-        FM_SM_CMD_TYPE_ACTSPEED_REQ        = 0x06,  //!< actual speed request
-        FM_SM_CMD_TYPE_OPTIME_DATA_REQ     = 0x07,  //!< operation time data request
-        FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ   = 0x08,  //!< revolution count data request
-        FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ   = 0x09,  //!< direction change count data request
-        FM_SM_CMD_TYPE_REQ_DATA_RESET      = 0x0a   //!< data reset
-    } CANStepperMotorMotionCmdType_t;
-#endif
+
     /*! motor command data, used for internal data transfer */
     typedef struct {
         CANStepperMotorMotionCmdType_t  Type;               //!< command type

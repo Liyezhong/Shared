@@ -208,9 +208,7 @@ protected:
     static void SetCANMsgDataU16(can_frame* pCANframe, quint16 msgData, quint8 offset);
     static void SetCANMsgDataS16(can_frame* pCANframe, qint16 msgData, quint8 offset);
     static quint16 GetCANMsgDataU16(can_frame* pCANframe, quint8 offset);
-#ifdef PRE_ALFA_TEST
     static qint16 GetCANMsgDataS16(can_frame* pCANframe, quint8 offset);
-#endif
     static quint32 GetCANMsgDataU32(can_frame* pCANframe, quint8 offset);
     static quint64 GetCANMsgDataU64(can_frame* pCANframe);
     static void SetCANMsgDataU64 (can_frame* pCANframe, quint64 msgData);

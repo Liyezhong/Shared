@@ -1048,11 +1048,6 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     QString strProfileSpeedMin, strProfileSpeedMax, strProfileMicroSteps, strProfileRampSteps;
     QString strProfileAcc, strProfileDec, strProfileAccTime, strProfileDecTime;
     quint8  sProfileIdx;
-/*
-#ifdef PRE_ALFA_TEST
-    QString strRefRunRefPosSkip;
-#endif
-*/
 
     //  motor resolution
     child = element.firstChildElement("rotation");
@@ -1419,21 +1414,16 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
 {
     CANFctModulePosCode PositionCode;
     QString strStop, strStopDir, strPosition, strWidth, strDeviation;
-#ifdef PRE_ALFA_TEST
     QString strRotDirCheck, strHitSkip;
-#endif
     bool ok;
-
 
     strStop = element.attribute("stop");
     strStopDir = element.attribute("stop_dir");
     strPosition = element.attribute("position");
     strWidth = element.attribute("width");
     strDeviation = element.attribute("deviation");
-#ifdef PRE_ALFA_TEST
     strRotDirCheck = element.attribute("dir_check");
     strHitSkip = element.attribute("hit_skip");
-#endif
 
     PositionCode.bStop = strStop.toShort(&ok, 10);
     if(strStopDir == "cw") {
@@ -1450,7 +1440,6 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
     PositionCode.position = strPosition.toShort(&ok, 10);
     PositionCode.width = strWidth.toShort(&ok, 10);
     PositionCode.deviation = strDeviation.toShort(&ok, 10);
-#ifdef PRE_ALFA_TEST
     if (strRotDirCheck.isEmpty()) {
         PositionCode.bRotDirCheck = 1;
     }
@@ -1464,7 +1453,6 @@ CANFctModulePosCode HardwareConfiguration::ParsePosCode(const QDomElement &eleme
     else {
         PositionCode.hitSkip = strHitSkip.toShort(&ok, 10);
     }
-#endif
 
     return PositionCode;
 }
@@ -1593,7 +1581,7 @@ CANFctModuleTempCtrl* HardwareConfiguration::ParseTempCtrl(const QDomElement &el
 
     return pCANObjFctTempCtrl;
 }
-#ifdef PRE_ALFA_TEST
+
 /****************************************************************************/
 /*!
  *  \brief  Parse pressure control element from xml
@@ -1702,7 +1690,6 @@ CANFctModulePressureCtrl* HardwareConfiguration::ParsePressureCtrl(const QDomEle
     return pCANObjFctPressureCtrl;
 }
 
-#endif
 /****************************************************************************/
 /*!
  *  \brief  Parse joystick element from xml
@@ -1964,12 +1951,10 @@ CModuleConfig::CANObjectType_t HardwareConfiguration::GetObjectTypeFromString(co
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UART;
     }
-#ifdef PRE_ALFA_TEST
     else if(strCANObjectType == "pressure_control")
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL;
     }
-#endif
     else
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UNDEF;

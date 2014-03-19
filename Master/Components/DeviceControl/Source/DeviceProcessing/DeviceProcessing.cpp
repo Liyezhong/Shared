@@ -566,7 +566,7 @@ bool DeviceProcessing::GetSerialNumber(QString& SerialNo)
     QDomElement root = domDocument.documentElement();
     if (root.tagName() != "hwconfig")
     {
-        QString ErrorString = QObject::tr("The file is not a colorado hardware config file. Tag 'hwconfig' missed");
+        QString ErrorString = QObject::tr("The file is not a himalaya hardware config file. Tag 'hwconfig' missed");
         FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
 
         return false;
@@ -574,7 +574,7 @@ bool DeviceProcessing::GetSerialNumber(QString& SerialNo)
     else if (root.hasAttribute("version")
                && root.attribute("version") != "1.0")
     {
-        QString ErrorString = QObject::tr("The colorado hardware config files' version is not valid.");
+        QString ErrorString = QObject::tr("The himalaya hardware config files' version is not valid.");
         FILE_LOG_L(laINIT, llERROR) << ErrorString.toStdString();
 
         return false;
@@ -1217,7 +1217,8 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
                 if(m_pConfigurationService->ConfigurationComplete() == true) {
                     emit ReportConfigurationFinished(DCL_ERR_FCT_CALL_SUCCESS);
                 }
-                else {
+                else
+                {
                     emit ReportConfigurationFinished(DCL_ERR_TIMEOUT);
                 }
             }

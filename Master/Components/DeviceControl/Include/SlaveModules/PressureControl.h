@@ -6,7 +6,6 @@
 #include "DeviceControl/Include/SlaveModules/FunctionModule.h"
 #include "Global/Include/MonotonicTime.h"
 
-#ifdef PRE_ALFA_TEST
 namespace DeviceControl
 {
 
@@ -364,5 +363,4 @@ private:
 };
 
 } //namespace
-#endif //PRE_ALFA_TEST
 #endif // PRESSURECONTROL_H

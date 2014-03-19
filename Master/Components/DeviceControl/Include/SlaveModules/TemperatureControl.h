@@ -75,11 +75,10 @@ class CTemperatureControl : public CFunctionModule
     ReturnCode_t GetFanSpeed(quint8 Index);
     //! Get the hardware status
     ReturnCode_t GetHardwareStatus();
-#ifdef PRE_ALFA_TEST
     //! Set temperature ctrl. status
     ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
-#endif
+
 
 signals:
     /****************************************************************************/
@@ -111,7 +110,8 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam TempCtrlStatus = Temperature ctrl. status
+     *  \iparam Status = Temperature ctrl. status
+     *  \iparam Voltage = Temperature ctrl. voltage
      */
     /****************************************************************************/
     void ReportActStatus(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status, TempCtrlMainsVoltage_t Voltage);
@@ -123,7 +123,7 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam OperatingMode = Temperature ctrl. status
+     *  \iparam Status = Temperature ctrl. status
      */
     /****************************************************************************/
     void ReportSetStatusAckn(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t Status);
@@ -157,6 +157,7 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam Index = Index of the heating element
      */
     /****************************************************************************/
     void ReportResetHeaterOperatingTime(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index);
@@ -196,6 +197,7 @@ signals:
      *  \iparam Heaters = Number of heating elements connected to the board
      *  \iparam Pids = Number of PID controllers in the control loop
      *  \iparam Current = Current through the heatinf circuit in milliamperes
+     *  \iparam HeaterSwitchState = Heater Switch state.
      */
     /****************************************************************************/
     void ReportHardwareStatus(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Sensors,
@@ -212,11 +214,33 @@ signals:
      */
     /****************************************************************************/
     void ReportTemperatureRange(quint32 InstanceID, ReturnCode_t HdlInfo, bool InRange, qreal Temperature);
-#ifdef PRE_ALFA_TEST
+
+    /****************************************************************************/
+    /*!
+     *  \brief  This signal reports the state of the level sensor
+     *
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam State = The state of the level sensor
+     */
+    /****************************************************************************/
     void ReportLevelSensorState(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 State);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  This signal reports the state of the level sensor
+     *
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam MaxTemperature = Maximum temperature
+     *  \iparam ControllerGain = Controller Gain
+     *  \iparam ResetTime = Reset Time
+     *  \iparam DerivativeTime = Derivative Time
+     */
+    /****************************************************************************/
     void ReportSetPidAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     void ReportSetSwitchState(quint32 InstanceID, ReturnCode_t HdlInfo, qint8 SwitchState, qint8 AutoSwitch);
-#endif
+
 
  private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
@@ -231,11 +255,11 @@ signals:
     ReturnCode_t SendCANMsgCurrentWatchdogSet();
     //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
-#ifdef PRE_ALFA_TEST
+    //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     ReturnCode_t SendCANMsgAcCurrentWatchdogSet();
     ReturnCode_t SendCANMsgAcCurrentWatchdogSetExt();
-#endif
+
     //! sends the can set message 'Temperature'
     ReturnCode_t SendCANMsgSetTemperature(qreal Temperature, TempCtrlOperatingMode_t OperatingMode, TempCtrlStatus_t Status, quint8 SlopeTempChange=0);
     //! sends the can request message 'Temperature'
@@ -265,9 +289,8 @@ signals:
     void HandleCANMsgHardware(can_frame* pCANframe);
     //! handles the receipt of can response message 'NotiInRange'
     void HandleCANMsgNotiRange(can_frame* pCANframe, bool InRange);
-#ifdef PRE_ALFA_TEST
+    //! handles the receipt of can response message 'LevelSensorState'
     void HandleCANMsgLevelSensorState(can_frame* pCANframe);
-#endif
     //! command handling function
     void HandleCommandRequestTask();
 
@@ -294,10 +317,8 @@ signals:
         FM_TEMP_CMD_TYPE_REQ_OPTIME    = 8, //!< request operating time
         FM_TEMP_CMD_TYPE_REQ_FANSPEED  = 9, //!< request fan speed
         FM_TEMP_CMD_TYPE_REQ_HARDWARE  = 10,//!< request hardware status
-#ifdef PRE_ALFA_TEST
         FM_TEMP_CMD_TYPE_SET_PID       = 11,//!< set PID parameters
         FM_TEMP_CMD_TYPE_SET_SWITCH_STATE = 12 //!< set PID parameters
-#endif
     } CANTempCtrlCmdType_t;
 
     /*! motor command data, used for internal data transfer*/
@@ -310,7 +331,6 @@ signals:
         Global::MonotonicTime ReqSendTime;      //!< time the command was executed
         qint32 Timeout;                         //!< timeout in ms
         quint8 Index;                           //!< sensor, heater or fan index
-#ifdef PRE_ALFA_TEST
         quint8 SlopeTimeInterval;
         quint8 SlopeTempChange;
         quint16 MaxTemperature;
@@ -319,7 +339,6 @@ signals:
         quint16 DerivativeTime;
         qint8 SwitchState;
         qint8 AutoSwitch;
-#endif
     } TempCtrlCommand_t;
 
     TempCtrlCommand_t m_ModuleCommand[MAX_TEMP_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -351,12 +370,10 @@ signals:
     quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
-#ifdef PRE_ALFA_TEST
     quint32 m_unCanIDLevelSensorState;
     quint32 m_unCanIDSetSwitchState;
     quint32 m_unCanIDAcCurrentWatchdogSet;    //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDAcCurrentWatchdogSetExt; //!< CAN-message id of 'TBD' message
-#endif
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
 };

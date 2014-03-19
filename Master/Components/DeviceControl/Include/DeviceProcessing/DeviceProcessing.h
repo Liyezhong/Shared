@@ -28,7 +28,6 @@
 #include <sys/timeb.h> // used for time measurement
 
 #include <QMutex>
-#include <QWaitCondition>
 #include <QReadWriteLock>
 #include <QWaitCondition>
 #include <QList>
@@ -61,17 +60,6 @@ class ObjectTask;
 /// \todo remove to configuration service?
 class CBaseDevice;
 class CFunctionModuleTaskManager;
-class CAgitationDevice;
-class CExhaustDevice;
-class CInclinometerDevice;
-class CLoaderDevice;
-class COvenDevice;
-class CGrapplerDevice;
-class CWaterDevice;
-class CHeatedVesselsDevice;
-class CRackTransferDevice;
-class CRackHandlingDevice;
-class CCoverLineDevice;
 
 //! List of tasks used by device processing
 typedef QList<DeviceProcTask*> ListDeviceProcTask;
