@@ -188,6 +188,12 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 }
             }
 
+            QString EventName = "";
+            if (m_pXMLReader->attributes().hasAttribute("Name"))
+            {
+                EventName = m_pXMLReader->attributes().value("Name").toString();
+            }
+
             Global::EventSourceType eventSource = EVENTSOURCE_NONE;
             if (m_pXMLReader->attributes().hasAttribute("EventSource"))
             {
@@ -247,6 +253,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             pXMLEvent->m_Source = strSrcName;
             pXMLEvent->m_Code = code;
             pXMLEvent->m_ErrorId = errorId;
+            pXMLEvent->m_EventName = EventName;
             pXMLEvent->m_ErrorType = errorType;
             pXMLEvent->m_AuthType = authType;
             pXMLEvent->m_AlarmType = alarmType;
@@ -280,6 +287,31 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 Type = m_pXMLReader->attributes().value("Type").toString();
             }
 
+            Global::EventLogLevel LogLevel = Global::LOGLEVEL_NONE;
+            if (m_pXMLReader->attributes().hasAttribute("LogLevel"))
+            {
+                QString Level = m_pXMLReader->attributes().value("LogLevel").toString();
+                if (Level.trimmed().compare("LOW",Qt::CaseInsensitive) == 0)
+                {
+                    LogLevel = Global::LOGLEVEL_LOW;
+                }
+                else if (Level.trimmed().compare("MEDIUM",Qt::CaseInsensitive) == 0)
+                {
+                    LogLevel = Global::LOGLEVEL_MEDIUM;
+                }
+                else if (Level.trimmed().compare("HIGH",Qt::CaseInsensitive) == 0)
+                {
+                    LogLevel = Global::LOGLEVEL_HIGH;
+                }
+            }
+
+            bool UserLog = false;
+            if (m_pXMLReader->attributes().hasAttribute("UserLog"))
+            {
+                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString();
+                UserLog = ((strUserLog.toUpper() == "TRUE") || (strUserLog.toUpper() == "YES"));
+            }
+
             QString Action = "";
             if (m_pXMLReader->attributes().hasAttribute("Action"))
             {
@@ -310,7 +342,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             }
 
 			// for "MSG" type
-            quint32 StringId = EVENT_GLOBAL_UNKNOWN_STRING_ID;
+            quint32 StringId = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
             if (m_pXMLReader->attributes().hasAttribute("StringID"))
             {
                 bool ok;
@@ -419,6 +451,8 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
 
             QSharedPointer<EventStep> pEventStep(new EventStep(Id, Type));
             pEventStep->m_Action = Action;
+            pEventStep->m_LogLevel = LogLevel;
+            pEventStep->m_UserLog = UserLog;
             pEventStep->m_NextStepOnFail = NextStepOnFail;
             pEventStep->m_NextStepOnSuccess = NextStepOnSuccess;
             pEventStep->m_StringId = StringId;

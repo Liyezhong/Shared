@@ -176,6 +176,24 @@ public:
      */
     /****************************************************************************/
     bool GetStatusBar() const { return m_StatusBar; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get UserLog attribute
+     *
+     * \return UserLog Flag
+     */
+    /****************************************************************************/
+    bool GetUserLog() const { return m_UserLog; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get Log Level attribute
+     *
+     * \return Log level
+     */
+    /****************************************************************************/
+    Global::EventLogLevel GetLogLevel() const { return m_LogLevel; }
 private:
     quint32		m_Id;					///< Step Id
 	QString		m_Type;					///< Step Type 
@@ -184,6 +202,8 @@ private:
 	QString		m_Action;				///< Action Name
     quint32		m_NextStepOnFail;		///< Next step when current action fails
     quint32		m_NextStepOnSuccess;	///< Next step when current action succeeds
+    Global::EventLogLevel    m_LogLevel;     ///< Log level
+    bool                m_UserLog;      ////< user log
 
 	//For MSg type
     quint32                     m_StringId;				///< Msg String Id
@@ -316,10 +336,20 @@ public:
      */
     /****************************************************************************/
     Global::EventSourceType GetEventSource() const { return m_EventSource; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get Event Name (macro)
+     *
+     * \return event name (macro)
+     */
+    /****************************************************************************/
+    const QString& GetEventName() const { return m_EventName; }
 private:
     quint32                                 		m_ErrorId;			///< Error Code
     QString                                 		m_Source;			///< Source Name
     QString                                 		m_Code;				///< Code
+    QString                                         m_EventName;         ///< Event macro
     Global::EventType                          m_ErrorType;		///< Error Type
     Global::GuiUserLevel                          m_AuthType;			///< Authority Type
     Global::AlarmPosType                               m_AlarmType;		///< Alarm Type
