@@ -496,19 +496,6 @@ enum CoverSlipLinesNumber
     TWOLINE        //!< two cover slip line
 };
 
-/****************************************************************************/
-/**
- * \brief Enum for reagent status
- */
-/****************************************************************************/
-
-enum ReagentStatusType {
-	REAGENT_STATUS_NOT_IN_STATION = 0, ///< Reagent is newly created, but has not been placed into a station.
-	REAGENT_STATUS_NORMAL, ///< Reagent is in a station, and can be used normally.
-	REAGENT_STATUS_EXPIRED, ///< Reagent is in a station, but expired.
-	REAGENT_STATUS_UNDEFINE ///< Undefined.
-} ;
-
 
 } // end namespace Global
 
