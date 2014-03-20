@@ -96,6 +96,21 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_Count = rOther.m_Count;
     m_AckType = rOther.m_AckType;
     m_AltEventStringUsage = rOther.m_AltEventStringUsage;
+    m_StringID = rOther.m_StringID;
+    m_Scenario = rOther.m_Scenario;
+    m_AckReqStatus = rOther.m_AckReqStatus;
+    m_ActionString = rOther.m_ActionString;
+    m_AlarmStatus = rOther.m_AlarmStatus;
+    m_AlarmType = rOther.m_AlarmType;
+    m_EventCode = rOther.m_EventCode;
+    m_EventSoure = rOther.m_EventSoure;
+    m_EventType = rOther.m_EventType;
+    m_EventName = rOther.m_EventName;
+    m_LogLevel = rOther.m_LogLevel;
+    m_StatusIcon = rOther.m_StatusIcon;
+    m_ShowRunLogStatus = rOther.m_ShowRunLogStatus;
+    m_ButtonType = rOther.m_ButtonType;
+
 }
 
 /****************************************************************************/

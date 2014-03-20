@@ -193,7 +193,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
 
     QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
-                            QString::number(Entry.GetEventCode(), 10) + ";" +
+                            QString::number(Entry.GetStringID(), 10) + ";" +
                             TrEventType + ";" +
                             TrEventMessage + ";" +
                             ShowInRunLog + ";" +
