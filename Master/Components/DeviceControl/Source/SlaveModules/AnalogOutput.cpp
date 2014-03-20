@@ -477,7 +477,7 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
 
     FILE_LOG_L(laCONFIG, llDEBUG) << GetName().toStdString() << ": send configuration (I/O-dir): 0x" << std::hex << m_unCanIDAnaOutputConfigOutput;
     canmsg.can_id = m_unCanIDAnaOutputConfigOutput;
-    canmsg.can_dlc = 7;
+    canmsg.can_dlc = 6;
 
     canmsg.data[0] = 0;
     if(pCANObjConfAnaOutPort->m_bEnabled)
@@ -493,9 +493,10 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
         canmsg.data[0] |= 0x20;
     }
 
-    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sBitCount, 1);
-    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sOutvalInactiv, 3);
-    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sLivetimeLimit, 5);
+	canmsg.data[1] = pCANObjConfAnaOutPort->m_sBitCount;
+    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sOutvalInactiv, 2);
+    SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sLivetimeLimit, 4);
+
 
     RetVal = m_pCANCommunicator->SendCOB(canmsg);
 

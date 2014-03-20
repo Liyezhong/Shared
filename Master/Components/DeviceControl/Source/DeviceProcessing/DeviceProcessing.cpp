@@ -81,7 +81,7 @@ QString DeviceProcessing::m_SerialNo = "";
  *  \iparam p_Parent = The parent object of this class.
  */
 /********************************************************************************/
-DeviceProcessing::DeviceProcessing(QObject *p_Parent) : mp_Parent(p_Parent),
+DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     m_pTaskConfig(0), m_pTaskNormalOperation(0), m_pTaskShutdown(0), m_pTaskDestroy(0),
     m_pTaskDiagnostic(0), m_pTaskAdjustment(0), m_pTaskFirmwareUpdate(0)
 {
@@ -177,6 +177,7 @@ DeviceProcessing::~DeviceProcessing()
         return;
     }
 }
+
 void DeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
 {
     ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
@@ -251,6 +252,7 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
         if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
         {
             retCode = InitCANMessages();
+#if 0 //merged on 2014.2.17
             if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
             {
                 retCode = ReadProcessSettings();
@@ -259,6 +261,7 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
             {
                 m_LastErrorGroup = EVENT_GRP_DCL_CONFIGURATION;
             }
+#endif //merged on 2014.2.17
         }
         else
         {
@@ -826,8 +829,10 @@ ReturnCode_t DeviceProcessing::InitCommunication()
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     qint16 sResult;
     Can2TcpClient* pClient;
+    //CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+    //                    this->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
     CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
-                        this->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
+                        this, OnError(quint32, quint16, quint16, quint16, QDateTime));
 
     if(m_TcpInterface == "1")
     {
@@ -877,6 +882,7 @@ void DeviceProcessing::HandleTasks()
 */
 
     static quint16 stTest = 0;
+    static quint32 RunThruCounter = 0;
     static DeviceProcTask* pActiveTask = NULL;
     static DeviceProcTask::TaskID_t stTaskID = DeviceProcTask::TASK_ID_DP_UNDEF;
 
@@ -1031,7 +1037,7 @@ void DeviceProcessing::HandleTasks()
         QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
@@ -1161,21 +1167,8 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished";
             if(m_pConfigurationService != NULL)
             {
-                if(m_pConfigurationService->ConfigurationComplete() == true)
-                {
-                    //register BaseModule's error
-                    QListIterator<CBaseModule *> iter(m_ObjectTree);
-                    CBaseModule* pCANNode;
-                    while (iter.hasNext())
-                    {
-                        pCANNode = iter.next();
-                        bool b = connect(pCANNode, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)), this, SLOT(OnError(quint32, quint16, quint16,quint16, QDateTime)));
-                        if(!b)
-                        {
-                            LOG() << "Connect error signal failed!" << pCANNode->GetNodeID();
-                        }
-                    }
-
+                m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
+                if(m_pConfigurationService->ConfigurationComplete() == true) {
                     emit ReportConfigurationFinished(DCL_ERR_FCT_CALL_SUCCESS);
                 }
                 else
@@ -1186,7 +1179,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             m_SubStateConfig = DP_SUB_STATE_CONFIG_FINISHED;
             TaskFinished(pActiveTask);
             //m_MainState = DP_MAIN_STATE_WAIT_FOR_ADJUST;
-            m_MainState = DP_MAIN_STATE_IDLE;
+            //m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
             break;
         case (DP_SUB_STATE_CONFIG_ERROR):
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished with error";
@@ -1217,7 +1210,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
 
         return;
     }
@@ -1278,7 +1271,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
         QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1511,7 +1504,7 @@ void DeviceProcessing::CheckMasterHeartbeat()
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
                 QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                ThrowError(0, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
+                ThrowError(DEVICE_INSTANCE_ID_DEVPROC, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
             }
         }
     }
@@ -1823,8 +1816,7 @@ void DeviceProcessing::Initialize()
 CBaseDevice* DeviceProcessing::GetDevice(quint32 InstanceID)
 {
     QListIterator<CBaseDevice*> iter(m_DeviceList);
-    CBaseDevice* pDevice;
-    CBaseDevice* pDeviceRet = NULL;
+    CBaseDevice* pDevice = NULL;
 
     while (iter.hasNext())
     {
@@ -1832,12 +1824,11 @@ CBaseDevice* DeviceProcessing::GetDevice(quint32 InstanceID)
 
         if(pDevice->GetInstanceID() == InstanceID)
         {
-            pDeviceRet = pDevice;
             break;
         }
     }
 
-    return pDeviceRet;
+    return pDevice;
 }
 
 /****************************************************************************/
