@@ -249,16 +249,6 @@ public:
         m_String = String;
     }
 
-    /****************************************************************************/
-    /**
-     * \brief Set the event key.
-     *
-     * \iparam  EventStringList  List of event strings.
-     */
-    /****************************************************************************/
-    inline void SetTranslatableStringList(Global::tTranslatableStringList  EventStringList) {
-        m_String = EventStringList;
-    }
 
     /****************************************************************************/
     /**

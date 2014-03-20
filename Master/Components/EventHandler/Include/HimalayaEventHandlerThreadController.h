@@ -30,6 +30,7 @@
 
 #include <EventHandler/Include/EventHandlerThreadController.h>
 #include <EventHandler/Include/EventXMLInfo.h>
+#include <DataLogging/Include/DayEventEntry.h>
 
 
 namespace EventHandler {
@@ -209,6 +210,7 @@ private:
     void SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep, bool EventStatus);
 
 private:
+    DataLogging::DayEventEntry m_EventEntry;
     EventXMLInfo m_EventManager; //!< use to read event configure from xml
     QHash<quint32,EventRuntimeInfo_t> m_ActiveEvents;//!< Hash of event key and pending event
     bool m_GuiAvailable;                        //!< index Gui is available or not

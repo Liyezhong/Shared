@@ -227,11 +227,11 @@ void EventHandlerThreadController::CreateEventEntry(DataLogging::DayEventEntry &
     {
         qDebug()<<"Unknown Event ID \n\n\n";
         EventInfo = m_eventList.value(EVENT_EVENT_ID_MISSING);
-        EventEntry.SetTranslatableStringList(Global::FmtArgs() << EventID);
+        EventEntry.SetString(Global::FmtArgs() << EventID);
     }
     else
     {
-        EventEntry.SetTranslatableStringList(EventStringList);
+        EventEntry.SetString(EventStringList);
     }
 
     EventEntry.SetEventKey(EventKey);

@@ -107,10 +107,6 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             {
                 bool ok = false;
                 code = m_pXMLReader->attributes().value("Code").toString().toUInt(&ok);
-                if (ok == false)
-                {
-                    return false;
-                }
             }
 
             quint32 errorId = 0;
