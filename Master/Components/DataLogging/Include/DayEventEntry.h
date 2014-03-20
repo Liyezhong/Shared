@@ -45,17 +45,39 @@ namespace DataLogging {
 class DayEventEntry  {
     friend class TestDayOperationEntry;
 private:
-
-    EventHandler::EventCSVInfo m_EventCSVInfo;               ///< Event info structure
-    Global::tTranslatableStringList m_String;                ///< The translatable string.
     bool                            m_EventStatus;           ///< true/false - Set/Reset flag for the event
     Global::tRefType                m_Ref;                   ///< Ref for the acknowledgement received
     NetCommands::ClickedButton_t    m_AckType;               ///< Ack status received from GUI
     quint32                         m_EventKey;              ///< Event Key for every event raised. NULL until raised.
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_Count;                 ///< Number of times the event has occured
+
+
+
+    quint32 m_EventCode;                                    ///< EVENT CODE
+    QString m_EventName;                                    ///< event name - macro
+    Global::EventType m_EventType;                          ///< event type
+
+    Global::ActionType m_ActionNegative;                        ///< negative action
+    Global::ActionType m_ActionPositive;                        ///< positive action
+    Global::ActionType m_ActionFinal;                           ///< default action
+    Global::EventSourceType m_EventSoure;                       ///< event source
+    bool m_AlarmStatus;                                         ///< alarm status
+    Global::AlarmPosType m_AlarmType;                           ///< alarm type
+    Global::EventLogLevel m_LogLevel;                          ///< Event log level
+    bool m_ShowRunLogStatus;                                  ///< show in user log or not
+    Global::tTranslatableStringList m_String;                ///< The translatable string.
+    Global::GuiButtonType m_ButtonType;                     ///< Button type for message box.
+    bool m_StatusIcon;                                      ///< put on status bar or not
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
 
+
+    int m_RetryAttempts;                                    ///< times to retry to repair.
+    bool m_AckReqStatus;                                    ///< do we need Ack for Event: if have event source, yes,
+
+    quint32 m_Scenario;                                     ///< scenario for event
+    QString m_ActionString;                                 ///< Action
+    quint32 m_StringID;                                     ///< Message or log string ID
 
     /****************************************************************************/
     /**
@@ -94,7 +116,7 @@ public:
     DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
                                 const Global::tTranslatableStringList &String, quint8 Count,
                                 NetCommands::ClickedButton_t ClickButton,
-                                Global::tRefType Ref, EventHandler::EventCSVInfo CSVInfo);
+                                Global::tRefType Ref);
     /****************************************************************************/
     /**
      * \brief Copy constructor.
@@ -218,6 +240,17 @@ public:
 
     /****************************************************************************/
     /**
+     * \brief set the argument list .
+     *
+     * \param  Argument list.
+     */
+    /****************************************************************************/
+    inline void SetString(const Global::tTranslatableStringList &String) {
+        m_String = String;
+    }
+
+    /****************************************************************************/
+    /**
      * \brief Set the event key.
      *
      * \iparam  EventStringList  List of event strings.
@@ -229,222 +262,310 @@ public:
 
     /****************************************************************************/
     /**
-     * \brief Get the run log status value from CSV structure.
+     * \brief Get the run log status value .
      *
      * \return  Log status value.
      */
     /****************************************************************************/
     bool GetShowInRunLogStatus() const{
-        return (m_EventCSVInfo.GetRunLogStatus());
+        return m_ShowRunLogStatus;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the event type from CSV structure.
+     * \brief Set the run log status value .
+     *
+     * \param  Log status value.
+     */
+    /****************************************************************************/
+    void SetShowInRunLogStatus(bool RunLogStatus){
+        m_ShowRunLogStatus = RunLogStatus;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the event type .
      *
      * \return  Event type.
      */
     /****************************************************************************/
     Global::EventType GetEventType() const {
-        return m_EventCSVInfo.GetEventType();
+        return m_EventType;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the event code from CSV structure.
+     * \brief Set the event type .
      *
-     * \return  Event code.
+     * \return  void.
      */
     /****************************************************************************/
-    quint32 GetEventId () const{
-        return m_EventCSVInfo.GetEventId();
+    void SetEventType(Global::EventType EventType) {
+        m_EventType = EventType;
     }
+
 
     /****************************************************************************/
     /**
-     * \brief Get the event name from CSV structure.
+     * \brief Get the event name .
      *
      * \return  Name of the event.
      */
     /****************************************************************************/
     inline QString GetEventName() const {
-        return m_EventCSVInfo.GetEventName();
+        return m_EventName;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the event log level from CSV structure.
+     * \brief Set the event name .
+     *
+     * \param   Name of the event.
+     */
+    /****************************************************************************/
+    inline void SetEventName(QString EventName) {
+        m_EventName = EventName;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the event log level .
      *
      * \return  Event log level.
      */
     /****************************************************************************/
     inline Global::EventLogLevel GetLogLevel() const {
-        return m_EventCSVInfo.GetLogLevel();
+        return m_LogLevel;
     }
 
     /****************************************************************************/
     /**
-     * \brief Set the event code in CSV structure.
+     * \brief Set the event log level .
+     *
+     * \param  Event log level.
+     */
+    /****************************************************************************/
+    inline void SetLogLevel(Global::EventLogLevel LogLevel) {
+        m_LogLevel = LogLevel;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the event code .
+     *
+     * \return  Event code.
+     */
+    /****************************************************************************/
+    quint32 GetEventCode () const{
+        return m_EventCode;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set the event code
      *
      * \iparam    EventCode     Event code.
      */
     /****************************************************************************/
     inline void SetEventCode(qint32 EventCode){
-        m_EventCSVInfo.SetEventId(EventCode);
+        m_EventCode= EventCode;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the alaram status from CSV structure.
+     * \brief Get the alaram status .
      *
      * \return  Alaram status is ON or OFF.
      */
     /****************************************************************************/
     inline bool GetAlarmStatus() const {
-        return m_EventCSVInfo.GetAlarmStatus();
+        return m_AlarmStatus;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the number retry attempts from CSV structure.
+     * \brief Set the alaram status .
+     *
+     * \param  Alaram status is ON or OFF.
+     */
+    /****************************************************************************/
+    inline void SetAlarmStatus(bool AlarmStatus) {
+        m_AlarmStatus = AlarmStatus;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the alaram type .
+     *
+     * \return  Alaram type.
+     */
+    /****************************************************************************/
+    inline Global::AlarmPosType GetAlarmType() const {
+        return m_AlarmType;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set the alaram type .
+     *
+     * \param  Alaram status is ON or OFF.
+     */
+    /****************************************************************************/
+    inline void SetAlarmType(Global::AlarmPosType AlarmType) {
+        m_AlarmType = AlarmType;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the number retry attempts .
      *
      * \return  Number of the attempts.
      */
     /****************************************************************************/
     inline int GetRetryAttempts() const {
-        return m_EventCSVInfo.GetRetryAttempts();
+        return m_RetryAttempts;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the action negative value from CSV structure.
+     * \brief Get the action negative value .
      *
      * \return  Action negative value.
      */
     /****************************************************************************/
     inline Global::ActionType GetActionNegative() const {
-        return m_EventCSVInfo.GetActionNegative();
+        return m_ActionNegative;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the action positive value from CSV structure.
+     * \brief Get the action positive value .
      *
      * \return  Action positive value.
      */
     /****************************************************************************/
     inline Global::ActionType GetActionPositive() const {
-        return m_EventCSVInfo.GetActionPositive();
+        return m_ActionPositive;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the final action value from CSV structure.
+     * \brief Get the final action value .
      *
      * \return  Action final value.
      */
     /****************************************************************************/
     inline Global::ActionType GetFinalAction() const {
-        return m_EventCSVInfo.GetFinalAction();
+        return m_ActionFinal;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the Status Icon value from CSV structure.
+     * \brief Set the final action value .
+     *
+     * \return  Action final value.
+     */
+    /****************************************************************************/
+    inline  void SetFinalAction(Global::ActionType Action) {
+        m_ActionFinal = Action;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Get the Status Icon value .
      *
      * \return  Status icon value is true or false.
      */
     /****************************************************************************/
     inline bool GetStatusIcon() const {
-        return m_EventCSVInfo.GetStatusIcon();
+        return m_StatusIcon;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the acknowledgement require status from CSV structure.
+     * \brief Set the Status Icon value .
+     *
+     * \param  Status icon value is true or false.
+     */
+    /****************************************************************************/
+    inline void SetStatusIcon(bool StatusIcon) {
+        m_StatusIcon = StatusIcon;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the acknowledgement require status .
      *
      * \return  On successful (true) or not (false).
      */
     /****************************************************************************/
     inline bool GetAckReqStatus() const {
-        return m_EventCSVInfo.GetAckReqStatus();
+        return m_AckReqStatus;
     }
 
     /****************************************************************************/
     /**
-     * \brief Set the acknowledgement require status from CSV structure.
+     * \brief Set the acknowledgement require status .
      *
      * \iparam    Ack       Acknowledgement status.
      */
     /****************************************************************************/
     inline void SetAckReqStatus(bool Ack) {
-        m_EventCSVInfo.SetAckRequired(Ack);
+        m_AckReqStatus = Ack;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the event action type from CSV structure.
+     * \brief Get the event action type .
      *
      * \return  Event action type.
      */
     /****************************************************************************/
     inline Global::ActionType GetActionType() const {
-        return m_EventCSVInfo.GetActionType();
+        return m_ActionFinal;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the button type from CSV structure.
+     * \brief Get the button type .
      *
      * \return  Button type.
      */
     /****************************************************************************/
     inline Global::GuiButtonType GetButtonType() const {
-        return m_EventCSVInfo.GetButtonType();
+        return m_ButtonType;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the GUI message box options from CSV structure.
+     * \brief Set the button type .
      *
-     * \return  GUI message box options.
+     * \param  Button type.
      */
     /****************************************************************************/
-    inline Global::GuiButtonType GetGUIMessageBoxOptions() const {
-        return m_EventCSVInfo.GetGUIMessageBoxOptions();
+    inline void SetButtonType(Global::GuiButtonType ButtonType) {
+        m_ButtonType = ButtonType;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the source cmponent from CSV structure.
+     * \brief Get the source cmponent .
      *
      * \return  Source component.
      */
     /****************************************************************************/
-    inline Global::EventSourceType GetSourceComponent() const {
-        return m_EventCSVInfo.GetSourceComponent();
+    inline Global::EventSourceType GetEventSource() const {
+        return m_EventSoure;
     }
 
     /****************************************************************************/
     /**
-     * \brief Get the logging source name from CSV structure.
+     * \brief Set the source cmponent .
      *
-     * \return  Logging souce name.
+     * \param  Source component.
      */
     /****************************************************************************/
-    inline Global::LoggingSource GetSource() const {
-        return m_EventCSVInfo.GetSource();
+    inline void SetEventSource(Global::EventSourceType EventSource) {
+        m_EventSoure = EventSource;
     }
-
-    /****************************************************************************/
-    /**
-     * \brief Set the event CSV infromation.
-     *
-     * \iparam    CSVInfo  CSV infromation of the event.
-     */
-    /****************************************************************************/
-    void SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) ;
-
     /****************************************************************************/
     /**
      * \brief Get the Event Status
@@ -489,6 +610,78 @@ public:
         m_AckType = AckVal.GetButtonClicked();
 
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Get the Action string .
+     *
+     * \return  action string.
+     */
+    /****************************************************************************/
+    inline QString GetActionString() const {
+        return m_ActionString;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set the action string .
+     *
+     * \param  action string.
+     */
+    /****************************************************************************/
+    inline void SetActionString(QString ActionString) {
+        m_ActionString = ActionString;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get String ID .
+     *
+     * \return  String id.
+     */
+    /****************************************************************************/
+    quint32 GetStringID () const{
+        return m_StringID;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set string ID
+     *
+     * \iparam    string id.
+     */
+    /****************************************************************************/
+    inline void SetStringID(qint32 StringID){
+        m_StringID= StringID;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get Scenario .
+     *
+     * \return  Scenario.
+     */
+    /****************************************************************************/
+    quint32 GetScenario () const{
+        return m_Scenario;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set Scenario
+     *
+     * \iparam    Scenario.
+     */
+    /****************************************************************************/
+    inline void SetScenario(qint32 Scenario){
+        m_Scenario= Scenario;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Update Event entry by csv
+     *
+     * \param  EventCSVInfo
+     */
+    /****************************************************************************/
+    void SetEventCSVInfo(const EventHandler::EventCSVInfo& EventCsv);
 
 }; // end class DayEventEntry
 

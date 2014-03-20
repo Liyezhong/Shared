@@ -41,6 +41,8 @@ struct EventRuntimeInfo_t
     quint32 Scenario;
     const XMLEvent* Event;
     quint32 CurrentStep;
+    bool ActionResult;
+    NetCommands::ClickedButton_t UserSelect;
     Global::tTranslatableStringList EventStringParList;
     Global::tTranslatableStringList EventRDStringParList;
 };
@@ -98,6 +100,14 @@ public:
      */
     /****************************************************************************/
     virtual void ConnectToEventObject();
+    /****************************************************************************/
+    /*!
+     *  \brief  Log the events which are there in queue
+     *
+     *  \iparam    &EventEntry
+     */
+    /****************************************************************************/
+    void LogEntry(const EventRuntimeInfo_t& EventInfo);
 
 public slots:
 

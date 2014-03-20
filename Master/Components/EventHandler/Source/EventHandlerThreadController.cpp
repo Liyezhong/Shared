@@ -183,7 +183,7 @@ void EventHandlerThreadController::AddSourceComponents() {
  ****************************************************************************/
 void EventHandlerThreadController::HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64)
 {
-    quint32 EventID = EventEntry.GetEventId();
+    quint32 EventID = EventEntry.GetEventCode();
     int EventOccurenceCount = m_EventIDCount.count(EventID);
     if (EventOccurenceCount == 0) {
         //This is a dummy event
@@ -692,7 +692,7 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
     }
     else {
         //New event, add only if the event has to be sent to GUI
-        if(EventEntry.GetGUIMessageBoxOptions() != Global::NOT_SPECIFIED) {
+        if(EventEntry.GetButtonType() != Global::NOT_SPECIFIED) {
             m_EventIDCount.append(EventID);
             m_EventKeyDataMap.insert(EventId64, EventEntry);
             if (!m_EventIDKeyHash.contains(EventID)) {
@@ -864,7 +864,7 @@ void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayE
     }
 
     if (TheEvent.GetActionPositive() == Global::ACNTYPE_STOP) {
-        EventHandler::StateHandler::Instance().setAvailability(TheEvent.IsEventActive(), TheEvent.GetEventId());
+        EventHandler::StateHandler::Instance().setAvailability(TheEvent.IsEventActive(), TheEvent.GetEventCode());
     }
 }
 /****************************************************************************/
@@ -878,7 +878,7 @@ void EventHandlerThreadController::SetSystemStateMachine(const DataLogging::DayE
 /****************************************************************************/
 void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64)
 {
-    if ((TheEvent.GetGUIMessageBoxOptions() != Global::NOT_SPECIFIED) || (TheEvent.GetStatusIcon()))
+    if ((TheEvent.GetButtonType() != Global::NOT_SPECIFIED) || (TheEvent.GetStatusIcon()))
     {
         NetCommands::EventReportDataStruct EventReportData;
         EventReportData.EventStatus = TheEvent.IsEventActive(); //False means event not active, True if event active.
@@ -893,7 +893,7 @@ void EventHandlerThreadController::InformGUI(const DataLogging::DayEventEntry &T
             AltStringUsage == Global::GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE) {
                 UseAltEventString = true;
         }
-        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventId(), TheEvent.GetString()),
+        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString()),
                                                                                             UseAltEventString, true); //"Event String translated to the set langauge";
         EventReportData.Time = TheEvent.GetTimeStamp().toString();   // Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.BtnType = TheEvent.GetButtonType();
@@ -975,14 +975,14 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
 
     if(EventEntry.GetLogLevel() != Global::LOGLEVEL_NONE)
     {
-        qDebug()<<"OnAcknowledge() <<EventEntry" <<EventEntry.GetEventId();
+        qDebug()<<"OnAcknowledge() <<EventEntry" <<EventEntry.GetEventCode();
         LogEventEntry(EventEntry);
     }
     InformAlarmHandler(EventEntry, EventId64, false);
     if (!EventEntry.GetStatusIcon()) {      // if event is present in status bar, it should not be removed yet because inactive event needs to get the correct key in order to update status list
-        UpdateEventDataStructures(EventEntry.GetEventId(), EventId64, EventEntry, true, true);
+        UpdateEventDataStructures(EventEntry.GetEventCode(), EventId64, EventEntry, true, true);
     }
-    Global::EventSourceType SourceName = EventEntry.GetSourceComponent();
+    Global::EventSourceType SourceName = EventEntry.GetEventSource();
     if(SourceName == Global::EVENTSOURCE_NONE) {
         return;
     }
@@ -998,7 +998,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     EventID = (quint32)((Ack.GetEventKey() & 0xffffffff00000000) >> 32) ;
     p_CmdSystemAction->SetEventKey(EventKey);
     p_CmdSystemAction->SetEventID(EventID);
-    p_CmdSystemAction->SetSource(EventEntry.GetSourceComponent());
+    p_CmdSystemAction->SetSource(EventEntry.GetEventSource());
     p_CmdSystemAction->SetRetryCount(Count);
     p_CmdSystemAction->SetStringList(EventEntry.GetString());
     Global::tRefType NewRef = GetNewCommandRef();
