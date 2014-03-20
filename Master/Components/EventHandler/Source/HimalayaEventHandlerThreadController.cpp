@@ -102,6 +102,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     EventInfo.EventKey = EventKey;
                     EventInfo.EventID = EventID;
                     EventInfo.Scenario = Scenario;
+                    EventInfo.ActionResult = ActionResult;
                     EventInfo.CurrentStep = 0;
                     EventInfo.Event = pEvent;
                     EventInfo.EventStringParList = EventStringParList;
@@ -114,7 +115,9 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
             pEvent = m_ActiveEvents[EventKey].Event;
             pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
             if(pEvent && pCurrentStep){ //caculate the next step
+                m_ActiveEvents[EventKey].ActionResult = ActionResult;
                 if(pCurrentStep->GetType().compare("ACT") == 0){ //action step
+                    LogEntry(m_ActiveEvents[EventKey]);
                     if(ActionResult){
                         NextStepID = pCurrentStep->GetNextStepOnSuccess();
                     }
@@ -175,6 +178,8 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
         pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
         if(pEvent && pCurrentStep){ //caculate the next step
             if(pCurrentStep->GetType().compare("MSG") == 0){ //msg step
+                m_ActiveEvents[EventKey].UserSelect = ack.GetButtonClicked();
+                LogEntry(m_ActiveEvents[EventKey]);
                 NetCommands::ClickedButton_t clicked = ack.GetButtonClicked();
                 switch(clicked){
                     case NetCommands::OK_BUTTON:
@@ -293,4 +298,54 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
             m_PendingGuiEvent.clear();
         }
     }
+
+
+void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& EventInfo)
+{
+
+    DataLogging::DayEventEntry EventEntry;
+    EventEntry.SetEventKey(EventInfo.EventKey);
+    EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
+    EventEntry.SetEventStatus(EventInfo.ActionResult);
+
+
+    EventEntry.SetEventCode(EventInfo.Event->GetCode());
+    EventEntry.SetEventName(EventInfo.Event->GetEventName());
+    EventEntry.SetEventType(EventInfo.Event->GetErrorType());
+    EventEntry.SetEventSource(EventInfo.Event->GetEventSource());
+    EventEntry.SetAlarmType(EventInfo.Event->GetAlarmType());
+    EventEntry.SetLogLevel(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetLogLevel());
+    EventEntry.SetShowInRunLogStatus(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetUserLog());
+    EventEntry.SetStatusIcon(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStatusBar());
+
+
+    EventEntry.SetScenario(EventInfo.Scenario);
+
+    if(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetType() == "MSG"){
+        EventEntry.SetStringID(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStringID());
+        EventEntry.SetTranslatableStringList(EventInfo.EventStringParList);
+        EventEntry.SetButtonType(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetButtonType());
+    }
+    else{
+        EventEntry.SetStringID(STR_SCHEDULER_EVENT_SCENARIO_ACTION_RESULT);
+        EventEntry.SetString(Global::tTranslatableStringList() << EventInfo.Event->GetCode()
+                                             << EventInfo.Scenario
+                                             << EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetAction()
+                                             << EventInfo.ActionResult);
+    }
+//    if (EventHandler::StateHandler::Instance().getCurrentOperationState().compare("DefaultState") == 0) {
+//        m_DayEventEntryList.append(EventEntry);
+//    }
+//    else {
+//        // emit all the pending entries
+//        if (m_DayEventEntryList.count() > 0) {
+//            for (int Counter = 0; Counter < m_DayEventEntryList.count(); Counter++) {
+//                emit LogEventEntry(m_DayEventEntryList.value(Counter));
+//            }
+//            m_DayEventEntryList.clear();
+//        }
+        //qDebug()<< "Sending event to DataLogger";
+        emit LogEventEntry(EventEntry); //Log the event
+//    }
+}
 }//end of namespace EventHandler

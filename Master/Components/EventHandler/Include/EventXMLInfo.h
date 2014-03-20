@@ -288,7 +288,7 @@ public:
      * \return Code attribute	
      */
     /****************************************************************************/
-    const QString& GetCode() const { return m_Code; }
+    const quint32 GetCode() const { return m_Code; }
 
     /****************************************************************************/
     /**
@@ -348,7 +348,7 @@ public:
 private:
     quint32                                 		m_ErrorId;			///< Error Code
     QString                                 		m_Source;			///< Source Name
-    QString                                 		m_Code;				///< Code
+    quint32                                 		m_Code;				///< Code
     QString                                         m_EventName;         ///< Event macro
     Global::EventType                          m_ErrorType;		///< Error Type
     Global::GuiUserLevel                          m_AuthType;			///< Authority Type

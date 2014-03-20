@@ -125,7 +125,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             UseAltEventString = true;
     }
     // translate message
-    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventId(), Entry.GetString()),
+    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetStringID(), Entry.GetString()),
                                                                                       UseAltEventString);
 
     if (TrEventMessage.length() == 0)
@@ -193,7 +193,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
 
     QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
-                            QString::number(Entry.GetEventId(), 10) + ";" +
+                            QString::number(Entry.GetEventCode(), 10) + ";" +
                             TrEventType + ";" +
                             TrEventMessage + ";" +
                             ShowInRunLog + ";" +
@@ -203,7 +203,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
 
     // check if we must printout to console (because we sent it to the data logger
     // and we have to avoid a ping pong of error messages)
-    Global::EventSourceType SourceType = Entry.GetSourceComponent();
+    Global::EventSourceType SourceType = Entry.GetEventSource();
     if(( SourceType == Global::EVENTSOURCE_DATALOGGER) &&
         ((Entry.GetEventType() == Global::EVTTYPE_FATAL_ERROR) || (Entry.GetEventType() == Global::EVTTYPE_ERROR)))
     {

@@ -290,7 +290,7 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
 
         //add msg string
         QString MsgString = Global::UITranslator::TranslatorInstance().Translate(
-                    Global::TranslatableString(TheEvent.GetEventId(), TheEvent.GetString()),
+                    Global::TranslatableString(TheEvent.GetEventCode(), TheEvent.GetString()),
                         UseAltEventString); //"Event String translated to the set langauge";
 
         EventReportData.m_EventMessage = MsgString;
