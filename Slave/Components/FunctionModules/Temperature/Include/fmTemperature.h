@@ -102,6 +102,17 @@
 //! Notification sent when preset temperature variation slope reached
 #define MSG_TEMP_NOTI_SLOPE_DETECTED  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0)
 
+//! Sets the switch state of the heaters
+#define MSG_TEMP_SET_SWITCH_STATE     BUILD_CAN_ID(CMD_CLASS_FUNCTION, 20, 1)
+
+//! Sets the AC heater current watchdog parameters
+#define MSG_TEMP_SET_AC_CURRENT_WATCHDOG \
+                                      BUILD_CAN_ID(CMD_CLASS_FUNCTION, 21, 1)
+
+//! Sets the extra AC heater current watchdog parameters
+#define MSG_TEMP_SET_AC_CURRENT_WATCHDOG_EXT \
+                                      BUILD_CAN_ID(CMD_CLASS_FUNCTION, 22, 1)
+
 //****************************************************************************/
 // Public Type Definitions 
 //****************************************************************************/

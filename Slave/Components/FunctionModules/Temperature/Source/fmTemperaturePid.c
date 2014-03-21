@@ -167,8 +167,6 @@ Bool tempPidCalculate (TempPidParams_t *Param, Int16 DesiredTemp, UInt16 ActualT
     
     Param->Error = Error;
     
-    //printf("P:%d %d %d %d, %d\n", Proportional, Param->Integral, Error, Param->Output, ActualTemp);
-    
     return TRUE;
 }
 

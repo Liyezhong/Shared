@@ -83,6 +83,9 @@
 #define BUILD_DO_ERRCODE(Class,Code) \
                         BUILD_ERRCODE(MODULE_ID_DIGITAL_OUT, Class, Code)
 
+#define E_DIGOUT_NOT_ENABLED       BUILD_DO_ERRCODE(ERRCLASS_ERROR, 1)
+#define E_DIGOUT_NOT_USABLE        BUILD_DO_ERRCODE(ERRCLASS_ERROR, 2)
+
 //@} End of doxygen group
 
 //****************************************************************************/

@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file fmStepperMotorMotion.h
  * 
- *  \brief Motion setup/control functions of module 'stepper motor'
+ *  \brief Public's for motion setup/control
  * 
  *
  *  $Version: $ 0.1
@@ -26,41 +26,36 @@
     #include "Global.h"
 #endif
 
-//********************************************************************************/
-// Public Constants and Definitions
-//********************************************************************************/
-
-#define SM_NUM_OF_PARAMETERSETS             3   //!< amount of movement parameter sets
-
-#define MSEC                                (1000)              //!< mili-seconds per second
-#define USEC                                (1000*1000)         //!< micro-seconds per second
-#define NSEC                                (1000*1000*1000)    //!< nano-seconds per second
-
-#define SM_MICROSTEPS_PER_HALFSTEP          32  //!< step unit used for calculation
-#define SM_MICROSTEPS_PER_FULLSTEP          64  //!< step unit used for calculation
+#define NUM_OF_PARAMETERSETS                3   //!< amount of movement parameter sets
 
 
-//****************************************************************************/
-// Public Type Definitions
-//****************************************************************************/
+#define MSEC                                (1000)
+#define USEC                                (1000*1000)
+#define NSEC                                (1000*1000*1000)
+
+#define MICROSTEPS_PER_HALFSTEP             32  //!< step unit used for calculation
+#define MICROSTEPS_PER_FULLSTEP             64  //!< step unit used for calculation
+
+#define PROC
 
 //! stepper motion state
-typedef enum {
+typedef enum
+{
     MS_IDLE,                //!< motor is not moving
     MS_POSITION,            //!< motor is moving to a target position
     MS_SPEED,               //!< motor is moving to reach, or already moving with target speed
-    MS_STOP,                //!< motor is stopping
 } smMotionState_t;
 
 
-//! movement phases of s-curve trajectory
-typedef enum {
+//! all movement phases of s-curve trajectory
+typedef enum
+{
     PH_0_START,             //!< move with constant start speed 
     PH_1_ACC_JERK_UP,       //!< move with increasing acceleration
     PH_2_ACC_CONST,         //!< move with constant acceleration
     PH_3_ACC_JERK_DOWN,     //!< move with decreasing acceleration
     PH_4_VEL_CONST,         //!< move with constant target speed 
-    PH_5_DEC_JERK_UP,       //!< move with increasing deceleration
+    PH_5_DEC_JERK_UP,       //!< move with increasing deeleration
     PH_6_DEC_CONST,         //!< move with constant deceleration
     PH_7_DEC_JERK_DOWN,     //!< move with decreasing deceleration
     PH_8_END,               //!< move with constant end speed 
@@ -70,7 +65,8 @@ typedef enum {
 
 
 //! parameter set of single movement phase
-typedef struct {
+typedef struct
+{
     Int32   s;              //!< start position
     Int32   ds;             //!< distance moved 
     Int32   v;              //!< start velocity
@@ -85,49 +81,42 @@ typedef struct {
 
 
 //! trigger definition at which parameter set should be switched
-typedef struct {
+typedef struct
+{
     smPhase_t               OldPhase;       //!< old phase from which switch should happen
     Int64                   Position;       //!< and position within the old phase
 } smParamSwitchTrigger_t;
 
 
 //! data for parameter set switch
-typedef struct {
+typedef struct
+{
     smParamSwitchTrigger_t  Trigger;        //!< definitions which will trigger a pending parameter switch
     smPhase_t               NewPhase;       //!< new phase to which should be switched
 } smParamSwitch_t;
 
 
 //! data for movement parameter set
-typedef struct {
-//! parameters for each single phase
-    smPhaseParam_t          Ph[NUM_OF_MOTION_PHASES];
+typedef struct
+{
+    smPhaseParam_t          Ph[NUM_OF_MOTION_PHASES];   //!< parameters for each single phase
+    Int8                    dSteps;                     //!< step width used to increase step count at each interrupt (in micro-steps)
 
-//! step width used to increase step count at each interrupt (in micro-steps)
-    Int8                    dSteps;
+    Bool                    NegPosCount;                //!< flag for negative position count, if set means position counter is decremented
 
-//! flag for negative position count, if set means position counter is decremented
-    Bool                    NegPosCount;
+    Bool                    CCWRotDir;                  //!< flag for rotation dir, if set means motor will rotate CCW. can be opposite to position counter
 
-//! flag for rotation dir, if set means motor will rotate CCW. can be opposite to position counter
-    Bool                    CCWRotDir;
+    smParamSwitch_t         SwitchSet;                  //!< data for parameter set switch
 
-//! data for parameter set switch
-    smParamSwitch_t         SwitchSet;
-
-//! only for speed request: to store the requested target speed
-    Int16                   Speed;
-
-//! only for stop of rotatory movement: to store the actual position each time a new parameter set is used
-    UInt16                  OffsetPos;
-
-//! only for stop of rotatory movement: to store the start phase each time a new parameter set is used
-    smPhase_t               OffsetPhase;
+    Int16                   Speed;                      //!< only for speed request: to store the requested target speed
+    UInt16                  OffsetPos;                  //!< only for stop of rotatory movement: to store the actual position each time a new parameter set is used
+    smPhase_t               OffsetPhase;                //!< only for stop of rotatory movement: to store the start phase each time a new parameter set is used
 } smParamSet_t;
 
 
 //! actual nominal movement values 
-typedef struct {
+typedef struct
+{
     Int64   s;          //!< position in microsteps
     Int64   v;          //!< velocity in microsteps/sec
 #ifdef TRACE
@@ -138,14 +127,16 @@ typedef struct {
 
 
 //! CCR data
-typedef struct {
+typedef struct
+{
     UInt16  Unit;       //!< Capture compare unit no
     UInt16  LastValue;  //!< value written to ccr at last irq execution
 } smCCR_t;
 
 
 //! control values for stopping the motor movement
-typedef enum {
+typedef enum
+{
     SM_SC_NONE,         //!< don't stop
     SM_SC_DIR_CW,       //!< stop if moving direction is clockwise
     SM_SC_DIR_CCW,      //!< stop if moving direction is counter-clockwise
@@ -155,18 +146,13 @@ typedef enum {
 
 
 //! motion control data
-typedef struct {
-//! array of parameter sets for combined movements
-    smParamSet_t            Param[SM_NUM_OF_PARAMETERSETS];
+typedef struct
+{
+    smParamSet_t            Param[NUM_OF_PARAMETERSETS];    //!< array of parameter sets for combined movements
+    Int8                    ActSet;             //!< actual used parameter set
+    Int8                    NewSet;             //!< new parameter set which should be used
 
-//! actual used parameter set
-    Int8                    ActSet;
-
-//! new parameter set which should be used
-    Int8                    NewSet;
-
-//! always keeps actual values for position, velocity, acceleration of whole movement
-    smNominalData_t         Nominal;
+    smNominalData_t         Nominal;            //!< always keeps actual values for position, velocity, acceleration of whole movement
 
     smPhase_t               Phase;              //!< actual phase
     Int64                   v0;                 //!< velocity at start of phase
@@ -180,41 +166,24 @@ typedef struct {
     Int32                   dt;                 //!< interval time for next step
 #endif
 
-//! motors motion state, idle or moving to target speed/position
-    volatile smMotionState_t    State;
+    smMotionState_t         State;              //!< motors motion state, idle or moving to target speed/position
 
-//! set to signal that position movement have reached the target position
-    Bool                    AtTargetPosition;
+    Bool                    AtTargetPosition;   //!< set to signal that position movement have reached the target position
+    Bool                    AtTargetSpeed;      //!< set to signal that speed movement have reached the target speed
 
-//! set to signal that speed movement have reached the target speed
-    Bool                    AtTargetSpeed;
+    Int32                   Pos;                //!< absolute position (in half-step)
+    UInt16                  ResetPos;           //!< position value at which the actual position is reset to 0. Ignored if reset value is 0.
 
-//! absolute position (in half-step)
-    Int32                   Pos;
-//! position value at which the actual position is reset to 0. Ignored if reset value is 0.
-    UInt16                  ResetPos;
+    UInt8                   SinIndex;           //!< index into sinus table
 
-//! index into sinus table
-    UInt8                   SinIndex;
+    smStopCondition_t       Stop;               //!< stop movement according to set condition. stop position is always at half-step value.
 
-//! stop movement according to set condition. stop position is always at half-step value.
-    smStopCondition_t       Stop;
+    Bool                    LSTrigger;          //!< at each half-step this flag is set to trigger poll of limit switch status in the module task
 
-//! at each half-step this flag is set to trigger poll of limit switch status in the module task
-    Bool                    LSTrigger;
-
-//! CCR data used for ISR timing
-    smCCR_t                 CCR;
+    smCCR_t                 CCR;                //!< CCR data used for ISR timing
     UInt8                   LSHitCnt;   
-//! used to store return code from HAL functions called in ISR
-    Error_t                 HALStatus;
-
 } Motion_t;
 
-
-//****************************************************************************/
-// Public Function Prototypes
-//****************************************************************************/
 
 //! init. motion control data
 void smInitMotion (Motion_t *Motion, UInt16 Instance);

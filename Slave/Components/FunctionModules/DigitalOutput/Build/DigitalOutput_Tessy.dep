@@ -1,4 +1,4 @@
 Dependencies for Project 'DigitalOutput', Target 'Tessy': (DO NOT MODIFY !)
-F (..\Include\fmDigiOutput.h)(0x4F6B2652)()
-F (..\Source\dbDigiOutput.c)(0x4F6B2651)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbdigioutput.o" --omf_browse "..\Library\dbdigioutput.crf" --depend "..\Library\dbdigioutput.d")
-F (..\Source\fmDigiOutput.c)(0x50CEBCDF)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmdigioutput.o" --omf_browse "..\Library\fmdigioutput.crf" --depend "..\Library\fmdigioutput.d")
+F (..\Include\fmDigiOutput.h)(0x51D14D2E)()
+F (..\Source\dbDigiOutput.c)(0x51D14D2E)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbdigioutput.o" --omf_browse "..\Library\dbdigioutput.crf" --depend "..\Library\dbdigioutput.d")
+F (..\Source\fmDigiOutput.c)(0x51D14D2E)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmdigioutput.o" --omf_browse "..\Library\fmdigioutput.crf" --depend "..\Library\fmdigioutput.d")

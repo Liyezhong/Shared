@@ -34,13 +34,11 @@
 
   <project>
     <PathAndName>..\Components\FunctionModules\DigitalOutput\Build\DigitalOutput.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
   <project>
     <PathAndName>..\Components\FunctionModules\Joystick\Build\Joystick.uvproj</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
     <NodeIsCheckedInBatchBuild>1</NodeIsCheckedInBatchBuild>
   </project>
 
@@ -51,6 +49,8 @@
 
   <project>
     <PathAndName>..\Components\FunctionModules\RfidIso15693\Build\RfidIso15693.uvproj</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -70,7 +70,6 @@
 
   <project>
     <PathAndName>..\Components\FunctionModules\Pressure\Build\Pressure.uvproj</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
 </ProjectWorkspace>

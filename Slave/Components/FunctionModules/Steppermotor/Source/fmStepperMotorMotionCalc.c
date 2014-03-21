@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file fmStepperMotorMotionCalc.c
  * 
- *  \brief Calculation of movement values bases on s-curve motion profile
+ *  \brief Calculation of characteristic movement values for a s-curve motion profile
  * 
  *
  *  $Version: $ 0.1
@@ -16,7 +16,7 @@
  *      target speed to stop speed. 
  *      Calculation is done according to preconfigured values from a motion
  *      profile for S-curve trajectory.
- *
+ *       
  *
  *  \b Company:
  *
@@ -48,16 +48,17 @@
  *
  *      Precondition: preset values for PhData_0 start position and speed.
  *
- *  \xparam  PhData_0  = Pointer to phase values of preceding phase
- *  \oparam  PhData_T  = Pointer to phase values of next phase
+ *  \xparam  PhData_0  = Phase values of preceding phase
+ *  \oparam  PhData_T  = Phase values of next phase
  *  \iparam  s         = distance to move
  *
  ****************************************************************************/
-void smCalcConstSpeed (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int32 s) {
-
-    Int64 t = SM_PROFILE_TIMEBASE;
+void smCalcConstSpeed (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int32 s)
+{
+    Int64 t = PROFILE_TIMEBASE;
     t = t * s / PhData_0->v;
-    if (PhData_T) {
+    if (PhData_T)
+    {
         PhData_T->s = PhData_0->s + s;
         PhData_T->v = PhData_0->v;
         PhData_T->a = 0;
@@ -89,30 +90,22 @@ void smCalcConstSpeed (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int32 s
  *
  *      Precondition: preset values for PhData_0 start position, speed and time
  *
- *  \xparam  PhData_0  = Pointer to phase values of preceding phase
- *  \oparam  PhData_T  = Pointer to phase values of next phase
+ *  \xparam  PhData_0  = Phase values of preceding phase
+ *  \oparam  PhData_T  = Phase values of next phase
  *  \iparam  a         = positive for acceleration / negative for deceleration
  *  \iparam  dt        = duration
  *
  ****************************************************************************/
-void smCalcConstAccDec (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int32 a, Int64 dt) {
-
-    PhData_T->s =   PhData_0->s
-                  + PhData_0->v * dt / SM_PROFILE_TIMEBASE
-                  + a * dt * dt / 2 / SM_PROFILE_TIMEBASE/SM_PROFILE_TIMEBASE;
-
-    PhData_T->v =   PhData_0->v
-                  + a * dt / SM_PROFILE_TIMEBASE;
-
-    PhData_T->a = a;
-
-    PhData_T->t =   PhData_0->t
-                  + dt;
-
-    PhData_0->ds = PhData_T->s - PhData_0->s;
-    PhData_0->dv = PhData_T->v - PhData_0->v;
-    PhData_0->da = PhData_T->a - PhData_0->a;
-    PhData_0->dt = dt;
+void smCalcConstAccDec (smPhaseData_t* pProf_0, smPhaseData_t* pProf_T, Int32 a, Int64 dt)
+{
+    pProf_T->s = pProf_0->s + pProf_0->v*dt/PROFILE_TIMEBASE + a*dt*dt/2/PROFILE_TIMEBASE/PROFILE_TIMEBASE;
+    pProf_T->v = pProf_0->v + a*dt/PROFILE_TIMEBASE;
+    pProf_T->a = a;
+    pProf_T->t = pProf_0->t + dt;
+    pProf_0->ds = pProf_T->s - pProf_0->s;
+    pProf_0->dv = pProf_T->v - pProf_0->v;
+    pProf_0->da = pProf_T->a - pProf_0->a;
+    pProf_0->dt = dt;
 }
 
 
@@ -140,34 +133,24 @@ void smCalcConstAccDec (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int32 
  *      Precondition: preset values for PhData_0 start position, speed, acceleration/
  *                    deceleration and time
  *
- *  \xparam  PhData_0  = Pointer to phase values of preceding phase
- *  \oparam  PhData_T  = Pointer to phase values of next phase
+ *  \xparam  PhData_0  = Phase values of preceding phase
+ *  \oparam  PhData_T  = Phase values of next phase
  *  \iparam  j         = positive for increasing, negative for decreasing change of
  *                       acceleration/deceleration
  *  \iparam  dt        = duration
  *
  ****************************************************************************/
-void smCalcJerk (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int64 j, Int64 dt) {
+void smCalcJerk (smPhaseData_t* pProf_0, smPhaseData_t* pProf_T, Int64 j, Int64 dt)
+{
+    pProf_T->s = pProf_0->s + pProf_0->v*dt/PROFILE_TIMEBASE + pProf_0->a*dt*dt/2/PROFILE_TIMEBASE/PROFILE_TIMEBASE + j*dt/PROFILE_TIMEBASE*dt/PROFILE_TIMEBASE*dt/PROFILE_TIMEBASE/6;
 
-    PhData_T->s =   PhData_0->s
-                  + PhData_0->v * dt / SM_PROFILE_TIMEBASE
-                  + PhData_0->a * dt * dt / 2 / SM_PROFILE_TIMEBASE / SM_PROFILE_TIMEBASE
-                  + j * dt / SM_PROFILE_TIMEBASE * dt / SM_PROFILE_TIMEBASE * dt / SM_PROFILE_TIMEBASE / 6;
-
-    PhData_T->v =   PhData_0->v
-                  + PhData_0->a * dt / SM_PROFILE_TIMEBASE
-                  + j * dt * dt / 2 / SM_PROFILE_TIMEBASE / SM_PROFILE_TIMEBASE;
-
-    PhData_T->a =   PhData_0->a
-                  + j * dt/SM_PROFILE_TIMEBASE;
-
-    PhData_T->t =   PhData_0->t
-                  + dt;
-
-    PhData_0->ds = PhData_T->s - PhData_0->s;
-    PhData_0->dv = PhData_T->v - PhData_0->v;
-    PhData_0->da = PhData_T->a - PhData_0->a;
-    PhData_0->dt = dt;
+    pProf_T->v = pProf_0->v + pProf_0->a*dt/PROFILE_TIMEBASE + j*dt*dt/2/PROFILE_TIMEBASE/PROFILE_TIMEBASE;
+    pProf_T->a = pProf_0->a + j*dt/PROFILE_TIMEBASE;
+    pProf_T->t = pProf_0->t + dt;
+    pProf_0->ds = pProf_T->s - pProf_0->s;
+    pProf_0->dv = pProf_T->v - pProf_0->v;
+    pProf_0->da = pProf_T->a - pProf_0->a;
+    pProf_0->dt = dt;
 }
 
 
@@ -178,7 +161,7 @@ void smCalcJerk (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int64 j, Int6
  *      For a given jerk phase with known end speed, duration, acceleration/
  *      deceleration change and jerk the start speed is calculated.
  *      This is used to validate a profile. If the calculated start speed is
- *      below the end speed of preceding phase a profile is invalid.
+ *      below the end speed of preceeding phase a profile is invalid.
  *
  *      Formula for constant jerk start speed:
  *          V0 = Vt - A0*T - 1/2*J*T*T
@@ -189,7 +172,7 @@ void smCalcJerk (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int64 j, Int6
  *
  *
  *  \iparam  vT         = speed at end of jerk phase
- *  \iparam  t          = duration of jerk phase
+ *  \iparam  dt         = duration of jerk phase
  *  \iparam  a          = positive for acceleration / negative for deceleration
  *  \iparam  j          = positive for increasing, negative for decreasing change of
  *                        acceleration/deceleration
@@ -197,11 +180,9 @@ void smCalcJerk (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T, Int64 j, Int6
  *  \return             start speed
  *
  ****************************************************************************/
-Int32 smCalcJerk_v0 (Int32 vT, Int64 t, Int32 a, Int64 j) {
-
-    Int32 v0 =   vT
-               - a * t / SM_PROFILE_TIMEBASE
-               - j * t * t / 2 / SM_PROFILE_TIMEBASE / SM_PROFILE_TIMEBASE;
+Int32 smCalcJerk_v0 (Int32 vT, Int64 t, Int32 a, Int64 j)
+{
+    Int32 v0 = vT - a*t/PROFILE_TIMEBASE - j*t*t/2/PROFILE_TIMEBASE/PROFILE_TIMEBASE;
 
     return v0;
 }
@@ -217,20 +198,20 @@ Int32 smCalcJerk_v0 (Int32 vT, Int64 t, Int32 a, Int64 j) {
  *
  *      Precondition: preset values for PhData_0
  *
- *  \iparam  PhData_0  = Pointer to phase values of preceding phase
- *  \oparam  PhData_T  = Pointer to phase values of next phase
+ *  \iparam  PhData_0  = Phase values of preceding phase
+ *  \oparam  PhData_T  = Phase values of next phase
  *
  ****************************************************************************/
-void smSkipPhase (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T) {
-
-    PhData_T->s = PhData_0->s;
-    PhData_T->v = PhData_0->v;
-    PhData_T->a = PhData_0->a;
-    PhData_T->t = PhData_0->t;
-    PhData_0->ds = 0;
-    PhData_0->dv = 0;
-    PhData_0->da = 0;
-    PhData_0->dt = 0;
+void smSkipPhase (smPhaseData_t* pProf_0, smPhaseData_t* pProf_T)
+{
+    pProf_T->s = pProf_0->s;
+    pProf_T->v = pProf_0->v;
+    pProf_T->a = pProf_0->a;
+    pProf_T->t = pProf_0->t;
+    pProf_0->ds = 0;
+    pProf_0->dv = 0;
+    pProf_0->da = 0;
+    pProf_0->dt = 0;
 }
 
 
@@ -249,7 +230,7 @@ void smSkipPhase (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T) {
  *
  *      Precondition: preset values for phase 0
  *
- *  \iparam  DistanceConstVel   = distance to move during phase 4 (in half-steps)
+ *  \iparam  DistanceConstVel   = distance to move during phas 4 (in half-steps)
  *  \iparam  Config             = Pointer to s-curve motion profile configuration
  *  \oparam  PhaseData          = Pointer to array for all phase values
  *  \iparam  UseJerk            = FALSE to skip jerk phases
@@ -257,51 +238,39 @@ void smSkipPhase (smPhaseData_t* PhData_0, smPhaseData_t* PhData_T) {
  *  \return  distance moved from start of phase 0 to end of phase 4
  *
  ****************************************************************************/
-Int32 smCalcAccPhaseData (Int32 DistanceConstVel, smProfileConfig_t *Config, smPhaseData_t *PhaseData, Bool UseJerk) {
+Int32 smCalcAccPhaseData (Int32 DistanceConstVel, smProfileConfig_t *Config, smPhaseData_t *PhaseData, Bool UseJerk)
+{
+    Int64 dt_constAcc;  // duration of constant acceleration
 
-    Int64 dt_constAcc;      // duration of constant acceleration
+    smCalcConstSpeed (&PhaseData[PH_0_START], &PhaseData[PH_1_ACC_JERK_UP], START_HSTEPS);
 
-    smCalcConstSpeed (&PhaseData[PH_0_START], &PhaseData[PH_1_ACC_JERK_UP], SM_START_HSTEPS);
-
-    if (TRUE == UseJerk) {  // we will use jerk and constant acceleration phase
+    if (TRUE == UseJerk)    // we will use jerk and constant acceleration phase
+    {
     // increasing acceleration jerk
-        smCalcJerk (&PhaseData[PH_1_ACC_JERK_UP],
-                    &PhaseData[PH_2_ACC_CONST],
-                    (Int64)Config->acc * SM_PROFILE_TIMEBASE / Config->accJUpT,
-                    Config->accJUpT);
-        if (PhaseData[PH_2_ACC_CONST].v >= Config->vMax) {
+        smCalcJerk (&PhaseData[PH_1_ACC_JERK_UP], &PhaseData[PH_2_ACC_CONST], (Int64)Config->acc*PROFILE_TIMEBASE/Config->accJUpT, Config->accJUpT);
+        if (PhaseData[PH_2_ACC_CONST].v >= Config->vMax)
             return -1;
-        }
 
     // calculate velocity at start of decreasing acceleration jerk to know the duration
-        PhaseData[PH_3_ACC_JERK_DOWN].v = smCalcJerk_v0 (Config->vMax,
-                                                         Config->accJDownT,
-                                                         Config->acc,
-                                                         (Int64)-Config->acc * SM_PROFILE_TIMEBASE / Config->accJDownT);
-        if (PhaseData[PH_3_ACC_JERK_DOWN].v < PhaseData[PH_2_ACC_CONST].v) {
+        PhaseData[PH_3_ACC_JERK_DOWN].v = smCalcJerk_v0 (Config->vMax, Config->accJDownT, Config->acc, (Int64)-Config->acc*PROFILE_TIMEBASE/Config->accJDownT);
+        if (PhaseData[PH_3_ACC_JERK_DOWN].v < PhaseData[PH_2_ACC_CONST].v)
             return -1;
-        }
-        dt_constAcc =   (Int64)(PhaseData[PH_3_ACC_JERK_DOWN].v
-                      - PhaseData[PH_2_ACC_CONST].v) * SM_PROFILE_TIMEBASE / Config->acc;
+        dt_constAcc = (Int64)(PhaseData[PH_3_ACC_JERK_DOWN].v-PhaseData[PH_2_ACC_CONST].v)*PROFILE_TIMEBASE/Config->acc;
 
     // constant acceleration
         smCalcConstAccDec (&PhaseData[PH_2_ACC_CONST], &PhaseData[PH_3_ACC_JERK_DOWN], Config->acc, dt_constAcc);
-        if (PhaseData[PH_3_ACC_JERK_DOWN].v >= Config->vMax) {
+        if (PhaseData[PH_3_ACC_JERK_DOWN].v >= Config->vMax)
             return -1;
-        }
                          
-        smCalcJerk (&PhaseData[PH_3_ACC_JERK_DOWN],
-                    &PhaseData[PH_4_VEL_CONST],
-                    (Int64)-Config->acc * SM_PROFILE_TIMEBASE/Config->accJDownT,
-                    Config->accJDownT);
-        if (PhaseData[PH_4_VEL_CONST].v > Config->vMax) {
+        smCalcJerk (&PhaseData[PH_3_ACC_JERK_DOWN], &PhaseData[PH_4_VEL_CONST], (Int64)-Config->acc*PROFILE_TIMEBASE/Config->accJDownT, Config->accJDownT);
+        if (PhaseData[PH_4_VEL_CONST].v > Config->vMax)
             return -1;
-        }
     }
-    else {  // we will only use constant acceleration phase
+    else                    // we will only use constant acceleration phase
+    {
         smSkipPhase (&PhaseData[PH_1_ACC_JERK_UP], &PhaseData[PH_2_ACC_CONST]);
         PhaseData[PH_2_ACC_CONST].a = Config->acc;
-        dt_constAcc = (Int64)(Config->vMax-PhaseData[PH_2_ACC_CONST].v) * SM_PROFILE_TIMEBASE / Config->acc;
+        dt_constAcc = (Int64)(Config->vMax-PhaseData[PH_2_ACC_CONST].v)*PROFILE_TIMEBASE/Config->acc;
         smCalcConstAccDec (&PhaseData[PH_2_ACC_CONST], &PhaseData[PH_3_ACC_JERK_DOWN], Config->acc, dt_constAcc);
         PhaseData[PH_3_ACC_JERK_DOWN].a = 0;
         smSkipPhase (&PhaseData[PH_3_ACC_JERK_DOWN], &PhaseData[PH_4_VEL_CONST]);
@@ -334,53 +303,41 @@ Int32 smCalcAccPhaseData (Int32 DistanceConstVel, smProfileConfig_t *Config, smP
  *  \return  distance moved from start of phase 0 to end of phase 8
  *
  ****************************************************************************/
-Int32 smCalcDecPhaseData (smProfileConfig_t *Config, smPhaseData_t *PhaseData, Bool UseJerk) {
-
+Int32 smCalcDecPhaseData (smProfileConfig_t *Config, smPhaseData_t *PhaseData, Bool UseJerk)
+{
     Int64 dt_constDec;
 
-    if (TRUE == UseJerk) {  // we will use jerk and constant deceleration phase
-        smCalcJerk (&PhaseData[PH_5_DEC_JERK_UP],
-                    &PhaseData[PH_6_DEC_CONST],
-                    (Int64)-Config->dec*SM_PROFILE_TIMEBASE/Config->decJUpT,
-                    Config->decJUpT);
-        if (PhaseData[PH_6_DEC_CONST].v <= Config->vMin) {
+    if (TRUE == UseJerk)    // we will use jerk and constant deceleration phase
+    {
+        smCalcJerk (&PhaseData[PH_5_DEC_JERK_UP], &PhaseData[PH_6_DEC_CONST], (Int64)-Config->dec*PROFILE_TIMEBASE/Config->decJUpT, Config->decJUpT);
+        if (PhaseData[PH_6_DEC_CONST].v <= Config->vMin)
             return -1;
-        }
 
     // calculate velocity at start of decreasing deceleration jerk to know the duration
-        PhaseData[PH_7_DEC_JERK_DOWN].v = smCalcJerk_v0 (Config->vMin,
-                                                         Config->decJDownT,
-                                                         -Config->dec,
-                                                         (Int64)Config->dec * SM_PROFILE_TIMEBASE / Config->decJDownT);
-        if (PhaseData[PH_7_DEC_JERK_DOWN].v > PhaseData[PH_6_DEC_CONST].v) {
+        PhaseData[PH_7_DEC_JERK_DOWN].v = smCalcJerk_v0 (Config->vMin, Config->decJDownT, -Config->dec, (Int64)Config->dec*PROFILE_TIMEBASE/Config->decJDownT);
+        if (PhaseData[PH_7_DEC_JERK_DOWN].v > PhaseData[PH_6_DEC_CONST].v)
             return -1;
-        }
-        dt_constDec =   (Int64)(PhaseData[PH_6_DEC_CONST].v
-                      - PhaseData[PH_7_DEC_JERK_DOWN].v) * SM_PROFILE_TIMEBASE / Config->dec;
+        dt_constDec = (Int64)(PhaseData[PH_6_DEC_CONST].v-PhaseData[PH_7_DEC_JERK_DOWN].v)*PROFILE_TIMEBASE/Config->dec;
 
         smCalcConstAccDec (&PhaseData[PH_6_DEC_CONST], &PhaseData[PH_7_DEC_JERK_DOWN], -Config->dec, dt_constDec);
-        if (PhaseData[PH_7_DEC_JERK_DOWN].v <= Config->vMin) {
+        if (PhaseData[PH_7_DEC_JERK_DOWN].v <= Config->vMin)
             return -1;
-        }
 
-        smCalcJerk (&PhaseData[PH_7_DEC_JERK_DOWN],
-                    &PhaseData[PH_8_END],
-                    (Int64)Config->dec * SM_PROFILE_TIMEBASE / Config->decJDownT,
-                    Config->decJDownT);
-        if (PhaseData[PH_8_END].v < Config->vMin) {
+        smCalcJerk (&PhaseData[PH_7_DEC_JERK_DOWN], &PhaseData[PH_8_END], (Int64)Config->dec*PROFILE_TIMEBASE/Config->decJDownT, Config->decJDownT);
+        if (PhaseData[PH_8_END].v < Config->vMin)
             return -1;
-        }
     }
-    else {  // we will only use constant deceleration phase
+    else                    // we will only use constant deceleration phase
+    {
         smSkipPhase (&PhaseData[PH_5_DEC_JERK_UP], &PhaseData[PH_6_DEC_CONST]);
         PhaseData[PH_6_DEC_CONST].a = -Config->dec;
-        dt_constDec = (Int64)(PhaseData[PH_6_DEC_CONST].v - Config->vMin) * SM_PROFILE_TIMEBASE / Config->dec;
+        dt_constDec = (Int64)(PhaseData[PH_6_DEC_CONST].v - Config->vMin)*PROFILE_TIMEBASE/Config->dec;
         smCalcConstAccDec (&PhaseData[PH_6_DEC_CONST], &PhaseData[PH_7_DEC_JERK_DOWN], -Config->dec, dt_constDec);
         PhaseData[PH_7_DEC_JERK_DOWN].a = 0;
         smSkipPhase (&PhaseData[PH_7_DEC_JERK_DOWN], &PhaseData[PH_8_END]);
     }
 
-    smCalcConstSpeed (&PhaseData[PH_8_END], NULL, SM_END_HSTEPS);
+    smCalcConstSpeed (&PhaseData[PH_8_END], NULL, END_HSTEPS);
 
     return PhaseData[PH_8_END].s + PhaseData[PH_8_END].ds;
 }
@@ -402,12 +359,13 @@ Int32 smCalcDecPhaseData (smProfileConfig_t *Config, smPhaseData_t *PhaseData, B
  *  \iparam  DistanceConstVel   = distance to move during phas 4 (in half-steps)
  *  \iparam  Config             = Pointer to s-curve motion profile configuration
  *  \oparam  PhaseData          = Pointer to array for all phase values
+ *  \iparam  UseJerk            = FALSE to skip jerk phases
  *
  *  \return  distance moved from start of phase 0 to end of phase 8
  *
  ****************************************************************************/
-Int32 smCalcMotionProfilePhaseData (Int32 DistanceConstVel, smProfileConfig_t *Config, smPhaseData_t *PhaseData) {
-
+Int32 smCalcMotionProfilePhaseData (Int32 DistanceConstVel, smProfileConfig_t *Config, smPhaseData_t *PhaseData)
+{
     Int32 Distance;
 
     PhaseData[PH_0_START].s = 0;
@@ -416,9 +374,8 @@ Int32 smCalcMotionProfilePhaseData (Int32 DistanceConstVel, smProfileConfig_t *C
     PhaseData[PH_0_START].t = 0;
 
     Distance = smCalcAccPhaseData (DistanceConstVel, Config, PhaseData, TRUE);
-    if (Distance < 0) {
+    if (Distance < 0)
         return Distance;
-    }
     Distance = smCalcDecPhaseData (Config, PhaseData, TRUE);
 
     return Distance;

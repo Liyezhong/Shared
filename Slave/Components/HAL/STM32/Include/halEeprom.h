@@ -11,7 +11,7 @@
  *
  *      This module contains functions to access a non-volatile serial
  *      FRAM memory (ferro-magnetic RAM) connected via I2C. FRAMs are
- *      compatible with serial EEPROMs on the hadware side. But other
+ *      compatible with serial EEPROMs on the hardware side. But other
  *      than EEPROMs FRAMs can be written without any write delay,
  *      while EEPROMs need some milliseconds to finish a write. 
  

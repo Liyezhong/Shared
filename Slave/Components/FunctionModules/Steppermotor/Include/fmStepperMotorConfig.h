@@ -1,20 +1,18 @@
 /****************************************************************************/
 /*! \file fmStepperMotorConfig.h
  * 
- *  \brief  Configuration functions of the function module 'stepper motor'
- *
  *  $Rev:    $ 0.1
- *  $Date:   $ 11.06.2012
+ *  $Date:   $ 12.03.2012
  *  $Author: $ Rainer Boehles
  *
+ *  \brief Publics for configuration functions of the function module 'stepper motor'
  *
- *  \b Company:
+ *         
+ * <dl compact><dt>Company:</dt><dd> Leica Biosystems Nussloch GmbH </dd></dl>
  *
- *       Leica Biosystems Nussloch GmbH.
- *
- *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice
- *  does not evidence any actual or intended publication.
+ * (c) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ * This is unpublished proprietary source code of Leica.
+ * The copyright notice does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
@@ -23,7 +21,12 @@
 
 
 //****************************************************************************/
-// Public Function Prototypes
+// Public Constants and Macros 
+//****************************************************************************/
+
+
+//****************************************************************************/
+// Module Function Prototypes
 //****************************************************************************/
 
 //! evaluate and store the received parameter data block
@@ -34,6 +37,7 @@ Error_t smConfigureProfile(smProfiles_t *Profiles, UInt8 Index, ConfigData_Param
 
 //! check if stepper configuration data is complete and valid
 Error_t smConfigIsValid(smData_t* Data);
+
 
 
 #endif /*FMSTEPPERMOTORCONFIG_H_*/

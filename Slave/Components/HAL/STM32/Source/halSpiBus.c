@@ -655,9 +655,9 @@ Error_t halSpiInit (void) {
                     return (E_PORT_NOT_EXISTS);
                 }
                 // Check if interface already initialized
-                if (DataTable[k].Flags & HAL_FLAG_INITZED) {                                   
-                    return (E_BUS_ALLOCATED_TWICE);                            
-                }                                                                      
+                if (DataTable[k].Flags & HAL_FLAG_INITZED) {
+                    return (E_BUS_ALLOCATED_TWICE);
+                }
                 halPeripheralClockEnable (SpiParams[UnitNo].PeripheralID, ON);
 
                 DataTable[k].SpiNo = UnitNo;

@@ -46,7 +46,7 @@ typedef enum {
 //! CAN interface status IDs (used with halCanStatus function)
 typedef enum {
     CAN_STAT_RxCOUNT     = 1,  //!< Request receive message count
-    CAN_STAT_TxREADY     = 2,  //!< Request tranmit mailbox status
+    CAN_STAT_TxREADY     = 2,  //!< Request transmit mailbox status
     CAN_STAT_TxEMPTY     = 3,  //!< All messages send
     CAN_STAT_RxERRORS    = 4,  //!< Request receive error counter
     CAN_STAT_TxERRORS    = 5,  //!< Request transmit error counter

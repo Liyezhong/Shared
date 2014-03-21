@@ -66,7 +66,9 @@
 #define PARAM_LAUNCH_DAY        BUILD_PARAMETER(8,2)
 #define PARAM_OPERATION_TIME    BUILD_PARAMETER(10,4)
 #define PARAM_STARTUP_CYCLES    BUILD_PARAMETER(14,2)
-#define PARAM_RESERVE_SOME      BUILD_PARAMETER(16,16)
+#define PARAM_MODULE_SN_HIGH    BUILD_PARAMETER(16,4)
+#define PARAM_MODULE_SN_LOW     BUILD_PARAMETER(20,4)
+#define PARAM_RESERVE_SOME      BUILD_PARAMETER(24,8)
 #define PARAM_TOTAL_SIZE        32
 //@} End of doxygen group
 
@@ -95,7 +97,9 @@ static const bmParamRange_t ParamTable[] = {
     { PARAM_LAUNCH_MONTH,   1, 12,  1 },
     { PARAM_LAUNCH_DAY,     1, 31,  1 },
     { PARAM_OPERATION_TIME, 0,  0,  0 },
-    { PARAM_STARTUP_CYCLES, 0,  0,  0 }
+    { PARAM_STARTUP_CYCLES, 0,  0,  0 },
+    { PARAM_MODULE_SN_HIGH, 0, MAX_UINT32, 0 },
+    { PARAM_MODULE_SN_LOW,  0, MAX_UINT32, 0 }
 };
 
 static bmBoardInfoBlock_t *InfoBlock;   //!< Pointer to board info block
@@ -116,6 +120,8 @@ static Error_t bmSendSoftwareInfo  (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmSendLoaderInfo    (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmSendLifeCycleInfo (UInt16 Channel, CanMessage_t *Message);
 static Error_t bmResetPermData     (UInt16 Channel, CanMessage_t *Message);
+static Error_t bmSendModuleSerial  (UInt16 Channel, CanMessage_t *Message);
+static Error_t bmSetModuleSerial   (UInt16 Channel, CanMessage_t *Message);
 static Bool    bmUpdateLaunchDate  (void);
 static Error_t bmVerifyPartition   (void);
 static Error_t bmUpgradePartition  (void);
@@ -809,6 +815,73 @@ static Error_t bmSendBoardOptions (UInt16 Channel, CanMessage_t *Message) {
 
 /*****************************************************************************/
 /*!
+ *  \brief   Send the module serial number
+ *
+ *      Sends the module serial number. The serial number consists of eight
+ *      bytes. It can be set through the "set module serial" message.
+ *
+ *      This function is called by the message dispatcher whenever the
+ *      service command "request module serial" is received.
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t bmSendModuleSerial (UInt16 Channel, CanMessage_t *Message) {
+
+    CanMessage_t Response;
+
+    Response.CanID = MSG_SRV_MODULE_SERIAL;
+    bmSetMessageItem (&Response, bmGetStorageItem (bmStorage, PARAM_MODULE_SN_HIGH, 0), 0, 4);
+    bmSetMessageItem (&Response, bmGetStorageItem (bmStorage, PARAM_MODULE_SN_LOW, 0), 4, 4);
+    Response.Length = 8;
+
+    return (canWriteMessage(Channel, &Response));
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Set the module serial number
+ *
+ *      Sets the module serial number. The serial number consists of eight
+ *      bytes. It can be requested through the "request module serial"
+ *      message.
+ *
+ *      This function is called by the message dispatcher whenever the
+ *      service command "set module serial" is received.
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t bmSetModuleSerial (UInt16 Channel, CanMessage_t *Message) {
+
+    if (Message->Length == 8) {
+        Error_t Status;
+
+        Status = bmSetStorageItem (bmStorage, PARAM_MODULE_SN_HIGH, bmGetMessageItem(Message, 0, 4));
+        if (Status < NO_ERROR) {
+            return (Status);
+        }
+        Status = bmSetStorageItem (bmStorage, PARAM_MODULE_SN_LOW, bmGetMessageItem(Message, 4, 4));
+        if (Status < NO_ERROR) {
+            return (Status);
+        }
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+}
+
+
+/*****************************************************************************/
+/*!
  *  \brief   Verify base module's partition
  *
  *      Verifies the base module's data partition in non-volatile storage
@@ -935,7 +1008,9 @@ Error_t bmInitServiceModule (void) {
         { MSG_SRV_REQ_LAUNCH_DATE,    bmSendLaunchDate    },
         { MSG_SRV_REQ_MEMORY_FORMAT,  bmFormatPermStorage },
         { MSG_SRV_REQ_BOARD_NAME,     bmSendBoardName     },
-        { MSG_SRV_REQ_UNIQUE_NUMBER,  bmSendUniqueNumber  }
+        { MSG_SRV_REQ_UNIQUE_NUMBER,  bmSendUniqueNumber  },
+        { MSG_SRV_REQ_MODULE_SERIAL,  bmSendModuleSerial  },
+        { MSG_SRV_SET_MODULE_SERIAL,  bmSetModuleSerial   }
     };
     static bmCallbackEntry_t Broadcasts[] = {
         { MSG_SRV_REQ_RESET_DATA, bmResetPermData }

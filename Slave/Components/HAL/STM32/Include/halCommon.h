@@ -10,7 +10,7 @@
  *  \b Description:
  *
  *       This module contains definitions that are used by all HAL modules
- *       and for the HAL configuartion as well.
+ *       and for the HAL configuration as well.
  *
  *  \b Company:
  *

@@ -12,8 +12,8 @@
  *
  *       This file contains the functions to initialize, configure  
  *       and validate a set of motion profiles for the 'stepper motor'
- *       function module.
- *
+ *       function module.     
+ *       
  *
  *  \b Company:
  *
@@ -36,6 +36,10 @@
 #include "fmStepperMotorMotionCalc.h"
 #include "fmStepperMotorMotionProfile.h"
 
+//****************************************************************************/
+// Private Constants and Macros 
+//****************************************************************************/
+
 
 #ifndef SIMULATION
 
@@ -49,8 +53,8 @@
  *  \iparam  Profiles  = Pointer to motion profiles data
  *
  ****************************************************************************/
-void smInitProfiles (smProfiles_t *Profiles) {
-
+void smInitProfiles (smProfiles_t *Profiles)
+{
     Profiles->Count = 0;
     Profiles->Set = NULL;
 }
@@ -69,17 +73,15 @@ void smInitProfiles (smProfiles_t *Profiles) {
  *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
-Error_t smConfigureProfile1(smProfiles_t *Profiles, UInt8 Index, ProfileData_P1_t* Param) {
-
+Error_t smConfigureProfile1(smProfiles_t *Profiles, UInt8 Index, ProfileData_P1_t* Param)
+{
     smProfile_t *Profile;
 
-    if (NULL == Profiles->Set) {
+    if (NULL == Profiles->Set)
         return E_PARAMETER_OUT_OF_RANGE;
-    }
     
-    if (Index >= Profiles->Count) {
+    if (Index >= Profiles->Count)
         return E_PARAMETER_OUT_OF_RANGE;
-    }
 
     Profile = &(Profiles->Set[Index]);
 
@@ -88,7 +90,8 @@ Error_t smConfigureProfile1(smProfiles_t *Profiles, UInt8 Index, ProfileData_P1_
     Profile->Config.MicroSteps = Param->microsteps;     // microstep resolution per full step
 
 // check and convert micro-steps to step-width
-    switch(Profile->Config.MicroSteps) {
+    switch(Profile->Config.MicroSteps)                                          
+    {
         case 64:
             Profile->StepWidth = 1;
             break;
@@ -133,24 +136,21 @@ Error_t smConfigureProfile1(smProfiles_t *Profiles, UInt8 Index, ProfileData_P1_
  *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
-Error_t smConfigureProfile2(smProfiles_t *Profiles, UInt8 Index, ProfileData_P2_t* Param) {
-
+Error_t smConfigureProfile2(smProfiles_t *Profiles, UInt8 Index, ProfileData_P2_t* Param)
+{
     smProfile_t *Profile;
 
-    if (NULL == Profiles->Set) {
+    if (NULL == Profiles->Set)
         return E_PARAMETER_OUT_OF_RANGE;
-    }
     
-    if (Index >= Profiles->Count) {
+    if (Index >= Profiles->Count)
         return E_PARAMETER_OUT_OF_RANGE;
-    }
 
     Profile = &(Profiles->Set[Index]);
 
     DB2_TO_VAL (Param->acceleration, Profile->Config.acc);
-    if (Profile->Config.acc < 1) {  // acceleration have to be a positive value
+    if (Profile->Config.acc < 1)        // acceleration have to be a positive value
         return E_PARAMETER_OUT_OF_RANGE;
-    }
 
     DB2_TO_VAL (Param->accJerkTime, Profile->Config.accJUpT);
     DB2_TO_VAL (Param->accJerkTime, Profile->Config.accJDownT);
@@ -175,24 +175,21 @@ Error_t smConfigureProfile2(smProfiles_t *Profiles, UInt8 Index, ProfileData_P2_
  *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
-Error_t smConfigureProfile3(smProfiles_t *Profiles, UInt8 Index, ProfileData_P3_t* Param) {
-
+Error_t smConfigureProfile3(smProfiles_t *Profiles, UInt8 Index, ProfileData_P3_t* Param)
+{
     smProfile_t *Profile;
 
-    if (NULL == Profiles->Set) {
+    if (NULL == Profiles->Set)
         return E_PARAMETER_OUT_OF_RANGE;
-    }
     
-    if (Index >= Profiles->Count) {
+    if (Index >= Profiles->Count)
         return E_PARAMETER_OUT_OF_RANGE;
-    }
 
     Profile = &(Profiles->Set[Index]);
 
     DB2_TO_VAL (Param->deceleration, Profile->Config.dec);
-    if (Profile->Config.dec < 1) {  // deceleration have to be a positive value
+    if (Profile->Config.dec < 1)        // deceleration have to be a positive value
         return E_PARAMETER_OUT_OF_RANGE;
-    }
 
     DB2_TO_VAL (Param->decJerkTime, Profile->Config.decJUpT);
     DB2_TO_VAL (Param->decJerkTime, Profile->Config.decJDownT);
@@ -207,7 +204,7 @@ Error_t smConfigureProfile3(smProfiles_t *Profiles, UInt8 Index, ProfileData_P3_
 /*!
  *  \brief   Check if data for all motion profiles is complete
  *
- *      Each profile is configured by reception of 3 CAN messages.
+ *      Each profile is configured by receivement of 3 CAN messages.
  *      This function checks if all 3 parts for all profiles have been received.
  *
  *  \iparam  Profiles = Pointer to motion profiles data
@@ -215,15 +212,15 @@ Error_t smConfigureProfile3(smProfiles_t *Profiles, UInt8 Index, ProfileData_P3_
  *  \return  TRUE if motion profile data is complete
  *
  *****************************************************************************/
-Bool smProfilesConfigIsComplete(smProfiles_t *Profiles) {
-
+Bool smProfilesConfigIsComplete(smProfiles_t *Profiles)
+{
     UInt8 Idx;
     UInt8 CompleteMask = (BIT(0) | BIT(1) | BIT(2));
 
-    for (Idx = 0; Idx < Profiles->Count; Idx++) {
-        if (CompleteMask != Profiles->Set[Idx].ConfigMask) {
+    for (Idx = 0; Idx < Profiles->Count; Idx++)
+    {
+        if (CompleteMask != Profiles->Set[Idx].ConfigMask)
             return FALSE;
-        }
     }
 
     return TRUE;
@@ -241,14 +238,14 @@ Bool smProfilesConfigIsComplete(smProfiles_t *Profiles) {
  *      slow down back to minimal speed (vMin). Only the phase when motor is 
  *      moving with constant target speed is omitted.
  *
- *      There are unusable combinations, e.g. if target speed is rather low,  
+ *      There are unuseable combinations, e.g. if target speed is rather low,  
  *      but acceleration jerk time is quite long with high acceleration values.
  *      Such a profile is invalid.
  *
  *      If a movement should only move a small distance the profile values have
  *      to be reduced. This is done during pre-calculation. Target speed is  
  *      reduced by 10% and "minimal move distance" is calculated and stored.
- *      Again profile can become unusable because target speed gets to low.
+ *      Again profile can become unuseable because target speed gets to low.
  *      In this case additionally the jerk is also reduced by 10% and again
  *      "minimal move distance" is calculated and stored. This steps are repeated 
  *      from 100% down to 10%. If profile is still unuseable then "minimal move
@@ -263,8 +260,8 @@ Bool smProfilesConfigIsComplete(smProfiles_t *Profiles) {
  *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
-Bool smEvalProfile (smProfile_t *Set) {
-
+Bool smEvalProfile (smProfile_t *Set)
+{
     Int32 vMax;
     Int8 i,j;
 
@@ -275,22 +272,23 @@ Bool smEvalProfile (smProfile_t *Set) {
 
 // calculate minimal distance needed to reach certain velocity.
 // for each loop velocity is reduced by 10% (from 100% to 10%)
-    for (i=10; i>0; i--) {
+    for (i=10; i>0; i--)
+    {
         Config = Set->Config;
         Config.vMax = vMax * i / 10;
         Set->Distance[i-1].s = smCalcMotionProfilePhaseData(0, &Config, PhaseData);
-        if (Set->Distance[i-1].s > 0) {
+        if (Set->Distance[i-1].s > 0)
             Set->Distance[i-1].j = 10;
-        }
-        else {
+        else
+        {
 // the profile should at least be suitable if profiles max speed is used
-            if (vMax == Config.vMax) {
+            if (vMax == Config.vMax)
                 return FALSE;
-            }
 // if preset values don't work for the reduced velocity
 // we try to reduce the jerk duration also, to get even shorter distances
 // jerk duration is reduced by 10% (from 90% to 10%)
-            for (j=9; j>0; j--) {
+            for (j=9; j>0; j--)
+            {
                 Config.acc          = Set->Config.acc * j / 10;
                 Config.accJUpT      = Set->Config.accJUpT * j / 10;
                 Config.accJDownT    = Set->Config.accJDownT * j / 10;
@@ -298,14 +296,14 @@ Bool smEvalProfile (smProfile_t *Set) {
                 Config.decJUpT      = Set->Config.decJUpT * j / 10;
                 Config.decJDownT    = Set->Config.decJDownT * j / 10;
                 Set->Distance[i-1].s = smCalcMotionProfilePhaseData(0, &Config, PhaseData);
-                if (Set->Distance[i-1].s > 0) {
+                if (Set->Distance[i-1].s > 0)
+                {
                     Set->Distance[i-1].j = j;
                     break;
                 }
             }
-            if (0 == j) {
+            if (0 == j)
                 break;
-            }
         }
     }
 // mark speeds which can't be used because profile parameter preset
@@ -321,7 +319,7 @@ Bool smEvalProfile (smProfile_t *Set) {
  *  \brief   Check motion profile timings
  *
  *      Perform some checks on motion profile timíng. There are hardware 
- *      limitations to max./min. period on which ISR is entered. If this limits
+ *      limitaitions to max./min. period on which ISR is entered. If this limits
  *      are exceeded no proper movement can be achieved.
  *
  *      1) Max timing (limit for slow movement) is determined by timer:
@@ -343,53 +341,47 @@ Bool smEvalProfile (smProfile_t *Set) {
  *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
-Error_t smCheckProfilesTiming(smProfiles_t *Profiles) {
-
+Error_t smCheckProfilesTiming(smProfiles_t *Profiles)
+{
     UInt8               Idx;
     Int32               CountRate;
     Int32               MaxCount;
     smProfileConfig_t  *Config;
 
-    for (Idx = 0; Idx < Profiles->Count; Idx++) {
+    for (Idx = 0; Idx < Profiles->Count; Idx++)
+    {
         Config = &(Profiles->Set[Idx].Config);
 
 #ifndef SIMULATION
 
 // interrupt interval time at given vMinv/microstep combination should not exceed maximal timer value
         CountRate = halTimerStatus (smHandleTimer, TIM_STAT_COUNTRATE);
-        if (CountRate < 0) {
+        if (CountRate < 0)
             return CountRate;
-        }
-
         MaxCount = halTimerStatus (smHandleTimer, TIM_STAT_MAXCOUNT);
-        if (MaxCount < 0) {
+        if (MaxCount < 0)
             return MaxCount;
-        }
-
-        if (USEC / (Config->MicroSteps * Config->vMin / 2) >= (USEC * (Int64)MaxCount / CountRate)) {
+        if (USEC / (Config->MicroSteps * Config->vMin / 2) >= (USEC * (Int64)MaxCount / CountRate))
             return E_SMOT_CONFIG_INVALID_PROFILE_VMIN;
-        }
 
 // interrupt interval time at given vMax/microstep combination should not be shorter than worst case interrupt processing time
-        if (USEC / (Config->vMax * Config->MicroSteps / 2) < ISR_WORST_CASE_DURATION) {
+        if (USEC / (Config->vMax * Config->MicroSteps / 2) < ISR_WORST_CASE_DURATION)
             return E_SMOT_CONFIG_INVALID_PROFILE_VMAX;
-        }
 
 #endif
 
-        Config->vMin        = Config->vMin * SM_PROFILE_MICROSTEPS_PER_HALFSTEP;    // minimal speed
-        Config->vMax        = Config->vMax * SM_PROFILE_MICROSTEPS_PER_HALFSTEP;    // maximal speed
-        Config->acc         = Config->acc * SM_PROFILE_MICROSTEPS_PER_HALFSTEP;     // acceleration
-        Config->accJUpT     = Config->accJUpT * SM_PROFILE_TIMEBASE / 1000;         // duration of increasing acceleration jerk
-        Config->accJDownT   = Config->accJDownT * SM_PROFILE_TIMEBASE / 1000;       // duration of decreasing acceleration jerk    
-        Config->dec         = Config->dec * SM_PROFILE_MICROSTEPS_PER_HALFSTEP;     // deceleration
-        Config->decJUpT     = Config->decJUpT * SM_PROFILE_TIMEBASE / 1000;         // duration of increasing deceleration jerk
-        Config->decJDownT   = Config->decJDownT * SM_PROFILE_TIMEBASE / 1000;       // duration decreasing deceleration jerk
+        Config->vMin        = Config->vMin * PROFILE_MICROSTEPS_PER_HALFSTEP;       // minimal speed
+        Config->vMax        = Config->vMax * PROFILE_MICROSTEPS_PER_HALFSTEP;       // maximal speed
+        Config->acc         = Config->acc * PROFILE_MICROSTEPS_PER_HALFSTEP;        // acceleration
+        Config->accJUpT     = Config->accJUpT * PROFILE_TIMEBASE / 1000;            // duration of increasing acceleration jerk
+        Config->decJDownT   = Config->decJDownT * PROFILE_TIMEBASE / 1000;          // duration of decreasing acceleration jerk    
+        Config->dec         = Config->dec * PROFILE_MICROSTEPS_PER_HALFSTEP;        // deceleration
+        Config->decJUpT     = Config->decJUpT * PROFILE_TIMEBASE / 1000;            // duration of increasing deceleration jerk
+        Config->decJDownT   = Config->decJDownT * PROFILE_TIMEBASE / 1000;          // duration decreasing deceleration jerk
 
 // check plausibility of profile data
-        if (FALSE == smEvalProfile (&Profiles->Set[Idx])) {     // do precalculation for each profile
+        if (FALSE == smEvalProfile (&Profiles->Set[Idx]))       // do precalculation for each profile
             return E_SMOT_CONFIG_INVALID_PROFILE;
-        }
     }
 
     return NO_ERROR;
@@ -416,16 +408,14 @@ Error_t smCheckProfilesTiming(smProfiles_t *Profiles) {
  *  \return  NO_ERROR or (negative) error code
  *
  *****************************************************************************/
-Error_t smCheckProfilesConfig(smProfiles_t *Profiles) {
-
+Error_t smCheckProfilesConfig(smProfiles_t *Profiles)
+{
 #ifndef SIMULATION
 
-    if ((Profiles->Count < 1) || (Profiles->Count > MAX_MOTION_PROFIL)) {
+    if ((Profiles->Count < 1) || (Profiles->Count > MAX_MOTION_PROFIL))
         return E_SMOT_CONFIG_PROFILES;
-    }
-    if (!smProfilesConfigIsComplete(Profiles)) {
+    if (!smProfilesConfigIsComplete(Profiles))
         return E_SMOT_CONFIG_INCOMPLETE;
-    }
 
 #endif
 

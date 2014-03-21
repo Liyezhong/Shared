@@ -15,7 +15,7 @@
  *       - Configuration management (master/slave)
  *       - Mode change requests
  *       - Heartbeat handling
- *       - Emergency stop handling (notstopp)
+ *       - Emergency stop handling
  *       - Node reset
  *
  *  \b Company:

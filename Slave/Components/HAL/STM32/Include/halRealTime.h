@@ -16,11 +16,11 @@
  *      conversions might become obsolete, as far as the new processor
  *      contains a real time clock delivering the separate elements.
  *      
- *      The real time clock is availaible in any case, no matter if a
+ *      The real time clock is available in any case, no matter if a
  *      separate RTC crystal is attached to the processor or not. If no 
  *      extra crystal is attached, the main oscillator is used as clock
  *      source. In case of a dedicated crystal the real time clock may 
- *      continue to run during power off if a batterie backup voltage is 
+ *      continue to run during power off if a battery backup voltage is
  *      supplied to the processor. If this is not the case, the real time 
  *      clock must be adjusted at least once after power up.
  *

@@ -238,7 +238,7 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
  ***********************************************************************************/
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {
-    { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 30000, 0 },
+    { HAL_SUPPLY_VOLTAGE,    DIR_INPUT, BUS_TYPE_INTERN, 12, 14, 6, 33000, 0 },
     { HAL_SUPPLY_CURRENT,    DIR_INPUT, BUS_TYPE_INTERN, 12, 11, 6,   750, 0 },
     { HAL_TEMP_CURRENT_0,    DIR_INPUT, BUS_TYPE_INTERN, 12, 10, 6,  3000, 0 },
 

@@ -27,7 +27,6 @@
  */
 /****************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "Global.h"
 #include "Basemodule.h"
@@ -44,7 +43,7 @@
 //****************************************************************************/
 
 /* Global defines of the temperature module */
-#define MODULE_VERSION      0x0004  //!< Version number of module
+#define MODULE_VERSION      0x0001  //!< Version number of module
 
 /* Mode bits for the Flags member of the module instance data */
 #define MODE_MODULE_ENABLE  0x0001  //!< The regulation is on or off
@@ -154,6 +153,13 @@ static TempHeaterParams_t *tempHeaterParams;
 /*! Total number of sensors used in all instances */
 static UInt32 TempNumSensors = 0;
 
+/*! Flag for indicating change of temperature setting */
+static Bool TempChanged = FALSE;
+/*! Flag for indicating if heater check skipped after temperature changed */
+static Bool HeaterCheckSkipped = FALSE;
+/*! Flag for AC heater auto switching between 110 and 220V */
+static Bool ACHeaterAutoSwitch = TRUE;
+
 //****************************************************************************/
 // Private Function Prototypes
 //****************************************************************************/
@@ -172,11 +178,14 @@ static Error_t tempDeviceAlloc (InstanceData_t *Data);
 static Error_t tempHandleOpen  (InstanceData_t *Data, UInt16 Instance);
 static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus);
 
-static Error_t tempSetTemperature       (UInt16 Channel, CanMessage_t* Message);
-static Error_t tempSetFanWatchdog       (UInt16 Channel, CanMessage_t* Message);
-static Error_t tempSetCurrentWatchdog   (UInt16 Channel, CanMessage_t* Message);
-static Error_t tempSetPidParameters     (UInt16 Channel, CanMessage_t* Message);
-static Error_t tempSetHeaterTime        (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetTemperature         (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetFanWatchdog         (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetCurrentWatchdog     (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetPidParameters       (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetHeaterTime          (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetSwitchState         (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetAcCurrentWatchdog   (UInt16 Channel, CanMessage_t* Message);
+static Error_t tempSetAcCurrentWatchdogExt(UInt16 Channel, CanMessage_t* Message);
 
 static Error_t tempGetTemperature       (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempGetPidParameters     (UInt16 Channel, CanMessage_t* Message);
@@ -220,27 +229,25 @@ static Error_t tempModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
 
         case MODULE_CONTROL_STOP:
             Data->ModuleState = MODULE_STATE_STOPPED;
-            Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
 
         case MODULE_CONTROL_SHUTDOWN:
             Data->ModuleState = MODULE_STATE_STANDBY;
-            Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
 
         case MODULE_CONTROL_RESET:
             Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
-
+                                
         case MODULE_CONTROL_FLUSH_DATA:
             break;
-
+            
         case MODULE_CONTROL_RESET_DATA:
             Error = tempTimeResetPartition (&Data->TimeParams, Data->Channel);
             break;
 
-        default:
-            return (E_PARAMETER_OUT_OF_RANGE);
+        default:             
+            return (E_PARAMETER_OUT_OF_RANGE);  
     }    
     return (Error);
 }
@@ -325,10 +332,9 @@ static Error_t tempModuleTask (UInt16 Instance)
     if (Data->DetectSlope == 1 && Data->TempArray == NULL) {
         // Only set sampling array if temp. module has been configured.
         if ((Data->Flags & MODE_MODULE_ENABLE) != 0 && TempSamplingTime>0 ) {
-            //Data->TempArraySize = Data->SlopeTimeInterval/TempSamplingTime;
             Data->TempArraySize = (SLOPE_DETECT_LONG_DURATION*1000)/TempSamplingTime;
             Data->SamplesPerSec = 1000/TempSamplingTime;
-            printf("TempArraySize:%d, SamplesPerSec:%d\n", Data->TempArraySize, Data->SamplesPerSec);
+            dbgPrint("TempArraySize:%d, SamplesPerSec:%d\n", Data->TempArraySize, Data->SamplesPerSec);
             if ( Data->TempArraySize > 0 ) {
                 Data->TempArray = calloc (Data->TempArraySize, sizeof(UInt16));
                 if (NULL == Data->TempArray) {
@@ -354,6 +360,11 @@ static Error_t tempModuleTask (UInt16 Instance)
                 TempPriority = 0;
                 for (i = 0; i < InstanceCount; i++) {
                     DataTable[i].State = STATE_SAMPLE;
+                }
+                
+                if ( HeaterCheckSkipped && TempChanged ) {
+                    TempChanged = FALSE;
+                    HeaterCheckSkipped = FALSE;
                 }
             }
         }
@@ -384,7 +395,7 @@ static Error_t tempModuleTask (UInt16 Instance)
     // Is heating active?
     if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
         // Progress the current sensor evaluation
-        Error = tempHeaterProgress ();
+        Error = tempHeaterProgress (Data->HeaterType);
         if (Error < 0) {
             return (tempShutDown (Data, Error, Instance));
         }
@@ -411,20 +422,20 @@ static Error_t tempModuleTask (UInt16 Instance)
                     //tempNotifySlope(Data, 1);
                     TempDelta = 
                     Data->ServiceTemp[0]- Data->TempArray[(Data->TempArrayIndex+Data->SamplesPerSec*(SLOPE_DETECT_LONG_DURATION-SLOPE_DETECT_SHORT_DURATION)) % Data->TempArraySize];
-                    printf("D3: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
+                    dbgPrint("D3: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
                     if (TempDelta < (-Data->SlopeTempChange)) {
-                        printf("Level up [3].\n");
+                        dbgPrint("Level up [3].\n");
                         tempNotifySlope(Data, 1);
                     }
                     else if (TempDelta > 1000) {
-                        //printf("Level down.\n");
+                        //dbgPrint("Level down.\n");
                         tempNotifySlope(Data, 0);
                     }
                     else {
                         TempDelta = Data->ServiceTemp[0]- Data->TempArray[Data->TempArrayIndex];
-                        printf("D5: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
+                        dbgPrint("D5: %d, T: %d\n", TempDelta, Data->ServiceTemp[0]);
                         if (TempDelta < (-Data->SlopeTempChange)) {
-                        printf("Level up [5].\n");
+                        dbgPrint("Level up [5].\n");
                         tempNotifySlope(Data, 1);
                     }
                     }
@@ -443,7 +454,7 @@ static Error_t tempModuleTask (UInt16 Instance)
                 UInt32 OperatingTime = (Data->ActuatingValue * TempSamplingTime) / MAX_INT16;
                 
                 Data->State = STATE_IDLE;
-                TempPriority++;
+                TempPriority++;                
                 
                 // Control the heating elements
                 Error = tempHeaterActuate (OperatingTime, TempSampleTimestamp + TempSamplingTime, Instance);
@@ -523,7 +534,7 @@ static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instanc
     UInt8 i;
     
     Data->Flags &= ~(MODE_MODULE_ENABLE);
-    printf("Heater shutDown\n");
+    dbgPrint("Heater shutDown\n");
     bmSignalEvent (Data->Channel, Error, TRUE, 0);
     
     for(i = 0; i < Data->NumberPid; i++) {
@@ -557,7 +568,6 @@ static Error_t tempShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instanc
 static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail)
 {
     UInt8 i;
-    //UInt8 j;
     UInt16 Compensation = 0;
     Error_t Error = NO_ERROR;
     static UInt16 CompPre = 2500;
@@ -566,24 +576,31 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
     // Compute and check heater current      
     if ( Instance == 0 ) {
         tempCalcEffectiveCurrent(Instance, Data->HeaterType);
-        //printf("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
+        dbgPrint("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
     }
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
-    
+
         if ( Instance == tempFindRoot () ) {
-            Error = tempHeaterCheck (Instance, Data->HeaterType);
+            if ( TempChanged ) {
+                Error = tempHeaterCheck (Instance, Data->HeaterType, FALSE, ACHeaterAutoSwitch);
+                HeaterCheckSkipped = TRUE;
+            }
+            else {
+                Error = tempHeaterCheck (Instance, Data->HeaterType, TRUE, ACHeaterAutoSwitch);
+            }
             if (Error < 0) {
                 return Error;
             }
         }       
-        
+
+  
         if (tempHeaterFailed () == TRUE) {
             *Fail = TRUE;
-            //printf("I[Err]:%d ", Instance);
+            dbgPrint("I[Err]:%d ", Instance);
             bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempHeaterCurrent ());
             bmSignalEvent (Data->Channel, E_TEMP_CURRENT_OUT_OF_RANGE, TRUE, tempGetActiveStatus ());
         }
-        
+  
     }
 
 
@@ -690,7 +707,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_OUT_OF_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
-            printf("Temperature out of range\n");
+            dbgPrint("Temperature out of range[%d]\n", Data->ServiceTemp[0]);
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -701,7 +718,7 @@ static Error_t tempNotifRange (InstanceData_t *Data)
             Message.CanID = MSG_TEMP_NOTI_IN_RANGE;
             Message.Length = 2;
             bmSetMessageItem (&Message, Data->ServiceTemp[0], 0, 2);
-            printf("Temperature in range\n");
+            dbgPrint("Temperature in range\n");
             return (canWriteMessage(Data->Channel, &Message));
         }
     }
@@ -842,7 +859,6 @@ static Error_t tempRegulation (InstanceData_t *Data, UInt16 Instance)
         if (bmTimeExpired(Data->AutoTuneStartTime) >= Data->AutoTuneDuration) {
             tempPidAutoStop (&Data->PidParams[Data->AutoTunePidNumber]);
             if (Data->AutoTunePidNumber == 0) {
-                printf("Stop auto tuning\n");
                 Data->Flags &= ~(MODE_MODULE_ENABLE | MODE_AUTO_TUNE);
                 Message.CanID = MSG_TEMP_NOTI_AUTO_TUNE;
                 Message.Length = 0;
@@ -919,8 +935,6 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     Data->AutoTuneDuration = bmGetMessageItem(Message, 5, 2) * 1000;
     //Data->SlopeTimeInterval = bmGetMessageItem(Message, 7, 1) * 1000;
     Data->SlopeTempChange = bmGetMessageItem(Message, 7, 1) * 100;
-    
-    //printf("Temp Change for slope detection:%d\n", Data->SlopeTempChange);
 
     // Set the sampling time
     for (i = 0; i < Data->NumberPid; i++) {
@@ -935,7 +949,7 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
         TempPhase = PHASE_HEAT;
     }
     
-    printf("Id:%d, Flag:%d\n", InstanceID, Data->Flags);
+    dbgPrint("TC Id:%d, Flag:%d, Sample Time:%d\n", InstanceID, Data->Flags, TempSamplingTime);
     
     // Start auto-tuning
     if ((Data->Flags & MODE_AUTO_TUNE) != 0) {
@@ -952,6 +966,10 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
             //tempPidReset(&Data->PidParams[i]);
         }
         //tempHeaterReset();
+        
+        TempChanged = TRUE;
+        HeaterCheckSkipped = FALSE;
+        
         Data->State = STATE_IDLE;
         Data->SlopeSampleCnt = 0;
         Status = tempFanControl(bmGetInstance(Channel), ((Data->Flags & MODE_MODULE_ENABLE) != 0) ? TRUE : FALSE);
@@ -1020,19 +1038,96 @@ static Error_t tempSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
 {
     UInt16 Instance = bmGetInstance(Channel);
     
-    //if (Message->Length == 8) {
-    if (Message->Length == 6) {
+    if (Message->Length == 8) {
         tempHeaterParams[Instance].CurrentGain = bmGetMessageItem (Message, 0, 2);
         tempHeaterParams[Instance].DesiredCurrent = bmGetMessageItem (Message, 2, 2);
         tempHeaterParams[Instance].DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
-        //tempHeaterParams[Instance].CurrentDeviation = bmGetMessageItem (Message, 6, 2);
-        tempHeaterParams[Instance].CurrentDeviation = 200;
-        printf("WD:%d %d %d\n", tempHeaterParams[Instance].DesiredCurrent, tempHeaterParams[Instance].DesiredCurThreshold, tempHeaterParams[Instance].CurrentDeviation);
+        tempHeaterParams[Instance].CurrentDeviation = bmGetMessageItem (Message, 6, 2);
+        //tempHeaterParams[Instance].CurrentDeviation = 200;
+        dbgPrint("Current gain: %d\n", tempHeaterParams[Instance].CurrentGain);
+        dbgPrint("WD:%d %d %d\n", tempHeaterParams[Instance].DesiredCurrent, tempHeaterParams[Instance].DesiredCurThreshold, tempHeaterParams[Instance].CurrentDeviation);
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
 }
 
+
+/*****************************************************************************/
+/*!
+ *  \brief  Sets AC current watchdog parameters
+ *
+ *      This function is called by the CAN message dispatcher when a message
+ *      setting heater current watchdog parameters is received from the master. 
+ *      The parameters in the message are transfered to the data structure of 
+ *      the addressed module instance. The modified settings influence the 
+ *      behavior of the module task. The following settings will be modified:
+ *
+ *      - Current sensor idle output voltage (mV)
+ *      - Current sensor gain factor (mA/V)
+ *      - Desired heater current (in milliampere)
+ *      - Heater current threshold (in milliampere)
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t tempSetAcCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
+{
+    UInt16 Instance = bmGetInstance(Channel);
+    
+    if (Message->Length == 8) {
+        tempHeaterParams[Instance].CurrentMin230_Serial   = bmGetMessageItem (Message, 0, 2);
+        tempHeaterParams[Instance].CurrentMax230_Serial   = bmGetMessageItem (Message, 2, 2);
+        tempHeaterParams[Instance].CurrentMin100_Serial   = bmGetMessageItem (Message, 4, 2);
+        tempHeaterParams[Instance].CurrentMax100_Serial   = bmGetMessageItem (Message, 6, 2);
+        dbgPrint("WD:%d %d %d %d\n", tempHeaterParams[Instance].CurrentMin230_Serial, 
+                                     tempHeaterParams[Instance].CurrentMax230_Serial, 
+                                     tempHeaterParams[Instance].CurrentMin100_Serial,
+                                     tempHeaterParams[Instance].CurrentMax100_Serial);
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief  Sets extra AC current watchdog parameters
+ *
+ *      This function is called by the CAN message dispatcher when a message
+ *      setting heater current watchdog parameters is received from the master. 
+ *      The parameters in the message are transfered to the data structure of 
+ *      the addressed module instance. The modified settings influence the 
+ *      behavior of the module task. The following settings will be modified:
+ *
+ *      - Current sensor idle output voltage (mV)
+ *      - Current sensor gain factor (mA/V)
+ *      - Desired heater current (in milliampere)
+ *      - Heater current threshold (in milliampere)
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
+static Error_t tempSetAcCurrentWatchdogExt (UInt16 Channel, CanMessage_t* Message)
+{
+    UInt16 Instance = bmGetInstance(Channel);
+    
+    if (Message->Length == 4) {
+        tempHeaterParams[Instance].CurrentMin100_Parallel = bmGetMessageItem (Message, 0, 2);
+        tempHeaterParams[Instance].CurrentMax100_Parallel = bmGetMessageItem (Message, 2, 2);
+        dbgPrint("WD:%d %d\n", tempHeaterParams[Instance].CurrentMin100_Parallel,
+                               tempHeaterParams[Instance].CurrentMax100_Parallel);
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+}
 
 /*****************************************************************************/
 /*!
@@ -1081,7 +1176,7 @@ static Error_t tempSetPidParameters (UInt16 Channel, CanMessage_t* Message)
             Data->PidParams[Number-1].Range = Data->PidParams[Number].MaxTemp;
         }
         
-        printf("PID:%d %d %d\n", Data->PidParams[Number].Kc, Data->PidParams[Number].Ti, Data->PidParams[Number].Td  );
+        dbgPrint("PID:%d %d %d\n", Data->PidParams[Number].Kc, Data->PidParams[Number].Ti, Data->PidParams[Number].Td  );
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
@@ -1129,6 +1224,72 @@ static Error_t tempSetHeaterTime (UInt16 Channel, CanMessage_t* Message)
     return (E_MISSING_PARAMETERS);
 }
 
+
+/*****************************************************************************/
+/*!
+ *  \brief  Sets current watchdog parameters
+ *
+ *      This function is called by the CAN message dispatcher when a message
+ *      setting fan speed and heater current watchdog parameters is received
+ *      from the master. The parameters in the message are transfered to the
+ *      data structure of the addressed module instance. The modified settings
+ *      influence the behavior of the module task. The following settings will
+ *      be modified:
+ *
+ *      - Current sensor idle output voltage (mV)
+ *      - Current sensor gain factor (mA/V)
+ *      - Desired heater current (in milliampere)
+ *      - Heater current threshold (in milliampere)
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  Message = Received CAN message
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+ 
+static Error_t tempSetSwitchState (UInt16 Channel, CanMessage_t* Message)
+{
+    UInt8 i;
+    Int8 State;
+    Int8 AutoSwitch;
+    InstanceData_t* Data;    
+    Bool Running = FALSE;
+    Error_t Error;
+    
+    for (i = 0; i < InstanceCount; i++) {
+        Data = &DataTable[i];
+        if ((Data->Flags & MODE_MODULE_ENABLE) != 0) {
+            Running = TRUE;
+            break;
+        }
+    }
+      
+    if (Running) {
+        return (E_TEMP_MODULE_ACTIVE);
+    }
+
+    if (Message->Length == 2) {
+    
+        State = (Int8)bmGetMessageItem (Message, 0, 1);
+        if (State >= 0) {
+            Error = tempSetHeaterSwitchState((UInt8)State);
+            if(Error < 0) {
+                return (Error);
+            }
+            dbgPrint("Switch State set to %d\n", State);
+        }
+        
+        AutoSwitch = (Int8)bmGetMessageItem (Message, 1, 1);
+        if (AutoSwitch >= 0) {
+            ACHeaterAutoSwitch = (Bool)AutoSwitch;
+            dbgPrint("Auto Switch: %d\n", AutoSwitch);
+        }
+        
+        return (NO_ERROR);
+    }
+    return (E_MISSING_PARAMETERS);
+}
 
 /*****************************************************************************/
 /*!
@@ -1542,7 +1703,6 @@ static Error_t tempHandleOpen (InstanceData_t *Data, UInt16 Instance)
     // Open temperature sensors
     for (j = 0; j < Data->NumberSensors; j++) {
         //Data->HandleTemp[j] = halAnalogOpen (HAL_TEMP_SENSOR + Data->NumberSensors * i + j, HAL_OPEN_READ, 0, NULL);
-        //printf("%d:%d\n", i, HAL_TEMP_SENSOR + TempNumSensors);
         Data->HandleTemp[j] = halAnalogOpen (HAL_TEMP_SENSOR + (TempNumSensors++), HAL_OPEN_READ, 0, NULL);     
         if (Data->HandleTemp[j] < 0) {
             return (Data->HandleTemp[j]);
@@ -1588,7 +1748,10 @@ Error_t tempInitializeModule (UInt16 ModuleID, UInt16 Instances)
         { MSG_TEMP_REQ_HEATER_TIME, tempGetHeaterTime },
         { MSG_TEMP_REQ_SERVICE_SENSOR, tempGetServiceSensor },
         { MSG_TEMP_REQ_SERVICE_FAN, tempGetServiceFan },
-        { MSG_TEMP_REQ_HARDWARE, tempGetHardware }
+        { MSG_TEMP_REQ_HARDWARE, tempGetHardware },
+        { MSG_TEMP_SET_SWITCH_STATE, tempSetSwitchState },
+        { MSG_TEMP_SET_AC_CURRENT_WATCHDOG, tempSetAcCurrentWatchdog },
+        { MSG_TEMP_SET_AC_CURRENT_WATCHDOG_EXT, tempSetAcCurrentWatchdogExt } 
     };
 
     static bmModuleInterface_t Interface = {

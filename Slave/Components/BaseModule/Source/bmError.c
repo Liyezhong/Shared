@@ -162,7 +162,7 @@ Error_t bmTransmitEvent (UInt16 Channel, Error_t ErrCode, UInt32 ErrInfo) {
         bmSetMessageItem (&Message, GET_ERROR_MODULE(ErrCode), 0, 2);
         bmSetMessageItem (&Message, GET_ERROR_NUMBER(ErrCode), 2, 2);
         bmSetMessageItem (&Message, ErrInfo, 4, 2);
-        
+
         if (canWriteMessage(Channel, &Message) < 0) {
             return (E_ERROR_MESSAGE_LOST);
         }

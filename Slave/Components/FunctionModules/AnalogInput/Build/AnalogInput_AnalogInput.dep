@@ -1,4 +1,4 @@
 Dependencies for Project 'AnalogInput', Target 'AnalogInput': (DO NOT MODIFY !)
-F (..\Include\fmAnaInput.h)(0x4F6B2639)()
-F (..\Source\dbAnaInput.c)(0x4F6B2638)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbanainput.o" --omf_browse "..\Library\dbanainput.crf" --depend "..\Library\dbanainput.d")
-F (..\Source\fmAnaInput.c)(0x4FA0DBB7)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmanainput.o" --omf_browse "..\Library\fmanainput.crf" --depend "..\Library\fmanainput.d")
+F (..\Include\fmAnaInput.h)(0x51D14D1F)()
+F (..\Source\dbAnaInput.c)(0x51D14D1F)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\dbanainput.o" --omf_browse "..\Library\dbanainput.crf" --depend "..\Library\dbanainput.d")
+F (..\Source\fmAnaInput.c)(0x51D14D1F)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\ARM\INC\ST\STM32F10x" -o "..\Library\fmanainput.o" --omf_browse "..\Library\fmanainput.crf" --depend "..\Library\fmanainput.d")

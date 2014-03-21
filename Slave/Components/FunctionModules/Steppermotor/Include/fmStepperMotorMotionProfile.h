@@ -1,21 +1,18 @@
 /****************************************************************************/
 /*! \file fmStepperMotorMotionProfile.h
  * 
- *  \brief Functions to initialize, configure and validate motion profiles
- * 
+ *  $Rev:    $ 0.1
+ *  $Date:   $ 21.06.2012
+ *  $Author: $ Rainer Boehles
  *
- *  $Version: $ 0.1
- *  $Date:    $ 27.07.2012
- *  $Author:  $ Rainer Boehles
+ *  \brief Public definitions for motion profile data
  *
+ *         
+ * <dl compact><dt>Company:</dt><dd> Leica Biosystems Nussloch GmbH </dd></dl>
  *
- *  \b Company:
- *
- *       Leica Biosystems Nussloch GmbH.
- * 
- *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice 
- *  does not evidence any actual or intended publication.
+ * (c) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ * This is unpublished proprietary source code of Leica.
+ * The copyright notice does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
@@ -28,12 +25,9 @@
 #endif
 
 
-//****************************************************************************/
-// Public Type Definitions
-//****************************************************************************/
-
 //! motion profile configuration data
-typedef struct {
+typedef struct
+{
     Int32   vMin;           //!< minimal speed
     Int32   vMax;           //!< maximal speed
     Int32   acc;            //!< acceleration
@@ -47,7 +41,8 @@ typedef struct {
 
 
 //! pre-calculated minimal move distance / jerk value
-typedef struct {
+typedef struct
+{
     Int32               s;  //!< minimal move distance in hs
     Int8                j;  //!< associated jerk duration in percent
 } smDistanceElement_t;
@@ -57,7 +52,8 @@ typedef smDistanceElement_t smDistance_t [10];
 
 
 //! all data for a single motion profile
-typedef struct {
+typedef struct
+{
 
     smProfileConfig_t   Config;         //!< predefined motion profiles
     UInt8               ConfigMask;     //!< flags to track which part of motion profile is already configured
@@ -67,14 +63,22 @@ typedef struct {
 
 
 //! data to maintain all motion profiles
-typedef struct {
+typedef struct
+{
     UInt8               Count;          //!< amount of motion profiles
     smProfile_t        *Set;            //!< array of motion profile data
 } smProfiles_t;
 
 
+
 //****************************************************************************/
-// Public Function Prototypes
+// Public Constants and Macros 
+//****************************************************************************/
+
+
+
+//****************************************************************************/
+// Module Function Prototypes
 //****************************************************************************/
 
 #ifndef SIMULATION

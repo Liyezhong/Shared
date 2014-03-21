@@ -22,11 +22,11 @@
  *
  *      This implementation uses only one of the ADCs to convert the up to
  *      16 analog input channels. It would be possible to use two ADCs and
- *      distribute the input channels to these two ADCs using simultainous
+ *      distribute the input channels to these two ADCs using simultaneous
  *      or interleaved mode. This could half the overall conversion time,
  *      with the impact, that the conversion times of the channels must
  *      be carefully paired. Since this would drastically complicate the
- *      configuration of the HAL, this solution wasn't choosen.
+ *      configuration of the HAL, this solution wasn't chosen.
  *
  *  \b Company:
  *

@@ -38,12 +38,12 @@
 
 #define TEMP_SENSOR_VOLTAGE     3000  //!< ADC supply voltage used for the NTC 10K3A1I
 
-#ifdef ASB3_VER_A
+#ifdef ASB5_VER_A
 #define TEMP_SENSOR_RESISTANCE  10000 //!< Pullup resistance connected to NTC 10K3A1I
 #endif
 
 // For new ASB board
-#ifdef ASB15_VER_B
+#ifdef ASB3_VER_B
 #define TEMP_SENSOR_RESISTANCE  2700 //!< Pullup resistance connected to NTC 10K3A1I
 #endif
 
@@ -95,7 +95,7 @@ static Int16 tempSensorTableTypeT[TEMP_SENSOR_MAX] = {
     8759, 8812, 8865, 8917, 8970, 9023, 9076, 9129, 9182, 9235  // 190 to 199 degree Celsius
 };
 
-#ifdef ASB3_VER_A
+#ifdef ASB5_VER_A
 /*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
 static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
     32651, 31031, 29500, 28054, 26687, 25395, 24172, 23016, 21921, 20885, //   0 to   9 degree Celsius
@@ -121,7 +121,7 @@ static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
 };
 #endif
 
-#ifdef ASB15_VER_B
+#ifdef ASB3_VER_B
 /*! Conversion table for the Betatherm NTC 10K3A1I thermistor in ohms */
 static Int16 tempSensorTable10K3A1I[TEMP_SENSOR_MAX] = {
     32767, 32177, 30523, 28965, 27497, 26114, 24809, 23578, 22416, 21319, //   0 to   9 degree Celsius
@@ -173,7 +173,8 @@ static Int16 tempSensorTableGT103F[TEMP_SENSOR_MAX] = {
 
 
 /*! Conversion table for the Analog Devices AD595 in millivolts */
-static Int16 tempSensorTableAD595[TEMP_SENSOR_MAX] = {
+//static Int16 tempSensorTableAD595[TEMP_SENSOR_MAX] = {
+static const Int16 tempSensorTableAD595[TEMP_SENSOR_MAX] = {    //  Todo: how to reduce RAM size
        3,   13,   22,   32,   42,   52,   62,   72,   81,   91, //   0 to   9 degree Celsius
      101,  111,  121,  131,  141,  151,  160,  170,  180,  190, //  10 to  19 degree Celsius
      200,  210,  220,  230,  240,  250,  260,  270,  280,  290, //  20 to  29 degree Celsius
@@ -288,8 +289,7 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
      }
      
      AdcValue = AdcValue2;
-    
-     //printf("AD:(%d) ", AdcValue);
+
 #endif     
     
     if (Type == TYPEK) {
@@ -302,7 +302,9 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
         Table = tempSensorTable10K3A1I;
     }
     else if (Type == AD595) {
-        Table = tempSensorTableAD595;
+        //Table = tempSensorTableAD595;
+        //  Todo: how to reduce RAM size
+        Table = (Int16*)tempSensorTableAD595;
     }
     else if (Type == TYPET) {
         Table = tempSensorTableTypeT;

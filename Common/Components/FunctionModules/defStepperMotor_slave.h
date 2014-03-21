@@ -193,6 +193,25 @@ typedef struct
 #define MSG_SMOT_ACT_SPEED              BUILD_CAN_ID(CMD_CLASS_FUNCTION, 14, 0) // CAN-ID: 0x1070xxx0
 #define MSG_SMOT_ACT_SPEED_DLC          sizeof(Msg_SpeedData_t)
 
+//! Request motor operation time
+#define MSG_SMOT_OPTIME_REQ             BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 1) // CAN-ID: 0x1078xxx1 
+#define MSG_SMOT_OPTIME_REQ_DLC         0
+
+//! Motor life cycle data
+#define MSG_SMOT_OPTIME                 BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 0) // CAN-ID: 0x1078xxx1 
+#define MSG_SMOT_OPTIME_DLC             sizeof(Msg_OperationTimeData_t)
+                                                                
+//! Request motor revolution count
+#define MSG_SMOT_REVCOUNT_REQ           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 1) // CAN-ID: 0x1080xxx1 
+#define MSG_SMOT_REVCOUNT_REQ_DLC       0
+
+//! Motor life cycle data
+#define MSG_SMOT_REVCOUNT               BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 0) // CAN-ID: 0x1080xxx1 
+#define MSG_SMOT_REVCOUNT_DLC           sizeof(Msg_RevolutionsData_t)
+                                                                
+
+
+
 //! Debug message (motor movement data)
 #define MSG_SMOT_DEBUG                  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 18, 0) // CAN-ID: 0x1090xxx0
 #define MSG_SMOT_DEBUG_DLC              sizeof(Msg_DebugData_t)
@@ -201,35 +220,7 @@ typedef struct
 #define MSG_SMOT_DEBUG2                 BUILD_CAN_ID(CMD_CLASS_FUNCTION, 19, 0) // CAN-ID: 0x1098xxx0
 #define MSG_SMOT_DEBUG2_DLC             sizeof(Msg_Debug2Data_t)
 
-//! CAN msg ID - Request motor operation time
-#define MSG_SMOT_OPTIME_REQ             BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 1) // CAN-ID: 0x1078xxx1
-#define MSG_SMOT_OPTIME_REQ_DLC         0
-//!< CAN msg DLC - Request motor operation time
 
-//! CAN msg ID - Send motor operation time
-#define MSG_SMOT_OPTIME                 BUILD_CAN_ID(CMD_CLASS_FUNCTION, 15, 0) // CAN-ID: 0x1078xxx1
-#define MSG_SMOT_OPTIME_DLC             sizeof(Msg_OperationTimeData_t)
-//!< CAN msg DLC - Send motor operation time
-
-//! CAN msg ID - Request motor revolution count
-#define MSG_SMOT_REVCOUNT_REQ           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 1) // CAN-ID: 0x1080xxx1
-#define MSG_SMOT_REVCOUNT_REQ_DLC       0
-//!< CAN msg DLC - Request motor revolution count
-
-//! CAN msg ID - Send motor revolution count
-#define MSG_SMOT_REVCOUNT               BUILD_CAN_ID(CMD_CLASS_FUNCTION, 16, 0) // CAN-ID: 0x1080xxx1
-#define MSG_SMOT_REVCOUNT_DLC           sizeof(Msg_RevolutionsData_t)
-//!< CAN msg DLC - Send motor revolution count
-
-//! CAN msg ID - Request motor direction change count
-#define MSG_SMOT_DIRCOUNT_REQ           BUILD_CAN_ID(CMD_CLASS_FUNCTION, 17, 1) // CAN-ID: 0x1088xxx1
-#define MSG_SMOT_DIRCOUNT_REQ_DLC       0
-//!< CAN msg DLC - Request motor direction change count
-
-//! CAN msg ID - Send motor direction change count
-#define MSG_SMOT_DIRCOUNT               BUILD_CAN_ID(CMD_CLASS_FUNCTION, 17, 0) // CAN-ID: 0x1088xxx1
-#define MSG_SMOT_DIRCOUNT_DLC           sizeof(Msg_DirChangeData_t)
-//!< CAN msg DLC - Send motor direction change count
 //@{**************************************************************************/
 //! type declarations and data structures for CAN message data
 //****************************************************************************/
@@ -238,8 +229,7 @@ typedef struct
     {
         UInt8  enable      			: 1;
         UInt8  dbg_skipRefRun   	: 1;
-        UInt8  dbg_sendMovementData	: 1;
-        UInt8  reserved				: 5;
+        UInt8  reserved				: 6;
     } __attribute__((packed)) Msg_EnableData_t;
 
 
@@ -308,38 +298,30 @@ typedef struct
     {
         Msg_DB4_t       pos;        // half-step position count
         UInt8           posCode;    // limit switch position code
-        SM_AckState_t   ack;        // status of finished movement
+        SM_AckState_t   ack;        // status of request results
     } __attribute__((packed)) Msg_PositionData_t;
 
 
     typedef struct
     {
-        Msg_DB2_t       speed;      // actual speed (half-step/sec?
-        SM_AckState_t   ack;        // status of finished movement
+        Msg_DB2_t       speed;      // actual speed (half-step/sec²)
+        SM_AckState_t   ack;        // status of request results
     } __attribute__((packed)) Msg_SpeedData_t;
 
-//! CAN data bytes for Operation Time msg
-typedef struct
-{
-    Msg_DB4_t       hours;      //!< actual motor operation time (hours)
-    SM_AckState_t   ack;        //!< status for requested data
-} __attribute__((packed)) Msg_OperationTimeData_t;
+
+    typedef struct
+    {
+        Msg_DB4_t       hours;      // actual motor operation time (hours)
+        SM_AckState_t   ack;        // status of request results
+    } __attribute__((packed)) Msg_OperationTimeData_t;
 
 
-//! CAN data bytes for Revolution Count msg
-typedef struct
-{
-    Msg_DB4_t       count;      //!< actual motor revolution count
-    SM_AckState_t   ack;        //!< status for requested data
-} __attribute__((packed)) Msg_RevolutionsData_t;
+    typedef struct
+    {
+        Msg_DB4_t       count;      // actual motor revolutioncount
+        SM_AckState_t   ack;        // status of request results
+    } __attribute__((packed)) Msg_RevolutionsData_t;
 
-
-//! CAN data bytes for Direction Change Count msg
-typedef struct
-{
-    Msg_DB4_t       count;      //!< actual motor dirction change count
-    SM_AckState_t   ack;        //!< status for requested data
-} __attribute__((packed)) Msg_DirChangeData_t;
 
 //@{**************************************************************************/
 //! type declarations used for configurtion data
@@ -600,15 +582,13 @@ typedef struct
     {
         UInt8                       refRun_RefPos;      //!< the limit switch position code used as reference position
         Msg_DB4_t                   refRun_PosOffset;
-        Msg_DB2_t                   refRun_Timeout;     //!< maximum duration to perform each movement in ms
+        Msg_DB2_t               	refRun_Timeout;     //!< maximum duration to perform each movement in ms
     } __attribute__((packed)) ConfigData_REFRUN_P1_t;
 
 
     typedef struct
     {
-/*
-        UInt8                       refRun_RefPosSkip;
-*/
+        //UInt8                       refRun_RefPosSkip;
         Msg_DB4_t                   refRun_MaxDist;
         Msg_DB2_t                   refRun_HighSpeed;
     } __attribute__((packed)) ConfigData_REFRUN_P2_t;
@@ -637,14 +617,14 @@ typedef struct
 
     typedef struct
     {
-        Msg_DB2_t   acceleration;       //!<  acceleration ramp, half-steps/s?
+        Msg_DB2_t   acceleration;       //!<  acceleration ramp, half-steps/s²
         Msg_DB2_t   accJerkTime;        //!<  acceleration jerk phase time in ms
     } __attribute__((packed)) ProfileData_P2_t;
 
 
     typedef struct
     {
-        Msg_DB2_t   deceleration;       //!<  deceleration ramp, half-steps/sec?
+        Msg_DB2_t   deceleration;       //!<  deceleration ramp, half-steps/sec²
         Msg_DB2_t   decJerkTime;        //!<  deceleration jerk phase time in ms
 //        UInt8       rampType;           
     } __attribute__((packed)) ProfileData_P3_t;

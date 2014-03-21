@@ -73,7 +73,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>0</IsCurrentTarget>
+        <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
       <Books>
@@ -253,7 +253,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
+        <IsCurrentTarget>0</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
       <Books>
@@ -580,7 +580,7 @@
 
   <Group>
     <GroupName>Source</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
@@ -589,10 +589,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>2</ColumnNumber>
+      <ColumnNumber>44</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>115</TopLine>
-      <CurrentLine>115</CurrentLine>
+      <TopLine>348</TopLine>
+      <CurrentLine>348</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\halConfigure.c</PathWithFileName>
       <FilenameWithoutPath>halConfigure.c</FilenameWithoutPath>
@@ -603,10 +603,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>34</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>64</TopLine>
-      <CurrentLine>64</CurrentLine>
+      <TopLine>156</TopLine>
+      <CurrentLine>178</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Source\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -615,7 +615,7 @@
 
   <Group>
     <GroupName>Startup</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
@@ -626,8 +626,8 @@
       <Focus>0</Focus>
       <ColumnNumber>32</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>119</TopLine>
-      <CurrentLine>131</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Startup\Retarget.c</PathWithFileName>
       <FilenameWithoutPath>Retarget.c</FilenameWithoutPath>
@@ -1144,8 +1144,8 @@
       <Focus>0</Focus>
       <ColumnNumber>4</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>38</TopLine>
-      <CurrentLine>44</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Include\halUtilities.h</PathWithFileName>
       <FilenameWithoutPath>halUtilities.h</FilenameWithoutPath>
@@ -1191,10 +1191,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>79</ColumnNumber>
+      <ColumnNumber>60</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>87</TopLine>
+      <CurrentLine>95</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Source\halAD779x.c</PathWithFileName>
       <FilenameWithoutPath>halAD779x.c</FilenameWithoutPath>
@@ -1207,8 +1207,8 @@
       <Focus>0</Focus>
       <ColumnNumber>72</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>15</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Source\halAnalog.c</PathWithFileName>
       <FilenameWithoutPath>halAnalog.c</FilenameWithoutPath>
@@ -1529,8 +1529,8 @@
       <Focus>0</Focus>
       <ColumnNumber>47</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>123</TopLine>
-      <CurrentLine>141</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\HAL\STM32\Source\halUtilities.c</PathWithFileName>
       <FilenameWithoutPath>halUtilities.c</FilenameWithoutPath>
@@ -1604,10 +1604,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>8</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>178</TopLine>
+      <CurrentLine>178</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Include\bmCan.h</PathWithFileName>
       <FilenameWithoutPath>bmCan.h</FilenameWithoutPath>
@@ -1921,8 +1921,8 @@
       <Focus>0</Focus>
       <ColumnNumber>38</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>14</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmError.c</PathWithFileName>
       <FilenameWithoutPath>bmError.c</FilenameWithoutPath>
@@ -1935,8 +1935,8 @@
       <Focus>0</Focus>
       <ColumnNumber>36</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>127</TopLine>
-      <CurrentLine>139</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmMain.c</PathWithFileName>
       <FilenameWithoutPath>bmMain.c</FilenameWithoutPath>
@@ -1949,8 +1949,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>255</TopLine>
-      <CurrentLine>277</CurrentLine>
+      <TopLine>816</TopLine>
+      <CurrentLine>827</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmMonitor.c</PathWithFileName>
       <FilenameWithoutPath>bmMonitor.c</FilenameWithoutPath>
@@ -1991,8 +1991,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>1</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmScheduler.c</PathWithFileName>
       <FilenameWithoutPath>bmScheduler.c</FilenameWithoutPath>
@@ -2033,8 +2033,8 @@
       <Focus>0</Focus>
       <ColumnNumber>62</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>743</TopLine>
-      <CurrentLine>758</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmStorage.c</PathWithFileName>
       <FilenameWithoutPath>bmStorage.c</FilenameWithoutPath>
@@ -2061,8 +2061,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>146</TopLine>
-      <CurrentLine>162</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmSystem.c</PathWithFileName>
       <FilenameWithoutPath>bmSystem.c</FilenameWithoutPath>
@@ -2089,8 +2089,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>209</TopLine>
-      <CurrentLine>213</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\BaseModule\Source\bmUtilities.c</PathWithFileName>
       <FilenameWithoutPath>bmUtilities.c</FilenameWithoutPath>
@@ -2255,10 +2255,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>30</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>52</TopLine>
+      <CurrentLine>74</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Temperature\Source\dbTemperature.c</PathWithFileName>
       <FilenameWithoutPath>dbTemperature.c</FilenameWithoutPath>
@@ -2269,10 +2269,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>5</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>632</TopLine>
-      <CurrentLine>652</CurrentLine>
+      <TopLine>953</TopLine>
+      <CurrentLine>966</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Temperature\Source\fmTemperature.c</PathWithFileName>
       <FilenameWithoutPath>fmTemperature.c</FilenameWithoutPath>
@@ -2297,10 +2297,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>44</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>319</TopLine>
-      <CurrentLine>326</CurrentLine>
+      <TopLine>43</TopLine>
+      <CurrentLine>61</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Temperature\Source\fmTemperatureHeater.c</PathWithFileName>
       <FilenameWithoutPath>fmTemperatureHeater.c</FilenameWithoutPath>
@@ -2325,10 +2325,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>11</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>109</TopLine>
+      <CurrentLine>124</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Temperature\Source\fmTemperatureSensor.c</PathWithFileName>
       <FilenameWithoutPath>fmTemperatureSensor.c</FilenameWithoutPath>
@@ -2362,8 +2362,8 @@
       <Focus>0</Focus>
       <ColumnNumber>32</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>39</TopLine>
-      <CurrentLine>61</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotor.h</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotor.h</FilenameWithoutPath>
@@ -2402,10 +2402,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>31</ColumnNumber>
+      <ColumnNumber>2</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>32</TopLine>
+      <CurrentLine>44</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorDevice.h</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorDevice.h</FilenameWithoutPath>
@@ -2430,10 +2430,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>24</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>38</TopLine>
+      <CurrentLine>50</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorLimitSwitch.h</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorLimitSwitch.h</FilenameWithoutPath>
@@ -2444,10 +2444,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>4</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>172</TopLine>
+      <CurrentLine>184</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorMotion.h</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorMotion.h</FilenameWithoutPath>
@@ -2535,10 +2535,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>26</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>43</TopLine>
+      <CurrentLine>63</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\dbStepperMotor.c</PathWithFileName>
       <FilenameWithoutPath>dbStepperMotor.c</FilenameWithoutPath>
@@ -2549,10 +2549,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>4</ColumnNumber>
+      <ColumnNumber>87</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>426</TopLine>
-      <CurrentLine>426</CurrentLine>
+      <TopLine>482</TopLine>
+      <CurrentLine>499</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotor.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotor.c</FilenameWithoutPath>
@@ -2563,10 +2563,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>14</ColumnNumber>
+      <ColumnNumber>81</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>284</TopLine>
-      <CurrentLine>299</CurrentLine>
+      <TopLine>710</TopLine>
+      <CurrentLine>725</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorCAN.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorCAN.c</FilenameWithoutPath>
@@ -2577,10 +2577,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>24</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>138</TopLine>
+      <CurrentLine>138</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorConfig.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorConfig.c</FilenameWithoutPath>
@@ -2591,10 +2591,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>35</ColumnNumber>
+      <ColumnNumber>30</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>185</TopLine>
+      <CurrentLine>207</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorDevice.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorDevice.c</FilenameWithoutPath>
@@ -2605,10 +2605,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>1</ColumnNumber>
+      <ColumnNumber>8</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>58</TopLine>
+      <CurrentLine>61</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorEncoder.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorEncoder.c</FilenameWithoutPath>
@@ -2619,10 +2619,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>40</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>337</TopLine>
-      <CurrentLine>350</CurrentLine>
+      <TopLine>444</TopLine>
+      <CurrentLine>457</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorLimitSwitch.c</FilenameWithoutPath>
@@ -2633,10 +2633,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>35</ColumnNumber>
+      <ColumnNumber>2</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>11</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotion.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorMotion.c</FilenameWithoutPath>
@@ -2661,10 +2661,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>85</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>386</TopLine>
+      <CurrentLine>400</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotionISR.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorMotionISR.c</FilenameWithoutPath>
@@ -2675,10 +2675,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>13</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>79</TopLine>
+      <CurrentLine>90</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotionProfile.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorMotionProfile.c</FilenameWithoutPath>
@@ -2687,12 +2687,12 @@
       <GroupNumber>14</GroupNumber>
       <FileNumber>146</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>19</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>290</TopLine>
+      <CurrentLine>310</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorReferenceRun.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorReferenceRun.c</FilenameWithoutPath>
@@ -2703,10 +2703,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>5</ColumnNumber>
+      <ColumnNumber>48</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>121</TopLine>
+      <CurrentLine>142</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</PathWithFileName>
       <FilenameWithoutPath>fmStepperMotorMemory.c</FilenameWithoutPath>
@@ -2724,10 +2724,10 @@
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>30</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>260</TopLine>
-      <CurrentLine>273</CurrentLine>
+      <TopLine>416</TopLine>
+      <CurrentLine>428</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\..\..\common\Components\FunctionModules\defStepperMotor.h</PathWithFileName>
       <FilenameWithoutPath>defStepperMotor.h</FilenameWithoutPath>
@@ -3794,5 +3794,166 @@
       </Window>
     </View>
   </WinLayout>
+
+  <MDIGroups>
+    <Orientation>1</Orientation>
+    <ActiveMDIGroup>0</ActiveMDIGroup>
+    <MDIGroup>
+      <Size>100</Size>
+      <ActiveTab>1</ActiveTab>
+      <Documents>
+        <Doc>
+          <Name>..\Source\main.c</Name>
+          <ColumnNumber>34</ColumnNumber>
+          <TopLine>156</TopLine>
+          <CurrentLine>178</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Temperature\Source\fmTemperatureSensor.c</Name>
+          <ColumnNumber>11</ColumnNumber>
+          <TopLine>109</TopLine>
+          <CurrentLine>124</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMemory.c</Name>
+          <ColumnNumber>48</ColumnNumber>
+          <TopLine>121</TopLine>
+          <CurrentLine>142</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorDevice.c</Name>
+          <ColumnNumber>30</ColumnNumber>
+          <TopLine>185</TopLine>
+          <CurrentLine>207</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorDevice.h</Name>
+          <ColumnNumber>80</ColumnNumber>
+          <TopLine>27</TopLine>
+          <CurrentLine>49</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\..\..\Common\Components\FunctionModules\defStepperMotor.h</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>47</TopLine>
+          <CurrentLine>67</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\dbStepperMotor.c</Name>
+          <ColumnNumber>26</ColumnNumber>
+          <TopLine>43</TopLine>
+          <CurrentLine>63</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Temperature\Source\dbTemperature.c</Name>
+          <ColumnNumber>30</ColumnNumber>
+          <TopLine>52</TopLine>
+          <CurrentLine>74</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\HAL\STM32\Source\halAD779x.c</Name>
+          <ColumnNumber>60</ColumnNumber>
+          <TopLine>87</TopLine>
+          <CurrentLine>95</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Source\halConfigure.c</Name>
+          <ColumnNumber>44</ColumnNumber>
+          <TopLine>348</TopLine>
+          <CurrentLine>348</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Temperature\Source\fmTemperature.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>953</TopLine>
+          <CurrentLine>966</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorEncoder.c</Name>
+          <ColumnNumber>8</ColumnNumber>
+          <TopLine>58</TopLine>
+          <CurrentLine>61</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorConfig.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>138</TopLine>
+          <CurrentLine>138</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotionProfile.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>79</TopLine>
+          <CurrentLine>90</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorCAN.c</Name>
+          <ColumnNumber>81</ColumnNumber>
+          <TopLine>710</TopLine>
+          <CurrentLine>725</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotor.c</Name>
+          <ColumnNumber>87</ColumnNumber>
+          <TopLine>482</TopLine>
+          <CurrentLine>499</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotionISR.c</Name>
+          <ColumnNumber>85</ColumnNumber>
+          <TopLine>386</TopLine>
+          <CurrentLine>400</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\BaseModule\Include\bmCan.h</Name>
+          <ColumnNumber>8</ColumnNumber>
+          <TopLine>178</TopLine>
+          <CurrentLine>178</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\BaseModule\Source\bmMonitor.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>816</TopLine>
+          <CurrentLine>827</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Temperature\Source\fmTemperatureHeater.c</Name>
+          <ColumnNumber>44</ColumnNumber>
+          <TopLine>43</TopLine>
+          <CurrentLine>61</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorMotion.c</Name>
+          <ColumnNumber>2</ColumnNumber>
+          <TopLine>1</TopLine>
+          <CurrentLine>11</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorReferenceRun.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>290</TopLine>
+          <CurrentLine>310</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorLimitSwitch.h</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>38</TopLine>
+          <CurrentLine>50</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Source\fmStepperMotorLimitSwitch.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>444</TopLine>
+          <CurrentLine>457</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\..\FunctionModules\Steppermotor\Include\fmStepperMotorMotion.h</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>172</TopLine>
+          <CurrentLine>184</CurrentLine>
+        </Doc>
+      </Documents>
+    </MDIGroup>
+  </MDIGroups>
 
 </ProjectOpt>

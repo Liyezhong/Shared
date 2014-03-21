@@ -13,7 +13,7 @@
  *      encoders to sense the position of a motor. Since the STM32 has
  *      no dedicated quadrature encoder hardware, the timers are used
  *      for this function. To be able to port the software to other
- *      hardware plattforms (which might have dedicated decoders), a
+ *      hardware platforms (which might have dedicated decoders), a
  *      dedicated software interface is provided, that hides the fact
  *      that standard timers are used on STM32 hardware.
  *
@@ -51,9 +51,9 @@
 
 //! Encoder interrupt flag bit masks
 #define ENC_IFLAG_OVERFLOW    0x01    //!< Encoder over-/underflow interrupt
-#define ENC_IFLAG_LIMIT1      0x10    //!< Limit 1 position interrupt                                    
-#define ENC_IFLAG_LIMIT2      0x08    //!< Limit 2 position interrupt 
-#define ENC_IFLAG_INDEX       0x08    //!< Index impuls interrupt
+#define ENC_IFLAG_LIMIT1      0x10    //!< Limit 1 position interrupt
+#define ENC_IFLAG_LIMIT2      0x08    //!< Limit 2 position interrupt
+#define ENC_IFLAG_INDEX       0x08    //!< Index impulse interrupt
 
 //****************************************************************************/
 // Public Type Definitions

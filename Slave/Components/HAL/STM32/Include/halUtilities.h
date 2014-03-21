@@ -43,13 +43,10 @@
 typedef enum {
     ADDRESS_BOARD_OPTION_BLOCK        = 0,  //!< Board options list
     ADDRESS_BOARD_HARDWARE_INFO       = 1,  //!< Board hardware info block address
-    ADDRESS_BOOTLOADER_STARTUP        = 2,  //!< Bootloader startup entry address
-    ADDRESS_BOOTLOADER_SIGNATURE      = 3,  //!< Bootloader signature address
-    ADDRESS_BOOTLOADER_UPDATE         = 4,  //!< Bootloader sw update entry address
-    ADDRESS_BOOTLOADER_INFO           = 5,  //!< Bootloader info block
-    ADDRESS_BOARD_OPTION_BLOCK_FLASH  = 6,  //!< Board options list written into flash
-    ADDRESS_BOARD_HARDWARE_INFO_FLASH = 7,  //!< Board hardware info block address written into flash
-    ADDRESS_BOOTLOADER_INFO_FLASH     = 8,  //!< Bootloader info block written into flash
+    ADDRESS_BOOTLOADER_INFO           = 2,  //!< Bootloader info block
+    ADDRESS_BOARD_OPTION_BLOCK_FLASH  = 3,  //!< Board options list written into flash
+    ADDRESS_BOARD_HARDWARE_INFO_FLASH = 4,  //!< Board hardware info block address written into flash
+    ADDRESS_BOOTLOADER_INFO_FLASH     = 5,  //!< Bootloader info block written into flash
     NUMBER_OF_ADDRESS_IDS                   //!< Number of address identifiers
 } AddressID_t;
 

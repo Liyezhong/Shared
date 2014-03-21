@@ -16,7 +16,7 @@
  *
  *      Each port pin of the microcontroller can be used as an external
  *      interrupt input, but there are only 16 external interrupt lines.
- *      Bit<n> of each port can be connected to interrupt line<n>. Each
+ *      Bit of each port can be connected to interrupt line. Each
  *      interrupt line can handle only one interrupt input. This rules
  *      lead to restrictions in using port bits as interrupt inputs.
  *

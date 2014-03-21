@@ -38,8 +38,8 @@
 // Private Constants and Macros
 //****************************************************************************/
 
-#define CAN_SEND_QUEUE_SIZE    16    //!< Size of transmit queue (messages)
-#define CAN_RECV_QUEUE_SIZE    16    //!< Size of receive queue (messages)
+#define CAN_SEND_QUEUE_SIZE    24    //!< Size of transmit queue (messages)
+#define CAN_RECV_QUEUE_SIZE    24    //!< Size of receive queue (messages)
 
 //! Macro to extract the channel number out of a CAN-ID
 #define GET_CANiD_CHANNEL(i)   (((i) >> CANiD_SHIFT_CHANNEL) & CANiD_MAX_CHANNEL)

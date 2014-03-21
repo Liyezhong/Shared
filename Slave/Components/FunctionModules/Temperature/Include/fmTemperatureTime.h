@@ -3,7 +3,7 @@
  * 
  *  \brief Methods maintaining the operating time.
  *
- *   $Version: $ 0.4
+ *   $Version: $ 0.1
  *   $Date:    $ 02.07.2010
  *   $Author:  $ Martin Scherer
  *

@@ -12,7 +12,7 @@
  *      This file holds the low level functions of the RFID ISO/IEC 15693
  *      function module. These methods build the messages sent to the RFID tag
  *      and evaluate the data received from it. These functions work with all
- *      RFID transponders that are specified regarding the ISO/IEC 15693
+ *      RFID tranponders that are specified regarding the ISO/IEC 15693
  *      standard.
  *
  *  \b Company:
@@ -50,7 +50,7 @@
 // Private Function Prototypes 
 //****************************************************************************/
 
-static UInt16 rfid15693LinkComputeCrc (UInt8 *Buffer, UInt8 Length);
+UInt16 rfid15693LinkComputeCrc (UInt8 *Buffer, UInt8 Length);
 
 
 /*****************************************************************************/
@@ -71,10 +71,10 @@ void rfid15693LinkWriteBit (UInt8* Buffer, UInt8 Position, UInt8 Bit)
     UInt8 SubIndex = Position % 8;
     
     if (Bit == 1) {
-        Buffer[Index] |= BIT(SubIndex);
+        Buffer[Index] |= (1U << SubIndex);
     }
     else {
-        Buffer[Index] &= ~BIT(SubIndex);
+        Buffer[Index] &= ~(1U << SubIndex);
     }
     
     return;
@@ -307,7 +307,7 @@ void rfid15693LinkLockBlock (Rfid15693Stream_t *Stream, UInt64 Uid, UInt8 BlockN
 /*! 
  *  \brief   Checks the validity of a received message
  *
- *      This method computes the CRC check sum of an RFID message according to
+ *      This method computes the CRC check sum of an RFID message acorrding to
  *      ISO/IEC 15693 and compares it to the checksum that was attached to a
  *      received message. It also verifies the length if the message and if
  *      the error flag was set according to ISO/IEC 15693
@@ -372,7 +372,7 @@ UInt64 rfid15693GetUniqueId (Rfid15693Stream_t *Stream)
     UniqueID = Stream->RxBuffer[2];
     UniqueID |= Stream->RxBuffer[3] << 8;
     UniqueID |= Stream->RxBuffer[4] << 16;
-    UniqueID |= (UInt32) Stream->RxBuffer[5] << 24;
+    UniqueID |= Stream->RxBuffer[5] << 24;
     UniqueID |= (UInt64) Stream->RxBuffer[6] << 32;
     UniqueID |= (UInt64) Stream->RxBuffer[7] << 40;
     UniqueID |= (UInt64) Stream->RxBuffer[8] << 48;

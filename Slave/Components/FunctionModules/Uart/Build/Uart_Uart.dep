@@ -1,4 +1,4 @@
 Dependencies for Project 'Uart', Target 'Uart': (DO NOT MODIFY !)
-F (..\Include\fmUart.h)(0x4F6B2647)()
-F (..\Source\dbUart.c)(0x4F6B2647)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Library\dbuart.o" --omf_browse "..\Library\dbuart.crf" --depend "..\Library\dbuart.d")
-F (..\Source\fmUart.c)(0x4F6B2647)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Library\fmuart.o" --omf_browse "..\Library\fmuart.crf" --depend "..\Library\fmuart.d")
+F (..\Include\fmUart.h)(0x51D14D2A)()
+F (..\Source\dbUart.c)(0x51D14D2A)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Library\dbuart.o" --omf_browse "..\Library\dbuart.crf" --depend "..\Library\dbuart.d")
+F (..\Source\fmUart.c)(0x51D14D2A)(-c --device DARMSTM -g -O0 --apcs=interwork -I..\Include -I..\..\..\BaseModule\Include -I..\..\..\HAL\STM32\Include -I "D:\Keil\\ARM\INC\ST\STM32F10x" -o "..\Library\fmuart.o" --omf_browse "..\Library\fmuart.crf" --depend "..\Library\fmuart.d")

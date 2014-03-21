@@ -3,7 +3,7 @@
  * 
  *  \brief Functions implementing the PID controller.
  *
- *   $Version: $ 0.4
+ *   $Version: $ 0.1
  *   $Date:    $ 02.07.2010
  *   $Author:  $ Martin Scherer
  *

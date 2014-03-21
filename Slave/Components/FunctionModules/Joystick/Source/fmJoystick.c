@@ -44,7 +44,7 @@
 
 /* Mode bits for the Flags member of the module instance data */
 #define MODE_MODULE_ENABLE  0x1  //!< Module on/off bit
-#define MODE_COMMUNICATION  0x2  //!< Permanent (1) or threshold (0) communication
+#define MODE_COMMUNICATION  0x2  //!< Permanent (0) or threshold (1) communication
 #define MODE_SET_CENTER     0x4  //!< Command storing the center position
 #define MODE_CALIBRATION    0x8  //!< Calibration mode is active
 #define MODE_CONTACT        0x10 //!< Joystick has contact to an object
@@ -123,7 +123,6 @@ static Error_t joysHandleAxis   (JoystickAxis_t *Axis, UInt16 Flags);
 static Error_t joysContactCheck (InstanceData_t *Data);
 
 static Error_t joysSetConfiguration (UInt16 Channel, CanMessage_t* Message);
-static Error_t joysSetVoltageRange (UInt16 Channel, CanMessage_t* Message);
 static Error_t joysSetMechOffset (UInt16 Channel, CanMessage_t* Message);
 static Error_t joysGetDisplacement (UInt16 Channel, CanMessage_t* Message);
 static Error_t joysGetMechOffset (UInt16 Channel, CanMessage_t* Message);
@@ -141,13 +140,11 @@ static Error_t joysSendDisplacement (UInt16 Channel, UInt16 DisplacementX, UInt1
  *      module. Depending on the ControlID parameter, the following actions
  *      are performed:
  * 
- *      - MODULE_CONTROL_RESUME
- *      - MODULE_CONTROL_WAKEUP
  *      - MODULE_CONTROL_STOP
- *      - MODULE_CONTROL_SHUTDOWN
- *      - MODULE_CONTROL_RESET
- *      - MODULE_CONTROL_FLUSH_DATA
- *      - MODULE_CONTROL_RESET_DATA
+ *      - MODULE_CONTROL_RESUME
+ *      - MODULE_CONTROL_STANDBY  
+ *      - MODULE_CONTROL_WAKEUP
+ *      - MODULE_CONTROL_SHUTDOWN        
  * 
  *  \iparam  Instance  = Instance number of this module [in]
  *  \iparam  ControlID = Control code to select sub-function [in]
@@ -179,17 +176,17 @@ static Error_t joysModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
         case MODULE_CONTROL_RESET:
             Data->Flags &= ~MODE_MODULE_ENABLE;
             break;
-
+                                
         case MODULE_CONTROL_FLUSH_DATA:
             break;
-
+        
         case MODULE_CONTROL_RESET_DATA:
             Error = joysResetPartition(Data);
             break;
 
-        default:
-            return (E_PARAMETER_OUT_OF_RANGE);
-    }
+        default:             
+            return (E_PARAMETER_OUT_OF_RANGE);   
+    }    
     return (Error);
 }
 
@@ -202,11 +199,13 @@ static Error_t joysModuleControl (UInt16 Instance, bmModuleControlID_t ControlID
  *      this function module. Depending on the StatusID parameter, the 
  *      following status values are returned:
  * 
- *      - MODULE_STATUS_STATE
- *      - MODULE_STATUS_VALUE
- *      - MODULE_STATUS_MODULE_ID
  *      - MODULE_STATUS_INSTANCES
+ *      - MODULE_STATUS_MODULE_ID
+ *      - MODULE_STATUS_POWER_STATE
  *      - MODULE_STATUS_VERSION
+ *      - MODULE_STATUS_STATE
+ *      - MODULE_STATUS_ABORTED
+ *      - MODULE_STATUS_VALUE
  * 
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
@@ -220,27 +219,27 @@ static Error_t joysModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID)
     InstanceData_t* Data = &DataTable[Instance];
 
     switch (StatusID)
-    {
+    {    
         case MODULE_STATUS_STATE:
             if ((Data->Flags & MODE_MODULE_ENABLE) == 0) {
                 return ((Error_t) MODULE_STATE_DISABLED);
             }
             return ((Error_t) Data->ModuleState);
-
+            
         case MODULE_STATUS_VALUE:
             return (((Int32)Data->XAxis.Displacement << 16) | Data->YAxis.Displacement);
-
+        
         case MODULE_STATUS_MODULE_ID:
             return (ModuleIdentifier);
-
+            
         case MODULE_STATUS_INSTANCES:
             return (InstanceCount);
-
+            
         case MODULE_STATUS_VERSION:
             return (MODULE_VERSION);
-
-        default: break;
-    }
+            
+        default: break;            
+    }    
     return (E_PARAMETER_OUT_OF_RANGE);
 }
 
@@ -263,7 +262,7 @@ static Error_t joysModuleTask (UInt16 Instance)
 {
     Error_t Error;
     InstanceData_t* Data = &DataTable[Instance];
-
+    
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0) {
         Error = joysHandleAxis (&Data->XAxis, Data->Flags);
         if (Error < NO_ERROR) {
@@ -275,11 +274,11 @@ static Error_t joysModuleTask (UInt16 Instance)
             bmSignalEvent (Data->Channel, Error, TRUE, 0);
             return ((Error_t) Data->ModuleState);
         }
-
+        
         // Store the center position
         if ((Data->Flags & MODE_SET_CENTER) != 0) {
             Data->Flags &= ~(MODE_SET_CENTER);
-
+            
             Error = bmSetStorageItem(Data->HandleStorage, PARAM_CENTER_X, Data->XAxis.Center);
             if (Error < NO_ERROR) {
                 bmSignalEvent (Data->Channel, Error, TRUE, 0);
@@ -292,8 +291,8 @@ static Error_t joysModuleTask (UInt16 Instance)
             }
         }
 
-        if ((Data->Flags & MODE_COMMUNICATION) != 0) {
-            // Permanent communication
+        if ((Data->Flags & MODE_COMMUNICATION) == 0) {
+            // Normal communication
             if (bmTimeExpired(Data->SampleTimestamp) >= Data->SamplingTime) {
                 Data->SampleTimestamp = bmGetTime();
                 
@@ -308,12 +307,10 @@ static Error_t joysModuleTask (UInt16 Instance)
             // Threshold communication
             Error = joysContactCheck (Data);
             if (Error < NO_ERROR) {
-                bmSignalEvent (Data->Channel, Error, TRUE, 0);
-                return ((Error_t) Data->ModuleState);
+                return (Error);
             }
         }
     }
-
     return ((Error_t) Data->ModuleState);
 }
 
@@ -337,20 +334,20 @@ static Error_t joysHandleAxis (JoystickAxis_t *Axis, UInt16 Flags)
 {
     Error_t Error;
     Int16 SamplingValue;
-
+    
     // Read the joystick axis
     Error = halAnalogRead (Axis->Handle, &SamplingValue);
     if (Error < NO_ERROR) {
         return (Error);
     }
-
+    
     // Store the center position
-    if ((Flags & MODE_SET_CENTER) != 0) {
+    if ((Flags & MODE_SET_CENTER) != 0) {        
         Axis->Center = SamplingValue;
     }
-
+    
     // Check for new extremes
-    if ((Flags & MODE_CALIBRATION) != 0) {
+    if ((Flags & MODE_CALIBRATION) != 0) {        
         if (SamplingValue < Axis->Minimum) {
             Axis->Minimum = SamplingValue;
         }
@@ -358,7 +355,7 @@ static Error_t joysHandleAxis (JoystickAxis_t *Axis, UInt16 Flags)
             Axis->Maximum = SamplingValue;
         }
     }
-
+    
     // Truncate the sampling value to the minimum or maximum
     if (SamplingValue < Axis->Minimum) {
         SamplingValue = Axis->Minimum;
@@ -384,7 +381,7 @@ static Error_t joysHandleAxis (JoystickAxis_t *Axis, UInt16 Flags)
             Axis->Displacement = 0;
         }
     }
-
+    
     return (NO_ERROR);
 }
 
@@ -408,10 +405,10 @@ static Error_t joysContactCheck (InstanceData_t *Data)
 {
     Error_t Error;
     UInt32 Threshold;
-
+    
     // Compute the square sum of the displacement factors 
     Threshold = Data->XAxis.Displacement * Data->XAxis.Displacement + Data->YAxis.Displacement * Data->YAxis.Displacement;
-
+    
     if ((Data->Flags & MODE_CONTACT) == 0 && (Threshold >= (UInt32) Data->UpperThreshold * Data->UpperThreshold)) {
         Data->Flags |= MODE_CONTACT;
         Error = joysSendDisplacement (Data->Channel, Data->XAxis.Displacement, Data->YAxis.Displacement);
@@ -426,7 +423,7 @@ static Error_t joysContactCheck (InstanceData_t *Data)
             return (Error);
         }
     }
-
+    
     return (NO_ERROR);
 }
 
@@ -444,7 +441,7 @@ static Error_t joysContactCheck (InstanceData_t *Data)
  *      settings will be modified:
  *
  *      - Module enabled bit
- *      - Displacement communication mode (1 = permanent / 0 = contact)
+ *      - Displacement communication mode (0 = normal / 1 = contact)
  *      - Calibration mode active
  *      - ADC sampling time
  *      - Upper threshold
@@ -462,17 +459,12 @@ static Error_t joysSetConfiguration (UInt16 Channel, CanMessage_t* Message)
     UInt16 Mode;
     Error_t Error;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
-
+ 
     if (Message->Length == 7) {
         Mode = bmGetMessageItem(Message, 0, 1);
         Data->SamplingTime = bmGetMessageItem(Message, 1, 2);
         Data->UpperThreshold = bmGetMessageItem(Message, 3, 2);
         Data->LowerThreshold = bmGetMessageItem(Message, 5, 2);
-
-        // Null value would flood the CAN-bus
-        if (Data->SamplingTime == 0) {
-            Data->SamplingTime = 1;
-        }
 
         if ((Mode & MODE_CALIBRATION) != 0) {
             Data->XAxis.Minimum = MAX_INT16;
@@ -508,7 +500,7 @@ static Error_t joysSetConfiguration (UInt16 Channel, CanMessage_t* Message)
                 Data->YAxis.Maximum = bmGetStorageItem(Data->HandleStorage, PARAM_MAX_Y, (UInt16) MIN_INT16);
             }
         }
-
+        
         Data->XAxis.Center = bmGetStorageItem(Data->HandleStorage, PARAM_CENTER_X, 0);
         Data->YAxis.Center = bmGetStorageItem(Data->HandleStorage, PARAM_CENTER_Y, 0);
 
@@ -518,62 +510,6 @@ static Error_t joysSetConfiguration (UInt16 Channel, CanMessage_t* Message)
         Data->Flags |= (MODE_MODULE_ENABLE | MODE_COMMUNICATION | MODE_SET_CENTER) & Mode;
 
         Data->SampleTimestamp = bmGetTime();
-        return (NO_ERROR);
-    }
-    return (E_MISSING_PARAMETERS);
-}
-
-
-/*****************************************************************************/
-/*! 
- *  \brief  Sets the minimum and maximum voltages of both axes
- *
- *      This function is called by the CAN message dispatcher when a message 
- *      setting the configuration parameters of the jostick module is received
- *      from the master. The message overwrites the default minimum and
- *      maximum voltages of both joystick axes.The modified settings influence
- *      the behavior of the module task. The following settings will be
-        modified:
- *
- *      - X axis minimum voltage (tenth of mV)
- *      - X axis maximum voltage (tenth of mV)
- *      - Y axis minimum voltage (tenth of mV)
- *      - Y axis maximum voltage (tenth of mV)
- *
- *  \iparam  Channel = Logical channel number
- *  \iparam  Message = Received CAN message
- *
- *  \return  NO_ERROR or (negative) error code
- *
- ****************************************************************************/
-
-static Error_t joysSetVoltageRange (UInt16 Channel, CanMessage_t* Message)
-{
-    Error_t Error;
-    InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
-
-    if (Message->Length == 8) {
-        Data->XAxis.Minimum = bmGetMessageItem(Message, 0, 2);
-        Data->XAxis.Maximum = bmGetMessageItem(Message, 2, 2);
-        Data->YAxis.Minimum = bmGetMessageItem(Message, 4, 2);
-        Data->YAxis.Maximum = bmGetMessageItem(Message, 6, 2);
-
-        Error = bmSetStorageItem(Data->HandleStorage, PARAM_MIN_X, Data->XAxis.Minimum);
-        if (Error < NO_ERROR) {
-            return (Error);
-        }
-        Error = bmSetStorageItem(Data->HandleStorage, PARAM_MAX_X, Data->XAxis.Maximum);
-        if (Error < NO_ERROR) {
-            return (Error);
-        }
-        Error = bmSetStorageItem(Data->HandleStorage, PARAM_MIN_Y, Data->YAxis.Minimum);
-        if (Error < NO_ERROR) {
-            return (Error);
-        }
-        Error = bmSetStorageItem(Data->HandleStorage, PARAM_MAX_Y, Data->YAxis.Maximum);
-        if (Error < NO_ERROR) {
-            return (Error);
-        }
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
@@ -604,7 +540,7 @@ static Error_t joysSetMechOffset (UInt16 Channel, CanMessage_t* Message)
     Error_t Error;
     UInt32 MechOffset;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
-
+ 
     if (Message->Length == 4) {
         MechOffset = bmGetMessageItem(Message, 0, 4);
         
@@ -772,25 +708,25 @@ static Error_t joysVerifyPartition (InstanceData_t *Data)
 {
     Error_t Error;
     UInt32 LayoutVersion;
-
+        
     if (Data->HandleStorage >= 0) {
         if (!bmVerifyStorageItems (Data->HandleStorage, PermDataTable, ELEMENTS(PermDataTable))) {
-            bmSignalEvent (Data->Channel, E_PERSISTENTS_INVALID, 1, 0);
+            bmSignalEvent (Data->Channel, E_PERSISTENTS_INVALID, 1, 0);            
             Error = joysResetPartition (Data);
             if (Error < NO_ERROR) {
                 return (Error);
             }
         }
-        LayoutVersion = bmGetStorageItem (Data->HandleStorage, PARAM_LAYOUT_VERSION, 0);
+        LayoutVersion = bmGetStorageItem (Data->HandleStorage, PARAM_LAYOUT_VERSION, 0);       
 
         // if required, upgrade partition to new layout format
         if (LayoutVersion < PARTITION_VERSION) {
-            // currently no conversion required, this signal is sent out anyway to please the Master
-            bmSignalEvent (Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);
+            // currently no conversion required
+            bmSignalEvent (Data->Channel, I_PARTITION_CONVERTED, 1, LayoutVersion);                                
         }
         return (NO_ERROR);
     }
-    return (E_STORAGE_OPEN_ERROR);
+    return (E_STORAGE_OPEN_ERROR);        
 }
 
 
@@ -816,7 +752,6 @@ Error_t joysInitializeModule (UInt16 ModuleID, UInt16 Instances)
 {
     static bmCallbackEntry_t Commands[] = {
         { MSG_JOYS_SET_CONFIGURATION, joysSetConfiguration },
-        { MSG_JOYS_SET_VOLTAGE_RANGE, joysSetVoltageRange },
         { MSG_JOYS_SET_MECH_OFFSET, joysSetMechOffset },
         { MSG_JOYS_REQ_DISPLACEMENT, joysGetDisplacement },
         { MSG_JOYS_REQ_MECH_OFFSET, joysGetMechOffset }

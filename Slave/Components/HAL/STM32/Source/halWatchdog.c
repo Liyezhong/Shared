@@ -164,7 +164,6 @@ Error_t halWatchdogInit (void) {
             WDG->PR = Index;
     
             while (WDG->SR & IWDG_SR_RVU) {}
-    //        WDG->KR  = IWDG_KEY_UNPROTECT;
             WDG->RLR = (Counter / PreScaler) & IWDG_RLR_MASK;
             WDG->KR = IWDG_KEY_PROTECT;
         }
