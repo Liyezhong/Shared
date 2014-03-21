@@ -43,6 +43,7 @@ public:
     virtual ~CDialogFrame();
 
     void SetDialogTitle(QString Title);
+    void SetDialogTitle(QString TitleLeftCorner, QString TitleRightCorner);
     void SetContent(QLayout *p_Content);
 
 protected:

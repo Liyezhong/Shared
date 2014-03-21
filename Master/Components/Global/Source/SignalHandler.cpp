@@ -29,6 +29,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QDateTime>
+#include <Global/Include/EventObject.h>
 
 namespace Global {
 
@@ -141,9 +142,11 @@ void SignalHandler::crashHandler(int sig)
 {
     qDebug() << "++++++++++++++++++++++++++++\n++++ Signal catched ++++\n++++++++++++++++++++++++++++";
 
+
     qDebug() << "Signal" << sig;
     QStringList stringList = getBackTrace();
     qDebug() << stringList.join("\n");
+//    Global::EventObject::Instance().RaiseEvent(EVENT_GLOBAL_ERROR_SIGNAL_RECEIVED, Global::FmtArgs() << stringList.join(";"), true);
 
     qDebug() << "+++++++++++++++++++++++++++++++++\n++++ Terminating application ++++\n+++++++++++++++++++++++++++++++++";
 

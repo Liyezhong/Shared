@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestAES.cpp
+/*! \file TestAES.cpp
  *
- *  @brief Testclass for AES - variable key and random data tests.
+ *  \brief Testclass for AES - variable key and random data tests.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-06-19
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:31:54
  *
  */
 /****************************************************************************/
@@ -23,20 +22,20 @@
 #include "ImportExport/AES/Test/TestAES.h"
 
 namespace ImportExport {
-
-/**
- * @brief empty constructor
+/****************************************************************************/
+/*!
+ * \brief empty constructor
  */
-
+/****************************************************************************/
 TestAes::TestAes()
 {
     ;
 }
-
-/**
- * @brief do the variable key test (plaintext 0, key variable)
+/****************************************************************************/
+/*!
+ * \brief do the variable key test (plaintext 0, key variable)
  */
-
+/****************************************************************************/
 void TestAes::utAesVariableKeyTest()
 {
     VARKEYTEST test;
@@ -63,11 +62,11 @@ void TestAes::utAesVariableKeyTest()
         QCOMPARE(test.ciphertext, plain.toHex().constData());
     }
 }
-
-/**
- * @brief do the random data test (plaintext and key variable)
+/****************************************************************************/
+/*!
+ * \brief do the random data test (plaintext and key variable)
  */
-
+/****************************************************************************/
 void TestAes::utAesRandomDataTest()
 {
     RANDTEST test;
@@ -94,15 +93,15 @@ void TestAes::utAesRandomDataTest()
         QCOMPARE(test.ciphertext, plain.toHex().constData());
     }
 }
-
-/**
- * @brief test one AES block with CTR encryption
+/****************************************************************************/
+/*!
+ * \brief test one AES block with CTR encryption
  *
  * Check against variable plaintext test with key 0, plaintext 1
  * (testcase 128 in NIST submission, vt.txt); check encryption and
  * check that decryption yields null plaintext again.
  */
-
+/****************************************************************************/
 void TestAes::utAesCtrSimpleTest()
 {
     QByteArray key(AES::AES_SIZE, 0);
@@ -132,11 +131,11 @@ void TestAes::utAesCtrSimpleTest()
     }
 }
 
-
-/**
- * @brief encrypt and decrypt a long plaintext as stream, benchmark it
+/****************************************************************************/
+/*!
+ * \brief encrypt and decrypt a long plaintext as stream, benchmark it
  */
-
+/****************************************************************************/
 void TestAes::utAesBenchTest()
 {
     const int CHUNK = 1000;     // encryption and decryption in chunks

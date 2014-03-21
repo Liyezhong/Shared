@@ -47,6 +47,7 @@ private:
     static SystemPaths      m_InstA;                ///< The one and only instance.
     mutable QReadWriteLock  m_SyncObject;           ///< Synchronization object.
     QString                 m_SettingsPath;         ///< Settings directory.
+    QString                 m_InstrumentPath;       ///< Instrument specific Settings directory
     QString                 m_FirmwarePath;         ///< Firmware directory.
     QString                 m_UpdatePath;           ///< Update directory.
     QString                 m_LogfilesPath;         ///< Log files directory.
@@ -56,6 +57,8 @@ private:
     QString                 m_TempPath;             ///< Folder for temporary files.
     QString                 m_RollbackPath;         ///< Folder for Rollback directory
     QString                 m_TranslationsPath;     ///< Translations path( qm files are placed here)
+    QString                 m_SoundsPath;            ///< Sounds path( wav files are placed here)
+    QString                 m_RemoteCarePath;       ///< RemoteCare path(remote care input/output files are placed here)
     /****************************************************************************/
     SystemPaths(const SystemPaths &);                         ///< Not impemented.
     const SystemPaths & operator = (const SystemPaths &);     ///< Not implemented.
@@ -108,6 +111,17 @@ public:
     inline QString GetSettingsPath() const {
         QReadLocker RL(&m_SyncObject);
         return m_SettingsPath;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Get instrument specific settings path.
+     *
+     * \return  Settings path.
+     */
+    /****************************************************************************/
+    inline QString GetInstrumentSettingsPath() const {
+        QReadLocker RL(&m_SyncObject);
+        return m_InstrumentPath;
     }
     /****************************************************************************/
     /**
@@ -225,6 +239,20 @@ public:
     inline void SetSettingsPath(const QString &SettingsPath) {
         QWriteLocker WL(&m_SyncObject);
         m_SettingsPath = QDir::cleanPath(ComputePath() + "/" + SettingsPath);
+    }
+    /****************************************************************************/
+    /**
+     * \brief Set instrument specific settings path.
+     *
+     * Usually "Settings/Instrument".
+     * <b>The application path is prepended automatically!</b>
+     *
+     * \param[in]   SettingsPath    The path.
+     */
+    /****************************************************************************/
+    inline void SetInstrumentSettingsPath(const QString &SettingsPath) {
+        QWriteLocker WL(&m_SyncObject);
+        m_InstrumentPath = QDir::cleanPath(ComputePath() + "/" + SettingsPath);
     }
     /****************************************************************************/
     /**
@@ -354,6 +382,60 @@ public:
         QWriteLocker WL(&m_SyncObject);
         m_TranslationsPath = QDir::cleanPath(ComputePath() + "/" + TranslationPath);
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Get path to Sound files (wav files).
+     *
+     * \return  Uploads path.
+     */
+    /****************************************************************************/
+    inline QString GetSoundPath() const {
+        QReadLocker RL(&m_SyncObject);
+        return m_SoundsPath;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set path to Sound files
+     *
+     * Usually "Translation".
+     * <b>The application path is prepended automatically!</b>
+     *
+     * \param[in]   SoundPath      The path.
+     */
+    /****************************************************************************/
+    inline void SetSoundPath(const QString &SoundPath) {
+        QWriteLocker WL(&m_SyncObject);
+        m_SoundsPath = QDir::cleanPath(ComputePath() + "/" + SoundPath);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get path to remote care path
+     *
+     * \return  Uploads path.
+     */
+    /****************************************************************************/
+    inline QString GetRemoteCarePath() const {
+        QReadLocker RL(&m_SyncObject);
+        return m_RemoteCarePath;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set path to remote care files
+     *
+     * <b>The application path is prepended automatically!</b>
+     *
+     * \param[in]   RemoteCarePath      The path.
+     */
+    /****************************************************************************/
+    inline void SetRemoteCarePath(const QString &RemoteCarePath) {
+        QWriteLocker WL(&m_SyncObject);
+        m_RemoteCarePath = QDir::cleanPath(ComputePath() + "/" + RemoteCarePath);
+    }
+
 
 }; // end class SystemPaths
 

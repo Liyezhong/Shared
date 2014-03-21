@@ -52,18 +52,60 @@ public:
 
     explicit CMessageDlg(QWidget *p_Parent = NULL);
     virtual ~CMessageDlg();
-    void SetTitle(const QString &Title);
+    void SetTitle(const QString &TitleLeft);
+    void SetTitle(const QString &TitleLeft, const QString &TitleRight);
     void SetText(const QString &Text);
     void SetIcon(QMessageBox::Icon);
     void SetButtonText(qint32 ButtonNumber, QString ButtonText);
+    void EnableButton(qint32 ButtonNumber, bool IsEnable);
     void HideCenterButton();
     void HideButtons();
+    void HideButtonsOneAndTwo();
 
 public slots:
     void Show();
 
 protected:
     void changeEvent(QEvent *p_Event);
+
+private slots:
+    /****************************************************************************/
+    /**
+     * \brief Slot called when Left corner button is clicked
+     */
+    /****************************************************************************/
+    void OnButtonLeftClicked()
+    {
+        reject();
+        emit ButtonLeftClicked();
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Slot called when center button is clicked
+     */
+    /****************************************************************************/
+    void OnButtonCenterClicked()
+    {
+        accept();
+        emit ButtonCenterClicked();
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Slot called when right corner button is clicked
+     */
+    /****************************************************************************/
+    void OnButtonRightClicked()
+    {
+        accept();
+        emit ButtonRightClicked();
+    }
+
+signals:
+    void ButtonRightClicked();
+    void ButtonLeftClicked();
+    void ButtonCenterClicked();
 };
 
 } // end namespace MainMenu

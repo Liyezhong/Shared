@@ -77,8 +77,6 @@ class CTemperatureControl : public CFunctionModule
     ReturnCode_t GetHardwareStatus();
     //! Set temperature ctrl. status
     ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
-    ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
-
 
 signals:
     /****************************************************************************/
@@ -239,8 +237,6 @@ signals:
      */
     /****************************************************************************/
     void ReportSetPidAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
-    void ReportSetSwitchState(quint32 InstanceID, ReturnCode_t HdlInfo, qint8 SwitchState, qint8 AutoSwitch);
-
 
  private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
@@ -257,9 +253,6 @@ signals:
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
     //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
-    ReturnCode_t SendCANMsgAcCurrentWatchdogSet();
-    ReturnCode_t SendCANMsgAcCurrentWatchdogSetExt();
-
     //! sends the can set message 'Temperature'
     ReturnCode_t SendCANMsgSetTemperature(qreal Temperature, TempCtrlOperatingMode_t OperatingMode, TempCtrlStatus_t Status, quint8 SlopeTempChange=0);
     //! sends the can request message 'Temperature'
@@ -274,8 +267,6 @@ signals:
     ReturnCode_t SendCANMsgServiceFanReq(quint8 Index);
     //! sends the can request message 'HardwareReq'
     ReturnCode_t SendCANMsgHardwareReq();
-
-    ReturnCode_t SendCANMsgSetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 
     //! handles the receipt of can response message 'ServiceSensor'
     void HandleCANMsgServiceSensor(can_frame* pCANframe);
@@ -317,8 +308,7 @@ signals:
         FM_TEMP_CMD_TYPE_REQ_OPTIME    = 8, //!< request operating time
         FM_TEMP_CMD_TYPE_REQ_FANSPEED  = 9, //!< request fan speed
         FM_TEMP_CMD_TYPE_REQ_HARDWARE  = 10,//!< request hardware status
-        FM_TEMP_CMD_TYPE_SET_PID       = 11,//!< set PID parameters
-        FM_TEMP_CMD_TYPE_SET_SWITCH_STATE = 12 //!< set PID parameters
+        FM_TEMP_CMD_TYPE_SET_PID       = 11 //!< set PID parameters
     } CANTempCtrlCmdType_t;
 
     /*! motor command data, used for internal data transfer*/
@@ -337,8 +327,6 @@ signals:
         quint16 ControllerGain;
         quint16 ResetTime;
         quint16 DerivativeTime;
-        qint8 SwitchState;
-        qint8 AutoSwitch;
     } TempCtrlCommand_t;
 
     TempCtrlCommand_t m_ModuleCommand[MAX_TEMP_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -371,9 +359,6 @@ signals:
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDLevelSensorState;
-    quint32 m_unCanIDSetSwitchState;
-    quint32 m_unCanIDAcCurrentWatchdogSet;    //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDAcCurrentWatchdogSetExt; //!< CAN-message id of 'TBD' message
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
 };

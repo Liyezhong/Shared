@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file CompressEncrypt.h
+/*! \file CompressEncrypt.h
  *
- *  @brief Compress and optionally encrypt data stream for ImportExport module
+ *  \brief Compress and optionally encrypt data stream for ImportExport module
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-07-30
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,21 +15,23 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:34:12
  *
  */
 /****************************************************************************/
 
-#ifndef IMPORT_COMPRESS_ENCRYPT_H
-#define IMPORT_COMPRESS_ENCRYPT_H
+#ifndef IMPORTEXPORT_COMPRESSENCRYPT_H
+#define IMPORTEXPORT_COMPRESSENCRYPT_H
 
 #include <QByteArray>
 #include "ImportExport/CryptoService/Include/CryptoService.h"
 
 namespace ImportExport {
 
-// compress and optionally encrypt data stream
-
+/****************************************************************************/
+/*!
+ * \brief compress and optionally encrypt data stream
+ */
+/****************************************************************************/
 class CompressEncrypt
 {
     friend class TestCompressEncrypt;
@@ -37,7 +39,7 @@ class CompressEncrypt
     public:
         CompressEncrypt(FailSafeOpen* fd,
                         CryptoService& cs,
-                        bool encrypt = false);
+                        bool encrypt = false, bool compressed = false);
         ~CompressEncrypt();
         void write(const QByteArray& data, bool hmac = true);
 
@@ -46,12 +48,13 @@ class CompressEncrypt
         void close();
 
         // data
-        FailSafeOpen* m_fd;
-        CryptoService& m_cs;
-        bool m_encrypt;
-        QByteArray m_buffer;
+        FailSafeOpen* mp_fd; ///< file pointer
+        CryptoService& m_cs; ///< crypto service
+        bool m_encrypt;      ///< flag for encryption
+        bool m_compressed;   ///< flag for compression
+        QByteArray m_buffer; ///< buffer to store in the byte array
 };
 
 }       // end namespace ImportExport
 
-#endif                  // IMPORT_COMPRESS_ENCRYPT_H
+#endif                  // IMPORTEXPORT_COMPRESSENCRYPT_H

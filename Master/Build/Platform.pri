@@ -11,17 +11,26 @@ CONFIG += static \
           rtti
 
 QT -= gui
-QT += xml
+QT += xml \
+      network \
+      xmlpatterns \
+      core
+
 
 CONFIG += debug_and_release
 #CONFIG += build_all
 
-INCLUDEPATH += ../.. \
-               ../../../../../Colorado/Shared/Master/Components/
-DEPENDPATH += ../.. \
-              ../../../../../Colorado/Shared/Master/Components/
+INCLUDEPATH += ../..
+#INCLUDEPATH += ../../../../../Platform/Master/Components/
+#               ../../../../../Himalaya/Shared/Master/Components/
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
+INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components
+INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components
+DEPENDPATH += ../..
+#              ../../../../../Platform/Master/Components/
+#              ../../../../../Himalaya/Shared/Master/Components/
 
-QMAKE_CXXFLAGS += -Wall
+QMAKE_CXXFLAGS += -Wall -std=c++0x
 
 CONFIG(debug, debug|release) {
     CONFIG_SUFFIX = dbg

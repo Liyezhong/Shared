@@ -33,14 +33,15 @@ class CmdEventUpdate : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdEventUpdate &);
 public:
     static QString NAME;    ///< Command name.
-    CmdEventUpdate(quint32 eventID, bool active);
+    CmdEventUpdate(quint32 eventId, QString type, bool stopSystem);
     CmdEventUpdate();
     ~CmdEventUpdate();
     virtual QString GetName() const;
 //    quint32 getEventId() { return m_eventId; }
 //    inline bool getActive() { return m_active; }
     quint32 m_eventId;
-    bool m_active;
+    bool m_stopExecution;
+    QString m_type;
 
 private:
     CmdEventUpdate(const CmdEventUpdate &);                       ///< Not implemented.
@@ -63,7 +64,8 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdEventUpdate &Cmd
     Cmd.CopyToStream(Stream);
     // copy internal data
     Stream << Cmd.m_eventId;
-    Stream << Cmd.m_active;
+    Stream << Cmd.m_stopExecution;
+    Stream << Cmd.m_type;
     return Stream;
 }
 
@@ -82,7 +84,8 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdEventUpdate &Cmd)
     Cmd.CopyFromStream(Stream);
     // copy internal data
     Stream >> Cmd.m_eventId;
-    Stream >> Cmd.m_active;
+    Stream >> Cmd.m_stopExecution;
+    Stream >> Cmd.m_type;
     return Stream;
 }
 

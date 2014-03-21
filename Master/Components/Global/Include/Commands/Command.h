@@ -81,6 +81,7 @@ protected:
 public:
     static const QString    SERIALIZERSTRING;   ///< String used to detect a command when serializing.
     static const int        NOTIMEOUT;          ///< Value for no timeout.
+    static const int        MAXTIMEOUT;    ///< Value for infinite timeout
     /****************************************************************************/
     /**
      * \brief The only allowed constructor.

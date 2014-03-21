@@ -28,6 +28,7 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
 
+#include <QtDebug>
 #include <cmath>
 
 //@{**************************************************************************
@@ -556,10 +557,8 @@ void CStepperMotor::SetupPosCodeConfigData (CANFctModulePosCode &PosCode, Config
     pc.flag.valid   = PosCode.bValid;
     pc.flag.stop    = PosCode.bStop;
     pc.flag.stopDir = SetupRotationDir(CANFctModuleStepperMotor::RotationDir_t(PosCode.bStopDir));  // stop direction
-#ifdef PRE_ALFA_TEST
     pc.flag.rotDirCheck = PosCode.bRotDirCheck;
     pc.flag.hitSkip     = PosCode.hitSkip;
-#endif
     pc.position     = ValToDB4(PosCode.position);
     pc.width        = PosCode.width;
     pc.deviation    = PosCode.deviation;
@@ -1546,7 +1545,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
         if (GetType() == m_lastErrorGroup) //lint !e641
             eventString = m_eventString[m_lastErrorCode];
         else
-            eventString = m_pParent->m_EventString[m_lastErrorCode];
+            eventString = m_pParent->m_eventString[m_lastErrorCode];
         if ("" == eventString)
             eventString = "unknown";
         FILE_LOG_L(laFCT, llERROR) << " " << eventString;

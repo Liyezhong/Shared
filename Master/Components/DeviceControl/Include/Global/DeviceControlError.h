@@ -106,7 +106,7 @@
 #define EVENT_GRP_DCL_GRAPPLER_DEV              ((EVENT_MAIN_GRP_DCL << 8) | 0x0030)   //!< Grappler
 #define EVENT_GRP_DCL_AGITATION_DEV             ((EVENT_MAIN_GRP_DCL << 8) | 0x0031)   //!< Agitation
 #define EVENT_GRP_DCL_RACKTRANS_DEV             ((EVENT_MAIN_GRP_DCL << 8) | 0x0032)   //!< Rack transport
-#define EVENT_GRP_DCL_OVEN_DEV                  ((EVENT_MAIN_GRP_DCL << 8) | 0x0033)   //!< Oven
+//#define EVENT_GRP_DCL_OVEN_DEV                  ((EVENT_MAIN_GRP_DCL << 8) | 0x0033)   //!< Oven
 #define EVENT_GRP_DCL_LOADER_DEV                ((EVENT_MAIN_GRP_DCL << 8) | 0x0034)   //!< Loader
 #define EVENT_GRP_DCL_HVESSELS_DEV              ((EVENT_MAIN_GRP_DCL << 8) | 0x0035)   //!< Heated vessels
 #define EVENT_GRP_DCL_WATER_DEV                 ((EVENT_MAIN_GRP_DCL << 8) | 0x0036)   //!< Water
@@ -115,6 +115,13 @@
 #define EVENT_GRP_DCL_COVERLINE_DEV             ((EVENT_MAIN_GRP_DCL << 8) | 0x0039)   //!< Coverline
 #define EVENT_GRP_DCL_RACKHDL_DEV               ((EVENT_MAIN_GRP_DCL << 8) | 0x003A)   //!< Rackhandling sepia
 #define EVENT_GRP_DCL_HOOD_DEV                  ((EVENT_MAIN_GRP_DCL << 8) | 0x003B)   //!< Hood Open Detection
+
+
+#define EVENT_GRP_DCL_RV_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003C)   //!< Rotary Valve
+#define EVENT_GRP_DCL_AL_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003D)   //!< Air liquid
+#define EVENT_GRP_DCL_RT_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x003E)   //!< Retort
+#define EVENT_GRP_DCL_OVEN_DEV                  ((EVENT_MAIN_GRP_DCL << 8) | 0x003F)   //!< Oven
+#define EVENT_GRP_DCL_MC_DEV                    ((EVENT_MAIN_GRP_DCL << 8) | 0x0040)   //!< Main controll
 
 
 /*********************************************************
@@ -769,5 +776,37 @@
 #define ERROR_DCL_IHOOD_DEV_REQ_STATUS_FCTCALL_FAILED        0x0110  //!< function call failed when calling get status (interface class)
 #define ERROR_DCL_HOOD_DEV_REQ_STATUS_FCTCALL_FAILED         0x0111  //!< function call failed when calling get status
 #define ERROR_DCL_HOOD_DEV_REQ_STATUS_TIMEOUT                0x0112  //!< timeout acknowledge signal
+
+//##############################################
+//Group 'Rotary Valve' EVENT_GRP_DCL_RV_DEV
+#define ERROR_DCL_IRV_DEV_INVALID_STATE                    0x0001  //!< invalid state (interface class)
+#define ERROR_DCL_IRV_DEV_NULL_PTR_ACCESS                  0x0002  //!< Null pointer access
+#define ERROR_DCL_RV_DEV_INVALID_TASKID                    0x0010  //!< invalid task id
+#define ERROR_DCL_RV_DEV_INVALID_STATE                     0x0011  //!< invalid state
+#define ERROR_DCL_RV_DEV_NULL_PTR_ACCESS                   0x0012  //!< null pointer access
+#define ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED             0x0013  //!< function module allocation failed
+#define ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED             0x0014  //!< signal slot connect failed
+#define ERROR_DCL_RV_DEV_FCTMODULES_ERROR                  0x0015  //!< function module error state reported
+#define ERROR_DCL_IRV_DEV_COVER_REFRUN_FCTCALL_FAILED      0x0110  //!< function call failed when calling reference run request (interface class)
+#define ERROR_DCL_RV_DEV_COVER_REFRUN_FCTCALL_FAILED       0x0111  //!< function call failed when calling reference run request
+#define ERROR_DCL_RV_DEV_COVER_REFRUN_TIMEOUT              0x0112  //!< timeout acknowledge signal
+#define ERROR_DCL_IRV_DEV_REQ_COVER_MOVE_FCTCALL_FAILED    0x0120  //!< function call failed when calling cover movement (interface class)
+#define ERROR_DCL_RV_DEV_REQ_COVER_MOVE_FCTCALL_FAILED     0x0121  //!< function call failed when calling cover movement
+#define ERROR_DCL_RV_DEV_REQ_COVER_MOVE_TIMEOUT            0x0122  //!< timeout acknowledge signal
+#define ERROR_DCL_IRV_DEV_REQ_COVER_ACTPOS_FCTCALL_FAILED  0x0130  //!< function call failed when calling actual position request (interface class)
+#define ERROR_DCL_RV_DEV_REQ_COVER_ACTPOS_FCTCALL_FAILED   0x0131  //!< function call failed when calling actual position request
+#define ERROR_DCL_RV_DEV_REQ_COVER_ACTPOS_TIMEOUT          0x0132  //!< timeout acknowledge signal
+#define ERROR_DCL_IRV_DEV_REQ_ACTTEMP_FCTCALL_FAILED       0x0140  //!< function call failed when calling actual temperature request (interface class)
+#define ERROR_DCL_RV_DEV_REQ_ACTTEMP_FCTCALL_FAILED        0x0141  //!< function call failed when calling actual temperature request
+#define ERROR_DCL_RV_DEV_REQ_ACTTEMP_TIMEOUT               0x0142  //!< timeout acknowledge signal
+#define ERROR_DCL_IRV_DEV_SET_TEMP_FCTCALL_FAILED          0x0150  //!< function call failed when setting temperature (interface class)
+#define ERROR_DCL_RV_DEV_SET_TEMP_FCTCALL_FAILED           0x0151  //!< function call failed when setting temperature
+#define ERROR_DCL_RV_DEV_SET_TEMP_TIMEOUT                  0x0152  //!< timeout acknowledge signal
+#define ERROR_DCL_IRV_DEV_SET_STATUS_FCTCALL_FAILED        0x0160  //!< function call failed when setting status of temperature control (interface class)
+#define ERROR_DCL_RV_DEV_SET_STATUS_FCTCALL_FAILED         0x0161  //!< function call failed when setting status of temperature control
+#define ERROR_DCL_RV_DEV_SET_STATUS_TIMEOUT                0x0162  //!< timeout acknowledge signal
+#define ERROR_DCL_IRV_DEV_REQ_STATUS_FCTCALL_FAILED        0x0170  //!< function call failed when requesting actual status of temperature control (interface class)
+#define ERROR_DCL_RV_DEV_REQ_STATUS_FCTCALL_FAILED         0x0171  //!< function call failed when requesting actual status of temperature control
+#define ERROR_DCL_RV_DEV_REQ_STATUS_TIMEOUT                0x0172  //!< timeout acknowledge signal
 
 #endif /* DEVICE_CONTROL_ERROR_H */

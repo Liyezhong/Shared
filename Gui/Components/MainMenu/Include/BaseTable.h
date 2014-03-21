@@ -4,8 +4,8 @@
  *  \brief BaseTable definition.
  *
  *   $Version: $ 0.1
- *   $Date:    $ 2011-07-08
- *   $Author:  $ M.Scherer
+ *   $Date:    $ 2011-07-08 , 2013-02-26
+ *   $Author:  $ M.Scherer , Swati Tiwari
  *
  *  \b Company:
  *
@@ -36,7 +36,7 @@ class CBaseTable : public QTableView
 
 public:
     explicit CBaseTable(QWidget *p_Parent = 0);
-    void SetVisibleRows(qint32 Rows);
+    void SetVisibleRows(qint32 Rows, qint32 HeaderHeight = 28, qint32 RowHeight = 40);
 
 };
 

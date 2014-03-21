@@ -24,6 +24,7 @@ namespace Global {
 
 const QString   Command::SERIALIZERSTRING   = "Command";
 const int       Command::NOTIMEOUT          = 0;
+const int       Command::MAXTIMEOUT    = 0x7FFFFFFF;
 
 /****************************************************************************/
 Command::Command(int Timeout)
@@ -71,6 +72,12 @@ bool Command::isStateAllowed(QString state)
 
     if ((state == "IdleState") && (isIdleStateAllowed()))
         return true;
+
+    if ((state == "InitState"))
+        return true;
+
+//    if ((state == "SoftSwitchMonitorState"))
+//        return true;
 
     return false;
 }

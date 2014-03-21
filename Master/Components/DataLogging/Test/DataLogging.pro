@@ -6,13 +6,10 @@ TEMPLATE = subdirs
 
 SUBDIRS =   TestBaseLogger.pro \
             TestBaseLoggerReusable.pro \
-            TestComponentTestEntry.pro \
-            TestComponentTestLoggerConfig.pro \
             TestDayOperationLoggerConfig.pro \
             TestDayOperationEntry.pro \
-            TestEventEntry.pro \
             TestEventFilter.pro \
-            TestEventLoggerConfig.pro \
-            TestLoggingObject.pro
+            TestLoggingObject.pro \
+	    TestDayLogFileInformation.pro
 
 CONFIG += ordered

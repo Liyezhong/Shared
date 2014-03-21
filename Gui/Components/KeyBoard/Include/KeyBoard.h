@@ -33,13 +33,14 @@
 #include <QPainter>
 #include <QLineEdit>
 #include <QVector>
+#include <QRegExpValidator>
 
 namespace KeyBoard {
 //! < Forward Declarations
 class CSubSpeller;
 class CKeyBoardButton;
 //! < Used to set resolution depending on whether model is SIZE_1 or SIZE_2
-//eg. Colorado SIZE_1 , Sepia SIZE_2
+//eg. Himalaya SIZE_1 , Sepia SIZE_2
 typedef enum {
     SIZE_1 = 1,
     SIZE_2,
@@ -77,7 +78,7 @@ namespace Ui {
 class CKeyBoard : public MainMenu::CDialogFrame
 {
     Q_OBJECT
-
+    friend class CTestKeyBoard;
 private:
     QSignalMapper *mp_ClickedMapper;    //! < Signal mapper element used to map keys from all buttons
     QSignalMapper *mp_PressedMapper;    //! < Signal mapper element used when a button is pressed
@@ -141,6 +142,7 @@ private:
     QString m_EnteredString;
     bool m_EnteredStringValidation;     //! <True for LongName validation and False for ShortName validation
     ValidationType_t m_ValidationType;
+    QRegExpValidator* mp_RegValidator;  //!< To store the validator
 
     CKeyBoardButton *CreateNewKey(QString IconType, QString BtnText1,
                                   QString BtnText2,bool IconPresent,qint32 ButtonType);
@@ -151,6 +153,7 @@ private:
     void KeyBoardReset();
     void SetKeyBoardType(KeyBoard::KeyBoardType_t m_KeyBoardType);
     void NotifyObserver();
+    void NotifyObserverOnESCClicked();
     void changeEvent(QEvent *p_Event);
 
 public:
@@ -237,6 +240,37 @@ public:
 
     void ValidateString(QString m_Name);
    
+    /****************************************************************************/
+    /*!
+     *  \brief This function is used to set input mask for the line edit
+     *  \iparam  InputMask
+     */
+    /****************************************************************************/
+    void SetLineEditInputMask(const QString& InputMask) {
+        mp_LineEdit->setInputMask(InputMask);
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief This function is used to set validation for the entered text for the
+     *         line edit widget
+     *  \iparam  ValidateString
+     */
+    /****************************************************************************/
+    void SetLineEditValidatorExpression(const QString& ValidateString) {
+        // "^[0-9]*$'
+        // ^ and $ is used for any character. * is used to enter multiple characters
+        // [0-9] is used to allow user to enter only 0 to 9 digits
+
+        // check wether validator is created or not
+        if (mp_RegValidator == NULL) {
+            mp_RegValidator = new QRegExpValidator(QRegExp(ValidateString), this);
+        }
+        else {
+            mp_RegValidator->setRegExp(QRegExp(ValidateString));
+        }
+        mp_LineEdit->setValidator(mp_RegValidator);
+    }
 
 private slots:
     void BtnClicked(int Btn);

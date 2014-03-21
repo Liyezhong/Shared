@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file WriteArchive.cpp
+/*! \file WriteArchive.cpp
  *
- *  @brief write and archive for export - define a function
+ *  \brief write and archive for export - define a function
  *
- *  $Version:   $ 0.1, 0.2
- *  $Date:      $ 2011-08-02, 2012-07-12
- *  $Author:    $ R.Wobst, Raju
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,52 +15,42 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 31 2011, 14:40:16
- *
  */
 /****************************************************************************/
 
 #include "ImportExport/WriteArchive/Include/WriteArchive.h"
 
 namespace ImportExport {
-
-/**
- * @brief create and write an archive for export
+/****************************************************************************/
+/*!
+ * \brief create and write an archive for export
  *
- * @param archive_name - absolute pathname of archive
- * @param filelst - list of files in the archive, absolute pathnames
- * @param encrypt - true if archive body is encrypted, false else
- * @param key_version - version number of keys, recently 0
+ * \iparam archive_name - absolute pathname of archive
+ * \iparam filelist - list of files in the archive, absolute pathnames
+ * \iparam encrypt - true if archive body is encrypted, false else
+ * \iparam compressed - true if archive body is compressed, false else
+ * \iparam key_version - version number of keys, recently 0
  */
-
+/****************************************************************************/
 void WriteArchive(QByteArray archive_name,
-       QList<QByteArray> filelst, int version,
-       bool encrypt,
+       QList<QByteArray> filelist, int version,
+       bool encrypt, bool compressed,
        qint16 key_version)
-{                                               //lint !e578 [Rw]
-    // check filelst on double occurence
-    {
-        QSet<QByteArray> s;
-
-        foreach(QByteArray f, filelst)
-        {
-            if(s.contains(f))
-            {
-                THROW(
-                           QString("file %1 is contained twice").arg(
-                                                           QString(f)));
-            }
-            s << f;
-        }
-    }
-
+{                                               //lint !e578 [Rw]    
     // open fd
     FailSafeOpen fd(archive_name, 'w');
 
-    // extract deviceID
-    QList<QByteArray> parts = archive_name.split('_');
+    QByteArray archivefilename;
+    // sometime the file name consists of the path, so remove the path for splitting the file name
+    archivefilename = archive_name.mid((archive_name.lastIndexOf('/') == 0 ? 0 :  archive_name.lastIndexOf('/') + 1));
 
-    Q_ASSERT(!parts.empty());
+    // extract deviceID
+    QList<QByteArray> parts = archivefilename.split('_');
+
+    if (parts.count() < 3)
+    {
+        THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ARCHIVEFILE_FORMAT_WRONG);
+    }
 
     QByteArray deviceID = parts[2];
 
@@ -69,7 +59,6 @@ void WriteArchive(QByteArray archive_name,
 
     // WRITE HEADER
     // write indirectly over WriteAndHmac class to compute HMACS
-
     WriteAndHmac fdwh(cs, &fd); // initHmacs() called for cs
 
     // header magic
@@ -80,16 +69,40 @@ void WriteArchive(QByteArray archive_name,
     fdwh.write(QByteArray(1,'\0'));
     // encrypted flag
     fdwh.write(QByteArray(1, encrypt ? '\1' : '\0'));
+    // encrypted flag
+    fdwh.write(QByteArray(1, compressed ? '\1' : '\0'));
     // key_version
     fdwh.write(General::int2byte(key_version, 2));
     // hash chain index
     fdwh.write(General::int2byte(cs.getHashIndex()));
     // # of entries
-    fdwh.write(General::int2byte(filelst.size(), 2));
+    fdwh.write(General::int2byte(filelist.size(), 2));
     // length of archive name
     fdwh.write(General::int2byte(archive_name.size(), 2));
     // archive name
     fdwh.write(archive_name);
+
+    WriteFiles(fdwh, fd, cs, filelist, compressed, encrypt);
+
+    // step forward in hash chain
+    cs.stepHashChain();
+}
+
+/****************************************************************************/
+/*!
+ * \brief write files in the archive file
+ *
+ * \oparam fdwh - compress and encrypt
+ * \oparam fd - file to open
+ * \oparam cs - crypto service
+ * \iparam filelist - list of files in the archive, absolute pathnames
+ * \iparam compressed - flag for compression
+ * \iparam encrypt - flag for encryption
+ */
+/****************************************************************************/
+void WriteFiles(WriteAndHmac &fdwh, FailSafeOpen &fd,
+       CryptoService &cs, QList<QByteArray> &filelist, bool &compressed, bool &encrypt)
+{
 
     // add HMACs
     QMap<QByteArray, QByteArray> hmacs = fdwh.getHmacs();
@@ -100,27 +113,18 @@ void WriteArchive(QByteArray archive_name,
     }
 
     // "file descriptor" for writing entries and computing HMACs
-    CompressEncrypt fdw(&fd, cs, encrypt);
-
+    CompressEncrypt fdw(&fd, cs, encrypt, compressed);
     // counter for entries
     int counter = 1;
 
-    // iterate over filelst and write entries to fdw
-    foreach(QByteArray filename, filelst)
+    // iterate over filelist and write entries to fdw
+    foreach(QByteArray filename, filelist)
     {
         FailSafeOpen fe;
 
         // open file, write size and contents
-        // must be done here since there could be an error
-        try
-        {
-            fe.open(filename, 'r');
-        }
-        catch(ImexException exc)
-        {
-            // warn(exc.getMsg());
-        // XXX warning if cannot open, no fatal error, and continue
-        }
+        // must be done here since there could be an error        
+        fe.open(filename, 'r');
 
         cs.initHmacs();
 
@@ -128,23 +132,21 @@ void WriteArchive(QByteArray archive_name,
         cs.updateHMACs(General::int2byte(counter, 2));
         ++counter;
         // entry magic
-        fdw.write(QByteArray(Constants::entryMagic, 4));        
+        fdw.write(QByteArray(Constants::entryMagic, 4));
         // length of entry name
         fdw.write(General::int2byte(filename.size(), 2));
         // entry name
-        fdw.write((filename.lastIndexOf('/') == -1 ? filename : filename.mid(filename.lastIndexOf('/') + 1)));
+        fdw.write(filename);
         // entry size
         fdw.write(General::int2byte(fe.size()));        
 
-        while(true)
+        QByteArray readBytes = fe.read(Constants::WRITE_ARCH_BUFSIZE);
+        // read the bytes
+        while(readBytes.size())
         {
-            QByteArray readBytes =
-                fe.read(Constants::WRITE_ARCH_BUFSIZE);
-            if(!readBytes.size()) break;
-
             fdw.write(QByteArray(readBytes));
+            readBytes = fe.read(Constants::WRITE_ARCH_BUFSIZE);
         }
-
         fe.close();
 
         // write HMACs
@@ -159,9 +161,6 @@ void WriteArchive(QByteArray archive_name,
 
     // write last magic without updating HMAC in cs
     fdw.write(QByteArray(4, '\0'), false);
-
-    // step forward in hash chain
-    cs.stepHashChain();
 }
 
 }       // end namespace ImportExport

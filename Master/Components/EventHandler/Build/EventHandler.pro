@@ -4,6 +4,8 @@
 
 TARGET = EventHandler
 
-HEADERS +=  ../Include/*.h
+HEADERS +=  ../Include/*.h \
+    ../../Global/Include/AlarmHandler.h
 
-SOURCES +=  ../Source/*.cpp
+SOURCES +=  ../Source/*.cpp \
+    ../../Global/Source/AlarmHandler.cpp

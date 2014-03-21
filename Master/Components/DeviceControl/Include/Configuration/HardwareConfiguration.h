@@ -89,9 +89,7 @@ private:
     CANFctModuleTempCtrl*     ParseTempCtrl(const QDomElement &element);
     CANFctModuleUART*         ParseUART(const QDomElement &element);
     CANFctModuleJoystick*     ParseJoystick(const QDomElement &element);
-#ifdef PRE_ALFA_TEST
     CANFctModulePressureCtrl* ParsePressureCtrl(const QDomElement &element);
-#endif
     void ErrorCleanUp(CANFctModuleStepperMotor* pCANFctModuleStepperMotor);
 
     //! Parse device element from xml

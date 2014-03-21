@@ -22,6 +22,7 @@
 #include <StateMachines/Include/State.h>
 #include <StateMachines/Include/StateMachinesEventCodes.h>
 #include <Global/Include/Exception.h>
+#include <Global/Include/EventObject.h>
 
 namespace StateMachines {
 
@@ -89,14 +90,14 @@ void State::AddTransition(const StateNameType_t &name, StateEventIndexType_t Ind
 {
     // check if transition already exists
     if(m_myTransitions.contains(Index)) {
-        THROWARGS(EVENT_STATEMACHINES_ERROR_TRANSITION_EXISTS, Global::tTranslatableStringList() << m_myName << name <<
+        LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_TRANSITION_EXISTS, Global::tTranslatableStringList() << m_myName << name <<
                   QString::number(Index, 10));
     }
     // insert transition
     m_myTransitions.insert(Index, name);
     // check if was successfully added
     if(!m_myTransitions.contains(Index)) {
-        THROWARGS(EVENT_STATEMACHINES_ERROR_ADD_TRANSITION_FAILED, Global::tTranslatableStringList() << m_myName << name <<
+        LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_ADD_TRANSITION_FAILED, Global::tTranslatableStringList() << m_myName << name <<
                                                                    QString::number(Index, 10));
     }
 }
@@ -119,7 +120,7 @@ void State::RemoveTransition(const StateNameType_t &name, StateEventIndexType_t 
     m_myTransitions.remove(Index);
     // check if was successfully removed
     if(m_myTransitions.contains(Index)) {
-        THROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_TRANSITION_FAILED, Global::tTranslatableStringList() << m_myName << name <<
+        LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_TRANSITION_FAILED, Global::tTranslatableStringList() << m_myName << name <<
                                                                       QString::number(Index, 10));
     }
 }
@@ -150,7 +151,7 @@ void State::RemoveAllTransitions(const StateNameType_t &sname)
 
     // check if all transitions were deleted
     if(m_myTransitions.keys(sname).size() != 0) {
-        THROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_ALL_TRANSITIONS_FAILED, Global::tTranslatableStringList() << m_myName <<  sname);
+        LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_ALL_TRANSITIONS_FAILED, Global::tTranslatableStringList() << m_myName <<  sname);
     }
 }
 

@@ -21,7 +21,7 @@
  *
  */
 /******************************************************************/
-
+#include <QtDebug>
 #include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
@@ -47,13 +47,15 @@ namespace DeviceControl
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;
 
-    m_instanceID = DEVICE_INSTANCE_ID_AGITATION;
+    m_instanceID = DEVICE_INSTANCE_ID_UNDEFINED;
 
     // error handling
     m_lastErrorHdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
     m_lastErrorGroup = 0;
     m_lastErrorCode = 0;
     m_lastErrorData = 0;
+    m_BaseModuleVoltage = 0;
+    m_BaseModuleCurrent = 0;
     //m_lastErrorTime;
 
     FILE_LOG_L(laDEV, llINFO) << " CBaseDevice constuctor";
@@ -90,6 +92,20 @@ quint32 CBaseDevice::GetFctModInstanceFromKey(const QString &Key)
     }
 
     return InstanceID;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Returns the key of a function module
+ *
+ *  \param   instanceID = The instance id of the requested module
+ *
+ *  \return  Fuction module key, as defined at the hardware specification file
+ *
+ ****************************************************************************/
+QString CBaseDevice::GetFctModKeyFromInstance(const quint32 instanceID)
+{
+    return m_FctModList.key(instanceID, "NOT FOUND");
 }
 
 /****************************************************************************/
@@ -285,6 +301,217 @@ DeviceTask* CBaseDevice::GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskStat
     pDeviceTask->m_Key = Key;
 
     return pDeviceTask;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with function module error reporting.
+ *
+ *  This slot is connected to the signal, ReportError
+ *
+ *  \iparam InstanceID = Instance ID of the function module
+ *  \iparam ErrorGroup = Error group as define.
+ *  \iparam ErrorCode = Error code.
+ *  \iparam ErrorData = Error data.
+ *  \iparam ErrorTime = Error happened time.
+ *
+ */
+/****************************************************************************/
+void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime)
+{
+    QString FuncModName = "";
+    if(m_pDevProc)
+    {
+        QList<DevInstanceID_t> list;
+        list <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
+              << DEVICE_INSTANCE_ID_AIR_LIQUID
+              << DEVICE_INSTANCE_ID_OVEN
+              << DEVICE_INSTANCE_ID_RETORT
+              << DEVICE_INSTANCE_ID_MAIN_CONTROL;
+
+        DevInstanceID_t id;
+        foreach (id, list)
+        {
+            CBaseDevice* pBaseDevice;
+            pBaseDevice = m_pDevProc->GetDevice(id);
+            FuncModName = pBaseDevice->GetFctModKeyFromInstance(InstanceID);
+            if(FuncModName != "NOT FOUND")
+            {break;}
+        }
+        //LOG()<<"Function module: "<< FuncModName <<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
+        FILE_LOG_L(laDEV, llDEBUG)<<"Function module: "<< FuncModName.toStdString()<<" Error, Error Group: "<<  std::hex << ErrorGroup<<" Error Code: "<<std::hex<<ErrorCode<<" Error Data: "<<std::hex<<ErrorData<<" Error Time: "<<ErrorTime.toString().toStdString();
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Insert a base module to the device's list.
+ *
+ *  The function will check if the device already contain the base module,
+ *  if no, will add to the device's base module list.
+ *
+ *  \iparam pBase = Pointer of the base module
+ *
+ *  \return  True if successfully inserted the module, othervise False.
+ *
+ */
+/****************************************************************************/
+bool CBaseDevice::InsertBaseModule(CBaseModule* pBase)
+{
+    if((!pBase) || (m_BaseModuleList.contains(pBase)))
+    {
+        return false;
+    }
+    m_BaseModuleList.append(pBase);
+
+    return true;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the base module of the device with CAN-node ID.
+ *
+ *  \iparam  CANNodeID = The target module's CAN-node ID.
+ *
+ *  \return  Pointer of the base module if found, othervise NULL.
+ *
+ */
+/****************************************************************************/
+CBaseModule* CBaseDevice::GetCANNodeFromID(quint16 CANNodeID)
+{
+    CBaseModule* pRet = NULL;
+    if(m_BaseModuleList.size() > 0)
+    {
+        QListIterator<CBaseModule*> iter(m_BaseModuleList);
+        while (iter.hasNext())
+        {
+            CBaseModule* pBaseModule = (CBaseModule*)iter.next();
+            if(pBaseModule->GetNodeID() == CANNodeID)
+            {
+                pRet = pBaseModule;
+                break;
+            }
+        }
+    }
+    return pRet;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the voltage of the device's base module.
+ *
+ *  \iparam  CANNodeID = The target module's CAN-node ID.
+ *
+ *  \return  0 If failed, otherwise the actual voltage in mV.
+ *
+ */
+/****************************************************************************/
+quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
+{
+    quint16 retValue = 0;
+    if(m_pDevProc)
+    {
+        CBaseModule* pBaseModule = GetCANNodeFromID(CANNodeID);
+        if(pBaseModule)
+        {
+            (void)connect(pBaseModule, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, quint16)), this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, quint16)));
+            ReturnCode_t retCode = pBaseModule->ReqVoltageState();
+            if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
+            {
+                retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_BASE_GET_VOLTAGE);
+                if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    retValue = m_BaseModuleVoltage;
+                }
+            }
+        }
+    }
+    return retValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Slot associated with get base module's voltage.
+ *
+ *  This slot is connected to the signal, ReportVoltageState
+ *
+ *  \iparam InstanceID = Instance ID of the function module
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Voltage = The actual voltage.
+ *
+ */
+/****************************************************************************/
+void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Voltage)
+{
+    if(m_pDevProc)
+    {
+        CBaseModule* pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+        (void)disconnect(pBaseModule, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, quint16)), this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, quint16)));
+        if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
+        {
+            m_BaseModuleVoltage = Voltage;
+        }
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_BASE_GET_VOLTAGE, HdlInfo);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the current of the device's base module.
+ *
+ *  \iparam  CANNodeID = The target module's CAN-node ID.
+ *
+ *  \return  0 If failed, otherwise the actual current in mA.
+ *
+ */
+/****************************************************************************/
+quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
+{
+    quint16 retValue = 0;
+    if(m_pDevProc)
+    {
+        CBaseModule* pBaseModule = GetCANNodeFromID(CANNodeID);
+        if(pBaseModule)
+        {
+            (void)connect(pBaseModule, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, quint16)), this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, quint16)));
+            ReturnCode_t retCode = pBaseModule->ReqCurrentState();
+            if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
+            {
+                retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_BASE_GET_CURRENT);
+                if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    retValue = m_BaseModuleCurrent;
+                }
+            }
+        }
+    }
+    return retValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Slot associated with get base module's current.
+ *
+ *  This slot is connected to the signal, ReportCurrentState
+ *
+ *  \iparam InstanceID = Instance ID of the function module
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Current = The actual current.
+ *
+ */
+/****************************************************************************/
+void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Current)
+{
+    if(m_pDevProc)
+    {
+        CBaseModule* pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+        (void)disconnect(pBaseModule, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, quint16)), this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, quint16)));
+        if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
+        {
+            m_BaseModuleCurrent = Current;
+        }
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_BASE_GET_CURRENT, HdlInfo);
+    }
 }
 
 } //namespace

@@ -39,9 +39,9 @@ CMessageDlg::CMessageDlg(QWidget *p_Parent) : CDialogFrame(p_Parent),
 {
     mp_Ui->setupUi(GetContentFrame());
     layout()->setSizeConstraint(QLayout::SetFixedSize);
-    CONNECTSIGNALSLOT(mp_Ui->Button1, clicked(), this,accept());
-    CONNECTSIGNALSLOT(mp_Ui->Button2, clicked(), this,accept());
-    CONNECTSIGNALSLOT(mp_Ui->Button3, clicked(), this,reject());
+    CONNECTSIGNALSLOT(mp_Ui->Button1, clicked(), this, OnButtonRightClicked());
+    CONNECTSIGNALSLOT(mp_Ui->Button2, clicked(), this, OnButtonCenterClicked());
+    CONNECTSIGNALSLOT(mp_Ui->Button3, clicked(), this, OnButtonLeftClicked());
 }
 
 /****************************************************************************/
@@ -88,6 +88,19 @@ void CMessageDlg::SetTitle(const QString &Title)
 
 /****************************************************************************/
 /*!
+ *  \brief Sets two titles, one at left corner and other at right corner
+ *
+ *  \iparam TitleLeft  = Title at left corner
+ *  \iparam TitleRight = Title at right corner
+ */
+/****************************************************************************/
+void CMessageDlg::SetTitle(const QString &TitleLeft, const QString &TitleRight)
+{
+    SetDialogTitle(tr("%1").arg(TitleLeft), tr("%1").arg(TitleRight));
+}
+
+/****************************************************************************/
+/*!
  *  \brief Sets the main text of the message box
  *
  *  \iparam Text = Text string
@@ -109,13 +122,13 @@ void CMessageDlg::SetIcon(QMessageBox::Icon Icon)
 {
     switch (Icon) {
         case QMessageBox::Information:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case QMessageBox::Warning:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case QMessageBox::Critical:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         default:
             mp_Ui->labelIcon->setPixmap(QPixmap());
@@ -137,6 +150,7 @@ void CMessageDlg::SetButtonText(qint32 ButtonNumber, QString ButtonText)
     switch(ButtonNumber){
     case 1:
         mp_Ui->Button1->setText(tr("%1").arg(ButtonText));
+        mp_Ui->Button1->show();
         break;
     case 2:
         mp_Ui->Button2->setText(tr("%1").arg(ButtonText));
@@ -145,6 +159,21 @@ void CMessageDlg::SetButtonText(qint32 ButtonNumber, QString ButtonText)
     case 3:
         mp_Ui->Button3->setText(tr("%1").arg(ButtonText));
         mp_Ui->Button3->show();
+        break;
+    }
+}
+
+void CMessageDlg::EnableButton(qint32 ButtonNumber, bool IsEnable)
+{
+    switch(ButtonNumber){
+    case 1:
+        mp_Ui->Button1->setEnabled(IsEnable);
+        break;
+    case 2:
+        mp_Ui->Button2->setEnabled(IsEnable);
+        break;
+    case 3:
+        mp_Ui->Button3->setEnabled(IsEnable);
         break;
     }
 }
@@ -169,7 +198,16 @@ void CMessageDlg::HideButtons()
     mp_Ui->Button2->hide();
     mp_Ui->Button3->hide();
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Function to hide the center and Right corner Button
+ */
+/****************************************************************************/
+void CMessageDlg::HideButtonsOneAndTwo()
+{
+    mp_Ui->Button1->hide();
+    mp_Ui->Button2->hide();
+}
 /****************************************************************************/
 /*!
  *  \brief Slot for the show() functions of the dialog

@@ -22,6 +22,7 @@
 #include <DataLogging/Include/DataLoggingEventCodes.h>
 #include <Global/Include/EventTranslator.h>
 #include <Global/Include/Utils.h>
+#include <Global/Include/EventObject.h>
 
 #include <QDirIterator>
 #include <QDebug>
@@ -29,22 +30,24 @@
 namespace DataLogging {
 
 static const int DAYEVENTLOGGER_FORMAT_VERSION = 1;     ///< Format version.
+const QString EVENTLOG_TEMP_FILE_NAME = "Himalaya_Events_Tmp.log"; ///< Event log temporary file name
 
 /****************************************************************************/
-DayEventLogger::DayEventLogger(LoggingObject *pParent, const Global::LoggingSource &TheLoggingSource) :
-    BaseLoggerReusable(pParent, TheLoggingSource, DAYEVENTLOGGER_FORMAT_VERSION),
-    m_MaxFileCount(0)
+DayEventLogger::DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& fileNamePrefix)
+    : BaseLoggerReusable(pParent, TheLoggingSource, DAYEVENTLOGGER_FORMAT_VERSION)
+    , m_MaxFileCount(0)
+    , m_FileNamePrefix(fileNamePrefix)  // e.g. 'HimalayaEvents_'
 {
 }
 
 /****************************************************************************/
 QString DayEventLogger::ComputeFileName() const {
-    return QString("ColoradoEvents_")+GetSerialNumber()+"_"+GetTimeStampFileName()+".log";
+    return m_FileNamePrefix + GetSerialNumber() + "_" + GetTimeStampFileName() + ".log";
 }
 
 /****************************************************************************/
 QString DayEventLogger::ComputeFileNameRegExp() const {
-    return QString("ColoradoEvents_")+GetSerialNumber()+"_\?\?\?\?\?\?\?\?.log";
+    return m_FileNamePrefix + GetSerialNumber() + "_\?\?\?\?\?\?\?\?.log";
 }
 
 /****************************************************************************/
@@ -68,42 +71,107 @@ void DayEventLogger::SwitchToNewFile() {
     SwitchToFile(FileName, true);
 }
 
+
+
 /****************************************************************************/
 void DayEventLogger::Log(const DayEventEntry &Entry) {
-    try {
 
+    //HW parameter log
+    if(Entry.GetIsHWParameter())
+    {
+        AppendLine(TimeStampToString(Entry.GetTimeStamp())+ "\t" + Entry.GetHWParameter());
+        return;
+    }
         // translate event type
-        quint32 IDStrEvtType = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
-        switch(Entry.GetEventType()) {
-            case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
-            case Global::EVTTYPE_FATAL_ERROR:   IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
-            case Global::EVTTYPE_ERROR:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
-            case Global::EVTTYPE_WARNING:       IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
-            case Global::EVTTYPE_INFO:          IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
-            case Global::EVTTYPE_DEBUG:         IDStrEvtType = Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
+        quint32 IDStrEvtType = EVENT_GLOBAL_UNKNOWN_STRING_ID;
+        const Global::EventType EventType = Entry.GetEventType();
+        switch(EventType) {
+            case Global::EVTTYPE_UNDEFINED:     IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_UNDEFINED; break;
+            case Global::EVTTYPE_FATAL_ERROR:
+                                                IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_FATAL_ERROR; break;
+            case Global::EVTTYPE_ERROR:         IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR; break;
+            case Global::EVTTYPE_WARNING:                                               
+                                                IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_WARNING; break;
+            case Global::EVTTYPE_INFO:          IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_INFO; break;
+            case Global::EVTTYPE_DEBUG:         IDStrEvtType = EVENT_GLOBAL_STRING_ID_EVTTYPE_DEBUG; break;
             default:                            break;
         }
         QString TrEventType = Global::EventTranslator::TranslatorInstance().Translate(IDStrEvtType);
 
-
+    const Global::AlternateEventStringUsage AltStringUsage = Entry.GetAltStringUsageType();
+    bool UseAltEventString = false;
+    if (AltStringUsage == Global::LOGGING ||
+        AltStringUsage == Global::GUI_MSG_BOX_AND_USER_RESPONSE ||
+        AltStringUsage == Global::GUI_MSG_BOX_AND_LOGGING ||
+        AltStringUsage == Global::GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE ||
+        AltStringUsage == Global::USER_RESPONSE) {
+            UseAltEventString = true;
+    }
+//    qDebug()<<"\n\n\nUse Alternate Strings" << UseAltEventString;
         // translate message
-        QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventCode(), Entry.GetString()));
+    QString TrEventMessage  = Global::EventTranslator::TranslatorInstance().Translate(Global::TranslatableString(Entry.GetEventCode(), Entry.GetString()),
+                                                                                      UseAltEventString);
+        if (TrEventMessage.length() == 0)
+        {
+            TrEventMessage = Entry.GetEventName();
+            if (Entry.GetString().count() > 0)
+            {
+                TrEventMessage += " (";
+            }
+            foreach (Global::TranslatableString s, Entry.GetString())
+            {
+                TrEventMessage += s.GetString() + " ";
+            }
+            if (Entry.GetString().count() > 0)
+            {
+                TrEventMessage += ")";
+            }
+        }
+        if (!Entry.IsEventActive())
+        {
+            TrEventMessage = "Event Acknowledged by the User:" + TrEventMessage;  // todo: add translated string as prefix instead (Mantis 3674)
+        }
 
+        QString AlternateString = UseAltEventString ? "true" : "false";
+        QString ParameterString = "";
+        foreach (Global::TranslatableString s, Entry.GetString())
+        {
+            if(s.IsString())//plain string
+            {
+                ParameterString += "\"" + s.GetString() +"\";";
+            }
+            else
+            {
+                ParameterString += QString::number(s.GetStringID()) +";";
+            }
+        }
 
-        QString ShowInRunLog = Entry.GetShowInRunLogStatus() ? "true" : "false";
-        // translate event source
-        QString TrEventSource = Global::EventTranslator::TranslatorInstance().Translate(Entry.GetSource().GetSource());
         QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
                                 QString::number(Entry.GetEventCode(), 10) + ";" +
                                 TrEventType + ";" +
-                                TrEventMessage + ";" +
-                                Entry.GetNumericData() + ";" +
-                                ShowInRunLog + ";" +
-                                TrEventSource + "\n";
+                                TrEventMessage + ";" + //Message
+                                QString::number(AsInt(Entry.GetLogAuthorityType()), 10) + ";";//log level for show in GUI
+
+//        if (NetCommands::No_Set != Entry.GetAckValue())
+        {
+            LoggingString = LoggingString + "AckSel" + QString::number(Entry.GetAckValue(), 10) + ";";//which process options in the msg box the user has selected
+        }
+
+        //String For R&D
+//        if(!Entry.GetStringForRd().isEmpty())
+        {
+            LoggingString = LoggingString + Entry.GetStringForRd() + ";";
+        }
+
+        if(!ParameterString.isEmpty())
+        {
+             LoggingString = LoggingString + ParameterString;
+        }
 
         // check if we must printout to console (because we sent it to the data logger
         // and we have to avoid a ping pong of error messages)
-        if( ((Entry.GetSource()) == GetLoggingSource()) &&
+        Global::EventSourceType SourceType = Entry.GetSourceComponent();
+        if(( SourceType == Global::EVENTSOURCE_DATALOGGER) &&
             ((Entry.GetEventType() == Global::EVTTYPE_FATAL_ERROR) || (Entry.GetEventType() == Global::EVTTYPE_ERROR)))
         {
             // we sent this error message.
@@ -111,38 +179,48 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
             // Put it to console since we could not write at that time.
             Global::ToConsole(LoggingString);
         }
-        else {
+        else
+        {
             // check if date changed
             QDate Now = Global::AdjustedTime::Instance().GetCurrentDate();
-            if(m_LastLogDate != Now) {
+            if(m_LastLogDate != Now)
+            {
                 m_LastLogDateBackUp = m_LastLogDate;
                 // remember new date
                 m_LastLogDate = Now;
                 // switch to new file
                 SwitchToNewFile();
             }
-            // check if file ready for logging
-            if(!IsLogFileOpen()) {
-                // file not open. throw according exception
-                THROW(EVENT_DATALOGGING_ERROR_FILE_NOT_OPEN);
+        // check if file ready for logging - usually this log file open at the
+        // start of the Data Logging component now this causes the recursive call
+        // so create the temporay file to log the data
+        if(!IsLogFileOpen() && !IsLogFileError())
+            {
+            // compute new file name
+            QDir Dir(GetPath());
+            QString CompleteFileName(QDir::cleanPath(Dir.absoluteFilePath(EVENTLOG_TEMP_FILE_NAME)));
+            bool WriteHeaderInFile = true;
+            // check the file existence
+            if (QFile::exists(CompleteFileName)) {
+                WriteHeaderInFile = false;
+            }
+            //always try to create the file in append mode
+            OpenFileForAppend(CompleteFileName);
+            if (WriteHeaderInFile) {
+                // write the header of the file
+                WriteHeader();
+            }
             }
             // append data to file and flush
+            //qDebug() << "DayEventLogger::Log" << LoggingString;
             AppendLine(LoggingString);
         }
 
-    } catch(const Global::Exception &E) {
-        // send error message
-        //LOG_EVENT(Global::EVTTYPE_ERROR, Global::LOG_ENABLED,);
-    } catch(...) {
-        // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-    }
 }
 
 /****************************************************************************/
 void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
-    try {
+
         // save configuration
         SetConfiguration(Config.GetOperatingMode(), Config.GetSerialNumber(), Config.GetPath());
         m_MaxFileCount = Config.GetMaxFileCount();
@@ -151,16 +229,20 @@ void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
         // though the date is same
         m_LastLogDate = Global::AdjustedTime::Instance().GetCurrentDate();
         m_LastLogDateBackUp = m_LastLogDate;
+        m_FileNamePrefix = Config.GetBaseFileName();
         // switch to new file
         SwitchToNewFile();
-    } catch(const Global::Exception &E) {
-        // send error message
-        SEND_EXCEPTION(E);
-    } catch(...) {
-        // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
+
+}
+
+/****************************************************************************/
+void DayEventLogger::CheckLoggingEnabled() {
+
+    if (IsLogFileError()) {
+        // don't log the data - disable permanently
+        Global::EventObject::Instance().RaiseEvent(EVENT_DATALOGGING_ERROR_DATA_LOGGING_DISABLED);
     }
+
 }
 
 } // end namespace DataLogging

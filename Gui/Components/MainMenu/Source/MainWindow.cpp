@@ -30,7 +30,6 @@ namespace MainMenu {
 
 CMainWindow::UserRole_t CMainWindow::m_CurrentUserRole = CMainWindow::Operator;
 bool CMainWindow::m_ProcessRunning = false;
-bool StyleSize = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetStyleSize();
 
 /****************************************************************************/
 /*!
@@ -42,12 +41,11 @@ bool StyleSize = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetSty
 CMainWindow::CMainWindow(QWidget *p_Parent) :
     QMainWindow(p_Parent),
     mp_Ui(new Ui::CMainWindow),
-    mTimeRefreshTimer(this)
+    mTimeRefreshTimer(this),
+    mp_ProcPixmap(NULL),
+    mp_RemotePixMap(NULL)
 {
     mp_Ui->setupUi(this);
-    m_StatusLabel1Free = true;
-    m_StatusLabel2Free = true;
-    m_StatusLabel3Free = true;
     m_ProcessRunning = false;
     m_RemoteService = false;
     m_Error = false;
@@ -64,13 +62,16 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :
     mTimeRefreshTimer.start();
 
     QPalette Palette = mp_Ui->caption->palette();
-    Palette.setBrush(QPalette::Window, QBrush(QPixmap(QString(":/%1/StatusArea.png").arg(Application::CLeicaStyle::GetStyleSizeString()))));
+    Palette.setBrush(QPalette::Window, QBrush(QPixmap(QString(":/%1/StatusBar/StatusBar_Background.png").arg(Application::CLeicaStyle::GetProjectNameString()))));
     Palette.setColor(QPalette::WindowText, Qt::white);
     mp_Ui->caption->setPalette(Palette);
     QObject::connect(mp_Ui->TabWidget,SIGNAL(currentChanged(int)),this,SLOT(OnCurrentTabChanged(int)));
     mp_Ui->TabWidget->clear();
+    mp_Ui->statusLabelErr->setHidden(true);
+    mp_Ui->statusLabelWarn->setHidden(true);
+    mp_Ui->statusLabelErr->installEventFilter(this);
+    mp_Ui->statusLabelWarn->installEventFilter(this);
 }
-
 /****************************************************************************/
 /*!
  *  \brief Destructor
@@ -80,6 +81,8 @@ CMainWindow::~CMainWindow()
 {
     try {
         delete mp_Ui;
+        delete mp_ProcPixmap;
+        delete mp_RemotePixMap;
     }
     catch (...) {}
 }
@@ -136,10 +139,10 @@ void CMainWindow::AddMenuGroup(QWidget *p_MenuGroup, QPixmap Pixmap)
 {
     QTransform Transform;
     Transform.rotate(90.0);
-    QString m_SepiaTabs = "Small";
+    QString m_SepiaTabs = "Sepia";
 
     qint32 Index = mp_Ui->TabWidget->addTab(p_MenuGroup, QIcon(Pixmap.transformed(Transform)), "");
-    if(Application::CLeicaStyle::GetStyleSizeString()== m_SepiaTabs){
+    if(Application::CLeicaStyle::GetProjectNameString()== m_SepiaTabs){
         mp_Ui->TabWidget->setIconSize(QSize(180,250));
     }
     if (Index < 0) {
@@ -214,13 +217,13 @@ void CMainWindow::SetUserIcon(MainMenu::CMainWindow::UserRole_t UserRole)
 {
     switch (UserRole) {
         case Admin:
-            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Admin.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Admin.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case Operator:
-            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Operator.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Operator.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
         case Service:
-            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Service.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
+            mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Service.png").arg(Application::CLeicaStyle::GetProjectNameString())));
             break;
     }
 }
@@ -237,85 +240,50 @@ bool CMainWindow::SetStatusIcons(Status_t Status)
     bool result =false;
     m_Status = Status;
     QLabel *p_Label = 0;
-    qint32 Val = static_cast<qint32>(m_Status & (Error | Warning));
-    if (m_WarningErrorFlag && Val) {
-        goto Else;
-    }
-    if (m_StatusLabel1Free) {
-        p_Label = mp_Ui->statusLabel1;
-         m_StatusLabel1Free = false;
-        //Back up label pointer. Used when all the labels are occupied.
-        //warning and error share label.
-        if(Val) {
-            mp_Label = p_Label;
-            m_WarningErrorFlag = true;
-        }
-    }
-    else if (m_StatusLabel2Free) {
-        p_Label = mp_Ui->statusLabel2;
-        m_StatusLabel2Free = false;
-        if(Val) {
-            mp_Label = p_Label;
-            m_WarningErrorFlag = true;
-        }
-    }
-    else if (m_StatusLabel3Free) {
-        p_Label = mp_Ui->statusLabel3;
-        m_StatusLabel3Free = false;
-        if(Val) {
-            mp_Label = p_Label;
-            m_WarningErrorFlag = true;
-        }
-
-    }
-    else {
-        Else:p_Label = mp_Label;
-    }
-
     switch (m_Status) {
-        case ProcessRunning:
-            if (!m_ProcessRunning) {
-                p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
-                p_Label->show();
-                mp_ProcessRunningLabel = p_Label;
-                m_ProcessRunning = true;
-                //Inform widgets process is running.
-                emit ProcessStateChanged();
-                result = true;
-            }
-            break;
-        case RemoteCare:
-            if (!m_RemoteService) {
-                p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
-                p_Label->show();
-                mp_RemoteLabel = p_Label;
-                m_RemoteService = true;
-                result = true;
-            }
-            break;
-        case Error:
-            if (!m_Error) {
-                p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Error_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
-                p_Label->show();
-                mp_ErrorLabel = p_Label;
-                m_Error= true;
-                m_Warning = false;
-                result = true;
-            }
-            break;
-        case Warning:
-            if (!m_Warning) {
-                p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Warning_small.png").arg(Application::CLeicaStyle::GetStyleSizeString())));
-                p_Label->show();
-                mp_WarningLabel = p_Label;
-                m_Warning = true;
-                m_Error = false;
-                result = true;
-            }
-            break;
-        default:
-            result = false;
-            break;
+    case ProcessRunning:
+        if (!m_ProcessRunning) {
+            p_Label = mp_Ui->statusLabel1;
+            /*delete mp_ProcPixmap;
+            mp_ProcPixmap = new QPixmap(QString(":/%1/Icons/Status_Bar/Status_small.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+            p_Label->setPixmap(*mp_ProcPixmap);*/
+            p_Label->show();
+            m_ProcessRunning = true;
+            //p_Label->pixmap.fill(Qt::transparent);
+            //Inform widgets process is running.
+            emit ProcessStateChanged();
+            result = true;
+        }
+        break;
+    case RemoteCare:
+        if (!m_RemoteService) {
+            p_Label = mp_Ui->statusLabel2;
+            delete mp_RemotePixMap;
+            mp_RemotePixMap = new QPixmap(QString(":/%1/Icons/Status_Bar/RemoteCare_small.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+            p_Label->setPixmap(*mp_RemotePixMap);
+            //p_Label->pixmap.fill(Qt::transparent);
+            p_Label->show();
+            m_RemoteService = true;
+            result = true;
+        }
+        break;
+    case Error:
+        p_Label = mp_Ui->statusLabelErr;
+        p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Error_small.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+        p_Label->show();
+        m_Error= true;
+        result = true;
+        break;
+    case Warning:
+        p_Label = mp_Ui->statusLabelWarn;
+        p_Label->setPixmap(QPixmap(QString(":/%1/Icons/Status_Bar/Warning_small.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+        p_Label->show();
+        m_Warning = true;
+        result = true;
+        break;
+    default:
+        result = false;
+        break;
     }
     return result;
 }
@@ -331,92 +299,37 @@ bool CMainWindow::UnsetStatusIcons(Status_t Status)
 {
     bool result = true;
     switch (Status) {
-        case ProcessRunning:
-            if (m_ProcessRunning) {
-                if (mp_ProcessRunningLabel == mp_Ui->statusLabel1) {
-                    mp_Ui->statusLabel1->hide();
-                    m_ProcessRunning = false;
-                    m_StatusLabel1Free = true;
-                }
-                else if (mp_ProcessRunningLabel == mp_Ui->statusLabel2) {
-                    mp_Ui->statusLabel2->hide();
-                    m_ProcessRunning = false;
-                    m_StatusLabel2Free = true;
-                }
-                else {
-                    mp_Ui->statusLabel3->hide();
-                    m_ProcessRunning = false;
-                    m_StatusLabel3Free = true;
-                }
-                //Inform widgets that process is not running anymore
-                emit ProcessStateChanged();
-                result = true;
-            }
+    case ProcessRunning:
+        if (m_ProcessRunning) {
+            //mp_Ui->statusLabel1->hide();
+            /*mp_ProcPixmap->fill(Qt::transparent);
+            mp_Ui->statusLabel1->setPixmap(*mp_ProcPixmap);
+            mp_Ui->statusLabel1->show();*/
+            m_ProcessRunning = false;
+            emit ProcessStateChanged();
+            result = true;
+        }
         break;
-        case RemoteCare:
-            if (m_RemoteService) {
-                if (mp_RemoteLabel == mp_Ui->statusLabel1) {
-                    mp_Ui->statusLabel1->hide();
-                    m_RemoteService = false;
-                    m_StatusLabel1Free = true;
-                }
-                else if (mp_RemoteLabel == mp_Ui->statusLabel2) {
-                    mp_Ui->statusLabel2->hide();
-                    m_RemoteService= false;
-                    m_StatusLabel2Free = true;
-                }
-                else {
-                    mp_Ui->statusLabel3->hide();
-                    m_RemoteService = false;
-                    m_StatusLabel3Free = true;
-                }
-                result = true;
-            }
+    case RemoteCare:
+        if (m_RemoteService) {
+            //mp_Ui->statusLabel2->hide();
+            mp_RemotePixMap->fill(Qt::transparent);
+            mp_Ui->statusLabel2->setPixmap(*mp_ProcPixmap);
+            mp_Ui->statusLabel2->show();
+            m_RemoteService= false;
+            result = true;
+        }
         break;
-        case Warning:
-            if (m_Warning) {
-                if (mp_WarningLabel == mp_Ui->statusLabel1) {
-                    mp_Ui->statusLabel1->hide();
-                    m_Warning = false;
-                    m_StatusLabel1Free = true;
-                }
-                else if (mp_WarningLabel == mp_Ui->statusLabel2) {
-                    mp_Ui->statusLabel2->hide();
-                    m_Warning = false;
-                    m_StatusLabel2Free = true;
-                }
-                else {
-                    mp_Ui->statusLabel3->hide();
-                    m_Warning = false;
-                    m_StatusLabel3Free = true;
-                }
-                m_WarningErrorFlag = false;
-                result = true;
-            }
+    case Warning:
+        mp_Ui->statusLabelWarn->hide();
+        result = true;
         break;
-        case Error:
-            if (m_Error) {
-                if (mp_ErrorLabel == mp_Ui->statusLabel1) {
-                    mp_Ui->statusLabel1->hide();
-                    m_Error = false;
-                    m_StatusLabel1Free = true;
-                }
-                else if (mp_ErrorLabel == mp_Ui->statusLabel2) {
-                    mp_Ui->statusLabel2->hide();
-                    m_Error = false;
-                    m_StatusLabel2Free = true;
-                }
-                else {
-                    mp_Ui->statusLabel3->hide();
-                    m_Error = false;
-                    m_StatusLabel3Free = true;
-                }
-                m_WarningErrorFlag = false;
-                result = true;
-            }
+    case Error:
+        mp_Ui->statusLabelErr->hide();
+        result = true;
         break;
-        default:
-            result = false;
+    default:
+        result = false;
         break;
     }
     return result;
@@ -455,6 +368,34 @@ void CMainWindow::SetTabEnabled(bool Status)
     mp_Ui->TabWidget->setTabEnabled(4, Status);
     mp_Ui->TabWidget->setTabEnabled(5, Status);
 
+}
+
+bool CMainWindow::eventFilter(QObject *Obj, QEvent *p_Event)
+{    
+    if (p_Event->type() == QEvent::MouseButtonPress ||
+            p_Event->type() == QEvent::MouseButtonPress ||
+            p_Event->type() == QEvent::MouseButtonDblClick ||
+            p_Event->type() == QEvent::MouseMove) {
+
+        if (Obj == static_cast<QObject*>(mp_Ui->statusLabelErr)) {
+            qDebug() << "mp_Ui->statusLabelErr->isHidden()" << mp_Ui->statusLabelErr->isHidden()<<mp_Ui->statusLabelErr->isVisible();
+            if(!(mp_Ui->statusLabelErr->isHidden())) {
+                emit ShowErrorMsgDlg();
+                qDebug()<< "Clicked on Error status label";
+            }
+            return true;
+        }
+        else if(Obj == static_cast<QObject*>(mp_Ui->statusLabelWarn)) {
+            qDebug() <<"mp_Ui->statusLabelWarn->isHidden()" << mp_Ui->statusLabelWarn->isHidden()<<mp_Ui->statusLabelWarn->isVisible();
+            if(!(mp_Ui->statusLabelWarn->isHidden())) {
+                emit ShowWarningMsgDlg();
+                qDebug()<< "Clicked on Warning status label";
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 
 } // end namespace MainMenu

@@ -25,8 +25,9 @@ namespace Global {
 QString CmdPowerFail::NAME = "Global::CmdPowerFail";
 
 /****************************************************************************/
-CmdPowerFail::CmdPowerFail() :
-    Command(NOTIMEOUT)
+CmdPowerFail::CmdPowerFail(PowerFailStages PowerFailStage) :
+    Command(NOTIMEOUT),
+    m_PowerFailStage(PowerFailStage)
 {
 }
 
@@ -51,7 +52,8 @@ const CmdPowerFail & CmdPowerFail::operator = (const CmdPowerFail &rOther) {
 }
 
 /****************************************************************************/
-void CmdPowerFail::CopyFrom(const CmdPowerFail &/*rOther*/) {
+void CmdPowerFail::CopyFrom(const CmdPowerFail &rOther) {
+    m_PowerFailStage = rOther.m_PowerFailStage;
 }
 
 } // end namespace Global

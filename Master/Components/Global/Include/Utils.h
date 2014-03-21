@@ -24,6 +24,7 @@
 #include <Global/Include/GlobalDefines.h>
 #include <Global/Include/AdjustedTime.h>
 #include <Global/Include/Exception.h>
+
 #include <QString>
 #include <QLocale>
 
@@ -98,7 +99,7 @@
 /****************************************************************************/
 #define CONNECTSIGNALSLOT(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget))) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -113,7 +114,7 @@
 /****************************************************************************/
 #define CONNECTSIGNALSLOTQUEUED(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget), Qt::QueuedConnection)) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -127,7 +128,7 @@
 /****************************************************************************/
 #define CONNECTSIGNALSIGNAL(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SIGNAL(SlotTarget))) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
+        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -140,11 +141,30 @@
 /****************************************************************************/
 #define CHECKPTR(pPtr) \
     if(pPtr == NULL) { \
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << #pPtr << FILE_LINE); \
+        THROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << #pPtr << FILE_LINE); \
     }
 
 
 namespace Global {
+
+
+/****************************************************************************/
+/**
+* \brief Storage path
+*    When USB is mounted then the device will be mounted to /mnt_storage
+*/
+/****************************************************************************/
+const QString DIRECTORY_MNT_STORAGE = "/mnt_storage";  //!< Storage path of the mounted device
+
+
+/****************************************************************************/
+/**
+* \brief Script location path
+*    location of the script where mounting of USB device is available
+*/
+/****************************************************************************/
+const QString MNT_SCRIPT = "/etc/init.d/EBox-MountUSB-Script.sh";  //!< location of the mounted script
+
 
 /****************************************************************************/
 /**
@@ -271,12 +291,12 @@ QString OnOffStateToString(OnOffState TheState);
  *
  * If no match, \ref ONOFFSTATE_UNDEFINED is returned.
  *
- * \param[in]   OnOffStateString    The name of the on off state.
+ * \param[in]   OnOffStateString    Ok-Yes+No-Continue+Stop-Ok+CancelThe name of the on off state.
  * \param[in]   CaseSensitive       If true, search is done case sensitive.
  * \return                          The on off sate.
  */
 /****************************************************************************/
-OnOffState StringToOnOffState(const QString &OnOffStateString, bool CaseSensitive);
+OnOffState StringToOnOffState(const QString &OnOffStateString, bool CaseSensitive = false);
 
 /****************************************************************************/
 /**
@@ -326,6 +346,19 @@ TimeFormat StringToTimeFormat(const QString &TimeFormatString, bool CaseSensitiv
 
 /****************************************************************************/
 /**
+ * \brief Compares GivenDate with CurrentDate.
+ *
+ * If no match, \ref TIME_UNDEFINED is returned.
+ *
+ * \param[in]   CurrentDate = Current Date.
+ * \param[in]   DateToBeCompared = Date to be comapared.
+ * \return      Bool Type True(If DateToBeCompared is more than CurrentDate)
+ *              else False
+ */
+/****************************************************************************/
+bool CompareDate(QDate CurrentDate,QDate DateToBeCompared);
+/****************************************************************************/
+/**
  * \brief Convert from oven start mode enum to string.
  *
  * \param[in]   TheMode     The oven start mode to convert.
@@ -345,7 +378,7 @@ QString OvenStartModeToString(OvenStartMode TheMode);
  * \return                              The oven start mode.
  */
 /****************************************************************************/
-OvenStartMode StringToOvenStartMode(const QString &OvenStartModeString, bool CaseSensitive);
+OvenStartMode StringToOvenStartMode(const QString &OvenStartModeString, bool CaseSensitive = false);
 
 
 /****************************************************************************/
@@ -414,7 +447,7 @@ QString WaterTypeToString(WaterType TheType);
  * \return                              The water type.
  */
 /****************************************************************************/
-WaterType StringToWaterType(const QString &WaterTypeString, bool CaseSensitive);
+WaterType StringToWaterType(const QString &WaterTypeString, bool CaseSensitive = false);
 
 /****************************************************************************/
 /**
@@ -434,6 +467,51 @@ QString BoolToStringYesNo(bool YesNo);
  */
 /****************************************************************************/
 bool StringToTrueFalse(const QString &YesNoStateString, bool CaseSensitive);
+/****************************************************************************/
+/**
+ * \brief   Returns the Number of Buttons associated with the Button Type
+ *
+ * \param[in]   ButtonType
+ * \return      Button count
+ */
+/****************************************************************************/
+quint32 GetButtonCountFromButtonType(Global::GuiButtonType ButtonType);
+
+/****************************************************************************/
+/**
+ * \brief   Returns the ButtonType enum for String passed
+ *
+ * \param[in]   ButtonTypeString  e.g. "Yes+No",  "Ok"
+ * \return      Button count
+ */
+/****************************************************************************/
+Global::GuiButtonType   StringToGuiButtonType(QString ButtonTypeString);
+
+
+
+/****************************************************************************/
+/**
+ * \brief   Mounts the storage device.
+ *          First come first serve (It means if the two devices are detected
+ *          and names are 'sda' and 'sdb' then 'sda' will be mounted.
+ *          If any of the file needs to be searched then need to pass the required
+ *          arguments (i.e. Specify the file name as argument)
+ *
+ * \iparam   Name     Search the file/folder in the mounted device
+ *
+ * \return   Exited number of the process
+ */
+/****************************************************************************/
+qint32 MountStorageDevice(QString Name = "");
+
+
+/****************************************************************************/
+/**
+ * \brief   Unmounts the storage device
+ *
+ */
+/****************************************************************************/
+void UnMountStorageDevice();
 
 } // end namespace Global
 

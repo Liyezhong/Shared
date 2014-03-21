@@ -34,10 +34,10 @@ const TimeoutProcessorFunctorShPtr_t        NullTimeoutProcessorFunctor(NULL);  
 const CmdDataChangedFunctorShPtr_t          NullDataChangedFunctor(NULL);           ///< NULL functor for data changed.
 
 /****************************************************************************/
-BaseThreadController::BaseThreadController(Global::gSourceType TheLoggingSource) :
-    DataLogging::LoggingObject(NULL, Global::LoggingSource(TheLoggingSource, SUBCOMPONENT_THREADCONTROLLER)),
+BaseThreadController::BaseThreadController(Global::gSourceType TheHeartBeatSource) :
     m_HeartbeatTimeout(0),
-    m_HeartbeatTimer(this)
+    m_HeartbeatTimer(this),
+    m_HeartBeatSource(TheHeartBeatSource)
 {
     // register commands and acknowledges
     qRegisterMetaType<Global::tRefType>("Global::tRefType");
@@ -46,7 +46,7 @@ BaseThreadController::BaseThreadController(Global::gSourceType TheLoggingSource)
     // connect timer
     CONNECTSIGNALSLOT(&m_HeartbeatTimer, timeout(), this, HeartbeatTimer());
     // disable error forwarding because we do not have a parent
-    DisableErrorForwarding();
+    //DisableErrorForwarding();
 }
 
 /****************************************************************************/
@@ -70,7 +70,7 @@ void BaseThreadController::StopHeartbeatTimer() {
 
 /****************************************************************************/
 void BaseThreadController::HeartbeatTimer() {
-    emit HeartbeatSignal(GetLoggingSource().GetSource());
+    emit HeartbeatSignal(GetHeartBeatSource());
 }
 
 /****************************************************************************/
@@ -82,14 +82,14 @@ void BaseThreadController::Go() {
         OnGoReceived();
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
@@ -103,14 +103,14 @@ void BaseThreadController::Stop() {
         StopHeartbeatTimer();
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     // quit thread
@@ -128,34 +128,41 @@ void BaseThreadController::DoSendCommand(Global::tRefType Ref, const Global::Com
     // check pointer
     if(Cmd.IsNull())
     {
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
+        LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
     }
     try {
         // try to send the command over the according transmit channel
 //        qDebug() << "BaseThreadController::DoSendCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "Channel" << CmdChannel.m_channelName;
-        CmdChannel.EmitCommand(Ref, Cmd);
         if(Cmd->GetTimeout() != Global::Command::NOTIMEOUT) {
             // create descriptor
             Global::PendingCmdDescriptorShP_t PCDShP(new Global::PendingCmdDescriptor(this, Ref, Cmd->GetName(), Cmd->GetTimeout()));
+
+            if (this->thread() != PCDShP.GetPointerToUserData()->thread())
+            {
+                qDebug() << "BaseThreadController::DoSendCommand, mismatch of threads" << Cmd.GetPointerToUserData()->GetName() << "current thread" << this->thread() << "PCDShP thread" << PCDShP.GetPointerToUserData()->thread();
+            }
+
             // connect descriptor to timeout slot
             CONNECTSIGNALSLOT(PCDShP.GetPointerToUserData(), TimeoutOccured(Global::tRefType, QString),
                               this, OnProcessTimeoutSlot(Global::tRefType, QString));
             // connect and start descriptor timeouts
             PCDShP->ConnectAndStartTimer();
             // now add to list of pending commands.
+//            qDebug() << "BaseThreadController::DoSendCommand, add to pending commands" << Ref;
             static_cast<void>(
                 // we DO NOT NEED the return value of insert
                 m_PendingCommands.insert(Ref, PCDShP)
             );
         }
+        CmdChannel.EmitCommand(Ref, Cmd);
         // everything OK
         return;
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     // some error occured
@@ -170,7 +177,7 @@ void BaseThreadController::DoSendAcknowledge(Global::tRefType Ref, const Global:
     // check pointer
     if(Ack.IsNull())
     {
-        THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
+        LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
     }
     try {
         // try to send the command over the according transmit channel
@@ -179,10 +186,10 @@ void BaseThreadController::DoSendAcknowledge(Global::tRefType Ref, const Global:
         return;
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+      Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
     }
     // some error occured
@@ -194,7 +201,7 @@ void BaseThreadController::DoSendAcknowledge(Global::tRefType Ref, const Global:
 void BaseThreadController::RegisterAcknowledgeProcessorFunctor(const QString &AckName, const AcknowledgeProcessorFunctorShPtr_t &Functor) {
     // check if already registered
     if(m_AcknowledgeProcessorFunctors.contains(AckName)) {
-        THROWARGS(EVENT_THREADS_ERROR_ACKNOWLEDGE_FUNCTOR_ALREADY_REGISTERED, AckName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_ACKNOWLEDGE_FUNCTOR_ALREADY_REGISTERED, AckName);
     }
     // everything OK
     static_cast<void>(
@@ -210,7 +217,7 @@ AcknowledgeProcessorFunctorShPtr_t BaseThreadController::GetAcknowledgeProcessor
     AcknowledgeProcessorFunctorHash_t::const_iterator it = m_AcknowledgeProcessorFunctors.find(AckName);
     if(it == m_AcknowledgeProcessorFunctors.constEnd())
     {
-        qDebug() << "... no functor found";
+        qDebug() << "BaseThreadController::GetAcknowledgeProcessorFunctor, no functor found for" << AckName;
         // functor not found
         // return NULL functor
         return NullAcknowledgeProcessorFunctor;
@@ -223,7 +230,7 @@ AcknowledgeProcessorFunctorShPtr_t BaseThreadController::GetAcknowledgeProcessor
 void BaseThreadController::RegisterTimeoutProcessingFunctor(const QString &CmdName, const TimeoutProcessorFunctorShPtr_t &Functor) {
     // check if already registered
     if(m_TimeoutProcessorFunctors.contains(CmdName)) {
-        THROWARGS(EVENT_THREADS_ERROR_TIMEOUT_FUNCTOR_ALREADY_REGISTERED, CmdName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_TIMEOUT_FUNCTOR_ALREADY_REGISTERED, CmdName);
     }
     // everything OK
     static_cast<void>(
@@ -248,7 +255,7 @@ TimeoutProcessorFunctorShPtr_t BaseThreadController::GetTimeoutProcessorFunctor(
 void BaseThreadController::RegisterOnDataChangedProcessingFunctor(const QString &DataContainerName, const CmdDataChangedFunctorShPtr_t &Functor) {
     // check if already registered
     if(m_DataChangedFunctors.contains(DataContainerName)) {
-        THROWARGS(EVENT_THREADS_ERROR_ACKNOWLEDGE_FUNCTOR_ALREADY_REGISTERED, DataContainerName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_ACKNOWLEDGE_FUNCTOR_ALREADY_REGISTERED, DataContainerName);
     }
     // everything OK
     static_cast<void>(
@@ -272,19 +279,21 @@ CmdDataChangedFunctorShPtr_t BaseThreadController::GetDataChangedProcessingFunct
 /****************************************************************************/
 void BaseThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack)
 {
-//    qDebug() << "BaseThreadController::OnProcessAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName();
+    qDebug() << "BaseThreadController::OnProcessAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName();
     try
     {
         if(Ack.IsNull()) {
-            THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
+            LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
         }
-        SEND_DEBUG(WHEREAMI + " " +
-                   QString("Ref = ") + QString::number(Ref, 10) +
-                   QString("Name = ") + Ack->GetName());
+//        SEND_DEBUG(WHEREAMI + " " +
+//                   QString("Ref = ") + QString::number(Ref, 10) +
+//                   QString("Name = ") + Ack->GetName());
         if(!m_PendingCommands.contains(Ref)) {
             // unknown command reference. maybe already timed out.
-            LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::tTranslatableStringList() << QString::number(Ref, 10)
-                      , Global::NO_NUMERIC_DATA, false);
+            qDebug() << "BaseThreadController::OnProcessAcknowledge, unknown command ref" << Ref;
+            Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::FmtArgs() << Ref, true);
+//            LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::tTranslatableStringList() << QString::number(Ref, 10)
+//                      , Global::NO_NUMERIC_DATA, false);
             return;
         }
         // Remove from list of blocked references
@@ -294,17 +303,19 @@ void BaseThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Glob
         // OK, now get functor and execute
         AcknowledgeProcessorFunctorShPtr_t Functor = GetAcknowledgeProcessorFunctor(Ack->GetName());
         if(Functor == NullAcknowledgeProcessorFunctor) {
+            qDebug() << "BaseThreadController::OnProcessAcknowledge, NullAcknowledgeProcessorFunctor" << Ref;
             // throw exception
-            THROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_ACKNOWLEDGE, Ack->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_ACKNOWLEDGE, Ack->GetName());
         }
         // execute
         Functor.GetPointerToUserData()->Process(Ref, Ack.GetPointerToUserData());
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        qDebug() << "Exception has been caught";
+        //Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
@@ -317,19 +328,23 @@ void BaseThreadController::OnProcessTimeoutSlot(Global::tRefType Ref, QString Cm
 
 /****************************************************************************/
 void BaseThreadController::OnProcessTimeout(Global::tRefType Ref, const QString &CmdName) {
-    SEND_DEBUG(WHEREAMI + " " +
-               QString("Ref = ") + QString::number(Ref, 10) +
-               QString("Name = ") + CmdName);
+//    SEND_DEBUG(WHEREAMI + " " +
+//               QString("Ref = ") + QString::number(Ref, 10) +
+//               QString("Name = ") + CmdName);
     if(!m_PendingCommands.contains(Ref)) {
         // unknown command reference. maybe already processed?.
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, QString::number(Ref, 10)
-                  , Global::NO_NUMERIC_DATA, false);
+        qDebug() << "BaseThreadController::OnProcessTimeout, unknown command ref" << Ref;
+        Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, Global::FmtArgs() << Ref, true);
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_ERROR_UNKNOWN_COMMAND_REF, QString::number(Ref, 10)
+//                  , Global::NO_NUMERIC_DATA, false);
         return;
     }
     // send error
-    LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_THREADS_ERROR_COMMAND_TIMEOUT, Global::tTranslatableStringList() << CmdName << QString::number(Ref, 10)
-              , Global::NO_NUMERIC_DATA, false);
+    Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_COMMAND_TIMEOUT, Global::FmtArgs() << CmdName << Ref, true);
+//    LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_THREADS_ERROR_COMMAND_TIMEOUT, Global::tTranslatableStringList() << CmdName << QString::number(Ref, 10)
+//              , Global::NO_NUMERIC_DATA, false);
     // remove from list of pending commands
+
     RemoveFromPendingCommands(Ref);
     // OK, now get functor and execute
     TimeoutProcessorFunctorShPtr_t Functor = GetTimeoutProcessorFunctor(CmdName);

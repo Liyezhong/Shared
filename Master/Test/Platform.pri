@@ -70,3 +70,17 @@ defineTest(UseLibs){
     export(PRE_TARGETDEPS)
 }
 ###################################
+# this function adds  libraries passed as arguments to the linker and dependency list
+defineTest(UseLib){
+    Args=$$ARGS
+    LIBS += -Wl,--start-group
+    for(TheLib, Args) {
+        THELIBPATH       = $$TheLib/Build/lib_$$CONFIG_SUFFIX
+        LIBNAME          = $$basename(TheLib)
+        PRE_TARGETDEPS  += $$THELIBPATH/lib$${LIBNAME}.a
+        LIBS            += $$THELIBPATH/lib$${LIBNAME}.a
+    }
+    LIBS += -Wl,--end-group
+    export(LIBS)
+    export(PRE_TARGETDEPS)
+}

@@ -174,17 +174,25 @@ void CDataManagement::ResetButtons()
     m_ProcessRunning = MainMenu::CMainWindow::GetProcessRunningStatus();
     if (!m_ProcessRunning) {
         mp_Ui->exportButton->setEnabled(true);
+        mp_Ui->serviceExportButton->setEnabled(true);
         if ((m_CurrentUserRole == MainMenu::CMainWindow::Admin ||
              m_CurrentUserRole == MainMenu::CMainWindow::Service)) {
             mp_Ui->importButton->setEnabled(true);
+            mp_Ui->remoteSWUpdateButton->setEnabled(false);
+            mp_Ui->softwareUpdateButton->setEnabled(true);
         }
         else {
             mp_Ui->importButton->setEnabled(false);
+            mp_Ui->remoteSWUpdateButton->setEnabled(false);
+            mp_Ui->softwareUpdateButton->setEnabled(false);
         }
     }
     else {
         mp_Ui->exportButton->setEnabled(false);
         mp_Ui->importButton->setEnabled(false);
+        mp_Ui->serviceExportButton->setEnabled(false);
+        mp_Ui->remoteSWUpdateButton->setEnabled(false);
+        mp_Ui->softwareUpdateButton->setEnabled(false);
     }
 }
 

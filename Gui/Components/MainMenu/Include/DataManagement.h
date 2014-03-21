@@ -23,7 +23,6 @@
 
 #include "MainMenu/Include/WaitDialog.h"
 #include "MainMenu/Include/MainWindow.h"
-#include <QWidget>
 
 namespace MainMenu {
 

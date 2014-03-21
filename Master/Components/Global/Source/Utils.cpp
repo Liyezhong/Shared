@@ -22,6 +22,8 @@
 
 #include <QHash>
 #include <QStringList>
+#include <QProcess>
+#include <QDir>
 
 #include <errno.h>
 
@@ -54,6 +56,8 @@ void InitSupportedLanguages() {
     AddSupportedLanguage(QLocale::Polish);
     AddSupportedLanguage(QLocale::Czech);
     AddSupportedLanguage(QLocale::Russian);
+    AddSupportedLanguage(QLocale::Chinese);
+    AddSupportedLanguage(QLocale::Japanese);
 }
 
 /****************************************************************************/
@@ -277,4 +281,109 @@ bool StringToTrueFalse(const QString &YesNoStateString, bool CaseSensitive) {
     }
     return Result;
 }
+/****************************************************************************/
+quint32 GetButtonCountFromButtonType(GuiButtonType ButtonType) {
+    switch (ButtonType) {
+        case Global::OK:
+        case Global::RECOVERYNOW:
+            return 1;
+        case Global::OK_CANCEL:
+        case Global::YES_NO:
+        case Global::CONTINUE_STOP:
+        case Global::RECOVERYLATER_RECOVERYNOW:
+            return 2;
+        default:
+            return 1;
+    }
+    return 1;
+}
+
+/****************************************************************************/
+Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
+    ButtonTypeString = ButtonTypeString.simplified().toUpper();
+    if (ButtonTypeString ==  "YES+NO") {
+        return Global::YES_NO;
+    }
+    else if (ButtonTypeString == "OK+CANCEL") {
+        return Global::OK_CANCEL;
+    }
+    else if (ButtonTypeString == "CONTINUE+STOP") {
+        return Global::CONTINUE_STOP;
+    }
+    else if (ButtonTypeString == "OK") {
+        return Global::OK;
+    }
+    else if (ButtonTypeString == "RECOVERYLATER+RECOVERYNOW") {
+        return Global::RECOVERYLATER_RECOVERYNOW;
+    }
+    else if (ButtonTypeString == "RECOVERYNOW") {
+        return Global::RECOVERYNOW;
+    }
+    return Global::NO_BUTTON;
+}
+
+/****************************************************************************/
+bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
+    if (DateToBeCompared.year() >= CurrentDate.year())
+    {
+        if (DateToBeCompared.month() > CurrentDate.month())
+        {
+            return true;
+        }
+        else if (DateToBeCompared.month() == CurrentDate.month())
+        {
+            if (DateToBeCompared.day() >= CurrentDate.day())
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+/****************************************************************************/
+qint32 MountStorageDevice(QString Name) {
+    Q_UNUSED(Name);
+#if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM)
+    // create the QProcess
+    QProcess ProcToMountDevice;
+    QStringList CmdLineOptions;
+
+    CmdLineOptions << "mount";
+    // check whether anything needs to be  searched in the mounted device
+    if (Name.compare("") != 0) {
+        CmdLineOptions << "search" << Name;
+    }
+
+    ProcToMountDevice.start(MNT_SCRIPT, CmdLineOptions);
+    // check for the process finished
+    if (ProcToMountDevice.waitForFinished()) {
+        return ProcToMountDevice.exitCode();
+    }
+#else
+    Q_UNUSED(Name)
+    QDir usb(Global::DIRECTORY_MNT_STORAGE);
+    if(!usb.exists()){
+        return 1;
+    }
+    return 0;
+#endif
+    return 1;
+}
+
+/****************************************************************************/
+void UnMountStorageDevice() {
+    QProcess ProcToMountDevice;
+    ProcToMountDevice.start(MNT_SCRIPT, QStringList() << "umount");
+    (void)ProcToMountDevice.waitForFinished();
+}
+
 } // end namespace Global

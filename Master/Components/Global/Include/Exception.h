@@ -37,7 +37,7 @@ class Exception {
 friend class TestException;
 private:
     QString                 m_File;             ///< File in which exception occured.
-    int                     m_Line;             ///< Line in which exception occured.
+    QString                 m_Line;             ///< Line in which exception occured.
     QDateTime               m_TimeStamp;        ///< Timestamp at which exception occured.
     quint32                 m_ErrorCode;        ///< Error code.
     tTranslatableStringList m_AdditionalData;   ///< Additional data for exception.
@@ -71,7 +71,7 @@ public:
     /****************************************************************************/
     inline Exception(const QString &File, int Line, const QDateTime &TimeStamp, quint32 ErrorCode) :
         m_File(File),
-        m_Line(Line),
+        m_Line(QString::number(Line)),
         m_TimeStamp(TimeStamp),
         m_ErrorCode(ErrorCode)
     {
@@ -90,7 +90,7 @@ public:
     inline Exception(const QString &File, int Line, const QDateTime &TimeStamp, quint32 ErrorCode,
                      const TranslatableString &Argument) :
         m_File(File),
-        m_Line(Line),
+        m_Line(QString::number(Line)),
         m_TimeStamp(TimeStamp),
         m_ErrorCode(ErrorCode)
     {
@@ -110,7 +110,7 @@ public:
     inline Exception(const QString &File, int Line, const QDateTime &TimeStamp, quint32 ErrorCode,
                      const tTranslatableStringList &AdditionalData) :
         m_File(File),
-        m_Line(Line),
+        m_Line(QString::number(Line)),
         m_TimeStamp(TimeStamp),
         m_ErrorCode(ErrorCode),
         m_AdditionalData(AdditionalData)
@@ -124,7 +124,7 @@ public:
      */
     /****************************************************************************/
     inline Exception(const Exception &rOther) :
-        m_Line(0),
+        m_Line("0"),
         m_ErrorCode(0)
     {
         CopyFrom(rOther);
@@ -167,9 +167,19 @@ public:
      * \return  Line number.
      */
     /****************************************************************************/
-    inline int GetLine() const {
+    inline QString GetLine() const {
         return m_Line;
     }
+
+    inline QString what() const {
+        return "File: " + m_File +
+                ", Line: " + m_Line;
+//                "\nTime: " + m_TimeStamp.toString();
+    }
+
+//    inline std::string what() const {
+//        return toString().toStdString();
+//    }
     /****************************************************************************/
     /**
      * \brief Get timestamp at which exception occured.

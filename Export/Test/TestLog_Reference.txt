@@ -1,0 +1,22 @@
+TESTPATH:  ./Components/ExportData/Test
+TESTNAME:  utTestExportData
+TIMESTAMP: 2012-12-04 14:52:51
+********* Start testing of Export::TestExportData *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : Export::TestExportData::initTestCase()
+PASS   : Export::TestExportData::utTestExportData()
+PASS   : Export::TestExportData::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped
+********* Finished testing of Export::TestExportData *********
+
+TESTPATH:  ./Components/Main/Test
+TESTNAME:  utTestMain
+TIMESTAMP: 2012-12-04 14:52:51
+********* Start testing of Export::TestMain *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : Export::TestMain::initTestCase()
+PASS   : Export::TestMain::utTestMain()
+PASS   : Export::TestMain::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped
+********* Finished testing of Export::TestMain *********
+

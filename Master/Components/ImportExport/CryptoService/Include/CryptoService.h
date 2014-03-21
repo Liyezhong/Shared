@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file CryptoService.h
+/*! \file CryptoService.h
  *
- *  @brief CryptoService for ImportExport module
+ *  \brief CryptoService for ImportExport module
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-07-02
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,13 +15,12 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:49:43
  *
  */
 /****************************************************************************/
 
-#ifndef IMPORT_EXPORT_CRYPTOSERVICE_H
-#define IMPORT_EXPORT_CRYPTOSERVICE_H
+#ifndef IMPORTEXPORT_CRYPTOSERVICE_H
+#define IMPORTEXPORT_CRYPTOSERVICE_H
 
 #include <QtGlobal>
 #include <QByteArray>
@@ -35,6 +34,12 @@
 
 namespace ImportExport {
 
+
+/****************************************************************************/
+/*!
+ * \brief Service class for the cryptography
+ */
+/****************************************************************************/
 class CryptoService
 {
     friend class TestCryptoService;
@@ -60,24 +65,24 @@ class CryptoService
         // data
 
         // for computing C from B
-        const QByteArray S0;
+        const QByteArray S0;                    ///< to store the key 0
 
         // for computing An from Bn
-        const QByteArray S1;
+        const QByteArray S1;                    ///< to store the key 1
 
         QMap<QByteArray, QByteArray> m_keys;    ///< keys for HMAC instances
         QMap<QByteArray, Hmac*> m_hmac;         ///< HMAC instances
-        AES m_aes;                     ///< AES instance for en/decryption
+        AES m_aes;                     			///< AES instance for en/decryption
         int m_hashChainIndex;                   ///< index in hash chain
-        bool m_aesInitialized;
-        bool m_hmacInitialized;
+        bool m_aesInitialized;                  ///< flag for aes initialization
+        bool m_hmacInitialized;                 ///< flag for hmac initialization
 };
 
-
-/**
- * @brief helper class - compute HMACs while writing to from file
+/****************************************************************************/
+/*!
+ * \brief helper class - compute HMACs while writing to from file
  */
-
+/****************************************************************************/
 class WriteAndHmac
 {
     public:
@@ -87,8 +92,8 @@ class WriteAndHmac
         QMap<QByteArray, QByteArray> getHmacs();
 
     private:
-        CryptoService m_cs;
-        FailSafeOpen* m_fd;
+        CryptoService m_cs; ///< instance for cryptoservice
+        FailSafeOpen* mp_fd; ///< instance for the file
 };
 
 }       // end namespace ImportExport

@@ -47,7 +47,8 @@ NetworkDevice::NetworkDevice(MessageLoaderType_t ptype, const QString &path, QOb
         m_myMessageChecker(NULL),
         m_myType(ptype),
         m_myPath(path),
-        m_cmdRef(0)
+        m_cmdRef(0),
+        m_HeartBeatTimer(this)
 {
     RunningCommands.clear();
     switch (ptype) {
@@ -138,7 +139,7 @@ bool NetworkDevice::InitializeDevice()
 /****************************************************************************/
 bool NetworkDevice::InitializeMessaging()
 {
-    qDebug() << "NetworkDevice: initializing ProtocolHandler...";
+    qDebug() << "NetworkDevice: initializing ProtocolHandler..." << m_myPath;
 
     try {
         if (m_myMessageChecker == NULL) {
@@ -358,8 +359,10 @@ void NetworkDevice::PeerConnected(const QString &name)
 void NetworkDevice::PeerDisconnected(const QString &name)
 {
     // stop periodic heartbeat timer:
+
     m_HeartBeatTimer.stop();
     qDebug() << "NetworkDevice: HeartBeat Timer stopped.";
+
     // inform whoever is interested in this event
     emit SigPeerDisconnected(name);
 }
@@ -393,6 +396,11 @@ void NetworkDevice::DisconnectPeer()
  ****************************************************************************/
 void NetworkDevice::GetIncomingMsg(quint8 type, QByteArray &ba)
 {
+    qDebug() << "xxxxxxx NetworkDevice::GetIncomingMsg, path="
+             << this->m_myPath
+             << ", myType=" << this->m_myType
+             << ", msgType=" << type
+             << ", data=" << ba.toUInt();
     switch (static_cast<NetMessageType_t>(type)) {
     case NET_NETLAYER_MESSAGE:
         ParseNetLayerMessage(ba);
@@ -710,6 +718,7 @@ bool NetworkDevice::SendCommand(const QString &cmd)
  ****************************************************************************/
 bool NetworkDevice::SendCommand(NetMessageType_t cmdtype, const QByteArray &ba)
 {
+    qDebug() << "xxxxx NetworkDevice::SendCommand";
     // Check for valid "connection" to SLOT. If signal is not
     // connected, report error.
     if (receivers(SIGNAL(SendMessage(quint8, const QByteArray &))) == 0) {

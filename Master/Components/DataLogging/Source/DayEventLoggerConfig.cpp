@@ -30,11 +30,12 @@ DayEventLoggerConfig::DayEventLoggerConfig() :
 
 /****************************************************************************/
 DayEventLoggerConfig::DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,
-                                                   const QString &Path, int MaxFileCount) :
+                                                   const QString &Path, int MaxFileCount, const QString &BaseFileName) :
     m_OperatingMode(OperatingMode),
     m_SerialNumber(SerialNumber),
     m_Path(Path),
-    m_MaxFileCount(MaxFileCount)
+    m_MaxFileCount(MaxFileCount),
+    m_BaseFileName(BaseFileName)
 {
 }
 

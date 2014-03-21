@@ -2,9 +2,10 @@
     error("Threads.pri not found")
 }
 
-INCLUDEPATH += ../../../../Common/Components
+
 
 TARGET = Threads
+INCLUDEPATH += ../../../../Common/Components
 
 HEADERS +=  ../Include/*.h
 

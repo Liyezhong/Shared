@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestCompressEncrypt.h
+/*! \file TestCompressEncrypt.h
  *
- *  @brief test CompressEncrypt class for ImportExport module
+ *  \brief test CompressEncrypt class for ImportExport module
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-07-30
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:35:11
  *
  */
 /****************************************************************************/

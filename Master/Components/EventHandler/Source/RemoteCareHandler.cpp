@@ -32,8 +32,8 @@ namespace EventHandler {
  *  \return
  *
  ****************************************************************************/
-RemoteCareHandler::RemoteCareHandler(Global::gSourceType TheLoggingSource) :
-    ThreadController(TheLoggingSource, "RemoteCare")
+RemoteCareHandler::RemoteCareHandler(Global::gSourceType TheHeartBeatSource) :
+    ThreadController(TheHeartBeatSource, "RemoteCare")
 {
 }
 
@@ -61,7 +61,7 @@ RemoteCareHandler::~RemoteCareHandler()
  * \param[in]  EventEntry = event (originally) from the system error handler
  */
 /****************************************************************************/
-void RemoteCareHandler::ForwardEventToRemoteCare(const DataLogging::EventEntry &)
+void RemoteCareHandler::ForwardEventToRemoteCare(const DataLogging::DayEventEntry &)
 {
     ///< WARNING: Implement this SLOT in your derived class!!
 }

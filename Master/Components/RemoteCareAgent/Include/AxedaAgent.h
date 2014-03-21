@@ -26,10 +26,11 @@
 #include <QString>
 #include <QByteArray>
 
-#include <AeTypes.h>
-#include <AeError.h>
-#include <AeInterface.h>
-#include <AeOSLocal.h>
+#include "AeOSLocal.h"
+#include "AeTypes.h"
+#include "AeError.h"
+#include "AeOS.h"
+#include "AeInterface.h"
 
 #include <Global/Include/SharedPointer.h>
 #include <RemoteCareAgent/Include/AgentController.h>
@@ -113,7 +114,7 @@ public:
             ProxyPort(0),
             bAllowRemoteSession(AeFalse),
             bRemoteSessionSetup(AeTrue),
-            pRemoteSessionName((AeChar*)"Colorado"),
+            pRemoteSessionName((AeChar*)"Himalaya"),
             pRemoteSessionType((AeChar*)"desktop"),
             pRemoteSessionHost((AeChar*)"127.0.0.1"),
             RemoteSessionPort((AeInt16)5900),

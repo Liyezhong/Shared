@@ -52,6 +52,7 @@ ConnectionManager::ConnectionManager(QHash<QString, QString> hash,
                                      m_myNumber(number),
                                      m_myClient(""),
                                      m_authenticationStringsList(hash),
+                                     m_timer(this),
                                      m_authRequest(req),
                                      m_authConfirm(conf),
                                      m_replySection(d),
@@ -82,6 +83,8 @@ ConnectionManager::~ConnectionManager()
  ****************************************************************************/
 void ConnectionManager::HandleNewConnection(int socketDescriptor)
 {
+    qDebug() << "ConnectionManager::HandleNewConnection";
+
     // set the correct Descriptor:
     if (!m_TcpSocket.setSocketDescriptor(socketDescriptor)) {
         // error logging is done by the Server
@@ -133,6 +136,7 @@ void ConnectionManager::HandleSocketDisconnect()
  ****************************************************************************/
 void ConnectionManager::HandleTimeout()
 {
+    qDebug() << "xxxxx ConnectionManager::HandleTimeout";
     DestroyConnection(AUTHENTICATION_TIMEOUT);
 }
 
@@ -208,6 +212,7 @@ void ConnectionManager::ReadSocket()
  ****************************************************************************/
 bool ConnectionManager::CheckAuthenticationResponse(QByteArray *ba)
 {
+    qDebug() << "xxxxxxx ConnectionManager::CheckAuthenticationResponse";
     // stop the authentication timer:
     static_cast<void>(
             // do not need return value here
@@ -216,6 +221,8 @@ bool ConnectionManager::CheckAuthenticationResponse(QByteArray *ba)
     m_timer.stop();
 
     QString str(*ba);
+
+    qDebug() << ".... content:" << str;
 
     QString err = "";
     int errL = 0;
@@ -253,6 +260,8 @@ bool ConnectionManager::CheckAuthenticationResponse(QByteArray *ba)
  ****************************************************************************/
 bool ConnectionManager::ParseAuthenticationResponse(QDomDocument *d)
 {
+    qDebug() << "xxxxxxx ConnectionManager::ParseAuthenticationResponse";
+
     QDomElement root = d->documentElement();
 
     QDomElement elmt = root.firstChildElement(CM_CMD_TAG_NAME);
@@ -283,6 +292,15 @@ bool ConnectionManager::ParseAuthenticationResponse(QDomDocument *d)
     else {
         // authentication failed
         qDebug() << (QString)("Authentication failed! \nClient Name: " + name + "\nClient Version: " + version);
+
+        qDebug() << "xxxxx available connection strings:";
+
+        QHash<QString, QString>::iterator i;
+        for (i = m_authenticationStringsList.begin(); i != m_authenticationStringsList.end(); ++i)
+        {
+            qDebug() << i.key() << ": " << i.value() << endl;
+        }
+
         return false;
     }
 

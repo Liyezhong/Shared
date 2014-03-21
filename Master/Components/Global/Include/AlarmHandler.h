@@ -1,0 +1,117 @@
+/****************************************************************************/
+/*! \file Global/Include/AlarmHandler.h
+ *
+ *  \brief Definition file for class AlarmHandler.
+ *
+ *  $Version:   $ 0.1
+ *  $Date:      $ 2012-08-07
+ *  $Author:    $ Michael Thiel
+ *
+ *  \b Company:
+ *
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
+ *
+ */
+/****************************************************************************/
+
+#ifndef GLOBAL_ALARMHANDLER_H
+#define GLOBAL_ALARMHANDLER_H
+
+#include <QObject>
+#include <QHash>
+#include <QTimer>
+#include <QMutex>
+#include <QProcess>
+#include <Global/Include/GlobalDefines.h>
+
+#include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
+#include <Global/Include/SystemPaths.h>
+
+namespace Global {
+
+/****************************************************************************/
+/**
+ * \brief Alarm handler for Himalaya application.
+ */
+/****************************************************************************/
+class AlarmHandler : public QObject
+{
+    Q_OBJECT
+
+public:
+    AlarmHandler(quint16 timeout, QObject *parent);
+    ~AlarmHandler();
+
+    /**
+      @brief Includes or removes an alarm into the queue of raised alarms
+      */
+    void setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool active);
+
+    /**
+      @brief Includes or removes an alarm into the queue of raised alarms
+      */
+    virtual void setAlarm(quint64 eventKey, Global::AlarmType alarmType, Global::AlarmPosType alarmPosType, bool active);
+
+    /**
+      @brief Removes all alarms from alarm queue
+      */
+    virtual void reset();
+
+    /**
+      @brief Specifies the timeout, i.e. the time interval inbetween two alarm sounds
+      */
+    virtual void setTimeout(quint16 timeout);
+
+    /**
+      @brief in non-MasterThreadController, this function should be called
+     */
+    virtual void emitSetTimeout(quint16 timeout);
+
+    /**
+      @brief Specifies the alarm volume related to a specific alarm type
+      *1 = lowest
+      *6 = normal
+      *9 = highest
+      */
+    virtual void setVolume(Global::AlarmType alarmType, quint8 volume);
+
+    /**
+      @brief Specifies the sound file to be played when an alarm of type alarmType is raised
+      */
+    virtual void setSoundFile(Global::AlarmType alarmType, QString fileName);
+
+    /**
+      @brief Specifies the sound-id related to a specific alarm type
+      */
+    virtual void setSoundNumber(Global::AlarmType alarmType, int number);
+    //void emitAlarm( bool AlarmTypeFlag, quint8 Volume, quint8 Sound, bool Active = false, Global::AlarmType alarmType = Global::ALARM_NONE);
+    virtual bool playTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 Sound);
+
+private:
+    QHash<quint64, Global::AlarmType> m_errorList;
+    QHash<quint64, Global::AlarmType> m_warningList;
+    QHash<Global::AlarmType, QString> m_soundList;
+    QHash<Global::AlarmType, quint8> m_volumeList;
+    quint8 m_volume;
+    QTimer* m_Timer;
+    QMutex* m_mutex;
+    QProcess* m_processPlay;
+    QProcess* m_processSetVolume;
+    QTimer *m_alarmToneTimer;
+    //QString m_soundPath;
+    void emitAlarm (Global::AlarmType alarmType, bool Active = true, QString Filename = "", quint8 Volume = 1);
+
+
+private slots:
+    void onTimeout();
+    void StopPlayAlarm();
+
+}; // end class
+
+} // end namespace Global
+
+#endif // GLOBAL_ALARMHANDLER_H

@@ -36,7 +36,7 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessWindowHint)
+CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessWindowHint), m_ThreeDigitMode(false)
 {
     QFont Font = font();
     Font.setPointSize(46);
@@ -47,8 +47,8 @@ CScrollWheel::CScrollWheel(QWidget *p_Parent) : QWidget(p_Parent, Qt::FramelessW
 
 
     m_Offset = QPoint(0, 0);
-    m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetStyleSizeString())).copy(2, 43, 86, 188);
-    m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetStyleSizeString())).copy(2, 43, 86, 188);
+    m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
+    m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
 
     m_ItemAlignment = Qt::AlignCenter;
     m_ItemHeight = 70;
@@ -83,9 +83,12 @@ QPoint CScrollWheel::scrollOffset() const
 /****************************************************************************/
 void CScrollWheel::setScrollOffset(const QPoint &Offset)
 {
-    m_Offset.setY(Offset.y() % (m_ItemHeight * m_Items.count()));
-    if (m_Offset.y() < 0) {
-        m_Offset.setY(m_Offset.y() + (m_ItemHeight * m_Items.count()));
+    if (m_Items.count() > 0)
+    {
+        m_Offset.setY(Offset.y() % (m_ItemHeight * m_Items.count()));
+        if (m_Offset.y() < 0) {
+            m_Offset.setY(m_Offset.y() + (m_ItemHeight * m_Items.count()));
+        }
     }
     update();
 }
@@ -99,31 +102,41 @@ void CScrollWheel::setScrollOffset(const QPoint &Offset)
 /****************************************************************************/
 void CScrollWheel::paintEvent(QPaintEvent *p_PaintEvent)
 {
-    if (!m_Items.count()) {
-        return;
-    }
+
 
     QPainter Painter(this);
     //draw the scaled BG image
     Painter.fillRect(p_PaintEvent->rect(), QColor(39, 47, 58));
     Painter.drawPixmap(0, 0, m_BackgroundPixmap);
-    Painter.setPen(Qt::white);
 
-    qint32 Items = height() / m_ItemHeight;
-    qint32 Start = m_Offset.y() / m_ItemHeight - Items / 2 - 1;
-    qint32 End = Start + height() / m_ItemHeight + Items / 2 + 2;
-    qint32 YPos = Start * m_ItemHeight - m_Offset.y() + height() / 2 + 2;
+    if (m_Items.count() > 0) {
+        Painter.setPen(Qt::white);
 
-    for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
-        qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
+        qint32 Items = height() / m_ItemHeight;
+        qint32 Start = m_Offset.y() / m_ItemHeight - Items / 2 - 1;
+        qint32 End = Start + height() / m_ItemHeight + Items / 2 + 2;
+        qint32 YPos = Start * m_ItemHeight - m_Offset.y() + height() / 2 + 2;
 
-        Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
+        for (qint32 i = Start; i < End; i++, YPos += m_ItemHeight) {
+            qint32 Index = (i % m_Items.count() + m_Items.count()) % m_Items.count();
+            if (m_Items[Index] != "")
+            {
+                Painter.drawText(0, YPos - m_ItemHeight / 2, width(), m_ItemHeight, m_ItemAlignment, m_Items[Index]);
 
-        if(!m_ItemPixmaps[Index].isNull()) {
-            Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+                if(!m_ItemPixmaps[Index].isNull()) {
+                    Painter.drawPixmap(11, YPos + 24, m_ItemPixmaps[Index]);
+                }
+            }
+            else
+                if(!m_ItemPixmaps[Index].isNull()) {
+                    if (m_ThreeDigitMode)
+                        Painter.drawPixmap(30, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+                    else
+                        Painter.drawPixmap(9, YPos - m_ItemHeight / 2, m_ItemPixmaps[Index]);
+                }
+
         }
     }
-
     // draw the scaled cover
     Painter.drawPixmap(0, 0, m_SelectedItemPixmap);
 }
@@ -290,13 +303,14 @@ void CScrollWheel::SetNonContinuous()
 /****************************************************************************/
 void CScrollWheel::SetThreeDigitMode(bool Mode)
 {
+    m_ThreeDigitMode = Mode;
     if (Mode) {
-        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background_3_digits.png").arg(Application::CLeicaStyle::GetStyleSizeString())).copy(2, 43, 126, 188);
-        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover_3_digits.png").arg(Application::CLeicaStyle::GetStyleSizeString())).copy(2, 43, 126, 188);
+        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 126, 188);
+        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 126, 188);
     }
     else {
-        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetStyleSizeString())).copy(2, 43, 86, 188);
-        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetStyleSizeString())).copy(2, 43, 86, 188);
+        m_BackgroundPixmap = QPixmap(QString(":/%1/Digits/Digit_Background.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
+        m_SelectedItemPixmap = QPixmap(QString(":/%1/Digits/Digit_Cover.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(2, 43, 86, 188);
     }
 }
 

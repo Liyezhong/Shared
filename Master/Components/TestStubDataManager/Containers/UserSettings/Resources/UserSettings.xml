@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings Version="1">
+    <Localization Language="German" DateFormat="International" TimeFormat="24" TemperatureFormat="C"/>
+    <Sound>
+        <ErrorTone Number="1" Level="9"/>
+        <WarningTone Number="2" Level="9"/>
+    </Sound>
+    <Agitation Speed="1"/>
+    <Oven StartMode="BeforeProgram" Temp="70"/>
+    <Rms State="On"/>
+    <Water Type="Tap"/>
+	<Leica AgitationSpeed="1" OvenTemp="45" />
+	<Loader Reagent1="L34" Reagent2="U78" Reagent3="L12" Reagent4="U67" Reagent5="U78"/>
+</Settings>

@@ -41,6 +41,8 @@ NetworkServerDevice::NetworkServerDevice(NetworkServerType_t stype, const QStrin
         m_myServer(NULL),
         m_myServerType(stype),
         m_myClient(client),
+
+        m_DateTimeSyncTimer(this),
         m_dtTimerPeriod(0)
 {
     this->setParent(pParent);

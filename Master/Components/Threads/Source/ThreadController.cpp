@@ -27,10 +27,11 @@ namespace Threads {
 static const CommandExecuteFunctorShPtr_t          NullCommandExecuteFunctor(NULL);        ///< NULL functor for command execution.
 
 /****************************************************************************/
-ThreadController::ThreadController(Global::gSourceType TheLoggingSource, QString name) :
-    BaseThreadController(TheLoggingSource),
+ThreadController::ThreadController(Global::gSourceType TheHeartBeatSource, QString name) :
+    BaseThreadController(TheHeartBeatSource),
     m_CommandChannel(this, name)
 {
+    qDebug() << "xxxxxx ThreadController::ThreadController" << name;
     // register CmdDataChanged command
     RegisterCommandForProcessing<Global::CmdDataChanged, ThreadController>(&ThreadController::CmdDataChangedReceived, this);
     // register CmdPowerFail command
@@ -60,7 +61,7 @@ void ThreadController::ConnectToOtherCommandChannel(CommandChannel *pCommandChan
 void ThreadController::CmdDataChangedReceived(Global::tRefType /*Ref*/, const Global::CmdDataChanged &Cmd) {
     // check if command has timeout
     if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
-        THROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
+        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
     }
     // process command
     DispatchDataChangedCommand(Cmd);
@@ -71,7 +72,7 @@ void ThreadController::CmdDataChangedReceived(Global::tRefType /*Ref*/, const Gl
 void ThreadController::CmdPowerFailReceived(Global::tRefType /*Ref*/, const Global::CmdPowerFail &Cmd) {
     // check if command has timeout
     if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
-        THROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
+        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
     }
     // process command
     OnPowerFail();
@@ -93,21 +94,11 @@ void ThreadController::DoSendDataChanged(const Global::CommandShPtr_t &Cmd) {
 void ThreadController::SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd)
 {
     // send command using own command channel
-    qDebug() << "ThreadController::SendCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "Channel" << m_CommandChannel.m_channelName;
+    qDebug() << "++++ Threads::ThreadController::SendCommand" << Ref << Cmd.GetPointerToUserData()->GetName() << "Channel" << m_CommandChannel.m_channelName << "Timeout" << Cmd.GetPointerToUserData()->GetTimeout() << "Thread" << this->thread();
 
     DoSendCommand(Ref, Cmd, m_CommandChannel);
     // return computed Ref
 }
-
-///****************************************************************************/
-//Global::tRefType ThreadController::SendCommand(const Global::CommandShPtr_t &Cmd) {
-//    // get new command ref
-//    Global::tRefType Ref = GetNewCommandRef();
-//    // send command using own command channel
-//    DoSendCommand(Ref, Cmd, m_CommandChannel);
-//    // return computed Ref
-//    return Ref;
-//}
 
 /****************************************************************************/
 void ThreadController::SendAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack)
@@ -122,7 +113,7 @@ void ThreadController::RegisterCommandExecuteFunctor(const QString &CommandName,
 {
     // check if already registered
     if(m_CommandExecuteFunctors.contains(CommandName)) {
-        THROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
     }
 
     qDebug() << "ThreadController::RegisterCommandExecuteFunctor" << CommandName;
@@ -153,34 +144,36 @@ CommandExecuteFunctorShPtr_t ThreadController::GetCommandExecuteFunctor(const QS
 // it will throw lots of 613 warnings when accessing Cmd, so we disable 613 for
 // this method. Remember that 613 is disabled forr all pointers in this function!
 /****************************************************************************/
-void ThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel) {
-    qDebug() << "ThreadController::OnExecuteCommand" << Ref << Cmd.GetPointerToUserData()->GetName();
+void ThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel)
+{
+//    qDebug() << "Threads::ThreadController::OnExecuteCommand" << Ref << Cmd.GetPointerToUserData()->GetName();
     Q_UNUSED(AckCommandChannel);
     try {
         if (IsCommandAllowed(Cmd))
         {
             // get command pointer
             if(Cmd.IsNull()) {
-                THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
+                LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
             }
-            SEND_DEBUG(WHEREAMI + " " +
-                       QString("Ref = ") + QString::number(Ref, 10) +
-                       QString("Name = ") + Cmd->GetName());
+//            SEND_DEBUG(WHEREAMI + " " +
+//                       QString("Ref = ") + QString::number(Ref, 10) +
+//                       QString("Name = ") + Cmd->GetName());
             // OK, now get functor and execute
             CommandExecuteFunctorShPtr_t Functor = GetCommandExecuteFunctor(Cmd->GetName());
             if(Functor == NullCommandExecuteFunctor) {
                 // throw exception
-                THROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName());
+                LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName());
+                qDebug()<<"ThreadController" << Cmd->GetName();
             }
             // execute
             Functor.GetPointerToUserData()->Execute(Ref, Cmd.GetPointerToUserData());
         }
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }

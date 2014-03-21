@@ -30,14 +30,7 @@
 #include "DeviceControl/Include/DeviceProcessing/ShutdownService.h"
 
 #include "DeviceControl/Include/Devices/FunctionModuleTaskManager.h"
-#include "DeviceControl/Include/Devices/AgitationDevice.h"
-#include "DeviceControl/Include/Devices/ExhaustDevice.h"
-#include "DeviceControl/Include/Devices/LoaderDevice.h"
 #include "DeviceControl/Include/Devices/OvenDevice.h"
-#include "DeviceControl/Include/Devices/GrapplerDevice.h"
-#include "DeviceControl/Include/Devices/WaterDevice.h"
-#include "DeviceControl/Include/Devices/HeatedVesselsDevice.h"
-#include "DeviceControl/Include/Devices/RackTransferDevice.h"
 
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 
@@ -53,66 +46,25 @@
 namespace DeviceControl
 {
 
-const QString CANObjectKeyLUT::m_DevAgitationKey = "AgitationDevice";
-const QString CANObjectKeyLUT::m_DevExhaustKey = "ExhaustDevice";
-const QString CANObjectKeyLUT::m_DevGrapplerKey = "GrapplerDevice";
-const QString CANObjectKeyLUT::m_DevHeatedVesselsKey = "HeatedVesselsDevice";
-const QString CANObjectKeyLUT::m_DevInclinometerKey = "InclinometerDevice";
-const QString CANObjectKeyLUT::m_DevLoaderKey = "LoaderDevice";
-const QString CANObjectKeyLUT::m_DevOvenKey = "OvenDevice";
-const QString CANObjectKeyLUT::m_DevRackTransferKey = "RackTransferDevice";
-const QString CANObjectKeyLUT::m_DevWaterKey = "WaterDevice";
-const QString CANObjectKeyLUT::m_DevRackHandlingKey = "RackHandlingDevice";
-const QString CANObjectKeyLUT::m_DevCoverlineKey = "CoverLineDevice";
-
-const QString CANObjectKeyLUT::m_MotorAgitationKey = "motor_agitation";
-const QString CANObjectKeyLUT::m_FlowSensorKey = "flow_sensor";
-const QString CANObjectKeyLUT::m_CurrentFan1Key = "current_fan1";
-const QString CANObjectKeyLUT::m_CurrentFan2Key = "current_fan2";
-const QString CANObjectKeyLUT::m_MotorXAxisKey = "motor_x_axis";
-const QString CANObjectKeyLUT::m_MotorYAxisKey = "motor_y_axis";
-const QString CANObjectKeyLUT::m_MotorZAxisKey = "motor_z_axis";
-const QString CANObjectKeyLUT::m_GrapplerRFIDKey = "grap_rfid_reader";
-const QString CANObjectKeyLUT::m_GrapplerLiquidLevelKey = "grap_liquid_level";
-const QString CANObjectKeyLUT::m_TempCtrlVessel1Key = "temp_ctrl1";
-const QString CANObjectKeyLUT::m_TempCtrlVessel2Key = "temp_ctrl2";
-const QString CANObjectKeyLUT::m_TempCtrlVessel3Key = "temp_ctrl3";
-const QString CANObjectKeyLUT::m_TempCtrlVessel4Key = "temp_ctrl4";
-const QString CANObjectKeyLUT::m_InclinometerKey = "inclinometer";
-const QString CANObjectKeyLUT::m_MotorDrawerKey = "motor_drawer";
-const QString CANObjectKeyLUT::m_DrawerRFIDKey = "rfid_drawer";
-const QString CANObjectKeyLUT::m_DrawerButtonKey = "diginp_button_drawer";
-const QString CANObjectKeyLUT::m_DrawerLEDFreeKey = "digout_led_free_drawer";
-const QString CANObjectKeyLUT::m_DrawerLEDBlockedKey = "digout_led_blocked_drawer";
-const QString CANObjectKeyLUT::m_OvenCoverMotorKey = "motor_oven_cover";
-const QString CANObjectKeyLUT::m_OvenTempCtrlKey = "temp_ctrl_oven";
-const QString CANObjectKeyLUT::m_RackTransferMotorKey = "motor_transfer";
-const QString CANObjectKeyLUT::m_WaterValve1Key = "water_valve1";
-const QString CANObjectKeyLUT::m_WaterValve2Key = "water_valve2";
-const QString CANObjectKeyLUT::m_WaterValve3Key = "water_valve3";
-const QString CANObjectKeyLUT::m_WaterValve4Key = "water_valve4";
-const QString CANObjectKeyLUT::m_WaterValve5Key = "water_valve5";
-const QString CANObjectKeyLUT::m_WaterValve6Key = "water_valve6";
-const QString CANObjectKeyLUT::m_WaterLiquidLevelKey = "collecting_tray_limit";
-const QString CANObjectKeyLUT::m_MotorCoverLineZAxisKey = "motor_cl_elevator";
-const QString CANObjectKeyLUT::m_MotorCoverLineSlideKey = "motor_cl_slide_shift";
-const QString CANObjectKeyLUT::m_MotorCoverLineNeedleKey = "motor_cl_needle";
-const QString CANObjectKeyLUT::m_MotorCoverLineClampKey = "motor_cl_slide_clamp";
-const QString CANObjectKeyLUT::m_MotorCoverSlipYKey = "motor_cl_coverslip_y_axis";
-const QString CANObjectKeyLUT::m_MotorCoverSlipZKey = "motor_cl_coverslip_z_axis";
-const QString CANObjectKeyLUT::m_MotorEDMPump = "motor_cl_edm_pump";
-const QString CANObjectKeyLUT::m_DigInpCoverLineSlideDetect = "diginp_cl_slide_detect";
-const QString CANObjectKeyLUT::m_DigInpEDMLevel = "diginp_cl_edm_level";
-const QString CANObjectKeyLUT::m_DigOutpVacuumPump = "digout_cl_vakuum_pump";
-const QString CANObjectKeyLUT::m_DigOutpVacuumValve1 = "digout_cl_vacuum_valve_1";
-const QString CANObjectKeyLUT::m_DigOutpVacuumValve2 = "digout_cl_vacuum_valve_2";
-const QString CANObjectKeyLUT::m_AnaInpPressureSensor = "anainp_cl_vacuum";
-const QString CANObjectKeyLUT::m_AnaInpHallSensor1 = "anainp_cl_hall";
-const QString CANObjectKeyLUT::m_MotorRackHdlXAxisKey = "motor_rackhdl_x_axis";
-const QString CANObjectKeyLUT::m_MotorRackHdlYAxisKey = "motor_rackhdl_y_axis";
-const QString CANObjectKeyLUT::m_MotorRackHdlZAxisKey = "motor_rackhdl_z_axis";
-const QString CANObjectKeyLUT::m_MotorRackHdlGrabberKey = "motor_rackhdl_grab";
-const QString CANObjectKeyLUT::m_HoodSensorKey = "hood_open_sensor";
+const QString CANObjectKeyLUT::m_RVMotorKey = "RV_motor";
+const QString CANObjectKeyLUT::m_RVTempCtrlKey = "RV_temp_ctrl";
+const QString CANObjectKeyLUT::m_ALPressureCtrlKey = "AL_pressure_ctrl";        //!< Air-liquid pressure control
+const QString CANObjectKeyLUT::m_ALLevelSensorTempCtrlKey = "AL_level_sensor_temp_ctrl"; //!< Air-liquid level sensor temp control
+const QString CANObjectKeyLUT::m_ALTube1TempCtrlKey = "AL_tube1_temp_ctrl";       //!< Air-liquid tube1 temp control
+const QString CANObjectKeyLUT::m_ALTube2TempCtrlKey = "AL_tube2_temp_ctrl";       //!< Air-liquid tube2 temp control
+//const QString CANObjectKeyLUT::m_ALFanDOKey= "AL_fan_digital_output";               //!< Air-liquid fan digital output
+const QString CANObjectKeyLUT::m_OvenTopTempCtrlKey = "OVEN_top_temp_ctrl";       //!< Oven top temp control
+const QString CANObjectKeyLUT::m_OvenBottomTempCtrlKey = "OVEN_bottom_temp_ctrl";    //!< Oven bottom temp control
+const QString CANObjectKeyLUT::m_OvenLidDIKey = "OVEN_lid_digital_input";            //!< Oven lid digital input
+const QString CANObjectKeyLUT::m_RetortBottomTempCtrlKey = "RETORT_bottom_temp_ctrl";  //!< Retort bottom temp control
+const QString CANObjectKeyLUT::m_RetortSideTempCtrlKey= "RETORT_side_temp_ctrl";    //!< Retort side temp control
+const QString CANObjectKeyLUT::m_RetortLockDOKey= "RETORT_lock_digital_output";          //!< Retort lock digital output
+const QString CANObjectKeyLUT::m_RetortLockDIKey= "RETORT_lock_digital_input";           //!< Retort lock digital input
+const QString CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey= "PER_remote_alarm_ctrl_digital_output";  //!< Miscellaneous remote alarm ctrl digital output
+const QString CANObjectKeyLUT::m_PerLocalAlarmCtrlDOKey= "PER_local_alarm_ctrl_digital_output";  //!< Miscellaneous remote alarm ctrl digital output
+//const QString CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey= "PER_remote_alarm_set_digital_output";   //!< Miscellaneous remote alarm set digital output
+//const QString CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey= "PER_remote_alarm_clear_digital_output";  //!< Miscellaneous remote alarm clear digital output
+const QString CANObjectKeyLUT::m_PerMainRelayDOKey= "PER_main_relay_digital_output";     //!< Miscellaneous heater relay digital output
 
 //QString DeviceProcessing::m_HWConfigFileName = "hw_specification_sepia.xml";
 QString DeviceProcessing::m_HWConfigFileName = "hw_specification.xml";
@@ -160,7 +112,12 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     m_LastErrorData = 0;
 
     m_MainState = DP_MAIN_STATE_INTERNAL_CONFIG;
-
+#ifdef HAL_CV_TEST
+    for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
+    {
+        m_EventLoopsForSyncCall[i].timerActive = false;
+    }
+#endif
     //Heartbeat timer initialization
     if (ftime(&m_tbTimerHeartbeatTime) != 0) {
         FILE_LOG_L(laINIT, llERROR) << " ftime failed.";
@@ -188,10 +145,11 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
     //Setup communication interface, usually CAN, for test purpose TCP
     retCode = InitCommunication();
     if (retCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << retCode << "!";
+        FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << retCode << "!"; //lint !e641
         return;
     }
-}
+
+} //lint !e1566
 
 /****************************************************************************/
 /*!
@@ -205,6 +163,11 @@ DeviceProcessing::~DeviceProcessing()
         while (!m_lstTasks.isEmpty()) {
             delete m_lstTasks.takeFirst();
         }
+        while (!m_ObjectTree.isEmpty())
+        {
+            delete m_ObjectTree.takeFirst();
+        }
+
         while (!m_DeviceList.isEmpty()) {
             delete m_DeviceList.takeFirst();
         }
@@ -213,6 +176,10 @@ DeviceProcessing::~DeviceProcessing()
     {
         return;
     }
+}
+void DeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
+{
+    ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -251,15 +218,14 @@ void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup
  *  \iparam ErrorTime  = Time of error detection
  */
 /****************************************************************************/
-#if 0
 void DeviceProcessing::ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID,
                                   quint16 ErrorData, QDateTime ErrorTime)
 {
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
-#endif
+
 /****************************************************************************/
 /*!
  *  \brief  Forwards the error information from a function module to IDeviceProcessing
@@ -282,7 +248,8 @@ void DeviceProcessing::ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup
 
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    //emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -306,7 +273,6 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
         if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
         {
             retCode = InitCANMessages();
-#if 0 //merged on 2014.2.17
             if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
             {
                 retCode = ReadProcessSettings();
@@ -315,7 +281,6 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
             {
                 m_LastErrorGroup = EVENT_GRP_DCL_CONFIGURATION;
             }
-#endif //merged on 2014.2.17
         }
         else
         {
@@ -923,16 +888,19 @@ ReturnCode_t DeviceProcessing::InitCommunication()
  */
 /****************************************************************************/
 void DeviceProcessing::HandleTasks()
-{
+{ 
+/*
     struct timeval tv_end;
     struct timeval tv_start;
+    static quint32 RunThruCounter = 0;
     bool PerformanceCheck = false;
+*/
 
     static quint16 stTest = 0;
-    static quint32 RunThruCounter = 0;
     static DeviceProcTask* pActiveTask = NULL;
     static DeviceProcTask::TaskID_t stTaskID = DeviceProcTask::TASK_ID_DP_UNDEF;
 
+/*
     //Performance check initialisation
     if (PerformanceCheck)
     {
@@ -942,7 +910,7 @@ void DeviceProcessing::HandleTasks()
             FILE_LOG_L(laDEVPROC, llERROR) << " Perfomance check failed!";
         }
     }
-
+*/
     pActiveTask = GetActiveTask(pActiveTask);
     if((pActiveTask != 0) && (stTaskID != pActiveTask->m_taskID))
     {
@@ -1083,11 +1051,11 @@ void DeviceProcessing::HandleTasks()
         QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
+        ThrowError(0, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
-
+/*
     if(PerformanceCheck)
     {
         if(gettimeofday(&tv_end, 0) != 0)
@@ -1109,7 +1077,7 @@ void DeviceProcessing::HandleTasks()
             }
         }
     }
-
+*/
     if (m_MainState != DP_MAIN_STATE_ERROR) {
         CheckMasterHeartbeat();
     }
@@ -1184,7 +1152,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
                 bool NonIdleFound = false;
 
                 HandleCANNodesTask();
-                //HandleDevicesTask(); //merged on 2014.2.17
+                HandleDevicesTask();
 
                 while (iter.hasNext())
                 {
@@ -1213,8 +1181,21 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished";
             if(m_pConfigurationService != NULL)
             {
-                m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
-                if(m_pConfigurationService->ConfigurationComplete() == true) {
+                if(m_pConfigurationService->ConfigurationComplete() == true)
+                {
+                    //register BaseModule's error
+                    QListIterator<CBaseModule *> iter(m_ObjectTree);
+                    CBaseModule* pCANNode;
+                    while (iter.hasNext())
+                    {
+                        pCANNode = iter.next();
+                        bool b = connect(pCANNode, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)), this, SLOT(OnError(quint32, quint16, quint16,quint16, QDateTime)));
+                        if(!b)
+                        {
+                            LOG() << "Connect error signal failed!" << pCANNode->GetNodeID();
+                        }
+                    }
+
                     emit ReportConfigurationFinished(DCL_ERR_FCT_CALL_SUCCESS);
                 }
                 else
@@ -1225,7 +1206,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             m_SubStateConfig = DP_SUB_STATE_CONFIG_FINISHED;
             TaskFinished(pActiveTask);
             //m_MainState = DP_MAIN_STATE_WAIT_FOR_ADJUST;
-            //m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
+            m_MainState = DP_MAIN_STATE_IDLE;
             break;
         case (DP_SUB_STATE_CONFIG_ERROR):
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished with error";
@@ -1256,7 +1237,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
+        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
 
         return;
     }
@@ -1264,7 +1245,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_RUN)
     {
         HandleCANNodesTask();
-        //HandleDevicesTask(); //merged on 2014.2.17
+        HandleDevicesTask();
     }
     else if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_START)
     {
@@ -1274,7 +1255,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
     else if(m_SubStateNormalOp == DP_SUB_STATE_NORMAL_OP_CONFIG)
     {
         HandleCANNodesTask();
-        //HandleDevicesTask(); //merged on 2014.2.17
+        HandleDevicesTask();
         m_SubStateNormalOp = DP_SUB_STATE_NORMAL_OP_RUN;
         emit ReportStartNormalOperationMode(DCL_ERR_FCT_CALL_SUCCESS);
     }
@@ -1317,7 +1298,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
         QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
+        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1453,21 +1434,18 @@ void DeviceProcessing::RegisterMetaTypes()
 {
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<NodeState_t>("NodeState_t");
-    qRegisterMetaType<EmergencyStopReason_t>("EmergencyStopReason_t");
-    qRegisterMetaType<PowerState_t>("PowerState_t");
-    qRegisterMetaType<TestResult_t>("TestResult_t");
-    qRegisterMetaType<BlockState_t>("BlockState_t");
-    qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
-    qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
-    qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
-    qRegisterMetaType<AgitationSpeed_t>("AgitationSpeed_t");
-    qRegisterMetaType<WaterValveID_t>("WaterValveID_t");
-    qRegisterMetaType<OvenCoverPosition_t>("OvenCoverPosition_t");
+    //qRegisterMetaType<BlockState_t>("BlockState_t");
+    //qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
+    //qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
+    //qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
+    //qRegisterMetaType<AgitationSpeed_t>("AgitationSpeed_t");
+    //qRegisterMetaType<WaterValveID_t>("WaterValveID_t");
+    //qRegisterMetaType<OvenCoverPosition_t>("OvenCoverPosition_t");
     qRegisterMetaType<TempCtrlStatus_t>("TempCtrlStatus_t");
     qRegisterMetaType<TempCtrlOperatingMode_t>("TempCtrlOperatingMode_t");
     qRegisterMetaType<TempCtrlMainsVoltage_t>("TempCtrlMainsVoltage_t");
-    qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
-    qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
+    //qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
+    //qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
 }
 
 /****************************************************************************/
@@ -1562,7 +1540,7 @@ void DeviceProcessing::CheckMasterHeartbeat()
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
                 QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                ThrowError(DEVICE_INSTANCE_ID_DEVPROC, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
+                ThrowError(0, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
             }
         }
     }
@@ -1874,7 +1852,8 @@ void DeviceProcessing::Initialize()
 CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 {
     QListIterator<CBaseDevice*> iter(m_DeviceList);
-    CBaseDevice* pDevice = NULL;
+    CBaseDevice* pDevice;
+    CBaseDevice* pDeviceRet = NULL;
 
     while (iter.hasNext())
     {
@@ -1882,11 +1861,12 @@ CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 
         if(pDevice->GetInstanceID() == InstanceID)
         {
+            pDeviceRet = pDevice;
             break;
         }
     }
 
-    return pDevice;
+    return pDeviceRet;
 }
 
 /****************************************************************************/
@@ -2040,8 +2020,10 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
     quint16 canNodeID;
     quint8 channel;
 
-    canNodeID = ((quint16)(0x0fff & ((quint16)InstanceID)));
-    channel = ((quint8)((0x000ff000 & InstanceID) >> 12));
+    //canNodeID = ((quint16)(0x0fff & ((quint16)InstanceID)));
+    //channel = ((quint8)((0x000ff000 & InstanceID) >> 12));
+    canNodeID = ((quint16)(0xff & (InstanceID)));
+    channel = ((quint8)((0x000ff0000 & InstanceID) >> 16));
 
     pCANNode = GetNodeFromID(canNodeID);
     if(pCANNode)
@@ -2052,6 +2034,69 @@ CFunctionModule* DeviceProcessing::GetFunctionModule(quint32 InstanceID) const
     return pfctModule;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Returns the base module with the specified instance ID
+ *
+ *  \iparam InstanceID = InstanceID of the fucntion module which belong to the
+ *                       base module
+ *
+ *  \return The CBaseModule* matches the key
+ */
+/****************************************************************************/
+CBaseModule* DeviceProcessing::GetBaseModule(quint32 InstanceID) const
+{
+    CBaseModule* pCANNode = 0;
+    quint16 canNodeID;
+
+    //canNodeID = ((quint16)(0x0fff & ((quint16)InstanceID)));
+    canNodeID = ((quint16)(0xff & (InstanceID)));
+    pCANNode = GetNodeFromID(canNodeID);
+
+    return pCANNode;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Returns if the function module has been detetcted and configured via CAN
+ *
+ *  \iparam InstanceID = InstanceID of the requested fucntion module
+ *
+ *  \return True if the function module exist, else not.
+ */
+/****************************************************************************/
+bool DeviceProcessing::CheckFunctionModuleExistence(quint32 InstanceID)
+{
+    CBaseModule* pCANNode;
+    CFunctionModule* pFctModuleBase;
+    pCANNode = this->GetCANNodeFromObjectTree(true);
+    quint16 canNodeID = ((quint16)(0xff & (InstanceID)));
+    quint8 channel = ((quint8)((0x000ff0000 & InstanceID) >> 16));
+
+    while(pCANNode)
+    {
+        CBaseModule::CANNodeMainState_t nodeState = pCANNode->GetMainState();
+        if (nodeState != CBaseModule::CN_MAIN_STATE_IDLE)
+        {
+            pCANNode = this->GetCANNodeFromObjectTree(false);
+            continue;
+        }
+        if(pCANNode->GetNodeID() == canNodeID)
+        {
+            pFctModuleBase = pCANNode->GetFunctionModuleFromList(0);
+            while (pFctModuleBase)
+            {
+                if(pFctModuleBase->GetChannelNo() == channel)
+                {
+                    return true;
+                }
+                pFctModuleBase = pCANNode->GetFunctionModuleFromList(pFctModuleBase);
+            }
+        }
+        pCANNode = this->GetCANNodeFromObjectTree(false);
+    }
+    return false;
+}
 /****************************************************************************/
 /*!
  *  \brief  Set the specified error parameters and error time to current time
@@ -2069,4 +2114,171 @@ void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, 
     m_LastErrorData  = ErrorData;
 }
 
+#ifdef HAL_CV_TEST
+/****************************************************************************/
+/*!
+ *  \brief  Block caller's current thread with specified type
+ *
+ *  \iparam CmdType = Command type to block the thread
+ */
+/****************************************************************************/
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
+{
+    ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
+    if(!m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    {
+        retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
+    }
+    return retValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Resume blocked thread with specified type
+ *
+ *  \iparam CmdType = Command type to unblock the thread
+ */
+/****************************************************************************/
+void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType, ReturnCode_t Value)
+{
+    if(m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+    {
+        m_EventLoopsForSyncCall[CmdType].eventloop.exit(Value);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Block caller's current thread with specified type and timeout
+ *
+ *  \iparam CmdType = Command type to block the thread
+ *  \iparam Timeout = Timeout for the command
+ */
+/****************************************************************************/
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
+{
+        ReturnCode_t retValue = DCL_ERR_SNYC_CALL_BUSY;
+
+        if(!m_EventLoopsForSyncCall[CmdType].eventloop.isRunning())
+        {
+            QTimer timer;
+            timer.setSingleShot(true);
+            connect(&timer, SIGNAL(timeout()), this, SLOT(BlockingTimerCallback()));
+            qint64 Before = QDateTime::currentMSecsSinceEpoch();
+            m_EventLoopsForSyncCall[CmdType].timerActive = true;
+            m_EventLoopsForSyncCall[CmdType].endTime = Before + Timeout;
+
+            timer.start((qint32)Timeout);
+            //LOG()<<Before<<"timer start"<<CmdType<<"timer in"<<timer.interval();
+            retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
+        }
+        return retValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Timer callback for BlockingForSyncCall
+ */
+/****************************************************************************/
+void DeviceProcessing::BlockingTimerCallback()
+{
+    for(quint32 i = 0; i< SYNC_CMD_TOTAL_NUM; i++)
+    {
+        if(m_EventLoopsForSyncCall[i].timerActive)
+        {
+            //qint64 Now = QDateTime::currentMSecsSinceEpoch();
+            //if(Now >= m_EventLoopsForSyncCall[i].endTime)
+            {
+                m_EventLoopsForSyncCall[i].timerActive = false;
+                m_EventLoopsForSyncCall[i].eventloop.exit(DCL_ERR_TIMER_TIMEOUT);
+                //LOG()<<Now<<"timer end"<<i<<"llll:"<<(Now - m_EventLoopsForSyncCall[i].endTime);
+            }
+        }
+    }
+}
+#else
+
+/****************************************************************************/
+/*!
+ *  \brief  Block caller's current thread with specified type and timeout
+ *
+ *  \iparam CmdType = Command type to block the thread
+ *  \iparam Timeout = Timeout for the command
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
+ */
+/****************************************************************************/
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout)
+{
+    ReturnCode_t retValue;
+    // LOG() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    if(CmdType < SYNC_CMD_TOTAL_NUM) //lint !e641
+    {
+        m_Mutex[CmdType].lock();
+        if(m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType], Timeout))
+        {
+            retValue = m_SyncCallResult[CmdType];
+        }
+        else
+        {
+            retValue = DCL_ERR_TIMER_TIMEOUT;
+        }
+        m_Mutex[CmdType].unlock();
+    }
+    else
+    {
+        retValue = DCL_ERR_INVALID_PARAM;
+    }
+    // LOG() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    return retValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Resume blocked thread with specified type
+ *
+ *  \iparam CmdType = Command type to unblock the thread
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
+ */
+/****************************************************************************/
+
+ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType)
+{
+    ReturnCode_t retValue;
+   // LOG() << "Device Processing: WaitCondition: Wait Before: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    if(CmdType < SYNC_CMD_TOTAL_NUM) //lint !e641
+    {
+        m_Mutex[CmdType].lock();
+        (void)m_WaitConditionForSyncCall[CmdType].wait(&m_Mutex[CmdType]);
+        retValue = m_SyncCallResult[CmdType];
+        m_Mutex[CmdType].unlock();
+    }
+    else
+    {
+         retValue = DCL_ERR_INVALID_PARAM;
+    }
+   // LOG() << "Device Processing: WaitCondition: Wait After: CMD"<< CmdType<<" ThreadID: "<< QThread::currentThreadId()<<" Time: "<<QDateTime::currentDateTime().toMSecsSinceEpoch();
+    return retValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Resume blocked thread with specified type
+ *
+ *  \iparam CmdType = Command type to unblock the thread
+ *  \iparam RetCode = Return value for the blocking caller
+ */
+/****************************************************************************/
+void DeviceProcessing::ResumeFromSyncCall(SyncCmdType_t CmdType,  ReturnCode_t RetCode)
+{
+    if(CmdType < SYNC_CMD_TOTAL_NUM)  //lint !e641
+    {
+        m_Mutex[CmdType].lock();
+        m_WaitConditionForSyncCall[CmdType].wakeAll();
+        m_SyncCallResult[CmdType] = RetCode;
+        m_Mutex[CmdType].unlock();
+    }
+}
+#endif
 } //namespace

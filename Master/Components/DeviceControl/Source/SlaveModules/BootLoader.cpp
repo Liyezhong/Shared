@@ -23,7 +23,7 @@
  */
 /****************************************************************************/
 
-#include "FunctionModules/ModuleIDs.h"
+#include "DeviceControl/Include/SlaveModules/ModuleIDs.h"
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include "DeviceControl/Include/SlaveModules/BootLoader.h"
@@ -49,9 +49,14 @@ const quint32 CBootLoader::m_Crc32InitialValue = 0xFFFFFFFF;
 /****************************************************************************/
 CBootLoader::CBootLoader(const CANMessageConfiguration *p_CanMsgConfig, const quint32 CanNodeId,
                          DeviceControl::CANCommunicator *p_CanCommunicator, DeviceControl::CBaseModule *p_BaseModule) :
-    mp_CanCommunicator(p_CanCommunicator), mp_BaseModule(p_BaseModule), m_UpdateRequired(false),
-    m_WaitForUpdate(false), m_UpdateType(0), mp_Info(NULL), m_InfoSize(0), m_State(BOOTLOADER_IDLE), m_Count(0)
+    mp_CanCommunicator(p_CanCommunicator), mp_BaseModule(p_BaseModule),
+    m_UpdateRequired(false), mp_Info(NULL), m_State(IDLE), m_UpdateType(0), m_InfoSize(0),m_Count(0)
 {
+#ifdef SLAVE_UPDATER
+    m_WaitForUpdate = true;
+#else
+    m_WaitForUpdate = false;
+#endif
     if (p_CanMsgConfig == NULL) {
         THROW(EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR);
     }
@@ -128,11 +133,8 @@ ReturnCode_t CBootLoader::UpdateFirmware(const QString &FirmwarePath)
 {
     QMutexLocker Locker(&m_Mutex);
 
-    if (m_State != BOOTLOADER_ACTIVE) {
+    if (m_State == FIRMWARE || m_State == INFO) {
         return DCL_ERR_INVALID_STATE;
-    }
-    if (FirmwarePath.isNull() || FirmwarePath.isEmpty()) {
-        return DCL_ERR_INVALID_PARAM;
     }
 
     m_FirmwareImage.setFileName(FirmwarePath);
@@ -140,40 +142,10 @@ ReturnCode_t CBootLoader::UpdateFirmware(const QString &FirmwarePath)
         return DCL_ERR_INVALID_PARAM;
     }
 
-    m_WaitForUpdate = true;
-    m_State = BOOTLOADER_FIRMWARE;
+    SetState(FIRMWARE);
     m_Timer.start();
 
     return SendModeRequest(1);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  This initiates a firmware update
- *
- *  \iparam BootLoaderPath = The path to the boot loader image file
- *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed
- *          in transmit queue, otherwise the return code from SendCOB(..)
- */
-/****************************************************************************/
-ReturnCode_t CBootLoader::UpdateBootLoader(const QString &BootLoaderPath)
-{
-    QMutexLocker Locker(&m_Mutex);
-
-    if (m_State != BOOTLOADER_IDLE) {
-        return DCL_ERR_INVALID_STATE;
-    }
-
-    m_FirmwareImage.setFileName(BootLoaderPath);
-    if (m_FirmwareImage.open(QIODevice::ReadOnly) == false) {
-        return DCL_ERR_INVALID_PARAM;
-    }
-
-    m_State = BOOTLOADER_BOOTLOADER;
-    m_Timer.start();
-
-    return SendHeader();
 }
 
 /****************************************************************************/
@@ -206,24 +178,14 @@ ReturnCode_t CBootLoader::BootFirmware()
 {
     QMutexLocker Locker(&m_Mutex);
 
-    m_WaitForUpdate = false;
-
     if (m_UpdateRequired == false) {
-        return DCL_ERR_FCT_CALL_SUCCESS;
+        ReturnCode_t Result = SendModeRequest(false);
+        if (Result == DCL_ERR_FCT_CALL_SUCCESS) {
+            SetState(IDLE);
+        }
+        return Result;
     }
-    return DCL_ERR_INVALID_STATE;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Returns if the boot loader is currently started
- *
- *  \return Active (true) or not (false)
- */
-/****************************************************************************/
-bool CBootLoader::Active() const
-{
-    return (m_State != BOOTLOADER_IDLE && m_State != BOOTLOADER_BOOTLOADER);
+    return (DCL_ERR_INVALID_STATE);
 }
 
 /****************************************************************************/
@@ -273,7 +235,7 @@ ReturnCode_t CBootLoader::UpdateInfo(const quint8 *p_Info, quint32 Size, quint8 
         return DCL_ERR_INVALID_PARAM;
     }
 
-    if (m_State != BOOTLOADER_ACTIVE) {
+    if (m_State == FIRMWARE || m_State == INFO) {
         return DCL_ERR_INVALID_STATE;
     }
 
@@ -291,7 +253,7 @@ ReturnCode_t CBootLoader::UpdateInfo(const quint8 *p_Info, quint32 Size, quint8 
         quint32 Crc32 = CalculateCrc(mp_Info, Size-4);
         *((quint32*)(mp_Info + Size - 4)) = Crc32;
 
-        m_State = BOOTLOADER_INFO;
+        SetState(INFO);
         m_Timer.start();
 
         return SendModeRequest(1);
@@ -352,33 +314,6 @@ ReturnCode_t CBootLoader::SendModeRequest(bool StartUpdate)
     CanMsg.can_id = m_CanIdUpdateModeRequest;
     CanMsg.can_dlc = 1;
     CanMsg.data[0] = StartUpdate;
-
-    return mp_CanCommunicator->SendCOB(CanMsg);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Sends an update header message to the node
- *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the CAN message was successful placed
- *          in transmit queue, otherwise the return code from SendCOB(..)
- */
-/****************************************************************************/
-ReturnCode_t CBootLoader::SendHeader()
-{
-    can_frame CanMsg;
-    quint32 FirmwareSize = m_FirmwareImage.size();
-
-    CanMsg.can_id = m_CanIdUpdateHeader;
-    CanMsg.can_dlc = 8;
-    CanMsg.data[0] = FirmwareSize >> 24;
-    CanMsg.data[1] = FirmwareSize >> 16;
-    CanMsg.data[2] = FirmwareSize >> 8;
-    CanMsg.data[3] = FirmwareSize;
-    CanMsg.data[4] = 0;
-    CanMsg.data[5] = 0;
-    CanMsg.data[6] = 0;
-    CanMsg.data[7] = 0;
 
     return mp_CanCommunicator->SendCOB(CanMsg);
 }
@@ -449,21 +384,13 @@ void CBootLoader::HandleCanMessage(const can_frame *p_CanFrame)
     }
 
     if (ReturnCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        m_Timer.stop();
-        if (m_State == BOOTLOADER_FIRMWARE) {
-            m_State = BOOTLOADER_ACTIVE;
-            m_FirmwareImage.close();
-            emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), ReturnCode);
+        if (m_State == FIRMWARE) {
+            emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_FAILED);
         }
-        else if (m_State == BOOTLOADER_INFO) {
-            m_State = BOOTLOADER_ACTIVE;
-            emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), ReturnCode);
+        else if (m_State == INFO) {
+            emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_FAILED);
         }
-        else if (m_State == BOOTLOADER_BOOTLOADER) {
-            m_State = BOOTLOADER_IDLE;
-            m_FirmwareImage.close();
-            emit ReportUpdateBootLoader(mp_BaseModule->GetModuleHandle(), ReturnCode);
-        }
+        SetState(ACTIVE);
     }
 
     if (m_Timer.isActive() == true) {
@@ -473,11 +400,26 @@ void CBootLoader::HandleCanMessage(const can_frame *p_CanFrame)
 
 /****************************************************************************/
 /*!
+ *  \brief  Sets the main state of this module
+ *
+ *  \iparam State = The new state
+ */
+/****************************************************************************/
+void CBootLoader::SetState(State_t State)
+{
+    if (State != m_State) {
+        m_State = State;
+        mp_BaseModule->BootLoaderUpdate(State);
+    }
+}
+
+/****************************************************************************/
+/*!
  *  \brief  Handle the reception of a update required message
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame)
@@ -486,17 +428,13 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame
 
     if (p_CanFrame->can_dlc == 5) {
         m_UpdateRequired = p_CanFrame->data[0];
-//        m_UpdateRequired = true;
 
-        if (m_State != BOOTLOADER_FIRMWARE && m_State != BOOTLOADER_INFO) {
-            if (!m_UpdateRequired && !m_WaitForUpdate) {
-                m_State = BOOTLOADER_IDLE;
-                ReturnCode = SendModeRequest(0);
-            }
-            else  {
-                m_State = BOOTLOADER_ACTIVE;
-                m_Timer.start();
-            }
+        if (!m_UpdateRequired && !m_WaitForUpdate) {
+            SetState(IDLE);
+            ReturnCode = SendModeRequest(0);
+        }
+        else {
+            SetState(ACTIVE);
         }
     }
     else {
@@ -512,7 +450,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateRequired(const can_frame *p_CanFrame
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame)
@@ -520,10 +458,24 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame)
     ReturnCode_t ReturnCode = DCL_ERR_FCT_CALL_SUCCESS;
 
     if (p_CanFrame->can_dlc == 0) {
-        if (m_State == BOOTLOADER_FIRMWARE) {
-            ReturnCode = SendHeader();
+        if (m_State == FIRMWARE) {
+            can_frame CanMsg;
+            quint32 FirmwareSize = m_FirmwareImage.size();
+
+            CanMsg.can_id = m_CanIdUpdateHeader;
+            CanMsg.can_dlc = 8;
+            CanMsg.data[0] = FirmwareSize >> 24;
+            CanMsg.data[1] = FirmwareSize >> 16;
+            CanMsg.data[2] = FirmwareSize >> 8;
+            CanMsg.data[3] = FirmwareSize;
+            CanMsg.data[4] = 0;
+            CanMsg.data[5] = 0;
+            CanMsg.data[6] = 0;
+            CanMsg.data[7] = 0;
+
+            ReturnCode = mp_CanCommunicator->SendCOB(CanMsg);
         }
-        else if (m_State == BOOTLOADER_INFO) {
+        else if (m_State == INFO) {
             can_frame CanMsg;
 
             CanMsg.can_id = m_CanIdUpdateInfoInit;
@@ -553,7 +505,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame)
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateHeaderAck(const can_frame *p_CanFrame)
@@ -587,7 +539,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateHeaderAck(const can_frame *p_CanFram
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateAck(const can_frame *p_CanFrame)
@@ -651,7 +603,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateAck(const can_frame *p_CanFrame)
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateTrailerAck(const can_frame *p_CanFrame)
@@ -659,17 +611,11 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateTrailerAck(const can_frame *p_CanFra
     ReturnCode_t ReturnCode = DCL_ERR_FCT_CALL_SUCCESS;
 
     if (p_CanFrame->can_dlc == 1) {
+        SetState(ACTIVE);
         if (p_CanFrame->data[0] == 0) {
             m_UpdateRequired = false;
             m_Timer.stop();
-            if (m_State == BOOTLOADER_BOOTLOADER) {
-                m_State = BOOTLOADER_IDLE;
-                emit ReportUpdateBootLoader(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
-            }
-            else {
-                m_State = BOOTLOADER_ACTIVE;
-                emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
-            }
+            emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
         }
         else {
             ReturnCode = DCL_ERR_INTERNAL_ERR;
@@ -689,23 +635,8 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateTrailerAck(const can_frame *p_CanFra
 /****************************************************************************/
 void CBootLoader::TimeoutHandler()
 {
-    if (m_State == BOOTLOADER_ACTIVE) {
-        m_State = BOOTLOADER_IDLE;
-    }
-    if (m_State == BOOTLOADER_FIRMWARE) {
-        m_State = BOOTLOADER_ACTIVE;
-        m_FirmwareImage.close();
-        emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
-    }
-    else if (m_State == BOOTLOADER_INFO) {
-        m_State = BOOTLOADER_ACTIVE;
-        emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
-    }
-    else if (m_State == BOOTLOADER_BOOTLOADER) {
-        m_State = BOOTLOADER_IDLE;
-        m_FirmwareImage.close();
-        emit ReportUpdateBootLoader(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
-    }
+    SetState(ACTIVE);
+    emit ReportUpdateFirmware(mp_BaseModule->GetModuleHandle(), DCL_ERR_TIMEOUT);
 }
 
 /****************************************************************************/
@@ -714,7 +645,7 @@ void CBootLoader::TimeoutHandler()
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoInitAck(const can_frame *p_CanFrame)
@@ -745,7 +676,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoInitAck(const can_frame *p_CanFr
  *
  *  \iparam p_CanFrame = The data of the received CAN message
  *
- *  \return Device control layer return code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoAck(const can_frame *p_CanFrame)
@@ -766,7 +697,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoAck(const can_frame *p_CanFrame)
     // Check if CRC failed or not
     else if (p_CanFrame->can_dlc == 1) {
         delete[] mp_Info;
-        m_State = BOOTLOADER_ACTIVE;
+        SetState(ACTIVE);
         if (p_CanFrame->data[0] == 0) {
             emit ReportUpdateInfo(mp_BaseModule->GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS);
         }

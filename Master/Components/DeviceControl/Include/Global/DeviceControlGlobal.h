@@ -33,6 +33,9 @@
 
 namespace DeviceControl
 {
+#define UNDEFINED_1_BYTE    (0xFF)
+#define UNDEFINED_2_BYTE    (0xFFFF)
+#define UNDEFINED_4_BYTE    (0xFFFFFFFF)
 
 //****************************************************************************/
 // Module constants
@@ -43,7 +46,6 @@ namespace DeviceControl
 #define CAN_NODE_TIMEOUT_CONFIG_RECEIVE         3000  //!< Timeout configuration procedure
 #define CAN_NODE_TIMEOUT_CONFIG_FCT_MODULES     3000  //!< Timeout function module configuration procedure
 #define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE      5000  //!< Timeout heartbeat failure
-#define CAN_NODE_TIMEOUT_HEARTBEAT_FAILURE_DBG  60*60*1000  //!< Timeout heartbeat failure (for debug build)
 #define CAN_NODE_TIMEOUT_SETINITOPDATA           500  //!< Timeout setting initial operation data
 #define CAN_NODE_TIMEOUT_DATA_REQ                500  //!< Timeout for several requests with data transfer
 #define CAN_NODE_TIMEOUT_MEMORY_OPERATION       1000  //!< Timeout for memory operation, eg. reset or format partition
@@ -72,8 +74,7 @@ namespace DeviceControl
 #define CAN_TEMPCTRL_TIMEOUT_OPMODE_SET_REQ      400  //!< Timeout set request
 // operation mode req timeouts
 #define CAN_TEMPCTRL_TIMEOUT_ACTOPMODE_REQ       400  //!< Timeout read request
-
-#ifdef PRE_ALFA_TEST
+// temperature req timeouts
 #define CAN_PRESSURECTRL_TIMEOUT_TEMP_SET_ACK        400  //!< Timeout set request
 // temperature req timeouts
 #define CAN_PRESSURECTRL_TIMEOUT_ACTTEMP_REQ         400  //!< Timeout read request
@@ -86,7 +87,6 @@ namespace DeviceControl
 // operation mode req timeouts
 #define CAN_PRESSURECTRL_TIMEOUT_ACTOPMODE_REQ       400  //!< Timeout read request
 
-#endif
 
 // stepper motor timeouts
 #define CAN_STEPPERMOTOR_TIMEOUT_SET_STATE      1000  //!< Timeout SetState
@@ -117,8 +117,70 @@ namespace DeviceControl
 
 
 //*****************************************************************************/
-// Module type definitions
+// Event code definitions
 //*****************************************************************************/
+#define EVENT_SOURCE_DEV_ROTARY_VALVE      0x01      //!< Event Source: Rotary valve device
+#define EVENT_SOURCE_DEV_AIR_LIQUID        0x02      //!< Event Source: Air-liquid device
+#define EVENT_SOURCE_DEV_RETORT            0x03      //!< Event Source: Retort device
+#define EVENT_SOURCE_DEV_OVEN              0x04      //!< Event Source: Oven device
+#define EVENT_SOURCE_DEV_MAIN_CTRL         0x05      //!< Event Source: Main control device
+#define EVENT_SOURCE_DEV_INTERFACE         0x06      //!< Event Source: Device control interface
+#define EVENT_SOURCE_FM_TEMP_CTRL          0x10      //!< Event Source: Temperature control function module
+#define EVENT_SOURCE_FM_PRESSURE_CTRL      0x11      //!< Event Source: Pressure control function module
+#define EVENT_SOURCE_FM_STEPPER_MOTOR      0x12      //!< Event Source: Stepper motor function module
+#define EVENT_SOURCE_FM_DIGITAL_INPUT      0x13      //!< Event Source: Digital input function module
+#define EVENT_SOURCE_FM_DIGITAL_OUTPUT     0x14      //!< Event Source: Digital output function module
+#define EVENT_SOURCE_FM_ANALOG_INPUT       0x15      //!< Event Source: Analog input function module
+#define EVENT_SOURCE_FM_ANALOG_OUTPUT      0x16      //!< Event Source: Analog output function module
+
+#define EVENT_FUNC_SET_TEMP_CTRL_STATE       0x01    //!< Event Function: Set temperature control state
+#define EVENT_FUNC_SET_TEMP_PID              0x02    //!< Event Function: Set temperature control PID parameter
+#define EVENT_FUNC_START_TEMP_CTRL           0x03    //!< Event Function: Start temperature control
+#define EVENT_FUNC_GET_TEMP                  0x04    //!< Event Function: Get temperature
+#define EVENT_FUNC_GET_TEMP_CTRL_STATE       0x05    //!< Event Function: Get temperature control state
+#define EVENT_FUNC_PRESSURE_PROCEDURE        0x0A    //!< Event Function: Pressure procedure
+#define EVENT_FUNC_VACCUM_PROCEDURE          0x0B    //!< Event Function: Vaccum procedure
+#define EVENT_FUNC_FILLING_PROCEDURE         0x0C    //!< Event Function: Filling procedure
+#define EVENT_FUNC_DRAINING_PROCEDURE        0x0D    //!< Event Function: Draining procedure
+#define EVENT_FUNC_SET_PRESSURE              0x0E    //!< Event Function: Set pressure
+#define EVENT_FUNC_GET_PRESSURE              0x0F    //!< Event Function: Get pressure
+#define EVENT_FUNC_SET_PRESSURE_CTRL_STATE   0x10    //!< Event Function: Set pressure control state
+#define EVENT_FUNC_RELEASE_PRESSURE          0x11    //!< Event Function: Release pressure
+#define EVENT_FUNC_FAN_OPERATION             0x12    //!< Event Function: Fan operation
+#define EVENT_FUNC_ALL_STOP                  0x13    //!< Event Function: Stop all operation
+#define EVENT_FUNC_SET_PRESSURE_DRIFT        0x14    //!< Event Function: Set pressure drift
+#define EVENT_FUNC_GET_PRESSURE_DRIFT        0x15    //!< Event Function: Get pressure drift
+#define EVENT_FUNC_BOTTLE_CHECK              0x16    //!< Event Function: Bottle check
+#define EVENT_FUNC_LEVEL_SENSOR_STATE        0x17    //!< Event Function: Level sensor new state
+#define EVENT_FUNC_MOVE_TO_INIT_POS          0x1A    //!< Event Function: Move to initial position
+#define EVENT_FUNC_MOVE_TO_RV_POS            0x1B    //!< Event Function: Move to rotary valve position
+#define EVENT_FUNC_GET_RV_POS                0x1C    //!< Event Function: Get rotary valve position
+#define EVENT_FUNC_REF_RUN                   0x1D    //!< Event Function: Reference run
+#define EVENT_FUNC_SET_LOCK_STATUS           0x20    //!< Event Function: Get lock status
+#define EVENT_FUNC_GET_LOCK_STATUS           0x21    //!< Event Function: Set lock status
+#define EVENT_FUNC_SET_MAIN_RELAY_STATUS     0x22    //!< Event Function: Set main relay status
+
+#define EVENT_CODE_SUCCESS                   0x00    //!< Event Code: Success
+#define EVENT_CODE_FAIL                      0x01    //!< Event Code: Failed
+#define EVENT_CODE_GENERAL_ERROR             0x02    //!< Event Code: General error
+#define EVENT_CODE_NOT_INITIALIZED           0x03    //!< Event Code: Not initialized
+#define EVENT_CODE_INVALID_INPUT             0x04    //!< Event Code: Invalid input
+#define EVENT_CODE_TIMEOUT                   0x05    //!< Event Code: Timeout
+#define EVENT_CODE_BOTTLE_CHECK_EMPTY        0x06    //!< Event Code: Bottle check result: Empty
+#define EVENT_CODE_BOTTLE_CHECK_NOTFULL      0x07    //!< Event Code: Bottle check result: Not-full
+#define EVENT_CODE_BOTTLE_CHECK_OK           0x08    //!< Event Code: Bottle check result: OK
+#define EVENT_CODE_BOTTLE_CHECK_BLOCKAGE     0x09    //!< Event Code: Bottle check result: Blockage
+#define EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT  0x0A    //!< Event Code: Motor run exceed upper limit
+#define EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT  0x0B    //!< Event Code: Motor run exceed lower limit
+#define EVENT_CODE_MOTOR_UNEXPECTED_POS      0x0C    //!< Event Code: Motor run hit un-expected position
+#define EVENT_CODE_INTERRUPT                 0x0D    //!< Event Code: Interrupted
+#define EVENT_CODE_OVERFLOW                  0x0E    //!< Event Code: Overflow happend
+#define EVENT_CODE_DIGITAL_SIGNAL_0          0x10    //!< Event Code: Digital input signal 0
+#define EVENT_CODE_DIGITAL_SIGNAL_1          0x11    //!< Event Code: Digital input signal 1
+#define EVENT_CODE_TIMEOUT_WARNING           0x12    //!< Event Code: Timeout for Warning
+#define EVENT_CODE_TIMEOUT_ERROR             0x13    //!< Event Code: Timeout for Error
+
+
 
 /*! general return codes, will be used as return value by methods, and as hdlInfo variable by signals
    these return codes will not appear as an error code in EventEntrys errorID. Anstead they will be transmitted in errorData variable */
@@ -139,8 +201,117 @@ typedef enum {
     DCL_ERR_CANMSG_INVALID        = 20,  //!< An invalid CAN-message was received (e.g. dlc not correct)
     DCL_ERR_CANBUS_NOT_READY      = 21,  //!< A CAN-message was tried to be send while the CAN bus is in error state
     DCL_ERR_CANBUS_ERROR          = 22,  //!< A CAN-message was tried to be send while an 'unknown' CAN bus error is active
+    DCL_ERR_UNEXPECTED_BREAK      = 23,   //!< Current program was breaked by other program
+    DCL_ERR_SNYC_CALL_BUSY        = 24,   //!< Current program was breaked by other program
+    DCL_ERR_TIMER_TIMEOUT         = 25,
+
+    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_DIGITAL_SIGNAL_0), //!< Get level sensor state 0
+    DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_DIGITAL_SIGNAL_1), //!< Get level sensor state 1
+
+    DCL_ERR_DEV_AL_RELEASE_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_RELEASE_PRESSURE) << 8)| EVENT_CODE_TIMEOUT),//!< Release pressure timeout
+    DCL_ERR_DEV_AL_RELEASE_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_RELEASE_PRESSURE) << 8)| EVENT_CODE_FAIL),//!< Release pressure failed
+    DCL_ERR_DEV_AL_SETUP_PRESSURE_FAILED = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_SET_PRESSURE) << 8)| EVENT_CODE_FAIL),//!< Setup pressure failed
+    DCL_ERR_DEV_AL_DRAIN_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Draining succeed
+    DCL_ERR_DEV_AL_DRAIN_WARNING_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_WARNING),//!< Draing timeout
+    DCL_ERR_DEV_AL_DRAIN_ERROR_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_ERROR),//!< Draing timeout
+    DCL_ERR_DEV_AL_DRAIN_SETUP_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Draing setup pressure timeout
+    DCL_ERR_DEV_AL_DRAIN_GENERAL_ERR = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_GENERAL_ERROR),//!< Draining general error
+    DCL_ERR_DEV_AL_DRAIN_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_DRAINING_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Draining has been interrupted
+
+    DCL_ERR_DEV_AL_FILL_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Filling succeed
+    DCL_ERR_DEV_AL_FILL_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Filling has been interrupted
+    DCL_ERR_DEV_AL_FILL_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Filling timeout
+    DCL_ERR_DEV_AL_FILL_WARNING_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_WARNING),//!< Filling warning timeout
+    DCL_ERR_DEV_AL_FILL_ERROR_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT_ERROR),//!< Filling error timeout
+    DCL_ERR_DEV_AL_FILL_OVERFLOW = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_FILLING_PROCEDURE) << 8)| EVENT_CODE_OVERFLOW),//!< Filling overflow
+
+    DCL_ERR_DEV_AL_VACCUM_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_VACCUM_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Vaccum succeed
+    DCL_ERR_DEV_AL_VACCUM_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_VACCUM_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Vaccum has been interrupted
+    DCL_ERR_DEV_AL_VACCUM_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_VACCUM_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Vaccum timeout
+    DCL_ERR_DEV_AL_PRESSURE_INTERRUPT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_PRESSURE_PROCEDURE) << 8)| EVENT_CODE_INTERRUPT),//!< Pressure procedure has been interrupted
+    DCL_ERR_DEV_AL_PRESSURE_TIMEOUT = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_PRESSURE_PROCEDURE) << 8)| EVENT_CODE_TIMEOUT),//!< Pressure procedure timeout
+    DCL_ERR_DEV_AL_PRESSURE_SUCCESS = ((((EVENT_SOURCE_DEV_AIR_LIQUID << 8) | EVENT_FUNC_PRESSURE_PROCEDURE) << 8)| EVENT_CODE_SUCCESS),//!< Pressure procedure succeed
+
+    DCL_ERR_DEV_TEMP_CTRL_STATE_ERR = 43,//!< Temperatuer control state error
+    DCL_ERR_DEV_TEMP_CTRL_ALREADY_ON = 44,//!< Temperatuer control is already on
+    DCL_ERR_DEV_TEMP_CTRL_SET_TEMP_ERR = 45,//!< Temperatuer control set temperature error
+    DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR = 46,//!< Temperatuer control set state error
+
+    DCL_ERR_DEV_BOTTLE_CHECK_OK = ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_OK),//!< Bottle check succeed
+    DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL = ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_NOTFULL),//!< Bottle check result: Not full
+    DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_BLOCKAGE),//!< Bottle check result: Blockage
+    DCL_ERR_DEV_BOTTLE_CHECK_EMPTY =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_BOTTLE_CHECK_EMPTY),//!< Bottle check result: Empty
+    DCL_ERR_DEV_BOTTLE_CHECK_ERROR =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_FAIL),//!< Bottle check error
+    DCL_ERR_DEV_BOTTLE_CHECK_TIMEOUT =  ((((EVENT_SOURCE_DEV_INTERFACE << 8) | EVENT_FUNC_BOTTLE_CHECK) << 8)| EVENT_CODE_TIMEOUT),//!< Bottle check timeout
+
+    DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_INIT_POS) << 8)| EVENT_CODE_SUCCESS),//!< Move to initial position succeed
+    DCL_ERR_DEV_RV_MOVE_TO_INIT_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_INIT_POS) << 8)| EVENT_CODE_MOTOR_UNEXPECTED_POS),//!< Move to initial position failed
+
+   // DCL_ERR_DEV_RV_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_MOVE_TO_RV_POS) << 8)| EVENT_CODE_SUCCESS),
+    DCL_ERR_DEV_RV_REF_MOVE_OK = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_SUCCESS),//!< Motor reference run ok
+    DCL_ERR_DEV_RV_REF_MOVE_FAILED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_FAIL),//!< Motor reference run failed
+    DCL_ERR_DEV_RV_MOVE_EXCEED_UPPER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_EXCEED_UPPER_LIMIT),//!< Motor reference run exceed code disk's upper limit
+    DCL_ERR_DEV_RV_MOVE_EXCEED_LOWER_LIMIT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_EXCEED_LOWER_LIMIT),//!< Motor reference run exceed code disk's lower limit
+    DCL_ERR_DEV_RV_INVALID_INPUT = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_INVALID_INPUT),//!< Invalid input for motor reference run
+    DCL_ERR_DEV_RV_NOT_INITIALIZED = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_NOT_INITIALIZED),//!< Motor has not been initialized
+    DCL_ERR_DEV_RV_UNEXPECTED_POS = ((((EVENT_SOURCE_DEV_ROTARY_VALVE << 8) | EVENT_FUNC_REF_RUN) << 8)| EVENT_CODE_MOTOR_UNEXPECTED_POS),//!< Motor encouter unexpected position
+
+    DCL_ERR_DEV_RV_MOVE_LS_ERROR = 54,//!< Motor reference run read limit switch error
+    DCL_ERR_DEV_RV_MOVE_GENERAL_ERROR = 55,//!< Motor reference run general error
+
+
     DCL_ERR_UNDEFINED             = 99   //!< The return code was not set
 } ReturnCode_t;
+
+/*! Synchronized functions definitions */
+typedef enum
+{
+    SYNC_CMD_RV_REF_RUN = 0,
+    SYNC_CMD_RV_SET_MOTOR_STATE = 1,
+    SYNC_CMD_RV_SET_MOTOR_CONFIG = 2,
+    SYNC_CMD_RV_GET_MOTOR_POSITION = 3,
+    SYNC_CMD_RV_GET_LS_CODE = 4,
+    SYNC_CMD_RV_SET_TEMP = 5,
+    SYNC_CMD_RV_GET_TEMP = 6,
+    SYNC_CMD_RV_SET_TEMP_PID = 7,
+    SYNC_CMD_RV_GET_TEMP_CTRL_STATE = 8,
+    SYNC_CMD_RV_TC_GET_HW_STATUS = 9,
+    SYNC_CMD_AL_SET_PRESSURE = 12,
+    SYNC_CMD_AL_GET_PRESSURE = 13,
+    SYNC_CMD_AL_SET_VALVE = 14,
+    SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE = 15,
+    SYNC_CMD_AL_PROCEDURE_PRESSURE = 16,
+    SYNC_CMD_AL_PROCEDURE_DRAINING = 17,
+    SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR = 18,
+    SYNC_CMD_AL_PROCEDURE_VACCUM = 19,
+    SYNC_CMD_AL_SET_TEMP = 20,
+    SYNC_CMD_AL_GET_TEMP = 21,
+    SYNC_CMD_AL_SET_TEMP_PID = 22,
+    SYNC_CMD_AL_GET_TEMP_CTRL_STATE = 23,
+    //SYNC_CMD_AL_SET_DO_VALVE = 21,
+    SYNC_CMD_AL_SET_FAN_STATUS = 24,
+    SYNC_CMD_AL_GET_DO_LIFE_TIME = 25,
+    SYNC_CMD_AL_TC_GET_HW_STATUS = 26,
+    SYNC_CMD_RT_SET_TEMP = 30,
+    SYNC_CMD_RT_GET_TEMP = 31,
+    SYNC_CMD_RT_SET_TEMP_PID = 32,
+    SYNC_CMD_RT_GET_TEMP_CTRL_STATE = 33,
+    SYNC_CMD_RT_SET_DO_VALUE = 34,
+    SYNC_CMD_RT_GET_DI_VALUE = 35,
+    SYNC_CMD_RT_GET_HW_STATUS = 36,
+    SYNC_CMD_OVEN_SET_TEMP = 40,
+    SYNC_CMD_OVEN_GET_TEMP = 41,
+    SYNC_CMD_OVEN_SET_TEMP_PID = 42,
+    SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE = 43,
+    SYNC_CMD_OVEN_GET_DI_VALUE = 44,
+    SYNC_CMD_OVEN_TC_GET_HW_STATUS = 45,
+    SYNC_CMD_PER_GET_DI_VALUE = 46,
+    SYNC_CMD_PER_SET_DO_VALUE = 47,
+    SYNC_CMD_BASE_GET_VOLTAGE = 48,
+    SYNC_CMD_BASE_GET_CURRENT = 49,
+
+    SYNC_CMD_TOTAL_NUM = 50
+} SyncCmdType_t;
 
 /*! Node state definitions */
 typedef enum {
@@ -150,34 +321,11 @@ typedef enum {
     NODE_STATE_IDENTIFY  = 3,    //!< Node identification
     NODE_STATE_CONFIGURE = 4,    //!< Node configuration
     NODE_STATE_NORMAL    = 5,    //!< Normal operation mode
-    NODE_STATE_ASSEMBLY  = 6,    //!< Assembly mode
+    NODE_STATE_SERVICE   = 6,    //!< Service mode
     NODE_STATE_SHUTDOWN  = 7,    //!< Shutdown (going to standby)
     NODE_STATE_STANDBY   = 8,    //!< Standby
-    NODE_STATE_SERVICE   = 9    //!< Service mode
+    NODE_STATE_UPDATE    = 9     //!< Firmware update
 } NodeState_t;
-
-/*! Enumeration to control emergency stops */
-typedef enum {
-    RESET_EMERGENCY_STOP = 0,   //!< Clear emergency stop state
-    STOPPED_BY_HEARTBEAT = 1,   //!< Emergency stop by heartbeat loss
-    STOPPED_BY_NOTSTOP   = 2,   //!< Emergency stop by master command
-    STOPPED_BY_VOLTAGE   = 4    //!< Emergency stop by supply voltage error
-} EmergencyStopReason_t;
-
-/*! Power supply states (applies to both: voltage and current) */
-typedef enum {
-    POWER_GOOD    = 0,  //!< Power is ok
-    POWER_WARNING = 1,  //!< Power isn't good, but still acceptable
-    POWER_FAILED  = 2,  //!< Power is bad
-    POWER_UNKNOWN = 9   //!< Power is unknown (can't be read)
-} PowerState_t;
-
-/*! Test result code, e.g. for the end test */
-typedef enum {
-    TEST_OPEN   = 0,    //!< Test has not been executed yet
-    TEST_PASSED = 1,    //!< The test was successful
-    TEST_FAILED = 2     //!< The test failed
-} TestResult_t;
 
 /*! requested action for station positioning */
 typedef enum {
@@ -198,87 +346,43 @@ typedef enum {
     STATION_ACTION_UNDEF                = 0x0e   //!< undefined
 } StationAction_t;
 
-/*! requested action for station positioning */
-typedef enum {
-    RACKHDL_STATION_UNDEF                = 0x00,   //!< undefined
-    RACKHDL_STATION_TRANSFER             = 0x01,   //!< rack transfer station
-    RACKHDL_STATION_LOADER_1             = 0x02,   //!< loader vessel 1
-    RACKHDL_STATION_LOADER_2             = 0x03,   //!< loader vessel 2
-    RACKHDL_STATION_ROTATION_INSERT      = 0x04,   //!< insert rack to rack rotation device
-    RACKHDL_STATION_ROTATION_REMOVE      = 0x05,   //!< remove rack from rack rotation device
-    RACKHDL_STATION_COVER_LINE_1         = 0x06,   //!< cover line 1
-    RACKHDL_STATION_COVER_LINE_2         = 0x07,   //!< cover line 1
-    RACKHDL_STATION_OVEN                 = 0x08,   //!< oven device
-    RACKHDL_STATION_UNLOADER_1           = 0x09,   //!< unloader channel 1
-    RACKHDL_STATION_UNLOADER_2           = 0x0a,   //!< unloader channel 2
-    RACKHDL_STATION_UNLOADER_3           = 0x0b    //!< unloader channel 3
-} RackHdlStation_t;
 
-/*! Block state, used for loader and rack transfer devices */
+/*! RV tube position */
 typedef enum {
-    BLOCKING_STATE_UNDEF          = 0x00,   //!< blocking state undefinded
-    BLOCKING_STATE_FREE           = 0x01,   //!< blocking state 'free'
-    BLOCKING_STATE_BLOCKED        = 0x02    //!< blocking state 'blocked'
-} BlockState_t;
-
-/*! Hood state, used for detecting hood open event */
-typedef enum {
-    HOOD_STATE_UNDEF   = 0x00,
-    HOOD_STATE_OPEN    = 0x01,
-    HOOD_STATE_CLOSED  = 0x02
-} HoodState_t;
-
-/*! drawer position at loader/unloader */
-typedef enum {
-    LOADER_OPEN          = 0x00,   //!< opened
-    LOADER_CLOSED        = 0x01,   //!< closed
-    LOADER_UNDEF         = 0x02    //!< undefined
-} LoaderPosition_t;
-
-/*! vessel index for RFID operation to drawer at loader/unloader */
-typedef enum {
-    LOADER_ID_RFID_UNDEF = 0x00,   //!< undefined
-    LOADER_ID_RFID_1     = 0x01,   //!< vessel 1
-    LOADER_ID_RFID_2     = 0x02,   //!< vessel 2
-    LOADER_ID_RFID_3     = 0x03,   //!< vessel 3
-    LOADER_ID_RFID_4     = 0x04,   //!< vessel 4
-    LOADER_ID_RFID_5     = 0x05    //!< vessel 5
-} LoaderRFIDChannel_t;
-
-/*! predefined agitation speeds */
-typedef enum {
-    AGITATION_SPEED_UNDEF = 0x00,  //!< undefined
-    AGITATION_SPEED_STOP  = 0x01,  //!< stop agitation
-    AGITATION_SPEED_05    = 0x02,  //!< agitation speed 0.5 rev/sec
-    AGITATION_SPEED_10    = 0x03,  //!< agitation speed 1.0 rev/sec
-    AGITATION_SPEED_15    = 0x04,  //!< agitation speed 1.5 rev/sec
-    AGITATION_SPEED_20    = 0x05   //!< agitation speed 2.0 rev/sec
-} AgitationSpeed_t;
-
-/*! agitation position */
-typedef enum {
-    AGITATION_POS_UNDEF        = 0x00,   //!< undefined (anywhere, except basing point)
-    AGITATION_POS_BASING_POINT = 0x01    //!< basing point
-} AgitationPosition_t;
-
-/*! water valve identification */
-typedef enum {
-    WATER_VALVE_ID_UNDEF = 0x00,   //!< undefined
-    WATER_VALVE_ID_1     = 0x01,   //!< water valve 1
-    WATER_VALVE_ID_2     = 0x02,   //!< water valve 2
-    WATER_VALVE_ID_3     = 0x03,   //!< water valve 3
-    WATER_VALVE_ID_4     = 0x04,   //!< water valve 4
-    WATER_VALVE_ID_5     = 0x05,   //!< water valve 5
-    WATER_VALVE_ID_6     = 0x06,   //!< water valve 6
-    WATER_VALVE_ID_ALL   = 0x07    //!< all water valve (e.g for new state)
-} WaterValveID_t;
-
-/*! oven cover position */
-typedef enum {
-    OVEN_COVER_UNDEF   = 0x00,  //!< undefined
-    OVEN_COVER_OPENED  = 0x01,  //!< opened
-    OVEN_COVER_CLOSED  = 0x02   //!< closeded
-} OvenCoverPosition_t;
+    RV_UNDEF   = 0x00,  //!< undefined
+    RV_TUBE_1   = 1,  //!< undefined
+    RV_TUBE_2   = 3,  //!< undefined
+    RV_TUBE_3   = 5,  //!< undefined
+    RV_TUBE_4   = 7,  //!< undefined
+    RV_TUBE_5   = 9,  //!< undefined
+    RV_TUBE_6   = 11,  //!< undefined
+    RV_TUBE_7   = 13,  //!< undefined
+    RV_TUBE_8   = 15,  //!< undefined
+    RV_TUBE_9   = 17,  //!< undefined
+    RV_TUBE_10   = 19,  //!< undefined
+    RV_TUBE_11   = 21,  //!< undefined
+    RV_TUBE_12   = 23,  //!< undefined
+    RV_TUBE_13   = 25,  //!< undefined
+    RV_TUBE_14   = 27,  //!< undefined
+    RV_TUBE_15   = 29,  //!< undefined
+    RV_TUBE_16   = 31,  //!< undefined
+    RV_SEAL_1   = 2,  //!< undefined
+    RV_SEAL_2   = 4,  //!< undefined
+    RV_SEAL_3   = 6,  //!< undefined
+    RV_SEAL_4   = 8,  //!< undefined
+    RV_SEAL_5   = 10,  //!< undefined
+    RV_SEAL_6   = 12,  //!< undefined
+    RV_SEAL_7   = 14,  //!< undefined
+    RV_SEAL_8   = 16,  //!< undefined
+    RV_SEAL_9   = 18,  //!< undefined
+    RV_SEAL_10   = 20,  //!< undefined
+    RV_SEAL_11   = 22,  //!< undefined
+    RV_SEAL_12   = 24,  //!< undefined
+    RV_SEAL_13   = 26,  //!< undefined
+    RV_SEAL_14   = 28,  //!< undefined
+    RV_SEAL_15   = 30,  //!< undefined
+    RV_SEAL_16   = 32  //!< undefined
+} RVPosition_t;
 
 /*! temperature control status */
 typedef enum {
@@ -287,6 +391,14 @@ typedef enum {
     TEMPCTRL_STATUS_ON    = 0x02    //!< temp. ctrl. is active (on)
 } TempCtrlStatus_t;
 
+/*! temperature control status */
+typedef enum {
+    TEMPCTRL_STATE_OFF = 0x00,   //!< status undefined
+    TEMPCTRL_STATE_INSIDE_RANGE = 0x01,   //!< status undefined
+    TEMPCTRL_STATE_OUTSIDE_RANGE = 0x02,   //!< status undefined
+    TEMPCTRL_STATE_ERROR = 0x03   //!< status undefined
+} TempCtrlState_t;
+
 /*! temperature control operation */
 typedef enum {
     TEMPCTRL_OPMODE_UNDEF = 0x00,   //!< operation mode undefined
@@ -294,13 +406,14 @@ typedef enum {
     TEMPCTRL_OPMODE_HOLD  = 0x02    //!< operation mode power safe
 } TempCtrlOperatingMode_t;
 
-#ifdef PRE_ALFA_TEST
+/*! pressure control status */
 typedef enum {
     PRESSURECTRL_STATUS_UNDEF = 0x00,   //!< status undefined
     PRESSURECTRL_STATUS_OFF   = 0x01,   //!< pressure ctrl. is off
     PRESSURECTRL_STATUS_ON    = 0x02    //!< pressure ctrl. is active (on)
 } PressureCtrlStatus_t;
 
+/*! pressure control operation mode */
 typedef enum {
     PRESSURECTRL_OPMODE_UNDEF  = 0x00,   //!< operation mode undefined
     PRESSURECTRL_OPMODE_FULL   = 0x01,   //!< operation mode full power
@@ -308,13 +421,13 @@ typedef enum {
     PRESSURECTRL_OPMODE_VACUUM = 0x08    //!< operation mode vacuuming
 } PressureCtrlOperatingMode_t;
 
+/*! pressure control main voltage */
 typedef enum {
     PRESSURECTRL_VOLTAGE_UNDEF = 0x00,  //!< status undefined
     PRESSURECTRL_VOLTAGE_220V  = 0x01,  //!< 220V mains voltage
     PRESSURECTRL_VOLTAGE_110V  = 0x02   //!< 110V mains voltage
 } PressureCtrlMainsVoltage_t;
 
-#endif
 
 /*! temperature control mains voltage */
 typedef enum {
@@ -323,30 +436,16 @@ typedef enum {
     TEMPCTRL_VOLTAGE_110V  = 0x02   //!< 110V mains voltage
 } TempCtrlMainsVoltage_t;
 
-/*! Heated vessels access identification */
-typedef enum {
-    HVESSELS_ID_VESSEL_UNDEF = 0x00,  //!< vessel identification undefiened
-    HVESSELS_ID_VESSEL_1     = 0x01,  //!< vessel 1
-    HVESSELS_ID_VESSEL_2     = 0x02,  //!< vessel 2
-    HVESSELS_ID_VESSEL_3     = 0x03,  //!< vessel 3
-    HVESSELS_ID_VESSEL_4     = 0x04,  //!< vessel 4
-    HVESSELS_ID_VESSEL_ALL   = 0x05   //!< all vessel
-} HeatedVesselID_t;
+/*! temperature control hardware status */
+typedef struct {
+    quint8 Sensors;           //!< Sensors count
+    quint8 Fans;              //!< Fans count
+    quint8 Heaters;           //!< Heaters count
+    quint8 Pids;              //!< PID parameter set count
+    quint16 Current;          //!< Current
+    quint8 HeaterSwitchType;  //!< Heater switch type
+} TempCtrlHardwareStatus_t;
 
-/*! Rack transfer adapter position */
-typedef enum {
-    RACK_ADAPTER_POS_UNDEF    = 0x00,  //!< undefined
-    RACK_ADAPTER_POS_LOAD     = 0x01,  /// load position (from colorado view)
-    RACK_ADAPTER_POS_TRANSFER = 0x02   /// transfer position (from colorado view)
-} RackAdapterPosition_t;
-
-/*! Rack type definition */
-typedef enum {
-    RACK_TYPE_UNDEF      = 0x00,  //!< undefined
-    RACK_TYPE_30_SLIDES  = 0x01,  //!< rack with 30 slide positions
-    RACK_TYPE_20_SLIDES  = 0x02,  //!< rack with 20 slide positions
-    RACK_TYPE_5_SLIDES   = 0x03   //!< rack with 5 slide positions
-} RackType_t;
 
 /*! Sub commands for motor movement requests */
 typedef enum {SM_SUBCMD_MOTION_NULL           = 0x00,  //!< no further command information
@@ -379,7 +478,7 @@ typedef enum {
     DEVICE_INSTANCE_ID_COVERLINE_1    = 0x000080A0,  //!< cover line unit 1
     DEVICE_INSTANCE_ID_COVERLINE_2    = 0x000080A1,  //!< cover line unit 2
     DEVICE_INSTANCE_ID_RACK_HANDLING  = 0x000080B0,  //!< rack handling
-    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,   //!< device cover (hood)
+    DEVICE_INSTANCE_ID_HOOD           = 0x000080B1,  //!< device cover (hood)
     DEVICE_INSTANCE_ID_ROTARY_VALVE   = 0x000080C0,   //!< Rotary valve
     DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1,   //!< Air liquid system
     DEVICE_INSTANCE_ID_OVEN           = 0x000080C2,   //!< Oven
@@ -387,38 +486,27 @@ typedef enum {
     DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4    //!< Main Control
 } DevInstanceID_t;
 
-/****************************************************************************/
-/*! \class CANObjectKeyLUTSepia
- *
- *  \brief this classes elements containing the can object keys, used for
- *         object identification by string at the sepia project
- *
- */
-/****************************************************************************/
-class CANObjectKeyLUTSepia
-{
-public:
-    enum CANObjectIdentifierSepia
-    {
-        NODE_EDM_PUMP_1           = 0x0002,  //!< ASB2 sepia EDM pump 1
-        NODE_EM_PUMP_2            = 0x0102,  //!< ASB2 sepia EDM pump 2
-        NODE_RACK_ROTATE          = 0x0002,  //!< ASB2 sepia rack rotation
-        NODE_OVEN                 = 0x0003,  //!< ASB 3: oven
-        NODE_LOADER               = 0x0004,  //!< ASB 4: Loader (connected to ASB7 which includes the RFID antennas)
-        NODE_UNLOADER             = 0x0104,  //!< ASB 4: Loader (connected to ASB7 which includes the RFID antennas)
-        NODE_CV_LINE_1_1          = 0x0007,  //!< ASB6_1 Coverslip line 1, controller 1
-        NODE_CV_LINE_1_2          = 0x0107,  //!< ASB6_2 Coverslip line 1, controller 2
-        NODE_CV_LINE_2_1          = 0x0008,  //!< ASB6_1 Coverslip line 2, controller 1
-        NODE_CV_LINE_2_2          = 0x0108,  //!< ASB6_2 Coverslip line 2, controller 2
-        NODE_SA_BOARD             = 0x0108,  //!< SA_Board  Y-axis rack handling
-        NODE_Y_AXIS_RACKHLD       = 0x0108,  //!< ASB10  Y-axis rack handling (y-axis and grappler)
-        NODE_Z_AXIS_RACKHDL       = 0x0108,  //!< ASB2  Z-axis rack handling
-        NODE_ADJUSTMENT           = 0x0109,  //!< ASB_JM Adjustment module
-        FCTMOD_MOTOR_EDM_PUMP1    = 0x1001   //sepia
+/*! Air-liquid device's temperature control function module*/
+typedef enum {
+    AL_LEVELSENSOR = 0,
+    AL_TUBE1 = 1,
+    AL_TUBE2 = 2,
+    AL_TEMP_CTRL_NUM = 3
+} ALTempCtrlType_t;
 
-    };
-};
+/*! Oven device's temperature control function module*/
+typedef enum {
+    OVEN_TOP = 0,
+    OVEN_BOTTOM = 1,
+    OVEN_TEMP_CTRL_NUM =2
+} OVENTempCtrlType_t;
 
+/*! Retort device's temperature control function module*/
+typedef enum {
+    RT_BOTTOM = 0,
+    RT_SIDE = 1,
+    RT_TEMP_CTRL_NUM =2
+} RTTempCtrlType_t;
 
 /****************************************************************************/
 /*! \class CANObjectKeyLUT
@@ -432,147 +520,63 @@ class CANObjectKeyLUT
 {
 public:
     // devices
-    static const QString m_DevAgitationKey;     //!< agitation device key
-    static const QString m_DevExhaustKey;       //!< exhaust device key
-    static const QString m_DevGrapplerKey;      //!< colorado grappler device key
-    static const QString m_DevHeatedVesselsKey; //!< heated cuvettes device key
-    static const QString m_DevInclinometerKey;  //!< inclinometer device key
-    static const QString m_DevLoaderKey;        //!< loader/(unloader) device key
-    static const QString m_DevOvenKey;          //!< colorado oven device key
-    static const QString m_DevRackTransferKey;  //!< Rack transfer device key
-    static const QString m_DevWaterKey;         //!< water device key
-    static const QString m_DevRackHandlingKey;  //!< Rack handling device key
-    static const QString m_DevCoverlineKey;     //!< cover line device key
+    static const QString m_DevRotaryValveKey;     //!< rotary valve key
+    static const QString m_DevAirLiquidKey;       //!< air-liquid key
+    static const QString m_DevOvenKey;            //!< Oven key
+    static const QString m_RetortKey;             //!< Retort key
+    static const QString m_PeripheryKey;      //!< Periphery device key
     //function modules
-    static const QString m_MotorAgitationKey;      //!< Motor agitation
-    static const QString m_FlowSensorKey;          //!< air flow sensor
-    static const QString m_CurrentFan1Key;         //!< current measurement fan 1
-    static const QString m_CurrentFan2Key;         //!< current measurement fan 2
-    static const QString m_MotorXAxisKey;          //!< Motor X-axis
-    static const QString m_MotorYAxisKey;          //!< Motor Y-axis
-    static const QString m_MotorZAxisKey;          //!< Motor Z-axis
-    static const QString m_GrapplerRFIDKey;        //!< RFID reader at grappler
-    static const QString m_GrapplerLiquidLevelKey; //!< Liquid level sensor at grappler
-    static const QString m_TempCtrlVessel1Key;     //!< Temperature control cuvette 1
-    static const QString m_TempCtrlVessel2Key;     //!< Temperature control cuvette 2
-    static const QString m_TempCtrlVessel3Key;     //!< Temperature control cuvette 3
-    static const QString m_TempCtrlVessel4Key;     //!< Temperature control cuvette 4
-    static const QString m_InclinometerKey;        //!< Inclinometr
-    static const QString m_MotorDrawerKey;         //!< Drawer motor
-    static const QString m_DrawerRFIDKey;          //!< Drawer rfid module
-    static const QString m_DrawerButtonKey;        //!< Drawer button
-    static const QString m_DrawerLEDFreeKey;       //!< Drawer LED 'free' state
-    static const QString m_DrawerLEDBlockedKey;    //!< Drawer LED 'blocked' state
-    static const QString m_OvenCoverMotorKey;      //!< Motor oven cover
-    static const QString m_OvenTempCtrlKey;        //!< temperature control oven
-    static const QString m_RackTransferMotorKey;   //!< Motor rack transfer
-    static const QString m_WaterValve1Key;         //!< Water valve 1
-    static const QString m_WaterValve2Key;         //!< Water valve 2
-    static const QString m_WaterValve3Key;         //!< Water valve 3
-    static const QString m_WaterValve4Key;         //!< Water valve 4
-    static const QString m_WaterValve5Key;         //!< Water valve 5
-    static const QString m_WaterValve6Key;         //!< Water valve 6
-    static const QString m_WaterLiquidLevelKey;    //!< Liquid level sensor
+    static const QString m_RVMotorKey;               //!< Rotary valve motor
+    static const QString m_RVTempCtrlKey;            //!< Rotary valve temperature control
+    static const QString m_ALPressureCtrlKey;        //!< Air-liquid pressure control
+    static const QString m_ALLevelSensorTempCtrlKey; //!< Air-liquid level sensor temp control
+    static const QString m_ALTube1TempCtrlKey;       //!< Air-liquid tube1 temp control
+    static const QString m_ALTube2TempCtrlKey;       //!< Air-liquid tube2 temp control
+//    static const QString m_ALFanDOKey;               //!< Air-liquid fan digital output
+    static const QString m_OvenTopTempCtrlKey;       //!< Oven top temp control
+    static const QString m_OvenBottomTempCtrlKey;    //!< Oven bottom temp control
+    static const QString m_OvenLidDIKey;            //!< Oven lid digital input
+    static const QString m_RetortBottomTempCtrlKey;  //!< Retort bottom temp control
+    static const QString m_RetortSideTempCtrlKey;    //!< Retort side temp control
+    static const QString m_RetortLockDOKey;          //!< Retort lock digital output
+    static const QString m_RetortLockDIKey;          //!< Retort lock digital output
+    static const QString m_PerRemoteAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
+    static const QString m_PerLocalAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
+//    static const QString m_PerRemoteAlarmSetDOKey;   //!< Miscellaneous remote alarm set digital output
+//    static const QString m_PerRemoteAlarmClearDOKey;  //!< Miscellaneous remote alarm clear digital output
+    static const QString m_PerMainRelayDOKey;     //!< Miscellaneous heater relay digital output
 
-    static const QString m_MotorCoverLineZAxisKey;   //!< Motor Z-axis (elevator)
-    static const QString m_MotorCoverLineSlideKey;   //!< Motor slide shifter
-    static const QString m_MotorCoverLineNeedleKey;  //!< Motor needle
-    static const QString m_MotorCoverLineClampKey;   //!< Motor clamp mechanism
-    static const QString m_MotorCoverSlipYKey;       //!< Motor Y-axis slide transport
-    static const QString m_MotorCoverSlipZKey;       //!< Motor Z-axis slide transport
-    static const QString m_MotorEDMPump;             //!< Motor EDM pump
-    static const QString m_DigInpCoverLineSlideDetect;  //!< Sensor slide detection
-    static const QString m_DigInpEDMLevel;           //!< Sensor EDM level
-    static const QString m_DigOutpVacuumPump;        //!< Vacuum pump slide transport
-    static const QString m_DigOutpVacuumValve1;      //!< Vacuum valve slide transport
-    static const QString m_DigOutpVacuumValve2;      //!< Vacuum valve slide transport
-    static const QString m_AnaInpPressureSensor;     //!< Vacuum sensor slide transport
-    static const QString m_AnaInpHallSensor1;        //!< Hall sensor slide transport
-    static const QString m_MotorRackHdlXAxisKey;     //!< Motor X-axis rack handling
-    static const QString m_MotorRackHdlYAxisKey;     //!< Motor Y-axis rack handling
-    static const QString m_MotorRackHdlZAxisKey;     //!< Motor Z-axis rack handling
-    static const QString m_MotorRackHdlGrabberKey;   //!< Motor grabber rack handling
-    static const QString m_HoodSensorKey;            //!< Hood open detection
 
-    // the object identifiers will be used when a device capture its function modules ba
     // calling the DeviceProcessing::GetFunctionModule-method
     //!< can object IDs, used for identification by Id
     typedef enum
     {
-        NODE_Z_AXIS_GRAPPER_1     = 0x0001,   //!< node z-axis grapper 1
-        NODE_Z_AXIS_GRAPPER_2     = 0x0101,   //!< node z-axis grapper 2
-        NODE_Y_AXIS_GRAPPER_1     = 0x0002,   //!< node y-axis grapper 1
-        NODE_Y_AXIS_GRAPPER_2     = 0x0102,   //!< node y-axis grapper 2
-        NODE_RACK_TRANSFER        = 0x0202,   //!< node rack transfer
-        NODE_OVEN                 = 0x0003,   //!< ASB 3: oven
-        NODE_LOADER               = 0x0004,   //!< node loader
-        NODE_UNLOADER             = 0x0104,   //!< node unloader
-        NODE_HEATED_VESSELS       = 0x0005,   //!< node heated cuvettes
-        NODE_SA_BOARD_CTRL_1      = 0x0006,   //!< node SA-board, controller 1
-        NODE_SA_BOARD_CTRL_2      = 0x0106,   //!< node SA-board, controller 2
-        FCTMOD_MOTOR_Z_AXIS_GRAP1 = 0x1001,   //!< Motor z-axis grapper 1
-        FCTMOD_LIQUIDLEV_GRAP1    = 0x2001,   //!< Liquid level sensor z-axis grapper 1
-        FCTMOD_RFID_GRAP1         = 0x3001,   //!< RFID reader z-axis grapper 1
-        FCTMOD_MOTOR_Z_AXIS_GRAP2 = 0x1101,   //!< Motor z-axis grapper 2
-        FCTMOD_MOTOR_COVERLINE2   = 0x1101,   //!< temp!
-        FCTMOD_RFID_GRAP2         = 0x2101,   //!< RFID reader z-axis grapper 2
-        FCTMOD_LIQUIDLEV_GRAP2    = 0x3101,   //!< Liquid level sensor z-axis grapper 2
-        FCTMOD_MOTOR_Y_AXIS_GRAP1 = 0x1002,   //!< Motor y-axis grapper 1
-        FCTMOD_MOTOR_Y_AXIS_GRAP2 = 0x1102,   //!< Motor y-axis grapper 2
-        FCTMOD_MOTOR_RACK_TRANSFER= 0x1202,   //!< Motor rack transfer
-        FCTMOD_MOTOR_OVEN_COVER   = 0x1003,   //!< Motor oven cover
-        FCTMOD_TEMPCTRL_OVEN      = 0x2003,   //!< temperature control oven
-        FCTMOD_MOTOR_X_AXIS_GRAP1 = 0x1006,   //!< Motor x-axis grapper 1
-        FCTMOD_MOTOR_X_AXIS_GRAP2 = 0x1106,   //!< Motor x-axis grapper 2
-        FCTMOD_MOTOR_AGITATION    = 0x2006,   //!< Motor agitation
-        FCTMOD_MOTOR_LOADER       = 0x1004,   //!< Motor loading drawer
-        //FCTMOD_RFID1_LOADER       = 0x2004,   //!< RFID reader loader slot 1
-        //FCTMOD_RFID2_LOADER       = 0x3004,   //!< RFID reader loader slot 2
-        //FCTMOD_RFID3_LOADER       = 0x4004,   //!< RFID reader loader slot 3
-        //FCTMOD_RFID4_LOADER       = 0x5004,   //!< RFID reader loader slot 4
-        //FCTMOD_RFID5_LOADER       = 0x6004,   //!< RFID reader loader slot 5
-        FCTMOD_RFID_LOADER        = 0x2004,   //!< RFID reader loader slot 1
-        FCTMOD_BUTTON_LOADER      = 0x7004,   //!< Opener button loader
-        FCTMOD_LED_FREE_LOADER    = 0x8004,   //!< LED 'free' state loader
-        FCTMOD_LED_BLOCKED_LOADER = 0x9004,   //!< LED 'blocked' state loader
-        FCTMOD_MOTOR_UNLOADER     = 0x1104,   //!< Motor unloading drawer
-        //FCTMOD_RFID1_UNLOADER     = 0x2104,   //!< RFID reader unloader slot 1
-        //FCTMOD_RFID2_UNLOADER     = 0x3104,   //!< RFID reader unloader slot 2
-        //FCTMOD_RFID3_UNLOADER     = 0x4104,   //!< RFID reader unloader slot 3
-        //FCTMOD_RFID4_UNLOADER     = 0x5104,   //!< RFID reader unloader slot 4
-        //FCTMOD_RFID5_UNLOADER     = 0x6104,   //!< RFID reader unloader slot 5
-        FCTMOD_RFID_UNLOADER      = 0x2104,   //!< RFID reader unloader slot
-        FCTMOD_BUTTON_UNLOADER    = 0x7104,   //!< Opener button loader
-        FCTMOD_LED_FREE_UNLOADER  = 0x8104,   //!< LED 'free' state loader
-        FCTMOD_LED_BLOCKED_UNLOADER = 0x9104, //!< LED 'blocked' state loader
-        FCTMOD_TEMPCTRL_VESSEL1    = 0x1005,   //!< temperature control heated cuvette 1
-        FCTMOD_TEMPCTRL_VESSEL2    = 0x2005,   //!< temperature control heated cuvette 2
-        FCTMOD_TEMPCTRL_VESSEL3    = 0x3005,   //!< temperature control heated cuvette 3
-        FCTMOD_TEMPCTRL_VESSEL4    = 0x4005,   //!< temperature control heated cuvette 4
-        FCTMOD_TEMPCTRL_VESSEL5    = 0x5005,   //!< temperature control heated cuvette 5
-        FCTMOD_TEMPCTRL_VESSEL6    = 0x6005,   //!< temperature control heated cuvette 6
-        FCTMOD_INCLINOMETER        = 0x3006,   //!< inclinometer (will be removed)
-        FCTMOD_DOUT_WATER_1        = 0x2106,   //!< water valve 1
-        FCTMOD_DOUT_WATER_2        = 0x3106,   //!< water valve 2
-        FCTMOD_DOUT_WATER_3        = 0x4106,   //!< water valve 3
-        FCTMOD_DOUT_WATER_4        = 0x5106,   //!< water valve 4
-        FCTMOD_DOUT_WATER_5        = 0x6106,   //!< water valve 5
-        FCTMOD_DOUT_WATER_6        = 0x7106,   //!< water valve 6
-        FCTMOD_AIN_FAN1_CURRENT    = 0x8106,   //!< current sensor fan 1
-        FCTMOD_AIN_FAN2_CURRENT    = 0x9106,   //!< current sensor fan 1
-        FCTMOD_DIN_COLL_TRAY_LIMIT = 0xa106,   //!< limit switch sensor collecting tray
-        FCTMOD_DIN_EXHAUST_FLOW    = 0xb106,    //!< flow sensor exhaust
 
-        /*!
-         \todo: currently using loader button for hood open detection. To be changed
-         */
-        FCTMOD_HOOD_SENSOR         = 0x7004   //!< Hood sensor loader
+        FCTMOD_RV_MOTOR               = 0x30003,  //!< Rotary valve motor
+        FCTMOD_RV_TEMPCONTROL         = 0x40003,  //!< Rotary valve temperature control
+
+        FCTMOD_AL_PRESSURECTRL        = 0x1000F,  //!< Air-liquid pressure control
+        FCTMOD_AL_LEVELSENSORTEMPCTRL = 0x2000F,  //!< Air-liquid level sensor temp control
+        FCTMOD_AL_TUBE1TEMPCTRL       = 0x3000F,  //!< Air-liquid tube1 temp control
+        FCTMOD_AL_TUBE2TEMPCTRL       = 0x4000F,  //!< Air-liquid tube2 temp control
+        FCTMOD_AL_FANDO               = 0x5000F,  //!< Air-liquid fan digital output
+        FCTMOD_OVEN_TOPTEMPCTRL       = 0x10005,  //!< Oven top temp control
+        FCTMOD_OVEN_BOTTOMTEMPCTRL    = 0x20005,  //!< Oven bottom temp control
+        FCTMOD_OVEN_LIDDI             = 0xB000F,  //!< Oven lid digital input
+        FCTMOD_RETORT_BOTTOMTEMPCTRL  = 0x30005,  //!< Retort bottom temp control
+        FCTMOD_RETORT_SIDETEMPCTRL    = 0x40005,  //!< Retort side temp control
+        FCTMOD_RETORT_LOCKDO          = 0x6000F,  //!< Retort lock digital output
+        FCTMOD_RETORT_LOCKDI          = 0xA000F,  //!< Retort lock digital input
+        FCTMOD_PER_REMOTEALARMCTRLDO  = 0x8000F,  //!< Miscellaneous remote alarm ctrl digital output
+        FCTMOD_PER_LOCALALARMCTRLDO   = 0x9000F,  //!< Miscellaneous remote alarm set digital output
+        //FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
+        //FCTMOD_PER_REMOTEALARMCLEARDO = 0xA00F,  //!< Miscellaneous remote alarm clear digital output
+        FCTMOD_PER_MAINRELAYDO        = 0x7000F   //!< Miscellaneous heater relay digital output
     } CANObjectIdentifier_t;
 };
 
 }
 
 Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
-Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
 
 #endif /* DEVICE_CONTROL_GLOBAL_H */

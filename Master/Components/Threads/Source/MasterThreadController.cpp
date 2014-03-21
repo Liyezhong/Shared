@@ -20,17 +20,30 @@
 
 #include <Threads/Include/MasterThreadController.h>
 #include <Threads/Include/ThreadsEventCodes.h>
-#include <DataManagement/Include/XmlConfigFileStrings.h>
-#include <DataManagement/Include/XmlConfigFileTimeOffset.h>
+
 #include <Global/Include/Utils.h>
 #include <Global/Include/SystemPaths.h>
 #include <Global/Include/EventTranslator.h>
 #include <Global/Include/UITranslator.h>
-#include <DeviceControl/Include/DeviceProcessing/DeviceProcessing.h>
-#include <DataManagement/Include/DataManagementEventCodes.h>
 #include <Global/Include/Commands/AckOKNOK.h>
+#include <Global/Include/Commands/CmdSoftSwitchPressed.h>
+#include <Global/Include/AlarmPlayer.h>
 
+#include <DataManager/Include/DataManagerBase.h>
+#include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
+#include <DataManager/Helper/Include/XmlConfigFileStrings.h>
+#include <DataManager/Helper/Include/XmlConfigFileTimeOffset.h>
+#include <DataManager/Helper/Include/DataManagerEventCodes.h>
 
+#include <DeviceControl/Include/DeviceProcessing/DeviceProcessing.h>
+#include <EventHandler/Include/StateHandler.h>
+#include <SoftSwitchManager/Include/SoftSwitchManagerThreadController.h>
+#include <DataLogging/Include/DataLoggingThreadController.h>
+#include <RemoteCareAgent/Include/Commands/CmdAxedaAlarm.h>
+#include <RemoteCareAgent/Include/Commands/CmdAxedaEvent.h>
+#include <RemoteCareAgent/Include/Commands/CmdAxedaDataItem.h>
+#include <RemoteCareAgent/Include/Commands/CmdAxedaUpload.h>
+#include <EventHandler/Include/EventHandlerThreadController.h>
 #include <QMetaType>
 #include <QSharedMemory>
 #include <QDebug>
@@ -39,35 +52,52 @@ namespace Threads {
 
 static const unsigned long THREAD_WAIT_TIME = 2000;             ///< Time to wait when stopping thread.
 static const QString TimeOffsetFileName = "TimeOffset.xml";     ///< Name of file in which time offset is stored.
+static const quint32 ALARM_REPEAT_MAX    =  2;                      ///< Play error tone 2 times at boot up
 
 static const CommandExecuteFunctorAckShPtr_t    NullCommandExecuteFunctor(NULL);    ///< NULL functor for command execution.
 static const CommandExecuteFunctorShPtr_t       NullCommandExecuteFunctorWithouAck(NULL); ///< Null functor command execution
 
 /****************************************************************************/
-MasterThreadController::MasterThreadController(Global::gSourceType LoggingSourceController,
-                                               Global::gSourceType LoggingSourcesDataLogging,
-                                               Global::gSourceType LoggingSourceEventHandler,
+MasterThreadController::MasterThreadController(Global::gSourceType HeartBeatSourceController,
+                                               Global::gSourceType HeartBeatSourcesDataLogging,
+                                               Global::gSourceType HeartBeatSourceEventHandler,
                                                const QString &ShutdownSharedMemName) :
-    BaseThreadController(LoggingSourceController),
+    BaseThreadController(HeartBeatSourceController),
     m_EventLoggerMaxFileSize(0),
     m_DayEventLoggerMaxFileCount(0),
     m_MaxAdjustedTimeOffset(0),
-    m_LoggingSourcesDataLogging(LoggingSourcesDataLogging),
-    m_pDataLoggingThreadController(NULL),
-    m_CommandChannelDataLogging(this, "DataLogging"),
-    m_LoggingSourceEventHandler(LoggingSourceEventHandler),
-    m_pEventThreadController(NULL),
-    m_CommandChannelEventThread(this, "Event"),
-    m_ControllerHeartbeatTimeout(1000),
-    m_HeartbeatCheckTimeout(3000),
+    m_HeartBeatSourceDataLogging(HeartBeatSourcesDataLogging),
+    mp_DataLoggingThreadController(NULL),
+    m_HeartBeatSourceEventHandler(HeartBeatSourceEventHandler),
+    m_ControllerHeartbeatTimeout(3000),
+    m_HeartbeatCheckTimeout(5000),
     m_HeartbeatCheckTimer(this),
     m_ShutdownSharedMemName(ShutdownSharedMemName),
-    m_ShutdownSharedMemTimer(this)
+    m_ShutdownSharedMemTimer(this),
+    m_RebootCount(0),
+    m_CommandChannelAxeda(this, "Axeda", Global::EVENTSOURCE_NONE),
+    m_HeartBeatSourceAxeda(101),
+    m_CommandChannelDataLogging(this, "DataLogging", Global::EVENTSOURCE_DATALOGGER),
+    m_CommandChannelEventThread(this, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER),
+    mp_EventThreadController(NULL),
+    mp_alarmHandler(NULL),
+    mp_UserSettings(NULL),
+    mp_DataManagerBase(NULL),
+    mp_SoftSwitchManagerThreadController(NULL),
+    m_CommandChannelSoftSwitch(this, "SoftSwitch", Global::EVENTSOURCE_NONE),
+    m_HeartBeatSourceSoftSwitch(100),
+    m_MainRebooted(false),
+    m_SWUpdateStatus("NA"),
+    m_SWUpdateCheckStatus("NA"),
+    m_UpdateRollBackFailed(false),
+    m_SWUpdateSuccess(false),
+    m_UpdatingRollback(false),
+    m_PowerFailed(false)
+
 {
     // register the metytype for gSourceType
     qRegisterMetaType<Global::gSourceType>("Global::gSourceType");
     CONNECTSIGNALSLOT(&m_ShutdownSharedMemTimer, timeout(), this, ExternalMemShutdownCheck());
-    //CONNECTSIGNALSIGNAL(m_pExportThreadController, CreateExportProcess(QString), this, CreateExportProcess(QString));
     m_ShutdownSharedMemTimer.setInterval(500);
     m_ShutdownSharedMemTimer.setSingleShot(false);
     // register CmdDataChanged command
@@ -81,25 +111,80 @@ MasterThreadController::MasterThreadController(Global::gSourceType LoggingSource
     // we are in debug mode so we can start timer
     m_ShutdownSharedMemTimer.start();
 #endif
+    //Create Reboot file if it doesnt exits
+    QString RebootPath =  "../Settings/Reboot.txt";
+    QFile RebootFile(RebootPath);
+    if (!RebootFile.exists()) {
+        CreateRebootFile(&RebootFile);
+    }
+    ReadRebootFile(&RebootFile);
 }
 
 /****************************************************************************/
 MasterThreadController::~MasterThreadController() {
     try {
-        m_pDataLoggingThreadController = NULL;
-        m_pEventThreadController = NULL;
+        mp_EventThreadController = NULL;
         m_TCCommandRoutes.clear();
     } catch(...) {
     }
 }
 
+void MasterThreadController::CreateAlarmHandler()
+{
+    mp_alarmHandler = new Global::AlarmHandler(5000, this);
+}
+
 /****************************************************************************/
 void MasterThreadController::CreateAndInitializeObjects() {
-    // get serial number
-    if(!DeviceControl::DeviceProcessing::GetSerialNumber(m_SerialNumber)) {
-        // nothing running at this point, so we have to put the message onto console...
-        THROW(Global::EVENT_GLOBAL_ERROR_READING_SERIAL_NUMBER);
+    CHECKPTR(mp_DataManagerBase);
+     //Update serial number read from Device configuration xml
+    //Serial number will be present in Log files.
+    DataManager::CDataContainerCollectionBase const *p_DataContainer = mp_DataManagerBase->GetDataContainer();
+    CHECKPTR(p_DataContainer);
+    CHECKPTR(p_DataContainer->DeviceConfigurationInterface);
+    DataManager::CDeviceConfigurationInterface *p_DeviceConfigInterface = p_DataContainer->DeviceConfigurationInterface;
+    CHECKPTR(p_DeviceConfigInterface->GetDeviceConfiguration());
+    CHECKPTR(p_DeviceConfigInterface->GetDeviceConfiguration()->GetValue("SerialNumber"))
+    SetSerialNumber(p_DeviceConfigInterface->GetDeviceConfiguration()->GetValue("SerialNumber"));
+
+    mp_DataLoggingThreadController->SetOperatingMode(m_OperatingMode);
+    mp_DataLoggingThreadController->SetEventLoggerBaseFileName(m_EventLoggerBaseFileName);
+    mp_DataLoggingThreadController->SetSerialNumber(m_SerialNumber);
+    mp_DataLoggingThreadController->SetEventLoggerMaxFileSize(m_EventLoggerMaxFileSize);
+    mp_DataLoggingThreadController->SetDayEventLoggerMaxFileCount(m_DayEventLoggerMaxFileCount);
+
+
+    MasterThreadController::RegisterCommands();
+
+
+    CHECKPTR(p_DataContainer->SettingsInterface);
+    mp_UserSettings = p_DataContainer->SettingsInterface->GetUserSettings();
+    CHECKPTR(mp_UserSettings);
+    CHECKPTR(mp_alarmHandler);
+    // read event strings. language and fallback language is English
+    ReadEventTranslations(QLocale::English, QLocale::English);
+    if (mp_UserSettings) {
+        // read ui strings. language is user language and fallback language is English
+        ReadUITranslations(mp_UserSettings->GetLanguage(), QLocale::English);
+
+        mp_alarmHandler->setSoundNumber(Global::ALARM_ERROR, mp_UserSettings->GetSoundNumberError());
+        mp_alarmHandler->setSoundNumber(Global::ALARM_WARNING, mp_UserSettings->GetSoundNumberWarning());
+        mp_alarmHandler->setVolume(Global::ALARM_ERROR,mp_UserSettings->GetSoundLevelError());
+        mp_alarmHandler->setVolume(Global::ALARM_WARNING, mp_UserSettings->GetSoundLevelWarning());
     }
+
+
+}
+
+/****************************************************************************/
+void MasterThreadController::RegisterCommands() {
+    qDebug()<<"Registering Command MasterThreadController";
+    RegisterCommandForProcessing<Global::CmdSoftSwitchPressed, MasterThreadController>(&MasterThreadController::OnSoftSwitchPressedAtStartup, this);
+    // tests for Axeda
+    /*RegisterCommandForRouting<RCAgentNamespace::CmdAxedaAlarm>(&m_CommandChannelAxeda);
+    RegisterCommandForRouting<RCAgentNamespace::CmdAxedaEvent>(&m_CommandChannelAxeda);
+    RegisterCommandForRouting<RCAgentNamespace::CmdAxedaDataItem>(&m_CommandChannelAxeda);
+    RegisterCommandForRouting<RCAgentNamespace::CmdAxedaUpload>(&m_CommandChannelAxeda);*/
 }
 
 /****************************************************************************/
@@ -109,45 +194,43 @@ void MasterThreadController::CleanupAndDestroyObjects() {
 
 /****************************************************************************/
 void MasterThreadController::ConnectDataLoggingSignals(const BaseThreadController *pController) {
-    CHECKPTR(m_pDataLoggingThreadController);
-    CHECKPTR(m_pEventThreadController);    
-    // connect EmitEventEntry -> m_pDataLoggingThreadController::SendToEventLogger();
-   // CONNECTSIGNALSLOT(pController, EmitEventEntry(const DataLogging::EventEntry &),
-                     // m_pDataLoggingThreadController, SendToEventLogger(const DataLogging::EventEntry &));
-    // connect EmitDayOperationEntry -> m_pDataLoggingThreadController::SendToDayOperationLogger();
+    CHECKPTR(mp_EventThreadController);
+    //When an Event is raised, it will be received by Event hanlder.
+    //EventHandler does 1) Check does logging if required. If found to be required, updates entry.
+    //                  2) If event is of type warning/error/fatal error, its forwarded to errorhandler
+    //Note:EventHandler is connected to DataLogger by signal slot mechanism.
+
     CONNECTSIGNALSLOT(pController, EmitDayEventEntry(const DataLogging::DayEventEntry &),
-                      m_pDataLoggingThreadController, SendToDayEventLogger(const DataLogging::DayEventEntry &));
-    // connect EmitComponentTestEntry -> m_pDataLoggingThreadController::SendToComponentTestLogger();
-    //CONNECTSIGNALSLOT(pController, EmitComponentTestEntry(const DataLogging::ComponentTestEntry &),
-                     // m_pDataLoggingThreadController, SendToComponentTestLogger(const DataLogging::ComponentTestEntry &));
-    // connect EmitEventEntry -> to the event handler's slot
-//    CONNECTSIGNALSLOT(pController, EmitEventEntry(const DataLogging::EventEntry &),
-//                      m_pEventThreadController, ProcessEvent(const DataLogging::EventEntry &));
+                      mp_EventThreadController, ProcessEvent(const DataLogging::DayEventEntry &));
 }
 
 /****************************************************************************/
-void MasterThreadController::AddAndConnectController(ThreadController *pController, Threads::CommandChannel *pCommandChannel) {
+void MasterThreadController::AddAndConnectController(ThreadController *pController, Threads::CommandChannel *pCommandChannel, int ControllerNumber, bool BasicThreadController) {
     // check pointers
     CHECKPTR(pController);
     CHECKPTR(pCommandChannel);
-    // add the pair to m_Controllers to ensure it will be destroyed if connecting the signals fails
-    // set thread to NULL to ensure everything works in direct calls untill threads have to be started.
-    m_Controllers.push_back(tControllerPair(pController, NULL));
 
+    if (!BasicThreadController) {
+        // add the pair to m_Controllers to ensure it will be destroyed if connecting the signals fails
+        // set thread to NULL to ensure everything works in direct calls untill threads have to be started.
+        m_ControllerMap.insert(ControllerNumber, tControllerPair(pController, NULL));
+        CONNECTSIGNALSLOT(this, SendGo(), pController, Go());
+    }
+    else {
+        m_BasicControllersMap.insert(ControllerNumber, tControllerPair(pController, NULL));
+        CONNECTSIGNALSLOT(this, SendGoToBasicThreads(), pController, Go());
+    }
+
+    m_channelList.insert(pCommandChannel->m_channelName.simplified().toUpper(), pCommandChannel);
     // connect some signals
-    // connect Go and Stop signals
-    CONNECTSIGNALSLOT(this, SendGo(), pController, Go());
     CONNECTSIGNALSLOT(this, SendStop(), pController, Stop());
-
-    // connect logging signals of controller for events, day operation and component tests
-    ConnectDataLoggingSignals(pController);
 
     // connect heartbeat signals
     CONNECTSIGNALSLOT(pController, HeartbeatSignal(const Global::gSourceType &), this, HeartbeatSlot(const Global::gSourceType &));
     // and set controllers heartbeat timeout
     pController->SetHeartbeatTimeout(m_ControllerHeartbeatTimeout);
     // remember its ID for heartbeat checks
-    m_HeartbeatSources.insert(pController->GetLoggingSource().GetSource());
+    m_HeartbeatSources.insert(pController->GetHeartBeatSource());
     // insert command channel into broadcast vector
     m_BroadcastChannels.append(pCommandChannel);
     // connect comannd channel signals
@@ -156,29 +239,42 @@ void MasterThreadController::AddAndConnectController(ThreadController *pControll
 
 /****************************************************************************/
 void MasterThreadController::CreateControllersAndThreads() {
-    Q_ASSERT(m_pDataLoggingThreadController == NULL);
-    Q_ASSERT(m_pEventThreadController == NULL);
 
-    // now create new objects common to all master threads
+}
+
+/****************************************************************************/
+void MasterThreadController::CreateBasicControllersAndThreads() {
+
+    // now create new objects which are essential at startup. For now the
+    //basic thread controllers are 1) EventHandler and 2)DataLogger 3)SoftswitchManager
 
     // Create the data logger controller and the data logger thread.
     // Remember pointer to data logging controller to do some automatic connecting.
-    m_pDataLoggingThreadController = new DataLogging::DataLoggingThreadController(m_LoggingSourcesDataLogging);
+    mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(m_HeartBeatSourceDataLogging, m_EventLoggerBaseFileName);
     // configure it
-    m_pDataLoggingThreadController->SetOperatingMode(m_OperatingMode);
-    m_pDataLoggingThreadController->SetEventLoggerBaseFileName(m_EventLoggerBaseFileName);
-    m_pDataLoggingThreadController->SetSerialNumber(m_SerialNumber);
-    m_pDataLoggingThreadController->SetEventLoggerMaxFileSize(m_EventLoggerMaxFileSize);
-    m_pDataLoggingThreadController->SetDayEventLoggerMaxFileCount(m_DayEventLoggerMaxFileCount);
 
     // create system's event handler
     // if an exception occures, the instance must be deleted manually!
-    m_pEventThreadController = new EventHandler::EventHandlerThreadController(m_LoggingSourceEventHandler);
+    mp_EventThreadController = new EventHandler::EventHandlerThreadController(m_HeartBeatSourceEventHandler);
 
-    // we have to connect out own logging signals to ensure we can send events.
-    ConnectDataLoggingSignals(this);
+    mp_EventThreadController->ConnectToEventObject();
 
-    // Connecting m_pDataLoggingThreadController using AddAndConnectController ensures that
+    //***********************************************
+    //This will connect EventHandler to DataLogger.
+    //************************************************
+    CONNECTSIGNALSLOT(mp_EventThreadController, LogEventEntry(const DataLogging::DayEventEntry &),
+                      mp_DataLoggingThreadController, SendToDayEventLogger(const DataLogging::DayEventEntry &));
+
+    // this will check whether logging is enabled or not and the same can inform to GUI
+    CONNECTSIGNALSLOT(this, CheckLoggingEnabled(),
+                      mp_DataLoggingThreadController, CheckLoggingEnabled());
+    CreateAlarmHandler();
+    //EventHandler shall have knowledge of alarm handler to initiate alarms
+    mp_EventThreadController->SetAlarmHandler(mp_alarmHandler);
+
+    mp_SoftSwitchManagerThreadController = new SoftSwitchManager::SoftSwitchManagerThreadController(m_HeartBeatSourceSoftSwitch);
+
+    // Connecting mp_DataLoggingThreadController using AddAndConnectController ensures that
     // errors from it will be send to the error logger.
     // Sending day operation and component test entries lead to an additional call since they
     // will be send to itself and dispatched to the logger instances (which results in one additional
@@ -187,127 +283,150 @@ void MasterThreadController::CreateControllersAndThreads() {
     // if (for example) day operation entries should be send to more than one logger instance,
     // this can be implemented easily.
     try {
-        AddAndConnectController(m_pDataLoggingThreadController, &m_CommandChannelDataLogging);
+        AddAndConnectController(mp_DataLoggingThreadController, &m_CommandChannelDataLogging,
+                                static_cast<int>(DATA_LOGGING_THREAD), true);
     } catch(...) {
         // m_pDataLoggingThreadController was not added properly so delete all allocated stuff yourself!
         // delete m_pDataLoggingThreadController
-        delete m_pDataLoggingThreadController;
-        m_pDataLoggingThreadController = NULL;
+        delete mp_DataLoggingThreadController;
+        mp_DataLoggingThreadController = NULL;
         // donn't forget to delete m_pEventThreadController also!
-        delete m_pEventThreadController;
-        m_pEventThreadController = NULL;
+        delete mp_EventThreadController;
+        mp_EventThreadController = NULL;
+
+        delete mp_SoftSwitchManagerThreadController;
+        mp_SoftSwitchManagerThreadController = NULL;
         // rethrow exception
         throw;
     }
+
     // connect all common signals and slots of the Event Handler and create its thread:
     try {
-        AddAndConnectController(m_pEventThreadController, &m_CommandChannelEventThread);
+        AddAndConnectController(mp_EventThreadController, &m_CommandChannelEventThread,
+                                static_cast<int>(EVENT_HANDLER_THREAD), true);
+
     } catch(...) {
-        // m_pDataLoggingThreadController was already added properly so it will be deleted automagically
         // m_pEventThreadController was not added properly so delete all allocated stuff yourself!
         // delete m_pEventThreadController
-        delete m_pEventThreadController;
-        m_pEventThreadController = NULL;
+        delete mp_EventThreadController;
+        mp_EventThreadController = NULL;
         // rethrow exception
         throw;
-    }    
+    }
 
- }
+    try {
+        AddAndConnectController(mp_SoftSwitchManagerThreadController, &m_CommandChannelSoftSwitch,
+                                static_cast<int>(SOFT_SWTICH_MANAGER_THREAD), true);
+    }catch(...) {
+        // mp_SoftSwitchManagerThreadController was not added properly so delete all allocated stuff yourself!
+        // delete m_pEventThreadController
+        delete mp_SoftSwitchManagerThreadController;
+        mp_SoftSwitchManagerThreadController = NULL;
+        // rethrow exception
+        throw;
+    }
 
-/****************************************************************************/
-void MasterThreadController::AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler) {
-    CHECKPTR(pErrorHandler);
 
-    // set ErrorHandler's parent that will move itself and the
-    // ErrorHandler to a dedicated thread.
-    pErrorHandler->setParent(m_pEventThreadController);
 
-    // connect event receiving slot of ErrorHandler
-    CONNECTSIGNALSLOT(m_pEventThreadController, ForwardToErrorHandler(const DataLogging::EventEntry &),
-                      pErrorHandler, ReceiveEvent(const DataLogging::EventEntry &));
-    // connect signal which is used to report errors to RemoteCare
-    CONNECTSIGNALSIGNAL(pErrorHandler, SendErrorToRemoteCare(const DataLogging::EventEntry &),
-                        m_pEventThreadController, ForwardToRemoteCare(const DataLogging::EventEntry &));
 }
+
+///****************************************************************************/
+//void MasterThreadController::AttachErrorHandler(EventHandler::ErrorHandler *pErrorHandler) {
+//    CHECKPTR(pErrorHandler);
+//    // set ErrorHandler's parent that will move itself and the
+//    // ErrorHandler to a dedicated thread.
+//    pErrorHandler->setParent(mp_EventThreadController);
+//}
 
 /****************************************************************************/
 void MasterThreadController::SetRemoteCareConnection(const EventHandler::RemoteCareHandler *pRemoteCareHandler) const {
     // connect error receiving slot of RemoteCareHandler
-    CONNECTSIGNALSLOT(m_pEventThreadController, ForwardToRemoteCare(const DataLogging::EventEntry &),
-                      pRemoteCareHandler, ForwardEventToRemoteCare(const DataLogging::EventEntry &));
+    CONNECTSIGNALSLOT(mp_EventThreadController, ForwardToRemoteCare(const DataLogging::DayEventEntry &),
+                      pRemoteCareHandler, ForwardEventToRemoteCare(const DataLogging::DayEventEntry &));
 }
 
 /****************************************************************************/
-void MasterThreadController::DestroyControllersAndThreads() {
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
+void MasterThreadController::DestroyControllersAndThreads(const bool BasicThreadController) {
+   tControllerMap Controllers;
+   BasicThreadController ? (Controllers = m_BasicControllersMap) : (Controllers = m_ControllerMap);
+   for(tControllerMap::iterator it = m_ControllerMap.begin(); it != m_ControllerMap.end(); ++it) {
         // delete objects
-        delete it->first;
-        delete it->second;
+        delete it.value().first;
+        delete it.value().second;
     }
-    m_Controllers.clear();
+    m_ControllerMap.clear();
 }
 
 /****************************************************************************/
-void MasterThreadController::InitializeControllers() {
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
+void MasterThreadController::InitializeControllers(bool BasicThreadController) {
+   tControllerMap Controllers;
+   BasicThreadController ? (Controllers = m_BasicControllersMap) : (Controllers = m_ControllerMap);
+    for(tControllerMap::iterator it = Controllers.begin(); it != Controllers.end(); ++it) {
         // Initialize controllers
         qDebug() << "MasterThreadController::InitializeControllers";
 
-        it->first->CreateAndInitializeObjects();
+        it.value().first->CreateAndInitializeObjects();
     }
 }
 
 /****************************************************************************/
-void MasterThreadController::CleanupControllers() {
-    for(tControllerVector::iterator it = m_Controllers.end(); it != m_Controllers.begin();) {
+void MasterThreadController::CleanupControllers(bool BasicThreadController) {
+    tControllerMap Controllers;
+   BasicThreadController ? (Controllers = m_BasicControllersMap) : (Controllers = m_ControllerMap);
+    for(tControllerMap::iterator it = Controllers.end(); it != Controllers.begin();) {
         // go backwards
         --it;
         // cleanup object
-        it->first->CleanupAndDestroyObjects();
+        it.value().first->CleanupAndDestroyObjects();
     }
 }
 
 /****************************************************************************/
-void MasterThreadController::AttachControllersAndStartThreads() {
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
+void MasterThreadController::AttachControllersAndStartThreads(bool BasicThreadController) {
+    tControllerMap Controllers;
+    BasicThreadController ? (Controllers = m_BasicControllersMap) : (Controllers = m_ControllerMap);
+    for(tControllerMap::iterator it = Controllers.begin(); it != Controllers.end(); ++it) {
         // create new thread
-        it->second = new QThread();
+        it.value().second = new QThread();
         // attach controller to thread
-        it->first->moveToThread(it->second);
+        it.value().first->moveToThread(it->second);
         // now start thread and event loop
         //   From: http://qt-project.org/wiki/Threads_Events_QObjects
         //     Note that since Qt 4.4 ... the virtual method QThread::run() ...
         //     simply calls QThread::exec();, which starts the thread’s event loop
-        it->second->start();
+        it.value().second->start();
     }
     // start heartbeat check timer only if m_HeartbeatCheckTimeout > 0
-    if(m_HeartbeatCheckTimeout > 0) {
-        m_HeartbeatCheckTimer.setInterval(m_HeartbeatCheckTimeout);
-        m_HeartbeatCheckTimer.setSingleShot(false);
-        m_HeartbeatCheckTimer.start();
-    } else {
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_INFO_NO_HEARTBEAT_CHECKING, Global::tTranslatableStringList()
-                  , Global::NO_NUMERIC_DATA, false);
-    }
+   if(m_HeartbeatCheckTimeout > 0) {
+       m_HeartbeatCheckTimer.setInterval(m_HeartbeatCheckTimeout);
+       m_HeartbeatCheckTimer.setSingleShot(false);
+       m_HeartbeatCheckTimer.start();
+   } else {
+       LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_INFO_NO_HEARTBEAT_CHECKING, Global::tTranslatableStringList()
+                 , Global::NO_NUMERIC_DATA, false);
+   }
     // and send them the Go signal
-    emit SendGo();
+   BasicThreadController ? (emit SendGoToBasicThreads()): (emit SendGo());
 }
 
+
 /****************************************************************************/
-void MasterThreadController::WaitForThreads() {
+void MasterThreadController::WaitForThreads(bool BasicThreadController) {
+    tControllerMap Controllers;
+    BasicThreadController ? (Controllers = m_BasicControllersMap) : (Controllers = m_ControllerMap);
     // stop heartbeat check timer
     m_HeartbeatCheckTimer.stop();
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
+    for(tControllerMap::iterator it = Controllers.begin(); it !=  Controllers.end(); ++it) {
         // and wait for threads
-        if(it->second != NULL) {
-            if(!it->second->wait(THREAD_WAIT_TIME)){
+        if(it.value().second != NULL) {
+            if(!it.value().second->wait(THREAD_WAIT_TIME)){
                 // thread did not quit within time
-                Global::TranslatableString SourceString(it->first->GetLoggingSource().GetSource());
+                Global::TranslatableString SourceString(it->first->GetHeartBeatSource());
                 LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_THREADS_ERROR_THREAD_STOP_ARGS,
-                                 Global::tTranslatableStringList() << SourceString << QString::number(THREAD_WAIT_TIME, 10),
-                                 Global::NO_NUMERIC_DATA, false);
+                          Global::tTranslatableStringList() << SourceString << QString::number(THREAD_WAIT_TIME, 10),
+                          Global::NO_NUMERIC_DATA, false);
                 Global::ToConsole(QString("Thread %1 did not finish within %2ms").
-                                  arg(it->first->GetLoggingSource().GetSource()).
+                                  arg(it->first->GetHeartBeatSource()).
                                   arg(THREAD_WAIT_TIME));
             }
         }
@@ -318,26 +437,26 @@ void MasterThreadController::WaitForThreads() {
 void MasterThreadController::RegisterCommandExecuteFunctor(const QString &CommandName, const CommandExecuteFunctorAckShPtr_t &Functor) {
     // check if already registered
     if(m_CommandExecuteFunctors.contains(CommandName)) {
-        THROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
     }
     // everything OK
     static_cast<void>(
-        // we DO NOT NEED the return value of insert
-        m_CommandExecuteFunctors.insert(CommandName, Functor)
-    );
+                // we DO NOT NEED the return value of insert
+                m_CommandExecuteFunctors.insert(CommandName, Functor)
+                );
 }
 
 /****************************************************************************/
 void MasterThreadController::RegisterCommandExecuteFunctor(const QString &CommandName, const CommandExecuteFunctorShPtr_t &Functor) {
     // check if already registered
     if(m_CommandExecuteWithoutAckFunctors.contains(CommandName)) {
-        THROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
     }
     // everything OK
     static_cast<void>(
-        // we DO NOT NEED the return value of insert
-        m_CommandExecuteWithoutAckFunctors.insert(CommandName, Functor)
-    );
+                // we DO NOT NEED the return value of insert
+                m_CommandExecuteWithoutAckFunctors.insert(CommandName, Functor)
+                );
 }
 
 /****************************************************************************/
@@ -354,7 +473,7 @@ CommandExecuteFunctorAckShPtr_t MasterThreadController::GetCommandExecuteFunctor
 
 /****************************************************************************/
 CommandExecuteFunctorShPtr_t MasterThreadController::GetCommandExecuteFunctorWithoutAck(const QString &CommandName) const {
-     CommandExecuteFunctorHash_t::const_iterator it = m_CommandExecuteWithoutAckFunctors.find(CommandName);
+    CommandExecuteFunctorHash_t::const_iterator it = m_CommandExecuteWithoutAckFunctors.find(CommandName);
     if(it == m_CommandExecuteWithoutAckFunctors.constEnd()) {
         // functor not found
         // return NULL functor
@@ -368,13 +487,13 @@ void MasterThreadController::RegisterCommandRoutingChannel(const QString &Comman
     CHECKPTR(pTargetCommandChannel);
     // check if already registered
     if(m_TCCommandRoutes.contains(CommandName)) {
-        THROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
+        LOGANDTHROWARGS(EVENT_THREADS_ERROR_COMMAND_FUNCTOR_ALREADY_REGISTERED, CommandName);
     }
     // everything OK
     static_cast<void>(
-        // we DO NOT NEED the return value of insert
-        m_TCCommandRoutes.insert(CommandName, pTargetCommandChannel)
-    );
+                // we DO NOT NEED the return value of insert
+                m_TCCommandRoutes.insert(CommandName, pTargetCommandChannel)
+                );
 }
 
 /****************************************************************************/
@@ -387,6 +506,19 @@ CommandChannel *MasterThreadController::GetCommandRouteChannel(const QString &Co
     return m_TCCommandRoutes.value(CommandName);
 }
 
+CommandChannel *MasterThreadController::GetComponentRouteChannel(Global::EventSourceType component) const {
+    QHashIterator<QString, Threads::CommandChannel*> i(m_channelList);
+    while (i.hasNext())
+    {
+        i.next();
+        if (i.value()->m_componentType == component)
+        {
+            return i.value();
+        }
+    }
+    return NULL;
+}
+
 //lint -efunc(613, Threads::MasterThreadController::OnExecuteCommand)
 // JB: Since lint does not know that Cmd can not be "NULL" after checking it with IsNull
 // it will throw lots of 613 warnings when accessing Cmd, so we disable 613 for
@@ -395,7 +527,7 @@ CommandChannel *MasterThreadController::GetCommandRouteChannel(const QString &Co
 void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, Threads::CommandChannel &AckCommandChannel)
 {
     try {
-        //qDebug() << "MasterThreadController::OnExecuteCommand" << Ref << Cmd.GetPointerToUserData()->GetName();
+        qDebug() << "MasterThreadController::OnExecuteCommand" << Ref << Cmd.GetPointerToUserData()->GetName();
 
         if (!IsCommandAllowed(Cmd))
         {
@@ -405,13 +537,22 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
 
         // check pointer
         if(Cmd.IsNull()) {
-            THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
+            LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Cmd" << FILE_LINE); \
         }
-        SEND_DEBUG(WHEREAMI + " " +
-                   QString("Ref = ") + QString::number(Ref, 10) +
-                   QString("Name = ") + Cmd->GetName());
+//        SEND_DEBUG(WHEREAMI + " " +
+//                   QString("Ref = ") + QString::number(Ref, 10) +
+//                   QString("Name = ") + Cmd->GetName());
         // check if this command should be routed
-        CommandChannel *pChannel = GetCommandRouteChannel(Cmd->GetName());
+        CommandChannel *pChannel;
+        if (Cmd->GetName().contains("CmdSystemAction"))
+        {
+            NetCommands::CmdSystemAction *actionCommand = (NetCommands::CmdSystemAction*)Cmd.GetPointerToUserData();
+            pChannel = GetComponentRouteChannel(actionCommand->GetSource());
+        }
+        else
+        {
+            pChannel = GetCommandRouteChannel(Cmd->GetName());
+        }
         if(pChannel != NULL) {
             // yes, we must route it
             // get new ref
@@ -420,15 +561,16 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
             if(Cmd->GetTimeout() != Global::Command::NOTIMEOUT) {
                 // it has a timeout and also an acknowledge
                 tRefChannelPair Pair(Ref, &AckCommandChannel);
+
                 // add new ref to list of routing refs
                 static_cast<void> (
-                    // we DO NOT NEED the return value of insert
-                    m_TCAcknowledgeRoutes.insert(NewRef, Pair)
-                );
+                            // we DO NOT NEED the return value of insert
+                            m_TCAcknowledgeRoutes.insert(NewRef, Pair)
+                            );
             }
             //Check if some processing must be done before sending it to the target channel
             CommandExecuteFunctorShPtr_t Functor = GetCommandExecuteFunctorWithoutAck(Cmd->GetName());
-            if(Functor == NullCommandExecuteFunctorWithouAck) {
+            if (Functor == NullCommandExecuteFunctorWithouAck) {
                 // and send command
                 DoSendCommand(NewRef, Cmd, *pChannel);
             }
@@ -445,17 +587,18 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
             CommandExecuteFunctorAckShPtr_t Functor = GetCommandExecuteFunctor(Cmd->GetName());
             if(Functor == NullCommandExecuteFunctor) {
                 // throw exception
-                THROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName());
+                qDebug() << "MasterThreadController::OnExecuteCommand, no command functor for" << Cmd->GetName();
+                LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName());
             }
             // execute
             Functor.GetPointerToUserData()->Execute(Ref, Cmd.GetPointerToUserData(), AckCommandChannel);
         }
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
@@ -465,16 +608,20 @@ void MasterThreadController::OnExecuteCommand(Global::tRefType Ref, const Global
 // it will throw lots of 613 warnings when accessing Ack, so we disable 613 for
 // this method. Remember that 613 is disabled forr all pointers in this function!
 /****************************************************************************/
-void MasterThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack) {
+void MasterThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack)
+{
+//    qDebug() << "MasterThreadController::OnProcessAcknowledge" << Ref << Ack.GetPointerToUserData()->GetName();
+
     try {
         // check pointer
         if(Ack.IsNull()) {
-            THROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
+            LOGANDTHROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << "Ack" << FILE_LINE); \
         }
-        SEND_DEBUG(WHEREAMI + " " +
-                   QString("Ref = ") + QString::number(Ref, 10) +
-                   QString("Name = ") + Ack->GetName());
-        if(m_TCAcknowledgeRoutes.contains(Ref)) {
+//        SEND_DEBUG(WHEREAMI + " " +
+//                   QString("Ref = ") + QString::number(Ref, 10) +
+//                   QString("Name = ") + Ack->GetName());
+        if(m_TCAcknowledgeRoutes.contains(Ref))
+        {
             // it seems that we must route acknowledge
             // Remove from list of blocked references
             UnblockCommandRef(Ref);
@@ -486,9 +633,9 @@ void MasterThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Gl
             CommandChannel *pAckChannel = Pair.second;
             // remove from lists
             static_cast<void>(
-                // we DO NOT NEED the return value of remove
-                m_TCAcknowledgeRoutes.remove(Ref)
-            );
+                        // we DO NOT NEED the return value of remove
+                        m_TCAcknowledgeRoutes.remove(Ref)
+                        );
             CHECKPTR(pAckChannel);
             // and send
             SendAcknowledge(SendRef, Ack, *pAckChannel);
@@ -498,23 +645,25 @@ void MasterThreadController::OnProcessAcknowledge(Global::tRefType Ref, const Gl
         }
     } catch(const Global::Exception &E) {
         // and send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
 }
 
 /****************************************************************************/
 void MasterThreadController::OnProcessTimeout(Global::tRefType Ref, const QString &CmdName) {
-    SEND_DEBUG(WHEREAMI + " " +
-               QString("Ref = ") + QString::number(Ref, 10) +
-               QString("Name = ") + CmdName);
+//    SEND_DEBUG(WHEREAMI + " " +
+//               QString("Ref = ") + QString::number(Ref, 10) +
+//               QString("Name = ") + CmdName);
     if(m_TCAcknowledgeRoutes.contains(Ref)) {
         // send error
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_THREADS_ERROR_COMMAND_TIMEOUT, Global::tTranslatableStringList() << CmdName << QString::number(Ref, 10)
-                  , Global::NO_NUMERIC_DATA ,false);
+        Global::EventObject::Instance().RaiseEvent(EVENT_THREADS_ERROR_COMMAND_TIMEOUT, Global::FmtArgs() << CmdName << Ref, true);
+
+//        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_THREADS_ERROR_COMMAND_TIMEOUT, Global::tTranslatableStringList() << CmdName << QString::number(Ref, 10)
+//                  , Global::NO_NUMERIC_DATA ,false);
         // remove from list of pending commands
         RemoveFromPendingCommands(Ref);
     } else {
@@ -564,7 +713,8 @@ void MasterThreadController::SendAcknowledgeNOK(Global::tRefType Ref, CommandCha
 
 /****************************************************************************/
 void MasterThreadController::ReadEventTranslations(QLocale::Language Language, QLocale::Language FallbackLanguage) const {
-    const QString StringsFileName = Global::SystemPaths::Instance().GetSettingsPath() + "/EventStrings.xml";
+    const QString StringsFileName = Global::SystemPaths::Instance().GetTranslationsPath()
+            + "/EventStrings_" + Global::LanguageToLanguageCode(Language) + ".xml";
     // cleanup translator strings. For event strings.
     Global::EventTranslator::TranslatorInstance().Reset();
     // read strings
@@ -579,7 +729,7 @@ void MasterThreadController::ReadEventTranslations(QLocale::Language Language, Q
         // Uh oh... some languages could not be read.
         // send some error messages.
         for(QSet<QLocale::Language>::const_iterator it = LanguageList.constBegin(); it != LanguageList.constEnd(); ++it) {
-            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, DataManager::EVENT_DATAMANAGER_ERROR_LANG_NOT_FOUND, Global::LanguageToString(*it)
+            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, DataManager::EVENT_DM_ERROR_LANG_NOT_FOUND, Global::LanguageToString(*it)
                       , Global::NO_NUMERIC_DATA, false);
         }
     }
@@ -601,14 +751,33 @@ void MasterThreadController::ReadEventTranslations(QLocale::Language Language, Q
 void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, QLocale::Language FallbackLanguage) const {
     // cleanup translator strings. For UI strings.
     Global::UITranslator::TranslatorInstance().Reset();
+
+    // read all the languages which are available in the translations directory
+    QDir TheDir(Global::SystemPaths::Instance().GetTranslationsPath());
+    QStringList FileNames = TheDir.entryList(QStringList("Himalaya_*.qm"));
+
     // Create list of used languages. Language and FallbackLanguage can be the same, since we are
     // working wit a QSet
     QSet<QLocale::Language> LanguageList;
+
     LanguageList << UserLanguage << FallbackLanguage;
+
+    for (int Counter = 0; Counter < FileNames.size(); ++Counter)
+    {
+        // get locale extracted by filename
+        QString Locale;
+        Locale = FileNames[Counter];                  // "Himalaya_de.qm"
+        Locale.truncate(Locale.lastIndexOf('.'));   // "Himalaya_de"
+        Locale.remove(0, Locale.indexOf('_') + 1);   // "de"
+        LanguageList << QLocale(Locale).language();
+    }
+
     for(QSet<QLocale::Language>::const_iterator itl = LanguageList.constBegin(); itl != LanguageList.constEnd(); ++itl) {
-        const QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/UIStrings_" +
-                                 Global::LanguageToLanguageCode(*itl) + ".xml";
-        try {
+
+        QString FileName = Global::SystemPaths::Instance().GetTranslationsPath() + "/EventStrings_" +
+                    Global::LanguageToLanguageCode(*itl) + ".xml";
+
+        try {            
             // read strings for specified language
             DataManager::XmlConfigFileStrings TranslatorDataFile;
             TranslatorDataFile.ReadStrings(FileName, QSet<QLocale::Language>() << *itl);
@@ -622,12 +791,12 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
             }
         } catch(const Global::Exception &E) {
             // and send error message
-            SEND_EXCEPTION(E);
-            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_READ_CONFIG_FILE, FileName
+            //RaiseException(E);
+            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_READ_CONFIG_FILE, FileName
                       , Global::NO_NUMERIC_DATA, false);
         } catch(...) {
             // send some error message
-            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+            LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                       , Global::NO_NUMERIC_DATA, false);
         }
     }
@@ -656,10 +825,10 @@ bool MasterThreadController::ReadTimeOffsetFile() {
         return true;
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
     // something went wrong
@@ -672,10 +841,10 @@ bool MasterThreadController::ReadTimeOffsetFile() {
         return true;
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   ,Global::NO_NUMERIC_DATA, false);
     }
     return false;
@@ -685,21 +854,22 @@ bool MasterThreadController::ReadTimeOffsetFile() {
 bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateTime) {
     // check if inside limits
     int NewOffset = Global::AdjustedTime::ComputeOffsetSeconds(NewDateTime);
-    if((m_MaxAdjustedTimeOffset != 0) && (abs(NewOffset) > m_MaxAdjustedTimeOffset)) {
+
+    if(((m_MaxAdjustedTimeOffset != 0) && (abs(NewOffset) > m_MaxAdjustedTimeOffset)) || NewOffset < 0) {
         // offset must be checked and is outside allowed range.
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE, Global::tTranslatableStringList() <<
-                                                                           QString::number(NewOffset, 10) <<
-                                                                           QString::number(m_MaxAdjustedTimeOffset, 10)
-                                                                           , Global::NO_NUMERIC_DATA, false);
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_TIME_OFFSET_TOO_LARGE, Global::tTranslatableStringList() <<
+                  QString::number(NewOffset, 10) <<
+                  QString::number(m_MaxAdjustedTimeOffset, 10)
+                  , Global::NO_NUMERIC_DATA, false);
         return false;
     }
     // log setting new time offset
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_SET_DATE_TIME, NewDateTime.toUTC().toString(Qt::ISODate)
+    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_SET_DATE_TIME, NewDateTime.toUTC().toString(Qt::ISODate)
               , Global::NO_NUMERIC_DATA, false);
     // set date and time
     Global::AdjustedTime::Instance().AdjustToDateTime(NewDateTime);
     // log new time offset as info
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_CURRENT_TIME_OFFSET, QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
+    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_CURRENT_TIME_OFFSET, QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
               , Global::NO_NUMERIC_DATA, false);
     // save new offset to file
     try {
@@ -710,88 +880,140 @@ bool MasterThreadController::SetAdjustedDateTimeOffset(const QDateTime &NewDateT
         // return true;
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
     }
-    return false;
+    return true;
 }
 
 /****************************************************************************/
-void MasterThreadController::OnGoReceived() {
+void MasterThreadController::OnGoReceived()
+{
     // all objects created from now on, live in this thread so they are served by the
     // signal/slot mechanism in this event loop.
     try {
-        // first of all create controllers and threads
-        CreateControllersAndThreads();
-
         // Initialize controllers
-        InitializeControllers();
+        InitializeControllers(true);
 
         // connect heartbeat check timer
         CONNECTSIGNALSLOT(&m_HeartbeatCheckTimer, timeout(), this, HeartbeatCheck());
 
         // now start threads
-        AttachControllersAndStartThreads();
-
-        // log current time offset as info
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_CURRENT_TIME_OFFSET,
-                  QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
-                  , Global::NO_NUMERIC_DATA, false);
-
-        // send infos that state machine is starting
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
-                  , Global::NO_NUMERIC_DATA, false);
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_DEBUG, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
-                  , Global::NO_NUMERIC_DATA, false);
-        // start own statemachine
-        StartStatemachine();
-        SendContainersToScheduler();
-
+        AttachControllersAndStartThreads(true);
     } catch(const Global::Exception &E) {
         // destroy controllers and threads
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
         // and request exit
         Shutdown();
     } catch(const std::bad_alloc &) {
         // destroy controllers and threads
         // send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
         // and request exit
         Shutdown();
     } catch(...) {
         // destroy controllers and threads
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
                   Global::NO_NUMERIC_DATA, false);
         // and request exit
         Shutdown();
     }
 }
 
-/****************************************************************************/
+void MasterThreadController::OnSoftSwitchPressedAtStartup(Global::tRefType Ref, const Global::CmdSoftSwitchPressed &Cmd,
+                                                          Threads::CommandChannel &AckCommandChannel) {
+    Q_UNUSED(Cmd);
+    qDebug()<<"At Start OnSoftSwitchPressedAtStartup()";
+    // all objects created from now on, live in this thread so they are served by the
+    // signal/slot mechanism in this event loop.
+    try {
+        SendAcknowledgeOK(Ref, AckCommandChannel);
+
+        //Initialize GUI
+        InitializeGUI();
+
+        qDebug() << "MasterThreadController::OnSoftSwitchPressedAtStartup" << EventHandler::StateHandler::Instance().getCurrentOperationState();
+//        // first of all create controllers and threads
+//        CreateControllersAndThreads();
+
+//        // Initialize controllers
+//        InitializeControllers();
+
+//        // now start threads
+//        AttachControllersAndStartThreads();
+
+//        // log current time offset as info
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_GLOBAL_CURRENT_TIME_OFFSET,
+//                  QString::number(Global::AdjustedTime::Instance().GetOffsetSeconds(), 10)
+//                  , Global::NO_NUMERIC_DATA, false);
+
+//        // send infos that state machine is starting
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
+//                  , Global::NO_NUMERIC_DATA, false);
+//        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_DEBUG, EVENT_THREADS_INFO_STARTING_STATE_MACHINE, Global::tTranslatableStringList()
+//                  , Global::NO_NUMERIC_DATA, false);
+//        // start own statemachine
+//        StartStatemachine();
+//        //! \todo Move the below code out of platform code - N.Kamath
+//        SendContainersToScheduler();
+        qDebug()<<"OnSoftSwitchPressedAtStartup();";
+    } catch(const Global::Exception &E) {
+        // destroy controllers and threads
+        // send error message
+        Global::EventObject::Instance().RaiseException(E);
+        // and request exit
+        Shutdown();
+    } catch(const std::bad_alloc &) {
+        // destroy controllers and threads
+        // send error message
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST,
+                  Global::NO_NUMERIC_DATA, false);
+        // and request exit
+        Shutdown();
+    } catch(...) {
+        // destroy controllers and threads
+        // Send error message
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST,
+                  Global::NO_NUMERIC_DATA, false);
+        // and request exit
+        Shutdown();
+    }
+}
+ /****************************************************************************/
 void MasterThreadController::OnStopReceived() {
     // Cleanup controllers
     CleanupControllers();
+    CleanupControllers(true);
 
     // destroy controllers and threads
     DestroyControllersAndThreads();
+    DestroyControllersAndThreads(true);
 }
 
 /****************************************************************************/
 void MasterThreadController::Shutdown() {
-    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList()
-              , Global::NO_NUMERIC_DATA, false);
+    //write buffered data to disk-> refer man pages for sync
+    system("sync &");
+    std::cout <<"\n\n Shutdown Start time " << Global::AdjustedTime::Instance().GetCurrentTime().toString().toStdString();
+    //send shutdown signal to RemoteCarecontroller
+//    SendCommand(Global::CommandShPtr_t(new NetCommands::CmdRCNotifyShutdown()), m_CommandChannelRemoteCare);
 
+//    LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList()
+//              , Global::NO_NUMERIC_DATA, false);
+//    Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList() <<"");
+//    SendCommand(Global::CommandShPtr_t(new Global::CmdLCDPowerControl(false)), m_CommandChannelGPIOManager);
     // send Stop signal to all thread controllers
     emit SendStop();
 
     // stop all threads and wait for them
     WaitForThreads();
+    WaitForThreads(true);
 
     // call own Stop method
     Stop();
@@ -802,6 +1024,7 @@ void MasterThreadController::Shutdown() {
 
 /****************************************************************************/
 void MasterThreadController::HeartbeatCheck() {
+//    qDebug() << "MasterThreadController::HeartbeatCheck";
     // check if all registered controllers have send their heartbeat signal
     if(m_HeartbeatSources == m_ArrivedHeartbeats) {
         // everything OK
@@ -826,16 +1049,16 @@ void MasterThreadController::HeartbeatCheck() {
 }
 
 /****************************************************************************/
-void MasterThreadController::HeartbeatSlot(const Global::gSourceType &TheLoggingSource) {
+void MasterThreadController::HeartbeatSlot(const Global::gSourceType &TheHeartBeatSource) {
     // remember received heartbeat logging source.
-    m_ArrivedHeartbeats.insert(TheLoggingSource);
+    m_ArrivedHeartbeats.insert(TheHeartBeatSource);
 }
 
 /****************************************************************************/
 void MasterThreadController::CmdDataChangedReceived(Global::tRefType /*Ref*/, const Global::CmdDataChanged &Cmd, CommandChannel &/*AckCommandChannel*/) {
     // check if command has timeout
     if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
-        THROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
+        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
     }
     // process command
     DispatchDataChangedCommand(Cmd);
@@ -848,7 +1071,7 @@ void MasterThreadController::CmdDataChangedReceived(Global::tRefType /*Ref*/, co
 void MasterThreadController::CmdPowerFailReceived(Global::tRefType /*Ref*/, const Global::CmdPowerFail &Cmd, CommandChannel &/*AckCommandChannel*/) {
     // check if command has timeout
     if(Cmd.GetTimeout() != Global::Command::NOTIMEOUT) {
-        THROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
+        LOGANDTHROWARG(EVENT_THREADS_ERROR_COMMAND_HAS_TIMEOUT, Cmd.GetName());
     }
     // first broadcast to all
     BroadcastCommand(Global::CommandShPtr_t(new Global::CmdPowerFail(Cmd)));
@@ -891,9 +1114,9 @@ void MasterThreadController::ExternalMemShutdownCheck() {
                     *pbData = 0;
                 }
                 static_cast<void> (
-                    // we DO NOT NEED the return value of next
-                    ShutdownSharedMem.unlock()
-                );
+                            // we DO NOT NEED the return value of next
+                            ShutdownSharedMem.unlock()
+                            );
             }
         }
     }
@@ -905,57 +1128,188 @@ void MasterThreadController::ExternalMemShutdownCheck() {
 }
 
 
-void MasterThreadController::StartController()
-{
-    // create the thread control and monitor the for the command
-    // todo first argument
-    int ControllerCounter = 0;
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
-        ControllerCounter++;
-        if (ControllerCounter == m_Controllers.count()) {
-            it->first->CreateAndInitializeObjects();
-            it->second = new QThread();
-            it->second->moveToThread(it->second);
-            // now start thread
-            it->second->start();
-            break;
-        }
-    }
-
-    // and send them the Go signal
-    emit SendGo();
-}
-
-void MasterThreadController::StopSpecificControllersAndThreads(int ControllerNumber)
-{
+/****************************************************************************/
+void MasterThreadController::StopSpecificThreadController(const int ControllerNumber, const bool BasicThreadController) {
     // Cleanup controllers
-    // create the thread control and monitor the for the command
-    // todo first argument
-    int ControllerCounter = 0;
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
-        ControllerCounter++;
-        if (ControllerCounter == ControllerNumber) {
-            it->first->CleanupAndDestroyObjects();
-            it->second->blockSignals(true);
-            it->second->quit();            
-            break;
+    // create the thread controller and monitor the for the command
+    bool ThreadFound = false;
+    tControllerPair ControllerPair;
+    if (!BasicThreadController) {
+        if (m_ControllerMap.contains(ControllerNumber)) {
+            ControllerPair = m_ControllerMap.value(ControllerNumber);
+            ThreadFound = true;
         }
+    }
+    else  {
+        if (m_BasicControllersMap.contains(ControllerNumber)) {
+            ControllerPair = m_BasicControllersMap.value(ControllerNumber);
+            ThreadFound = true;
+        }
+    }
+
+    if (ThreadFound) {
+        ControllerPair.first->CleanupAndDestroyObjects();
+        // block all the signals
+        ControllerPair.second->blockSignals(true);
+        ControllerPair.second->quit();
     }
 }
 
-void MasterThreadController::RemoveControllersAndThreadsFromList(int ControllerNumber)
-{
-    // Remove the controller from the list
-    int ControllerCounter = 0;
-    for(tControllerVector::iterator it = m_Controllers.begin(); it != m_Controllers.end(); ++it) {
-        ControllerCounter++;
-        if (ControllerCounter == ControllerNumber) {
-            delete it->first;
-            delete it->second;
-            m_Controllers.remove(ControllerNumber - 1);
-            break;
+/****************************************************************************/
+void MasterThreadController::RemoveSpecificThreadController(const int ControllerNumber, const bool BasicThreadController) {
+    bool ThreadFound = false;
+    tControllerPair ControllerPair;
+    if (!BasicThreadController) {
+        if (m_ControllerMap.contains(ControllerNumber)) {
+            ControllerPair = m_ControllerMap.value(ControllerNumber);
+            m_ControllerMap.remove(ControllerNumber);
+            ThreadFound = true;
         }
     }
+    else  {
+        if (m_BasicControllersMap.contains(ControllerNumber)) {
+            ControllerPair = m_BasicControllersMap.value(ControllerNumber);
+            m_BasicControllersMap.remove(ControllerNumber);
+            ThreadFound = true;
+        }
+    }
+    if (ThreadFound) {
+            // destroy all the objects
+            delete ControllerPair.first;
+            delete ControllerPair.second;
+
+    }
 }
+
+void MasterThreadController::StartSpecificThreadController(const int ControllerNumber, const bool BasicThreadController) {
+    bool ThreadFound = false;
+    tControllerPair ControllerPair;
+    if (!BasicThreadController) {
+        if (m_ControllerMap.contains(ControllerNumber)) {
+            ControllerPair = m_ControllerMap.value(ControllerNumber);
+            ThreadFound = true;
+        }
+    }
+    else  {
+        if (m_BasicControllersMap.contains(ControllerNumber)) {
+            ControllerPair = m_BasicControllersMap.value(ControllerNumber);
+            ThreadFound = true;
+        }
+    }
+    if (ThreadFound) {
+        ControllerPair.first->CreateAndInitializeObjects();
+        ControllerPair.second = new QThread();
+        m_ControllerMap.insert(ControllerNumber, ControllerPair);
+        ControllerPair.first->moveToThread(ControllerPair.second);
+        CONNECTSIGNALSLOT(ControllerPair.second, started(), ControllerPair.first, Go());
+        ControllerPair.second->start();
+        //BasicThreadController ? (emit SendGoToBasicThreads()): (emit SendGo());
+    }
+}
+
+void MasterThreadController::CreateRebootFile(QFile *p_RebootFile) {
+    if (p_RebootFile) {
+        if(!p_RebootFile->open(QIODevice::ReadWrite | QIODevice::Text)) {
+            //!< todo raise event.
+            qDebug()<<"Reboot file open failed";
+        }
+        QTextStream RebootFileStream(p_RebootFile);
+        RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
+        RebootFileStream << "Main_Rebooted:" << "No" << "\n" << left;
+        RebootFileStream << "Reboot_Count:" << "0" << "\n" << left;
+        RebootFileStream << "Software_Update_Status:" << "Success" << "\n" << left;
+        RebootFileStream << "Update_RollBack_Failed:" << "No" << "\n" << left;
+        RebootFileStream << "PowrFailed:"<< "No" << "\n" << left;
+        p_RebootFile->close();
+    }
+}
+
+void MasterThreadController::UpdateRebootFile() {
+    QString RebootPath = Global::SystemPaths::Instance().GetSettingsPath() + "/Reboot.txt";
+    QFile RebootFile(RebootPath);
+    if(!RebootFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
+        //!< todo raise event.
+        qDebug()<<"Reboot file open failed";
+    }
+    QTextStream RebootFileStream(&RebootFile);
+    RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
+    QMapIterator<QString, QString> RebootfileItr(m_RebootFileContent);
+    while (RebootfileItr.hasNext()) {
+        RebootfileItr.next();
+        QString Key = RebootfileItr.key();
+        QString Value = m_RebootFileContent.value(Key);
+        RebootFileStream << Key << ":" << Value << "\n" << left;
+    }
+    fsync(RebootFile.handle());
+}
+
+void MasterThreadController::ReadRebootFile(QFile *p_RebootFile) {
+    if (p_RebootFile) {
+        if(!p_RebootFile->open(QIODevice::ReadWrite | QIODevice::Text)) {
+            //!< todo raise event.
+            qDebug()<<"Reboot file open failed";
+        }
+        QString Line;
+        QTextStream RebootFileStream(p_RebootFile);
+        do {
+            Line = RebootFileStream.readLine().simplified();
+            QString RebootCount("0");
+            if (Line.contains("Main_Rebooted", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    (LineFields[1] == "Yes") ? (m_MainRebooted = true) : (m_MainRebooted = false);
+                }
+                m_RebootFileContent.insert("Main_Rebooted", LineFields[1]);
+            }
+            else if (Line.contains("Reboot_Count", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    RebootCount = LineFields[1];
+                    m_RebootCount = RebootCount.toUInt();
+                    m_RebootFileContent.insert("Reboot_Count", QString::number(m_RebootCount));
+                }
+            }
+            else if (Line.contains("Software_Update_Status", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    m_SWUpdateStatus = LineFields[1];
+                }
+                if (LineFields[1] == "Success" || LineFields[1] == "Failure") {
+                    // Skip softswitch if software update was success/failure
+                    m_MainRebooted = true;
+                }
+                m_RebootFileContent.insert("Software_Update_Status", LineFields[1]);
+            }
+            else if (Line.contains("Update_RollBack_Failed", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    (LineFields[1] == "Yes") ? (m_UpdateRollBackFailed = true) : (m_UpdateRollBackFailed = false);
+                }
+                m_RebootFileContent.insert("Update_RollBack_Failed", LineFields[1]);
+            }
+            else if (Line.contains("PowerFailed", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    if (LineFields[1] == "Yes") {
+                        // Skip softswitch if system is recovering from power failure
+                        m_MainRebooted = true;
+                    }
+                }
+                m_RebootFileContent.insert("PowerFailed", LineFields[1]);
+            }
+            else if (Line.contains("Software_Update_Check_Status", Qt::CaseInsensitive)) {
+                QStringList LineFields = Line.split(":", QString::SkipEmptyParts);
+                if (LineFields.count() == 2) {
+                    m_SWUpdateCheckStatus = LineFields[1];
+                }
+                m_RebootFileContent.insert("Software_Update_Check_Status", LineFields[1]);
+            }
+        } while (!Line.isNull());
+
+        p_RebootFile->close();
+    }
+}
+
+
 
 } // end namespace Threads

@@ -39,11 +39,11 @@ const CreatorFunctorShPtr_t     NullCreatorFunctor(NULL);   ///< NULL functor.
  * \brief Constructor.
  *
  * \param[in]   prname - the name of the process
- * \param[in]   TheLoggingSource - Logging source to be used.
+ * \param[in]   TheHeartBeatSource - Logging source to be used.
  */
 /****************************************************************************/
-ExternalProcessController::ExternalProcessController(const QString &prname, Global::gSourceType TheLoggingSource) :
-    Threads::ThreadController(TheLoggingSource, "ExternalProcess"),
+ExternalProcessController::ExternalProcessController(const QString &prname, Global::gSourceType TheHeartBeatSource) :
+    Threads::ThreadController(TheHeartBeatSource, prname),
     m_myDevice(NULL),
     m_myProcess(NULL),
     m_myCommand(""),
@@ -60,6 +60,7 @@ ExternalProcessController::ExternalProcessController(const QString &prname, Glob
     m_WaitState(NULL),
     m_RestartProcess(true)
 {
+    qDebug() << "ExternalProcessController::ExternalProcessController" << prname;
 }
 
 /****************************************************************************/
@@ -154,11 +155,11 @@ void ExternalProcessController::RegisterExternalProcessDevice(ExternalProcessDev
 /****************************************************************************/
 void ExternalProcessController::CreateAndInitializeObjects() {
     if (!LoadSettings()) {
-        THROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_LOADING_SETTINGS);
+        LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_LOADING_SETTINGS);
     }
 
     if (!InitializeExternalProcessDevice(m_RemoteLoginEnabled, m_RemoteLoginTimeout)) {
-        THROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_EXTERNAL_PROCESS_DEVICE);
+        LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_EXTERNAL_PROCESS_DEVICE);
     }
 
     if (m_RemoteLoginEnabled == "Yes") {
@@ -167,18 +168,18 @@ void ExternalProcessController::CreateAndInitializeObjects() {
         // We just need a simplified State Machine and ExternalProcessDevice.
 
         if (!InitializeSimplifiedStateMachine()) {
-            THROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_SIMPLE_STATE_MACHINE);
+            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_SIMPLE_STATE_MACHINE);
         }
     } else {
 
         // full initialization for local process management.
 
         if (!InitializeFullStateMachine()) {
-            THROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_FULL_STATE_MACHINE);
+            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_FULL_STATE_MACHINE);
         }
 
         if (!InitializeProcessManager()) {
-            THROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_PROCESS_MANAGER);
+            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_PROCESS_MANAGER);
         }
     }
 }
@@ -231,7 +232,8 @@ bool ExternalProcessController::LoadSettings()
 
     ConfigLoader cfgLdr(m_ProcessName);
 
-    if (cfgLdr.ReadSettings(&m_myCommand, &m_RemoteLoginEnabled, &m_RemoteLoginTimeout) != CLD_ALL_OK) {
+    if (cfgLdr.ReadSettings(&m_myCommand, &m_RemoteLoginEnabled, &m_RemoteLoginTimeout) != CLD_ALL_OK)
+    {
         /// \todo do we handle error here?
         return false;
     }
@@ -334,16 +336,16 @@ bool ExternalProcessController::InitializeProcessManager()
         CONNECTSIGNALSLOT(m_myProcess, ProcessError(int), this, ExternalProcessError(int));
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
@@ -415,16 +417,16 @@ bool ExternalProcessController::InitializeFullStateMachine()
         m_myStateManager->AddTransition(m_CommunicationRetryState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
@@ -476,16 +478,16 @@ bool ExternalProcessController::InitializeSimplifiedStateMachine()
         m_myStateManager->AddTransition(m_WorkingState, m_WaitState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_DISCONNECTED);
     } catch(const std::bad_alloc &) {
         // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }
@@ -627,7 +629,7 @@ void ExternalProcessController::OnStopReceived() {
  * \return      true if event was processed.
  */
 /****************************************************************************/
-bool ExternalProcessController::LocalProcessErrorEvent(const DataLogging::EventEntry & /*TheEventEntry*/) {
+bool ExternalProcessController::LocalProcessErrorEvent(const DataLogging::DayEventEntry & /*TheEventEntry*/) {
     // no processing
     return false;
 }
@@ -645,7 +647,7 @@ bool ExternalProcessController::LocalProcessErrorEvent(const DataLogging::EventE
 void ExternalProcessController::RegisterCreatorFunctor(const QString &ClassName, const CreatorFunctorShPtr_t &Functor) {
     // check if already registered
     if(m_CreatorFunctors.contains(ClassName)) {
-        THROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_CREATOR_FUNCTOR_ALREADY_REGISTERED, ClassName);
+        LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_CREATOR_FUNCTOR_ALREADY_REGISTERED, ClassName);
     }
     // everything OK
     static_cast<void>(
@@ -687,6 +689,7 @@ CreatorFunctorShPtr_t ExternalProcessController::GetCreatorFunctor(const QString
  */
 /****************************************************************************/
 void ExternalProcessController::CreateAndDeserialize(const QByteArray &Data) {
+//    qDebug() << "ExternalProcessController::CreateAndDeserialize";
     // create data stream in readonly mode
     QDataStream DS(Data);
     // set version
@@ -702,7 +705,7 @@ void ExternalProcessController::CreateAndDeserialize(const QByteArray &Data) {
     CreatorFunctorShPtr_t Functor = GetCreatorFunctor(ClassName);
     if(Functor == NullCreatorFunctor) {
         // throw exception
-        THROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_NO_CREATOR_FUNCTOR_REGISTERED, ClassName);
+        LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_NO_CREATOR_FUNCTOR_REGISTERED, ClassName);
     }
     // execute
     Functor.GetPointerToUserData()->CreateAndDeserialize(Ref, DS);
@@ -723,11 +726,11 @@ bool ExternalProcessController::ForwardMsgToRecepient(const QByteArray &bArr)
         CreateAndDeserialize(bArr);
     } catch(const Global::Exception &E) {
         // send error message
-        SEND_EXCEPTION(E);
+        Global::EventObject::Instance().RaiseException(E);
         return false;
     } catch(...) {
         // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
+        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
                   , Global::NO_NUMERIC_DATA, false);
         return false;
     }

@@ -65,7 +65,7 @@ typedef enum {
         CML_NULL_POINTER
 } MessageLoaderErrorType_t;
 
-/// Identification of message types
+/// Identification of message Types
 typedef enum {
     CML_TYPE_SERVER = 1,   ///< Server message type
     CML_TYPE_CLIENT        ///< Client message type

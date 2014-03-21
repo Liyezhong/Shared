@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file DecryptUncompress.h
+/*! \file DecryptUncompress.h
  *
- *  @brief Compress and optionally encrypt data stream for ImportExport module
+ *  \brief Compress and optionally encrypt data stream for ImportExport module
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-08-12
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,21 +15,23 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:38:17
  *
  */
 /****************************************************************************/
 
-#ifndef IMPORT_DECRYPT_DECOMPRESS_H
-#define IMPORT_DECRYPT_DECOMPRESS_H
+#ifndef IMPORTEXPORT_DECRYPTUNCOMPRESS_H
+#define IMPORTEXPORT_DECRYPTUNCOMPRESS_H
 
 #include <QByteArray>
 #include "ImportExport/CryptoService/Include/CryptoService.h"
 
 namespace ImportExport {
 
-// compress and optionally encrypt data stream
-
+/****************************************************************************/
+/*!
+ * \brief compress and optionally encrypt data stream
+ */
+/****************************************************************************/
 class DecryptUncompress
 {
     friend class TestDecryptUncompress;
@@ -37,15 +39,16 @@ class DecryptUncompress
     public:
         DecryptUncompress(FailSafeOpen* fd,
                         CryptoService& cs,
-                        bool encrypt = false);
+                        bool encrypt = false, bool compressed = false);
         QByteArray read(int size, bool hmac = true);
 
     private:
         // data
-        FailSafeOpen* m_fd;
-        CryptoService& m_cs;
+        FailSafeOpen* mp_fd; ///< To open the files
+        CryptoService& m_cs; ///< for crypto service
         bool m_encrypt; ///< To store the encryption flag
-        QByteArray m_buffer;
+        bool m_compressed; ///< To store the compressed flag
+        QByteArray m_buffer; ///< buffer to store the data
 
         // methods
         bool readNextChunk();
@@ -53,4 +56,4 @@ class DecryptUncompress
 
 }       // end namespace ImportExport
 
-#endif                  // IMPORT_DECRYPT_DECOMPRESS_H
+#endif                  // IMPORTEXPORT_DECRYPTUNCOMPRESS_H

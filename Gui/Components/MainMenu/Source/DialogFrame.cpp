@@ -84,6 +84,19 @@ void CDialogFrame::SetDialogTitle(QString Title)
 
 /****************************************************************************/
 /*!
+ *  \brief Sets two titles, one at left corner and other at right corner
+ *
+ *  \iparam TitleLeft  = Title at left corner
+ *  \iparam TitleRight = Title at right corner
+ */
+/****************************************************************************/
+void CDialogFrame::SetDialogTitle(QString TitleLeftCorner, QString TitleRightCorner)
+{
+    mp_DialogUi->widget->SetPanelTitle(TitleLeftCorner, TitleRightCorner);
+}
+
+/****************************************************************************/
+/*!
  *  \brief Sets the content of the dialog
  *
  *  \iparam pContent = Content layout of the dialog

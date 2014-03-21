@@ -24,7 +24,7 @@
      </property>
      <property name="icon">
       <iconset resource="../Resource/MainMenu.qrc">
-       <normaloff>:/Large/Icons/Move/Icon_Move_Up_End.png</normaloff>:/Large/Icons/Move/Icon_Move_Up_End.png</iconset>
+       <normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Up_End.png</normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Up_End.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -44,7 +44,7 @@
      </property>
      <property name="icon">
       <iconset resource="../Resource/MainMenu.qrc">
-       <normaloff>:/Large/Icons/Move/Icon_Move_Up.png</normaloff>:/Large/Icons/Move/Icon_Move_Up.png</iconset>
+       <normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Up.png</normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Up.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -64,7 +64,7 @@
      </property>
      <property name="icon">
       <iconset resource="../Resource/MainMenu.qrc">
-       <normaloff>:/Large/Icons/Move/Icon_Move_Down.png</normaloff>:/Large/Icons/Move/Icon_Move_Down.png</iconset>
+       <normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Down.png</normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Down.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -84,7 +84,7 @@
      </property>
      <property name="icon">
       <iconset resource="../Resource/MainMenu.qrc">
-       <normaloff>:/Large/Icons/Move/Icon_Move_Down_End.png</normaloff>:/Large/Icons/Move/Icon_Move_Down_End.png</iconset>
+       <normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Down_End.png</normaloff>:/HimalayaImages/Icons/Move/Icon_Move_Down_End.png</iconset>
      </property>
      <property name="iconSize">
       <size>

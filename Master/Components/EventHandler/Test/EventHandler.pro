@@ -4,6 +4,5 @@
 
 TEMPLATE = subdirs
 
-#SUBDIRS = TestActionEntry.pro
-
-CONFIG += ordered
+SUBDIRS =  TestEventCSVInfo.pro\
+           TestEventHandlerThreadController.pro\

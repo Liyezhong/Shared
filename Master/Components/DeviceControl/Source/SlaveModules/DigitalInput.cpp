@@ -431,7 +431,7 @@ ReturnCode_t CDigitalInput::SendCANMessageConfiguration()
     canmsg.data[0] = dataByte;
 
     SetCANMsgDataU16(&canmsg, pCANObjConfDigInpPort->m_sPolarity, 1);
-    SetCANMsgDataU16(&canmsg, pCANObjConfDigInpPort->m_sThreshold, 3);
+    SetCANMsgDataU16(&canmsg, pCANObjConfDigInpPort->m_sSupervision, 3);
     canmsg.data[5] = pCANObjConfDigInpPort->m_bInterval;
     canmsg.data[6] = pCANObjConfDigInpPort->m_bDebounce;
     canmsg.data[7] = 0;

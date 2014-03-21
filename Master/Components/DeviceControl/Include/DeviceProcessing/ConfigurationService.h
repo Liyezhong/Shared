@@ -51,9 +51,7 @@ class CRfid11785;
 class CRfid15693;
 class CUart;
 class CTemperatureControl;
-#ifdef PRE_ALFA_TEST
 class CPressureControl;
-#endif
 /****************************************************************************/
 /*!
  *  \brief This class implements the functionality to configure the complete

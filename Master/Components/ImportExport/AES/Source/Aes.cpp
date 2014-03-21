@@ -1,7 +1,7 @@
 /****************************************************************************/
-/** @file Aes.c
+/*! \file Aes.c
  *
- *  @brief AES implementation for CTR mode
+ *  \brief AES implementation for CTR mode
  *
  *  This is an adaption of the original NIST reference implementation and
  *  implements AES-128 encryption used for CTR mode encryption/decryption.
@@ -9,11 +9,11 @@
  *  null (consisting of null bytes only). Because of CTR mode, no decryption
  *  has to be implemented.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-06-17
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -21,7 +21,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Jul 02 2011, 17:20:35
  *
  */
 /****************************************************************************/
@@ -32,55 +31,51 @@
 // of the initialized flag guarantees that all is OK
 
 #include "ImportExport/AES/Include/Aes.h"
-#include <assert.h>
 
 namespace ImportExport {
 
 #include "ImportExport/AES/Source/BoxesRef.dat"
 
-// ********** PUBLIC *************************
-
-/**
- * @brief default constructor
- *
- * @param key - the key
+/****************************************************************************/
+/*!
+ * \brief default constructor
  */
+/****************************************************************************/
+AES::AES(): initialized(false)
+{
 
-AES::AES(): initialized(false) {}
+}
 
-/**
- * @brief initialize key
+/****************************************************************************/
+/*!
+ * \brief initialize key
  *
  * Only one initialization is allowed.
  *
- * @param key - the key
+ * \iparam key - the key
  */
-
+/****************************************************************************/
 void AES::init(QByteArray& key)
 {
-    Q_ASSERT(!initialized);
     initialized = true;
 
-    assert(key.size() == AES_SIZE);
     RijndaelKeySched(reinterpret_cast<quint8*>(key.data()));
     m_streamlen = 0;
     memset(&m_ctrblock[0], 0, AES_SIZE);
 }
 
-
-/**
- * @brief CTR en/decryption
+/****************************************************************************/
+/*!
+ * \brief CTR en/decryption
  *
  * Encryption and decryption are identical since they are the same XOR
  * with a keystream.
  *
- * @param data - QByteArray to be en/decrypted
+ * \iparam data - QByteArray to be en/decrypted
  */
-
+/****************************************************************************/
 void AES::AesCtr(QByteArray& data)
 {
-    Q_ASSERT(initialized);
-
     int datlen = data.size();
     quint8 *dp = reinterpret_cast<quint8*>(data.data());
 
@@ -106,8 +101,7 @@ void AES::AesCtr(QByteArray& data)
         int processed = m_streamlen < datlen ? m_streamlen : datlen;
 
         // do the "XOR en/decryption"
-
-        for(int i=processed; i--;)
+        for(int counter = (processed-1); counter >=0; counter--)
         {
             *dp++ ^= *m_keyptr++;
         }
@@ -117,242 +111,265 @@ void AES::AesCtr(QByteArray& data)
     }
 }
 
-// ********** PRIVATE *************************
-
-/**
- * @brief multiply two elements of GF(2^m) needed for MixColumn
+/****************************************************************************/
+/*!
+ * \brief multiply two elements of GF(2^m) needed for MixColumn
  *
- * @param -  a, b input elements
- * @return - product (byte)
- */
-
-quint8 AES::Mul(quint8 a, quint8 b)
-  {
-   if(a && b)
-     {
-      int i = Logtable[a] + Logtable[b];
-      while(i > 254) i -= 255;
-      return Alogtable[i];
-     }
-   else return 0;
-  }
-
-
-/**
- * @brief Xor corresponding text input and round key input bytes
+ * \iparam elementone - first element
+ * \iparam elementtwo - second element
  *
- * @param a - the state (in,out)
- * @param rk - one round key
+ * \return - product (byte)
  */
-
-void AES::KeyAddition(quint8 a[4][4], const quint8 rk[4][4])
+/****************************************************************************/
+quint8 AES::Mul(quint8 elementone, quint8 elementtwo)
 {
-    register int i, j;
-
-    for(i=4; i--;)
+    if(elementone && elementtwo)
     {
-        for(j=4; j--;)
+        int logtablevalue = Logtable[elementone] + Logtable[elementtwo];
+        while(logtablevalue > 254)
         {
-            a[i][j] ^= rk[i][j];
+            logtablevalue -= 255;
+        }
+        return Alogtable[logtablevalue];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/****************************************************************************/
+/*!
+ * \brief Xor corresponding text input and round key input bytes
+ *
+ * \oparam state - the state
+ * \iparam roundkey - one round key
+ */
+/****************************************************************************/
+void AES::KeyAddition(quint8 state[4][4], const quint8 roundkey[4][4])
+{
+    register int row;
+    register int column;
+
+    for(row = 3; row >= 0; row--)
+    {
+        for(column = 3; column >= 0; column--)
+        {
+            state[row][column] ^= roundkey[row][column];
         }
     }
 }
 
-
-/**
- * @brief ShiftRow operation
+/****************************************************************************/
+/*!
+ * \brief ShiftRow operation
  *
  * row 0 remains unchanged,
  * the other three rows are shifted a variable amount
  *
- * @param a - the state
+ * \iparam state - the state
  */
-
-void AES::ShiftRow(quint8 a[4][4])
+/****************************************************************************/
+void AES::ShiftRow(quint8 state[4][4])
 {
     quint8 tmp[4];
-    register int i, j;
+    register int row;
+    register int column;
 
-    for(i=4; i--;)
+    for(row = 3; row >= 0; row--)
     {
-        for(j=4; j--;) tmp[j] = a[i][(j+i) & 3];
-        for(j=4; j--;) a[i][j] = tmp[j];
+        for(column = 3; column >= 0; column--)
+        {
+            tmp[column] = state[row][(column+row) & 3];
+        }
+        for(column = 3; column >= 0; column--)
+        {
+            state[row][column] = tmp[column];
+        }
     }
 }
 
-
-/**
- * @brief Byte substitution
+/****************************************************************************/
+/*!
+ * \brief Byte substitution
  *
  * replace every byte of the input by the byte at that place
  * in the nonlinear S-box
  *
- * @param a - the state
- * @param box - the substitution box from BoxesRef.dat
+ * \iparam state - the state
+ * \iparam box - the substitution box from BoxesRef.dat
  */
-
-void AES::Substitution(quint8 a[4][4], const quint8 box[256])
+/****************************************************************************/
+void AES::Substitution(quint8 state[4][4], const quint8 box[256])
 {
-    int i, j;
+    int row;
+    int column;
 
-    for(i=4; i--;)
+    for(row = 3; row >= 0; row--)
     {
-        for(j=4; j--;)
+        for(column = 3; column >= 0; column--)
         {
-            a[i][j] = box[a[i][j]] ;
+            state[row][column] = box[state[row][column]] ;
         }
     }
 }
 
-
-/**
- * @brief MixColumn operation
+/****************************************************************************/
+/*!
+ * \brief MixColumn operation
  *
  * Mix the four bytes of every column in a linear way.
  *
- * @param a - the state
+ * \iparam state - the state
  */
-
-void AES::MixColumn(quint8 a[4][4])
+/****************************************************************************/
+void AES::MixColumn(quint8 state[4][4])
 {
-    quint8 b[4][4];
-    register int i, j;
+    quint8 mixedarray[4][4];
+    register int row;
+    register int column;
 
-    for(j=4; j--;)
+    for(column = 3; column >= 0; column--)
     {
-        for(i=4; i--;)
+        for(row = 3; row >= 0; row--)
         {
-            b[i][j] = Mul(2, a[i][j])
-                ^ Mul(3, a[(i+1)&3][j])
-                ^ a[(i+2)&3][j]
-                ^ a[(i+3)&3][j];
+            mixedarray[row][column] = Mul(2, state[row][column])
+                    ^ Mul(3, state[(row+1)&3][column])
+                    ^ state[(row+2)&3][column]
+                    ^ state[(row+3)&3][column];
         }
     }
 
-    for(i=4; i--;)
+    for(row = 3; row >= 0; row--)
     {
-        for(j=4; j--;)
+        for(column = 3; column >= 0; column--)
         {
-            a[i][j] = b[i][j];
+            state[row][column] = mixedarray[row][column];
         }
     }
 }
 
-
-/**
- * @brief AES key schedule from a "linear" stored key
+/****************************************************************************/
+/*!
+ * \brief AES key schedule from a "linear" stored key
  * 
  * m_roundkeys is filled
  *
- * @param key - key stored columnwise
+ * \iparam key - key stored columnwise
  */
-
+/****************************************************************************/
 void AES::RijndaelKeySched(const quint8 key[AES_SIZE])
 {
-    int i, j, t, rconpointer = 0;
-    quint8 k[4][4], tk[4][4];
+    int row;
+    int column;
+    int tmpcounter;
+    int rconpointer = 0;
+    quint8 keyvalues[4][4];
+    quint8 tempkey[4][4];
 
-    for(i=AES_SIZE; i--;)
+    for(row = (AES_SIZE-1); row >= 0; row--)
     {
-        k[i&3][i>>2] = (quint8) key[i];
+        keyvalues[row&3][row>>2] = (quint8) key[row];
     }
 
-    for(j=4; j--;)
+    for(column = 3; column >= 0; column--)
     {
-        for(i=4; i--;)
+        for(row = 3; row >= 0; row--)
         {
-            tk[i][j] = k[i][j];
+            tempkey[row][column] = keyvalues[row][column];
         }
     }
 
-    t = 0;
+    tmpcounter = 0;
 
     /* copy values into round key array */
 
-    for(j = 0; (j < 4) && (t < (ROUNDS+1)*4); ++j, ++t)
+    for(column = 0; (column < 4) && (tmpcounter < (ROUNDS+1)*4); ++column, ++tmpcounter)
     {
-        for(i=4; i--;)
+        for(row = 3; row >= 0; row--)
         {
-            m_roundkeys[t>>2][i][t&3] = tk[i][j];
+            m_roundkeys[tmpcounter>>2][row][tmpcounter&3] = tempkey[row][column];
         }
     }
 
-    while(t < (ROUNDS+1)*4)
+    while(tmpcounter < (ROUNDS+1)*4)
     {
         /* while not enough round key material calculated
          * calculate new values */
 
-        for(i=4; i--;)
+        for(row = 3; row >= 0; row--)
         {
-            tk[i][0] ^= S[tk[(i+1)&3][3]];
+            tempkey[row][0] ^= Sub[tempkey[(row+1)&3][3]];
         }
-        tk[0][0] ^= rcon[rconpointer++];
+        tempkey[0][0] ^= rcon[rconpointer++];
 
-        for(j = 1; j < 4; ++j)
+        for(column = 1; column < 4; ++column)
         {
-            for(i = 0; i < 4; ++i)
+            for(row = 0; row < 4; ++row)
             {
-                tk[i][j] ^= tk[i][j-1];
+                tempkey[row][column] ^= tempkey[row][column-1];
             }
         }
 
         /* copy values into round key array */
-        for(j = 0; (j < 4) && (t < (ROUNDS+1)*4); j++, t++)
+        for(column = 0; (column < 4) && (tmpcounter < (ROUNDS+1)*4); column++, tmpcounter++)
         {
-            for(i=4; i--;)
-            {m_roundkeys[t>>2][i][t&3] = tk[i][j];
+            for(row = 3; row >= 0; row--)
+            {
+                m_roundkeys[tmpcounter>>2][row][tmpcounter&3] = tempkey[row][column];
             }
         }
     }
 }
 
-
-/**
- * @brief encrypt one square block (4*4 byte)
+/****************************************************************************/
+/*!
+ * \brief encrypt one square block (4*4 byte)
  *
- * @param[in,out] block -  plaintext stored columnwise
+ * \iparam block -  plaintext stored columnwise
  */
-
+/****************************************************************************/
 void AES::RijndaelEncrypt(quint8 block[AES_SIZE])
 {
-    quint8 a[4][4];
-    int i, r;
+    quint8 box[4][4];
+    int counter;
+    int roundcounter;
 
     /* fill block into square array a */
 
-    for(i=4; i--;)
+    for(counter = 3; counter >= 0; counter--)
     {
-        for(r=4; r--;)
+        for(roundcounter = 3; roundcounter >= 0; roundcounter--)
         {
-            a[r][i] = block[(i<<2)+r];
+            box[roundcounter][counter] = block[(counter<<2)+roundcounter];
         }
     }
 
     /* begin with a key addition */
-    KeyAddition(a, m_roundkeys[0]);
+    KeyAddition(box, m_roundkeys[0]);
 
     /* ROUNDS-1 ordinary rounds */
-    for(r=1; r < ROUNDS; ++r)
+    for(roundcounter = 1; roundcounter < ROUNDS; ++roundcounter)
     {
-        Substitution(a, S);
-        ShiftRow(a);
-        MixColumn(a);
-        KeyAddition(a, m_roundkeys[r]);
+        Substitution(box, Sub);
+        ShiftRow(box);
+        MixColumn(box);
+        KeyAddition(box, m_roundkeys[roundcounter]);
     }
 
     /* Last round is special: there is no MixColumn */
 
-    Substitution(a, S);
-    ShiftRow(a);
-    KeyAddition(a, m_roundkeys[ROUNDS]);
+    Substitution(box, Sub);
+    ShiftRow(box);
+    KeyAddition(box, m_roundkeys[ROUNDS]);
 
     /* copy square back to block */
 
-    for(i=0; i < 4; ++i)
+    for(counter = 0; counter < 4; ++counter)
     {
-        for(r=0; r < 4; ++r)
+        for(roundcounter = 0; roundcounter < 4; ++roundcounter)
         {
-            block[(i<<2)+r] = a[r][i];
+            block[(counter<<2)+roundcounter] = box[roundcounter][counter];
         }
     }
 }

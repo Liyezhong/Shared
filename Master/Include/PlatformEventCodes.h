@@ -22,22 +22,27 @@
 #define PLATFORMEVENTCODES_H
 
 #include <QtGlobal>
+const quint32 EVENT_GROUP_SOURCENAME                        = 0x0000;
+#include "../../../Himalaya/HimalayaMain/Master/Include/HimalayaEventCodes.h"
 
-const quint32 EVENT_GROUP_SOURCENAME    = 0x0000;   ///< Event group for logging source translations.
 
-/// \todo JB: check what is still needed...
-const quint32 EVENT_GROUP_PLATFORM      = 0x01;             ///< Event group for platform.
-const quint32 EVENT_GROUP_PLATFORM_GLOBAL                   = ((EVENT_GROUP_PLATFORM << 8) + 0x01) << 16;   ///< Event group for global stuff.
-const quint32 EVENT_GROUP_PLATFORM_THREADS                  = ((EVENT_GROUP_PLATFORM << 8) + 0x02) << 16;   ///< Event group for thread stuff.
-const quint32 EVENT_GROUP_PLATFORM_DATALOGGING              = ((EVENT_GROUP_PLATFORM << 8) + 0x03) << 16;   ///< Event group for data logging.
-const quint32 EVENT_GROUP_PLATFORM_EVENTHANDLER             = ((EVENT_GROUP_PLATFORM << 8) + 0x04) << 16;   ///< Event group for event handler.
-const quint32 EVENT_GROUP_PLATFORM_NETWORKCLIENT            = ((EVENT_GROUP_PLATFORM << 8) + 0x05) << 16;   ///< Event group for network client.
-const quint32 EVENT_GROUP_PLATFORM_NETWORKSERVER            = ((EVENT_GROUP_PLATFORM << 8) + 0x06) << 16;   ///< Event group for network server.
-const quint32 EVENT_GROUP_PLATFORM_DATAMANAGER              = ((EVENT_GROUP_PLATFORM << 8) + 0x07) << 16;   ///< Event group for data manager.
-const quint32 EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR   = ((EVENT_GROUP_PLATFORM << 8) + 0x08) << 16;   ///< Event group for device ommand processor.
-const quint32 EVENT_GROUP_PLATFORM_STATEMACHINES            = ((EVENT_GROUP_PLATFORM << 8) + 0x09) << 16;   ///< Event group for state machines.
-const quint32 EVENT_GROUP_PLATFORM_XML_PARSER               = ((EVENT_GROUP_PLATFORM << 8) + 0x0A) << 16;   ///< Event group for XML parser.
-const quint32 EVENT_GROUP_PLATFORM_EXTERNALPROCESSCONTROL   = ((EVENT_GROUP_PLATFORM << 8) + 0x0B) << 16;   ///< Event group for external process control.
+// Note : Add event groups for your platform components here
+/// Event group for platform
+const quint32 EVENT_GROUP_PLATFORM                          = 0x01;
+
+/// Event group for global stuff
+const quint32 EVENT_GROUP_PLATFORM_GLOBAL                   = ((EVENT_GROUP_PLATFORM << 8) + 0x01) << 16;
+/// Event group for thread stuff
+const quint32 EVENT_GROUP_PLATFORM_THREADS                  = ((EVENT_GROUP_PLATFORM << 8) + 0x02) << 16;
+/// Event group for data logging
+const quint32 EVENT_GROUP_PLATFORM_DATALOGGING              = ((EVENT_GROUP_PLATFORM << 8) + 0x03) << 16;
+/// Event group for event handler.
+const quint32 EVENT_GROUP_PLATFORM_EVENTHANDLER             = ((EVENT_GROUP_PLATFORM << 8) + 0x04) << 16;
+
+
+
+const quint32 EVENT_INIT_FAILED                     = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0005; ///< Event for Init failed
+const quint32 EVENT_INIT_SUCCESS                    = EVENT_GROUP_PLATFORM_EVENTHANDLER + 0x0006; ///< Event for Init Success
 
 
 #endif // namespace PLATFORMEVENTCODES_H

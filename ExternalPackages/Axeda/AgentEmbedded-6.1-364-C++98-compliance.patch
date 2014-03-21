@@ -1,0 +1,167 @@
+Index: AgentEmbedded-6.1-364/Include/AeTypes.h
+===================================================================
+--- AgentEmbedded-6.1-364/Include/AeTypes.h	(revision 10051)
++++ AgentEmbedded-6.1-364/Include/AeTypes.h	(working copy)
+@@ -39,15 +39,6 @@
+ #define AeFalse         0
+ 
+ typedef struct _AeTimeValue AeTimeValue;
+-typedef enum _AeWebVersion AeWebVersion;
+-typedef enum _AeWebProxyProtocol AeWebProxyProtocol;
+-typedef enum _AeWebCryptoLevel AeWebCryptoLevel;
+-typedef enum _AeDRMDeviceType AeDRMDeviceType;
+-typedef enum _AeDRMServerConfigType AeDRMServerConfigType;
+-typedef enum _AeDRMQueuePriority AeDRMQueuePriority;
+-typedef enum _AeDRMQueueStatus AeDRMQueueStatus;
+-typedef enum _AeDRMDataType AeDRMDataType;
+-typedef enum _AeDRMDataQuality AeDRMDataQuality;
+ typedef struct _AeDRMDataValue AeDRMDataValue;
+ typedef struct _AeDRMDataItem AeDRMDataItem;
+ typedef struct _AeDRMAlarm AeDRMAlarm;
+@@ -57,9 +48,6 @@
+ typedef struct _AeDRMSOAPCommandId AeDRMSOAPCommandId;
+ typedef struct _AeDRMPingRate AeDRMPingRate;
+ 
+-typedef enum _AeFileType AeFileType;
+-typedef enum _AeFileCompression AeFileCompression;
+-typedef enum _AeFileTransferEvent AeFileTransferEvent;
+ typedef struct _AeFileStat AeFileStat;
+ typedef struct _AeFileUploadSpec AeFileUploadSpec;
+ typedef struct _AeFileUploadRequestParam AeFileUploadRequestParam;
+@@ -136,6 +124,7 @@
+     AeWebHTTP10,                    /* HTTP/1.0 */
+     AeWebHTTP11                     /* HTTP/1.1 */
+ };
++typedef enum _AeWebVersion AeWebVersion;
+ 
+ /* Proxy server protocol. */
+ enum _AeWebProxyProtocol
+@@ -144,6 +133,7 @@
+     AeWebProxyProtoSOCKS,           /* SOCKS proxy */
+     AeWebProxyProtoHTTP             /* HTTP proxy */
+ };
++typedef enum _AeWebProxyProtocol AeWebProxyProtocol;
+ 
+ /* SSL encryption level. */
+ enum _AeWebCryptoLevel
+@@ -153,6 +143,7 @@
+     AeWebCryptoMedium,              /* medium-strength cipher */
+     AeWebCryptoHigh                 /* high-strength cipher */
+ };
++typedef enum _AeWebCryptoLevel AeWebCryptoLevel;
+ 
+ /* Device type. */
+ enum _AeDRMDeviceType
+@@ -160,6 +151,7 @@
+     AeDRMDeviceMaster,              /* master device */
+     AeDRMDeviceManaged              /* managed device (Gateway only) */
+ };
++typedef enum _AeDRMDeviceType AeDRMDeviceType;
+ 
+ /* Configuration type for the Enterprise server - Primary, Backup, Additional.*/
+ enum _AeDRMServerConfigType
+@@ -168,6 +160,7 @@
+     AeDRMServerConfigAdditional,    /* additional Enterprise server */
+     AeDRMServerConfigBackup         /* backup Enterprise server */
+ };
++typedef enum _AeDRMServerConfigType AeDRMServerConfigType;
+ 
+ /* Priority of item sent to the data queue - could be a file, data item value, alarm, event.*/
+ enum _AeDRMQueuePriority
+@@ -176,6 +169,7 @@
+     AeDRMQueuePriorityNormal,       /* normal priority */
+     AeDRMQueuePriorityUrgent        /* high priority */
+ };
++typedef enum _AeDRMQueuePriority AeDRMQueuePriority;
+ 
+ /* Status of the data queue. */
+ enum _AeDRMQueueStatus
+@@ -184,6 +178,7 @@
+     AeDRMQueueNonEmpty,             /* the queue is non-empty */
+     AeDRMQueueFull                  /* the queue is full */
+ };
++typedef enum _AeDRMQueueStatus AeDRMQueueStatus;
+ 
+ /* Type of data item value. */
+ enum _AeDRMDataType
+@@ -192,6 +187,7 @@
+     AeDRMDataDigital,               /* digital (0/1) */
+     AeDRMDataString                 /* string */
+ };
++typedef enum _AeDRMDataType AeDRMDataType;
+ 
+ /* Quality of the data item value. */
+ enum _AeDRMDataQuality
+@@ -200,6 +196,7 @@
+     AeDRMDataBad,                   /* bad */
+     AeDRMDataUncertain              /* uncertain (undefined) */
+ };
++typedef enum _AeDRMDataQuality AeDRMDataQuality;
+ 
+ /* Structure for a data item value. */
+ struct _AeDRMDataValue
+@@ -296,6 +293,7 @@
+     AeFileTypeRegular,
+     AeFileTypeDirectory
+ };
++typedef enum _AeFileType AeFileType;
+ 
+ /* Type of compression for file transfer (None disables compression.)*/
+ enum _AeFileCompression
+@@ -303,6 +301,7 @@
+     AeFileCompressionNone,
+     AeFileCompressionTarGzip
+ };
++typedef enum _AeFileCompression AeFileCompression;
+ 
+ /* Structure for File description. 
+    The structure is used to communicate file attributes from Agent Embedded
+@@ -335,6 +334,7 @@
+     AeFileTransferPreempted,
+     AeFileTransferReactivated
+ };
++typedef enum _AeFileTransferEvent AeFileTransferEvent;
+ 
+ /* File upload specification structure.
+    The application uses this structure to request a file upload (one
+Index: AgentEmbedded-6.1-364/Include/AeError.h
+===================================================================
+--- AgentEmbedded-6.1-364/Include/AeError.h	(revision 10051)
++++ AgentEmbedded-6.1-364/Include/AeError.h	(working copy)
+@@ -16,7 +16,6 @@
+ #ifndef _AE_ERROR_H_
+ #define _AE_ERROR_H_
+ 
+-typedef enum _AeError AeError;
+ 
+ enum _AeError
+ {
+@@ -57,5 +56,6 @@
+     AeENetHostUnreach,              /* 34 */
+     AeBadURL                        /* 35 */
+ };
++typedef enum _AeError AeError;
+ 
+ #endif
+Index: AgentEmbedded-6.1-364/Include/AeOS.h
+===================================================================
+--- AgentEmbedded-6.1-364/Include/AeOS.h	(revision 10051)
++++ AgentEmbedded-6.1-364/Include/AeOS.h	(working copy)
+@@ -44,8 +44,6 @@
+ #endif /* AE_BIG_ENDIAN */
+ 
+ typedef struct _AeNetAddress AeNetAddress;
+-typedef enum _AeLogRecordType AeLogRecordType;
+-typedef AeLogRecordType AeLogLevel;
+ 
+ /* IP address and port number in the network byte order. */
+ struct _AeNetAddress
+@@ -64,6 +62,8 @@
+     AeLogDebug,
+     AeLogTrace
+ };
++typedef enum _AeLogRecordType AeLogRecordType;
++typedef AeLogRecordType AeLogLevel;
+ 
+ /* Log message category values (may be OR-ed) */
+ #define AE_LOG_CATEGORY_NONE            0

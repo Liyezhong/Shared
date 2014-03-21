@@ -21,13 +21,11 @@
 #ifndef THREADS_BASETHREADCONTROLLER_H
 #define THREADS_BASETHREADCONTROLLER_H
 
-#include <DataLogging/Include/LoggingObject.h>
 #include <Global/Include/RefManager.h>
 #include <Global/Include/Commands/CmdDataChanged.h>
 #include <Global/Include/Commands/CmdPowerFail.h>
 #include <Global/Include/Commands/PendingCmdDescriptor.h>
 #include <Threads/Include/CommandFunctors.h>
-
 #include <QSet>
 
 #include <QThread>
@@ -71,7 +69,7 @@ typedef QHash<QString, CmdDataChangedFunctorShPtr_t>        CmdDataChangedFuncto
  * \warning This class is not thread safe!
  */
 /****************************************************************************/
-class BaseThreadController : public DataLogging::LoggingObject {
+class BaseThreadController:public QObject {
     Q_OBJECT
 friend void CommandChannel::CommandChannelRx(Global::tRefType, const Global::CommandShPtr_t &);         ///< For calling \ref OnExecuteCommand.
 friend void CommandChannel::CommandChannelTxAck(Global::tRefType, const Global::AcknowledgeShPtr_t &);  ///< For calling \ref OnProcessAcknowledge.
@@ -83,6 +81,7 @@ private:
     AcknowledgeProcessorFunctorHash_t       m_AcknowledgeProcessorFunctors; ///< Functors of supported acknowledges.
     TimeoutProcessorFunctorHash_t           m_TimeoutProcessorFunctors;     ///< Functors of supported command timeouts.
     CmdDataChangedFunctorHash_t             m_DataChangedFunctors;          ///< Functors of supported CmdDataChanged commands.
+    Global::gSourceType                     m_HeartBeatSource;              ///< Heart Beat source. ThreadControllers other than MasterThread.
     /****************************************************************************/
     BaseThreadController();                                                 ///< Not implemented.
     BaseThreadController(const BaseThreadController &);                     ///< Not implemented.
@@ -109,6 +108,7 @@ private:
      */
     /****************************************************************************/
     virtual void DoSendDataChanged(const Global::CommandShPtr_t &Cmd) = 0;
+
 signals:
     /****************************************************************************/
     /**
@@ -117,10 +117,10 @@ signals:
      *
      * The period can be changed by calling \ref SetHeartbeatTimeout.
      *
-     * \param[in]   TheLoggingSource    The logging source of emiting thread.
+     * \param[in]   TheHeartBeatSource    The logging source of emiting thread.
      */
     /****************************************************************************/
-    void HeartbeatSignal(const Global::gSourceType &TheLoggingSource);
+    void HeartbeatSignal(const Global::gSourceType &TheHeartBeatSource);
 private slots:
     /****************************************************************************/
     /**
@@ -140,6 +140,7 @@ private slots:
     /****************************************************************************/
     void OnProcessTimeoutSlot(Global::tRefType Ref, QString CmdName);
 protected:
+
     /****************************************************************************/
     /**
      * \brief Send a command over a specific command channel.
@@ -241,7 +242,9 @@ protected:
      * \param[in]   Ref     Command reference.
      */
     /****************************************************************************/
-    inline void RemoveFromPendingCommands(Global::tRefType Ref) {
+    inline void RemoveFromPendingCommands(Global::tRefType Ref)
+    {
+//        qDebug() << "BaseThreadController::RemoveFromPendingCommands" << Ref;
         // remove from list of pending commands
         m_PendingCommands.remove(Ref);
     }
@@ -391,6 +394,10 @@ protected:
     }
 
 public:
+    Global::gSourceType & GetHeartBeatSource()
+    {
+        return m_HeartBeatSource;
+    }
     /****************************************************************************/
     /**
      * \brief Constructor.
@@ -399,10 +406,10 @@ public:
      * parent Object in the constructor, but set it to NULL. This allows calls to
      * moveToThread without reparenting us.
      *
-     * \param[in]   TheLoggingSource    Source to set in log entry.
+     * \param[in]   TheHeartBeatSource    Heart Beat source
      */
     /****************************************************************************/
-    BaseThreadController(Global::gSourceType TheLoggingSource);
+    BaseThreadController(Global::gSourceType TheHeartBeatSource);
     /****************************************************************************/
     /**
      * \brief Destructor.

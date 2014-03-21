@@ -26,7 +26,7 @@
 
 namespace Application {
 
-bool CLeicaStyle::m_StyleSize = false;
+Application::ProjectId_t CLeicaStyle::m_ProjId = Application::HIMALAYA_PROJECT;
 
 /****************************************************************************/
 /*!
@@ -124,30 +124,30 @@ void CLeicaStyle::drawPrimitive(PrimitiveElement Which, const QStyleOption *p_Op
             if (p_Option->state & QStyle::State_Enabled) {
                 if (p_Option->state & QStyle::State_On) {
                     if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedPressed.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedPressed.png").arg(GetProjectNameString())));
                     }
                     else {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Checked.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Checked.png").arg(GetProjectNameString())));
                     }
                 }
                 else {
                     if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Pressed.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Pressed.png").arg(GetProjectNameString())));
                     }
                     else {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Enabled.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Enabled.png").arg(GetProjectNameString())));
                     }
                 }
             }
             else {
                 if (p_Option->state & QStyle::State_On) {
                     if (!(p_Option->state & QStyle::State_Sunken)) {
-                       p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedDisabled.png").arg(GetStyleSizeString())));
+                       p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedDisabled.png").arg(GetProjectNameString())));
                     }
                 }
                 else {
                     if (!(p_Option->state & QStyle::State_Sunken)) {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Disabled.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Disabled.png").arg(GetProjectNameString())));
                     }
                 }
             }
@@ -159,30 +159,30 @@ void CLeicaStyle::drawPrimitive(PrimitiveElement Which, const QStyleOption *p_Op
             if (p_Option->state & QStyle::State_Enabled) {
                 if (p_Option->state & QStyle::State_On) {
                     if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedPressed.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedPressed.png").arg(GetProjectNameString())));
                     }
                     else {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Checked.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Checked.png").arg(GetProjectNameString())));
                     }
                 }
                 else {
                     if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Pressed.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Pressed.png").arg(GetProjectNameString())));
                     }
                     else {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Enabled.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Enabled.png").arg(GetProjectNameString())));
                     }
                 }
             }
             else {
                 if (p_Option->state & QStyle::State_On) {
                     if (!(p_Option->state & QStyle::State_Sunken)) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedDisabled.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedDisabled.png").arg(GetProjectNameString())));
                     }
                 }
                 else {
                     if (!(p_Option->state & QStyle::State_Sunken)) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Disabled.png").arg(GetStyleSizeString())));
+                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Disabled.png").arg(GetProjectNameString())));
                     }
                 }
             }
@@ -230,23 +230,23 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                     if (p_Option->state & QStyle::State_Enabled) {
                         if (p_Option->state & QStyle::State_On) {
                             if (p_Option->state & QStyle::State_Sunken) {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-SelectedPressed.png").arg(GetStyleSizeString()));
+                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-SelectedPressed.png").arg(GetProjectNameString()));
                             }
                             else {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Selected.png").arg(GetStyleSizeString()));
+                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Selected.png").arg(GetProjectNameString()));
                             }
                         }
                         else {
                             if (p_Option->state & QStyle::State_Sunken) {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Pressed.png").arg(GetStyleSizeString()));
+                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Pressed.png").arg(GetProjectNameString()));
                             }
                             else {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Enabled.png").arg(GetStyleSizeString()));
+                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Enabled.png").arg(GetProjectNameString()));
                             }
                         }
                     }
                     else {
-                        Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Disabled.png").arg(GetStyleSizeString()));
+                        Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Disabled.png").arg(GetProjectNameString()));
                     }
                     p_Painter->drawPixmap(0, 0, Source);
                 }
@@ -257,10 +257,10 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                     if (p_Option->state & QStyle::State_Enabled) {
                         if (p_Option->state & QStyle::State_On) {
                             if (p_Option->state & QStyle::State_Sunken) {
-                                Source = QPixmap(QString(":/%1/TextButton/TextButton-SelectedPressed.png").arg(GetStyleSizeString()));
+                                Source = QPixmap(QString(":/%1/TextButton/TextButton-SelectedPressed.png").arg(GetProjectNameString()));
                             }
                             else {
-                                Source = QPixmap(QString(":/%1/TextButton/TextButton-Selected.png").arg(GetStyleSizeString()));
+                                Source = QPixmap(QString(":/%1/TextButton/TextButton-Selected.png").arg(GetProjectNameString()));
                             }
                         }
                         else {
@@ -268,7 +268,7 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
                         }
                     }
                     else {
-                        Source = QPixmap(QString(":/%1/TextButton/TextButton-Disabled.png").arg(GetStyleSizeString()));
+                        Source = QPixmap(QString(":/%1/TextButton/TextButton-Disabled.png").arg(GetProjectNameString()));
                     }
                     BorderPixmap(&Target, &Source, 18, 0, 18, 0);
                     p_Painter->drawPixmap(0, 0, Target);
@@ -299,30 +299,61 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
             const QStyleOptionTab *pTab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
 
             if (p_Option->state & QStyle::State_Selected) {
-                Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn-Down.png").arg(GetStyleSizeString()));
+                Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Down.png").arg(GetProjectNameString()));
             }
             else {
                 if ((pTab->position == QStyleOptionTab::Beginning && pTab->shape == QTabBar::RoundedNorth)
                         || (pTab->position == QStyleOptionTab::End && pTab->shape == QTabBar::RoundedWest)) {
-                    if(m_StyleSize==false){
-                        Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn6-Up.png").arg(GetStyleSizeString()));
+                    switch(m_ProjId) {
+                        case Application::COLORADO_PROJECT:
+                        {
+                           Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn6-Up.png").arg(GetProjectNameString()));
+                        }
+                        break;
+                        case Application::SEPIA_PROJECT:
+                        {
+                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnLast-Up.png").arg(GetProjectNameString()));
+                        }
+                        break;
+                        case Application::HIMALAYA_PROJECT:
+                        {
+                            Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Bottom_Up.png").arg(GetProjectNameString()));
+                        }
+                        break;
+                        default:
+                        {
+                            Source = QPixmap(QString(""));
                     }
-                    else{
-                        Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnLast-Up.png").arg(GetStyleSizeString()));
                     }
                 }
                 else if ((pTab->position == QStyleOptionTab::End && pTab->shape == QTabBar::RoundedNorth)
                         || (pTab->position == QStyleOptionTab::Beginning && pTab->shape == QTabBar::RoundedWest)) {
 
-                    if(m_StyleSize==false){
-                        Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn1-Up.png").arg(GetStyleSizeString()));
+                    switch(m_ProjId) {
+                        case Application::COLORADO_PROJECT:
+                        {
+                           Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn1-Up.png").arg(GetProjectNameString()));
+                        }
+                        break;
+                        case Application::SEPIA_PROJECT:
+                        {
+                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnFirst-Up.png").arg(GetProjectNameString()));
+                        }
+                        break;
+                        case Application::HIMALAYA_PROJECT:
+                        {
+                            Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Top_Up.png").arg(GetProjectNameString()));
+
+                        }
+                        break;
+                        default:
+                        {
+                            Source = QPixmap(QString(""));
                     }
-                    else{
-                        Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnFirst-Up.png").arg(GetStyleSizeString()));
                     }
                 }
                 else {
-                    Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn-Up.png").arg(GetStyleSizeString()));
+                    Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Up.png").arg(GetProjectNameString()));
                 }
             }
 
@@ -363,6 +394,20 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
             p_Painter->drawLine(p_Option->rect.bottomLeft(), p_Option->rect.bottomRight());
             break;
         }
+        case CE_ComboBoxLabel:
+        {
+            QPixmap Source;
+
+            Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetProjectNameString()));
+            if (p_Option->state & QStyle::State_Enabled) {
+                Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Enable.png").arg(GetProjectNameString()));
+            } else if(p_Option->state & QStyle::State_Selected) {
+                Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Pressed.png").arg(GetProjectNameString()));
+            }
+             p_Painter->drawPixmap(0, 0, Source);
+             break;
+
+        }
         default:
             QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
     }
@@ -386,13 +431,25 @@ void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionCom
             const QStyleOptionSlider *p_Slider = qstyleoption_cast<const QStyleOptionSlider *>(p_Option);
             QRect Handle = proxy()->subControlRect(CC_Slider, p_Slider, SC_SliderHandle, p_Widget);
 
-            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/SlideSwitch/SlideSwitch-BG.png").arg(GetStyleSizeString())));
+            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/SlideSwitch/SlideSwitch-BG.png").arg(GetProjectNameString())));
 
             if (p_Option->state & QStyle::State_Sunken) {
-                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Pressed.png").arg(GetStyleSizeString())));
+                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Pressed.png").arg(GetProjectNameString())));
             }
             else {
-                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Enabled.png").arg(GetStyleSizeString())));
+                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Enabled.png").arg(GetProjectNameString())));
+            }
+            break;
+        }
+        case CC_ComboBox:
+        {
+            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetProjectNameString())));
+
+            if (p_Option->state & QStyle::State_Enabled) {
+                p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Enable.png").arg(GetProjectNameString())));
+            }
+            else {
+                p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Pressed.png").arg(GetProjectNameString())));
             }
             break;
         }
@@ -443,20 +500,49 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
         case CT_TabBarTab:
         {
             const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+            switch(m_ProjId) {
+                case Application::COLORADO_PROJECT:
+                {
             if (p_Tab->shape == QTabBar::RoundedNorth) {
                 return QSize(ContentsSize.width() + 18, 48);
             }
             else {
-                if(m_StyleSize==false){
                     return QSize(79, 92);
                 }
+
+                }
+                break;
+                case Application::SEPIA_PROJECT:
+                {
+                    if (p_Tab->shape == QTabBar::RoundedNorth) {
+                        return QSize(ContentsSize.width() + 18, 48);
+                    }
                 else{
                     return QSize(92, 148);
                 }
             }
+                break;
+                case Application::HIMALAYA_PROJECT:
+                {
+                    if (p_Tab->shape == QTabBar::RoundedNorth) {
+                        return QSize(ContentsSize.width() + 18, 48);
+                    }
+                    else {
+                        return QSize(79, 111);
+                    }
+                }
+                break;
+                default:
+                {
+                    return QSize(0,0); // Undefined Value
+
+                }
+            }    // end of inside switch
         }
         case CT_Slider:
             return QSize(149, 37);
+        case CT_ComboBox:
+            return QSize(300, 53);
         default:
             return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
     }
@@ -524,6 +610,8 @@ QRect CLeicaStyle::subElementRect(SubElement Which, const QStyleOption *p_Option
         case SE_PushButtonFocusRect:
         case SE_RadioButtonFocusRect:
             return QRect(0, 0, 0, 0);
+        case SE_ComboBoxFocusRect:
+            return QRect(0,0, 300, 53);
         default:
             return QWindowsStyle::subElementRect(Which, p_Option, p_Widget);
     }
@@ -634,60 +722,66 @@ QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State State)
 
     if (ColorString.isNull()) {
         if (State & QStyle::State_Sunken) {
-            return (QString(":/%1/TextButton/TextButton-Pressed.png").arg(GetStyleSizeString()));
+            return (QString(":/%1/TextButton/TextButton-Pressed.png").arg(GetProjectNameString()));
         }
         else {
-            return (QString(":/%1/TextButton/TextButton-Enabled.png").arg(GetStyleSizeString()));
+            return (QString(":/%1/TextButton/TextButton-Enabled.png").arg(GetProjectNameString()));
         }
     }
     else {
         if (State & QStyle::State_Sunken) {
-            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-").arg(GetStyleSizeString())) + ColorString + "-Pressed.png";
+            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-").arg(GetProjectNameString())) + ColorString + "-Pressed.png";
         }
         else {
-            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-") .arg(GetStyleSizeString()))+ ColorString + ".png";
+            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-") .arg(GetProjectNameString()))+ ColorString + ".png";
         }
     }
 }
 
+
 /****************************************************************************/
 /*!
- *  \brief Sets the image set to be used
+ *  \brief Sets the Project Id to be used
  *
- *  \iparam Small = Small (true) or large (false) image set
+ *  \iparam eProj Enumeration Value to set the current project id.
  */
 /****************************************************************************/
-void CLeicaStyle::SetStyleSize(bool Small)
+void CLeicaStyle::SetProjectId(Application::ProjectId_t eProj)
 {
-    m_StyleSize = Small;
+    m_ProjId = eProj;
 }
 
 /****************************************************************************/
 /*!
- *  \brief Returns which image set is used
+ *  \brief Returns currently used project  id.
  *
- *  \return Small (true) or large (false) image set
+ *  \return Application::ProjectId_t  Enumeration value of the current project id.
  */
 /****************************************************************************/
-bool CLeicaStyle::GetStyleSize()
+Application::ProjectId_t CLeicaStyle::GetProjectId()
 {
-    return m_StyleSize;
+    return m_ProjId;
+
 }
 
 /****************************************************************************/
 /*!
- *  \brief Returns a string containing "Large" or "Small"
+ *  \brief Returns a string containing name of the Project
  *
- *  \return "Large" or "Small"
+ *  \return QString - String associated with the name of the Project
  */
 /****************************************************************************/
-QString CLeicaStyle::GetStyleSizeString()
+QString CLeicaStyle::GetProjectNameString()
 {
-    if (m_StyleSize == true) {
-        return QString("Small");
-    }
-    else {
-        return QString("Large");
+    switch(m_ProjId) {
+        case Application::COLORADO_PROJECT:
+            return "Large";
+        case Application::SEPIA_PROJECT:
+            return "Small";
+        case Application::HIMALAYA_PROJECT:
+            return "HimalayaImages";
+        default:
+            return "";
     }
 }
 

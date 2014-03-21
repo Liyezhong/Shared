@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file WriteArchive.h
+/*! \file WriteArchive.h
  *
- *  @brief write and archive for export - define a function
+ *  \brief write and archive for export - define a function
  *
- *  $Version:   $ 0.1, 0.2
- *  $Date:      $ 2011-08-02, 2012-07-12
- *  $Author:    $ R.Wobst, Raju
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,13 +15,13 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:45:33
+ *
  *
  */
 /****************************************************************************/
 
-#ifndef IMPORT_WRITE_ARCHIVE_H
-#define IMPORT_WRITE_ARCHIVE_H
+#ifndef IMPORTEXPORT_WRITEARCHIVE_H
+#define IMPORTEXPORT_WRITEARCHIVE_H
 
 #include <QByteArray>
 #include <QMap>
@@ -35,10 +35,12 @@
 namespace ImportExport {
 
 void WriteArchive(QByteArray archive_name,
-       QList<QByteArray> filelst, int version,
-       bool encrypt = false,
+       QList<QByteArray> filelist, int version,
+       bool encrypt = false, bool compressed = false,
 	   qint16 key_version=0);       // XXX for backup: no hash chain incr
 
+void WriteFiles(WriteAndHmac &fdwh, FailSafeOpen &fd,
+       CryptoService &cs, QList<QByteArray> &filelist, bool &compressed, bool &encrypt);
 }       // end namespace ImportExport
 
-#endif                  // IMPORT_WRITE_ARCHIVE_H
+#endif                  // IMPORTEXPORT_WRITEARCHIVE_H

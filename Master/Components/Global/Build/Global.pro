@@ -9,6 +9,3 @@ HEADERS +=  ../Include/*.h \
 
 SOURCES +=  ../Source/*.cpp \
             ../Source/Commands/*.cpp
-
-
-

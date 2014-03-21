@@ -54,6 +54,7 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     m_MaxEnteredCharLen = 32;
     m_MinEnteredCharLen = 1;
     m_EnteredStringValidation = true ;
+    mp_RegValidator = NULL;
 
     this->move(35,100);
     SetDialogTitle(tr("Dummy"));
@@ -153,7 +154,8 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     mp_LineEdit->setEchoMode(QLineEdit::Password);
     mp_LineEdit->setTextMargins(13, 0, 0, 0);
     //mp_LineEdit->setFocusPolicy(Qt::NoFocus);
-    mp_LineEdit->setFrame(false);
+    mp_LineEdit->setFrame(false);    
+
     QFont LineEditFont = font();
     LineEditFont.setPointSize(CKeyBoardButton::m_FontSize);
     mp_LineEdit->setFont(LineEditFont);
@@ -227,6 +229,7 @@ CKeyBoard::~CKeyBoard()
         while(!m_ButtonList.isEmpty()) {
             delete m_ButtonList.takeFirst();
         }
+        delete mp_RegValidator;
         delete mp_EscLayout;
         delete mp_ZxcdLayout;
         delete mp_AsdfLayout;
@@ -237,7 +240,10 @@ CKeyBoard::~CKeyBoard()
         delete mp_KeyTrayBackGround;
         delete mp_LineEditLayout;
         delete mp_LineEditWidget;
-        delete mp_KeyBoardBaseLayout;
+        delete mp_KeyBoardBaseLayout;        
+        /// Please don't delete the below statement
+        /// this check is required in the Detach() function
+        mp_LineEditLayout = NULL;
         Detach();
     }
     catch (...) {
@@ -514,7 +520,7 @@ void CKeyBoard::SetCaps(bool IsCaps) {
         m_ButtonList.at(14)->SetText("F", "$");
         m_ButtonList.at(15)->SetText("G", "%");
         m_ButtonList.at(16)->SetText("H", "&");
-        m_ButtonList.at(17)->SetText("J", "=");
+        m_ButtonList.at(17)->SetText("J", "*");
         m_ButtonList.at(18)->SetText("K", "?");
         m_ButtonList.at(19)->SetText("L", "/");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
@@ -554,7 +560,7 @@ void CKeyBoard::SetCaps(bool IsCaps) {
         m_ButtonList.at(14)->SetText("f", "$");
         m_ButtonList.at(15)->SetText("g", "%");
         m_ButtonList.at(16)->SetText("h", "&");
-        m_ButtonList.at(17)->SetText("j", "=");
+        m_ButtonList.at(17)->SetText("j", "*");
         m_ButtonList.at(18)->SetText("k", "?");
         m_ButtonList.at(19)->SetText("l", "/");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
@@ -689,7 +695,8 @@ void CKeyBoard::MoveCharacters(bool Checked) {
 /****************************************************************************/
 QString CKeyBoard::GetLineEditString()
 {
-    m_LineEditString = mp_LineEdit->text();
+    // Added simplified method to remove unnecessary spaces in the entered text.
+    m_LineEditString = mp_LineEdit->text().simplified();
     mp_LineEdit->clear();
     hide();
     KeyBoardReset();
@@ -708,11 +715,24 @@ void CKeyBoard::EscClicked()
     if(m_ButtonList.at(30)->accessibleName() == "0x01000000") {
        mp_LineEdit->clear();
        hide();
+       NotifyObserverOnESCClicked();
        KeyBoardReset();
        AltToggled(false);
     }
 }
 
+
+/****************************************************************************/
+/*!
+ *  \brief This function is called to Notify the observers when ESC is clicked.
+ */
+/****************************************************************************/
+void CKeyBoard::NotifyObserverOnESCClicked()
+{
+    for(qint32 I = 0; I < mp_KeyBoardObserver.size(); I++) {
+        mp_KeyBoardObserver[I]->UpdateOnESC();
+    }
+}
 /****************************************************************************/
 /*!
  *  \brief This function sets the dialog title of the keyboard
@@ -795,7 +815,7 @@ void CKeyBoard::CreateKeyboard()
     mp_AsdfLayout->addWidget(CreateNewKey("Center", "f", "$", false, 0), 1);
     mp_AsdfLayout->addWidget(CreateNewKey("Center", "g", "%", false, 0), 1);
     mp_AsdfLayout->addWidget(CreateNewKey("Center", "h", "&", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "j", "=", false, 0), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "j", "*", false, 0), 1);
     mp_AsdfLayout->addWidget(CreateNewKey("Center", "k", "?", false, 0), 1);
     mp_AsdfLayout->addWidget(CreateNewKey("Right", "l", "/", false, 0), 1);
     mp_AsdfLayout->addStretch(1);
@@ -930,6 +950,14 @@ void CKeyBoard::Detach()
             mp_KeyBoardObserver.pop_back();
         }
     }
+
+    /// Destructor deletes the line edit control and then detaches.
+    /// So to avoid memory voialation below statement is required
+    if (mp_LineEditLayout) {
+        // reset all the validations and input masks
+        mp_LineEdit->setInputMask("");
+        mp_LineEdit->setValidator(NULL);
+    }
 }
 
 /****************************************************************************/
@@ -953,27 +981,9 @@ void CKeyBoard::OnOkClicked()
 {
   //  unsigned int EnteredCharLen = mp_LineEdit->text().length();
     QString EnteredText = mp_LineEdit->text();
-    EnteredText = EnteredText.simplified();
     ValidateString(EnteredText);
     MainMenu::CMessageDlg MessageDlg(this);
     MessageDlg.SetTitle(tr("Information Message"));
-
-//    if (EnteredCharLen < m_MinEnteredCharLen) {
-//        MessageDlg.SetText(QString(tr("The text you entered is too short. "
-//                                      "The length must be at least %1.")
-//                                   .arg(m_MinEnteredCharLen)));
-//    }
-//    else if (EnteredCharLen > m_MaxEnteredCharLen) {
-//        MessageDlg.SetText(QString(tr("The text you entered is too long. "
-//                                      "The length must not be greater than %1.")
-//                                   .arg(m_MaxEnteredCharLen)));
-//    }
-//    else {
- //       m_EnteredCharsValid = true;
- //       NotifyObserver();
- //       return;
- //  }
-
     MessageDlg.SetIcon(QMessageBox::Information);
     MessageDlg.SetButtonText(1, tr("Ok"));
     MessageDlg.HideButtons();
@@ -1009,7 +1019,7 @@ void CKeyBoard::ValidateString(QString InputString)
         MessageDlg.exec();
         m_EnteredCharsValid = false ;
     }
-    else if(InputString.at(0) == ' '){
+    else if(InputString.at(0) == ' ') {
         MessageDlg.SetText(QString(tr("The first character must not be a space")));
         MessageDlg.exec();
         m_EnteredCharsValid = false ;
@@ -1029,9 +1039,8 @@ void CKeyBoard::ValidateString(QString InputString)
          m_EnteredCharsValid = false ;
     }
     else {
-       switch(int (m_ValidationType)){
+       switch(int (m_ValidationType)) {
     case 1:
-            qDebug()<<"Inside Case 1";
             if(EnteredCharLen >= 2){
                 if(InputString.at(1) == ' ') {
                     MessageDlg.SetText(QString(tr("The second element of the text must be a character")));
@@ -1050,7 +1059,6 @@ void CKeyBoard::ValidateString(QString InputString)
             break;
 
     case 2:
-        qDebug()<<"Inside Case 2"; 
         if(m_MaxEnteredCharLen == 3) {
             if(EnteredCharLen == 2){
                 if(InputString.at(1) == ' ') {
@@ -1087,8 +1095,6 @@ void CKeyBoard::ValidateString(QString InputString)
             m_EnteredCharsValid = true;
             NotifyObserver();
         }
-
-       // }
         break;
     default:
          m_EnteredCharsValid = true;
@@ -1098,4 +1104,6 @@ void CKeyBoard::ValidateString(QString InputString)
  }
 }
 
+
+/*****************************************************************************/
 } // End of namespace KeyBoard

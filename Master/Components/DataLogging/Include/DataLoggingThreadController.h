@@ -22,9 +22,14 @@
 #define DATALOGGING_DATALOGGINGTHREADCONTROLLER_H
 
 #include <Threads/Include/ThreadController.h>
-#include <DataLogging/Include/EventLogger.h>
-#include <DataLogging/Include/ComponentTestLogger.h>
 #include <DataLogging/Include/DayEventLogger.h>
+#include <DataLogging/Include/DayLogFileInformation.h>
+#include <NetCommands/Include/CmdDayRunLogRequest.h>
+#include <NetCommands/Include/CmdExportDayRunLogRequest.h>
+#include <NetCommands/Include/CmdDayRunLogRequestFile.h>
+#include <NetCommands/Include/CmdDayRunLogReply.h>
+#include <NetCommands/Include/CmdExportDayRunLogReply.h>
+#include <NetCommands/Include/CmdDayRunLogReplyFile.h>
 
 // DestroyObjects is the cleanup function for class DataLoggingThreadController,
 // so we inform lint about this.
@@ -55,13 +60,12 @@ private:
     qint64                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
     DayEventLogger              m_DayEventLogger;               ///< Day operation logger.
-    EventLogger                 m_EventLogger;                      ///< Event logger.
-    ComponentTestLogger         m_ComponentTestLogger;              ///< Component test logger.
     EventFilterNetworkServer    *m_pEventFilterNetworkServer;       ///< Socket server for EventFilter.
     /****************************************************************************/
     DataLoggingThreadController();                                                          ///< Not implemented.
     DataLoggingThreadController(const DataLoggingThreadController &);                       ///< Not implemented.
     const DataLoggingThreadController & operator = (const DataLoggingThreadController &);   ///< Not implemented.
+
 protected:
     /****************************************************************************/
     /**
@@ -98,20 +102,48 @@ protected:
     /**
      * \brief Force caching.
      *
-     * \param[in]   Ref                 Command reference.
-     * \param[in]   Cmd                 Command.
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
      */
     /****************************************************************************/
     void OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd);
+    /****************************************************************************/
+    /**
+     * \brief Request for daily run log file names.
+     *
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     */
+    /****************************************************************************/
+    void OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd);
+    /****************************************************************************/
+    /**
+     * \brief Request for daily run log file content.
+     *
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     */
+    /****************************************************************************/
+    void OnRunLogRequestFile(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequestFile &Cmd);
+
+    /****************************************************************************/
+    /**
+     * \brief Create and request for daily run log file names for the export component.
+     *
+     * \iparam   Ref                 Command reference.
+     * \iparam   Cmd                 Command.
+     */
+    /****************************************************************************/
+    void OnExportDayRunLogRequest(Global::tRefType Ref, const NetCommands::CmdExportDayRunLogRequest &Cmd);
 public:
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \param[in]   TheLoggingSource    Logging source to be used.
+     * \iparam   TheHeartBeatSource    Logging source to be used.
      */
     /****************************************************************************/
-    DataLoggingThreadController(Global::gSourceType TheLoggingSource);
+    DataLoggingThreadController(Global::gSourceType TheHeartBeatSource, const QString& fileNamePrefix);
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -122,7 +154,7 @@ public:
     /**
      * \brief Set operating mode.
      *
-     * \param[in]   OperatingMode   OperatingMode.
+     * \iparam   OperatingMode   OperatingMode.
      */
     /****************************************************************************/
     inline void SetOperatingMode(const QString &OperatingMode) {
@@ -132,7 +164,7 @@ public:
     /**
      * \brief Set base of file name for even logging.
      *
-     * \param[in]   EventLoggerBaseFileName     Base of file name for even logging.
+     * \iparam   EventLoggerBaseFileName     Base of file name for even logging.
      */
     /****************************************************************************/
     inline void SetEventLoggerBaseFileName(const QString &EventLoggerBaseFileName) {
@@ -142,7 +174,7 @@ public:
     /**
      * \brief Set serial number.
      *
-     * \param[in]   SerialNumber    Serial number.
+     * \iparam   SerialNumber    Serial number.
      */
     /****************************************************************************/
     inline void SetSerialNumber(const QString &SerialNumber) {
@@ -153,7 +185,7 @@ public:
      * \brief Set maximal file size for event logger.
      *
      * 0 means no maximal file size monitoring!
-     * \param[in]   MaxFileSize     Max file size.
+     * \iparam   MaxFileSize     Max file size.
      */
     /****************************************************************************/
     inline void SetEventLoggerMaxFileSize(qint64 MaxFileSize) {
@@ -164,7 +196,7 @@ public:
      * \brief Set maximal file count for day operation logger.
      *
      * 0 means no maximal file count monitoring!
-     * \param[in]   MaxFileCount    Max file count.
+     * \iparam   MaxFileCount    Max file count.
      */
     /****************************************************************************/
     inline void SetDayEventLoggerMaxFileCount(int MaxFileCount) {
@@ -187,34 +219,24 @@ public:
 public slots:
     /****************************************************************************/
     /**
-     * \brief Log an event entry.
-     *
-     * The EventEntry is forwarded to the event logger instance.
-     *
-     * \param[in]   Entry   Event entry to log.
-     */
-    /****************************************************************************/
-    void SendToEventLogger(const DataLogging::EventEntry &Entry);
-    /****************************************************************************/
-    /**
-     * \brief Log an component test entry.
-     *
-     * The ComponentTestEntry is forwarded to the component test logger instance.
-     *
-     * \param[in]   Entry   Component test entry to log.
-     */
-    /****************************************************************************/
-    void SendToComponentTestLogger(const DataLogging::ComponentTestEntry &Entry);
-    /****************************************************************************/
-    /**
      * \brief Log an day operation entry.
      *
      * The DayEventEntry is forwarded to the day operation logger instance.
      *
-     * \param[in]   Entry   Day operation entry to log.
+     * \iparam   Entry   Day operation entry to log.
      */
     /****************************************************************************/
     void SendToDayEventLogger(const DataLogging::DayEventEntry &Entry);
+
+    /****************************************************************************/
+    /**
+     * \brief Checks whether data logging enabled. If not enabled then it raises
+     *        event to GUI
+     */
+    /****************************************************************************/
+    void CheckLoggingEnabled();
+
+
 }; // end class DataLoggingThreadController
 
 } // end namespace DataLogging

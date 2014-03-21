@@ -2,7 +2,7 @@
 
 TEMPLATE = subdirs
 SUBDIRS = ../Components/DataLogging/Build/DataLogging.pro \
-          ../Components/DataManagement/Build/DataManagement.pro \
+          ../Components/DataManager/Build/DataManager.pro \
           ../Components/DeviceControl/Build/DeviceControl.pro \
           ../Components/DeviceCommandProcessor/Build/DeviceCommandProcessor.pro \
           ../Components/EventHandler/Build/EventHandler.pro \
@@ -11,6 +11,10 @@ SUBDIRS = ../Components/DataLogging/Build/DataLogging.pro \
           ../Components/ImportExport/Build/ImportExport.pro \
           ../Components/NetworkComponents/Build/NetworkComponents.pro \
           ../Components/StateMachines/Build/StateMachines.pro \
-          ../Components/Threads/Build/Threads.pro
+          ../Components/AxedaController/Build/AxedaController.pro \
+          ../Components/Threads/Build/Threads.pro \
+          ../Components/NetCommands/Build/NetCommands.pro \
+          ../Components/PasswordManager/Build/PasswordManager.pro \
+          ../Components/SoftSwitchManager/Build/SoftSwitchManager.pro
 
 CONFIG += ordered

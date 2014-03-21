@@ -10,4 +10,4 @@ HEADERS += TestState.h \
 SOURCES += TestState.cpp \
            DerivedState.cpp
 
-UseLibs(Global DataLogging StateMachines)
+UseLibs(Global DataLogging StateMachines EventHandler)

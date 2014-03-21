@@ -25,22 +25,16 @@
 #include <QTextStream>
 #include <QDomNode>
 #include <QDomElement>
+#include <QtDebug>
 
 #include "DeviceControl/Include/DeviceProcessing/ConfigurationService.h"
 #include "DeviceControl/Include/Interface/IDeviceProcessing.h"
 #include "DeviceControl/Include/Devices/BaseDevice.h"
-#include "DeviceControl/Include/Devices/AgitationDevice.h"
-#include "DeviceControl/Include/Devices/ExhaustDevice.h"
-#include "DeviceControl/Include/Devices/LoaderDevice.h"
+#include "DeviceControl/Include/Devices/RotaryValveDevice.h"
+#include "DeviceControl/Include/Devices/AirLiquidDevice.h"
+#include "DeviceControl/Include/Devices/RetortDevice.h"
 #include "DeviceControl/Include/Devices/OvenDevice.h"
-#include "DeviceControl/Include/Devices/GrapplerDevice.h"
-#include "DeviceControl/Include/Devices/WaterDevice.h"
-#include "DeviceControl/Include/Devices/HeatedVesselsDevice.h"
-#include "DeviceControl/Include/Devices/RackTransferDevice.h"
-#include "DeviceControl/Include/Devices/RackHandlingDevice.h"
-#include "DeviceControl/Include/Devices/CoverLineDevice.h"
-#include "DeviceControl/Include/Devices/HoodSensorDevice.h"
-#include "DeviceControl/Include/Devices/StateMachine/Drawer.h"
+#include "DeviceControl/Include/Devices/PeripheryDevice.h"
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 #include "DeviceControl/Include/SlaveModules/AnalogInput.h"
@@ -51,9 +45,7 @@
 #include "DeviceControl/Include/SlaveModules/Uart.h"
 #include "DeviceControl/Include/SlaveModules/Joystick.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
-#ifdef PRE_ALFA_TEST
 #include "DeviceControl/Include/SlaveModules/PressureControl.h"
-#endif
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
@@ -72,14 +64,14 @@ namespace DeviceControl
 /****************************************************************************/
 CConfigurationService::CConfigurationService(DeviceProcessing* pDeviceProcessing,
                                              CANCommunicator* pCANCommunicator) :
-    m_pDeviceProcessing(pDeviceProcessing),
-    m_pCANCommunicator(pCANCommunicator),
-    m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS),
-    m_lastErrorGroup(0),
-    m_lastErrorCode(0),
-    m_lastErrorData(0),
-    m_stateTimespan(0),
-    m_ConfigurationComplete(false)
+        m_pDeviceProcessing(pDeviceProcessing),
+        m_pCANCommunicator(pCANCommunicator),
+        m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS),
+        m_lastErrorGroup(0),
+        m_lastErrorCode(0),
+        m_lastErrorData(0),
+        m_stateTimespan(0),
+        m_ConfigurationComplete(false)
 {
     m_MainState = CS_MAIN_STATE_INIT;
     m_ErrSubState = CS_SUBSTATE_ERR_UNDEF;
@@ -197,7 +189,7 @@ void CConfigurationService::HandleTasks()
     {
         if(m_ErrSubState == CS_SUBSTATE_ERR_IDLE)
         {
-           ;
+            ;
         }
         else if(m_ErrSubState == CS_SUBSTATE_ERR_INIT)
         {
@@ -254,7 +246,7 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
     else {
         RetVal = CreateObjectTree(&Configuration);
         if(RetVal == DCL_ERR_FCT_CALL_SUCCESS) {
-            //RetVal = CreateDevices(&Configuration);
+            RetVal = CreateDevices(&Configuration);
         }
     }
 
@@ -316,57 +308,56 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
             //CAN node's function module list
             switch(pCANObjectConfigFct->m_ObjectType)
             {
-                case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
-                {
-                    CreateAndAddFunctionModule<CDigitalInput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
-                {
-                    CreateAndAddFunctionModule<CDigitalOutput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
-                {
-                    CreateAndAddFunctionModule<CAnalogInput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
-                {
-                    CreateAndAddFunctionModule<CAnalogOutput>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
-                {
-                    CreateAndAddFunctionModule<CStepperMotor>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
-                {
-                    CreateAndAddFunctionModule<CRfid11785>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
-                {
-                    CreateAndAddFunctionModule<CRfid15693>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
-                {
-                    CreateAndAddFunctionModule<CTemperatureControl>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
-                {
-                    CreateAndAddFunctionModule<CJoystick>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-                case CModuleConfig::CAN_OBJ_TYPE_UART:
-                {
-                    CreateAndAddFunctionModule<CUart>(pCANNode, pCANObjectConfigFct);
-                    break;
-                }
-
+            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
+            {
+                CreateAndAddFunctionModule<CDigitalInput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
+            {
+                CreateAndAddFunctionModule<CDigitalOutput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
+            {
+                CreateAndAddFunctionModule<CAnalogInput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
+            {
+                CreateAndAddFunctionModule<CAnalogOutput>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
+            {
+                CreateAndAddFunctionModule<CStepperMotor>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
+            {
+                CreateAndAddFunctionModule<CRfid11785>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
+            {
+                CreateAndAddFunctionModule<CRfid15693>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
+            {
+                CreateAndAddFunctionModule<CTemperatureControl>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
+            {
+                CreateAndAddFunctionModule<CJoystick>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
+            case CModuleConfig::CAN_OBJ_TYPE_UART:
+            {
+                CreateAndAddFunctionModule<CUart>(pCANNode, pCANObjectConfigFct);
+                break;
+            }
             case CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL:
             {
                 CreateAndAddFunctionModule<CPressureControl>(pCANNode, pCANObjectConfigFct);
@@ -405,49 +396,25 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
     {
         ReturnCode_t RetValCANNode = DCL_ERR_FCT_CALL_SUCCESS;
 
-        if(pBaseDeviceCfg->m_Type == "AgitationDevice")
+        if(pBaseDeviceCfg->m_Type == "RotaryValveDevice")
         {
-            pBaseDevice = CreateAndGetDevice<CAgitationDevice>(pBaseDeviceCfg);
+            pBaseDevice = CreateAndGetDevice<CRotaryValveDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Type == "ExhaustDevice")
+        else if(pBaseDeviceCfg->m_Type == "AirLiquidDevice")
         {
-            pBaseDevice = CreateAndGetDevice<CExhaustDevice>(pBaseDeviceCfg);
+            pBaseDevice = CreateAndGetDevice<CAirLiquidDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Type == "GrapplerDevice")
+        else if(pBaseDeviceCfg->m_Type == "RetortDevice")
         {
-            pBaseDevice = CreateAndGetIndexedDevice<CGrapplerDevice>(pBaseDeviceCfg);
-        }
-        else if(pBaseDeviceCfg->m_Type == "HeatedVesselsDevice")
-        {
-            pBaseDevice = CreateAndGetDevice<CHeatedVesselsDevice>(pBaseDeviceCfg);
-        }
-        else if(pBaseDeviceCfg->m_Type == "LoaderDevice")
-        {
-            pBaseDevice = CreateAndGetIndexedDevice<CLoaderDevice>(pBaseDeviceCfg);
+            pBaseDevice = CreateAndGetDevice<CRetortDevice>(pBaseDeviceCfg);
         }
         else if(pBaseDeviceCfg->m_Type == "OvenDevice")
         {
             pBaseDevice = CreateAndGetDevice<COvenDevice>(pBaseDeviceCfg);
         }
-        else if(pBaseDeviceCfg->m_Type == "RackTransferDevice")
+        else if(pBaseDeviceCfg->m_Type == "PeripheryDevice")
         {
-            pBaseDevice = CreateAndGetDevice<CRackTransferDevice>(pBaseDeviceCfg);
-        }
-        else if(pBaseDeviceCfg->m_Type == "WaterDevice")
-        {
-            pBaseDevice = CreateAndGetDevice<CWaterDevice>(pBaseDeviceCfg);
-        }
-        else if(pBaseDeviceCfg->m_Type == "RackHandlingDevice")
-        {
-            pBaseDevice = CreateAndGetDevice<CAgitationDevice>(pBaseDeviceCfg);
-        }
-        else if(pBaseDeviceCfg->m_Type == "CoverLineDevice")
-        {
-            pBaseDevice = CreateAndGetIndexedDevice<CCoverLineDevice>(pBaseDeviceCfg);
-        }
-        else if(pBaseDeviceCfg->m_Type == "HoodOpenDevice")
-        {
-            pBaseDevice = CreateAndGetIndexedDevice<CHoodSensorDevice>(pBaseDeviceCfg);
+            pBaseDevice = CreateAndGetDevice<CPeripheryDevice>(pBaseDeviceCfg);
         }
         else
         {
@@ -561,9 +528,9 @@ void CConfigurationService::CreateAndAddFunctionModule(CBaseModule* pCANNode, CM
 
     if(RetValFctModule == DCL_ERR_FCT_CALL_SUCCESS) {
         FILE_LOG_L(laINIT, llDEBUG1) << "   Function Module: " << pFunctionModule->GetKey().toStdString() <<
-                //"  Type:  0x" << std::hex << pFunctionModule->m_sCANNodeType <<
-                //"  Index: 0x" << std::hex << pFunctionModule->m_sCANNodeIndex <<
-                "  Node:  0x" << std::hex << pCANNode->GetNodeID();
+                                        //"  Type:  0x" << std::hex << pFunctionModule->m_sCANNodeType <<
+                                        //"  Index: 0x" << std::hex << pFunctionModule->m_sCANNodeIndex <<
+                                        "  Node:  0x" << std::hex << pCANNode->GetNodeID();
         pCANNode->AddFunctionModule(pFunctionModule);
         FILE_LOG_L(laINIT, llDEBUG1) << "   created fct " << pFunctionModule->GetName().toStdString() << " ModuleID: "  << (int) pFunctionModule->GetChannelNo();
     }
@@ -719,7 +686,7 @@ ReturnCode_t CConfigurationService::IsCANNodesStateIdle()
         pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(true);
         while(pCANNode) {
             if (pCANNode->GetMainState() != CBaseModule::CN_MAIN_STATE_IDLE &&
-                    pCANNode->GetMainState() != CBaseModule::CN_MAIN_STATE_UPDATE ) {
+                            pCANNode->GetMainState() != CBaseModule::CN_MAIN_STATE_UPDATE ) {
                 SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_NODE_IDLE_TIMEOUT,
                                   (quint16) pCANNode->GetModuleHandle());
                 FILE_LOG_L(laCONFIG, llWARNING) << pCANNode->GetKey().toStdString() << " not idle, state: " <<

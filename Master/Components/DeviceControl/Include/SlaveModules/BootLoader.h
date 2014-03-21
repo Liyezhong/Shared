@@ -56,19 +56,16 @@ public:
                 DeviceControl::CANCommunicator *p_CanCommunicator, DeviceControl::CBaseModule *p_BaseModule);
     ReturnCode_t UpdateFirmware(const QString &FirmwarePath);
     ReturnCode_t UpdateInfo(const quint8 *p_Info, quint32 Size, quint8 UpdateType);
-    ReturnCode_t UpdateBootLoader(const QString &BootLoaderPath);
     void HandleCanMessage(const can_frame *p_CanFrame);
     void WaitForUpdate(bool Wait);
     ReturnCode_t BootFirmware();
-    bool Active() const;
 
     //! Internal states of the boot loader module
     typedef enum {
-        BOOTLOADER_IDLE,        //!< Default or init state
-        BOOTLOADER_ACTIVE,      //!< The boot loader is running
-        BOOTLOADER_FIRMWARE,    //!< Firmware update active
-        BOOTLOADER_INFO,        //!< Info block update active
-        BOOTLOADER_BOOTLOADER   //!< Boot loader update active
+        IDLE,       //!< Default or init state
+        ACTIVE,     //!< The boot loader is running
+        FIRMWARE,   //!< Firmware update active
+        INFO        //!< Info block update active
     } State_t;
 
 signals:
@@ -94,22 +91,11 @@ signals:
     /****************************************************************************/
     void ReportUpdateInfo(quint32 InstanceID, ReturnCode_t HdlInfo);
 
-    /****************************************************************************/
-    /*!
-     *  \brief  This signal is emitted to report the end of a boot loader update
-     *
-     *  \iparam InstanceID = Instance identifier of this function module instance
-     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the
-     *                    error code
-     */
-    /****************************************************************************/
-    void ReportUpdateBootLoader(quint32 InstanceID, ReturnCode_t HdlInfo);
-
 private:
+    void SetState(State_t State);
     ReturnCode_t SendData();
     ReturnCode_t SendModeRequest(bool StartUpdate);
     ReturnCode_t SendInfo();
-    ReturnCode_t SendHeader();
     quint32 CalculateCrc(const quint8 *p_Data, quint32 DataSize);
     ReturnCode_t HandleCanMsgUpdateRequired(const can_frame *p_CanFrame);
     ReturnCode_t HandleCanMsgUpdateModeAck(const can_frame *p_CanFrame);
@@ -148,8 +134,8 @@ private:
     QTimer m_Timer;         //!< Generates a transaction timeout
     QMutex m_Mutex;         //!< Protects handle CAN message function
 
-    static const qint32 m_Timeout;              //!< Transaction timeout
-    static const quint32 m_Crc32Polynomial;     //!< CRC32 polynomial
+    static const qint32 m_Timeout;  //!< Transaction timeout
+    static const quint32 m_Crc32Polynomial; //!< CRC32 polynomial
     static const quint32 m_Crc32InitialValue;   //!< CRC32 start value
 
 private slots:

@@ -32,27 +32,6 @@
 
 namespace DataLogging {
 
-/****************************************************************************/
-/**
- * \brief EventEntry signal spy since Qt's QSignalSpy does not work as expected.
- */
-/****************************************************************************/
-class EventEntrySignalSpy : public QObject, public QList<EventEntry> {
-    Q_OBJECT
-public slots:
-    /****************************************************************************/
-    /**
-     * \brief The spy slot.
-     *
-     * \param   E   The event entry.
-     */
-    /****************************************************************************/
-    void TheSlot(const DataLogging::EventEntry &E) {
-        // append to list.
-        append(E);
-    }
-}; // end class EventEntrySignalSpy
-
 
 /****************************************************************************/
 /**
@@ -74,28 +53,6 @@ public slots:
         append(E);
     }
 }; // end class DayOperationEntrySignalSpy
-
-
-/****************************************************************************/
-/**
- * \brief ComponentTestEntry signal spy since Qt's QSignalSpy does not work as expected.
- */
-/****************************************************************************/
-class ComponentTestEntrySignalSpy : public QObject, public QList<ComponentTestEntry> {
-    Q_OBJECT
-public slots:
-    /****************************************************************************/
-    /**
-     * \brief The spy slot.
-     *
-     * \param   E   The component test entry.
-     */
-    /****************************************************************************/
-    void TheSlot(const DataLogging::ComponentTestEntry &E) {
-        // append to list.
-        append(E);
-    }
-}; // end class ComponentTestEntrySignalSpy
 
 
 /****************************************************************************/
@@ -135,24 +92,24 @@ public:
     /****************************************************************************/
     virtual ~ErrorProcessor() {
     }
-    /****************************************************************************/
-    /**
-     * \brief Process error event from local object.
-     *
-     * \param[in]  TheEventEntry = event from one of local objects
-     * \return      true if event was processed.
-     */
-    /****************************************************************************/
-    bool LocalProcessErrorEvent(const EventEntry &TheEventEntry) {
-        Q_UNUSED(TheEventEntry);
-        if(m_ErrorsProcessed < m_ErrorsToProcess) {
-            // process error
-            m_ErrorsProcessed++;
-            return true;
-        }
-        // no error processing
-        return false;
-    }
+//    /****************************************************************************/
+//    /**
+//     * \brief Process error event from local object.
+//     *
+//     * \param[in]  TheEventEntry = event from one of local objects
+//     * \return      true if event was processed.
+//     */
+//    /****************************************************************************/
+//    bool LocalProcessErrorEvent(const EventEntry &TheEventEntry) {
+//        Q_UNUSED(TheEventEntry);
+//        if(m_ErrorsProcessed < m_ErrorsToProcess) {
+//            // process error
+//            m_ErrorsProcessed++;
+//            return true;
+//        }
+//        // no error processing
+//        return false;
+//    }
 }; // end class ErrorProcessor
 
 
@@ -259,15 +216,14 @@ private slots:
 
 /****************************************************************************/
 void TestLoggingObject::ReconnectEmitError(LoggingObject &Source, LoggingObject &Target) {
-    QVERIFY(QObject::disconnect(&Source, SIGNAL(EmitError(const DataLogging::EventEntry &)),
-                                &Target, SLOT(ProcessErrorEvent(const DataLogging::EventEntry &))));
-    QVERIFY(QObject::connect(&Source, SIGNAL(EmitError(const DataLogging::EventEntry &)),
-                             &Target, SLOT(ProcessErrorEvent(const DataLogging::EventEntry &))));
+//    QVERIFY(QObject::disconnect(&Source, SIGNAL(EmitError(const DataLogging::EventEntry &)),
+//                                &Target, SLOT(ProcessErrorEvent(const DataLogging::EventEntry &))));
+//    QVERIFY(QObject::connect(&Source, SIGNAL(EmitError(const DataLogging::EventEntry &)),
+//                             &Target, SLOT(ProcessErrorEvent(const DataLogging::EventEntry &))));
 }
 
 /****************************************************************************/
 void TestLoggingObject::initTestCase() {
-    qRegisterMetaType<EventEntry>("DataLogging::EventEntry");
     qRegisterMetaType<DayEventEntry>("DataLogging::DayEventEntry");
 }
 
@@ -361,50 +317,50 @@ void TestLoggingObject::utSendDayOperationUnconnected() {
         QCOMPARE(ErrorSpy.count(), 4);
         // extract event entries and check them
         EventEntry Result = EventSpy.at(0);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = ErrorSpy.at(0);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = EventSpy.at(1);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = ErrorSpy.at(1);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         // the first objects also sends the following errors
         Result = EventSpy.at(2);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = ErrorSpy.at(2);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = EventSpy.at(3);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = ErrorSpy.at(3);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
@@ -445,26 +401,26 @@ void TestLoggingObject::utSendComponentTestUnconnected() {
 
         // extract event entries and check them
         EventEntry Result = EventSpy.at(0);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = ErrorSpy.at(0);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         // the first objects also sends the following error
         Result = EventSpy.at(1);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
         QCOMPARE(Result.GetAdditionalData().size(), 1);
         Result = ErrorSpy.at(1);
-        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
+        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_ERROR_SIGNAL_NOT_CONNECTED);
         QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
         QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_FATAL_ERROR);
         QCOMPARE(Result.GetSource(),                LS1);
@@ -518,7 +474,7 @@ void TestLoggingObject::utSendEvent() {
 //        QCOMPARE(ErrorSpy.count(), 2);
 //        // extract event entries and check them
 //        EventEntry Result = EventSpy.at(0);
-//        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_UNDEFINED);
+//        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_UNDEFINED);
 //        QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
 //        QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_UNDEFINED);
 //        QCOMPARE(Result.GetSource(),                LS0);
@@ -553,7 +509,7 @@ void TestLoggingObject::utSendEvent() {
 //        QCOMPARE(Result.GetSource(),                LS1);
 //        QCOMPARE(Result.GetAdditionalData().size(), 0);
 //        Result = EventSpy.at(4);
-//        QCOMPARE(Result.GetEventCode(),             Global::EVENT_GLOBAL_UNDEFINED);
+//        QCOMPARE(Result.GetEventCode(),             EVENT_GLOBAL_UNDEFINED);
 //        QCOMPARE(Result.GetEventStatus(),           Global::EVTSTAT_ON);
 //        QCOMPARE(Result.GetEventType(),             Global::EVTTYPE_UNDEFINED);
 //        QCOMPARE(Result.GetSource(),                LS0);
@@ -1238,11 +1194,11 @@ void TestLoggingObject::utTestNewLoggingRequirement() {
 //    DayOperationLogger DayOperationLogger(&Obj2, LS2);
 //    DayOperationLoggerConfig LogConfiguration("Production", "1234", ".", 14);
 //    DayOperationLogger.Configure(LogConfiguration);
-//    DayOperationEntry Entry(Global::AdjustedTime::Instance().GetCurrentDateTime(), Global::EVENT_GLOBAL_ERROR_FALLBACK_LANGUAGE,
+//    DayOperationEntry Entry(Global::AdjustedTime::Instance().GetCurrentDateTime(), EVENT_GLOBAL_ERROR_FALLBACK_LANGUAGE,
 //                            Global::EVTTYPE_INFO, Global::tTranslatableStringList() << "English","1010", false, LS1);
 //
 //    DayOperationLogger.Log(Entry);
-//    DayOperationEntry Entry2(Global::AdjustedTime::Instance().GetCurrentDateTime(), Global::EVENT_GLOBAL_POWER_FAIL,
+//    DayOperationEntry Entry2(Global::AdjustedTime::Instance().GetCurrentDateTime(), EVENT_GLOBAL_POWER_FAIL,
 //                            Global::EVTTYPE_INFO, Global::tTranslatableStringList(), "1111", false, LS1);
 //    DayOperationLogger.Log(Entry2);
 //    DayOperationEntry Entry3(Global::AdjustedTime::Instance().GetCurrentDateTime(),Threads::EVENT_THREADS_INFO_STARTING_STATE_MACHINE,

@@ -25,7 +25,9 @@ namespace Global {
 const QString Acknowledge::SERIALIZERSTRING = "Acknowledge";
 
 /****************************************************************************/
-Acknowledge::Acknowledge() {
+Acknowledge::Acknowledge()
+    : m_Ref(0)
+{
 }
 
 /****************************************************************************/

@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestHmac.h
+/*! \file TestHmac.h
  *
- *  @brief Testclass for HMAC computation with SHA-1.
+ *  \brief Testclass for HMAC computation with SHA-1.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-06-16
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:40:54
  *
  */
 /****************************************************************************/

@@ -89,11 +89,11 @@ void TestNetworkServerDevice::initTestCase()
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + "/Communication";
 
     // create device
-    m_myDevice = new DerivedNetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Colorado Device GUI", path, (QString)"netlayer_messages", this);
+    m_myDevice = new DerivedNetworkServerDevice(NSE_TYPE_NORMAL_GUI, (QString)"Himalaya Device GUI", path, (QString)"netlayer_messages", this);
     QCOMPARE(m_myDevice->m_myMessageChecker, (MessageChecker*)NULL);
     QCOMPARE(m_myDevice->m_myServer, (NetworkServer*)NULL);
     QCOMPARE(m_myDevice->m_myServerType, NSE_TYPE_NORMAL_GUI);
-    QCOMPARE(m_myDevice->m_myClient, (QString)"Colorado Device GUI");
+    QCOMPARE(m_myDevice->m_myClient, (QString)"Himalaya Device GUI");
     QCOMPARE(m_myDevice->m_myType, CML_TYPE_SERVER);
     QCOMPARE(m_myDevice->m_myPath, path);
     QCOMPARE(m_myDevice->m_myDocType, (QString)"netlayer_messages");

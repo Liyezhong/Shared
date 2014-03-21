@@ -1,66 +1,33 @@
-/******************************************************************/
-/*! \file OvenDevice.cpp
- *
- *  \brief
- *
- *   $Version: $ 0.1
- *   $Date:    $ 08.07.2010
- *   $Author:  $ Norbert Wiedmann
- *
- *  \b Description:
- *
- *       This module contains the implementation of the class COvenDevice
- *
- *  \b Company:
- *
- *       Leica Biosystems Nussloch GmbH.
- *
- *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice
- *  does not evidence any actual or intended publication.
- *
- */
-/******************************************************************/
-
 #include "DeviceControl/Include/Devices/OvenDevice.h"
-#include "DeviceControl/Include/SlaveModules/StepperMotor.h"
+#include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
+#include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
+#include <sys/stat.h>
+#include <QtDebug>
 
 namespace DeviceControl
 {
-
-#define OVEN_MOTORPOS_CLOSED 100    //!< stepper motor position if cover closed
-#define OVEN_MOTORPOS_OPENED 1200   //!< stepper motor position if cover opened
-
-//######### Timeout defines #########
-#define OVEN_COVER_TIMEOUT_REFRUN_REQ 5000      //!< cover reference run
-#define OVEN_COVER_TIMEOUT_POS_REQ 5000         //!< cover positioning
-#define OVEN_COVER_TIMEOUT_ACTPOS_REQ 5000      //!< cover act. position reqest
-#define OVEN_COVER_TIMEOUT_ACTTEMP_REQ 750      //!< temperature
-#define OVEN_COVER_TIMEOUT_ACTSTATUS_REQ 750    //!< temp. ctrl. status
+//#define UNDEFINED (999)
+#define CHECK_SENSOR_TIME (200) // in msecs
+const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
 /*!
- *  \brief  Constructor of COvenDevice
+ *  \brief    Constructor of the COvenDevice class
  *
- *  \iparam pDeviceProcessing = Pointer to the DeviceProcessing instance
- *  \iparam Type = Device type string
+ *
+ *  \param    pDeviceProcessing = pointer to DeviceProcessing
+ *  \param    Type = Device type string
  */
 /****************************************************************************/
-COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
-    m_pTempCtrl(0), m_pMotorOvenCover(0), m_CoverOpenSpeedMotionProfile(0), m_CoverCloseSpeedMotionProfile(0),
-    m_CoverClosedPosition(0), m_CoverOpenPosition(0)
+COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type)
 {
-    m_MainState      = DEVICE_MAIN_STATE_START;
-    m_MainStateOld   = m_MainState;
-    m_TaskID         = OVENDEV_TASKID_INIT;
-    m_ErrorTaskState   = OVEN_DEV_ERRTASK_STATE_FREE;
-
-    m_instanceID = DEVICE_INSTANCE_ID_OVEN;
-
-    FILE_LOG_L(laDEV, llINFO) << " oven device created";
-}
+    Reset();
+    FILE_LOG_L(laDEV, llINFO) << "Oven device created";
+    //LOG() <<  "Oven device cons thread id is " << QThread::currentThreadId();
+}//lint !e1566
 
 /****************************************************************************/
 /*!
@@ -69,35 +36,40 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
 /****************************************************************************/
 COvenDevice::~COvenDevice()
 {
-    m_pDevProc = 0;
-    m_pTempCtrl = 0;
-    m_pMotorOvenCover = 0;
-}
+    try
+    {
+        Reset();
+    }
+    catch(...)
+    {
+        return;
+    }
+}//lint !e1579
 
 /****************************************************************************/
 /*!
- *  \brief  Clean up the error state
- *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if no error appears
+ *  \brief  Reset class member variable
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::ClearErrorState()
+void COvenDevice::Reset()
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    m_MainState      = DEVICE_MAIN_STATE_START;
+    m_MainStateOld   = m_MainState;
+    m_ErrorTaskState   = OVEN_DEV_ERRTASK_STATE_FREE;
 
-    //RetVal = m_pTempCtrl->ClearErrorTask();
-    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-    {
-        //RetVal = m_pMotorOvenCover->ClearErrorTask();
-    }
-
-    if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-    {
-        m_TaskID = OVENDEV_TASKID_FREE;
-
-    }
-
-    return RetVal;
+    m_instanceID = DEVICE_INSTANCE_ID_OVEN;
+    m_LastGetLidStatusTime = 0;
+    memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
+    memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus)); //lint !e545 !e641
+    memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures)); //lint !e545 !e641
+    memset( &m_TargetTemperatures, 0 , sizeof(m_TargetTemperatures)); //lint !e545
+    memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
+    memset( &m_pTempCtrls, 0 , sizeof(m_pTempCtrls));  //lint !e545
+    memset( &m_TCHardwareStatus, 0 , sizeof(m_TCHardwareStatus)); //lint !e545
+    memset( &m_LastGetTCCurrentTime, 0 , sizeof(m_LastGetTCCurrentTime)); //lint !e545
+    m_pLidDigitalInput = NULL;
+    m_LidStatus = 0;
 }
 
 /****************************************************************************/
@@ -144,7 +116,6 @@ void COvenDevice::HandleTasks()
         if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
         {
             m_MainState = DEVICE_MAIN_STATE_FCT_MOD_CFG;
-            m_TaskID = OVENDEV_TASKID_FREE;
             /// \todo maybe we need a state to ensure the reference run call!!
         }
         else
@@ -182,36 +153,100 @@ void COvenDevice::HandleTasks()
 
 /****************************************************************************/
 /*!
+ *  \brief    Internal function for idle state machine processing
+ *
+ *   The function handles the idle state, which is active if the class is 'ready for tasks'
+ *   Depending on the pending task, which is stored in m_TaskID, the task specific handling
+ *   function will be called.
+ *
+ *  \return   void
+ */
+/****************************************************************************/
+void COvenDevice::HandleIdleState()
+{
+    CheckSensorsData();
+}
+
+/****************************************************************************/
+/*!
  *  \brief   Handles the classes initialization state.
  *
  *           This function attaches the function modules pointer variables
- *           m_pTempCtrl - Oven temperature control
- *           m_pMotorOvenCover - Motor to move the oven cover
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS or error return code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::HandleInitializationState()
 {
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    CBaseModule* pBaseModule = NULL;
 
     FILE_LOG_L(laDEV, llINFO) << "  COvenDevice::HandleInitializationState()";
-
-    m_pTempCtrl = (CTemperatureControl*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenTempCtrlKey));
-    if(m_pTempCtrl == 0)
+    quint32 InstanceID;
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenTopTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_TEMPCTRL_OVEN not allocated.";
+        m_pTempCtrls[OVEN_TOP] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[OVEN_TOP] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_OVEN_TOPTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            //m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xF)] = OVEN_TOP;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;  //lint !e641
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
-    m_pMotorOvenCover = (CStepperMotor*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenCoverMotorKey));
-    if(m_pMotorOvenCover == 0)
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenBottomTempCtrlKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
     {
-        // the function module could not be allocated
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_MOTOR_OVEN_COVER);
-        FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_MOTOR_OVEN_COVER not allocated.";
+        m_pTempCtrls[OVEN_BOTTOM] = (CTemperatureControl*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pTempCtrls[OVEN_BOTTOM] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_OVEN_BOTTOMTEMPCTRL not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xF)] = OVEN_BOTTOM;
+            m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;  //lint !e641
+        }
+    }
+    else
+    {
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
+    {
+        m_pLidDigitalInput = (CDigitalInput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_OvenLidDIKey));
+        if(m_pLidDigitalInput == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+    }
+    else
+    {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
 
@@ -226,422 +261,160 @@ ReturnCode_t COvenDevice::HandleInitializationState()
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if configuration was successfully executed
  *           otherwise DCL_ERR_FCT_CALL_FAILED
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::HandleConfigurationState()
 {
-    if(!connect(m_pMotorOvenCover, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)),
-                this, SLOT(StepperMotorError(quint32, quint16, quint16, quint16, QDateTime))))
+
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportRefTemperature(quint32, ReturnCode_t, qreal)),
+                this, SLOT(OnSetTemp(quint32, ReturnCode_t, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_MOTOR_OVEN_COVER);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportError'failed.";
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-    if(!connect(m_pMotorOvenCover, SIGNAL(ReportSetStateAckn(quint32, ReturnCode_t)),
-                this, SLOT(StepperMotorSetStateAckn(quint32, ReturnCode_t))))
-    {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_MOTOR_OVEN_COVER);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportSetStateAckn'failed.";
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-    if(!connect(m_pMotorOvenCover, SIGNAL(ReportReferenceMovementAckn(quint32, ReturnCode_t, qint32)),
-                this, SLOT(StepperMotorReferenceMovementAckn(quint32, ReturnCode_t, qint32))))
-    {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_MOTOR_OVEN_COVER);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportReferenceMovementAckn'failed.";
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-    if(!connect(m_pMotorOvenCover, SIGNAL(ReportMovementAckn(quint32, ReturnCode_t, qint32, qint16)),
-                this, SLOT(StepperMotorMovementAckn(quint32, ReturnCode_t, qint32, qint16))))
-    {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_MOTOR_OVEN_COVER);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportMovementAckn'failed.";
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-    if(!connect(m_pMotorOvenCover, SIGNAL(ReportPosition(quint32, ReturnCode_t, qint32, qint8)),
-                this, SLOT(StepperMotorActPosition(quint32, ReturnCode_t, qint32))))
-    {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_MOTOR_OVEN_COVER);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportPosition'failed.";
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportRefTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if(!connect(m_pTempCtrl, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)),
-                this, SLOT(TempCtrlError(quint32, quint16, quint16, quint16, QDateTime))))
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportRefTemperature(quint32, ReturnCode_t, qreal)),
+                this, SLOT(OnSetTemp(quint32, ReturnCode_t, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportError'failed.";
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportRefTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if(!connect(m_pTempCtrl, SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
-                this, SLOT(TempCtrlActTemperature(quint32, ReturnCode_t, quint8, qreal))))
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
+                this, SLOT(OnGetTemp(quint32, ReturnCode_t, quint8, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportActTemperature'failed.";
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-    if(!connect(m_pTempCtrl, SIGNAL(ReportRefTemperature(quint32, ReturnCode_t, qreal)),
-                this, SLOT(ReportRefTemperature(quint32, ReturnCode_t, qreal))))
-    {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportSetTemperatureAckn'failed.";
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if(!connect(m_pTempCtrl, SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
-                this, SLOT(TempCtrlActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportActTemperature(quint32, ReturnCode_t, quint8, qreal)),
+                this, SLOT(OnGetTemp(quint32, ReturnCode_t, quint8, qreal))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportActStatus'failed.";
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-    if(!connect(m_pTempCtrl, SIGNAL(ReportSetStatusAckn(quint32, ReturnCode_t, TempCtrlStatus_t)),
-                this, SLOT(TempCtrlSetStatusAckn(quint32, ReturnCode_t, TempCtrlStatus_t))))
-    {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportSetStatusAckn'failed.";
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActTemperature'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if(!connect(m_pTempCtrl, SIGNAL(ReportActOperatingMode(quint32, ReturnCode_t, TempCtrlOperatingMode_t)),
-                this, SLOT(TempCtrlActOperatingMode(quint32, ReturnCode_t, TempCtrlOperatingMode_t))))
+
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportSetPidAckn(quint32, ReturnCode_t, quint16, quint16, quint16, quint16)),
+                this, SLOT(OnSetTempPid(quint32, ReturnCode_t, quint16, quint16, quint16, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportActOperatingMode'failed.";
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetPidAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(!connect(m_pTempCtrl, SIGNAL(ReportSetOperatingModeAckn(quint32, ReturnCode_t, TempCtrlOperatingMode_t)),
-                this, SLOT(TempCtrlSetOperatingModeAckn(quint32, ReturnCode_t, TempCtrlOperatingMode_t))))
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportSetPidAckn(quint32, ReturnCode_t, quint16, quint16, quint16, quint16)),
+                this, SLOT(OnSetTempPid(quint32, ReturnCode_t, quint16, quint16, quint16, quint16))))
     {
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_TEMPCTRL_OVEN);
-        FILE_LOG_L(laDEV, llERROR) << "   Connect temp. control signal 'ReportSetOperatingModeAckn'failed.";
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportSetPidAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    // read process settings
-    m_CoverOpenSpeedMotionProfile = GetProcSettingPosition("cover_open_speed_motion_profile");
-    m_CoverCloseSpeedMotionProfile = GetProcSettingPosition("cover_close_speed_motion_profile");
-    m_CoverClosedPosition = GetProcSettingPosition("cover_closed_position");
-    m_CoverOpenPosition = GetProcSettingPosition("cover_open_position");
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
+                this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportActStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t)),
+                this, SLOT(OnTempControlStatus(quint32, ReturnCode_t, TempCtrlStatus_t, TempCtrlMainsVoltage_t))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportActStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
 
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[OVEN_TOP], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pTempCtrls[OVEN_BOTTOM], SIGNAL(ReportHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8)),
+                this, SLOT(OnTCGetHardwareStatus(quint32, ReturnCode_t, quint8, quint8, quint8, quint8, quint16, quint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_AL_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect temperature ctrl signal 'ReportHardwareStatus'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pLidDigitalInput, SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
+            this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pLidDigitalInput, SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
     return DCL_ERR_FCT_CALL_SUCCESS;
-
 }
+
+/****************************************************************************/
+/*!
+ *  \brief   Read Oven device's sensors data asynchronizely
+ */
+/****************************************************************************/
+void COvenDevice::CheckSensorsData()
+{
+
+    //  LOG() <<  "AL timer thread id is " << QThread::currentThreadId();
+
+    if(m_pTempCtrls[OVEN_TOP])
+    {
+        (void)GetTemperatureAsync(OVEN_TOP, 0);
+    }
+    if(m_pTempCtrls[OVEN_BOTTOM])
+    {
+        (void)GetTemperatureAsync(OVEN_BOTTOM, 0);
+    }
+    if(m_pLidDigitalInput)
+    {
+        (void)GetLidStatusAsync();
+    }
+}
+
 
 /****************************************************************************/
 /*!
  *  \brief   Create and configure the device tasks
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- *
- ****************************************************************************/
+ */
+/****************************************************************************/
 ReturnCode_t COvenDevice::ConfigureDeviceTasks()
 {
-    CANStepperMotorTask*    pCANStepperMotorTask;
-    CANTemperatureCtrlTask* pCANTemperatureCtrlTask;
-    quint8  TaskIndex = 1;
-
-    //######################################
-    // Reference run task list
-    // -> Set motor state 'enabled' (activate the motor driver IC)
-    // -> Proceed reference run
-    pCANStepperMotorTask = CBaseDevice::GetNewCANStepperMotorTask(CANStepperMotorTask::FCTMOD_SM_TASK_ID_STATE);
-    pCANStepperMotorTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANStepperMotorTask->m_TaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_TriggerTaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_pCANObject = m_pMotorOvenCover;
-    pCANStepperMotorTask->m_TargetPos = 0;
-    pCANStepperMotorTask->m_Timeout = 5000;
-    pCANStepperMotorTask->m_SubCommandData = 1;  // enable motor
-    m_DeviceTask[OVEN_DEV_TASK_REFRUN].m_FctModTaskMap[TaskIndex] = pCANStepperMotorTask;
-    TaskIndex++;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'SetState'";
-
-    pCANStepperMotorTask = CBaseDevice::GetNewCANStepperMotorTask(CANStepperMotorTask::FCTMOD_SM_TASK_ID_REFRUN);
-    pCANStepperMotorTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_PREVIOUS_FINISHED;
-    pCANStepperMotorTask->m_TaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_TriggerTaskIndex = TaskIndex - 1;
-    pCANStepperMotorTask->m_pCANObject = m_pMotorOvenCover;
-    pCANStepperMotorTask->m_TargetPos = 0;
-    pCANStepperMotorTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_REFRUN].m_FctModTaskMap[TaskIndex] = pCANStepperMotorTask;
-    TaskIndex++;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'ReferenceRun'";
-
-    //######################################
-    // set oven cover position
-    // -> motor position command
-    TaskIndex = 1;
-    pCANStepperMotorTask = CBaseDevice::GetNewCANStepperMotorTask(CANStepperMotorTask::FCTMOD_SM_TASK_ID_MOVE_POS);
-    pCANStepperMotorTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANStepperMotorTask->m_TaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_TriggerTaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_pCANObject = m_pMotorOvenCover;
-    pCANStepperMotorTask->m_TargetPos = 0;
-    pCANStepperMotorTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_COVER_POS_SET].m_FctModTaskMap[TaskIndex] = pCANStepperMotorTask;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'SetState'";
-
-    //######################################
-    // request oven cover position
-    // -> request act position command
-    TaskIndex = 1;
-    pCANStepperMotorTask = CBaseDevice::GetNewCANStepperMotorTask(CANStepperMotorTask::FCTMOD_SM_TASK_ID_REQ_POS);
-    pCANStepperMotorTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANStepperMotorTask->m_TaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_TriggerTaskIndex = TaskIndex;
-    pCANStepperMotorTask->m_pCANObject = m_pMotorOvenCover;
-    pCANStepperMotorTask->m_TargetPos = 0;
-    pCANStepperMotorTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_COVER_POS_REQ].m_FctModTaskMap[TaskIndex] = pCANStepperMotorTask;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'MovePos'";
-
-    //######################################
-    // Set oven temperature
-    // -> set temperature
-    TaskIndex = 1;
-    pCANTemperatureCtrlTask = CBaseDevice::GetNewCANTempCtrlTask(CANTemperatureCtrlTask::FCTMOD_TEMP_TASK_ID_SET_TEMP);
-    pCANTemperatureCtrlTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANTemperatureCtrlTask->m_TaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_TriggerTaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_pCANObject = m_pTempCtrl;
-    pCANTemperatureCtrlTask->m_Temperatur = 0;
-    pCANTemperatureCtrlTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_TEMP_SET].m_FctModTaskMap[TaskIndex] = pCANTemperatureCtrlTask;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'ReqPos'";
-
-    //######################################
-    // request actual oven temperature
-    // -> request temperature
-    TaskIndex = 1;
-    pCANTemperatureCtrlTask = CBaseDevice::GetNewCANTempCtrlTask(CANTemperatureCtrlTask::FCTMOD_TEMP_TASK_ID_REQ_TEMP);
-    pCANTemperatureCtrlTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANTemperatureCtrlTask->m_TaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_TriggerTaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_pCANObject = m_pTempCtrl;
-    pCANTemperatureCtrlTask->m_Temperatur = 0;
-    pCANTemperatureCtrlTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_TEMP_REQ].m_FctModTaskMap[TaskIndex] = pCANTemperatureCtrlTask;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'SetState'";
-
-    //######################################
-    // Set temperature control state
-    // -> set temperature
-    TaskIndex = 1;
-    pCANTemperatureCtrlTask = CBaseDevice::GetNewCANTempCtrlTask(CANTemperatureCtrlTask::FCTMOD_TEMP_TASK_ID_SET_STATE);
-    pCANTemperatureCtrlTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANTemperatureCtrlTask->m_TaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_TriggerTaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_pCANObject = m_pTempCtrl;
-    pCANTemperatureCtrlTask->m_State = TEMPCTRL_STATUS_UNDEF;
-    pCANTemperatureCtrlTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_TEMP_STATUS_SET].m_FctModTaskMap[TaskIndex] = pCANTemperatureCtrlTask;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'SetState'";
-
-    //######################################
-    // request actual temperature ctrl. state
-    // -> request temperature
-    TaskIndex = 1;
-    pCANTemperatureCtrlTask = CBaseDevice::GetNewCANTempCtrlTask(CANTemperatureCtrlTask::FCTMOD_TEMP_TASK_ID_REQ_STATE);
-    pCANTemperatureCtrlTask->m_StartTrigger = FunctionModuleTask::FCTMOD_TASK_START_FIRST;
-    pCANTemperatureCtrlTask->m_TaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_TriggerTaskIndex = TaskIndex;
-    pCANTemperatureCtrlTask->m_pCANObject = m_pTempCtrl;
-    pCANTemperatureCtrlTask->m_State = TEMPCTRL_STATUS_UNDEF;
-    pCANTemperatureCtrlTask->m_Timeout = 5000;
-    m_DeviceTask[OVEN_DEV_TASK_TEMP_STATUS_REQ].m_FctModTaskMap[TaskIndex] = pCANTemperatureCtrlTask;
-    FILE_LOG_L(laDEV, llDEBUG1) << " COvenDevice: add task 'SetState'";
-
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
-
-/****************************************************************************/
-/*!
- *  \brief    Internal function for idle state machine processing
- *
- *   The function handles the idle state, which is active if the class is 'ready for tasks'
- *   Depending on the pending task, which is stored in m_TaskID, the task specific handling
- *   function will be called.
- *
- *  \return   void
- */
-/****************************************************************************/
-void COvenDevice::HandleIdleState()
-{
-    if(m_TaskID == OVENDEV_TASKID_FREE)
-    {
-        ; // there are no pending tasks
-    }
-    else if(m_TaskID == OVENDEV_TASKID_COMMAND_HDL)
-    {
-        //HandleCommandRequestTask();
-        HandleDeviceTaskActions();
-    }
-    else if(m_TaskID == OVENDEV_TASKID_ERROR)
-    {
-        //Just wait for 'ExitErrormode'
-    }
-    else
-    {
-        FILE_LOG_L(laDEV, llERROR) << " Invalid taskID: " << (int) m_TaskID;
-
-        m_lastErrorHdlInfo = DCL_ERR_INVALID_STATE;
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_INVALID_STATE, (quint16) m_TaskID);
-
-        m_MainState = DEVICE_MAIN_STATE_ERROR;
-        m_ErrorTaskState = OVEN_DEV_ERRTASK_STATE_REPORT_IFACE;
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handle the task to execute the device tasks and their fct-module tasks
- *
- *   The function is called from HandleTasks() if m_TaskID == OVENDEV_TASKID_COMMAND_HDL.
- *   The function loops thru the device tasks and processes the tasks pending for execution.
- *
- */
-/****************************************************************************/
-void COvenDevice::HandleDeviceTaskActions()
-{
-    if((m_pDevProc == 0) || (m_pTempCtrl == 0) || (m_pMotorOvenCover == 0))
-    {
-        m_lastErrorHdlInfo = DCL_ERR_NULL_PTR_ACCESS;
-        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_NULL_PTR_ACCESS, (quint16) m_TaskID);
-
-        //forward the error information. The error relevant datas should already have been set.
-        m_pDevProc->ThrowError(m_instanceID, m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
-
-        m_MainState = DEVICE_MAIN_STATE_ERROR;
-        m_ErrorTaskState = OVEN_DEV_ERRTASK_STATE_REPORT_IFACE;
-
-        return;
-    }
-
-    for (quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_START)
-        {
-            m_DeviceTask[idx].m_TaskState =DeviceTask:: DEV_TASK_STATE_PROGRESS;
-        }
-
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            // execute the device task.
-            FunctionModuleTask* pFunctionModuleTask = 0;
-            bool bActionStateInProgress = false;
-            bool bActionStateWithErrorDetect = false;
-
-            //get the funtion module task to start, if any
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetStartupTask(m_DeviceTask[idx].m_FctModTaskMap,
-                                                                                             bActionStateInProgress,
-                                                                                             bActionStateWithErrorDetect);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask)
-                {
-                    ReturnCode_t RetVal;
-
-                    FILE_LOG_L(laDEV, llINFO) << "  COvenDevice: task for startup found.";
-                    RetVal = m_pDevProc->GetFunctionModuleTaskManager()->StartTask(pFunctionModuleTask);
-                    if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        m_lastErrorHdlInfo = DCL_ERR_FCT_CALL_FAILED;
-                        m_TaskID = OVENDEV_TASKID_ERROR;
-                        SetErrorParameter(EVENT_GRP_DCL_OVEN_DEV, ERROR_DCL_OVEN_DEV_REQ_COVER_MOVE_FCTCALL_FAILED, (quint16) m_TaskID);
-
-                        FILE_LOG_L(laDEV, llERROR) << "  COvenDevice: failed to start task.";
-                        return;
-                    }
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetStartupTask(m_DeviceTask[idx].m_FctModTaskMap,
-                                                                                                 bActionStateInProgress,
-                                                                                                 bActionStateWithErrorDetect);
-            }
-
-            if(bActionStateWithErrorDetect == true)
-            {
-                FILE_LOG_L(laDEV, llERROR) << "  COvenDevice: Action state error.";
-                m_TaskID = OVENDEV_TASKID_ERROR;
-            }
-            else if(bActionStateInProgress == false)
-            {
-                FILE_LOG_L(laDEV, llINFO) << "  COvenDevice: positions received, next start movement..";
-
-                //reset the tasks to the 'unused' state
-                //m_pDevProc->GetFunctionModuleTaskManager()->ResetTasks(m_DeviceTask[idx].m_FctModTaskMap);
-                m_DeviceTask[idx].m_TaskState = DeviceTask::DEV_TASK_STATE_FINISHED;
-            }
-        }
-
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_FINISHED)
-        {
-            if(idx == OVEN_DEV_TASK_REFRUN)
-            {
-                FunctionModuleTask* pFunctionModuleTask = 0;
-                OvenCoverPosition_t OvenCoverPosition = OVEN_COVER_UNDEF;
-
-                pFunctionModuleTask = m_DeviceTask[idx].m_FctModTaskMap[1];
-                if(pFunctionModuleTask->m_TaskID == FunctionModuleTask::FCTMOD_TASK_ID_MOTOR)
-                {
-                    CANStepperMotorTask* pMotorTask = dynamic_cast<CANStepperMotorTask*>(pFunctionModuleTask);
-
-                    if(pMotorTask)
-                    {
-                        OvenCoverPosition = GetOvencoverPositionFromMotorPos(pMotorTask->m_ActPos);
-                    }
-                }
-                //m_pIOvenDev->RouteReferenceRunAckn(m_instanceID, m_lastErrorHdlInfo, OvenCoverPosition);
-            }
-            else if(idx == OVEN_DEV_TASK_COVER_POS_SET)
-            {
-                FunctionModuleTask* pFunctionModuleTask = 0;
-                OvenCoverPosition_t OvenCoverPosition = OVEN_COVER_UNDEF;
-
-                pFunctionModuleTask = m_DeviceTask[idx].m_FctModTaskMap[1];
-                if(pFunctionModuleTask->m_TaskID == FunctionModuleTask::FCTMOD_TASK_ID_MOTOR)
-                {
-                    CANStepperMotorTask* pMotorTask = dynamic_cast<CANStepperMotorTask*>(pFunctionModuleTask);
-
-                    if(pMotorTask)
-                    {
-                        OvenCoverPosition = GetOvencoverPositionFromMotorPos(pMotorTask->m_ActPos);
-                    }
-                }
-                //m_pIOvenDev->RouteOvenCoverPositionAckn(m_instanceID, m_lastErrorHdlInfo, OvenCoverPosition);
-            }
-            //reset the tasks to the 'unused' state
-            m_pDevProc->GetFunctionModuleTaskManager()->ResetTasks(m_DeviceTask[idx].m_FctModTaskMap);
-            m_DeviceTask[idx].m_TaskState = DeviceTask::DEV_TASK_STATE_UNUSED;
-        }
-    }
-}
-/****************************************************************************/
-/*!
- *  \brief    Handles the error state of the class.
- *
- *   This task controls the error handling of the class.
- *   The function is called from HandleIdleState() if m_MainState == LOADER_DEV_MAIN_STATE_ERROR.
- *   This task consists of the following states:
- *
- *     OVEN_DEV_ERRTASK_STATE_REPORT_IFACE:
- *      This state reports the error to the interface class. The interface class will change to error state
- *      and blocks future requests
- *
- *     OVEN_DEV_ERRTASK_STATE_REPORT_DEVPROC:
- *      This state reports the error to the device processing class.
- *
- *     OVEN_DEV_ERRTASK_STATE_IDLE:
- *      Hold the class in error state
- *
- *     OVEN_DEV_ERRTASK_STATE_RESET
- *      Reset the error state, set all states to it's initialisation state
- *
- *  \return   void
- */
-/****************************************************************************/
 void COvenDevice::HandleErrorState()
 {
     if(m_ErrorTaskState == OVEN_DEV_ERRTASK_STATE_IDLE)
@@ -651,9 +424,9 @@ void COvenDevice::HandleErrorState()
     else if(m_ErrorTaskState == OVEN_DEV_ERRTASK_STATE_REPORT_IFACE)
     {
         /*if(m_pIOvenDev != 0)
-        {
-            m_pIOvenDev->RouteError(m_instanceID, m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
-        }*/
+    {
+    m_pIOvenDev->RouteError(m_instanceID, m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
+    }*/
         m_ErrorTaskState = OVEN_DEV_ERRTASK_STATE_REPORT_DEVPROC;
     }
     else if(m_ErrorTaskState == OVEN_DEV_ERRTASK_STATE_REPORT_DEVPROC)
@@ -673,990 +446,773 @@ void COvenDevice::HandleErrorState()
         m_lastErrorCode = 0;
         m_lastErrorData = 0;
         // reset the function module references
-        m_pTempCtrl = 0;
-        m_pMotorOvenCover = 0;
+        m_pTempCtrls[OVEN_TOP] = 0;
+        m_pTempCtrls[OVEN_BOTTOM] = 0;
     }
 }
 
 /****************************************************************************/
 /*!
- *  \brief    This slot receives the stepper motor error signal
+ *  \brief    Set temperature control's status.
  *
- *  \iparam   InstanceID = instance identifier of the device
- *  \iparam   ErrorGroup = EVENT_GRP_DCL_FCTMOD_MOTOR_SLV
- *  \iparam   ErrorCode  = from CAN-message
- *  \iparam   ErrorData  = from CAN-message
- *  \iparam   ErrorTime  = error message reception time on master side
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  TempCtrlStatus = New temperature control status.
  *
- ****************************************************************************/
-void COvenDevice::StepperMotorError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime)
-{
-    Q_UNUSED(InstanceID);
-    SetErrorParameter(ErrorGroup, ErrorCode, ErrorData);
-    m_lastErrorTime = ErrorTime;
-    m_MainState = DEVICE_MAIN_STATE_ERROR;
-    m_ErrorTaskState = OVEN_DEV_ERRTASK_STATE_REPORT_IFACE;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Handles the stepper motors 'set state' acknowledge
- *
- *  \iparam InstanceID = instance identifier of the function module
- *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the reference run was successful,
- *                    otherwise the return value of the error detecting function
- *
- ****************************************************************************/
-void COvenDevice::StepperMotorSetStateAckn(quint32 InstanceID, ReturnCode_t HdlInfo)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llINFO) << "  COvenDevice<" << (int) m_instanceID << ">StepperMotorSetStateAckn 0x" << std::hex << InstanceID;
-
-    //pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_taskList, instanceID, pFunctionModuleTask);
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask)
-                {
-                    FILE_LOG_L(laDEV, llINFO) << "  found task with state: " << (int) pFunctionModuleTask->m_TaskState;
-                    Q_ASSERT(pFunctionModuleTask->m_TaskID == FunctionModuleTask::FCTMOD_TASK_ID_MOTOR);
-
-                    if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                    {
-                        if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                        {
-                            FILE_LOG_L(laDEV, llINFO) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                            pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                        }
-                        else
-                        {
-                            // error was detected from motor side
-                            FILE_LOG_L(laDEV, llERROR) << " CANStepperMotor: while SetState.. error";
-                            pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                        }
-
-                    }
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-
-
-    /*if((m_pMotorOvenCover) && (m_pMotorOvenCover->GetModuleHandle() == InstanceID))
-    {
-        if(m_TaskID == OVENDEV_TASKID_COMMAND_HDL)
-        {
-            ResetModuleCommand(OVENDEV_CMD_COVER_REFRUN);
-        }
-    }*/
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handles the stepper motors reference run acknowledge
- *
- *            The internal state machine will be reset, and the acknowledge information is forwarded to
- *            the IOvenDevice class
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the reference run was successful,
- *                      otherwise the return value of the error detecting function
- *  \iparam   Position = the motor's actual position
- *
- *  \return  void
- *
- ****************************************************************************/
-void COvenDevice::StepperMotorReferenceMovementAckn(quint32 InstanceID, ReturnCode_t HdlInfo, qint32 Position)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-    Q_UNUSED(Position);
-
-    FILE_LOG_L(laDEV, llINFO) << " COvenDevice<" << (int) m_instanceID << "> StepperMotor 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask)
-                {
-                    FILE_LOG_L(laDEV, llINFO) << "  found task with state: " << (int) pFunctionModuleTask->m_TaskState;
-                    Q_ASSERT(pFunctionModuleTask->m_TaskID == FunctionModuleTask::FCTMOD_TASK_ID_MOTOR);
-
-                    if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                    {
-                        if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                        {
-                            FILE_LOG_L(laDEV, llINFO) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                            pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                        }
-                        else
-                        {
-                            // error was detected from motor side
-                            FILE_LOG_L(laDEV, llERROR) << " CANStepperMotor: while RefRun.. error";
-                            pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                        }
-
-                        CANStepperMotorTask* pMotorTask = dynamic_cast<CANStepperMotorTask*>(pFunctionModuleTask);
-                        if(pMotorTask)
-                        {
-                            pMotorTask->m_ActPos = (Position_t) Position;
-                        }
-                    }
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handles the stepper motors position movement acknowledge
- *
- *            The internal state machine will be reset, and the acknowledge information is forwarded to
- *            the IOvenDevice class
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the movement was successfully done,
- *                      otherwise the return value of the error detecting function
- *  \iparam   Position = the motor's actual position
- *  \iparam   Speed = actual motor speed
- *
- *  \return  void
- *
- ****************************************************************************/
-void COvenDevice::StepperMotorMovementAckn(quint32 InstanceID, ReturnCode_t HdlInfo, qint32 Position, qint16 Speed)
-{
-    Q_UNUSED(Speed);
-
-    FunctionModuleTask* pFunctionModuleTask = 0;
-    Q_UNUSED(Position);
-
-    FILE_LOG_L(laDEV, llINFO) << " COvenDevice<" << (int) m_instanceID << "> StepperMotor 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask)
-                {
-                    FILE_LOG_L(laDEV, llINFO) << "  found task with state: " << (int) pFunctionModuleTask->m_TaskState;
-                    Q_ASSERT(pFunctionModuleTask->m_TaskID == FunctionModuleTask::FCTMOD_TASK_ID_MOTOR);
-
-                    if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                    {
-                        if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                        {
-                            FILE_LOG_L(laDEV, llINFO) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                            pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                        }
-                        else
-                        {
-                            // error was detected from motor side
-                            FILE_LOG_L(laDEV, llERROR) << " CANStepperMotor: while RefRun.. error";
-                            pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                        }
-
-                        CANStepperMotorTask* pMotorTask = dynamic_cast<CANStepperMotorTask*>(pFunctionModuleTask);
-                        if(pMotorTask)
-                        {
-                            pMotorTask->m_ActPos = (Position_t) Position;
-                        }
-                    }
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handles the stepper motor's actual position callback
- *
- *            The internal state machine will be reset, and the position information is forwarded to
- *            the IOvenDevice class
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the position was received,
- *                      otherwise the return value of the error detecting function
- *  \iparam   Position = the motor's actual position
- *
- *  \return  void
- *
- ****************************************************************************/
-void COvenDevice::StepperMotorActPosition(quint32 InstanceID, ReturnCode_t HdlInfo, qint32 Position)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice<" << (int) m_instanceID << "> StepperMotor 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                {
-                    pFunctionModuleTask->m_ErrorHdlInfo = HdlInfo;
-                    if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        FILE_LOG_L(laDEV, llDEBUG) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                    }
-                    else
-                    {
-                        // error was detected from motor side
-                        FILE_LOG_L(laDEV, llERROR) << " CANStepperMotor: while Req. ActPosition.. error";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                    }
-
-                    CANStepperMotorTask* pMotorTask = dynamic_cast<CANStepperMotorTask*>(pFunctionModuleTask);
-                    if(pMotorTask)
-                    {
-                        pMotorTask->m_ActPos = (Position_t) Position;
-                    }
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handles the temperature control's error message
- *
- *            Activate error main state to forward the error information to
- *            the IOvenDevice and DeviceProcessing class
- *
- *  \iparam   InstanceID = instance identifier of the device
- *  \iparam   ErrorGroup = EVENT_GRP_DCL_FCTMOD_TEMP_SLV
- *  \iparam   ErrorCode  = from CAN-message
- *  \iparam   ErrorData  = from CAN-message
- *  \iparam   ErrorTime  = error message reception time on master side
- *
- ****************************************************************************/
-void COvenDevice::TempCtrlError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime)
-{
-    Q_UNUSED(InstanceID);
-    SetErrorParameter(ErrorGroup, ErrorCode, ErrorData);
-    m_lastErrorTime = ErrorTime;
-    m_MainState = DEVICE_MAIN_STATE_ERROR;
-    m_ErrorTaskState = OVEN_DEV_ERRTASK_STATE_REPORT_IFACE;
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Reference temperature notification (acknowledge)
- *
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the temp. control op. mode  was received,
- *                      otherwise the return value of the error detecting function
- *  \iparam   Temperature = the temperature as set to the oven's temp. control
- *
- ****************************************************************************/
-void COvenDevice::ReportRefTemperature(quint32 InstanceID, ReturnCode_t HdlInfo, qreal Temperature)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice<" << (int) m_instanceID << "> TempCtrl 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                {
-                    pFunctionModuleTask->m_ErrorHdlInfo = HdlInfo;
-                    if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        FILE_LOG_L(laDEV, llDEBUG) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                    }
-                    else
-                    {
-                        // error was detected from function module side
-                        FILE_LOG_L(laDEV, llERROR) << "  while req. RefTemperature.. error";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                    }
-
-                    CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-                    if(pTempCtrlTask)
-                    {
-                        pTempCtrlTask->m_Temperatur = Temperature;
-                    }
-
-                    /*if (m_pIOvenDev != NULL)
-                    {
-                        m_pIOvenDev->RouteSetTemperature(m_instanceID, m_lastErrorHdlInfo, Temperature);
-                    }*/
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handles the temperature control temperature information signal
- *
- *            The internal state machine will be reset, and the temperature information is
- *            forwarded to the IOvenDevice class
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the temperature was received,
- *                      otherwise the return value of the error detecting function
- *  \iparam   OvenTemperature = the oven's actual position
- *
- *  \return  void
- *
- ****************************************************************************/
-void COvenDevice::TempCtrlActTemperature(quint32 InstanceID, ReturnCode_t HdlInfo, quint8 Index, qreal OvenTemperature)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice<" << (int) m_instanceID << "> TempCtrl 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                {
-                    pFunctionModuleTask->m_ErrorHdlInfo = HdlInfo;
-                    if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        FILE_LOG_L(laDEV, llDEBUG) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                    }
-                    else
-                    {
-                        // error was detected from function module side
-                        FILE_LOG_L(laDEV, llERROR) << "  while req. RefTemperature.. error";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                    }
-
-                    CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-                    if(pTempCtrlTask)
-                    {
-                        pTempCtrlTask->m_Temperatur = OvenTemperature;
-                    }
-
-                    /*if (m_pIOvenDev != NULL)
-                    {
-                        m_pIOvenDev->RouteActTemperature(m_instanceID, m_lastErrorHdlInfo, OvenTemperature);
-                    }*/
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Handles the temperature control status information signal
- *
- *      The internal state machine will be reset, and the status of the temperature
- *      control is forwarded to the IOvenDevice class
- *
- *  \iparam InstanceID = instance identifier of the function module
- *  \iparam HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the temp. control status  was received,
- *                    otherwise the return value of the error detecting function
- *  \iparam TempCtrlStatus = the status of then oven's temp. control
- *
- *  \return void
- *
- ****************************************************************************/
-void COvenDevice::TempCtrlActStatus(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice<" << (int) m_instanceID << "> TempCtrl 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                {
-                    pFunctionModuleTask->m_ErrorHdlInfo = HdlInfo;
-                    if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        FILE_LOG_L(laDEV, llDEBUG) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                    }
-                    else
-                    {
-                        // error was detected from function module side
-                        FILE_LOG_L(laDEV, llERROR) << "  while ActStatus.. error";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                    }
-
-                    CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-                    if(pTempCtrlTask)
-                    {
-                        pTempCtrlTask->m_State = TempCtrlStatus;
-                    }
-
-                    /*if (m_pIOvenDev != NULL)
-                    {
-                        m_pIOvenDev->RouteActOvenStatus(m_instanceID, m_lastErrorHdlInfo, TempCtrlStatus);
-                    }*/
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Set temperature control status acknowledge notification
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the temp. control op. mode  was received,
- *                      otherwise the return value of the error detecting function
- *  \iparam   TempCtrlStatus = the status as set to the oven's temp. control
- *
- ****************************************************************************/
-void COvenDevice::TempCtrlSetStatusAckn(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlStatus_t TempCtrlStatus)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice<" << (int) m_instanceID << "> TempCtrl 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                {
-                    pFunctionModuleTask->m_ErrorHdlInfo = HdlInfo;
-                    if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        FILE_LOG_L(laDEV, llDEBUG) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                    }
-                    else
-                    {
-                        // error was detected from function module side
-                        FILE_LOG_L(laDEV, llERROR) << "  while req. SetStatusAckn.. error";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                    }
-
-                    CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-                    if(pTempCtrlTask)
-                    {
-                        pTempCtrlTask->m_State = TempCtrlStatus;
-                    }
-
-                    /*if (m_pIOvenDev != NULL)
-                    {
-                        m_pIOvenDev->RouteSetOvenStatus(m_instanceID, m_lastErrorHdlInfo, TempCtrlStatus);
-                    }*/
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Handles the temperature control operating mode information signal
- *
- *            The internal state machine will be reset, and the temperature control's
- *            operating mode information is forwarded to the IOvenDevice class
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the temp. control op. mode  was received,
- *                      otherwise the return value of the error detecting function
- *  \iparam   TempCtrlOperatingMode = the actual operating mode of then oven's temp. control
- *
- *
- ****************************************************************************/
-void COvenDevice::TempCtrlActOperatingMode(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlOperatingMode_t TempCtrlOperatingMode)
-{
-    FunctionModuleTask* pFunctionModuleTask = 0;
-
-    FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice<" << (int) m_instanceID << "> TempCtrl 0x" << std::hex << InstanceID;
-
-    for(quint8 idx = 0; idx < OVEN_DEVICE_TASK_COUNT; idx++)
-    {
-        if(m_DeviceTask[idx].m_TaskState == DeviceTask::DEV_TASK_STATE_PROGRESS)
-        {
-            pFunctionModuleTask = 0;
-            pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-
-            while(pFunctionModuleTask)
-            {
-                if(pFunctionModuleTask->m_TaskState == FunctionModuleTask::FCTMOD_STATE_PROGRESS)
-                {
-                    pFunctionModuleTask->m_ErrorHdlInfo = HdlInfo;
-                    if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
-                    {
-                        FILE_LOG_L(laDEV, llDEBUG) << "  set task " << (int) pFunctionModuleTask->m_TaskIndex << " state to finished.";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_FINISHED;
-                    }
-                    else
-                    {
-                        // error was detected from function module side
-                        FILE_LOG_L(laDEV, llERROR) << "  while req. SetStatusAckn.. error";
-                        pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_ERROR;  // set task to state 'error'
-                    }
-
-                    CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-                    if(pTempCtrlTask)
-                    {
-                        pTempCtrlTask->m_OperationMode = TempCtrlOperatingMode;
-                    }
-                }
-                pFunctionModuleTask = m_pDevProc->GetFunctionModuleTaskManager()->GetTaskFromInstanceID(m_DeviceTask[idx].m_FctModTaskMap, InstanceID, pFunctionModuleTask);
-            }
-        }
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Set temperature control operating mode acknowledge notification
- *
- *
- *  \iparam   InstanceID = instance identifier of the function module
- *  \iparam   HdlInfo = DCL_ERR_FCT_CALL_SUCCESS if the temp. control op. mode  was received,
- *                      otherwise the return value of the error detecting function
- *  \iparam   TempCtrlOpMode = the operating mode as set to the oven's temp. control
- *
- ****************************************************************************/
-void COvenDevice::TempCtrlSetOperatingModeAckn(quint32 InstanceID, ReturnCode_t HdlInfo, TempCtrlOperatingMode_t TempCtrlOpMode)
-{
-    Q_UNUSED(InstanceID);
-    Q_UNUSED(HdlInfo);
-    Q_UNUSED(TempCtrlOpMode);
-}
-
-/****************************************************************************/
-/*!
- *  \brief   Request the actual oven temperature
- *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANTemperatureControl class.
- *           When finished, the slot TempCtrlActTemperature() will be called by
- *           CANTemperatureControl, and forwards the acknowledge of this request to the interface class
- *
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::ReqActTemperature()
+ReturnCode_t COvenDevice::SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus)
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(ActivateDeviceTask(OVEN_DEV_TASK_TEMP_REQ))
+    m_TargetTempCtrlStatus[Type] = TempCtrlStatus;
+    ReturnCode_t retCode;
+    if(m_pTempCtrls[Type] != NULL)
     {
-        FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice";
+        retCode = m_pTempCtrls[Type]->SetStatus(TempCtrlStatus);
+        return retCode;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
+        return DCL_ERR_NOT_INITIALIZED;
     }
-
-    return RetVal;
 }
 
 /****************************************************************************/
 /*!
- *  \brief   Set the oven's reference temperature
+ *  \brief   Enable temperature control.
  *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANTemperatureControl class.
- *           When finished, the slot TempCtrlReferenceTemperature() will be called by
- *           CANTemperatureControl, and forwards the acknowledge of this request to the interface class
+ *  \iparam  Type = The target temperature contorl module to control.
  *
- *  \iparam  Temperatur = the reference temperature in 0.1 °C
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::SetTemperature(qint16 Temperatur)
+ReturnCode_t COvenDevice::SetTempCtrlON(OVENTempCtrlType_t Type)
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+}
 
-    if(ActivateDeviceTask(OVEN_DEV_TASK_TEMP_SET))
+/****************************************************************************/
+/*!
+ *  \brief   Disable temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::SetTempCtrlOFF(OVENTempCtrlType_t Type)
+{
+    return SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the temperature sensor data captured in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Actual temperature sensor index.
+ *
+ *  \return  Actual temperature, UNDEFINED if failed.
+ */
+/****************************************************************************/
+qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
+{
+   // QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    qreal RetValue;
+    if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
     {
-        //device task was activated, forward the request parameter to the corresponding function module task
-        FunctionModuleTask* pFunctionModuleTask = 0;
-        pFunctionModuleTask = m_DeviceTask[OVEN_DEV_TASK_TEMP_SET].m_FctModTaskMap[1];
+        RetValue = m_CurrentTemperatures[Type];
+    }
+    else
+    {
+        RetValue = UNDEFINED_4_BYTE;
+    }
+    return RetValue;
+}
 
-        CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-        if(pTempCtrlTask)
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
+{
+    m_TargetTemperatures[Type] = NominalTemperature;
+    m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
+    if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
+    {
+        // Log(tr("Not able to read the temperature control status"));
+        return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
+    }
+    if (IsTemperatureControlOn(Type))
+    {
+        return DCL_ERR_DEV_TEMP_CTRL_ALREADY_ON;
+    }
+    if (IsTemperatureControlOff(Type))
+    {
+        //Set the nominal temperature
+        ReturnCode_t retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            pTempCtrlTask->m_Temperatur = Temperatur;
-            FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice";
+            // Log(tr("Not able to set temperature"));
+            return retCode;
+        }
+        //ON the temperature control
+        retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            // Log(tr("Not able to start temperature control"));
+            return retCode;
+        }
+    }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control with PID parameters.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    ReturnCode_t retCode;
+    m_TargetTemperatures[Type] = NominalTemperature;
+    m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
+    if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
+    {
+        // Log(tr("Not able to read the temperature control status"));
+        return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
+    }
+    if (IsTemperatureControlOn(Type))
+    {
+        if(DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_OFF))
+        {
+            return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+        }
+    }
+
+    retCode = SetTemperaturePid(Type, MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+    if(retCode != DCL_ERR_FCT_CALL_SUCCESS)
+    {
+        return retCode;
+    }
+    //Set the nominal temperature
+    retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        // Log(tr("Not able to set temperature"));
+        return retCode;
+    }
+    //ON the temperature control
+    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        // Log(tr("Not able to start temperature control"));
+        return retCode;
+    }
+
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature control module's status.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Temperature control module status.
+ */
+/****************************************************************************/
+TempCtrlState_t COvenDevice::GetTemperatureControlState(OVENTempCtrlType_t Type)
+{
+    TempCtrlState_t controlstate = TEMPCTRL_STATE_ERROR;
+    if(m_pTempCtrls[Type] && m_pDevProc)
+    {
+        ReturnCode_t retCode = m_pTempCtrls[Type]->ReqStatus();
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode) {
+            m_CurrentTempCtrlStatus[Type] = TEMPCTRL_STATUS_UNDEF;
+            return TEMPCTRL_STATE_ERROR;
+        }
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE);
+        if (DCL_ERR_FCT_CALL_SUCCESS == retCode)
+        {
+            if (IsTemperatureControlOn(Type))
+            {
+                if (IsInsideRange(Type))
+                {
+                    controlstate = TEMPCTRL_STATE_INSIDE_RANGE;
+                }
+                else if (IsOutsideRange(Type))
+                {
+                    controlstate = TEMPCTRL_STATE_OUTSIDE_RANGE;
+                }
+            }
+            else if (IsTemperatureControlOff(Type))
+            {
+                controlstate = TEMPCTRL_STATE_OFF;
+            }
+        }
+    }
+    return controlstate;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get temperature control status.
+ *
+ *  This slot is connected to the signal, ReportActStatus
+ *
+ *  \iparam InstanceID = Instance ID of the function module
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam TempCtrlStatus = Actual temperature control status
+ *  \iparam MainsVoltage = Main voltage status.
+ *
+ */
+/****************************************************************************/
+void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCode,
+                                           TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage)
+{
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        m_CurrentTempCtrlStatus[m_InstTCTypeMap[InstanceID]] = TempCtrlStatus;
+        m_MainsVoltageStatus[m_InstTCTypeMap[InstanceID]] = MainsVoltage;
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP_CTRL_STATE, ReturnCode);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is inside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is inside the range, else not.
+ */
+/****************************************************************************/
+bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type)
+{
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    {
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
+        {
+            if ((m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] - TOLERANCE)||
+                            (m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] + TOLERANCE))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    //Log(tr("Error"));
+    return false;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature is outside the range.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if is outside the range, else not.
+ */
+/****************************************************************************/
+bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type)
+{
+    if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
+    {
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
+        {
+            if ((m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] - TOLERANCE)||
+                            (m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] + TOLERANCE))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    //   Log(tr("Error"));
+    return false;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is enabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is enabled, else not.
+ */
+/****************************************************************************/
+bool COvenDevice::IsTemperatureControlOn(OVENTempCtrlType_t Type)
+{
+    return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_ON);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Judge if the temperature control is disabled.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  True if temperature control is disabled, else not.
+ */
+/****************************************************************************/
+bool COvenDevice::IsTemperatureControlOff(OVENTempCtrlType_t Type)
+{
+    return (m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_OFF);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Start temperature control.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  NominalTemperature = Target temperature.
+ *  \iparam  SlopeTempChange = Temperature drop value before level sensor
+ *                             reporting state change. Only valid for
+ *                             level sensor.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange)
+{
+    m_TargetTemperatures[Type] = NominalTemperature;
+    ReturnCode_t retCode;
+    if(m_pTempCtrls[Type] != NULL)
+    {
+        retCode = m_pTempCtrls[Type]->SetTemperature(NominalTemperature, SlopeTempChange);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return retCode;
+    }
+    if(m_pDevProc)
+    {
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP);
+    }
+    return retCode;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set temperature.
+ *
+ *  This slot is connected to the signal, ReportRefTemperature
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Temperature = Target temperature.
+ *
+ */
+/****************************************************************************/
+void COvenDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature)
+{
+    Q_UNUSED(Temperature)
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Oven Set temperature successful! ";
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature failed! " << ReturnCode; //lint !e641
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP, ReturnCode);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get temperature synchronously.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+qreal COvenDevice::GetTemperature(OVENTempCtrlType_t Type, quint8 Index)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    qreal RetValue = m_CurrentTemperatures[Type];
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode )
+        {
+            RetValue = UNDEFINED_4_BYTE;
         }
         else
         {
-            RetVal = DCL_ERR_NULL_PTR_ACCESS;
-            FILE_LOG_L(laDEV, llERROR) << " COvenDevice: DCL_ERR_NULL_PTR_ACCESS";
+            if(m_pDevProc)
+            {
+                retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_TEMP);
+            }
+            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+            {
+                RetValue = UNDEFINED_4_BYTE;
+            }
+            else
+            {
+                RetValue = m_CurrentTemperatures[Type];
+            }
+            m_LastGetTempTime[Type][Index] = Now;
         }
     }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
-    }
-
-    return RetVal;
+    return RetValue;
 }
 
 /****************************************************************************/
 /*!
- *  \brief    Request the reference run of the oven cover motor
+ *  \brief    Get actual temperature of Air-liquid device asynchronously.
  *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANStepperMotor class.
- *           When finished, the slot StepperMotorReferenceMovementAckn() will be called by
- *           CANStepperMotor, and forwards the acknowledge of this request to the interface class
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  Index = Index of the target temperature control module.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::ReqReferenceRun()
+ReturnCode_t COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index)
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(ActivateDeviceTask(OVEN_DEV_TASK_REFRUN))
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
-        FILE_LOG_L(laDEV, llINFO) << " COvenDevice";
+        m_LastGetTempTime[Type][Index] = Now;
+        return   m_pTempCtrls[Type]->ReqActTemperature(Index);
     }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
-    }
-
-    return RetVal;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/
 /*!
- *  \brief    Request the oven cover movement
+ *  \brief   slot associated with get temperature.
  *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANStepperMotor class.
- *           When finished, the slot StepperMotorMovementAckn() will be called by
- *           CANStepperMotor, and forwards the acknowledge of this request to the interface class
+ *  This slot is connected to the signal, ReportActTemperature
  *
- *  \iparam  CoverPosition = Requested oven cover position
+ *  \iparam InstanceID = Instance ID of the function module
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Index = Index of the actual temperature control module.
+ *  \iparam Temp = Actual temperature.
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::ReqCoverMoveToPosition(OvenCoverPosition_t CoverPosition)
+void COvenDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp)
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+    Q_UNUSED(Index)
 
-    if(ActivateDeviceTask(OVEN_DEV_TASK_COVER_POS_SET))
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
     {
-        //devie task was activated, forward the request parameter to the corresponding function module task
-        FunctionModuleTask* pFunctionModuleTask = 0;
-        pFunctionModuleTask = m_DeviceTask[OVEN_DEV_TASK_COVER_POS_SET].m_FctModTaskMap[1];
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Oven Get temperature successful! ";
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = Temp;
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven get temperature failed! " << ReturnCode; //lint !e641
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED_4_BYTE;
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_TEMP, ReturnCode);
+    }
+}
 
-        CANStepperMotorTask* pMotorTask = dynamic_cast<CANStepperMotorTask*>(pFunctionModuleTask);
-        if(pMotorTask)
+/****************************************************************************/
+/*!
+ *  \brief   Set PID parameters for temperature control module.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::SetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set Oven temperature PID, type: " << Type; //lint !e641
+    ReturnCode_t retCode;
+    if(m_pTempCtrls[Type] != NULL)
+    {
+        retCode = m_pTempCtrls[Type]->SetTemperaturePid(MaxTemperature, ControllerGain, ResetTime, DerivativeTime);
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            pMotorTask->m_TargetPos = GetMotorPosFromCoverPos(CoverPosition);
-            if(CoverPosition == OVEN_COVER_CLOSED)
-            {
-                pMotorTask->m_Profile = m_CoverCloseSpeedMotionProfile;
-            }
-            else if(CoverPosition == OVEN_COVER_OPENED)
-            {
-                pMotorTask->m_Profile = m_CoverOpenSpeedMotionProfile;
-            }
-            FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice";
+            return retCode;
+        }
+        if(m_pDevProc)
+        {
+            retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID);
+        }
+        return retCode;
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with set PID parameters.
+ *
+ *  This slot is connected to the signal, ReportSetPidAckn
+ *
+ *  \iparam  ReturnCode = ReturnCode of function level Layer
+ *  \iparam  MaxTemperature = Maximum temperature.
+ *  \iparam  ControllerGain = Controller Gain.
+ *  \iparam  ResetTime = Reset time.
+ *  \iparam  DerivativeTime = Derivative time.
+ *
+ */
+/****************************************************************************/
+void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime)
+{
+    Q_UNUSED(MaxTemperature)
+    Q_UNUSED(ControllerGain)
+    Q_UNUSED(ResetTime)
+    Q_UNUSED(DerivativeTime)
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Oven Set temperature PID successful! ";
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven set temperature PID failed! " << ReturnCode; //lint !e641
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_SET_TEMP_PID, ReturnCode);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Get Oven Lid status.
+ *
+ *  \return  1: Open, 0: Closed
+ */
+/****************************************************************************/
+quint16 COvenDevice::GetLidStatus()
+{
+    //Log(tr("GetValue"));
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(m_pLidDigitalInput)
+    {
+        retCode = m_pLidDigitalInput->ReqActInputValue();
+    }
+    else
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    if(m_pDevProc)
+    {
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE);
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    return m_LidStatus;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Get Oven Lid status asynchronously.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t COvenDevice::GetLidStatusAsync()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetLidStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetLidStatusTime = Now;
+        if(m_pLidDigitalInput)
+        {
+            return m_pLidDigitalInput->ReqActInputValue();
         }
         else
         {
-            RetVal = DCL_ERR_NULL_PTR_ACCESS;
-            FILE_LOG_L(laDEV, llERROR) << " COvenDevice: DCL_ERR_NULL_PTR_ACCESS";
+            return DCL_ERR_NOT_INITIALIZED;
         }
     }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
-    }
-
-    return RetVal;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/
 /*!
- *  \brief   Request the oven cover's actual position
+ *  \brief   slot associated with get digital input value.
  *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANStepperMotor class.
- *           When finished, the slot StepperMotorActPosition() will be called by
- *           CANStepperMotor, and forwards the acknowledge of this request to the interface class
+ *  This slot is connected to the signal, ReportActInputValue
  *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam InputValue = Actual digital input value.
+ *
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::ReqActCoverPosition()
+void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue)
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(ActivateDeviceTask(OVEN_DEV_TASK_COVER_POS_REQ))
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
     {
-        FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice";
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Oven Get DI value successful! ";
+        m_LidStatus = InputValue;
     }
     else
     {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Oven Get DI value failed! " << ReturnCode; //lint !e641
     }
-
-    return RetVal;
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_GET_DI_VALUE, ReturnCode);
+    }
 }
 
 /****************************************************************************/
 /*!
- *  \brief   Set the status of the temperature control
+ *  \brief   Get the Oven lid sensor data captured in last 500 milliseconds.
  *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANTemperatureControl class.
- *           When finished, the slot TempCtrlActStatus() will be called by
- *           CANTemperatureControl, and forwards the acknowledge of this request to the interface class
- *
- *  \iparam  TempCtrlStatus = status of the oven's temperature control
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
+ *  \return  Actual lid status, UNDEFINED if failed.
  */
 /****************************************************************************/
-ReturnCode_t COvenDevice::SetTempCtrlStatus(TempCtrlStatus_t TempCtrlStatus)
+quint16 COvenDevice::GetRecentOvenLidStatus()
 {
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(ActivateDeviceTask(OVEN_DEV_TASK_TEMP_STATUS_SET))
+   // QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue;
+    if((Now - m_LastGetLidStatusTime) <= 500) // check if 500 msec has passed since last read
     {
-        FunctionModuleTask* pFunctionModuleTask = 0;
-        pFunctionModuleTask = m_DeviceTask[OVEN_DEV_TASK_TEMP_STATUS_SET].m_FctModTaskMap[1];
+        RetValue = m_LidStatus;
+    }
+    else
+    {
+        RetValue = UNDEFINED_2_BYTE;
+    }
+    return RetValue;
+}
 
-        CANTemperatureCtrlTask* pTempCtrlTask = dynamic_cast<CANTemperatureCtrlTask*>(pFunctionModuleTask);
-        if(pTempCtrlTask)
+/****************************************************************************/
+/*!
+ *  \brief   Get actual current of device's heater.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  The current of heater in mA.
+ */
+/****************************************************************************/
+quint16 COvenDevice::GetHeaterCurrent(OVENTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue = UNDEFINED_2_BYTE;
+    if(m_pTempCtrls[Type] != NULL)
+    {
+        if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
         {
-            pTempCtrlTask->m_State = TempCtrlStatus;
-        }
-        FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice";
-    }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
-    }
-
-    return RetVal;
-}
-
-/****************************************************************************/
-/*!
- *  \brief   Request the actual status of the temperature control
- *
- *           The request will be accepted if no other request (task) is currently active
- *           The request is handled by the task's handle function, it will be forwarded there
- *           to the CANTemperatureControl class.
- *           When finished, the slot TempCtrlActStatus() will be called by
- *           CANTemperatureControl, and forwards the acknowledge of this request to the interface class
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded.
- *           If there is always another task active, or the error state is active,
- *           DCL_ERR_INVALID_STATE is returned.
- */
-/****************************************************************************/
-ReturnCode_t COvenDevice::ReqTempCtrlStatus()
-{
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(ActivateDeviceTask(OVEN_DEV_TASK_TEMP_STATUS_REQ))
-    {
-        FILE_LOG_L(laDEV, llDEBUG) << " COvenDevice";
-    }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " COvenDevice invalid state: " << (int) m_TaskID;
-    }
-
-    return RetVal;
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Returns the oven covers position as OvenCoverPosition_t
- *
- *            Depending on the exact motor position, the cover position will be set to
- *            OVEN_COVER_OPENED or OVEN_COVER_CLOSED, all other positions result in OVEN_COVER_UNDEF
- *
- *  \iparam   MotorPosition = The stepper motors position
- *
- *  \return   The motor position as OvenCoverPosition_t
- */
-/****************************************************************************/
-OvenCoverPosition_t COvenDevice::GetOvencoverPositionFromMotorPos(qint32 MotorPosition)
-{
-    OvenCoverPosition_t CoverPosition;
-
-    FILE_LOG_L(laDEV, llINFO) << "  GetOvencoverPositionFromMotorPos: " << MotorPosition;
-
-    if(MotorPosition > 1150)
-    {
-        CoverPosition = OVEN_COVER_OPENED;
-        FILE_LOG_L(laDEV, llINFO) << "  OVEN_COVER_OPENED";
-    }
-    else if(MotorPosition < 150)
-    {
-        CoverPosition = OVEN_COVER_CLOSED;
-        FILE_LOG_L(laDEV, llINFO) << "  OVEN_COVER_CLOSED";
-    }
-    else
-    {
-        CoverPosition = OVEN_COVER_UNDEF;
-        FILE_LOG_L(laDEV, llINFO) << "  OVEN_COVER_UNDEF";
-    }
-    return CoverPosition;
-}
-
-/****************************************************************************/
-/*!
- *  \brief    Returns the covor motor posotion from OvenCoverPosition_t
- *
- *            Depending on the OvenCoverPosition_t type, the exact motor position
- *            in half steps is returned.
- *
- *  \iparam   CoverPosition = The oven cover position
- *
- *  \return   The motor position as Position_t
- */
-/****************************************************************************/
-Position_t COvenDevice::GetMotorPosFromCoverPos(OvenCoverPosition_t CoverPosition)
-{
-    Position_t MotorPos = 0;
-
-    if(CoverPosition == OVEN_COVER_CLOSED)
-    {
-        MotorPos = m_CoverClosedPosition;
-    }
-    else if(CoverPosition == OVEN_COVER_OPENED)
-    {
-        MotorPos = m_CoverOpenPosition;
-    }
-
-    return MotorPos;
-}
-
-/****************************************************************************/
-/*!
- *  \brief   Helper function, activates the device task and it's fct-mdoule tasks
- *
- *  \iparam   DeviceTaskIndex = Device's task index
- *
- *  \return  true, if the dask was activated, otherwise false
- *
- ****************************************************************************/
-bool COvenDevice::ActivateDeviceTask(quint8 DeviceTaskIndex)
-{
-    bool Activated = false;
-    FunctionModuleTask* pFunctionModuleTask;
-
-    if((m_TaskID == OVENDEV_TASKID_FREE) || (m_TaskID == OVENDEV_TASKID_COMMAND_HDL))
-    {
-        if(m_DeviceTask[DeviceTaskIndex].m_TaskState == DeviceTask::DEV_TASK_STATE_UNUSED)
-        {
-            QMapIterator<quint8, FunctionModuleTask*> iterFctModTask(m_DeviceTask[DeviceTaskIndex].m_FctModTaskMap);
-
-            //st the device task's function module tasks to 'Start'-state
-            while (iterFctModTask.hasNext())
+            ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
+            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
             {
-                pFunctionModuleTask = iterFctModTask.next().value();
-                if(pFunctionModuleTask)
+                if(m_pDevProc)
                 {
-                    pFunctionModuleTask->m_TaskState = FunctionModuleTask::FCTMOD_STATE_INIT;
+                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_TC_GET_HW_STATUS);
                 }
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED_2_BYTE;
+                }
+                else
+                {
+                    RetValue = m_TCHardwareStatus[Type].Current;
+                }
+                m_LastGetTCCurrentTime[Type] = Now;
             }
-            m_DeviceTask[DeviceTaskIndex].m_TaskState = DeviceTask::DEV_TASK_STATE_START;
-            m_TaskID = OVENDEV_TASKID_COMMAND_HDL;
-            Activated = true;
+        }
+        else
+        {
+
+            RetValue = m_TCHardwareStatus[Type].Current;
         }
     }
+    return RetValue;
+}
 
-    return Activated;
-
+/****************************************************************************/
+/*!
+ *  \brief  slot for getting the hardware information
+ *
+ *  This slot is connected to the signal ReportHardwareStatus
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam Sensors = Number of temperature sensors connected to the board
+ *  \iparam Fans = Number of ventilation fans connected to the board
+ *  \iparam Heaters = Number of heating elements connected to the board
+ *  \iparam Pids = Number of PID controllers in the control loop
+ *  \iparam Current = Current through the heatinf circuit in milliamperes
+ */
+/****************************************************************************/
+void COvenDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
+                                               quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType)
+{
+    if (DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = Sensors;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = Fans;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = Heaters;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = Pids;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = Current;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = HeaterSwitchType;
+    }
+    else
+    {
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Sensors = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Fans = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Heaters = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Pids = 0;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].Current = UNDEFINED_2_BYTE;
+        m_TCHardwareStatus[m_InstTCTypeMap[InstanceID]].HeaterSwitchType = 0;
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_OVEN_TC_GET_HW_STATUS, ReturnCode);
+    }
 }
 
 } //namespace

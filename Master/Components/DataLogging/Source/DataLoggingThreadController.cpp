@@ -24,6 +24,8 @@
 #include <Global/Include/SystemPaths.h>
 #include <Global/Include/Utils.h>
 
+
+
 #include <QMetaType>
 
 namespace DataLogging {
@@ -31,18 +33,19 @@ namespace DataLogging {
 const Global::gSubComponentType SUBCOMPONENT_EVENTLOGGER    = 0x0001;   ///< Subcomponent id for event logger.
 const Global::gSubComponentType SUBCOMPONENT_DAYOPLOGGER    = 0x0002;   ///< Subcomponent id for day operation logger.
 const Global::gSubComponentType SUBCOMPONENT_COMPTESTLOGGER = 0x0003;   ///< Subcomponent id for component test logger.
-
+const Global::gSourceType DUMMY =100;
 /****************************************************************************/
-DataLoggingThreadController::DataLoggingThreadController(Global::gSourceType TheLoggingSource) :
-    Threads::ThreadController(TheLoggingSource, "DataLogging"),
+DataLoggingThreadController::DataLoggingThreadController(Global::gSourceType TheHeartBeatSource, const QString& fileNamePrefix) :
+    Threads::ThreadController(TheHeartBeatSource, "DataLogging"),
     m_oPowerFail(false),
     m_EventLoggerMaxFileSize(0),
     m_DayEventLoggerMaxFileCount(0),
-    m_DayEventLogger(this, Global::LoggingSource(GetLoggingSource().GetSource(), SUBCOMPONENT_DAYOPLOGGER)),
-    m_EventLogger(this, Global::LoggingSource(GetLoggingSource().GetSource(), SUBCOMPONENT_EVENTLOGGER)),
-    m_ComponentTestLogger(this, Global::LoggingSource(GetLoggingSource().GetSource(), SUBCOMPONENT_COMPTESTLOGGER)),
+    m_DayEventLogger(NULL, "DataLogging", fileNamePrefix),
     m_pEventFilterNetworkServer(NULL)
 {
+
+    qRegisterMetaType<DataLogging::DayEventEntry>("DataLogging::DayEventEntry");
+
 }
 
 /****************************************************************************/
@@ -64,21 +67,32 @@ void DataLoggingThreadController::CreateAndInitializeObjects() {
     // create network filter server but only in debug mode
     m_pEventFilterNetworkServer = new EventFilterNetworkServer(this, 9876);
 #endif
+
+    QDir Directory(Global::SystemPaths::Instance().GetLogfilesPath());
+    // check the path of the log directory
+    if (!Directory.exists()) {
+        if (!Directory.mkdir(Directory.absolutePath())) {
+            /// \todo Raise a exception
+            // return from the function, there is no point configure the logger
+            return;
+        }
+    }
+
     m_DayEventLogger.Configure(DayEventLoggerConfig(m_OperatingMode,
                                                             m_SerialNumber,
                                                             Global::SystemPaths::Instance().GetLogfilesPath(),
-                                                            m_DayEventLoggerMaxFileCount));
-    // now configure the loggers
-    m_ComponentTestLogger.Configure(ComponentTestLoggerConfig(m_OperatingMode,
-                                                              Global::SystemPaths::Instance().GetComponentTestPath()));
-    m_EventLogger.Configure(EventLoggerConfig(m_EventLoggerBaseFileName,
-                                              m_OperatingMode,
-                                              m_SerialNumber,
-                                              Global::SystemPaths::Instance().GetLogfilesPath(),
-                                              m_EventLoggerMaxFileSize));
+                                                            m_DayEventLoggerMaxFileCount,
+                                                            m_EventLoggerBaseFileName));
 
+    RegisterCommandForProcessing<DataLogging::CmdForceCaching, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnForceCaching, this);
+    RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequest, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnRunLogRequest, this);
+    RegisterCommandForProcessing<NetCommands::CmdDayRunLogRequestFile, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnRunLogRequestFile, this);
+    RegisterCommandForProcessing<NetCommands::CmdExportDayRunLogRequest, DataLoggingThreadController>
+            (&DataLoggingThreadController::OnExportDayRunLogRequest, this);
 
-    RegisterCommandForProcessing<DataLogging::CmdForceCaching, DataLoggingThreadController>(&DataLoggingThreadController::OnForceCaching, this);
 }
 
 /****************************************************************************/
@@ -98,34 +112,10 @@ void DataLoggingThreadController::OnStopReceived() {
 /****************************************************************************/
 void DataLoggingThreadController::OnPowerFail() {
     // try to log
-    SendToEventLogger(EventEntry(Global::AdjustedTime::Instance().GetCurrentDateTime(),
-                                 GetLoggingSource(), Global::EVTTYPE_FATAL_ERROR,
-                                 Global::EVTSTAT_ON, Global::EVENT_GLOBAL_POWER_FAIL));
-    // close all files
-    m_ComponentTestLogger.CloseFile();
+    //! \todo inform EventHandler
     m_DayEventLogger.CloseFile();
-    m_EventLogger.CloseFile();
     // switch to state power fail
     m_oPowerFail = true;
-}
-
-/****************************************************************************/
-void DataLoggingThreadController::SendToEventLogger(const EventEntry &Entry) {
-    if(!m_oPowerFail) {
-        // send to event logger
-        m_EventLogger.Log(Entry);
-    } else {
-        // dump to console
-        Entry.DumpToConsole();
-    }
-}
-
-/****************************************************************************/
-void DataLoggingThreadController::SendToComponentTestLogger(const ComponentTestEntry &Entry) {
-    // silently discard entry if power fails
-    if(!m_oPowerFail) {
-        m_ComponentTestLogger.Log(Entry);
-    }
 }
 
 /****************************************************************************/
@@ -137,10 +127,65 @@ void DataLoggingThreadController::SendToDayEventLogger(const DayEventEntry &Entr
 }
 
 /****************************************************************************/
+void DataLoggingThreadController::CheckLoggingEnabled() {
+    m_DayEventLogger.CheckLoggingEnabled();
+}
+
+/****************************************************************************/
 void DataLoggingThreadController::OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd) {
     /// \todo implement
     Q_UNUSED(Ref);
     Q_UNUSED(Cmd);
+}
+
+
+/****************************************************************************/
+void DataLoggingThreadController::OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd) {
+
+    Q_UNUSED(Cmd);
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
+    // create object to create the file
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+
+    QStringList FileNames;
+    DayRunFilesInformation.CreateAndListDailyRunLogFileName(FileNames);
+    // get the new command reference
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReply(1000, FileNames)));
+}
+
+/****************************************************************************/
+void DataLoggingThreadController::OnRunLogRequestFile(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequestFile &Cmd) {
+
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
+
+    // create object to create the file
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+
+    QByteArray FileContent;
+
+    DayRunFilesInformation.CreateSpecificDailyRunLogFile(Cmd.GetFileName(), Cmd.GetCurrentUserRole(), FileContent);
+    // get the new command reference
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdDayRunLogReplyFile(1000, FileContent)));
+}
+
+/****************************************************************************/
+void DataLoggingThreadController::OnExportDayRunLogRequest(Global::tRefType Ref, const NetCommands::CmdExportDayRunLogRequest &Cmd) {
+
+    Q_UNUSED(Cmd);
+    // send the acknowledgement
+    SendAcknowledgeOK(Ref);
+    // create object to create the file
+    DayLogFileInformation DayRunFilesInformation(Global::SystemPaths::Instance().GetLogfilesPath());
+
+    QStringList FileNames;
+    DayRunFilesInformation.CreateDailyRunLogFiles(FileNames, Cmd.GetCurrenUserRole());
+    // get the new command reference
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(new NetCommands::CmdExportDayRunLogReply(1000, FileNames)));
 }
 
 } // end namespace DataLogging

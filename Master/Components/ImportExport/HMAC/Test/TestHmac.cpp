@@ -1,23 +1,21 @@
 /****************************************************************************/
-/** @file TestHmac.cpp
+/*! \file TestHmac.cpp
  *
- *  @brief Testclass for HMAC computation with SHA-1.
+ *  \brief Testclass for HMAC computation with SHA-1.
  *
  *  Test vectors are taken from RFC 2202.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-06-19
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
  *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
- *
- *  last modified by owner: @(#) Aug 24 2011, 12:39:41
  *
  */
 /****************************************************************************/
@@ -26,20 +24,20 @@
 #include "ImportExport/HMAC/Test/TestHmac.h"
 
 namespace ImportExport {
-
-/**
- * @brief empty constructor
+/****************************************************************************/
+/*!
+ * \brief empty constructor
  */
-
+/****************************************************************************/
 TestHmac::TestHmac()
 {
     ;
 }
-
-/**
- * @brief check on test vectors taken from RFC 2202
+/****************************************************************************/
+/*!
+ * \brief check on test vectors taken from RFC 2202
  */
-
+/****************************************************************************/
 void TestHmac::utHmacTestVectors()
 {
     QList<OneTest> Testcases;
@@ -71,11 +69,11 @@ void TestHmac::utHmacTestVectors()
     }
 }
 
-
-/**
- * @brief check on SHA-1 test vectors taken from FIPS 180-2, A2 and A3
+/****************************************************************************/
+/*!
+ * \brief check on SHA-1 test vectors taken from FIPS 180-2, A2 and A3
  */
-
+/****************************************************************************/
 void TestHmac::utHashTest()
 {
     QVERIFY(Hmac::hash(
@@ -85,11 +83,11 @@ void TestHmac::utHashTest()
             QByteArray::fromHex("34aa973cd4c4daa4f61eeb2bdbad27316534016f"));
 }
 
-
-/**
- * @brief HMAC benchmark
+/****************************************************************************/
+/*!
+ * \brief HMAC benchmark
  */
-
+/****************************************************************************/
 void TestHmac::utHmacBench()
 {
     const int CHUNK = 1000;     // hashing in chunks

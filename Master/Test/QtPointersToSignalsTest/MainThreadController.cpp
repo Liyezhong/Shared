@@ -167,12 +167,12 @@ bool MainThreadController::CreateControllersAndThreads() {
         return false;
     } catch (const std::bad_alloc &) {
         // send error message
-        SEND_FATAL_ERROR(Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
+        SEND_FATAL_ERROR(EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
         // and exit
         return false;
     } catch (...) {
         // Send error message
-        SEND_FATAL_ERROR(Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
+        SEND_FATAL_ERROR(EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
         // and exit
         return false;
     }
@@ -274,14 +274,14 @@ void MainThreadController::OnGoReceived() {
         // destroy controllers and threads
         DestroyControllersAndThreads();
         // send error message
-        SEND_FATAL_ERROR(Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
+        SEND_FATAL_ERROR(EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
         // and request exit
         Terminate();
     } catch (...) {
         // destroy controllers and threads
         DestroyControllersAndThreads();
         // Send error message
-        SEND_ERROR(Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
+        SEND_ERROR(EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, QStringList() << __FILE__ << QString::number(__LINE__, 10));
         // and request exit
         Terminate();
     }

@@ -21,6 +21,7 @@
 #ifndef DATALOGGING_DAYOPERATIONLOGGER_H
 #define DATALOGGING_DAYOPERATIONLOGGER_H
 
+#include <DataLogging/Include/DayEventEntry.h>
 #include <DataLogging/Include/BaseLoggerReusable.h>
 #include <DataLogging/Include/DayEventLoggerConfig.h>
 
@@ -43,6 +44,7 @@ private:
     QDate   m_LastLogDateBackUp;      ///< Backup of lastlog date
     int     m_MaxFileCount;     ///< Maximal file count. 0 means no maximal file count monitoring!
     bool    m_RemoveOldestFile; ///< If Set to true - delete oldest file
+    QString m_FileNamePrefix;
     /****************************************************************************/
     DayEventLogger();                                                   ///< Not implemented.
     DayEventLogger(const DayEventLogger &);                         ///< Not implemented.
@@ -79,11 +81,11 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pParent             Parent.
-     * \param[in]   TheLoggingSource    Source to set in log entry.
+     * \iparam   pParent             Parent.
+     * \iparam   TheLoggingSource    Source to set in log entry.
      */
     /****************************************************************************/
-    DayEventLogger(LoggingObject *pParent, const Global::LoggingSource &TheLoggingSource);
+    DayEventLogger(Global::EventObject *pParent, const QString & TheLoggingSource, const QString& fileNamePrefix);
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -98,7 +100,7 @@ public:
      *
      * After the configuration is saved switch to new log file.
      *
-     * \param[in]   Config      New configuration for event logger.
+     * \iparam   Config      New configuration for event logger.
      */
     /****************************************************************************/
     void Configure(const DataLogging::DayEventLoggerConfig &Config);
@@ -111,10 +113,19 @@ public:
      * The string to log is created depending on Entry data and appended to the
      * log file. If date changed it will be switched to a new log file.
      *
-     * \param[in]   Entry   Event entry to log.
+     * \iparam   Entry   Event entry to log.
      */
     /****************************************************************************/
     void Log(const DataLogging::DayEventEntry &Entry);
+
+    /****************************************************************************/
+    /**
+     * \brief Checks whether data logging enabled. If not enabled then it raises
+     *        event to GUI
+     */
+    /****************************************************************************/
+    void CheckLoggingEnabled();
+
 
 }; // end class DayEventLogger
 

@@ -21,7 +21,7 @@
 #ifndef RCAGENTNAMESPACE_AGENTCONTROLLER_H
 #define RCAGENTNAMESPACE_AGENTCONTROLLER_H
 
-#include <NetworkComponents/Include/NetworkClientDevice.h>
+//#include <NetworkComponents/Include/NetworkClientDevice.h>
 #include <Global/Include/Utils.h>
 
 // commad framework related includes
@@ -30,6 +30,7 @@
 #include <RemoteCareAgent/Include/DispatcherFunctor.h>
 #include "Global/Include/Commands/PendingCmdDescriptor.h"
 #include "Global/Include/RefManager.h"
+#include "NetworkComponents/Include/NetworkClientDevice.h"
 // commads
 #include <Global/Include/Commands/Command.h>
 #include <Global/Include/Commands/AckOKNOK.h>

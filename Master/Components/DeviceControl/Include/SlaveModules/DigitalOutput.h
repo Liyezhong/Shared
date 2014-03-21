@@ -64,8 +64,6 @@ public:
     ReturnCode_t ReqOutputValue();
     //!< Request life time data
     ReturnCode_t ReqLifeTimeData();
-    //! Request data reset
-    ReturnCode_t ReqDataReset();
 
 signals:
     /****************************************************************************/
@@ -155,8 +153,7 @@ private:
         FM_DO_CMD_TYPE_UNDEF          = 0x00,  //!< undefined command type
         FM_DO_CMD_TYPE_SET_OUTP       = 0x02,  //!< set output value
         FM_DO_CMD_TYPE_REQ_ACTVALUE   = 0x03,  //!< actual value request
-        FM_DO_CMD_TYPE_REQ_LIFECYCLE  = 0x04,  //!< request life cycle data
-        FM_DO_CMD_TYPE_REQ_DATA_RESET = 0x05   //!< data reset
+        FM_DO_CMD_TYPE_REQ_LIFECYCLE  = 0x04   //!< request life cycle data
     } CANDigitalOutputModuleCmdType_t;
 
     /*! module command data, used for internal data transfer*/

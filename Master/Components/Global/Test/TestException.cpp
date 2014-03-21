@@ -104,7 +104,7 @@ void TestException::utConstructors() {
     Exception Ex2("File2", 2, TimeStamp2, 22);
     // test
     QCOMPARE(Ex2.m_File,                    QString("File2"));
-    QCOMPARE(Ex2.m_Line,                    2);
+    QCOMPARE(Ex2.m_Line,                    QString("2"));
     QCOMPARE(Ex2.m_TimeStamp,               TimeStamp2);
     QCOMPARE(Ex2.m_ErrorCode,               quint32(22));
     QCOMPARE(Ex2.m_AdditionalData.size(),   0);
@@ -116,7 +116,7 @@ void TestException::utConstructors() {
     Exception Ex3("File3", 3, TimeStamp3, 33, tTranslatableStringList() << "31" << "32" << "33");
     // test
     QCOMPARE(Ex3.m_File,                            QString("File3"));
-    QCOMPARE(Ex3.m_Line,                            3);
+    QCOMPARE(Ex3.m_Line,                            QString("3"));
     QCOMPARE(Ex3.m_TimeStamp,                       TimeStamp3);
     QCOMPARE(Ex3.m_ErrorCode,                       quint32(33));
     QCOMPARE(Ex3.m_AdditionalData.size(),           3);
@@ -128,7 +128,7 @@ void TestException::utConstructors() {
     Exception Ex4(Ex3);
     // test
     QCOMPARE(Ex4.m_File,                                QString("File3"));
-    QCOMPARE(Ex4.m_Line,                                3);
+    QCOMPARE(Ex4.m_Line,                                QString("3"));
     QCOMPARE(Ex4.m_TimeStamp,                           TimeStamp3);
     QCOMPARE(Ex4.m_ErrorCode,                           quint32(33));
     QCOMPARE(Ex4.m_AdditionalData.size(),               3);
@@ -145,7 +145,7 @@ void TestException::utAssignmentOperator() {
     Exception Ex1("File1", 1, TimeStamp1, 11, tTranslatableStringList() << "11" << "12" << "13");
     // test
     QCOMPARE(Ex1.m_File,                                QString("File1"));
-    QCOMPARE(Ex1.m_Line,                                1);
+    QCOMPARE(Ex1.m_Line,                                QString("1"));
     QCOMPARE(Ex1.m_TimeStamp,                           TimeStamp1);
     QCOMPARE(Ex1.m_ErrorCode,                           quint32(11));
     QCOMPARE(Ex1.m_AdditionalData.size(),               3);
@@ -161,12 +161,12 @@ void TestException::utAssignmentOperator() {
     QDateTime TimeStamp3 = Global::AdjustedTime::Instance().GetCurrentDateTime();
     Exception Ex3("File3", 3, TimeStamp3, 33);
     QCOMPARE(Ex2.m_File,                    QString("File2"));
-    QCOMPARE(Ex2.m_Line,                    2);
+    QCOMPARE(Ex2.m_Line,                    QString("2"));
     QCOMPARE(Ex2.m_TimeStamp,               TimeStamp2);
     QCOMPARE(Ex2.m_ErrorCode,               quint32(22));
     QCOMPARE(Ex2.m_AdditionalData.size(),   0);
     QCOMPARE(Ex3.m_File,                    QString("File3"));
-    QCOMPARE(Ex3.m_Line,                    3);
+    QCOMPARE(Ex3.m_Line,                    QString("3"));
     QCOMPARE(Ex3.m_TimeStamp,               TimeStamp3);
     QCOMPARE(Ex3.m_ErrorCode,               quint32(33));
     QCOMPARE(Ex3.m_AdditionalData.size(),   0);
@@ -174,7 +174,7 @@ void TestException::utAssignmentOperator() {
     Ex3 = Ex2 = Ex1;
     // test
     QCOMPARE(Ex2.m_File,                                QString("File1"));
-    QCOMPARE(Ex2.m_Line,                                1);
+    QCOMPARE(Ex2.m_Line,                                QString("1"));
     QCOMPARE(Ex2.m_TimeStamp,                           TimeStamp1);
     QCOMPARE(Ex2.m_ErrorCode,                           quint32(11));
     QCOMPARE(Ex2.m_AdditionalData.size(),               3);
@@ -182,7 +182,7 @@ void TestException::utAssignmentOperator() {
     QCOMPARE(Ex2.m_AdditionalData[1].GetString(),       QString("12"));
     QCOMPARE(Ex2.m_AdditionalData[2].GetString(),       QString("13"));
     QCOMPARE(Ex3.m_File,                                QString("File1"));
-    QCOMPARE(Ex3.m_Line,                                1);
+    QCOMPARE(Ex3.m_Line,                                QString("1"));
     QCOMPARE(Ex3.m_TimeStamp,                           TimeStamp1);
     QCOMPARE(Ex3.m_ErrorCode,                           quint32(11));
     QCOMPARE(Ex3.m_AdditionalData.size(),               3);
@@ -193,7 +193,7 @@ void TestException::utAssignmentOperator() {
     // assign to self
     Ex3 = Ex3;
     // test
-    QCOMPARE(Ex3.m_Line,                                1);
+    QCOMPARE(Ex3.m_Line,                                QString("1"));
     QCOMPARE(Ex3.m_TimeStamp,                           TimeStamp1);
     QCOMPARE(Ex3.m_ErrorCode,                           quint32(11));
     QCOMPARE(Ex3.m_AdditionalData.size(),               3);
@@ -209,7 +209,7 @@ void TestException::utGetMethods() {
     Exception Ex1("File1", 1, TimeStamp1, 11, tTranslatableStringList() << "11" << "12" << "13");
     // test
     QCOMPARE(Ex1.GetFile(),                                 QString("File1"));
-    QCOMPARE(Ex1.GetLine(),                                 1);
+    QCOMPARE(Ex1.GetLine(),                                 QString("1"));
     QCOMPARE(Ex1.GetTimeStamp(),                            TimeStamp1);
     QCOMPARE(Ex1.GetErrorCode(),                            quint32(11));
     QCOMPARE(Ex1.GetAdditionalData().size(),                3);

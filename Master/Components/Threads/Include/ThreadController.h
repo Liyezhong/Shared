@@ -154,6 +154,7 @@ protected:
      */
     /****************************************************************************/
     virtual void OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel);
+public:
     /****************************************************************************/
     /**
      * \brief Send a positive acknowledge over its command channel.
@@ -176,15 +177,14 @@ protected:
      */
     /****************************************************************************/
     void SendAcknowledgeNOK(Global::tRefType Ref, const QString &Text = "", Global::GUIMessageType Type = Global::GUIMSGTYPE_ERROR);
-public:
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \param[in]   TheLoggingSource    Source to set in log entry.
+     * \param[in]   TheHeartBeatSource    Source to set in log entry.
      */
     /****************************************************************************/
-    ThreadController(Global::gSourceType TheLoggingSource, QString name);
+    ThreadController(Global::gSourceType TheHeartBeatSource, QString name);
     /****************************************************************************/
     /**
      * \brief Destructor.

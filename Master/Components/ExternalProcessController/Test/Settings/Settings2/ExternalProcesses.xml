@@ -30,7 +30,7 @@
         as input parameter during initialization.
         Corresponding startcmd will be fetched and
         executed to start the process. -->
-        <name>Colorado GUI</name>
+        <name>Himalaya GUI</name>
         <!-- Start commando -->
         <startcmd>./bin_dbg/CpuBandwidthEater 10 200 &amp;</startcmd>
         <!-- Remote login: Yes/No  (if empty, "No" is assumed) -->

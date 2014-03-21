@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file General.h
+/*! \file General.h
  *
- *  @brief constants and methods used by several classes of Import/Export
+ *  \brief constants and methods used by several classes of Import/Export
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-08-09
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,23 +15,54 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 17 2011, 12:54:31
  *
  */
 /****************************************************************************/
 
-#ifndef IMPORT_EXPORT_CONSTANTS_H
-#define IMPORT_EXPORT_CONSTANTS_H
+#ifndef IMPORTEXPORT_GENERAL_H
+#define IMPORTEXPORT_GENERAL_H
 
 #include <QByteArray>
 #include <QFile>
 
 namespace ImportExport {
 
-/**
- * @brief constants of general use
- */
 
+//// constants for the error numbers
+const qint32 ERROR_IMPORTEXPORT_CRYTOSERVICE_RUNNING          = 0x001; ///< trying to run more than one Cryptoservice
+const qint32 ERROR_IMPORTEXPORT_EOF_REACHED                   = 0x002; ///< End of the file reached during read file
+const qint32 ERROR_IMPORTEXPORT_INCOMPLETE_CHUNK              = 0x003; ///< incomplete chunk on reading a file
+const qint32 ERROR_IMPORTEXPORT_UNCOMPRESSION_ERROR           = 0x004; ///< uncompression error on reading a file
+const qint32 ERROR_IMPORTEXPORT_CANNOT_OPEN_FILE_FOR_READ     = 0x005; ///< cannot open the file in read mode
+const qint32 ERROR_IMPORTEXPORT_CANNOT_OPEN_FILE_FOR_WRITE    = 0x006; ///< cannot open the file in write mode
+const qint32 ERROR_IMPORTEXPORT_ERROR_TO_READ                = 0x007; ///< unable to read the file
+const qint32 ERROR_IMPORTEXPORT_ERROR_TO_WRITE               = 0x008; ///< unable to write the file
+const qint32 ERROR_IMPORTEXPORT_ILLEGAL_MAGIC_HEADER          = 0x009; ///< illegal magic in header of the file
+const qint32 ERROR_IMPORTEXPORT_ILLEGAL_HEADER_HMAC           = 0x00a; ///< illegal HMAC header in the key
+const qint32 ERROR_IMPORTEXPORT_ILLEGAL_MAGIC_ENTRY           = 0x00b; ///< illegal magic entry number
+const qint32 ERROR_IMPORTEXPORT_ILLEGAL_ENTRY_HMAC            = 0x00c; ///< illegal HMAC entry number in the key
+const qint32 ERROR_IMPORTEXPORT_ARCHIVEFILE_NAME_NOT_MATCHING = 0x00d; ///< archive file name is different against the
+                                                                       ///< archive file name present in the archive file
+const qint32 ERROR_IMPORTEXPORT_ENTRIES_NOT_MATCHING          = 0x00e; ///< number of entries are not matching with the archive file entries
+const qint32 ERROR_IMPORTEXPORT_EOF_ENTRY                     = 0x00f; ///< unable to read all the entries, because end of the file is reached
+const qint32 ERROR_IMPORTEXPORT_ARCHIVEFILE_FORMAT_WRONG      = 0x010; ///< archive file format is wrong
+const qint32 ERROR_IMPORTEXPORT_INDEX_IS_MATCHING             = 0x011; ///< hash chain index and USB device indexes are matching
+const qint32 ERROR_IMPORTEXPORT_UNABLE_CREATE_FILE_INSTANCE   = 0x012; ///< unable to create the file instance to read or write the file
+const qint32 ERROR_IMPORTEXPORT_HMAC_COMPUTATION_STARTED      = 0x013; ///< HMAC computation is already started
+
+const qint32 ERROR_IMPORTEXPORT_KEY_SIZE_LESS                 = 0x014; ///< key size is more by comparing with hash block size
+const qint32 ERROR_IMPORTEXPORT_KEYDATA_SIZE_IS_NOT_MATCHING  = 0x015; ///< key file size is not matching with the in-built key file size
+const qint32 ERROR_IMPORTEXPORT_HMAC_NOT_INITIALIZED          = 0x016; ///< HMAC is not initialized
+const qint32 ERROR_IMPORTEXPORT_AES_NOT_INITIALIZED           = 0x017; ///< AES is not initialized
+const qint32 ERROR_IMPORTEXPORT_INTEGER_SIZE_IS_MORE          = 0x018; ///< size of the array shall be either 4 or 2 or 1
+const qint32 ERROR_IMPORTEXPORT_MSB_BIT_IS_NOT_SET            = 0x019; ///< Most significat bit not set for calculations
+const qint32 ERROR_IMPORTEXPORT_INVALID_FILE_MODE             = 0x01a; ///< file mode is not valid
+
+/****************************************************************************/
+/*!
+ * \brief constants of general use
+ */
+/****************************************************************************/
 struct Constants
 {
     // file where the hash chain is stored
@@ -60,22 +91,23 @@ struct Constants
     static const QList<QByteArray> keynames;
 };
 
-/**
- * @brief container for generally used functions
+/****************************************************************************/
+/*!
+ * \brief container for generally used functions
  */
-
+/****************************************************************************/
 class General
 {
     public:
-        static QByteArray int2byte(int n, int size = 4);
+        static QByteArray int2byte(int value, int size = 4);
         static int byte2int(char* bytes, int size = 4);
 };
 
-
-/**
- * @brief class for failsafe reading and writing plain files
+/****************************************************************************/
+/*!
+ * \brief class for failsafe reading and writing plain files
  */
-
+/****************************************************************************/
 class FailSafeOpen
 {
     public:
@@ -89,29 +121,28 @@ class FailSafeOpen
         void close();
 
     private:
-        QString m_name;
-        QFile* m_fd;
+        QString m_name; ///< name of the file
+        QFile* mp_fd;    ///< pointer to the file
 };
 
-
-/**
- * @brief exception used for error messages
+/****************************************************************************/
+/*!
+ * \brief Store the exception number
  */
-
-class ImexException
+/****************************************************************************/
+class ExceptionNumber
 {
     public:
-        ImexException(QString msg,
-                      const char* filename = 0,
-                      int lineno = 0);
-        inline QString getMsg() {return m_msg;}
+        ExceptionNumber(qint32 msg);
+        inline qint32 getErrorNumber() {return m_ErrorNumber;}
 
     private:
-        QString m_msg;
+        quint32 m_ErrorNumber;
+
 };
 
-#define THROW(msg)      throw(ImexException(msg, __FILE__, __LINE__))
+#define THROWEXCEPTIONNUMBER(ErrorNumber)      throw(ExceptionNumber(ErrorNumber))
 
 }       // end namespace ImportExport
 
-#endif          // IMPORT_EXPORT_CONSTANTS_H
+#endif          // IMPORTEXPORT_GENERAL_H

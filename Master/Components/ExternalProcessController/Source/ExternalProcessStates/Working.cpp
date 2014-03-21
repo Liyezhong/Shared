@@ -59,9 +59,10 @@ Working::~Working()
 bool Working::OnEntry(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WorkingState entered.";
+    qDebug() << "WorkingState of process " << m_myController->m_ProcessName << " entered";
 
-    if (m_myController == NULL) {
+    if (m_myController == NULL)
+    {
         /// \todo log error
         if (!State::DispatchEvent(Global::AsInt(EP_NULL_CTRL_POINTER))) {
             /// \todo log error
@@ -87,7 +88,8 @@ bool Working::OnEntry(StateMachines::StateEvent et)
 bool Working::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WorkingState exited.";
+    qDebug() << "WorkingState exited for process" << this->m_myController->GetProcessName();
+    m_myController->OnStopWorking();
     return true;
 }
 

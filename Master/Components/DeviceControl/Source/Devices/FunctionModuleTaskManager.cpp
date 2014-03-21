@@ -23,7 +23,6 @@
 /******************************************************************/
 
 #include "DeviceControl/Include/Devices/FunctionModuleTaskManager.h"
-#include "DeviceControl/Include/Devices/GrapplerDevice.h"
 #include "DeviceControl/Include/SlaveModules/StepperMotor.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/SlaveModules/Rfid11785.h"
@@ -646,6 +645,10 @@ ReturnCode_t CFunctionModuleTaskManager::StartTask(FunctionModuleTask* pFunction
         CRfid11785* pRFID = dynamic_cast<CRfid11785*>(pFunctionModuleTask->m_pCANObject);
         CANRFIDTask* pRfidCtrlTask = dynamic_cast<CANRFIDTask*>(pFunctionModuleTask);
         if(pRFID == 0)
+        {
+            return DCL_ERR_NULL_PTR_ACCESS;
+        }
+        if(pRfidCtrlTask == NULL)
         {
             return DCL_ERR_NULL_PTR_ACCESS;
         }

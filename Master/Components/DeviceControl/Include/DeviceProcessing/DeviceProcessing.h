@@ -40,7 +40,7 @@
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcTask.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
-
+#include <QEventLoop>
 namespace DeviceControl
 {
 
@@ -98,6 +98,9 @@ public:
     //! Return the hardware config file name
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
 
+    ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
+    ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout);
+    void ResumeFromSyncCall(SyncCmdType_t CmdType,  ReturnCode_t RetCode);
     //! Main state typde definition
     typedef enum {
         DP_MAIN_STATE_START           = 0x00,   /**< start state, after instantiation of the class */
@@ -163,6 +166,10 @@ public:
 
     //! Return function module specified by it's instance identifier
     CFunctionModule* GetFunctionModule(quint32 InstanceID) const;
+    CBaseModule* GetBaseModule(quint32 InstanceID) const;
+
+    //! Returns if the function module has been detetcted and configured via CAN
+    bool CheckFunctionModuleExistence(quint32 InstanceID);
 
     /*****************************************************************************/
     /*!
@@ -186,6 +193,9 @@ public:
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
 
+public slots:
+    void OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
+
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(ReturnCode_t);
@@ -199,11 +209,20 @@ signals:
     //! Forward error information to IDeviceProcessing
     void ReportErrorWithInfo(DevInstanceID_t instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
+    //! Forward the 'Diagnostics service closed' to IDeviceProcessing
     void ReportDiagnosticServiceClosed(qint16 DiagnosticResult);
+
+    //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
 
 private slots:
+    //! Slot fucntion used to receive CAN message
     void ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3, quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc);
+
+#ifdef HAL_CV_TEST
+    //! Callback function for the timer used in eventloop
+    void BlockingTimerCallback();
+#endif
 
 private:
     DeviceProcessing(const DeviceProcessing &);                     ///< Not implemented.
@@ -351,6 +370,21 @@ private:
     quint16      m_LastErrorData;       //!< Last error's data
     QDateTime    m_LastErrorTime;       //!< Last error's time
     QString      m_LastErrorString;     //!< Last error information string
+#ifndef HAL_CV_TEST
+    QWaitCondition m_WaitConditionForSyncCall[SYNC_CMD_TOTAL_NUM]; //!< Last Wait condition array used for synchronized call
+#else
+   typedef struct
+    {
+       QEventLoop eventloop;
+       bool timerActive;
+       qint64 endTime;
+    } EventLoopWithTimeout_t;
+
+    EventLoopWithTimeout_t m_EventLoopsForSyncCall[SYNC_CMD_TOTAL_NUM];
+    QTimer* m_pTimer;
+#endif
+    ReturnCode_t m_SyncCallResult[SYNC_CMD_TOTAL_NUM]; //!< Synchronized call results
+    QMutex m_Mutex[SYNC_CMD_TOTAL_NUM];                //!< Mutexs for waitconditions
 };
 
 } // namespace

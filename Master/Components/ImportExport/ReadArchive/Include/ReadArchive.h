@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file WriteArchive.h
+/*! \file ReadArchive.h
  *
- *  @brief read an archive - define a function
+ *  \brief read an archive - define a function
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-08-15
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,13 +15,12 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 13:46:24
  *
  */
 /****************************************************************************/
 
-#ifndef IMPORT_READ_ARCHIVE_H
-#define IMPORT_READ_ARCHIVE_H
+#ifndef IMPORTEXPORT_READARCHIVE_H
+#define IMPORTEXPORT_READARCHIVE_H
 
 #include <QByteArray>
 #include <QMap>
@@ -44,7 +43,7 @@ class ReadAndBuffer
         inline QByteArray getBuffer() {return m_buffer;}
 
     private:
-        FailSafeOpen* m_fd;
+        FailSafeOpen* mp_fd;
         QByteArray m_buffer;
 };
 
@@ -54,8 +53,20 @@ class ReadAndBuffer
 void ReadArchive(QByteArray archive_name,
        AbstractFile* fd,
        QByteArray purpose,
-                 QByteArray keydata = QByteArray(), QStringList importfilelist = QStringList(), QString filepath = QString());
+                 QByteArray keydata = QByteArray(),
+                 QStringList importfilelist = QStringList(), QString filepath = QString());
+
+void ReadKeyData(QByteArray &keydata, int &hashIndex, QByteArray &deviceID, QByteArray &purpose);
+
+void ImportArchiveFiles(FailSafeOpen &fd, ReadAndBuffer &cs,
+                        QStringList &importfilelist, bool &compressed,
+                        bool &encrypt, AbstractFile* fout, QString &filepath,
+                        int &noentries, QByteArray &purpose, QByteArray &keydata, QByteArray &deviceID);
+
+void ExtractFileToMemory(AbstractFile* fout, DecryptUncompress &fdr, QStringList &importfilelist, QString &filepath);
+
+bool CheckFileRequiresImport(const QByteArray &filename, const QStringList &filelist, const QString &filepath);
 
 }       // end namespace ImportExport
 
-#endif                  // IMPORT_READ_ARCHIVE_H
+#endif  // IMPORTEXPORT_READARCHIVE_H

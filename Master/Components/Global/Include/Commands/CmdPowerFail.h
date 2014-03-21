@@ -25,6 +25,7 @@
 #define GLOBAL_CMDPOWERFAIL_H
 
 #include <Global/Include/Commands/Command.h>
+#include <Global/Include/GlobalDefines.h>
 
 namespace Global {
 
@@ -48,12 +49,14 @@ private:
 protected:
 public:
     static QString  NAME;                   ///< Command name.
+    PowerFailStages m_PowerFailStage;      ///< Power Fail stage
+
     /****************************************************************************/
     /**
      * \brief Constructor.
      */
     /****************************************************************************/
-    CmdPowerFail();
+    CmdPowerFail(PowerFailStages);
     /****************************************************************************/
     /**
      * \brief Copy constructor.

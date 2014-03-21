@@ -24,6 +24,8 @@
 #include<Threads/Include/CommandChannel.h>
 #include<Threads/Include/ThreadsEventCodes.h>
 #include<Global/Include/Utils.h>
+#include <QDebug>
+#include <Global/Include/EventObject.h>
 
 namespace Threads {
 
@@ -120,7 +122,8 @@ public:
         // check result
         if(pExecCmd == NULL) {
             // throw error
-            THROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName());
+            qDebug()<<"CommandFunctors" << pCommand->GetName();
             return;
         }
         // execute command
@@ -223,7 +226,8 @@ public:
         // check result
         if(pExecCmd == NULL) {
             // throw error
-            THROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName());
+            qDebug()<<"CommandFunctors" << pCommand->GetName();
             return;
         }
         // execute command
@@ -326,7 +330,7 @@ public:
         // check result
         if(pAcknowledge == NULL) {
             // throw error
-            THROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_ACKNOWLEDGE, pAcknowledge->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_ACKNOWLEDGE, pAcknowledge->GetName());
             return;
         }
         // process acknowledge
@@ -517,6 +521,7 @@ public:
      */
     /****************************************************************************/
     virtual void CreateAndDeserialize(Global::tRefType Ref, QDataStream &DataStream) {
+//        qDebug() << "CommandFunctors::CreateAndDeserialize";
         // create temporary instance
         TheClass *pInstance = new TheClass;
         // stream data into it

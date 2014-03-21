@@ -169,7 +169,7 @@ void TestBaseLogger::utOpenAppendNOK() {
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
         // check results
-        QCOMPARE(E.GetErrorCode(),                  Global::EVENT_GLOBAL_ERROR_FILE_OPEN);
+        QCOMPARE(E.GetErrorCode(),                  EVENT_GLOBAL_ERROR_FILE_OPEN);
         QCOMPARE(TestObject1.GetLoggingSource(),    LS);
         QCOMPARE(TestObject1.m_FormatVersion,       1);
         QVERIFY(TestObject1.m_File.fileName().isEmpty());
@@ -196,7 +196,7 @@ void TestBaseLogger::utOpenAppendNOK() {
         QFAIL("You should never get here!");
     } catch(const Global::Exception & E) {
         // check results
-        QCOMPARE(E.GetErrorCode(),                  Global::EVENT_GLOBAL_ERROR_FILE_OPEN);
+        QCOMPARE(E.GetErrorCode(),                  EVENT_GLOBAL_ERROR_FILE_OPEN);
         QCOMPARE(TestObject1.GetLoggingSource(),    LS);
         QCOMPARE(TestObject1.m_FormatVersion,       1);
         QVERIFY(TestObject1.m_File.fileName().isEmpty());

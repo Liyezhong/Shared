@@ -29,7 +29,7 @@
 #include <QtNetwork>
 #include <QtXml>
 
-#include <DataLogging/Include/EventEntry.h>
+#include <DataLogging/Include/DayEventEntry.h>
 
 namespace NetworkBase {
 
@@ -49,7 +49,7 @@ const QString NO_CLIENT           = "NO_CLIENT";     ///< parameter to destroy c
 const quint32 NS_MAX_CONNECTIONS     =  0xFFFFFFF0;  ///< Maximum number of client connections
 const quint32 NS_NO_FREE_CONNECTIONS =  0xFFFFFFFF;  ///< This number identifies the case with no free connections left
 
-/// Existing Server types
+/// Existing Server Types
 typedef enum {
     NSE_TYPE_UNKNOWN = 1,         ///< uninitialized server
     NSE_TYPE_AXEDA,               ///< server for communication with axeda client
@@ -104,7 +104,7 @@ typedef enum {
  * is created for every new incoming connection. If connection is closed,
  * corresponding ConnectionManager will be deleted.
  *
- * On creation, this Server loads a list of allowed client types and allowed
+ * On creation, this Server loads a list of allowed client Types and allowed
  * number of simultaneously existing connections for each client type. Thus
  * it is possible to filter out unwanted incoming connection attempts.
  *
@@ -228,6 +228,8 @@ private:
     QString m_authConf;
     /*!  authentication reply XML Element */
     QDomElement m_authReply;
+
+//    bool m_started;
 };
 
 } // end namespace NetworkBase

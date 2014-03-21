@@ -32,10 +32,11 @@ QString CmdEventUpdate::NAME = "MsgClasses::CmdEventUpdate";
  * \param[in]   eventId             Event ID.
  */
 /****************************************************************************/
-CmdEventUpdate::CmdEventUpdate(quint32 eventId, bool active)
+CmdEventUpdate::CmdEventUpdate(quint32 eventId, QString type, bool stopSystem)
     : Global::Command(0)
     , m_eventId(eventId)
-    , m_active(active)
+    , m_stopExecution(stopSystem)
+    , m_type(type)
 {
 }
 

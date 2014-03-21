@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestCryptoService.cpp
+/*! \file TestCryptoService.cpp
  *
- *  @brief Testclass for CryptoService
+ *  \brief Testclass for CryptoService
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-07-26
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:37:37
  *
  */
 /****************************************************************************/
@@ -24,20 +23,20 @@
 #include "ImportExport/CryptoService/Test/TestCryptoService.h"
 
 namespace ImportExport {
-
-/**
- * @brief empty constructor
+/****************************************************************************/
+/*!
+ * \brief empty constructor
  */
-
+/****************************************************************************/
 TestCryptoService::TestCryptoService()
 {
     ;
 }
-
-/**
- * @brief init clean keyfile (all bytes null)
+/****************************************************************************/
+/*!
+ * \brief init clean keyfile (all bytes null)
  */
-
+/****************************************************************************/
 void TestCryptoService::init()
 {
     FailSafeOpen keyfile(Constants::keyfile, 'w');
@@ -48,24 +47,24 @@ void TestCryptoService::init()
     ctrfile.write(QByteArray(4, 0));
     ctrfile.close();
 }
-
-/**
- * @brief delete the keyfile after all tests
+/****************************************************************************/
+/*!
+ * \brief delete the keyfile after all tests
  */
-
+/****************************************************************************/
 void TestCryptoService::cleanupTestCase()
 {
     QFile::remove(Constants::keyfile);
     QFile::remove(Constants::counter);
 }
 
-
-/**
- * @brief help function reading the keyfile
+/****************************************************************************/
+/*!
+ * \brief help function reading the keyfile
  *
- * @param keymat - reference to struct KeyMaterial, will be filled
+ * \iparam keymat - reference to struct KeyMaterial, will be filled
  */
-
+/****************************************************************************/
 void TestCryptoService::readKeyfile(KeyMaterial& keymat)
 {
     FailSafeOpen keyfile(Constants::keyfile, 'r');
@@ -90,11 +89,11 @@ void TestCryptoService::readKeyfile(KeyMaterial& keymat)
 
     keymat.sdCounter = General::byte2int(qdata.data());
 }
-
-/**
- * @brief test that only a single instance of CryptoService can run
+/****************************************************************************/
+/*!
+ * \brief test that only a single instance of CryptoService can run
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestSingle()
 {
     CryptoService cs;
@@ -103,13 +102,16 @@ void TestCryptoService::utTestSingle()
         CryptoService cs2;
         QFAIL("exception expected in utTestSingle");
     }
-    catch(ImexException) {}
+    catch(...)
+    {
+        // nothing to do
+    }
 }
-
-/**
- * @brief check on keys = SHA1(20*'\0')
+/****************************************************************************/
+/*!
+ * \brief check on keys = SHA1(20*'\0')
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestInitialKeys()
 {
     CryptoService cs;
@@ -119,11 +121,11 @@ void TestCryptoService::utTestInitialKeys()
     QCOMPARE(cs.m_keys["Import"],
             QByteArray::fromHex("b145670ab697fee2979c22b562a98d2067e5fce8"));
 }
-
-/**
- * @brief check on HMAC values with initial keys and no data
+/****************************************************************************/
+/*!
+ * \brief check on HMAC values with initial keys and no data
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestHmacEmpty()
 {
     CryptoService cs;
@@ -136,11 +138,11 @@ void TestCryptoService::utTestHmacEmpty()
 
 }
 
-
-/**
- * @brief check on HMAC values with initial keys and some data and after reset
+/****************************************************************************/
+/*!
+ * \brief check on HMAC values with initial keys and some data and after reset
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestHmacData()
 {
     CryptoService cs;
@@ -155,11 +157,11 @@ void TestCryptoService::utTestHmacData()
 
 }
 
-
-/**
- * @brief check computeKey function for index 0
+/****************************************************************************/
+/*!
+ * \brief check computeKey function for index 0
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestComputeKeyStart()
 {
     QByteArray key(20, '\0');
@@ -169,11 +171,11 @@ void TestCryptoService::utTestComputeKeyStart()
 
 }
 
-
-/**
- * @brief check computeKey function for index 100000
+/****************************************************************************/
+/*!
+ * \brief check computeKey function for index 100000
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestComputeKeyBench()
 {
     QByteArray key(20, '\0');
@@ -190,11 +192,11 @@ void TestCryptoService::utTestComputeKeyBench()
 
 }
 
-
-/**
- * @brief test stepHashChain
+/****************************************************************************/
+/*!
+ * \brief test stepHashChain
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestStepHashChain()
 {
     CryptoService cs;
@@ -224,11 +226,11 @@ void TestCryptoService::utTestStepHashChain()
     QCOMPARE(keymat.counter, 2);
 }
 
-
-/**
- * @brief test re-initialization of hash chain: index on SD card > 0, new ebox
+/****************************************************************************/
+/*!
+ * \brief test re-initialization of hash chain: index on SD card > 0, new ebox
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestHashChainReinit()
 {
     QByteArray sdindex(4,0);
@@ -248,11 +250,11 @@ void TestCryptoService::utTestHashChainReinit()
     QCOMPARE(cs.m_hashChainIndex, 2);
 }
 
-
-/**
- * @brief encryption test with null block
+/****************************************************************************/
+/*!
+ * \brief encryption test with null block
  */
-
+/****************************************************************************/
 void TestCryptoService::utTestEncryption()
 {
     QByteArray plain(AES::AES_SIZE, 0);

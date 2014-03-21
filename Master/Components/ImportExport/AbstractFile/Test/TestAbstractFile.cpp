@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestAbstractFile.cpp
+/*! \file TestAbstractFile.cpp
  *
- *  @brief Testclass for AbstractFile
+ *  \brief Testclass for AbstractFile
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-08-12
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:33:34
  *
  */
 /****************************************************************************/
@@ -26,29 +25,29 @@
 
 namespace ImportExport {
 
-
-/**
- * @brief default constructor
+/****************************************************************************/
+/*!
+ * \brief default constructor
  */
-
+/****************************************************************************/
 TestAbstractFile::TestAbstractFile():
         m_workfiles(QSet<QString>() << "_1_" << "_2_" << "_3_")
 {
     ;
 }
-
-/**
- * @brief init files for test
+/****************************************************************************/
+/*!
+ * \brief init files for test
  */
-
+/****************************************************************************/
 void TestAbstractFile::init()
 {
 }
-
-/**
- * @brief delete files after all tests
+/****************************************************************************/
+/*!
+ * \brief delete files after all tests
  */
-
+/****************************************************************************/
 void TestAbstractFile::cleanup()
 {
     foreach(QString name, m_workfiles)
@@ -57,11 +56,11 @@ void TestAbstractFile::cleanup()
     }
 }
 
-
-/**
- * @brief write three files with their names as contents
+/****************************************************************************/
+/*!
+ * \brief write three files with their names as contents
  */
-
+/****************************************************************************/
 void TestAbstractFile::writeFiles(AbstractFile* fp)
 {
     foreach(QString name, m_workfiles)
@@ -72,14 +71,14 @@ void TestAbstractFile::writeFiles(AbstractFile* fp)
     }
 }
 
-
-/**
- * @brief comfort function: return file contents as QByteArray
+/****************************************************************************/
+/*!
+ * \brief comfort function: return file contents as QByteArray
  *
- * @param filename - name of file
- * @return - contents of file as QByteArray
+ * \iparam filename - name of file
+ * \return - contents of file as QByteArray
  */
-
+/****************************************************************************/
 QByteArray TestAbstractFile::getFileContents(const QString filename)
 {
     FailSafeOpen fd(filename, 'r');
@@ -88,11 +87,11 @@ QByteArray TestAbstractFile::getFileContents(const QString filename)
     return qba;
 }
 
-
-/**
- * @brief write files to plain file, check
+/****************************************************************************/
+/*!
+ * \brief write files to plain file, check
  */
-
+/****************************************************************************/
 void TestAbstractFile::utTestPlainFiles()
 {
     PlainFile fd;
@@ -104,11 +103,11 @@ void TestAbstractFile::utTestPlainFiles()
     }
 }
 
-
-/**
- * @brief write files to RAM file (hashtable), check
+/****************************************************************************/
+/*!
+ * \brief write files to RAM file (hashtable), check
  */
-
+/****************************************************************************/
 void TestAbstractFile::utTestRAMFiles()
 {
     RAMFile fd;
@@ -133,11 +132,11 @@ void TestAbstractFile::utTestRAMFiles()
     QCOMPARE(keys, worknames);
 }
 
-
-/**
- * @brief write files to Void file (dummy), check namelist
+/****************************************************************************/
+/*!
+ * \brief write files to Void file (dummy), check namelist
  */
-
+/****************************************************************************/
 void TestAbstractFile::utTestVoidFiles()
 {
     VoidFile fd;

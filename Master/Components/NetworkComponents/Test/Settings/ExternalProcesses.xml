@@ -15,7 +15,7 @@
         as input parameter during initialization.
         Corresponding startcmd will be fetched and
         executed to start the process. -->
-        <name>Colorado GUI</name>
+        <name>Himalaya GUI</name>
         <!-- Start commando -->
         <startcmd>nice -n 5 ./guiclient 127.0.0.16 8801 -qws &amp;</startcmd>
         <!-- Remote login: Yes/No  (if empty, "No" is assumed) -->

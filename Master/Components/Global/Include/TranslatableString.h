@@ -25,6 +25,7 @@
 
 #include <QList>
 #include <QString>
+#include <QDebug>
 
 namespace Global {
 

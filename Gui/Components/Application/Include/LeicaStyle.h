@@ -25,6 +25,12 @@
 
 namespace Application {
 
+typedef enum {
+    COLORADO_PROJECT,
+    SEPIA_PROJECT,
+    HIMALAYA_PROJECT
+} ProjectId_t;
+
 /****************************************************************************/
 /**
  * \brief This class defines the custom look and feel of Leica user
@@ -46,12 +52,13 @@ public:
     static void BorderPixmap(QPixmap *p_Target, QPixmap *p_Source, qint32 Left, qint32 Top, qint32 Right, qint32 Bottom);
     static QString PushButtonPath(QColor Color, QStyle::State State);
 
-    static void SetStyleSize(bool Small);
-    static bool GetStyleSize();
-    static QString GetStyleSizeString();
+    static void SetProjectId(Application::ProjectId_t eProj);
+    static Application::ProjectId_t GetProjectId();
+    static QString GetProjectNameString();
 
 private:
-    static bool m_StyleSize;    //!< Small (true) or large (false) image set
+    static Application::ProjectId_t m_ProjId;    //!< Differentiating factor for the different projects under Leica
+
 };
 
 } // end namespace Application

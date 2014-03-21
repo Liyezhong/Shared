@@ -22,6 +22,7 @@
 #include <StateMachines/Include/StateMachinesEventCodes.h>
 #include <Global/Include/Utils.h>
 #include <Global/Include/Exception.h>
+#include <Global/Include/EventObject.h>
 
 #include <QDebug>
 #include <QMetaType>
@@ -78,7 +79,7 @@ void StateMachineEngine::AddState(State *st)
     StatesList.insert(st->GetName(), st);
     // check for name
     if (StatesList.value(st->GetName()) != st) {
-        THROWARG(EVENT_STATEMACHINES_ERROR_ADD_STATE_FAILED, st->GetName());
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_ADD_STATE_FAILED, st->GetName());
     }
     // connect signals
     CONNECTSIGNALSLOT(st,   SigSetNewState(const StateMachines::StateNameType_t &, StateMachines::StateEvent),
@@ -107,7 +108,7 @@ void StateMachineEngine::RemoveState(State *st)
     if (m_myCurrentState != NULL) {
         if (m_myCurrentState->GetName() == stname) {
             // cannot remove current state!
-            THROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_CURRENT_STATE, stname);
+            LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_CURRENT_STATE, stname);
         }
     }
 
@@ -116,7 +117,7 @@ void StateMachineEngine::RemoveState(State *st)
     // check if removed
     if(StatesList.contains(stname)) {
         // state not removed correctly
-        THROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_STATE_FAILED, stname);
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_REMOVE_STATE_FAILED, stname);
     }
 
     // notify all states which have transitions to the "st" that this state is dead
@@ -195,7 +196,7 @@ bool StateMachineEngine::Start(const StateNameType_t &name, StateEvent e)
 {
     if (!StatesList.contains(name)) {
         // throw exception
-        THROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name);
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name);
     }
     m_myCurrentState = StatesList.value(name);
     CHECKPTR(m_myCurrentState);
@@ -269,7 +270,7 @@ void StateMachineEngine::SetState(const StateNameType_t &name, StateEvent et)
 {
     if (!StatesList.contains(name)) {
         // throw exception
-        THROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name);
+        LOGANDTHROWARG(EVENT_STATEMACHINES_ERROR_UNKNOWN_STATE, name);
     }
     m_myCurrentState = StatesList.value(name);
     CHECKPTR(m_myCurrentState);

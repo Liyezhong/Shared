@@ -1,16 +1,16 @@
 /****************************************************************************/
-/** @file VarkeyData.cpp
+/*! \file VarkeyData.cpp
  *
- *  @brief Test data for AES variable key tests.
+ *  \brief Test data for AES variable key tests.
  *
  *  The data are taken from the original NIST submission of AES, file vk.txt.
  *  The plaintext is always 0 here.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-06-17
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -18,7 +18,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Jun 17 2011, 17:30:16
  *
  */
 /****************************************************************************/

@@ -24,13 +24,13 @@ QT += core \
       xmlpatterns \
       network
 
-AGENTEMBEDDED_PATH = ../../../ExternalPackages/Axeda/AgentEmbedded-6.1-355
-PLATFORM_COMPONENTS_PATH = ../../../Components
+AGENTEMBEDDED_PATH = ../../../../ExternalPackages/Axeda/AgentEmbedded-6.1-364
+PLATFORM_COMPONENTS_PATH = ../..
 
 HEADERS += ../Include/*.h \
            ../Include/Commands/*.h \
-           ../../../ExternalPackages/Axeda/AgentEmbedded-6.1-355/Include \
-           ../../../ExternalPackages/Axeda/AgentEmbedded-6.1-355/Sysdeps/Unix
+           ../../../../ExternalPackages/Axeda/AgentEmbedded-6.1-364/Include \
+           ../../../../ExternalPackages/Axeda/AgentEmbedded-6.1-364/Sysdeps/Unix
 SOURCES += ../Source/*.cpp \
            ../Source/Commands/*.cpp
 
@@ -63,22 +63,22 @@ else {
 
 # ################ include Axeda Embedded Agent lib paths:
 LIBS += -L$$AGENTEMBEDDED_PATH \
-        -L$$AGENTEMBEDDED_PATH/lib/lib \
-        -L/usr/lib  # for libssl on Linux Host
+        -L$$AGENTEMBEDDED_PATH/lib/lib 
 # ################ include Axeda Embedded Agent libs:
-LIBS += -lz \
+LIBS += -lAgentEmbedded \
+        -lz \
         -lexpat \
-        -lssl \
-        -lAgentEmbedded
+        -lcrypto \
+        -lssl 
 # ################ set Target differencies:
 CONFIG(crosstgt) {
     # ## To be able to build Target run qmake as follows:
     # ###### qmake CONFIG+=crosstgt
     CONFIG_SUFFIX = $${CONFIG_SUFFIX}_tgt
     DEFINES += TARGET_BUILD
-    # take target's libssl:
-    LIBS -= -L/usr/lib
-    LIBS += -L/opt/OSELAS.BSP-Phytec-phyCORE-i.MX35-PD10.1.2/platform-phyCORE-i.MX35/sysroot-target/usr/lib
+    # take target''s libssl:
+    LIBS -= -L/usr/lib/i386-linux-gnu
+    LIBS += -L/opt/poky/1.2/sysroots/armv6-vfp-poky-linux-gnueabi/usr/lib
 }
 OBJECTS_DIR = obj_$${CONFIG_SUFFIX}
 MOC_DIR = moc_$${CONFIG_SUFFIX}

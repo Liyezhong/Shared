@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestWriteArchive.cpp
+/*! \file TestWriteArchive.cpp
  *
- *  @brief Testclass for WriteArchive function
+ *  \brief Testclass for WriteArchive function
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-08-02
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 30 2011, 12:16:21
  *
  */
 /****************************************************************************/
@@ -25,23 +24,23 @@
 
 namespace ImportExport {
 
-static const char* Archname = "Colorado_User_deviceID_20110815_205943.lpkg";
-static const QString ArchZipName = "Colorado_User_deviceID_%1.zip";
-
-/**
- * @brief empty constructor
+static const char* Archname = "Himalaya_User_deviceID_20110815_205943.lpkg";
+static const QString ArchZipName = "Himalaya_User_deviceID_%1.zip";
+/****************************************************************************/
+/*!
+ * \brief empty constructor
  */
-
+/****************************************************************************/
 TestWriteArchive::TestWriteArchive():
     m_workfiles(QList<QByteArray>())
 {
     ;
 }
-
-/**
- * @brief init files for test
+/****************************************************************************/
+/*!
+ * \brief init files for test
  */
-
+/****************************************************************************/
 void TestWriteArchive::init()
 {
     // we use different keys for Leica and Viewer (Viewer with value 1)
@@ -56,11 +55,11 @@ void TestWriteArchive::init()
     ctrfile.write(QByteArray(4, 0));
     ctrfile.close();
 }
-
-/**
- * @brief delete files after all tests
+/****************************************************************************/
+/*!
+ * \brief delete files after all tests
  */
-
+/****************************************************************************/
 void TestWriteArchive::cleanup()
 {
     QFile::remove(Constants::keyfile);
@@ -75,14 +74,14 @@ void TestWriteArchive::cleanup()
     QFile::remove(Archname);
 }
 
-
-/**
- * @brief comfort function: return file contents as QByteArray
+/****************************************************************************/
+/*!
+ * \brief comfort function: return file contents as QByteArray
  *
- * @param filename - name of file
- * @return - contents of file as QByteArray
+ * \iparam filename - name of file
+ * \return - contents of file as QByteArray
  */
-
+/****************************************************************************/
 QByteArray TestWriteArchive::getFileContents(const char *filename)
 {
     FailSafeOpen fd(filename, 'r');
@@ -91,16 +90,16 @@ QByteArray TestWriteArchive::getFileContents(const char *filename)
     return qba;
 }
 
-
-/**
- * @brief generate workfiles
+/****************************************************************************/
+/*!
+ * \brief generate workfiles
  *
  * Fill files with bytes with increasing numbers (overflow at 0xff)
  * and add them to the m_workfiles list.
  *
- * @param desc - QList of sizes
+ * \iparam desc - QList of sizes
  */
-
+/****************************************************************************/
 void TestWriteArchive::createWorkfiles(QList<int> sizes)
 {
     int cnt = 1;
@@ -125,13 +124,13 @@ void TestWriteArchive::createWorkfiles(QList<int> sizes)
 }
 
 
-
-/**
- * @brief create string list for the bytearray list
+/****************************************************************************/
+/*!
+ * \brief create string list for the bytearray list
  *
- * @param QStringList - QList of sizes
+ * \iparam QStringList - QList of sizes
  */
-
+/****************************************************************************/
 void TestWriteArchive::createFileStringList(QStringList &filelist)
 {
     // m_workfiles is a byte array, so convert the byte array
@@ -142,13 +141,13 @@ void TestWriteArchive::createFileStringList(QStringList &filelist)
     }
 }
 
-
-/**
- * @brief get the file name of the archive
+/****************************************************************************/
+/*!
+ * \brief get the file name of the archive
  *
- * @return QString - file name of the archive
+ * \return QString - file name of the archive
  */
-
+/****************************************************************************/
 QString TestWriteArchive::getZipFileName()
 {
     // crete the ISODateTime format, replace the data T with underscore
@@ -158,21 +157,21 @@ QString TestWriteArchive::getZipFileName()
     // return the file name
     return ArchZipName.arg(ISODateTime);
 }
-
-/**
- * @brief write archive with empty filelist and test contents
+/****************************************************************************/
+/*!
+ * \brief write archive with empty filelist and test contents
  */
-
+/****************************************************************************/
 void TestWriteArchive::utTestNoFiles()
 {
     WriteArchive(Archname, QList<QByteArray>(), false);
     QCOMPARE(getFileContents(Archname), getFileContents("testresults/NoFiles"));
 }
-
-/**
- * @brief write unencrypted archive with filelist and test contents
+/****************************************************************************/
+/*!
+ * \brief write unencrypted archive with filelist and test contents
  */
-
+/****************************************************************************/
 void TestWriteArchive::utTestPlainFiles()
 {
     createWorkfiles(QList<int>() << 1 << 3 << 300);
@@ -182,11 +181,11 @@ void TestWriteArchive::utTestPlainFiles()
              getFileContents("testresults/PlainFiles"));
 }
 
-
-/**
- * @brief write unencrypted archive with big files and test contents
+/****************************************************************************/
+/*!
+ * \brief write unencrypted archive with big files and test contents
  */
-
+/****************************************************************************/
 void TestWriteArchive::utTestPlainBigFiles()
 {
     createWorkfiles(QList<int>() << 1000 << 750000 << 3000000);
@@ -196,11 +195,11 @@ void TestWriteArchive::utTestPlainBigFiles()
              getFileContents("testresults/PlainBigFiles"));
 }
 
-
-/**
- * @brief write encrypted archive with filelist and test contents
+/****************************************************************************/
+/*!
+ * \brief write encrypted archive with filelist and test contents
  */
-
+/****************************************************************************/
 void TestWriteArchive::utTestEncryptFiles()
 {
     createWorkfiles(QList<int>() << 1 << 3 << 300);
@@ -210,11 +209,11 @@ void TestWriteArchive::utTestEncryptFiles()
              getFileContents("testresults/EncryptFiles"));
 }
 
-
-/**
- * @brief write encrypted archive with big files and test contents
+/****************************************************************************/
+/*!
+ * \brief write encrypted archive with big files and test contents
  */
-
+/****************************************************************************/
 void TestWriteArchive::utTestEncryptBigFiles()
 {
     createWorkfiles(QList<int>() << 1000 << 750000 << 3000000);
@@ -224,11 +223,11 @@ void TestWriteArchive::utTestEncryptBigFiles()
              getFileContents("testresults/EncryptBigFiles"));
 }
 
-
-/**
- * @brief write encrypted archive with many files and test contents
+/****************************************************************************/
+/*!
+ * \brief write encrypted archive with many files and test contents
  */
-
+/****************************************************************************/
 void TestWriteArchive::utTestEncryptManyFiles()
 {
     QList<int> ql;

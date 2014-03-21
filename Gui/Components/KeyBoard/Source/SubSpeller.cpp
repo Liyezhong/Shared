@@ -301,9 +301,7 @@ void CSubSpeller::paintEvent(QPaintEvent *p_PaintEvent)
 {
       Q_UNUSED(p_PaintEvent);
       QPainter Painter(this);
-      Painter.save();
       Painter.drawPixmap(0,0,m_Pixmap);
-      Painter.restore();
 }
 
 }//End of namespace KeyBoard

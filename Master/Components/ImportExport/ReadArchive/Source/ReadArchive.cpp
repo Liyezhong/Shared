@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file ReadArchive.cpp
+/*! \file ReadArchive.cpp
  *
- *  @brief read an archive - define a function
+ *  \brief read an archive - define a function
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-08-15
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 31 2011, 13:15:10
  *
  */
 /****************************************************************************/
@@ -25,112 +24,157 @@
 
 namespace ImportExport {
 
-/* HELP CLASS *********/
-
-ReadAndBuffer::ReadAndBuffer(FailSafeOpen* fd): m_fd(fd),
+/****************************************************************************/
+/*!
+ * \brief Constructor
+ *
+ * \iparam fd - device file
+ */
+/****************************************************************************/
+ReadAndBuffer::ReadAndBuffer(FailSafeOpen* fd): mp_fd(fd),
         m_buffer(QByteArray())
 {
 }
 
-
-/**
- * @brief read 'size' bytes from m_fd, store it to buffer and return in
+/****************************************************************************/
+/*!
+ * \brief read 'size' bytes from mp_fd, store it to buffer and return in
  *
- * @param size - how many bytes to read
- * @return - bytes read
+ * \iparam size - how many bytes to read
+ *
+ * \return bytes read
  */
-
+/****************************************************************************/
 QByteArray ReadAndBuffer::read(int size)
 {
-    QByteArray ret = m_fd->read(size);
+    QByteArray ret = mp_fd->read(size);
     m_buffer += ret;
     return ret;
 }
 
 
-/* MAIN FUNCTION FOR READING AN ARCHIVE */
-
-/**
- * @brief read an archive
+/****************************************************************************/
+/*!
+ * \brief read an archive
  *
  * The action depends on the Purpose string:
  * "Import" - unpack the files to disk, check the signature
  * "Viewer" - unpack the files to QMap, check the signature
  * "Leica" - only check signatures and collect filenames
  *
- * @param archive_name - absolute pathname of archive;
+ * \iparam archive_name - absolute pathname of archive;
  *                      the archive name must have the structure
- *                      Colorado_zzz_xxx_yyy.cea
+ *                      Himalaya_zzz_xxx_yyy.cea
  *                      where xxx is the serial number and yyy is
  *                      a time stamp in ISO format (date and time
  *                      in UTC). zzz denotes the archive kind or
  *                      helps distinguish archives.
- * @param fd - AbstractFile instance
- * @param purpose - purpose for which the archive is opened; must have
+ * \iparam fd - AbstractFile instance
+ * \iparam purpose - purpose for which the archive is opened; must have
  *                      one of the values of Constants::keynames
- * @param keydata - optional keydata byte array
- * @param importfilelist - optional import file list
- * @param filepath - optional for the path of file
+ * \iparam keydata - optional keydata byte array
+ * \iparam importfilelist - optional import file list
+ * \iparam filepath - optional for the path of file
  */
-
+/****************************************************************************/
 void ReadArchive(QByteArray archive_name,
 	   AbstractFile* fout,
 	   QByteArray purpose,
            QByteArray keydata, QStringList importfilelist, QString filepath)
 {
-    Q_ASSERT(Constants::keynames.contains(purpose));
     QByteArray archivefilename;
 
     // open fd
     FailSafeOpen fd(archive_name, 'r');
-
+    // sometimes the file name consists of the path, so remove the path for splitting the file name
     archivefilename = archive_name.mid((archive_name.lastIndexOf('/') == 0 ? 0 :  archive_name.lastIndexOf('/') + 1));
 
     // extract deviceID
-    QList<QByteArray> parts = archivefilename.split('_');
+    QList<QByteArray> parts = archivefilename.split('_');    
 
-    Q_ASSERT(!parts.isEmpty());
+    if (parts.count() < 3)
+    {
+        THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ARCHIVEFILE_FORMAT_WRONG);
+    }
 
     QByteArray deviceID = parts[2];
 
     // READ HEADER
     // buffer read bytes and compute HMACs at the end when the key
     // is computed or known
-
     ReadAndBuffer fdrb(&fd);
 
     // header magic
     if(fdrb.read(4) != Constants::headerMagic)
     {
-        THROW("illegal magic in header");
+        THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ILLEGAL_MAGIC_HEADER);
     }
 
     // export configuration file version - future use
     int fileversion = General::byte2int(fdrb.read(2).data(), 2);
+    Q_UNUSED(fileversion);
 
     // format_version 0
     char *version = fdrb.read(1).data();
-    Q_ASSERT(version[0] == '\0');
     Q_UNUSED(version);
 
     // encrypted flag
     bool encrypt = fdrb.read(1).data()[0] != '\0';      //lint !e578 [Rw]
 
+    // compressed flag
+    bool compressed = fdrb.read(1).data()[0] != '\0';      //lint !e578 [Rw]
+
     // key_version
     int key_version = General::byte2int(fdrb.read(2).data(), 2);
-    Q_ASSERT(!key_version);
     Q_UNUSED(key_version);
 
     // hash chain index
     int hashIndex = General::byte2int(fdrb.read(4).data());
-    // XXX @TODO test on reasonable value
 
+    ReadKeyData(keydata, hashIndex, deviceID, purpose);
+
+    // # of entries
+    int noentries = General::byte2int(fdrb.read(2).data(), 2);
+    // length of archive name
+    int lgname = General::byte2int(fdrb.read(2).data(), 2);
+
+    // archive name
+    QByteArray name = fdrb.read(lgname);    
+
+    // sometimes the file name consists of the path, so remove the path compare the file name
+    name = name.mid((name.lastIndexOf('/') == 0 ? 0 :  name.lastIndexOf('/') + 1));
+    if(name != archivefilename)
+    {
+        THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ARCHIVEFILE_NAME_NOT_MATCHING);
+    }
+
+    // import the files
+    ImportArchiveFiles(fd, fdrb, importfilelist, compressed, encrypt, fout,
+                       filepath, noentries, purpose, keydata, deviceID);
+
+}
+
+
+/****************************************************************************/
+/*!
+ * \brief read the key file data
+ *
+ * The action depends on the Purpose string:
+ * "Import" - unpack the files to disk, check the signature
+ * "Viewer" - unpack the files to QMap, check the signature
+ * "Leica" - only check signatures and collect filenames
+ *
+ * \oparam keydata - byte array
+ * \iparam hashIndex - hash index
+ * \iparam deviceID - ID of the device
+ * \iparam purpose - purpose to import
+ */
+/****************************************************************************/
+void ReadKeyData(QByteArray &keydata, int &hashIndex, QByteArray &deviceID, QByteArray &purpose)
+{
     // optionally read keydata
-
     if(keydata.isEmpty())
     {
-        Q_ASSERT(purpose == "Import");
-
         // read the keys
         FailSafeOpen keyfile(Constants::keyfile, 'r');
         keydata = keyfile.read();
@@ -144,24 +188,36 @@ void ReadArchive(QByteArray archive_name,
         CryptoService::computeKey(key, deviceID, hashIndex);
         keydata.replace(off, Constants::HASH_SIZE, key);
     }
+}
 
-    // # of entries
-    int noEntries = General::byte2int(fdrb.read(2).data(), 2);
-
-    // length of archive name
-    int lgname = General::byte2int(fdrb.read(2).data(), 2);
-
-    // archive name
-    QByteArray name = fdrb.read(lgname);    
-    // sometime the file name consists of the path, so remove the path compare the file name
-    if(name != archivefilename)
-    {
-        THROW("differing archive name in archive: " + name);
-    }
-
+/****************************************************************************/
+/*!
+ * \brief import the archive files
+ *
+ * Sometimes all the files are not required to import so if the string list is
+ * passed then import files which are specified in the list
+ *
+ * \oparam fd - file class
+ * \iparam fdrb - Read the buffer
+ * \iparam importfilelist - list fo the import files
+ * \iparam compressed - flag for compression
+ * \iparam encrypt - flag for encryption
+ * \oparam fout - files to store in
+ * \iparam filepath - path of the file name
+ * \iparam noentries - number of entire
+ * \iparam purpose - purpose to import
+ * \iparam keydata - byte array
+ * \iparam deviceID - ID of the device
+ *
+ */
+/****************************************************************************/
+void ImportArchiveFiles(FailSafeOpen &fd, ReadAndBuffer &fdrb,
+                        QStringList &importfilelist, bool &compressed,
+                        bool &encrypt, AbstractFile* fout, QString & filepath,
+                        int &noentries, QByteArray &purpose, QByteArray &keydata, QByteArray &deviceID)
+{
     // check HMACs
     // HMACs are stored in the order of 'keynames' constant list
-
     CryptoService cs(deviceID, keydata);
 
     cs.initHmacs();
@@ -174,25 +230,21 @@ void ReadArchive(QByteArray archive_name,
         QByteArray hmacval = fd.read(4);
         if(name == purpose && hmacval != hmacs[name].left(4))
         {
-            THROW("illegal header HMAC for key " + name);
+            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ILLEGAL_HEADER_HMAC);
         }
-    }    
+    }
 
     // "file descriptor" for read entries and computing HMACs
-    DecryptUncompress fdr(&fd, cs, encrypt);
-
+    DecryptUncompress fdr(&fd, cs, encrypt, compressed);
     // counter for entries
     int counter = 0;
-
     // iterate over entries
-    for(;;)
+    while(noentries != counter)
     {
         cs.initHmacs();
-
         // include entry counter in HMAC computation
         ++counter;
         cs.updateHMACs(General::int2byte(counter, 2));
-
         // entry magic
         QByteArray magic = fdr.read(4);
 
@@ -204,66 +256,10 @@ void ReadArchive(QByteArray archive_name,
 
         if(magic != Constants::entryMagic)
         {
-            THROW("illegal magic in entry no. " +
-                                QString::number(counter));
-        }        
-
-        // length of entry name
-        int enamelen = General::byte2int(fdr.read(2).data(), 2);
-
-        // entry name
-        QByteArray entryname = fdr.read(enamelen);
-
-        // entry size
-        int entrysize = General::byte2int(fdr.read(4).data());
-
-        bool importfile = true;
-        // check which files need to be imported
-        foreach (QString importfilename, importfilelist) {            
-            importfile = false;
-            // check the file name
-            if (QString(entryname).contains(importfilename))   {
-                importfile = true;
-                if (importfilelist.indexOf(importfilename) != -1) {
-                    // remove the file name from the list
-                    //importfilelist.removeAt(importfilelist.indexOf(importfilename));
-                    entryname.clear();
-                    entryname = qPrintable(filepath + QString(importfilename));
-                }
-                break;
-            }
+            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ILLEGAL_MAGIC_ENTRY);
         }
 
-
-        // check whether file required to import, if not dont create the file
-        if (importfile) {
-            // open abstract file for write
-            fout->open(entryname);
-        }
-
-        while(entrysize > 0)
-        {
-            int bytes2read = entrysize < Constants::WRITE_ARCH_BUFSIZE ?
-                entrysize : Constants::WRITE_ARCH_BUFSIZE;
-
-            QByteArray readBytes = fdr.read(bytes2read);
-
-            if(!readBytes.size())
-            {
-                THROW("EOF reached during read in entry no. " +
-                                    QString::number(counter));
-            }
-
-            entrysize -= bytes2read;
-            // check whether file required to import, if not dont write to the file
-            if (importfile) {
-                fout->write(QByteArray(readBytes));
-            }
-        }
-        // check whether file required to import
-        if (importfile) {
-            fout->close();
-        }
+        ExtractFileToMemory(fout, fdr, importfilelist, filepath);
 
         // compare HMACs
         hmacs = cs.getHmacs();
@@ -274,16 +270,113 @@ void ReadArchive(QByteArray archive_name,
             QByteArray hmacval = fdr.read(4, false);
             if(name == purpose && hmacval != hmacs[name].left(4))
             {
-                THROW("illegal entry HMAC for key " + name);
+                THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ILLEGAL_ENTRY_HMAC);
             }
         }
     }
-    
-    if(noEntries != counter)
+
+    if(noentries != counter)
     {
-        THROW(QString::number(noEntries) + " found, " +
-                            QString::number(counter) + " expected");
+        THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_ENTRIES_NOT_MATCHING);
     }
+}
+
+
+/****************************************************************************/
+/*!
+ * \brief extract the files into memory
+ *
+ * \oparam fout - name of the file
+ * \iparam fdr - decrypt uncompress
+ * \iparam importfilelist - list of the files
+ * \iparam filepath - path of the file
+ *
+ */
+/****************************************************************************/
+void ExtractFileToMemory(AbstractFile* fout, DecryptUncompress &fdr,
+                         QStringList &importfilelist, QString & filepath)
+{
+    // length of entry name
+    int enamelen = General::byte2int(fdr.read(2).data(), 2);
+
+    QByteArray entryname = fdr.read(enamelen);
+
+    int entrysize = General::byte2int(fdr.read(4).data());
+
+    bool importfile = CheckFileRequiresImport(entryname, importfilelist, filepath);
+
+    // check whether file required to import, if not dont create the file
+    if (importfile) {
+        // open abstract file for write
+        fout->open(entryname);
+    }
+
+    while(entrysize > 0)
+    {
+        int bytes2read = entrysize < Constants::WRITE_ARCH_BUFSIZE ?
+            entrysize : Constants::WRITE_ARCH_BUFSIZE;
+
+        QByteArray readBytes = fdr.read(bytes2read);
+
+        if(!readBytes.size())
+        {
+            THROWEXCEPTIONNUMBER(ERROR_IMPORTEXPORT_EOF_ENTRY);
+        }
+
+        entrysize -= bytes2read;
+        // check whether file required to import, if not dont write to the file
+        if (importfile) {
+            fout->write(QByteArray(readBytes));
+        }
+    }
+    // check whether file required to import
+    if (importfile) {
+        fout->close();
+    }
+}
+
+/****************************************************************************/
+/*!
+ * \brief Check whether file needs to be imported
+ *
+ * Sometimes all the files are not required to import so if the string list is
+ * passed then import files which are specified in the list
+ *
+ * \oparam filename - name of the file
+ * \iparam filelist - list of the files
+ * \iparam filepath - path of the file
+ *
+ * \return Successful (true) or not (false)
+ */
+/****************************************************************************/
+bool CheckFileRequiresImport(const QByteArray &filename, const QStringList &filelist, const QString &filepath)
+{
+    bool importfile = true;
+    // check which files need to be imported
+    foreach (QString importfilename, filelist) {
+        importfile = false;
+        // create the regular expression to search for the matched- create a wild card entry to make the search
+        // easier
+        QRegExp regExp("*" + importfilename);
+        // make the pattern search as wild card search
+        regExp.setPatternSyntax(QRegExp::Wildcard);
+        // check the file name if it matches
+        if (regExp.exactMatch(QString(filename)))   {
+            importfile = true;
+            // change the path of the file to save
+            QString tempfilename(filename);
+            if (tempfilename.lastIndexOf("/") != -1) {
+                // store only the file name not the path
+                tempfilename = tempfilename.mid(tempfilename.lastIndexOf("/") + 1);
+            }
+            // clear the byte array
+            const_cast<QByteArray&>(filename).clear();
+            // append the target path and file name in the byte array
+            const_cast<QByteArray&>(filename) = qPrintable(filepath + tempfilename);
+            break;
+        }
+    }
+    return importfile;
 }
 
 }       // end namespace ImportExport

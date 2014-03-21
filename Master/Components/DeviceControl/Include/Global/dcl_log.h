@@ -24,6 +24,17 @@
 #include <sstream>
 #include <string>
 
+#ifndef PTS
+#include "EventHandler/Include/CrisisEventHandler.h"
+#endif
+
+
+
+#ifdef PTS
+#define LOG() qDebug()
+#else
+#define LOG() LOG_PAR()<<"DBG"
+#endif
 /*-------------------------------------------------
  This file provides functionality for logging
  Start Logging with the following commands:
@@ -322,9 +333,7 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
-#if defined(__arm__)
-    return; //based on Jeffrey's request 2013 12 23, disable logging on Ebox
-#endif
+#ifdef PTS
     FILE* pStream = Stream();
     if (!pStream)
         return;
@@ -333,6 +342,10 @@ inline void Output2FILE::Output(const std::string& msg)
 //ignoring return value of fflush
     fflush(pStream);
 /*lint -restore */
+#else
+   QString s =  QString(msg.c_str());
+   LOG() << s;
+#endif
 }
 
 

@@ -20,13 +20,15 @@
 
 #include <DataLogging/Include/BaseLoggerReusable.h>
 #include <DataLogging/Include/DataLoggingEventCodes.h>
+#include <Global/Include/EventObject.h>
 #include <QDir>
 #include <QTextStream>
+
 
 namespace DataLogging {
 
 /****************************************************************************/
-BaseLoggerReusable::BaseLoggerReusable(LoggingObject *pParent, const Global::LoggingSource &TheLoggingSource, int FormatVersion) :
+BaseLoggerReusable::BaseLoggerReusable(Global::EventObject *pParent, const QString & TheLoggingSource, int FormatVersion) :
     BaseLogger(pParent, TheLoggingSource, FormatVersion)
 {
 }
@@ -48,6 +50,7 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
     CloseFile();
     // compute new file name
     QDir Dir(m_Path);
+
     QString CompleteFileName(QDir::cleanPath(Dir.absoluteFilePath(FileName)));
     // check if the file exists.
     if(!QFile::exists(CompleteFileName)) {
@@ -57,8 +60,8 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
         CreateNewFile(CompleteFileName);
         WriteHeader();
         // trace that file was created.
-        LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
-                  , Global::NO_NUMERIC_DATA, false);
+        //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
+          //        , Global::NO_NUMERIC_DATA, false);
     } else {
         // a file already exists.
 
@@ -77,8 +80,8 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
             CreateNewFile(CompleteFileName);
             WriteHeader();
             // trace that file was created.
-            LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
-                      , Global::NO_NUMERIC_DATA, false);
+            //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
+               //       , Global::NO_NUMERIC_DATA, false);
         } else {
             // file version and serial number seems to be ok
             OpenFileForAppend(CompleteFileName);
@@ -110,7 +113,7 @@ bool BaseLoggerReusable::CheckHeaderFormat(const QString &FileName) {
     }
     // set reading position to 0
     if(!File.seek(0)) {
-        THROWARG(Global::EVENT_GLOBAL_ERROR_FILE_SEEK, FileName);
+        LOGANDTHROWARG(EVENT_GLOBAL_ERROR_FILE_SEEK, FileName);
     }
     // file now open for reading
 

@@ -56,6 +56,14 @@ public:
      */
     /****************************************************************************/
     virtual void Update() = 0;
+
+    /****************************************************************************/
+    /**
+     * \brief This function is called by the concrete subject i.e the Keyboard object,
+     *        to notify the observer when ESC button on Keyboard is clicked
+     */
+    /****************************************************************************/
+    virtual void UpdateOnESC() = 0;
 };
 
 }

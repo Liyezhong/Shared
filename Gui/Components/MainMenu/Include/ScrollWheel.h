@@ -65,6 +65,7 @@ private:
     Qt::Alignment m_ItemAlignment;  //!< Alignment direction of the wheels
     qint32 m_ScrollableHeight;      //!< Maximum scrollable height for non continuous scroller.
     bool m_NonContinuous;           //!< If true scroller is non continuous
+    bool m_ThreeDigitMode;
 };
 
 } // end namespace MainMenu

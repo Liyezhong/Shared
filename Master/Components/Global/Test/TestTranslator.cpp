@@ -190,7 +190,7 @@ void TestTranslator::utTestReset() {
 
     // alter test object
     tLanguageData LanguageData;
-    LanguageData.insert(1, "SomeText");
+    LanguageData.insert(1, QStringList() << "SomeText");
     TheTranslator.SetLanguageData(QLocale::German, LanguageData, false, false);
     TheTranslator.m_DefaultLanguage = QLocale::English;
     TheTranslator.m_FallbackLanguage = QLocale::English;
@@ -269,8 +269,8 @@ void TestTranslator::utTestInsertArguments_data() {
 
 /****************************************************************************/
 void TestTranslator::utTestInsertArguments() {
-    QFETCH(QString, Result);
-    QFETCH(QString, ExpectedResult);
+    QFETCH(QStringList, Result);
+    QFETCH(QStringList, ExpectedResult);
 
     QCOMPARE(Result, ExpectedResult);
 }
@@ -278,32 +278,32 @@ void TestTranslator::utTestInsertArguments() {
 /****************************************************************************/
 tLanguageData TestTranslator::CreateLanguageStringsGermanWithoutUnknownStringID() {
     tLanguageData Result;
-    Result.insert(2, "Zeile 2: %1 %2 %3");
-    Result.insert(3, "Zeile 3: %1 %2 %3");
-    Result.insert(5, "Z%1");
+    Result.insert(2, QStringList() << "Zeile 2: %1 %2 %3");
+    Result.insert(3, QStringList() << "Zeile 3: %1 %2 %3");
+    Result.insert(5, QStringList() << "Z%1");
     return Result;
 }
 
 /****************************************************************************/
 tLanguageData TestTranslator::CreateLanguageStringsGermanWithUnknownStringID() {
     tLanguageData Result = CreateLanguageStringsGermanWithoutUnknownStringID();
-    Result.insert(EVENT_GLOBAL_UNKNOWN_STRING_ID, "Unbekannter Text: %1. Argumente:");
+    Result.insert(EVENT_GLOBAL_UNKNOWN_STRING_ID, QStringList() << "Unbekannter Text: %1. Argumente:");
     return Result;
 }
 
 /****************************************************************************/
 tLanguageData TestTranslator::CreateLanguageStringsEnglishWithoutUnknownStringID() {
     tLanguageData Result;
-    Result.insert(2, "Line 2: %1 %2 %3");
-    Result.insert(3, "Line 3: %1 %2 %3");
-    Result.insert(5, "L%1");
+    Result.insert(2, QStringList() << "Line 2: %1 %2 %3");
+    Result.insert(3, QStringList() << "Line 3: %1 %2 %3");
+    Result.insert(5, QStringList() << "L%1");
     return Result;
 }
 
 /****************************************************************************/
 tLanguageData TestTranslator::CreateLanguageStringsEnglishWithUnknownStringID() {
     tLanguageData Result = CreateLanguageStringsEnglishWithoutUnknownStringID();
-    Result.insert(EVENT_GLOBAL_UNKNOWN_STRING_ID, "Unknown text: %1. Arguments:");
+    Result.insert(EVENT_GLOBAL_UNKNOWN_STRING_ID, QStringList() << "Unknown text: %1. Arguments:");
     return Result;
 }
 

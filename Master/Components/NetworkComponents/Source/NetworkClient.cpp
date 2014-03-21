@@ -48,6 +48,7 @@ NetworkClient::NetworkClient(NetworkClientType_t type, const QString &ip, const 
       m_Ip(ip),
       m_port(port),
       m_authStage(NC_INIT),
+      m_timer(this),
       m_BlockSize(0)
 {
 }
@@ -81,6 +82,7 @@ void NetworkClient::ConnectToServer()
  ****************************************************************************/
 void NetworkClient::HandleSocketError(QAbstractSocket::SocketError err)
 {
+//    qDebug() << "xxxxx NetworkClient::HandleSocketError";
     /*
      * if these errors happen, we shall continue pinging:
              QAbstractSocket::ConnectionRefusedError
@@ -117,6 +119,7 @@ void NetworkClient::HandleSocketError(QAbstractSocket::SocketError err)
  ****************************************************************************/
 void NetworkClient::HandleAuthTimeout()
 {
+    qDebug() << "NetworkClient::HandleAuthTimeout";
     // stop the authentication timer:
     static_cast<void>(
             // cannot use return value here anyway
@@ -227,6 +230,7 @@ void NetworkClient::HandleInitAction(const QByteArray &msg)
  ****************************************************************************/
 void NetworkClient::HandleAuthAction(const QByteArray &msg)
 {
+    qDebug() << "xxxxx NetworkClient::HandleAuthAction";
     // stop the authentication timer:
     static_cast<void>(
             // cannot use return value here anyway
@@ -363,6 +367,7 @@ void NetworkClient::SendMessage(quint8 type, const QByteArray &ba)
  ****************************************************************************/
 void NetworkClient::DisconnectFromServer()
 {
+    qDebug() << "xxxxx NetworkClient::DisconnectFromServer";
     if (m_msgHdlr != 0) {
         static_cast<void>(
                 // cannot use return value here anyway

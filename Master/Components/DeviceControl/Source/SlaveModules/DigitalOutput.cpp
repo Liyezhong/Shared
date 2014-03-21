@@ -382,19 +382,7 @@ void CDigitalOutput::HandleCommandRequestTask()
                     emit ReportLifeTimeData(GetModuleHandle(), RetVal, 0, 0);
                 }
             }
-            else if(m_ModuleCommand[idx].m_Type == FM_DO_CMD_TYPE_REQ_DATA_RESET)
-            {
-                RetVal = SendCANMsgReqDataReset();
-                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS)
-                {
-                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
-                    m_ModuleCommand[idx].m_Timeout = CAN_DOUTP_TIMEOUT_READ_REQ;
-                }
-                else
-                {
-                    emit ReportDataResetAckn(GetModuleHandle(), RetVal);
-                }
-            }
+
             //check for success
             if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
@@ -462,11 +450,6 @@ void CDigitalOutput::HandleCanMessage(can_frame* pCANframe)
             emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
     }
-    else if(pCANframe->can_id == m_unCanIDAcknDataReset)
-    {
-        ResetModuleCommand(FM_DO_CMD_TYPE_REQ_DATA_RESET);
-        HandleCANMsgAcknDataReset(pCANframe);
-    }
     else if(pCANframe->can_id == m_unCanIDDigOutputState)
     {
         HandleCANMsgOutputState(pCANframe);
@@ -526,10 +509,8 @@ void CDigitalOutput::HandleCANMsgLifeTimeData(can_frame* pCANframe)
     if(pCANframe->can_dlc == 8)
     {
         quint32 LifeTime, LifeCycles;
-
         LifeTime = GetCANMsgDataU32(pCANframe, 0);
         LifeCycles = GetCANMsgDataU32(pCANframe, 4);
-
         FILE_LOG_L(laFCT, llDEBUG) << " CANDigitalOutput: " << (int) LifeTime << ", " << (int) LifeCycles;
 
         emit ReportLifeTimeData(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, LifeTime, LifeCycles);
@@ -703,31 +684,6 @@ ReturnCode_t CDigitalOutput::ReqLifeTimeData()
     {
         RetVal = DCL_ERR_INVALID_STATE;
         FILE_LOG_L(laFCT, llERROR) << " CANDigitalOutput invalid state: " << (int) m_TaskID;
-    }
-
-    return RetVal;
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Request a data reset
- *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
- */
-/****************************************************************************/
-ReturnCode_t CDigitalOutput::ReqDataReset()
-{
-    QMutexLocker Locker(&m_Mutex);
-    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
-
-    if(SetModuleTask(FM_DO_CMD_TYPE_REQ_DATA_RESET))
-    {
-        FILE_LOG_L(laDEV, llDEBUG) << " CANDigitalOutput: Req Data Reset";
-    }
-    else
-    {
-        RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CDigitalOutput '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
     }
 
     return RetVal;

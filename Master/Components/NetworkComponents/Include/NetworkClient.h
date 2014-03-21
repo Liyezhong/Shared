@@ -42,11 +42,11 @@ const QString NC_MSG_OFF_TAG  = "</message>";
      Do NOT change them unless you change the server network configuration XML file !!! */
 const QString ClientConfiguration[][4] = {
     {"Axeda Client", "1.0", "127.0.0.15", "8801"},         ///< client runs in Axeda Process
-    {"Colorado Device GUI", "1.0", "127.0.0.16", "8801"},  ///< client runs in Colorado Normal GUI
+    {"Himalaya Device GUI", "1.0", "127.0.0.16", "8801"},  ///< client runs in Himalaya Normal GUI
     {"Sepia Device GUI", "1.0", "127.0.0.17", "8801"},     ///< client runs in Sepia Normal GUI
-    {"Colorado Serice SW", "1.0", "127.0.0.18", "8801"},   ///< client runs in Colorado Service GUI
+    {"Himalaya Serice SW", "1.0", "127.0.0.18", "8801"},   ///< client runs in Himalaya Service GUI
     {"Sepia Serice SW", "1.0", "127.0.0.19", "8801"},      ///< client runs in Sepia Service GUI
-    {"Sepia Client", "1.0", "127.0.0.20", "8801"},         ///< client runs in Sepia (Colorado is Master in WSMode)
+    {"Sepia Client", "1.0", "127.0.0.20", "8801"},         ///< client runs in Sepia (Himalaya is Master in WSMode)
     {"Export", "1.0", "127.0.0.21", "8801"},                ///< client runs in Export process
     {"BLG", "1.0", "127.0.0.22", "8801"}                ///< client runs in BLG process
 };
@@ -60,15 +60,15 @@ typedef enum {
     NC_AUTHENTICATION_FAILED       ///< authentication timed out
 } NetworkClientErrorType_t;
 
-/// Possible types of network clients
+/// Possible Types of network clients
 typedef enum {
     NCE_TYPE_UNKNOWN = 1,            ///< uninitialized client
     NCE_TYPE_AXEDA,                  ///< client for communication with axeda server
-    NCE_TYPE_COLORADO_GUI,           ///< client for communication with colorado gui server
+    NCE_TYPE_HIMALAYA_GUI,           ///< client for communication with himalaya gui server
     NCE_TYPE_SEPIA_GUI,              ///< client for communication with sepia gui server
-    NCE_TYPE_COLORADO_SERVICE,       ///< client for communication with colorado service server
+    NCE_TYPE_HIMALAYA_SERVICE,       ///< client for communication with himalaya service server
     NCE_TYPE_SEPIA_SERVICE,          ///< client for communication with sepia service server
-    NCE_TYPE_SEPIA,                  ///< client for communication with colorado device
+    NCE_TYPE_SEPIA,                  ///< client for communication with himalaya device
     NCE_TYPE_INVALID                 ///< wrong client type
 } NetworkClientType_t;
 

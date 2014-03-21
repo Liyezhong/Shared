@@ -24,7 +24,10 @@
 #include <Global/Include/TranslatableString.h>
 #include <Global/Include/LoggingSource.h>
 #include <Global/Include/Utils.h>
-
+#include <QStringList>
+#include <Global/Include/Commands/AckOKNOK.h>
+#include <NetCommands/Include/CmdAcknEventReport.h>
+#include <EventHandler/Include/EventCSVInfo.h>
 #include <QDateTime>
 
 namespace DataLogging {
@@ -38,22 +41,34 @@ namespace DataLogging {
  * \warning This class is not thread safe!
  */
 /****************************************************************************/
-class DayEventEntry {
-friend class TestDayOperationEntry;
+class DayEventEntry  {
+    friend class TestDayOperationEntry;
 private:
-    QDateTime                       m_TimeStamp;    ///< TimeStamp for entry.
-    quint32                         m_EventCode;    ///< Event code/Event ID for event entry - Also used as String ID to get corresponding string for translation
-    Global::EventType               m_EventType;    ///< Event type/level of event entry.
-    Global::tTranslatableStringList m_String;       ///< The translatable string.
-    QString                         m_NumericData;  ///< Any numeric data that needs to be stored
-    bool                            m_ShowInRunLog; ///< true -show in GUI its and daily run log, else dont show its error log.
-    Global::LoggingSource           m_Source;       ///< Source for event entry.
-    Global::LogLevel                m_LogLevel;     ///< Various log levels
+
+    EventHandler::EventCSVInfo m_EventCSVInfo;
+    Global::tTranslatableStringList m_String;                ///< The translatable string.
+    bool                            m_EventStatus;           ///< true/false - Set/Reset flag for the event
+    Global::tRefType                m_Ref;                   ///< Ref for the acknowledgement received
+    NetCommands::ClickedButton_t    m_AckType;               ///< Ack status received from GUI
+//    Global::AckOKNOK                m_AckValue;              ///< Ack value received from GUI
+    quint32                         m_EventKey;              ///< Event Key for every event raised. NULL until raised.
+    quint32                         m_EventCodeFromCom;            /// Event code from RaiseEvent call
+    Global::tTranslatableStringList m_StringForRd;             ///< Argument list for event string for R&d
+    quint32                         m_Scenario;             /// Event Scenario. m_EventCode + m_Scenario <=> m_EventCSVInfo.GetEventCode()
+    QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
+    quint8                          m_CountRetires;                 ///< Number of times the event has been retried to fixed by user from Gui.
+    Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
+    Global::EventStatus             m_CurrentStatus;                         ///< current status of event.
+    bool                            m_IsHWParameter;            ///< used to mark if this is hardware parameter
+    QString                         m_HWParameter;              /// HW parameter
+
+
+
     /****************************************************************************/
     /**
      * \brief Copy other instance to self.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     void CopyFrom(const DayEventEntry &rOther);
@@ -67,11 +82,18 @@ public:
      */
     /****************************************************************************/
     DayEventEntry();
+    DayEventEntry(bool isHWPar, QString& HWInfo);
+
+    DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
+                                const Global::tTranslatableStringList &String, quint8 count,
+                                 NetCommands::ClickedButton_t ClickButton, 
+                                /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, 
+                                EventHandler::EventCSVInfo CSVInfo);
     /****************************************************************************/
     /**
      * \brief Copy constructor.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     DayEventEntry(const DayEventEntry &rOther);
@@ -79,29 +101,13 @@ public:
     /**
      * \brief Constructor with a translatable string.
      *
-     * \param[in]   TimeStamp       Timestamp.
-     * \param[in]   String          The complete translatable string.
+     * \iparam   TimeStamp       Timestamp.
+     * \iparam   String          The complete translatable string.
      */
     /****************************************************************************/
     DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String);
 
-    /****************************************************************************/
-    /**
-     * \brief Constructor with a translatable string.
-     *
-     * \param[in]   TimeStamp       Timestamp.
-     * \param[in]   EventCode       EventID
-     * \param[in]   EventType       Fatal/Warning/Info
-     * \param[in]   String          The complete translatable string.
-     * \param[in]   NumericData     Numeric data for logging
-     * \param[in]   ShowInRunLog    true - show , false - hide
-     * \param[in]   LoggingSource   Source -Scheduler/main controller etc
-     */
-    /****************************************************************************/
-    DayEventEntry(const QDateTime &TimeStamp, const quint32 &EventCode,
-                                         const Global::EventType &EventType, const Global::tTranslatableStringList &String,
-                                         const QString &NumericData, const bool &ShowInRunLog,
-                                         const Global::LoggingSource &LoggingSource, const Global::LogLevel &LogLevel);
+
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -112,85 +118,12 @@ public:
     /**
      * \brief Assignment operator.
      *
-     * \param[in]   rOther  Const reference to other instance.
+     * \iparam   rOther  Const reference to other instance.
      */
     /****************************************************************************/
     const DayEventEntry & operator = (const DayEventEntry &rOther);
     /****************************************************************************/
-    /**
-     * \brief Get the timestamp.
-     *
-     * \return      Timestamp.
-     */
-    /****************************************************************************/
-    inline QDateTime GetTimeStamp() const {
-        return m_TimeStamp;
-    }
-    /****************************************************************************/
-    /**
-     * \brief Get the argument list as const reference.
-     *
-     * \return      Argument list  as const reference.
-     */
-    /****************************************************************************/
-    inline const Global::tTranslatableStringList &GetString() const {
-        return m_String;
-    }
 
-    /****************************************************************************/
-    /**
-     * \brief Get the event type of event entry.
-     *
-     * \return      Event type.
-     */
-    /****************************************************************************/
-    inline Global::EventType GetEventType() const {
-        return m_EventType;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get the event code of event entry.
-     *
-     * \return      Event code.
-     */
-    /****************************************************************************/
-    inline quint32 GetEventCode() const {
-        return m_EventCode;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get the source of the event.
-     *
-     * \return Event source.
-     */
-    /****************************************************************************/
-    inline Global::LoggingSource GetSource() const {
-        return m_Source;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get status of ShowInRunLogStatus
-     *
-     * \return ShowInRunLog flag.
-     */
-    /****************************************************************************/
-    inline bool GetShowInRunLogStatus() const {
-        return m_ShowInRunLog;
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Get the source of the event.
-     *
-     * \return Event source.
-     */
-    /****************************************************************************/
-    inline QString GetNumericData() const{
-        return m_NumericData;
-    }
 
     /****************************************************************************/
     /**
@@ -199,7 +132,288 @@ public:
     /****************************************************************************/
     void DumpToConsole() const;
 
+    inline void SetAltStringUsage(const Global::AlternateEventStringUsage AltStringUsage) {
+        m_AltEventStringUsage = AltStringUsage;
+    }
+
+    inline Global::AlternateEventStringUsage GetAltStringUsageType() const {
+        return m_AltEventStringUsage;
+    }
+
+    /****************************************************************************/
+    /**
+       * \brief Get the timestamp.
+       *
+       * \return      Timestamp.
+       */
+      /****************************************************************************/
+      inline QDateTime GetTimeStamp() const {
+          return m_TimeStamp;
+      }
+
+
+      inline void SetDateTime(QDateTime DateTime) {
+          m_TimeStamp = DateTime;
+      }
+
+      inline bool GetIsHWParameter() const
+      {
+          return m_IsHWParameter;
+      }
+      inline void SetIsHWParameter(bool val)
+      {
+          m_IsHWParameter = val;
+      }
+
+      inline QString GetHWParameter() const
+      {
+          return m_HWParameter;
+      }
+
+      /****************************************************************************/
+      /**
+         * \brief Get the EventCode.
+         *
+         * \return      EventCode.
+         */
+        /****************************************************************************/
+        inline quint32 GetEventCodeFromCom() const {
+            return m_EventCodeFromCom;
+        }
+
+
+        inline void SetEventCodeFromCom(quint32 EventCode) {
+            m_EventCodeFromCom = EventCode;
+        }
+        /****************************************************************************/
+        /**
+           * \brief Get the Event Scenario.
+           *
+           * \return      Scenario.
+           */
+          /****************************************************************************/
+          inline quint32 GetScenario() const {
+              return m_Scenario;
+          }
+
+
+          inline void SetScenario(quint32 Scenario) {
+              m_Scenario = Scenario;
+          }
+
+
+          /****************************************************************************/
+          /**
+             * \brief Get/Set the Event Current Status.
+             *
+             * \return      Scenario.
+             */
+            /****************************************************************************/
+            inline Global::EventStatus GetCurrentStatus() const {
+                return m_CurrentStatus;
+            }
+
+
+            inline void SetCurrentStatus(Global::EventStatus CurrentStatus) {
+                m_CurrentStatus = CurrentStatus;
+            }
+
+      /****************************************************************************/
+      /**
+       * \brief Get the Event Key.
+       *
+       * \return      Event Key.
+       */
+      /****************************************************************************/
+      inline quint32 GetEventKey() const {
+          return m_EventKey;
+      }
+
+      inline void SetEventKey(quint32 EventKey) {
+          m_EventKey = EventKey;
+      }
+
+  /****************************************************************************/
+      /**
+       * \brief Get the argument list as const reference.
+       *
+       * \return      Argument list  as const reference.
+       */
+      /****************************************************************************/
+      inline const Global::tTranslatableStringList &GetString() const {
+          return m_String;
+      }
+
+      inline void SetTranslatableStringList(Global::tTranslatableStringList  EventStringList) {
+          m_String = EventStringList;
+      }
+
+      /****************************************************************************/
+          /**
+           * \brief Get the argument list as for event string for RD
+           *
+           * \return
+           */
+          /****************************************************************************/
+          inline Global::tTranslatableStringList &GetStringArgForRd() {
+              return m_StringForRd;
+          }
+
+          inline void SetStringArgForRd(Global::tTranslatableStringList  EventStringList) {
+              m_StringForRd = EventStringList;
+          }
+
+          QString GetStringForRd() const;
+
+      Global::LogAuthorityType GetLogAuthorityType() const{
+          return (m_EventCSVInfo.GetLogAuthorityType());
+
+      }
+
+        Global::EventType GetEventType() const {
+          return m_EventCSVInfo.GetEventType();
+      }
+
+       quint32 GetEventCode () const{
+          return m_EventCSVInfo.GetEventCode();
+      }
+
+      inline QString GetEventName() const {
+          return m_EventCSVInfo.GetEventName();
+      }
+
+      inline Global::EventLogLevel GetLogLevel() const {
+          return m_EventCSVInfo.GetLogLevel();
+      }
+      inline void SetEventCode(qint32 EventCode){
+          m_EventCSVInfo.SetEventCode(EventCode);
+      }
+
+      inline Global::AlarmPosType GetAlarmPosType() const {
+          return m_EventCSVInfo.GetAlarmPosType();
+      }
+
+      inline int GetRetryAttempts() const {
+          return m_EventCSVInfo.GetRetryAttempts();
+      }
+      inline quint8 GetAndIncRetryCount() {
+          m_CountRetires ++;
+          return m_CountRetires - 1;
+      }
+
+      inline Global::ActionType GetRecoveryActionOnRspFailUsrPst() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspFailUsrPst();
+      }
+      inline Global::ActionType GetRecoveryActionOnRspFailUsrNeg() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspFailUsrNeg();
+      }
+      inline Global::ActionType GetRecoveryActionOnRspSuccUsrPst() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspSuccUsrPst();
+      }
+      inline Global::ActionType GetRecoveryActionOnRspSuccUsrNeg() const {
+          return m_EventCSVInfo.GetRecoveryActionOnRspSuccUsrNeg();
+      }
+//      inline Global::ActionType GetNextAction() const {
+//          return m_EventCSVInfo.GetNextAction();
+//      }
+
+      inline bool GetStatusIcon() const {
+          return m_EventCSVInfo.GetStatusIcon();
+      }
+
+      inline bool GetAckReqStatus() const {
+      return m_EventCSVInfo.GetAckReqStatus();
+      }
+
+      inline void SetAckReqStatus(bool Ack) {
+          m_EventCSVInfo.SetAckRequired(Ack);
+      }
+
+      inline Global::ActionType GetDefaultAction() const {
+          return m_EventCSVInfo.GetDefaultAction();
+      }
+
+      inline Global::ResponseRecoveryType GetResponseRecoveryType() const {
+          return m_EventCSVInfo.GetResponseRecoveryType();
+      }
+
+      inline Global::ActionType GetResponseAction() const {
+          return m_EventCSVInfo.GetResponseAction();
+      }
+
+      inline Global::GuiButtonType GetButtonTypeOnRspFail() const {
+          return m_EventCSVInfo.GetButtonTypeOnRspFail();
+      }
+      inline Global::GuiButtonType GetButtonTypeOnRspSucc() const {
+          return m_EventCSVInfo.GetButtonTypeOnRspSucc();
+      }
+
+
+      inline Global::EventSourceType GetSourceComponent() const {
+          return m_EventCSVInfo.GetSourceComponent();
+      }
+
+      inline Global::LoggingSource GetSource() const {
+          return m_EventCSVInfo.GetSource();
+      }
+
+
+      void SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) ;
+
+      /****************************************************************************/
+      /**
+       * \brief Get the Event Status
+       *
+       * \return Event Status as const ref.
+       */
+      /****************************************************************************/
+      inline bool IsEventActive() const {
+          return m_EventStatus;
+      }
+
+    /****************************************************************************/
+      /**
+       * \brief Set Event Status
+       *
+       * param[in] const ref to Event Status
+       */
+      /****************************************************************************/
+
+      inline void SetEventStatus(const bool & EventStatus) {
+          m_EventStatus = EventStatus;
+      }
+
+    /****************************************************************************/
+      /**
+       * \brief Get the Ack Status
+       *
+       * \return Ack Status as const ref.
+       */
+      /****************************************************************************/
+      inline NetCommands::ClickedButton_t  GetAckValue() const {
+          return m_AckType;
+      }
+
+      /****************************************************************************/
+      /**
+       * \brief Set Ack Status
+       *
+       * param[in] const ref to Ack Value
+       */
+      /****************************************************************************/
+
+      inline void SetAckValue(const NetCommands::CmdAcknEventReport & AckVal) {
+          m_AckType = AckVal.GetButtonClicked();
+      }
+
+      inline void SetAckValue(NetCommands::ClickedButton_t & AckVal) {
+          m_AckType = AckVal;
+      }
+
 }; // end class DayEventEntry
+
+
+
 
 } // end namespace DataLogging
 

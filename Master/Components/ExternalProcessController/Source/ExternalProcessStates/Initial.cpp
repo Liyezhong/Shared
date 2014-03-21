@@ -59,7 +59,7 @@ Initial::~Initial()
 bool Initial::OnEntry(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "InitialState entered.";
+    qDebug() << "InitialState entered for process" << this->m_myController->GetProcessName();
 
     if (m_myController == NULL) {
         /// \todo log error
@@ -102,7 +102,7 @@ bool Initial::OnEntry(StateMachines::StateEvent et)
 bool Initial::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "InitialState exited.";
+    qDebug() << "InitialState exited for process" << this->m_myController->GetProcessName();
     return true;
 }
 

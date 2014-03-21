@@ -124,15 +124,4 @@ ReturnCode_t CFunctionModule::RegisterEventCANMessages()
     return RetVal;
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Returns the node ID of the function module's node
- *
- *  \return Node ID
- */
-/****************************************************************************/
-quint32 CFunctionModule::GetNodeID() const
-{
-    return m_pParent->GetNodeID();
-}
 } //namespace

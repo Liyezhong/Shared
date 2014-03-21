@@ -1,15 +1,15 @@
 /****************************************************************************/
-/** @file CompressEncrypt.cpp
+/*! \file CompressEncrypt.cpp
  *
- *  @brief Compress and optionally encrypt data stream for ImportExport module
+ *  \brief Compress and optionally encrypt data stream for ImportExport module
  *
  *  Split the data stream to chunks.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-07-30
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -17,7 +17,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 31 2011, 14:21:58
  *
  */
 /****************************************************************************/
@@ -25,19 +24,20 @@
 #include "ImportExport/CompressEncrypt/Include/CompressEncrypt.h"
 
 namespace ImportExport {
-
-/**
- * @brief constructor
+/****************************************************************************/
+/*!
+ * \brief constructor
  *
- * @param fd - pointer to FailSafeOpen instance, opened for write
- * @param cs - instance of CryptoService
- * @param encrypt - true if stream shall be encrypted
+ * \iparam fd - pointer to FailSafeOpen instance, opened for write
+ * \iparam cs - instance of CryptoService
+ * \iparam encrypt - true if stream shall be encrypted
+ * \iparam compressed - true if stream shall be compressed
  */
-
+/****************************************************************************/
 CompressEncrypt::CompressEncrypt(FailSafeOpen* fd,
                                  CryptoService& cs,
-                                 bool encrypt):         //lint !e578 [Rw]
-     m_fd(fd), m_cs(cs), m_encrypt(encrypt),
+                                 bool encrypt, bool compressed):         //lint !e578 [Rw]
+     mp_fd(fd), m_cs(cs), m_encrypt(encrypt), m_compressed(compressed),
      m_buffer(QByteArray())
 {
     if(m_encrypt)
@@ -46,25 +46,26 @@ CompressEncrypt::CompressEncrypt(FailSafeOpen* fd,
     }
 }
 
-
-/**
- * @brief destructor
+/****************************************************************************/
+/*!
+ * \brief destructor
  */
-
+/****************************************************************************/
 CompressEncrypt::~CompressEncrypt()
 {
+    // The pointer mp_fd is not freed by other function as
+    // warned by lint; I need a pointer to a QFile instance
+    // here to write from inside the class. The pointer is
+    // closed from outside when the archive is written.
     close();    //lint !e1551 [Rw]
                 // no exception should ever occur here
 }               //lint !e1579
-                // The pointer m_fd is not freed by other function as
-                // warned by lint; I need a pointer to a QFile instance
-                // here to write from inside the class. The pointer is
-                // closed from outside when the archive is written.
 
-/**
- * @brief "flush" remaining bytes in buffer
+/****************************************************************************/
+/*!
+ * \brief "flush" remaining bytes in buffer
  */
-
+/****************************************************************************/
 void CompressEncrypt::close()
 {
     if(!m_buffer.isEmpty())
@@ -75,16 +76,17 @@ void CompressEncrypt::close()
     m_buffer.clear();
 }
 
-/**
- * @brief collect data in buffer, compress/encrypt and write if filled
+/****************************************************************************/
+/*!
+ * \brief collect data in buffer, compress/encrypt and write if filled
  *
  * All written data are also put to HMAC computation of the
  * CryptoService instance m_cs.
  *
- * @param data - data to be processed
- * @param hmac - update HMAC if true
+ * \iparam data - data to be processed
+ * \iparam hmac - update HMAC if true
  */
-
+/****************************************************************************/
 void CompressEncrypt::write(const QByteArray& data, bool hmac)
 {
     if(hmac)
@@ -101,18 +103,26 @@ void CompressEncrypt::write(const QByteArray& data, bool hmac)
     }
 }
 
-
-/**
- * @brief compress/encrypt a buffer and write it
+/****************************************************************************/
+/*!
+ * \brief compress/encrypt a buffer and write it
  *
- * @param data - possibly cut internal buffer
+ * \iparam data - possibly cut internal buffer
  */
-
+/****************************************************************************/
 void CompressEncrypt::writeBuffer(QByteArray data)
 {
-    if(data.isEmpty()) return;
+    if(data.isEmpty())
+	{	
+		return;
+	}
 
-    QByteArray compressed = qCompress(data);
+    QByteArray compressed(data);
+    // check the compress flag
+    if (m_compressed)
+    {
+        compressed = qCompress(data);
+    }
 
     compressed = General::int2byte(compressed.size()) + compressed;
 
@@ -121,9 +131,9 @@ void CompressEncrypt::writeBuffer(QByteArray data)
         m_cs.encrypt(compressed);
     }
 
-    m_fd->write(compressed);
+    mp_fd->write(compressed);
 }
 
 
-}       // end namespace ImportExport
+}   // end namespace ImportExport
 

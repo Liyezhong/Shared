@@ -49,6 +49,7 @@ private:
     Ui::CTextDialog *mp_Ui; //!< User interface
     QTextEdit *mp_TextEdit; //!< Widget displaying a text file
 
+
 protected:
     void changeEvent(QEvent *p_Event);
 };

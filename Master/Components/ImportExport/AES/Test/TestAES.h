@@ -1,13 +1,13 @@
 /****************************************************************************/
-/** @file TestAES.h
+/*! \file TestAES.h
  *
- *  @brief Testclass for AES - variable key and random data tests.
+ *  \brief Testclass for AES - variable key and random data tests.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2011-06-17
- *  $Author:    $ R.Wobst
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2012-11-26
+ *  $Author:    $ Raju
  *
- *  @b Company:
+ *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
@@ -15,7 +15,6 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- *  last modified by owner: @(#) Aug 24 2011, 12:32:15
  *
  */
 /****************************************************************************/
@@ -47,8 +46,8 @@ extern RANDTEST RandData[];
 extern int VarSize;
 extern int RandSize;
 
-/**
- * @brief test class for AES - variable key and random data test
+/*!
+ * \brief test class for AES - variable key and random data test
  */
 
 class TestAes: public QObject

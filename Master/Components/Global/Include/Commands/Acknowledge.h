@@ -22,6 +22,7 @@
 #define GLOBAL_ACKNOWLEDGE_H
 
 #include <Global/Include/SharedPointer.h>
+#include <Global/Include/GlobalDefines.h>
 
 #include <QString>
 #include <QDataStream>
@@ -87,6 +88,8 @@ public:
      */
     /****************************************************************************/
     virtual QString GetName() const = 0;
+
+    Global::tRefType m_Ref;
 }; // end class Acknowledge
 
 typedef Global::SharedPointer<Acknowledge>  AcknowledgeShPtr_t;     ///< Typedef for shared pointer of acknowledge.

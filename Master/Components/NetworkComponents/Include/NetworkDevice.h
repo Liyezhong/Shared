@@ -68,7 +68,7 @@ const QString CMH_MSG_SENDING_ACK     = "ack";        ///< Universal ACK status 
 const QString CMH_MSG_SENDING_NACK    = "nack";       ///< Universal NACK status for message delivery
 const QString CMH_MSG_SENDING_TIMEOUT = "timeout";    ///< Universal TIMEOUT status for message delivery
 
-/// all existing types of messages
+/// all existing Types of messages
 typedef enum {
     NET_NETLAYER_MESSAGE = 0x10,    ///< 100% XML text message used internally by network layer
     NET_APPLICATION_MESSAGE         ///< Message with XML header and QByteArray payload used by application
@@ -82,7 +82,7 @@ const QString DATEANDTIME_FORMAT = "dd.MM.yyyy hh:mm:ss";
  * \brief This is a base class for a project specific NetworkDevice.
  *
  * Object, derived from this calss, shall implement a project specific
- * Network Device (e.g. Sepia in Colorado).
+ * Network Device (e.g. Sepia in Himalaya).
  *
  */
 /****************************************************************************/
@@ -255,7 +255,7 @@ protected:
           qDebug() << (QString)("T_ProtocolCommand (incoming) " + cmdname + " was NOT created !");
           return NULL;
         }
-        qDebug() << (QString)("T_ProtocolCommand created (incoming) : " + cmdname);
+//        qDebug() << (QString)("T_ProtocolCommand created (incoming) : " + cmdname);
         // init the incoming command
         if (!pC->Initialize(cmdname, domD, this)) {
             qDebug() << (QString)("T_ProtocolCommand (incoming) " + cmdname + " cannot be initialized !");

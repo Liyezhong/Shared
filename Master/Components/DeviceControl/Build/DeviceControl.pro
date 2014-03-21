@@ -4,7 +4,9 @@
 
 TARGET = DeviceControl
 
-INCLUDEPATH += ../../../../Common/Components
+DEFINES += PRE_ALFA_TEST
+
+#INCLUDEPATH += ../../../../Common/Components
 
 HEADERS +=  ../Include/CanCommunication/*.h \
             ../Include/CanCommunication/CanTcpCommunication/*.h \
@@ -24,3 +26,4 @@ SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/Devices/*.cpp \
             ../Source/Interface/*.cpp
 
+QMAKE_CXXFLAGS += -Wall -Wno-strict-aliasing

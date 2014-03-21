@@ -59,7 +59,12 @@ FatalError::~FatalError()
 ****************************************************************************/
 bool FatalError::OnEntry(StateMachines::StateEvent et)
 {
-    qDebug() << "FatalErrorState entered.";
+    qDebug() << "FatalErrorState entered for process" << this->m_myController->GetProcessName();
+
+    if (this->m_myController->GetProcessName().contains("Sepia"))
+    {
+        qDebug() << "Sepia FatalError";
+    }
 
     if (m_myController == NULL) {
         /// \todo log error
@@ -85,7 +90,7 @@ bool FatalError::OnEntry(StateMachines::StateEvent et)
 bool FatalError::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "FatalErrorState exited.";
+    qDebug() << "FatalErrorState exited for process" << this->m_myController->GetProcessName();
     return true;
 }
 

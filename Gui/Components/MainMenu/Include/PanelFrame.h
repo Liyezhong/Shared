@@ -43,6 +43,7 @@ public:
     virtual ~CPanelFrame();
 
     void SetPanelTitle(QString Title);
+    void SetPanelTitle(QString TitleLeftCorner, QString TitleRigtCorner);
     void SetTitleCenter();
     void SetContent(QLayout *p_Content);
     QWidget *GetContentFrame();

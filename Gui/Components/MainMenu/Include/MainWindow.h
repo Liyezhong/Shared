@@ -46,8 +46,8 @@ class CMainWindow : public QMainWindow
 public:
     //!< The role of the GUI user
     typedef enum {
-        Admin,
-        Operator,
+        Operator = 0,
+        Admin = 1,
         Service
     } UserRole_t;
 
@@ -137,12 +137,15 @@ private:
     QLabel *mp_ErrorLabel;//!< Pointer to Error Label
     Status_t m_Status; //!< Informs Status of system
     static UserRole_t m_CurrentUserRole;//! < current user type
+    QPixmap *mp_ProcPixmap;
+    QPixmap *mp_RemotePixMap;
 
 private slots:
     void RefreshDateTime();
     void OnCurrentTabChanged(int);
 
 protected:
+    bool eventFilter(QObject *, QEvent *);
     void changeEvent(QEvent *p_Event);
 
 signals:
@@ -153,6 +156,8 @@ signals:
     void DateTimeFormatChanged(Global::DateFormat DateFormat,
                                Global::TimeFormat TimeFormat);
     void CurrentTabChanged(int);
+    void ShowErrorMsgDlg();
+    void ShowWarningMsgDlg();
 };
 
 } // end namespace MainMenu

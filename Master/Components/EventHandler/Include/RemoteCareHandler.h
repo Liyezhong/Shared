@@ -21,7 +21,7 @@
 #ifndef EVENTHANDLER_REMOTECAREHANDLER_H
 #define EVENTHANDLER_REMOTECAREHANDLER_H
 
-#include <DataLogging/Include/EventEntry.h>
+#include <DataLogging/Include/DayEventEntry.h>
 #include <Threads/Include/ThreadController.h>
 #include <Global/Include/GlobalDefines.h>
 
@@ -45,7 +45,7 @@ class RemoteCareHandler : public Threads::ThreadController
 
 public:
 
-    RemoteCareHandler(Global::gSourceType TheLoggingSource);
+    RemoteCareHandler(Global::gSourceType TheHeartBeatSource);
     virtual ~RemoteCareHandler();
 
 protected:
@@ -55,8 +55,7 @@ private:
     RemoteCareHandler();
 
 public slots:
-
-    virtual void ForwardEventToRemoteCare(const DataLogging::EventEntry &) = 0;
+    virtual void ForwardEventToRemoteCare(const DataLogging::DayEventEntry &) = 0;
 };
 
 } // end namespace EventHandler

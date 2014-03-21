@@ -30,7 +30,7 @@
 #include "Global/Include/MonotonicTime.h"
 
 typedef quint8 UInt8;
-#include "FunctionModules/defStepperMotor.h"
+#include "DeviceControl/Include/SlaveModules/defStepperMotor.h"
 
 inline Msg_DB2_t ValToDB2 (quint16 val)
 {

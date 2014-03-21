@@ -46,8 +46,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   Timeout         Timeout for command.
-     * \param[in]   ForceCaching    True if caching forced.
+     * \iparam   Timeout         Timeout for command.
+     * \iparam   ForceCaching    True if caching forced.
      */
     /****************************************************************************/
     CmdForceCaching(int Timeout, bool ForceCaching);

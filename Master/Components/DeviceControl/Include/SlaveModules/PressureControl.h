@@ -12,7 +12,7 @@ namespace DeviceControl
 class CANCommunicator;
 
 #define MAX_PRESSURE_MODULE_CMD_IDX (4)   ///< up to 4 module commands can be handled simultaneously
-#define VALVE_NUM (2)
+
 /****************************************************************************/
 /*!
  *  \brief This class implements the functionality to configure and control a
@@ -61,9 +61,6 @@ class CPressureControl : public CFunctionModule
     ReturnCode_t SetCalibration(bool Enable);
     //! Set PWM parameters
     ReturnCode_t SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty);
-
-    quint32 GetValveOperationTime(quint32 ValveIndex);
-    ReturnCode_t ResetValveOperationTime();
 signals:
     /****************************************************************************/
     /*!
@@ -224,9 +221,11 @@ private:
     ReturnCode_t InitializeCANMessages();   //!< can message ID initialization
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
 
-//    void SendConfiguration();   //!< configuration task handling function
-    void HandleIdleState();     //!< idle task handling function
-//    //! sends the can message 'FanWatchdog'
+    //!< configuration task handling function
+    void SendConfiguration();
+    //!< idle task handling function
+    void HandleIdleState();
+    //! sends the can message 'FanWatchdog'
     ReturnCode_t SendCANMsgFanWatchdogSet();
     //! sends the can message 'CurrentWatchdog'
     ReturnCode_t SendCANMsgCurrentWatchdogSet();
@@ -268,11 +267,6 @@ private:
     void HandleCANMsgNotiRange(can_frame* pCANframe, bool InRange);
     //! command handling function
     void HandleCommandRequestTask();
-
-    ReturnCode_t AddValveOperationTime(quint8 ValveIndex);
-    ReturnCode_t ReadValveOperationTime();
-    ReturnCode_t WriteValveOperationTime();
-
 
     /*! configuration state definitions */
     typedef enum {
@@ -359,7 +353,6 @@ private:
     quint32 m_unCanIDFanSet;
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
-    quint32 m_valveOperationTime[VALVE_NUM];
 };
 
 } //namespace
