@@ -325,13 +325,16 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
         m_EventEntry.SetStringID(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStringID());
         m_EventEntry.SetString(EventInfo.EventStringParList);
         m_EventEntry.SetButtonType(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetButtonType());
+        m_EventEntry.SetAckValue(EventInfo.UserSelect);
     }
     else{
+        quint32 Result =  EventInfo.ActionResult ? Global::EVENT_GLOBAL_STRING_ID_RESOLVED : Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR;
         m_EventEntry.SetStringID(STR_SCHEDULER_EVENT_SCENARIO_ACTION_RESULT);
-        m_EventEntry.SetString(Global::tTranslatableStringList() << EventInfo.EventID
-                                             << EventInfo.Scenario
+        m_EventEntry.SetString(Global::tTranslatableStringList() <<QString("%1").arg(EventInfo.EventID)
+                                             << QString("%1").arg(EventInfo.Scenario)
                                              << EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetAction()
-                                             << EventInfo.ActionResult);
+                                             << Result);
+
         m_EventEntry.SetButtonType(Global::NOT_SPECIFIED);
     }
 //    if (EventHandler::StateHandler::Instance().getCurrentOperationState().compare("DefaultState") == 0) {

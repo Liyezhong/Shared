@@ -967,7 +967,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     }
 
     EventEntry.SetEventCSVInfo(EventInfo);
-    EventEntry.SetAckValue(Ack);
+    EventEntry.SetAckValue(Ack.GetButtonClicked());
     EventEntry.SetDateTime(Global::AdjustedTime::Instance().GetCurrentDateTime());
 
     int Count = GetCountForEventId(EventID);

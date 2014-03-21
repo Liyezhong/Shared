@@ -596,8 +596,8 @@ public:
      * \iparam  AckVal   const ref to Ack Value
      */
     /****************************************************************************/
-    inline void SetAckValue(const NetCommands::CmdAcknEventReport & AckVal) {
-        m_AckType = AckVal.GetButtonClicked();
+    inline void SetAckValue(const NetCommands::ClickedButton_t & AckVal) {
+        m_AckType = AckVal;
 
     }
 
