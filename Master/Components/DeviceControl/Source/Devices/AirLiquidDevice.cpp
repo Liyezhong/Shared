@@ -2461,9 +2461,9 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
     {
         (void)m_pPressureCtrl->SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
         (void)m_pPressureCtrl->SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
-        (void)m_pPressureCtrl->SetFan(0);
+        //(void)m_pPressureCtrl->SetFan(0);
     }
-    LOG() << "Device Airliquid: Stop fan";
+    //LOG() << "Device Airliquid: Stop fan";
     //if(m_pFanDigitalOutput)
     //{
     //    (void)m_pFanDigitalOutput->SetOutputValue(0, 0, 0);
