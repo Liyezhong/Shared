@@ -1044,6 +1044,7 @@ static Error_t tempSetCurrentWatchdog (UInt16 Channel, CanMessage_t* Message)
         tempHeaterParams[Instance].DesiredCurThreshold = bmGetMessageItem (Message, 4, 2);
         tempHeaterParams[Instance].CurrentDeviation = bmGetMessageItem (Message, 6, 2);
         //tempHeaterParams[Instance].CurrentDeviation = 200;
+        dbgPrint("Current gain: %d\n", tempHeaterParams[Instance].CurrentGain);
         dbgPrint("WD:%d %d %d\n", tempHeaterParams[Instance].DesiredCurrent, tempHeaterParams[Instance].DesiredCurThreshold, tempHeaterParams[Instance].CurrentDeviation);
         return (NO_ERROR);
     }

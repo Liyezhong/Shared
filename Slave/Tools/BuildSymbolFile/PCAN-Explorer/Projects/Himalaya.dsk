@@ -7,7 +7,7 @@ RightDockZones=00000800000100000000F202000000000000012E0100000000000001000000003
 MDITabIndex=1
 MaximizedMDIChildren=1
 WindowCount=8
-ClosedWindowsCount=4
+ClosedWindowsCount=5
 [ConnectionsWindow]
 Columns=ebncBsoqOl,-24,-40,215,215,110,90,80,80,80,130
 [0]
@@ -35,7 +35,7 @@ HexViewVisible=1
 [2]
 Name=Window1_OutputWindow
 ObjectKind={4842AE28-C870-4465-8195-8E0BC9B5DC5A}
-Visible=1
+Visible=0
 FloatLeft=349
 FloatTop=203
 FloatWidth=500
@@ -104,7 +104,7 @@ Name=Window1_0EFDD5ED3FFB4FECAA56927B865C3B3A
 ObjectKind={0EFDD5ED-3FFB-4FEC-AA56-927B865C3B3A}
 Visible=0
 Left=-6311
-Top=-11656
+Top=-12349
 Width=183
 Height=539
 FloatLeft=110
@@ -141,13 +141,22 @@ SelCol=5
 SelLine=4173
 FirstVisibleLine=4148
 [Closed3]
+Ident=..\..\..\..\..\..\..\..\Leica Projects\===Work===\Colorado_Sepia\Platform\Slave\Tools\BuildSymbolFile\PCAN-Explorer\Macros\BuildSymbols.pem
+Left=150
+Top=150
+Width=1379
+Height=491
+SelCol=0
+SelLine=0
+FirstVisibleLine=216
+[Closed4]
 Ident=../Symbols/Himalaya.sym
 Left=100
 Top=100
 Width=719
 Height=526
-SelCol=5
-SelLine=1017
-FirstVisibleLine=992
+SelCol=31
+SelLine=569
+FirstVisibleLine=529
 [WatchWindow]
 Columns=nvm

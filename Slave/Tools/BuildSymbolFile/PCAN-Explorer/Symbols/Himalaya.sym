@@ -1,6 +1,5 @@
 FormatVersion=5.0
 Title="Symbol File for Himalaya"
-// Symbol file version: 13-29A1
 
 
 {ENUMS}
@@ -433,7 +432,7 @@ Type=Extended
 DLC=0
 
 [ASB3::MsgTempEventInfo@1]
-ID=8002006h	// Info message
+ID=8002006h // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -441,7 +440,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB3::MsgTempEventWarning@1]
-ID=8082006h	// Warning message
+ID=8082006h      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -449,7 +448,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB3::MsgTempEventError@1]
-ID=8102006h	// Error message
+ID=8102006h        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -457,7 +456,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB3::MsgTempSrvStatistics@1]
-ID=18002006h	// Task statistics
+ID=18002006h     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -466,19 +465,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB3::MsgTempSrvAckResetData@1]
-ID=18082006h	// Reset permanent data acknowledge
+ID=18082006h // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB3::MsgTempProcData@1]
-ID=14082006h	// Process data of temperature regulator
+ID=14082006h  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB3::MsgTempRespTemp@1]
-ID=10502006h	// Temperature/state of temperature module
+ID=10502006h  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -488,7 +487,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB3::MsgTempRespPidParams@1]
-ID=10582006h	// Parameters of a PID controller
+ID=10582006h    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -496,30 +495,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB3::MsgTempRespHeaterTime@1]
-ID=18602006h	// Operating time of a single heater
+ID=18602006h   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB3::MsgTempRespSvcSensor@1]
-ID=18682006h	// Actual temperature sensor temperature
+ID=18682006h        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB3::MsgTempRespServiceFan@1]
-ID=18702006h	// Actual speed of a ventilation fan
+ID=18702006h   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB3::MsgTempRespHardware@1]
-ID=18782006h	// Temperature regulator hardware information
+ID=18782006h      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -528,20 +527,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB3::MsgTempNotiAutoTune@1]
-ID=10802006h	// Auto tune notification
+ID=10802006h     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB3::MsgTempNotiInRange@1]
-ID=10882006h	// Notification: temperature in range
+ID=10882006h      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB3::MsgTempNotiOutOfRange@1]
-ID=10902006h	// Notification: temperature out of range
+ID=10902006h  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -551,6 +550,29 @@ ID=10982006h // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB3::MsgTempSetSwitchState@1]
+ID=10A02006h   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB3::MsgTempSetACCurrWd@1]
+ID=10A82006h       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB3::MsgTempSetACCurrWdExt@1]
+ID=10B02006h       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB5::MsgSysHardwareID]
 ID=Ah // Hardware identification
 Type=Extended
@@ -798,7 +820,7 @@ Type=Extended
 DLC=1
 Var=Result unsigned 0,8 -m /e:EnumBootLoaderTrailer /ln:"Trailer result"
 [ASB5::MsgTempEventInfo@1]
-ID=800100Ah	// Info message
+ID=800100Ah // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -806,7 +828,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventWarning@1]
-ID=808100Ah	// Warning message
+ID=808100Ah      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -814,7 +836,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventError@1]
-ID=810100Ah	// Error message
+ID=810100Ah        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -822,7 +844,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempSrvStatistics@1]
-ID=1800100Ah	// Task statistics
+ID=1800100Ah     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -831,19 +853,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB5::MsgTempSrvAckResetData@1]
-ID=1808100Ah	// Reset permanent data acknowledge
+ID=1808100Ah // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB5::MsgTempProcData@1]
-ID=1408100Ah	// Process data of temperature regulator
+ID=1408100Ah  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB5::MsgTempRespTemp@1]
-ID=1050100Ah	// Temperature/state of temperature module
+ID=1050100Ah  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -853,7 +875,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB5::MsgTempRespPidParams@1]
-ID=1058100Ah	// Parameters of a PID controller
+ID=1058100Ah    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -861,30 +883,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB5::MsgTempRespHeaterTime@1]
-ID=1860100Ah	// Operating time of a single heater
+ID=1860100Ah   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB5::MsgTempRespSvcSensor@1]
-ID=1868100Ah	// Actual temperature sensor temperature
+ID=1868100Ah        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB5::MsgTempRespServiceFan@1]
-ID=1870100Ah	// Actual speed of a ventilation fan
+ID=1870100Ah   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB5::MsgTempRespHardware@1]
-ID=1878100Ah	// Temperature regulator hardware information
+ID=1878100Ah      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -893,20 +915,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB5::MsgTempNotiAutoTune@1]
-ID=1080100Ah	// Auto tune notification
+ID=1080100Ah     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB5::MsgTempNotiInRange@1]
-ID=1088100Ah	// Notification: temperature in range
+ID=1088100Ah      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB5::MsgTempNotiOutOfRange@1]
-ID=1090100Ah	// Notification: temperature out of range
+ID=1090100Ah  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -916,8 +938,31 @@ ID=1098100Ah // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB5::MsgTempSetSwitchState@1]
+ID=10A0100Ah   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB5::MsgTempSetACCurrWd@1]
+ID=10A8100Ah       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB5::MsgTempSetACCurrWdExt@1]
+ID=10B0100Ah       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB5::MsgTempEventInfo@2]
-ID=800200Ah	// Info message
+ID=800200Ah // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -925,7 +970,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventWarning@2]
-ID=808200Ah	// Warning message
+ID=808200Ah      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -933,7 +978,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventError@2]
-ID=810200Ah	// Error message
+ID=810200Ah        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -941,7 +986,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempSrvStatistics@2]
-ID=1800200Ah	// Task statistics
+ID=1800200Ah     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -950,19 +995,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB5::MsgTempSrvAckResetData@2]
-ID=1808200Ah	// Reset permanent data acknowledge
+ID=1808200Ah // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB5::MsgTempProcData@2]
-ID=1408200Ah	// Process data of temperature regulator
+ID=1408200Ah  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB5::MsgTempRespTemp@2]
-ID=1050200Ah	// Temperature/state of temperature module
+ID=1050200Ah  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -972,7 +1017,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB5::MsgTempRespPidParams@2]
-ID=1058200Ah	// Parameters of a PID controller
+ID=1058200Ah    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -980,30 +1025,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB5::MsgTempRespHeaterTime@2]
-ID=1860200Ah	// Operating time of a single heater
+ID=1860200Ah   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB5::MsgTempRespSvcSensor@2]
-ID=1868200Ah	// Actual temperature sensor temperature
+ID=1868200Ah        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB5::MsgTempRespServiceFan@2]
-ID=1870200Ah	// Actual speed of a ventilation fan
+ID=1870200Ah   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB5::MsgTempRespHardware@2]
-ID=1878200Ah	// Temperature regulator hardware information
+ID=1878200Ah      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -1012,20 +1057,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB5::MsgTempNotiAutoTune@2]
-ID=1080200Ah	// Auto tune notification
+ID=1080200Ah     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB5::MsgTempNotiInRange@2]
-ID=1088200Ah	// Notification: temperature in range
+ID=1088200Ah      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB5::MsgTempNotiOutOfRange@2]
-ID=1090200Ah	// Notification: temperature out of range
+ID=1090200Ah  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -1035,8 +1080,31 @@ ID=1098200Ah // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB5::MsgTempSetSwitchState@2]
+ID=10A0200Ah   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB5::MsgTempSetACCurrWd@2]
+ID=10A8200Ah       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB5::MsgTempSetACCurrWdExt@2]
+ID=10B0200Ah       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB5::MsgTempEventInfo@3]
-ID=800300Ah	// Info message
+ID=800300Ah // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1044,7 +1112,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventWarning@3]
-ID=808300Ah	// Warning message
+ID=808300Ah      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1052,7 +1120,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventError@3]
-ID=810300Ah	// Error message
+ID=810300Ah        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1060,7 +1128,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempSrvStatistics@3]
-ID=1800300Ah	// Task statistics
+ID=1800300Ah     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -1069,19 +1137,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB5::MsgTempSrvAckResetData@3]
-ID=1808300Ah	// Reset permanent data acknowledge
+ID=1808300Ah // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB5::MsgTempProcData@3]
-ID=1408300Ah	// Process data of temperature regulator
+ID=1408300Ah  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB5::MsgTempRespTemp@3]
-ID=1050300Ah	// Temperature/state of temperature module
+ID=1050300Ah  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -1091,7 +1159,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB5::MsgTempRespPidParams@3]
-ID=1058300Ah	// Parameters of a PID controller
+ID=1058300Ah    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -1099,30 +1167,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB5::MsgTempRespHeaterTime@3]
-ID=1860300Ah	// Operating time of a single heater
+ID=1860300Ah   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB5::MsgTempRespSvcSensor@3]
-ID=1868300Ah	// Actual temperature sensor temperature
+ID=1868300Ah        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB5::MsgTempRespServiceFan@3]
-ID=1870300Ah	// Actual speed of a ventilation fan
+ID=1870300Ah   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB5::MsgTempRespHardware@3]
-ID=1878300Ah	// Temperature regulator hardware information
+ID=1878300Ah      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -1131,20 +1199,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB5::MsgTempNotiAutoTune@3]
-ID=1080300Ah	// Auto tune notification
+ID=1080300Ah     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB5::MsgTempNotiInRange@3]
-ID=1088300Ah	// Notification: temperature in range
+ID=1088300Ah      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB5::MsgTempNotiOutOfRange@3]
-ID=1090300Ah	// Notification: temperature out of range
+ID=1090300Ah  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -1154,8 +1222,31 @@ ID=1098300Ah // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB5::MsgTempSetSwitchState@3]
+ID=10A0300Ah   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB5::MsgTempSetACCurrWd@3]
+ID=10A8300Ah       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB5::MsgTempSetACCurrWdExt@3]
+ID=10B0300Ah       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB5::MsgTempEventInfo@4]
-ID=800400Ah	// Info message
+ID=800400Ah // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1163,7 +1254,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventWarning@4]
-ID=808400Ah	// Warning message
+ID=808400Ah      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1171,7 +1262,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempEventError@4]
-ID=810400Ah	// Error message
+ID=810400Ah        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1179,7 +1270,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB5::MsgTempSrvStatistics@4]
-ID=1800400Ah	// Task statistics
+ID=1800400Ah     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -1188,19 +1279,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB5::MsgTempSrvAckResetData@4]
-ID=1808400Ah	// Reset permanent data acknowledge
+ID=1808400Ah // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB5::MsgTempProcData@4]
-ID=1408400Ah	// Process data of temperature regulator
+ID=1408400Ah  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB5::MsgTempRespTemp@4]
-ID=1050400Ah	// Temperature/state of temperature module
+ID=1050400Ah  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -1210,7 +1301,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB5::MsgTempRespPidParams@4]
-ID=1058400Ah	// Parameters of a PID controller
+ID=1058400Ah    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -1218,30 +1309,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB5::MsgTempRespHeaterTime@4]
-ID=1860400Ah	// Operating time of a single heater
+ID=1860400Ah   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB5::MsgTempRespSvcSensor@4]
-ID=1868400Ah	// Actual temperature sensor temperature
+ID=1868400Ah        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB5::MsgTempRespServiceFan@4]
-ID=1870400Ah	// Actual speed of a ventilation fan
+ID=1870400Ah   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB5::MsgTempRespHardware@4]
-ID=1878400Ah	// Temperature regulator hardware information
+ID=1878400Ah      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -1250,20 +1341,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB5::MsgTempNotiAutoTune@4]
-ID=1080400Ah	// Auto tune notification
+ID=1080400Ah     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB5::MsgTempNotiInRange@4]
-ID=1088400Ah	// Notification: temperature in range
+ID=1088400Ah      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB5::MsgTempNotiOutOfRange@4]
-ID=1090400Ah	// Notification: temperature out of range
+ID=1090400Ah  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -1273,6 +1364,29 @@ ID=1098400Ah // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB5::MsgTempSetSwitchState@4]
+ID=10A0400Ah   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB5::MsgTempSetACCurrWd@4]
+ID=10A8400Ah       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB5::MsgTempSetACCurrWdExt@4]
+ID=10B0400Ah       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB15::MsgSysHardwareID]
 ID=1Eh // Hardware identification
 Type=Extended
@@ -1520,7 +1634,7 @@ Type=Extended
 DLC=1
 Var=Result unsigned 0,8 -m /e:EnumBootLoaderTrailer /ln:"Trailer result"
 [ASB15::MsgPressEventInfo@1]
-ID=800101Eh	// Info message
+ID=800101Eh        // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1528,7 +1642,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgPressEventWarning@1]
-ID=808101Eh	// Warning message
+ID=808101Eh     // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1536,7 +1650,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgPressEventError@1]
-ID=810101Eh	// Error message
+ID=810101Eh       // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1544,7 +1658,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgPressSrvStatistics@1]
-ID=1800101Eh	// Task statistics
+ID=1800101Eh    // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -1553,19 +1667,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB15::MsgPressSrvAckResetData@1]
-ID=1808101Eh	// Reset permanent data acknowledge
+ID=1808101Eh        // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB15::MsgPressProcData@1]
-ID=1408101Eh	// Process data of pressure regulator
+ID=1408101Eh // Process data of pressure regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB15::MsgPressRespPressure@1]
-ID=1050101Eh	// Pressure/state of pressure module
+ID=1050101Eh     // Pressure/state of pressure module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -1575,7 +1689,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB15::MsgPressRespPidParams@1]
-ID=1058101Eh	// Parameters of a PID controller
+ID=1058101Eh   // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -1585,55 +1699,60 @@ Var=ParamKc unsigned 24,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 40,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 56,8 -m /u:ms /ln:"PD deviation time"
 
-		
 [ASB15::MsgPressRespPumpTime@1]
-ID=1860101Eh	// Operating time of a single pump
+ID=1860101Eh    // Operating time of a single pump
 Type=Extended
 DLC=5
 Var=PumpNumber unsigned 0,8 -m /ln:"Number of pumping element"
 Var=ActiveTime unsigned 8,32 -m /u:sec /ln:"Operating time"
-	
+        
 [ASB15::MsgPressRespSvcSensor@1]
-ID=1868101Eh	// Actual pressure sensor pressure
+ID=1868101Eh       // Actual pressure sensor pressure
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Pressure sensor number"
 Var=Pressure signed 8,16 -m /u:KPa /f:0.01 /ln:"Sensor pressure"
-	
+        
 [ASB15::MsgPressRespServiceFan@1]
-ID=1870101Eh	// Actual speed of a ventilation fan
+ID=1870101Eh  // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB15::MsgPressRespHardware@1]
-ID=1878101Eh	// Pressure regulator hardware information
+ID=1878101Eh     // Pressure regulator hardware information
 Type=Extended
 DLC=5
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
 Var=NumberPumps unsigned 8,8 -m /ln:"Number of pumps"
 Var=NumberPid unsigned 16,8 -m /ln:"Number of PIDs"
 Var=PumpCurrent unsigned 24,16 -m /u:mA /ln:"Current at pumping elements "
-	
+        
 [ASB15::MsgPressNotiAutoTune@1]
-ID=1080101Eh	// Auto tune notification
+ID=1080101Eh    // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB15::MsgPressNotiInRange@1]
-ID=1088101Eh	// Notification: pressure in range
+ID=1088101Eh     // Notification: pressure in range
 Type=Extended
 DLC=2
 Var=Pressure unsigned 0,16 -m /ln:"Pressure"
 
 [ASB15::MsgPressNotiOutOfRange@1]
-ID=1090101Eh	// Notification: pressure out of range
+ID=1090101Eh // Notification: pressure out of range
 Type=Extended
 DLC=2
 Var=Pressure unsigned 0,16 -m /ln:"Pressure"
+
+[ASB15::MsgPressSetFan@1]
+ID=10B0101Fh  // Sets fan speed watchdog parameters
+Type=Extended
+DLC=1
+Var=FanStatus unsigned 0,8 -m /ln:"Fan ON/OFF"
 [ASB15::MsgTempEventInfo@1]
-ID=800201Eh	// Info message
+ID=800201Eh // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1641,7 +1760,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempEventWarning@1]
-ID=808201Eh	// Warning message
+ID=808201Eh      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1649,7 +1768,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempEventError@1]
-ID=810201Eh	// Error message
+ID=810201Eh        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1657,7 +1776,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempSrvStatistics@1]
-ID=1800201Eh	// Task statistics
+ID=1800201Eh     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -1666,19 +1785,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB15::MsgTempSrvAckResetData@1]
-ID=1808201Eh	// Reset permanent data acknowledge
+ID=1808201Eh // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB15::MsgTempProcData@1]
-ID=1408201Eh	// Process data of temperature regulator
+ID=1408201Eh  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB15::MsgTempRespTemp@1]
-ID=1050201Eh	// Temperature/state of temperature module
+ID=1050201Eh  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -1688,7 +1807,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB15::MsgTempRespPidParams@1]
-ID=1058201Eh	// Parameters of a PID controller
+ID=1058201Eh    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -1696,30 +1815,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB15::MsgTempRespHeaterTime@1]
-ID=1860201Eh	// Operating time of a single heater
+ID=1860201Eh   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB15::MsgTempRespSvcSensor@1]
-ID=1868201Eh	// Actual temperature sensor temperature
+ID=1868201Eh        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB15::MsgTempRespServiceFan@1]
-ID=1870201Eh	// Actual speed of a ventilation fan
+ID=1870201Eh   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB15::MsgTempRespHardware@1]
-ID=1878201Eh	// Temperature regulator hardware information
+ID=1878201Eh      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -1728,20 +1847,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB15::MsgTempNotiAutoTune@1]
-ID=1080201Eh	// Auto tune notification
+ID=1080201Eh     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB15::MsgTempNotiInRange@1]
-ID=1088201Eh	// Notification: temperature in range
+ID=1088201Eh      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB15::MsgTempNotiOutOfRange@1]
-ID=1090201Eh	// Notification: temperature out of range
+ID=1090201Eh  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -1751,8 +1870,31 @@ ID=1098201Eh // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB15::MsgTempSetSwitchState@1]
+ID=10A0201Eh   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB15::MsgTempSetACCurrWd@1]
+ID=10A8201Eh       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB15::MsgTempSetACCurrWdExt@1]
+ID=10B0201Eh       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB15::MsgTempEventInfo@2]
-ID=800301Eh	// Info message
+ID=800301Eh // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1760,7 +1902,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempEventWarning@2]
-ID=808301Eh	// Warning message
+ID=808301Eh      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1768,7 +1910,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempEventError@2]
-ID=810301Eh	// Error message
+ID=810301Eh        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1776,7 +1918,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempSrvStatistics@2]
-ID=1800301Eh	// Task statistics
+ID=1800301Eh     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -1785,19 +1927,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB15::MsgTempSrvAckResetData@2]
-ID=1808301Eh	// Reset permanent data acknowledge
+ID=1808301Eh // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB15::MsgTempProcData@2]
-ID=1408301Eh	// Process data of temperature regulator
+ID=1408301Eh  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB15::MsgTempRespTemp@2]
-ID=1050301Eh	// Temperature/state of temperature module
+ID=1050301Eh  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -1807,7 +1949,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB15::MsgTempRespPidParams@2]
-ID=1058301Eh	// Parameters of a PID controller
+ID=1058301Eh    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -1815,30 +1957,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB15::MsgTempRespHeaterTime@2]
-ID=1860301Eh	// Operating time of a single heater
+ID=1860301Eh   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB15::MsgTempRespSvcSensor@2]
-ID=1868301Eh	// Actual temperature sensor temperature
+ID=1868301Eh        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB15::MsgTempRespServiceFan@2]
-ID=1870301Eh	// Actual speed of a ventilation fan
+ID=1870301Eh   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB15::MsgTempRespHardware@2]
-ID=1878301Eh	// Temperature regulator hardware information
+ID=1878301Eh      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -1847,20 +1989,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB15::MsgTempNotiAutoTune@2]
-ID=1080301Eh	// Auto tune notification
+ID=1080301Eh     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB15::MsgTempNotiInRange@2]
-ID=1088301Eh	// Notification: temperature in range
+ID=1088301Eh      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB15::MsgTempNotiOutOfRange@2]
-ID=1090301Eh	// Notification: temperature out of range
+ID=1090301Eh  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -1870,8 +2012,31 @@ ID=1098301Eh // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB15::MsgTempSetSwitchState@2]
+ID=10A0301Eh   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB15::MsgTempSetACCurrWd@2]
+ID=10A8301Eh       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB15::MsgTempSetACCurrWdExt@2]
+ID=10B0301Eh       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB15::MsgTempEventInfo@3]
-ID=800401Eh	// Info message
+ID=800401Eh // Info message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1879,7 +2044,7 @@ Var=InfoCode unsigned 16,16 -m /ln:"Info code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempEventWarning@3]
-ID=808401Eh	// Warning message
+ID=808401Eh      // Warning message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1887,7 +2052,7 @@ Var=WarnCode unsigned 16,16 -m /ln:"Warning code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempEventError@3]
-ID=810401Eh	// Error message
+ID=810401Eh        // Error message
 Type=Extended
 DLC=6
 Var=ModuleID unsigned 0,16 -m /ln:"Module ID"
@@ -1895,7 +2060,7 @@ Var=ErrCode unsigned 16,16 -m /ln:"Error code"
 Var=AddInfo unsigned 32,16 -m /ln:"Additional info"
 
 [ASB15::MsgTempSrvStatistics@3]
-ID=1800401Eh	// Task statistics
+ID=1800401Eh     // Task statistics
 Type=Extended
 DLC=8
 Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
@@ -1904,19 +2069,19 @@ Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
 [ASB15::MsgTempSrvAckResetData@3]
-ID=1808401Eh	// Reset permanent data acknowledge
+ID=1808401Eh // Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
 [ASB15::MsgTempProcData@3]
-ID=1408401Eh	// Process data of temperature regulator
+ID=1408401Eh  // Process data of temperature regulator
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
 [ASB15::MsgTempRespTemp@3]
-ID=1050401Eh	// Temperature/state of temperature module
+ID=1050401Eh  // Temperature/state of temperature module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -1926,7 +2091,7 @@ Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB15::MsgTempRespPidParams@3]
-ID=1058401Eh	// Parameters of a PID controller
+ID=1058401Eh    // Parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -1934,30 +2099,30 @@ Var=MaxTemp unsigned 8,8 -m /u:Celsius degree /ln:"Maximal temperature"
 Var=ParamKc unsigned 16,16 -m /ln:"PID gain parameter"
 Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
-		
+                
 [ASB15::MsgTempRespHeaterTime@3]
-ID=1860401Eh	// Operating time of a single heater
+ID=1860401Eh   // Operating time of a single heater
 Type=Extended
 DLC=5
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
 Var=ActiveTime unsigned 8,32 -m /u:min /ln:"Operating time"
-	
+        
 [ASB15::MsgTempRespSvcSensor@3]
-ID=1868401Eh	// Actual temperature sensor temperature
+ID=1868401Eh        // Actual temperature sensor temperature
 Type=Extended
 DLC=3
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
 Var=Temperature unsigned 8,16 -m /u:0.01 Celsius degree /ln:"Sensor temperature"
-	
+        
 [ASB15::MsgTempRespServiceFan@3]
-ID=1870401Eh	// Actual speed of a ventilation fan
+ID=1870401Eh   // Actual speed of a ventilation fan
 Type=Extended
 DLC=5
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 Var=FanSpeed unsigned 8,32 -m /u:rpm /ln:"Speed of the fan"
-	
+        
 [ASB15::MsgTempRespHardware@3]
-ID=1878401Eh	// Temperature regulator hardware information
+ID=1878401Eh      // Temperature regulator hardware information
 Type=Extended
 DLC=7
 Var=NumberSensors unsigned 0,8 -m /ln:"Number of sensors"
@@ -1966,20 +2131,20 @@ Var=NumberHeaters unsigned 16,8 -m /ln:"Number of heaters"
 Var=NumberPid unsigned 24,8 -m /ln:"Number of PIDs"
 Var=HeaterCurrent unsigned 32,16 -m /u:mA /ln:"Current at heating elements "
 Var=HeaterSwitchState unsigned 48,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
-	
+        
 [ASB15::MsgTempNotiAutoTune@3]
-ID=1080401Eh	// Auto tune notification
+ID=1080401Eh     // Auto tune notification
 Type=Extended
 DLC=0
-		
+                
 [ASB15::MsgTempNotiInRange@3]
-ID=1088401Eh	// Notification: temperature in range
+ID=1088401Eh      // Notification: temperature in range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
 
 [ASB15::MsgTempNotiOutOfRange@3]
-ID=1090401Eh	// Notification: temperature out of range
+ID=1090401Eh  // Notification: temperature out of range
 Type=Extended
 DLC=2
 Var=Temperature unsigned 0,16 -m /ln:"Temperature"
@@ -1989,6 +2154,29 @@ ID=1098401Eh // Notification: preset temperature variation slope detected
 Type=Extended
 DLC=1
 Var=SlopeChangeStatus unsigned 0,8 -m /ln:"Slope change status"
+
+[ASB15::MsgTempSetSwitchState@3]
+ID=10A0401Eh   // Heater switch state
+Type=Extended
+DLC=2
+Var=SwitchState unsigned 0,8 -m /e:HeaterSwitchState /ln:"State of heater switch"
+Var=AutoSwitch unsigned 8,8 -m /e:EnumBoolean /ln:"Enable/Disable AutoSwitch"
+
+[ASB15::MsgTempSetACCurrWd@3]
+ID=10A8401Eh       // Set AC current watchdog parameters
+Type=Extended
+DLC=8
+Var=CurrentMin230_Serial unsigned  0,16 -m /ln:"Min Current of 230V in Serial Mode"
+Var=CurrentMax230_Serial unsigned 16,16 -m /ln:"Max Current of 230V in Serial Mode"
+Var=CurrentMin100_Serial unsigned 32,16 -m /ln:"Min Current of 110V in Serial Mode"
+Var=CurrentMax100_Serial unsigned 48,16 -m /ln:"Max Current of 110V in Serial Mode"
+
+[ASB15::MsgTempSetACCurrWdExt@3]
+ID=10B0401Eh       // Set extra AC current watchdog parameters
+Type=Extended
+DLC=4
+Var=CurrentMin100_Parallel unsigned   0,16 -m /ln:"Min Current of 100V in Parallel Mode"
+Var=CurrentMax100_Parallel unsigned  16,16 -m /ln:"Max Current of 100V in Parallel Mode"
 [ASB15::MsgDoutEventInfo@1]
 ID=800501Eh	// Info message
 Type=Extended
@@ -2233,7 +2421,7 @@ Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
-[ASB15::MsgDoutEventInfo@5]
+[ASB15::MsgDinEventInfo@1]
 ID=800901Eh	// Info message
 Type=Extended
 DLC=8
@@ -2241,7 +2429,7 @@ Var=InfoCode unsigned 0,16 -m /ln:"Info code"
 Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
 Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
 
-[ASB15::MsgDoutEventWarning@5]
+[ASB15::MsgDinEventWarning@1]
 ID=808901Eh	// Warning message
 Type=Extended
 DLC=8
@@ -2249,7 +2437,7 @@ Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
 Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
 Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
 
-[ASB15::MsgDoutEventError@5]
+[ASB15::MsgDinEventError@1]
 ID=810901Eh	// Error message
 Type=Extended
 DLC=8
@@ -2257,7 +2445,7 @@ Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
 Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
 Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
 
-[ASB15::MsgDoutSrvStatistics@5]
+[ASB15::MsgDinSrvStatistics@1]
 ID=1C00901Eh	// Task statistics
 Type=Extended
 DLC=8
@@ -2266,35 +2454,26 @@ Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
 Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
-[ASB15::MsgDoutSrvAckResetData@5]
+[ASB15::MsgDinSrvAckResetData@1]
 ID=1C08901Eh	// Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
-[ASB15::MsgDoutLifeTimeData@5]
-ID=1C28901Eh	// Life time data of digital output
+[ASB15::MsgDinInputState@1]
+ID=1038901Eh	// Actual state of digital input
 Type=Extended
-DLC=8
-Var=LifeTime unsigned 0,32 -m /u:min /ln:"Sum of all on-times"
-Var=LifeCycles unsigned 32,32 -m /ln:"Number of on-/off cycles"
+DLC=6
+Var=InputValue unsigned 0,16 -m /ln:"Actual digital input value"
+Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
 
-[ASB15::MsgDoutOutputState@5]
-ID=1040901Eh	// Set state of digital output
-Type=Extended
-DLC=7
-Var=State unsigned 0,8 -m /e:EnumDoState /ln:"Output phase (delay, duration, ...)"
-Var=Value unsigned 8,16 -m /ln:"Actual value of output"
-Var=Delay unsigned 24,16 -m /ln:"Expired delay time"
-Var=Duration unsigned 40,16 -m /ln:"Expired duration time"
-
-[ASB15::MsgDoutProcData@5]
+[ASB15::MsgDinProcData@1]
 ID=1808901Eh	// Process data of digital input
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
-[ASB15::MsgDinEventInfo@1]
+[ASB15::MsgDinEventInfo@2]
 ID=800A01Eh	// Info message
 Type=Extended
 DLC=8
@@ -2302,7 +2481,7 @@ Var=InfoCode unsigned 0,16 -m /ln:"Info code"
 Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
 Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
 
-[ASB15::MsgDinEventWarning@1]
+[ASB15::MsgDinEventWarning@2]
 ID=808A01Eh	// Warning message
 Type=Extended
 DLC=8
@@ -2310,7 +2489,7 @@ Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
 Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
 Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
 
-[ASB15::MsgDinEventError@1]
+[ASB15::MsgDinEventError@2]
 ID=810A01Eh	// Error message
 Type=Extended
 DLC=8
@@ -2318,7 +2497,7 @@ Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
 Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
 Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
 
-[ASB15::MsgDinSrvStatistics@1]
+[ASB15::MsgDinSrvStatistics@2]
 ID=1C00A01Eh	// Task statistics
 Type=Extended
 DLC=8
@@ -2327,73 +2506,21 @@ Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
 Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
 Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
 
-[ASB15::MsgDinSrvAckResetData@1]
+[ASB15::MsgDinSrvAckResetData@2]
 ID=1C08A01Eh	// Reset permanent data acknowledge
 Type=Extended
 DLC=1
 Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
 
-[ASB15::MsgDinInputState@1]
+[ASB15::MsgDinInputState@2]
 ID=1038A01Eh	// Actual state of digital input
 Type=Extended
 DLC=6
 Var=InputValue unsigned 0,16 -m /ln:"Actual digital input value"
 Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
 
-[ASB15::MsgDinProcData@1]
-ID=1808A01Eh	// Process data of digital input
-Type=Extended
-DLC=2
-Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
-
-[ASB15::MsgDinEventInfo@2]
-ID=800B01Eh	// Info message
-Type=Extended
-DLC=8
-Var=InfoCode unsigned 0,16 -m /ln:"Info code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
-
-[ASB15::MsgDinEventWarning@2]
-ID=808B01Eh	// Warning message
-Type=Extended
-DLC=8
-Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
-
-[ASB15::MsgDinEventError@2]
-ID=810B01Eh	// Error message
-Type=Extended
-DLC=8
-Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
-Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
-Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
-
-[ASB15::MsgDinSrvStatistics@2]
-ID=1C00B01Eh	// Task statistics
-Type=Extended
-DLC=8
-Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
-Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
-Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
-Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
-
-[ASB15::MsgDinSrvAckResetData@2]
-ID=1C08B01Eh	// Reset permanent data acknowledge
-Type=Extended
-DLC=1
-Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
-
-[ASB15::MsgDinInputState@2]
-ID=1038B01Eh	// Actual state of digital input
-Type=Extended
-DLC=6
-Var=InputValue unsigned 0,16 -m /ln:"Actual digital input value"
-Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
-
 [ASB15::MsgDinProcData@2]
-ID=1808B01Eh	// Process data of digital input
+ID=1808A01Eh	// Process data of digital input
 Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
@@ -2814,7 +2941,7 @@ Type=Extended
 DLC=0
 
 [ASB3::MsgTempSrvCfgStatistics@1]
-ID=18002007h	// Configure and request statistics
+ID=18002007h // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -2823,13 +2950,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB3::MsgTempSrvReqResetData@1]
-ID=18082007h	// Request reset permanent data
+ID=18082007h // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB3::MsgTempProcConfigure@1]
-ID=14002007h	// Configure process data 
+ID=14002007h     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -2837,12 +2964,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB3::MsgTempProcReqData@1]
-ID=14082007h	// Request process data 
+ID=14082007h      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB3::MsgTempSetTemp@1]
-ID=10282007h	// Set temperature related parameters 
+ID=10282007h   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -2853,22 +2980,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB3::MsgTempSetFanWatchdog@1]
-ID=10302007h	// Sets fan speed watchdog parameters
+ID=10302007h   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB3::MsgTempSetCurrWatchdog@1]
-ID=10382007h	// Set current watchdog parameters
+ID=10382007h       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB3::MsgTempSetPidParams@1]
-ID=10402007h	// Sets parameters of a PID controller
+ID=10402007h     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -2878,46 +3006,45 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB3::MsgTempSetHeaterTime@1]
-ID=10482007h	// Reset the operating timers of the module
+ID=10482007h    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB3::MsgTempReqTemp@1]
-ID=10502007h	// Request temperature and state of heater
+ID=10502007h   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB3::MsgTempReqPidParams@1]
-ID=10582007h	// Requests parameters of a PID controller
+ID=10582007h     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB3::MsgTempReqHeaterTime@1]
-ID=18602007h	// Request operating time of a heater
+ID=18602007h    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB3::MsgTempReqSvcSensor@1]
-ID=18682007h	// Requests temperature of a temperature sensor
+ID=18682007h // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB3::MsgTempReqServiceFan@1]
-ID=18702007h	// Requests speed of a single fan
+ID=18702007h    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB3::MsgTempReqHardware@1]
-ID=18782007h	// Request hardware informations
+ID=18782007h       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB5::MsgSysAckHardwareID]
 ID=Bh // Hardware-ID acknowledge
 Type=Extended
@@ -3159,7 +3286,7 @@ DLC=4
 Var=CRC unsigned 0,32 -m /ln:"CRC checksum"
 
 [ASB5::MsgTempSrvCfgStatistics@1]
-ID=1800100Bh	// Configure and request statistics
+ID=1800100Bh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3168,13 +3295,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB5::MsgTempSrvReqResetData@1]
-ID=1808100Bh	// Request reset permanent data
+ID=1808100Bh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB5::MsgTempProcConfigure@1]
-ID=1400100Bh	// Configure process data 
+ID=1400100Bh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3182,12 +3309,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB5::MsgTempProcReqData@1]
-ID=1408100Bh	// Request process data 
+ID=1408100Bh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB5::MsgTempSetTemp@1]
-ID=1028100Bh	// Set temperature related parameters 
+ID=1028100Bh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -3198,22 +3325,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB5::MsgTempSetFanWatchdog@1]
-ID=1030100Bh	// Sets fan speed watchdog parameters
+ID=1030100Bh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB5::MsgTempSetCurrWatchdog@1]
-ID=1038100Bh	// Set current watchdog parameters
+ID=1038100Bh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB5::MsgTempSetPidParams@1]
-ID=1040100Bh	// Sets parameters of a PID controller
+ID=1040100Bh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -3223,48 +3351,47 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB5::MsgTempSetHeaterTime@1]
-ID=1048100Bh	// Reset the operating timers of the module
+ID=1048100Bh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB5::MsgTempReqTemp@1]
-ID=1050100Bh	// Request temperature and state of heater
+ID=1050100Bh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB5::MsgTempReqPidParams@1]
-ID=1058100Bh	// Requests parameters of a PID controller
+ID=1058100Bh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB5::MsgTempReqHeaterTime@1]
-ID=1860100Bh	// Request operating time of a heater
+ID=1860100Bh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB5::MsgTempReqSvcSensor@1]
-ID=1868100Bh	// Requests temperature of a temperature sensor
+ID=1868100Bh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB5::MsgTempReqServiceFan@1]
-ID=1870100Bh	// Requests speed of a single fan
+ID=1870100Bh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB5::MsgTempReqHardware@1]
-ID=1878100Bh	// Request hardware informations
+ID=1878100Bh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB5::MsgTempSrvCfgStatistics@2]
-ID=1800200Bh	// Configure and request statistics
+ID=1800200Bh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3273,13 +3400,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB5::MsgTempSrvReqResetData@2]
-ID=1808200Bh	// Request reset permanent data
+ID=1808200Bh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB5::MsgTempProcConfigure@2]
-ID=1400200Bh	// Configure process data 
+ID=1400200Bh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3287,12 +3414,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB5::MsgTempProcReqData@2]
-ID=1408200Bh	// Request process data 
+ID=1408200Bh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB5::MsgTempSetTemp@2]
-ID=1028200Bh	// Set temperature related parameters 
+ID=1028200Bh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -3303,22 +3430,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB5::MsgTempSetFanWatchdog@2]
-ID=1030200Bh	// Sets fan speed watchdog parameters
+ID=1030200Bh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB5::MsgTempSetCurrWatchdog@2]
-ID=1038200Bh	// Set current watchdog parameters
+ID=1038200Bh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB5::MsgTempSetPidParams@2]
-ID=1040200Bh	// Sets parameters of a PID controller
+ID=1040200Bh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -3328,48 +3456,47 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB5::MsgTempSetHeaterTime@2]
-ID=1048200Bh	// Reset the operating timers of the module
+ID=1048200Bh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB5::MsgTempReqTemp@2]
-ID=1050200Bh	// Request temperature and state of heater
+ID=1050200Bh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB5::MsgTempReqPidParams@2]
-ID=1058200Bh	// Requests parameters of a PID controller
+ID=1058200Bh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB5::MsgTempReqHeaterTime@2]
-ID=1860200Bh	// Request operating time of a heater
+ID=1860200Bh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB5::MsgTempReqSvcSensor@2]
-ID=1868200Bh	// Requests temperature of a temperature sensor
+ID=1868200Bh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB5::MsgTempReqServiceFan@2]
-ID=1870200Bh	// Requests speed of a single fan
+ID=1870200Bh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB5::MsgTempReqHardware@2]
-ID=1878200Bh	// Request hardware informations
+ID=1878200Bh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB5::MsgTempSrvCfgStatistics@3]
-ID=1800300Bh	// Configure and request statistics
+ID=1800300Bh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3378,13 +3505,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB5::MsgTempSrvReqResetData@3]
-ID=1808300Bh	// Request reset permanent data
+ID=1808300Bh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB5::MsgTempProcConfigure@3]
-ID=1400300Bh	// Configure process data 
+ID=1400300Bh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3392,12 +3519,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB5::MsgTempProcReqData@3]
-ID=1408300Bh	// Request process data 
+ID=1408300Bh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB5::MsgTempSetTemp@3]
-ID=1028300Bh	// Set temperature related parameters 
+ID=1028300Bh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -3408,22 +3535,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB5::MsgTempSetFanWatchdog@3]
-ID=1030300Bh	// Sets fan speed watchdog parameters
+ID=1030300Bh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB5::MsgTempSetCurrWatchdog@3]
-ID=1038300Bh	// Set current watchdog parameters
+ID=1038300Bh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB5::MsgTempSetPidParams@3]
-ID=1040300Bh	// Sets parameters of a PID controller
+ID=1040300Bh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -3433,48 +3561,47 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB5::MsgTempSetHeaterTime@3]
-ID=1048300Bh	// Reset the operating timers of the module
+ID=1048300Bh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB5::MsgTempReqTemp@3]
-ID=1050300Bh	// Request temperature and state of heater
+ID=1050300Bh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB5::MsgTempReqPidParams@3]
-ID=1058300Bh	// Requests parameters of a PID controller
+ID=1058300Bh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB5::MsgTempReqHeaterTime@3]
-ID=1860300Bh	// Request operating time of a heater
+ID=1860300Bh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB5::MsgTempReqSvcSensor@3]
-ID=1868300Bh	// Requests temperature of a temperature sensor
+ID=1868300Bh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB5::MsgTempReqServiceFan@3]
-ID=1870300Bh	// Requests speed of a single fan
+ID=1870300Bh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB5::MsgTempReqHardware@3]
-ID=1878300Bh	// Request hardware informations
+ID=1878300Bh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB5::MsgTempSrvCfgStatistics@4]
-ID=1800400Bh	// Configure and request statistics
+ID=1800400Bh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3483,13 +3610,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB5::MsgTempSrvReqResetData@4]
-ID=1808400Bh	// Request reset permanent data
+ID=1808400Bh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB5::MsgTempProcConfigure@4]
-ID=1400400Bh	// Configure process data 
+ID=1400400Bh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3497,12 +3624,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB5::MsgTempProcReqData@4]
-ID=1408400Bh	// Request process data 
+ID=1408400Bh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB5::MsgTempSetTemp@4]
-ID=1028400Bh	// Set temperature related parameters 
+ID=1028400Bh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -3513,22 +3640,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB5::MsgTempSetFanWatchdog@4]
-ID=1030400Bh	// Sets fan speed watchdog parameters
+ID=1030400Bh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB5::MsgTempSetCurrWatchdog@4]
-ID=1038400Bh	// Set current watchdog parameters
+ID=1038400Bh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB5::MsgTempSetPidParams@4]
-ID=1040400Bh	// Sets parameters of a PID controller
+ID=1040400Bh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -3538,46 +3666,45 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB5::MsgTempSetHeaterTime@4]
-ID=1048400Bh	// Reset the operating timers of the module
+ID=1048400Bh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB5::MsgTempReqTemp@4]
-ID=1050400Bh	// Request temperature and state of heater
+ID=1050400Bh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB5::MsgTempReqPidParams@4]
-ID=1058400Bh	// Requests parameters of a PID controller
+ID=1058400Bh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB5::MsgTempReqHeaterTime@4]
-ID=1860400Bh	// Request operating time of a heater
+ID=1860400Bh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB5::MsgTempReqSvcSensor@4]
-ID=1868400Bh	// Requests temperature of a temperature sensor
+ID=1868400Bh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB5::MsgTempReqServiceFan@4]
-ID=1870400Bh	// Requests speed of a single fan
+ID=1870400Bh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB5::MsgTempReqHardware@4]
-ID=1878400Bh	// Request hardware informations
+ID=1878400Bh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB15::MsgSysAckHardwareID]
 ID=1Fh // Hardware-ID acknowledge
 Type=Extended
@@ -3819,7 +3946,7 @@ DLC=4
 Var=CRC unsigned 0,32 -m /ln:"CRC checksum"
 
 [ASB15::MsgPressSrvCfgStatistic@1]
-ID=1800101Fh	// Configure and request statistics
+ID=1800101Fh        // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3828,13 +3955,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB15::MsgPressSrvReqResetData@1]
-ID=1808101Fh	// Request reset permanent data
+ID=1808101Fh        // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB15::MsgPressProcConfigure@1]
-ID=1400101Fh	// Configure process data 
+ID=1400101Fh    // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3842,29 +3969,30 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgPressProcReqData@1]
-ID=1408101Fh	// Request process data 
+ID=1408101Fh     // Request process data 
 Type=Extended
 DLC=0
 
 [ASB15::MsgPressSetPressure@1]
-ID=1028101Fh	// Set pressure related parameters 
+ID=1028101Fh      // Set pressure related parameters 
 Type=Extended
-DLC=7
+DLC=8
 Var=Flags unsigned 0,8 -m /e:PressCtrlState /ln:"Mode control bitmap"
-Var=Pressure unsigned 8,8 -m /u:KPa /ln:"Desired pressure"
-Var=Tolerance unsigned 16,8 -m /u:KPa /ln:"Pressure tolerance"
-Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
-Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
+Var=Pressure signed 8,16 -m /u:KPa /ln:"Desired pressure"
+Var=Tolerance unsigned 24,8 -m /u:KPa /ln:"Pressure tolerance"
+Var=SampleTime unsigned 32,16 -m /u:ms /ln:"Sampling time"
+Var=TuneDuration unsigned 48,16 -m /u:s /ln:"Auto tuning duration"
 
 [ASB15::MsgPressSetFanWatchdog@1]
-ID=1030101Fh	// Sets fan speed watchdog parameters
+ID=1030101Fh  // Sets fan speed watchdog parameters
 Type=Extended
-DLC=4
-Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
-Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
+DLC=6
+Var=CurrentGain unsigned 0,16 -m /u:mA/V /ln:"Fan current gain"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired fan current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Fan current threshold"
 
 [ASB15::MsgPressSetCurrWatchdog@1]
-ID=1038101Fh	// Set current watchdog parameters
+ID=1038101Fh      // Set current watchdog parameters
 Type=Extended
 DLC=6
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
@@ -3872,7 +4000,7 @@ Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired pump current"
 Var=Threshold unsigned 32,16 -m /u:mA /ln:"Pump current threshold"
 
 [ASB15::MsgPressSetPidParams@1]
-ID=1040101Fh	// Sets parameters of a PID controller
+ID=1040101Fh    // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -3883,47 +4011,47 @@ Var=ParamTi unsigned 40,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 56,8 -m /u:ms /ln:"PD deviation time"
 
 [ASB15::MsgPressSetPumpTime@1]
-ID=1048101Fh	// Reset the operating timers of the module
+ID=1048101Fh     // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=PumpNumber unsigned 0,8 -m /ln:"Number of the pumping element"
-		
+                
 [ASB15::MsgPressReqPressure@1]
-ID=1050101Fh	// Request pressure and state of pump
+ID=1050101Fh      // Request pressure and state of pump
 Type=Extended
 DLC=0
-	
+        
 [ASB15::MsgPressReqPidParams@1]
-ID=1058101Fh	// Requests parameters of a PID controller
+ID=1058101Fh    // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB15::MsgPressReqPumpTime@1]
-ID=1860101Fh	// Request operating time of a pump
+ID=1860101Fh     // Request operating time of a pump
 Type=Extended
 DLC=1
 Var=PumpNumber unsigned 0,8 -m /ln:"Number of pumping element"
-		
+                
 [ASB15::MsgPressReqSvcSensor@1]
-ID=1868101Fh	// Requests pressure of a pressure sensor
+ID=1868101Fh        // Requests pressure of a pressure sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Pressure sensor number"
-	
+        
 [ASB15::MsgPressReqServiceFan@1]
-ID=1870101Fh	// Requests speed of a single fan
+ID=1870101Fh   // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB15::MsgPressReqHardware@1]
-ID=1878101Fh	// Request hardware informations
+ID=1878101Fh      // Request hardware informations
 Type=Extended
 DLC=0
 
 [ASB15::MsgPressSetValve@1]
-ID=1098101Fh	       // Set valve status
+ID=1098101Fh        // Set valve status
 Type=Extended
 DLC=2
 Var=ValveNumber unsigned 0,8 -m /ln:"Valve number"
@@ -3936,7 +4064,7 @@ DLC=1
 Var=CalibrationStatus unsigned 0,8 -m /e:CalibrationStatus /ln:"Calibration Status"
 
 [ASB15::MsgPressSetPwmParams@1]
-ID=10A8101Fh	// Sets parameters for PWM output
+ID=10A8101Fh    // Sets parameters for PWM output
 Type=Extended
 DLC=6
 Var=MaxActuatingValue unsigned 0,16 -m /ln:"Maximal actuating value"
@@ -3945,7 +4073,7 @@ Var=MaxPwmDuty unsigned 32,8 -m /u:Percentage /ln:"Maximal pulse duty"
 Var=MinPwmDuty unsigned 40,8 -m /u:Percentage /ln:"Minimum pulse duty"
 
 [ASB15::MsgTempSrvCfgStatistics@1]
-ID=1800201Fh	// Configure and request statistics
+ID=1800201Fh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -3954,13 +4082,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB15::MsgTempSrvReqResetData@1]
-ID=1808201Fh	// Request reset permanent data
+ID=1808201Fh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB15::MsgTempProcConfigure@1]
-ID=1400201Fh	// Configure process data 
+ID=1400201Fh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -3968,12 +4096,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgTempProcReqData@1]
-ID=1408201Fh	// Request process data 
+ID=1408201Fh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB15::MsgTempSetTemp@1]
-ID=1028201Fh	// Set temperature related parameters 
+ID=1028201Fh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -3984,22 +4112,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB15::MsgTempSetFanWatchdog@1]
-ID=1030201Fh	// Sets fan speed watchdog parameters
+ID=1030201Fh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB15::MsgTempSetCurrWatchdog@1]
-ID=1038201Fh	// Set current watchdog parameters
+ID=1038201Fh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB15::MsgTempSetPidParams@1]
-ID=1040201Fh	// Sets parameters of a PID controller
+ID=1040201Fh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -4009,48 +4138,47 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB15::MsgTempSetHeaterTime@1]
-ID=1048201Fh	// Reset the operating timers of the module
+ID=1048201Fh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB15::MsgTempReqTemp@1]
-ID=1050201Fh	// Request temperature and state of heater
+ID=1050201Fh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB15::MsgTempReqPidParams@1]
-ID=1058201Fh	// Requests parameters of a PID controller
+ID=1058201Fh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB15::MsgTempReqHeaterTime@1]
-ID=1860201Fh	// Request operating time of a heater
+ID=1860201Fh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB15::MsgTempReqSvcSensor@1]
-ID=1868201Fh	// Requests temperature of a temperature sensor
+ID=1868201Fh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB15::MsgTempReqServiceFan@1]
-ID=1870201Fh	// Requests speed of a single fan
+ID=1870201Fh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB15::MsgTempReqHardware@1]
-ID=1878201Fh	// Request hardware informations
+ID=1878201Fh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB15::MsgTempSrvCfgStatistics@2]
-ID=1800301Fh	// Configure and request statistics
+ID=1800301Fh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -4059,13 +4187,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB15::MsgTempSrvReqResetData@2]
-ID=1808301Fh	// Request reset permanent data
+ID=1808301Fh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB15::MsgTempProcConfigure@2]
-ID=1400301Fh	// Configure process data 
+ID=1400301Fh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -4073,12 +4201,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgTempProcReqData@2]
-ID=1408301Fh	// Request process data 
+ID=1408301Fh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB15::MsgTempSetTemp@2]
-ID=1028301Fh	// Set temperature related parameters 
+ID=1028301Fh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -4089,22 +4217,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB15::MsgTempSetFanWatchdog@2]
-ID=1030301Fh	// Sets fan speed watchdog parameters
+ID=1030301Fh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB15::MsgTempSetCurrWatchdog@2]
-ID=1038301Fh	// Set current watchdog parameters
+ID=1038301Fh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB15::MsgTempSetPidParams@2]
-ID=1040301Fh	// Sets parameters of a PID controller
+ID=1040301Fh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -4114,48 +4243,47 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB15::MsgTempSetHeaterTime@2]
-ID=1048301Fh	// Reset the operating timers of the module
+ID=1048301Fh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB15::MsgTempReqTemp@2]
-ID=1050301Fh	// Request temperature and state of heater
+ID=1050301Fh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB15::MsgTempReqPidParams@2]
-ID=1058301Fh	// Requests parameters of a PID controller
+ID=1058301Fh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB15::MsgTempReqHeaterTime@2]
-ID=1860301Fh	// Request operating time of a heater
+ID=1860301Fh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB15::MsgTempReqSvcSensor@2]
-ID=1868301Fh	// Requests temperature of a temperature sensor
+ID=1868301Fh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB15::MsgTempReqServiceFan@2]
-ID=1870301Fh	// Requests speed of a single fan
+ID=1870301Fh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB15::MsgTempReqHardware@2]
-ID=1878301Fh	// Request hardware informations
+ID=1878301Fh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB15::MsgTempSrvCfgStatistics@3]
-ID=1800401Fh	// Configure and request statistics
+ID=1800401Fh // Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -4164,13 +4292,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB15::MsgTempSrvReqResetData@3]
-ID=1808401Fh	// Request reset permanent data
+ID=1808401Fh // Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB15::MsgTempProcConfigure@3]
-ID=1400401Fh	// Configure process data 
+ID=1400401Fh     // Configure process data 
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
@@ -4178,12 +4306,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgTempProcReqData@3]
-ID=1408401Fh	// Request process data 
+ID=1408401Fh      // Request process data 
 Type=Extended
 DLC=0
 
 [ASB15::MsgTempSetTemp@3]
-ID=1028401Fh	// Set temperature related parameters 
+ID=1028401Fh   // Set temperature related parameters 
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
@@ -4194,22 +4322,23 @@ Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
 Var=SlopeChange unsigned 56,8 -m /u:Celsius degree /ln:"Slope of temperature"
 
 [ASB15::MsgTempSetFanWatchdog@3]
-ID=1030401Fh	// Sets fan speed watchdog parameters
+ID=1030401Fh   // Sets fan speed watchdog parameters
 Type=Extended
 DLC=4
 Var=FanSpeed unsigned 0,16 -m /u:rpm /ln:"Desired fan speed"
 Var=Threshold unsigned 16,16 -m /u:rpm /ln:"Fan speed threshold"
 
 [ASB15::MsgTempSetCurrWatchdog@3]
-ID=1038401Fh	// Set current watchdog parameters
+ID=1038401Fh       // Set current watchdog parameters
 Type=Extended
-DLC=6
+DLC=8
 Var=GainFactor unsigned 0,16 -m /ln:"Current sensor gain factor"
-Var=MinCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
-Var=Threshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=DesiredCurrent unsigned 16,16 -m /u:mA /ln:"Desired heater current"
+Var=CurrentThreshold unsigned 32,16 -m /u:mA /ln:"Heater current threshold"
+Var=CurrentDeviation unsigned 48,16 -m /u:mA /ln:"Heater current deviation"
 
 [ASB15::MsgTempSetPidParams@3]
-ID=1040401Fh	// Sets parameters of a PID controller
+ID=1040401Fh     // Sets parameters of a PID controller
 Type=Extended
 DLC=8
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
@@ -4219,46 +4348,45 @@ Var=ParamTi unsigned 32,16 -m /u:ms /ln:"PID reset time"
 Var=ParamTd unsigned 48,16 -m /u:ms /ln:"PD deviation time"
 
 [ASB15::MsgTempSetHeaterTime@3]
-ID=1048401Fh	// Reset the operating timers of the module
+ID=1048401Fh    // Reset the operating timers of the module
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of the heating element"
-		
+                
 [ASB15::MsgTempReqTemp@3]
-ID=1050401Fh	// Request temperature and state of heater
+ID=1050401Fh   // Request temperature and state of heater
 Type=Extended
 DLC=0
-	
+        
 [ASB15::MsgTempReqPidParams@3]
-ID=1058401Fh	// Requests parameters of a PID controller
+ID=1058401Fh     // Requests parameters of a PID controller
 Type=Extended
 DLC=1
 Var=PidNumber unsigned 0,8 -m /ln:"Number of PID controller"
-	
+        
 [ASB15::MsgTempReqHeaterTime@3]
-ID=1860401Fh	// Request operating time of a heater
+ID=1860401Fh    // Request operating time of a heater
 Type=Extended
 DLC=1
 Var=HeaterNumber unsigned 0,8 -m /ln:"Number of heating element"
-		
+                
 [ASB15::MsgTempReqSvcSensor@3]
-ID=1868401Fh	// Requests temperature of a temperature sensor
+ID=1868401Fh // Requests temperature of a temperature sensor
 Type=Extended
 DLC=1
 Var=SensorNumber unsigned 0,8 -m /ln:"Temperature sensor number"
-	
+        
 [ASB15::MsgTempReqServiceFan@3]
-ID=1870401Fh	// Requests speed of a single fan
+ID=1870401Fh    // Requests speed of a single fan
 Type=Extended
 DLC=1
 Var=FanNumber unsigned 0,8 -m /ln:"Ventilation fan number"
 
 [ASB15::MsgTempReqHardware@3]
-ID=1878401Fh	// Request hardware informations
+ID=1878401Fh       // Request hardware informations
 Type=Extended
 DLC=0
-		
-
+                
 [ASB15::MsgDoutSrvCfgStatistics@1]
 ID=1C00501Fh	// Configure and request statistics
 Type=Extended
@@ -4519,7 +4647,7 @@ ID=1808801Fh	// Request process data of digital output
 Type=Extended
 DLC=0
 
-[ASB15::MsgDoutSrvCfgStatistics@5]
+[ASB15::MsgDinSrvCfgStatistics@1]
 ID=1C00901Fh	// Configure and request statistics
 Type=Extended
 DLC=1
@@ -4528,79 +4656,14 @@ Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
 Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
-[ASB15::MsgDoutSrvReqResetData@5]
+[ASB15::MsgDinSrvReqResetData@1]
 ID=1C08901Fh	// Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
-[ASB15::MsgDoutConfigOutput@5]
-ID=1028901Fh	// Configure digital output
-Type=Extended
-DLC=7
-Var=Mode unsigned 0,8 -m -h /ln:"Mode of operation"
-Var=Polarity unsigned 8,16 -m /ln:"Polarity of output (inversion bitmask)"
-Var=OffValue unsigned 24,16 -m /ln:"Output value for 'Inactive' state"
-Var=OffLimit unsigned 40,16 -m /ln:"Output threshold for 'Inactive'"
-
-[ASB15::MsgDoutConfigBlinking@5]
-ID=1030901Fh	// Configure blinking of digital output
-Type=Extended
-DLC=8
-Var=BlinkCode unsigned 8,8 -m /ln:"Number of blinks"
-Var=OnTime unsigned 16,16 -m /u:ms /ln:"ON time duration"
-Var=OffTime unsigned 32,16 -m /u:ms /ln:"OFF time duration"
-Var=Pause unsigned 48,16 -m /u:ms /ln:"Pause time between blink codes"
-
-[ASB15::MsgDoutSetOutputState@5]
-ID=1038901Fh	// Change digital output value
-Type=Extended
-DLC=7
-Var=Flags unsigned 0,8 -m -h /ln:"Mode of operation"
-Var=Value unsigned 8,16 -m /ln:"Output value"
-Var=Duration unsigned 24,16 -m /ln:"Duration of output"
-Var=Delay unsigned 40,16 -m /ln:"Delay before output"
-
-[ASB15::MsgDoutReqOutputState@5]
-ID=1040901Fh	// Request digital output state
-Type=Extended
-DLC=0
-
-[ASB15::MsgDoutReqLifeTimeData@5]
-ID=1C28901Fh	// Request life time data of digital output
-Type=Extended
-DLC=0
-
-[ASB15::MsgDoutProcConfigure@5]
-ID=1800901Fh	// Configure process data of digital output
-Type=Extended
-DLC=5
-Var=Mode unsigned 0,8 -m /ln:"Mode of Process Data"
-Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
-Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
-
-[ASB15::MsgDoutProcReqData@5]
-ID=1808901Fh	// Request process data of digital output
-Type=Extended
-DLC=0
-
-[ASB15::MsgDinSrvCfgStatistics@1]
-ID=1C00A01Fh	// Configure and request statistics
-Type=Extended
-DLC=1
-Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
-Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
-Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
-Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
-
-[ASB15::MsgDinSrvReqResetData@1]
-ID=1C08A01Fh	// Request reset permanent data
-Type=Extended
-DLC=2
-Var=Password unsigned 0,16 -m /ln:"Protection password"
-
 [ASB15::MsgDinConfigInput@1]
-ID=1028A01Fh	// Configure digital input
+ID=1028901Fh	// Configure digital input
 Type=Extended
 DLC=7
 Var=EnableInput unsigned 0,1 -m /ln:"Enable digital input module"
@@ -4611,7 +4674,7 @@ Var=SampleRate unsigned 40,8 -m /u:ms /ln:"Input sample rate"
 Var=SampleCount unsigned 48,8 -m /ln:"Number of samples to average over"
 
 [ASB15::MsgDinConfigLimits@1]
-ID=1030A01Fh	// Configure digital input limits
+ID=1030901Fh	// Configure digital input limits
 Type=Extended
 DLC=8
 Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
@@ -4621,12 +4684,12 @@ Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
 Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
 
 [ASB15::MsgDinReqInputState@1]
-ID=1038A01Fh	// Request digital input status
+ID=1038901Fh	// Request digital input status
 Type=Extended
 DLC=0
 
 [ASB15::MsgDinProcConfigure@1]
-ID=1800A01Fh	// Configure process data of digital input
+ID=1800901Fh	// Configure process data of digital input
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
@@ -4634,12 +4697,12 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgDinReqProcData@1]
-ID=1808A01Fh	// Request process data of digital input
+ID=1808901Fh	// Request process data of digital input
 Type=Extended
 DLC=0
 
 [ASB15::MsgDinSrvCfgStatistics@2]
-ID=1C00B01Fh	// Configure and request statistics
+ID=1C00A01Fh	// Configure and request statistics
 Type=Extended
 DLC=1
 Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
@@ -4648,13 +4711,13 @@ Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
 Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
 
 [ASB15::MsgDinSrvReqResetData@2]
-ID=1C08B01Fh	// Request reset permanent data
+ID=1C08A01Fh	// Request reset permanent data
 Type=Extended
 DLC=2
 Var=Password unsigned 0,16 -m /ln:"Protection password"
 
 [ASB15::MsgDinConfigInput@2]
-ID=1028B01Fh	// Configure digital input
+ID=1028A01Fh	// Configure digital input
 Type=Extended
 DLC=7
 Var=EnableInput unsigned 0,1 -m /ln:"Enable digital input module"
@@ -4665,7 +4728,7 @@ Var=SampleRate unsigned 40,8 -m /u:ms /ln:"Input sample rate"
 Var=SampleCount unsigned 48,8 -m /ln:"Number of samples to average over"
 
 [ASB15::MsgDinConfigLimits@2]
-ID=1030B01Fh	// Configure digital input limits
+ID=1030A01Fh	// Configure digital input limits
 Type=Extended
 DLC=8
 Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
@@ -4675,12 +4738,12 @@ Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
 Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
 
 [ASB15::MsgDinReqInputState@2]
-ID=1038B01Fh	// Request digital input status
+ID=1038A01Fh	// Request digital input status
 Type=Extended
 DLC=0
 
 [ASB15::MsgDinProcConfigure@2]
-ID=1800B01Fh	// Configure process data of digital input
+ID=1800A01Fh	// Configure process data of digital input
 Type=Extended
 DLC=5
 Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
@@ -4688,7 +4751,7 @@ Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
 Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgDinReqProcData@2]
-ID=1808B01Fh	// Request process data of digital input
+ID=1808A01Fh	// Request process data of digital input
 Type=Extended
 DLC=0
 
