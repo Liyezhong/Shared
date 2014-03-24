@@ -1972,4 +1972,52 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     }
 }
 
+ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
+{
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return retCode;
+    }
+    if((m_pRotaryValve)&&(m_pAirLiquid))
+    {
+        RVPosition_t currentPosition = m_pRotaryValve->ReqActRVPosition();
+        if(!m_pRotaryValve->IsSealPosition(currentPosition))
+        {
+            RVPosition_t targetPosition = m_pRotaryValve->ReqAdjacentPosition(currentPosition);
+            retCode = m_pRotaryValve->ReqMoveToRVPosition(targetPosition);
+            if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+            {
+                return retCode;
+            }
+        }
+
+        retCode = m_pAirLiquid->Pressure();
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+
+        (void)usleep(10000*1000);
+        qreal pressure = m_pAirLiquid->GetRecentPressure();
+
+        LOG()<<"Sealing test pressure: " << pressure;
+
+        if(pressure < (ThresholdPressure))
+        {
+            retCode = DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
+            LOG()<<"Sealing test: Failed.";
+        }
+        else
+        {
+            retCode = DCL_ERR_FCT_CALL_SUCCESS;
+            LOG()<<"Sealing test: Succeed.";
+        }
+        return retCode;
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
 } // namespace

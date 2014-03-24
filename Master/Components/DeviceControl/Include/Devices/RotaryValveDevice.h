@@ -60,6 +60,8 @@ public:
     ReturnCode_t ReqMoveToRVPosition( RVPosition_t RVPosition);
     //! Request actual oven cover position
     RVPosition_t ReqActRVPosition();
+    RVPosition_t ReqAdjacentPosition(RVPosition_t position);
+    bool IsSealPosition(RVPosition_t position);
     quint16 GetHeaterCurrent();
     //! Request actual oven temperature
     //! Set oven nominal temperature

@@ -38,6 +38,8 @@ namespace DeviceControl
 #define UNDEFINED_2_BYTE    (0xFFFF)
 #define UNDEFINED_4_BYTE    (0xFFFFFFFF)
 
+#define MINIMUM_CHECK_SENSOR_T (100) //in msec
+
 //****************************************************************************/
 // Module constants
 //****************************************************************************/
