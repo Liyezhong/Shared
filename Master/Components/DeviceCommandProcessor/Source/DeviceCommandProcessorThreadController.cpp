@@ -41,7 +41,7 @@ DeviceCommandProcessorThreadController::DeviceCommandProcessorThreadController(
     m_InUnloaderChangedRef(Global::RefManager<Global::tRefType>::INVALID)
   , m_pDeviceProcessing(NULL)
 {
-    qRegisterMetaType<DevInstanceID_t>("DevInstanceID_t");
+    //qRegisterMetaType<quint32>("DevInstanceID_t");
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
 
     for(quint8 Idx = 0; Idx < CMD_REF_CNT; Idx++)
@@ -308,7 +308,7 @@ bool DeviceCommandProcessorThreadController::GetFreeCommandCtrlContainer(quint8&
  *  \return   true if a free command was found
  *
  ***************************************************************************/
- bool DeviceCommandProcessorThreadController::GetCommandCtrlContainer(quint8& CmdIdx, DeviceControl::DevInstanceID_t InstanceID, QStringList& CommandNameList)
+ bool DeviceCommandProcessorThreadController::GetCommandCtrlContainer(quint8& CmdIdx, quint32 InstanceID, QStringList& CommandNameList)
 {
     quint8 Idx;
 

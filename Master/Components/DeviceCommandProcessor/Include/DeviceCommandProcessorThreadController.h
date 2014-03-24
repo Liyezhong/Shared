@@ -184,7 +184,7 @@ protected:
     typedef struct {
         CommandRefState_t               m_State;         ///< command state
         Global::tRefType                m_RefType;       ///< RefType from command
-        DeviceControl::DevInstanceID_t  m_DevInstanceID; ///< Device instance identification
+        quint32                         m_DevInstanceID; ///< Device instance identification
         QString                         m_CommandName;   ///< command name
     } CommandRef_t;
 
@@ -196,7 +196,7 @@ protected:
 
     bool GetFreeCommandCtrlContainer(quint8& CmdIdx);
     bool GetCommandCtrlContainer(quint8& CmdIdx,
-                                 DeviceControl::DevInstanceID_t InstanceID,
+                                 quint32 InstanceID,
                                  QStringList& CommandNameList);
 
 private:
