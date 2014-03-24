@@ -211,10 +211,10 @@ bool EventScenarioErrXMLInfo::ConstructSEMap4ESEInfo()
                     endId = m_pXMLReader->attributes().value("endid").toString().toInt();
 					for (int i= startId; i<=endId; i++)
 					{
-						// Check if scenario ID is in m_ScenarioList
+                        // Check if scenario ID is in m_ScenarioList. If yes, insert it. Otherwise, just ignore it.
 						if (m_ScenarioList.find(m_ScenarioPrefix+QString::number(i)) == m_ScenarioList.end())
 						{
-							return false;
+                            continue;
 						}
 
                         iter.value()->m_ScenarioErrorList.insert(m_ScenarioPrefix+QString::number(i), errorId);
