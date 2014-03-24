@@ -42,7 +42,8 @@ namespace DeviceControl
  CBaseDevice::CBaseDevice(DeviceProcessing* pDeviceProcessing, QString Type) :
     m_pDevProc(pDeviceProcessing),
     m_Type(Type),
-    m_stateTimespan(0)
+    m_stateTimespan(0),
+    m_LastSensorCheckTime(0)
 {
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;

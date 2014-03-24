@@ -167,7 +167,12 @@ void CRetortDevice::HandleTasks()
 /****************************************************************************/
 void CRetortDevice::HandleIdleState()
 {
-    CheckSensorsData();
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if(now > (m_LastSensorCheckTime + MINIMUM_CHECK_SENSOR_T))
+    {
+        CheckSensorsData();
+        m_LastSensorCheckTime = now;
+    }
 }
 
 /****************************************************************************/

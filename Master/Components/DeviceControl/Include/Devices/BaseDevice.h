@@ -174,7 +174,7 @@ protected:
     ListBaseModule m_BaseModuleList;        /// The list contain all the base modules.
     quint16 m_BaseModuleVoltage;            /// The base module's actual voltage
     quint16 m_BaseModuleCurrent;            /// The base module's actual current
-
+    qint64 m_LastSensorCheckTime;           /// The last check sensor's time(in sec since Epoch)
 };
 
 } //namespace

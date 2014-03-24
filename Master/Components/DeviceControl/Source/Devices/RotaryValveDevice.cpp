@@ -350,7 +350,12 @@ ReturnCode_t CRotaryValveDevice::HandleConfigurationState()
 /****************************************************************************/
 void CRotaryValveDevice::HandleIdleState()
 {
-    CheckSensorsData();
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if(now > (m_LastSensorCheckTime + MINIMUM_CHECK_SENSOR_T))
+    {
+        CheckSensorsData();
+        m_LastSensorCheckTime = now;
+    }
 #if 0
     if(m_TaskID == RVDEV_TASKID_FREE)
     {
@@ -1445,6 +1450,24 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToRVPosition( RVPosition_t RVPosition)
 RVPosition_t CRotaryValveDevice::ReqActRVPosition()
 {
     return m_RVCurrentPosition;
+}
+
+RVPosition_t CRotaryValveDevice::ReqAdjacentPosition(RVPosition_t position)
+{
+    RVPosition_t result = RV_UNDEF;
+    if(position != RV_UNDEF)
+    {
+        quint8 remainder = (quint8)position % 2;
+        quint8 left = (quint8)position / 2;
+        result = (RVPosition_t)(left * 2 + remainder * 2 + remainder - 1);
+    }
+    return result;
+}
+
+bool CRotaryValveDevice::IsSealPosition(RVPosition_t position)
+{
+    quint8 remainder = (quint8)position % 2;
+    return (remainder == 0);
 }
 
 /****************************************************************************/

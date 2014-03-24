@@ -153,6 +153,7 @@ public:
     ReturnCode_t PerTurnOnMainRelay();
 
     ReturnCode_t IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos);
+    ReturnCode_t IDSealingCheck(qreal ThresholdPressure);
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
