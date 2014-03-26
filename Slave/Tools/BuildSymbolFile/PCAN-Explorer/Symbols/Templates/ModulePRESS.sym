@@ -51,7 +51,7 @@ ID=$MSG_PRESS_SET_PRESSURE      // Set pressure related parameters
 Type=Extended
 DLC=8
 Var=Flags unsigned 0,8 -m /e:PressCtrlState /ln:"Mode control bitmap"
-Var=Pressure signed 8,16 -m /u:KPa /ln:"Desired pressure"
+Var=Pressure signed 8,16 -m /u:KPa /f:0.01 /ln:"Desired pressure"
 Var=Tolerance unsigned 24,8 -m /u:KPa /ln:"Pressure tolerance"
 Var=SampleTime unsigned 32,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 48,16 -m /u:s /ln:"Auto tuning duration"
@@ -200,7 +200,7 @@ ID=$MSG_PRESS_RESP_PRESSURE     // Pressure/state of pressure module
 Type=Extended
 DLC=7
 Var=Flags unsigned 0,8 -m /ln:"Mode control bitmap"
-Var=Pressure unsigned 8,8 -m /u:KPa /ln:"Desired pressure"
+Var=Pressure signed 8,8 -m /u:KPa /ln:"Desired pressure"
 Var=Tolerance unsigned 16,8 -m /u:KPa /ln:"Pressure tolerance"
 Var=SampleTime unsigned 24,16 -m /u:ms /ln:"Sampling time"
 Var=TuneDuration unsigned 40,16 -m /u:s /ln:"Auto tuning duration"
@@ -256,13 +256,13 @@ DLC=0
 ID=$MSG_PRESS_NOTI_IN_RANGE     // Notification: pressure in range
 Type=Extended
 DLC=2
-Var=Pressure unsigned 0,16 -m /ln:"Pressure"
+Var=Pressure signed 0,16 -m /u:KPa /f:0.01 /ln:"Pressure"
 
 [$B::MsgPressNotiOutOfRange@$I]
 ID=$MSG_PRESS_NOTI_OUT_OF_RANGE // Notification: pressure out of range
 Type=Extended
 DLC=2
-Var=Pressure unsigned 0,16 -m /ln:"Pressure"
+Var=Pressure signed 0,16 -m /u:KPa /f:0.01 /ln:"Pressure"
 
 [$B::MsgPressSetFan@$I]
 ID=$MSG_PRESS_SET_FAN  // Sets fan speed watchdog parameters
