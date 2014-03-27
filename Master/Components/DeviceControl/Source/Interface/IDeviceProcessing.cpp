@@ -2013,6 +2013,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             retCode = DCL_ERR_FCT_CALL_SUCCESS;
             LOG()<<"Sealing test: Succeed.";
         }
+        m_pAirLiquid->ReleasePressure();
         return retCode;
     }
     else
