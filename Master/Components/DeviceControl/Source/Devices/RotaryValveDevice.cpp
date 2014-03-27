@@ -1804,11 +1804,10 @@ ReturnCode_t CRotaryValveDevice::MoveToNextPort(bool changeParameter, quint32 Lo
     RetValue = DoReferenceRun();
 #endif
     lsCode = GetLimitSwitchCode();
-    if(lsCode != "1")
+    if((lsCode != "1")&&(lsCode != "3"))
     {
         quint32 Retry = 0;
-        //while(((Retry++) < 3)&&(lsCode != "1"))  // 2013.3.8 Frank's request
-        while((Retry++) < 30)
+        while(((Retry++) < 30)&&(lsCode != "1")&&(lsCode != "3"))
         {
             //Log(tr("Warning: Get unexpected LS Code: %1, wait 0.5 sec to read again.").arg(lsCode));
             LOG() << "Warning: Get unexpected LS Code: %1, wait 0.5 sec to read again." << lsCode;

@@ -1271,13 +1271,12 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
             }
             //check pressure here
             qreal CurrentPressure = GetPressure();
-            if(CurrentPressure != (-1))
+            if(CurrentPressure != (UNDEFINED_4_BYTE))
             {
                 PressureBuf.append(CurrentPressure);
             }
             if(PressureBuf.length() >= SUCKING_OVERFLOW_SAMPLE_SIZE)
             {
-#if 1
                 //with 4 wire pump
                 qreal Sum = 0;
                 qreal DeltaSum = 0;
@@ -1292,46 +1291,24 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                 if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM))
                 {
                     LOG() << "Overflow occured! Exit now";
-#if 1
                     for(qint32 i = 0; i < PressureBuf.length(); i++)
                     {
                         LOG() << "Pressur buf: "<<PressureBuf.at(i);
                     }
-#endif
                     RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
                     goto SORTIE;
                 }
-                PressureBuf.pop_front();	    
-#else
-                //after 2012.11.15, algorithm: at least one sample bigger than target, and two sample bigger than 3 samples' mean.
+                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM))
+                {
+                    LOG() << "Insufficient reagent in the station! Exit now";
+                    for(qint32 i = 0; i < PressureBuf.length(); i++)
+                    {
+                        LOG() << "Insufficient Pressure"<<i<<" is:"<<PressureBuf.at(i);
+                    }
+                    RetValue = DCL_ERR_DEV_LA_FILLING_INSUFFICIENT;
+                    goto SORTIE;
+                }
                 PressureBuf.pop_front();
-                quint32 ExceptPointNum = 0;
-                bool biggerThanTarget = false;
-                for(qint32 i = 0; i < PressureBuf.length(); i++)
-                {
-                    biggerThanTarget |= qAbs(PressureBuf.at(i)) > qAbs(SUCKING_TARGET_PRESSURE);
-
-                    if(i < SUCKING_OVERFLOW_WINDOW_SIZE)
-                    {   continue;   }
-                    qreal sum = 0;
-                    for(qint32 j = (i - SUCKING_OVERFLOW_WINDOW_SIZE); j < i ; j++)
-                    {
-                        sum += qAbs(PressureBuf.at(j));
-                    }
-                    qreal average = sum/SUCKING_OVERFLOW_WINDOW_SIZE;
-                    if(( average + SUCKING_OVERFLOW_TOLERANCE) <= qAbs(PressureBuf.at(i)))
-                    {
-                        ExceptPointNum++;
-                    }
-                }
-
-                if((ExceptPointNum > 1)&&(biggerThanTarget))
-                {
-                    FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Overflow occured! Exit now!";
-                    RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
-                    goto SORTIE;
-                }
-#endif
             }
         }
         else
@@ -1346,6 +1323,7 @@ SORTIE:
     (void)TurnOffFan();
     return RetValue;
 }
+
 
 /****************************************************************************/
 /*!
