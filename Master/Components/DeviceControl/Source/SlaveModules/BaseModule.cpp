@@ -1455,6 +1455,7 @@ void CBaseModule::BootLoaderUpdate(CBootLoader::State_t State)
 //    else if (State == CBootLoader::IDLE) {
 //        m_MainState = CN_MAIN_STATE_INIT;
 //    }
+    Q_UNUSED(State);
 }
 
 /****************************************************************************/
@@ -3677,6 +3678,9 @@ void CBaseModule::ThrowEvent(quint32 EventCode, quint16 EventData)
 //
 //    Global::EventObject::Instance().RaiseEvent(EventCode, Global::FmtArgs() << GetName() << EventData);
 //    emit ReportEvent(EventCode, EventData, EventTime);
+      Q_UNUSED(EventCode);
+      Q_UNUSED(EventData);
+
 }
 
 /****************************************************************************/

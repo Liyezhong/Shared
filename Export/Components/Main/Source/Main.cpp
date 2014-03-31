@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
         // create application object
         QCoreApplication App(argc, argv);
         // create the startup class object
+        /*lint -e1502 */
         Export::CStartup Startup;
         // start application and archive the data
         int ReturnCode = Startup.Archive();

@@ -883,6 +883,8 @@ void DeviceProcessing::HandleTasks()
 
     static quint16 stTest = 0;
     static quint32 RunThruCounter = 0;
+    Q_UNUSED(RunThruCounter);
+
     static DeviceProcTask* pActiveTask = NULL;
     static DeviceProcTask::TaskID_t stTaskID = DeviceProcTask::TASK_ID_DP_UNDEF;
 
