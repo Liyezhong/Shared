@@ -1,9 +1,9 @@
 /****************************************************************************/
 /*! \file fmRfidIso11785.h
- * 
+ *
  *  \brief Functional module controlling RFID ISO 11785 communication.
  *
- *   $Version: $ 0.1
+ *   $Version: $ 0.4
  *   $Date:    $ 12.07.2010
  *   $Author:  $ Martin Scherer
  *
@@ -15,16 +15,16 @@
  *      RFID transponder. This transponder uses a propietary protocol on top
  *      of ISO 11785 and thus is not standard compliant. The module controls
  *      the EM Microelectronic EM4095 RFID front end IC via the Hardware
- *      Abstraction Layer (HAL). Fot this purpose, the module uses digital I/O
+ *      Abstraction Layer (HAL). For this purpose, the module uses digital I/O
  *      ports and a timer unit to control the time critical communication
  *      procedure through the generation of interrupts.
  *
  *  \b Company:
  *
  *      Leica Biosystems Nussloch GmbH.
- * 
+ *
  *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice 
+ *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
@@ -33,7 +33,7 @@
 #define FMRFID11785_H
 
 //****************************************************************************/
-// Public Constants and Macros 
+// Public Constants and Macros
 //****************************************************************************/
 
 // RFID module related errors
@@ -65,6 +65,8 @@
 //! Requests the UID number of the RFID transponder
 #define MSG_RFID11785_READ_UID_NUMBER       BUILD_CAN_ID(CMD_CLASS_FUNCTION, 11, 1)
 
+//! Acknowledges the set configuration parameters message
+#define MSG_RFID11785_ACK_CONFIG            BUILD_CAN_ID(CMD_CLASS_FUNCTION, 5, 0)
 //! Responds to a login message to the RFID transponder
 #define MSG_RFID11785_RESP_LOGIN            BUILD_CAN_ID(CMD_CLASS_FUNCTION, 6, 0)
 //! Responds to write user data messages sent to the RFID transponder
@@ -80,7 +82,7 @@
 #define MSG_RFID11785_RESP_READ_UID_NUMBER  BUILD_CAN_ID(CMD_CLASS_FUNCTION, 11, 0)
 
 //****************************************************************************/
-// Public Type Definitions 
+// Public Type Definitions
 //****************************************************************************/
 
 //****************************************************************************/

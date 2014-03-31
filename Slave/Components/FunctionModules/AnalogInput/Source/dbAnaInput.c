@@ -3,7 +3,7 @@
  *
  *  \brief Debug String Defintion for Analog Input Function Module
  *
- *  $Version: $ 0.2
+ *  $Version: $ 0.4
  *  $Date:    $ 27.01.2011
  *  $Author:  $ Andreas Menge
  *

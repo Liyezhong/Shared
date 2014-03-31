@@ -3,7 +3,7 @@
  *
  *  \brief Function Module for Digital Inputs
  *
- *  $Version: $ 0.2
+ *  $Version: $ 0.3
  *  $Date:    $ 27.01.2011
  *  $Author:  $ Andreas Menge
  *
@@ -35,23 +35,32 @@
 // Private Constants and Macros
 //****************************************************************************/
 
-#define MODULE_VERSION         0x0001   //!< Version number of module
-#define DEFAULT_SAMPLE_RATE    10       //!< Default sample rate (ms)
-#define DEFAULT_SAMPLE_COUNT   1        //!< Default sample count
-#define DEFAULT_THRESHOLD      1        //!< Default threshold (auto send mode)
+#define DI_MODULE_VERSION       0x0003  //!< Version number of module
+#define DI_DEFAULT_SAMPLE_RATE  10      //!< Default sample rate (ms)
+#define DI_DEFAULT_SAMPLE_COUNT 1       //!< Default sample count
 
 /*! Mode bits for the Flags member of the module instance data */
-#define MODE_MODULE_ENABLE     0x0080   //!< Flags: Module enable bit
-#define MODE_USE_TIMESTAMP     0x0040   //!< Flags: Timestamp enable bit
-#define MODE_CHECK_LIMITS      0x0100   //!< Flags: Limit check enable
+typedef union {
+    struct {
+        UInt8 Reserved:6;       //!< Reserved for future use
+        Bool UseTimestamp:1;    //!< Timestamp enable bit
+        Bool ModuleEnable:1;    //!< Module enable bit
+    } Bits;                     //!< Bit access
+    UInt8 Byte;                 //!< Byte access
+} diInstanceFlags_t;
 
 /*! Limit mode bits for the Flags member of the module instance data */
-#define LIMIT_ENABLE_BITS      0x0003   //!< Limit: Enable bit mask
-#define LIMIT_CHECK_OVERRUN    0x0001   //!< Limit: Enable overrun checking
-#define LIMIT_CHECK_UNDERRUN   0x0002   //!< Limit: Enable underrun checking
-#define LIMIT_SEND_WARNING     0x0010   //!< Limit: Enable warnings
-#define LIMIT_SEND_DATA        0x0020   //!< Limit: Enable sending data
-#define LIMIT_ABOVE_FLAG       0x0100   //!< Limit: input is above limit
+/*! \remark This function is currently not used. */
+typedef union {
+    struct {
+        Bool CheckOverrun:1;    //!< Enable overrun checking
+        Bool CheckUnderrun:1;   //!< Enable underrun checking
+        UInt8 Reserved:2;       //!< Reserved for future use
+        Bool SendWarning:1;     //!< Enable warnings
+        Bool SendData:1;        //!< Enable sending data
+    } Bits;                     //!< Bit access
+    UInt8 Byte;                 //!< Byte access
+} diLimitFlags_t;
 
 //****************************************************************************/
 // Private Type Definitions
@@ -59,32 +68,35 @@
 
 //! Specifies a limit for monitoring the port input values
 typedef struct {
-    UInt16 Flags;               //!< Mode control flag bits
-    UInt16 Limit;               //!< Limit to supervise
-    UInt16 Delta;               //!< Hysterese to prevent bouncing
+    diLimitFlags_t Flags;   //!< Mode control flag bits
+    Bool AboveFlag;         //!< Input is above limit
+    UInt16 Limit;           //!< Limit to supervise
+    UInt16 Delta;           //!< Hysterese to prevent bouncing
 } diInputLimit_t;
 
 
 //! Contains all variables for a instance of this module
 typedef struct {
-    bmModuleState_t ModuleState; //!< Module state
-    Handle_t Handle;            //!< Handle to access port (HAL)
-    UInt16 Channel;             //!< Logical CAN channel
-    UInt16 Flags;               //!< Mode control flag bits
+    bmModuleState_t ModuleState;    //!< Module state
+    Handle_t Handle;                //!< Handle to access port (HAL)
+    UInt16 Channel;                 //!< Logical CAN channel
+    diInstanceFlags_t Flags;        //!< Mode control flag bits
+    Bool CheckLimits;               //!< Limit check enable
+    Bool CurValueValid;             //!< Current value valid flag
 
-    UInt32 SampleRate;          //!< Sample rate (ms)
-    UInt32 SampleTime;          //!< Time of last sampling
-    UInt16 SampleCount;         //!< Debouncing counter
-    UInt16 Samples;             //!< Required number of samples
+    UInt32 SampleRate;              //!< Sample rate (ms)
+    UInt32 SampleTime;              //!< Time of last sampling
+    UInt16 SampleCount;             //!< Debouncing counter
+    UInt16 Samples;                 //!< Required number of samples
 
-    UInt16 CurValue;            //!< Actual state of input
-    UInt16 OldValue;            //!< Input value last sent
-    UInt16 TmpValue;            //!< Input value in transition
-    UInt16 Polarity;            //!< Data polarity (exor mask)
-    UInt16 Threshold;           //!< Min delta before sending
-    UInt32 TimeStamp;           //!< Time of last state change
+    UInt16 CurValue;                //!< Actual state of input
+    UInt16 OldValue;                //!< Input value last sent
+    UInt16 TmpValue;                //!< Input value in transition
+    UInt16 Polarity;                //!< Data polarity (exor mask)
+    UInt16 Threshold;               //!< Min delta before sending
+    UInt32 TimeStamp;               //!< Time of last state change
 
-    diInputLimit_t Limits[2];   //!< Limits to monitor
+    diInputLimit_t Limits[2];       //!< Limits to monitor
 } diInstanceData_t;
 
 
@@ -92,10 +104,10 @@ typedef struct {
 // Private Variables
 //****************************************************************************/
 
-static UInt16 diInstanceCount = 0;    //!< Number of module instances
-static UInt16 diModuleID = 0;         //!< Module identifier
+static UInt16 diInstanceCount = 0;      //!< Number of module instances
+static UInt16 diModuleID = 0;           //!< Module identifier
 
-static diInstanceData_t *diDataTable; //!< Data table for all instances
+static diInstanceData_t *diDataTable;   //!< Data table for all instances
 
 //****************************************************************************/
 // Private Function Prototypes
@@ -110,8 +122,10 @@ static Error_t diConfigureInput (UInt16 Channel, CanMessage_t *Message);
 static Error_t diConfigureLimit (UInt16 Channel, CanMessage_t *Message);
 
 static Error_t diSendInputValue (diInstanceData_t *Data);
-static UInt16  diGetStableInput (diInstanceData_t *Data);
+static Error_t diGetStableInput (diInstanceData_t *Data);
 static Bool    diMonitorLimits  (diInstanceData_t *Data);
+
+static void diResetInstanceData(UInt16 Instance);
 
 
 /*****************************************************************************/
@@ -157,7 +171,7 @@ static Error_t diModuleControl (UInt16 Instance, bmModuleControlID_t ControlID) 
             break;
 
         case MODULE_CONTROL_RESET:
-            Data->Flags &= ~MODE_MODULE_ENABLE;
+            diResetInstanceData(Instance);
             break;
 
         case MODULE_CONTROL_FLUSH_DATA:
@@ -199,7 +213,7 @@ static Error_t diModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID) {
     switch (StatusID) {
 
         case MODULE_STATUS_STATE:
-            if ((Data->Flags & MODE_MODULE_ENABLE) == 0) {
+            if (Data->Flags.Bits.ModuleEnable == FALSE) {
                 return (MODULE_STATE_DISABLED);
             }
             return (Data->ModuleState);
@@ -214,7 +228,7 @@ static Error_t diModuleStatus (UInt16 Instance, bmModuleStatusID_t StatusID) {
             return (diInstanceCount);
 
         case MODULE_STATUS_VERSION:
-            return (MODULE_VERSION);
+            return (DI_MODULE_VERSION);
     }
     return (E_PARAMETER_OUT_OF_RANGE);
 }
@@ -238,28 +252,32 @@ static Error_t diModuleTask (UInt16 Instance) {
 
     diInstanceData_t *Data = &diDataTable[Instance];
     UInt16 DataRequests = 0;
+    Error_t Status;
     UInt16 Delta;
 
-    if (Data->Flags & MODE_MODULE_ENABLE) {
-
-        if (bmTimeExpired(Data->SampleTime) > Data->SampleRate) {
-
-            Delta = diGetStableInput(Data);
+    if (Data->Flags.Bits.ModuleEnable == TRUE) {
+        if (bmTimeExpired(Data->SampleTime) >= Data->SampleRate) {
+            Data->SampleTime = bmGetTime();
+            Status = diGetStableInput(Data);
+            if (Status < NO_ERROR) {
+                bmSignalEvent(Data->Channel, Status, TRUE, 0);
+                return (Status);
+            }
+            Delta = Status;
 
             if (Data->SampleCount >= Data->Samples) {
                 // debouncing done; take over new value
-
                 if (Data->Threshold) {
                     if (Delta >= Data->Threshold) {
                         DataRequests++;
                     }
                 }
-                if (Data->Flags & MODE_CHECK_LIMITS) {
+                if (Data->CheckLimits == TRUE) {
                     if (diMonitorLimits (Data)) {
                         DataRequests++;
                     }
                 }
-                if (Data->Flags & MODE_USE_TIMESTAMP) {
+                if (Data->Flags.Bits.UseTimestamp == TRUE) {
                     Data->TimeStamp = bmGetSecondsOfTheDay();
                 }
                 if (DataRequests) {
@@ -285,27 +303,35 @@ static Error_t diModuleTask (UInt16 Instance) {
  *      defines how many entries in the history buffer will be taken
  *      into account for averaging.
  *
- *      Returns the differnce of the averaged input value and the last
+ *      Returns the difference of the averaged input value and the last
  *      sent value.
  *
  *  \xparam  Data = Pointer to module instance's data
  *
- *  \return  Difference between new value and last sent value
+ *  \return  Difference between new and last value or (negative) error code
  *
  *****************************************************************************/
 
-static UInt16 diGetStableInput (diInstanceData_t *Data) {
+static Error_t diGetStableInput (diInstanceData_t *Data) {
 
     UInt16 NewValue;
+    Error_t Status;
 
-    halPortRead (Data->Handle, &NewValue);
+    Status = halPortRead (Data->Handle, &NewValue);
+    if (Status < NO_ERROR) {
+        return (Status);
+    }
     NewValue ^= Data->Polarity;
 
-    if (NewValue == Data->CurValue || NewValue != Data->TmpValue) {
+    if ((Data->CurValueValid == TRUE && NewValue == Data->CurValue) || NewValue != Data->TmpValue) {
         Data->SampleCount = 0;
     }
     if (++Data->SampleCount >= Data->Samples) {
         Data->CurValue = NewValue;
+        if (Data->CurValueValid == FALSE) {
+            Data->OldValue = Data->CurValue;
+            Data->CurValueValid = TRUE;
+        }
     }
     Data->TmpValue = NewValue;
 
@@ -316,6 +342,8 @@ static UInt16 diGetStableInput (diInstanceData_t *Data) {
 /*****************************************************************************/
 /*!
  *  \brief   Monitors the user supplied limits
+ *
+ *  \remark  This function is currently not used.
  *
  *      Checks if the current input value has rised above or fallen below one
  *      of the two user supplied limits. If this is the case, an appropriate
@@ -343,33 +371,32 @@ static Bool diMonitorLimits (diInstanceData_t *Data) {
         Status = NO_ERROR;  // reset status variable
         Limits = &Data->Limits[i];
 
-        if (!(Limits->Flags & LIMIT_ABOVE_FLAG)) {
-
+        if (Limits->AboveFlag == FALSE) {
             // warning if input value rises above limit
             if (Data->CurValue > Limits->Limit + Limits->Delta) {
-                if (Limits->Flags & LIMIT_CHECK_OVERRUN) {
+                if (Limits->Flags.Bits.CheckOverrun == TRUE) {
                     Status = W_DIGIN_ABOVE_LIMIT;
                 }
-                Limits->Flags |= LIMIT_ABOVE_FLAG;
+                Limits->AboveFlag = TRUE;
             }
         }
-        if (Limits->Flags & LIMIT_ABOVE_FLAG) {
-
+        if (Limits->AboveFlag == TRUE) {
             // warning if input value falls below limit
             if (Data->CurValue < Limits->Limit - Limits->Delta) {
-                if (Limits->Flags & LIMIT_CHECK_UNDERRUN) {
+                if (Limits->Flags.Bits.CheckUnderrun == TRUE) {
                     Status = W_DIGIN_BELOW_LIMIT;
                 }
-                Limits->Flags &= ~LIMIT_ABOVE_FLAG;
+                Limits->AboveFlag = FALSE;
             }
         }
         // send warning and/or data if limit passed over
         if (Status != NO_ERROR) {
-            if (Limits->Flags & LIMIT_SEND_WARNING) {
+            if (Limits->Flags.Bits.SendWarning == TRUE) {
                 bmSignalEvent (Data->Channel, Status, TRUE, i);
             }
-            if (Limits->Flags & LIMIT_SEND_DATA)
+            if (Limits->Flags.Bits.SendData == TRUE) {
                 SendRequest = TRUE;
+            }
         }
     }
     return (SendRequest);
@@ -394,11 +421,14 @@ static Error_t diSendInputValue (diInstanceData_t *Data) {
 
     CanMessage_t Message;
 
+    if (Data->CurValueValid == FALSE) {
+        return (E_MODULE_NOT_USEABLE);
+    }
+
     Message.CanID = MSG_DI_INPUT_STATE;
     bmSetMessageItem (&Message, Data->CurValue, 0, 2);
 
-    if (Data->Flags & MODE_USE_TIMESTAMP) {
-
+    if (Data->Flags.Bits.UseTimestamp == TRUE) {
         bmSetMessageItem (&Message, Data->TimeStamp, 2, 4);
         Message.Length = 6;
     }
@@ -430,10 +460,13 @@ static Error_t diReqInputValue (UInt16 Channel, CanMessage_t *Message) {
 
     diInstanceData_t *Data = &diDataTable[bmGetInstance(Channel)];
 
-    if (Data->Flags & MODE_MODULE_ENABLE) {
-        return (diSendInputValue(Data));
+    if (Message->Length == 0) {
+        if (Data->Flags.Bits.ModuleEnable == TRUE) {
+            return (diSendInputValue(Data));
+        }
+        return (E_MODULE_NOT_ENABLED);
     }
-    return (E_MODULE_NOT_ENABLED);
+    return (E_MISSING_PARAMETERS);
 }
 
 
@@ -444,7 +477,7 @@ static Error_t diReqInputValue (UInt16 Channel, CanMessage_t *Message) {
  *      This function is called by the CAN message dispatcher when an input
  *      configuration message is received from the master. The parameters
  *      in the message are transfered to the data structure of the addressed
- *      module instance. The modified settings influence the behaivor of the
+ *      module instance. The modified settings influence the behavior of the
  *      module task function. The following settings will be modified:
  *
  *      - Mode flag bits
@@ -467,19 +500,24 @@ static Error_t diConfigureInput (UInt16 Channel, CanMessage_t *Message) {
     if (Data->Handle < 0) {
         return (E_MODULE_NOT_USEABLE);
     }
-    if (Message->Length >= 7) {
+    if (Message->Length == 7) {
+        Bool ModuleEnableOld = Data->Flags.Bits.ModuleEnable;
 
-        Data->Flags      = bmGetMessageItem(Message, 0, 1);
+        Data->Flags.Byte = bmGetMessageItem(Message, 0, 1);
         Data->Polarity   = bmGetMessageItem(Message, 1, 2);
         Data->Threshold  = bmGetMessageItem(Message, 3, 2);
         Data->SampleRate = bmGetMessageItem(Message, 5, 1);
         Data->Samples    = bmGetMessageItem(Message, 6, 1) + 1;
 
-        if ((Data->Flags & MODE_MODULE_ENABLE) == 0) {
-            Data->SampleCount = DEFAULT_SAMPLE_COUNT;
+        if (Data->Flags.Bits.ModuleEnable == FALSE) {
+            Data->SampleCount = DI_DEFAULT_SAMPLE_COUNT;
+            Data->CurValueValid = FALSE;
         }
         if (!Data->SampleRate) {
-            Data->SampleRate = DEFAULT_SAMPLE_RATE;
+            Data->SampleRate = DI_DEFAULT_SAMPLE_RATE;
+        }
+        if (Data->Flags.Bits.ModuleEnable == TRUE && ModuleEnableOld == FALSE) {
+            Data->SampleTime = bmGetTime();
         }
         return (NO_ERROR);
     }
@@ -489,12 +527,14 @@ static Error_t diConfigureInput (UInt16 Channel, CanMessage_t *Message) {
 
 /*****************************************************************************/
 /*!
- *  \brief    Sets limit parameters for monitoring
+ *  \brief   Sets limit parameters for monitoring
+ *
+ *  \remark  This function is currently not used.
  *
  *      This function is called by the CAN message dispatcher when a limit
  *      configuration message is received from the master. The parameters
  *      in the message are transfered to the data structure of the addressed
- *      module instance. The modified settings influence the behaivor of the
+ *      module instance. The modified settings influence the behavior of the
  *      module task function. The following settings will be set for each
  *      of the two possible limits:
  *
@@ -515,34 +555,75 @@ static Error_t diConfigureLimit (UInt16 Channel, CanMessage_t *Message) {
     diInputLimit_t *Limits;
     UInt16 i;
 
-    if (Message->Length >= 8) {
-
-        Data->Limits[0].Flags = bmGetMessageItem(Message, 0, 1);
+    if (Message->Length == 8) {
+        Data->Limits[0].Flags.Byte = bmGetMessageItem(Message, 0, 1);
         Data->Limits[0].Limit = bmGetMessageItem(Message, 1, 2);
         Data->Limits[0].Delta = bmGetMessageItem(Message, 6, 2);
 
-        Data->Limits[1].Flags = bmGetMessageItem(Message, 3, 1);
+        Data->Limits[1].Flags.Byte = bmGetMessageItem(Message, 3, 1);
         Data->Limits[1].Limit = bmGetMessageItem(Message, 4, 2);
         Data->Limits[1].Delta = bmGetMessageItem(Message, 6, 2);
 
-        Data->Flags &= ~MODE_CHECK_LIMITS;
+        Data->CheckLimits = FALSE;
 
         for (i=0; i < ELEMENTS(Data->Limits); i++) {
             Limits = &Data->Limits[i];
 
             if (Data->CurValue > Limits->Limit + Limits->Delta) {
-                Limits->Flags |= LIMIT_ABOVE_FLAG;
+                Limits->AboveFlag = TRUE;
             }
             else {
-                Limits->Flags &= ~LIMIT_ABOVE_FLAG;
+                Limits->AboveFlag = FALSE;
             }
-            if (Limits->Flags & LIMIT_ENABLE_BITS) {
-                Data->Flags |= MODE_CHECK_LIMITS;
+            if (Limits->Flags.Bits.CheckOverrun == TRUE || Limits->Flags.Bits.CheckUnderrun == TRUE) {
+                Data->CheckLimits = TRUE;
             }
         }
         return (NO_ERROR);
     }
     return (E_MISSING_PARAMETERS);
+}
+
+
+/*****************************************************************************/
+/*!
+ *  \brief   Resets the instance data
+ *
+ *      This function resets all members of the instance data to their
+ *      intialization values. This function is called, when the module control
+ *      action MODULE_CONTROL_RESET is received.
+ *
+ *  \iparam  Instance  = Instance number of this module
+ *
+ ****************************************************************************/
+static void diResetInstanceData(UInt16 Instance) {
+
+    diInstanceData_t *Data = &diDataTable[Instance];
+    UInt8 i;
+
+    Data->ModuleState = MODULE_STATE_READY;
+    Data->Flags.Byte = 0;
+    Data->CheckLimits = FALSE;
+    Data->CurValueValid = FALSE;
+
+    Data->SampleRate = DI_DEFAULT_SAMPLE_RATE;
+    Data->SampleTime = 0;
+    Data->SampleCount = DI_DEFAULT_SAMPLE_COUNT;
+    Data->Samples = 0;
+    
+    Data->CurValue = 0;
+    Data->OldValue = 0;
+    Data->TmpValue = 0;
+    Data->Polarity = 0;
+    Data->Threshold = 0;
+    Data->TimeStamp = 0;
+
+    for (i = 0; i < 2; i++) {
+        Data->Limits[i].Flags.Byte = 0;
+        Data->Limits[i].AboveFlag = FALSE;
+        Data->Limits[i].Limit = 0;
+        Data->Limits[i].Delta = 0;
+    }
 }
 
 
@@ -599,11 +680,13 @@ Error_t diInitializeModule (UInt16 ModuleID, UInt16 Instances) {
     }
     // open channels and ports for all modules
     for (i=0; i < Instances; i++) {
-        diDataTable[i].Handle =
-            halPortOpen (HAL_DIGITAL_INPUTS + i, HAL_OPEN_READ);
+        diDataTable[i].Handle = halPortOpen (HAL_DIGITAL_INPUTS + i, HAL_OPEN_READ);
+        if (diDataTable[i].Handle < NO_ERROR) {
+            return (diDataTable[i].Handle);
+        }
 
         diDataTable[i].Channel = bmGetChannel(bmGetTaskID(ModuleID, i));
-        diDataTable[i].ModuleState = MODULE_STATE_READY;
+        diResetInstanceData(i);
     }
     diInstanceCount = Instances;
     diModuleID = ModuleID;

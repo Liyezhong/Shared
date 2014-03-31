@@ -3,7 +3,7 @@
  *
  *  \brief Function Module for Analog Inputs
  *
- *  $Version: $ 0.2
+ *  $Version: $ 0.4
  *  $Date:    $ 27.01.2011
  *  $Author:  $ Andreas Menge
  *
@@ -58,6 +58,7 @@
 
 //@{**************************************************************************/
 //! Events for this function module (Errors, Warnings, Infos)
+//! \remark This function is currently not used.
 //****************************************************************************/
 
 #define BUILD_AI_ERRCODE(Class,Code) \

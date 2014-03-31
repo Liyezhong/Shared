@@ -3,7 +3,7 @@
  *
  *  \brief Debug String Defintion for Digital Input Function Module
  *
- *  $Version: $ 0.2
+ *  $Version: $ 0.3
  *  $Date:    $ 27.01.2011
  *  $Author:  $ Andreas Menge
  *

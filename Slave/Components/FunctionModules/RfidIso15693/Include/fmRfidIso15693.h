@@ -3,7 +3,7 @@
  * 
  *  \brief Functional module controlling RFID ISO 15693 communication.
  *
- *   $Version: $ 0.1
+ *   $Version: $ 0.2
  *   $Date:    $ 23.03.2010
  *   $Author:  $ Martin Scherer
  *
@@ -14,7 +14,7 @@
  *      functions, that are needed to communicate with RFID transponders
  *      implementing the ISO/IEC 15693 standard. The module controls the EM
  *      Microelectronic EM4094 RFID front end IC via the Hardware Abstraction
- *      Layer (HAL). Fot this purpose, the module uses digital I/O ports and a
+ *      Layer (HAL). For this purpose, the module uses digital I/O ports and a
  *      timer unit to control the time critical communication procedure
  *      through the generation of interrupts.
  *

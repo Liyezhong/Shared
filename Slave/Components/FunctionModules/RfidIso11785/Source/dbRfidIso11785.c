@@ -3,7 +3,7 @@
  *
  *  \brief Debug string table defintion
  *
- *  $Version: $ 0.1
+ *  $Version: $ 0.4
  *  $Date:    $ 25.01.2011
  *  $Author:  $ Andreas Menge
  *
@@ -65,8 +65,7 @@ static const bmCanIdNames_t CanIdNames[] = {
     { MSG_RFID11785_WRITE_PASSWORD,  "MSG_RFID11785_WRITE_PASSWORD"  },
     { MSG_RFID11785_WRITE_CONFIG,    "MSG_RFID11785_WRITE_CONFIG"    },
     { MSG_RFID11785_READ_USER_DATA,  "MSG_RFID11785_READ_USER_DATA"  },
-    { MSG_RFID11785_READ_UID_NUMBER, "MSG_RFID11785_READ_UID_NUMBER" },
-    { MSG_RFID11785_RESP_ACK,        "MSG_RFID11785_RESP_ACK"        }
+    { MSG_RFID11785_READ_UID_NUMBER, "MSG_RFID11785_READ_UID_NUMBER" }
 };
 
 

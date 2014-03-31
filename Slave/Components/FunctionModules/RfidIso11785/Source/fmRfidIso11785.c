@@ -1,9 +1,9 @@
 /****************************************************************************/
 /*! \file fmRfidIso11785.c
- * 
+ *
  *  \brief Functional module controlling RFID ISO 11785 communication.
  *
- *   $Version: $ 0.1
+ *   $Version: $ 0.4
  *   $Date:    $ 12.07.2010
  *   $Author:  $ Martin Scherer
  *
@@ -15,16 +15,16 @@
  *      RFID transponder. This transponder uses a propietary protocol on top
  *      of ISO 11785 and thus is not standard compliant. The module controls
  *      the EM Microelectronic EM4095 RFID front end IC via the Hardware
- *      Abstraction Layer (HAL). Fot this purpose, the module uses digital I/O
+ *      Abstraction Layer (HAL). For this purpose, the module uses digital I/O
  *      ports and a timer unit to control the time critical communication
  *      procedure through the generation of interrupts.
  *
  *  \b Company:
  *
  *      Leica Biosystems Nussloch GmbH.
- * 
+ *
  *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice 
+ *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
@@ -36,14 +36,22 @@
 #include "fmRfidIso11785Link.h"
 
 //****************************************************************************/
-// Private Constants and Macros 
+// Private Constants and Macros
 //****************************************************************************/
 
-/* Global defines of the RFID module */ 
-#define MODULE_VERSION      0x0001  //!< Version number of module
+/* Global defines of the RFID module */
+#define MODULE_VERSION      0x0004  //!< Version number of module
 
-/* Mode bits for the Flags member of the module instance data */
-#define MODE_MODULE_ENABLE  0x1     //!< Module on/off bit
+/*! Mode bits for the Flags member of the module instance data */
+typedef union {
+    struct {
+        Bool ModuleEnable:1;    //!< Module enable bit
+        Bool AntennaTwist:1;    //!< Antenna order is inverted
+        UInt8 DataRate:2;       //!< Data rate
+        UInt8 Reserved:4;       //!< Reserved for future use
+    } Bits;                     //!< Bit access
+    UInt8 Byte;                 //!< Byte access
+} rfid11785InstanceFlags_t;
 
 /* RFID transponder register file addresses */
 #define ADDR_UID            1       //!< Address of the UID number register
@@ -52,14 +60,15 @@
 #define ADDR_USER           5       //!< Address of the first user data register
 #define ADDR_USER_MAX       9       //!< Number of 32 bit user registers
 
-#define RFID11785_TIME_FIRST_STOP    55 //!< Time of the first field stop in 125 kHz Cycles
-#define RFID11785_TIME_MOD_OFF       9  //!< Time of the mod off state in 125 kHz Cycles
-#define RFID11785_TIME_MOD_ON        23 //!< Time of the mod on state in 125 kHz Cycles
+#define RFID11785_TIME_FIRST_STOP 100   //!< Time of the first field stop in 125 kHz Cycles
+#define RFID11785_TIME_MOD_OFF     15   //!< Time of the mod off state in 125 kHz Cycles
+#define RFID11785_TIME_MOD_ON      17   //!< Time of the mod on state in 125 kHz Cycles
 
-#define RFID11785_CAPTURE_CHANNEL   2 //!< Timer channel used for the capture input
-#define RFID11785_COMPARE_CHANNEL   3 //!< Timer channel used for the compare output
+#define RFID11785_CAPTURE_CHANNEL   2   //!< Timer channel used for the capture input
+#define RFID11785_COMPARE_CHANNEL   3   //!< Timer channel used for the compare output
 
-#define ANTENNA_SWITCH_INTERVAL 20  //!< Time antennas need to be switched in milliseconds
+#define ANTENNA_OFF_INTERVAL    4   //!< Time antennas need to be switched off in milliseconds
+#define ANTENNA_ON_INTERVAL    28   //!< Time antennas need to be switched on in milliseconds
 
 //****************************************************************************/
 // Private Type Definitions
@@ -67,6 +76,7 @@
 
 /*! Contains message types needed to communicate with the RFID transponder */
 typedef enum {
+    SetConfig,      //!< Set config
     Login,          //!< Login
     WriteUserData,  //!< Write user data
     WritePassword,  //!< Write password
@@ -74,6 +84,14 @@ typedef enum {
     ReadUserData,   //!< Read user data
     ReadUidNumber   //!< Read UID number
 } Rfid11785Command_t;
+
+/*! State of the front end initialization */
+typedef enum {
+    STATE_IDLE,
+    STATE_START,
+    STATE_WAIT,
+    STATE_INIT
+} InitState_t;
 
 /*! Contains all variables for a instance of this module */
 typedef struct {
@@ -83,12 +101,13 @@ typedef struct {
     Handle_t HandleDevSelOut;       //!< Handle to access a digital output port (HAL)
     Handle_t HandleTimer;           //!< Handle to access a hardware timer (HAL)
     UInt16 Channel;                 //!< Logical CAN channel
-    UInt16 Flags;                   //!< Mode control flag bits
+    rfid11785InstanceFlags_t Flags; //!< Mode control flag bits
 
     UInt8 CycleNumber;              //!< Number of cycles needed to send one bit
     UInt8 AntennaNumber;            //!< Number of RFID antennas available
     UInt8 DeviceSelect;             //!< Multiplexer select input
-        
+    Bool AntennaOpened;             //!< Antenna selection pin handle is opened
+
     UInt32 AccTime;                 //!< Accumulates the time values for the different compare interrupts
     UInt32 TimeMask;                //!< The size of the timer register
     UInt32 SwitchTime;              //!< The time the antenna is switched
@@ -96,11 +115,12 @@ typedef struct {
 
     UInt8 CurrentAddress;           //!< Address of the ongoing transaction
     Rfid11785Command_t Ongoing;     //!< Ongoing RFID command
-    Rfid11785Stream_t DataStream;   //!< Containg the status of an RFID transaction
+    Rfid11785Stream_t DataStream;   //!< Contains the status of an RFID transaction
+    InitState_t InitState;          //!< State for initialization after switching antennas
 } InstanceData_t;
 
 //****************************************************************************/
-// Private Variables 
+// Private Variables
 //****************************************************************************/
 
 static UInt16 InstanceCount = 0;        //!< number of module instances
@@ -109,17 +129,18 @@ static UInt16 ModuleIdentifier = 0;     //!< module identifier
 static InstanceData_t* DataTable;  //!< data table for all instances
 
 //****************************************************************************/
-// Private Function Prototypes 
+// Private Function Prototypes
 //****************************************************************************/
 
 static Error_t rfid11785ModuleControl (UInt16 Instance, bmModuleControlID_t ControlID);
 static Error_t rfid11785ModuleStatus  (UInt16 Instance, bmModuleStatusID_t StatusID);
 static Error_t rfid11785ModuleTask    (UInt16 Instance);
 
+static Error_t rfid11785AntennaInit   (InstanceData_t* Data);
 static Error_t rfid11785RespondAck    (UInt16 Channel, Rfid11785Command_t Ongoing, UInt8 Address, UInt32 ReadData);
 static Error_t rfid11785StartModOutput(InstanceData_t *Data);
 static Error_t rfid11785SetModOutput  (InstanceData_t *Data, UInt32 Count, UInt16 Value);
-static Error_t rfid11785SetDeviceSel  (Handle_t Handle, UInt8 DeviceSelect);
+static Error_t rfid11785SetDeviceSel  (InstanceData_t *Data);
 static Error_t rfid11785HandleOpen    (InstanceData_t *Data, Int16 Instance);
 
 static Error_t rfid11785SetConfig     (UInt16 Channel, CanMessage_t *Message);
@@ -132,23 +153,25 @@ static Error_t rfid11785ReadUserData  (UInt16 Channel, CanMessage_t *Message);
 static Error_t rfid11785ReadUidNumber (UInt16 Channel, CanMessage_t *Message);
 
 static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags);
-static Error_t rfid11785CompareIntHandler (InstanceData_t *Data);
-static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data);
+static Error_t rfid11785CompareHandler (InstanceData_t *Data);
+static Error_t rfid11785CaptureHandler (InstanceData_t *Data);
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Module Control Function
  *
  *      This function is called by the base module to control this function
  *      module. Depending on the ControlID parameter, the following actions
  *      are performed:
- * 
- *      - MODULE_CONTROL_STOP
+ *
  *      - MODULE_CONTROL_RESUME
- *      - MODULE_CONTROL_STANDBY  
  *      - MODULE_CONTROL_WAKEUP
- *      - MODULE_CONTROL_SHUTDOWN        
- * 
+ *      - MODULE_CONTROL_STOP
+ *      - MODULE_CONTROL_SHUTDOWN
+ *      - MODULE_CONTROL_RESET
+ *      - MODULE_CONTROL_FLUSH_DATA
+ *      - MODULE_CONTROL_RESET_DATA
+ *
  *  \iparam  Instance  = Instance number of this module [in]
  *  \iparam  ControlID = Control code to select sub-function [in]
  *
@@ -165,7 +188,7 @@ static Error_t rfid11785ModuleControl (UInt16 Instance, bmModuleControlID_t Cont
         case MODULE_CONTROL_RESUME:
         case MODULE_CONTROL_WAKEUP:
             Data->ModuleState = MODULE_STATE_READY;
-            if ((Data->Flags & MODE_MODULE_ENABLE) != 0) {
+            if (Data->Flags.Bits.ModuleEnable == TRUE) {
                 return halPortWrite(Data->HandleShdOut, 0);
             }
             break;
@@ -179,36 +202,34 @@ static Error_t rfid11785ModuleControl (UInt16 Instance, bmModuleControlID_t Cont
             return halPortWrite(Data->HandleShdOut, 1);
 
         case MODULE_CONTROL_RESET:
-            Data->Flags &= ~MODE_MODULE_ENABLE;
+            Data->Flags.Bits.ModuleEnable = FALSE;
             return halPortWrite(Data->HandleShdOut, 1);
-                                
+
         case MODULE_CONTROL_FLUSH_DATA:
         case MODULE_CONTROL_RESET_DATA:
             break;
 
-        default:             
-            return (E_PARAMETER_OUT_OF_RANGE);   
-    }    
+        default:
+            return (E_PARAMETER_OUT_OF_RANGE);
+    }
     return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Module Status Request
  *
  *      This function is called by the base module to request the status of
- *      this function module. Depending on the StatusID parameter, the 
+ *      this function module. Depending on the StatusID parameter, the
  *      following status values are returned:
- * 
- *      - MODULE_STATUS_INSTANCES
- *      - MODULE_STATUS_MODULE_ID
- *      - MODULE_STATUS_POWER_STATE
- *      - MODULE_STATUS_VERSION
+ *
  *      - MODULE_STATUS_STATE
- *      - MODULE_STATUS_ABORTED
  *      - MODULE_STATUS_VALUE
- * 
+ *      - MODULE_STATUS_MODULE_ID
+ *      - MODULE_STATUS_INSTANCES
+ *      - MODULE_STATUS_VERSION
+ *
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
  *
@@ -223,120 +244,167 @@ static Error_t rfid11785ModuleStatus (UInt16 Instance, bmModuleStatusID_t Status
     switch (StatusID)
     {
         case MODULE_STATUS_STATE:
-            if ((Data->Flags & MODE_MODULE_ENABLE) == 0) {
+            if (Data->Flags.Bits.ModuleEnable == FALSE) {
                 return ((Error_t) MODULE_STATE_DISABLED);
             }
             return ((Error_t) Data->ModuleState);
-            
+
         case MODULE_STATUS_VALUE:
             return (Data->DeviceSelect);
-        
+
         case MODULE_STATUS_MODULE_ID:
             return (ModuleIdentifier);
-            
+
         case MODULE_STATUS_INSTANCES:
             return (InstanceCount);
-            
+
         case MODULE_STATUS_VERSION:
             return (MODULE_VERSION);
-            
-        default: break;            
-    }    
+
+        default: break;
+    }
     return (E_PARAMETER_OUT_OF_RANGE);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Module Task Function
  *
- *      This function is called by the task scheduler periodically. 
+ *  \riskid  SWRA 5.5.1: Unreliable and wrong recognition of racks
+ *
+ *      This function is called by the task scheduler periodically.
  *      It's purpose is to perform all actions to provide the modules
  *      functionality.
- * 
+ *
  *  \iparam  Instance = Instance number of this module
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \return  Module instance state or (negative) error code
  *
  *****************************************************************************/
 
 static Error_t rfid11785ModuleTask (UInt16 Instance)
 {
-    Int8 Result;
-    Error_t Error;
+    Error_t Status;
     InstanceData_t* Data = &DataTable[Instance];
-      
-    if (Data->ModuleState == MODULE_STATE_BUSY) {
-        if (bmTimeExpired (Data->SwitchTime) >= ANTENNA_SWITCH_INTERVAL && Data->Started == FALSE) {           
-            if ((Error = rfid11785StartModOutput (Data)) < 0) {
+
+    // Control the antenna switching sequence
+    Status = rfid11785AntennaInit (Data);
+    if (Status < NO_ERROR) {
+        bmSignalEvent (Data->Channel, Status, TRUE, 0);
+        return ((Error_t) Data->ModuleState);
+    }
+
+    if (Data->ModuleState == MODULE_STATE_BUSY && Data->InitState == STATE_INIT) {
+        if (Data->Started == FALSE) {
+            if ((Status = rfid11785StartModOutput (Data)) < NO_ERROR) {
                 Data->ModuleState = MODULE_STATE_READY;
-                bmSignalEvent (Data->Channel, Error, TRUE, 0);
+                bmSignalEvent (Data->Channel, Status, TRUE, 0);
                 return ((Error_t) Data->ModuleState);
             }
             Data->Started = TRUE;
         }
-        
-        Result = rfid11785LinkComplete (&Data->DataStream);
-        if (Result == 1) {
-            Data->ModuleState = MODULE_STATE_READY;
-            Result = rfid11785LinkPatternOk (&Data->DataStream);
-            if (Result == 1) {
-                if (Data->DataStream.ReadCommand == TRUE) {
-                    if (rfid11785LinkParityOk (&Data->DataStream) == FALSE) {
-                        bmSignalEvent (Data->Channel, E_RFID11785_PARITY_ERROR, TRUE, 0);
-                        return ((Error_t) Data->ModuleState);
+        else {
+            Status = rfid11785LinkComplete (&Data->DataStream);
+            // Disable the capture interrupt
+            if (Status != NO_ERROR) {
+                Error_t Error = halCapComControl (Data->HandleTimer, RFID11785_CAPTURE_CHANNEL, TIM_INTR_DISABLE);
+
+                Data->ModuleState = MODULE_STATE_READY;
+                if (Error < NO_ERROR) {
+                    bmSignalEvent (Data->Channel, Error, TRUE, 0);
+                    return ((Error_t) Data->ModuleState);
+                }
+            }
+            if (Status < NO_ERROR) {
+                bmSignalEvent (Data->Channel, Status, TRUE, 0);
+                return ((Error_t) Data->ModuleState);
+            }
+            else if (Status > NO_ERROR) {
+                Status = rfid11785LinkPatternOk (&Data->DataStream);
+                if (Status < NO_ERROR) {
+                    bmSignalEvent (Data->Channel, Status, TRUE, Data->DataStream.RxBuffer[0]);
+                    return ((Error_t) Data->ModuleState);
+                }
+                else {
+                    if (Data->DataStream.ReadCommand == TRUE) {
+                        Status = rfid11785LinkParityOk (&Data->DataStream);
+                        if (Status < NO_ERROR) {
+                            bmSignalEvent (Data->Channel, Status, TRUE, 0);
+                            return ((Error_t) Data->ModuleState);
+                        }
+                        else {
+                            Status = rfid11785RespondAck (Data->Channel, Data->Ongoing, Data->CurrentAddress,
+                                rfid11785LinkGetData (&Data->DataStream));
+                            if (Status < NO_ERROR) {
+                                bmSignalEvent (Data->Channel, Status, TRUE, 0);
+                                return ((Error_t) Data->ModuleState);
+                            }
+                        }
                     }
                     else {
-                        Error = rfid11785RespondAck (Data->Channel, Data->Ongoing, Data->CurrentAddress,
-                            rfid11785LinkGetData (&Data->DataStream));
-                        if (Error < NO_ERROR) {
-                            bmSignalEvent (Data->Channel, Error, TRUE, 0);
+                        Status = rfid11785RespondAck (Data->Channel, Data->Ongoing, Data->CurrentAddress, 0);
+                        if (Status < NO_ERROR) {
+                            bmSignalEvent (Data->Channel, Status, TRUE, 0);
                             return ((Error_t) Data->ModuleState);
                         }
                     }
                 }
-                else {
-                    Error = rfid11785RespondAck (Data->Channel, Data->Ongoing, Data->CurrentAddress, 0);
-                    if (Error < NO_ERROR) {
-                        bmSignalEvent (Data->Channel, Error, TRUE, 0);
-                        return ((Error_t) Data->ModuleState);
-                    }
-                }
             }
-            else if (Result == 0) {
-                bmSignalEvent (Data->Channel, E_RFID11785_ERROR_PATTERN, TRUE, 0);
-                return ((Error_t) Data->ModuleState);
-            }
-            else {
-                bmSignalEvent (Data->Channel, E_RFID11785_UNKNOWN_PATTERN, TRUE, 0);
-                return ((Error_t) Data->ModuleState);
-            }
-        }
-        else if (Result == -1) {
-            Data->ModuleState = MODULE_STATE_READY;
-            bmSignalEvent (Data->Channel, E_RFID11785_TRANSACTION_TIMEOUT, TRUE, 0);
-            return ((Error_t) Data->ModuleState);
-        }
-        else if (Result == -2) {
-            Data->ModuleState = MODULE_STATE_READY;
-            bmSignalEvent (Data->Channel, Data->DataStream.IrqError, TRUE, 0);
-            return ((Error_t) Data->ModuleState);
         }
     }
-    
     return ((Error_t) Data->ModuleState);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
+ *  \brief   Handles antenna initialization state machine
+ *
+ *      This function is needed, when an antenna is switched on or another
+ *      antenna is activated. First, the anntenna is deactivated and the
+ *      multiplexer is swicthes the antenna channel. After a timeout the 
+ *      antenna activated again. After another timeout the channel is ready.
+ *
+ *  \xparam  Data = Contains all module instance variables
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ *****************************************************************************/
+
+static Error_t rfid11785AntennaInit (InstanceData_t* Data)
+{
+    Error_t Error;
+
+    if (Data->Flags.Bits.ModuleEnable == TRUE) {
+        if (Data->InitState == STATE_START) {
+            if (bmTimeExpired(Data->SwitchTime) > ANTENNA_OFF_INTERVAL) {
+                Data->SwitchTime = bmGetTime();
+                Data->InitState = STATE_WAIT;
+                if((Error = halPortWrite(Data->HandleShdOut, 0)) < 0) {
+                    return (Error);
+                }
+            }
+        }
+        else if (Data->InitState == STATE_WAIT) {
+            if (bmTimeExpired(Data->SwitchTime) > ANTENNA_ON_INTERVAL) {
+                Data->InitState = STATE_INIT;
+            }
+        }
+    }
+    return (NO_ERROR);
+}
+
+
+/*****************************************************************************/
+/*!
  *  \brief  Indicates a successful RFID transaction
  *
  *      This function sends a CAN message that shows that an RFID transaction
  *      completed successfully. In case of a read transaction, the data read
  *      from the device is also transmitted. Write or configuration responses
  *      do not contain any data.
- * 
+ *
  *  \iparam Channel = Channel of a instance of the functional module
  *  \iparam Ongoing = Ongoing RFID command
  *  \iparam Address = Address of the ongoing transaction
@@ -345,12 +413,16 @@ static Error_t rfid11785ModuleTask (UInt16 Instance)
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
- 
+
 static Error_t rfid11785RespondAck (UInt16 Channel, Rfid11785Command_t Ongoing, UInt8 Address, UInt32 ReadData)
 {
     CanMessage_t Message;
-    
+
     switch (Ongoing) {
+        case SetConfig:
+            Message.CanID = MSG_RFID11785_ACK_CONFIG;
+            Message.Length = 0;
+            break;
         case Login:
             Message.CanID = MSG_RFID11785_RESP_LOGIN;
             Message.Length = 0;
@@ -380,13 +452,13 @@ static Error_t rfid11785RespondAck (UInt16 Channel, Rfid11785Command_t Ongoing, 
             bmSetMessageItem (&Message, ReadData, 0, 4);
             break;
     }
-    
-    return (canWriteMessage (Channel, &Message)); 
+
+    return (canWriteMessage (Channel, &Message));
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Starts the modulation output responsible for RFID transmissions
  *
  *      This function starts the hardware timer that generates the interrupts
@@ -394,7 +466,7 @@ static Error_t rfid11785RespondAck (UInt16 Channel, Rfid11785Command_t Ongoing, 
  *      also sets the first signal state which will be active until the next
  *      timer interrupt occurs. It sets the timer, enables the timer interrupt
  *      and starts it.
- * 
+ *
  *  \xparam  Data = Main data structure of a module instance
  *
  *  \return  NO_ERROR or (negative) error code
@@ -404,16 +476,23 @@ static Error_t rfid11785RespondAck (UInt16 Channel, Rfid11785Command_t Ongoing, 
 static Error_t rfid11785StartModOutput (InstanceData_t *Data)
 {
     Error_t Error;
-    
+
+    Data->DataStream.StartTime = bmGetTime ();
+
+    Error = halCapComControl (Data->HandleTimer, RFID11785_CAPTURE_CHANNEL, TIM_INTR_DISABLE);
+    if (Error < NO_ERROR) {
+        return (Error);
+    }
+    Error = halTimerRead (Data->HandleTimer, TIM_REG_COUNTER, &Data->AccTime);
+    if (Error < NO_ERROR) {
+        return (Error);
+    }
+
     Error = halPortWrite (Data->HandleModOut, 1);
     if (Error < NO_ERROR) {
         return (Error);
     }
 
-    Error = halTimerRead (Data->HandleTimer, TIM_REG_COUNTER, &Data->AccTime);
-    if (Error < NO_ERROR) {
-        return (Error);
-    }
     Data->AccTime = Data->TimeMask & (Data->AccTime + RFID11785_TIME_FIRST_STOP);
     Error = halCapComWrite (Data->HandleTimer, RFID11785_COMPARE_CHANNEL, Data->AccTime);
     if (Error < NO_ERROR) {
@@ -422,21 +501,21 @@ static Error_t rfid11785StartModOutput (InstanceData_t *Data)
     Error = halCapComControl (Data->HandleTimer, RFID11785_COMPARE_CHANNEL, TIM_INTR_ENABLE);
     if (Error < 0) {
         return (Error);
-    } 
-    
+    }
+
     return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Sets the modulation output responsible for RFID transmissions
  *
  *      This function sets the hardware timer that generates the interrupts
  *      that drive the modulation output signal to the RFID front end IC. It
  *      also sets the signal state which will be active until the next timer
  *      interrupt occurs.
- * 
+ *
  *  \xparam  Data = Main data structure of a module instance
  *  \iparam  Count = Number of timer cycles
  *  \iparam  Value = Digital output value
@@ -448,7 +527,7 @@ static Error_t rfid11785StartModOutput (InstanceData_t *Data)
 static Error_t rfid11785SetModOutput (InstanceData_t *Data, UInt32 Count, UInt16 Value)
 {
     Error_t Error;
-        
+
     Error = halPortWrite(Data->HandleModOut, Value);
     if (Error < NO_ERROR) {
         return (Error);
@@ -458,58 +537,102 @@ static Error_t rfid11785SetModOutput (InstanceData_t *Data, UInt32 Count, UInt16
     if (Error < NO_ERROR) {
         return (Error);
     }
-    
+
     return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Outputs the antenna select signals
  *
  *      This method converts a number into the corresponding antenna select
  *      signals and writes this information to the digital output port.
- * 
- *  \iparam  Handle = Handle of the output port
- *  \iparam  DeviceSelect = Antenna number
+ *
+ *  \xparam  Data = Main data structure of a module instance
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 
-static Error_t rfid11785SetDeviceSel (Handle_t Handle, UInt8 DeviceSelect)
+static Error_t rfid11785SetDeviceSel (InstanceData_t *Data)
 {
     UInt8 Code;
-    
-    switch (DeviceSelect) {
-        case 0:
-            Code = 0;
-            break;
-        case 1:
-            Code = 1;
-            break;
-        case 2:
-            Code = 4;
-            break;
-        case 3:
-            Code = 6;
-            break;
-        case 4:
-            Code = 8;
-            break;
-        default:
-            return E_PARAMETER_OUT_OF_RANGE;
+
+    if (Data->DeviceSelect >= Data->AntennaNumber) {
+        return (E_PARAMETER_OUT_OF_RANGE);
+    }
+    if (Data->Flags.Bits.AntennaTwist == TRUE) {
+        Data->DeviceSelect = Data->AntennaNumber - Data->DeviceSelect - 1;
     }
 
-    return (halPortWrite(Handle, Code));
+    if (Data->AntennaNumber <= 1) {
+        return (NO_ERROR);
+    }
+    else if (Data->AntennaNumber <= 5) {
+        switch (Data->DeviceSelect) {
+            case 0:
+                Code = 0;
+                break;
+            case 1:
+                Code = 1;
+                break;
+            case 2:
+                Code = 4;
+                break;
+            case 3:
+                Code = 6;
+                break;
+            case 4:
+                Code = 8;
+                break;
+            default:
+                return (E_PARAMETER_OUT_OF_RANGE);
+        }
+    }
+    else {
+        switch (Data->DeviceSelect) {
+            case 0:
+                Code = 0;
+                break;
+            case 1:
+                Code = 2;
+                break;
+            case 2:
+                Code = 8;
+                break;
+            case 3:
+                Code = 12;
+                break;
+            case 4:
+                Code = 16;
+                break;
+            case 5:
+                Code = 18;
+                break;
+            case 6:
+                Code = 24;
+                break;
+            case 7:
+                Code = 28;
+                break;
+            case 8:
+                Code = 1;
+                break;
+            default:
+                return (E_PARAMETER_OUT_OF_RANGE);
+        }
+    }
+
+    return (halPortWrite(Data->HandleDevSelOut, Code));
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Sets the antenna multiplexer input and the RFID data rate
  *
- *      This function is called by the CAN message dispatcher when a message 
+ *      This function is called by the CAN message dispatcher when a message
  *      setting the antenna multiplexer input received from the master. The
  *      message also sets the current data rate of the module, the data rate
  *      of the RFID transponder is set by the "Write RFID Configuration"
@@ -520,7 +643,7 @@ static Error_t rfid11785SetDeviceSel (Handle_t Handle, UInt8 DeviceSelect)
  *
  *      - Antenna multiplexer select input
  *      - Data rate used by the functional module
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -532,35 +655,41 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
 {
     Error_t Error;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
- 
-    if (Message->Length == 1) {
+
+    if (Message->Length == 3) {
         if (Data->ModuleState == MODULE_STATE_READY) {
-            Data->Flags = bmGetMessageItem(Message, 0, 1);
-			Data->DeviceSelect = (Data->Flags & 0x3C) >> 2;
-            
-            // Activate or deactivate the shutdown signal to the RFID frontend IC
-            if((Data->Flags & MODE_MODULE_ENABLE) != 0) {           
-                if((Error = halPortWrite(Data->HandleShdOut, 0)) < 0) {
-                    return (Error);
+            Bool ModuleEnable;
+
+            Data->Flags.Byte = bmGetMessageItem(Message, 0, 1);
+            Data->DeviceSelect = bmGetMessageItem(Message, 1, 1);
+            Data->AntennaNumber = bmGetMessageItem(Message, 2, 1);
+
+            ModuleEnable = Data->Flags.Bits.ModuleEnable;
+            Data->Flags.Bits.ModuleEnable = FALSE;
+
+            if (Data->AntennaOpened == FALSE && Data->AntennaNumber > 1) {
+                Data->HandleDevSelOut = halPortOpen (HAL_RFID11785_ANT + bmGetInstance(Channel), HAL_OPEN_WRITE);
+                if (Data->HandleDevSelOut < 0) {
+                    return (Data->HandleDevSelOut);
+                }
+                else {
+                    Data->AntennaOpened = TRUE;
                 }
             }
-            else {
-                if((Error = halPortWrite(Data->HandleShdOut, 1)) < 0) {
-                    return (Error);
-                }
+            // Activate the shutdown signal to the RFID frontend IC
+            if((Error = halPortWrite(Data->HandleShdOut, 1)) < NO_ERROR) {
+                return (Error);
             }
-            
-            if (Data->AntennaNumber > 1) {
-                if (Data->DeviceSelect >= Data->AntennaNumber) {
-                    return (E_PARAMETER_OUT_OF_RANGE);
-                }
-                // Set the antenna selection pins
-                if((Error = rfid11785SetDeviceSel(Data->HandleDevSelOut, Data->DeviceSelect)) < 0) {
-                    return (Error);
-                }
+            // Set the antenna selection pins
+            if((Error = rfid11785SetDeviceSel(Data)) < NO_ERROR) {
+                return (Error);
+            }
+            // Start the antenna initialization procedure
+            if (ModuleEnable == TRUE) {
+                Data->InitState = STATE_START;
             }
 
-            switch ((Data->Flags & 0xC0) >> 6) {
+            switch (Data->Flags.Bits.DataRate) {
                 // RF / 64
                 case 0:
                     Data->CycleNumber = 64;
@@ -576,12 +705,13 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
                 // RF / 8
                 case 3:
                     Data->CycleNumber = 8;
-                    break; 
+                    break;
                 default: break;
             }
-            
+
+            Data->Flags.Bits.ModuleEnable = ModuleEnable;
             Data->SwitchTime = bmGetTime();
-            return (NO_ERROR);
+            return (rfid11785RespondAck (Channel, SetConfig, 0, 0));
         }
         return (E_RFID11785_TRANSACTION_ACTIVE);
     }
@@ -590,17 +720,17 @@ static Error_t rfid11785SetConfig (UInt16 Channel, CanMessage_t* Message)
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Isssues a login message to the RFID transponder
  *
- *      This function is called by the CAN message dispatcher when a message 
+ *      This function is called by the CAN message dispatcher when a message
  *      issuing an RFID login transaction is received from the master. The
  *      parameters in the message are transfered to the data structure of the
  *      addressed module instance. The modified settings influence the
  *      behavior of the module task. The following settings will be modified:
  *
  *      - RFID transponder password
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -614,9 +744,9 @@ static Error_t rfid11785SendLogin (UInt16 Channel, CanMessage_t* Message)
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 4) {
-        if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        if (Data->ModuleState == MODULE_STATE_READY && Data->Flags.Bits.ModuleEnable == TRUE) {
             Password = bmGetMessageItem(Message, 0, 4);
-            
+
             Data->Ongoing = Login;
             rfid11785LinkStartLogin(Password, &Data->DataStream);
             Data->ModuleState = MODULE_STATE_BUSY;
@@ -630,10 +760,10 @@ static Error_t rfid11785SendLogin (UInt16 Channel, CanMessage_t* Message)
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Sets a user register of the RFID transponder
  *
- *      This function is called by the CAN message dispatcher when a message 
+ *      This function is called by the CAN message dispatcher when a message
  *      setting a user register is received from the master. The parameters in
  *      the message are transfered to the data structure of the addressed
  *      module instance. The modified settings influence the behavior of the
@@ -641,7 +771,7 @@ static Error_t rfid11785SendLogin (UInt16 Channel, CanMessage_t* Message)
  *
  *      - User data address
  *      - User data
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -656,13 +786,13 @@ static Error_t rfid11785WriteUserData (UInt16 Channel, CanMessage_t* Message)
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 5) {
-        if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        if (Data->ModuleState == MODULE_STATE_READY && Data->Flags.Bits.ModuleEnable == TRUE) {
             Address = bmGetMessageItem(Message, 0, 1);
             DataWord = bmGetMessageItem(Message, 1, 4);
             if(Address >= ADDR_USER_MAX) {
                 return (E_PARAMETER_OUT_OF_RANGE);
             }
- 
+
             Data->CurrentAddress = Address;
             Data->Ongoing = WriteUserData;
             rfid11785LinkStartWrite(Address + ADDR_USER, DataWord, &Data->DataStream);
@@ -677,17 +807,17 @@ static Error_t rfid11785WriteUserData (UInt16 Channel, CanMessage_t* Message)
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Sets the password register of the RFID transponder
  *
- *      This function is called by the CAN message dispatcher when a message 
+ *      This function is called by the CAN message dispatcher when a message
  *      setting the password register is received from the master. The
  *      parameters in the message are transfered to the data structure of the
  *      addressed module instance. The modified settings influence the
  *      behavior of the module task. The following settings will be modified:
  *
  *      - RFID transponder password
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -701,9 +831,9 @@ static Error_t rfid11785WritePassword (UInt16 Channel, CanMessage_t* Message)
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 4) {
-        if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        if (Data->ModuleState == MODULE_STATE_READY && Data->Flags.Bits.ModuleEnable == TRUE) {
             Password = bmGetMessageItem(Message, 0, 4);
- 
+
             Data->Ongoing = WritePassword;
             rfid11785LinkStartWrite(ADDR_PASSWORD, Password, &Data->DataStream);
             Data->ModuleState = MODULE_STATE_BUSY;
@@ -717,10 +847,10 @@ static Error_t rfid11785WritePassword (UInt16 Channel, CanMessage_t* Message)
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief  Sets the config register of the RFID transponder
  *
- *      This function is called by the CAN message dispatcher when a message 
+ *      This function is called by the CAN message dispatcher when a message
  *      setting some bits of the the config register of the RFID transponder
  *      is received from the master. This message sets the login bits and
  *      the data rate parameter in the configuration register. When this
@@ -733,7 +863,7 @@ static Error_t rfid11785WritePassword (UInt16 Channel, CanMessage_t* Message)
  *      - Read login bit
  *      - Write login bit
  *      - Data rate written to config register
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -745,13 +875,13 @@ static Error_t rfid11785WriteConfig (UInt16 Channel, CanMessage_t* Message)
 {
     UInt32 Mode;
     UInt32 ConfigWord;
-    
+
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 1) {
-        if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        if (Data->ModuleState == MODULE_STATE_READY && Data->Flags.Bits.ModuleEnable == TRUE) {
             Mode = bmGetMessageItem(Message, 0, 1);
- 
+
             // Set Bi-phase encoding bit
             ConfigWord = 0x80;
             // Read login bit
@@ -780,7 +910,7 @@ static Error_t rfid11785WriteConfig (UInt16 Channel, CanMessage_t* Message)
                     break;
                 default: break;
             }
-           
+
             Data->Ongoing = WriteConfig;
             rfid11785LinkStartWrite(ADDR_CONFIG, ConfigWord, &Data->DataStream);
             Data->ModuleState = MODULE_STATE_BUSY;
@@ -794,7 +924,7 @@ static Error_t rfid11785WriteConfig (UInt16 Channel, CanMessage_t* Message)
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Requests the data from a user register of the RFID transponder
  *
  *      This function is called by the CAN message dispatcher when a user
@@ -803,7 +933,7 @@ static Error_t rfid11785WriteConfig (UInt16 Channel, CanMessage_t* Message)
  *      will be responded:
  *
  *      - User data
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -812,17 +942,17 @@ static Error_t rfid11785WriteConfig (UInt16 Channel, CanMessage_t* Message)
  ****************************************************************************/
 
 static Error_t rfid11785ReadUserData (UInt16 Channel, CanMessage_t* Message)
-{   
+{
     UInt8 Address;
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 1) {
-        if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        if (Data->ModuleState == MODULE_STATE_READY && Data->Flags.Bits.ModuleEnable == TRUE) {
             Address = bmGetMessageItem(Message, 0, 1);
             if(Address >= ADDR_USER_MAX) {
                 return (E_PARAMETER_OUT_OF_RANGE);
             }
-            
+
             Data->CurrentAddress = Address;
             Data->Ongoing = ReadUserData;
             rfid11785LinkStartRead(Address + ADDR_USER, &Data->DataStream);
@@ -836,7 +966,7 @@ static Error_t rfid11785ReadUserData (UInt16 Channel, CanMessage_t* Message)
 }
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Requests the UID of the RFID transponder
  *
  *      This function is called by the CAN message dispatcher when a UID
@@ -845,7 +975,7 @@ static Error_t rfid11785ReadUserData (UInt16 Channel, CanMessage_t* Message)
  *      be responded:
  *
  *      - Unique identification number
- * 
+ *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message
  *
@@ -854,11 +984,11 @@ static Error_t rfid11785ReadUserData (UInt16 Channel, CanMessage_t* Message)
  ****************************************************************************/
 
 static Error_t rfid11785ReadUidNumber (UInt16 Channel, CanMessage_t* Message)
-{   
+{
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
     if (Message->Length == 0) {
-        if (Data->ModuleState == MODULE_STATE_READY && (Data->Flags & MODE_MODULE_ENABLE) != 0) {
+        if (Data->ModuleState == MODULE_STATE_READY && Data->Flags.Bits.ModuleEnable == TRUE) {
             Data->Ongoing = ReadUidNumber;
             rfid11785LinkStartRead(ADDR_UID, &Data->DataStream);
             Data->ModuleState = MODULE_STATE_BUSY;
@@ -871,7 +1001,7 @@ static Error_t rfid11785ReadUidNumber (UInt16 Channel, CanMessage_t* Message)
 }
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Interrupt handler issued by a timer unit
  *
  *      The interrupt handler is called when the counter of a timer unit
@@ -880,7 +1010,7 @@ static Error_t rfid11785ReadUidNumber (UInt16 Channel, CanMessage_t* Message)
  *      and this way controls the transmission of RFID messages. When the
  *      message transfer completes successfully, the capture interrupt
  *		responsible for the reception of messages is activated.
- * 
+ *
  *  \iparam  Channel = user infomation
  *  \iparam  IntrFlags = interrupt flags
  *
@@ -897,18 +1027,18 @@ static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags)
         Data->DataStream.IrqError = Error;
     }
     else if (Error > 0) {
-        Data->DataStream.IrqError = rfid11785CompareIntHandler (Data);
+        Data->DataStream.IrqError = rfid11785CompareHandler (Data);
     }
-    
+
     // Handling the capture interrupt
     Error = halCapComStatus (Data->HandleTimer, RFID11785_CAPTURE_CHANNEL, TIM_STAT_PENDING);
     if (Error < 0) {
         Data->DataStream.IrqError = Error;
     }
     else if (Error > 0) {
-        Data->DataStream.IrqError = rfid11785CaptureIntHandler (Data);
+        Data->DataStream.IrqError = rfid11785CaptureHandler (Data);
     }
-        
+
     // Deactivate the interrupts in case of an error
     if (Data->DataStream.IrqError < NO_ERROR) {
         Error = halCapComControl (Data->HandleTimer, RFID11785_COMPARE_CHANNEL, TIM_INTR_DISABLE);
@@ -920,29 +1050,32 @@ static void rfid11785InterruptHandler (UInt32 Channel, UInt32 IntrFlags)
             Data->DataStream.IrqError = Error;
         }
     }
-            
+
     return;
 }
 
 /*****************************************************************************/
-/*! 
- *  \brief   Interrupt handler for the compare channel
+/*!
+ *  \brief   Handler for the compare channel
  *
- *      The interrupt handler is called when a certain duration set in the CPU
- *      timer expires. The handler sets the MOD signal to the RFID front end
- *      and this way controls the transmission of RFID messages.
- * 
+ *      The function is called by the timer interrupt handler, when the
+ *      compare timer reaches a certain value. The handler sets the MOD signal
+ *      to the RFID front end and this way controls the transmission of RFID
+ *      messages.
+ *
  *  \iparam  Data = Instance data structure
+ *
+ *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 
-static Error_t rfid11785CompareIntHandler (InstanceData_t *Data)
+static Error_t rfid11785CompareHandler (InstanceData_t *Data)
 {
     Error_t Error;
     Rfid11785Stream_t *DataStream;
 
     DataStream = &Data->DataStream;
-    
+
     if (DataStream->TxCount < DataStream->TxLength) {
         if (DataStream->CycleCount == 0) {
             Error = rfid11785SetModOutput (Data, RFID11785_TIME_MOD_OFF, 0);
@@ -968,16 +1101,14 @@ static Error_t rfid11785CompareIntHandler (InstanceData_t *Data)
             DataStream->TxCount++;
         }
     }
-    else if (DataStream->RespWait != 0) {
-        Error = rfid11785SetModOutput (Data, DataStream->RespWait, 0);
+    else {
+        DataStream->OldValid = FALSE;
+        DataStream->OldTime = 0;
+        DataStream->OldCount = 0;
+        Error = halPortWrite(Data->HandleModOut, 0);
         if (Error < NO_ERROR) {
             return (Error);
         }
-        DataStream->RespWait = 0;
-    }
-    else {
-        DataStream->OldTime = 0;
-        DataStream->OldCount = 0;
         Error = halCapComControl (Data->HandleTimer, RFID11785_COMPARE_CHANNEL, TIM_INTR_DISABLE);
         if (Error < NO_ERROR) {
             return (Error);
@@ -991,34 +1122,36 @@ static Error_t rfid11785CompareIntHandler (InstanceData_t *Data)
             return (Error);
         }
     }
-    
+
     return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
-/*! 
- *  \brief   Interrupt handler issued by the capture channel
+/*!
+ *  \brief   Handler issued by the capture channel
  *
- *      The interrupt handler is called when the capture channel detects a
- *      transition on the DEMOD signal coming from the RFID front end. The
- *      handler measures the time since the last transition. This way, it is
- *      able to identify single bits in the incoming data stream. When the
- *      message transfer completes successfully, the interrupt is deactivated
- *      again.
- * 
+ *      The function is called by the timer interrupt handler, when the
+ *      capture channel detects a transition on the DEMOD signal coming from
+ *      the RFID front end. The handler measures the time since the last
+ *      transition. This way, it is able to identify single bits in the
+ *      incoming data stream. When the message transfer completes
+ *      successfully, the timer interrupt is deactivated again.
+ *
  *  \iparam  Data = Instance data structure
+ *
+ *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 
-static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data)
+static Error_t rfid11785CaptureHandler (InstanceData_t *Data)
 {
     Error_t Error;
     UInt32 Time;
     UInt16 BitTime;
     UInt32 NewCount;
     Rfid11785Stream_t *DataStream;
-    
+
     BitTime = Data->CycleNumber / 8;
     DataStream = &Data->DataStream;
 
@@ -1029,12 +1162,12 @@ static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data)
     Time = Data->TimeMask & (NewCount - DataStream->OldCount);
     DataStream->OldCount = NewCount;
 
-    if (DataStream->RxCount < DataStream->RxLength) {
-        if (Time > (7 * BitTime) && Time < (9 * BitTime)) {
+    if (DataStream->OldValid == TRUE && DataStream->RxCount < DataStream->RxLength) {
+        if (Time > (6 * BitTime) && Time < (10 * BitTime)) {
             rfid11785LinkWriteBit(DataStream->RxBuffer, DataStream->RxCount, 0);
             DataStream->RxCount++;
         }
-        else if (Time > (11 * BitTime) && Time < (13 * BitTime)) {
+        else if (Time > (10 * BitTime) && Time < (14 * BitTime)) {
             if (DataStream->OldTime % 2 == 0) {
                 rfid11785LinkWriteBit(DataStream->RxBuffer, DataStream->RxCount, 1);
                 DataStream->RxCount++;
@@ -1050,7 +1183,7 @@ static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data)
                 DataStream->OldTime++;
             }
         }
-        else if (Time > (15 * BitTime) && Time < (17 * BitTime)) {
+        else if (Time > (14 * BitTime) && Time < (18 * BitTime)) {
             rfid11785LinkWriteBit(DataStream->RxBuffer, DataStream->RxCount, 1);
             DataStream->RxCount++;
             if (DataStream->RxCount < DataStream->RxLength) {
@@ -1059,25 +1192,27 @@ static Error_t rfid11785CaptureIntHandler (InstanceData_t *Data)
             }
         }
     }
-    
-    if (DataStream->RxCount == DataStream->RxLength - rfid11785LinkGetMissing(DataStream)) {
+
+    DataStream->OldValid = TRUE;
+
+    if (DataStream->RxCount == DataStream->RxLength) {
         Error = halCapComControl (Data->HandleTimer, RFID11785_CAPTURE_CHANNEL, TIM_INTR_DISABLE);
         if (Error < NO_ERROR) {
             return (Error);
         }
     }
-    
+
     return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Opens the handles of the peripherals
  *
  *  This functions accesses the hardware abstraction layer (HAL) top open the
  *  devices handles of the different microcontroller peripherals.
- * 
+ *
  *  \iparam  Data = Data of a module instance
  *  \iparam  Instance = Instance number
  *
@@ -1089,7 +1224,7 @@ static Error_t rfid11785HandleOpen (InstanceData_t *Data, Int16 Instance)
 {
     Error_t Error;
     TimerMode_t TimerMode;
-    
+
     TimerMode.Direction = TIM_MODE_COUNT_UP;
     TimerMode.OneShot = TIM_MODE_INTERVAL;
     TimerMode.ClkSource = TIM_MODE_EXTERNAL;
@@ -1104,13 +1239,7 @@ static Error_t rfid11785HandleOpen (InstanceData_t *Data, Int16 Instance)
     if (Data->HandleModOut < 0) {
         return (Data->HandleModOut);
     }
-    if (Data->AntennaNumber > 1) {
-        Data->HandleDevSelOut = halPortOpen (HAL_RFID11785_ANT + Instance, HAL_OPEN_WRITE);
-        if (Data->HandleDevSelOut < 0) {
-            return (Data->HandleDevSelOut);
-        }
-    }
-    
+
     // Open hardware timer for the RFID transmission
     Data->HandleTimer = halTimerOpen (HAL_RFID11785_TIM + Instance, Instance, rfid11785InterruptHandler);
     if (Data->HandleTimer < 0) {
@@ -1129,13 +1258,13 @@ static Error_t rfid11785HandleOpen (InstanceData_t *Data, Int16 Instance)
     if (Error < NO_ERROR) {
         return (Error);
     }
-    
+
     return (NO_ERROR);
 }
 
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Initializes this function module
  *
  *      This function is called once during startup by the base module. It
@@ -1144,7 +1273,7 @@ static Error_t rfid11785HandleOpen (InstanceData_t *Data, Int16 Instance)
  *      devices used by the various instances of this module and
  *      allocates/initializes storage for the variables for each instance of
  *      this module.
- * 
+ *
  *  \iparam  ModuleID = Module identifier
  *  \iparam  Instances = Number of instances of this module
  *
@@ -1163,21 +1292,21 @@ Error_t rfid11785InitializeModule (UInt16 ModuleID, UInt16 Instances)
         { MSG_RFID11785_READ_USER_DATA, rfid11785ReadUserData },
         { MSG_RFID11785_READ_UID_NUMBER, rfid11785ReadUidNumber },
     };
-    
+
     static bmModuleInterface_t Interface = {
-        rfid11785ModuleTask, 
-        rfid11785ModuleControl, 
+        rfid11785ModuleTask,
+        rfid11785ModuleControl,
         rfid11785ModuleStatus
     };
     Error_t Status;
     UInt16 i;
-    
+
     // allocate module instances data storage
     DataTable = calloc (Instances, sizeof(InstanceData_t));
     if (NULL == DataTable) {
         return (E_MEMORY_FULL);
-    }    
-    // register function module to the scheduler    
+    }
+    // register function module to the scheduler
     Status = bmRegisterModule (ModuleID, Instances, &Interface);
     if (Status < 0) {
         return (Status);
@@ -1193,30 +1322,25 @@ Error_t rfid11785InitializeModule (UInt16 ModuleID, UInt16 Instances)
 
     // open channels and ports for all modules
     for (i=0; i < Instances; i++) {
-        
         DataTable[i].Channel = bmGetChannel(bmGetTaskID(ModuleID, i));
-        DataTable[i].Flags = 0;
+        DataTable[i].Flags.Byte = 0;
 
-        // Get the number of antennas connected to the board
-        DataTable[i].AntennaNumber = bmGetBoardOptions (ModuleID, i, 1);
-        if (DataTable[i].AntennaNumber == 0) {
-            return (E_BOARD_OPTION_MISSING);
-        }
- 
         // Open the HAL device handlers
         Status = rfid11785HandleOpen (&DataTable[i], i);
         if (Status < 0) {
             return (Status);
         }
- 
+
         // Setting default RFID transission speed
         DataTable[i].CycleNumber = 32;
         DataTable[i].SwitchTime = bmGetTime();
         DataTable[i].ModuleState = MODULE_STATE_READY;
+        DataTable[i].InitState = STATE_IDLE;
+        DataTable[i].AntennaOpened = FALSE;
     }
     InstanceCount = Instances;
     ModuleIdentifier = ModuleID;
-    
+
     return (NO_ERROR);
 }
 

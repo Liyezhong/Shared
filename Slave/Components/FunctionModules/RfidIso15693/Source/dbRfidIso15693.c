@@ -1,9 +1,9 @@
 /****************************************************************************/
 /*! \file dbRfidIso15693.c
  *
- *  \brief Debug string table defintion
+ *  \brief Debug string table definition
  *
- *  $Version: $ 0.1
+ *  $Version: $ 0.2
  *  $Date:    $ 25.01.2011
  *  $Author:  $ Andreas Menge
  *
@@ -105,10 +105,8 @@ static const ErrorString_t EventNames[] = {
 
 void rfid15693RegisterDebugNames (UInt16 ModuleID) {
 
-    #ifdef DEBUG
     dbgRegisterCanIdNames(ModuleID, CanIdNames, ELEMENTS(CanIdNames));
     dbgRegisterEventNames(EventNames, ELEMENTS(EventNames));
-    #endif
 }
 
 //****************************************************************************/
