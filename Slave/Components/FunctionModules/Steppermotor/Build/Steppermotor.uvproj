@@ -29,6 +29,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
+          <SFDFile>SFD\ST\STM32F10xx\STM32F10xxB.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -416,6 +417,11 @@
               <FilePath>..\Include\fmStepperMotorLimitSwitch.h</FilePath>
             </File>
             <File>
+              <FileName>fmStepperMotorMemory.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Include\fmStepperMotorMemory.h</FilePath>
+            </File>
+            <File>
               <FileName>fmStepperMotorMotion.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Include\fmStepperMotorMotion.h</FilePath>
@@ -431,19 +437,14 @@
               <FilePath>..\Include\fmStepperMotorMotionISR.h</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorReferenceRun.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Include\fmStepperMotorReferenceRun.h</FilePath>
-            </File>
-            <File>
               <FileName>fmStepperMotorMotionProfile.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Include\fmStepperMotorMotionProfile.h</FilePath>
             </File>
             <File>
-              <FileName>fmStepperMotorMemory.h</FileName>
+              <FileName>fmStepperMotorReferenceRun.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Include\fmStepperMotorMemory.h</FilePath>
+              <FilePath>..\Include\fmStepperMotorReferenceRun.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -486,6 +487,11 @@
               <FilePath>..\Source\fmStepperMotorLimitSwitch.c</FilePath>
             </File>
             <File>
+              <FileName>fmStepperMotorMemory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\fmStepperMotorMemory.c</FilePath>
+            </File>
+            <File>
               <FileName>fmStepperMotorMotion.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\fmStepperMotorMotion.c</FilePath>
@@ -509,11 +515,6 @@
               <FileName>fmStepperMotorReferenceRun.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\fmStepperMotorReferenceRun.c</FilePath>
-            </File>
-            <File>
-              <FileName>fmStepperMotorMemory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\fmStepperMotorMemory.c</FilePath>
             </File>
           </Files>
         </Group>

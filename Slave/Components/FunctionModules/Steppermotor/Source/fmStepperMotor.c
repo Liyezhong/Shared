@@ -1,25 +1,49 @@
 /****************************************************************************/
 /*! \file fmStepperMotor.c
- * 
- *  \brief Function module to control stepper motor
  *
- *  $Version: $ 0.1
- *  $Date:    $ 17.10.2010
- *  $Author:  $ Norbert Wiedmann
+ *  \brief Function module for stepper motor
+ *
+ *  $Rev:    $ 0.1
+ *  $Date:   $ 11.06.2012
+ *  $Author: $ Rainer Boehles
  *
  *  \b Description:
  *
- *       This modul contains all functions to control a stepper motor.
- *       
- *       The function module provides position and speed based movement
- *       
+ *      This is the main module for function module stepper motor.
+ *
+ *      It contains the necessary interface functions to be integrated by the
+ *      base module:
+ *          - module / stepper instances initialization
+ *          - module task
+ *          - module control
+ *          - module status
+ *
+ *      This module also contains functions to open and close the utilized
+ *      hardware devices like stepper motor, limit switches and encoder.
+ *      The devices are opened when the motor is enabled and closed when
+ *      disabled.
+ *
+ *      When stepper module is 'shutdown' by the base module the motor is
+ *      stopped and power is switched off, whereas in case of 'emergency stop'
+ *      the motor will only be stopped, but not powered off.
+ *
+ *      During 'normal mode' the module task is called periodically by base
+ *      module. If motor is 'enabled' the motor task will perform the actions
+ *      needed according to the stepper module state, like
+ *          - sampling limit switches
+ *          - sampling encoder
+ *          - switch off motor power after configured delay
+ *          - manage reference run
+ *          - manage target position/speed movements
+ *          - update life cycle data
+ *
  *
  *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
- * 
- *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- *  This is unpublished proprietary source code of Leica. The copyright notice 
+ *
+ *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
@@ -37,36 +61,29 @@
 // Private Constants and Macros 
 //****************************************************************************/
 
-#define MODULE_VERSION                  60002   //!< Version number of module
-
-
-//*****************************************************************************/
-// Private Type Definitions 
-//*****************************************************************************/
+#define MODULE_VERSION          0x0005  //!< Version number of module (above 60000 for test versions)
 
 
 //****************************************************************************/
 // Private Function Prototypes 
 //****************************************************************************/
-static Error_t smModuleControl (UInt16 Instance, bmModuleControlID_t ControlID);
-static Error_t smModuleStatus  (UInt16 Instance, bmModuleStatusID_t StatusID);
-static Error_t smModuleTask    (UInt16 Instance);
 
-void smInitInstance (smData_t *Data);
+static void smInitInstance (smData_t *Data);
 
 
 //****************************************************************************/
 // Private Variables 
 //****************************************************************************/
 
-static UInt8  smInstanceCount = 0;        //!< Number of module instances
+static UInt8  smInstanceCount = 0;      //!< Number of module instances
 
 
 //****************************************************************************/
 // Module global variables 
 //****************************************************************************/
-smData_t *smDataTable = NULL;   //!< Data table for all instances
-Handle_t  smHandleTimer = 0;    //!< Timer handle, one timer for up to four motors
+
+smData_t *smDataTable = NULL;           //!< Data table for all instances
+Handle_t  smHandleTimer = 0;            //!< Timer handle, one timer for up to four motors
 UInt16    smTimerNo = 0;                //!< Physical timer number
 
 /*****************************************************************************/
@@ -78,76 +95,102 @@ UInt16    smTimerNo = 0;                //!< Physical timer number
  *      are performed:
  * 
  *      - MODULE_CONTROL_STOP
+ *          Motor is stopped immediately, but still powered on.
+ *          No commands accepted any more.
  *      - MODULE_CONTROL_RESUME
- *      - MODULE_CONTROL_STANDBY  
+ *          Return to normal operation.
+ *      - MODULE_CONTROL_SHUTDOWN
+ *          Motor is stopped immediately, motor is powered off.
+ *          No commands accepted any more.
  *      - MODULE_CONTROL_WAKEUP
- *      - MODULE_CONTROL_SHUTDOWN        
- * 
+ *          Return to normal operation.
+ *          If module motor was enabled, when module was 'shutdown', then
+ *          module is re-enabled.
+ *      - MODULE_CONTROL_RESET
+ *          Reseting the module into state it was, when module have been
+ *          initialized by base module.
+ *      - MODULE_CONTROL_FLUSH_DATA
+ *          Write all permanent data to non volatile memory
+ *      - MODULE_CONTROL_RESET_DATA
+ *          Reset all permanent data in non volatile memory
+ *
  *  \iparam  Instance  = Instance number of this module [in]
  *  \iparam  ControlID = Control code to select sub-function [in]
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-static Error_t smModuleControl (UInt16 Instance, bmModuleControlID_t ControlID)
-{
-    smData_t* Data = &smDataTable[Instance];
+static Error_t smModuleControl (UInt16 Instance, bmModuleControlID_t ControlID) {
+
+    smData_t* Data = NULL;
     Error_t RetVal = NO_ERROR;
 
-    switch (ControlID)
-    {
-        case MODULE_CONTROL_STOP:  //!< Emergency stop
+    if (Instance >= smInstanceCount) {
+        return E_PARAMETER_OUT_OF_RANGE;
+    }
+
+    Data = &smDataTable[Instance];
+
+    switch (ControlID) {
+        case MODULE_CONTROL_STOP:       //!< Emergency stop
             Data->Motion.Stop = SM_SC_ALWAYS;               // stop any movement
-            Data->ModuleState = MODULE_STATE_STOPPED;
+            if (MS_IDLE != Data->Motion.State) {
+                bmSignalEvent(Data->Channel, E_SMOT_STOP_BY_EMERGENCYSTOP, TRUE, 0);
+            }
+            Data->Flags.Stopped = TRUE;                     // set stop flag to enter emergency stop mode
             break;
 
-        case MODULE_CONTROL_RESUME:  //!< Resume stopped instance
-            Data->ModuleState = MODULE_STATE_READY;
+        case MODULE_CONTROL_RESUME:     //!< Resume stopped instance
+            Data->Flags.Stopped = FALSE;                   // leave emergency stop mode
             break;
 
-        case MODULE_CONTROL_SHUTDOWN:  //!< Go into shutdown mode
+        case MODULE_CONTROL_SHUTDOWN:   //!< Go into shutdown mode
             Data->Motion.Stop = SM_SC_ALWAYS;               // stop any movement
-            while (MS_IDLE != Data->Motion.State)           // wait until movement is stopped
-            {
+            if (MS_IDLE != Data->Motion.State) {
+                bmSignalEvent(Data->Channel, E_SMOT_STOP_BY_SHUTDOWN, TRUE, 0);
             }
-            if ((RetVal = smCloseDevices(Data)) < 0)        // close hal devices, this will also switch off driver stage
-                return RetVal;
-            Data->ModuleState = MODULE_STATE_STANDBY;
+            Data->Flags.Shutdown = TRUE;                    // set shutdown flag to enter standby mode
             break;
 
-        case MODULE_CONTROL_WAKEUP:  //!< Wakeup instance from standby
-            if (Data->Flags.Enable)                         // enable module again if it was enabled before
-            {
-                if ((RetVal = smEnable(Data, Data->Flags.dbg_skipRefRun)) < 0)
+        case MODULE_CONTROL_WAKEUP:     //!< Wakeup instance from standby
+            if (Data->Flags.Enable) {                       // enable module again if it was enabled before
+                if ((RetVal = smEnable(Data, Data->Flags.dbg_skipRefRun)) < 0) {
                     return RetVal;
+                }
             }
-            Data->ModuleState = MODULE_STATE_READY;
+            Data->Flags.Shutdown = FALSE;                   // leave standby mode
             break;
 
-        case MODULE_CONTROL_RESET:  //!< Reset module instance
-            Data->Motion.Stop = SM_SC_ALWAYS;                       // stop any movement
-            while (MS_IDLE != Data->Motion.State)           // wait until movement is stopped 
-            if ((RetVal = smCloseDevices(Data)) < 0)                // close hal devices, this will also switch off driver stage
-                return RetVal;
-
-            if (Data->Memory.Handle >= 0)                           // close memory
-            {
-                if ((RetVal = bmClosePermStorage(Data->Memory.Handle)) < 0)
+        case MODULE_CONTROL_RESET: {    //!< Reset module instance
+                Error_t Status;
+                Status = halCapComControl(smHandleTimer, Data->Motion.CCR.Unit, TIM_INTR_DISABLE);    // stop motion by disabling timer CCR irq
+                if ((RetVal = smCloseDevices(Data)) < 0) {  // close hal devices, this will also switch off driver stage
                     return RetVal;
+                }
+                if (Status < 0) {
+                    return Status;
+                }
             }
 
-            if (Data->Profiles.Set)
-                free (Data->Profiles.Set);                          // deallocate motion profile memory
+            if (Data->Memory.Handle >= 0) {                 // close memory
+                if ((RetVal = bmClosePermStorage(Data->Memory.Handle)) < 0) {
+                    return RetVal;
+                }
+            }
 
-            smInitInstance(Data);                                   // reinitialize the instance data
+            if (Data->Profiles.Set) {
+                free (Data->Profiles.Set);                  // deallocate motion profile memory
+            }
+
+            smInitInstance(Data);                           // reinitialize the instance data
 
             break;
                                 
-        case MODULE_CONTROL_FLUSH_DATA:  //!< Flush permanent data to storage
+        case MODULE_CONTROL_FLUSH_DATA: //!< Flush permanent data to storage
             RetVal = smFlushMemory(Data->Instance, 0);
             break;
             
-        case MODULE_CONTROL_RESET_DATA:  //!< Reset permanent data to default
+        case MODULE_CONTROL_RESET_DATA: //!< Reset permanent data to default
             RetVal = smResetMemory(Data->Instance);
             break;
 
@@ -156,48 +199,58 @@ static Error_t smModuleControl (UInt16 Instance, bmModuleControlID_t ControlID)
     }
 
     return RetVal;
-
 }
 
 /*****************************************************************************/
-/*! 
+/*!
  *  \brief   Module Status Request
  *
  *      This function is called by the base module to request the status of
  *      the function module. Depending on the StatusID parameter, the 
  *      following status value is returned:
  * 
- *      - MODULE_STATUS_INSTANCES
- *      - MODULE_STATUS_MODULE_ID
- *      - MODULE_STATUS_VERSION
- *      - MODULE_STATUS_ENABLED
  *      - MODULE_STATUS_STATE
+            active module state
+ *      - MODULE_STATUS_INSTANCES
+ *          amount of stepper instances
+ *      - MODULE_STATUS_MODULE_ID
+ *          ID of function module stepper motor
+ *      - MODULE_STATUS_VERSION
+ *          software version of function module stepper motor
  *      - MODULE_STATUS_VALUE
- *      - MODULE_STATUS_ABORTED
- * 
+ *          stepper motor position
+ *
  *  \iparam  Instance = Instance number of this module
  *  \iparam  StatusID = selects which status is requested
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
+static Error_t smModuleStatus(UInt16 Instance, bmModuleStatusID_t StatusID) {
 
-static Error_t smModuleStatus(UInt16 Instance, bmModuleStatusID_t StatusID)
-{
-    smData_t* Data = &smDataTable[Instance];
+    smData_t* Data = NULL;
 
-    switch (StatusID)
-    {                        
+    if (Instance >= smInstanceCount) {
+        return E_PARAMETER_OUT_OF_RANGE;
+    }
+
+    Data = &smDataTable[Instance];
+
+    switch (StatusID) {
         case MODULE_STATUS_STATE:
-            if (MODULE_STATE_READY == Data->ModuleState)
-            {
-                if (!Data->Flags.Enable)
-                    return (MODULE_STATE_DISABLED);
-                if (MS_IDLE != Data->Motion.State)
-                    return (MODULE_STATE_BUSY);
+            if (!Data->Flags.Enable) {
+                return (MODULE_STATE_DISABLED);
             }
-            return (Data->ModuleState);
-        
+            if (Data->Flags.Stopped) {
+                return (MODULE_STATE_STOPPED);
+            }
+            if (MS_IDLE != Data->Motion.State) {
+                return (MODULE_STATE_BUSY);
+            }
+            if (Data->Flags.Shutdown) {
+                return (MODULE_STATE_STANDBY);
+            }
+            return (MODULE_STATE_READY);
         case MODULE_STATUS_MODULE_ID:
             return (MODULE_ID_STEPPER);
             
@@ -210,191 +263,259 @@ static Error_t smModuleStatus(UInt16 Instance, bmModuleStatusID_t StatusID)
         case MODULE_STATUS_VALUE:
             return (Data->Motion.Pos);
         default:
-            break;            
+            break;
     }
-    
+
     return (E_PARAMETER_OUT_OF_RANGE);
 
 }
 
 
-Error_t smCheckRetCode (UInt16 Channel, Error_t RetCode)
-{
-    if (RetCode < 0)
-        return bmSignalEvent(Channel, RetCode, TRUE, 0);
-    return NO_ERROR;
+/******************************************************************************/
+/*!
+ *  \brief  Check return code and send CAN event for any error code
+ *
+ *      Supplied 'return code' is checked if it stands for an error code.
+ *      In case of an error code a CAN event is send to master.
+ *
+ *  \iparam  Channel = Logical channel number
+ *  \iparam  RetCode = return code to be checked
+ * 
+ ******************************************************************************/
+void smCheckRetCode (UInt16 Channel, Error_t RetCode) {
+
+    if (RetCode < 0) {
+        bmSignalEvent(Channel, RetCode, TRUE, 0);
+    }
 }
 
 
-void smCheckForPosCodeError(smData_t* Data)
-{
-    if ((Data->LimitSwitches.PosCode.InvalidPosition) || (Data->LimitSwitches.PosCode.InvalidValue)) 
+/******************************************************************************/
+/*!
+ *  \brief  Check if re-initialization is needed
+ *
+ *      Position code from limit switches can have an invalid value or can
+ *      not match to the actual motor position. Because both cases are fatal
+ *      a reference run is forced to reinitialize the reference framework.
+ *
+ *      Fatal controller errors does shut down the stepper controller.
+ *      To reset controller errors the controller needs to be disabled and
+ *      re-enabled again. This can be accomplished by disabling the stepper
+ *      module and re-enabling it.
+ *
+ *  \iparam  Data = Pointer to module instance's data
+ *
+ ******************************************************************************/
+void smCheckForInitNeeded(smData_t* Data) {
+
+    if (NO_ERROR != Data->LimitSwitches.PosCode.ErrCode) {
         Data->State = SM_STATE_INIT;  // in case of an invalid position code the reference run must be repeated
+        bmSignalEvent(Data->Channel, I_SMOT_NEED_INIT, TRUE, 0);
+    }
+    if (   (E_STEPPER_TEMPERATURE == Data->Motion.HALStatus)
+        || (E_STEPPER_SHORT_CIRCUIT == Data->Motion.HALStatus)
+        || (E_STEPPER_UNDERVOLTAGE == Data->Motion.HALStatus)
+        || (E_STEPPER_SPI_PATTERN == Data->Motion.HALStatus)
+       ) {
+        Data->State = SM_STATE_INIT;  // in case of an controller error the module must be disabled and re-enabled
+        bmSignalEvent(Data->Channel, I_SMOT_NEED_INIT, TRUE, 0);
+    }
 }
 
 
-void smCheckStopCondition(smData_t* Data)
-{
-    // if motor stopped because of position code
-    if ((SM_SC_DIR_CCW == Data->Motion.Stop) || (SM_SC_DIR_CW == Data->Motion.Stop))
-        bmSignalEvent(Data->Channel, E_SMOT_STOP_BY_POSCODE, TRUE, 0);    
-    
-    // if motor stopped because position get's off-limit
-    if (SM_SC_OFFLIMIT == Data->Motion.Stop)
-        bmSignalEvent(Data->Channel, E_SMOT_STOP_BY_OFFLIMIT, TRUE, 0);
-}
+/******************************************************************************/
+/*!
+ *  \brief  Check encoder position
+ *
+ *      If encoder does exist the encoder position is sampled.
+ *      If the motor is idle, then the actual encoder position is used as
+ *      actual motor position.
+ *
+ *  \iparam  Data = Pointer to module instance's data
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ******************************************************************************/
+Error_t smCheckEncoder(smData_t* Data) {
 
-
-Error_t smCheckEncoder(smData_t* Data)
-{
     Error_t RetCode = NO_ERROR;
 
-    if (FALSE == Data->Encoder.Config.Exists)
+    if (FALSE == Data->Encoder.Config.Exists) {
         return NO_ERROR;
-
-    if (MS_IDLE == Data->Motion.State)
-    {
-        if (NO_ERROR == (RetCode = smSampleEncoder(Data->Instance, TRUE)))
-            Data->Motion.Pos = Data->Encoder.Pos;
     }
-    else
+
+    if (MS_IDLE == Data->Motion.State) {
+        if (NO_ERROR == (RetCode = smSampleEncoder(Data->Instance, TRUE))) {
+            Data->Motion.Pos = Data->Encoder.Pos;
+        }
+    }
+    else {
         RetCode = smSampleEncoder(Data->Instance, FALSE);
+    }
 
     return RetCode;
 }
 
 
-Error_t smCheckPosition(smData_t* Data)
-{
-    Error_t RetCode = NO_ERROR;
+/******************************************************************************/
+/*! 
+ *  \brief  Check limit switch position code against motor position
+ *
+ *      Limit switches are sampled to get actual position code.
+ *      If position code is valid and the reference framework is already initialized
+ *      then it's value is checked to match with actual motor position.
+ *      Also actual motor position is checked not to be at an 'off limit'
+ *      position. It case it is motor will be stopped immediately.
+ *
+ *  \iparam  Data = Pointer to module instance's data
+ *
+ ******************************************************************************/
+void smCheckPosition(smData_t* Data) {
+
+    Error_t ErrCode = NO_ERROR;
 
     // tasks which have to be performed when motor is standing still
-    if (MS_IDLE == Data->Motion.State)      
-    {
-        RetCode = smSampleLimitSwitches(Data->Instance, TRUE);
+    if (MS_IDLE == Data->Motion.State) {
+        ErrCode = smSampleLimitSwitches(Data->Instance, TRUE);
     }
     // tasks which have to be performed when motor is moving
-    else                                    
-    {
-        if (Data->Motion.LSTrigger)
-        {
+    else {
+        if (Data->Motion.LSTrigger) {
             Data->Motion.LSTrigger = FALSE;
-            RetCode = smSampleLimitSwitches(Data->Instance, FALSE);
+            ErrCode = smSampleLimitSwitches(Data->Instance, FALSE);
         }
     }
 
     // tasks which have to be performed when actual position is known (framework already initialized)
-    if (NO_ERROR == RetCode)
-    {
+    if (NO_ERROR == ErrCode) {
         // check motion status
-        switch (Data->State)
-        {
+        switch (Data->State) {
         case SM_STATE_IDLE:
             // break; intentionally omitted
         case SM_STATE_POSITION:
             // break; intentionally omitted
         case SM_STATE_SPEED:
             // check for off-limit condition
-            if ((Data->Motion.Pos < Data->Motor.FrameworkConfig.MinPosition) || (Data->Motion.Pos > Data->Motor.FrameworkConfig.MaxPosition))
-            {
-                if (!Data->OffLimit)
-                {
+            if (   (Data->Motion.Pos < Data->Motor.FrameworkConfig.MinPosition)
+                || (Data->Motion.Pos > Data->Motor.FrameworkConfig.MaxPosition)) {
+                if (!Data->OffLimit) {
                     Data->OffLimit = TRUE;
                     Data->Motion.Stop = SM_SC_OFFLIMIT;
                 }
             }
-            else
+            else {
                 Data->OffLimit = FALSE;
+            }
 
-            RetCode = smCheckPosCode(Data->Instance);   // validate pos-code against position
+            smCheckPosCode(Data->Instance); // validate pos-code against position
             break;
         default:
             break;
         }
     }
-
-    return RetCode;
 }
 
 
-Error_t smMovementAck (smData_t* Data, Bool Success)
-{
+/******************************************************************************/
+/*! 
+ *  \brief  Send 'movement finished' CAN msg to the master
+ *
+ *      When target position / speed is reached a CAN message is send to the
+ *      master to inform about success / fail of the movement command.
+ *      In addition the msg contains actual motor speed and position.
+ *
+ *  \iparam  Data    = Pointer to module instance's data
+ *  \iparam  Success = true for success, false for movement failed
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ******************************************************************************/
+Error_t smMovementAck (smData_t* Data, Bool Success) {
+
     Int16 Speed = Data->Motion.Nominal.v >> 5; // speed (in half-step/s²) = velocity / ISR_MICROSTEPS_PER_HALFSTEP;
     SM_AckState_t Ack;
 
-    if (Data->Motion.Param[Data->Motion.ActSet].NegPosCount)
+    if (Data->Motion.Param[Data->Motion.ActSet].NegPosCount) {
         Speed = -Speed;
+    }
 
-    if (Success)
-    {
-        Data->State = SM_STATE_IDLE;
+    if (Success) {
         Ack = SM_ACK;
     }
-    else
-    {
-        smCheckStopCondition(Data);
-//        Data->State = SM_STATE_INIT;
-        Data->State = SM_STATE_IDLE;
+    else {
         Ack = SM_NACK;
     }
-    smCheckForPosCodeError(Data);
+    Data->State = SM_STATE_IDLE;
+    smCheckForInitNeeded(Data);     // may change state to SM_STATE_INIT
     smCheckEncoder(Data);
     return smSendMovementAckn (Data->Channel, Data->Motion.Pos, Speed, Ack);
 }
 
 
-Error_t smCheckState (smData_t* Data)
-{
+/******************************************************************************/
+/*! 
+ *  \brief  Perform state dependent actions
+ *
+ *      Performs the actions needed if stepper module is in one of following
+ *      states:
+ *          - SM_STATE_INIT = reference framework is not yet initialized
+ *              Position supervision data is reset
+ *          - SM_STATE_REFRUN = reference run is active
+ *              Execute reference run and send CAN msg about success/fail to
+ *              master when reference run is finished
+ *          - SM_STATE_IDLE = module is in normal operation mode
+ *              Because motor can rotate although no movement cmd is active
+ *              (from preceding target speed cmd), it's checked if the motor
+ *              have been stopped. If motor was stopped then the stop condition
+ *              is send to master and if needed a reference run is forced by
+ *              switching back to state SM_STATE_INIT
+ *          - SM_STATE_POSITION = target position movement is active
+ *              Send CAN msg about success/fail to master when movement is
+ *              finished
+ *          - SM_STATE_SPEED = target speed movement is active
+ *              Send CAN msg about success/fail to master when movement is
+ *              finished
+ *
+ *  \iparam  Data = Pointer to module instance's data
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ******************************************************************************/
+Error_t smCheckState (smData_t* Data) {
     Error_t RetCode = NO_ERROR;
 
-    smMotionState_t MotionState;    //!< motors motion state
-
     // check motion status
-    switch (Data->State)
-    {
+    switch (Data->State) {
     case SM_STATE_INIT:
-        Data->LimitSwitches.PosCode.LastValue = -2;
-        Data->LimitSwitches.PosCode.InvalidValue = FALSE;
-        Data->LimitSwitches.PosCode.InvalidPosition = FALSE;
-        Data->LastMotionState = Data->Motion.State;
         Data->OffLimit = FALSE;
         break;
 
     case SM_STATE_REFRUN:
-        if ((RetCode = smReferenceRunTask (Data->Instance)) < 0)
-        {
-            Data->State = SM_STATE_INIT;  // in case of an error reference run must be repeated
+        if ((RetCode = smReferenceRunTask (Data->Instance)) < 0) {
             bmSignalEvent(Data->Channel, RetCode, TRUE, 0);
             RetCode = smRefRunAck(Data->Channel, Data->Motion.Pos, Data->LimitSwitches.PosCode.Value, SM_NACK);
+            Data->State = SM_STATE_INIT;    // in case of an error reference run must be repeated
+            bmSignalEvent(Data->Channel, I_SMOT_NEED_INIT, TRUE, 0);
             break;
         }
-        if (SM_RRS_FINISHED == Data->RefRun.State)
-        {
+        if (SM_RRS_FINISHED == Data->RefRun.State) {
             Data->State = SM_STATE_IDLE;
             RetCode = smRefRunAck(Data->Channel, Data->Motion.Pos, Data->LimitSwitches.PosCode.Value, SM_ACK);
         }
         break;
 
     case SM_STATE_IDLE:
-        MotionState = Data->Motion.State;
-        if ((MS_IDLE == MotionState) && (MS_IDLE != Data->LastMotionState))   // detect motor stop
-            smCheckStopCondition(Data);
-        Data->LastMotionState = MotionState;
-
-        smCheckForPosCodeError(Data);
-
+        smCheckForInitNeeded(Data);     // may change state to SM_STATE_INIT
         break;
 
     case SM_STATE_POSITION:
-        if (MS_IDLE == Data->Motion.State)
-        {
+        if (MS_IDLE == Data->Motion.State) {
             RetCode = smMovementAck (Data, Data->Motion.AtTargetPosition);
         }
         break;
 
     case SM_STATE_SPEED:
-        if ((MS_IDLE == Data->Motion.State) || Data->Motion.AtTargetSpeed)
-        {
+        if ((MS_IDLE == Data->Motion.State) || Data->Motion.AtTargetSpeed) {
             RetCode = smMovementAck (Data, Data->Motion.AtTargetSpeed); 
         }
         break;
@@ -415,52 +536,102 @@ Error_t smCheckState (smData_t* Data)
  *      It's purpose is to perform all actions to provide the modules
  *      functionality.
  *
+ *      If module is not 'shutdown', 'emergency stopped' or disabled the module
+ *      task will take care for:
+ *          - switch off motor power after configured delay
+ *          - sample encoder
+ *          - sample limit switches and validate position code
+ *          - perform actions specific for a certain stepper module state
+ *          - update life cycle data
+ *
  *  \iparam  Instance = Instance number of this module
  *
- *  \return  State of instance or (negative) error code
+ *  \return  State of instance
  *
  *****************************************************************************/
-static Error_t smModuleTask (UInt16 Instance)
-{
-    smData_t* Data = &smDataTable[Instance];
-    
+static Error_t smModuleTask (UInt16 Instance) {
+    smData_t* Data = NULL;
+
+    if (Instance >= smInstanceCount) {
+        return E_PARAMETER_OUT_OF_RANGE;
+    }
+
+    Data = &smDataTable[Instance];
+
     smCheckRetCode (Data->Channel, smFlushMemory(Data->Instance, SM_MEMORY_UPDATE_INTERVAL));
 
-    if (!Data->Flags.Enable)
+    if (!Data->Flags.Enable) {
         return (MODULE_STATE_DISABLED);
-    
-    // tasks which have to be performed when motor is standing still
-    if (MS_IDLE == Data->Motion.State)      
-    {
-        smCheckRetCode (Data->Channel, smCheckMotorStopCS(&Data->Motor));
     }
-    
+
+    // tasks which have to be performed when motor is standing still
+    if (MS_IDLE == Data->Motion.State) {
+        smCheckMotorStopCS(&Data->Motor, Data->Channel);
+    }
+
+    // stop the movement if motor have stopped
+    if (MS_STOP == Data->Motion.State) {
+        smStopMotion(smDataTable[Instance].Instance);
+        Data->Motion.State = MS_IDLE;
+    }
+
     smCheckRetCode (Data->Channel, smCheckEncoder (Data));
 
-    smCheckRetCode (Data->Channel, smCheckPosition (Data));
-    
+    // !!! Important, check state (which handles end of movement cmd) before checking limit switches
     smCheckRetCode (Data->Channel, smCheckState (Data));
-    
+    smCheckPosition (Data);
+
     smCountOperationTime(&Data->Motor);
 
-    return (Data->ModuleState);
+    // as long as motor is moving the module is busy
+    if (MS_IDLE != Data->Motion.State) {
+        return (MODULE_STATE_BUSY);
+    }
+
+    // if motor is idle and shutdown is requested then enter the standby mode
+    if (Data->Flags.Shutdown) {
+        Error_t ErrCode;
+        if (NO_ERROR != (ErrCode = smCloseDevices(Data))) { // close hal devices, this will also switch off driver stage
+            bmSignalEvent(Data->Channel, ErrCode, TRUE, 0);
+        }
+        return (MODULE_STATE_STANDBY);
+    }
+
+    if (Data->Flags.Stopped) {
+        return (MODULE_STATE_STOPPED);
+    }
+
+    return (MODULE_STATE_READY);
 }
 
 
-Error_t smCloseDevices(smData_t *Data)
-{
+/******************************************************************************/
+/*! 
+ *  \brief   Close all devices
+ *
+ *      Stepper motor, limit switches and encoder devies are closed.
+ *
+ *  \iparam  Data = Module instance data pointer
+ *
+ *  \return  NO_ERROR or error code
+ *
+ ******************************************************************************/
+Error_t smCloseDevices(smData_t *Data) {
+
     Error_t RetCode = NO_ERROR;
 
     // close stepper motor device
     RetCode = smCloseMotor(&Data->Motor);
 
     // close encoder device
-    if (NO_ERROR == RetCode)
+    if (NO_ERROR == RetCode) {
         RetCode = smCloseEncoder(&Data->Encoder);
+    }
 
     // close limit switch devices
-    if (NO_ERROR == RetCode)
+    if (NO_ERROR == RetCode) {
         RetCode = smCloseLimitSwitches(&Data->LimitSwitches);
+    }
 
     return RetCode;
 }
@@ -468,81 +639,119 @@ Error_t smCloseDevices(smData_t *Data)
 
 /******************************************************************************/
 /*! 
- *  \brief   Connect the HAL components to the motor instance
+ *  \brief   Open all devices
  *
- *           If exists, the limit switches and the endocer will be opened
+ *      Stepper motor, limit switches and encoder devies are opened.
+ *      In case one of them failed to get opened properly, all devices will be
+ *      closed again.
  *
- *  \xparam  Data = Module instance data pointer
+ *  \iparam  Data = Module instance data pointer
  *
  *  \return  NO_ERROR or error code
  *
  ******************************************************************************/
-Error_t smOpenDevices(smData_t *Data)
-{
+Error_t smOpenDevices(smData_t *Data) {
+
     Error_t RetCode = NO_ERROR;
     UInt8 Instance;
 //    UInt16 MaxLimit = 0;
 
     RetCode = bmGetInstance(Data->Channel);
-    if (RetCode < 0)
+    if (RetCode < 0) {
         return RetCode;
+    }
     Instance = RetCode;
 
     RetCode = smOpenMotor(&Data->Motor, Instance);
 
     // open limit switches
-    if (NO_ERROR == RetCode)
+    if (NO_ERROR == RetCode) {
         RetCode = smOpenLimitSwitches(&Data->LimitSwitches, Instance);
+    }
 
     // open encoder device
-    if (NO_ERROR == RetCode)
-        RetCode = smOpenEncoder(&Data->Encoder, Instance, Data->Motor.Config.Resolution);
+    if (NO_ERROR == RetCode) {
+        RetCode = smOpenEncoder(&Data->Encoder, Instance, &Data->Motor);
+    }
 
     // in case one of the devices could not be opened, try to close already opened devices
-    if (RetCode < 0)
+    if (RetCode < 0) {
         smCloseDevices(Data);
+    }
 
     return RetCode;
 }
 
 
-Error_t smEnable(smData_t *Data, Bool SkipRefRun)
-{
+/******************************************************************************/
+/*! 
+ *  \brief   Enable stepper module
+ *
+ *      A complete and valid configuration must have been received from master
+ *      before module can be enabled.
+ *      If this is the case then all needed devices will be opened and timeout
+ *      to set motor current back to 'stop scale' is started.
+ *      If a error occurs all devices will be closed again and module will stay
+ *      disabled.
+ *      If all went error free the module state will either go to SM_STATE_INIT
+ *      to force a reference run or to normal operation state (SM_STATE_IDLE).
+ *      Which state is entered depends from input parameter 'SkipRefRun'.
+ *
+ *  \iparam  Data       = Module instance data pointer
+ *  \iparam  SkipRefRun = if false a reference run is needed
+ *                        if true reference run is skipped
+ *
+ *  \return  NO_ERROR or error code
+ *
+ ******************************************************************************/
+Error_t smEnable(smData_t *Data, Bool SkipRefRun) {
+
+    UInt8 Idx;
     Error_t RetCode  = NO_ERROR;
 
-    if ((RetCode = smConfigIsValid(Data)) < 0)  // check if configuration data is complete and valid
+    if ((RetCode = smConfigIsValid(Data)) < 0) {    // check if configuration data is complete and valid
         return RetCode;
+    }
     
-    if ((RetCode = smOpenDevices(Data)) < 0)    // open hal devices, this will also switch on driver stage and init step value to zero
+    if ((RetCode = smOpenDevices(Data)) < 0) {      // open hal devices, this will also switch on driver stage and init step value to zero
         return RetCode;
+    }
     
-    if ((RetCode = halStepperControl(Data->Motor.Handle, STP_CTRL_CLEAR_ERROR, ON)) >= 0)   // clear pending error status
-    {
+    if ((RetCode = halStepperControl(Data->Motor.Handle, STP_CTRL_CLEAR_ERROR, ON)) >= 0) { // clear pending error status
         Data->Motion.ResetPos = Data->Motor.FrameworkConfig.ResetPosition;
         Data->Motion.SinIndex = 0;
+        Data->Motion.HALStatus = NO_ERROR;
         Data->Motor.StopCSTimeout = Data->Motor.Config.StopCSDelay;
         Data->Motor.StopCSTime = bmGetTime();
     }
     
-    if (RetCode < 0)
-    {
+    if (RetCode < 0) {
         smCloseDevices(Data);
         return RetCode;
     }
-    
+    // set position code value to undefined if at least one limit switch is used
+    // and reset error code
+    Data->LimitSwitches.PosCode.Value = 0;
+    Data->LimitSwitches.PosCode.TmpValue = POSCODE_UNDEFINED;
+    Data->LimitSwitches.PosCode.ErrCode = NO_ERROR;
+    for (Idx = 0; Idx < SM_NUM_OF_LIMIT_SWITCHES; Idx++) {
+        if (Data->LimitSwitches.Device[Idx].Config.Exists) {
+            Data->LimitSwitches.PosCode.Value = POSCODE_UNDEFINED;
+        }
+    }
+
     // set actual motor position to reference position offset
     Data->Motion.Pos = Data->RefRun.Config.Offset;
+    Data->LimitSwitches.PosCode.Position = Data->Motion.Pos;
     smInitEncoderPos(&Data->Encoder, Data->Motor.Config.Resolution, Data->Motion.Pos);
-    
+
     Data->Motion.State = MS_IDLE;
     
-    if (!SkipRefRun)
-    {
+    if (!SkipRefRun) {
         Data->State = SM_STATE_INIT;
     }
-    else
+    else {
     //*** for DEBUG purposes only : skip need to do reference run first ***
-    {
         Data->State = SM_STATE_IDLE;
     }
     //*** END for DEBUG purposes only
@@ -554,8 +763,20 @@ Error_t smEnable(smData_t *Data, Bool SkipRefRun)
 }
 
 
-Error_t smInitTimer(void)
-{
+/******************************************************************************/
+/*! 
+ *  \brief   Initialize timer
+ *
+ *      All instances uses the same timer to create correct interval times for
+ *      step timing. This timer is initialized once and is running endless.
+ *      Timer device is opened and timer mode and prescaler are set to run with
+ *      83.33 ns cycle time.
+ *
+ *  \return  NO_ERROR or error code
+ *
+ ******************************************************************************/
+Error_t smInitTimer(void) {
+
     Error_t RetCode = NO_ERROR;
 
     TimerMode_t TimerMode = {
@@ -611,12 +832,22 @@ Error_t smInitTimer(void)
 }
 
 
-void smInitInstance (smData_t *Data)
-{
-    Data->ModuleState = MODULE_STATE_READY;
+/******************************************************************************/
+/*! 
+ *  \brief   Initialize all data members of one stepper instance
+ *
+ *      Complete instance data is reseted.
+ *
+ *  \iparam  Data       = Module instance data pointer
+ *
+ ******************************************************************************/
+void smInitInstance (smData_t *Data) {
+
     Data->Flags.Enable = FALSE;
+    Data->Flags.Shutdown = FALSE;
+    Data->Flags.Stopped = FALSE;
     Data->Flags.dbg_skipRefRun = FALSE;
-    
+
     // init permanent storage
     smInitMemory(Data->Instance);
     
@@ -632,7 +863,6 @@ void smInitInstance (smData_t *Data)
     smInitReferenceRun(&Data->RefRun);
     smInitMotion(&Data->Motion, Data->Instance);
     Data->State = SM_STATE_INIT;
-    Data->LastMotionState = Data->Motion.State;
     Data->OffLimit = FALSE;
 }
 
@@ -644,11 +874,8 @@ void smInitInstance (smData_t *Data)
  *      Initializes this function module by registering it to the task 
  *      scheduler and registers all handler functions to the CAN message 
  *      dispatcher. Furthermore, it allocates and initializes memory for 
- *      the variables for all module instances. In addition, following
- *      steps are performed for each instance of the module:
- * 
- *      - Open and verify instance's data partition (storage)
- *      - Requests the instance's board options  
+ *      the variables for all module instances. In addition the common
+ *      timer device and each instance of the module are initialized.
  * 
  *      This function is called once during startup by the base module.
  *  
@@ -658,12 +885,12 @@ void smInitInstance (smData_t *Data)
  *  \return  NO_ERROR or (negative) error code
  *
  ******************************************************************************/
-Error_t smInitializeModule(UInt16 ModuleID, UInt16 Instances)
-{
+Error_t smInitializeModule(UInt16 ModuleID, UInt16 Instances) {
+
     Error_t RetCode = NO_ERROR;
     Int8 Instance;
 
-    // assignment between receiveable CAN messages and callback functions
+    // assignment between receivable CAN messages and callback functions
     static bmCallbackEntry_t Commands[] = {
         { MSG_SMOT_CONFIG,             smConfigure},
 
@@ -672,13 +899,14 @@ Error_t smInitializeModule(UInt16 ModuleID, UInt16 Instances)
         { MSG_SMOT_TARGET_POS,         smTargetPosition},
         { MSG_SMOT_TARGET_SPEED,       smTargetSpeed},
 
-        { MSG_SMOT_ACT_POS_REQ,        smReqPosition},        
+        { MSG_SMOT_ACT_POS_REQ,        smReqPosition},
         { MSG_SMOT_ACT_SPEED_REQ,      smReqSpeed},
 
         { MSG_SMOT_OPTIME_REQ,         smReqOperationTime},
         { MSG_SMOT_REVCOUNT_REQ,       smReqRevolutionCount},
+        { MSG_SMOT_DIRCOUNT_REQ,       smReqDirChangeCount},
     };
-    
+
     // interface function for module adaption
     static bmModuleInterface_t Interface = {
         smModuleTask, 
@@ -697,18 +925,22 @@ Error_t smInitializeModule(UInt16 ModuleID, UInt16 Instances)
     }
 
     // register function module to the scheduler    
-    if ((RetCode = bmRegisterModule(ModuleID, Instances, &Interface)) < 0)
+    if ((RetCode = bmRegisterModule(ModuleID, Instances, &Interface)) < 0) {
         return RetCode;
-    
-    //smRegisterDebugNames(ModuleID);
+    }
+
+    // registers text strings for debug console
+    #ifdef DEBUG
+    smRegisterDebugNames(ModuleID);
+    #endif
 
     // init and open timer device
-    if ((RetCode = smInitTimer()) < 0)
+    if ((RetCode = smInitTimer()) < 0) {
         return RetCode;
-        
+    }
+
     // init each module instance
-    for(Instance=0; Instance < Instances; Instance++)
-    {
+    for(Instance=0; Instance < Instances; Instance++) {
         smData_t *Data = &smDataTable[Instance];
 
         Data->Instance = Instance;          // store instance number of this module
@@ -716,10 +948,10 @@ Error_t smInitializeModule(UInt16 ModuleID, UInt16 Instances)
 
         smInitInstance(Data);
     }
-    
+
     RetCode = canRegisterMessages(ModuleID, Commands, ELEMENTS(Commands));
 
     smInstanceCount = Instances;
-    
+
     return RetCode;
 }

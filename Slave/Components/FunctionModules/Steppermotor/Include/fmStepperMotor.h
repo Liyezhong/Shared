@@ -1,18 +1,20 @@
 /****************************************************************************/
 /*! \file fmStepperMotor.h
- * 
+ *
+ *  \brief Function module for stepper motor
+ *
  *  $Rev:    $ 0.1
- *  $Date:   $ 20.10.2010
- *  $Author: $ Norbert Wiedmann
+ *  $Date:   $ 11.06.2012
+ *  $Author: $ Rainer Boehles
  *
- *  \brief Publics for the function module 'stepper motor'
  *
- *         
- * <dl compact><dt>Company:</dt><dd> Leica Biosystems Nussloch GmbH </dd></dl>
+ *  \b Company:
  *
- * (c) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
- * This is unpublished proprietary source code of Leica.
- * The copyright notice does not evidence any actual or intended publication.
+ *       Leica Biosystems Nussloch GmbH.
+ *
+ *  (C) Copyright 2012 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  This is unpublished proprietary source code of Leica. The copyright notice
+ *  does not evidence any actual or intended publication.
  */
 /****************************************************************************/
 
@@ -32,86 +34,89 @@
 #include "fmStepperMotorMemory.h"
 
 
-
 //****************************************************************************/
 // Public Constants and Macros 
 //****************************************************************************/
+//! convert 16 bit value to 2 CAN data bytes
 #define  VAL_TO_DB2(val, data)  (data.hi = (val >> 8) & 0xff);  (data.lo = (val & 0xff))
+//! convert 2 CAN data bytes to 16 bit value
 #define  DB2_TO_VAL(data, val)  (val = (data.hi << 8) + data.lo)
 
+//! convert 3 CAN data bytes to 32 bit value
 #define  DB3_TO_VAL(data, val)  (val = (data.db_2 << 16) + (data.db_1 << 8) + data.db_0)
 
-#define  VAL_TO_DB4(val, data)  (data.db_3 = ((val >> 24) & 0xff));  (data.db_2 = ((val >> 16) & 0xff));  (data.db_1 = ((val >> 8) & 0xff));  (data.db_0 = (val & 0xff))
+//! convert 32 bit value to 4 CAN data bytes
+#define  VAL_TO_DB4(val, data)  (data.db_3 = ((val >> 24) & 0xff));  (data.db_2 = ((val >> 16) & 0xff)); \
+                                (data.db_1 = ((val >> 8) & 0xff));  (data.db_0 = (val & 0xff))
+//! convert 4 CAN data bytes to 32 bit value
 #define  DB4_TO_VAL(data, val)  (val = (data.db_3 << 24) + (data.db_2 << 16) + (data.db_1 << 8) + data.db_0)
 
 
+//****************************************************************************/
+// Public Type Definitions
+//****************************************************************************/
 
-/*! module main state */
+//! stepper module state id's
 typedef enum { SM_STATE_INIT,          //!< initialisation done, ref run needed next
                SM_STATE_REFRUN,        //!< execution reference run
-               SM_STATE_IDLE,          //!< idle, motor is standing still
+               SM_STATE_IDLE,          //!< idle, not executing movement command (motor is standing still or rotating with constant speed)
                SM_STATE_POSITION,      //!< movement to target position is executed
                SM_STATE_SPEED          //!< movement to reach target speed is executed
-} SM_State_t;
+} smState_t;
 
 
-typedef struct
-{
-    UInt8   Enable          : 1;
-    UInt8   dbg_skipRefRun  : 1;
-} ControlFlags_t;
+//! stepper module flags
+typedef struct {
+    UInt8   Enable          : 1;        //!< enable flag, if true stepper module is ready to execute motion commands
+    UInt8   Stopped         : 1;        //!< module stopped by emergency stop
+    UInt8   Shutdown        : 1;        //!< module should/is shutdown
+    UInt8   dbg_skipRefRun  : 1;        //!< skip reference run flag, if true reference run is not forced after module is enabled
+} smControlFlags_t;
 
 
-/*! Contains all variables for an instance of this module */
-typedef struct
-{
+//! Contains all variables for a instance of stepper motor module
+typedef struct {
     UInt16              Instance;           //!< Instance number of this module
     UInt16              Channel;            //!< Logical CAN channel
-#ifndef SIMULATION
-    bmModuleState_t     ModuleState;        //!< Module state
-#endif
-    ControlFlags_t      Flags;              //!< mode control flags
+    smControlFlags_t    Flags;              //!< mode control flags
 
 // device data
     smMemory_t          Memory;             //!< non-volatile storage  
-    Motor_t             Motor;              //!< motor data   
-    LimitSwitches_t     LimitSwitches;      //!< limit switch data   
-    Encoder_t           Encoder;            //!< encoder data
+    smMotor_t           Motor;              //!< motor data   
+    smLimitSwitches_t   LimitSwitches;      //!< limit switch data   
+    smEncoder_t         Encoder;            //!< encoder data
 
 // motion profiles
-    smProfiles_t        Profiles;
+    smProfiles_t        Profiles;           //!< motion profiles data
 
 // reference run control 
-    ReferenceRun_t      RefRun;
+    smReferenceRun_t    RefRun;             //!< reference run data
 
 // motion control 
-    Motion_t            Motion;
+    Motion_t            Motion;             //!< motion data
 
 // module control
-    SM_State_t          State;              //!< stepper module state
+    smState_t           State;              //!< stepper module state
 
-    smMotionState_t     LastMotionState;    //!< last known motors motion state
     Bool                OffLimit;           //!< last known off-limit state
 } smData_t;
 
 
 //****************************************************************************/
-// Module Function Prototypes
+// Public Function Prototypes
 //****************************************************************************/
-//!< motor life cycle data request
-#ifndef SIMULATION
-Error_t smCanMsgReqLifeCycleData (UInt16 Channel, CanMessage_t* Message);
-#endif
 
 Error_t smCloseDevices(smData_t *Data);
 Error_t smOpenDevices(smData_t *Data);
 Error_t smEnable(smData_t *Data, Bool SkipRefRun);
 Error_t smInitializeModule(UInt16 ModuleID, UInt16 NumberOfInstances);
 
+void smRegisterDebugNames  (UInt16 ModuleID);
 
 //****************************************************************************/
 // Public variables
 //****************************************************************************/               
+
 extern smData_t *smDataTable;       //!< Data table for all instances
 extern Handle_t  smHandleTimer;     //!< Timer handle, one timer for up to four motors
 extern UInt16    smTimerNo;         //!< Physical timer number
