@@ -123,7 +123,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             Global::EventType errorType = EVTTYPE_UNDEFINED;
             if (m_pXMLReader->attributes().hasAttribute("ErrorType"))
             {
-                QString strRet = m_pXMLReader->attributes().value("ErrorType").toString();
+                QString strRet = m_pXMLReader->attributes().value("ErrorType").toString().toUpper();
                 if (strRet.trimmed() == "ERROR")
                 {
                     errorType = EVTTYPE_ERROR;
@@ -159,7 +159,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             Global::AlarmPosType alarmType;
             if (m_pXMLReader->attributes().hasAttribute("AlarmType"))
             {
-                QString strRet = m_pXMLReader->attributes().value("AlarmType").toString();
+                QString strRet = m_pXMLReader->attributes().value("AlarmType").toString().toUpper();
                 if (strRet.trimmed() == "AL_LOCAL")
                 {
                     alarmType = ALARMPOS_LOCAL;
@@ -198,7 +198,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             Global::EventSourceType eventSource = EVENTSOURCE_NONE;
             if (m_pXMLReader->attributes().hasAttribute("EventSource"))
             {
-                QString strRet = m_pXMLReader->attributes().value("EventSource").toString();
+                QString strRet = m_pXMLReader->attributes().value("EventSource").toString().toUpper();
                 if (strRet.trimmed() == "MAIN")
                 {
                     eventSource = EVENTSOURCE_MAIN;
@@ -291,7 +291,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             Global::EventLogLevel LogLevel = Global::LOGLEVEL_NONE;
             if (m_pXMLReader->attributes().hasAttribute("LogLevel"))
             {
-                QString Level = m_pXMLReader->attributes().value("LogLevel").toString();
+                QString Level = m_pXMLReader->attributes().value("LogLevel").toString().toUpper();
                 if (Level.trimmed().compare("LOW",Qt::CaseInsensitive) == 0)
                 {
                     LogLevel = Global::LOGLEVEL_LOW;
@@ -309,7 +309,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             bool UserLog = false;
             if (m_pXMLReader->attributes().hasAttribute("UserLog"))
             {
-                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString();
+                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString().toUpper();
                 UserLog = ((strUserLog.toUpper() == "TRUE") || (strUserLog.toUpper() == "YES"));
             }
 
@@ -359,7 +359,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             Global::GuiButtonType ButtonType = NOT_SPECIFIED;
             if (m_pXMLReader->attributes().hasAttribute("ButtonType"))
             {
-                QString strRet = m_pXMLReader->attributes().value("ButtonType").toString();
+                QString strRet = m_pXMLReader->attributes().value("ButtonType").toString().toUpper();
                 if (strRet.trimmed().compare("OK",Qt::CaseInsensitive) == 0)
                 {
                     ButtonType = OK;
