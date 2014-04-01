@@ -119,6 +119,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 m_ActiveEvents[EventKey].ActionResult = ActionResult;
                 if(pCurrentStep->GetType().compare("ACT") == 0){ //action step
                     if(ActionResult){
+                        m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
                         LogEntry(m_ActiveEvents[EventKey]);
                         NextStepID = pCurrentStep->GetNextStepOnSuccess();
                     }
@@ -140,6 +141,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 SendACTCommand(EventKey, pEvent, pNextStep);
             }
             else{ //send cmd to GUI
+                m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
                 LogEntry(m_ActiveEvents[EventKey]);
                 if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
                     SendMSGCommand(EventKey, pEvent, pNextStep,Active);

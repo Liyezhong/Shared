@@ -335,6 +335,9 @@ qint32 MountStorageDevice(QString Name) {
     }
     return 1;
 #endif
+    if(!QFile(DIRECTORY_MNT_STORAGE).exists()){
+        return 1;
+    }
     return 0;
 }
 
