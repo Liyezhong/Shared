@@ -145,10 +145,11 @@ void CMenuGroup::AddSettingsPanel(QString Title, QWidget *p_Content)
 
     m_ItemCount++;
     m_CurrentTabIndex = 5;
-    mp_ButtonGroup->button(3)->setChecked(true);
-    ShowWidget(3);
+    int indexLastButton = mp_ButtonGroup->buttons().count()-1;
+    mp_ButtonGroup->button(indexLastButton)->setChecked(true);
+    ShowWidget(indexLastButton);
 
-//    ButtonPressed(3);
+   // ButtonPressed(indexLastButton);
 }
 
 /****************************************************************************/
@@ -226,7 +227,7 @@ void CMenuGroup::SetCurrentTabIndex(int TabIndex)
 void CMenuGroup::ShowWidget(int ButtonClicked)
 {
     m_ButtonNumber =  ButtonClicked;
-    if(m_CurrentTabIndex == 5 && m_ButtonNumber == 3)
+    if(m_CurrentTabIndex == 5 && m_ButtonNumber == (mp_ButtonGroup->buttons().count() - 1))
     {
         mp_Ui->contentWidget->setVisible(false);
         mp_Widget->setVisible(true);
