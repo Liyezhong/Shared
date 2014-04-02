@@ -51,6 +51,7 @@ void HimalayaEventHandlerThreadController::CreateAndInitializeObjects()
 {
     // now register commands
     bool ret = m_EventManager.InitXMLInfo();
+    Q_UNUSED(ret);
     RegisterCommands();
 }
 

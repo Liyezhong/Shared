@@ -41,6 +41,7 @@ public:
 
 private:
     //CStartup();
+    //int temp_for_warrnning;
 };
 
 } // end namespace Export
