@@ -110,8 +110,7 @@ void operator delete[](void* p, const std::nothrow_t&) throw()
 
 //lint -restore
 
-
-#endif MEMLEAK_DETECTION
+#endif //MEMLEAK_DETECTION
 
 #endif // #ifdef _DEBUG
 

@@ -256,9 +256,11 @@ void CMainWindow::SetUserIcon(MainMenu::CMainWindow::UserRole_t UserRole)
 void CMainWindow::SetUserMode(QString Mode)
 {
     if (Mode == QString("SERVICE")) {
+        SetSaMUserMode("Service");
         mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Service.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())));
     }
     else if (Mode == QString("MANUFACTURING")) {
+        SetSaMUserMode("Manufacturing");
         mp_Ui->labelUser->setPixmap(QPixmap(QString(":/%1/Icons/User_Status/User_Manufaturing.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())));
     }
 }

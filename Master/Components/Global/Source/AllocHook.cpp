@@ -19,6 +19,7 @@ int malloc_hook_active = 0;
 
 void * my_malloc_hook (size_t size, const void *caller)
 {
+    Q_UNUSED(caller);
     QMutexLocker locker(mutex);
 
     void *result;
@@ -42,6 +43,7 @@ void * my_malloc_hook (size_t size, const void *caller)
 void * my_realloc_hook (void * ptr, size_t size, const void *caller)
 {
     QMutexLocker locker(mutex);
+    Q_UNUSED(caller);
 
     void *result;
 
@@ -84,6 +86,7 @@ void * my_realloc_hook (void * ptr, size_t size, const void *caller)
 void my_free_hook (void * ptr, const void *caller)
 {
     QMutexLocker locker(mutex);
+    Q_UNUSED(caller);
 
     // deactivate hooks for logging
     malloc_hook_active = 0;

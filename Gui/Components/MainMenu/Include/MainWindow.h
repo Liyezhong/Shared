@@ -144,6 +144,28 @@ public:
     /****************************************************************************/
     Global::TimeFormat GetTimeFormat() { return m_TimeFormat; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief This function sets the service and manufacturing SW mode
+     *  \iparam UserMode = Service or Manuacturing user mode
+     */
+    /****************************************************************************/
+    void SetSaMUserMode(QString UserMode) {
+        m_SaMUserMode = UserMode;
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief This function returns the service and manufacturing SW mode
+     *
+     *  \return S.a.M user mode
+     */
+    /****************************************************************************/
+    QString GetSaMUserMode() {
+        return m_SaMUserMode;
+    }
+
+
 private:
     Ui::CMainWindow *mp_Ui;                     //!< User interface
     QTimer mTimeRefreshTimer;                   //!< Timer for updating time display
@@ -168,7 +190,9 @@ private:
     static UserRole_t m_CurrentUserRole;        //!< current user type
     QPixmap *mp_ProcPixmap;                     //!< Pixmap object for Process icon.
     QPixmap *mp_RemotePixMap;                   //!< Pixmap object for Remote Care icon.  
+    QString m_SaMUserMode;                      //!< S.a.M software user mode
 
+  
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.
