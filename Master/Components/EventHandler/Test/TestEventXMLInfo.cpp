@@ -77,7 +77,7 @@ void TestEventXMLInfo::UTAll()
     QCOMPARE((m_pEventXMLInfo->GetEventList())[16842755]->GetSource(), source);
 
    //Code of each XMLEvent;
-   QString code = "";
+   quint32 code = 0;
    QCOMPARE((m_pEventXMLInfo->GetEventList())[513030091]->GetCode(), code);
 
    //"single" type
