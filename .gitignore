@@ -43,3 +43,6 @@ test_report*
 #Doxygen
 output/
 warnings.log
+
+#Lib
+Gui/Components/kineticscroller/lib/
