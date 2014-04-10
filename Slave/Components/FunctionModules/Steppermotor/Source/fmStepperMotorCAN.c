@@ -878,7 +878,7 @@ Error_t smReqOperationTime(UInt16 Channel, CanMessage_t* Message) {
 
     OperationTime = smGetOperationTime(&Data->Memory);
 
-    return smSendOperationTime(Channel, OperationTime / 60, Ack);
+    return smSendOperationTime(Channel, OperationTime, Ack);
 }
 
 

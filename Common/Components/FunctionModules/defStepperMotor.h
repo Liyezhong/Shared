@@ -144,7 +144,11 @@
 
 //! CAN msg ID - Acknowledge the enable / disable stepper
 #define MSG_SMOT_SET_ENABLE_ACK         BUILD_CAN_ID(CMD_CLASS_FUNCTION, 7, 0)  // CAN-ID: 0x1038xxx0
+#if 0
 #define MSG_SMOT_SET_ENABLE_ACK_DLC     sizeof(Msg_EnableAckData_t)
+#endif
+//[Brandon 2014/04/09]: change message length back to 0 for backward compatability
+#define MSG_SMOT_SET_ENABLE_ACK_DLC     0
 //!< CAN msg DLC - Acknowledge the enable / disable stepper
 
 //! CAN msg ID - Request a reference movement
