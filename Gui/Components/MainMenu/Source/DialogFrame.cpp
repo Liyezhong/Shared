@@ -23,6 +23,8 @@
 
 #include "MainMenu/Include/DialogFrame.h"
 #include "ui_DialogFrame.h"
+#include <QMainWindow>
+#include <QShowEvent>
 
 namespace MainMenu {
 
@@ -33,8 +35,8 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CDialogFrame::CDialogFrame(QWidget *p_Parent) : QDialog(p_Parent, Qt::FramelessWindowHint),
-    mp_DialogUi(new Ui::CDialogFrame)
+CDialogFrame::CDialogFrame(QWidget *p_Parent, QMainWindow *pMainWindow) : QDialog(p_Parent, Qt::FramelessWindowHint),
+    mp_DialogUi(new Ui::CDialogFrame), mp_MainWindow(pMainWindow)
 {
     mp_DialogUi->setupUi(this);
     mp_DialogUi->widget->SetTitleCenter();
@@ -74,6 +76,17 @@ void CDialogFrame::changeEvent(QEvent *p_Event)
             break;
     }
 }
+
+
+void CDialogFrame::showEvent(QShowEvent *p_Event)
+{
+    if (mp_MainWindow && (p_Event->type() == QShowEvent::Show))
+    {
+        QRect scr = mp_MainWindow->geometry();
+        this->move( scr.center() - this->rect().center());
+    }
+}
+
 /****************************************************************************/
 /*!
  *  \brief Sets the title of the dialog
@@ -137,4 +150,19 @@ void CDialogFrame::SetMaxStringDialogTitle(qint32 StringLength, QString TitleTex
 {
     mp_DialogUi->widget->SetMaxStringPanelTitle(StringLength, TitleText);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief Specify the MainWindow for position itself in the center of this MainWindow.
+ *
+ *  \iparam StringLength = Maximum string lenght of dialog title.
+ *  \iparam TitleText = String to be set
+ *
+ */
+/****************************************************************************/
+void CDialogFrame::SetMainWindow(QMainWindow *pMainWindow)
+{
+    mp_MainWindow = pMainWindow;
+}
+
 } // end namespace MainMenu

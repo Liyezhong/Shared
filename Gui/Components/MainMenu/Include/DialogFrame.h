@@ -23,6 +23,8 @@
 
 #include <QDialog>
 
+class QMainWindow;
+
 namespace MainMenu {
 
 namespace Ui {
@@ -40,7 +42,7 @@ class CDialogFrame : public QDialog
     friend class  CTestMainMenu;
 
 public:
-    explicit CDialogFrame(QWidget *p_Parent = 0);
+    explicit CDialogFrame(QWidget *p_Parent = 0, QMainWindow *pMainWindow = 0);
   //  explicit CDialogFrame(QWidget *p_Parent = 0, Qt::WindowFlags f = 0);
     virtual ~CDialogFrame();
 
@@ -48,13 +50,15 @@ public:
     void SetDialogTitle(QString TitleLeftCorner, QString TitleRightCorner);
     void SetContent(QLayout *p_Content);
     void SetMaxStringDialogTitle(qint32 StringLength, QString TitleText);
-
+    void SetMainWindow(QMainWindow *mp_MainWindow);
 protected:
     QWidget *GetContentFrame();
     void changeEvent(QEvent *p_Event);
+    void showEvent(QShowEvent *p_Event);
 
 private:
     Ui::CDialogFrame *mp_DialogUi;  //!< User interface
+    QMainWindow *mp_MainWindow;       //!< For position this dialog
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.
