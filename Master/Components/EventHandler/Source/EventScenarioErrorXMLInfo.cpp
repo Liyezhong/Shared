@@ -248,8 +248,9 @@ quint32 EventScenarioErrXMLInfo::GetErrorCode(quint32 eventId, quint32 scenarioI
 	{
 		return sceErrIter.value();
 	}
-
-    sceErrIter = scenarioErrList.find(m_ScenarioPrefix + QString::number(scenarioId));
+    QString strScenarioId = "";
+    strScenarioId.sprintf("%03d", scenarioId);
+    sceErrIter = scenarioErrList.find(m_ScenarioPrefix +strScenarioId);
 	if (sceErrIter != scenarioErrList.end())
 	{
 		return sceErrIter.value();
