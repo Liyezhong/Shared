@@ -105,7 +105,7 @@ INLINE_INHERITED_MEMB  = NO
 # path before files name in the file list and in the header files. If set
 # to NO the shortest path that makes the file name unique will be used.
 
-FULL_PATH_NAMES        = YES
+FULL_PATH_NAMES        = NO
 
 # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag
 # can be used to strip a user-defined part of the path. Stripping is
@@ -190,7 +190,7 @@ ALIASES += "riskid = \xrefitem riskids \"Risk-ID\" \"Risk Control Measures\""
 # For instance, some of the names that are used will be different. The list
 # of all members will be omitted, etc.
 
-OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_FOR_C  = YES
 
 # Set the OPTIMIZE_OUTPUT_JAVA tag to YES if your project consists of Java
 # sources only. Doxygen will then generate output that is more tailored for
@@ -257,7 +257,7 @@ IDL_PROPERTY_SUPPORT   = YES
 # member in the group (if any) for the other members of the group. By default
 # all members of a group must be documented explicitly.
 
-DISTRIBUTE_GROUP_DOC   = NO
+DISTRIBUTE_GROUP_DOC   = YES
 
 # Set the SUBGROUPING tag to YES (the default) to allow class member groups of
 # the same type (for instance a group of public functions) to be put as a
@@ -491,7 +491,7 @@ SHOW_USED_FILES        = YES
 # then setting the SHOW_DIRECTORIES tag to YES will show the directory hierarchy
 # in the documentation. The default is NO.
 
-SHOW_DIRECTORIES       = YES
+SHOW_DIRECTORIES       = NO
 
 # Set the SHOW_FILES tag to NO to disable the generation of the Files page.
 # This will remove the Files entry from the Quick Index and from the
@@ -1385,7 +1385,7 @@ PERL_PATH              = /usr/bin/perl
 # fallback. It is recommended to install and use dot, since it yields more
 # powerful graphs.
 
-CLASS_DIAGRAMS         = YES
+CLASS_DIAGRAMS         = NO
 
 # You can define message sequence charts within doxygen comments using the \msc
 # command. Doxygen will then run the mscgen tool (see
