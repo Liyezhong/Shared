@@ -144,7 +144,8 @@
 
 //! CAN msg ID - Acknowledge the enable / disable stepper
 #define MSG_SMOT_SET_ENABLE_ACK         BUILD_CAN_ID(CMD_CLASS_FUNCTION, 7, 0)  // CAN-ID: 0x1038xxx0
-#define MSG_SMOT_SET_ENABLE_ACK_DLC     sizeof(Msg_EnableAckData_t)
+//#define MSG_SMOT_SET_ENABLE_ACK_DLC     sizeof(Msg_EnableAckData_t)
+#define MSG_SMOT_SET_ENABLE_ACK_DLC     0
 //!< CAN msg DLC - Acknowledge the enable / disable stepper
 
 //! CAN msg ID - Request a reference movement
@@ -288,9 +289,10 @@ typedef struct {
 
 //! CAN data bytes for Enable Request msg
 typedef struct {
-    UInt8  enable         : 1;  //!< set to enable module
-    UInt8  dbg_skipRefRun : 1;  //!< set to skip reference run when module is enabled
-    UInt8  reserved       : 6;  //!< unused data bits
+    UInt8  enable               : 1;  //!< set to enable module
+    UInt8  dbg_skipRefRun       : 1;  //!< set to skip reference run when module is enabled
+    UInt8  dbg_sendMovementData : 1;  //!< unused
+    UInt8  reserved             : 5;  //!< unused data bits
 }  Msg_EnableData_t;
 
 
@@ -643,14 +645,14 @@ typedef struct {
 
 //! profile configuration data (part 2)
 typedef struct {
-    Msg_DB2_t                   acceleration;       //!<  acceleration ramp, half-steps/s²
+    Msg_DB2_t                   acceleration;       //!<  acceleration ramp, half-steps/s?
     Msg_DB2_t                   accJerkTime;        //!<  acceleration jerk phase time in ms
 }  ProfileData_P2_t;
 
 
 //! profile configuration data (part 3)
 typedef struct {
-    Msg_DB2_t                   deceleration;       //!<  deceleration ramp, half-steps/sec²
+    Msg_DB2_t                   deceleration;       //!<  deceleration ramp, half-steps/sec?
     Msg_DB2_t                   decJerkTime;        //!<  deceleration jerk phase time in ms
 }  ProfileData_P3_t;
 
