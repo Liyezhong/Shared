@@ -19,6 +19,9 @@
 /****************************************************************************/
 
 #include <NetworkComponents/Include/ProtocolTxCommands/HeartBeat.h>
+#include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -96,6 +99,8 @@ void HeartBeat::HandleAck(const QString &status)
         // incoming HbNum is wrong: do something
         qDebug() << "HeartBeat: _ACK_ received with a wrong HBNumber !";
         m_myDevice->ReportHeartBeatProblem(NetworkBase::CMH_MSG_SENDING_FAILED);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_CMH_MSG_SENDING_FAILED,
+                                                   Global::tTranslatableStringList() << status);
     }
     // tell Device to deregister and destroy the command:
     m_myDevice->DeregisterRunningCommand(m_myRef, this);

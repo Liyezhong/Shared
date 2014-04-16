@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file WarningMsgDlg.h
  *
- *  \brief WarningMsgDlg definition.
+ *  \brief Header file for class CWarningMsgDlg.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-10-29
@@ -27,7 +27,7 @@
 #include <QTextEdit>
 #include "MainMenu/Include/MsgBoxManager.h"
 
-
+//lint -e435
 
 namespace MainMenu {
 
@@ -43,34 +43,37 @@ namespace Ui {
 class CWarningMsgDlg : public MainMenu::CDialogFrame
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
-    explicit CWarningMsgDlg(QWidget *p_Parent = NULL , QWidget *p_MainWindow = NULL,DataManager::CUserSettingsInterface *p_UserSettingsInterface=NULL);
+    explicit CWarningMsgDlg(QWidget *p_Parent = NULL , QWidget *p_MainWindow = NULL,
+                            DataManager::CUserSettingsInterface *p_UserSettingsInterface=NULL);
     virtual ~CWarningMsgDlg();
     void SetCaption(QString Caption);
     void SetText(QStringList Text);
     void SetWarningMsgList();
-    void RetranslateUI();
+
     QString GetDateAndTime(QString);
+
+    void WarningMsgList(QList <MsgData> ErrorIDStructList);
+
+private:
+    Ui::CWarningMsgDlg *mp_Ui;      //!< User interface
+    QTextEdit *mp_TextEdit;         //!< Widget displaying a text file
+    MainMenu::CMainWindow *mp_MainWidow;    //!< Pointer to  main window
+    QList <MsgData> m_WarnMsgList;  //!< List for warning messages
+    DataManager::CUserSettingsInterface *mp_SettingsInterface;  //!< UserSettings Interface
     /****************************************************************************/
-    /**
-     * \brief Retriving the Event ID and Warning Message from Warning Message Hash
-     * \iparam  WarningIdMsgHash = Hash with Warning Id and Error Msg data
+    /*!
+     *  \brief Disable copy and assignment operator.
      *
      */
     /****************************************************************************/
-    void WarningMsgList(QList <MsgData> ErrorIDStructList);
-private:
-    Ui::CWarningMsgDlg *mp_Ui; //!< User interface
-    QTextEdit *mp_TextEdit; //!< Widget displaying a text file
-    MainMenu::CMainWindow *mp_MainWidow;    //!< Pointer to  main window
-    QList <MsgData> m_WarnMsgList;   //!< List for warning messages
-    DataManager::CUserSettingsInterface *mp_SettingsInterface;  //!< UserSettings Interface
-
+    Q_DISABLE_COPY(CWarningMsgDlg)
 
 private slots:
     void PopUp();
-
+    void RetranslateUI();
 protected:
     void changeEvent(QEvent *p_Event);
 };

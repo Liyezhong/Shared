@@ -21,12 +21,17 @@
 #ifndef GLOBAL_SHAREDPOINTER_H
 #define GLOBAL_SHAREDPOINTER_H
 
+#include "Global/Include/Exception.h"
+#include "Global/Include/Utils.h"
+
 #include <QMutex>
 #include <QAtomicInt>
 
 // Inform Lint about cleanup functions:
 //
 //lint -sem(Global::SharedPointer::NonsafeClear, cleanup)
+//lint -e198
+//lint -e344
 
 namespace Global {
 
@@ -112,7 +117,9 @@ private:
          ****************************************************************************/
         bool DecrementRefCounter()
         {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             Q_ASSERT(m_RefCounter > 0); /// \todo: this shall actually never happen --> error
+#endif
 
             // decrement counter and check if it became Zero:
             if(!m_RefCounter.deref()) {
@@ -171,9 +178,8 @@ public:
     {
         try {
             NonsafeClear();
-        } catch (...) {
-            // to please Lint
         }
+        CATCHALL_DTOR();
     }
 
     /****************************************************************************/
@@ -202,6 +208,7 @@ public:
      *
      * Use temporary copy to avoid cross locking instances (possible deadlocks).
      *  \param   rOther = reference to other class instance.
+     *  \return  Instance of this
      *
      ****************************************************************************/
     const SharedPointer & operator = (const SharedPointer &rOther)
@@ -328,6 +335,8 @@ private:
      * and should be called only in a safe way.
      */
      /***************************************************************************/
+//suppress message 423(=Creation of memory leak) over the entire function
+//lint -e{423}
     void NonsafeClear()
     {
         // now lock object
@@ -336,7 +345,7 @@ private:
                 // reference became ZERO and target object is deleted -->
                 // m_PointerToRefCounter object needs to be destroyed too:
                 delete m_PointerToRefCounter;
-            }
+            }            
             // set pointer to NULL
             m_PointerToRefCounter = NULL;
         }

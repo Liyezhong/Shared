@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file EventHandlerThreadController.h
+/*! \file Include/EventHandlerThreadController.h
  *
  *  \brief Frontend for Event processing and logging.
  *
@@ -36,7 +36,9 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
-#include <NetCommands/Include/CmdChangeUserLevel.h>
+#include <QMetaType>
+#include <QThread>
+#include <QDebug>
 
 namespace NetCommands {
     class CmdAcknEventReport;
@@ -66,32 +68,20 @@ public:
 
     friend class TestEventHandlerThreadController;
 
-    EventHandlerThreadController(Global::gSourceType TheHeartBeatSource);
+    EventHandlerThreadController(quint32 ThreadID, quint32 RebootCount, QStringList FileList);
 
    // EventHandlerThreadController(Global::gSourceType TheHeartBeatSource);
     virtual ~EventHandlerThreadController();
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
-    inline void SetAlarmHandler( Global::AlarmHandler *pAlarmHandler) {//, DataManager::CUserSettings *pUserSettings){
-        mpAlarmHandler = pAlarmHandler;      
-    }
 
-    Global::AlarmHandler * GetAlarmSettings()
-    {
-        if(mpAlarmHandler)
-            return mpAlarmHandler;
-        else
-            return NULL;
-    }
-
-    DataManager::CUserSettings * GetUserSettings()
-    {
-        if(mpUserSettings)
-            return mpUserSettings;
-        else
-            return NULL;
-    }
-
+    /****************************************************************************/
+    /**
+     * \brief Function to Log Event.
+     *
+     * \iparam   &TheEventEntry
+     */
+    /****************************************************************************/
     inline void LogEvent(const DataLogging::DayEventEntry &TheEventEntry)
     {
         LogEventEntry(TheEventEntry);
@@ -101,8 +91,7 @@ public:
                                    quint64 EventId64,
                                    const DataLogging::DayEventEntry &EventEntry,
                                    bool Remove,
-                                   bool AckByGUI = false,
-                                   bool ResponseRes = false) ;
+                                   bool AckByGUI = false) ;
 
     /****************************************************************************/
     /**
@@ -112,80 +101,146 @@ public:
       * have to be done since the acknowledge we receive from the external
       * process corresponds with Ref.
       *
-      * \param[in]   Ref                 Command reference.
-      * \param[in]   Cmd                 Command to send.
+      * \iparam   Ref                 Command reference.
+      * \iparam   Cmd                 Command to send.
       */
      /****************************************************************************/
     void SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
-
+    /****************************************************************************/
+    /**
+     * \brief Gets new Command Reference.
+     *
+     * \return  Reference type
+     */
+    /****************************************************************************/
     Global::tRefType GetNewCommandRef();
+    /****************************************************************************/
+    /**
+     * \brief Gets EventKey count map.
+     *
+     * \return  m_EventKeyCountMap
+     */
+    /****************************************************************************/
 
-
-//    inline QHash<Global::tRefType, quint32>GetEventRefMap()
-//    {
-//        return m_EventKeyRefMap;
-//    }
-
-//    inline void SetEventKeyRefMap(Global::tRefType & Ref, quint32 EventKey){
-//        m_EventKeyRefMap.insert(Ref, EventKey);
-//    }
-
+    inline QHash<quint32, qint8> GetEventKeyCountMap()
+    {
+        return m_EventKeyCountMap;
+    }
+    /****************************************************************************/
+    /**
+     * \brief Gets count for Event id.
+     *
+     * \iparam  EventKey
+     *
+     * \return  EventKey
+     */
+    /****************************************************************************/
+    inline qint8 GetCountForEventId(quint32 EventKey) {
+        return m_EventKeyCountMap[EventKey];
+    }
+    /****************************************************************************/
+    /**
+     * \brief sets count for Event id.
+     *
+     * \iparam  EventKey
+     * \iparam  count
+     */
+    /****************************************************************************/
+    inline void SetCountForEventId(quint32 EventKey, qint8 count) {
+        if (count > 0) {
+            m_EventKeyCountMap.insert(EventKey, count);
+        }
+        else {
+            m_EventKeyCountMap.remove(EventKey);
+        }
+    }
+    /****************************************************************************/
+    /**
+     * \brief Gets Event Reference map.
+     *
+     * \return  m_EventKeyRefMap
+     */
+    /****************************************************************************/
+    inline QHash<Global::tRefType, quint32>GetEventRefMap()
+    {
+        return m_EventKeyRefMap;
+    }
+    /****************************************************************************/
+    /**
+     * \brief sets Eventkey Reference map.
+     *
+     * \iparam  Ref
+     * \iparam  EventKey
+     */
+    /****************************************************************************/
+    inline void SetEventKeyRefMap(Global::tRefType & Ref, quint32 EventKey){
+        m_EventKeyRefMap.insert(Ref, EventKey);
+    }
+    /****************************************************************************/
+    /**
+     * \brief Updates Eventkey Reference map.
+     *
+     * \iparam  Ref
+     * \iparam  EventKey
+     */
+    /****************************************************************************/
     inline void UpdateEventKeyRefMap(quint32  EventKey, Global::tRefType  Ref) {
         Q_UNUSED(EventKey)
         Q_UNUSED(Ref)
     }
-
-    inline void ConnectToEventObject() {
+    /****************************************************************************/
+    /**
+     * \brief Function to connect to EventObject
+     *
+     */
+    /****************************************************************************/
+    virtual inline void ConnectToEventObject() {
         Global::EventObject *p_EventObject  = &Global::EventObject::Instance();
-        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList,quint64),
-                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage, Global::tTranslatableStringList, quint64));
-
-        CONNECTSIGNALSLOT(p_EventObject, ForwardLog(QString),this,ProcessLog(QString));
+        CONNECTSIGNALSLOT(p_EventObject, ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage),
+                          this, ProcessEvent(const quint32, const Global::tTranslatableStringList &, const bool, const quint32, const Global::AlternateEventStringUsage));
     }
 
 
 protected:
 
-    void OnGoReceived();
-    void OnStopReceived();
-    virtual void OnPowerFail();
+    virtual void OnGoReceived();
+    virtual void OnStopReceived();
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
 
     /****************************************************************************/
     /**
      * Handler for acknowledged.
      *
-     * @iparam   ref -- unique command reference.
-     * @iparam   ack -- received acknowledge instance.
+     * \iparam   ref -- unique command reference.
+     * \iparam   ack -- received acknowledge instance.
      */
     /****************************************************************************/
-    void OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack);
-    void OnUserRoleChanged(Global::tRefType ref, const NetCommands::CmdChangeUserLevel& cmd);
+    virtual void OnAcknowledge(Global::tRefType ref, const NetCommands::CmdAcknEventReport &ack);
 
+    /****************************************************************************/
+    /**
+     * Handler for ack and NACK.
+     *
+     * \iparam   Ref -- unique command reference.
+     * \iparam   Ack -- received acknowledge/ NACK instance.
+     */
+    /****************************************************************************/
+    void OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Ack);
 
 private:
-
+    /****************************************************************************/
     /**
       *\brief Structure to store events which cannot be processed yet (e.g. because m_eventList has not been created)
       */
+     /****************************************************************************/
     struct PendingEvent
     {
-        quint32 EventID;
-        Global::tTranslatableStringList EventStringList;
-        quint32 EventKey;
-        Global::AlternateEventStringUsage AltStringUsuage;
-        Global::tTranslatableStringList EventStringListForRD;
-        quint64 EventCodeScenario;
-        bool IsResolved;
+        quint32 EventID;    ///< Pending Events Event ID.
+        Global::tTranslatableStringList EventStringList; ///< Eventstringlist
+        bool EventStatus; ///< Status of Pending Events.
+        quint32 EventKey; ///< Pending Events Event Key
+        Global::AlternateEventStringUsage AltStringUsuage;///< Alternate strings
     };
-
-    struct ProcessingEvent
-    {
-        quint32 EventCode;  ///< or Event code
-        quint32 EventKey;
-        Global::EventStatus CurrentStatus;
-        bool CurrentActionResult;
-    };
-    typedef  QList<ProcessingEvent> ProcessingEventList;
 
     QString                                     m_OperatingMode;                    ///< Operating mode.
     QString                                     m_EventLoggerBaseFileName;          ///< Base for file name for event logging.
@@ -194,60 +249,59 @@ private:
     int                                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
     int                                         m_MaxAdjustedTimeOffset;            ///< Max alowed offset to system time [seconds]. 0 means no check has to be done.
 
-    bool                                        m_GuiAvailable;
-    QHash<quint32, EventHandler::EventCSVInfo> m_eventList;
-//    QHash<quint32,quint32>m_EventKeyIdMap; //!< Hash of Event Key and EventID as value.
-//    QHash<quint32, quint32>m_EventIDKeyHash;
+    bool                                        m_GuiAvailable; //!< Gui availability status
+    qint8                                       m_RebootCount; //!< Number of times the main s/w has rebooted.
+    QHash<quint32, EventHandler::EventCSVInfo> m_eventList;  //!< Hash of Eventlist
+    QHash<quint32,quint32>m_EventKeyIdMap; //!< Hash of Event Key and EventID as value.
+    QHash<quint32, quint32>m_EventIDKeyHash; //!< Hash of EventID as value
 
-    QMap<Global::EventSourceType, ProcessingEventList> m_ProcessingEvents;
+
+    QHash<QString, Global::EventSourceType>m_EventSourceMap;//!< Hash of Event Source Map
+    QHash<quint64,DataLogging::DayEventEntry>m_EventKeyDataMap; //!< Hash of Event Key data
+    QHash<quint32, qint8> m_EventKeyCountMap; //!< Hash of Event Key Count
+    QVector<PendingEvent> m_pendingEvents; //!< Vector of Pending Events
+    QHash<Global::tRefType, quint32> m_EventKeyRefMap;//!< Hash of Event Key Reference Map
+    QVector<NetCommands::EventReportDataStruct> mPendingGuiEventList;//!< Vector of Pending Gui Event list
+    QList<quint32> m_EventIDCount;  //!< Keeps track of event occurence i.e.,the no. of times an event has occured.
+    QList<quint64> m_EventIdKeyCombinedList; //!< List og Event Id and Key list.
+    QList<quint32> m_activeEvents;      //!< List of active Event Ids
+
+    QHash<QString, Global::EventType> m_EventTypeEnumMap;//!< Hash of Event Type enum Map
+    QHash<QString, Global::EventLogLevel> m_EventLogLevelEnumMap;//!< Hash of Event Log Level enum map
+    QHash<QString, Global::ActionType>m_ActionTypeEnumMap; //!< Hash of Action Type map.
+    Global::AlarmHandler *mp_AlarmHandler; //!< Pointer to Alarm Handler
+    QList<DataLogging::DayEventEntry> m_DayEventEntryList; //!< Store list of event entries
+    QHash<quint32, quint8> m_improperEvents;            //!< Store list of improper event entries
 
 
-    QHash<QString, Global::EventSourceType>m_EventSourceMap;
-//    QHash<quint64,DataLogging::DayEventEntry>m_EventKeyDataMap;
-    QVector<PendingEvent> m_pendingEvents;
-//    QHash<Global::tRefType, quint32> m_EventKeyRefMap;
-    QHash<Global::tRefType,DataLogging::DayEventEntry> m_EventRefDataMap;
-    QVector<NetCommands::EventReportDataStruct> mPendingGuiEventList;
-//    QList<quint32> m_EventIDCount;  //!< Keeps track of event occurence i.e.,the no. of times an event has occured.
-    QList<quint64> m_EventIdKeyCombinedList;
-
-    QHash<QString, Global::LogAuthorityType> m_LogAuthorityTypeEnumMap;
-    QHash<QString, Global::AlarmPosType> m_AlarmPosTypeEnumMap;
-    QHash<QString, Global::ResponseRecoveryType> m_ResponseRecoveryTypeEnumMap;
-    QHash<QString, Global::EventType> m_EventTypeEnumMap;
-    QHash<QString, Global::EventLogLevel> m_EventLogLevelEnumMap;
-    QHash<QString, Global::ActionType>m_ActionTypeEnumMap;
     EventHandlerThreadController();                                          ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(EventHandlerThreadController)
+
+
     void AddActionTypes();
     void AddEventTypes();
     void AddEventLogLevels();
     void AddSourceComponents();
-    void AddAlarmPosTypes();
-    void AddLogAuthorityTypes();
-    void AddResponseRecoveryTypes();
     void HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64);
     void CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
                           EventCSVInfo &EventInfo,
                           const bool EventStatus,
                           const quint32 EventID,
                           const Global::tTranslatableStringList &EventStringList,
-                          Global::tTranslatableStringList &EventStringListForRd,
-                          quint64 EventCodeScenario,
                           const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE);
-    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, bool StartAlarm);
+    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
     void SetGuiAvailable(const bool active);
-    void InformUser(const DataLogging::DayEventEntry &TheEvent, bool RaiseBox = true, bool AckByGui = false);
+    void InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
+    void LogEntry(const DataLogging::DayEventEntry &EventEntry);
 
-    // copy constructor & "=" operator
-    EventHandlerThreadController(const EventHandlerThreadController &);                      ///< Not implemented.
-    const EventHandlerThreadController & operator = (const EventHandlerThreadController &);  ///< Not implemented.
-
-    Global::AlarmHandler *mpAlarmHandler;
-
-    DataManager::CUserSettings *mpUserSettings;
-    Global::GuiUserLevel        m_UserRole;
-
+    void HandleImproperEvents(quint32 eventId, bool success, quint8 column);
 
     /****************************************************************************/
     /**
@@ -255,36 +309,13 @@ private:
      *
      * See detailed description in the base class' header.
      *
-     * \param[in]  TheEventEntry = event from one of local objects
+     * \iparam   TheDayEventEntry = event from one of local objects
      * \return      true if event was processed.
      */
     /****************************************************************************/
     bool LocalProcessErrorEvent(const DataLogging::DayEventEntry & TheDayEventEntry);
 
-    /****************************************************************************/
-    /**
-     * \brief Set system ErrorHandler's parent and connect it.
-     *
-     * System's ErrorHandler shall run in the EventHandler context. It is done
-     * by setting EventHandler as ErrorHandler's parent. EventHandler will be
-     * moved to its thread and its children will be also automatically moved to
-     * this thread.
-     *
-     * Workflow:
-     *          create and initialize EventHandler;
-     *          create and initialize ErrorHandler;
-     *          attach ErrorHandler;
-     *          move EventHandler to its Thread.
-     *
-     * \param[in]  pErrorHandler = pointer to the system's ErrorHandler object
-     */
-    /****************************************************************************/
-    //void AttachErrorHandler(ErrorHandler *pErrorHandler);
-
-    /**
-      @brief Reads event definition from file
-      */
-    bool ReadConfigFile(QString fileName);
+    bool ReadConfigFile(QString filename);
 
     bool VerifyEventConfigCSV(QString filename);
 
@@ -322,37 +353,38 @@ private:
 
     bool VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo );
 
-
-    /****************************************************************************/
-    /**
-     * \brief check and get event current status
-     *
-     * \param[in]   EventSource   the source of the event
-     * \param[in]   EventCode   the EventCode of the event
-     * \param[out]   EventStatus   current status of the event
-     * \return      true - get EventStatus,  false - error during error
-     */
-    /****************************************************************************/
-    bool HandlingError(const quint32 ErrorCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry);
-    void DoResponseAction(const quint32 ErrorCode, const quint32 EventKey,const DataLogging::DayEventEntry& EventEntry);
-
-
 public slots:
 
-    void ProcessEvent(const quint32 ErrorCode,
+    virtual void ProcessEvent(const quint32 EventID,
                       const Global::tTranslatableStringList &EventStringList,
-                      const bool IsResolved, const quint32 EventKeyRef,
-                      const Global::AlternateEventStringUsage AltStringUsuage,
-                      Global::tTranslatableStringList EventStringListForRD = Global::tTranslatableStringList(),
-                      quint64 EventCodeScenario = 0);
-    void ProcessLog(QString info);
+                      const bool EventStatus, const quint32 EventKeyRef, const Global::AlternateEventStringUsage AltStringUsuage);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief    This SLOT handles all incoming events.
+     *
+     *      This SLOT shall be used to process all events and their current
+     *      status.
+     *
+     *  \iparam    EventKey
+     *  \iparam    EventIDScenario
+     *  \bparam    Active
+     *  \bparam    ActionResult
+     *  \lparam    EventStringParList
+     *  \lparam    EventRDStringParList
+     *
+     *
+     ****************************************************************************/
+    virtual void ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
+                              const bool Active, const bool ActionResult,
+                              const Global::tTranslatableStringList &EventStringParList,
+                              const Global::tTranslatableStringList &EventRDStringParList);
     /****************************************************************************/
     /**
      * \brief Set operating mode string.
      *
-     * \param[in]   OperatingMode   the operating mode
+     * \iparam   OperatingMode   the operating mode
      */
     /****************************************************************************/
     inline void SetOperatingMode(const QString &OperatingMode) {
@@ -362,24 +394,59 @@ public slots:
     /**
      * \brief Set base of file name for even logging.
      *
-     * \param[in]   EventLoggerBaseFileName     Base of file name for even logging.
+     * \iparam   EventLoggerBaseFileName     Base of file name for even logging.
      */
     /****************************************************************************/
     inline void SetEventLoggerBaseFileName(const QString &EventLoggerBaseFileName) {
         m_EventLoggerBaseFileName = EventLoggerBaseFileName;
     }
-
+    /****************************************************************************/
+    /**
+     * \brief Sets the SerialNumber.
+     *
+     * \iparam   &SerialNumber
+     */
+    /****************************************************************************/
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
     }
 
 
 signals:
+    /****************************************************************************/
+    /**
+     * \brief Signal for Log Event Entry
+     *
+     * \iparam   &TheDayOperationEntry
+     */
+    /****************************************************************************/
     void LogEventEntry(const DataLogging::DayEventEntry &TheDayOperationEntry);
+    /****************************************************************************/
+    /**
+     * \brief Signal for forwarding to Event Handler
+     *
+     * \iparam   &TheDayOperationEntry
+     * \iparam   EventKey
+     */
+    /****************************************************************************/
     void ForwardToErrorHandler(const DataLogging::DayEventEntry &TheDayOperationEntry, const quint64 EventKey);
+    /****************************************************************************/
+    /**
+     * \brief Signal to check Gui availability
+     *
+     * \iparam   active
+     */
+    /****************************************************************************/
     void GuiAvailability(bool active);
-    void GuiMsgHint(bool active);
-
+    /****************************************************************************/
+    /**
+     * \brief Signal for forwarding to Remote Care
+     *
+     * \iparam   &TheEvent
+     * \iparam   EventId64
+     */
+    /****************************************************************************/
+    void SendEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
 };
 
 } // end namespace EventHandler

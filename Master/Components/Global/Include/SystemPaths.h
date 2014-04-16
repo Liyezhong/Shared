@@ -60,8 +60,13 @@ private:
     QString                 m_SoundsPath;            ///< Sounds path( wav files are placed here)
     QString                 m_RemoteCarePath;       ///< RemoteCare path(remote care input/output files are placed here)
     /****************************************************************************/
-    SystemPaths(const SystemPaths &);                         ///< Not impemented.
-    const SystemPaths & operator = (const SystemPaths &);     ///< Not implemented.
+    /****************************************************************************/
+    /**
+     * \brief Disable copy and assignment
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(SystemPaths)
     /****************************************************************************/
     /**
      * \brief Default constructor.
@@ -233,7 +238,7 @@ public:
      * Usually "Settings".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   SettingsPath    The path.
+     * \iparam   SettingsPath    The path.
      */
     /****************************************************************************/
     inline void SetSettingsPath(const QString &SettingsPath) {
@@ -247,7 +252,7 @@ public:
      * Usually "Settings/Instrument".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   SettingsPath    The path.
+     * \iparam   SettingsPath    The path.
      */
     /****************************************************************************/
     inline void SetInstrumentSettingsPath(const QString &SettingsPath) {
@@ -261,7 +266,7 @@ public:
      * Usually "Firmware".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   FirmwarePath    The path.
+     * \iparam   FirmwarePath    The path.
      */
     /****************************************************************************/
     inline void SetFirmwarePath(const QString &FirmwarePath) {
@@ -275,7 +280,7 @@ public:
      * Usually "Update".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   UpdatePath      The path.
+     * \iparam   UpdatePath      The path.
      */
     /****************************************************************************/
     inline void SetUpdatePath(const QString &UpdatePath) {
@@ -289,7 +294,7 @@ public:
      * Usually "Logfiles".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   LogfilesPath    The path.
+     * \iparam   LogfilesPath    The path.
      */
     /****************************************************************************/
     inline void SetLogfilesPath(const QString &LogfilesPath) {
@@ -303,7 +308,7 @@ public:
      * Usually "Tests".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   ComponentTestPath   The path.
+     * \iparam   ComponentTestPath   The path.
      */
     /****************************************************************************/
     inline void SetComponentTestPath(const QString &ComponentTestPath) {
@@ -317,7 +322,7 @@ public:
      * Usually "Manual".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   ManualPath      The path.
+     * \iparam   ManualPath      The path.
      */
     /****************************************************************************/
     inline void SetManualPath(const QString &ManualPath) {
@@ -331,7 +336,7 @@ public:
      * Usually "Uploads".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   UploadsPath      The path.
+     * \iparam   UploadsPath      The path.
      */
     /****************************************************************************/
     inline void SetUploadsPath(const QString &UploadsPath) {
@@ -345,7 +350,7 @@ public:
      * Usually "Temporary".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   TempPath      The path.
+     * \iparam   TempPath      The path.
      */
     /****************************************************************************/
     inline void SetTempPath(const QString &TempPath) {
@@ -360,7 +365,7 @@ public:
      * Usually "Rollback".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   RollbackPath      The path.
+     * \iparam   RollbackPath      The path.
      */
     /****************************************************************************/
     inline void SetRollbackPath(const QString &RollbackPath) {
@@ -375,7 +380,7 @@ public:
      * Usually "Translation".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   RollbackPath      The path.
+     * \iparam   TranslationPath      The path.
      */
     /****************************************************************************/
     inline void SetTranslationsPath(const QString &TranslationPath) {
@@ -402,7 +407,7 @@ public:
      * Usually "Translation".
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   SoundPath      The path.
+     * \iparam   SoundPath      The path.
      */
     /****************************************************************************/
     inline void SetSoundPath(const QString &SoundPath) {
@@ -428,7 +433,7 @@ public:
      *
      * <b>The application path is prepended automatically!</b>
      *
-     * \param[in]   RemoteCarePath      The path.
+     * \iparam   RemoteCarePath      The path.
      */
     /****************************************************************************/
     inline void SetRemoteCarePath(const QString &RemoteCarePath) {

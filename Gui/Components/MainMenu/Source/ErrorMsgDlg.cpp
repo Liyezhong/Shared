@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file ErrorMsgDlg.cpp
  *
- *  \brief ErrorMsgDlg implementation.
+ *  \brief Implementation of file for class CErrorMsgDlg.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display Error messages dialog.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-10-29
@@ -22,7 +25,8 @@
 #include "Global/Include/Exception.h"
 #include "MainMenu/Include/ErrorMsgDlg.h"
 #include "ui_ErrorMsgDlg.h"
-#include "MainMenu/Include/MsgBoxManager.h"
+#include "Application/Include/LeicaStyle.h"
+
 
 namespace MainMenu {
 
@@ -34,20 +38,23 @@ namespace MainMenu {
  *  \iparam p_UserSettingsInterface = User Settings Interface object
 */
 /****************************************************************************/
-CErrorMsgDlg::CErrorMsgDlg(QWidget *p_Parent, QWidget *p_MainWindow,DataManager::CUserSettingsInterface *p_UserSettingsInterface) : MainMenu::CDialogFrame(p_Parent),
+CErrorMsgDlg::CErrorMsgDlg(QWidget *p_Parent, QWidget *p_MainWindow,DataManager::CUserSettingsInterface *p_UserSettingsInterface) :
+    MainMenu::CDialogFrame(p_Parent),
     mp_Ui(new Ui::CErrorMsgDlg),
     mp_SettingsInterface(p_UserSettingsInterface)
 {
     mp_Ui->setupUi(GetContentFrame());
-
-    mp_TextEdit = new QTextEdit(mp_Ui->widget);
+    mp_TextEdit = new QTextEdit(this);
     mp_TextEdit->setReadOnly(true);
     mp_TextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
-    mp_Ui->widget->SetContent(mp_TextEdit);
+    mp_Ui->scrollTable->SetContent(mp_TextEdit);
+    setModal(true);
     mp_MainWidow = static_cast<MainMenu::CMainWindow *>(p_MainWindow);
     QPalette Palette = mp_TextEdit->palette();
     Palette.setColor(QPalette::Window, Qt::white);
     mp_TextEdit->setPalette(Palette);
+    CONNECTSIGNALSLOTGUI(this, DialogLangaugeChanged(), this, RetranslateUI())
+
     if (!connect(mp_Ui->closeButton, SIGNAL(clicked()), this, SLOT(accept()))) {
         qDebug() << "CErrorMsgDlg: cannot connect 'clicked' signal";
     }
@@ -88,13 +95,9 @@ void CErrorMsgDlg::changeEvent(QEvent *p_Event)
     }
 }
 
-
-//****************************************************************************/
+/****************************************************************************/
 /*!
  *  \brief Sets the Errormessages list to the Text Edit
- *  \param[in] EventIdList   Event Id's List
- *  \param[in] ErrorMsgList  Error message List
- *  \param[in] TimeStampList   Time stamp List
  */
 /****************************************************************************/
 void CErrorMsgDlg::SetErrorMsgList()
@@ -107,12 +110,12 @@ void CErrorMsgDlg::SetErrorMsgList()
         MsgData ErrorMsgStruct = *ErrMsgIterator;
         //Get the DateTime string as per the userSettings Date Format
         QString DateTimeStr = GetDateAndTime(ErrorMsgStruct.Time);
-        quint32 ID =  (ErrorMsgStruct.ID & 0xffffffff00000000) >> 32;
+        quint64 ID =  (ErrorMsgStruct.ID & 0xffffffff00000000) >> 32;
         //Appending TimeStamp, EventIdand Event string to a String list
-        ErrorText.append(DateTimeStr + ";  "+QString::number(ID) +";  "+QString(tr("%1").arg(ErrorMsgStruct.MsgString))+"\n");
+        ErrorText.append(DateTimeStr + ";  "+QString::number(ID) +";  "+
+                         QString("%1").arg(ErrorMsgStruct.MsgString)+"\n");
     }
     //Sorting the string list,Latest will be put at the Top
-    //qSort(ErrorText.begin(), ErrorText.end(), qGreater<QString>());
     //Setting the Error Messages to Text Edit
     SetText(ErrorText);
 }
@@ -133,16 +136,23 @@ void CErrorMsgDlg::SetCaption(QString Caption)
 /*!
  *  \brief Sets the content of the text view
  *
- *  \iparam Text = Text file
+ *  \iparam MsgList = Message string list.
  */
 /****************************************************************************/
 void CErrorMsgDlg::SetText(QStringList MsgList)
 {
     mp_TextEdit->clear();
-    mp_TextEdit->setFontPointSize(11);
-    for (int Msg = MsgList.count()-1;Msg >=0;Msg--) {
-        mp_TextEdit->append(tr("%1").arg(MsgList.at(Msg)));
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_TextEdit->setFontPointSize(8);
     }
+    else {
+        mp_TextEdit->setFontPointSize(11);
+    }
+    QStringList MessagesList;
+    for (int Msg = MsgList.count()-1;Msg >=0;Msg--) {
+        MessagesList.append(MsgList.at((Msg)));
+    }
+    mp_TextEdit->setText(MessagesList.join("\n"));
 }
 
 /****************************************************************************/
@@ -155,11 +165,19 @@ void CErrorMsgDlg::PopUp()
     //Setting Error messages List to the Text Edit
     SetErrorMsgList();
     //Setting Title and Caption label
-    SetDialogTitle(tr("Error Messages"));
-    SetCaption(tr("Error Messages"));
-    mp_MainWidow->SetTabWidgetIndex();
-    resize(mp_MainWidow->width()-150,mp_MainWidow->height()-75);
-    move(80, 35);
+    SetDialogTitle(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
+                                           0, QApplication::UnicodeUTF8));
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_Ui->captionLabel->hide();
+        resize(mp_MainWidow->width() - 50, mp_MainWidow->height() - 40);
+        move(50, 35);
+    }
+    else {
+        SetCaption(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
+                                           0, QApplication::UnicodeUTF8));
+        resize(mp_MainWidow->width() - 150, mp_MainWidow->height() - 75);
+        move(80, 35);
+    }
     show();
 }
 
@@ -170,13 +188,17 @@ void CErrorMsgDlg::PopUp()
 /****************************************************************************/
 void CErrorMsgDlg::RetranslateUI()
 {
-   MainMenu::CDialogFrame::SetDialogTitle(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages", 0, QApplication::UnicodeUTF8));
+    SetDialogTitle(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
+                                           0, QApplication::UnicodeUTF8));
+    SetCaption(QApplication::translate("MainMenu::CErrorMsgDlg", "Error Messages",
+                                       0, QApplication::UnicodeUTF8));
 }
 
 /****************************************************************************/
 /**
- * \brief Retriving the Event ID and Error Message from Error Message Hash
- * \iparam  ErrorIdMsgHash = Hash with Error Id and Error Msg data
+ * \brief Retriving the Event ID and Error Message from Error Message Hash.
+ *
+ * \iparam  ErrorIDStructList = Error message structure list
  *
  */
 /****************************************************************************/
@@ -185,14 +207,16 @@ void CErrorMsgDlg::ErrorMsgList(QList <MsgData> ErrorIDStructList)
     //Assigning the Error message structure list
     m_ErrorMsgList = ErrorIDStructList;
 }
+
 /****************************************************************************/
 /*!
- *  \brief Sending the Messages to the Status bar Manager
- *  \iparam DateTimeStr - Dateand time string in seconds
- *  \return Date and time string as per the UserSettings
+ *  \brief Sending the Messages to the Status bar Manager.
+ *
+ *  \iparam DateTimeStr - Dateand time string in seconds.
+ *
+ *  \return Date and time string as per the UserSettings.
  */
 /****************************************************************************/
-
 QString CErrorMsgDlg::GetDateAndTime(QString DateTimeStr)
 {
     QDateTime DateTime = QDateTime::fromString(DateTimeStr);
@@ -221,7 +245,7 @@ QString CErrorMsgDlg::GetDateAndTime(QString DateTimeStr)
             Time = DateTime.time().toString("hh:mm a");
         }*/
     }
-    //Caoncatenating the Date and Time Strings
+    //Concatenating the Date and Time Strings
     QString TimeStamp = Date + " " + Time;
     return TimeStamp;
 }

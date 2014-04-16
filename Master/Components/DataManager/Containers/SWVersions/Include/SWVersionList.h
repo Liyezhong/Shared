@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file SWVersionList.h
+/*! \file Platform/Master/Components/DataManager/Containers/SWVersions/Include/SWVersionList.h
  *
  *  \brief Definition file for class CSWVersionList.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-07
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -52,6 +52,8 @@ private:
     ListOfSWVersions_t m_SWDetailsList;             ///< Store the SW details in the hash table
     ListOfIDs_t m_SWNameList;                       ///< Store SW names in the list
 
+    ErrorMap_t m_ErrorMap;    //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+
     bool SerializeContent(QIODevice& p_Device, bool CompleteData);
     bool DeserializeContent(QIODevice& p_Device, bool CompleteData);
 
@@ -92,9 +94,13 @@ private:
     bool WriteSWDetails(QXmlStreamWriter& XmlStreamWriter, SWType_t SWType, bool CompleteData);
     bool ReadSWDetails(QXmlStreamReader& XmlStreamReader, QString NodeName, bool CompleteData);
 
+    QStringList GetSWDetailIdList() const;
+
 public:
     CSWVersionList();
     CSWVersionList(const CSWVersionList&);
+    void CopyFromOther(const CSWVersionList &Other);
+    void AddSWDetailsWithoutVerification(const CSWDetails *p_SWDetails);
     virtual ~CSWVersionList() {}
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CSWVersionList& SWVersionList);
@@ -212,7 +218,7 @@ public:
      *  \return CSWDetails Class Instance
      */
     /****************************************************************************/    
-    const CSWDetails* GetSWDetails(const QString SWName) {return m_SWDetailsList.value(SWName, NULL);}
+    CSWDetails* GetSWDetails(const QString SWName) const {return m_SWDetailsList.value(SWName, NULL);}
 
 
 };

@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class BaseLogger.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -25,6 +25,7 @@
 #include <QFileInfo>
 #include "Global/Include/LoggingSource.h"
 #include "Global/Include/AdjustedTime.h"
+#include <unistd.h>
 namespace Global {
  class EventObject;
 }
@@ -40,18 +41,42 @@ namespace DataLogging {
  * \warning This class is not thread safe!
  */
 /****************************************************************************/
-class BaseLogger  {
+class BaseLogger : public QObject {
+    Q_OBJECT
 friend class TestBaseLogger;
 private:
     QFile   m_File;                 ///< File in which logging is done.
     QString m_LoggingSource;        ///< DataLogger
     int     m_FormatVersion;        ///< Format version of data.
+    int     m_FlushEventCount;      ///< flush event counter
+    int     m_WriteFileEventCount;  ///< write file event counter
     bool    m_LogFileError;         ///< Log file error
+    bool    m_IsEventRepeated;      ///< event is repeated in data logging component
+    bool    m_RequiredToFlush;      ///< File flush flag
+    /****************************************************************************/
+    /****************************************************************************/
+    /**
+     * \brief Constructor.
+     */
     /****************************************************************************/
     BaseLogger();                                           ///< Not implemented.
-    BaseLogger(const BaseLogger &);                         ///< Not implemented.
-    const BaseLogger & operator = (const BaseLogger &);     ///< Not implemented.
 
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(BaseLogger)
+
+
+    /****************************************************************************/
+    /**
+     * \brief Check whether event is repeated for the temporary file
+     *
+     */
+    /****************************************************************************/
+    void CheckEventRepeatingForTempFile();
 
 protected:
     /****************************************************************************/
@@ -64,6 +89,7 @@ protected:
     inline int GetFormatVersion() const {
         return m_FormatVersion;
     }
+
     /****************************************************************************/
     /**
      * \brief Get Logging source.
@@ -71,9 +97,10 @@ protected:
      * \return  Logging Source.
      */
     /****************************************************************************/
-    QString & GetLoggingSource() {
+    QString GetLoggingSource() {
         return m_LoggingSource;
     }
+
     /****************************************************************************/
     /**
      * \brief Check if file is open.
@@ -98,6 +125,17 @@ protected:
 
     /****************************************************************************/
     /**
+     * \brief Check if event repeated.
+     *
+     * \return  true if file is having error.
+     */
+    /****************************************************************************/
+    inline bool IsEventRepeated() const {
+        return m_IsEventRepeated;
+    }
+
+    /****************************************************************************/
+    /**
      * \brief Get file size.
      *
      * \return  Current file size as reported by Qt.
@@ -106,6 +144,7 @@ protected:
     inline qint64 GetFileSize() const {
         return m_File.size();
     }
+
     /****************************************************************************/
     /**
      * \brief Get complete base file name.
@@ -124,6 +163,7 @@ protected:
     inline QString GetCompleteBaseFileName() const {
         return QFileInfo(m_File).completeBaseName();
     }
+
     /****************************************************************************/
     /**
      * \brief Get complete file name including the path.
@@ -146,6 +186,7 @@ protected:
     inline QString GetCompleteFileName() const {
         return QFileInfo(m_File).absoluteFilePath();
     }
+
     /****************************************************************************/
     /**
      * \brief Create new output file and open it for writing.
@@ -156,6 +197,7 @@ protected:
      */
     /****************************************************************************/
     void CreateNewFile(const QString &FileName);
+
     /****************************************************************************/
     /**
      * \brief Remove file.
@@ -164,6 +206,7 @@ protected:
      */
     /****************************************************************************/
     void RemoveFile(const QString &FileName) const;
+
     /****************************************************************************/
     /**
      * \brief Opens an existing file for append.
@@ -175,6 +218,7 @@ protected:
      */
     /****************************************************************************/
     void OpenFileForAppend(const QString &FileName);
+
     /****************************************************************************/
     /**
      * \brief Convert a timestamp to string for logging.
@@ -187,18 +231,8 @@ protected:
     inline QString TimeStampToString(const QDateTime &TimeStamp) const {
         return TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz");
     }
-    /****************************************************************************/
-    /**
-     * \brief Get current time stamp as string.
-     *
-     * The format is suitable for writing the header information. "yyyy-MM-dd hh:mm:ss.zzz"
-     *
-     * \return  Current time stamp.
-     */
-    /****************************************************************************/
-    inline QString GetTimeStampHeader() const {
-        return Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
-    }
+
+
     /****************************************************************************/
     /**
      * \brief Get current time stamp as string.
@@ -211,17 +245,17 @@ protected:
     inline QString GetTimeStampFileName() const {
         return Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyyMMdd");
     }
+
+
+public:
     /****************************************************************************/
     /**
-     * \brief Append a line to current open log file.
+     * \brief Flush the data to disk
      *
-     * Append a line to current open log file. The trailing "\n" is also appended.
-     *
-     * \iparam   Line    line to append (without trailing "\n")
      */
     /****************************************************************************/
-    void AppendLine(QString Line);
-public:
+    void FlushToDisk();
+
     /****************************************************************************/
     /**
      * \brief Constructor.
@@ -231,7 +265,8 @@ public:
      * \iparam   FormatVersion       Format version for output file.
      */
     /****************************************************************************/
-    BaseLogger(Global::EventObject *pParent, const QString &TheLoggingSource, int FormatVersion);
+    BaseLogger(QObject *pParent, const QString &TheLoggingSource, int FormatVersion);
+
     /****************************************************************************/
     /**
      * \brief Destructor.
@@ -241,6 +276,32 @@ public:
     /****************************************************************************/
     virtual ~BaseLogger() {
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Append a line to current open log file.
+     *
+     * Append a line to current open log file. The trailing "\n" is also appended.
+     *
+     * \iparam   Line           line to append (without trailing "\n")
+     * \iparam   FlushData      Flush the data to disk
+     */
+    /****************************************************************************/
+    void AppendLine(QString Line, bool FlushData = true);
+
+    /****************************************************************************/
+    /**
+     * \brief Get current time stamp as string.
+     *
+     * The format is suitable for writing the header information. "yyyy-MM-dd hh:mm:ss.zzz"
+     *
+     * \return  Current time stamp.
+     */
+    /****************************************************************************/
+    inline QString GetTimeStampHeader() const {
+        return Global::AdjustedTime::Instance().GetCurrentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+    }
+
     /****************************************************************************/
     /**
      * \brief Close file.
@@ -250,14 +311,16 @@ public:
     /****************************************************************************/
     inline void CloseFile()  {
         if(m_File.isOpen()) {
-            static_cast<void>(
-                    // we DO NOT NEED the return value of flush
-                    m_File.flush()
-            );
-        }
-        m_File.close();
+            // we DO NOT NEED the return value of flush
+            static_cast<void>(m_File.flush());
+            m_File.close();
+            (void)fsync(m_File.handle());
+        }        
+        m_RequiredToFlush = false;        
         m_File.setFileName("");
     }
+
+
 }; // end class BaseLogger
 
 } // end namespace DataLogging

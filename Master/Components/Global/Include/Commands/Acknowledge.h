@@ -41,8 +41,13 @@ namespace Global {
 class Acknowledge {
 private:
     /****************************************************************************/
-    Acknowledge(const Acknowledge &);                       ///< Not implemented.
-    const Acknowledge & operator = (const Acknowledge &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(Acknowledge)
 protected:
     /****************************************************************************/
     /**
@@ -89,7 +94,7 @@ public:
     /****************************************************************************/
     virtual QString GetName() const = 0;
 
-    Global::tRefType m_Ref;
+    Global::tRefType m_Ref;     ///< Reference of command for which acknowledgment is sent
 }; // end class Acknowledge
 
 typedef Global::SharedPointer<Acknowledge>  AcknowledgeShPtr_t;     ///< Typedef for shared pointer of acknowledge.

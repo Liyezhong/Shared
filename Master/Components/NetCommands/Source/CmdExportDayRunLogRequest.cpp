@@ -31,12 +31,12 @@ QString CmdExportDayRunLogRequest::NAME = "NetCommands::CmdExportDayRunLogReques
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   Request     request for the files.
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   Path        Path of the file
  */
 /****************************************************************************/
-CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(int Timeout) :
-    Command(Timeout)
+CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(int Timeout, QString Path) :
+    Command(Timeout), m_FolderPath(Path)
 {
 }
 
@@ -45,10 +45,7 @@ CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(int Timeout) :
  *  \brief   Constructor
  */
 /****************************************************************************/
-CmdExportDayRunLogRequest::CmdExportDayRunLogRequest(Global::GuiUserLevel CurrentUserRole) :
-    Command(0),
-    m_CurrentUserRole(CurrentUserRole)
-
+CmdExportDayRunLogRequest::CmdExportDayRunLogRequest() : Command(0)
 {
 }
 
@@ -73,9 +70,16 @@ QString CmdExportDayRunLogRequest::GetName() const
     return NAME;
 }
 
-Global::GuiUserLevel CmdExportDayRunLogRequest::GetCurrenUserRole() const
+/****************************************************************************/
+/*!
+ *  \brief   Get folder path
+ *
+ *  \return  folder path as string
+ */
+/****************************************************************************/
+QString CmdExportDayRunLogRequest::GetFolderPath() const
 {
-    return m_CurrentUserRole;
+    return m_FolderPath;
 }
 
 } // end namespace NetCommands

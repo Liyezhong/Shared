@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file WaitIndicator.h
  *
- *  \brief WaitIndicator definition.
+ *  \brief Header file for class CWaitIndicator.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22
@@ -35,6 +35,7 @@ namespace MainMenu {
 class CWaitIndicator : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CWaitIndicator(QWidget *p_Parent = 0);
@@ -43,6 +44,13 @@ private:
     void paintEvent(QPaintEvent *);
     QTimer m_Timer;     //!< Timer responsible for the repaint
     qint32 m_Counter;   //!< Current position of he wheel
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CWaitIndicator)
 
 private slots:
     void MoveIndicator();

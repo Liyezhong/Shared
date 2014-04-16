@@ -33,10 +33,20 @@ namespace MainMenu {
 class CBaseTable : public QTableView
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CBaseTable(QWidget *p_Parent = 0);
     void SetVisibleRows(qint32 Rows, qint32 HeaderHeight = 28, qint32 RowHeight = 40);
+private:
+    void mouseMoveEvent(QMouseEvent *p_Event);
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CBaseTable)
 
 };
 

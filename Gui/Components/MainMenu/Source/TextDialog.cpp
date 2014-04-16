@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file TextDialog.cpp
  *
- *  \brief TextDialog implementation.
+ *  \brief Implementation of file for class CTextDialog.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying Text dialogs.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22
@@ -44,7 +47,7 @@ CTextDialog::CTextDialog(QWidget *p_Parent) : MainMenu::CDialogFrame(p_Parent), 
     Palette.setColor(QPalette::Window, Qt::white);
     mp_TextEdit->setPalette(Palette);
 
-    if (!connect(mp_Ui->closeButton, SIGNAL(clicked()), this, SLOT(accept()))) {
+    if (!connect(mp_Ui->closeButton, SIGNAL(clicked()), this, SLOT(CloseDailog()))) {
         qDebug() << "CTextDialog: cannot connect 'clicked' signal";
     }
 }
@@ -77,6 +80,7 @@ void CTextDialog::changeEvent(QEvent *p_Event)
     switch (p_Event->type()) {
         case QEvent::LanguageChange:
             mp_Ui->retranslateUi(this);
+            emit LanguageChanged();
             break;
         default:
             break;
@@ -92,7 +96,7 @@ void CTextDialog::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 void CTextDialog::SetCaption(QString Caption)
 {
-    mp_Ui->captionLabel->setText(tr("%1").arg(Caption));
+    mp_Ui->captionLabel->setText(QString("%1").arg(Caption));
 }
 
 /****************************************************************************/
@@ -104,7 +108,62 @@ void CTextDialog::SetCaption(QString Caption)
 /****************************************************************************/
 void CTextDialog::SetText(QString Text)
 {
-    mp_TextEdit->setText(tr("%1").arg(Text));
+    mp_TextEdit->setText(QString("%1").arg(Text));
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the content of the text view as a normal text
+ *         It loads the text faster than the "setText" function
+ *
+ *  \iparam Text = Text file
+ */
+/****************************************************************************/
+void CTextDialog::SetPlainText(QString Text)
+{
+    mp_TextEdit->setPlainText(QString("%1").arg(Text));
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Append the text
+ *
+ *  \iparam Text = Text file
+ */
+/****************************************************************************/
+void CTextDialog::AppendText(QString Text)
+{
+    mp_TextEdit->append(Text);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Close all the dialogs
+ *
+ */
+/****************************************************************************/
+void CTextDialog::CloseDailog()
+{
+    accept();
+    /// delete all the data from the text edit
+    /// otherwise if large file loaded into memory then
+    /// this dialog will be hidden but the text data remains in memory
+    /// so if the text made as empty then we can release memory
+//    mp_TextEdit->clear();
+    mp_TextEdit->setText("");
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets ninty percent scroll flag status.
+ *
+ *  \iparam Status = True/False
+ *
+ */
+/****************************************************************************/
+void CTextDialog::SetNintyPercentScroll(bool Status)
+{
+    mp_Ui->widget->SetNintyPercentScroll(Status);
 }
 
 } // end namespace MainMenu

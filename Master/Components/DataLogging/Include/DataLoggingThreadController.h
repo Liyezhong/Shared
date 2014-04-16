@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class DataLoggingThreadController.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -39,7 +39,6 @@
 namespace DataLogging {
 
 class EventFilterNetworkServer;
-class CmdForceCaching;
 
 /****************************************************************************/
 /**
@@ -59,12 +58,23 @@ private:
     QString                     m_SerialNumber;                     ///< Serial number.
     qint64                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
-    DayEventLogger              m_DayEventLogger;               ///< Day operation logger.
+    DayEventLogger              *mp_DayEventLogger;               ///< Day operation logger.
     EventFilterNetworkServer    *m_pEventFilterNetworkServer;       ///< Socket server for EventFilter.
+    bool                        m_ImmediateLog;                     ///< Flag for immediate logging
     /****************************************************************************/
-    DataLoggingThreadController();                                                          ///< Not implemented.
-    DataLoggingThreadController(const DataLoggingThreadController &);                       ///< Not implemented.
-    const DataLoggingThreadController & operator = (const DataLoggingThreadController &);   ///< Not implemented.
+    /****************************************************************************/
+    /**
+     * \brief Constructor.
+     */
+    /****************************************************************************/
+    DataLoggingThreadController();               ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(DataLoggingThreadController)
 
 protected:
     /****************************************************************************/
@@ -78,6 +88,7 @@ protected:
      */
     /****************************************************************************/
     virtual void OnGoReceived();
+
     /****************************************************************************/
     /**
      * \brief This method is called when the base class received the \ref Stop signal.
@@ -88,6 +99,7 @@ protected:
      */
     /****************************************************************************/
     virtual void OnStopReceived();
+
     /****************************************************************************/
     /**
      * \brief Power will fail shortly.
@@ -95,18 +107,22 @@ protected:
      * We try to log the power fail into the event logger and close all open files.
      * After that we switch to a PowerFail state where only events are processed
      * and dumped to console.
+     *
+     * \iparam PowerFailStage       Power fail stages
      */
     /****************************************************************************/
-    virtual void OnPowerFail();
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
+
     /****************************************************************************/
     /**
-     * \brief Force caching.
+     * \brief Handler for acknowledge processing
      *
-     * \iparam   Ref                 Command reference.
-     * \iparam   Cmd                 Command.
+     * \iparam   Ref                 Acknowledge Command reference.
+     * \iparam   Ack                 Command.
      */
     /****************************************************************************/
-    void OnForceCaching(Global::tRefType Ref, const CmdForceCaching &Cmd);
+    void OnAcknowledge(Global::tRefType Ref, const Global::AckOKNOK &Ack);
+
     /****************************************************************************/
     /**
      * \brief Request for daily run log file names.
@@ -116,6 +132,7 @@ protected:
      */
     /****************************************************************************/
     void OnRunLogRequest(Global::tRefType Ref, const NetCommands::CmdDayRunLogRequest &Cmd);
+
     /****************************************************************************/
     /**
      * \brief Request for daily run log file content.
@@ -135,21 +152,25 @@ protected:
      */
     /****************************************************************************/
     void OnExportDayRunLogRequest(Global::tRefType Ref, const NetCommands::CmdExportDayRunLogRequest &Cmd);
+
 public:
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \iparam   TheHeartBeatSource    Logging source to be used.
+     * \iparam   ThreadID              Thread id
+     * \iparam   FileNamePrefix        Prefix of the file name
      */
     /****************************************************************************/
-    DataLoggingThreadController(Global::gSourceType TheHeartBeatSource, const QString& fileNamePrefix);
+    DataLoggingThreadController(quint32 ThreadID, const QString& FileNamePrefix);
+
     /****************************************************************************/
     /**
      * \brief Destructor.
      */
     /****************************************************************************/
     virtual ~DataLoggingThreadController();
+
     /****************************************************************************/
     /**
      * \brief Set operating mode.
@@ -160,6 +181,22 @@ public:
     inline void SetOperatingMode(const QString &OperatingMode) {
         m_OperatingMode = OperatingMode;
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Enables immediate logging.
+     *        This is required by few components where it wants to flush the data
+     *        as soon as event receives by data logging. By default this option is
+     *        disabled. But can be enabled by calling this interface with true as
+     *        as argument.
+     *
+     * \iparam   Enable   Enables the flag.
+     */
+    /****************************************************************************/
+    inline void EnableImmediateLogging(bool Enable = false) {
+        m_ImmediateLog = Enable;
+    }
+
     /****************************************************************************/
     /**
      * \brief Set base of file name for even logging.
@@ -170,6 +207,7 @@ public:
     inline void SetEventLoggerBaseFileName(const QString &EventLoggerBaseFileName) {
         m_EventLoggerBaseFileName = EventLoggerBaseFileName;
     }
+
     /****************************************************************************/
     /**
      * \brief Set serial number.
@@ -180,6 +218,7 @@ public:
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
     }
+
     /****************************************************************************/
     /**
      * \brief Set maximal file size for event logger.
@@ -191,6 +230,7 @@ public:
     inline void SetEventLoggerMaxFileSize(qint64 MaxFileSize) {
         m_EventLoggerMaxFileSize = MaxFileSize;
     }
+
     /****************************************************************************/
     /**
      * \brief Set maximal file count for day operation logger.
@@ -202,6 +242,7 @@ public:
     inline void SetDayEventLoggerMaxFileCount(int MaxFileCount) {
         m_DayEventLoggerMaxFileCount = MaxFileCount;
     }
+
     /****************************************************************************/
     /**
      * \brief Create and configure the loggers.
@@ -210,12 +251,14 @@ public:
      */
     /****************************************************************************/
     virtual void CreateAndInitializeObjects();
+
     /****************************************************************************/
     /**
      * \brief Cleanup and destroy the loggers.
      */
     /****************************************************************************/
     virtual void CleanupAndDestroyObjects();
+
 public slots:
     /****************************************************************************/
     /**
@@ -235,7 +278,6 @@ public slots:
      */
     /****************************************************************************/
     void CheckLoggingEnabled();
-
 
 }; // end class DataLoggingThreadController
 

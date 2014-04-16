@@ -23,6 +23,8 @@
 #include <Global/Include/GlobalEventCodes.h>
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -30,10 +32,10 @@ namespace NetworkBase {
 /*!
  *  \brief    Constructor
  *
- *  \param[in] stype = type of server to create
- *  \param[in] client = type of client to accept
- *  \param[in] path = path to settings folder
- *  \param[in] pParent = pointer to parent
+ *  \iparam stype = type of server to create
+ *  \iparam client = type of client to accept
+ *  \iparam path = path to settings folder
+ *  \iparam pParent = pointer to parent
  *
  ****************************************************************************/
 NetworkServerDevice::NetworkServerDevice(NetworkServerType_t stype, const QString &client, const QString &path, QObject *pParent) :
@@ -41,8 +43,6 @@ NetworkServerDevice::NetworkServerDevice(NetworkServerType_t stype, const QStrin
         m_myServer(NULL),
         m_myServerType(stype),
         m_myClient(client),
-
-        m_DateTimeSyncTimer(this),
         m_dtTimerPeriod(0)
 {
     this->setParent(pParent);
@@ -61,9 +61,8 @@ NetworkServerDevice::~NetworkServerDevice()
             delete m_myServer;
         }
         m_myServer = NULL;
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -83,11 +82,13 @@ bool NetworkServerDevice::InitializeDevice()
     try {
         if (!NetworkDevice::InitializeDevice()) {
             qDebug() << "NetworkServerDevice: cannot initialize my NetworkDevice !";
+            Global::EventObject::Instance().RaiseEvent(EVENT_NSD_INIT_FAILED);
             return false;
         }
 
         if (!InitializeNetwork()) {
             qDebug() << "NetworkServerDevice: cannot initialize my Server.";
+            Global::EventObject::Instance().RaiseEvent(EVENT_NSD_INIT_FAILED);
             return false;
         }
 
@@ -96,29 +97,28 @@ bool NetworkServerDevice::InitializeDevice()
                           this, HandleNetworkError(NetworkBase::DisconnectType_t, const QString &));
         CONNECTSIGNALSLOT(m_myServer, ClientConnected(const QString &), this, PeerConnected(const QString &));
         CONNECTSIGNALSLOT(m_myServer, ClientDisconnected(const QString &), this, PeerDisconnected(const QString &));
-    } catch (...) {
-        /// \todo: handler error
-        return false;
-    }
 
-    return true;
+        return true;
+    }
+    CATCHALL();
+    /// \todo: handler error
+    return false;
 }
 
 /****************************************************************************/
 /*!
  *  \brief This slot handles errors reported by the TCPIP Server.
  *
- *  \param[in]  dtype  = the server error
- *  \param[in]  client = client name
+ *  \iparam  dtype  = the server error
+ *  \iparam  client = client name
  */
 /****************************************************************************/
 void NetworkServerDevice::HandleNetworkError(DisconnectType_t dtype, const QString &client)
 {
     Q_UNUSED(client)
-    /// \todo: do we make NetworkServerDevice a logging object? or do we forward
-    /// errors further up? who reports them?
-
     qDebug() << "NetworkServerDevice: NetworkServer reported problem --> " + QString::number(static_cast<int>(dtype), 10);
+    Global::EventObject::Instance().RaiseEvent(EVENT_NSD_NETWORK_ERROR,
+                                               Global::tTranslatableStringList() << m_myClient << QString::number((int)dtype));
 
     switch (dtype) {
     case SOCKET_DISCONNECT:
@@ -128,17 +128,16 @@ void NetworkServerDevice::HandleNetworkError(DisconnectType_t dtype, const QStri
         break;
     case CONNECT_SIGNAL_FAIL:
     case CANNOT_ALLOCATE_MEMORY:
+        emit SigFatalError();
+        break;
     case SOCKET_ERROR:
         // fatal errors, server cannot work
-        /// \todo: log them
         break;
     case NULL_POINTER_IN_HASH:
     case NO_FREE_REFERENCES:
         // fatal, but Server re-initialization might help, restart server here?
-        /// \todo: log them
         break;
     default:
-        /// \todo: all others just need to be logged
         break;
     } //switch
 }
@@ -164,21 +163,21 @@ bool NetworkServerDevice::InitializeNetwork()
             qDebug() << "NetworkServerDevice: cannot initialize Server";
             delete m_myServer;
             m_myServer = NULL;
+            Global::EventObject::Instance().RaiseEvent(EVENT_NSD_ERROR_SERVER_INT,
+                                                       Global::tTranslatableStringList() << m_myClient);
             return false;
         }
         if (!m_myServer->RegisterMessageHandler(this, m_myClient)) {
             /// \todo: log error
             qDebug() << "NetworkServerDevice: cannot register protocol handler";
+            Global::EventObject::Instance().RaiseEvent(EVENT_NSD_ERROR_SERVER_REGISTRATION,
+                                                       Global::tTranslatableStringList() << m_myClient);
             delete m_myServer;
             m_myServer = NULL;
             return false;
         }
     }
-    catch (const std::bad_alloc &) {
-        /// \todo: log error
-        qDebug() << "NetworkServerDevice: Cannot allocate memory!";
-        return false;
-    }
+    CATCHALL_RETURN(false)
 
     return true;
 }
@@ -197,6 +196,8 @@ bool NetworkServerDevice::StartDevice()
 {
     if(m_myServer == NULL) {
         qDebug() << (QString)("NetworkServerDevice: my Server is NULL !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << m_myClient << FILE_LINE);
         return false;
     }
 
@@ -274,6 +275,8 @@ bool NetworkServerDevice::StartDateTimeSync(int period)
     // connect timer
     if (!QObject::connect(&m_DateTimeSyncTimer, SIGNAL(timeout()), this, SLOT(SyncDateAndTime()))) {
         qDebug() << "NetworkServerDevice: DateTimeSync cannot be started !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NSD_ERROR_DATETIME_SYNC,
+                                                   Global::tTranslatableStringList() << m_myClient);
         return false;
     }
     // start the sync process

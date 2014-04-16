@@ -3,9 +3,13 @@
  *
  *  \brief Implementation file for class DayEventEntry.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *\b Description:
+ *      This content consists of a time stamp a string ID and an argument list. It
+ *      has to be translatable.
+ *
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -19,15 +23,20 @@
 /****************************************************************************/
 
 #include <DataLogging/Include/DayEventEntry.h>
+#include <Global/Include/Utils.h>
 
 namespace DataLogging {
 
 /****************************************************************************/
 DayEventEntry::DayEventEntry()
-      : m_AckType(NetCommands::No_Set),m_EventKey(0),
-      m_EventCodeFromCom(0),m_Scenario(0),m_CountRetires(0),m_CurrentStatus(Global::EVTSTAT_OFF),
-      m_IsHWParameter(false),m_HWParameter("")
-{
+    : m_EventStatus(false),
+      m_Ref(0),
+      m_EventKey(0),
+      m_TimeStamp(Global::AdjustedTime::Instance().GetCurrentDateTime()),
+      m_Count(0),
+      m_AltEventStringUsage(Global::NOT_APPLICABLE) {
+    m_AckType = NetCommands::NOT_SPECIFIED;
+    m_String.clear();
 }
 
 /****************************************************************************/
@@ -35,61 +44,35 @@ DayEventEntry::DayEventEntry(const DayEventEntry &rOther) {
     CopyFrom(rOther);
 }
 
-DayEventEntry::DayEventEntry(bool isHWPar, QString &HWInfo):
-    m_TimeStamp(QDateTime::currentDateTime()),m_IsHWParameter(isHWPar),m_HWParameter(HWInfo)
-{
-
+/****************************************************************************/
+DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String)
+    : m_EventStatus(false),
+      m_Ref(0),
+      m_EventKey(0),
+      m_TimeStamp(TimeStamp),
+      m_Count(0),
+      m_String(String),
+      m_AltEventStringUsage(Global::NOT_APPLICABLE) {
+    m_AckType = NetCommands::NOT_SPECIFIED;
 }
 
 /****************************************************************************/
-DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslatableStringList &String)
-    : m_String(String)
-    , m_EventKey(0)
-    , m_TimeStamp(TimeStamp)
-    ,m_IsHWParameter(false)
-    ,m_HWParameter("")
-{
-}
-
-DayEventEntry::DayEventEntry(const QDateTime &TimeStamp,quint32 EventKey,bool &EventStatus,
-                             const Global::tTranslatableStringList &String, quint8 count,
-                             NetCommands::ClickedButton_t ClickButton, 
-                             /*Global::AckOKNOK AckValue,*/ Global::tRefType Ref, 
-                             EventHandler::EventCSVInfo CSVInfo):
-    m_EventCSVInfo(CSVInfo),
-    m_String(String),
+DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, quint32 EventKey, bool &EventStatus,
+                             const Global::tTranslatableStringList &String, quint8 Count,
+                             NetCommands::ClickedButton_t ClickButton, Global::tRefType Ref):
     m_EventStatus(EventStatus),
     m_Ref(Ref),
     m_AckType(ClickButton),
     m_EventKey(EventKey),
     m_TimeStamp(TimeStamp),
-    m_CountRetires(count),
-    m_IsHWParameter(false),
-    m_HWParameter("")
-{
-    //m_AckValue = AckValue.GetStatus();
+    m_Count(Count),
+    m_AltEventStringUsage(Global::NOT_APPLICABLE),
+    m_String(String){
+    m_AckType = ClickButton;
 
 }
 
-void DayEventEntry::SetEventCSVInfo(EventHandler::EventCSVInfo CSVInfo) {
 
-    m_EventCSVInfo = CSVInfo;
-//    m_EventCSVInfo.SetEventCode(CSVInfo.GetEventCode());
-//    m_EventCSVInfo.SetEventType(CSVInfo.GetEventType());
-//    m_EventCSVInfo.SetAction(CSVInfo.GetActionType());
-//    m_EventCSVInfo.SetRetries(CSVInfo.GetRetryAttempts());
-//    m_EventCSVInfo.SetActionNegative(CSVInfo.GetActionNegative());
-//    m_EventCSVInfo.SetActionPositive(CSVInfo.GetActionPositive());
-//    bool ShowInRunLog = CSVInfo.GetRunLogStatus();
-//    m_EventCSVInfo.SetRunLogStatus(ShowInRunLog);
-//    m_EventCSVInfo.SetLogLevel(CSVInfo.GetLogLevel());
-//    m_EventCSVInfo.SetMessageType(CSVInfo.GetMessageType());
-//    m_EventCSVInfo.SetAckRequired(CSVInfo.GetAckReqStatus());
-//    m_EventCSVInfo. SetAlarmStatus(CSVInfo.GetAlarmStatus());
-//    m_EventCSVInfo.SetButtonType(CSVInfo.GetButtonType());
-//    m_EventCSVInfo.SetStatusIcon(CSVInfo.GetStatusIcon());
-//    m_EventCSVInfo.SetEventSource(CSVInfo.GetEventSource());
-}
 /****************************************************************************/
 DayEventEntry::~DayEventEntry() {
 }
@@ -110,24 +93,31 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_EventStatus = rOther.m_EventStatus;
     m_EventKey = rOther.m_EventKey;
     m_Ref = rOther.m_Ref;
-    m_CountRetires = rOther.m_CountRetires;
+    m_Count = rOther.m_Count;
     m_AckType = rOther.m_AckType;
-    m_EventCSVInfo = rOther.m_EventCSVInfo;
     m_AltEventStringUsage = rOther.m_AltEventStringUsage;
-    m_EventCodeFromCom = rOther.m_EventCodeFromCom;
+    m_StringID = rOther.m_StringID;
     m_Scenario = rOther.m_Scenario;
-    m_CurrentStatus = rOther.m_CurrentStatus;
-    m_StringForRd = rOther.m_StringForRd;
-    m_IsHWParameter = rOther.m_IsHWParameter;
-    m_HWParameter = rOther.m_HWParameter;
-//    m_AckValue = rOther.m_AckValue;
+    m_AckReqStatus = rOther.m_AckReqStatus;
+    m_ActionString = rOther.m_ActionString;
+    m_AlarmStatus = rOther.m_AlarmStatus;
+    m_AlarmType = rOther.m_AlarmType;
+    m_EventCode = rOther.m_EventCode;
+    m_EventSoure = rOther.m_EventSoure;
+    m_EventType = rOther.m_EventType;
+    m_EventName = rOther.m_EventName;
+    m_LogLevel = rOther.m_LogLevel;
+    m_StatusIcon = rOther.m_StatusIcon;
+    m_ShowRunLogStatus = rOther.m_ShowRunLogStatus;
+    m_ButtonType = rOther.m_ButtonType;
+
 }
 
 /****************************************************************************/
 void DayEventEntry::DumpToConsole() const {
     QString LoggingString = m_TimeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz") + ";" +
-            QString::number(AsInt(m_EventCSVInfo.GetEventType()), 10) + ";" +
-            QString::number(m_EventCSVInfo.GetEventCode(), 10);
+            QString::number(AsInt(m_EventType), 10) + ";" +
+            QString::number(m_EventCode, 10);
     if(m_String.size() > 0) {
         LoggingString += ":";
     }
@@ -147,25 +137,19 @@ void DayEventEntry::DumpToConsole() const {
     Global::ToConsole(LoggingString.trimmed());
 }
 
-QString DayEventEntry::GetStringForRd() const{
-    QString rd = m_EventCSVInfo.GetDetailForRD();
-    for(int i = 0; i < m_StringForRd.size(); i++)
-    {
-        if(rd.contains(QString("%1").arg(i)))
-        {
-            rd.replace(QString("%1").arg(i),m_StringForRd[i].GetString());
-        }
-        else
-        {
-            rd += " " + m_StringForRd[i].GetString();
-        }
-    }
-    if(! rd.isEmpty())
-    {
-        rd += QString(" Event Code:%1").arg(m_EventCodeFromCom);
-        rd += QString(" Error Code:%1").arg(GetEventCode());
-        rd += QString(" Scenario:%1").arg(m_Scenario);
-    }
-    return rd;
+void  DayEventEntry::SetEventCSVInfo(const EventHandler::EventCSVInfo& EventCsv){
+    m_EventCode = EventCsv.GetEventId();
+    m_EventName = EventCsv.GetEventName();
+    m_EventType = EventCsv.GetEventType();
+    m_ActionPositive = EventCsv.GetActionPositive();
+    m_ActionNegative = EventCsv.GetActionNegative();
+    m_EventSoure = EventCsv.GetEventSource();
+    m_AlarmStatus = EventCsv.GetAlarmStatus();
+    m_LogLevel = EventCsv.GetLogLevel();
+    m_ShowRunLogStatus = EventCsv.GetRunLogStatus();
+    m_ButtonType = EventCsv.GetButtonType();
+    m_StatusIcon = EventCsv.GetStatusBarIcon();
+    m_RetryAttempts = EventCsv.GetRetryAttempts();
+    m_AckReqStatus = EventCsv.GetAckReqStatus();
 }
 } // end namespace DataLogging

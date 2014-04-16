@@ -25,7 +25,6 @@
 
 namespace Global {
 
-AlarmPlayer AlarmPlayer::m_Instance; //!< Instance of AlarmPlayer
 const quint32  MAX_VOLUME = 9;       //!< MAX volume of alarm
 
 AlarmPlayer::AlarmPlayer()
@@ -98,17 +97,21 @@ void AlarmPlayer::setSoundNumber(Global::AlarmType alarmType, int number)
 void AlarmPlayer::emitAlarm(Global::AlarmType alarmType, bool UsePresetValues, QString Filename, quint8 Volume)
 {
     qDebug()<<"Alarm Player Thread" << this->thread();
-    if (!m_soundList.contains(alarmType)) {
-//        Global::EventObject::Instance().RaiseEvent(EVENT_ALARM_SOUND_MISSING);
-        return;
-    }
     quint8 ActiveVolume;
-    if (alarmType == Global::ALARM_ERROR) {
-        ActiveVolume = m_volumeError;
-    }
-    else {
-        ActiveVolume = m_volumeWarning;
-    }
+    { //Mutex scope start
+        QMutexLocker Lock(&m_Mutex);
+        if (!m_soundList.contains(alarmType)) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_ALARM_SOUND_MISSING);
+            return;
+        }
+
+        if (alarmType == Global::ALARM_ERROR) {
+            ActiveVolume = m_volumeError;
+        }
+        else {
+            ActiveVolume = m_volumeWarning;
+        }
+    }//Mutex scope ends
 
     double volumeLevel = ((UsePresetValues) ? (((float)ActiveVolume/(float)MAX_VOLUME) * 100) : ((Volume/(float)MAX_VOLUME ) * 100));
     QString SetVolume= "amixer set PCM " + QString::number(volumeLevel) +"%";

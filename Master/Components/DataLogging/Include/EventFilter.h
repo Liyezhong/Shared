@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class EventFilter.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -53,7 +53,6 @@ private:
     private:
         QSet<int>       m_Lines;    ///< List of enabled lines.
         /****************************************************************************/
-        const FileInfo & operator = (const FileInfo &);     ///< Not implemented.
         /****************************************************************************/
         /**
          * \brief Check if a line is in the list of enabled lines.
@@ -66,6 +65,7 @@ private:
             // check if this line is saved in the single line list.
             return m_Lines.contains(Line);
         }
+
         /****************************************************************************/
         /**
          * \brief Add line to list of enabled lines.
@@ -76,6 +76,7 @@ private:
         inline void AddLine(int Line) {
             m_Lines.insert(Line);
         }
+
         /****************************************************************************/
         /**
          * \brief Add line range to list of enabled lines.
@@ -86,7 +87,6 @@ private:
         /****************************************************************************/
         inline void AddLineRange(int LineStart, int LineStop) {
             // insert all lines including start and end
-            Q_ASSERT(LineStart <= LineStop);
             for(int i=LineStart; i<=LineStop; i++) {
                 m_Lines.insert(i);
             }
@@ -123,8 +123,7 @@ private:
     mutable QReadWriteLock      m_SyncObject;               ///< Synchronisation object.
     static EventFilter          m_Instance;                 ///< The one and only instance.
     /****************************************************************************/
-    EventFilter(const EventFilter &);                       ///< Not impemented.
-    const EventFilter & operator = (const EventFilter &);   ///< Not implemented.
+    Q_DISABLE_COPY(EventFilter)
     /****************************************************************************/
     /**
      * \brief Default constructor.
@@ -173,6 +172,7 @@ public:
      */
     /****************************************************************************/
     void AddLine(const QString &FileName, int Line);
+
     /****************************************************************************/
     /**
      * \brief Add line range to list of enabled lines for a specific file.
@@ -183,6 +183,7 @@ public:
      */
     /****************************************************************************/
     void AddLineRange(const QString &FileName, int LineStart, int LineStop);
+
     /****************************************************************************/
     /**
      * \brief Check if it is allowed to send event.

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file  Components/DataManager/Containers/UserSettings/Source/UserSettingsInterface.cpp
+/*! \file  Platform/Master/Components/DataManager/Containers/UserSettings/Source/UserSettingsInterface.cpp
  *
  *  \brief Implementation file for class CUserSettingsInterface.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-04-23
- *  $Author:    $ Raju123
+ *  $Author:    $ Raju123, Ramya GJ
  *
  *  \b Company:
  *
@@ -43,10 +43,31 @@ CUserSettingsInterface::CUserSettingsInterface()
     , mp_UserSettings(NULL)
     , m_FileName("")
     , m_WorkStationMode(false)
+    , m_Version(1)
 {
     // create the Read write lock for threads
     mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
     mp_UserSettings = new CHimalayaUserSettings();
+}
+/****************************************************************************/
+/*!
+ *  \brief Copy Constructor
+ *
+ *  \iparam p_UserSettings = Instance of the UserSettingsInterface class
+ *
+ *  \return
+ */
+/****************************************************************************/
+CUserSettingsInterface::CUserSettingsInterface(CHimalayaUserSettings *p_UserSettings)
+{
+    // create the Read write lock for threads
+
+    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+    mp_UserSettings = p_UserSettings;
+    m_DataVerificationMode = true;
+    m_FileName = "";
+    m_WorkStationMode = false;
+    m_Version = 1;
 }
 
 /****************************************************************************/
@@ -64,18 +85,36 @@ CUserSettingsInterface::CUserSettingsInterface(const CUserSettingsInterface& Use
     , m_DataVerificationMode(true)
     , mp_UserSettings(NULL)
     , m_FileName("")
-    , m_WorkStationMode(false)
+    , m_WorkStationMode(false),
+      m_Version(1)
 {
     // create the Read write lock for threads
     mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
     mp_UserSettings = new CHimalayaUserSettings();
-    // remove constant cast from the object
-    CUserSettingsInterface* p_USInterface = const_cast<CUserSettingsInterface*>(&UserSettingsInterface);
-    // set the data to default values
-    // create deep copy of the object
-    *this = *p_USInterface;
+    CopyFromOther(UserSettingsInterface);
 }
-
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \iparam Other = Instance of the CDataStationList class
+.*  \note  Method for internal use only
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CUserSettingsInterface::CopyFromOther(const CUserSettingsInterface &Other)
+{
+    //QReadWriteLock is not copied. We use the existing lock object
+    CUserSettingsInterface &OtherSettingsList = const_cast<CUserSettingsInterface &>(Other);
+    m_FileName  = OtherSettingsList.GetFilename();
+    m_Version = OtherSettingsList.GetVersion();
+    m_WorkStationMode = OtherSettingsList.GetWorkStationMode();
+    m_DataVerificationMode = OtherSettingsList.GetDataVerificationMode();
+    mp_UserSettings->CopyFromOther(*(OtherSettingsList.GetUserSettings()));
+}
 /****************************************************************************/
 /*!
  *  \brief Destructor
@@ -84,23 +123,18 @@ CUserSettingsInterface::CUserSettingsInterface(const CUserSettingsInterface& Use
 CUserSettingsInterface::~CUserSettingsInterface()
 {
     if (mp_ReadWriteLock != NULL) {
-        try {
-            delete mp_ReadWriteLock;
-        }
-        catch(...) {
-            //to please PClint
-        }
-        mp_ReadWriteLock = NULL;
+    try {
+    delete mp_ReadWriteLock;
+    }
+    CATCHALL_DTOR();
+    mp_ReadWriteLock = NULL;
     }
 
     try {
-        delete mp_UserSettings;
+    delete mp_UserSettings;
     }
-    catch(...) {
-        //to please PClint
-    }
+    CATCHALL_DTOR();
     mp_UserSettings = NULL;
-
 }
 
 /****************************************************************************/
@@ -114,18 +148,16 @@ CUserSettingsInterface::~CUserSettingsInterface()
 /****************************************************************************/
 bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSettings)
 {
-    try {
-        CHECKPTR(p_UserSettings);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
+    if (p_UserSettings == NULL) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_NULL_PTR, Global::GUI_MSG_BOX);
+        m_ErrorMap.insert(EVENT_DM_NULL_PTR, Global::tTranslatableStringList());
+        SetErrorList(&m_ErrorMap);
         return false;
     }
 
     bool Result = false;
     // check the verification flags
     if (m_DataVerificationMode) {
-        ErrorHash_t ErrorHash;
         // create the temporary CDataRackList class object
         CUserSettingsInterface* p_USI_Verification = new CUserSettingsInterface();
 
@@ -149,8 +181,8 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
                     // If the control reaches here means Error hash is empty
                     // Considering only the first element in Hash since
                     // verfier can atmost add only one Hash has to the error list
-                    m_ErrorHash = *(ErrorList.first());
-                    SetErrorList(&m_ErrorHash);
+                    m_ErrorMap = *(ErrorList.first());
+                    SetErrorList(&m_ErrorMap);
                 }
             }
         }
@@ -189,13 +221,8 @@ bool CUserSettingsInterface::UpdateUserSettings(const CUserSettings* p_UserSetti
 /****************************************************************************/
 CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
 {
-    try {
-        CHECKPTR(mp_UserSettings);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseEvent(E.GetErrorCode(),E.GetAdditionalData(),true);
-        return NULL;
-    }
+    CHECKPTR_RETURN(mp_UserSettings, NULL);
+
     if (!CopySettings) {
         return mp_UserSettings;
     }
@@ -220,14 +247,13 @@ CUserSettings* CUserSettingsInterface::GetUserSettings(bool CopySettings)
 /****************************************************************************/
 bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool CompleteData)
 {
-    try {
-        CHECKPTR(mp_UserSettings);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
+    if (!mp_UserSettings) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_NULL_PTR, Global::GUI_MSG_BOX);
+        m_ErrorMap.insert(EVENT_DM_NULL_PTR, Global::tTranslatableStringList());
+        SetErrorList(&m_ErrorMap);
         return false;
     }
-    qDebug()<<"COMPLETE DATA"<<CompleteData;
+    //qDebug()<<"COMPLETE DATA"<<CompleteData;
     QXmlStreamWriter XmlStreamWriter; ///< Xml stream writer object to write the Xml contents in a file
 
     XmlStreamWriter.setDevice(&IODevice);
@@ -239,6 +265,12 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
     // write the documnet type declaration
     XmlStreamWriter.writeDTD("<!DOCTYPE Settings>");
     XmlStreamWriter.writeStartElement("Settings");
+    QString StringValue; ///< to store the version number
+
+    // write version number
+    (void) StringValue.setNum(GetVersion());  //to suppress lint-534
+    XmlStreamWriter.writeAttribute("Version", StringValue);
+
 
     if (!mp_UserSettings->SerializeContent(XmlStreamWriter, CompleteData)) {
         qDebug() << "CDataRackList::Write failed. Write Racks failed!";
@@ -291,17 +323,27 @@ bool CUserSettingsInterface::SerializeContent(QIODevice& IODevice, bool Complete
 /****************************************************************************/
 bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool CompleteData)
 {
-    try {
-        CHECKPTR(mp_UserSettings);
-    } catch(const Global::Exception &E) {
-        // and send error message
-        Global::EventObject::Instance().RaiseException(E);
+    if (!mp_UserSettings) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_DM_NULL_PTR, Global::GUI_MSG_BOX);
+        m_ErrorMap.insert(EVENT_DM_NULL_PTR, Global::tTranslatableStringList());
+        SetErrorList(&m_ErrorMap);
         return false;
     }
     QXmlStreamReader XmlStreamReader;
 
     XmlStreamReader.setDevice(&IODevice);
+    // look for node <Settings>
+    if (!Helper::ReadNode(XmlStreamReader, "Settings")) {
+        qDebug() << "DeserializeContent: abort reading. Node not found: Settings";
+        return false;
+    }
 
+    // Read attribute Version
+    if (!XmlStreamReader.attributes().hasAttribute("Version")) {
+        qDebug() << "### attribute <Version> is missing => abort reading";
+        return false;
+    }
+    SetVersion(XmlStreamReader.attributes().value("Version").toString().toInt());
 
     if (!mp_UserSettings->DeserializeContent(XmlStreamReader, CompleteData)) {
         qDebug() << "CDataRackList::Read failed. Read Racks failed!";
@@ -315,7 +357,7 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
         while ((!XmlStreamReader.atEnd()) &&
                ((XmlStreamReader.name() != "ClassTemporaryData") || (XmlStreamReader.tokenType() != QXmlStreamReader::EndElement)))
         {
-//            qDebug() << "CUserSettings::DeserializeContent, checking" << XmlStreamReader.name() << XmlStreamReader.tokenType();
+            //            qDebug() << "CUserSettings::DeserializeContent, checking" << XmlStreamReader.name() << XmlStreamReader.tokenType();
 
             if (XmlStreamReader.tokenType() == QXmlStreamReader::StartElement)
             {
@@ -361,8 +403,8 @@ bool CUserSettingsInterface::DeserializeContent(QIODevice& IODevice ,bool Comple
         }
 
     }
-    XmlStreamReader.device()->reset();
-//    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
+    //XmlStreamReader.device()->reset();
+    //    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
     return true;
 }
 
@@ -410,7 +452,7 @@ bool CUserSettingsInterface::Read(QString FileName)
             else {
                 Global::EventObject::Instance().RaiseEvent(EVENT_DM_SETTINGS_VERIFICATION_FAILED);
                 Result = false;
-            }            
+            }
         }
         // delete test clone
         delete p_UserSettings_Verification;
@@ -446,7 +488,6 @@ bool CUserSettingsInterface::Read(QString FileName)
 
     return Result;
 }
-
 /****************************************************************************/
 /*!
  *  \brief Output Stream Operator which streams data
@@ -465,7 +506,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CUserSettingsInterfac
     if (!p_TempUSInterface->SerializeContent(*OutDataStream.device(), true)) {
         qDebug() << "CUserSettingsInterface::Operator Streaming (SerializeContent) failed.";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "UserSettings", true);
-      }
+    }
 
     return OutDataStream;
 }
@@ -504,30 +545,7 @@ CUserSettingsInterface& CUserSettingsInterface::operator=(const CUserSettingsInt
     // make sure not same object
     if (this != &SourceSettings)
     {
-        // create the byte array
-        QByteArray* p_TempByteArray = new QByteArray();
-        // create the data stream to write into a file
-        QDataStream DataStream(p_TempByteArray, QIODevice::ReadWrite);
-        DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-        p_TempByteArray->clear();
-        // write the data into data stream from source
-        DataStream << SourceSettings;
-        // reset the IO device pointer to starting position
-        (void)DataStream.device()->reset(); //to avoid lint-534
-
-        // copy the local verification flag in a temporary variable
-        bool VerificationModeLocal = GetDataVerificationMode();
-        // make verification flag to false, so that verification is not required
-        // for deep copy
-        if (VerificationModeLocal) {
-            SetDataVerificationMode(false);
-        }
-
-        // read the data from data stream to destination object
-        DataStream >> *this;
-
-        delete p_TempByteArray;
-        SetDataVerificationMode(VerificationModeLocal);
+        CopyFromOther(SourceSettings);
     }
     return *this;
 }

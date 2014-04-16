@@ -9,5 +9,5 @@ TARGET = utTestDayOperationEntry
 SOURCES += TestDayOperationEntry.cpp
 
 
-UseLibs(DataLogging DataManagement Global)
+UseLibs(DataLogging EventHandler Global)
 

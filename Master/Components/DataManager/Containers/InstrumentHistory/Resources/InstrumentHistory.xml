@@ -7,8 +7,11 @@
 		<Module name="Drawer left" description="loader">
 		<!-- Module[1...n] contains required details of the service replacaple unit & sub modules in the module -->
 			<SerialNumber>SN_LOADER_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb4_0" type="Board" description="displayName">
 			<!-- SubModule[1...n] contains various sub components in the module type = Board/functionModule/MechanicalArm etc ... -->
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
@@ -59,8 +62,11 @@
 		<Module name="Drawer Right" description="unloader">
 		<!-- Module[1...n] contains required details of the service replacaple unit & board(s) in the module -->
 			<SerialNumber>SN_UNLOADER_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb4_1" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -104,8 +110,11 @@
 		</Module>		
 		<Module name="Oven" description="Oven">
 			<SerialNumber>SN_OVEN_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb3_0" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -125,6 +134,48 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
+			<SubModule name="asb12_0" type="Board" description="displayName"> 
+				<parameter name="SoftwareVersion" unit="quint16">SW_VER</parameter> 
+				<parameter name="HardwareMinorVersion" unit="quint8">MINOR_VER</parameter> 
+				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter> 
+				<parameter name="SerialNumber" unit="QString">SN</parameter> 
+				<parameter name="BootLoaderReleaseDate" unit="QDate">Date</parameter> 
+		 		<parameter name="BootLoaderMajorVersion" unit="QString">BL_MAJOR_VER</parameter> 
+				<parameter name="StartUpCycles" unit="quint16">CYCLES</parameter> 
+				<parameter name="LaunchedFlag" unit="bool">BOOL</parameter> 
+				<parameter name="EndTestDate" unit="QDate">Date</parameter>
+				<parameter name="SoftwareReleaseDate" unit="QDate">Date</parameter>  
+				<parameter name="OperationTime" unit="minutes">MINUTES</parameter> 
+				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter> 
+				<parameter name="HardwareMajorVersion" unit="quint8">MAJOR_VER</parameter> 
+				<parameter name="BootLoaderMinorVersion" unit="QString">BL_MINOR_VER</parameter> 
+				<parameter name="BoardName" unit="QString">NAME</parameter> 
+				<parameter name="HardwareProductionDate" unit="QDate">Date</parameter>
+				<parameter name="FirstLaunchDate" unit="QDate">Date</parameter> 															
+		    	</SubModule>
+		    	<SubModule name="asb12_PhotoDetector" type="AnalogIn" description="displayName"> 
+				<parameter name="SoftwareVersion" unit="quint16">VER</parameter> 
+		    	</SubModule> 
+		    	<SubModule name="asb12_camera_signal" type="Digital Output" description="displayName"> 
+				<parameter name="SoftwareVersion" unit="quint16">VER</parameter> 
+				<parameter name="OnTime" unit="minutes">MINUTES</parameter> 
+				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter> 
+		    	</SubModule> 
+		    	<SubModule name="asb12_transmitControl" type="Analog Output" description="displayName"> 
+				<parameter name="SoftwareVersion" unit="quint16">VER</parameter> 
+				<parameter name="OnTime" unit="minutes">MINUTES</parameter> 
+				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter> 
+		    	</SubModule> 
+		    	<SubModule name="asb12_transmitCurrent" type="Analog Output" description="displayName"> 
+				<parameter name="SoftwareVersion" unit="quint16">VER</parameter> 
+				<parameter name="OnTime" unit="minutes">MINUTES</parameter> 
+				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter> 
+		    	</SubModule> 
+		    	<SubModule name="asb12_receiveCurrent" type="Analog Output" description="displayName"> 
+				<parameter name="SoftwareVersion" unit="quint16">VER</parameter> 
+				<parameter name="OnTime" unit="minutes">MINUTES</parameter> 
+				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
+		    	</SubModule>
 			<SubModule name="motor_oven" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
@@ -135,10 +186,13 @@
 				<parameter name="OperatingTime" unit="seconds">SECS</parameter>
 			</SubModule>
 		</Module>	
-		<Module name="YZ_Arm_Left" description="YZ Left">
-			<SerialNumber>SN_YZ_ARM_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+		<Module name="X-Arm Left" description="X Arm Left">
+			<SerialNumber>SN_X_ARM_00001</SerialNumber>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb1_0" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -199,10 +253,13 @@
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>			
 		</Module>		
-		<Module name="YZ_Arm_Right" description="YZ Right">
-			<SerialNumber>SN_YZ_ARM_00002</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+		<Module name="X-Arm Right" description="X Arm Right">
+			<SerialNumber>SN_X_ARM_00002</SerialNumber>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb1_1" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -263,10 +320,13 @@
 				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
 			</SubModule>			
 		</Module>		
-		<Module name="X-Arm" description="x movement">
-			<SerialNumber>SN_X_ARM_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+		<Module name="X-Axis" description="x movement">
+			<SerialNumber>SN_X_AXIS_00001</SerialNumber>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="motor_x1" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
@@ -280,8 +340,11 @@
 		</Module>		
 		<Module name="Agitator" description="Agitation">
 			<SerialNumber>SN_Agitator_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="motor_agitation" type="Stepper Motor" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VERSION</parameter>
 				<parameter name="RevolutionCounter" unit="quint32">COUNT</parameter>
@@ -290,8 +353,11 @@
 		</Module>		
 		<Module name="Transfer" description="Transfer Station">
 			<SerialNumber>SN_TRANSFER_STN_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb2_2" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -319,8 +385,11 @@
 		</Module>
 		<Module name="E Box" description="Electronic Box">
 			<SerialNumber>SN_E_BOX_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb6_0" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -359,58 +428,14 @@
 				<parameter name="BoardName" unit="QString">NAME</parameter>
 				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
 			</SubModule>
-		</Module>	
-		<Module name="SlideID" description="SlideID Camera">
-			<SerialNumber>SN_SLIDE_ID_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb12_0" type="Board" description="displayName">
-				<parameter name="SerialNumber" unit="QString">SN</parameter>
-				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
-				<parameter name="EndTestDate" unit="QDate">Date</parameter>
-				<parameter name="HardwareMajorVersion" unit="quint8">MAJOR_VER</parameter>
-				<parameter name="HardwareMinorVersion" unit="quint8">MINOR_VER</parameter>
-				<parameter name="HardwareProductionDate" unit="QDate">Date</parameter>
-				<parameter name="SoftwareVersion" unit="quint16">SW_VER</parameter>
-				<parameter name="SoftwareReleaseDate" unit="QDate">Date</parameter>
-				<parameter name="BootLoaderMajorVersion" unit="QString">BL_MAJOR_VER</parameter>
-				<parameter name="BootLoaderMinorVersion" unit="QString">BL_MINOR_VER</parameter>
-				<parameter name="BootLoaderReleaseDate" unit="QDate">Date</parameter>
-				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
-				<parameter name="StartUpCycles" unit="quint16">CYCLES</parameter>
-				<parameter name="LaunchedFlag" unit="bool">BOOL</parameter>
-				<parameter name="FirstLaunchDate" unit="QDate">Date</parameter>
-				<parameter name="BoardName" unit="QString">NAME</parameter>
-				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
-			</SubModule>
-			<SubModule name="photo_detector" type="AnalogIn" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-			</SubModule>
-			<SubModule name="camera_signal" type="Digital Output" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
-				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
-			</SubModule>
-			<SubModule name="transmit_control" type="Analog Output" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
-				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
-			</SubModule>	
-			<SubModule name="transmit_current" type="Analog Output" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
-				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
-			</SubModule>
-			<SubModule name="receive_current" type="Analog Output" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
-				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
-			</SubModule>			
-		</Module>		
+		</Module>			
 		<Module name="HeatedCuvetts" description="Heated Cuvetts">
 			<SerialNumber>SN_HEATED_CUVETTS_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="asb5_0" type="Board" description="displayName">
 				<parameter name="SerialNumber" unit="QString">SN</parameter>
 				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
@@ -449,8 +474,11 @@
 		</Module>
 		<Module name="Water" description="Water Stations">
 			<SerialNumber>SN_WATER_STNS_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="valve_control1" type="Digital Output" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
@@ -484,8 +512,11 @@
 		</Module>
 		<Module name="Exhaust" description="Exhaust Module">
 			<SerialNumber>SN_EXHAUST_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
+			<OperatingHours>Hrs</OperatingHours>			
+			<CalibrationDate>DATE2</CalibrationDate>
+			<CalibrationResult>PASS</CalibrationResult>
+			<TestDate>DATE2</TestDate>
+			<TestResult>PASS</TestResult> 
 			<SubModule name="airflow_switch" type="Digital Input" description="displayName">
 				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
 			</SubModule>
@@ -499,81 +530,15 @@
 				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
 				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
 			</SubModule>
-		</Module>
-		<Module name="Display" description="Display Module">
-			<SerialNumber>SN_DISPLAY_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="light_control2" type="Digital Output" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-				<parameter name="OnTime" unit="minutes">MINUTES</parameter>
-				<parameter name="OffToOnCycles" unit="quint32">CYCLES</parameter>
-			</SubModule>
-		</Module>
-		<Module name="Cover" description="System Cover">
-			<SerialNumber>SN_DISPLAY_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="reed_active1" type="Digital Input" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-			</SubModule>
-			<SubModule name="reed_active2" type="Digital Input" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-			</SubModule>
-		</Module>
-		<Module name="Joystic" description="Joystic Control">
-			<SerialNumber>SN_DISPLAY_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb11_0" type="Board" description="displayName">
-				<parameter name="SerialNumber" unit="QString">SN</parameter>
-				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
-				<parameter name="EndTestDate" unit="QDate">Date</parameter>
-				<parameter name="HardwareMajorVersion" unit="quint8">MAJOR_VER</parameter>
-				<parameter name="HardwareMinorVersion" unit="quint8">MINOR_VER</parameter>
-				<parameter name="HardwareProductionDate" unit="QDate">Date</parameter>
-				<parameter name="SoftwareVersion" unit="quint16">SW_VER</parameter>
-				<parameter name="SoftwareReleaseDate" unit="QDate">Date</parameter>
-				<parameter name="BootLoaderMajorVersion" unit="QString">BL_MAJOR_VER</parameter>
-				<parameter name="BootLoaderMinorVersion" unit="QString">BL_MINOR_VER</parameter>
-				<parameter name="BootLoaderReleaseDate" unit="QDate">Date</parameter>
-				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
-				<parameter name="StartUpCycles" unit="quint16">CYCLES</parameter>
-				<parameter name="LaunchedFlag" unit="bool">BOOL</parameter>
-				<parameter name="FirstLaunchDate" unit="QDate">Date</parameter>
-				<parameter name="BoardName" unit="QString">NAME</parameter>
-				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
-			</SubModule>
-			<SubModule name="joystick" type="Joystic Control" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-			</SubModule>
-		</Module>
-		<Module name="RFID Consumables" description="RFID Consumables">
-			<SerialNumber>SN_DISPLAY_00001</SerialNumber>
-			<OperatingHours>Hrs</OperatingHours>
-			<DateOfProduction>DATE2</DateOfProduction>
-			<SubModule name="asb13_0" type="Board" description="displayName">
-				<parameter name="SerialNumber" unit="QString">SN</parameter>
-				<parameter name="EndTestResult" unit="TestResult_t">TestResult</parameter>
-				<parameter name="EndTestDate" unit="QDate">Date</parameter>
-				<parameter name="HardwareMajorVersion" unit="quint8">MAJOR_VER</parameter>
-				<parameter name="HardwareMinorVersion" unit="quint8">MINOR_VER</parameter>
-				<parameter name="HardwareProductionDate" unit="QDate">Date</parameter>
-				<parameter name="SoftwareVersion" unit="quint16">SW_VER</parameter>
-				<parameter name="SoftwareReleaseDate" unit="QDate">Date</parameter>
-				<parameter name="BootLoaderMajorVersion" unit="QString">BL_MAJOR_VER</parameter>
-				<parameter name="BootLoaderMinorVersion" unit="QString">BL_MINOR_VER</parameter>
-				<parameter name="BootLoaderReleaseDate" unit="QDate">Date</parameter>
-				<parameter name="OperationTime" unit="minutes">MINUTES</parameter>
-				<parameter name="StartUpCycles" unit="quint16">CYCLES</parameter>
-				<parameter name="LaunchedFlag" unit="bool">BOOL</parameter>
-				<parameter name="FirstLaunchDate" unit="QDate">Date</parameter>
-				<parameter name="BoardName" unit="QString">NAME</parameter>
-				<parameter name="UniqueNumber" unit="QString">NUMBER</parameter>
-			</SubModule>
-			<SubModule name="rfid_consumables" type="RFID ISO 15693" description="displayName">
-				<parameter name="SoftwareVersion" unit="quint16">VER</parameter>
-			</SubModule>
-		</Module>
+		</Module>								
+ 		<Module name="Cover Slipper" description="Sepia">
+		    	<SerialNumber>SN_COVERSLIPPER_0001</SerialNumber>
+			<OperatingHours>N/A</OperatingHours>
+			<DateOfProduction>2008-01-01</DateOfProduction>
+			<CalibrationDate>N/A</CalibrationDate>
+			<CalibrationResult>N/A</CalibrationResult>
+			<TestDate>N/A</TestDate>
+			<TestResult>N/A</TestResult>
+	        </Module>
 	</ModuleList>
 </InstrumentHistory>

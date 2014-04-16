@@ -54,12 +54,11 @@ ExternalProcess::~ExternalProcess()
 {
     try {
         if (m_myProcess != NULL) {
-            delete m_myProcess;
+            m_myProcess->deleteLater();
         }
         m_myProcess = NULL;
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -71,12 +70,15 @@ ExternalProcess::~ExternalProcess()
  ****************************************************************************/
 void ExternalProcess::Initialize()
 {
-    m_myProcess = new QProcess(this);
-    CONNECTSIGNALSLOT(m_myProcess, finished(int), this, ProcessFinished(int));
-    CONNECTSIGNALSLOT(m_myProcess, started(), this, ProcessRuns());
-    CONNECTSIGNALSLOT(m_myProcess, readyReadStandardOutput(), this, ReadStdOut());
-    CONNECTSIGNALSLOT(m_myProcess, readyReadStandardError(), this, ReadStdError());
-    CONNECTSIGNALSLOT(m_myProcess, error(QProcess::ProcessError), this, ProcessErrorOccured(QProcess::ProcessError));
+    try {
+        m_myProcess = new QProcess(this);
+        CONNECTSIGNALSLOT(m_myProcess, finished(int), this, ProcessFinished(int));
+        CONNECTSIGNALSLOT(m_myProcess, started(), this, ProcessRuns());
+        CONNECTSIGNALSLOT(m_myProcess, readyReadStandardOutput(), this, ReadStdOut());
+        CONNECTSIGNALSLOT(m_myProcess, readyReadStandardError(), this, ReadStdError());
+        CONNECTSIGNALSLOT(m_myProcess, error(QProcess::ProcessError), this, ProcessErrorOccured(QProcess::ProcessError));
+    }
+    CATCHALL();
 }
 
 /****************************************************************************/
@@ -120,7 +122,7 @@ void ExternalProcess::ReadStdError()
             result.append(line);
         }
     }
-    qDebug() << (QString)("ExternalProcess: ErrorCode read from process: \n" + result);
+//    qDebug() << (QString)("ExternalProcess: ErrorCode read from process: \n" + result);
 
     /// \todo check process error and decide what to do !
 }
@@ -252,8 +254,21 @@ bool ExternalProcess::TerminateProcess()
 {
     if (m_myProcess != NULL) {
         qDebug() << (QString)("\nExternalProcess: trying to TERMINATE " + m_myName + " process...\n");
+        static_cast<void>(
+            // cannot use return value here anyway
+            this->disconnect()
+        );
         m_myProcess->terminate();
-        return true;
+        if (!m_myProcess->waitForFinished(2000)) {
+            m_myProcess->deleteLater();
+            m_myProcess = NULL;
+            return false;
+        }
+        else {
+            m_myProcess->deleteLater();
+            m_myProcess = NULL;
+            return true;
+        }
     }
     return false;
 }
@@ -277,22 +292,19 @@ bool ExternalProcess::TerminateProcess()
  ****************************************************************************/
 bool ExternalProcess::KillProcess()
 {
-    bool result = false;
     if (m_myProcess != NULL) {
         qDebug() << (QString)("\nExternalProcess: trying to KILL " + m_myName + " process...\n");
-        m_myProcess->kill();
-        result = m_myProcess->waitForFinished(PROCESS_KILL_TIMEOUT);
         static_cast<void>(
-                // cannot use return value here anyway
-                m_myProcess->disconnect()
+            // cannot use return value here anyway
+            this->disconnect()
         );
-        //return true;
+        m_myProcess->kill();
+        m_myProcess->waitForFinished(2000);
+        m_myProcess->deleteLater();
+        m_myProcess = NULL;
+        return true;
     }
-    static_cast<void>(
-        // cannot use return value here anyway
-        this->disconnect()
-    );
-    return result;
+    return false;
 }
 
 } // end namespace ExternalProcessControl

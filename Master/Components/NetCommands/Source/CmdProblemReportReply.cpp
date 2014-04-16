@@ -28,14 +28,17 @@ QString CmdProblemReportReply::NAME = "NetCommands::CmdProblemReportReply";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   report      The problem report reply.
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   Report      The problem report reply.
  */
 /****************************************************************************/
 CmdProblemReportReply::CmdProblemReportReply(int Timeout, const QStringList &Report) :
     Command(Timeout),
     m_Report(Report)
 {
+    setErrorStateAllowed(true);
+    setBusyStateAllowed(true);
+    setIdleStateAllowed(true);
 }
 
 /****************************************************************************/

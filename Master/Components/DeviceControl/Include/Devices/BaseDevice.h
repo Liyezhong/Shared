@@ -82,7 +82,7 @@ public:
      *  \return Instance identifier
      */
     /*****************************************************************************/
-    DevInstanceID_t GetInstanceID() const { return m_instanceID; }
+    quint32 GetInstanceID() const { return m_instanceID; }
 
     /*****************************************************************************/
     /*!
@@ -165,7 +165,7 @@ protected:
     quint16      m_lastErrorData;           ///< additional error data, filled by the error causing functionality
     QDateTime    m_lastErrorTime;           ///< time of error detection
 
-    DevInstanceID_t m_instanceID;           ///< identifier for instance identification
+    quint32 m_instanceID;           ///< identifier for instance identification
 
     Global::MonotonicTime m_stateTimer;     ///< timer for timeout observation
     qint16 m_stateTimespan;                 ///< max. time delay of current active timeout observation
@@ -174,7 +174,7 @@ protected:
     ListBaseModule m_BaseModuleList;        /// The list contain all the base modules.
     quint16 m_BaseModuleVoltage;            /// The base module's actual voltage
     quint16 m_BaseModuleCurrent;            /// The base module's actual current
-
+    qint64 m_LastSensorCheckTime;           /// The last check sensor's time(in sec since Epoch)
 };
 
 } //namespace

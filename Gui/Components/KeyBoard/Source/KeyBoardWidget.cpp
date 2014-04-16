@@ -1,7 +1,15 @@
 /****************************************************************************/
 /*! \file KeyBoardWidget.cpp
  *
- *  \brief KeyBoard implementation.
+ *  \brief KeyBoard implementation.KeyBoard Widget provides the following
+ *          features:
+ *          -  1) Support for English & German language
+ *          -  2) Support for Subspeller on press and hold of key
+ *          -  3) Supports for alphanumeric keys
+ *          -  4) Filtering of invalid entries entered by user
+ *   \note Throughout the Keyboard component "Large" keyword is used, which
+ *          means 800 X 600 resolution, similarly "Small" means 640 X 480
+ *          resolution.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-10-19
@@ -28,46 +36,131 @@
 #include <QPalette>
 #include <QDebug>
 
+//lint -e641
 
 namespace KeyBoard {
 
+const int ASCII_Z           = 90; //!< ASCII Code
+const int ASCII_z           = 122; //!< ASCII Code
+const int ASCII_A           = 65; //!< ASCII Code
+const int ASCII_a           = 97; //!< ASCII Code
+const int ASCII_COMMA       = 44; //!< ASCII Code
+const int ASCII_DOT         = 46; //!< ASCII Code
+const int TOTAL_KEYS        = 36; //!< Total keys in keyboard
+const int DEGREE_SYMBOL_ASCII_CODE = 176; //!< ASCII Code ISO 8859-15
+const QString ESC_ACCESSIBLE_NAME = "0x01000000";   //!< Accessible names according to Qt::Key, refer QT Docs
+const QString SPACE_ACCESSIBLE_NAME = "0x20";       //!< Accessible names according to Qt::Key, refer QT Docs
+const QString SHIFT_ACCESSIBLE_NAME = "0x01000020"; //!< Accessible names according to Qt::Key, refer QT Docs
+const QString OK_ACCESSIBLE_NAME = "0x01000005";    //!< Accessible names according to Qt::Key, refer QT Docs
+const QString BACKSPACE_ACCESSIBLE_NAME = "0x01000003"; //!< Accessible names according to Qt::Key, refer QT Docs
+const QString ALTERNATE_MODE_KEY_ACCESSIBLE_NAME = "0x01000023"; //!< Accessible names according to Qt::Key, refer QT Docs
+const QString CURSOR_RIGHT_ACCESSIBLE_NAME  = "0x01000014";//!< Accessible names according to Qt::Key, refer QT Docs
+const QString CURSOR_LEFT_ACCESSIBLE_NAME = "0x01000012";//!< Accessible names according to Qt::Key, refer QT Docs
+const int BUTTON_WIDTH = 67; //!<  Width of button in pixel
+const int DEFAULT_MAX_LENGTH_OF_CHARS = 32; //!< Default max length of entered characters
+const int DEFAULT_MIN_LENGTH_OF_CHARS = 1; //!< Default min length of entered characters
+//! \warning changing the below values will have affect on subspeller position.
+//! Developer must add/subtract the same to subspeller coordinate if the below values are changed.
+
+const int CURSOR_FLASH_TIME = 0; //!< Cursor doesnt blink. Increase value for blinking
+qint32 CKeyBoard::m_KeyBoardXPosition = 35; //!< Default value for SIZE_1
+qint32 CKeyBoard::m_KeyBoardYPosition = 100; //! Default value for SIZE_1
 /****************************************************************************/
 /*!
  *  \brief Constructor
  *
- *  \iparam p_Parent = Parent widget
+ *  \iparam Model = SIZE_1 (800 x 600) ,  SIZE_2 ( 640 X 480)
+ *  \iparam KeyBoardType = QWERTY/ QWERTZ keyboard
  */
 /****************************************************************************/
-CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardType):
-    MainMenu::CDialogFrame()
+CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardType)
+    : MainMenu::CDialogFrame(),
+      mp_ClickedMapper(NULL),
+      mp_PressedMapper(NULL),
+      mp_BaseKeyLayout(NULL),
+      mp_QwertyLayout(NULL),
+      mp_AsdfLayout(NULL),
+      mp_ZxcdLayout(NULL),
+      mp_EscLayout(NULL),
+      mp_LineEditLayout(NULL),
+      mp_KeyBoardBaseLayout(NULL),
+      mp_SpacerQw(NULL),
+      mp_SpacerAs(NULL),
+      mp_SpacerZx(NULL),
+      mp_SpacerEsc(NULL),
+      mp_SubSpeller(NULL),
+      mp_KeyTrayBackGround(NULL),
+      mp_DeleteBtn(NULL),
+      mp_LineEdit(NULL),
+      mp_RegValidator(NULL),
+      mp_MessageDlg(NULL)
 {
     m_Model = Model;
     m_KeyBoardType = KeyBoardType;
-    m_Counter = 0;
+    m_ShiftKeyPressCounter = 0;
     m_PreviouCount = 0;
     m_IsCaps = false;
     m_BtnClicked = false;
     m_ShiftCaps = false;
     m_SubSpellerClicked = false;
-    mp_SubSpeller = 0;
-    m_EnteredCharsValid = false;
-    m_MaxEnteredCharLen = 32;
-    m_MinEnteredCharLen = 1;
+    m_EnteredCharsValid = true;
+    m_NumericMode = false;
+    m_MaxEnteredCharLen = DEFAULT_MAX_LENGTH_OF_CHARS;
+    m_MinEnteredCharLen = DEFAULT_MIN_LENGTH_OF_CHARS;
     m_EnteredStringValidation = true ;
     mp_RegValidator = NULL;
-
-    this->move(35,100);
-    SetDialogTitle(tr("Dummy"));
+    m_EnableInternalValidation = true;
+    m_DisplayNumericKeypadAtStart = false;
+    this->move(DEFAULT_POSITION_X_COORDINATE, DEFAULT_POSITION_Y_COORDINATE);
 
     setAttribute(Qt::WA_TranslucentBackground);
-    qint32 LineEditWidgetSpacing = 0;
+    //! \warning Don't change order of below function calls.
+    InitSizeAttributes();
+    CreateLineEditWidget();
+    CreateBaseLayout();
+    CreateKeyboard();
+    ConnectButtons();
+    QApplication::setCursorFlashTime(CURSOR_FLASH_TIME);//This stops cursor blinking.
+    //lint -e64
+    mp_MessageDlg = new MainMenu::CMessageDlg(this); // dialog for error messages
+
+}
+
+ /****************************************************************************/
+ /*!
+  *  \brief Destructor
+  */
+ /****************************************************************************/
+CKeyBoard::~CKeyBoard()
+{
+    try {
+        delete mp_RegValidator;
+        delete mp_EscLayout;
+        delete mp_ZxcdLayout;
+        delete mp_AsdfLayout;
+        delete mp_QwertyLayout;
+    }
+    catch (...) {
+        // to please Lint.
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Initialize all the Keyboard widget's size attributes. Sets values
+ *          according to Keyboard mode - SIZE1 or SIZE 2
+ */
+/****************************************************************************/
+void CKeyBoard::InitSizeAttributes()
+{
     if (m_Model == KeyBoard::SIZE_1) {
         //considered additional black spaces in the png's.
         //Values were derived based on measurement using gimp.
+        //All are pixel values
         m_KeyBoardWidth = 756;
         m_KeyBoardHeight = 454;
         m_IconSize = "Large";
-        GetContentFrame()->setFixedSize(756,434);
+        GetContentFrame()->setFixedSize(756, 434);
         CKeyBoardButton::m_ButtonHeight = 62;
         CKeyBoardButton::m_ButtonWidth = 70;
         m_LineEditHeight = 59;
@@ -88,12 +181,14 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
         m_MainMarginBottom = 36;
         m_SpaceKeyWidth = 280;
         m_SpecialCharKeyWidth = 100;
-        m_OkKeyWidht = 110;
+        m_OkKeyWidth = 110;
         m_LineEditWidgetW = 715;
         m_LineEditWidgetH = 63;
-        LineEditWidgetSpacing = 1;
     }
     else {
+        //considered additional black spaces in the png's.
+        //Values were derived based on measurement using gimp.
+        //All are pixel values
         // KeyBoard::SIZE_2
         m_KeyBoardWidth = 539;
         m_KeyBoardHeight = 471;
@@ -116,7 +211,6 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
         m_LineEditMarginTop = 0;
         m_LineEditMarginRight = 0;
         m_LineEditMarginBottom = 0;
-        LineEditWidgetSpacing = 0;
         m_KeyTrayMarginLeft = 9;
         m_KeyTrayMarginTop = 8;
         m_KeyTrayMarginRight = 0;
@@ -129,18 +223,27 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
         m_MainMarginBottom = 48;//45
         m_SpaceKeyWidth = 117;
         m_SpecialCharKeyWidth = 70;
-        m_OkKeyWidht = 78;
+        m_OkKeyWidth = 78;
         CSubSpeller::m_SubspellerOffsetW = 25;
         CSubSpeller::m_SubspellerOffsetH = 25;
-        CSubSpeller::m_SubspellerBorderMarginLeft = 30;
-        CSubSpeller::m_SubspellerBorderMarginTop = 27;
-        CSubSpeller::m_SubspellerBorderMarginRight = 30;
-        CSubSpeller::m_SubspellerBorderMarginBottom = 27;
+        CSubSpeller::m_SubspellerBorderMarginLeft = 35;
+        CSubSpeller::m_SubspellerBorderMarginTop = 35;
+        CSubSpeller::m_SubspellerBorderMarginRight = 35;
+        CSubSpeller::m_SubspellerBorderMarginBottom = 35;
         CSubSpeller::m_SubspellerMarginRight = 5;
         m_LineEditWidgetW = 481;
         m_LineEditWidgetH = 67;
     }
+}
 
+/****************************************************************************/
+/*!
+ *  \brief Create and initialize LineEdit Widget- Contains Line Edit box and
+ *         a delete button next to it
+ */
+/****************************************************************************/
+void CKeyBoard::CreateLineEditWidget()
+{
     mp_LineEditWidget = new QWidget(GetContentFrame());
     mp_LineEditWidget->setSizePolicy(QSizePolicy::Preferred,
                                     QSizePolicy::Fixed);
@@ -154,7 +257,7 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     mp_LineEdit->setEchoMode(QLineEdit::Password);
     mp_LineEdit->setTextMargins(13, 0, 0, 0);
     //mp_LineEdit->setFocusPolicy(Qt::NoFocus);
-    mp_LineEdit->setFrame(false);    
+    mp_LineEdit->setFrame(false);
 
     QFont LineEditFont = font();
     LineEditFont.setPointSize(CKeyBoardButton::m_FontSize);
@@ -162,16 +265,24 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     mp_LineEdit->setFixedSize(m_LineEditWidth, m_LineEditHeight);
     mp_LineEditLayout->addWidget(mp_LineEdit);
 
-    mp_LineEditLayout->setSpacing(LineEditWidgetSpacing);
-
+    mp_LineEditLayout->setSpacing((m_Model == SIZE_1) ? 1 : 0);
     mp_DeleteBtn = new CKeyBoardButton(mp_LineEditWidget,
-                                        "Right", "Delete", "", true, 0x100);
-    mp_DeleteBtn->setAccessibleName("0x01000003");
+                                        "Right", "Delete", "", true, KeyBoard::BACKSPACE);
+    mp_DeleteBtn->setAccessibleName(BACKSPACE_ACCESSIBLE_NAME);
     mp_DeleteBtn->setSizePolicy(QSizePolicy::Expanding,
                                 QSizePolicy::Fixed);
     mp_LineEditLayout->addWidget(mp_DeleteBtn);
     mp_LineEditWidget->setFixedSize(m_LineEditWidgetW, m_LineEditWidgetH);
+    mp_LineEdit->setCursorPosition(0);
+}
 
+/****************************************************************************/
+/*!
+ *  \brief Create and initialize base layout on which other layouts are laid
+ */
+/****************************************************************************/
+void CKeyBoard::CreateBaseLayout()
+{
     mp_KeyTrayBackGround = new CRoundWidget(GetContentFrame());
     mp_KeyTrayBackGround->setFixedSize(m_KeyTrayWidth, m_KeyTrayHeight);
     mp_KeyTrayBackGround->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -187,79 +298,42 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     }
     mp_KeyBoardBaseLayout->setContentsMargins(m_MainMarginLeft, m_MainMarginTop,
                                            m_MainMarginRight, m_MainMarginBottom);
-    CreateKeyboard();
-    QApplication::setCursorFlashTime(0);//This stops cursor blinking.
+}
 
+/****************************************************************************/
+/*!
+ *  \brief Connects the Button's clicked signals to the required slots
+ */
+/****************************************************************************/
+void CKeyBoard::ConnectButtons()
+{
     //Connect the signals from buttons to signal mapper, further to the button clicked
     //slot.
     m_ButtonList = findChildren<CKeyBoardButton *>();
     mp_ClickedMapper = new QSignalMapper(this);
     for (int i = 0;i < m_ButtonList.count(); i++) {
-        CONNECTSIGNALSLOT(m_ButtonList.at(i), clicked(), mp_ClickedMapper, map());
+        CONNECTSIGNALSLOT(m_ButtonList.at(i), Buttonclicked(), mp_ClickedMapper, map());
         mp_ClickedMapper->setMapping(m_ButtonList.at(i), i);
     }
-    CONNECTSIGNALSLOT(mp_ClickedMapper, mapped(int), this, BtnClicked(int));
+    CONNECTSIGNALSLOT(mp_ClickedMapper, mapped(int), this, OnButtonClicked(int));
 
     mp_PressedMapper = new QSignalMapper(this);
-    for (int I = 1; I < 31; I++) {
+    for (int I = 1; I < (TOTAL_KEYS - 5); I++) { // Subtracting 5 because those keys are directly connected.
            CONNECTSIGNALSLOT(m_ButtonList.at(I), PressAndHold(), mp_PressedMapper, map());
            mp_PressedMapper->setMapping(m_ButtonList.at(I), I);
     }
     CONNECTSIGNALSLOT(mp_PressedMapper, mapped(int), this, PressAndHold(int));
-
-    //The below lines where added because ,setting focus to lineedit used to select
-    //the text in lineedit when text was set using SetLineEditContent()function , even
-    // QLineEdit's deselect function didnt work.
-    mp_LineEdit->setCursorPosition(0);
-    mp_LineEdit->setText(tr("Dummy"));
-    mp_LineEdit->clear();
-}
-
- /****************************************************************************/
- /*!
-  *  \brief Destructor
-  */
- /****************************************************************************/
-CKeyBoard::~CKeyBoard()
-{
-    try {
-        if(mp_SubSpeller) {
-            delete mp_SubSpeller;
-        }
-        while(!m_ButtonList.isEmpty()) {
-            delete m_ButtonList.takeFirst();
-        }
-        delete mp_RegValidator;
-        delete mp_EscLayout;
-        delete mp_ZxcdLayout;
-        delete mp_AsdfLayout;
-        delete mp_QwertyLayout;
-        delete mp_BaseKeyLayout;
-        delete mp_PressedMapper;
-        delete mp_ClickedMapper;
-        delete mp_KeyTrayBackGround;
-        delete mp_LineEditLayout;
-        delete mp_LineEditWidget;
-        delete mp_KeyBoardBaseLayout;        
-        /// Please don't delete the below statement
-        /// this check is required in the Detach() function
-        mp_LineEditLayout = NULL;
-        Detach();
-    }
-    catch (...) {
-        // to please Lint.
-    }
 }
 
 /****************************************************************************/
 /*!
  *  \brief This function is used to display asterisks when in password mode
+ *  \iparam Mode - True to show asterix , else false for normal character display
  */
 /****************************************************************************/
-
 void CKeyBoard::SetPasswordMode(bool Mode)
 {
-    if(Mode){
+    if (Mode) {
         mp_LineEdit->setEchoMode(QLineEdit::Password);
     }
     else {
@@ -275,29 +349,32 @@ void CKeyBoard::SetPasswordMode(bool Mode)
 /****************************************************************************/
 void CKeyBoard::KeyBoardReset()
 {
-    m_Counter = 0;
+    m_ShiftKeyPressCounter = 0;
     m_PreviouCount = 0;
     m_IsCaps = false;
     m_BtnClicked = false;
     m_ShiftCaps = false;
     m_SubSpellerClicked = false;
+    m_DisplayNumericKeypadAtStart = false;
+    m_EnableInternalValidation = true;
+    m_EnteredCharsValid = true;
+    m_MaxEnteredCharLen = DEFAULT_MAX_LENGTH_OF_CHARS;
+    m_MinEnteredCharLen = DEFAULT_MIN_LENGTH_OF_CHARS;
     SetCaps(false);
-    if (m_EnteredCharsValid) {
-        Detach();
-    }
+    mp_LineEdit->clear();
+    mp_LineEdit->setInputMask("");
+    mp_LineEdit->setValidator(NULL);
 }
-
 
 /****************************************************************************/
 /*!
  *  \brief This slot is called if there is a press and hold on a button
  *
- *  \iparam Btn value of the button
+ *  \iparam Button =  value of the button
  */
 /****************************************************************************/
-void CKeyBoard::CreateSubSpeller(int Btn)
+void CKeyBoard::CreateSubSpeller(int Button)
 {
-    ;
     qint16 Offset = 0;
     qint16 Index = 0;
     bool SubSpeller = false;
@@ -305,36 +382,36 @@ void CKeyBoard::CreateSubSpeller(int Btn)
         delete mp_SubSpeller;
         mp_SubSpeller = 0;
     }
-    qint16 AsciiVal = m_ButtonList.at(Btn)->GetText1().at(0).toAscii();
+    qint16 AsciiVal = m_ButtonList.at(Button)->GetPrimaryText().at(0).toAscii();
     if(m_ShiftCaps == false) {
         //LowerCase
-        if (((AsciiVal >= 97) && (AsciiVal <= 122))) {
+        if (((AsciiVal >= ASCII_a) && (AsciiVal <= ASCII_z))) {
             Offset = 0;
-            Index = AsciiVal - 97;
+            Index = AsciiVal - ASCII_a;
             SubSpeller = true;
         }
-        else if ((AsciiVal == 44) ||(AsciiVal == 46)) {
-            Offset = 26;
-            Index = ((AsciiVal - 44) == 2) ? 1 :0;
+        else if ((AsciiVal == ASCII_COMMA) ||(AsciiVal == ASCII_DOT)) {
+            Offset = ENGLISH_ALPHABET_COUNT;
+            Index = ((AsciiVal - ASCII_COMMA) == 2) ? 1 :0;
             SubSpeller = true;
         }
     }
     else {
         //Upper case
-        if ((AsciiVal >= 65) && (AsciiVal <= 90)) {
-            Offset = 28;
-            Index = AsciiVal - 65;
+        if ((AsciiVal >= ASCII_A) && (AsciiVal <= ASCII_Z)) {
+            Offset = TOTAL_KEYS_USING_SUBSPELLER;
+            Index = AsciiVal - ASCII_A;
             SubSpeller = true;
         }
-        else if ((AsciiVal == 44) ||(AsciiVal == 46)) {
-            Offset = 54;
-            Index = ((AsciiVal - 44) == 2) ? 1 :0;
+        else if ((AsciiVal == ASCII_COMMA) ||(AsciiVal == ASCII_DOT)) {
+            Offset = (TOTAL_KEYS_USING_SUBSPELLER * 2) - 2; // multiplied by 2 , because of upper and lower case character, subtracted by 2 for "." & ","
+            Index = ((AsciiVal - ASCII_COMMA) == 2) ? 1 :0;
             SubSpeller = true;
         }
     }
 
     if (SubSpeller == true) {
-        mp_SubSpeller = new CSubSpeller(this, m_ButtonList.at(Btn), Offset, Index, m_Model, m_KeyBoardType);
+        mp_SubSpeller = new CSubSpeller(this, m_ButtonList.at(Button), Offset, Index, m_Model, m_KeyBoardType);
         mp_SubSpeller->setWindowModality(Qt::ApplicationModal);
         mp_SubSpeller->show();
         CONNECTSIGNALSLOT(mp_SubSpeller, SubSpellerClicked(), this, SubSpellerClicked());
@@ -346,13 +423,13 @@ void CKeyBoard::CreateSubSpeller(int Btn)
 /*!
  *  \brief This slot is called if there is a press and hold on a button
  *
- *  \iparam Btn value of the button
+ *  \iparam Button value of the button
  */
 /****************************************************************************/
-void CKeyBoard::PressAndHold(int Btn)
+void CKeyBoard::PressAndHold(int Button)
 {
-    if(!m_AltToggled) {
-        CreateSubSpeller(Btn);
+    if(!m_NumericMode) {
+        CreateSubSpeller(Button);
     }
 }
 
@@ -364,10 +441,11 @@ void CKeyBoard::PressAndHold(int Btn)
 void CKeyBoard::SubSpellerClicked()
 {
     m_SubSpellerClicked = true;
-    //if shift was pressed previously then reset the keys back to lower case.
-    if ((!m_IsCaps) && (m_Shift == true) && (!m_AltToggled)) {
+    //if shift was pressed previously & keyboard is not displaying numeric keys
+    //then reset the keys back to lower case.
+    if ((!m_IsCaps) && (m_Shift == true) && (!m_NumericMode)) {
         SetCaps(false);
-        m_Counter = 0;
+        m_ShiftKeyPressCounter = 0;
     }
     m_Shift = false;
 }
@@ -376,41 +454,39 @@ void CKeyBoard::SubSpellerClicked()
 /*!
  *  \brief This slot is called when one of the Button is pressed
  *
- *  \iparam Btn value of the button
+ *  \iparam Button value of the button
  */
 /****************************************************************************/
-void CKeyBoard::BtnClicked(int Btn)
+void CKeyBoard::OnButtonClicked(int Button)
 {
-    QString StrKeyId = m_ButtonList.at(Btn)->accessibleName();
+    QString StrKeyId = m_ButtonList.at(Button)->accessibleName();
     bool Isok;
     int KeyId = StrKeyId.toInt(&Isok,16);
     QString KeyChar;
 
     switch (KeyId) {
-	//TODO : Check if switch is better than if else?
         default:
             break;
         case Qt::Key_Shift:
-            m_Counter++;
-            if(m_Counter == 2) {
+            m_ShiftKeyPressCounter++;
+            if(m_ShiftKeyPressCounter == 2) {
                 //CAPS LOCK
                 m_IsCaps = true;
-                m_Counter = 0;
+                m_ShiftKeyPressCounter = 0;
                 SetCaps(true);
                 m_PreviouCount = 2;
             }
             else {
                 if ((m_PreviouCount != 2) && (m_PreviouCount !=1)) {
-                    qDebug("Shift toggle");
                     SetCaps(!m_IsCaps);
                 }
                 else if (m_PreviouCount == 2){
+                    //No more CAPS LOCK
                     SetCaps(false);
-                    m_PreviouCount = m_Counter;
-                    m_Counter = 0;
+                    m_PreviouCount = m_ShiftKeyPressCounter;
+                    m_ShiftKeyPressCounter = 0;
                 }
                 else {
-                    qDebug("Shift");
                     SetCaps(true);
                 }
                 m_Shift = true;
@@ -418,10 +494,9 @@ void CKeyBoard::BtnClicked(int Btn)
             }
             return;
         case Qt::Key_Alt:
-            return;
-
         case Qt::Key_Escape:
         case Qt::Key_Enter:
+        //nothing to display for the above keys
             return;
 
         case Qt::Key_Backspace:
@@ -433,30 +508,30 @@ void CKeyBoard::BtnClicked(int Btn)
         case Qt::Key_Right:
             mp_LineEdit->cursorForward(false, 1);
             //If Shift was clicked previously and a key is pressed then reset keys back to lowercase
-        reset:if ((!m_IsCaps) && (m_Shift == true) && (!m_AltToggled)) {
+        reset:if ((!m_IsCaps) && (m_Shift == true) && (!m_NumericMode)) {
                 SetCaps(false);
-                m_Counter = 0;
+                m_ShiftKeyPressCounter = 0;
             }
             return;
     }
-
+    //Flow has reached here means its not keyboard modfier like shift/backspace etc it a alphabet/number
     //Check the mode of keyboard, alphabet mode or special char mode
-    if(!m_AltToggled) {
-        KeyChar = m_ButtonList.at(Btn)->GetText1();
+    if(!m_NumericMode) {
+        KeyChar = m_ButtonList.at(Button)->GetPrimaryText();
     }
     else {
-        KeyChar = m_ButtonList.at(Btn)->GetText2();
+        KeyChar = m_ButtonList.at(Button)->GetSecondaryText();
     }
 
-    if (KeyId == Qt::Key_Space) {
+    if (KeyId == static_cast<int>(Qt::Key_Space)) {
             KeyChar = " ";
     }
     //Replaced KeyEvent and SendEvent with Insert.Gave better performance
     mp_LineEdit->insert(KeyChar);
     if (m_Shift) {
-        if ((!m_IsCaps) && (!m_AltToggled)) {
+        if ((!m_IsCaps) && (!m_NumericMode)) {
             SetCaps(false);
-            m_Counter = 0;
+            m_ShiftKeyPressCounter = 0;
         }
     }
     m_Shift = false;
@@ -464,117 +539,130 @@ void CKeyBoard::BtnClicked(int Btn)
 
 /****************************************************************************/
 /*!
- *  \brief This slot is called when alphanumeric key is toggled
+ *  \brief This slot is called either when the "#...@" key is toggled  or when
+ *         Keyboard needs to startup with Numeric keypad , e.g. to enter IP
+ *         address
  *
- *  \iparam Checked toggles b/w true and false
+ *  \iparam Checked = True for Numeric Keypad, false for Normal Keypad
  */
 /****************************************************************************/
-void CKeyBoard::AltToggled(bool Checked)
+void CKeyBoard::SetNumericMode(bool Checked)
 {
-    m_AltToggled = Checked;
-    if (Checked) {
-        m_ButtonList.at(20)->setAccessibleName("0x60");
-        m_ButtonList.at(30)->setAccessibleName("0x1");//dummy name for ESC
+    static int Count = 0;
+    if (m_DisplayNumericKeypadAtStart && (!Count)) {
+        Count++;
+        m_ButtonList.at(LETTER_ABC_INDEX)->SetToggledState(true);
+    }
+    m_NumericMode = Checked;
+    if (m_NumericMode) {
+        // Added below check to change keys from uppercase to lower case incase
+        // "Shift" key was pressed before "#...@".
+        if (m_ShiftKeyPressCounter == 1) {
+            m_ShiftKeyPressCounter = 0;
+            SetCaps(false);
+        }
+        m_ButtonList.at(LETTER_SHIFT_INDEX)->setAccessibleName("0x60");
+        m_ButtonList.at(LETTER_ESC_INDEX)->setAccessibleName("0x1");//dummy name for ESC
     }
     else {
         //Shift Key
-        m_ButtonList.at(20)->setAccessibleName("0x01000020");
-        m_ButtonList.at(30)->setAccessibleName("0x01000000");
+        m_ButtonList.at(LETTER_SHIFT_INDEX)->setAccessibleName(SHIFT_ACCESSIBLE_NAME);
+        m_ButtonList.at(LETTER_ESC_INDEX)->setAccessibleName(ESC_ACCESSIBLE_NAME);
     }
-    MoveCharacters(Checked);
+    MoveCharacters(m_NumericMode);
     for (qint16 X = 1;X < 32 ; X++) {
-        m_ButtonList.at(X)->IsAlpha(!Checked);
+        m_ButtonList.at(X)->SetAlphabetMode(!m_NumericMode);
         m_ButtonList.at(X)->update();
     }
- }
+}
 
 /****************************************************************************/
 /*!
- *  \brief This function is called to  set Button labels to caps
+ *  \brief This function is called to  set Button labels to upper case
  *
- *  \iparam IsCaps True- Set CAPS
+ *  \iparam IsCaps = true- make characters upper case, else lower case
  */
 /****************************************************************************/
 void CKeyBoard::SetCaps(bool IsCaps) {
-    QString String = QChar(176);
+    QString DegreeSymbolString = QChar(DEGREE_SYMBOL_ASCII_CODE);
     if (IsCaps == true) {
         m_ShiftCaps = true;
-        m_ButtonList.at(1)->SetText("Q", "1");
-        m_ButtonList.at(2)->SetText("W", "2");
-        m_ButtonList.at(3)->SetText("E", "3");
-        m_ButtonList.at(4)->SetText("R", "4");
-        m_ButtonList.at(5)->SetText("T", "5");
+        m_ButtonList.at(LETTER_Q_INDEX)->SetText("Q", "1");
+        m_ButtonList.at(LETTER_W_INDEX)->SetText("W", "2");
+        m_ButtonList.at(LETTER_E_INDEX)->SetText("E", "3");
+        m_ButtonList.at(LETTER_R_INDEX)->SetText("R", "4");
+        m_ButtonList.at(LETTER_T_INDEX)->SetText("T", "5");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
-            m_ButtonList.at(6)->SetText("Y", "6");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("Y", "6");
         }
         else {
-            m_ButtonList.at(6)->SetText("Z", "6");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("Z", "6");
         }
-        m_ButtonList.at(7)->SetText("U", "7");
-        m_ButtonList.at(8)->SetText("I", "8");
-        m_ButtonList.at(9)->SetText("O", "9");
-        m_ButtonList.at(10)->SetText("P", "0");
-        m_ButtonList.at(11)->SetText("A", "!");
-        m_ButtonList.at(12)->SetText("S", "@");
-        m_ButtonList.at(13)->SetText("D", "#");
-        m_ButtonList.at(14)->SetText("F", "$");
-        m_ButtonList.at(15)->SetText("G", "%");
-        m_ButtonList.at(16)->SetText("H", "&");
-        m_ButtonList.at(17)->SetText("J", "*");
-        m_ButtonList.at(18)->SetText("K", "?");
-        m_ButtonList.at(19)->SetText("L", "/");
+        m_ButtonList.at(LETTER_U_INDEX)->SetText("U", "7");
+        m_ButtonList.at(LETTER_I_INDEX)->SetText("I", "8");
+        m_ButtonList.at(LETTER_O_INDEX)->SetText("O", "9");
+        m_ButtonList.at(LETTER_P_INDEX)->SetText("P", "0");
+        m_ButtonList.at(LETTER_A_INDEX)->SetText("A", "!");
+        m_ButtonList.at(LETTER_S_INDEX)->SetText("S", "@");
+        m_ButtonList.at(LETTER_D_INDEX)->SetText("D", "#");
+        m_ButtonList.at(LETTER_F_INDEX)->SetText("F", "$");
+        m_ButtonList.at(LETTER_G_INDEX)->SetText("G", "%");
+        m_ButtonList.at(LETTER_H_INDEX)->SetText("H", "&");
+        m_ButtonList.at(LETTER_J_INDEX)->SetText("J", "*");
+        m_ButtonList.at(LETTER_K_INDEX)->SetText("K", "?");
+        m_ButtonList.at(LETTER_L_INDEX)->SetText("L", "/");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
-            m_ButtonList.at(21)->SetText("Z", "~");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("Z", "~");
         }
         else {
-            m_ButtonList.at(21)->SetText("Y", "~");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("Y", "~");
         }
-        m_ButtonList.at(22)->SetText("X", "\"");
-        m_ButtonList.at(23)->SetText("C", String);
-        m_ButtonList.at(24)->SetText("V", "(");
-        m_ButtonList.at(25)->SetText("B", ")");
-        m_ButtonList.at(26)->SetText("N", "-");
-        m_ButtonList.at(27)->SetText("M", "_");
+        m_ButtonList.at(LETTER_X_INDEX)->SetText("X", "\"");
+        m_ButtonList.at(LETTER_C_INDEX)->SetText("C", DegreeSymbolString);
+        m_ButtonList.at(LETTER_V_INDEX)->SetText("V", "(");
+        m_ButtonList.at(LETTER_B_INDEX)->SetText("B", ")");
+        m_ButtonList.at(LETTER_N_INDEX)->SetText("N", "-");
+        m_ButtonList.at(LETTER_M_INDEX)->SetText("M", "_");
 
     }
     else {
         m_ShiftCaps = false;
-        m_ButtonList.at(1)->SetText("q", "1");
-        m_ButtonList.at(2)->SetText("w", "2");
-        m_ButtonList.at(3)->SetText("e", "3");
-        m_ButtonList.at(4)->SetText("r", "4");
-        m_ButtonList.at(5)->SetText("t", "5");
+        m_ButtonList.at(LETTER_Q_INDEX)->SetText("q", "1");
+        m_ButtonList.at(LETTER_W_INDEX)->SetText("w", "2");
+        m_ButtonList.at(LETTER_E_INDEX)->SetText("e", "3");
+        m_ButtonList.at(LETTER_R_INDEX)->SetText("r", "4");
+        m_ButtonList.at(LETTER_T_INDEX)->SetText("t", "5");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
-            m_ButtonList.at(6)->SetText("y", "6");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("y", "6");
         }
         else {
-            m_ButtonList.at(6)->SetText("z", "6");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("z", "6");
         }
-        m_ButtonList.at(7)->SetText("u", "7");
-        m_ButtonList.at(8)->SetText("i", "8");
-        m_ButtonList.at(9)->SetText("o", "9");
-        m_ButtonList.at(10)->SetText("p", "0");
-        m_ButtonList.at(11)->SetText("a", "!");
-        m_ButtonList.at(12)->SetText("s", "@");
-        m_ButtonList.at(13)->SetText("d", "#");
-        m_ButtonList.at(14)->SetText("f", "$");
-        m_ButtonList.at(15)->SetText("g", "%");
-        m_ButtonList.at(16)->SetText("h", "&");
-        m_ButtonList.at(17)->SetText("j", "*");
-        m_ButtonList.at(18)->SetText("k", "?");
-        m_ButtonList.at(19)->SetText("l", "/");
+        m_ButtonList.at(LETTER_U_INDEX)->SetText("u", "7");
+        m_ButtonList.at(LETTER_I_INDEX)->SetText("i", "8");
+        m_ButtonList.at(LETTER_O_INDEX)->SetText("o", "9");
+        m_ButtonList.at(LETTER_P_INDEX)->SetText("p", "0");
+        m_ButtonList.at(LETTER_A_INDEX)->SetText("a", "!");
+        m_ButtonList.at(LETTER_S_INDEX)->SetText("s", "@");
+        m_ButtonList.at(LETTER_D_INDEX)->SetText("d", "#");
+        m_ButtonList.at(LETTER_F_INDEX)->SetText("f", "$");
+        m_ButtonList.at(LETTER_G_INDEX)->SetText("g", "%");
+        m_ButtonList.at(LETTER_H_INDEX)->SetText("h", "&");
+        m_ButtonList.at(LETTER_J_INDEX)->SetText("j", "*");
+        m_ButtonList.at(LETTER_K_INDEX)->SetText("k", "?");
+        m_ButtonList.at(LETTER_L_INDEX)->SetText("l", "/");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
-            m_ButtonList.at(21)->SetText("z", "~");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("z", "~");
         }
         else {
-            m_ButtonList.at(21)->SetText("y", "~");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("y", "~");
         }
-        m_ButtonList.at(22)->SetText("x", "\"");
-        m_ButtonList.at(23)->SetText("c", String);
-        m_ButtonList.at(24)->SetText("v", "(");
-        m_ButtonList.at(25)->SetText("b", ")");
-        m_ButtonList.at(26)->SetText("n", "-");
-        m_ButtonList.at(27)->SetText("m", "_");
+        m_ButtonList.at(LETTER_X_INDEX)->SetText("x", "\"");
+        m_ButtonList.at(LETTER_C_INDEX)->SetText("c", DegreeSymbolString);
+        m_ButtonList.at(LETTER_V_INDEX)->SetText("v", "(");
+        m_ButtonList.at(LETTER_B_INDEX)->SetText("b", ")");
+        m_ButtonList.at(LETTER_N_INDEX)->SetText("n", "-");
+        m_ButtonList.at(LETTER_M_INDEX)->SetText("m", "_");
     }
 
     for(qint16 X = 1;X < 32 ; X++) {
@@ -586,7 +674,7 @@ void CKeyBoard::SetCaps(bool IsCaps) {
 /*!
  *  \brief This function sets KeyBoard Type
  *
- *  \iparam m_KeyBoardType QWERTY/QWERTZ KeyBoard.
+ *  \iparam KeyBoardType = QWERTY/QWERTZ KeyBoard.
  */
 /****************************************************************************/
 void CKeyBoard::SetKeyBoardType(KeyBoard::KeyBoardType_t KeyBoardType)
@@ -595,27 +683,27 @@ void CKeyBoard::SetKeyBoardType(KeyBoard::KeyBoardType_t KeyBoardType)
     m_KeyBoardType = KeyBoardType ;
     if (KeyBoardType == QWERTY_KEYBOARD ) {
         if (m_IsCaps || m_ShiftCaps) {
-            m_ButtonList.at(6)->SetText("Y", "6");
-            m_ButtonList.at(21)->SetText("Z", "~");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("Y", "6");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("Z", "~");
         }
         else {
-            m_ButtonList.at(6)->SetText("y", "6");
-            m_ButtonList.at(21)->SetText("z", "~");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("y", "6");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("z", "~");
         }
     }
     else {
         //QWERTZ_KEYBOARD
         if (m_IsCaps || m_ShiftCaps) {
-            m_ButtonList.at(6)->SetText("Z", "6");
-            m_ButtonList.at(21)->SetText("Y", "~");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("Z", "6");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("Y", "~");
         }
         else {
-            m_ButtonList.at(6)->SetText("z", "6");
-            m_ButtonList.at(21)->SetText("y", "~");
+            m_ButtonList.at(LETTER_Y_INDEX)->SetText("z", "6");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("y", "~");
         }
     }
-    m_ButtonList.at(6)->update();
-    m_ButtonList.at(21)->update();
+    m_ButtonList.at(LETTER_Y_INDEX)->update();
+    m_ButtonList.at(LETTER_Z_INDEX)->update();
 }
 
 /****************************************************************************/
@@ -626,63 +714,61 @@ void CKeyBoard::SetKeyBoardType(KeyBoard::KeyBoardType_t KeyBoardType)
  */
 /****************************************************************************/
 void CKeyBoard::MoveCharacters(bool Checked) {
+    QString DegreeSymbolString = QChar(DEGREE_SYMBOL_ASCII_CODE);
     if (Checked) {
-        m_ButtonList.at(20)->SetText("Shift", "~");
+        m_ButtonList.at(LETTER_SHIFT_INDEX)->SetText("Shift", "~");
         if (m_KeyBoardType == QWERTY_KEYBOARD) {
-            m_ButtonList.at(21)->SetText("Z", "\"");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("Z", "\"");
         }
         else {
-            m_ButtonList.at(21)->SetText("Y", "\"");
+            m_ButtonList.at(LETTER_Z_INDEX)->SetText("Y", "\"");
         }
-        QString String = QChar(176);
-        m_ButtonList.at(22)->SetText("X", String);
-        m_ButtonList.at(23)->SetText("C", "(");
-        m_ButtonList.at(24)->SetText("V", ")");
-        m_ButtonList.at(25)->SetText("B", "-");
-        m_ButtonList.at(26)->SetText("N", "_");
-        m_ButtonList.at(27)->SetText("M", ";");
-        m_ButtonList.at(28)->SetText(",", ":");
-        m_ButtonList.at(29)->SetText(".", ",");
-        m_ButtonList.at(30)->SetText("", ".");
+        m_ButtonList.at(LETTER_X_INDEX)->SetText("X", DegreeSymbolString);
+        m_ButtonList.at(LETTER_C_INDEX)->SetText("C", "(");
+        m_ButtonList.at(LETTER_V_INDEX)->SetText("V", ")");
+        m_ButtonList.at(LETTER_B_INDEX)->SetText("B", "-");
+        m_ButtonList.at(LETTER_N_INDEX)->SetText("N", "_");
+        m_ButtonList.at(LETTER_M_INDEX)->SetText("M", ";");
+        m_ButtonList.at(LETTER_COMMA_INDEX)->SetText(",", ":");
+        m_ButtonList.at(LETTER_DOT_INDEX)->SetText(".", ",");
+        m_ButtonList.at(LETTER_ESC_INDEX)->SetText("", ".");
     }
     else {
         if (m_ShiftCaps) {
-            m_ButtonList.at(20)->SetText("Shift", "");
+            m_ButtonList.at(LETTER_SHIFT_INDEX)->SetText("Shift", "");
             if (m_KeyBoardType == QWERTY_KEYBOARD) {
-                m_ButtonList.at(21)->SetText("Z", "~");
+                m_ButtonList.at(LETTER_Z_INDEX)->SetText("Z", "~");
             }
             else {
-                m_ButtonList.at(21)->SetText("Y", "~");
+                m_ButtonList.at(LETTER_Z_INDEX)->SetText("Y", "~");
             }
-            m_ButtonList.at(22)->SetText("X", "\"");
-            QString String = QChar(176);
-            m_ButtonList.at(23)->SetText("C", String);
-            m_ButtonList.at(24)->SetText("V", "(");
-            m_ButtonList.at(25)->SetText("B", ")");
-            m_ButtonList.at(26)->SetText("N", "-");
-            m_ButtonList.at(27)->SetText("M", "_");
-            m_ButtonList.at(28)->SetText(",", ";");
-            m_ButtonList.at(29)->SetText(".", ":");
-            m_ButtonList.at(30)->SetText("ESC", "");
+            m_ButtonList.at(LETTER_X_INDEX)->SetText("X", "\"");
+            m_ButtonList.at(LETTER_C_INDEX)->SetText("C", DegreeSymbolString);
+            m_ButtonList.at(LETTER_V_INDEX)->SetText("V", "(");
+            m_ButtonList.at(LETTER_B_INDEX)->SetText("B", ")");
+            m_ButtonList.at(LETTER_N_INDEX)->SetText("N", "-");
+            m_ButtonList.at(LETTER_M_INDEX)->SetText("M", "_");
+            m_ButtonList.at(LETTER_COMMA_INDEX)->SetText(",", ";");
+            m_ButtonList.at(LETTER_DOT_INDEX)->SetText(".", ":");
+            m_ButtonList.at(LETTER_ESC_INDEX)->SetText("ESC", "");
         }
         else {
-            m_ButtonList.at(20)->SetText("Shift", "");
+            m_ButtonList.at(LETTER_SHIFT_INDEX)->SetText("Shift", "");
             if (m_KeyBoardType == QWERTY_KEYBOARD) {
-                m_ButtonList.at(21)->SetText("z", "~");
+                m_ButtonList.at(LETTER_Z_INDEX)->SetText("z", "~");
             }
             else {
-                m_ButtonList.at(21)->SetText("y", "~");
+                m_ButtonList.at(LETTER_Z_INDEX)->SetText("y", "~");
             }
-            m_ButtonList.at(22)->SetText("x", "\"");
-            QString String = QChar(176);
-            m_ButtonList.at(23)->SetText("c", String);
-            m_ButtonList.at(24)->SetText("v", "(");
-            m_ButtonList.at(25)->SetText("b", ")");
-            m_ButtonList.at(26)->SetText("n", "-");
-            m_ButtonList.at(27)->SetText("m", "_");
-            m_ButtonList.at(28)->SetText(",", ";");
-            m_ButtonList.at(29)->SetText(".", ":");
-            m_ButtonList.at(30)->SetText("ESC", "");
+            m_ButtonList.at(LETTER_X_INDEX)->SetText("x", "\"");
+            m_ButtonList.at(LETTER_C_INDEX)->SetText("c", DegreeSymbolString);
+            m_ButtonList.at(LETTER_V_INDEX)->SetText("v", "(");
+            m_ButtonList.at(LETTER_B_INDEX)->SetText("b", ")");
+            m_ButtonList.at(LETTER_N_INDEX)->SetText("n", "-");
+            m_ButtonList.at(LETTER_M_INDEX)->SetText("m", "_");
+            m_ButtonList.at(LETTER_COMMA_INDEX)->SetText(",", ";");
+            m_ButtonList.at(LETTER_DOT_INDEX)->SetText(".", ":");
+            m_ButtonList.at(LETTER_ESC_INDEX)->SetText("ESC", "");
         }
     }
 }
@@ -690,19 +776,14 @@ void CKeyBoard::MoveCharacters(bool Checked) {
 /****************************************************************************/
 /*!
  *  \brief This function returns the string present in lineEdit
- *
+ *  \return Returns string entered by user
  */
 /****************************************************************************/
 QString CKeyBoard::GetLineEditString()
 {
-    // Added simplified method to remove unnecessary spaces in the entered text.
+    // Added simplified method to remove white spaces in the entered text.
     m_LineEditString = mp_LineEdit->text().simplified();
-    mp_LineEdit->clear();
-    hide();
-    KeyBoardReset();
-    AltToggled(false);
     return m_LineEditString;
-
 }
 
 /****************************************************************************/
@@ -712,56 +793,46 @@ QString CKeyBoard::GetLineEditString()
 /****************************************************************************/
 void CKeyBoard::EscClicked()
 {
-    if(m_ButtonList.at(30)->accessibleName() == "0x01000000") {
-       mp_LineEdit->clear();
+    if(m_ButtonList.at(LETTER_ESC_INDEX)->accessibleName() == ESC_ACCESSIBLE_NAME) {
        hide();
-       NotifyObserverOnESCClicked();
+       emit EscButtonClicked();
        KeyBoardReset();
-       AltToggled(false);
+       SetNumericMode(false);
     }
 }
 
-
-/****************************************************************************/
-/*!
- *  \brief This function is called to Notify the observers when ESC is clicked.
- */
-/****************************************************************************/
-void CKeyBoard::NotifyObserverOnESCClicked()
-{
-    for(qint32 I = 0; I < mp_KeyBoardObserver.size(); I++) {
-        mp_KeyBoardObserver[I]->UpdateOnESC();
-    }
-}
 /****************************************************************************/
 /*!
  *  \brief This function sets the dialog title of the keyboard
+ *  \iparam Title = Dialog title of the keyboard
  */
 /****************************************************************************/
 void CKeyBoard::SetKeyBoardDialogTitle(QString Title)
 {
-    SetDialogTitle(tr("%1").arg(Title));
+    SetDialogTitle(QString("%1").arg(Title));
 }
-
 
 /****************************************************************************/
 /*!
  *  \brief This function is called to create a new key on the keyboard
  *
- *  \iparam IconSize Large/small
  *  \iparam IconType Left/Center/Right
- *  \iparam BtnText1 Bottom left text on button
- *  \iparam BtnText2 Top left text on button
+ *  \iparam PrimaryText Bottom left text on button
+ *  \iparam SecondaryText Top left text on button
  *  \iparam IconPresent true -icon is present
  *  \iparam ButtonType
+ *  \return Created button
  */
 /****************************************************************************/
 CKeyBoardButton *CKeyBoard::CreateNewKey(QString IconType,
-    QString BtnText1,QString BtnText2,bool IconPresent, qint32 ButtonType)
+                                         QString PrimaryText,
+                                         QString SecondaryText,
+                                         bool IconPresent,
+                                         int ButtonType)
 {
-    CKeyBoardButton *TmpButton = new CKeyBoardButton(this, IconType,
-                                                     BtnText1, BtnText2, IconPresent, ButtonType);
-    return TmpButton;
+    //Memory management taken care by Qt Parent child mechanism. when KeyboardWidget
+    // is deleted all Button objects are deleted
+    return  (new CKeyBoardButton(this, IconType, PrimaryText, SecondaryText, IconPresent, static_cast<KeyBoard::ButtonType_t>(ButtonType)));
 }
 
 /****************************************************************************/
@@ -788,98 +859,98 @@ void CKeyBoard::CreateKeyboard()
                                          m_KeyTrayMarginRight, m_KeyTrayMarginBottom);//considered black shadows in png images
 
     mp_QwertyLayout->setSpacing(0);
-    mp_QwertyLayout->addWidget(CreateNewKey("Left", "q", "1", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "w", "2", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "e", "3", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "r", "4", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "t", "5", false, 0), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Left", "q", "1", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "w", "2", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "e", "3", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "r", "4", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "t", "5", false, KeyBoard::NORMAL_KEY), 1);
 
     if(m_KeyBoardType == QWERTY_KEYBOARD) {
-        mp_QwertyLayout->addWidget(CreateNewKey("Center", "y", "6",false, 0), 1);
+        mp_QwertyLayout->addWidget(CreateNewKey("Center", "y", "6",false, KeyBoard::NORMAL_KEY), 1);
     }
     else {
-        mp_QwertyLayout->addWidget(CreateNewKey("Center", "z", "6",false, 0), 1);
+        mp_QwertyLayout->addWidget(CreateNewKey("Center", "z", "6",false, KeyBoard::NORMAL_KEY), 1);
     }
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "u", "7", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "i", "8", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Center", "o", "9", false, 0), 1);
-    mp_QwertyLayout->addWidget(CreateNewKey("Right", "p", "0", false, 0), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "u", "7", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "i", "8", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Center", "o", "9", false, KeyBoard::NORMAL_KEY), 1);
+    mp_QwertyLayout->addWidget(CreateNewKey("Right", "p", "0", false, KeyBoard::NORMAL_KEY), 1);
 
 
     mp_AsdfLayout->addStretch(1);
     mp_AsdfLayout->setSpacing(0);
 
-    mp_AsdfLayout->addWidget(CreateNewKey("Left", "a", "!", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "s",  "@", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "d", "#", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "f", "$", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "g", "%", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "h", "&", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "j", "*", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Center", "k", "?", false, 0), 1);
-    mp_AsdfLayout->addWidget(CreateNewKey("Right", "l", "/", false, 0), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Left", "a", "!", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "s",  "@", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "d", "#", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "f", "$", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "g", "%", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "h", "&", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "j", "*", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Center", "k", "?", false, KeyBoard::NORMAL_KEY), 1);
+    mp_AsdfLayout->addWidget(CreateNewKey("Right", "l", "/", false, KeyBoard::NORMAL_KEY), 1);
     mp_AsdfLayout->addStretch(1);
 
     mp_ZxcdLayout->setSpacing(0);
-    CKeyBoardButton *p_TempButton = NULL;
-    p_TempButton = CreateNewKey("Left", "Shift", "~", true, 0x20);
-    mp_ZxcdLayout->addWidget(p_TempButton,0);
+    CKeyBoardButton *p_Button = NULL;
+    p_Button = CreateNewKey("Left", "Shift", "~", true, KeyBoard::SHIFT_LOCK);
+    mp_ZxcdLayout->addWidget(p_Button, 0);
     //Accessible names set according to  enum Qt::Key.Refer qt docs
-    p_TempButton->setAccessibleName("0x01000020");
+    p_Button->setAccessibleName(SHIFT_ACCESSIBLE_NAME);
     if (m_KeyBoardType == QWERTY_KEYBOARD) {
-        mp_ZxcdLayout->addWidget(CreateNewKey("Center", "z", "~", false, 0), 0);
+        mp_ZxcdLayout->addWidget(CreateNewKey("Center", "z", "~", false, KeyBoard::NORMAL_KEY), 0);
     }
     else {
-        mp_ZxcdLayout->addWidget(CreateNewKey("Center", "y", "~", false, 0), 0);
+        mp_ZxcdLayout->addWidget(CreateNewKey("Center", "y", "~", false, KeyBoard::NORMAL_KEY), 0);
     }
 
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "x", "\"", false, 0), 0);
-    QString String = QChar(176);//ASCII for degree sign
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center","c", String, false, 0), 0);
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "v", "(", false, 0), 0);
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "b", ")", false, 0), 0);
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "n", "-", false, 0), 0);
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "m", "_", false, 0), 0);
-    mp_ZxcdLayout->addWidget(CreateNewKey("Center", ",", ";", false, 0), 0);
-    mp_ZxcdLayout->addWidget(CreateNewKey("Right", ".", ":", false, 0), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "x", "\"", false, KeyBoard::NORMAL_KEY), 0);
+    QString String = QChar(DEGREE_SYMBOL_ASCII_CODE);//ASCII for degree sign
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center","c", String, false, KeyBoard::NORMAL_KEY), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "v", "(", false, KeyBoard::NORMAL_KEY), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "b", ")", false, KeyBoard::NORMAL_KEY), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "n", "-", false, KeyBoard::NORMAL_KEY), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center", "m", "_", false, KeyBoard::NORMAL_KEY), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Center", ",", ";", false, KeyBoard::NORMAL_KEY), 0);
+    mp_ZxcdLayout->addWidget(CreateNewKey("Right", ".", ":", false, KeyBoard::NORMAL_KEY), 0);
 
 
     mp_EscLayout->setSpacing(0);
-    p_TempButton = CreateNewKey("Left", "ESC", "", false, 8);
-    p_TempButton->setAccessibleName("0x01000000");
+    p_Button = CreateNewKey("Left", "ESC", "", false, KeyBoard::ESC);
+    p_Button->setAccessibleName(ESC_ACCESSIBLE_NAME);
     if (m_Model == KeyBoard::SIZE_2) {
-        p_TempButton->setMinimumWidth(68);
-        p_TempButton->setMaximumWidth(68);
+        p_Button->setMinimumWidth(68);
+        p_Button->setMaximumWidth(68);
     }
-    mp_EscLayout->addWidget(p_TempButton);
-    CONNECTSIGNALSLOT(p_TempButton,clicked(),this,EscClicked());
-    p_TempButton = CreateNewKey("Center", "#...@", "ABC", false, 2);
-    p_TempButton->setAccessibleName("0x01000023");
-    p_TempButton->setCheckable(true);
-    p_TempButton->setMaximumWidth(m_SpecialCharKeyWidth);
-    p_TempButton->setMinimumWidth(m_SpecialCharKeyWidth);
-    CONNECTSIGNALSLOT(p_TempButton,toggled(bool),this,AltToggled(bool));
-    mp_EscLayout->addWidget(p_TempButton);
+    mp_EscLayout->addWidget(p_Button);
+    CONNECTSIGNALSLOT(p_Button, Buttonclicked(),this,EscClicked());
+    p_Button = CreateNewKey("Center", "#...@", "ABC", false, KeyBoard::SPECIAL_CHAR);
+    p_Button->setAccessibleName(ALTERNATE_MODE_KEY_ACCESSIBLE_NAME);
+    p_Button->setCheckable(true);
+    p_Button->setMaximumWidth(m_SpecialCharKeyWidth);
+    p_Button->setMinimumWidth(m_SpecialCharKeyWidth);
+    CONNECTSIGNALSLOT(p_Button, toggled(bool), this, SetNumericMode(bool));
+    mp_EscLayout->addWidget(p_Button);
 
 
-    p_TempButton = CreateNewKey("Center", "", "", false, 1);
-    p_TempButton->setMaximumWidth(m_SpaceKeyWidth);
-    p_TempButton->setMinimumWidth(m_SpaceKeyWidth);
-    p_TempButton->setAccessibleName("0x20");
-    mp_EscLayout->addWidget(p_TempButton);
+    p_Button = CreateNewKey("Center", "", "", false, KeyBoard::SPACE);
+    p_Button->setMaximumWidth(m_SpaceKeyWidth);
+    p_Button->setMinimumWidth(m_SpaceKeyWidth);
+    p_Button->setAccessibleName(SPACE_ACCESSIBLE_NAME);
+    mp_EscLayout->addWidget(p_Button);
 
-    p_TempButton = CreateNewKey("Center", "CursorLeft", "", true, 0x40);
-    p_TempButton->setAccessibleName("0x01000012");
+    p_Button = CreateNewKey("Center", "CursorLeft", "", true, KeyBoard::CURSOR_LEFT);
+    p_Button->setAccessibleName(CURSOR_LEFT_ACCESSIBLE_NAME);
     if (m_Model == KeyBoard::SIZE_2) {
-       p_TempButton->setMinimumWidth(67);
-       p_TempButton->setMaximumWidth(67);
+       p_Button->setMinimumWidth(BUTTON_WIDTH);
+       p_Button->setMaximumWidth(BUTTON_WIDTH);
     }
-    mp_EscLayout->addWidget(p_TempButton);
-    p_TempButton = CreateNewKey("Center", "CursorRight", "", true, 0x80);
-    p_TempButton->setAccessibleName("0x01000014");
+    mp_EscLayout->addWidget(p_Button);
+    p_Button = CreateNewKey("Center", "CursorRight", "", true, KeyBoard::CURSOR_RIGHT);
+    p_Button->setAccessibleName(CURSOR_RIGHT_ACCESSIBLE_NAME);
     if (m_Model == KeyBoard::SIZE_2) {
-       p_TempButton->setMinimumWidth(67);
-       p_TempButton->setMaximumWidth(67);
+       p_Button->setMinimumWidth(BUTTON_WIDTH);
+       p_Button->setMaximumWidth(BUTTON_WIDTH);
        mp_DeleteBtn->setFixedSize(78, 71);
        mp_QwertyLayout->setContentsMargins(1, 0, 4, 0);
        mp_ZxcdLayout->setContentsMargins(1, 0, 4, 0);
@@ -887,88 +958,21 @@ void CKeyBoard::CreateKeyboard()
        mp_AsdfLayout->setContentsMargins(1, 0, 13, 0);
        mp_BaseKeyLayout->setSpacing(6);
     }
-    mp_EscLayout->addWidget(p_TempButton);
+    mp_EscLayout->addWidget(p_Button);
 
-    p_TempButton = CreateNewKey("Right", "OK", "", false, 4);
+    p_Button = CreateNewKey("Right", "OK", "", false, KeyBoard::OK);
     //Have set accessible name of "enter"
-    p_TempButton->setAccessibleName("0x01000005");
-    CONNECTSIGNALSLOT(p_TempButton, clicked(), this, OnOkClicked());
-    p_TempButton->setMinimumWidth(m_OkKeyWidht);
-    p_TempButton->setMaximumWidth(m_OkKeyWidht);
-    mp_EscLayout->addWidget(p_TempButton);
+    p_Button->setAccessibleName(OK_ACCESSIBLE_NAME);
+    CONNECTSIGNALSLOT(p_Button, Buttonclicked(), this, OnOkClicked());
+    p_Button->setMinimumWidth(m_OkKeyWidth);
+    p_Button->setMaximumWidth(m_OkKeyWidth);
+    mp_EscLayout->addWidget(p_Button);
 
     if (m_Model ==  KeyBoard::SIZE_1) {
-	mp_QwertyLayout->setContentsMargins(0, 0, 7, 0);
-	mp_ZxcdLayout->setContentsMargins(0, 0, 7,0);
+        mp_QwertyLayout->setContentsMargins(0, 0, 7, 0);
+        mp_ZxcdLayout->setContentsMargins(0, 0, 7,0);
         mp_EscLayout->setContentsMargins(0, 0, 7, 0);
         mp_AsdfLayout->setContentsMargins(0, 0, 24, 0);
-    }
-
-}
-
-/****************************************************************************/
-/*!
- *  \brief Event handler for change events
- *
- *  \iparam p_Event = Change event
- */
-/****************************************************************************/
-void CKeyBoard::changeEvent(QEvent *p_Event)
-{
-    QWidget::changeEvent(p_Event);
-    switch (p_Event->type()) {
-        case QEvent::LanguageChange:
-            //TODO :Get current language (Assuming a static member variable
-            //shall provide current language) and change KeyBoard type accordingly.
-            SetKeyBoardType(QWERTZ_KEYBOARD);
-            break;
-        default:
-            break;
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief This function is called to register the Observer. Note-Don't
- *         register more than observer.
- */
-/****************************************************************************/
-void CKeyBoard::Attach(KeyBoard::CKeyBoardObserver *p_KeyBoardObserver)
-{
-    mp_KeyBoardObserver.push_back(p_KeyBoardObserver);
-}
-
-/****************************************************************************/
-/*!
- *  \brief This function is called to unregister the Observers
- */
-/****************************************************************************/
-void CKeyBoard::Detach()
-{
-    for(qint32 I = 0; I < mp_KeyBoardObserver.size(); I++) {
-        if (!mp_KeyBoardObserver.isEmpty()) {
-            mp_KeyBoardObserver.pop_back();
-        }
-    }
-
-    /// Destructor deletes the line edit control and then detaches.
-    /// So to avoid memory voialation below statement is required
-    if (mp_LineEditLayout) {
-        // reset all the validations and input masks
-        mp_LineEdit->setInputMask("");
-        mp_LineEdit->setValidator(NULL);
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief This function is called to Notify the observers when OK is clicked.
- */
-/****************************************************************************/
-void CKeyBoard::NotifyObserver()
-{
-    for(qint32 I = 0; I < mp_KeyBoardObserver.size(); I++) {
-        mp_KeyBoardObserver[I]->Update();
     }
 }
 
@@ -979,131 +983,156 @@ void CKeyBoard::NotifyObserver()
 /****************************************************************************/
 void CKeyBoard::OnOkClicked()
 {
-  //  unsigned int EnteredCharLen = mp_LineEdit->text().length();
     QString EnteredText = mp_LineEdit->text();
-    ValidateString(EnteredText);
-    MainMenu::CMessageDlg MessageDlg(this);
-    MessageDlg.SetTitle(tr("Information Message"));
-    MessageDlg.SetIcon(QMessageBox::Information);
-    MessageDlg.SetButtonText(1, tr("Ok"));
-    MessageDlg.HideButtons();
-//    if (MessageDlg.exec()) {
-//        // to please Lint..
-//    }
-    qDebug()<<"After Validation";
-    mp_LineEdit->clear();
-    m_EnteredCharsValid = false;
-    KeyBoardReset();
-    AltToggled(false);
-    return;
+    if (m_EnableInternalValidation) {
+        m_EnteredCharsValid = ValidateString(EnteredText);
+        if (!m_EnteredCharsValid) {
+            mp_LineEdit->setSelection(0, EnteredText.length());
+            return;
+        }
+    }
+    //the flow has reached here means validation success or internal validation was disabled
+    //Call widget specific validation. The below emit signal would act as a call back function.
+    //If widget(which called keyboard) has implemented a validation function, that would be executed. The widget,on
+    //completion of validation must set m_EnteredCharsValid to true or false based on validation result.
+    emit ValidateEnteredString(EnteredText);
 
+    //m_EnteredCharsValid is true by default. If there is no widget specific Validation, then its assumed that
+    //string entered by user is valid .
+    if (m_EnteredCharsValid) {
+        emit OkButtonClicked(EnteredText);
+        //Hide & Reset Keyboard
+        hide();
+        m_ButtonList.at(LETTER_ABC_INDEX)->SetToggledState(false);
+        KeyBoardReset();
+        SetNumericMode(false);
+    }
+    else {
+        mp_LineEdit->setSelection(0, EnteredText.length());
+    }
 }
 
 /****************************************************************************/
 /*!
  *  \brief This function validates the input string from the keyboard.
+ *
+ *  \iparam InputString = Entered String from keyboard.
+ *  \return true if validation success , else false
  */
 /****************************************************************************/
-void CKeyBoard::ValidateString(QString InputString)
+bool CKeyBoard::ValidateString(QString InputString)
 {
-   // unsigned int EnteredCharLen = mp_LineEdit->text().length();
     unsigned int EnteredCharLen = InputString.length();
-    MainMenu::CMessageDlg MessageDlg(this);
-    MessageDlg.SetTitle(tr("Information Message"));
-    MessageDlg.SetIcon(QMessageBox::Information);
-    MessageDlg.SetButtonText(1, tr("Ok"));
-    MessageDlg.HideButtons();
-
-    if(InputString == "" ){
-        MessageDlg.SetText(QString(tr("The entered text is null.")));
-        MessageDlg.exec();
-        m_EnteredCharsValid = false ;
+    if (mp_MessageDlg) {
+        delete mp_MessageDlg;
+        mp_MessageDlg = NULL;
     }
-    else if(InputString.at(0) == ' ') {
-        MessageDlg.SetText(QString(tr("The first character must not be a space")));
-        MessageDlg.exec();
-        m_EnteredCharsValid = false ;
+    mp_MessageDlg = new MainMenu::CMessageDlg(this);
+    mp_MessageDlg->SetTitle(QApplication::translate("KeyBoard::CKeyBoard", "Information Message",
+                                                 0, QApplication::UnicodeUTF8));
+    mp_MessageDlg->SetIcon(QMessageBox::Information);
+   mp_MessageDlg->SetButtonText(1, QApplication::translate("KeyBoard::CKeyBoard", "Ok",
+                                                           0, QApplication::UnicodeUTF8));
+    mp_MessageDlg->HideButtons();
+
+    //Emtpy string not allowed
+    if (InputString == "") {
+        mp_MessageDlg->SetText(QApplication::translate("KeyBoard::CKeyBoard", "Please enter text",
+                                                     0, QApplication::UnicodeUTF8));
+        (void) mp_MessageDlg->exec();
+        return false;
     }
     else if (EnteredCharLen < m_MinEnteredCharLen) {
-        MessageDlg.SetText(QString(tr("The text you entered is too short. "
-                                      "The length must be at least %1.")
-                                   .arg(m_MinEnteredCharLen)));
-         MessageDlg.exec();
-         m_EnteredCharsValid = false ;
+        mp_MessageDlg->SetText(QApplication::translate("KeyBoard::CKeyBoard",
+        "The entered text is too short. The length must be at least %1 characters.",
+                        0, QApplication::UnicodeUTF8).arg(m_MinEnteredCharLen));
+         (void) mp_MessageDlg->exec();
+         return false;
     }
     else if (EnteredCharLen > m_MaxEnteredCharLen) {
-        MessageDlg.SetText(QString(tr("The text you entered is too long. "
-                                      "The length must not be greater than %1.")
-                                   .arg(m_MaxEnteredCharLen)));
-         MessageDlg.exec();
-         m_EnteredCharsValid = false ;
+        mp_MessageDlg->SetText(QApplication::translate("KeyBoard::CKeyBoard",
+        "The entered text is too long. The length must not be greater than %1 characters.",
+        0, QApplication::UnicodeUTF8).arg(m_MaxEnteredCharLen));
+         (void) mp_MessageDlg->exec();
+         return false;
     }
-    else {
-       switch(int (m_ValidationType)) {
-    case 1:
-            if(EnteredCharLen >= 2){
-                if(InputString.at(1) == ' ') {
-                    MessageDlg.SetText(QString(tr("The second element of the text must be a character")));
-                    MessageDlg.exec();
-                    m_EnteredCharsValid = false ;
-                }
-                else {
-                    m_EnteredCharsValid = true;
-                    NotifyObserver();
-                }
-            }
-            else {
-                m_EnteredCharsValid = true;
-                NotifyObserver();
-            }
-            break;
 
-    case 2:
-        if(m_MaxEnteredCharLen == 3) {
-            if(EnteredCharLen == 2){
-                if(InputString.at(1) == ' ') {
-                    MessageDlg.SetText(QString(tr("The second element of the text must be a character")));
-                    MessageDlg.exec();
-                    m_EnteredCharsValid = false ;
-                } else {
-                    m_EnteredCharsValid = true;
-                    NotifyObserver();
-                }
+    return true;
 
-            } else if(EnteredCharLen == m_MaxEnteredCharLen){
-                if(InputString.at(1) == ' ') {
-                    MessageDlg.SetText(QString(tr("The second element of the text must be a character")));
-                    MessageDlg.exec();
-                    m_EnteredCharsValid = false ;
-                } else if(InputString.at(2) == ' ') {
-                    MessageDlg.SetText(QString(tr("The third element of the text must be a character")));
-                    MessageDlg.exec();
-                    m_EnteredCharsValid = false ;
-                } else {
-                    m_EnteredCharsValid = true;
-                    NotifyObserver();
-                }
-            } else {
-                m_EnteredCharsValid = true ;
-            }
-            if(m_EnteredCharsValid) {
-                m_EnteredCharsValid = true;
-                NotifyObserver();
-            }
-        }
-        else {
-            m_EnteredCharsValid = true;
-            NotifyObserver();
-        }
-        break;
-    default:
-         m_EnteredCharsValid = true;
-         NotifyObserver();
-        break;
-    }
- }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief This slot is called when validation of string is completed.
+ *
+ *  \iparam ValidationResult =  True if validation is success else False.
+ */
+/****************************************************************************/
+void CKeyBoard::OnValidationComplete(const bool ValidationResult)
+{
+    if (ValidationResult == true) {
+        m_EnteredCharsValid = true;
+    }
+    else {
+        m_EnteredCharsValid = false;
+    }
+}
 
-/*****************************************************************************/
+/****************************************************************************/
+/*!
+ *  \brief This function is used to swithc between QWERTZ and QWERTY layout
+ *         based on layout change.
+ *  \iparam Language = e.g. "de" or "en"
+ */
+/****************************************************************************/
+void CKeyBoard::SwitchLayout(const QString Language)
+{
+    if (Language == "de") {
+        SetKeyBoardType(QWERTZ_KEYBOARD);
+    }
+    else {
+        SetKeyBoardType(QWERTY_KEYBOARD);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Set a regualar expression for validating entered text. Keyboard
+ *         will accept characters which match regular expression.
+ *  \iparam  RegExpForValidation = regular expression for validation
+ */
+/****************************************************************************/
+void CKeyBoard::SetLineEditValidatorExpression(const QString& RegExpForValidation) {
+    // "^[0-9]*$'
+    // ^ and $ is used for any character. * is used to enter multiple characters
+    // [0-9] is used to allow user to enter only 0 to 9 digits
+
+    // check whether validator is created or not
+    if (mp_RegValidator == NULL) {
+        mp_RegValidator = new QRegExpValidator(QRegExp(RegExpForValidation), this);
+    }
+    else {
+        mp_RegValidator->setRegExp(QRegExp(RegExpForValidation));
+    }
+    mp_LineEdit->setValidator(mp_RegValidator);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Hides the keyboard.
+ *
+ */
+/****************************************************************************/
+void CKeyBoard::HideKeyBoard() {
+
+    if (mp_SubSpeller) {
+        mp_SubSpeller->SetSubSpellerOff();
+        delete mp_SubSpeller;
+        mp_SubSpeller = NULL;
+    }
+    SubSpellerClicked();
+    KeyBoardReset();
+    hide();
+}
+
 } // End of namespace KeyBoard

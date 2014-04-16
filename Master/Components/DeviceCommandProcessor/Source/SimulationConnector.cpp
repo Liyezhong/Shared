@@ -24,100 +24,175 @@
 #include "Global/Include/SystemPaths.h"
 #include "Global/Include/GlobalDefines.h"
 #include "Global/Include/Commands/Command.h"
-#include <QtGui/QApplication>
+//#include <QtGui/QApplication>
 #include <QPair>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
-
+#include <sys/socket.h>
+#include <stdio.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <cxxabi.h>
 
 
 namespace DeviceCommandProcessor {
 
+bool SimulationConnector::m_pipeBroken = false;
 //const NetworkBase::NetworkServerType_t MY_CLIENT_TYPE3 = NetworkBase::NSE_TYPE_SEPIA;
 
-SimulationConnector::SimulationConnector(QObject* pParent)
-    :QObject(pParent)
-    ,m_clientConnection(0)
-    , m_commfile(new QFile("simulationInput.txt"))
-    , m_outStream(m_commfile)
-    , m_verbose(false)
+SimulationConnector::SimulationConnector(quint16 port)
+    : m_clientConnection(0)
+    , m_pCommfile(new QFile("SimulationServer.txt"))
+    , m_outStream(m_pCommfile)
+    , m_verbose(true)
 {
+    __sighandler_t oldHandler = signal(SIGPIPE, SimulationConnector::handleBrokenPipe);   // ignore broken pipe errors
+    if (SIG_ERR == oldHandler) {
+        return;
+    }
+    m_pReadTimer = NULL;
 
     m_tcpServer = new QTcpServer(this);
-    if (!m_tcpServer->listen(QHostAddress::Any, 8889))
+    if (!m_tcpServer->listen(QHostAddress::Any, port))
         qDebug() << m_tcpServer->errorString();
 
     qDebug() << m_tcpServer->serverAddress();
     qDebug() << m_tcpServer->serverPort();
     qDebug() << m_tcpServer->errorString();
 
-    connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(registerConnection()));
+    CONNECTSIGNALSLOT(m_tcpServer, newConnection(), this, registerConnection());
 
-    if (!m_commfile->open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!m_pCommfile->open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     if (m_verbose)
+//lint --e{534} suppress "Ignoring return value of function..." in entire braced block
     {
         m_outStream << QDateTime::currentDateTime().time().toString() << " Starting\n";
         m_outStream.flush();
-        m_commfile->flush();
+        m_pCommfile->flush();
     }
 //    startSimulationGui();
 }
 
-void SimulationConnector::startSimulationGui()
+SimulationConnector::~SimulationConnector()
+{
+    try {
+        delete m_tcpServer;
+        m_tcpServer = NULL;
+
+        m_clientConnection = NULL;
+        //stopSimulationGui();
+
+        if (m_pCommfile) {
+            m_pCommfile->close();
+            delete m_pCommfile;
+            m_pCommfile = NULL;
+        }
+    }
+    CATCHALL_DTOR();
+}
+
+void SimulationConnector::handleBrokenPipe(int sig)
+{
+    Q_UNUSED(sig)
+    m_pipeBroken = true;
+}
+
+void SimulationConnector::startSimulationGui(QString fileName)
 {
     QProcess *process = new QProcess(this);
-    QString program = "./SchedulerSimulation";
+    QString program = "./" + fileName;
+    process->start(program);
+}
+
+void SimulationConnector::stopSimulationGui(QString processName)
+{
+    QProcess *process = new QProcess(this);
+    QString program = "pkill " + processName;
     process->start(program);
 }
 
 void SimulationConnector::registerConnection()
 {
-    qDebug() << "SimulationConnector::registerConnection";
+    m_outStream << "SimulationConnector::registerConnection\n";
+    m_outStream.flush();
     m_clientConnection = m_tcpServer->nextPendingConnection();
-    connect(m_clientConnection, SIGNAL(readyRead()), this, SLOT(readMessageFromClient()));
-    sendMessageToClient("Connected to Himalaya simulation");
+    if (m_pReadTimer) {
+        delete m_pReadTimer;
+        m_pReadTimer = NULL;
+    }
+//    connect(m_clientConnection, SIGNAL(readyRead()), this, SLOT(readMessageFromClient()));
+    m_pReadTimer = new QTimer();
+    m_pReadTimer->setInterval(300);
+    CONNECTSIGNALSLOT(m_pReadTimer, timeout(), this, readMessageFromClient());
+
+    sendMessageToClient("Connected to Simulation Viewer");
+
+//    int set = 1;
+//    setsockopt(sd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
+    m_pipeBroken = false;
+
+    foreach (QString message, m_pendingMessages)
+    {
+        sendMessageToClient(message);
+    }
+    m_pendingMessages.clear();
+    m_pReadTimer->start();
 }
 
 void SimulationConnector::sendMessageToClient(QString message)
 {
-    if (!m_clientConnection)
+    if ((!m_clientConnection) || (m_pipeBroken)) {
+        m_pendingMessages.append(message);
+        if ((m_pipeBroken) && (m_clientConnection)) {
+            m_clientConnection->close();
+            delete m_clientConnection;
+            m_clientConnection = 0;
+            stopSimulationGui("SimulationView");
+        }
         return;
+    }
 
-//    qDebug() << "SimulationConnector::sendMessage" << message;
+    //qDebug() << "SimulationConnector::sendMessage" << message;
 
     try
+//lint --e{534} suppress "Ignoring return value of function..." in entire braced block
     {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_4_0);
-        out << message;
-        out.device()->reset();
-        if (out.device()->isOpen())
-        {
-        if (m_clientConnection->isOpen())
-        {
-            m_clientConnection->write(block);
-            m_clientConnection->flush();
+        out.setVersion((int)QDataStream::Qt_4_0);
+        out << message << "\r";
+        if (out.device()->reset()) {
+            if (out.device()->isOpen()) {
+                if (m_clientConnection->isOpen())
+                {
+//                m_clientConnection->flush();
+                    m_pipeBroken = false;
+                    m_clientConnection->write(block);
+                    //QTBUG-14464
+//                    if (!m_pipeBroken) {
+//                        m_clientConnection->flush();
+//                    }
+                }
+            }
         }
-        }
-
         if (m_verbose)
         {
             if (!message.contains("CurrentTime"))
             {
                 m_outStream << QDateTime::currentDateTime().toTime_t() << " SimulationConnector Send: " << message << "\n";
                 m_outStream.flush();
-                m_commfile->flush();
+                m_pCommfile->flush();
             }
         }
+
+        return;
     }
-    catch (...)
-    {
-        qDebug() << "!!!!!!! SimulationConnector::sendMessageToClient, Exception caught" << message;
-    }
+    CATCHALL();
+    qDebug() << "!!!!!!! SimulationConnector::sendMessageToClient, Exception caught" << message;
 }
 
 QDomDocument SimulationConnector::ReadXmlFromFile(QString filename)
@@ -126,6 +201,7 @@ QDomDocument SimulationConnector::ReadXmlFromFile(QString filename)
     QFile file(filename);
     if (file.open(QIODevice::ReadOnly))
     {
+//lint -e{534} suppress "Ignoring return value of function..." in next statement
         doc.setContent(&file);
     }
 
@@ -135,18 +211,52 @@ QDomDocument SimulationConnector::ReadXmlFromFile(QString filename)
 
 void SimulationConnector::readMessageFromClient()
 {
-    QDataStream in(m_clientConnection);
-    in.setVersion(QDataStream::Qt_4_0);
-    QString input;
-    in >> input;
+    if (!m_clientConnection) {
+        return;
+    }
+
+    QString input = "";
+    int bytesAvail = 0;
+//    if (m_tcpSocket->waitForReadyRead(10)) {
+        bytesAvail = m_clientConnection->bytesAvailable();
+//    }
+    if (bytesAvail > 0) {
+        int cnt = 0;
+        bool endOfLine = false;
+        bool endOfStream = false;
+        while (cnt < bytesAvail && (!endOfLine) && (!endOfStream)) {
+            char ch;
+            int bytesRead = m_clientConnection->read(&ch, sizeof(ch));
+            if (bytesRead == sizeof(ch)) {
+                cnt++;
+                if ((int)ch > 33) {
+                    input.append(ch);
+                }
+                //input = input.trimmed();
+                if (ch == '\r') {
+                    endOfLine = true;
+                }
+            }
+            else {
+                endOfStream = true;
+            }
+        }
+        input = input.replace(QChar('"'), QChar(' '));
+        input = input.replace(" ", "");
+    }
+
+    if (input.length() < 2) {
+        return;
+    }
 
     if (m_verbose)
     {
         if (!input.contains("CurrentTime"))
+//lint --e{534} suppress "Ignoring return value of function..." in entire braced block
         {
-            m_outStream << QDateTime::currentDateTime().toTime_t() << " SimulationCommandThreadController Read: " << input << "\n";
+            m_outStream << QDateTime::currentDateTime().toTime_t() << " SimulationConnector Read: " << input << "\n";
             m_outStream.flush();
-            m_commfile->flush();
+            m_pCommfile->flush();
         }
     }
     emit messageFromClient(input);

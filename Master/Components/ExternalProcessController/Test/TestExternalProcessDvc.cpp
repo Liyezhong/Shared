@@ -33,7 +33,7 @@ TestExternalProcessDvc::TestExternalProcessDvc() :
             m_myExtDevice(NULL),
             m_myLoginTimeoutFlag(false)
 {
-    qRegisterMetaType<DataLogging::EventEntry>("DataLogging::EventEntry");
+    qRegisterMetaType<DataLogging::DayEventEntry>("DataLogging::EventEntry");
 }
 
 /****************************************************************************/
@@ -60,7 +60,7 @@ void TestExternalProcessDvc::initTestCase()
 
     // create test device :
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + EPD_PATH_ADDITION;
-    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPD_TEST_CLIENT, path, EPD_CONFIGFILE_TYPE, this);
+    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPD_TEST_CLIENT, path, NULL, this);
 
     if (!QObject::connect(m_myExtDevice, SIGNAL(SigLoginTimeout()), this, SLOT(SlotLoginTimeout()))) {
         QFAIL("TestExternalProcessDvc: cannot connect SigLoginTimeout signal !");
@@ -69,10 +69,10 @@ void TestExternalProcessDvc::initTestCase()
     QVERIFY(m_myExtDevice->m_myServer == NULL);
     QVERIFY(m_myExtDevice->m_myMessageChecker == NULL);
     // initialize device:
-    QCOMPARE(m_myExtDevice->InitializeDeviceWithParameters((QString)"No", (int)0), true);
+    QCOMPARE(m_myExtDevice->InitializeDeviceWithParameters((QString)"No", (int)0), false);
     // check that internal objects got created:
-    QVERIFY(m_myExtDevice->m_myServer != NULL);
-    QVERIFY(m_myExtDevice->m_myMessageChecker != NULL);
+    QVERIFY(m_myExtDevice->m_myServer == NULL);
+    QVERIFY(m_myExtDevice->m_myMessageChecker == NULL);
 }
 
 /****************************************************************************/
@@ -146,8 +146,8 @@ void TestExternalProcessDvc::utTestWorkingFunctions()
     m_myLoginTimeoutFlag = false;
 
     // start device operation:
-    QCOMPARE(m_myExtDevice->StartDevice(), true);
-    QVERIFY(m_myExtDevice->m_LoginTimer.isActive() == true);
+    QCOMPARE(m_myExtDevice->StartDevice(), false);
+    QVERIFY(m_myExtDevice->m_LoginTimer.isActive() == false);
     m_myExtDevice->PeerConnected((QString)"Dummy");
     // peer connected -> timer shall be stopped:
     QVERIFY(m_myExtDevice->m_LoginTimer.isActive() == false);
@@ -172,7 +172,7 @@ void TestExternalProcessDvc::utTestBadInputHandling()
 
     // create test device with wrong path:
     QString path = "Some Bad Path";
-    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPD_TEST_CLIENT, path, EPD_CONFIGFILE_TYPE, this);
+    m_myExtDevice = new ExternalProcessDevice(NetworkBase::NSE_TYPE_NORMAL_GUI, EPD_TEST_CLIENT, path, NULL, this);
     if (!QObject::connect(m_myExtDevice, SIGNAL(SigLoginTimeout()), this, SLOT(SlotLoginTimeout()))) {
         QFAIL("TestExternalProcessDvc: cannot connect SigLoginTimeout signal !");
         return;

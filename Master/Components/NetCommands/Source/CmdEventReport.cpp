@@ -28,8 +28,8 @@ QString CmdEventReport::NAME = "NetCommands::CmdEventReport";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout        Timeout for command.
- * \param[in]   EventReportDataStruct  Event Report DataStruct
+ * \iparam   Timeout                 Timeout for command.
+ * \iparam   EventReportData         Event Report DataStruct
  */
 /****************************************************************************/
 CmdEventReport::CmdEventReport(int Timeout, EventReportDataStruct &EventReportData) :
@@ -40,7 +40,8 @@ CmdEventReport::CmdEventReport(int Timeout, EventReportDataStruct &EventReportDa
     // EventStatus, EventType, EventID, EventString,  Time, btn Type,StatusBar Icon
     Stream << EventReportData.EventStatus << EventReportData.EventType << EventReportData.ID
            << EventReportData.MsgString << EventReportData.Time << EventReportData.BtnType
-           << EventReportData.StatusBarIcon;
+           << EventReportData.StatusBarIcon << EventReportData.BtnEnableConditions
+           << EventReportData.Timeout;
 
 }
 

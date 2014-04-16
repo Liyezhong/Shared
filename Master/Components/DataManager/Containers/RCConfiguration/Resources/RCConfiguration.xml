@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE RCConfiguration>
+<RCConfiguration Version="1">
+    <General 	QueueSize="2000000"
+                HTTPConnectionPersistence="Off"
+                Debug="On"/>
+    <SecureConnection
+                HTTPSecureConnection="Off"
+                EncryptionLevel="None"
+                Authentication="On"
+                CertificateFileName="Certificate file name"/>
+    <RemoteCareServer
+                ExecTime="20"
+                ServerType="Primary"
+                TargetDataBase="target databse name"
+                ServerURL="http://server url"
+                ServerId="30"/>
+    <LocalDevice
+                DeviceType="Master"
+                DeviceId="30"/>
+    <LocalNetworkProxy
+                UseProxy="Off"
+                ProxyProtocol="SOCKS"/>
+    <RemoteSession
+                RemoteSessionName="Remote Session name"
+                RemoteSessionType="Desktop"
+                RemoteSessionIPAddress="127.0.0.1"
+                RemoteSessionIPPort="5900"/>
+    <FileUpload
+                Compression="Off"
+                MaxChunkSize="60000"/>
+	<DataItems>
+	<DataItem Name="RequestRemoteSession" Type="Analog" Quality="DataGood" Value="1"/>
+	<DataItem Name="SetEventClass" Type="Digital" Quality="DataBad" Value="0"/>
+	</DataItems>
+</RCConfiguration>

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataContainerBase.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ContainerBase/Source/DataContainerBase.cpp
  *
  *  \brief Implementation file for common functions for all the containers.
  *
  *  $Version:   $ 0.2
  *  $Date:      $ 2012-05-20
- *  $Author:    $ Nikhil, Raju
+ *  $Author:    $ Nikhil, Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -20,7 +20,12 @@
 
 #include "DataManager/Containers/ContainerBase/Include/DataContainerBase.h"
 #include "Global/Include/GlobalDefines.h"
-
+#include <Global/Include/Exception.h>
+#include <Global/Include/EventObject.h>
+#include <Global/Include/Utils.h>
+#include <unistd.h> //for fsync
+//lint -e1536
+//lint -e593
 
 namespace DataManager {
 
@@ -54,14 +59,17 @@ bool CDataContainerBase::Write(QString Filename)
             File.close();
             return false;
         }
+
         File.close();
+        //flush data
+        (void)fsync(File.handle());
         return true;
     }
-    catch (...) {
-        qDebug() << "### Exception in CDataContainerBase::Write(QString Filename)";
-        // The File closing is not necessary as the QFile destructor closes the File.
-        return false;
-    }
+    CATCHALL();
+
+    qDebug() << "### Exception in CDataContainerBase::Write(QString Filename)";
+    // The File closing is not necessary as the QFile destructor closes the File.
+    return false;
 }
 
 /****************************************************************************/
@@ -73,14 +81,13 @@ bool CDataContainerBase::Write(QString Filename)
 /****************************************************************************/
 bool CDataContainerBase::Write()
 {    
-    //QReadLocker locker(mp_ReadWriteLock);
     if (!QString::compare("UNDEFINED" , GetFilename())) {
         qDebug() << "File is not read";
         return false;
     }
     try {
         QFile File(TEMP_CONTAINER_XMLFILE);
-        if (!File.open(QFile::WriteOnly | QFile::Text)) {
+        if (!File.open(QFile::WriteOnly | QFile::Text | QFile::Truncate)) {
             qDebug() << "open file failed in Write: " << TEMP_CONTAINER_XMLFILE;
             return false;
         }
@@ -98,20 +105,19 @@ bool CDataContainerBase::Write()
             }
         }
         // close the file to rename
-        if (File.isOpen()) {
-            File.close();
-        }
+        File.close();
+        (void)fsync(File.handle());
         if (!QFile::rename(TEMP_CONTAINER_XMLFILE, GetFilename())) {
             qDebug() << "File renamed failed in Write: " << TEMP_CONTAINER_XMLFILE;
             return false;
         }
         return true;
     }
-    catch (...) {
-        qDebug() << "### Exception in CDataContainerBase::Write";
-        // The File closing is not necessary as the QFile destructor closes the File.
-        return false;
-    }
+    CATCHALL();
+
+    qDebug() << "### Exception in CDataContainerBase::Write";
+    // The File closing is not necessary as the QFile destructor closes the File.
+    return false;
 }
 
 /****************************************************************************/
@@ -133,11 +139,11 @@ ListOfErrors_t& CDataContainerBase::GetErrorList()
 /****************************************************************************/
 void CDataContainerBase::ResetLastErrors()
 {
-    qint32 I = 0;
+    //qint32 I = 0;
     while(!m_ListOfErrors.isEmpty()) {
-        const_cast<ErrorHash_t *>(m_ListOfErrors.at(0))->clear();
+        const_cast<ErrorMap_t *>(m_ListOfErrors.at(0))->clear();
         m_ListOfErrors.removeFirst();
-        I++;
+        //I++;
     }
     m_ListOfErrors.clear();
 }
@@ -223,7 +229,7 @@ bool CDataContainerBase::DoLocalVerification(CDataContainerBase* p_DCB_Verificat
         if (p_Verifier != NULL) {
             if (p_Verifier->IsLocalVerifier()) {
                 // clear the error before verifying the data
-                p_Verifier->ResetLastErrors();
+                p_Verifier->ResetErrors();
                 // verify the data
                 if (!p_Verifier->VerifyData(p_DCB_Verification)) {
                     VerifierResult = false;
@@ -266,7 +272,7 @@ bool CDataContainerBase::DoGroupVerification(CDataContainerBase* p_DCB_Verificat
         if (p_Verifier != NULL) {
             if (!p_Verifier->IsLocalVerifier()) {
                 // clear the error before verifying the data
-                p_Verifier->ResetLastErrors();
+                p_Verifier->ResetErrors();
                 // verify the data
                 if (!p_Verifier->VerifyData(p_DCB_Verification)) {
                     VerifierResult = false;
@@ -317,23 +323,6 @@ void CDataContainerBase::ReadErrorList(QXmlStreamReader& XmlStreamReader)
 {
     Q_UNUSED(XmlStreamReader)
     // clear the error list and start add the data which are read from the XML file
-//    m_LastErrors.clear();
-//    // check whether xml reader at end or not
-//    while(!XmlStreamReader.atEnd()) {
-//        // read the next tag
-//        if(XmlStreamReader.readNext()) {
-//            // read the strat element flag
-//            if (XmlStreamReader.isStartElement()) {
-//                // compare the tag value
-//                if  (XmlStreamReader.name().compare("Error", Qt::CaseSensitive)) {
-//                    // check whether attribute exists or not
-//                    if (XmlStreamReader.attributes().hasAttribute("ErrorSource")) {
-//                        m_LastErrors.append(XmlStreamReader.attributes().value("ErrorSource").toString());
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
 
 /****************************************************************************/
@@ -395,21 +384,6 @@ void CDataContainerBase::ReadVerifierList(QXmlStreamReader& XmlStreamReader)
 /****************************************************************************/
 CDataContainerBase::~CDataContainerBase()
 {
-    // delete all the local verifiers from the list
-/*
-    for(int ListCount = 0; ListCount < m_VerifierList.count(); ListCount++) {
-        IVerifierInterface* p_Verifier = m_VerifierList.value(ListCount, NULL);
-        if (p_Verifier != NULL) {
-            if (p_Verifier->IsLocalVerifier()) {
-                delete p_Verifier;
-                p_Verifier = NULL;
-            }
-        }
-    }
-    m_VerifierList.clear();
-    // reset the error list
-    ResetLastErrors();
-*/
 }
 
 } // end of namespace datamanager

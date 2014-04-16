@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ServiceConfiguration.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Include/ServiceConfiguration.h
  *
  *  \brief Definition file for class CServiceConfiguration.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -45,6 +45,7 @@ public:
     CServiceConfiguration();
 
     CServiceConfiguration(const CServiceConfiguration&);
+    void CopyFromOther(const CServiceConfiguration &Other);
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CServiceConfiguration& ExportConfiguration);
     friend QDataStream& operator >>(QDataStream& InDataStream, CServiceConfiguration& ExportConfiguration);

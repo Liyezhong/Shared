@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file ScrollTable.cpp
  *
- *  \brief ScrollTable implementation.
+ *  \brief Implementation of file for class CScrollTable.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying Table view
+ *          scroller.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-29
@@ -32,11 +36,28 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CScrollTable::CScrollTable(QWidget *p_Parent) : CContentScroller(p_Parent), m_PixmapCache(1000),m_CacheKey(0)
+CScrollTable::CScrollTable(QWidget *p_Parent) : CContentScroller(p_Parent),
+    m_PixmapCache(1000),
+    mp_PixmapTarget(NULL),
+    m_CacheKey(0)
 {
     layout()->setMargin(11);
     layout()->setSpacing(1);
-    m_PixmapTableGrid.load(QString(":/%1/Grid/Grid-BG.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    (void)     m_PixmapTableGrid.load(QString(":/%1/Grid/Grid-BG.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
+    mp_PixmapTarget = new QPixmap();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Destructor
+ *
+ */
+/****************************************************************************/
+CScrollTable::~CScrollTable() {
+    try {
+        //delete mp_PixmapTarget; QCache deletes this. ignore valgrind output
+    }
+    catch (...) {}
 }
 
 /****************************************************************************/
@@ -51,10 +72,12 @@ void CScrollTable::paintEvent(QPaintEvent *)
     if (!m_PixmapCache.contains(m_CacheKey)) {
         Target.fill(Qt::transparent);
         Application::CLeicaStyle::BorderPixmap(&Target, &m_PixmapTableGrid, 24, 71, 24, 43);
-        m_PixmapTarget = Target;
-        m_CacheKey = m_PixmapTarget.cacheKey();
-        m_PixmapCache.insert(m_CacheKey, &m_PixmapTarget);
-        Painter.drawPixmap(0, 0, m_PixmapTarget);
+        *mp_PixmapTarget = Target;
+        if (mp_PixmapTarget) {
+            m_CacheKey = mp_PixmapTarget->cacheKey();
+            (void) m_PixmapCache.insert(m_CacheKey, mp_PixmapTarget);
+            Painter.drawPixmap(0, 0, *mp_PixmapTarget);
+        }
     }
     else {
          Painter.drawPixmap(0, 0, *m_PixmapCache.object(m_CacheKey));

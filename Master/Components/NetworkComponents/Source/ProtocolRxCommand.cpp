@@ -24,6 +24,9 @@
 #include <NetworkComponents/Include/ProtocolRxCommands/HeartBeatClient.h>
 #include <NetworkComponents/Include/ProtocolRxCommands/HeartBeatServer.h>
 #include <NetworkComponents/Include/ProtocolRxCommands/SetDateAndTime.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
+#include <Global/Include/Utils.h>
 
 namespace NetworkBase {
 
@@ -57,7 +60,7 @@ ProtocolRxCommand::ProtocolRxCommand() :
 /*!
  *  \brief Constructor.
  *
- *  \param[in] attrs = list of data attributes of this command
+ *  \iparam attrs = list of data attributes of this command
  */
 /****************************************************************************/
 ProtocolRxCommand::ProtocolRxCommand(const QStringList &attrs) :
@@ -75,8 +78,8 @@ ProtocolRxCommand::ProtocolRxCommand(const QStringList &attrs) :
 /*!
  *  \brief Constructor.
  *
- *  \param[in] attrs = list of data attributes of this command
- *  \param[in] dattrs = list of data attributes of each data element of this command
+ *  \iparam attrs = list of data attributes of this command
+ *  \iparam dattrs = list of data attributes of each data element of this command
  */
 /****************************************************************************/
 ProtocolRxCommand::ProtocolRxCommand(const QStringList &attrs, const QStringList &dattrs) :
@@ -251,9 +254,9 @@ void ProtocolRxCommand::PrintMessageDataTree()
 /*!
  *  \brief   Extract data attribute values from the XML message
  *
- *  \param[in]   Element = XML message container
- *  \param[in]   Tags = list of tag names in the CMH_DATA_TAG_NAME element
- *  \param[in]   DataTags = list of tag names in the CMH_DATA_TAG_NAME child elements
+ *  \iparam   Element = XML message container
+ *  \iparam   Tags = list of tag names in the CMH_DATA_TAG_NAME element
+ *  \iparam   DataTags = list of tag names in the CMH_DATA_TAG_NAME child elements
  *  \param[out]  Values = pointer to message data tree container
  *
  *
@@ -285,6 +288,9 @@ bool ProtocolRxCommand::ExtractAttributeValues(QDomElement *Element, QStringList
                 qDebug() << "ProtocolRxCommand: attribute " << (QString)((*Tags)[i]) << " is empty !";
                 datatree.DataitemsValues << "";
                 result = false;
+                Global::EventObject::Instance().RaiseEvent(EVENT_NL_ATTR_EMPTY,
+                                                           Global::tTranslatableStringList() << (QString)((*Tags)[i])
+                                                           << FILE_LINE);
             }
             else {
                 datatree.DataitemsValues << value;
@@ -314,8 +320,8 @@ bool ProtocolRxCommand::ExtractAttributeValues(QDomElement *Element, QStringList
 /*!
  *  \brief   Extract data attribute values from the XML message
  *
- *  \param[in]   Item = CMH_DATA_TAG_NAME element
- *  \param[in]   DataTags = list of tag names in the CMH_DATA_TAG_NAME child elements
+ *  \iparam   Item = CMH_DATA_TAG_NAME element
+ *  \iparam   DataTags = list of tag names in the CMH_DATA_TAG_NAME child elements
  *  \param[out]  Values = pointer to message data tree container
  *
  *  \warning This function is only for messages where "dataitems" element
@@ -354,7 +360,10 @@ bool ProtocolRxCommand::ExtractSubAttributeValues(QDomElement *Item, QStringList
             subvalue = (subchild.attribute((*DataTags)[k], "NULL"));
             if ((subvalue.isEmpty()) || (subvalue == "NULL")) {
                 qDebug() << "ProtocolRxCommand: attribute " << (QString)((*DataTags)[k]) << " is empty !";
-                subvalues << "";
+                subvalues << "";                
+                Global::EventObject::Instance().RaiseEvent(EVENT_NL_ATTR_EMPTY,
+                                                           Global::tTranslatableStringList() << (QString)((*DataTags)[k])
+                                                           << FILE_LINE);
                 return false;
             }
             else {
@@ -377,7 +386,7 @@ bool ProtocolRxCommand::ExtractSubAttributeValues(QDomElement *Item, QStringList
 /*!
  *  \brief   Extract reference value from the XML message
  *
- *  \param[in]   Element = XML message container
+ *  \iparam   Element = XML message container
  *  \param[out]  Reference = the reference value to return
  *
  *  \return  true if extraction successful, false otherwise
@@ -397,6 +406,10 @@ bool ProtocolRxCommand::ExtractMessageReference(QDomElement *Element, QString *R
         qDebug() << "ProtocolRxCommand: attribute " << NetworkBase::CMH_REFERENCE << " is empty !";
         *Reference = "";
         result = false;
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_ATTR_EMPTY,
+                                                   Global::tTranslatableStringList() << NetworkBase::CMH_REFERENCE
+                                                   << FILE_LINE);
+
     }
     else {
         *Reference = value;
@@ -409,10 +422,10 @@ bool ProtocolRxCommand::ExtractMessageReference(QDomElement *Element, QString *R
 /*!
  *  \brief   Extract nofitmes attribute from XML element
  *
- *  \param[in]   Element = XML container
+ *  \iparam   Element = XML container
  *  \param[out]  NofItems = the value of number of payload items to return
- *  \param[in]   targettag = tag of the sub elements
- *  \param[in]   sourcetag = tag of the parent element
+ *  \iparam   targettag = tag of the sub elements
+ *  \iparam   sourcetag = tag of the parent element
  *
  *  \return  true if extraction successful, false otherwise
  *
@@ -465,7 +478,7 @@ bool ProtocolRxCommand::ExtractNofItems(QDomElement *Element, qint16 *NofItems, 
 /*!
  *  \brief   Extract header from the XML message
  *
- *  \param[in]   Element = XML message container
+ *  \iparam   Element = XML message container
  *  \param[out]  Ref = XML message reference
  *  \param[out]  NofItems = number of payload items in the XML message
  *
@@ -488,7 +501,7 @@ bool ProtocolRxCommand::ExtractMessageHeader(QDomElement *Element, QString *Ref,
 /*!
  *  \brief   Check and act on command execution status
  *
- *  \param[in]  status = command execution status
+ *  \iparam  status = command execution status
  *
  *  \return  true if execution successful, false otherwise
  *

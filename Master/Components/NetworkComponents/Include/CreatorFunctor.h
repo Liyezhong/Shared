@@ -22,6 +22,7 @@
 #define NETWORKBASE_CREATORFUNCTOR_H
 
 #include <QDataStream>
+#include <Global/Include/GlobalDefines.h>
 
 namespace NetworkBase {
 
@@ -36,8 +37,12 @@ namespace NetworkBase {
 class CreatorFunctor {
 private:
     /****************************************************************************/
-    CreatorFunctor(const CreatorFunctor &);                     ///< Not implemented.
-    const CreatorFunctor & operator = (const CreatorFunctor &); ///< Not implemented.
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CreatorFunctor)
 protected:
 public:
     /****************************************************************************/
@@ -58,8 +63,8 @@ public:
     /**
      * \brief Create instance an deserialize it.
      *
-     * \param[in]       Ref         Command reference.
-     * \param[in, out]  DataStream  Data stream from which deserialization is done.
+     * \iparam       Ref         Command reference.
+     * \iparam  DataStream  Data stream from which deserialization is done.
      */
     /****************************************************************************/
     virtual void CreateAndDeserialize(Global::tRefType Ref, QDataStream &DataStream) = 0;
@@ -78,6 +83,13 @@ template<class TheClass> class CommandCreatorFunctor : public CreatorFunctor {
 private:
     /****************************************************************************/
     CommandCreatorFunctor(const CommandCreatorFunctor &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CommandCreatorFunctor & operator = (const CommandCreatorFunctor &);   ///< Not implemented.
 protected:
 public:
@@ -99,8 +111,8 @@ public:
     /**
      * \brief Create instance an deserialize it.
      *
-     * \param[in]       Ref         Command reference.
-     * \param[in, out]  DataStream  Data stream from which deserialization is done.
+     * \iparam       Ref         Command reference.
+     * \iparam  DataStream  Data stream from which deserialization is done.
      */
     /****************************************************************************/
     virtual void CreateAndDeserialize(Global::tRefType Ref, QDataStream &DataStream) = 0;
@@ -110,8 +122,8 @@ public:
      *
      * \warning You must ensure correct deletion of the returned pointer!
      *
-     * \param[in]       Ref         Command reference.
-     * \param[in]       Instance    Reference to the original instance.
+     * \iparam       Ref         Command reference.
+     * \iparam       Instance    Reference to the original instance.
      */
     /****************************************************************************/
     virtual void CopyAndCall(Global::tRefType Ref, const TheClass &Instance) = 0;
@@ -132,14 +144,21 @@ private:
     /****************************************************************************/
     TemplateCreatorFunctor();                                                   ///< Not implemented.
     TemplateCreatorFunctor(const TemplateCreatorFunctor &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const TemplateCreatorFunctor & operator = (const TemplateCreatorFunctor &); ///< Not implemented.
 public:
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \param[in]   pTheProcessor       Processor class.
-     * \param[in]   FunctionPointer     The function pointer.
+     * \iparam   pTheProcessor       Processor class.
+     * \iparam   FunctionPointer     The function pointer.
      */
     /****************************************************************************/
     TemplateCreatorFunctor(TheProcessor *pTheProcessor,
@@ -161,8 +180,8 @@ public:
      *
      * \warning You must ensure correct deletion of the returned pointer!
      *
-     * \param[in]       Ref         Command reference.
-     * \param[in, out]  DataStream  Data stream from which deserialization is done.
+     * \iparam       Ref         Command reference.
+     * \iparam  DataStream  Data stream from which deserialization is done.
      */
     /****************************************************************************/
     virtual void CreateAndDeserialize(Global::tRefType Ref, QDataStream &DataStream) {
@@ -180,8 +199,8 @@ public:
      *
      * \warning You must ensure correct deletion of the returned pointer!
      *
-     * \param[in]       Ref         Command reference.
-     * \param[in]       Instance    Reference to the original instance.
+     * \iparam       Ref         Command reference.
+     * \iparam       Instance    Reference to the original instance.
      */
     /****************************************************************************/
     virtual void CopyAndCall(Global::tRefType Ref, const TheClass &Instance) {

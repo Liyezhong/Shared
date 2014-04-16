@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file UserConfiguration.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Include/UserConfiguration.h
  *
  *  \brief Definition file for class CUserConfiguration.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -44,6 +44,7 @@ public:
     CUserConfiguration();
 
     CUserConfiguration(const CUserConfiguration&);
+    void CopyFromOther(const CUserConfiguration &Other);
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CUserConfiguration& ExportConfiguration);
     friend QDataStream& operator >>(QDataStream& InDataStream, CUserConfiguration& ExportConfiguration);

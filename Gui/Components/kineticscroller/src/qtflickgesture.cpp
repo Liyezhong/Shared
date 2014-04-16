@@ -218,7 +218,7 @@ public:
             mouseTarget = 0;
         } else if (mouseTarget) {
             // we did send a press, so we need to fake a release now
-            //Qt::MouseButtons mouseButtons = QApplication::mouseButtons();
+            Qt::MouseButtons mouseButtons = QApplication::mouseButtons();
 
             // release all pressed mouse buttons
             /*for (int i = 0; i < 32; ++i) {

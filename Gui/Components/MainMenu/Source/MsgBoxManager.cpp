@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file MsgBoxManager.cpp
  *
- *  \brief MsgBoxManager Implementation
+ *  \brief Implementation of file for class CMsgBoxManager.
+ *
+ *  \b Description:
+ *          This class manages the messages boxes for displaying Error/
+ *          Warning/Information messages
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-10-18
@@ -18,36 +22,39 @@
  *
  */
 /****************************************************************************/
-
-
+#include <QMetaType>
+#include <QDebug>
 #include <MainMenu/Include/MsgBoxManager.h>
 #include <MainMenu/Include/StatusBarManager.h>
-
 #include <MainMenu/Include/MessageDlg.h>
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-
+#include "DataManager/Helper/Include/Helper.h"
+#include <QApplication>
 
 
 
 namespace MainMenu {
+
+const int MAX_MESSAGE_TEXT_LENGTH = 1024;       //!< Maximum length of the text to be
 
 /****************************************************************************/
 /*!
  *  \brief Constructor
  *
  *  \iparam p_Parent = MainWindow is passed as parent
+ *  \iparam p_SettingsInterface = SettingsInterface object
  */
 /****************************************************************************/
-CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface)
-    :mp_MessageDlg(NULL),
+CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface):
+    m_CurrentMsgBoxEventID(-1),
+    mp_MessageDlg(NULL),
     mp_Parent(p_Parent),
-    mp_SettingsInterface(p_SettingsInterface)
+    mp_SettingsInterface(p_SettingsInterface),
+    m_bMsgWaiting(false)
 {
-    MsgData TempMsgData;
-    CreateMesgBox(TempMsgData);
     m_PopupTimer.setSingleShot(true);
-    CONNECTSIGNALSLOT(&m_PopupTimer, timeout(), this, ShowMsgBoxIfQueueNotEmpty());
+    CONNECTSIGNALSLOTGUI(&m_PopupTimer, timeout(), this, ShowMsgBoxIfQueueNotEmpty());
 
     m_AutoQuitMsgBoxTimer.setSingleShot(true);
     CONNECTSIGNALSLOT(&m_AutoQuitMsgBoxTimer, timeout(), this, AutoQuitMessageBox());
@@ -57,87 +64,65 @@ CMsgBoxManager::CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInte
 /*!
  *  \brief Creating Message Box dialog
  *
- *  \iparam EventType  = Type of event - info/warning/error/fatalerror
- *  \iparam ButtonType = Gui Button Type - e.g. "Ok" "Yes-No" e.t.c.
+ *  \iparam MsgDataStruct  = Type of event - info/warning/error/fatalerror
  */
 /****************************************************************************/
 void CMsgBoxManager::CreateMesgBox(MsgData MsgDataStruct)
 {
-    qDebug()<<" Event Type" << MsgDataStruct.EventType << "Button Type" << MsgDataStruct.BtnType;
     if (!mp_MessageDlg) {
         mp_MessageDlg = new MainMenu::CMessageDlg(mp_Parent);
         //Connect Message Box signals
-        CONNECTSIGNALSLOT(mp_MessageDlg, ButtonLeftClicked(), this,
-                ButtonLeftClicked());
-        CONNECTSIGNALSLOT(mp_MessageDlg, ButtonCenterClicked(), this,
-                ButtonCenterClicked());
-        CONNECTSIGNALSLOT(mp_MessageDlg, ButtonRightClicked(), this,
-                ButtonRightClicked());
+        CONNECTSIGNALSLOTGUI(mp_MessageDlg, ButtonLeftClicked(), this,
+                             ButtonLeftClicked());
+        CONNECTSIGNALSLOTGUI(mp_MessageDlg, ButtonCenterClicked(), this,
+                             ButtonCenterClicked());
+        CONNECTSIGNALSLOTGUI(mp_MessageDlg, ButtonRightClicked(), this,
+                             ButtonRightClicked());
+        CONNECTSIGNALSLOTGUI(mp_MessageDlg, DialogLangaugeChanged(), this,
+                             LanguageChanged());
         //Set Title
         switch (MsgDataStruct.EventType) {
-            case Global::EVTTYPE_INFO:
-                mp_MessageDlg->SetTitle(tr("Information Message"));
-                //Also set Msg Box Icon
-                mp_MessageDlg->SetIcon(QMessageBox::Information);
-                break;
-            case Global::EVTTYPE_WARNING:
-                mp_MessageDlg->SetTitle(tr("Warning Message"));
-                mp_MessageDlg->SetIcon(QMessageBox::Warning);
-                break;
-            case Global::EVTTYPE_FATAL_ERROR:
-            case Global::EVTTYPE_ERROR:
-                mp_MessageDlg->SetTitle(tr("Error Message"));
-                mp_MessageDlg->SetIcon(QMessageBox::Critical);
-                break;
-            default:
-                mp_MessageDlg->SetTitle(tr("Error Message"));
-                mp_MessageDlg->SetIcon(QMessageBox::Critical);
-                break;
+        case Global::EVTTYPE_INFO:
+            mp_MessageDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Information Message",
+                                                            0, QApplication::UnicodeUTF8));
+
+            //Also set Msg Box Icon
+            mp_MessageDlg->SetIcon(QMessageBox::Information);
+            break;
+        case Global::EVTTYPE_WARNING:
+            mp_MessageDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Warning Message",
+                                                            0, QApplication::UnicodeUTF8));
+
+            mp_MessageDlg->SetIcon(QMessageBox::Warning);
+            break;
+        case Global::EVTTYPE_FATAL_ERROR:
+        case Global::EVTTYPE_ERROR:
+            mp_MessageDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Error Message",
+                                                            0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->SetIcon(QMessageBox::Critical);
+            break;
+        default:
+            mp_MessageDlg->SetTitle(QApplication::translate("MainMenu::CMsgBoxManager", "Error Message",
+                                                            0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->SetIcon(QMessageBox::Critical);
+            break;
         }
         //Set Button Text
-//        quint32 ButtonCount = Global::GetButtonCountFromButtonType(MsgDataStruct.BtnType);
-//        if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::OK) {
-//            mp_MessageDlg->SetButtonText(1, tr("Ok"));
-//            mp_MessageDlg->HideButtons();
-//        }
-//        else if (ButtonCount == 2) {
-            switch (MsgDataStruct.BtnType) {
-                case Global::YES_NO:
-                //I am not adding the below lines(Which are repeated in every switch case) to a function
-                //since Translation is a problem
-                mp_MessageDlg->SetButtonText(1, tr("Yes"));
-                mp_MessageDlg->SetButtonText(3, tr("No"));
-                mp_MessageDlg->HideCenterButton();
-                break;
-            case Global::CONTINUE_STOP:
-                mp_MessageDlg->SetButtonText(1, tr("Continue"));
-                mp_MessageDlg->SetButtonText(3, tr("Stop"));
-                mp_MessageDlg->HideCenterButton();
-                break;
-            case Global::RECOVERYLATER_RECOVERYNOW:
-                mp_MessageDlg->SetButtonText(1, tr("Recovery Later"));
-                mp_MessageDlg->SetButtonText(3, tr("Recovery Now"));
-                mp_MessageDlg->HideCenterButton();
-                break;
-            case Global::RECOVERYNOW:
-                mp_MessageDlg->SetButtonText(1, tr("Recovery Now"));
-                mp_MessageDlg->HideButtons();
-                break;
-            case Global::OK_CANCEL:
-                mp_MessageDlg->SetButtonText(1, tr("Ok"));
-                mp_MessageDlg->SetButtonText(3, tr("Cancel"));
-                mp_MessageDlg->HideCenterButton();
-                break;
-            default:
-                mp_MessageDlg->SetButtonText(1, tr("Ok"));
-                mp_MessageDlg->HideButtons();
-                break;
-            }
-//        }
-//        else {
-//            mp_MessageDlg->SetButtonText(1, tr("Ok"));
-//            mp_MessageDlg->HideButtons();
-//        }
+        quint32 ButtonCount = Global::GetButtonCountFromButtonType(MsgDataStruct.BtnType);
+        if (ButtonCount == 1 && MsgDataStruct.BtnType == Global::OK) {
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideButtons();
+        }
+        else if (ButtonCount == 2) {
+            SetMessageBoxType(MsgDataStruct);
+        }
+        else if (ButtonCount == 0) {
+            mp_MessageDlg->HideAllButtons();
+        }
+        else {
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideButtons();
+        }
         mp_MessageDlg->setModal(true);
     }
 }
@@ -173,48 +158,110 @@ void CMsgBoxManager::Manage(QDataStream &DS, Global::tRefType Ref)
     quint32 ButtonType;
     quint64 EventID;
     bool EventStatus;
-    DS.device()->reset();
+    (void) DS.device()->reset();
     DS >> EventStatus >> EventType >> EventID;
-    qDebug()<<"Event Status" << EventStatus << "Event Id" << EventID;
     //check whether we need to display or remove the Msg Box
     if (EventStatus) {
         MsgData CurrentMsgData;
-        DS >> CurrentMsgData.MsgString >> CurrentMsgData.Time >> ButtonType >> CurrentMsgData.StatusBarIcon >> CurrentMsgData.AutoQuitMsgBoxTime;
+        DS >> CurrentMsgData.MsgString >> CurrentMsgData.Time >> ButtonType >> CurrentMsgData.StatusBarIcon >> CurrentMsgData.BtnEnableConditions >> CurrentMsgData.AutoQuitMsgBoxTime;
         CurrentMsgData.ID = EventID;
-        qDebug() << "Event ID in message box is" << EventID;
         CurrentMsgData.EventType = static_cast<Global::EventType>(EventType);
         CurrentMsgData.BtnType = static_cast<Global::GuiButtonType>(ButtonType);
-        AddMsgBoxToQueue(Ref, CurrentMsgData);
-        qDebug() << "Status bar Icon is" << CurrentMsgData.StatusBarIcon;
+        if (CurrentMsgData.BtnType != Global::INVISIBLE) {
+            AddMsgBoxToQueue(Ref, CurrentMsgData);
+        }
         if (CurrentMsgData.StatusBarIcon == true) {
             QByteArray *p_ByteArray = new QByteArray();
             p_ByteArray->clear();
             QDataStream XmlStream(p_ByteArray, QIODevice::ReadWrite);
             XmlStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
             XmlStream << CurrentMsgData.ID << CurrentMsgData.EventType << CurrentMsgData.MsgString << CurrentMsgData.Time;
-            XmlStream.device()->reset();
+            (void) XmlStream.device()->reset();
             //Adding the messages with Status as active and Status Icon is TRUE
-            MainMenu::StatusBarManager::GetInstance()->AddEventMessages(XmlStream);
+            MainMenu::CStatusBarManager::GetInstance()->AddEventMessages(XmlStream);
+            delete p_ByteArray;
         }
     }
     else {
         RemoveMsgBoxFromQueue(static_cast<Global::EventType>(EventType) , EventID);
         //Removing the messages with Status as Inactive
-        MainMenu::StatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(EventType) , EventID);
+        MainMenu::CStatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(EventType) , EventID);
     }
 }
+
+void CMsgBoxManager::EnableOKButton()
+{
+  if (m_bMsgWaiting && mp_MessageDlg)
+  {
+      mp_MessageDlg->EnableButton(1, true);
+      m_bMsgWaiting = false;
+  }
+}
+
+/****************** **********************************************************/
+/*!
+ *  \brief This slot is called when the language is changed.
+ *
+ */
+/****************************************************************************/
+void CMsgBoxManager::LanguageChanged()
+{
+    quint32 ButtonCount = Global::GetButtonCountFromButtonType(m_CurrentMsgData.BtnType);
+    if (ButtonCount == 1 && m_CurrentMsgData.BtnType == Global::OK && mp_MessageDlg) {
+        mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+        mp_MessageDlg->HideButtons();
+    }
+    else if (ButtonCount == 2) {
+        SetMessageBoxType(m_CurrentMsgData);
+    }
+    else {
+        if (mp_MessageDlg) {
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideButtons();
+        }
+    }
+
+    QDateTime DateTime = QDateTime::fromString(m_CurrentMsgData.Time);
+    QString Date;
+    QString Time;
+    if (mp_SettingsInterface && mp_SettingsInterface->GetUserSettings()) {
+        Global::DateFormat DateFmt = mp_SettingsInterface->GetUserSettings()->GetDateFormat();
+        Global::TimeFormat TimeFmt = mp_SettingsInterface->GetUserSettings()->GetTimeFormat();
+        if (DateFmt == Global::DATE_INTERNATIONAL) {
+            Date = DateTime.date().toString("dd.MM.yyyy");
+        }
+        else if (DateFmt == Global::DATE_ISO) {
+            Date = DateTime.date().toString(Qt::ISODate);
+        }
+        else {
+            Date = DateTime.date().toString("MM/dd/yyyy");
+        }
+
+        if (TimeFmt == Global::TIME_24) {
+            Time = DateTime.time().toString("hh:mm");
+        }
+        else {
+            Time = DateTime.time().toString("hh:mm a");
+        }
+    }
+    // retrieve the original event ID.
+    quint32 ID =  (m_CurrentMsgData.ID & 0xffffffff00000000) >> 32;
+    if (mp_MessageDlg) {
+        mp_MessageDlg->SetTitle(Date + " " + Time, QString::number(ID));
+    }
+
+}
+
 /****************** **********************************************************/
 /*!
  *  \brief Adds Message box to Priority Queue.
+ *
+ *  \iparam Ref = Reference type
+ *  \iparam CurrentMsgData = Current message data
  */
 /****************************************************************************/
 void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgData)
 {
-
-    //no button, no msg box
-    if(CurrentMsgData.BtnType == Global::NO_BUTTON){
-        return;
-    }
     //Store reference in Hash
     m_EvenIDCmdRefHash.insert(CurrentMsgData.ID, Ref);
     //Add EventID to Priority Queue & EventId Hash
@@ -226,7 +273,6 @@ void CMsgBoxManager::AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgD
     if (!m_PopupTimer.isActive()) {
         m_PopupTimer.start(1000);
     }
-    qDebug()<<"Added Msg Box to Queue" << CurrentMsgData.MsgString;
 }
 
 /****************************************************************************/
@@ -242,17 +288,11 @@ void CMsgBoxManager::ButtonLeftClicked()
     if (m_CurrentMsgData.BtnType == Global::OK_CANCEL) {
         emit EventReportAck(NetCommands::CANCEL_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
-           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
-       }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYNOW) {
-           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
-       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::STOP_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
     else if (m_CurrentMsgData.BtnType == Global::YES_NO) {
-        emit EventReportAck(NetCommands::NO_BUTTON, CmdRef, m_CurrentMsgData.ID);
+        emit EventReportAck(NetCommands::NOT_SPECIFIED, CmdRef, m_CurrentMsgData.ID);
     }
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);
     m_CurrentMsgBoxEventID  = -1;
@@ -283,12 +323,6 @@ void CMsgBoxManager::ButtonRightClicked()
     if (m_CurrentMsgData.BtnType == Global::OK_CANCEL) {
         emit EventReportAck(NetCommands::OK_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYLATER_RECOVERYNOW) {
-          emit EventReportAck(NetCommands::RECOVERYLATER, CmdRef, m_CurrentMsgData.ID);
-    }
-    else if (m_CurrentMsgData.BtnType == Global::RECOVERYNOW) {
-           emit EventReportAck(NetCommands::RECOVERYNOW, CmdRef, m_CurrentMsgData.ID);
-       }
     else if (m_CurrentMsgData.BtnType == Global::CONTINUE_STOP) {
         emit EventReportAck(NetCommands::CONTINUE_BUTTON, CmdRef, m_CurrentMsgData.ID);
     }
@@ -307,7 +341,7 @@ void CMsgBoxManager::AutoQuitMessageBox()
 {
     RemoveMsgBoxFromQueue(static_cast<Global::EventType>(m_CurrentMsgData.EventType), m_CurrentMsgBoxEventID);
     //Removing the messages with Status as Inactive
-    MainMenu::StatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(m_CurrentMsgData.EventType) , m_CurrentMsgBoxEventID);
+    MainMenu::CStatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(m_CurrentMsgData.EventType) , m_CurrentMsgBoxEventID);
 
     Global::tRefType CmdRef = m_EvenIDCmdRefHash.value(m_CurrentMsgData.ID);
     emit EventReportAck(NetCommands::TIMEOUT, CmdRef, m_CurrentMsgData.ID);
@@ -322,10 +356,13 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
 {
     //If there are MesgBoxes to be displayed still,then display them
     if (!m_PriorityQueue.IsEmpty()) {
-        qDebug()<<"ShowMsgBoxIfQueueNotEmpty();";
         //Now update Msg Data
-        quint64 CurrentMsgBoxEventID = m_PriorityQueue.Top();
+        qint64 CurrentMsgBoxEventID = m_PriorityQueue.Top();
+        //Keys in Multimap are in ascending order, hence last key is the
+        //one with highest priority
         if (CurrentMsgBoxEventID == m_CurrentMsgBoxEventID) {
+            //If current msg box event ID is equal to the last key of the multimap
+            //Return from the current method.
             return;
         }
 
@@ -339,8 +376,14 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
         else {
             CreateMesgBox(m_CurrentMsgData);
         }
-        //Now update MsgDialog
-        mp_MessageDlg->SetText(m_CurrentMsgData.MsgString);
+        //Check for the text lenght to be displayed
+        QString MessageString = m_CurrentMsgData.MsgString;
+        if (MessageString.length() > MAX_MESSAGE_TEXT_LENGTH) {
+            (void) MessageString.remove(MAX_MESSAGE_TEXT_LENGTH, MessageString.length() - MAX_MESSAGE_TEXT_LENGTH);
+            MessageString.append(" ...");
+        }
+        // Now update MsgDialog
+        mp_MessageDlg->SetText(MessageString);
         QDateTime DateTime = QDateTime::fromString(m_CurrentMsgData.Time);
         QString Date;
         QString Time;
@@ -365,18 +408,31 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
             }
         }
         // retrieve the original event ID.
-        qDebug()<< "ID "<< m_CurrentMsgData.ID;
         quint32 ID =  (m_CurrentMsgData.ID & 0xffffffff00000000) >> 32;
-        qDebug() << "QString::number(ID)" << QString::number(ID)<< ID;
         mp_MessageDlg->SetTitle(Date + " " + Time, QString::number(ID));
 
-        QRect scr = mp_Parent->geometry();
-        mp_MessageDlg->move( scr.center() - mp_MessageDlg->rect().center());
-
-        if (m_CurrentMsgData.AutoQuitMsgBoxTime > 0)
+        if (mp_Parent)
         {
-            m_AutoQuitMsgBoxTimer.start(m_CurrentMsgData.AutoQuitMsgBoxTime);
+            QRect scr = mp_Parent->geometry();
+            mp_MessageDlg->move( scr.center() - mp_MessageDlg->rect().center());
         }
+
+        if ("" != m_CurrentMsgData.AutoQuitMsgBoxTime)
+        {
+            int timeInSeconds = DataManager::Helper::ConvertTimeStringToSeconds(m_CurrentMsgData.AutoQuitMsgBoxTime);
+            m_AutoQuitMsgBoxTimer.start(timeInSeconds);
+        }
+
+        //disable "OK"
+        if ("" != m_CurrentMsgData.BtnEnableConditions)
+        {
+            if (m_CurrentMsgData.BtnEnableConditions == "RT_LID_OPEN_CLOSE")
+            {
+                mp_MessageDlg->EnableButton(1, false);
+                m_bMsgWaiting = true;
+            }
+        }
+
 
         //Show MsgDlg
         mp_MessageDlg->Show();
@@ -397,7 +453,6 @@ void CMsgBoxManager::RemoveMsgBoxFromQueue(Global::EventType EventType, quint64 
 {
     //Remove data from internal containers - hashes/priority queues etc
     RemoveDataFromContainers(EventType, ID);
-    qDebug()<<"Removed Msg Box";
     //Check if MsgBox with this Id is currently being shown
     if (ID == m_CurrentMsgData.ID && mp_MessageDlg) {
         mp_MessageDlg->hide();
@@ -415,10 +470,46 @@ void CMsgBoxManager::RemoveMsgBoxFromQueue(Global::EventType EventType, quint64 
 /****************************************************************************/
 void CMsgBoxManager::RemoveDataFromContainers(Global::EventType EventType, quint64 ID)
 {
-    qDebug()<< "Event ID to remove" << ID << "Event Type" << EventType;
     m_PriorityQueue.Remove(EventType, ID);
-    qDebug()<<"Message Queue Size" << m_PriorityQueue.Size();
     m_EventIDMsgDataHash.remove(ID);
     m_EvenIDCmdRefHash.remove(ID);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Sets message box type depending on button types.
+ *  \iparam MessageBoxData = Info/warning/Error
+ */
+/****************************************************************************/
+void CMsgBoxManager::SetMessageBoxType(MsgData MessageBoxData)
+{
+    if (mp_MessageDlg) {
+        switch (MessageBoxData.BtnType) {
+        case Global::YES_NO:
+            //I am not adding the below lines(Which are repeated in every switch case) to a function
+            //since Translation is a problem
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Yes", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager", "No", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideCenterButton();
+            break;
+        case Global::CONTINUE_STOP:
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Continue", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Stop", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideCenterButton();
+            break;
+        case Global::OK_CANCEL:
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->SetButtonText(3, QApplication::translate("CMsgBoxManager","Cancel", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideCenterButton();
+            break;
+        case Global::WITHOUT_BUTTONS:
+            mp_MessageDlg->HideAllButtons();
+            break;
+        default:
+            mp_MessageDlg->SetButtonText(1, QApplication::translate("CMsgBoxManager","Ok", 0, QApplication::UnicodeUTF8));
+            mp_MessageDlg->HideButtons();
+            break;
+        }
+    }
 }
 } // End of namespace Core

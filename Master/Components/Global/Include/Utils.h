@@ -24,7 +24,7 @@
 #include <Global/Include/GlobalDefines.h>
 #include <Global/Include/AdjustedTime.h>
 #include <Global/Include/Exception.h>
-
+#include <Global/Include/EventObject.h>
 #include <QString>
 #include <QLocale>
 
@@ -34,6 +34,44 @@
 //lint -esym(773, FILE_LINE)
 //lint -esym(773, FILE_LINE_LIST)
 //lint -esym(773, WHEREAMI)
+/****************************************************************************/
+/**
+ * \brief Kit/Bottle max retry count in case of consumable already used and
+ *  bottles lot number mismatch.
+ */
+/****************************************************************************/
+const int KIT_BOTTLE_RETRY_COUNT = 3;   //!< Kit/Bottle max retry count
+
+/****************************************************************************/
+/**
+* \brief  TWENTY_FOUR_HOURS_IN_SECONDS
+*  provides value of 24 hours in seconds
+*/
+/****************************************************************************/
+const quint32 TWENTY_FOUR_HOURS_IN_SECONDS = 86400;  //!< value of 24 hours in seconds
+
+/****************************************************************************/
+/**
+* \brief NINTY_NINE_HOURS_IN_SECONDS
+*    provides value of 99 hours in seconds
+*/
+/****************************************************************************/
+const quint32 NINTY_NINE_HOURS_IN_SECONDS = 356400;  //!< value of 99 hours in seconds
+
+/****************************************************************************/
+/**
+* \brief SIXTY_SECONDS
+*    provides value of 1 minute in seconds
+*/
+/****************************************************************************/
+const quint32 SIXTY_SECONDS = 60;  //!< value of 1 minute in seconds
+
+/****************************************************************************/
+/**
+* \brief Event log temporary file name suffix
+*/
+/****************************************************************************/
+const QString EVENTLOG_TEMP_FILE_NAME_SUFFIX = "Events_Tmp.log";
 
 /****************************************************************************/
 /**
@@ -99,25 +137,38 @@
 /****************************************************************************/
 #define CONNECTSIGNALSLOT(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget))) { \
-        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
-                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE) \
     }
 
 
 /****************************************************************************/
 /**
- * \brief Guarded QObject::connect for signal -> slot.
+ * \brief Guarded QObject::queued connect for signal -> slot.
  *
- * Guarded QObject::connect for signal -> slot for wueued connections.
+ * Guarded QObject::connect for signal -> slot for queued connections.
  * Throws an exception if connect fails.
  */
 /****************************************************************************/
 #define CONNECTSIGNALSLOTQUEUED(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget), Qt::QueuedConnection)) { \
-        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
-                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE) \
     }
 
+/****************************************************************************/
+/**
+ * \brief Guarded QObject::direct connect for signal -> slot.
+ *
+ * Guarded QObject::connect for signal -> slot for direct connections.
+ * Throws an exception if connect fails.
+ */
+/****************************************************************************/
+#define CONNECTSIGNALSLOTDIRECT(pSource, SignalSource, pTarget, SlotTarget) \
+    if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget), Qt::DirectConnection)) { \
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT, \
+                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE) \
+    }
 
 /****************************************************************************/
 /**
@@ -128,7 +179,33 @@
 /****************************************************************************/
 #define CONNECTSIGNALSIGNAL(pSource, SignalSource, pTarget, SlotTarget) \
     if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SIGNAL(SlotTarget))) { \
-        THROWARGS(EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
+                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE) \
+    }
+
+/****************************************************************************/
+/**
+ * \brief Guarded QObject::connect for signal -> slot.
+ *
+ * Guarded QObject::connect for signal -> slot. Log if connect fails.
+ */
+/****************************************************************************/
+#define CONNECTSIGNALSLOTGUI(pSource, SignalSource, pTarget, SlotTarget) \
+    if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SLOT(SlotTarget))) { \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_SIGNAL_SLOT_CONNECT,\
+                  Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE);\
+    }
+
+/****************************************************************************/
+/**
+ * \brief Guarded QObject::connect for signal -> signal.
+ *
+ * Guarded QObject::connect for signal -> signal. Log if connect fails.
+ */
+/****************************************************************************/
+#define CONNECTSIGNALSIGNALGUI(pSource, SignalSource, pTarget, SlotTarget) \
+    if(!QObject::connect(pSource, SIGNAL(SignalSource), pTarget, SIGNAL(SlotTarget))) { \
+         Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_SIGNAL_SIGNAL_CONNECT, \
                   Global::tTranslatableStringList() << #pSource << #SignalSource << #pTarget << #SlotTarget << FILE_LINE); \
     }
 
@@ -141,7 +218,23 @@
 /****************************************************************************/
 #define CHECKPTR(pPtr) \
     if(pPtr == NULL) { \
-        THROWARGS(EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << #pPtr << FILE_LINE); \
+        LOGANDTHROWARGS(Global::EVENT_GLOBAL_ERROR_NULL_POINTER, Global::tTranslatableStringList() << #pPtr << FILE_LINE) \
+    }
+
+/****************************************************************************/
+/**
+ * \brief If pointer is NULL an error message is logged and the value is returned.
+ *
+ * \param[in]   pPtr    The checked pointer variable.
+ * \param[in]   result  The return value.
+ */
+/****************************************************************************/
+#define CHECKPTR_RETURN(pPtr, result)                                                           \
+    if(pPtr == NULL) {                                                                          \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_NULL_POINTER,     \
+                                                   Global::FmtArgs() << #pPtr                   \
+                                                                     << __FILE__ << __LINE__);  \
+        return result;                                                                          \
     }
 
 
@@ -168,28 +261,13 @@ const QString MNT_SCRIPT = "/etc/init.d/EBox-MountUSB-Script.sh";  //!< location
 
 /****************************************************************************/
 /**
- * \brief Set al supported languages.
+ * \brief Create a list of language names by using the qt library.
  *
- * This method initialize the list with an set of languages that have to be
- * supported always. Basicly we call \ref AddSupportedLanguage. If one wants
- * to add some supplementary languages, it has to call \ref AddSupportedLanguage.
- * \warning This method is not thread safe!
+ * This uses the qt library matching locales and creates list of
+ * QLocale classes. Then it will be converted to string value
  */
 /****************************************************************************/
-void InitSupportedLanguages();
-
-/****************************************************************************/
-/**
- * \brief Add a language to the list of supported languages.
- *
- * Adds a language to the list of supported languages.
- * See also \ref InitSupportedLanguages
- * \warning This method is not thread safe!
- *
- * \param[in]   TheLanguage     The language.
- */
-/****************************************************************************/
-void AddSupportedLanguage(QLocale::Language TheLanguage);
+void CreateListOfLanaguageNames();
 
 /****************************************************************************/
 /**
@@ -199,7 +277,7 @@ void AddSupportedLanguage(QLocale::Language TheLanguage);
  * "GERMAN" return QLocale::German
  * If no match found, QLocale::C is returned.
  *
- * \param[in]   LanguageName    The name of the language as readable language name.
+ * \iparam   LanguageName    The name of the language as readable language name.
  * \return                      The language.
  */
 /****************************************************************************/
@@ -211,7 +289,7 @@ QLocale::Language StringToLanguage(const QString &LanguageName);
  *
  * We return the readable language name.
  *
- * \param[in]   TheLanguage     The language.
+ * \iparam   TheLanguage     The language.
  * \return                      The language name.
  */
 /****************************************************************************/
@@ -223,7 +301,7 @@ QString LanguageToString(const QLocale::Language TheLanguage);
  *
  * We return the readable language code as specified in ISO 639.
  *
- * \param[in]   TheLanguage     The language.
+ * \iparam   TheLanguage     The language.
  * \return                      The language code as in ISO 639.
  */
 /****************************************************************************/
@@ -233,7 +311,7 @@ QString LanguageToLanguageCode(const QLocale::Language TheLanguage);
 /**
  * \brief Convert from gui message type enum to string.
  *
- * \param[in]   TheGUIMessageType   The gui message type to convert.
+ * \iparam   TheGUIMessageType   The gui message type to convert.
  * \return                          To string converted gui message type.
  */
 /****************************************************************************/
@@ -245,8 +323,8 @@ QString GUIMessageTypeToString(GUIMessageType TheGUIMessageType);
  *
  * If no match, \ref GUIMSGTYPE_UNDEFINED is returned.
  *
- * \param[in]   GUIMessageTypeString    The name of the gui message type.
- * \param[in]   CaseSensitive           If true, search is done case sensitive.
+ * \iparam   GUIMessageTypeString    The name of the gui message type.
+ * \iparam   CaseSensitive           If true, search is done case sensitive.
  * \return                              The gui message type.
  */
 /****************************************************************************/
@@ -256,7 +334,7 @@ GUIMessageType StringToGUIMessageType(const QString &GUIMessageTypeString, bool 
 /**
  * \brief Convert from temperature format enum to string.
  *
- * \param[in]   TheTemperatureFormat    The temperature format to convert.
+ * \iparam   TheTemperatureFormat    The temperature format to convert.
  * \return                              To string converted temperature format.
  */
 /****************************************************************************/
@@ -268,8 +346,8 @@ QString TemperatureFormatToString(TemperatureFormat TheTemperatureFormat);
  *
  * If no match, \ref TEMP_FORMAT_UNDEFINED is returned.
  *
- * \param[in]   TemperatureFormatString     The name of the temperature format.
- * \param[in]   CaseSensitive               If true, search is done case sensitive.
+ * \iparam   TemperatureFormatString     The name of the temperature format.
+ * \iparam   CaseSensitive               If true, search is done case sensitive.
  * \return                                  The temperature format.
  */
 /****************************************************************************/
@@ -279,7 +357,7 @@ TemperatureFormat StringToTemperatureFormat(const QString &TemperatureFormatStri
 /**
  * \brief Convert from on off state enum to string.
  *
- * \param[in]   TheState    The state format to convert.
+ * \iparam   TheState    The state format to convert.
  * \return                  To string converted on off state.
  */
 /****************************************************************************/
@@ -291,8 +369,8 @@ QString OnOffStateToString(OnOffState TheState);
  *
  * If no match, \ref ONOFFSTATE_UNDEFINED is returned.
  *
- * \param[in]   OnOffStateString    Ok-Yes+No-Continue+Stop-Ok+CancelThe name of the on off state.
- * \param[in]   CaseSensitive       If true, search is done case sensitive.
+ * \iparam   OnOffStateString    Ok-Yes+No-Continue+Stop-Ok+CancelThe name of the on off state.
+ * \iparam   CaseSensitive       If true, search is done case sensitive.
  * \return                          The on off sate.
  */
 /****************************************************************************/
@@ -302,7 +380,7 @@ OnOffState StringToOnOffState(const QString &OnOffStateString, bool CaseSensitiv
 /**
  * \brief Convert from date format enum to string.
  *
- * \param[in]   TheFormat   The date format to convert.
+ * \iparam   TheFormat   The date format to convert.
  * \return                  To string converted date format.
  */
 /****************************************************************************/
@@ -314,8 +392,8 @@ QString DateFormatToString(DateFormat TheFormat);
  *
  * If no match, \ref DATE_UNDEFINED is returned.
  *
- * \param[in]   DateFormatString    The name of the date format.
- * \param[in]   CaseSensitive       If true, search is done case sensitive.
+ * \iparam   DateFormatString    The name of the date format.
+ * \iparam   CaseSensitive       If true, search is done case sensitive.
  * \return                          The date format.
  */
 /****************************************************************************/
@@ -325,7 +403,7 @@ DateFormat StringToDateFormat(const QString &DateFormatString, bool CaseSensitiv
 /**
  * \brief Convert from time format enum to string.
  *
- * \param[in]   TheFormat   The time format to convert.
+ * \iparam   TheFormat   The time format to convert.
  * \return                  To string converted time format.
  */
 /****************************************************************************/
@@ -337,8 +415,8 @@ QString TimeFormatToString(TimeFormat TheFormat);
  *
  * If no match, \ref TIME_UNDEFINED is returned.
  *
- * \param[in]   TimeFormatString    The name of the time format.
- * \param[in]   CaseSensitive       If true, search is done case sensitive.
+ * \iparam   TimeFormatString    The name of the time format.
+ * \iparam   CaseSensitive       If true, search is done case sensitive.
  * \return                          The date format.
  */
 /****************************************************************************/
@@ -350,8 +428,8 @@ TimeFormat StringToTimeFormat(const QString &TimeFormatString, bool CaseSensitiv
  *
  * If no match, \ref TIME_UNDEFINED is returned.
  *
- * \param[in]   CurrentDate = Current Date.
- * \param[in]   DateToBeCompared = Date to be comapared.
+ * \iparam   CurrentDate = Current Date.
+ * \iparam   DateToBeCompared = Date to be comapared.
  * \return      Bool Type True(If DateToBeCompared is more than CurrentDate)
  *              else False
  */
@@ -361,7 +439,7 @@ bool CompareDate(QDate CurrentDate,QDate DateToBeCompared);
 /**
  * \brief Convert from oven start mode enum to string.
  *
- * \param[in]   TheMode     The oven start mode to convert.
+ * \iparam   TheMode     The oven start mode to convert.
  * \return                  To string converted oven start mode.
  */
 /****************************************************************************/
@@ -373,8 +451,8 @@ QString OvenStartModeToString(OvenStartMode TheMode);
  *
  * If no match, \ref OVENSTART_UNDEFINED is returned.
  *
- * \param[in]   OvenStartModeString     The name of oven start mode.
- * \param[in]   CaseSensitive           If true, search is done case sensitive.
+ * \iparam   OvenStartModeString     The name of oven start mode.
+ * \iparam   CaseSensitive           If true, search is done case sensitive.
  * \return                              The oven start mode.
  */
 /****************************************************************************/
@@ -385,7 +463,7 @@ OvenStartMode StringToOvenStartMode(const QString &OvenStartModeString, bool Cas
 /**
  * \brief Output string to console.
  *
- * \param[in]   TheString   The string to write to console
+ * \iparam   TheString   The string to write to console
  */
 /****************************************************************************/
 inline void ToConsole(const QString &TheString) {
@@ -401,7 +479,7 @@ inline void ToConsole(const QString &TheString) {
  *
  * Used for example for safe convertions of enums to int.
  *
- * \param[in]   Value   Value to convert.
+ * \iparam   Value   Value to convert.
  * \return              To integer converted value.
  */
 /****************************************************************************/
@@ -418,7 +496,7 @@ template<class EnumType> inline int AsInt(const EnumType &Value) {
  *
  * Used for example for safe convertions of enums to quint32.
  *
- * \param[in]   Value   Value to convert.
+ * \iparam   Value   Value to convert.
  * \return              To quint32 converted value.
  */
 /****************************************************************************/
@@ -430,7 +508,7 @@ template<class EnumType> inline quint32 Asquint32(const EnumType &Value) {
 /**
  * \brief Convert from water type enum to string.
  *
- * \param[in]   TheType     The water type to convert.
+ * \iparam   TheType     The water type to convert.
  * \return                  To string converted water type.
  */
 /****************************************************************************/
@@ -442,8 +520,8 @@ QString WaterTypeToString(WaterType TheType);
  *
  * If no match, \ref WATER_TYPE_UNDEFINED is returned.
  *
- * \param[in]   WaterTypeString         The name of water type.
- * \param[in]   CaseSensitive           If true, search is done case sensitive.
+ * \iparam   WaterTypeString         The name of water type.
+ * \iparam   CaseSensitive           If true, search is done case sensitive.
  * \return                              The water type.
  */
 /****************************************************************************/
@@ -453,7 +531,7 @@ WaterType StringToWaterType(const QString &WaterTypeString, bool CaseSensitive =
 /**
  * \brief Convert from boolean true/false to Yes/No string.
  *
- * \param[in]   YesNo       boolean true/false to convert.
+ * \iparam   YesNo       boolean true/false to convert.
  * \return                  To string Yes/No string.
  */
 /****************************************************************************/
@@ -462,7 +540,8 @@ QString BoolToStringYesNo(bool YesNo);
 /**
  * \brief Convert from Yes/No string to boolean true/false.
  *
- * \param[in]   "Yes"/"No"  string to boolean convert.
+ * \iparam   YesNoStateString "Yes"/"No"  string to boolean convert.
+ * \iparam      CaseSensitive = true if case sensitive, else false
  * \return                  To boolean true/false.
  */
 /****************************************************************************/
@@ -471,7 +550,7 @@ bool StringToTrueFalse(const QString &YesNoStateString, bool CaseSensitive);
 /**
  * \brief   Returns the Number of Buttons associated with the Button Type
  *
- * \param[in]   ButtonType
+ * \iparam   ButtonType
  * \return      Button count
  */
 /****************************************************************************/
@@ -481,12 +560,11 @@ quint32 GetButtonCountFromButtonType(Global::GuiButtonType ButtonType);
 /**
  * \brief   Returns the ButtonType enum for String passed
  *
- * \param[in]   ButtonTypeString  e.g. "Yes+No",  "Ok"
+ * \iparam   ButtonTypeString  e.g. "Yes+No",  "Ok"
  * \return      Button count
  */
 /****************************************************************************/
 Global::GuiButtonType   StringToGuiButtonType(QString ButtonTypeString);
-
 
 
 /****************************************************************************/
@@ -499,7 +577,7 @@ Global::GuiButtonType   StringToGuiButtonType(QString ButtonTypeString);
  *
  * \iparam   Name     Search the file/folder in the mounted device
  *
- * \return   Exited number of the process
+ * \return   Exit code of the USB mount script
  */
 /****************************************************************************/
 qint32 MountStorageDevice(QString Name = "");
@@ -512,6 +590,37 @@ qint32 MountStorageDevice(QString Name = "");
  */
 /****************************************************************************/
 void UnMountStorageDevice();
+
+/****************************************************************************/
+/**
+ * \brief  Dump string to console.
+ *
+ */
+/****************************************************************************/
+void DumpToConsole(const QString StringToDump);
+
+/****************************************************************************/
+/**
+ * \brief  Thread Priority types
+ *
+ */
+/****************************************************************************/
+typedef enum {
+    LOW_PRIO = 1, //!< Thread running as LOW_PRIO would only run when the processor would otherwise be idle
+    BATCH_PRIO, //!< Batch style execution
+    DEFAULT_PRIO, //!< default prio -> simple round robin mechanism
+    HIGH_PRIO, //!< Thread will be given more priority -> real time round robin mechanism
+}ThreadPrio_t;
+
+/****************************************************************************/
+/**
+ * \brief  This function sets the priority for a running thread.
+ * //!\warning Setting thread priority can lead to race conditions!
+ *
+ * \iparam ThreadPriority = Low/Default/High
+ */
+/****************************************************************************/
+void SetThreadPriority(const ThreadPrio_t ThreadPriority);
 
 } // end namespace Global
 

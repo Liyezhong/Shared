@@ -55,6 +55,13 @@ class CryptoService
         void initHmacs();
         void initAES();
         void encrypt(QByteArray& data);
+        /****************************************************************************/
+        /*!
+         * \brief get the index in hask chain
+         *
+         * \return index in hask chain
+         */
+        /****************************************************************************/
         inline int getHashIndex() {return m_hashChainIndex;}
         void stepHashChain();
         static void computeKey(QByteArray& key,
@@ -87,6 +94,15 @@ class WriteAndHmac
 {
     public:
         WriteAndHmac(CryptoService& cs, FailSafeOpen* fd);
+        /****************************************************************************/
+        /*!
+         * \brief read data and update HMACs in parallel
+         *
+         * \iparam size - data size to be read
+         *
+         * \return The data byte array read
+         */
+        /****************************************************************************/
         QByteArray read(int size);
         void write(QByteArray data);
         QMap<QByteArray, QByteArray> getHmacs();

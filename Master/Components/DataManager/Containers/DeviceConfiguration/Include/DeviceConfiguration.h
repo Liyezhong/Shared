@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h
+/*! \file Components/DataManager/Containers/DeviceConfiguration/Include/DeviceConfiguration.h
  *
  *  \brief Definition file for class CDeviceConfiguration.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-04
- *  $Author:    $ Ningu
+ *  $Author:    $ Ningu, Ramya GJ
  *
  *  \b Company:
  *
@@ -47,16 +47,10 @@ namespace DataManager {
 class CDeviceConfiguration {
     friend class CDeviceConfigurationInterface;
 private:
-    QHash<QString, QString> m_ValueList;
-    QString             m_Version;                      ///< Store the version number of the file    
-//    QString             m_StainerDeviceName;            ///< Store stainer device name.
-//    QString             m_StainerSerialNumber;          ///< Store stainer serial number.
-//    QString             m_CoverSlipperDeviceName;       ///< Store coverslipper device name
+    QMap<QString, QString> m_ValueList;                 ///< Store the values
+    QString             m_Version;                      ///< Store the version number of the file
     QStringList         m_LanguageList;                 ///< Store Language list
-//    bool                m_WorkStation;                  ///< Defines if the device is a workstation
-//    bool                m_HeatedCuevettesAvailable;     ///< Defines whether the heated cuvettes is available
-//    bool                m_CameraSlideIdAvailable;       ///< Defines whether the BarCode Camera is available
-    ErrorHash_t         m_ErrorHash;                     //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+    ErrorMap_t         m_ErrorMap;                     //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
 
     /****************************************************************************/
 
@@ -73,7 +67,7 @@ private:
     /****l************************************************************************/
     void SetVersion(const QString Version)
     {
-       m_Version = Version;
+        m_Version = Version;
     }
 
 protected:
@@ -81,6 +75,7 @@ public:
 
     CDeviceConfiguration();
     CDeviceConfiguration(const CDeviceConfiguration &);
+    void CopyFromOther(const CDeviceConfiguration &DeviceConfiguration);
 
     ~CDeviceConfiguration();
 
@@ -89,6 +84,7 @@ public:
     CDeviceConfiguration & operator = (const CDeviceConfiguration & DeviceConfig);
 
     void SetDefaultAttributes();
+    QMap<QString ,QString> GetValueList() const;
 
     /****************************************************************************/
     /*!
@@ -99,8 +95,8 @@ public:
     /****************************************************************************/
     QString GetVersion() const
     {
-       return m_Version;
-    }    
+        return m_Version;
+    }
     /****************************************************************************/
     /*!
      *  \brief Retrieves the language list
@@ -128,7 +124,10 @@ public:
     /*!
      *  \brief Get the configuration value related to key
      *
-     *  \return Value
+     *  \iparam key
+     *  \iparam value
+     *
+     *  \return void
      */
     /****************************************************************************/
     void SetValue(QString key, QString value)
@@ -140,19 +139,24 @@ public:
     /*!
      *  \brief Get the configuration value related to key
      *
-     *  \return Value
+     *  \iparam key
+     *  \iparam value
+     *
+     *  \return void
      */
     /****************************************************************************/
     void SetValue(QString key, bool value)
     {
-        m_ValueList.insert(key.toUpper(), value ? "true" : "false");
+        m_ValueList.insert(key.toUpper(), value ? "Yes" : "No");
     }
 
     /****************************************************************************/
     /*!
      *  \brief Get the configuration value related to key
      *
-     *  \return Value
+     *  \iparam key
+     *
+     *  \return string value
      */
     /****************************************************************************/
     QString GetValue(QString key) const
@@ -164,7 +168,9 @@ public:
     /*!
      *  \brief Get the configuration value related to key
      *
-     *  \return Value
+     *  \iparam key
+     *
+     *  \return bool value
      */
     /****************************************************************************/
     bool GetBoolValue(QString key) const
@@ -175,6 +181,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief Get the Attribute value related to key
+     *
+     *  \iparam key = The attribute
      *
      *  \return Value
      */
@@ -193,147 +201,19 @@ public:
         }
     }
     /****************************************************************************/
-
-//    /*!
-//     *  \brief Get the stainer device name
-//     *
-//     *  \return Stainer device name
-//     */
-//    /****************************************************************************/
-//    QString GetStainerDeviceName() const
-//    {
-//       return m_StainerDeviceName;
-//    }
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the stainer device name
-//     *
-//     *  \iparam StainerDeviceName = stainer device name
-//     */
-//    /****************************************************************************/
-//    void SetStainerDeviceName(const QString StainerDeviceName)
-//    {
-//        m_StainerDeviceName = StainerDeviceName;
-//    }
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the stainer serial number
-//     *
-//     *  \return Stainer serial number
-//     */
-//    /****************************************************************************/
-//    QString GetStainerSerialNumber() const
-//    {
-//       return m_StainerSerialNumber;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the stainer serial number
-//     *
-//     *  \iparam StainerSerialNumber = stainer serial number
-//     */
-//    /****************************************************************************/
-//    void SetStainerSerialNumber(const QString StainerSerialNumber)
-//    {
-//        m_StainerSerialNumber = StainerSerialNumber;
-//    }
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the coverslipper device name
-//     *
-//     *  \return coverslipper device name
-//     */
-//    /****************************************************************************/
-//    QString GetCoverSlipperDeviceName() const
-//    {
-//       return m_CoverSlipperDeviceName;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set coverslipper device name
-//     *
-//     *  \iparam CoverSlipperDeviceName = coverslipper device name
-//     */
-//    /****************************************************************************/
-//    void SetCoverSlipperDeviceName(const QString CoverSlipperDeviceName)
-//    {
-//        m_CoverSlipperDeviceName = CoverSlipperDeviceName;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the device type flag(workstation = 0 or standalone = 1)
-//     *
-//     *  \return returns device type flag
-//     */
-//    /****************************************************************************/
-//    bool GetWorkStation() const
-//    {
-//       return m_WorkStation;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the device type flag (workstation = 0 or standalone = 1)
-//     *
-//     *  \iparam WorkStation = device type flag
-//     */
-//    /****************************************************************************/
-//    void SetWorkStation(bool WorkStation)
-//    {
-
-//        m_WorkStation = WorkStation;
-//    }
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the heated cuvettes availability flag
-//     *
-//     *  \return returns heated cuvettes availability flag
-//     */
-//    /****************************************************************************/
-//    bool GetHeatedCuevettesAvailable() const
-//    {
-//       return m_HeatedCuevettesAvailable;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the heated cuvettes availability flag
-//     *
-//     *  \iparam HeatedCuevettesAvailable = heated cuvettes availability flag
-//     */
-//    /****************************************************************************/
-//    void SetHeatedCuevettesAvailable(bool HeatedCuevettesAvailable)
-//    {
-
-//        m_HeatedCuevettesAvailable = HeatedCuevettesAvailable;
-//    }
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Get the BarCode Camera availability flag
-//     *
-//     *  \return returns BarCode Camera availability flag
-//     */
-//    /****************************************************************************/
-//    bool GetCameraSlideIdAvailable() const
-//    {
-//       return m_CameraSlideIdAvailable;
-//    }
-
-//    /****************************************************************************/
-//    /*!
-//     *  \brief Set the BarCode Camera availability flag
-//     *
-//     *  \iparam CameraSlideIdAvailable = BarCode Camera availability flag
-//     */
-//    /****************************************************************************/
-//    void SetCameraSlideIdAvailable(bool CameraSlideIdAvailable)
-//    {
-
-//        m_CameraSlideIdAvailable = CameraSlideIdAvailable;
-//    }
+    /*!
+     *  \brief Get the stainer device name
+     *
+     *  \iparam key
+     *
+     *  \return Stainer device name
+     */
+    /****************************************************************************/
+    QString GetStainerDeviceName(QString key) const
+    {
+        QString DeviceName = m_ValueList.value(key, "");
+        return DeviceName;
+    }
 
 }; // end class CDeviceConfiguration
 

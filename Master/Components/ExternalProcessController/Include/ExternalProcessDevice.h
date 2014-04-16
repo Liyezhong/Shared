@@ -77,8 +77,13 @@ public slots:
 private:
 
     ExternalProcessDevice();                                                    ///< Not implemented.
-    ExternalProcessDevice(const ExternalProcessDevice &);                       ///< Not implemented.
-    const ExternalProcessDevice & operator = (const ExternalProcessDevice &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ExternalProcessDevice)
 
     /// timer to guard the login timeout (upon powerup or process restart)
     QTimer  m_LoginTimer;

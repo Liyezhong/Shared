@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class DayEventLoggerConfig.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -22,7 +22,6 @@
 #define DATALOGGING_DAYOPERATIONLOGGERCONFIG_H
 
 #include <Global/Include/GlobalDefines.h>
-
 #include <QString>
 
 namespace DataLogging {
@@ -45,7 +44,7 @@ private:
     QString     m_SerialNumber;         ///< Serial number.
     QString     m_Path;                 ///< Absolute path in which log files must be written.
     int         m_MaxFileCount;         ///< Maximal file count. 0 means no maximal file count monitoring!
-    QString     m_BaseFileName;
+    QString     m_BaseFileName;         ///< Base file name
     /****************************************************************************/
     /**
      * \brief Copy other instance to self.
@@ -54,7 +53,6 @@ private:
      */
     /****************************************************************************/
     void CopyFrom(const DayEventLoggerConfig &rOther);
-protected:
 public:
     /****************************************************************************/
     /**
@@ -62,6 +60,7 @@ public:
      */
     /****************************************************************************/
     DayEventLoggerConfig();
+
     /****************************************************************************/
     /**
      * \brief Default constructor.
@@ -70,35 +69,41 @@ public:
      * \iparam   SerialNumber        Serial number
      * \iparam   Path                Absolute path in which log files must be written.
      * \iparam   MaxFileCount        Maximal file count. 0 means no maximal file count monitoring!
+     * \iparam   BaseFileName        Base file name
      */
     /****************************************************************************/
     DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,
                              const QString &Path, int MaxFileCount, const QString &BaseFileName);
+
     /****************************************************************************/
     /**
      * \brief Copy constructor.
      *
      * Implemented due to signal / slot mechanism.
      *
-     * \iparam   rOther  Const reference to other instance.
+     * \iparam   Other  Const reference to other instance.
      */
     /****************************************************************************/
-    DayEventLoggerConfig(const DayEventLoggerConfig &rOther);
+    DayEventLoggerConfig(const DayEventLoggerConfig &Other);
+
     /****************************************************************************/
     /**
      * \brief Destructor.
      */
     /****************************************************************************/
     ~DayEventLoggerConfig();
+
     /****************************************************************************/
     /**
      * \brief Assignment operator.
      *
-     * \iparam   rOther  Other instance
-     * \return              Const reference to self.
+     * \iparam   Other  Other instance
+     *
+     * \return   Const reference to self.
      */
     /****************************************************************************/
-    const DayEventLoggerConfig & operator = (const DayEventLoggerConfig &rOther);
+    const DayEventLoggerConfig & operator = (const DayEventLoggerConfig &Other);
+
     /****************************************************************************/
     /**
      * \brief Get operating mode.
@@ -109,6 +114,7 @@ public:
     inline QString GetOperatingMode() const {
         return m_OperatingMode;
     }
+
     /****************************************************************************/
     /**
      * \brief Get operating mode.
@@ -119,6 +125,7 @@ public:
     inline QString GetBaseFileName() const {
         return m_BaseFileName;
     }
+
     /****************************************************************************/
     /**
      * \brief Get serial number.
@@ -129,16 +136,18 @@ public:
     inline QString GetSerialNumber() const {
         return m_SerialNumber;
     }
+
     /****************************************************************************/
     /**
      * \brief Get absolute path in which log files must be written.
      *
-     * \return      Path.
+     * \return      Path of the file.
      */
     /****************************************************************************/
     inline QString GetPath() const {
         return m_Path;
     }
+
     /****************************************************************************/
     /**
      * \brief Get maximal file count.

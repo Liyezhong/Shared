@@ -43,6 +43,13 @@ public:
 private:
     CmdSwitchToService();                                               ///< Not implemented.
     CmdSwitchToService(const CmdSwitchToService &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdSwitchToService & operator = (const CmdSwitchToService &); ///< Not implemented.
 private:
     QString      m_Pin;     ///< Pin.

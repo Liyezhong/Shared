@@ -293,6 +293,9 @@ void CDigitalInput::HandleCommandRequestTask()
                 m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                 m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
 
+                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                                 Global::AdjustedTime::Instance().GetCurrentDateTime());
+
                 if(m_ModuleCommand[idx].m_Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
                 {
                     FILE_LOG_L(laFCT, llERROR) << "  CANDigitalInput:: '" << GetKey().toStdString() << "': input value req. timeout";
@@ -431,7 +434,7 @@ ReturnCode_t CDigitalInput::SendCANMessageConfiguration()
     canmsg.data[0] = dataByte;
 
     SetCANMsgDataU16(&canmsg, pCANObjConfDigInpPort->m_sPolarity, 1);
-    SetCANMsgDataU16(&canmsg, pCANObjConfDigInpPort->m_sSupervision, 3);
+    SetCANMsgDataU16(&canmsg, pCANObjConfDigInpPort->m_sThreshold, 3);
     canmsg.data[5] = pCANObjConfDigInpPort->m_bInterval;
     canmsg.data[6] = pCANObjConfDigInpPort->m_bDebounce;
     canmsg.data[7] = 0;

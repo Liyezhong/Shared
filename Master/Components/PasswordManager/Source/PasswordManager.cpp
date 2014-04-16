@@ -27,8 +27,7 @@
 namespace PasswordManager {
 
 /****************************************************************************/
-CPasswordManager::CPasswordManager(const QString &MasterPasswordHash) :
-    m_MasterPasswordHash(MasterPasswordHash),
+CPasswordManager::CPasswordManager() :
     m_FallbackPassword(false)
 {
 }
@@ -67,7 +66,8 @@ bool CPasswordManager::CheckPasswordFormat(const QString &Password) {
 /****************************************************************************/
 void CPasswordManager::SetPassword(const QString &Name, const QString &Password) {
     if(!CheckPasswordFormat(Password)) {
-        LOGANDTHROW(EVENT_DM_ERROR_PASSWORD_FORMAT);
+        Global::EventObject::Instance().RaiseEvent(DataManager::EVENT_DM_ERROR_PASSWORD_FORMAT);
+        return;
     }    
     // checks passed. compute hash and insert password.
     m_Passwords.insert(Name, ComputeHash(Password));
@@ -88,8 +88,7 @@ bool CPasswordManager::CheckPassword(const QString &Name, const QString &Passwor
     // reset the fallback password flag value
     SetFallbackPasswordFlag(false);
     // check if default master password
-    if((Name == "Administrator") && ((ComputeHash(Password) == m_MasterPasswordHash)
-                                     || (CheckFallbackPassword(Password.toLong())))) {
+    if((Name == "Administrator") && (CheckFallbackPassword(Password.toLong()))) {
         // default master password
         return true;
     }
@@ -135,6 +134,7 @@ long CPasswordManager::ComputeFallbackPassword() {
 /****************************************************************************/
 bool CPasswordManager::ServiceAuthentication(const QString &Password, const QString &DeviceName) {
 
+    return true; // only for test, should be removed.
     CServicePassword ServiceUser(Password, DeviceName);
 
     return ServiceUser.ValidateAuthentication();

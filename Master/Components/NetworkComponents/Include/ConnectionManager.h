@@ -122,6 +122,13 @@ public slots:
     void HandleTimeout();
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(ConnectionManager)
     bool CheckAuthenticationResponse(QByteArray *ba);
     bool ParseAuthenticationResponse(QDomDocument *d);
 
@@ -145,6 +152,8 @@ private:
     QDomElement m_replySection;
     /*! State of connection: authenticated or not */
     ServerConnectionStateType_t m_connectionState;
+    /*! Block size of the data */
+    quint32 m_BlockSize;
 };
 
 } // end namespace NetworkBase

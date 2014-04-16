@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ConfigurationList.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Include/ConfigurationList.h
  *
  *  \brief Implementation file for class CConfigurationList.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -61,6 +61,7 @@ public:
     CConfigurationList();
 
     CConfigurationList(const CConfigurationList&);
+    void CopyFromOther(const CConfigurationList &ConfigList);
 
     friend QDataStream& operator <<(QDataStream& OutDataStream, const CConfigurationList& ExportConfiguration);
     friend QDataStream& operator >>(QDataStream& InDataStream, CConfigurationList& ExportConfiguration);

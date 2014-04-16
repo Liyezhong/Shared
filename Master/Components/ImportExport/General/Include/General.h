@@ -72,16 +72,16 @@ struct Constants
     static const QString counter;
 
     // size (in bytes) of digest of used hash function (SHA-1)
-    static const int HASH_SIZE = 20;
+    static const int HASH_SIZE = 20;        ///< size (in bytes) of digest of used hash function (SHA-1)
 
     // bytes required to store An, Bn, C and the counter (4 byte)
-    static const int KEYFILESIZE = 3*HASH_SIZE + 4;
+    static const int KEYFILESIZE = 3*HASH_SIZE + 4;     ///< bytes required to store An, Bn, C and the counter (4 byte)
 
     // buffer size used in CompressEncrypt class: 1 MB
-    static const int COMPR_ENCR_BUFSIZE = 1024*1024;
+    static const int COMPR_ENCR_BUFSIZE = 1024*1024;    ///< buffer size used in CompressEncrypt class: 1 MB
 
     // buffer size used for reading files in WriteArchive: 512 KB
-    static const int WRITE_ARCH_BUFSIZE = 512*1024;
+    static const int WRITE_ARCH_BUFSIZE = 512*1024;     ///< buffer size used for reading files in WriteArchive: 512 KB
 
     // magic strings n archives
     static const QByteArray headerMagic;
@@ -134,14 +134,21 @@ class ExceptionNumber
 {
     public:
         ExceptionNumber(qint32 msg);
+        /****************************************************************************/
+        /*!
+         * \brief get the error number
+         *
+         * \return error number
+         */
+        /****************************************************************************/
         inline qint32 getErrorNumber() {return m_ErrorNumber;}
 
     private:
-        quint32 m_ErrorNumber;
+        quint32 m_ErrorNumber; ///< error number
 
 };
 
-#define THROWEXCEPTIONNUMBER(ErrorNumber)      throw(ExceptionNumber(ErrorNumber))
+#define THROWEXCEPTIONNUMBER(ErrorNumber)      throw(ExceptionNumber(ErrorNumber)) ///< throws the exception of error number
 
 }       // end namespace ImportExport
 

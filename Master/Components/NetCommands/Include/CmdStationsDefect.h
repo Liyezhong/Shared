@@ -35,16 +35,27 @@ class CmdStationsDefect : public Global::Command {
     friend QDataStream & operator >> (QDataStream &, CmdStationsDefect &);
 public:
     static QString NAME;    ///< Command name.
-    CmdStationsDefect(int TimeOut,const QStringList DefectiveStationsList);
+    CmdStationsDefect(int TimeOut,
+                      const QStringList StationsList, bool IsDefective);
     CmdStationsDefect();
     ~CmdStationsDefect();
     virtual QString GetName() const;
-    QStringList GetDefectiveStations() const;
+    QStringList GetStationList() const;
+    bool GetListDefectiveFlag() const;
 
 private:
     CmdStationsDefect(const CmdStationsDefect &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdStationsDefect & operator = (const CmdStationsDefect &);   ///< Not implemented.
-    QStringList m_DefectiveStationList;   ///< List of defective Stations
+    QStringList m_StationList;   ///< List of defective/corrected Stations
+    bool m_IsDefective;         ///<  List differentaitor true = Defective staions list
+                                ///< false = Corrected stations list
 };
 
 
@@ -53,7 +64,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -62,7 +73,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdStationsDefect &
     // copy base class data
     Cmd.CopyToStream(Stream);
     // copy internal data
-    Stream << Cmd.m_DefectiveStationList;
+    Stream << Cmd.m_StationList << Cmd.m_IsDefective;
     return Stream;
 }
 
@@ -71,7 +82,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdStationsDefect &
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -80,7 +91,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdStationsDefect &Cmd)
     // copy base class data
     Cmd.CopyFromStream(Stream);
     // copy internal data
-    Stream >> Cmd.m_DefectiveStationList;
+    Stream >> Cmd.m_StationList >> Cmd.m_IsDefective;;
     return Stream;
 }
 

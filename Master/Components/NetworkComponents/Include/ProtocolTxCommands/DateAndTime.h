@@ -47,6 +47,15 @@ public:
     bool Execute();
     void HandleAck(const QString &status); ///< needs to be re-implemented for this command
 
+private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(DateAndTime)
+
 private slots:
 
     void HandleAckTimeout();               ///< needs to be re-implemented for this command

@@ -29,6 +29,16 @@
 #include <QDir>
 
 namespace PasswordManager {
+///< Authentication errors or infos
+enum ServiceUserAuthentication {
+    AUTHENTICATION_VALID,    ///< Authentication is valid
+    NO_SERVICE_KEY_FILE,     ///< No service key file is found
+    CHECKSUM_NOT_MATCHING,   ///< Check sum is not matching
+    HASH_NOT_MATCHING,       ///< Hash is not matching
+    NO_DEVICE_TAG,           ///< Device tag not exists in service key file
+    BASIC_TAG_NOT_MATCHING,  ///< Basic tag not matching or might not available
+    DATE_EXPIRED             ///< Date is expired for the service key
+};
 
 /****************************************************************************/
 /**
@@ -44,30 +54,25 @@ private:
     QByteArray m_ServiceFileContent; ///< To store the servicekey.xml file information
     QString m_ServicePin;            ///< To store the service PIN
     QString m_DeviceName;            ///< To store the device name
+    ServiceUserAuthentication m_Authentication;   ///< To store authentication value
 
     CServicePassword();                          ///< Not implemented
-    CServicePassword(const CServicePassword &);   ///< not implemented
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CServicePassword)
 
     /****************************************************************************/
     /**
-     * \brief Search and Mount the USB device.
+     * \brief Read the service key file from the mounted device.
      *
      * \return On successful (true) or not (false)
      */
     /****************************************************************************/
-    bool SearchAndMountTheDevice();
-
-    /****************************************************************************/
-    /**
-     * \brief Mount the device with a specified name in the "/mnt/USB/" folder.
-     *
-     * \param[in,out] Process        Process to mount the device
-     * \param[in]     DeviceName     Device name to mount
-     *
-     * \return On successful (true) or not (false)
-     */
-    /****************************************************************************/
-    bool MountTheSpecificDevice(const QProcess &Process, QString DeviceName);
+    bool ReadTheServiceKeyFile();
 
     /****************************************************************************/
     /**
@@ -121,24 +126,15 @@ private:
      * \return On successful (true) or not (false)
      */
     /****************************************************************************/
-    bool CompareHash();
-
-    /****************************************************************************/
-    /**
-     * \brief Read the service ID from the key file.
-     *
-     * \return service ID number
-     */
-    /****************************************************************************/
-    QString ReadServiceID();
+    bool CompareHash();    
 
 public:
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \param[in] PinValue      Pin number
-     * \param[in] DeviceName    Name of the device
+     * \iparam PinValue      Pin number
+     * \iparam DeviceName    Name of the device
      */
     /****************************************************************************/
     CServicePassword(const QString & PinValue, const QString &DeviceName);
@@ -153,6 +149,27 @@ public:
      */
     /****************************************************************************/
     bool ValidateAuthentication();
+
+    /****************************************************************************/
+    /**
+     * \brief Read the service ID from the key file.
+     *
+     * \return service ID number
+     */
+    /****************************************************************************/
+    QString ReadServiceID();
+
+    /****************************************************************************/
+    /**
+     * \brief Get the error value if the authentication is not valid.
+     *
+     * \return Authentication success or error
+     */
+    /****************************************************************************/
+    PasswordManager::ServiceUserAuthentication GetAuthenticationError() {
+        return m_Authentication;
+    }
+
 }; // end class of CServicePassword
 } // end name space of PasswordManager
 #endif // PASSWORDMANAGER_CSERVICEPASSWORD_H

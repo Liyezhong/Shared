@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFilePasswords.h
+/*! \file DataManager/Helper/Include/XmlConfigFilePasswords.h
  *
  *  \brief Definition file for class XmlConfigFilePasswords.
  *
@@ -47,8 +47,8 @@ private:
     /**
      * \brief Read one password entry for format version1.
      *
-     * \param[in, out]  rReader             xml stream reader.
-     * \param[in, out]  rPasswordManager    Reference to password manager.
+     * \oparam  rReader             xml stream reader.
+     * \oparam  rPasswordManager    Reference to password manager.
      */
     /****************************************************************************/
     void ReadPassword_V1(QXmlStreamReader &rReader, PasswordManager::CPasswordManager &rPasswordManager);
@@ -56,8 +56,8 @@ private:
     /**
      * \brief Read passwords for format version1.
      *
-     * \param[in, out]  rReader             xml stream reader.
-     * \param[in, out]  rPasswordManager    Reference to password manager.
+     * \oparam  rReader             xml stream reader.
+     * \oparam  rPasswordManager    Reference to password manager.
      */
     /****************************************************************************/
     void ReadPasswords_V1(QXmlStreamReader &rReader, PasswordManager::CPasswordManager &rPasswordManager);
@@ -67,7 +67,7 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]       ExpectedSerialNumber    The serial number expected in the password file.
+     * \iparam       ExpectedSerialNumber    The serial number expected in the password file.
      */
     /****************************************************************************/
     XmlConfigFilePasswords(const QString &ExpectedSerialNumber);
@@ -84,8 +84,8 @@ public:
      *
      * Read passwords from file.
      *
-     * \param[in]       FileName            File from which configuration is to be read.
-     * \param[in, out]  rPasswordManager    Reference to password manager.
+     * \iparam       FileName            File from which configuration is to be read.
+     * \oparam  rPasswordManager    Reference to password manager.
      */
     /****************************************************************************/
     void ReadPasswords(const QString &FileName, PasswordManager::CPasswordManager &rPasswordManager);
@@ -95,9 +95,9 @@ public:
      *
      * Write passwords to file.
      *
-     * \param[in]   FileName            File from which configuration is to be read.
-     * \param[in]   ThePasswordManager  The password manager.
-     * \param[in]   SerialNumber        Serial number.
+     * \iparam   FileName            File from which configuration is to be read.
+     * \iparam   ThePasswordManager  The password manager.
+     * \iparam   SerialNumber        Serial number.
      */
     /****************************************************************************/
     void WritePasswords(const QString &FileName, const PasswordManager::CPasswordManager &ThePasswordManager, const QString &SerialNumber);

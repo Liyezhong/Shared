@@ -30,13 +30,15 @@ namespace NetCommands {
 //!< Data Structure containing EventReportData
 struct EventReportDataStruct{
     quint64 ID; //!< Event ID
-    quint32 EventKey;
+    quint32 EventKey;   //!< Event Key
     QString MsgString;  //!< Event String
     bool EventStatus;  //!< True - event active , else inactive
     Global::EventType EventType; //!< EventType
     Global::GuiButtonType BtnType; //!< GUI button type
     QString Time; //!< Time at which event occured
     bool StatusBarIcon; //!< True to store event and display when status bar icon is clicked
+    QString BtnEnableConditions; //!< button enable conditions: RT_LID_OPEN_CLOSE
+    QString Timeout; //< timeout for the message if no user responsing
 };
 
 /****************************************************************************/
@@ -61,6 +63,7 @@ public:
     /****************************************************************************/
     /**
      * \brief Get the EventReport Data
+     *
      * \return Byte array.
      */
     /****************************************************************************/
@@ -68,9 +71,15 @@ public:
 
 private:
     CmdEventReport(const CmdEventReport &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdEventReport & operator = (const CmdEventReport &);   ///< Not implemented.
-    QByteArray m_EventReportByteArray;
-
+    QByteArray m_EventReportByteArray;  ///< ByteArray for storing Event Report data.
 }; // end class CmdEventReport
 
 /****************************************************************************/
@@ -78,7 +87,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -96,7 +105,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdEventReport &Cmd
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

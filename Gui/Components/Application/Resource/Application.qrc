@@ -96,6 +96,9 @@
         <file>Small/TextButton/TextButton-Pressed.png</file>
         <file>Small/TextButton/TextButton-Selected.png</file>
         <file>Small/TextButton/TextButton-SelectedPressed.png</file>
+	<file>Large/CheckBoxLarge/CheckBox-Checked_large_green.png</file>
+        <file>Large/CheckBoxLarge/CheckBox-Crossed_large_red.png</file>
+        <file>Large/CheckBoxLarge/CheckBox-enabled-large.png</file>
         <file>HimalayaImages/CheckBox/CheckBox-Checked.png</file>
         <file>HimalayaImages/CheckBox/CheckBox-CheckedDisabled.png</file>
         <file>HimalayaImages/CheckBox/CheckBox-CheckedPressed.png</file>
@@ -143,11 +146,6 @@
         <file>HimalayaImages/TextButton/TextButtonsColored/ColorButton-white-Pressed.png</file>
         <file>HimalayaImages/TextButton/TextButtonsColored/ColorButton-yellow.png</file>
         <file>HimalayaImages/TextButton/TextButtonsColored/ColorButton-yellow-Pressed.png</file>
-        <file>HimalayaImages/TabControl/TabControl_Right_Frame.png</file>
-        <file>HimalayaImages/TabControl/TabControl_Tab_Bottom_Up.png</file>
-        <file>HimalayaImages/TabControl/TabControl_Tab_Down.png</file>
-        <file>HimalayaImages/TabControl/TabControl_Tab_Top_Up.png</file>
-        <file>HimalayaImages/TabControl/TabControl_Tab_Up.png</file>
         <file>HimalayaImages/ComboButton/ComboButton_Button_Disabled.png</file>
         <file>HimalayaImages/ComboButton/ComboButton_Button_Enable.png</file>
         <file>HimalayaImages/ComboButton/ComboButton_Button_Pressed.png</file>
@@ -160,5 +158,10 @@
         <file>HimalayaImages/LongButton/LongButton_Enabled.png</file>
         <file>HimalayaImages/LongButton/LongButton_Pressed.png</file>
         <file>HimalayaImages/ComboButton/ComboButton_Program_Running.png</file>
+        <file>HimalayaImages/TabControl/TabControl_Tab_Up.png</file>
+        <file>HimalayaImages/TabControl/TabControl_Tab_Top_Up.png</file>
+        <file>HimalayaImages/TabControl/TabControl_Tab_Down.png</file>
+        <file>HimalayaImages/TabControl/TabControl_Tab_Bottom_Up.png</file>
+        <file>HimalayaImages/TabControl/TabControl_Right_Frame.png</file>
     </qresource>
 </RCC>

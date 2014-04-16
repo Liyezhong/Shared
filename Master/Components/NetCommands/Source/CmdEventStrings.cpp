@@ -28,8 +28,8 @@ QString CmdEventStrings::NAME = "NetCommands::CmdEventStrings";
 /*!
  *  \brief   Constructor for sending
  *
- * \param[in]   Timeout                 Timeout for command.
- * \param[in]   EventStringsDataStream   Datastream of Event Strings Data.
+ * \iparam   Timeout                  Timeout for command.
+ * \iparam   EventStringsDataStream   Datastream of Event Strings Data.
  */
 /****************************************************************************/
 CmdEventStrings::CmdEventStrings(int Timeout, const QDataStream &EventStringsDataStream) :

@@ -23,6 +23,7 @@
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
 #include <EventHandler/Include/EventCSVInfo.h>
+#include <qstring.h>
 
 namespace EventHandler {
 
@@ -38,7 +39,7 @@ class TestEventCSVInfo : public QObject {
     Q_OBJECT
 
 private:
-    EventHandler::EventCSVInfo m_EventCSVInfo;
+    EventHandler::EventCSVInfo m_EventCSVInfo; //!< instance of EventCSVInfo
 private slots:
     /****************************************************************************/
     /**
@@ -64,8 +65,12 @@ private slots:
      */
     /****************************************************************************/
     void cleanupTestCase();
-    /****************************************************************************/
 
+    /****************************************************************************/
+    /**
+     * \brief Test for EventCSVInfo
+     */
+    /****************************************************************************/
     void UTAll();
 
 }; // end class TestEventCSVInfo
@@ -78,9 +83,9 @@ void TestEventCSVInfo::UTAll() {
     QCOMPARE(theEventInfo.GetActionPositive(),Global::ACNTYPE_ERROR);
     QCOMPARE(theEventInfo.GetActionType(),Global::ACNTYPE_NONE);
     QCOMPARE(theEventInfo.GetAlarmStatus(),false);
-    QCOMPARE(theEventInfo.GetGUIMessageBoxOptions(),Global::YES_NO);
-    //QCOMPARE(theEventInfo.GetEventCode(),1234567);
-    //QCOMPARE(theEventInfo.GetEventName(),"MyEventName");
+    //QCOMPARE(theEventInfo.GetGUIMessageBoxOptions(),Global::YES_NO);
+    QCOMPARE(theEventInfo.GetEventId(),(quint32)1234567);
+    QCOMPARE(theEventInfo.GetEventName(),QString("MyEventName"));
     QCOMPARE(theEventInfo.GetEventSource(),Global::EVENTSOURCE_EXPORT);
     QCOMPARE(theEventInfo.GetRetryAttempts(),1);
     QCOMPARE(theEventInfo.GetRunLogStatus(), false);
@@ -88,6 +93,10 @@ void TestEventCSVInfo::UTAll() {
     QCOMPARE(theEventInfo.GetStatusBarIcon(),false);
     QString str = "MyEventName";
     QCOMPARE(theEventInfo.GetEventName(), str);
+    QCOMPARE(theEventInfo.GetEventType(), Global::EVTTYPE_ERROR);
+    QCOMPARE(theEventInfo.GetStatusIcon(), false);
+    QCOMPARE(theEventInfo.GetFinalAction(),Global::ACNTYPE_NONE);
+    QCOMPARE(theEventInfo.GetLogLevel(),Global::LOGLEVEL_LOW);
 
 }
 
@@ -99,7 +108,7 @@ void TestEventCSVInfo::initTestCase() {
     m_EventCSVInfo.SetActionPositive(Global::ACNTYPE_ERROR);
     m_EventCSVInfo.SetAlarmStatus(false);
     m_EventCSVInfo.SetGUIOptions(Global::YES_NO);
-    m_EventCSVInfo.SetEventCode(1234567);
+    m_EventCSVInfo.SetEventId(1234567);
     m_EventCSVInfo.SetEventType(Global::EVTTYPE_ERROR);
     m_EventCSVInfo.SetLogLevel(Global::LOGLEVEL_LOW);
     m_EventCSVInfo.SetMessageType("Error");
@@ -108,7 +117,11 @@ void TestEventCSVInfo::initTestCase() {
     m_EventCSVInfo.SetRunLogStatus(false);
     m_EventCSVInfo.SetEventSource(Global::EVENTSOURCE_EXPORT);
     m_EventCSVInfo.SetStatusIcon(false);
-    m_EventCSVInfo.SetEventName("MyEventName");
+    m_EventCSVInfo.SetEventName(QString("MyEventName"));
+    m_EventCSVInfo.SetButtonType(Global::OK);
+    m_EventCSVInfo.SetLogLevel(Global::LOGLEVEL_LOW);
+    m_EventCSVInfo.SetStatusBarIcon(false);
+
 
 }
 

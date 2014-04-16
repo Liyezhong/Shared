@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManager/CommandInterface/Include/CommandInterfaceBase.h
+/*! \file Platform/Master/Components/DataManager/CommandInterface/Include/CommandInterfaceBase.h
  *
  *  \brief Command Interface definition
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-30
- *  $Author:    $ N.Kamath
+ *  $Author:    $ N.Kamath, Ramya GJ
  *
  *  \b Company:
  *
@@ -20,6 +20,7 @@
 #ifndef COMMANDINTERFACEBASE_H
 #define COMMANDINTERFACEBASE_H
 
+#include <QObject>
 #include <DataManager/Include/DataManagerBase.h>
 #include <Threads/Include/MasterThreadController.h>
 #include "Threads/Include/CommandChannel.h"
@@ -34,6 +35,7 @@ namespace DataManager {
 class CCommandInterfaceBase : public QObject
 {
     Q_OBJECT
+    friend class TestCmdInterface;
 public:
     /****************************************************************************/
     /*!
@@ -134,9 +136,18 @@ protected:
     {
         if (mp_MasterThreadController) {
             mp_MasterThreadController->SendAcknowledgeOK(Ref, AckCommandChannel);
-            (void)mp_MasterThreadController->SendCommand(Command, AckCommandChannel);
+            (void)mp_MasterThreadController->SendCommand(Command, AckCommandChannel); //avoid lint 534
         }
     }
+
+private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CCommandInterfaceBase)
 };
 
 }// end of namespace DataManager

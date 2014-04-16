@@ -23,9 +23,9 @@
 #include <QStringList>
 #include <QReadLocker>
 #include <QWriteLocker>
-#include "DeviceControl/Include/Global/dcl_log.h"
 
 namespace Global {
+const quint32 MAX_VARIABLE_ARGUMENTS = 10; //!< Maximum variable arguments for an Event
 
 /****************************************************************************/
 Translator::Translator() :
@@ -117,8 +117,8 @@ QLocale::Language Translator::GetFallbackLanguage() const {
 }
 
 /****************************************************************************/
-void Translator::InsertArguments(QString &rString, const QStringList &ArgumentList) const {
-    // we do not use QString.arg(...) because of following:
+void Translator::InsertArguments(QString &rString, const QStringList &ArgumentList, const bool ChopArguments) const {
+    // we do not use QString.arg(....) because of following:
     // - arg replaces the lowest number unreplaced, which makes something like
     //   "gnagna %1 with %3" (not displaying argument 2 from argument list)
     //   impossible.
@@ -143,12 +143,18 @@ void Translator::InsertArguments(QString &rString, const QStringList &ArgumentLi
         }
         IndexCount++;
     }
+    quint32 VariableArgumentCount = 0;
     if (VariableNumberOfArguements) {
         QString Arguement;
         It.previous();
         while (It.hasNext()) {
             Arguement.append(It.next());
             Arguement.append(",");
+            VariableArgumentCount++;
+            if (ChopArguments && VariableArgumentCount > MAX_VARIABLE_ARGUMENTS) {
+                Arguement.append("...,");
+                break;
+            }
         }
         //remove the last comma
         Arguement.chop(1);
@@ -162,7 +168,8 @@ QString Translator::GenerateMinimalString(quint32 StringID) const {
 }
 
 /****************************************************************************/
-QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString) const {
+QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const TranslatableString &String, const bool UseAlternateString,
+                                        const bool ChopArguments) const {
     QString Result;
     // check if String is plain string
     if(String.IsString()) {
@@ -193,32 +200,26 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
         // language found. now get string
         tLanguageData::const_iterator it2 = (*it).find(StringID);
         if(it2 == (*it).constEnd()) {
-            if((TheLanguage == m_FallbackLanguage) || (QLocale::C == m_FallbackLanguage)){
-                // string not found. Get string for EVENT_GLOBAL_UNKNOWN_STRING_ID
-                it2 = (*it).find(EVENT_GLOBAL_UNKNOWN_STRING_ID);
-                if(it2 == (*it).constEnd()) {
-                    // text for EVENT_GLOBAL_UNKNOWN_STRING_ID also not found.
-                    // Take some extremely basic string with only the string id.
-                    Result = GenerateMinimalString(StringID);
-                } else {
-                    // translation for EVENT_GLOBAL_UNKNOWN_STRING_ID found. Insert StringID
-                    QStringList tmp;
-                    tmp << QString::number(StringID, 10);
-                    QStringList StringList = *it2;
-                    if (StringList.size() >= 1) {
-                        Result = StringList.at(0);
-                    }
-                    InsertArguments(Result, tmp);
+            // string not found. Get string for EVENT_GLOBAL_UNKNOWN_STRING_ID
+            it2 = (*it).find(EVENT_GLOBAL_UNKNOWN_STRING_ID);
+            if(it2 == (*it).constEnd()) {
+                // text for EVENT_GLOBAL_UNKNOWN_STRING_ID also not found.
+                // Take some extremely basic string with only the string id.
+                Result = GenerateMinimalString(StringID);
+            } else {
+                // translation for EVENT_GLOBAL_UNKNOWN_STRING_ID found. Insert StringID
+                QStringList tmp;
+                tmp << QString::number(StringID, 10);
+                QStringList StringList = *it2;
+                if (StringList.size() >= 1) {
+                    Result = StringList.at(0);
                 }
-                // now append arguments
-                for(tTranslatableStringList::const_iterator its = ArgumentList.constBegin(); its != ArgumentList.constEnd(); ++its) {
-                    QString ArgumentTranslation = TranslateToLanguage(TheLanguage, (*its));
-                    Result = Result + " \"" + ArgumentTranslation + "\"";
-                }
+                InsertArguments(Result, tmp, ChopArguments);
             }
-            else
-            {
-                Result = TranslateToLanguage(m_FallbackLanguage, String);
+            // now append arguments
+            for(tTranslatableStringList::const_iterator its = ArgumentList.constBegin(); its != ArgumentList.constEnd(); ++its) {
+                QString ArgumentTranslation = TranslateToLanguage(TheLanguage, (*its));
+                Result = Result + " \"" + ArgumentTranslation + "\"";
             }
         } else {
             // string found
@@ -242,17 +243,17 @@ QString Translator::TranslateToLanguage(QLocale::Language TheLanguage, const Tra
                 // append translated arguments
                 Arguments << ArgumentTranslation;
             }
-            InsertArguments(Result, Arguments);
+            InsertArguments(Result, Arguments, ChopArguments);
         }
     }
     return Result;
 }
 
 /****************************************************************************/
-QString Translator::Translate(const TranslatableString &String, const bool UseAlternateString) const {
+QString Translator::Translate(const TranslatableString &String, const bool UseAlternateString, const bool ChopArguments) const {
     QReadLocker WL(&m_SyncObject);
     // translate into the default language
-    return TranslateToLanguage(m_DefaultLanguage, String, UseAlternateString);
+    return TranslateToLanguage(m_DefaultLanguage, String, UseAlternateString, ChopArguments);
 }
 
 /****************************************************************************/

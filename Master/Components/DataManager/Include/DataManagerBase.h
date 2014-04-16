@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManagerBase.h
+/*! \file Master/Components/DataManager/Include/DataManagerBase.h
  *
  *  \brief Definition file for class CDataManagerBase.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-11-19
- *  $Author:    $ Michael Thiel
+ *  $Author:    $ Michael Thiel, Ramya GJ
  *
  *  \b Company:
  *
@@ -32,12 +32,21 @@ namespace DataManager {
 class CUserSettingsCommandInterface;
 
 static const quint32 INIT_OK = 0; //!< Return code
+
+//lint -sem(DataManager::CDataManagerBase::DeinitDataContainer,cleanup)
+
+/****************************************************************************/
+/**
+ * \brief CDataManagerBase definition
+ */
+/****************************************************************************/
 class CDataManagerBase : public QObject
 {
     Q_OBJECT
+    friend class TestDataManagerInclude;
 protected:
-    bool m_IsInitialized;
-    CDataContainerCollectionBase *mp_DataContainerCollection;
+    bool m_IsInitialized;           //!< status of initialization
+    CDataContainerCollectionBase *mp_DataContainerCollectionBase; //!< pointer to DataContainerCollection base
     Threads::MasterThreadController *mp_MasterThreadController; //!< This is passed to DataContainer
     bool DeinitDataContainer();
 
@@ -50,9 +59,20 @@ public:
     CDataManagerBase(Threads::MasterThreadController *p_MasterThreadController, CDataContainerCollectionBase *containerCollection);
     virtual ~CDataManagerBase();
 
-    virtual const CDataContainerCollectionBase* GetDataContainer() { return mp_DataContainerCollection; }
-    virtual CUserSettingsInterface* GetUserSettingsInterface();
-    virtual CDeviceConfigurationInterface* GetDeviceConfigurationInterface();
+    //function to save data during shutdown
+    virtual void SaveDataOnShutdown();
+
+    /****************************************************************************/
+    /*!
+     *  \brief get the data container
+     *
+     *  \return pointer of data collection base
+     */
+    /****************************************************************************/
+    virtual const CDataContainerCollectionBase* GetDataContainer() { return mp_DataContainerCollectionBase; }
+    CUserSettingsInterface* GetUserSettingsInterface();
+    CDeviceConfigurationInterface* GetDeviceConfigurationInterface();
+    CRCConfigurationInterface* GetRCConfigurationInterface();
 
     /****************************************************************************/
     /*!
@@ -62,6 +82,15 @@ public:
      */
     /****************************************************************************/
     bool IsInitialized() const { return m_IsInitialized; }
+
+private:
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CDataManagerBase)
 
 };
 }// namespace DataManager

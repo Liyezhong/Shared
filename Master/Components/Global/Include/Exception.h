@@ -171,6 +171,13 @@ public:
         return m_Line;
     }
 
+    /****************************************************************************/
+    /**
+     * \brief Get file and line in which exception occured.
+     *
+     * \return  string of file name and Line number.
+     */
+    /****************************************************************************/
     inline QString what() const {
         return "File: " + m_File +
                 ", Line: " + m_Line;
@@ -242,5 +249,129 @@ public:
  */
 /****************************************************************************/
 #define THROWARGS(ErrorCode, ArgList) throw Global::Exception(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), ErrorCode, ArgList)
+
+
+/****************************************************************************/
+/**
+ * \brief Catch all exceptions and log them.
+ */
+/****************************************************************************/
+#define CATCHALL() \
+    catch(const Global::Exception & E) {                                                                                                                \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_EXCEPTION,                                                                      \
+                                                   Global::FmtArgs() << QString::number(E.GetErrorCode()) << E.what()                                   \
+                                                                     << __FILE__ << __LINE__);                                                          \
+    }                                                                                                                                                   \
+    catch(const std::bad_alloc &) {                                                                                                                     \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION,                                                        \
+                                                   Global::tTranslatableStringList() << __FILE__ << __LINE__);                                          \
+    }                                                                                                                                                   \
+    catch(const std::exception & E) {                                                                                                                   \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STD_EXCEPTION,                                                                  \
+                                                   Global::FmtArgs() << E.what()                                                                        \
+                                                                     << __FILE__ << __LINE__);                                                          \
+    }                                                                                                                                                   \
+    catch(...) {                                                                                                                                        \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION,                                                        \
+                                                   Global::tTranslatableStringList() << __FILE__ << __LINE__);                                          \
+    }
+
+
+/****************************************************************************/
+/**
+ * \brief Catch all exceptions, log and rethrow them.
+ */
+/****************************************************************************/
+#define CATCHALL_RETHROW() \
+    catch(const Global::Exception &E) {                                                                                                                 \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_EXCEPTION,                                                                      \
+                                                   Global::FmtArgs() << QString::number(E.GetErrorCode()) << E.what()                                   \
+                                                                     << __FILE__ << __LINE__);                                                          \
+        throw;                                                                                                                                          \
+    }                                                                                                                                                   \
+    catch(const std::bad_alloc &) {                                                                                                                     \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION,                                                        \
+                                                   Global::tTranslatableStringList() << __FILE__ << __LINE__);                                          \
+        throw;                                                                                                                                          \
+    }                                                                                                                                                   \
+    catch(const std::exception & E) {                                                                                                                   \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STD_EXCEPTION,                                                                  \
+                                                   Global::FmtArgs() << E.what()                                                                        \
+                                                                     << __FILE__ << __LINE__);                                                          \
+        throw;                                                                                                                                          \
+    }                                                                                                                                                   \
+    catch(...) {                                                                                                                                        \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION,                                                        \
+                                                   Global::tTranslatableStringList() << __FILE__ << __LINE__);                                          \
+        throw;                                                                                                                                          \
+    }
+
+
+/****************************************************************************/
+/**
+ * \brief Catch all exceptions and log them. Exit catch block with return value.
+ *
+ * \param[in]   i   The return value.
+ */
+/****************************************************************************/
+#define CATCHALL_RETURN(i) \
+    catch(const Global::Exception &E) {                                                                                                                 \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_EXCEPTION,                                                                      \
+                                                   Global::FmtArgs() << QString::number(E.GetErrorCode()) << E.what()                                   \
+                                                                     << __FILE__ << __LINE__);                                                          \
+        return i;                                                                                                                                       \
+    }                                                                                                                                                   \
+    catch(const std::bad_alloc &) {                                                                                                                     \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION,                                                        \
+                                                   Global::tTranslatableStringList() << __FILE__ << __LINE__);                                          \
+        return i;                                                                                                                                       \
+    }                                                                                                                                                   \
+    catch(const std::exception & E) {                                                                                                                   \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STD_EXCEPTION,                                                                  \
+                                                   Global::FmtArgs() << E.what()                                                                        \
+                                                                     << __FILE__ << __LINE__);                                                          \
+        return i;                                                                                                                                       \
+    }                                                                                                                                                   \
+    catch(...) {                                                                                                                                        \
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION,                                                        \
+                                                   Global::tTranslatableStringList() << __FILE__ << __LINE__);                                          \
+        return i;                                                                                                                                       \
+    }
+
+/****************************************************************************/
+/**
+ * \brief Catch all exceptions in destructor and log them.
+ */
+/****************************************************************************/
+#define CATCHALL_DTOR() \
+    catch(const Global::Exception & E) {                                                                                                                \
+        try {                                                                                                                                           \
+            Global::EventObject::Instance().RaiseEventDtor(Global::EVENT_GLOBAL_EXCEPTION, QString::number(E.GetErrorCode()), E.what(),                 \
+                                                           __FILE__, __LINE__);                                                                         \
+        }                                                                                                                                               \
+        catch (...) {                                                                                                                                   \
+        }                                                                                                                                               \
+    }                                                                                                                                                   \
+    catch(const std::bad_alloc &) {                                                                                                                     \
+        try {                                                                                                                                           \
+            Global::EventObject::Instance().RaiseEventDtor(Global::EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, __FILE__, __LINE__);                           \
+        }                                                                                                                                               \
+        catch (...) {                                                                                                                                   \
+        }                                                                                                                                               \
+    }                                                                                                                                                   \
+    catch(const std::exception & E) {                                                                                                                   \
+        try {                                                                                                                                           \
+            Global::EventObject::Instance().RaiseEventDtor(Global::EVENT_GLOBAL_STD_EXCEPTION, E.what(), __FILE__, __LINE__);                           \
+        }                                                                                                                                               \
+        catch (...) {                                                                                                                                   \
+        }                                                                                                                                               \
+    }                                                                                                                                                   \
+    catch(...) {                                                                                                                                        \
+        try {                                                                                                                                           \
+            Global::EventObject::Instance().RaiseEventDtor(Global::EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, __FILE__, __LINE__);                           \
+        }                                                                                                                                               \
+        catch (...) {                                                                                                                                   \
+        }                                                                                                                                               \
+    }
 
 #endif // GLOBAL_EXCEPTION_H

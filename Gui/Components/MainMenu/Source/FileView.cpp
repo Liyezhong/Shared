@@ -1,8 +1,11 @@
 /****************************************************************************/
 /*! \file FileView.cpp
  *
- *  \brief FileView implementation.
- *         Displays the Day run log file content in the widget
+ *  \brief Implementation of file for class CFileView.
+ *
+ *  \b Description:
+ *          This class implements a base widget which displays the Day run log
+ *      file content.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-29, 2012-11-07
@@ -55,19 +58,14 @@ CFileView::CFileView(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CFile
     mp_TableWidget->horizontalHeader()->resizeSection(0, 100);
 
     mp_Dialog = new MainMenu::CTextDialog(this);
+    mp_Dialog->SetNintyPercentScroll(true);
 
     // add empty items
     AddEmptyRows();
 
-    if (!connect(mp_Ui->pushButton, SIGNAL(clicked()), this, SLOT(OpenButtonClicked()))) {
-        qDebug() << "CFileView: cannot connect 'clicked' signal";
-    }
-
-
-    if (!connect(mp_TableWidget, SIGNAL(pressed(const QModelIndex&)), this, SLOT(ItemActivated(const QModelIndex&)))) {
-        qDebug() << "CFileView: cannot connect 'activate' signal";
-    }
-
+    CONNECTSIGNALSLOTGUI(mp_Ui->pushButton, clicked(), this, OpenButtonClicked());
+    CONNECTSIGNALSLOTGUI(mp_TableWidget, pressed(const QModelIndex&), this, ItemActivated(const QModelIndex&));
+    CONNECTSIGNALSLOTGUI(mp_Dialog, LanguageChanged(), this, RetranslateUI());
 
 }
 
@@ -103,6 +101,7 @@ void CFileView::changeEvent(QEvent *p_Event)
     switch (p_Event->type()) {
         case QEvent::LanguageChange:
             mp_Ui->retranslateUi(this);
+            RetranslateUI();
             break;
         default:
             break;
@@ -112,6 +111,7 @@ void CFileView::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 /*!
  *  \brief  Function to set Dialog caption
+ *
  *  \iparam Caption String
  */
 /****************************************************************************/
@@ -126,7 +126,7 @@ void CFileView::SetCaption(QString Caption)
  */
 /****************************************************************************/
 void CFileView::OpenButtonClicked()
-{    
+{
     // emit the signal
     emit GetFileContent(m_Model.itemFromIndex(mp_TableWidget->currentIndex())->text().trimmed());
 }
@@ -156,17 +156,35 @@ void CFileView::ItemActivated(const QModelIndex &Index)
  */
 /****************************************************************************/
 void CFileView::DayRunLogFileContent(const QDataStream &DataStream)
-{    
+{
     (void)DataStream.device()->reset();
     // read all the data into string
     QByteArray Text(DataStream.device()->readAll());
-    // set the text
-    mp_Dialog->SetText(Text);
-    // display the text
+
     // tr function is used for translator
-    mp_Dialog->SetDialogTitle(tr("Event Viewer"));
+    mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CFileView", "Event Viewer",
+                                                      0, QApplication::UnicodeUTF8));
     mp_Dialog->SetCaption(m_Model.itemFromIndex(mp_TableWidget->currentIndex())->text() + " ");
+    mp_Dialog->setModal(true);
     mp_Dialog->show();
+    int Counter = 0;
+    mp_Dialog->SetPlainText(Text.mid(Counter, 5000));
+    Counter += 5000;
+    // for the large file to load the text it takes more time
+    // so if the text is loaded by parts then hanging issue can be solved.
+    do {
+        QCoreApplication::processEvents();
+        if (Counter == 5000) {
+            emit ShowDialog();
+        }
+        mp_Dialog->AppendText(Text.mid(Counter, 10000));
+        Counter += 10000;
+
+    } while(Counter < Text.count());
+
+    // hide the wait dialog
+    emit HideDialog();
+
 }
 
 /****************************************************************************/
@@ -222,6 +240,7 @@ void CFileView::DayRunLogFileNames(const QStringList &FileNames)
 /****************************************************************************/
 void CFileView::SetEventViewerPanelSize(const qint32 &Width, const qint32 &Height)
 {
+    mp_Dialog->move(90, 40);
     // if the Main screen resolution is 800X600 then the panel size will be 700X550
     mp_Dialog->resize(Width - 100, Height - 50);
 }
@@ -251,8 +270,24 @@ void CFileView::AddEmptyRows()
             // append the row in tables
             m_Model.appendRow(p_Item);
             QPalette Palette;
-            m_Model.setData(m_Model.index(RowCount, 0), Palette.color(QPalette::Window), Qt::BackgroundColorRole);
+            (void) m_Model.setData(m_Model.index(RowCount, 0), Palette.color(QPalette::Window), (int) Qt::BackgroundColorRole);
         }
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Translates the strings in UI to the selected language
+ */
+/****************************************************************************/
+void CFileView::RetranslateUI()
+{
+    m_Model.setHorizontalHeaderItem(0, new QStandardItem(QApplication::translate("MainMenu::CFileView", "File Name",
+                                                                                   0, QApplication::UnicodeUTF8)));
+    mp_Dialog->SetDialogTitle(QApplication::translate("MainMenu::CFileView", "Event Viewer",
+                                                      0, QApplication::UnicodeUTF8));
+    if (mp_TableWidget->currentIndex().row() >= 0) {
+        mp_Dialog->SetCaption(m_Model.itemFromIndex(mp_TableWidget->currentIndex())->text() + " ");
     }
 }
 

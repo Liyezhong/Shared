@@ -61,7 +61,7 @@ bool SetDateAndTime::Execute()
 
     Q_ASSERT(!m_myMessageDataTree.isEmpty());
 
-    QString status = NetworkBase::CMH_MSG_SENDING_ACK;
+    QString status = NetworkBase::CMH_MSG_SENDING_OK;
     // fetch date and time
     QDateTime qdt = QDateTime::fromString(m_myMessageDataTree[0].DataitemsValues[0], NetworkBase::DATEANDTIME_FORMAT);
     // it must be UTC

@@ -27,13 +27,16 @@ QString CmdCriticalActionStatus::NAME           = "NetCommands::CmdCriticalActio
 /****************************************************************************/
 CmdCriticalActionStatus::CmdCriticalActionStatus(int TimeOut, CriticalActionStatus_t CriticalActionStatus) :
     Global::Command(TimeOut),
-    m_CriticalActionStatus(CriticalActionStatus)
+    m_CriticalActionStatus(CriticalActionStatus),
+    m_EvaluateCommand(true)
 {
 }
 
 /****************************************************************************/
 CmdCriticalActionStatus::CmdCriticalActionStatus():
-    Global::Command(0)
+    Global::Command(0),
+    m_CriticalActionStatus(NO_CRITICAL_ACTION),
+    m_EvaluateCommand(true)
 {
 
 }

@@ -39,7 +39,6 @@ typedef quint64 tRefType;               ///< typedef for tRefType.
 
 const QString NO_NUMERIC_DATA = "";     ///< Self explaining
 
-
 /****************************************************************************/
 /**
  * \brief Enum containing all known return codes from the application.
@@ -67,12 +66,17 @@ enum EventType {
     EVTTYPE_FATAL_ERROR    ///< Fatal error.
 };
 
+/****************************************************************************/
+/**
+ * \brief Enum for event logging priority
+ */
+/****************************************************************************/
 enum EventLogLevel {
-    LOGLEVEL_NONE,
-    LOGLEVEL_LOW,
-    LOGLEVEL_MEDIUM,
-    LOGLEVEL_HIGH,
-    LOGLEVEL_UNEXPECTED
+    LOGLEVEL_NONE,      ///< none
+    LOGLEVEL_LOW,       ///< low priority
+    LOGLEVEL_MEDIUM,    ///< medium priority
+    LOGLEVEL_HIGH,      ///< high priority
+    LOGLEVEL_UNEXPECTED ///< unexpected event
 };
 
 /****************************************************************************/
@@ -82,10 +86,13 @@ enum EventLogLevel {
 /****************************************************************************/
 
 enum WaitDialogText_t{
+    DEFAULT_TEXT,
     INITIALIZING_TEXT, ///< Sytem Initializing text
     PROCESSING_TEXT,   ///< Text related to processing
-    SOFTWARE_UPDATE_TEXT  ///< Text is displayed for SW update
+    SOFTWARE_UPDATE_TEXT,  ///< Text is displayed for SW update
+    PROCESSING_TEXT_2     ///< Text related to Fill Level Scanning processing
 };
+
 /****************************************************************************/
 /**
  * \brief Enum containing all known action Types.
@@ -105,39 +112,28 @@ enum ActionType {
     ACNTYPE_NONE,        ///< No action, just log
     ACNTYPE_REMOVEALLRACKS,
     ACNTYPE_REMOVERACK,
-    ACNTYPE_UNEXPECTED,        /// < Unexpected text in action column, raise an error
-
-    // Recovery action
-    ACNTYPE_RC_INIT_ROTARYVALVE,
-    ACNTYPE_RC_BOTTLECHECK_I,           ///< Please check the reagent bottle first and then click Recovery!
-    ACNTYPE_RC_RESTART,///< Restart from the failed process
-    ACNTYPE_RC_MAINTENANCE_AIRSYSTEM,    ///< Please confirm there is no Tissue & Reagent in Retort and Cleaning-Xylene Bottle is not empty!
-    ACNTYPE_RC_CHECKREAGENT_RV, ///< User check if there is reagent in the retort.
-    ACNTYPE_RC_LEVELSENSOR_HEATING_OVERTIME, ///< Self-test of Level sensor
-    ACNTYPE_RC_REPORT,
-
-    // Response action
-    ACNTYPE_RS_RESET,    ///< sequence/protocols-Pump/Valves Reset,Release P/V, Register clear-up;
-    ACNTYPE_RS_STOPLATER,///< sequence/protocols-Stop after the running/current protocol finished, Stop=Pump/Valves Reset,Release P/V;
-    ACNTYPE_RS_STOPATONCE,///< sequence/protocols-Stop at once, Stop=Pump/Valves Reset,Release P/V; Remember current status of protocol
-    ACNTYPE_RS_DRAINATONCE,///< Drain at once if overflow
-    ACNTYPE_RS_CHECK_BLOCKAGE,///< Bulid Pressure to attempt to recovery from Blockage automaticly
-    ACNTYPE_RS_AIRSYSTEM_FLUSH, /// <AirSystem(Pump/Valve/Tube) do a series of action to get recovery from potential blockage in Airsystem(Just air no Xylene this), and redo the releasing check; Heating function continue the current status;
-    ACNTYPE_RS_RELEASING,       /// < Releasing the pressure/Vacuum
-    ACNTYPE_RS_RV_GETORIGINALPOSITIONAGAIN,///< Get original position again, and continue the running protocol.
-    ACNTYPE_RS_STANDBY, ///< sequence/protocols-Paused, Wax-bath, RV, heating tube Keep heating (heating strategy based on the protocol); Remember current status of protocol;
-    ACNTYPE_RS_RV_MOVETOPOSITION_P3_5, ///<	Set vacuum @-7KPa (TBD), get original position again, then move to position P3.5; sequence/protocols-Paused, Wax-bath, RV, heating tube Keep heating (heating strategy based on the protocol); Remember current status of protocol;
-    ACNTYPE_RS_HEATINGERR_3S_RETRY,///<	Wait 3 second and reread or retry to confirm the Error;
-    ACNTYPE_RS_FILLINGAFTERFLUSH, ///<	Bulid pressure(30Kpa) for 10S and filling again
-    ACNTYPE_RS_REAGENTCHECK///<	"Call Draining function:1. If draining time-out: Call RS_RV_MoveToPositionP3.5  2. Else (Draining build pressure failed, or Draining sucessed): Call RS_RV_GetOriginalPositionAgain"
-
+    ACNTYPE_CONTINUE_STAINING,
+    ACNTYPE_DONT_PROCESS_RACK,
+    ACNTYPE_RESCAN,
+    ACNTYPE_FINISH_INIT,
+    ACNTYPE_REINIT,
+    ACNTYPE_CHECK_OVERFILL,
+    ACNTYPE_USE_UNLOADER,
+    ACNTYPE_NO_RESCAN,
+    ACNTYPE_REJECT_RETRY,
+    ACNTYPE_FORWARD,
+    ACNTYPE_UNEXPECTED        /// < Unexpected text in action column, raise an error
 };
 
+/****************************************************************************/
+/**
+ * \brief Enum for event source
+ */
+/****************************************************************************/
 enum EventSourceType {
     EVENTSOURCE_MAIN,
     EVENTSOURCE_DEVICECOMMANDPROCESSOR,
     EVENTSOURCE_SCHEDULER,
-    EVENTSOURCE_SCHEDULER_MAIN,
     EVENTSOURCE_EXPORT,
     EVENTSOURCE_IMPORTEXPORT,
     EVENTSOURCE_BLG,
@@ -145,44 +141,8 @@ enum EventSourceType {
     EVENTSOURCE_SEPIA,
     EVENTSOURCE_NONE,
     EVENTSOURCE_DATALOGGER,
-    EVENTSOURCE_NOTEXIST
-};
-
-/****************************************************************************/
-/**
- * \brief Enum containing all alarm position Types.
- */
-/****************************************************************************/
-enum AlarmPosType {
-    ALARMPOS_NONE,          ///< No alarm
-    ALARMPOS_DEVICE,        ///< only device alarm .
-    ALARMPOS_LOCAL,         ///< alarm includes device and local
-    ALARMPOS_REMOTE         ///< alarm includes device, local and remote site
-};
-
-/****************************************************************************/
-/**
- * \brief Enum containing all log authority Types.
- */
-/****************************************************************************/
-enum LogAuthorityType {
-    LOGAUTHTYPE_NO_SHOW,     ///< Not Show the log item in the Event View
-    LOGAUTHTYPE_USER,        ///< only general user can see the log item.
-    LOGAUTHTYPE_ADMIN,       ///< genaral user and administrator can see the log item
-    LOGAUTHTYPE_SERVICE      ///< all user can see the log item
-};
-
-/****************************************************************************/
-/**
- * \brief Enum containing all ResponseRecovery Types.
- */
-/****************************************************************************/
-enum ResponseRecoveryType {
-    RESRECTYPE_ONLY_RECOVERY = 0,
-    RESRECTYPE_RESPONSE_RECOVERY,
-    RESRECTYPE_RES_RESULT_RECOVERY,
-    RESRECTYPE_ONLY_RESPONSE,
-    RESRECTYPE_NONE
+    EVENTSOURCE_NOTEXIST,
+    EVENTSOURCE_COLORADO
 };
 
 /****************************************************************************/
@@ -192,12 +152,7 @@ enum ResponseRecoveryType {
 /****************************************************************************/
 enum EventStatus {
     EVTSTAT_OFF = 0,        ///< Event "turned off". For example: now there is glass in cover slipper.
-    EVTSTAT_ON  = 1,       ///< Event "turned on". For example: no glass in cover slipper.
-    EVTSTAT_RESPONSE,       ///< doing response action
-    EVTSTAT_RESPONSE_ACK,   ///< checking response action result
-    EVTSTAT_RECOVERY,       ///< dong recovery action
-    EVTSTAT_RECOVERY_ACK,    ///< checking recovery action
-    EVTSTAT_ERROR_IN_ACTION  ///< raise new error during response or recovery
+    EVTSTAT_ON  = 1         ///< Event "turned on". For example: no glass in cover slipper.
 };
 
 /****************************************************************************/
@@ -280,7 +235,7 @@ enum DateTimeFormat {
     DATE_ISO_TIME_24, ///< "YYYY-MM-DD" with leading zeroes ///< 17:01:42
     DATE_ISO_12, ///< "YYYY-MM-DD" with leading zeroes ///< 05:01:42 p.m.
     DATE_US_TIME_24, ///< "MM/DD/YYYY" with leading zeroes ///< 17:01:42
-    DATE_US_12, ///< "MM/DD/YYYY" with leading zeroes ///< 05:01:42 p.m.
+    DATE_US_12 ///< "MM/DD/YYYY" with leading zeroes ///< 05:01:42 p.m.
 };
 
 /****************************************************************************/
@@ -291,7 +246,7 @@ enum DateTimeFormat {
 enum WaterType {
     WATER_TYPE_UNDEFINED, ///< Undefined. Used for initialization.
     WATER_TYPE_TAP, ///< Tap water
-    WATER_TYPE_DISTILLED, ///< Distilled water
+    WATER_TYPE_DISTILLED ///< Distilled water
 };
 
 /****************************************************************************/
@@ -303,12 +258,12 @@ enum LogLevel {
     LOG_ENABLED, ///< Enable logging
     LOG_DISABLED,///< Disable logging
     LOG_DEBUG,  ///< Debugging
-    LOG_CONSOLE, ///< Dump log messages to console
+    LOG_CONSOLE ///< Dump log messages to console
 };
 
 /****************************************************************************/
 /**
- * \brief Enum for Water type.
+ * \brief Enum for Heating state
  */
 /****************************************************************************/
 enum HeatingState{
@@ -316,6 +271,58 @@ enum HeatingState{
     TEMPERATURE_IN_RANGE,   ///< Self explaining
     TEMPERATURE_OUT_OF_RANGE ///< Self explaining
 };
+
+/****************************************************************************/
+/**
+ * \brief Enum for liquid level state
+ */
+/****************************************************************************/
+enum LiquidLevelState {
+    LIQUID_LEVEL_UNKNOWN,
+    LIQUID_LEVEL_EMPTY,
+    LIQUID_LEVEL_FULL,
+    LIQUID_LEVEL_COVERED,
+    LIQUID_LEVEL_RACK,
+    LIQUID_LEVEL_MINIMUM,
+    LIQUID_LEVEL_CUVETTE_MISSING,
+    LIQUID_LEVEL_MOVEFAIL,
+    LIQUID_LEVEL_READFAIL
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum for Heating mode
+ */
+/****************************************************************************/
+enum HeatingMode {
+    HeatingModeOff,
+    HeatingModeHeat,        ///< heating without oven, all cuvettes are allowed to heat up at the same time
+    HeatingModeHold         ///< heating includes oven, cuvettes are heated exclusively one by one
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum for station defect reason
+ */
+/****************************************************************************/
+enum StationDefectReason_t {
+    STATION_DEFECT_NONE,
+    STATION_DEFECT_UNDEFINED,
+    STATION_DEFECT_EMPTY,
+    STATION_DEFECT_RACK_IN_STATION,
+    STATION_DEFECT_CUVETTE_MISSING,
+    STATION_DEFECT_COVERED,
+    STATION_DEFECT_UNREADABLE,
+    STATION_DEFECT_TEMPERATURE_OVERSHOOT,
+    STATION_DEFECT_TEMPERATURE_NOT_REACHED,
+    STATION_DEFECT_COVER_DEFECT,
+    STATION_DEFECT_OVERFILL,
+    STATION_DEFECT_MOTOR,
+    STATION_DEFECT_INIT,
+    STATION_DEFECT_NO_RESPONSE,
+    STATION_DEFECT_WORKFLOW         ///< defect as consequence of workflow interruption
+};
+
 
 /****************************************************************************/
 /**
@@ -337,10 +344,27 @@ enum ExecutionState {
     STOP   ///< Stop execution
 };
 
+/****************************************************************************/
+/**
+ * \brief Enum for alarm type
+ */
+/****************************************************************************/
 enum AlarmType {
-    ALARM_NONE,
-    ALARM_WARNING,
-    ALARM_ERROR
+    ALARM_NONE,     //!< none
+    ALARM_WARNING,  //!< warnings
+    ALARM_ERROR     //!< error
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum containing all alarm position Types.
+ */
+/****************************************************************************/
+enum AlarmPosType {
+    ALARMPOS_NONE,          ///< No alarm
+    ALARMPOS_DEVICE,        ///< only device alarm .
+    ALARMPOS_LOCAL,         ///< alarm includes device and local
+    ALARMPOS_REMOTE         ///< alarm includes device, local and remote site
 };
 
 /****************************************************************************/
@@ -349,13 +373,13 @@ enum AlarmType {
  */
 /****************************************************************************/
 enum GuiButtonType {
-    NO_BUTTON,
-    OK,             //!< Msg Box with Ok
-    YES_NO,         //!< Msg Box with Yes and No
-    CONTINUE_STOP,  //!< Msg Box with Continue and Stop
+    NOT_SPECIFIED,   //!< Msg Box with buttons not specified
+    OK,              //!< Msg Box with Ok
+    YES_NO,          //!< Msg Box with Yes and No
+    CONTINUE_STOP,   //!< Msg Box with Continue and Stop
     OK_CANCEL,       //!< Msg Box with Ok and Cancel
-    RECOVERYLATER_RECOVERYNOW, //!< Msg Box with Recovery Later and Recovery Now
-    RECOVERYNOW //!< Msg Box with Recovery Now
+    WITHOUT_BUTTONS,  //!< Msg box without buttons
+    INVISIBLE
 };
 
 /****************************************************************************/
@@ -364,8 +388,8 @@ enum GuiButtonType {
  */
 /****************************************************************************/
 enum GuiUserLevel{
-    OPERATOR = 0, //!< Operator (normal user)
     ADMIN,    //!< Admin user
+    OPERATOR, //!< Operator (normal user)
     SERVICE   //!< Service user
 };
 
@@ -396,6 +420,43 @@ enum AlternateEventStringUsage {
     GUI_MSG_BOX_AND_LOGGING,
     GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE
 };
+
+/****************************************************************************/
+/**
+ * \brief Enum for Program not startable reasons
+ */
+/****************************************************************************/
+enum NonStartableProgramReasons {
+    BLG_NOT_GENERATED = -1,               //!< BathLayout was not generated for the program
+    PROGRAM_READY_TO_START,               //!< Program is ready to start
+    HEATED_CUVETTES_NOT_AVAILABLE,        //!< Heated Cuvettes not available
+    DI_WATER_NOT_AVAILABLE,               //!< DI water not available
+    STATION_NOT_AVAILABLE,                //!< Station not available
+    OVEN_DEFECT,                          //!< Oven defect
+    HEATED_CUVETTES_DEFECT,               //!< Heated cuvettes defect
+    WATER_STATION_DEFECT,                 //!< Wtaer station defect
+    REAGENTS_NOT_IN_BATHLAYOUT,           //!< Reagents not in BathLayout
+    REAGENTS_EXPIRED,                     //!< Reagents expired
+    PROGRAM_NOT_STARTABLE_VARIOUS_REASONS,//!< Not startable for various reasons
+    PROGRAM_NOT_SELECTED_FOR_USAGE        //!< Program not selected for usage
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum for reagent class.
+ */
+/****************************************************************************/
+enum ReagentClasses{
+    DEWAXING_CLASS = 1,         //!< Dewaxing reagent class
+    NEUTRALISING_CLASS,     //!< Neutralising reagent class
+    RINSING_CLASS,          //!< Rinsing reagent class
+    STAINING_CLASS,         //!< Staining reagent class
+    DIFFERENTIATING_CLASS,  //!< Differentialing reagent class
+    DEHYDRATING_CLASS,      //!< Dehydrating reagent class
+    NO_CLASS                //!< No class defined for the reagent
+};
+
+
 /****************************************************************************/
 /**
  * \brief Enumeration of power fail stages
@@ -404,8 +465,37 @@ enum AlternateEventStringUsage {
 enum PowerFailStages{
     POWER_FAIL_STAGE_1, //!< power went off, don't shut down yet wait for a few seconds
     POWER_FAIL_STAGE_2, //!< Looks like power won't be back! shutdown!!!
-    POWER_FAIL_REVERT   //!< Power is back, revert to normal state
+    POWER_FAIL_REVERT,   //!< Power is back, revert to normal state
+    POWER_FAIL_NONE
 };
+
+/****************************************************************************/
+/**
+ * \brief class for application setting
+ */
+/****************************************************************************/
+class AppSettings
+{
+public:
+    static bool SimulationEnabled;  //!< simulation enabled
+    static bool ExtendedLoggingEnabled; //!<  extended logging enabled like scheduler files
+    static bool TraceDebugMessagesEnabled; //!< debug messages enabled
+    static bool DCPLoggingEnabled;          //!<  dcp log file be created
+    static QString RevisionNumber;          //!<  revision number
+};
+
+/****************************************************************************/
+/**
+ * \brief Enum refers to number of cover lines
+ */
+/****************************************************************************/
+enum CoverSlipLinesNumber
+{
+    UNDEFINED,       //!< no cover  slip line
+    ONELINE,        //!< One cover slip line
+    TWOLINE        //!< two cover slip line
+};
+
 
 } // end namespace Global
 

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ExportConfigurationVerifier.h
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Include/ExportConfigurationVerifier.h
  *
  *  \brief Definition file for class CExportConfigurationVerifier.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-06
- *  $Author:    $ Aparna AL
+ *  $Author:    $ Aparna AL, Ramya GJ
  *
  *  \b Company:
  *
@@ -45,23 +45,25 @@ public:
 
     bool VerifyData(CDataContainerBase* p_Configuration);  // use concrete class for concrete verifier
 
-    ErrorHash_t &GetErrors();
+    ErrorMap_t &GetErrors();
 
-    void ResetLastErrors();
+    void ResetErrors();
 
     bool IsLocalVerifier();
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Destructor
-     */
-    /****************************************************************************/
-    virtual ~CExportConfigurationVerifier() {}
 private:
     CExportConfiguration* mp_ECD;    //!< ExportConfiguration Data Container
-    ErrorHash_t m_ErrorsHash;          //!< To store Error ID and any arguments associated
+    ErrorMap_t m_ErrorMap;          //!< To store Error ID and any arguments associated
 
-    bool CheckFileNames(CConfigurationList Configuration);
+    bool CheckFileNames(CConfigurationList Configuration, QString ConfigurationName);
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CExportConfigurationVerifier)
 
 };
 

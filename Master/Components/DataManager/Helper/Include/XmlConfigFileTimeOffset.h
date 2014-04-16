@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFileTimeOffset.h
+/*! \file DataManager/Helper/Include/XmlConfigFileTimeOffset.h
  *
  *  \brief Definition file for class XmlConfigFileTimeOffset.
  *
@@ -42,8 +42,8 @@ private:
     /**
      * \brief Read passwords for format version1.
      *
-     * \param[in, out]  rReader             xml stream reader.
-     * \param[in, out]  rTimeOffset         Reference to time offset.
+     * \oparam  rReader             xml stream reader.
+     * \oparam  rTimeOffset         Reference to time offset.
      */
     /****************************************************************************/
     void ReadTimeOffset_V1(QXmlStreamReader &rReader, int &rTimeOffset);
@@ -68,8 +68,8 @@ public:
      *
      * Read time offset from file.
      *
-     * \param[in]       FileName            File from which configuration is to be read.
-     * \param[in, out]  rTimeOffset         Reference to time offset.
+     * \iparam       FileName            File from which configuration is to be read.
+     * \oparam  rTimeOffset         Reference to time offset.
      */
     /****************************************************************************/
     void ReadTimeOffset(const QString &FileName, int &rTimeOffset);
@@ -79,8 +79,8 @@ public:
      *
      * Write time offset to file.
      *
-     * \param[in]   FileName            File from which configuration is to be read.
-     * \param[in]   TimeOffset          Time offset.
+     * \iparam   FileName            File from which configuration is to be read.
+     * \iparam   TimeOffset          Time offset.
      */
     /****************************************************************************/
     void WriteTimeOffset(const QString &FileName, int TimeOffset);

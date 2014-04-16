@@ -21,14 +21,13 @@
 #include <QTest> 
 #include <QVector>
 #include <QPair>
-#include <qdom.h>
+//#include <qdom.h>
 #include <QString>
 #include <QSignalSpy>
 
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
 #include <EventHandler/Include/EventHandlerThreadController.h>
-#include <EventHandler/Include/CrisisEventHandler.h>
 #include <DataLogging/Include/DataLoggingThreadController.h>
 #include <Global/Include/AlarmHandler.h>
 
@@ -42,8 +41,7 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 #include <DataManager/Containers/UserSettings/Include/UserSettingsInterface.h>
 #include <NetCommands/Include/CmdAcknEventReport.h>
-#include <NetCommands/Include/CmdEventReport.h>
-#include <QThread>
+#include <Threads/Include/PlatformThreadIDs.h>
 
 
 #include <Threads/Include/MasterThreadController.h>
@@ -65,64 +63,23 @@ namespace EventHandler {
 class TestEventHandlerThreadController : public QObject {
     Q_OBJECT
 
-private:
-    class EventHandlerUser : public Threads::ThreadController
+public:
+    TestEventHandlerThreadController()
+        : mp_alarmHandler(NULL)
     {
-    public:
-        quint32 EventCode;
-        quint32 Scenario;
-        quint32 EventKey;
-        EventHandlerUser(Global::gSourceType m_HeartBeatSource):
-            Threads::ThreadController(m_HeartBeatSource,"EventHandlerUser")
-        {
-            CommandChannel = new Threads::CommandChannel(this,"EventHandlerUser");
-            RegisterCommandForProcessing<NetCommands::CmdSystemAction,EventHandlerUser>
-                    (&EventHandlerUser::OnActionCommandReceived, this);
 
-            RegisterCommandForProcessing<NetCommands::CmdEventReport, EventHandlerUser>
-                    (&EventHandlerUser::OnReceiveCmdThatShouldBeToGui,this);
-        }
-        Threads::CommandChannel *CommandChannel;
-        void OnActionCommandReceived(Global::tRefType Ref, const NetCommands::CmdSystemAction &Cmd)
-        {
-            qDebug()<<"OnActionCommandReceived: " << Cmd.GetEventID() << " - " << Cmd.GetScenario() << " - " << Cmd.GetAction();
-            EventCode = Cmd.GetEventID();
-            Scenario = Cmd.GetScenario();
-            EventKey = Cmd.GetEventKey();
-//            RaiseEvent(Cmd.GetEventID(),Cmd.GetScenario(),Cmd.GetEventKey(),true);
-        }
+    }
 
-        void OnReceiveCmdThatShouldBeToGui(Global::tRefType Ref, const NetCommands::CmdEventReport &Cmd)
-        {
-            qDebug()<<"OnReceiveCmdThatShouldBeToGui: "<< Ref;
-        }
+private:
 
-        void RaiseEvent(quint32 EventCode, quint32 Scenario)
-        {
-            EventHandler::CrisisEventHandler::Instance().RaiseEvent(EventCode,Scenario,Global::tTranslatableStringList(),Global::tTranslatableStringList());
-        }
-
-        void RaiseEvent(bool isResolved)
-        {
-            EventHandler::CrisisEventHandler::Instance().RaiseEvent(EventCode,Scenario,EventKey,isResolved);
-        }
-
-        void OnGoReceived(){}
-        void OnStopReceived(){}
-        void OnPowerFail(){}
-        void CreateAndInitializeObjects(){}
-        void CleanupAndDestroyObjects(){}
-    };
-
-    Global::gSourceType m_HeartBeatSourceEventHandler;
-    Global::gSourceType m_HeartBeatSourceDataLogging;
-    EventHandler::EventHandlerThreadController * mp_EventHandlerThreadController;
-    DataLogging::DataLoggingThreadController * mp_DataLoggingThreadController;
-    QString                                     m_EventLoggerBaseFileName;
-    Global::AlarmHandler * mp_alarmHandler;
+    Global::gSourceType m_HeartBeatSourceEventHandler; ///< HeartBeatSource for EventHandler
+    Global::gSourceType m_HeartBeatSourceDataLogging; ///< HeartBeatSource for DataLogging
+    EventHandler::EventHandlerThreadController * mp_EventHandlerThreadController; ///< Pointer to EventHandlerThreadController
+    DataLogging::DataLoggingThreadController * mp_DataLoggingThreadController; ///< Pointer to DataLoggingThreadController
+    QString                                     m_EventLoggerBaseFileName; ///< EventLoggerBase FileName
+    Global::AlarmHandler * mp_alarmHandler; ///< Pointer to AlarmHandler
     Threads::CommandChannel    *  mp_CommandChannelEventThread;        ///< Command channel for EventHandler.
     QSignalSpy * mp_SpyCommandChannelTx;
-    EventHandlerUser* EVUser;
 
 private slots:
     /****************************************************************************/
@@ -149,14 +106,33 @@ private slots:
      */
     /****************************************************************************/
     void cleanupTestCase();
+
     /****************************************************************************/
-
+    /**
+     * \brief Test for ReadEventConfigurationFile
+     */
+    /****************************************************************************/
+    void TestReadEventConfigurationFile();
+    /****************************************************************************/
+    /**
+     * \brief Test for ProcessEvents
+     */
+    /****************************************************************************/
     void TestProcessEvents();
+    /****************************************************************************/
+    /**
+     * \brief Test for OnAcknowledge
+     */
+    /****************************************************************************/
+    void TestOnAcknowledge();
 
-public:
 
 }; // end class TestXmlConfigFile
 
+
+
+void TestEventHandlerThreadController::TestOnAcknowledge() {
+}
 
 void TestEventHandlerThreadController::TestProcessEvents(){
 
@@ -180,18 +156,42 @@ void TestEventHandlerThreadController::TestProcessEvents(){
 
     int cntactionhandler = 0;
 
-//    for (i = mp_EventHandlerThreadController->m_eventList.begin(); i != mp_EventHandlerThreadController->m_eventList.end(); ++i)
-//    {
+    for (i = mp_EventHandlerThreadController->m_eventList.begin(); i != mp_EventHandlerThreadController->m_eventList.end(); ++i)
+    {
 
-//    }
+        EventHandler::EventCSVInfo EventInfo = i.value();
 
-    EVUser->RaiseEvent(500040401,520000200);
-    EVUser->RaiseEvent(true);
-    EVUser->RaiseEvent(true);
+        if(EventInfo.GetLogLevel() != Global::LOGLEVEL_NONE)
+        {
+            cntlogevent += 1;
+        }
+
+        cntactionhandler += 1;
+        Global::EventObject::Instance().RaiseEvent(EventInfo.GetEventId(), Global::FmtArgs(), true, EventInfo.GetEventId());
+
+    }
+
+
+    //verify if the signals have been called correctly
+
+    //QCOMPARE(spyGuiAvailability.count(),1);
+    //qDebug()<< "count for spyGuiAvailability"<<spyGuiAvailability.count();
+    //QCOMPARE(spyLogEvent.count(), cntlogevent -4);
+    qDebug()<< "count for LogEvent"<<spyLogEvent.count()-4;
+    //QCOMPARE(spyForwardToErrorHandler.count(), cntactionhandler-4);
+    //qDebug()<< "count for spyForwardToErrorHandler"<<spyForwardToErrorHandler.count()-4;
 
 }
 
+void TestEventHandlerThreadController::TestReadEventConfigurationFile() {
 
+    QDir dir;
+    QString strfilepath = dir.absolutePath();
+    strfilepath += "/EventConfig.csv";
+    mp_EventHandlerThreadController->ReadConfigFile(strfilepath);
+    //QCOMPARE(mp_EventHandlerThreadController->m_eventList.count(), 481);
+
+}
 
 /****************************************************************************/
 void TestEventHandlerThreadController::initTestCase() {
@@ -200,32 +200,64 @@ void TestEventHandlerThreadController::initTestCase() {
     m_HeartBeatSourceDataLogging = EVENT_GROUP_SOURCENAME + 0x0002;
     m_HeartBeatSourceEventHandler =  HEARTBEAT_SOURCE_EVENTHANDLER;
 
-    Global::SystemPaths::Instance().SetLogfilesPath("../Logfiles");
-    Global::SystemPaths::Instance().SetSettingsPath("../Settings");
-    EventHandler::CrisisEventHandler::Instance().readEventStateConf("../Settings/EventStateError.csv");
     m_EventLoggerBaseFileName = "Base";
     mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(m_HeartBeatSourceDataLogging, m_EventLoggerBaseFileName);
 
-    mp_alarmHandler = new Global::AlarmHandler(5000,this);
 
-    mp_EventHandlerThreadController = new EventHandler::EventHandlerThreadController(m_HeartBeatSourceEventHandler);
-    mp_EventHandlerThreadController->SetAlarmHandler(mp_alarmHandler);
-    mp_EventHandlerThreadController->ConnectToEventObject();
+    mp_EventHandlerThreadController = new EventHandler::EventHandlerThreadController(THREAD_ID_EVENTHANDLER, 0, QStringList());
 
-     mp_EventHandlerThreadController->CreateAndInitializeObjects();
 
     CONNECTSIGNALSLOT(mp_EventHandlerThreadController, LogEventEntry(const DataLogging::DayEventEntry &),
                       mp_DataLoggingThreadController, SendToDayEventLogger(const DataLogging::DayEventEntry &));
 
+    //FOR ACKNOWLEDGEMENT testing
 
-    EVUser = new EventHandlerUser(m_HeartBeatSourceEventHandler);
+    mp_CommandChannelEventThread = new Threads::CommandChannel(mp_EventHandlerThreadController, "EventHandler", Global::EVENTSOURCE_EVENTHANDLER);
 
-    mp_EventHandlerThreadController->ConnectToOtherCommandChannel(EVUser->CommandChannel);
+    EventHandler::EventCSVInfo CSVInfo;
+    DataLogging::DayEventEntry EventEntry ;
+    Global::tTranslatableStringList EventStringList;
+    Global::AlternateEventStringUsage AltStringUsage;
+    Global::tRefType Ref =0;
+    NetCommands::CmdAcknEventReport Ack;
+    mp_EventHandlerThreadController->VerifyUserLogGUIOptionDependency(CSVInfo);
+    mp_EventHandlerThreadController->VerifySourceComponentGUIOptionsDependency(CSVInfo);
+    mp_EventHandlerThreadController->VerifyActionGUIOptionsDependency(CSVInfo);
+    mp_EventHandlerThreadController->VerifyAlarmGUIOptionsDependency(CSVInfo);
+    mp_EventHandlerThreadController->VerifyAlarmEventTypeDependency(CSVInfo);
+    mp_EventHandlerThreadController->VerifyStatusbarGUIOptionDependency(CSVInfo);
+    mp_EventHandlerThreadController->InformAlarmHandler(EventEntry,quint64(234),true);
+  //  mp_EventHandlerThreadController->CreateEventEntry(EventEntry,CSVInfo,true,quint32 (123),EventStringList,quint32(345),AltStringUsage);
+   // mp_EventHandlerThreadController->HandleInactiveEvent(EventEntry,quint64(34));
+    mp_EventHandlerThreadController->UpdateEventDataStructures(quint32(123),quint64(3556),EventEntry,true,true);
+    mp_EventHandlerThreadController->ProcessEvent(quint32(23),EventStringList,true,quint32(34),AltStringUsage);
+    mp_EventHandlerThreadController->SetSystemStateMachine(EventEntry);
+    mp_EventHandlerThreadController->InformGUI(EventEntry,quint64(678));
+    mp_EventHandlerThreadController->RegisterCommands();
+    mp_EventHandlerThreadController->SetGuiAvailable(true);
+    mp_EventHandlerThreadController->VerifyEventIDs(quint32(23));
+    mp_EventHandlerThreadController->VerifyEventType(Global::EVTTYPE_WARNING);
+    mp_EventHandlerThreadController->VerifyEventType(Global::EVTTYPE_ERROR);
+    mp_EventHandlerThreadController->VerifySource(Global::EVENTSOURCE_MAIN);
+    mp_EventHandlerThreadController->VerifyLogLevel(Global::LOGLEVEL_LOW);
+    mp_EventHandlerThreadController->VerifyGuiButtonType(Global::OK);
+    mp_EventHandlerThreadController->VerifyEventConfigCSV(QString("/EventConfig.csv"));
+    mp_EventHandlerThreadController->VerifyEventCSVFilenameExists(QString("/EventConfig.csv"));
+    mp_EventHandlerThreadController->VerifyEventMacro(QString("EventMacroName"));
+    mp_EventHandlerThreadController->VerifyBoolean(QString("Text"));
+    mp_EventHandlerThreadController->VerifyStringList(QString("EventString"));
+    mp_EventHandlerThreadController->OnAcknowledge(Ref,Ack);
 
-//    QThread *EventHandlerThread = new QThread();
+    mp_EventHandlerThreadController->OnGoReceived();
+    mp_EventHandlerThreadController->CleanupAndDestroyObjects();
+    //mp_EventHandlerThreadController->CreateAndInitializeObjects();
+    mp_EventHandlerThreadController->OnStopReceived();
 
-//    mp_EventHandlerThreadController->moveToThread(EventHandlerThread);
-//    EventHandlerThread->start();
+
+    mp_EventHandlerThreadController->SetCountForEventId(quint32(1234),(qint8)32);
+    mp_EventHandlerThreadController->SetOperatingMode(QString("xyz"));
+    mp_EventHandlerThreadController->SetEventLoggerBaseFileName(QString("Logging File"));
+    mp_EventHandlerThreadController->SetSerialNumber(QString("sr123"));
 
 }
 
@@ -258,9 +290,6 @@ void TestEventHandlerThreadController::cleanupTestCase() {
         delete mp_DataLoggingThreadController;
         mp_DataLoggingThreadController = NULL;
     }
-
-
-
 }
 
 

@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file DateTime.h
  *
- *  \brief DateTime definition.
+ *  \brief Header file for class CDateTime.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-21
@@ -43,16 +43,16 @@ namespace Ui {
 class CDateTime : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CDateTime(QWidget *p_Parent = 0);
     virtual ~CDateTime();
 
     void RefreshDateTime(Global::TimeFormat TimeFormat);
-    QDateTime &GetDateTime();
+    QDateTime GetDateTime();
     void SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow);
     void ResetButtons();
-    void DisableApplyButton();
 
 signals:
     /****************************************************************************/
@@ -63,6 +63,16 @@ signals:
      */
     /****************************************************************************/
     void ApplyData(const QDateTime DateTime);
+
+    /****************************************************************************/
+    /*!
+     *  \brief This signal is emitted to display wait dialog
+     *
+     *  \iparam ContentText = Text to be displayed
+     *
+     */
+    /****************************************************************************/
+    void ShowWaitDialog(const QString ContentText);
 
 private:
     Ui::CDateTime *mp_Ui;   //!< User interface
@@ -76,6 +86,14 @@ private:
     //Flags
     bool m_ProcessRunning;                  //!< Process running state
     void RetranslateUI();
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CDateTime)
+
 
 protected:
     void changeEvent(QEvent *p_Event);

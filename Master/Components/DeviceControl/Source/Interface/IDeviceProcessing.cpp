@@ -78,10 +78,10 @@ IDeviceProcessing::IDeviceProcessing() :
     CONNECTSIGNALSLOT(mp_DevProc, ReportInitializationFinished(ReturnCode_t), this, OnInitializationFinished(ReturnCode_t));
     CONNECTSIGNALSLOT(mp_DevProc, ReportConfigurationFinished(ReturnCode_t), this, OnConfigurationFinished(ReturnCode_t));
     CONNECTSIGNALSLOT(mp_DevProc, ReportStartNormalOperationMode(ReturnCode_t), this, OnStartNormalOperationMode(ReturnCode_t));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportError(DevInstanceID_t, quint16, quint16, quint16, QDateTime),
-                      this, OnError(DevInstanceID_t, quint16, quint16, quint16, QDateTime));
-    CONNECTSIGNALSLOT(mp_DevProc, ReportErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString),
-                      this, OnErrorWithInfo(DevInstanceID_t, quint16, quint16, quint16, QDateTime, QString));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                      this, OnError(quint32, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(mp_DevProc, ReportErrorWithInfo(quint32, quint16, quint16, quint16, QDateTime, QString),
+                      this, OnErrorWithInfo(quint32, quint16, quint16, quint16, QDateTime, QString));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
     m_ParentThreadID = QThread::currentThreadId();
@@ -133,7 +133,7 @@ void IDeviceProcessing::ThreadStarted()
  *  \iparam TimeStamp  = Error time stamp
  */
 /****************************************************************************/
-void IDeviceProcessing::OnError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp)
+void IDeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp)
 {
     FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing::ThrowError (" << std::hex << (int) InstanceID << ", " <<
                                       std::hex << ErrorGroup << ", " << std::hex << ErrorID << ", " << std::hex << ErrorData << ")";
@@ -152,7 +152,7 @@ void IDeviceProcessing::OnError(DevInstanceID_t InstanceID, quint16 ErrorGroup, 
  *  \iparam ErrorInfo  = Additional error information
  */
 /****************************************************************************/
-void IDeviceProcessing::OnErrorWithInfo(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp, QString ErrorInfo)
+void IDeviceProcessing::OnErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime TimeStamp, QString ErrorInfo)
 {
     FILE_LOG_L(laDEVPROC, llERROR) << " IDeviceProcessing: emit event: " << std::hex << ErrorGroup << ", " <<
                                       std::hex << ErrorID << ", " <<
@@ -321,14 +321,14 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing::RouteConfigurationFinished: " << (int) HdlInfo;
     if((HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)||(HdlInfo == DCL_ERR_TIMEOUT))
     {
-        QList<DevInstanceID_t> list;
+        QList<quint32> list;
         list <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
               << DEVICE_INSTANCE_ID_AIR_LIQUID
               << DEVICE_INSTANCE_ID_OVEN
               << DEVICE_INSTANCE_ID_RETORT
               << DEVICE_INSTANCE_ID_MAIN_CONTROL;
 
-        DevInstanceID_t id;
+        quint32 id;
         foreach (id, list)
         {
             CBaseDevice *pDevice = mp_DevProc->GetDevice(id);
@@ -488,7 +488,7 @@ ReturnCode_t IDeviceProcessing::StartAdjustmentService()
  *  \return The pointer to the specified device, if any
  */
 /****************************************************************************/
-CBaseDevice* IDeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
+CBaseDevice* IDeviceProcessing::GetDevice(quint32 InstanceID)
 {
     QMutexLocker locker(&m_Mutex);
     return mp_DevProc->GetDevice(InstanceID);
@@ -1303,7 +1303,7 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
 /*!
  *  \brief   Request the rotary valve to move to its initial position.
  *
- *  \return  DCL_ERR_DEV_RV_MOVE_TO_INIT_POS_SUCCESS if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
@@ -1328,7 +1328,7 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
  *
  *  \iparam  RVPosition = Target rotary valve encoder disk's position.
  *
- *  \return  DCL_ERR_DEV_RV_REF_MOVE_OK if successfull, otherwise an error code
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::RVReqMoveToRVPosition( RVPosition_t RVPosition)
@@ -1904,7 +1904,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal basePressure = 1.4;
 
         retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
-        if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
@@ -1933,7 +1933,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             basePressure = 0.6;
         }
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
-        if(DCL_ERR_DEV_RV_REF_MOVE_OK != retCode)
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
@@ -1944,22 +1944,22 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         if(pressure < (0.4 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_EMPTY ;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY ;
             LOG()<<"Bottle Check: Empty";
         }
         else if(pressure < (0.7 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_NOT_FULL;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_INSUFFICIENT;
             LOG()<<"Bottle Check: Leakage or Not Full";
         }
         else if(pressure < (2 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_OK;
+            retCode = DCL_ERR_FCT_CALL_SUCCESS;
             LOG()<<"Bottle Check: OK";
         }
         else
         {
-            retCode = DCL_ERR_DEV_BOTTLE_CHECK_BLOCKAGE;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_BLOCKAGE;
             LOG()<<"Bottle Check: Blockage";
         }
 
@@ -1972,4 +1972,53 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
     }
 }
 
+ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
+{
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return retCode;
+    }
+    if((m_pRotaryValve)&&(m_pAirLiquid))
+    {
+        RVPosition_t currentPosition = m_pRotaryValve->ReqActRVPosition();
+        if(!m_pRotaryValve->IsSealPosition(currentPosition))
+        {
+            RVPosition_t targetPosition = m_pRotaryValve->ReqAdjacentPosition(currentPosition);
+            retCode = m_pRotaryValve->ReqMoveToRVPosition(targetPosition);
+            if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+            {
+                return retCode;
+            }
+        }
+
+        retCode = m_pAirLiquid->Pressure();
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+
+        (void)usleep(10000*1000);
+        qreal pressure = m_pAirLiquid->GetRecentPressure();
+
+        LOG()<<"Sealing test pressure: " << pressure;
+
+        if(pressure < (ThresholdPressure))
+        {
+            retCode = DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
+            LOG()<<"Sealing test: Failed.";
+        }
+        else
+        {
+            retCode = DCL_ERR_FCT_CALL_SUCCESS;
+            LOG()<<"Sealing test: Succeed.";
+        }
+        m_pAirLiquid->ReleasePressure();
+        return retCode;
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
 } // namespace

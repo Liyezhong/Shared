@@ -1,12 +1,12 @@
 /****************************************************************************/
-/*! \file ConfigurationList.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Source/ConfigurationList.cpp
  *
  *  \brief Implementation file for class CConfigurationList.
  *         Reads the configurationList tag data from the XML file
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-25
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *
@@ -62,11 +62,34 @@ CConfigurationList::CConfigurationList() :
 /****************************************************************************/
 CConfigurationList::CConfigurationList(const CConfigurationList& ExportConfiguration)
 {
-    CConfigurationList* p_TempExportConfiguration = const_cast<CConfigurationList*>(&ExportConfiguration);
-
-    *this = *p_TempExportConfiguration;
+    CopyFromOther(ExportConfiguration);
 }
+/****************************************************************************/
+/*!
+ *  \brief Copy Data from another instance.
+ *         This function should be called from CopyConstructor or
+ *         Assignment operator only.
+ *
+ *  \note  Method for internal use only
+ *
+ *  \iparam ConfigList = Instance of the CConfigurationList class
+ *
+ *  \return
+ */
+/****************************************************************************/
+void CConfigurationList::CopyFromOther(const CConfigurationList &ConfigList)
+{
+    CConfigurationList &OtherConfigList = const_cast<CConfigurationList &>(ConfigList);
+    m_FileList  = OtherConfigList.GetFileList();
+    m_GroupFlag     = OtherConfigList.GetGroupListFlag();
+    m_GroupFileName = OtherConfigList.GetGroupFileName();
+    m_Encryption = OtherConfigList.GetEncryptionFlag();
+    m_Compressed = OtherConfigList.GetCompressedFlag();
+    m_Certified = OtherConfigList.GetCertifiedFlag();
+    m_PackageType = OtherConfigList.GetPackageType();
+    m_TagName = OtherConfigList.GetTagName();
 
+}
 /****************************************************************************/
 /*!
  *  \brief Writes from the CConfigurationList object to a IODevice.
@@ -196,8 +219,6 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CConfigurationList& E
 
     if (!p_TempExportConfiguration->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CConfigurationList::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
     return OutDataStream;
 }
@@ -219,8 +240,6 @@ QDataStream& operator >>(QDataStream& InDataStream, CConfigurationList& ExportCo
 
     if (!ExportConfiguration.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CConfigurationList::Operator Streaming (DeSerializeContent) failed.";
-        // throws an exception
-        THROWARG(EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
     }
 
     return InDataStream;
@@ -240,14 +259,7 @@ CConfigurationList& CConfigurationList::operator=(const CConfigurationList& Sour
     // make sure not same object
     if (this != &SourceExportConfiguration)
     {
-        QByteArray TempByteArray;
-        CConfigurationList* p_TempExportConfiguration = const_cast<CConfigurationList*>(&SourceExportConfiguration);
-        QDataStream DataStream(&TempByteArray, QIODevice::ReadWrite);
-        (void)DataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0)); //to avoid lint-534
-        TempByteArray.clear();
-        DataStream << *p_TempExportConfiguration;
-        (void)DataStream.device()->reset(); //to avoid lint-534
-        DataStream >> *this;
+        CopyFromOther(SourceExportConfiguration);
     }
     return *this;
 }

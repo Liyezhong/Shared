@@ -24,8 +24,8 @@
 
 namespace ImportExport {
 
-static const char* Archname = "Himalaya_User_deviceID_20110815_205943.lpkg";
-static const QString ArchZipName = "Himalaya_User_deviceID_%1.zip";
+static const char* Archname = "Colorado_User_deviceID_20110815_205943.lpkg";
+static const QString ArchZipName = "Colorado_User_deviceID_%1.zip";
 /****************************************************************************/
 /*!
  * \brief empty constructor
@@ -54,6 +54,7 @@ void TestWriteArchive::init()
     FailSafeOpen ctrfile(Constants::counter, 'w');
     ctrfile.write(QByteArray(4, 0));
     ctrfile.close();
+    DirPath = QDir::cleanPath(QDir::cleanPath(QCoreApplication::applicationDirPath()) + "/../testresults") + QDir::separator();
 }
 /****************************************************************************/
 /*!
@@ -165,7 +166,7 @@ QString TestWriteArchive::getZipFileName()
 void TestWriteArchive::utTestNoFiles()
 {
     WriteArchive(Archname, QList<QByteArray>(), false);
-    QCOMPARE(getFileContents(Archname), getFileContents("testresults/NoFiles"));
+    QCOMPARE(getFileContents(Archname), getFileContents(QString(DirPath + "NoFiles").toAscii()));
 }
 /****************************************************************************/
 /*!
@@ -178,7 +179,7 @@ void TestWriteArchive::utTestPlainFiles()
 
     WriteArchive(Archname, m_workfiles, false);
     QCOMPARE(getFileContents(Archname),
-             getFileContents("testresults/PlainFiles"));
+             getFileContents(QString(DirPath + "PlainFiles").toAscii()));
 }
 
 /****************************************************************************/
@@ -192,7 +193,7 @@ void TestWriteArchive::utTestPlainBigFiles()
 
     WriteArchive(Archname, m_workfiles, false);
     QCOMPARE(getFileContents(Archname),
-             getFileContents("testresults/PlainBigFiles"));
+             getFileContents(QString(DirPath + "PlainBigFiles").toAscii()));
 }
 
 /****************************************************************************/
@@ -206,7 +207,7 @@ void TestWriteArchive::utTestEncryptFiles()
 
     WriteArchive(Archname, m_workfiles, true);
     QCOMPARE(getFileContents(Archname),
-             getFileContents("testresults/EncryptFiles"));
+             getFileContents(QString(DirPath + "EncryptFiles").toAscii()));
 }
 
 /****************************************************************************/
@@ -220,7 +221,7 @@ void TestWriteArchive::utTestEncryptBigFiles()
 
     WriteArchive(Archname, m_workfiles, true);
     QCOMPARE(getFileContents(Archname),
-             getFileContents("testresults/EncryptBigFiles"));
+             getFileContents(QString(DirPath + "EncryptBigFiles").toAscii()));
 }
 
 /****************************************************************************/
@@ -240,7 +241,7 @@ void TestWriteArchive::utTestEncryptManyFiles()
 
     WriteArchive(Archname, m_workfiles, true);
     QCOMPARE(getFileContents(Archname),
-             getFileContents("testresults/EncryptManyFiles"));
+             getFileContents(QString(DirPath + "EncryptManyFiles").toAscii()));
 }
 
 }               // end namespace ImportExport

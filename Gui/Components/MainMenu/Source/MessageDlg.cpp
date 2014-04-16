@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file MessageDlg.cpp
  *
- *  \brief MessageDlg implementation.
+ *  \brief Implementation of file for class CMessageDlg.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying the message
+ *          dialogs.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-09-28
@@ -39,9 +43,9 @@ CMessageDlg::CMessageDlg(QWidget *p_Parent) : CDialogFrame(p_Parent),
 {
     mp_Ui->setupUi(GetContentFrame());
     layout()->setSizeConstraint(QLayout::SetFixedSize);
-    CONNECTSIGNALSLOT(mp_Ui->Button1, clicked(), this, OnButtonRightClicked());
-    CONNECTSIGNALSLOT(mp_Ui->Button2, clicked(), this, OnButtonCenterClicked());
-    CONNECTSIGNALSLOT(mp_Ui->Button3, clicked(), this, OnButtonLeftClicked());
+    CONNECTSIGNALSLOTGUI(mp_Ui->Button1, clicked(), this, OnButtonRightClicked());
+    CONNECTSIGNALSLOTGUI(mp_Ui->Button2, clicked(), this, OnButtonCenterClicked());
+    CONNECTSIGNALSLOTGUI(mp_Ui->Button3, clicked(), this, OnButtonLeftClicked());
 }
 
 /****************************************************************************/
@@ -54,25 +58,6 @@ CMessageDlg::~CMessageDlg()
     delete mp_Ui;
 }
 
-/****************************************************************************/
-/*!
- *  \brief Event handler for change events
- *
- *  \iparam p_Event = Change event
- */
-/****************************************************************************/
-void CMessageDlg::changeEvent(QEvent *p_Event)
-{
-    QDialog::changeEvent(p_Event);
-    switch (p_Event->type()) {
-        case QEvent::LanguageChange: {
-            mp_Ui->retranslateUi(this);
-            break;
-        }
-        default:
-            break;
-    }
-}
 
 /****************************************************************************/
 /*!
@@ -83,7 +68,7 @@ void CMessageDlg::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 void CMessageDlg::SetTitle(const QString &Title)
 {
-    SetDialogTitle(tr("%1").arg(Title));
+    SetDialogTitle(QString("%1").arg(Title));
 }
 
 /****************************************************************************/
@@ -96,7 +81,7 @@ void CMessageDlg::SetTitle(const QString &Title)
 /****************************************************************************/
 void CMessageDlg::SetTitle(const QString &TitleLeft, const QString &TitleRight)
 {
-    SetDialogTitle(tr("%1").arg(TitleLeft), tr("%1").arg(TitleRight));
+    SetDialogTitle(QString("%1").arg(TitleLeft), QString("%1").arg(TitleRight));
 }
 
 /****************************************************************************/
@@ -108,7 +93,7 @@ void CMessageDlg::SetTitle(const QString &TitleLeft, const QString &TitleRight)
 /****************************************************************************/
 void CMessageDlg::SetText(const QString &Text)
 {
-    mp_Ui->labelMessage->setText(tr("%1").arg(Text));
+    mp_Ui->labelMessage->setText(QString("%1").arg(Text));
 }
 
 /****************************************************************************/
@@ -122,13 +107,13 @@ void CMessageDlg::SetIcon(QMessageBox::Icon Icon)
 {
     switch (Icon) {
         case QMessageBox::Information:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())));
             break;
         case QMessageBox::Warning:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())));
             break;
         case QMessageBox::Critical:
-            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+            mp_Ui->labelIcon->setPixmap(QPixmap(QString(":/%1/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())));
             break;
         default:
             mp_Ui->labelIcon->setPixmap(QPixmap());
@@ -149,15 +134,15 @@ void CMessageDlg::SetButtonText(qint32 ButtonNumber, QString ButtonText)
 {
     switch(ButtonNumber){
     case 1:
-        mp_Ui->Button1->setText(tr("%1").arg(ButtonText));
+        mp_Ui->Button1->setText(QString("%1").arg(ButtonText));
         mp_Ui->Button1->show();
         break;
     case 2:
-        mp_Ui->Button2->setText(tr("%1").arg(ButtonText));
+        mp_Ui->Button2->setText(QString("%1").arg(ButtonText));
         mp_Ui->Button2->show();
         break;
     case 3:
-        mp_Ui->Button3->setText(tr("%1").arg(ButtonText));
+        mp_Ui->Button3->setText(QString("%1").arg(ButtonText));
         mp_Ui->Button3->show();
         break;
     }
@@ -208,6 +193,19 @@ void CMessageDlg::HideButtonsOneAndTwo()
     mp_Ui->Button1->hide();
     mp_Ui->Button2->hide();
 }
+
+/****************************************************************************/
+/*!
+ *  \brief Function to hide aal the buttons
+ */
+/****************************************************************************/
+void CMessageDlg::HideAllButtons()
+{
+    mp_Ui->Button1->hide();
+    mp_Ui->Button2->hide();
+    mp_Ui->Button3->hide();
+}
+
 /****************************************************************************/
 /*!
  *  \brief Slot for the show() functions of the dialog

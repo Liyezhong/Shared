@@ -49,8 +49,13 @@ private:
     BaseThreadController    *m_pBaseThreadController;   ///< Pointer to thread controller.
     /****************************************************************************/
     CommandChannel();                                           ///< Not implemented.
-    CommandChannel(const CommandChannel &);                     ///< Not implemented.
-    const CommandChannel & operator = (const CommandChannel &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CommandChannel)
     /****************************************************************************/
     /**
      * \brief Emit signal for commands.
@@ -59,11 +64,11 @@ private:
      * Called from BaseThreadController::SendCommand or from
      * MasterThreadController::SendCommand.
      *
-     * \param[in]   Ref         Reference of command.
-     * \param[in]   Cmd         Command.
+     * \iparam   Ref         Reference of command.
+     * \iparam   Cmd         Command.
      */
     /****************************************************************************/
-    void EmitCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
+    void EmitCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd) const;
     /****************************************************************************/
     /**
      * \brief Emit signal for command acknowledges.
@@ -72,8 +77,8 @@ private:
      * Called from BaseThreadController::SendAcknowledge or from
      * MasterThreadController::SendAcknowledge.
      *
-     * \param[in]   Ref         Reference of command.
-     * \param[in]   Ack         Acknowledge for command.
+     * \iparam   Ref         Reference of command.
+     * \iparam   Ack         Acknowledge for command.
      */
     /****************************************************************************/
     void EmitAcknowledge(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack);
@@ -82,8 +87,8 @@ signals:
     /**
      * \brief Signal for sending a command acknowledge.
      *
-     * \param[in]   Ref         Reference of command.
-     * \param[in]   Ack         Acknowledge for command.
+     * \iparam   Ref         Reference of command.
+     * \iparam   Ack         Acknowledge for command.
      */
     /****************************************************************************/
     void CommandChannelRxAck(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack);
@@ -91,18 +96,20 @@ signals:
     /**
      * \brief Signal for sending a command.
      *
-     * \param[in]   Ref         Reference of command.
-     * \param[in]   Cmd         Command.
+     * \iparam   Ref         Reference of command.
+     * \iparam   Cmd         Command.
      */
     /****************************************************************************/
-    void CommandChannelTx(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
+    void CommandChannelTx(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd) const;
 protected:
 public:
     /****************************************************************************/
     /**
      * \brief Constructor.
      *
-     * \param[in]   pParent     Parent object.
+     * \iparam   pParent     Parent object.
+     * \iparam   name
+     * \iparam   componentType
      */
     /****************************************************************************/
     CommandChannel(BaseThreadController *pParent, QString name, Global::EventSourceType componentType = Global::EVENTSOURCE_NONE);
@@ -115,8 +122,8 @@ public:
         m_pBaseThreadController = NULL;
     }
 
-    QString m_channelName;
-    Global::EventSourceType m_componentType;
+    QString m_channelName; ///< Channel Name
+    Global::EventSourceType m_componentType;  ///< Component type
 public slots:
     /****************************************************************************/
     /**
@@ -126,8 +133,8 @@ public slots:
      * in own thread controller.
      * The command is identified by the reference Ref.
      *
-     * \param[in]   Ref         Reference of command.
-     * \param[in]   Cmd         The command to execute.
+     * \iparam   Ref         Reference of command.
+     * \iparam   Cmd         The command to execute.
      */
     /****************************************************************************/
     void CommandChannelRx(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
@@ -139,8 +146,8 @@ public slots:
      * sent by us.
      * The command is identified by the reference Ref.
      *
-     * \param[in]   Ref         Reference of command.
-     * \param[in]   Ack         Acknowledge for command.
+     * \iparam   Ref         Reference of command.
+     * \iparam   Ack         Acknowledge for command.
      */
     /****************************************************************************/
     void CommandChannelTxAck(Global::tRefType Ref, const Global::AcknowledgeShPtr_t &Ack);

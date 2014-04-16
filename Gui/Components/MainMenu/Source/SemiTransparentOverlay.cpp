@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file SemiTransparentOverlay.cpp
  *
- *  \brief SemiTransparent Overlay implementation.
+ *  \brief Implementation of file for class CSemiTransparentOverlay.
+ *
+ *  \b Description:
+ *          This class implements a base widget, which will give disable look and feel
+ *          for the scroll wheel widgets.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-01-17
@@ -26,6 +30,9 @@
 
 namespace MainMenu {
 
+const int  SIZE_OFFSET = 10;                //!< Offset added to the width and height
+
+
 /****************************************************************************/
 /*!
  *  \brief Constructor
@@ -33,10 +40,12 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CSemiTransparentOverlay::CSemiTransparentOverlay(CWheelPanel *p_Parent):QWidget(p_Parent) {
-    mp_Parent = p_Parent;
-    m_Enabled = false;
-    m_SliderControl = false;
+CSemiTransparentOverlay::CSemiTransparentOverlay(CWheelPanel *p_Parent): QWidget(p_Parent),
+    mp_Parent(p_Parent),
+    mp_SliderParent(NULL),
+    m_Enabled(false),
+    m_SliderControl(false)
+{
 }
 
 /****************************************************************************/
@@ -46,10 +55,9 @@ CSemiTransparentOverlay::CSemiTransparentOverlay(CWheelPanel *p_Parent):QWidget(
  *  \iparam p_SliderParent = Parent widget
  */
 /****************************************************************************/
-CSemiTransparentOverlay::CSemiTransparentOverlay(CSliderControl *p_SliderParent):QWidget(p_SliderParent) {
-    mp_SliderParent = p_SliderParent;
-    m_Enabled = false;
-    m_SliderControl = true ;
+CSemiTransparentOverlay::CSemiTransparentOverlay(CSliderControl *p_SliderParent): QWidget(p_SliderParent),
+                                mp_Parent(NULL), mp_SliderParent(p_SliderParent), m_Enabled(false), m_SliderControl(true)
+{
 }
 
 /****************************************************************************/
@@ -61,28 +69,27 @@ void CSemiTransparentOverlay::paintEvent(QPaintEvent *)
 {
     if (m_Enabled) {
         QPainter Painter(this);
-        QPixmap Source1(QSize(149,37));
-        QPixmap Source(QString(":/%1/Digits/Digit_Overlay_disabled.png").arg(Application::CLeicaStyle::GetProjectNameString()));
-        if(m_SliderControl){
-            QPixmap Target(mp_SliderParent->size());
-          //  Source(QSize(149,37)); //mp_SliderParent->size();
-           // Source.width(149);
-            Source.scaled(QSize(149,37),Qt::IgnoreAspectRatio,Qt::FastTransformation);
-            Target.fill(Qt::transparent);
-         //   Application::CLeicaStyle::BorderPixmap(&Target, &Source, 17, 0, 18, 0);
-            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 0, 0, 0, 0);
-            Painter.setOpacity(0.5);
-            Painter.drawPixmap(0, 0, Target);
-            qDebug()<<"Slider Size"<< mp_SliderParent->size();
-            qDebug()<<"Overlay Image Size"<< Source.size();
-
+        QPixmap Source(QString(":/%1/Digits/Digit_Overlay_disabled.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
+        if (m_SliderControl) {
+            if (mp_SliderParent) {
+                QPixmap Target(mp_SliderParent->size());
+                Source = Source.scaled(mp_SliderParent->size(),Qt::IgnoreAspectRatio,Qt::FastTransformation);
+                Source = Source.scaledToWidth(Source.width() + SIZE_OFFSET);
+                Source = Source.scaledToHeight(Source.height() + SIZE_OFFSET);
+                Target.fill(Qt::transparent);
+                Application::CLeicaStyle::BorderPixmap(&Target, &Source, -4, 0, 0, 0);
+                Painter.setOpacity(0.5);
+                Painter.drawPixmap(0, 0, Target);
+            }
         }
-        else{
-            QPixmap Target(mp_Parent->size());
-            Target.fill(Qt::transparent);
-            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 17, 0, 18, 0);
-            Painter.setOpacity(0.5);
-            Painter.drawPixmap(0, 0, Target);
+        else {
+            if (mp_Parent) {
+                QPixmap Target(mp_Parent->size());
+                Target.fill(Qt::transparent);
+                Application::CLeicaStyle::BorderPixmap(&Target, &Source, 17, 0, 18, 0);
+                Painter.setOpacity(0.5);
+                Painter.drawPixmap(0, 0, Target);
+            }
         }
     }
 }

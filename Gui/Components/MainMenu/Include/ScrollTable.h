@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file ScrollTable.h
  *
- *  \brief ScrollTable definition.
+ *  \brief Header file for class CScrollTable.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-29
@@ -25,6 +25,8 @@
 #include <QCache>
 #include "MainMenu/Include/ContentScroller.h"
 
+//lint -e1540
+
 namespace MainMenu {
 
 /****************************************************************************/
@@ -35,16 +37,25 @@ namespace MainMenu {
 class CScrollTable : public CContentScroller
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CScrollTable(QWidget *p_Parent = 0);
+    virtual ~CScrollTable();
 
 private:
     void paintEvent(QPaintEvent *);
-    QPixmap m_PixmapTableGrid;
-    QPixmap m_PixmapTarget;
-    QCache <qint64, QPixmap> m_PixmapCache;
-    qint64 m_CacheKey;
+    QCache <qint64, QPixmap> m_PixmapCache;     //!< Pixmap cache object
+    QPixmap m_PixmapTableGrid;                  //!< Pixmap object for Table grid
+    QPixmap *mp_PixmapTarget;                   //!< Pixmap object for Table
+    qint64 m_CacheKey;                          //!< Cachec key value
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CScrollTable)
 
 };
 

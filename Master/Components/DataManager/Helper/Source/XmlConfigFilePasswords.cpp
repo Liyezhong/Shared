@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file XmlConfigFilePasswords.cpp
+/*! \file DataManager/Helper/Source/XmlConfigFilePasswords.cpp
  *
  *  \brief Implementation file for class XmlConfigFilePasswords.
  *
@@ -27,12 +27,12 @@ namespace DataManager {
 
 /****************************************************************************/
 XmlConfigFilePasswords::XmlConfigFilePasswords(const QString &ExpectedSerialNumber) :
-    m_ExpectedSerialNumber(ExpectedSerialNumber)
-{
+    m_ExpectedSerialNumber(ExpectedSerialNumber) {
 }
 
 /****************************************************************************/
-void XmlConfigFilePasswords::ReadPassword_V1(QXmlStreamReader &rReader, PasswordManager::CPasswordManager &rPasswordManager) {
+void XmlConfigFilePasswords::ReadPassword_V1(QXmlStreamReader &rReader,
+                                             PasswordManager::CPasswordManager &rPasswordManager) {
     QString Name = ReadAttributeString(rReader, "name");
     QString Hash = ReadAttributeString(rReader, "hash");
     // set password
@@ -42,52 +42,52 @@ void XmlConfigFilePasswords::ReadPassword_V1(QXmlStreamReader &rReader, Password
 }
 
 /****************************************************************************/
-void XmlConfigFilePasswords::ReadPasswords_V1(QXmlStreamReader &rReader, PasswordManager::CPasswordManager &rPasswordManager) {
-    // read serial number
-    ReadStartElement(rReader, "serialnumber");
-    QString SerialNumber = rReader.readElementText();
-    if(SerialNumber != m_ExpectedSerialNumber) {
-        // serial number does not fit
-        THROW(EVENT_DM_ERROR_PASSWORD_SERIAL_NUMBER);
-    }
+void XmlConfigFilePasswords::ReadPasswords_V1(QXmlStreamReader &rReader,
+                                              PasswordManager::CPasswordManager &rPasswordManager) {    
     while(rReader.readNextStartElement()) {
         if(rReader.name() == "password") {
             // Found a password. read it.
             ReadPassword_V1(rReader, rPasswordManager);
-        } else {
-            THROWARG(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT, rReader.name().toString());
+        }
+        else {
+            THROWARGS(EVENT_DM_ERROR_UNEXPECTED_XML_STARTELEMENT,
+                      Global::tTranslatableStringList() << rReader.name().toString() << "password" << m_FileName);
         }
     }
 }
 
 /****************************************************************************/
-void XmlConfigFilePasswords::ReadPasswords(const QString &FileName, PasswordManager::CPasswordManager &rPasswordManager) {
+void XmlConfigFilePasswords::ReadPasswords(const QString &FileName,
+                                           PasswordManager::CPasswordManager &rPasswordManager) {
     // reset data
     rPasswordManager.Clear();
-    try {
-        // init stream reader
-        QXmlStreamReader Reader;
-        QFile File;
-        InitStreamReader(Reader, File, FileName);
-        // now read format version
-        QString Version = ReadFormatVersion(Reader, "passwords");
-        if(Version == "1") {
-            // read project file in version 1
-            ReadPasswords_V1(Reader, rPasswordManager);
-        } else {
-            // not a supported version
-            THROWARG(EVENT_DM_ERROR_UNSUPPORTED_VERSION, Version);
-        }
-    } catch(...) {
+
+    // init stream reader
+    QXmlStreamReader Reader;
+    QFile File;
+    InitStreamReader(Reader, File, FileName);
+    // now read format version
+    QString Version = ReadFormatVersion(Reader, "passwords");
+    if(Version == "1") {
+        // read project file in version 1
+        ReadPasswords_V1(Reader, rPasswordManager);
+    }
+    else {
         // reset data
         rPasswordManager.Clear();
-        throw;
+        // not a supported version
+        THROWARGS(EVENT_DM_ERROR_UNSUPPORTED_VERSION,
+                  Global::tTranslatableStringList() << Version << m_FileName);
     }
+
 }
 
 /****************************************************************************/
-void XmlConfigFilePasswords::WritePasswords(const QString &FileName, const PasswordManager::CPasswordManager &ThePasswordManager, const QString &SerialNumber) {
+void XmlConfigFilePasswords::WritePasswords(const QString &FileName,
+                                            const PasswordManager::CPasswordManager &ThePasswordManager,
+                                            const QString &SerialNumber) {
     // init stream writer
+    Q_UNUSED(SerialNumber);
     QXmlStreamWriter Writer;
     QFile File;
     InitStreamWriter(Writer, File, FileName);
@@ -96,8 +96,6 @@ void XmlConfigFilePasswords::WritePasswords(const QString &FileName, const Passw
     Writer.writeStartDocument("1.0");
     // write root element and version
     WriteFormatVersion(Writer, "passwords", "1");
-    // write serial number
-    Writer.writeTextElement("serialnumber", SerialNumber);
     PasswordManager::tPasswordIterator it = ThePasswordManager.Iterator();
     while(it.hasNext()) {
         static_cast<void>(

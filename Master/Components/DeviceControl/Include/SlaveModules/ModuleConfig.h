@@ -100,14 +100,14 @@ public:
     CANFctModuleDigitInput() { m_bEnabled = 0;
                                m_bTimeStamp = 0;
                                m_sPolarity = 0;
-                               m_sSupervision = 0;
+                               m_sThreshold = 0;
                                m_bInterval = 0;
                                m_bDebounce = 0;
-                              };
+                              }
     quint8  m_bEnabled;     //!< Enabled flag
     quint8  m_bTimeStamp;   //!< Time stamp flag
     quint16 m_sPolarity;    //!< input polarity
-    quint16 m_sSupervision; //!< Supervision flag
+    quint16 m_sThreshold; //!< Threshold flag
     quint8  m_bInterval;    //!< Read intervall
     quint8  m_bDebounce;    //!< Input value debounce setting
 };
@@ -508,6 +508,13 @@ public:
         sCurrentGain = 0;
         sHeaterCurrent = 0;
         sHeaterThreshold = 0;
+        sCurrentDeviation = 0;
+        sCurrentMin230_Serial = 0;
+        sCurrentMax230_Serial = 0;
+        sCurrentMin100_Serial = 0;
+        sCurrentMax100_Serial = 0;
+        sCurrentMin100_Parallel = 0;
+        sCurrentMax100_Parallel = 0;
     }
     quint8 bTempTolerance;      //!< temperature tolerance in degree Celsius
     quint16 sSamplingPeriod;    //!< sampling period in hundredth of seconds
@@ -516,6 +523,13 @@ public:
     quint16 sCurrentGain;       //!< current sensor gain in mA/V
     quint16 sHeaterCurrent;     //!< current through the heaters in mA
     quint16 sHeaterThreshold;   //!< current threshold of the heaters in mA
+    quint16 sCurrentDeviation;  //!< current deviation in mA
+    quint16 sCurrentMin230_Serial;
+    quint16 sCurrentMax230_Serial;
+    quint16 sCurrentMin100_Serial;
+    quint16 sCurrentMax100_Serial;
+    quint16 sCurrentMin100_Parallel;
+    quint16 sCurrentMax100_Parallel;
     QList<CANFctPidController> listPidControllers;  //!< List of PID parameter sets
 };
 
@@ -590,7 +604,7 @@ public:
     CANFctModuleJoystick() { m_bCommModeThresHold = 0;
                              m_sSampleRate = 0;
                              m_sUpperThreshold = 0;
-                             m_sLowerThreshold = 0;};
+                             m_sLowerThreshold = 0;}
 
     quint8  m_bCommModeThresHold;  //!< threshold
     quint16 m_sSampleRate;        //!< input sample rate
@@ -613,7 +627,7 @@ public:
                          m_bParityEnabled = 0;
                          m_bParity = 0;
                          m_sBaudrate = 0;
-                       };
+                       }
 
     quint8  m_bEnabled;               //!< module enabled / disabled
     quint8  m_bReadCommunicationMode; //!< read communication mode
@@ -645,7 +659,7 @@ public:
     }
 
     QString m_Type;                     //!< device type
-    DevInstanceID_t m_InstanceID;       //!< Instance id
+    quint32 m_InstanceID;       //!< Instance id
     bool m_Optional;                    //!< optional device
     quint8 m_OrderNr;                   //!< creation order number
     DeviceFctModList m_DevFctModList;   //!< list of the function modules need by the device

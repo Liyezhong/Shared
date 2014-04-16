@@ -34,17 +34,28 @@ namespace ImportExport {
 /* HELP CLASS *********/
 
 namespace {
-
+/****************************************************************************/
+/*!
+ * \brief class definition for read and bufferring
+ */
+/****************************************************************************/
 class ReadAndBuffer
 {
     public:
         ReadAndBuffer(FailSafeOpen* fd);
         QByteArray read(int size);
+        /****************************************************************************/
+        /*!
+         * \brief get the bufferred data
+         *
+         * \return bufferred data
+         */
+        /****************************************************************************/
         inline QByteArray getBuffer() {return m_buffer;}
 
     private:
-        FailSafeOpen* mp_fd;
-        QByteArray m_buffer;
+        FailSafeOpen* mp_fd;        ///< file descriptor
+        QByteArray m_buffer;        ///< data buffer
 };
 
 }

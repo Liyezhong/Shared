@@ -26,9 +26,8 @@
 namespace Global {
 // string IDs for Export
 // Exit codes for the Export process
-const qint32  EXIT_CODE_EXPORT_SUCCESS                                         = 0x000; ///< Export is success
-const qint32  EXIT_CODE_EXPORT_FAILED                                          = 0x001; ///< Export failed
-const qint32  EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION    = 0x002; ///< unable to read the configuration file
+const qint32  EXIT_CODE_EXPORT_SUCCESS                                         = 0x001; ///< Export is success
+const qint32  EXIT_CODE_EXPORT_FAILED                                          = 0x002; ///< Export failed
 const qint32  EXIT_CODE_EXPORT_INIT_CONTAINER_FAILED                           = 0x003; ///< initialization of the container failed
 const qint32  EXIT_CODE_EXPORT_VERIFICATION_CONTAINER_FAILED                   = 0x004; ///< verification of the container failed
 const qint32  EXIT_CODE_EXPORT_UNABLE_ARCHIVE_FILES                            = 0x005; ///< unable to archive files
@@ -54,7 +53,9 @@ const qint32  EXIT_CODE_EXPORT_HMAC_COMPUTATION_STARTED                        =
 const qint32  EXIT_CODE_EXPORT_ZIP_ERROR                                       = 0x019; ///< Unable to zip the files
 const qint32  EXIT_CODE_EXPORT_ZIP_COMMAND_NOT_FOUND                           = 0x01a; ///< Zip command not found in the system
 const qint32  EXIT_CODE_EXPORT_ZIP_IS_TAKING_LONGTIME                          = 0x01b; ///< zip is taking long time to complete the request
-const qint32  EXIT_CODE_EXPORT_NO_ENOUGH_SPACE_ON_USB                          = 0X01C; ///< No enouth space on USB storage!
+const qint32  EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION    = 0x01c; ///< unable to read the configuration file
+const quint32 EXIT_CODE_EXPORT_NO_ENOUGH_SPACE_ON_USB                          = 0x01d; ///< no enouth space on USB
+
 
 } // end namespace Global
 

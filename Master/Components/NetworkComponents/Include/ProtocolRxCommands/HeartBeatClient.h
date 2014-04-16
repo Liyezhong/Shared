@@ -45,6 +45,13 @@ class HeartBeatClient : public ProtocolRxCommand {
 
 private:
 
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(HeartBeatClient)
     DECLARE_REG_CLASS(ProtocolRxCommand, HeartBeatClient);   ///< Declaration of static registration instance.
 
 public:

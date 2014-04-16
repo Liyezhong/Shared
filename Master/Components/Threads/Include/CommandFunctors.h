@@ -1,3 +1,4 @@
+
 /****************************************************************************/
 /*! \file Threads/Include/CommandFunctors.h
  *
@@ -61,8 +62,8 @@ public:
     /**
      * \brief Execute the desired function.
      *
-     * \param[in]   Ref         Command reference.
-     * \param[in]   pCommand    Pointer to command which has to be executed.
+     * \iparam   Ref         Command reference.
+     * \iparam   pCommand    Pointer to command which has to be executed.
      */
     /****************************************************************************/
     virtual void Execute(Global::tRefType Ref, const Global::Command *pCommand) = 0;
@@ -90,8 +91,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pCommandProcessor       Pointer to command processor instance to which the function pointer belongs.
-     * \param[in]   FunctionPointer         The function pointer.
+     * \iparam   pCommandProcessor       Pointer to command processor instance to which the function pointer belongs.
+     * \iparam   FunctionPointer         The function pointer.
      */
     /****************************************************************************/
     TemplateCommandExecuteFunctor(CommandProcessorClass *pCommandProcessor,
@@ -111,8 +112,8 @@ public:
     /**
      * \brief Execute the desired function.
      *
-     * \param[in]   Ref         Command reference.
-     * \param[in]   pCommand    Pointer to command which has to be executed.
+     * \iparam   Ref         Command reference.
+     * \iparam   pCommand    Pointer to command which has to be executed.
      */
     /****************************************************************************/
     virtual void Execute(Global::tRefType Ref, const Global::Command *pCommand) {
@@ -122,7 +123,7 @@ public:
         // check result
         if(pExecCmd == NULL) {
             // throw error
-            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName())
             qDebug()<<"CommandFunctors" << pCommand->GetName();
             return;
         }
@@ -163,9 +164,9 @@ public:
     /**
      * \brief Execute the desired function.
      *
-     * \param[in]       Ref                 Command reference.
-     * \param[in]       pCommand            Pointer to command which has to be executed.
-     * \param[in, out]  AckCommandChannel   The command channel for acknowledges.
+     * \iparam       Ref                 Command reference.
+     * \iparam       pCommand            Pointer to command which has to be executed.
+     * \iparam  AckCommandChannel   The command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void Execute(Global::tRefType Ref, const Global::Command *pCommand, CommandChannel &AckCommandChannel) = 0;
@@ -193,8 +194,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pCommandProcessor       Pointer to command processor instance to which the function pointer belongs.
-     * \param[in]   FunctionPointer         The function pointer.
+     * \iparam   pCommandProcessor       Pointer to command processor instance to which the function pointer belongs.
+     * \iparam   FunctionPointer         The function pointer.
      */
     /****************************************************************************/
     TemplateCommandExecuteFunctorAck(CommandProcessorClass *pCommandProcessor,
@@ -214,9 +215,9 @@ public:
     /**
      * \brief Execute the desired function.
      *
-     * \param[in]       Ref                 Command reference.
-     * \param[in]       pCommand            Pointer to command which has to be executed.
-     * \param[in, out]  AckCommandChannel   The command channel for acknowledges.
+     * \iparam       Ref                 Command reference.
+     * \iparam       pCommand            Pointer to command which has to be executed.
+     * \iparam  AckCommandChannel   The command channel for acknowledges.
      */
     /****************************************************************************/
     virtual void Execute(Global::tRefType Ref, const Global::Command *pCommand, CommandChannel &AckCommandChannel) {
@@ -226,7 +227,7 @@ public:
         // check result
         if(pExecCmd == NULL) {
             // throw error
-            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, pCommand->GetName())
             qDebug()<<"CommandFunctors" << pCommand->GetName();
             return;
         }
@@ -269,8 +270,8 @@ public:
     /**
      * \brief Process the desired acknowledge.
      *
-     * \param[in]       Ref                 Command reference.
-     * \param[in]       pAcknowledge        Pointer to acknowledge which has to be processed.
+     * \iparam       Ref                 Command reference.
+     * \iparam       pAcknowledge        Pointer to acknowledge which has to be processed.
      */
     /****************************************************************************/
     virtual void Process(Global::tRefType Ref, const Global::Acknowledge *pAcknowledge) = 0;
@@ -298,8 +299,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pAcknowledgeProcessor   Pointer to acknowledge processor instance to which the function pointer belongs.
-     * \param[in]   FunctionPointer         The function pointer.
+     * \iparam   pAcknowledgeProcessor   Pointer to acknowledge processor instance to which the function pointer belongs.
+     * \iparam   FunctionPointer         The function pointer.
      */
     /****************************************************************************/
     TemplateAcknowledgeProcessorFunctor(AcknowledgeProcessorClass *pAcknowledgeProcessor,
@@ -319,8 +320,8 @@ public:
     /**
      * \brief Process the desired acknowledge.
      *
-     * \param[in]       Ref                 Command reference.
-     * \param[in]       pAcknowledge        Pointer to acknowledge which has to be processed.
+     * \iparam       Ref                 Command reference.
+     * \iparam       pAcknowledge        Pointer to acknowledge which has to be processed.
      */
     /****************************************************************************/
     virtual void Process(Global::tRefType Ref, const Global::Acknowledge *pAcknowledge) {
@@ -330,7 +331,7 @@ public:
         // check result
         if(pAcknowledge == NULL) {
             // throw error
-            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_ACKNOWLEDGE, pAcknowledge->GetName());
+            LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_ACKNOWLEDGE, pAcknowledge->GetName())
             return;
         }
         // process acknowledge
@@ -372,8 +373,8 @@ public:
     /**
      * \brief Process the desired acknowledge.
      *
-     * \param[in]       Ref         Command reference.
-     * \param[in]       Name        Name of command.
+     * \iparam       Ref         Command reference.
+     * \iparam       Name        Name of command.
      */
     /****************************************************************************/
     virtual void Process(Global::tRefType Ref, const QString &Name) = 0;
@@ -401,8 +402,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pTimeoutProcessor       Pointer to timeout processor instance to which the function pointer belongs.
-     * \param[in]   FunctionPointer         The function pointer.
+     * \iparam   pTimeoutProcessor       Pointer to timeout processor instance to which the function pointer belongs.
+     * \iparam   FunctionPointer         The function pointer.
      */
     /****************************************************************************/
     TemplateTimeoutProcessorFunctor(TimeoutProcessorClass *pTimeoutProcessor,
@@ -422,8 +423,8 @@ public:
     /**
      * \brief Process the desired acknowledge.
      *
-     * \param[in]       Ref     Command reference.
-     * \param[in]       Name    Name of command.
+     * \iparam       Ref     Command reference.
+     * \iparam       Name    Name of command.
      */
     /****************************************************************************/
     virtual void Process(Global::tRefType Ref, const QString &Name) {
@@ -465,8 +466,8 @@ public:
     /**
      * \brief Create instance an deserialize it.
      *
-     * \param[in]       Ref         Reference.
-     * \param[in, out]  DataStream  Data stream from which deserialization is done.
+     * \iparam       Ref         Reference.
+     * \iparam  DataStream  Data stream from which deserialization is done.
      */
     /****************************************************************************/
     virtual void CreateAndDeserialize(Global::tRefType Ref, QDataStream &DataStream) = 0;
@@ -493,8 +494,8 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   pTheProcessor       Processor class.
-     * \param[in]   FunctionPointer     The function pointer.
+     * \iparam   pTheProcessor       Processor class.
+     * \iparam   FunctionPointer     The function pointer.
      */
     /****************************************************************************/
     TemplateCreatorFunctor(TheProcessor *pTheProcessor,
@@ -516,8 +517,8 @@ public:
      *
      * \warning You must ensure correct deletion of the returned pointer!
      *
-     * \param[in]       Ref         Reference.
-     * \param[in, out]  DataStream  Data stream from which deserialization is done.
+     * \iparam       Ref         Reference.
+     * \iparam  DataStream  Data stream from which deserialization is done.
      */
     /****************************************************************************/
     virtual void CreateAndDeserialize(Global::tRefType Ref, QDataStream &DataStream) {

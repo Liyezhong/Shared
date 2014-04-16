@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file CmdDataImport.h
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Commands/Include/CmdDataImport.h
  *
  *  \brief CmdDataImport command definition.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 17.03.2011
- *   $Author:  $ Y.Novak
+ *   $Author:  $ Y.Novak, Ramya GJ
  *
  *  \b Company:
  *
@@ -52,6 +52,13 @@ public:
 private:
     //                                          ///< Not implemented.
     CmdDataImport(const CmdDataImport &);                       ///< Not implemented.
+    /****************************************************************************/
+    /**
+         * \brief Not Implemented
+         *
+         * \return
+         */
+    /****************************************************************************/
     const CmdDataImport & operator = (const CmdDataImport &);   ///< Not implemented.
 private:
     QByteArray     m_ImportByteArray;       ///< Type of export which shall be performed.

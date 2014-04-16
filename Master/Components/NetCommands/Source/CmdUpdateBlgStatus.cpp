@@ -28,8 +28,8 @@ QString CmdUpdateBlgStatus::NAME = "NetCommands::CmdUpdateBlgStatus";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   BlgStatusId  Status Id.
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   BlgStatusId  Status Id.
  */
 /****************************************************************************/
 CmdUpdateBlgStatus::CmdUpdateBlgStatus(int Timeout,const BlgStatus_t BlgStatusId) :

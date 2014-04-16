@@ -30,8 +30,8 @@ namespace StateMachines {
 /*!
 *  \brief    Constructor.
 *
-*  \param[in]    name = name of the state
-*  \param[in]    pParent = pointer to parent
+*  \iparam    name = name of the state
+*  \iparam    pParent = pointer to parent
 *
 ****************************************************************************/
 State::State(const StateNameType_t &name, QObject *pParent) :
@@ -57,7 +57,7 @@ State::~State()
 *       First it checks if state has to be changed. If not, it is a local
 *       event and it will be processed internally.
 *
-*  \param[in]    et = the event
+*  \iparam    et = the event
 *
 *  \return   TRUE if executed successfully, FALSE otherwise
 *
@@ -82,8 +82,8 @@ bool State::DispatchEvent(StateEvent et)
 /*!
 *  \brief    This function adds transition to state's list of transitions.
 *
-*  \param[in]    name = name of the state to switch to
-*  \param[in]    Index = the event index to cause the transition
+*  \iparam    name = name of the state to switch to
+*  \iparam    Index = the event index to cause the transition
 *
 ****************************************************************************/
 void State::AddTransition(const StateNameType_t &name, StateEventIndexType_t Index)
@@ -91,14 +91,14 @@ void State::AddTransition(const StateNameType_t &name, StateEventIndexType_t Ind
     // check if transition already exists
     if(m_myTransitions.contains(Index)) {
         LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_TRANSITION_EXISTS, Global::tTranslatableStringList() << m_myName << name <<
-                  QString::number(Index, 10));
+                  QString::number(Index, 10))
     }
     // insert transition
     m_myTransitions.insert(Index, name);
     // check if was successfully added
     if(!m_myTransitions.contains(Index)) {
         LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_ADD_TRANSITION_FAILED, Global::tTranslatableStringList() << m_myName << name <<
-                                                                   QString::number(Index, 10));
+                                                                   QString::number(Index, 10))
     }
 }
 
@@ -106,8 +106,8 @@ void State::AddTransition(const StateNameType_t &name, StateEventIndexType_t Ind
 /*!
 *  \brief    This function removes transition from state's list of transitions.
 *
-*  \param[in]    name = name of the state
-*  \param[in]    Index = the event index
+*  \iparam    name = name of the state
+*  \iparam    Index = the event index
 *
 ****************************************************************************/
 void State::RemoveTransition(const StateNameType_t &name, StateEventIndexType_t Index)
@@ -121,7 +121,7 @@ void State::RemoveTransition(const StateNameType_t &name, StateEventIndexType_t 
     // check if was successfully removed
     if(m_myTransitions.contains(Index)) {
         LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_TRANSITION_FAILED, Global::tTranslatableStringList() << m_myName << name <<
-                                                                      QString::number(Index, 10));
+                                                                      QString::number(Index, 10))
     }
 }
 
@@ -133,7 +133,7 @@ void State::RemoveTransition(const StateNameType_t &name, StateEventIndexType_t 
 *       all corresponding transitions will be removed from state's list of
 *       transitions.
 *
-*  \param[in]    sname = name of the state
+*  \iparam    sname = name of the state
 *
 ****************************************************************************/
 void State::RemoveAllTransitions(const StateNameType_t &sname)
@@ -151,7 +151,7 @@ void State::RemoveAllTransitions(const StateNameType_t &sname)
 
     // check if all transitions were deleted
     if(m_myTransitions.keys(sname).size() != 0) {
-        LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_ALL_TRANSITIONS_FAILED, Global::tTranslatableStringList() << m_myName <<  sname);
+        LOGANDTHROWARGS(EVENT_STATEMACHINES_ERROR_REMOVE_ALL_TRANSITIONS_FAILED, Global::tTranslatableStringList() << m_myName <<  sname)
     }
 }
 

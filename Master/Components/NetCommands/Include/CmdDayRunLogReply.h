@@ -45,6 +45,13 @@ public:
 
 private:
     CmdDayRunLogReply(const CmdDayRunLogReply &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdDayRunLogReply & operator = (const CmdDayRunLogReply &);   ///< Not implemented.
 private:
     QStringList     m_FileNames;      ///< List of daily run log file names.
@@ -55,7 +62,7 @@ private:
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream into.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/
@@ -73,7 +80,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdDayRunLogReply &
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream from.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/

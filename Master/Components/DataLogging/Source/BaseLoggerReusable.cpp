@@ -3,9 +3,14 @@
  *
  *  \brief Implementation file for class BaseLoggerReusable.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  \b Description:
+ *      This class implements the functionality needed to work with log files on
+ *      which data can be appended: check and write header information, switch to
+ *      a new file etc.
+ *
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -28,24 +33,22 @@
 namespace DataLogging {
 
 /****************************************************************************/
-BaseLoggerReusable::BaseLoggerReusable(Global::EventObject *pParent, const QString & TheLoggingSource, int FormatVersion) :
-    BaseLogger(pParent, TheLoggingSource, FormatVersion)
-{
+BaseLoggerReusable::BaseLoggerReusable(QObject *pParent,
+                                       const QString & TheLoggingSource, int FormatVersion) :
+    BaseLogger(pParent, TheLoggingSource, FormatVersion) {
 }
 
-/****************************************************************************/
-void BaseLoggerReusable::BackupFile(const QString & /*FileName*/) {
-}
 
 /****************************************************************************/
-void BaseLoggerReusable::SetConfiguration(const QString &OperatingMode, const QString &SerialNumber, const QString &Path) {
+void BaseLoggerReusable::SetConfiguration(const QString &OperatingMode,
+                                          const QString &SerialNumber, const QString &Path) {
     m_OperatingMode = OperatingMode;
     m_SerialNumber = SerialNumber;
     m_Path = Path;
 }
 
 /****************************************************************************/
-void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFile) {
+void BaseLoggerReusable::SwitchToFile(const QString &FileName) {
     // close old file
     CloseFile();
     // compute new file name
@@ -59,29 +62,16 @@ void BaseLoggerReusable::SwitchToFile(const QString &FileName, bool BackupOldFil
         // create new file and write header information
         CreateNewFile(CompleteFileName);
         WriteHeader();
-        // trace that file was created.
-        //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
-          //        , Global::NO_NUMERIC_DATA, false);
+
     } else {
         // a file already exists.
 
         // check if header information in existing file fits
         if(!CheckHeaderFormat(CompleteFileName)) {
-            // file header format does not fit
-
-            // make backup of existing file if neccessary
-            if(BackupOldFile) {
-                // make backup
-                BackupFile(CompleteFileName);
-            } else {
-                // overwrite file
-            }
             // create new file and write header information
             CreateNewFile(CompleteFileName);
             WriteHeader();
-            // trace that file was created.
-            //LOG_EVENT(Global::EVTTYPE_INFO, Global::LOG_ENABLED, EVENT_DATALOGGING_INFO_FILE_CREATE, CompleteFileName
-               //       , Global::NO_NUMERIC_DATA, false);
+
         } else {
             // file version and serial number seems to be ok
             OpenFileForAppend(CompleteFileName);
@@ -111,10 +101,7 @@ bool BaseLoggerReusable::CheckHeaderFormat(const QString &FileName) {
         // could not open file
         return false;
     }
-    // set reading position to 0
-    if(!File.seek(0)) {
-        LOGANDTHROWARG(EVENT_GLOBAL_ERROR_FILE_SEEK, FileName);
-    }
+
     // file now open for reading
 
     // try to read header information

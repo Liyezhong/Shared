@@ -28,8 +28,8 @@ QString CmdChangeAdminPasswordReply::NAME = "NetCommands::CmdChangeAdminPassword
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
- * \param[in]   CmdType     Type of the command
+ * \iparam   Timeout     Timeout for command.
+ * \iparam   CmdType     Type of the command
  */
 /****************************************************************************/
 CmdChangeAdminPasswordReply::CmdChangeAdminPasswordReply(int Timeout, const QString &CmdType) :

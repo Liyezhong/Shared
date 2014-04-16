@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Include/HeartBeatManagerThreadController.h
+/*! \file Include/HeartBeatThread.h
  *
  *  \brief  Definition of class HeartBeatManager
  *
@@ -17,16 +17,29 @@
  *
  */
 /****************************************************************************/
-#ifndef HEARTBEATTHREAD_H
-#define HEARTBEATTHREAD_H
+#ifndef HEARTBEATTHREADCONTROLLER_H
+#define HEARTBEATTHREADCONTROLLER_H
 //QT Headers
 #include <QObject>
 
 //Project Headers
+#include <Threads/Include/ThreadController.h>
 #include <Global/Include/GlobalDefines.h>
 #include <Threads/Include/ThreadController.h>
+#include <../Include/PlatformEventCodes.h>
+#include "../Components/Threads/Include/ThreadsEventCodes.h"
+#include "QDebug"
+#include <HeartBeatManager/Include/Commands/CmdAddControllerForHeartBeatCheck.h>
+#include <HeartBeatManager/Include/Commands/CmdHeartBeat.h>
+#include <HeartBeatManager/Include/Commands/CmdRemoveControllerForHeartBeatCheck.h>
+#include <HeartBeatManager/Include/HeartBeatCSVInfo.h>
+
+
 
 namespace HeartBeatManager {
+
+const int HEARTBEAT_CHECK_TIMEOUT = 5000;       ///< Timeout for checking controller heartbeat i.e. 5000 ms..
+const int CONTROLLER_HERATBEAT_TIMEOUT = 3000;  ///< Timeout for controller heartbeat i.e.3000 ms.
 
 /****************************************************************************/
 /**
@@ -34,41 +47,67 @@ namespace HeartBeatManager {
  *
  */
 /****************************************************************************/
-class HeartBeatThread:public QObject
+class HeartBeatThreadController:public Threads::ThreadController
 {
     Q_OBJECT
-public:
-    HeartBeatThread();
-    virtual ~HeartBeatThread();
+   friend class TestHeartBeatThread;
 private:
-    int     m_HeartbeatCheckTimeout;     ///< Timeout for checking controller heartbeat. Default = 3000 ms. 0 means no heartbeat signal check is done!
-    QTimer  m_HeartbeatCheckTimer;       ///< Timer for controller heartbeat check.
 
-private slots:
-    void Run();
+       /****************************************************************************/
+       /**
+        * \brief Constructor.
+        */
+       /****************************************************************************/
+       HeartBeatThreadController();               ///< Not implemented.
 
-    /****************************************************************************/
-    /**
-     * \brief Check if all controllers have send their heartbeat signals.
-     */
-    /****************************************************************************/
-    void HeartbeatCheck();
+       /****************************************************************************/
+       /*!
+        *  \brief Disable copy and assignment operator.
+        *
+        */
+       /****************************************************************************/
+       Q_DISABLE_COPY(HeartBeatThreadController)
 
+       bool ReadHeartBeatConfigFile(QString filename);
+
+       void OnMissingHeartBeats(quint32 ThreadId);
+
+       int                         m_HeartbeatCheckTimeout;            ///< Timeout for checking controller heartbeat. Default = 3000 ms. 0 means no heartbeat signal check is done!
+       QTimer                      m_HeartbeatCheckTimer;              ///< Timer for controller heartbeat check.
+       QSet<quint32>               m_HeartbeatSources;                 ///< All registered logging sources for heartbeat check.
+       QSet<quint32>               m_ArrivedHeartbeats;                ///< All logging sources for which we received a heartbeat.
+       QSet<quint32>               m_RemovedHeardBeats;                ///< Removed heart beats for shorter threads
+       QSet<quint32>               m_RecentlyAddedHeardBeats;          ///< Recently added heart beats for shorter threads
+       const int                   m_ControllerHeartbeatTimeout;       ///< Timeout for controller heartbeat. Default = 1000 ms. 0 means no heartbeat signal is send!
+       QHash<quint32, HeartBeatManager::HeartBeatCSVInfo> m_HeartBeatInfoHash; ///< hash of heartbeatinfo against the thread id
+       QHash<QString, Global::HeartBeatActionType> m_ActionTypeMap;             ///< enum map for action type and string
+       QHash<quint32, quint8> m_HeartBeatMissingCountHash; ///< hash of number of times heartbeat missed against the thread id
+       QMutex m_HeartBeatMutex; ///< Mutex
+       bool m_StopFlag;
+
+protected :
+
+       virtual void OnGoReceived();
+       virtual void OnStopReceived();
+       virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
+public:
+
+    HeartBeatThreadController(quint32 ThreadID);
+    void RemoveControllerForHeartBeatCheck(quint32 ThreadId);
+    void SetHeartBeatCheckTimerValue(int);
+    void DontCheckHeartBeat(const bool Flag);
+    virtual ~HeartBeatThreadController();
+    virtual void CreateAndInitializeObjects();
+    virtual void CleanupAndDestroyObjects();
 
 public slots:
-    /****************************************************************************/
-    /**
-     * \brief Receive a heartbeat signals.
-     *
-     * \param[in]   TheHeartBeatSource    Logging source of sender.
-     */
-    /****************************************************************************/
-    void HeartbeatSlot(const Global::gSourceType &TheHeartBeatSource);
+    void HeartBeatSlot(quint32 ThreadId);
 
-signals:
-
-
-
+private slots:
+    void HeartbeatCheck();
+    void StartHeartBeatCheckTimer();
+    void StopHeartBeatCheckTimer();
+    void AddControllerForHeartBeatCheck(quint32 ThreadID);
 };
 
 } // end namespace HeartBeatManager

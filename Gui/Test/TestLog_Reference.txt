@@ -1,0 +1,22 @@
+TESTPATH:  Platform/Gui/Components/KeyBoard/Test
+TESTNAME:  utKeyBoard
+TIMESTAMP: 2013-10-07 09:17:39
+********* Start testing of KeyBoard::CTestKeyBoard *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : KeyBoard::CTestKeyBoard::initTestCase()
+PASS   : KeyBoard::CTestKeyBoard::utTestKeyBoard()
+PASS   : KeyBoard::CTestKeyBoard::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped
+********* Finished testing of KeyBoard::CTestKeyBoard *********
+
+TESTPATH:  Platform/Gui/Components/MainMenu/Test
+TESTNAME:  utTestMainMenu
+TIMESTAMP: 2013-10-07 09:17:39
+********* Start testing of MainMenu::CTestMainMenu *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : MainMenu::CTestMainMenu::initTestCase()
+PASS   : MainMenu::CTestMainMenu::utTestMainMenu()
+PASS   : MainMenu::CTestMainMenu::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped
+********* Finished testing of MainMenu::CTestMainMenu *********
+

@@ -42,7 +42,8 @@ namespace DeviceControl
  CBaseDevice::CBaseDevice(DeviceProcessing* pDeviceProcessing, QString Type) :
     m_pDevProc(pDeviceProcessing),
     m_Type(Type),
-    m_stateTimespan(0)
+    m_stateTimespan(0),
+    m_LastSensorCheckTime(0)
 {
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;
@@ -322,14 +323,14 @@ void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, 
     QString FuncModName = "";
     if(m_pDevProc)
     {
-        QList<DevInstanceID_t> list;
+        QList<quint32> list;
         list <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
               << DEVICE_INSTANCE_ID_AIR_LIQUID
               << DEVICE_INSTANCE_ID_OVEN
               << DEVICE_INSTANCE_ID_RETORT
               << DEVICE_INSTANCE_ID_MAIN_CONTROL;
 
-        DevInstanceID_t id;
+        quint32 id;
         foreach (id, list)
         {
             CBaseDevice* pBaseDevice;

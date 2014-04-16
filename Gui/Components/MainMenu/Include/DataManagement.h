@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file DataManagement.h
  *
- *  \brief DataManagement definition.
+ *  \brief Header file for class CDataManagement.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22
@@ -23,6 +23,8 @@
 
 #include "MainMenu/Include/WaitDialog.h"
 #include "MainMenu/Include/MainWindow.h"
+#include "MainMenu/Include/ServiceExportDlg.h"
+#include <QWidget>
 
 namespace MainMenu {
 
@@ -39,6 +41,7 @@ namespace Ui {
 class CDataManagement : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CDataManagement(QWidget *p_Parent = 0);
@@ -46,15 +49,34 @@ public:
     void SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow);
 
 signals:
-/****************************************************************************/
-/**
- * \brief Sends a data import/export request to the master
- *
- * \iparam Name = Message command name
- * \iparam ParamList = Message parameters
- */
-/****************************************************************************/
-    void ExecSending(const QString Name, const QStringList &ParamList);
+
+    /****************************************************************************/
+    /**
+     * \brief Sends a data import/export request to the master
+     *
+     * \iparam Name = Message command name
+     * \iparam ParamList = Message parameters
+     */
+    /****************************************************************************/
+     void ExecSending(const QString Name, const QStringList &ParamList);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when softwre update button is clicked.
+     *
+     *  \iparam SWUpdateUsingUSB = True if SW Update is done using USB else False.
+     *
+     */
+    /****************************************************************************/
+    void UpdateSoftware(bool SWUpdateUsingUSB);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when RC softwre update button is clicked.
+     */
+    /****************************************************************************/
+    void UpdateSoftwareFromRC();
+
 
 private:
     Ui::CDataManagement *mp_Ui;         //!< User interface
@@ -63,9 +85,17 @@ private:
     //Flags
     bool m_ProcessRunning;                  //!< Process running state
     //UI related
-    MainMenu::CMainWindow::UserRole_t m_CurrentUserRole;    //! < Current user role
+    MainMenu::CMainWindow::UserRole_t m_CurrentUserRole;    //!< Current user role
+    MainMenu::CServiceExportDlg *mp_ServiceExportDlg;         //!< Service Export dialog
     void ResetButtons();
     void RetranslateUI();
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CDataManagement)
 
 protected:
     void changeEvent(QEvent *p_Event);
@@ -77,7 +107,12 @@ private slots:
     void ServiceExportDialog();
     void OnProcessStateChanged();
     void OnUserRoleChanged();
+    void OnRemoteSWUpdate();
+    void OnSoftwareUpdate();
+    void OnServiceExportFileSelection(int NoOfFiles);
 
+public slots:
+    void SetRemoteSWButtonState(bool Status);
 };
 
 } // end namespace MainMenu

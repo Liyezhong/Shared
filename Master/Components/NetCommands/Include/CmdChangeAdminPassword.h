@@ -33,6 +33,7 @@ namespace NetCommands {
 class CmdChangeAdminPassword : public Global::Command {
     friend QDataStream & operator << (QDataStream &, const CmdChangeAdminPassword &);
     friend QDataStream & operator >> (QDataStream &, CmdChangeAdminPassword &);
+
 public:
     static QString NAME;    ///< Command name.
     CmdChangeAdminPassword(int Timeout, const QString &CmdType, const QString &Password);
@@ -41,10 +42,19 @@ public:
     virtual QString GetName() const;
     QString GetCommandType() const;
 	QString GetPassword() const;
+
 private:
     
     CmdChangeAdminPassword(const CmdChangeAdminPassword &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdChangeAdminPassword & operator = (const CmdChangeAdminPassword &);   ///< Not implemented.
+
 private:
     QString      m_CmdType;        ///< Type of the command
 	QString		 m_Password;	   ///< password
@@ -55,7 +65,7 @@ private:
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream into.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/
@@ -73,7 +83,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdChangeAdminPassw
      * \brief Streaming operator.
      *
      * \param[in,out]   Stream      Stream to stream from.
-     * \param[in]       Cmd         The command to stream.
+     * \iparam       Cmd         The command to stream.
      * \return                      Stream.
      */
 /****************************************************************************/

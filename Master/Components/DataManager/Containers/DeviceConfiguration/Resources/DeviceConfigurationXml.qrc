@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Xml">
+        <file>XmlSepia/DeviceConfiguration.xml</file>
         <file>DeviceConfiguration.xml</file>
     </qresource>
 </RCC>

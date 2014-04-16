@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file ScrollWheel.h
  *
- *  \brief ScrollWheel definition.
+ *  \brief Header file for class CScrollWheel.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-20
@@ -24,6 +24,7 @@
 #include <QWidget>
 #include <QVariant>
 
+//lint -e653
 namespace MainMenu {
 
 /****************************************************************************/
@@ -34,6 +35,7 @@ namespace MainMenu {
 class CScrollWheel : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     CScrollWheel(QWidget *p_Parent = NULL);
@@ -46,6 +48,7 @@ public:
     QVariant GetCurrentData() const;
     void SetNonContinuous();
     void SetThreeDigitMode(bool Mode);
+    void InitScrollWheel(QString Type);
 
 protected:
     virtual QPoint scrollOffset() const;
@@ -65,7 +68,15 @@ private:
     Qt::Alignment m_ItemAlignment;  //!< Alignment direction of the wheels
     qint32 m_ScrollableHeight;      //!< Maximum scrollable height for non continuous scroller.
     bool m_NonContinuous;           //!< If true scroller is non continuous
-    bool m_ThreeDigitMode;
+    QString m_ScrollType;           //!< Scroll wheel type for Sepia
+	bool m_ThreeDigitMode;
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CScrollWheel)
 };
 
 } // end namespace MainMenu

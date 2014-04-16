@@ -49,6 +49,7 @@
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include "Global/Include/Utils.h"
 
 namespace DeviceControl
 {
@@ -308,64 +309,64 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
             //CAN node's function module list
             switch(pCANObjectConfigFct->m_ObjectType)
             {
-            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
-            {
-                CreateAndAddFunctionModule<CDigitalInput>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
-            {
-                CreateAndAddFunctionModule<CDigitalOutput>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
-            {
-                CreateAndAddFunctionModule<CAnalogInput>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
-            {
-                CreateAndAddFunctionModule<CAnalogOutput>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
-            {
-                CreateAndAddFunctionModule<CStepperMotor>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
-            {
-                CreateAndAddFunctionModule<CRfid11785>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
-            {
-                CreateAndAddFunctionModule<CRfid15693>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
-            {
-                CreateAndAddFunctionModule<CTemperatureControl>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
-            {
-                CreateAndAddFunctionModule<CJoystick>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_UART:
-            {
-                CreateAndAddFunctionModule<CUart>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            case CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL:
-            {
-                CreateAndAddFunctionModule<CPressureControl>(pCANNode, pCANObjectConfigFct);
-                break;
-            }
-            default:
-                //pfui, undefined CAN object type
-                break;
+                case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT:
+                {
+                    CreateAndAddFunctionModule<CDigitalInput>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_DIGITAL_OUT_PORT:
+                {
+                    CreateAndAddFunctionModule<CDigitalOutput>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_ANALOG_IN_PORT:
+                {
+                    CreateAndAddFunctionModule<CAnalogInput>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_ANALOG_OUT_PORT:
+                {
+                    CreateAndAddFunctionModule<CAnalogOutput>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR:
+                {
+                    CreateAndAddFunctionModule<CStepperMotor>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_RFID11785:
+                {
+                    CreateAndAddFunctionModule<CRfid11785>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_RFID15693:
+                {
+                    CreateAndAddFunctionModule<CRfid15693>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_TEMPERATURE_CTL:
+                {
+                    CreateAndAddFunctionModule<CTemperatureControl>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_JOYSTICK:
+                {
+                    CreateAndAddFunctionModule<CJoystick>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_UART:
+                {
+                    CreateAndAddFunctionModule<CUart>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                case CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL:
+                {
+                    CreateAndAddFunctionModule<CPressureControl>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
+                default:
+                    //pfui, undefined CAN object type
+                    break;
             }
             pCANObjectConfigFct = pHWConfiguration->GetCANFctModule(pCANObjectConfigNode, pCANObjectConfigFct);
         }
@@ -503,6 +504,12 @@ CBaseModule* CConfigurationService::CreateAndGetCANNode(qint16 sCANNodeType, qin
 {
     CBaseModule* pCANNode = 0;
     pCANNode = new CBaseModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, sCANNodeType, sCANNodeIndex);
+
+    // Register Signal-Signal forwarding
+//    CONNECTSIGNALSLOT(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+//                      m_pDeviceProcessing->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                      m_pDeviceProcessing, OnError(quint32, quint16, quint16, quint16, QDateTime));
     return pCANNode;
 }
 
@@ -522,6 +529,12 @@ void CConfigurationService::CreateAndAddFunctionModule(CBaseModule* pCANNode, CM
     ReturnCode_t RetValFctModule;
     TFunctionModule* pFunctionModule = 0;
     pFunctionModule = new TFunctionModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, pCANNode);
+
+    // Register Signal-Signal forwarding
+    //CONNECTSIGNALSLOT(pFunctionModule, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+    //                  m_pDeviceProcessing->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(pFunctionModule, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                      m_pDeviceProcessing, OnError(quint32, quint16, quint16, quint16, QDateTime));
 
     pFunctionModule->SetCANConfiguration(pCANObjectConfigFct);
     RetValFctModule = pFunctionModule->Initialize();

@@ -6,7 +6,7 @@ TARGET = DeviceControl
 
 DEFINES += PRE_ALFA_TEST
 
-#INCLUDEPATH += ../../../../Common/Components
+INCLUDEPATH += ../../../../../Platform/Common/Components
 
 HEADERS +=  ../Include/CanCommunication/*.h \
             ../Include/CanCommunication/CanTcpCommunication/*.h \
@@ -16,7 +16,7 @@ HEADERS +=  ../Include/CanCommunication/*.h \
             ../Include/Devices/*.h \
             ../Include/Global/*.h \
             ../Include/Interface/*.h \
-            ../../../../Common/Components/FunctionModules/*.h \
+            ../../../../../Platform/Common/Components/FunctionModules/*.h
 
 SOURCES +=  ../Source/CanCommunication/*.cpp \
             ../Source/CanCommunication/CanTcpCommunication/*.cpp \

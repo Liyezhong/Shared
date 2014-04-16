@@ -1,0 +1,94 @@
+TESTPATH:  ./Test
+TESTNAME:  utTestBaseLogger
+TIMESTAMP: 2013-07-16 09:47:53
+********* Start testing of DataLogging::TestBaseLogger *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : DataLogging::TestBaseLogger::initTestCase()
+PASS   : DataLogging::TestBaseLogger::utConstructor()
+PASS   : DataLogging::TestBaseLogger::utCreateNewFileOK()
+PASS   : DataLogging::TestBaseLogger::utCreateNewFileNOK()
+PASS   : DataLogging::TestBaseLogger::utRemoveFileOK()
+PASS   : DataLogging::TestBaseLogger::utRemoveFileNOK()
+PASS   : DataLogging::TestBaseLogger::utOpenAppendOK()
+PASS   : DataLogging::TestBaseLogger::utOpenAppendNOK()
+PASS   : DataLogging::TestBaseLogger::utAppend()
+PASS   : DataLogging::TestBaseLogger::cleanupTestCase()
+Totals: 10 passed, 0 failed, 0 skipped
+********* Finished testing of DataLogging::TestBaseLogger *********
+
+TESTPATH:  ./Test
+TESTNAME:  utTestBaseLoggerReusable
+TIMESTAMP: 2013-07-16 09:47:53
+********* Start testing of DataLogging::TestBaseLoggerReusable *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : DataLogging::TestBaseLoggerReusable::initTestCase()
+PASS   : DataLogging::TestBaseLoggerReusable::utConstructor()
+PASS   : DataLogging::TestBaseLoggerReusable::utConfigure()
+PASS   : DataLogging::TestBaseLoggerReusable::utWriteHeader()
+PASS   : DataLogging::TestBaseLoggerReusable::cleanupTestCase()
+Totals: 5 passed, 0 failed, 0 skipped
+********* Finished testing of DataLogging::TestBaseLoggerReusable *********
+
+TESTPATH:  ./Test
+TESTNAME:  utTestDayLogFileInformation
+TIMESTAMP: 2013-07-16 09:47:53
+********* Start testing of DataLogging::TestDayLogFileInformation *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : DataLogging::TestDayLogFileInformation::initTestCase()
+PASS   : DataLogging::TestDayLogFileInformation::utConstructorWithData()
+PASS   : DataLogging::TestDayLogFileInformation::utDailyRunLogFileNames()
+PASS   : DataLogging::TestDayLogFileInformation::utDailyRunLogFileData()
+PASS   : DataLogging::TestDayLogFileInformation::utDailyRunLogFileCreation()
+PASS   : DataLogging::TestDayLogFileInformation::cleanupTestCase()
+Totals: 6 passed, 0 failed, 0 skipped
+********* Finished testing of DataLogging::TestDayLogFileInformation *********
+
+TESTPATH:  ./Test
+TESTNAME:  utTestDayOperationEntry
+TIMESTAMP: 2013-07-16 09:47:54
+********* Start testing of DataLogging::TestDayOperationEntry *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : DataLogging::TestDayOperationEntry::initTestCase()
+PASS   : DataLogging::TestDayOperationEntry::utDefaultConstructor()
+PASS   : DataLogging::TestDayOperationEntry::utConstructorWithTranslatableString()
+PASS   : DataLogging::TestDayOperationEntry::utCopy()
+PASS   : DataLogging::TestDayOperationEntry::utGet()
+PASS   : DataLogging::TestDayOperationEntry::cleanupTestCase()
+Totals: 6 passed, 0 failed, 0 skipped
+********* Finished testing of DataLogging::TestDayOperationEntry *********
+
+TESTPATH:  ./Test
+TESTNAME:  utTestDayOperationLoggerConfig
+TIMESTAMP: 2013-07-16 09:47:54
+********* Start testing of DataLogging::TestDayOperationLoggerConfig *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : DataLogging::TestDayOperationLoggerConfig::initTestCase()
+PASS   : DataLogging::TestDayOperationLoggerConfig::utDefaultConstructor()
+PASS   : DataLogging::TestDayOperationLoggerConfig::utConstructorWithData()
+PASS   : DataLogging::TestDayOperationLoggerConfig::utCopyConstructor()
+PASS   : DataLogging::TestDayOperationLoggerConfig::utAssignmentOperator()
+PASS   : DataLogging::TestDayOperationLoggerConfig::utGet()
+PASS   : DataLogging::TestDayOperationLoggerConfig::cleanupTestCase()
+Totals: 7 passed, 0 failed, 0 skipped
+********* Finished testing of DataLogging::TestDayOperationLoggerConfig *********
+
+TESTPATH:  ./Test
+TESTNAME:  utTestEventFilter
+TIMESTAMP: 2013-07-16 09:47:54
+********* Start testing of DataLogging::TestEventFilter *********
+Config: Using QTest library 4.8.1, Qt 4.8.1
+PASS   : DataLogging::TestEventFilter::initTestCase()
+PASS   : DataLogging::TestEventFilter::utDefaultConstructorFileInfo()
+PASS   : DataLogging::TestEventFilter::utCopyConstructorFileInfo()
+PASS   : DataLogging::TestEventFilter::utAddLineFileInfo()
+PASS   : DataLogging::TestEventFilter::utAddLineRangeFileInfo()
+PASS   : DataLogging::TestEventFilter::utContainsFileInfo()
+PASS   : DataLogging::TestEventFilter::utClear()
+PASS   : DataLogging::TestEventFilter::utRemovePath()
+PASS   : DataLogging::TestEventFilter::utAddLine()
+PASS   : DataLogging::TestEventFilter::utAddLineRange()
+PASS   : DataLogging::TestEventFilter::utMustSend()
+PASS   : DataLogging::TestEventFilter::cleanupTestCase()
+Totals: 12 passed, 0 failed, 0 skipped
+********* Finished testing of DataLogging::TestEventFilter *********
+

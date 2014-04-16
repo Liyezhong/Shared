@@ -32,6 +32,8 @@
 #include <Global/Include/GlobalEventCodes.h>
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 
 namespace NetworkBase {
@@ -92,9 +94,8 @@ NetworkServer::~NetworkServer()
             delete m_myServer;
         }
         m_myServer = NULL;
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL();
 }
 
 /****************************************************************************/
@@ -131,6 +132,8 @@ void NetworkServer::incomingConnection(int sktDescriptor)
         // no available connections, so drop this one
         DisconnectTheSocket(NO_AVAILABLE_CONNECTIONS, sktDescriptor);
         qDebug() << "NETSERVER: Connection attempt failed: no free slots!";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NS_NO_AVAILABLE_CONNECTIONS,
+                                                   Global::tTranslatableStringList() << m_myIp << m_myPort);
         return;
     }
 
@@ -143,30 +146,36 @@ void NetworkServer::incomingConnection(int sktDescriptor)
     }
 
     try {
-        // create connection manager:
-        ConnectionManager* cManager = new ConnectionManager(m_availableConnections, m_connectionCounter, m_authReq, m_authConf, m_authReply, this);
-
-        // connect all needed signals/slots:
         try {
-            CONNECTSIGNALSLOT(cManager, ClientConnected(quint32, const QString &),
-                              this, RegisterConnection(quint32, const QString &));
-            CONNECTSIGNALSLOT(cManager, DestroyMe(quint32, const QString &, NetworkBase::DisconnectType_t),
-                              this, DestroyManager(quint32, const QString &, NetworkBase::DisconnectType_t));
-            CONNECTSIGNALSLOT(this, DestroyConnection(NetworkBase::DisconnectType_t),
-                              cManager, DestroyConnection(NetworkBase::DisconnectType_t));
-        } catch(...) {
-            DisconnectTheSocket(CONNECT_SIGNAL_FAIL, sktDescriptor);
-            delete cManager;
-            return;
+            // create connection manager:
+            ConnectionManager* cManager = new ConnectionManager(m_availableConnections, m_connectionCounter, m_authReq, m_authConf, m_authReply, this);
+
+            // connect all needed signals/slots:
+            try {
+                try {
+                    CONNECTSIGNALSLOT(cManager, ClientConnected(quint32, const QString &),
+                                      this, RegisterConnection(quint32, const QString &));
+                    CONNECTSIGNALSLOT(cManager, DestroyMe(quint32, const QString &, NetworkBase::DisconnectType_t),
+                                      this, DestroyManager(quint32, const QString &, NetworkBase::DisconnectType_t));
+                    CONNECTSIGNALSLOT(this, DestroyConnection(NetworkBase::DisconnectType_t),
+                                      cManager, DestroyConnection(NetworkBase::DisconnectType_t));
+                }
+                CATCHALL_RETHROW()
+            }
+            catch(...) {
+                DisconnectTheSocket(CONNECT_SIGNAL_FAIL, sktDescriptor);
+                delete cManager;
+                return;
+            }
+
+            // store the reference:
+            m_connectionsList.insert(m_connectionCounter, cManager);
+            // tell the Manager which circuit to use:
+            cManager->HandleNewConnection(sktDescriptor);
         }
-
-        // store the reference:
-        m_connectionsList.insert(m_connectionCounter, cManager);
-
-        // tell the Manager which circuit to use:
-        cManager->HandleNewConnection(sktDescriptor);
-
-    } catch (const std::bad_alloc &) {
+        CATCHALL_RETHROW()
+    }
+    catch (...) {
         // disconnect the socket:
         DisconnectTheSocket(CANNOT_ALLOCATE_MEMORY, sktDescriptor);
         return;
@@ -223,6 +232,8 @@ bool NetworkServer::GenerateReference()
         if (m_connectionCounter == NS_NO_FREE_CONNECTIONS) {
             // all connection references are consumed
             // its an error, this shall never happen!
+            Global::EventObject::Instance().RaiseEvent(EVENT_NS_NO_AVAILABLE_CONNECTIONS,
+                                                       Global::tTranslatableStringList() << m_myIp << m_myPort);
             return false;
         }
     }
@@ -283,6 +294,8 @@ bool NetworkServer::RegisterMessageHandler(NetworkDevice *pH, const QString & cl
     // check pointer
     if (pH == NULL) {
         qDebug() << "NETSRVR: NetworkDevice is NULL : not registered !";
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << m_myIp << FILE_LINE);
         return false;
     }
     // update the list of registered protocol handlers
@@ -320,15 +333,21 @@ void NetworkServer::RegisterConnection(quint32 number, const QString &client)
             // one of the needed pointers is invalid!
             // connection cannot be established, destroy it
             DestroyManager(number, client, NULL_POINTER_IN_HASH);
+            Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                       Global::tTranslatableStringList() << m_myIp << FILE_LINE);
             return;
         }
 
         try {
-            CONNECTSIGNALSLOT(cManager, MsgReceived(quint8, QByteArray &),
-                              pHandler, GetIncomingMsg(quint8, QByteArray &));
-            CONNECTSIGNALSLOT(pHandler, SendMessage(quint8, const QByteArray &),
-                              cManager, ForwardMessage(quint8, const QByteArray &));
-        } catch (...) {
+            try {
+                CONNECTSIGNALSLOT(cManager, MsgReceived(quint8, QByteArray &),
+                                  pHandler, GetIncomingMsg(quint8, QByteArray &));
+                CONNECTSIGNALSLOT(pHandler, SendMessage(quint8, const QByteArray &),
+                                  cManager, ForwardMessage(quint8, const QByteArray &));
+            }
+            CATCHALL_RETHROW();
+        }
+        catch (...) {
             // connection cannot be established, destroy it
             DestroyManager(number, client, CONNECT_SIGNAL_FAIL);
             return;
@@ -350,6 +369,8 @@ void NetworkServer::RegisterConnection(quint32 number, const QString &client)
         // no, the connection is already taken: destroy this
         // connection manager
         DestroyManager(number, client, NO_AVAILABLE_CONNECTIONS);
+        Global::EventObject::Instance().RaiseEvent(EVENT_NS_NO_AVAILABLE_CONNECTIONS,
+                                                   Global::tTranslatableStringList() << m_myIp << m_myPort);
     }
 }
 
@@ -432,6 +453,8 @@ void NetworkServer::DestroyManager(quint32 number, const QString &client, Discon
         // its an ERROR, this shall not happen.
         HandleDisconnectReason(NO_CONNECTION_IN_HASH, client);
         qDebug() << ((QString)"NETSERVER: Failed to destroy Manager Object N" + QString::number(number));
+        Global::EventObject::Instance().RaiseEvent(EVENT_NS_DESTROY_MANAGEROBJ_FAILED,
+                                                   Global::tTranslatableStringList() << m_myIp << QString::number(number));
     }
 
     // take action according to the type of disconnect
@@ -453,6 +476,9 @@ void NetworkServer::DestroyManager(quint32 number, const QString &client, Discon
 void NetworkServer::HandleDisconnectReason(DisconnectType_t dtype, const QString &client)
 {
     qDebug() << (QString)("NETSERVER: Disconnect reason: " + QString::number(static_cast<int>(dtype), 10));
+
+    Global::EventObject::Instance().RaiseEvent(EVENT_NS_SERVER_DISCONNECTED,
+                                               Global::tTranslatableStringList() << m_myIp << QString::number((int)dtype));
 
     switch (dtype) {
     case SOCKET_DISCONNECT:
@@ -492,6 +518,8 @@ NetworkServerErrorType_t NetworkServer::InitializeServer()
     NetSettingsErrorType_t err = nstg.ReadSettings();
     if (err != NST_ALL_OK) {
         qDebug() << (QString)("NETSERVER: Loading settings failed !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NS_LOAD_SETTINGS_FAILED,
+                                                   Global::tTranslatableStringList() << m_myIp << QString::number((int)err));
         return NS_LOAD_SETTINGS_FAILED;
     }
     // set all configuration parameters
@@ -521,6 +549,8 @@ NetworkServerErrorType_t NetworkServer::StartServer()
     // try to listen to the specified IP/PORT
     if (!listen(QHostAddress(m_myIp), m_myPort.toInt())) {
         qDebug() << (QString)("NETSERVER: Listen to IP/PORT:  " + m_myIp + "/" + m_myPort + " failed !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NS_LISTEN_FAILED,
+                                                   Global::tTranslatableStringList() << m_myIp << m_myPort);
         return NS_LISTEN_FAILED;
     }
 
@@ -562,6 +592,9 @@ QString NetworkServer::FetchServerTypeString()
         break;
     case NSE_TYPE_BLG:
         type = NSS_TYPE_BLG;
+        break;
+    case NSE_TYPE_SEPIA_GUI:
+        type = NSS_TYPE_SEPIA_GUI;
         break;
     default:
         break;

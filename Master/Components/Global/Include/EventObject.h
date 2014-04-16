@@ -15,7 +15,7 @@
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
- * \warning This object lives in HimalayaMaster Thread
+ * \warning This object lives in ColoradoMaster Thread
  */
 /****************************************************************************/
 
@@ -31,74 +31,36 @@
 #include <QObject>
 #include <QFile>
 #include <QDebug>
+#include <QMutex>
 
 namespace Global {
-
-
-/****************************************************************************/
-/**
- * \brief Helper for sending an event of type exception with status = EVTSTAT_ON.
- *
- * The current file name, file number and time stamp are set automatically.
- *
- * \param[in]   exc     The exception.
- */
-/****************************************************************************/
-#define SEND_EXCEPTION(exc) SendEvent(exc, Global::EVTTYPE_ERROR, Global::EVTSTAT_ON);
-
-/****************************************************************************/
-///**
-// * \brief Helper for sending an DayOperation info.
-// *
-// * \param[in]   eventType   info/warning/error/fatal error
-// * \param[in]   logLevel    Various logging levels
-// * \param[in]   code        String ID.
-// * \param[in]   data        Additional data.
-// */
-///****************************************************************************/
-#define LOG_EVENT(eventType, logLevel, code, data, numericData, showInRunLog)
-#define SEND_EVENT(eventType, logLevel, code, data, numericData, showInRunLog)
-
-
-
-/****************************************************************************/
-//**
-// * \brief Helper for sending an Event To Event Handler
-
-
-/****************************************************************************/
-
-/**
- * \brief Helper for sending an event of type debug with status = EVTSTAT_ON.
- *
- * The current file name, file number and time stamp are set automatically.
- *
- * \param[in]   data    Additional data.
- */
-/****************************************************************************/
-#if defined(QT_NO_DEBUG)
-    // we are in release mode
-    #define SEND_DEBUG(data)
-#else
-    // we are in debug mode
-    #define SEND_DEBUG(data) SendEvent(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), Global::EVTTYPE_DEBUG, Global::EVTSTAT_ON, EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, data);
-#endif
 
 /****************************************************************************/
 /**
  * \brief Singleton class for Collecting and forwarding Events raised
  *
- * \warning This object lives in HimalayaMaster Thread
+ * \warning This object lives in ColoradoMaster Thread
  */
 /****************************************************************************/
 class EventObject : public QObject {
     Q_OBJECT
 friend class TestEventObject;
 private:
-    static EventObject    m_EventObjectInstance; //!< Static instance
+
     Global::RefManager<quint32>    m_EventKeyManager;                   ///< We use Reference manager for Key Generation
-    QFile                   m_TemporaryLogFile;
-    EventObject(const EventObject &);   ///< Not implemented.
+    QFile                   m_TemporaryLogFile; ///< temp log file name
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(EventObject)
+
+    QFile file2; ///< stores execution output
+    QHash<QString, long> m_threadList;  ///< hash of thread name and id
+    QMutex m_Lock; //!< mutex for thread safety & synchronization
+
 
     /****************************************************************************/
     /**
@@ -162,9 +124,21 @@ public:
      * \return      Reference to instance.
      */
     /****************************************************************************/
-    static inline EventObject &Instance() {
+    static EventObject &Instance() {
+        static EventObject    m_EventObjectInstance; //!< Static instance
         return m_EventObjectInstance;
     }
+
+    /****************************************************************************/
+    /**
+     * \brief logs the thread id to the log file
+     *
+     * \iparam  threadName = name of the thread
+     * \iparam  lwp = thread id
+     */
+    /****************************************************************************/
+    void LogThreadId(QString threadName, long lwp);
+
 
     /****************************************************************************/
     /**
@@ -174,83 +148,172 @@ public:
      *
      * \iparam EventCode
      * \iparam EventStringList = Global::FmtArgs() << "Arg1" << "Arg2" ...
-     * \iparam EventStatus
+     * \iparam EventActive = event is active or not
      * \iparam EventKey = unique event key
+     * \iparam AltStringUsage = alternative string shall be used or not
      *
      * \return
      */
     /****************************************************************************/
     inline void RaiseEvent(const quint32 EventCode,
                            const Global::tTranslatableStringList &EventStringList,
-                           const bool IsResolved,
+                           const bool EventActive,
                            const quint32 EventKey,
-                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                           Global::tTranslatableStringList EventStringListForRd = Global::tTranslatableStringList(),
-                           quint64 EventCodeScenario = 0
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE
                            )  {
-        emit ForwardEvent(EventCode, EventStringList, IsResolved, EventKey, AltStringUsage,EventStringListForRd, EventCodeScenario);
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Raise Event
-     *
-     * \return
-     */
-    /****************************************************************************/
-    inline void RaiseEvent(const quint32 EventCode,
-                           const Global::tTranslatableStringList &EventStringList,
-                           const bool IsResolved = true,
-                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                           Global::tTranslatableStringList EventStringListForRD = Global::tTranslatableStringList(),
-                           quint64 EventCodeScenario = 0
-                           )  {
-        quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, EventStringList, IsResolved, EventKey, AltStringUsage,EventStringListForRD, EventCodeScenario);
-    }
-
-    /****************************************************************************/
-    /**
-     * \brief Raise Event
-     *
-     * \return
-     */
-    /****************************************************************************/
-    inline void RaiseEvent(const quint32 EventCode,  Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE,
-                            bool IsResolved = false)
-    {
-        quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), IsResolved, EventKey, AltStringUsage,Global::tTranslatableStringList(),0);
-        qDebug()<<"EventObject Thread"<<this->thread();
+        emit ForwardEvent(EventCode, EventStringList, EventActive, EventKey, AltStringUsage);
     }
 
     /****************************************************************************/
     /**
      * \brief Raise Event
      * \iparam EventCode   = 32 bit unique event code
-     * \iparam EventStatus = True -if event active, False - if event not active
+     * \iparam EventStringList = Global::FmtArgs() << "Arg1" << "Arg2" ...
+     * \iparam EventActive = True -if event active, False - if event not active
+     * \iparam AltStringUsage = alternative string shall be used or not
+     * \return
      */
     /****************************************************************************/
-    inline void RaiseEvent(const quint32 EventCode, const bool IsResolved,
-                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE)
-    {
+    inline void RaiseEvent(const quint32 EventCode,
+                           const Global::tTranslatableStringList &EventStringList,
+                           const bool EventActive = true,
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE
+                           )  {
         quint32 EventKey = GetEventKey();
-        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), IsResolved, EventKey, AltStringUsage, Global::tTranslatableStringList(),0);
-        qDebug()<<"EventObject Thread"<<this->thread();
+        emit ForwardEvent(EventCode, EventStringList, EventActive, EventKey, AltStringUsage);
     }
 
     /****************************************************************************/
     /**
-     * \brief Raise Exception.
+     * \brief Raise Event
+     * \iparam EventCode   = 32 bit unique event code
+     * \iparam AltStringUsage = alternative string shall be used or not
+     * \return
+     */
+    /****************************************************************************/
+    inline void RaiseEvent(const quint32 EventCode,
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE)
+    {
+        quint32 EventKey = GetEventKey();
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), true, EventKey, AltStringUsage);
+        //qDebug()<<"EventObject Thread"<<this->thread();
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Raise Event
+     * \iparam EventCode   = 32 bit unique event code
+     * \iparam EventActive = True -if event active, False - if event not active
+     * \iparam AltStringUsage = alternative string shall be used or not
+     */
+    /****************************************************************************/
+    inline void RaiseEvent(const quint32 EventCode,
+                           const bool EventActive,
+                           Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE)
+    {
+        quint32 EventKey = GetEventKey();
+        emit ForwardEvent(EventCode, Global::tTranslatableStringList(), EventActive, EventKey, AltStringUsage);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Raise Event.
+     * \iparam TheException
      *
      */
     /****************************************************************************/
-    inline void RaiseException(const Global::Exception &TheException)
+    inline void RaiseEvent(const Global::Exception &TheException)
     {
         //! When exception is raised , Append Filename and line numbers into Argumentlist for logging purpose
         Global::tTranslatableStringList StringList = TheException.GetAdditionalData();
         StringList << TheException.GetFile() << TheException.GetLine();
-        RaiseEvent(TheException.GetErrorCode(), StringList, true);
+        emit ForwardEvent(TheException.GetErrorCode(), StringList, true, GetEventKey(), Global::NOT_APPLICABLE);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Raise Event (this version should be used to log catched exception in a destructor)
+     * \iparam EventCode    = 32 bit unique event code
+     * \iparam File         = string with file path to destructor
+     * \iparam Line         = line number inside destructor
+     * \return
+     */
+    /****************************************************************************/
+    inline void RaiseEventDtor(const quint32 EventCode, const char * File, const int Line)
+    {
+        quint32 EventKey = GetEventKey();
+        Global::tTranslatableStringList StringList = Global::tTranslatableStringList();
+        StringList << File << QString::number(Line);
+        emit ForwardEvent(EventCode, StringList, true, EventKey, Global::NOT_APPLICABLE);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Raise Event (this version should be used to log catched exception in a destructor)
+     * \iparam EventCode    = 32 bit unique event code
+     * \iparam What         = string identifying exception
+     * \iparam File         = string with file path to destructor
+     * \iparam Line         = line number inside destructor
+     * \return
+     */
+    /****************************************************************************/
+    inline void RaiseEventDtor(const quint32 EventCode, const char * What, const char * File, const int Line)
+    {
+        quint32 EventKey = GetEventKey();
+        Global::tTranslatableStringList StringList = Global::tTranslatableStringList();
+        StringList << What << File << QString::number(Line);
+        emit ForwardEvent(EventCode, StringList, true, EventKey, Global::NOT_APPLICABLE);
+    }
+
+    /****************************************************************************/
+    /*!
+     *  \brief    This SLOT handles all incoming events.
+     *
+     *      This SLOT shall be used to process all events and their current
+     *      status.
+     *
+     *  \iparam    EventKey
+     *  \iparam    EventID
+     *  \iparam    Scenario
+     *  \bparam    Active
+     *  \bparam    ActionResult
+     *  \lparam    EventStringParList
+     *  \lparam    EventRDStringParList
+     *
+     *
+     ****************************************************************************/
+    virtual void RaiseEvent(const quint32 EventKey, const quint32 EventID, const quint32 Scenario,
+                              const bool ActionResult, const bool Active = true,
+                              const Global::tTranslatableStringList &EventStringParList = Global::tTranslatableStringList(),
+                              const Global::tTranslatableStringList &EventRDStringParList = Global::tTranslatableStringList())
+    {
+        quint32 key = EventKey;
+        if(EventKey <= 0){
+            key = GetEventKey();
+        }
+        quint64 EventIDScenario = EventID;
+        EventIDScenario = (EventIDScenario<<32) | Scenario;
+        emit ForwardEvent(key, EventIDScenario, Active, ActionResult,EventStringParList,EventRDStringParList);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Raise Event (this version should be used to log catched exception in a destructor)
+     * \iparam EventCode    = 32 bit unique event code
+     * \iparam ExcEventCode = 32 bit unique event code of catched exception
+     * \iparam ExcWhere     = file and line number at which catched exception have been thrown
+     * \iparam File         = string with file path to destructor
+     * \iparam Line         = line number inside destructor
+     * \return
+     */
+    /****************************************************************************/
+    inline void RaiseEventDtor(const quint32 EventCode, QString ExcEventCode, QString ExcWhere,
+                               const char * File, const int Line)
+    {
+        quint32 EventKey = GetEventKey();
+        Global::tTranslatableStringList StringList = Global::tTranslatableStringList();
+        StringList << ExcEventCode << ExcWhere << File << QString::number(Line);
+        emit ForwardEvent(EventCode, StringList, true, EventKey, Global::NOT_APPLICABLE);
     }
 
     /****************************************************************************/
@@ -260,6 +323,7 @@ public:
      */
     /****************************************************************************/
     quint32 GetEventKey() {
+        QMutexLocker Lock(&m_Lock);
         return m_EventKeyManager.GetNewRef();
     }
 
@@ -295,11 +359,6 @@ public:
         throw E;
     }
 
-    inline void RaiseLog(QString info)
-    {
-        emit ForwardLog(info);
-    }
-
 signals:
     /****************************************************************************/
     /**
@@ -307,29 +366,62 @@ signals:
      *        controller
      */
     /****************************************************************************/
-    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage, const Global::tTranslatableStringList,quint64);
+    void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage);
 
-    void ForwardLog(QString info);
+    /****************************************************************************/
+    /**
+     * \brief This signal is used to connect EventObject to Event Handler thread
+     *        controller
+     */
+    /****************************************************************************/
+    void ForwardEvent(const quint32 EventKey, const quint64 EventIDScenario,
+                      const bool Active, const bool ActionResult,
+                      const Global::tTranslatableStringList &EventStringParList,
+                      const Global::tTranslatableStringList &EventRDStringParList);
+
 }; // end class EventObject
 
+/****************************************************************************/
+/**
+ * \brief Helper for logging an throwing error code exception
+ *
+ * \iparam   ErrorCode   error code
+ */
+/****************************************************************************/
 #define LOGANDTHROW(ErrorCode) \
 { \
     Global::Exception E(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), ErrorCode); \
-    Global::EventObject::Instance().RaiseException(E); \
+    Global::EventObject::Instance().RaiseEvent(E); \
     throw E; \
 }
 
+/****************************************************************************/
+/**
+ * \brief Helper for logging an throwing error code exception with argument
+ *
+ * \iparam   ErrorCode   error code
+ * \iparam   Arg         Argument
+ */
+/****************************************************************************/
 #define LOGANDTHROWARG(ErrorCode, Arg) \
 { \
     Global::Exception E(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), ErrorCode, Arg); \
-    Global::EventObject::Instance().RaiseException(E); \
+    Global::EventObject::Instance().RaiseEvent(E); \
     throw E; \
 }
 
+/****************************************************************************/
+/**
+ * \brief Helper for logging an throwing error code exception with argument list
+ *
+ * \iparam   ErrorCode   error code
+ * \iparam   ArgList     Argument List
+ */
+/****************************************************************************/
 #define LOGANDTHROWARGS(ErrorCode, ArgList) \
 { \
     Global::Exception E(__FILE__, __LINE__, Global::AdjustedTime::Instance().GetCurrentDateTime(), ErrorCode, ArgList); \
-    Global::EventObject::Instance().RaiseException(E); \
+    Global::EventObject::Instance().RaiseEvent(E); \
     throw E; \
 }
 

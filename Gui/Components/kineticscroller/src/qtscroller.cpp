@@ -1006,7 +1006,8 @@ bool QtScroller::handleInput(Input input, const QPointF &position, qint64 timest
         { QtScroller::Pressed,   InputRelease, &QtScrollerPrivate::releaseWhilePressed },
         { QtScroller::Dragging,  InputMove,    &QtScrollerPrivate::moveWhileDragging },
         { QtScroller::Dragging,  InputRelease, &QtScrollerPrivate::releaseWhileDragging },
-        { QtScroller::Scrolling, InputPress,   &QtScrollerPrivate::pressWhileScrolling }
+      //commented this code for fixing spira incident
+      //{ QtScroller::Scrolling, InputPress,   &QtScrollerPrivate::pressWhileScrolling }
     };
 
     for (int i = 0; i < int(sizeof(statechanges) / sizeof(*statechanges)); ++i) {
@@ -1805,8 +1806,6 @@ void QtScrollerPrivate::setContentPositionHelperDragging(const QPointF &deltaPos
     QPointF ppm = q->pixelPerMeter();
     const QtScrollerPropertiesPrivate *sp = properties.d.data();
     QPointF v = q->velocity();
-    Q_UNUSED(ppm);
-    Q_UNUSED(v);
 
     if (sp->overshootDragResistanceFactor)
         overshootPosition /= sp->overshootDragResistanceFactor;

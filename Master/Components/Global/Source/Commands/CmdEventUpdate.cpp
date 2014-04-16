@@ -28,8 +28,9 @@ QString CmdEventUpdate::NAME = "MsgClasses::CmdEventUpdate";
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout             Timeout for command.
- * \param[in]   eventId             Event ID.
+ * \iparam   type                type of event.
+ * \iparam   eventId             Event ID.
+ * \iparam   stopSystem          whether the system to be stopped or not
  */
 /****************************************************************************/
 CmdEventUpdate::CmdEventUpdate(quint32 eventId, QString type, bool stopSystem)
@@ -38,6 +39,9 @@ CmdEventUpdate::CmdEventUpdate(quint32 eventId, QString type, bool stopSystem)
     , m_stopExecution(stopSystem)
     , m_type(type)
 {
+    setIdleStateAllowed(true);
+    setErrorStateAllowed(true);
+    setBusyStateAllowed(true);
 }
 
 /****************************************************************************/
@@ -56,6 +60,9 @@ CmdEventUpdate::~CmdEventUpdate()
 /****************************************************************************/
 CmdEventUpdate::CmdEventUpdate()
     : Global::Command(0)
+    , m_eventId(0)
+    , m_stopExecution(false)
+    , m_type("")
 {
 }
 

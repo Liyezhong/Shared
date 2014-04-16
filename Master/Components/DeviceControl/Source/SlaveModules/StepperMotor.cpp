@@ -1471,6 +1471,9 @@ void CStepperMotor::HandleCommandRequestTask()
             ActiveCommandFound = true;
             if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
+                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                                 Global::AdjustedTime::Instance().GetCurrentDateTime());
+
                 m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_STATE)
@@ -1545,7 +1548,7 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
         if (GetType() == m_lastErrorGroup) //lint !e641
             eventString = m_eventString[m_lastErrorCode];
         else
-            eventString = m_pParent->m_eventString[m_lastErrorCode];
+            eventString = m_pParent->m_EventString[m_lastErrorCode];
         if ("" == eventString)
             eventString = "unknown";
         FILE_LOG_L(laFCT, llERROR) << " " << eventString;

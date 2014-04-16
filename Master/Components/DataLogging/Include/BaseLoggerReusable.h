@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class BaseLoggerReusable.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-07-12
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2013-10-16
+ *  $Author:    $ Raju
  *
  *  \b Company:
  *
@@ -44,19 +44,21 @@ private:
     QString     m_SerialNumber;         ///< Serial number.
     QString     m_Path;                 ///< Absolute path in which log files must be written.
     /****************************************************************************/
-    BaseLoggerReusable();                                                   ///< Not implemented.
-    BaseLoggerReusable(const BaseLoggerReusable &);                         ///< Not implemented.
-    const BaseLoggerReusable & operator = (const BaseLoggerReusable &);     ///< Not implemented.
     /****************************************************************************/
     /**
-     * \brief Create a backup file.
-     *
-     * Has an empty function body. Overwrite as needed in derived classes.
-     *
-     * \iparam   FileName    File name of file to backup.
+     * \brief Constructor.
      */
     /****************************************************************************/
-    virtual void BackupFile(const QString & FileName);
+    BaseLoggerReusable();                                                   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(BaseLoggerReusable)
+
+    
 protected:
     /****************************************************************************/
     /**
@@ -71,20 +73,20 @@ protected:
      */
     /****************************************************************************/
     void SetConfiguration(const QString &OperatingMode, const QString &SerialNumber, const QString &Path);
+
     /****************************************************************************/
     /**
      * \brief Switch to new output file.
      *
      * We switch to another output file because (for example) the operating mode or
      * the path changed. For that, the old file is closed and the new one is opened.
-     * If reading the header or header information not OK, a backup of the file is done
-     * (if BackupOldFile = true) and a new file is created, which remains open for appending data.
+     * New file is created, which remains open for appending data.
      *
      * \iparam   FileName        File name of file to switch to.
-     * \iparam   BackupOldFile   If true, make a backup of old file
      */
     /****************************************************************************/
-    void SwitchToFile(const QString &FileName, bool BackupOldFile);
+    void SwitchToFile(const QString &FileName);
+
     /****************************************************************************/
     /**
      * \brief Write header information.
@@ -94,18 +96,20 @@ protected:
      */
     /****************************************************************************/
     void WriteHeader();
+
     /****************************************************************************/
     /**
      * \brief Check if header information for a specific file is OK.
      *
-     * OK means: header information can be read and the expected and read
-     * format version and serial number coincide.
+     * OK means: Header information can be read and checks the
+     * format version coincidence in the opened file.
      *
      * \iparam   FileName    File name.
-     * \return                  true if header OK.
+     * \return   true if header OK.
      */
     /****************************************************************************/
     virtual bool CheckHeaderFormat(const QString &FileName);
+
     /****************************************************************************/
     /**
      * \brief Get configured operating mode.
@@ -116,6 +120,7 @@ protected:
     inline QString GetOperatingMode() const {
         return m_OperatingMode;
     }
+
     /****************************************************************************/
     /**
      * \brief Get configured serial number.
@@ -126,6 +131,7 @@ protected:
     inline QString GetSerialNumber() const {
         return m_SerialNumber;
     }
+
     /****************************************************************************/
     /**
      * \brief Get configured path.
@@ -136,6 +142,7 @@ protected:
     inline QString GetPath() const {
         return m_Path;
     }
+
 public:
     /****************************************************************************/
     /**
@@ -146,7 +153,8 @@ public:
      * \iparam   FormatVersion       Format version for output file.
      */
     /****************************************************************************/
-    BaseLoggerReusable(Global::EventObject *pParent, const QString &TheLoggingSource, int FormatVersion);
+    BaseLoggerReusable(QObject *pParent, const QString &TheLoggingSource, int FormatVersion);
+
     /****************************************************************************/
     /**
      * \brief Destructor.

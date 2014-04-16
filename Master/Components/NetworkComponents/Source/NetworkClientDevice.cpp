@@ -24,6 +24,8 @@
 #include <Global/Include/GlobalEventCodes.h>
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 
 namespace NetworkBase {
 
@@ -31,11 +33,11 @@ namespace NetworkBase {
 /*!
  *  \brief    Constructor
  *
- *  \param[in] ctype = type of client to create
- *  \param[in] ip = server ip to connect to
- *  \param[in] port = server port to connect to
- *  \param[in] path = path to settings folder
- *  \param[in] pParent = pointer to parent
+ *  \iparam ctype = type of client to create
+ *  \iparam ip = server ip to connect to
+ *  \iparam port = server port to connect to
+ *  \iparam path = path to settings folder
+ *  \iparam pParent = pointer to parent
  *
  ****************************************************************************/
 NetworkClientDevice::NetworkClientDevice(NetworkClientType_t ctype, const QString &ip, const QString &port, const QString &path, QObject *pParent) :
@@ -61,9 +63,8 @@ NetworkClientDevice::~NetworkClientDevice()
             delete m_myNetworkClient;
         }
         m_myNetworkClient = NULL;
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -84,13 +85,17 @@ bool NetworkClientDevice::InitializeDevice()
         if (!NetworkDevice::InitializeDevice()) {
             qDebug() << "NetworkClientDevice: cannot initialize my NetworkDevice !";
             /// \todo: handle error
+            Global::EventObject::Instance().RaiseEvent(EVENT_NCD_INIT_FAILED,
+                                                       Global::tTranslatableStringList() << m_myIp);
             return false;
         }
 
         if (!InitializeNetwork()) {
              qDebug() << "NetworkClientDevice: cannot initialize NetworkClient !";
             /// \todo: handle error
-            return false;
+             Global::EventObject::Instance().RaiseEvent(EVENT_NCD_INIT_FAILED,
+                                                        Global::tTranslatableStringList() << m_myIp);
+             return false;
         }
 
         // connect connection signals
@@ -100,12 +105,15 @@ bool NetworkClientDevice::InitializeDevice()
         // connect error signal
         CONNECTSIGNALSLOT(m_myNetworkClient, ConnectionFailed(NetworkBase::NetworkClientErrorType_t),
                           this, HandleNetworkError(NetworkBase::NetworkClientErrorType_t));
-    } catch (...) {
-        /// \todo: handle error
-        return false;
-    }
+        CONNECTSIGNALSIGNAL(m_myNetworkClient, StartConnectionLostTimer(),
+                              this, StartConnectionLostTimer())
 
-    return true;
+        return true;
+    }
+    CATCHALL();
+    /// \todo: handle error
+
+    return false;
 }
 
 /****************************************************************************/
@@ -127,20 +135,20 @@ bool NetworkClientDevice::InitializeNetwork()
             qDebug() << "NetworkClientDevice: cannot register message handler !";
             delete m_myNetworkClient;
             m_myNetworkClient = NULL;
+            Global::EventObject::Instance().RaiseEvent(EVENT_NCD_MSGHANDLER_REGISTRATION_FAILED,
+                                                       Global::tTranslatableStringList() << m_myIp);
             return false;
         }
         if (!m_myNetworkClient->Initialize()) {
             qDebug() << "NetworkClientDevice: NetClient init failed !";
             delete m_myNetworkClient;
             m_myNetworkClient = NULL;
+            Global::EventObject::Instance().RaiseEvent(EVENT_NCD_INIT_FAILED,
+                                                       Global::tTranslatableStringList() << m_myIp);
             return false;
         }
     }
-    catch (const std::bad_alloc &) {
-        /// \todo: handle error
-        qDebug() << "NetworkClientDevice: Cannot allocate memory!";
-        return false;
-    }
+    CATCHALL_RETURN(false)
 
     qDebug() << "NetworkClientDevice: Client initialized.";
     return true;
@@ -160,6 +168,8 @@ bool NetworkClientDevice::StartDevice()
 {
     if (m_myNetworkClient == NULL) {
         qDebug() << (QString)("NetworkClientDevice: my Client is NULL !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_NL_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << m_myIp << FILE_LINE);
         return false;
     }
     // The client will automatically ping Server till connection is established.
@@ -174,9 +184,9 @@ bool NetworkClientDevice::StartDevice()
  *  \brief  This method processes an incomig from peer device message.
  *
  *
- *  \param[in]  cmdname - name of the command
- *  \param[in]  ref - message reference
- *  \param[in]  bArr - message payload
+ *  \iparam  cmdname - name of the command
+ *  \iparam  ref - message reference
+ *  \iparam  bArr - message payload
  *
  *  \warning   if other message delivery method is required, just re-implement
  *             this virtual function in the derived class.
@@ -193,6 +203,8 @@ bool NetworkClientDevice::ProcessIncomingMessage(const QString &cmdname, const Q
     if (cmdname.isEmpty() || ref.isEmpty()) {
         qDebug() << "\nNetworkClientDevice: oops. missing input !\n";
         static_cast<void> (NetworkBase::Ack::SendAcknowledge(this, ref, cmdname, status));
+        Global::EventObject::Instance().RaiseEvent(EVENT_NCD_MISSING_INPUT,
+                                                   Global::tTranslatableStringList() << m_myIp);
         return result;
     }
     // check if signal is connected and if yes --> forward message
@@ -239,6 +251,9 @@ void NetworkClientDevice::DestroyDevice()
 void NetworkClientDevice::HandleNetworkError(NetworkClientErrorType_t error)
 {
     qDebug() << "NetworkClientDevice: Network error happend: " + QString::number(static_cast<int>(error), 10);
+    Global::EventObject::Instance().RaiseEvent(EVENT_NCD_NETWORK_ERROR,
+                                               Global::tTranslatableStringList() << m_myIp
+                                               << QString::number((int)error));
 
     switch (error) {
     case NC_SIGNAL_CONNECT_FAILED:
@@ -279,8 +294,8 @@ void NetworkClientDevice::DisconnectPeer()
 /*!
  *  \brief   Forward incoming Date and Time to the application.
  *
- *  \param[in]  ref = incoming network layer message reference
- *  \param[in]  qdt = the date and time
+ *  \iparam  ref = incoming network layer message reference
+ *  \iparam  qdt = the date and time
  *
  *  \warning    This function is virtual. Re-implement it in the derived
  *              class if needed.

@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file ContentScroller.h
  *
- *  \brief ContentScroller definition.
+ *  \brief Header file for class CContentScroller.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-05-31
@@ -28,6 +28,8 @@
 #include <QWidget>
 #include <QScrollBar>
 
+//lint -e524
+
 namespace MainMenu {
 
 namespace Ui {
@@ -42,6 +44,7 @@ namespace Ui {
 class CContentScroller : public QWidget
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CContentScroller(QWidget *p_Parent = 0);
@@ -49,6 +52,9 @@ public:
     void SetContent(QAbstractScrollArea *p_Content);
     void SimpleArrows();
     void Reset();
+    void SetNintyPercentScroll(bool Status) {
+        m_ScrollNintyPercent = Status;
+    }
 
 private:
     void showEvent(QShowEvent *);
@@ -59,24 +65,39 @@ private:
     QPropertyAnimation m_Animation;     //!< Animation for smooth scrolling
     QButtonGroup m_ButtonGroup;         //!< Grouping the up and down buttons
     qint32 m_AnimationStep;             //!< Count the steps of the animations
-    QIcon m_IconScrollBegin;
-    QIcon m_IconScrollUp;
-    QIcon m_IconScrollDown;
-    QIcon m_IconScrollEnd;
+    QIcon m_IconScrollBegin;            //!< Icon for scroll begin
+    QIcon m_IconScrollUp;               //!< Icon for scroll up
+    QIcon m_IconScrollDown;             //!< Icon for scroll down
+    QIcon m_IconScrollEnd;              //!< Icon for scroll end
+    bool m_ScrollNintyPercent;          //!< flag to check wether 90% is covered
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CContentScroller)
 
 protected:
     void changeEvent(QEvent *p_Event);
 
 private slots:
-    void UpdateVerticalScrollBar();
-   // void ScrollContent(int Direction);
+    void UpdateVerticalScrollBar();   
     void ScrollStep(const QVariant &Value);
-    void ScrollRangeChanged();
+    
 
 public slots:
     void ScrollContent(int Direction);
+    void ScrollRangeChanged();
 
 signals:
+
+    /****************************************************************************/
+    /*!
+     *  \brief This signal is emitted when the table is scrolled.
+     *
+     */
+    /****************************************************************************/
     void Scrolled();
 };
 

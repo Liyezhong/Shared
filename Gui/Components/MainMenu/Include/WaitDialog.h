@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file WaitDialog.h
  *
- *  \brief WaitDialog definition.
+ *  \brief Header file for class CWaitDialog.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22
@@ -39,6 +39,7 @@ namespace Ui {
 class CWaitDialog : public MainMenu::CDialogFrame
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CWaitDialog(QWidget *p_Parent = 0);
@@ -47,13 +48,12 @@ public:
     void SetTimeout(qint32 MilliSeconds);
     void HideAbort();
     void show();
-
+    void BlgProcessProgress(bool IsBlgProcessStarted);
 public slots:
     void done(int Result);
 
 protected:
     bool eventFilter(QObject *p_Object, QEvent *p_Event);
-    void changeEvent(QEvent *p_Event);
 
 private:
     Ui::CWaitDialog *mp_Ui;     //!< User interface
@@ -61,13 +61,36 @@ private:
     bool m_DialogLock;          //!< Prevents closing the dialog
     bool m_DialogHide;          //!< Should the dialog be closed?
     QTimer m_Timer;             //!< Timeout timer
+    bool m_IsBlgProcessStarted; //!< Bathlayout process indicator flag
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CWaitDialog)
 
 private slots:
     void LockDialog();
     void UnlockDialog();
+    void AbortWaitDialog();
 
 signals:
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when the timer time out happens.
+     */
+    /****************************************************************************/
     void Timeout();
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when the Abort button is pressed.
+     * \iparam IsBLGProcessAborted = BLG process aborted/cancelled indicator flag
+     *
+     */
+    /****************************************************************************/
+    void AbortBlgProcess(bool IsBLGProcessAborted);
+
 };
 
 } // end namespace MainMenu

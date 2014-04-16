@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file /DataManager/CommandInterface/Include/UserSettingsCommandInterfaceBase.h
+/*! \file Platform/Master/Components/DataManager/CommandInterface/Include/UserSettingsCommandInterface.h
  *
  *  \brief Command Interface definition
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-07-30
- *  $Author:    $ N.Kamath
+ *  $Author:    $ N.Kamath, Ramya GJ
  *
  *  \b Company:
  *
@@ -23,6 +23,7 @@
 #include "DataManager/CommandInterface/Include/CommandInterfaceBase.h"
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdChangeUserSettings.h"
 #include "DataManager/Containers/UserSettings/Commands/Include/CmdAlarmToneTest.h"
+#include "Global/Include/EventTranslator.h"
 
 namespace DataManager {
 /****************************************************************************/
@@ -33,13 +34,25 @@ namespace DataManager {
 class CUserSettingsCommandInterface:public CCommandInterfaceBase
 {
     Q_OBJECT
+    friend class TestCmdInterface;
 public:
     CUserSettingsCommandInterface(CDataManagerBase *p_DataManager, Threads::MasterThreadController *p_MasterThreadController,CDataContainerCollectionBase *p_DataContainer);
 
 private:
+    bool m_ConnToOtherProcess;//!< Flag for connection to other process
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CUserSettingsCommandInterface)
     void RegisterCommands();
     void SettingsUpdateHandler(Global::tRefType, const MsgClasses::CmdChangeUserSettings &Cmd, Threads::CommandChannel &AckCommandChannel);
     void AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel);
+public slots:
+    void ConnectedToOtherProcess(bool Connected);
+
 signals:
     /****************************************************************************/
     /**
@@ -48,6 +61,25 @@ signals:
      */
     /****************************************************************************/
     void UserSettingsChanged(const bool LanguageChanged);
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when User clicks on test tone button
+     *
+     * \iparam AlarmTypeFlag = Alarm Type( Error/Note)
+     * \iparam Volume = Volume of tone
+     * \iparam AlarmNumber = Tone Number
+     */
+    /****************************************************************************/
+    void PlayTestTone(bool AlarmTypeFlag, quint8 Volume, quint8 AlarmNumber);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when User changes DI water type to Tap water and
+     *              vice versa in Bathlayout screen.
+     * \iparam TapWaterType = true if Water Station type is changed to Tap Water
+     */
+    /****************************************************************************/
+    void UserSettingsWaterTypeChanged(const bool TapWaterType);
 };
 
 }// End of namespace DataManager

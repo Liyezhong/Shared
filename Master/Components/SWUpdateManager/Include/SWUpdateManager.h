@@ -61,7 +61,6 @@ class SWUpdateManager : public QObject {
 public:
     SWUpdateManager(Threads::MasterThreadController &MasterThreadRef);
     ~SWUpdateManager();
-    Q_DISABLE_COPY(SWUpdateManager) //!< Disable copy and assignment
     void UpdateSoftware(const QString &Option, const QString &UpdateFrom);
     void PowerFailed();
 
@@ -72,7 +71,13 @@ private:
     Threads::MasterThreadController &m_MasterThreadControllerRef; //!< Reference to master thread controller reference.
     QTimer m_SWUpdateCheckTimer; //!< Timer to check unresponsive software update script
 
-
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(SWUpdateManager)
     void SWUpdateHandler(Global::tRefType Ref, const NetCommands::CmdSWUpdate &Cmd, Threads::CommandChannel &AckCommandChannel);
     void UpdateRebootFile(const QString UpdateStatus, const QString CheckStatus = "NA", const QString Rollback = "No");
 
@@ -81,11 +86,38 @@ private slots:
     void SWUpdateError(int ErrorCode);
     void SWUpdateStarted(const QString &Name);
     void OnNoResponseFromSWUpdate();
+    void OnSWUpdateFromRC();
 
 signals:
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when new SW update check is complete
+     */
+    /****************************************************************************/
     void SWUpdateCheckComplete();
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when rollback is complete after SW update is failed
+     */
+    /****************************************************************************/
     void RollBackComplete();
-    void WaitDialog(bool Display, Global::WaitDialogText_t);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when new SW update is initiated by GUI and the
+     *          package is downloaded to the predefind path
+     *  \iparam Display         = true if user display is required
+     *  \iparam WaitDialogText  = WaitDialog enumeration type
+     */
+    /****************************************************************************/
+    void WaitDialog(bool Display, Global::WaitDialogText_t WaitDialogText);
+
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted to inform the status of Update
+     *  \iparam InProgress = true if update is in progress, or false
+     */
+    /****************************************************************************/
     void SWUpdateStatus(bool InProgress);
 };
 }//End of namespace SWUpdate

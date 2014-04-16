@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file WheelPanel.cpp
  *
- *  \brief WheelPanel implementation.
+ *  \brief Implementation of file for class CWheelPanel.
+ *
+ *  \b Description:
+ *          This class implements a base widget,which is used for
+ *          displaying Panel frames for scroll wheel widgets.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-08-10
@@ -23,8 +27,6 @@
 #include "MainMenu/Include/SemiTransparentOverlay.h"
 #include <QPainter>
 
-
-
 namespace MainMenu {
 
 /****************************************************************************/
@@ -41,15 +43,23 @@ CWheelPanel::CWheelPanel(QWidget *p_Parent) : QWidget(p_Parent)
     setPalette(Palette);
 
     mp_SemiTransparentOverlay = new CSemiTransparentOverlay(this);
-    m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
 
     mp_Layout = new QGridLayout(this);
-    mp_Layout->setContentsMargins(9, 3, 10, 8);
-    mp_Layout->setSpacing(0);
-
     mp_Title = new QLabel();
     mp_Title->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    mp_Title->setMinimumSize(0, 40);
+    // Check if device is Sepia or Colorado and set the layout margin accordingly
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        // Set margin content for Sepia
+        mp_Layout->setContentsMargins(8, 10, 6, 10);
+        mp_Title->setMaximumSize(mp_Title->width(), 20);
+    }
+    else {
+        // Set margin content for Colorado
+        mp_Layout->setContentsMargins(9, 3, 10, 8);
+        mp_Title->setMinimumSize(0, 40);
+    }
+    mp_Layout->setSpacing(0);
 }
 
 /****************************************************************************/
@@ -59,18 +69,23 @@ CWheelPanel::CWheelPanel(QWidget *p_Parent) : QWidget(p_Parent)
 /****************************************************************************/
 CWheelPanel::~CWheelPanel()
 {
-    while (!m_SeparatorList.isEmpty()) {
-        delete m_SeparatorList.takeFirst();
-    }
+    try {
+        while (!m_SeparatorList.isEmpty()) {
+            delete m_SeparatorList.takeFirst();
+        }
 
-    while (!m_SubtitleList.isEmpty()) {
-        delete m_SubtitleList.takeFirst();
-    }
+        while (!m_SubtitleList.isEmpty()) {
+            delete m_SubtitleList.takeFirst();
+        }
 
-    delete mp_Title;
-    delete mp_Layout;
-    if (mp_SemiTransparentOverlay) {
-       delete mp_SemiTransparentOverlay;
+        delete mp_Title;
+        delete mp_Layout;
+        if (mp_SemiTransparentOverlay) {
+            delete mp_SemiTransparentOverlay;
+        }
+    }
+    catch (...) {
+        // to please lint
     }
 }
 
@@ -83,13 +98,27 @@ CWheelPanel::~CWheelPanel()
 /****************************************************************************/
 void CWheelPanel::Init(qint32 Count)
 {
-    setMinimumSize(19 + 86 * Count + 4 * (Count - 1), 277);
+    // Check for device type
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        // Set minimum size of the widget for Sepia
+       setMinimumSize(19 + 61 * Count + 4 * (Count - 1), 202);
+    }
+    else {
+        // Set minimum size of the widget for Colorado
+       setMinimumSize(19 + 86 * Count + 4 * (Count - 1), 277);
+    }
+
     mp_Layout->addWidget(mp_Title, 0, 0, 1, 2 * Count - 1);
 
     for (qint32 i = 0; i < Count; i++) {
         QLabel *p_Label = new QLabel();
         p_Label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        p_Label->setMinimumSize(86, 38);
+        if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            p_Label->setMinimumSize(56, 20);
+        }
+        else {
+            p_Label->setMinimumSize(86, 38);
+        }
         mp_Layout->addWidget(p_Label, 2, 2 * i);
         m_SubtitleList << p_Label;
     }
@@ -113,7 +142,7 @@ void CWheelPanel::Init(qint32 Count)
 /****************************************************************************/
 void CWheelPanel::SetDisabled(bool Disabled)
 {
-    if (Disabled){
+    if (Disabled) {
         mp_SemiTransparentOverlay->raise();
         mp_SemiTransparentOverlay->SetEnabled(true);
     }
@@ -133,13 +162,18 @@ void CWheelPanel::SetDisabled(bool Disabled)
 void CWheelPanel::SetThreeDigitMode(bool Mode)
 {
     if (Mode) {
-	setMinimumSize(137,277);
-        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel_3_digits.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        setMinimumSize(137, 277);
+        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel_3_digits.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
         mp_Layout->setContentsMargins(5, 3, 5, 8);
     }
     else {
-	setMinimumSize(105,277);
-        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+             setMinimumSize(80, 202);
+        }
+        else {
+             setMinimumSize(105, 277);
+        }
+        m_PanelPixmap = QPixmap(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
         mp_Layout->setContentsMargins(9, 3, 10, 8);
     }
 }
@@ -153,7 +187,7 @@ void CWheelPanel::SetThreeDigitMode(bool Mode)
 /****************************************************************************/
 void CWheelPanel::SetTitle(QString Title)
 {
-    mp_Title->setText(tr("%1").arg(Title));
+    mp_Title->setText(Title);
 }
 
 /****************************************************************************/
@@ -166,7 +200,7 @@ void CWheelPanel::SetTitle(QString Title)
 /****************************************************************************/
 void CWheelPanel::SetSubtitle(QString Subtitle, qint32 Position)
 {
-    m_SubtitleList[Position]->setText(tr("%1").arg(Subtitle));
+    m_SubtitleList[Position]->setText(Subtitle);
 }
 
 /****************************************************************************/
@@ -193,14 +227,24 @@ void CWheelPanel::AddScrollWheel(MainMenu::CScrollWheel *p_Wheel, qint32 Positio
 void CWheelPanel::AddSeparator(SeparatorType_t Type, qint32 Position)
 {
     switch (Type) {
-        case COLON:
-            m_SeparatorList[Position]->setPixmap(QPixmap(QString(":/%1/Digits/Digit_Colon.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(7, 43, 4, 188));
-            break;
-        case FULLSTOP:
-            m_SeparatorList[Position]->setPixmap(QPixmap(QString(":/%1/Digits/Digit_FullStopp.png").arg(Application::CLeicaStyle::GetProjectNameString())).copy(7, 43, 4, 188));
-            break;
-        default:
-            break;
+    case COLON:
+        if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            m_SeparatorList[Position]->setPixmap(QPixmap(":/Small/Digits/Digit_Colon.png").copy(30, 0, 2, 30));
+        }
+        else {
+            m_SeparatorList[Position]->setPixmap(QPixmap(":/Large/Digits/Digit_Colon.png").copy(7, 43, 4, 188));
+        }
+        break;
+    case FULLSTOP:
+        if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            m_SeparatorList[Position]->setPixmap(QPixmap(":/Small/Digits/Digit_FullStopp.png").copy(30, 0, 2, 30));
+        }
+        else {
+            m_SeparatorList[Position]->setPixmap(QPixmap(":/Large/Digits/Digit_FullStopp.png").copy(7, 43, 4, 188));
+        }
+        break;
+    default:
+        break;
     }
 }
 
@@ -212,11 +256,62 @@ void CWheelPanel::AddSeparator(SeparatorType_t Type, qint32 Position)
 void CWheelPanel::paintEvent(QPaintEvent *)
 {
     QPainter Painter(this);
-    QPixmap Source(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    QPixmap Source(QString(":/%1/Digits/Digit_Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
     QPixmap Target(size());
     Target.fill(Qt::transparent);
-    Application::CLeicaStyle::BorderPixmap(&Target, &Source, 17, 0, 18, 0);
+
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        // Set border pixmap size for Sepia scroll wheel
+        Application::CLeicaStyle::BorderPixmap(&Target, &Source, 30, 40, 45, 40);
+    }
+    else {
+        // Set border pixmap size for Colorado scroll wheel
+        Application::CLeicaStyle::BorderPixmap(&Target, &Source, 17, 0, 18, 0);
+    }
     Painter.drawPixmap(0, 0, Target);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the wheel panel's content margins.
+ *  \iparam LeftMargin = Left margin value
+ *  \iparam TopMargin = Top margin value
+ *  \iparam RightMargin = Right margin value
+ *  \iparam BottomMargin = Bottom margin value
+ */
+/****************************************************************************/
+void CWheelPanel::SetLayoutContentsMargin(int LeftMargin, int TopMargin, int RightMargin, int BottonMargin)
+{
+   mp_Layout->setContentsMargins(LeftMargin, TopMargin, RightMargin, BottonMargin);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the vertical spacing for the wheel panel.
+ *  \iparam VerticalSpacing = VerticalSpacing value
+ */
+/****************************************************************************/
+void CWheelPanel::SetVerticalSpacing(int VerticalSpacing)
+{
+   mp_Layout->setVerticalSpacing(VerticalSpacing);
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief Sets title text as per the maximum title string length.
+ *
+ *  \iparam StringLength = Maximum string lenght of dialog title.
+ *  \iparam TitleText = String to be set
+ *
+ */
+/****************************************************************************/
+void CWheelPanel::SetTitleWithMaxLength(qint32 StringLength, QString TitleText)
+{
+    if (TitleText.length() > StringLength) {
+        (void) TitleText.remove(StringLength, TitleText.length() - StringLength);
+    }
+    mp_Title->setText(TitleText);
 }
 
 } // end namespace MainMenu

@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file MenuGroup.cpp
  *
- *  \brief MenuGroup implementation.
+ *  \brief Implementation of file for class CMenuGroup.
+ *
+ *  \b Description:
+ *          This class implements a base widget for the menu group widgets.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-05-17
@@ -39,12 +42,21 @@ CMenuGroup::CMenuGroup(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CMe
     mp_Ui->menuWidget->SetPanelTitle(tr("Menu"));
 
     m_ItemCount = 0;
+    m_ButtonNumber = 0;
 
     mp_ButtonGroup = new QButtonGroup();
 
     if (!connect(mp_ButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(ButtonPressed(int)))) {
         qDebug() << "CMenuGroup: cannot connect 'buttonClicked' signal";
     }
+
+    if (!connect(mp_ButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(ShowWidget(int)))) {
+        qDebug() << "CMenuGroup: cannot connect 'buttonClicked' signal";
+    }
+
+    mp_Widget = new QWidget();
+    mp_Widget->setMinimumSize(438, 349);
+    mp_Ui->horizontalLayout->addWidget(mp_Widget);
 
     mp_ButtonLayout = new QVBoxLayout();
     mp_ButtonLayout->addStretch(1);
@@ -54,6 +66,7 @@ CMenuGroup::CMenuGroup(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CMe
     mp_ContentLayout = new QVBoxLayout();
     mp_ContentLayout->addWidget(mp_ContentStack);
     mp_Ui->contentWidget->SetContent(mp_ContentLayout);
+
 }
 
 /****************************************************************************/
@@ -70,6 +83,7 @@ CMenuGroup::~CMenuGroup()
         delete mp_ButtonGroup;
         delete mp_ButtonLayout;
 
+        delete mp_Widget;
         delete mp_Ui;
     }
     catch (...) {}
@@ -106,10 +120,36 @@ void CMenuGroup::changeEvent(QEvent *p_Event)
 void CMenuGroup::AddPanel(QString Title, QWidget *p_Content)
 {
     AddButton(Title);
-    m_ItemCount = mp_ContentStack->addWidget(p_Content);
+    m_ItemCount = mp_ContentStack->addWidget(p_Content);    
     m_ItemCount++;
-
     ButtonPressed(0);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Adds a panel to a menu group
+ *
+ *  \iparam Title = Title of the panel
+ *  \iparam p_Content = The content widget
+ */
+/****************************************************************************/
+void CMenuGroup::AddSettingsPanel(QString Title, QWidget *p_Content)
+{
+    AddButton(Title);
+
+    QVBoxLayout *Layout = new QVBoxLayout(this);
+    Layout->setContentsMargins(0, 0, 0, 0);
+    Layout->addWidget(p_Content);
+    mp_Widget->setLayout(Layout);    
+    mp_Ui->contentWidget->setVisible(false);
+
+    m_ItemCount++;
+    m_CurrentTabIndex = 5;
+    int indexLastButton = mp_ButtonGroup->buttons().count()-1;
+    mp_ButtonGroup->button(indexLastButton)->setChecked(true);
+    ShowWidget(indexLastButton);
+
+   // ButtonPressed(indexLastButton);
 }
 
 /****************************************************************************/
@@ -134,7 +174,7 @@ QWidget *CMenuGroup::GetCurrentPanel()
 void CMenuGroup::AddButton(QString Text)
 {
     //lint -esym(429, p_Button)
-    QPushButton *p_Button = new QPushButton(tr("%1").arg(Text));
+    QPushButton *p_Button = new QPushButton(QString("%1").arg(Text));
     p_Button->setFocusPolicy(Qt::NoFocus);
     p_Button->setCheckable(true);
 
@@ -156,8 +196,42 @@ void CMenuGroup::ButtonPressed(int Number)
 {
     mp_ButtonGroup->button(Number)->setChecked(true);
 
-    mp_Ui->contentWidget->SetPanelTitle(tr("%1").arg(mp_ButtonGroup->button(Number)->text()));
+    mp_Ui->contentWidget->setVisible(true);
+    mp_Widget->setVisible(false); 
+
+    mp_Ui->contentWidget->SetPanelTitle(QString("%1").arg(mp_ButtonGroup->button(Number)->text()));
     mp_ContentStack->setCurrentIndex(Number);
+
+    emit PanelChanged();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Slot called when a tab index is getting changed
+ *
+ *  \iparam TabIndex = Tab Index
+ */
+/****************************************************************************/
+void CMenuGroup::SetCurrentTabIndex(int TabIndex)
+{
+    m_CurrentTabIndex = TabIndex;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Slot called when a button is clicked from ButtonGroup
+ *
+ *  \iparam ButtonClicked = Button Index
+ */
+/****************************************************************************/
+void CMenuGroup::ShowWidget(int ButtonClicked)
+{
+    m_ButtonNumber =  ButtonClicked;
+    if(m_CurrentTabIndex == 5 && m_ButtonNumber == (mp_ButtonGroup->buttons().count() - 1))
+    {
+        mp_Ui->contentWidget->setVisible(false);
+        mp_Widget->setVisible(true);
+    }
 }
 
 } // end namespace MainMenu

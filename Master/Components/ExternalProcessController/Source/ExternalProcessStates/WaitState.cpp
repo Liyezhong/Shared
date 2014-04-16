@@ -59,15 +59,20 @@ WaitState::~WaitState()
 ****************************************************************************/
 bool WaitState::OnEntry(StateMachines::StateEvent et)
 {
-    qDebug() << "WaitState entered for process" << this->m_myController->GetProcessName();
-
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         if (!State::DispatchEvent(Global::AsInt(EP_NULL_CTRL_POINTER))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << ""
+                                                                                    << "EP_NULL_CTRL_POINTER"
+                                                                                     << FILE_LINE);
         }
         return false;
     }
+
+    qDebug() << "WaitState entered for process" << this->m_myController->GetProcessName();
 
     return HandleEvent(et);
 }
@@ -84,7 +89,9 @@ bool WaitState::OnEntry(StateMachines::StateEvent et)
 bool WaitState::OnExit(StateMachines::StateEvent et)
 {
     Q_UNUSED(et)
-    qDebug() << "WaitState exited for process" << this->m_myController->GetProcessName();
+    if(m_myController) {
+        qDebug() << "WaitState exited for process" << this->m_myController->GetProcessName();
+    }
     return true;
 }
 
@@ -102,40 +109,52 @@ bool WaitState::HandleEvent(StateMachines::StateEvent et)
     qDebug() << "WaitState handles internal event " + QString::number(et.GetIndex(), 10);
 
     if (m_myController == NULL) {
-        /// \todo log error
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                   Global::tTranslatableStringList() << ""
+                                                    << FILE_LINE);
         return false;
     }
 
     switch (et.GetIndex())
     {
     case EP_START_OPERATION:
-        if (!m_myController->m_myDevice->StartDevice()) {
-            /// \todo log error
+        if (m_myController->DoesExternalProcessUseNetCommunication() && !m_myController->m_myDevice->StartDevice()) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_DEVICE_PROCESS,
+                                                       Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                        << FILE_LINE);
             qDebug() << "WaitState: Cannot start ExternalProcessDevice!";
             if (!State::DispatchEvent(Global::AsInt(EP_CANNOT_START_DEVICE))) {
-                /// \todo log error
+                Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                           Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                            << "EP_CANNOT_START_DEVICE"
+                                                                                             << FILE_LINE);
             }
             return false;
         }
         break;
     case EP_EXTPROCESS_DISCONNECTED:
-        m_myController->m_myDevice->StartLoginGuard();
-        if (m_myTimer.isActive()) {
-            if (m_NofDisconnects > EPC_NOF_ALLOWED_DISCONNECTS) {
-                if (!State::DispatchEvent(Global::AsInt(EP_TOO_MANY_RESTARTS))) {
-                    /// \todo log error
+        if (m_myController->DoesExternalProcessUseNetCommunication()) {
+            m_myController->m_myDevice->StartLoginGuard();
+            if (m_myTimer.isActive()) {
+                if (m_NofDisconnects > EPC_NOF_ALLOWED_DISCONNECTS) {
+                    if (!State::DispatchEvent(Global::AsInt(EP_TOO_MANY_RESTARTS))) {
+                        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                                   Global::tTranslatableStringList() << m_myController->GetProcessName()
+                                                                                                    << "EP_TOO_MANY_RESTARTS"
+                                                                                                     << FILE_LINE);
+                    }
+                }
+                else {
+                    m_NofDisconnects++;
                 }
             }
             else {
+                // configure and start the "restart window" timer:
+                m_myTimer.setSingleShot(true);
+                m_myTimer.setInterval(CONNECT_GUARD_WINDOW);
+                m_myTimer.start();
                 m_NofDisconnects++;
             }
-        }
-        else {
-            // configure and start the "restart window" timer:
-            m_myTimer.setSingleShot(true);
-            m_myTimer.setInterval(CONNECT_GUARD_WINDOW);
-            m_myTimer.start();
-            m_NofDisconnects++;
         }
         break;
     default:

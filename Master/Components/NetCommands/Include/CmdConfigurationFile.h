@@ -39,7 +39,9 @@ typedef enum {
     USER_SETTING,           ///< User setting file
     DEVICE_CONFIGURATION,   ///< Device Configuration file
     STATION_BLG,            ///< Station_blg list intermediate file
-    PROGRAM_SEQUENCE_BLG    ///< Program sequence blg intermediate file
+    PROGRAM_SEQUENCE_BLG,    ///< Program sequence blg intermediate file
+    STATION_MATRIX,          ///< Station matrix file
+    PARAMETERSET            ///< ParameterSet file
 } FileType_t;
 
 /****************************************************************************/
@@ -64,6 +66,13 @@ public:
     QByteArray const& GetFileContent() const;
 private:
     CmdConfigurationFile(const CmdConfigurationFile &);                     ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdConfigurationFile & operator = (const CmdConfigurationFile &); ///< Not implemented.
 private:
     FileType_t m_FileType;      ///< Configuration file type
@@ -75,7 +84,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -93,7 +102,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdConfigurationFil
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

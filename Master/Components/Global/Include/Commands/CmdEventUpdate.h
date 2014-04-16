@@ -39,13 +39,18 @@ public:
     virtual QString GetName() const;
 //    quint32 getEventId() { return m_eventId; }
 //    inline bool getActive() { return m_active; }
-    quint32 m_eventId;
-    bool m_stopExecution;
-    QString m_type;
+    quint32 m_eventId;          ///< event id
+    bool m_stopExecution;       ///< system execution should be stopped or not
+    QString m_type;             ///< event type
 
 private:
-    CmdEventUpdate(const CmdEventUpdate &);                       ///< Not implemented.
-    const CmdEventUpdate & operator = (const CmdEventUpdate &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CmdEventUpdate)
 };
 
 

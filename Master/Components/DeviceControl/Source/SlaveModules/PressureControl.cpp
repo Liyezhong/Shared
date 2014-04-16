@@ -73,6 +73,8 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     {
         m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
     }
+    memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
+    ReadValveOperationTime();
 }
 
 /****************************************************************************/
@@ -598,6 +600,9 @@ void CPressureControl::HandleCommandRequestTask()
             ActiveCommandFound = true;
             if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
+                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                                 Global::AdjustedTime::Instance().GetCurrentDateTime());
+
                 m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
                 if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTPRESSURE)
@@ -1398,6 +1403,7 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
         m_ModuleCommand[CmdIndex].ValveState = ValveState;
         FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Valve Index: " << ValveIndex;
         FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Valve State: " << ValveState;
+        AddValveOperationTime(ValveIndex);
     }
     else
     {
@@ -1838,4 +1844,93 @@ void CPressureControl::ResetModuleCommand(CANPressureCtrlCmdType_t ModuleCommand
         m_TaskID = MODULE_TASKID_FREE;
     }
 }
+
+ReturnCode_t CPressureControl::AddValveOperationTime(quint8 ValveIndex)
+{
+    if(ValveIndex < VALVE_NUM)
+    {
+        m_valveOperationTime[ValveIndex] = m_valveOperationTime[ValveIndex] + 1;
+        return WriteValveOperationTime();
+    }
+    else
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+}
+
+ReturnCode_t CPressureControl::ReadValveOperationTime()
+{
+#if 1
+    memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
+    return DCL_ERR_FCT_CALL_SUCCESS;
+#else
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/ValveOperationTime.txt";
+    FILE* pFile;
+
+    if ((pFile = fopen(FileName.toStdString().c_str(), "r")) == NULL)
+    {
+        memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
+        return retCode;
+    }
+
+    char Buf[200];
+    memset(Buf, 0, sizeof(Buf));
+    if(fread(Buf, 1, 200, pFile) > 0 )
+    {
+        QString Content = QString::fromAscii(Buf, -1);
+        QStringList StrList = Content.split(";");
+        if(StrList.size() >= 2)
+        {
+            m_valveOperationTime[0] = StrList.at(0).toUInt();
+            m_valveOperationTime[1] = StrList.at(1).toUInt();
+            retCode = DCL_ERR_FCT_CALL_SUCCESS;
+        }
+
+    }
+    fclose(pFile);
+    return retCode;
+#endif
+}
+
+ReturnCode_t CPressureControl::WriteValveOperationTime()
+{
+#if 1
+        return DCL_ERR_FCT_CALL_SUCCESS;
+#else
+    QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/ValveOperationTime.txt";
+    QString msg = tr("%1;%2;\n").arg(m_valveOperationTime[0]).arg(m_valveOperationTime[1]);
+    FILE* pFile = fopen(FileName.toStdString().c_str(), "w+");
+    if(pFile)
+    {
+        fprintf(pFile, "%s", msg.toStdString().c_str());
+        fflush(pFile);
+        fclose(pFile);
+        return DCL_ERR_FCT_CALL_SUCCESS;
+    }
+    else
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+#endif
+}
+
+quint32 CPressureControl::GetValveOperationTime(quint32 ValveIndex)
+{
+    if(ValveIndex < VALVE_NUM)
+    {
+        return m_valveOperationTime[ValveIndex];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+ReturnCode_t CPressureControl::ResetValveOperationTime()
+{
+    memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
+    return WriteValveOperationTime();
+}
+
 } //namespace

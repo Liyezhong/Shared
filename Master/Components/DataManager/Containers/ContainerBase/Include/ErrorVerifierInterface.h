@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ErrorVerifierInterface.h
+/*! \file Platform/Master/Components/DataManager/Containers/ContainerBase/Include/ErrorVerifierInterface.h
  *
  *  \brief Definition file for interface IErrorVerifierInterface.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-05-03
- *  $Author:    $ Raju
+ *  $Author:    $ Raju, Ramya GJ
  *
  *  \b Company:
  *

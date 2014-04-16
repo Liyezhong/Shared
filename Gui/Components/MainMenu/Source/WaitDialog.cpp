@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file WaitDialog.cpp
  *
- *  \brief WaitDialog implementation.
+ *  \brief Implementation of file for class CWaitDialog.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying the wait dialogs.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-22
@@ -36,15 +39,18 @@ namespace MainMenu {
 CWaitDialog::CWaitDialog(QWidget *p_Parent) : MainMenu::CDialogFrame(p_Parent), mp_Ui(new Ui::CWaitDialog)
 {
     mp_Ui->setupUi(GetContentFrame());
+    layout()->setSizeConstraint(QLayout::SetFixedSize);
     m_AbortButtonVisible = true;
     m_DialogLock = false;
     m_DialogHide = false;
     m_Timer.setSingleShot(true);
+    m_IsBlgProcessStarted = false;
     setModal(true);
 
-    CONNECTSIGNALSLOT(mp_Ui->abortButton, clicked(), this, reject());
-    CONNECTSIGNALSLOT(&m_Timer, timeout(), this, reject());
-    CONNECTSIGNALSIGNAL(&m_Timer, timeout(), this, Timeout());
+    CONNECTSIGNALSLOTGUI(mp_Ui->abortButton, clicked(), this, AbortWaitDialog());
+    CONNECTSIGNALSLOTGUI(&m_Timer, timeout(), this, reject());
+    CONNECTSIGNALSIGNALGUI(&m_Timer, timeout(), this, Timeout());    
+
 }
 
 /****************************************************************************/
@@ -62,26 +68,6 @@ CWaitDialog::~CWaitDialog()
 
 /****************************************************************************/
 /*!
- *  \brief Event handler for change events
- *
- *  \iparam p_Event = Change event
- */
-/****************************************************************************/
-
-void CWaitDialog::changeEvent(QEvent *p_Event)
-{
-    QDialog::changeEvent(p_Event);
-    switch (p_Event->type()) {
-        case QEvent::LanguageChange:
-            mp_Ui->retranslateUi(this);
-            break;
-        default:
-            break;
-    }
-}
-
-/****************************************************************************/
-/*!
  *  \brief Sets the text displayed in the wait dialog
  *
  *  \iparam Text = Label text
@@ -89,7 +75,7 @@ void CWaitDialog::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 void CWaitDialog::SetText(QString Text)
 {
-    mp_Ui->contentLabel->setText(tr("%1").arg(Text));
+    mp_Ui->contentLabel->setText(QString("%1").arg(Text));
 }
 
 /****************************************************************************/
@@ -102,6 +88,35 @@ void CWaitDialog::SetText(QString Text)
 void CWaitDialog::SetTimeout(qint32 Milliseconds)
 {
     m_Timer.start(Milliseconds);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Abort wait dialog
+ */
+/****************************************************************************/
+void CWaitDialog::AbortWaitDialog()
+{
+    if (m_IsBlgProcessStarted) {
+        m_IsBlgProcessStarted = false;
+        //Send command to main to abort blg process and park the robot arms
+        emit AbortBlgProcess(true);
+        reject();
+    }
+    else {
+        m_IsBlgProcessStarted = false;
+        reject();
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Abort Bathlayout generating process
+ */
+/****************************************************************************/
+void CWaitDialog::BlgProcessProgress(bool IsBlgProcessStarted)
+{
+    m_IsBlgProcessStarted = IsBlgProcessStarted;
 }
 
 /****************************************************************************/
@@ -133,7 +148,7 @@ void CWaitDialog::show()
         m_DialogLock = false;
         m_DialogHide = false;
         qApp->installEventFilter(this);
-        QTimer::singleShot(500, this, SLOT(LockDialog()));
+        LockDialog();
     }
 }
 
@@ -195,6 +210,9 @@ void CWaitDialog::LockDialog()
     qApp->removeEventFilter(this);
     if (m_DialogHide == false) {
         CDialogFrame::show();
+        for (int Count =0;Count < 5 ;Count++) {
+          QCoreApplication::processEvents();
+        }
         m_DialogLock = true;
         QTimer::singleShot(500, this, SLOT(UnlockDialog()));
     }

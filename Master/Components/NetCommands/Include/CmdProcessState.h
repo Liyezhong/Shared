@@ -40,6 +40,13 @@ public:
 
 private:
     CmdProcessState(const CmdProcessState &);                       ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdProcessState & operator = (const CmdProcessState &);   ///< Not implemented.
     bool m_ProcessState;   ///< Process State - True if process running, else false
 };
@@ -50,7 +57,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -68,7 +75,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdProcessState &Cm
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/

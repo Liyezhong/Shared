@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h
+/*! \file Components/DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h
  *
  *  \brief DeviceConfigurationInterface definition.
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-09-04
- *  $Author:    $ Ningu
+ *  $Author:    $ Ningu, Ramya GJ
  *
  *  \b Company:
  *
@@ -45,7 +45,7 @@ private:
     bool                        m_DataVerificationMode; ///< Store the Data verification mode flag
     CDeviceConfiguration*       mp_DeviceConfig;        ///< Store the Device Configurationl settings
     QString                     m_FileName;             ///< Store the file name    
-    ErrorHash_t                 m_ErrorHash;            //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
+    ErrorMap_t                 m_ErrorMap;            //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
 
     /****************************************************************************/
 
@@ -57,6 +57,7 @@ protected:
 public:    
     CDeviceConfigurationInterface();
     CDeviceConfigurationInterface(const CDeviceConfigurationInterface &);
+    void CopyFromOther(const CDeviceConfigurationInterface &Other);
 
     ~CDeviceConfigurationInterface();
 
@@ -146,6 +147,7 @@ public:
         if (mp_DeviceConfig) {
             return mp_DeviceConfig->GetLanguageList();
         }
+
         return QStringList();
     }
 

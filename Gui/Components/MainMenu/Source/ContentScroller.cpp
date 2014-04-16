@@ -1,11 +1,14 @@
 /****************************************************************************/
 /*! \file ContentScroller.cpp
  *
- *  \brief ContentScroller implementation.
+ *  \brief Implementation of file for class CContentScroller.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display Scroller widget for Table view.
  *
  *   $Version: $ 0.1
- *   $Date:    $ 2011-05-31 , 2013-02-28
- *   $Author:  $ M.Scherer , Swati Tiwati 
+ *   $Date:    $ 2011-05-31
+ *   $Author:  $ M.Scherer
  *
  *  \b Company:
  *
@@ -17,12 +20,12 @@
  *
  */
 /****************************************************************************/
-#include "Application/Include/LeicaStyle.h"
+
 #include "MainMenu/Include/ContentScroller.h"
 #include "ui_ContentScroller.h"
+#include "Application/Include/LeicaStyle.h"
 #include <QDebug>
 #include <QScrollBar>
-#include "MainMenu/Include/BaseTable.h"
 
 namespace MainMenu {
 
@@ -33,7 +36,8 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CContentScroller::CContentScroller(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CContentScroller)
+CContentScroller::CContentScroller(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CContentScroller),
+    m_ScrollNintyPercent(false)
 {
     mp_Ui->setupUi(this);
     mp_Content = NULL;
@@ -49,15 +53,23 @@ CContentScroller::CContentScroller(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui
     m_ButtonGroup.addButton(mp_Ui->btnScrollEnd, 3);
 
     //Set initial state of buttons
-    m_IconScrollBegin.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_end_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
-    m_IconScrollUp.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
-    m_IconScrollDown.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
-    m_IconScrollEnd.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_end_active.png").arg(Application::CLeicaStyle::GetProjectNameString())));
+    m_IconScrollBegin.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_end_active.png")
+                                        .arg(Application::CLeicaStyle::GetDeviceImagesPath())));
+    m_IconScrollUp.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_active.png")
+                                     .arg(Application::CLeicaStyle::GetDeviceImagesPath())));
+    m_IconScrollDown.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_active.png")
+                                       .arg(Application::CLeicaStyle::GetDeviceImagesPath())));
+    m_IconScrollEnd.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_end_active.png")
+                                      .arg(Application::CLeicaStyle::GetDeviceImagesPath())));
 
-    m_IconScrollBegin.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_end_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
-    m_IconScrollUp.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
-    m_IconScrollDown.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
-    m_IconScrollEnd.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_end_passive.png").arg(Application::CLeicaStyle::GetProjectNameString())), QIcon::Disabled);
+    m_IconScrollBegin.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_end_passive.png")
+                                        .arg(Application::CLeicaStyle::GetDeviceImagesPath())), QIcon::Disabled);
+    m_IconScrollUp.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_up_passive.png")
+                                     .arg(Application::CLeicaStyle::GetDeviceImagesPath())), QIcon::Disabled);
+    m_IconScrollDown.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_passive.png")
+                                       .arg(Application::CLeicaStyle::GetDeviceImagesPath())), QIcon::Disabled);
+    m_IconScrollEnd.addPixmap(QPixmap(QString(":/%1/Icons/Scroll_Indicator/Scroll_down_end_passive.png")
+                                      .arg(Application::CLeicaStyle::GetDeviceImagesPath())), QIcon::Disabled);
 
     mp_Ui->btnScrollBegin->setIcon(m_IconScrollBegin);
     mp_Ui->btnScrollUp->setIcon(m_IconScrollUp);
@@ -166,10 +178,12 @@ void CContentScroller::showEvent(QShowEvent *)
 /****************************************************************************/
 void CContentScroller::ScrollStep(const QVariant &Value)
 {
+    if(mp_Content == NULL) {
+        return;
+    }
     if (m_AnimationStep % 2) {
         mp_Content->verticalScrollBar()->setValue(Value.toInt());
     }
-
     m_AnimationStep++;
 }
 
@@ -185,24 +199,35 @@ void CContentScroller::ScrollContent(int Direction)
     qint32 NewPosition = 0;
     if (mp_Content != NULL) {
         switch (Direction) {
-            case 0:
+        case 0:
+            if (m_ScrollNintyPercent) {
+                NewPosition = mp_Content->verticalScrollBar()->value() - (mp_Content->viewport()->height() * 0.9);
+            }
+            else {
                 NewPosition = mp_Content->verticalScrollBar()->value() - mp_Content->viewport()->height();
-                if (NewPosition < mp_Content->verticalScrollBar()->minimum()) {
-                    NewPosition = mp_Content->verticalScrollBar()->minimum();
-                }
-                break;
-            case 1:
-                NewPosition = mp_Content->verticalScrollBar()->value() + mp_Content->viewport()->height();
-                if (NewPosition > mp_Content->verticalScrollBar()->maximum()) {
-                    NewPosition = mp_Content->verticalScrollBar()->maximum();
-                }
-                break;
-            case 2:
+            }
+            if (NewPosition < mp_Content->verticalScrollBar()->minimum()) {
                 NewPosition = mp_Content->verticalScrollBar()->minimum();
-                break;
-            case 3:
+            }
+            break;
+        case 1:
+            if (m_ScrollNintyPercent) {
+                NewPosition = mp_Content->verticalScrollBar()->value() + (mp_Content->viewport()->height() * 0.9);
+            }
+            else {
+                NewPosition = mp_Content->verticalScrollBar()->value() + mp_Content->viewport()->height();
+            }
+
+            if (NewPosition > mp_Content->verticalScrollBar()->maximum()) {
                 NewPosition = mp_Content->verticalScrollBar()->maximum();
-                break;
+            }
+            break;
+        case 2:
+            NewPosition = mp_Content->verticalScrollBar()->minimum();
+            break;
+        case 3:
+            NewPosition = mp_Content->verticalScrollBar()->maximum();
+            break;
         }
         UpdateArrows(NewPosition);
         emit Scrolled();
@@ -213,6 +238,13 @@ void CContentScroller::ScrollContent(int Direction)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief Updates the scroll arrow buttons view.
+ *
+ *  \iparam NewPosition = New Position of the scroll content.
+ */
+/****************************************************************************/
 void CContentScroller::UpdateArrows(qint32 NewPosition)
 {
     if (mp_Content != NULL) {
@@ -255,8 +287,10 @@ void CContentScroller::UpdateVerticalScrollBar()
 /****************************************************************************/
 void CContentScroller::Reset()
 {
-    mp_Content->verticalScrollBar()->setValue(0);
-    UpdateArrows(0);
+    if(mp_Content != NULL) {
+        mp_Content->verticalScrollBar()->setValue(0);
+        UpdateArrows(0);
+    }
 }
 
 /****************************************************************************/

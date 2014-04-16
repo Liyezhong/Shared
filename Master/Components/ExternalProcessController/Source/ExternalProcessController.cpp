@@ -39,11 +39,11 @@ const CreatorFunctorShPtr_t     NullCreatorFunctor(NULL);   ///< NULL functor.
  * \brief Constructor.
  *
  * \param[in]   prname - the name of the process
- * \param[in]   TheHeartBeatSource - Logging source to be used.
+ * \param[in]   ThreadID = Unique Thread ID
  */
 /****************************************************************************/
-ExternalProcessController::ExternalProcessController(const QString &prname, Global::gSourceType TheHeartBeatSource) :
-    Threads::ThreadController(TheHeartBeatSource, prname),
+ExternalProcessController::ExternalProcessController(const QString &prname, quint32 ThreadID, const bool ExternalProcessWithoutNetCommunication) :
+    Threads::ThreadController(ThreadID, prname),
     m_myDevice(NULL),
     m_myProcess(NULL),
     m_myCommand(""),
@@ -58,7 +58,10 @@ ExternalProcessController::ExternalProcessController(const QString &prname, Glob
     m_CommunicationRetryState(NULL),
     m_FinalState(NULL),
     m_WaitState(NULL),
-    m_RestartProcess(true)
+    m_RestartProcess(true),
+    m_ProcessExited(false),
+    m_RetryCount(0),
+    m_ExtProcessWithoutNetCommunication(ExternalProcessWithoutNetCommunication)
 {
     qDebug() << "ExternalProcessController::ExternalProcessController" << prname;
 }
@@ -72,9 +75,8 @@ ExternalProcessController::~ExternalProcessController()
 {
     try {
         DeleteActiveObjects();
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL_DTOR();
 }
 
 /****************************************************************************/
@@ -86,10 +88,10 @@ void ExternalProcessController::DeleteActiveObjects()
 {
     DeleteActiveStateObjects();
     if (m_myProcess != NULL) {
-        delete m_myProcess;
+        m_myProcess->deleteLater();
     }
+
     m_myProcess = NULL;
-    m_myDevice = NULL;
 }
 
 /****************************************************************************/
@@ -116,9 +118,8 @@ void ExternalProcessController::DeleteActiveStateObjects()
         m_FinalState = NULL;
         delete m_WaitState;
         m_WaitState = NULL;
-    } catch (...) {
-        // to please PCLint...
     }
+    CATCHALL();
 }
 
 /****************************************************************************/
@@ -131,15 +132,21 @@ void ExternalProcessController::DeleteActiveStateObjects()
  *
  * \warning
  *    call this function in the derived calss before calling the
- *    CreateAndInitializeObjects() of base class!
+ *    CreateAndInitializeObjects() of base class!.
+ *    Use This function only if your process uses network layer.
  */
 /****************************************************************************/
 void ExternalProcessController::RegisterExternalProcessDevice(ExternalProcessDevice *gd)
 {
-    // check for NULL pointer
-    CHECKPTR(gd);
-    // set pointer
-    m_myDevice = gd;
+    if (DoesExternalProcessUseNetCommunication()) {
+        // check for NULL pointer
+        CHECKPTR(gd);
+        // set pointer
+        m_myDevice = gd;
+    }
+    else {
+        m_myDevice = NULL;
+    }
 }
 
 /****************************************************************************/
@@ -155,31 +162,31 @@ void ExternalProcessController::RegisterExternalProcessDevice(ExternalProcessDev
 /****************************************************************************/
 void ExternalProcessController::CreateAndInitializeObjects() {
     if (!LoadSettings()) {
-        LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_LOADING_SETTINGS);
+        LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_LOADING_SETTINGS)
     }
 
-    if (!InitializeExternalProcessDevice(m_RemoteLoginEnabled, m_RemoteLoginTimeout)) {
-        LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_EXTERNAL_PROCESS_DEVICE);
+    if (!m_ExtProcessWithoutNetCommunication && !InitializeExternalProcessDevice(m_RemoteLoginEnabled, m_RemoteLoginTimeout)) {
+        LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_EXTERNAL_PROCESS_DEVICE)
     }
 
-    if (m_RemoteLoginEnabled == "Yes") {
+    if (m_RemoteLoginEnabled == "Yes" ) {
 
         // If remote login is enabled, there is no need for ProcessManager.
         // We just need a simplified State Machine and ExternalProcessDevice.
 
         if (!InitializeSimplifiedStateMachine()) {
-            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_SIMPLE_STATE_MACHINE);
+            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_SIMPLE_STATE_MACHINE)
         }
     } else {
 
         // full initialization for local process management.
 
         if (!InitializeFullStateMachine()) {
-            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_FULL_STATE_MACHINE);
+            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_FULL_STATE_MACHINE)
         }
 
         if (!InitializeProcessManager()) {
-            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_PROCESS_MANAGER);
+            LOGANDTHROW(EVENT_EXTERNALPROCESSCONTROL_ERROR_INITIALIZE_PROCESS_MANAGER)
         }
     }
 }
@@ -199,19 +206,43 @@ void ExternalProcessController::ExternalProcessExited(const QString &name, int c
     qDebug() << "\nExternalProcessController: ExternalProcessExited called.\n";
 
     CHECKPTR(m_myStateManager);
-    // some process on demand it starts and exits, so we check a flag whether process need to be restarted or not
-    // depending on that we set the state manager
-    if (m_RestartProcess) {
-        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_EXTPROCESS_EXITED))) {
-            /// \todo do we handle error here?
-            return;
+    Global::EventObject::Instance().RaiseEvent(EVENT_EPC_EXTERNAL_PROCESS_EXITED, Global::FmtArgs() << GetProcessName() << code);
+    if (m_myStateManager->GetCurrentState()->GetName() != "CommunicationRetry") {
+        m_ProcessExited = true;
+        // some process on demand it starts and exits, so we check a flag whether process need to be restarted or not
+        // depending on that we set the state manager
+        if (m_RestartProcess) {
+            if (code != 127) { //Exit code 127 means executable was not found
+                if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_EXTPROCESS_EXITED))) {
+                    /// \todo do we handle error here?
+                    Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                               Global::tTranslatableStringList() << m_ProcessName
+                                                                                                << "EP_EXTPROCESS_EXITED"
+                                                                                                 << FILE_LINE);
+                    return;
+                }
+            }
+            else {
+                if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_CANNOT_START_EXTPROCESS))) {
+                    /// \todo do we handle error here?
+                    Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                    Global::tTranslatableStringList() << m_ProcessName
+                                                               << "EVENT_EPC_ERROR_DISPATCH_EVENT"
+                                                                << FILE_LINE);
+                    return;
+                }
+            }
         }
-    }
-    else {
-        // tell the process on stop received so we are closing the process
-        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_ONSTOP_RECEIVED))) {
-            /// \todo do we handle error here?
-            return;
+        else {
+            // tell the process on stop received so we are closing the process
+            if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_ONSTOP_RECEIVED))) {
+                /// \todo do we handle error here?
+                Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                           Global::tTranslatableStringList() << m_ProcessName
+                                                           << "EVENT_EPC_ERROR_DISPATCH_EVENT"
+                                                            << FILE_LINE);
+                return;
+            }
         }
     }
     // this is to forward the signal to derived class
@@ -271,6 +302,41 @@ void ExternalProcessController::ExternalProcessError(int err)
 {
     /// \todo evaluate error
     qDebug() << (QString)("ExternalProcessController: ext.process reported error: " + QString::number(err, 10) + " !");
+    qDebug() << "\n Process running status " << m_myProcess->IsRunning();
+    Global::EventObject::Instance().RaiseEvent(EVENT_EPC_REPORTED_ERROR,
+                                               Global::tTranslatableStringList() << m_ProcessName << QString::number(err, 10));
+}
+
+/****************************************************************************************/
+/*!
+ *  \brief    This slot is called currently 2 secs after external process is
+ *            disconnected. Function checks if the disconnection is a result
+ *            of process being exited or due to some network error. If its
+ *            because of process exited, function does nothing, since externalprocess
+ *            retry state would have done the job, if its because of network
+ *            error, the statemachine shall be put into Communication retry
+ *            state.
+ *
+ *
+ ****************************************************************************************/
+void ExternalProcessController::DisConnected()
+{
+    CHECKPTR(m_myStateManager);
+    if (!m_ProcessExited) {
+        //Disconnection is not due to exiting of process , perhaps some network error happened!
+        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_EXTPROCESS_DISCONNECTED))) {
+            /// \todo do we handle error here?
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                       << "EP_EXTPROCESS_DISCONNECTED"
+                                                        << FILE_LINE);
+            return;
+        }
+    }
+    else {
+        //Reset process exited flag.
+        m_ProcessExited = false;
+    }
 }
 
 /****************************************************************************/
@@ -287,25 +353,30 @@ bool ExternalProcessController::InitializeExternalProcessDevice(const QString &r
 {
     try {
         if (m_myDevice == NULL) {
-            /// \todo log error
             qDebug() << "ExternalProcessController: my ExternalProcessDevice pointer is NULL !";
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                        << FILE_LINE);
             return false;
         }
 
         if (!m_myDevice->InitializeDeviceWithParameters(remoteLoginEnabled, remoteLoginTimeout)) {
-            /// \todo log error
             qDebug() << "ExternalProcessController: Cannot initialize ExternalProcessDevice!";
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_INIT_FAILED,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                        << FILE_LINE);
             return false;
         }
         CONNECTSIGNALSLOT(m_myDevice, SigPeerConnected(const QString &), this, ExternalProcessConnected(const QString &));
         CONNECTSIGNALSLOT(m_myDevice, SigPeerDisconnected(const QString &), this, ExternalProcessDisconnected(const QString &));
         CONNECTSIGNALSLOT(m_myDevice, SigLoginTimeout(), this, LoginTimeout());
-    } catch (...) {
-        return false;
-    }
+        CONNECTSIGNALSLOT(m_myDevice, SigFatalError() , this, OnFatalErrorInDevice());
 
-    // everything OK
-    return true;
+        return true;
+    }
+    CATCHALL();
+
+    return false;
 }
 
 /****************************************************************************/
@@ -324,7 +395,8 @@ bool ExternalProcessController::InitializeProcessManager()
 
         // check if process already exists and delete it if it does
         if (m_myProcess != NULL) {
-            delete m_myProcess;
+            m_myProcess->deleteLater();
+            m_myProcess = NULL;
         }
 
         /// \todo set correct subsource:
@@ -334,21 +406,8 @@ bool ExternalProcessController::InitializeProcessManager()
         CONNECTSIGNALSLOT(m_myProcess, ProcessExited(const QString &, int), this, ExternalProcessExited(const QString &, int));
         CONNECTSIGNALSLOT(m_myProcess, ProcessStarted(const QString &), this, ExternalProcessStarted(const QString &));
         CONNECTSIGNALSLOT(m_myProcess, ProcessError(int), this, ExternalProcessError(int));
-    } catch(const std::bad_alloc &) {
-        // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-        return false;
-    } catch(const Global::Exception &E) {
-        // send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    } catch(...) {
-        // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-        return false;
     }
+    CATCHALL_RETURN(false)
 
     return true;
 }
@@ -390,12 +449,15 @@ bool ExternalProcessController::InitializeFullStateMachine()
         m_myStateManager->AddTransition(m_InitialState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_NULL_CTRL_POINTER);
         m_myStateManager->AddTransition(m_InitialState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_CANNOT_START_DEVICE);
         m_myStateManager->AddTransition(m_InitialState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_CANNOT_KILL_EXTPROCESS);
+        m_myStateManager->AddTransition(m_InitialState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_FATAL_ERROR_DEVICE);
         m_myStateManager->AddTransition(m_InitialState, m_ExtProcessStartRetryState, (StateMachines::StateEventIndexType_t)EP_CANNOT_START_EXTPROCESS);
         m_myStateManager->AddTransition(m_InitialState, m_ExtProcessStartRetryState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_EXITED);
+        m_myStateManager->AddTransition(m_InitialState, m_ExtProcessStartRetryState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_LOGIN_TIMEOUT);
         m_myStateManager->AddTransition(m_InitialState, m_WorkingState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_CONNECTED);
         m_myStateManager->AddTransition(m_InitialState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
         // add transitions from Working state to other states
         m_myStateManager->AddTransition(m_WorkingState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_NULL_CTRL_POINTER);
+        m_myStateManager->AddTransition(m_WorkingState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_FATAL_ERROR_DEVICE);
         m_myStateManager->AddTransition(m_WorkingState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
         m_myStateManager->AddTransition(m_WorkingState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_ONSTOP_RECEIVED);
         m_myStateManager->AddTransition(m_WorkingState, m_CommunicationRetryState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_DISCONNECTED);
@@ -407,29 +469,20 @@ bool ExternalProcessController::InitializeFullStateMachine()
         m_myStateManager->AddTransition(m_ExtProcessStartRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_RESTART_FAILED);
         m_myStateManager->AddTransition(m_ExtProcessStartRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_SIGNALCONNECT_FAILED);
         m_myStateManager->AddTransition(m_ExtProcessStartRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_TOO_MANY_RESTARTS);
+        m_myStateManager->AddTransition(m_ExtProcessStartRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_FATAL_ERROR_DEVICE);
         m_myStateManager->AddTransition(m_ExtProcessStartRetryState, m_WorkingState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_CONNECTED);
         m_myStateManager->AddTransition(m_ExtProcessStartRetryState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
         // add transitions from CommunicationRetry state to other states
         m_myStateManager->AddTransition(m_CommunicationRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_NULL_CTRL_POINTER);
         m_myStateManager->AddTransition(m_CommunicationRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_CANNOT_KILL_EXTPROCESS);
-        m_myStateManager->AddTransition(m_CommunicationRetryState, m_ExtProcessStartRetryState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_EXITED);
+        m_myStateManager->AddTransition(m_CommunicationRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_TOO_MANY_RESTARTS);
+        m_myStateManager->AddTransition(m_CommunicationRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_FATAL_ERROR_DEVICE);
+        m_myStateManager->AddTransition(m_CommunicationRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_CANNOT_START_EXTPROCESS);
+        m_myStateManager->AddTransition(m_CommunicationRetryState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_RESTART_FAILED);
         m_myStateManager->AddTransition(m_CommunicationRetryState, m_WorkingState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_CONNECTED);
         m_myStateManager->AddTransition(m_CommunicationRetryState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
-    } catch(const std::bad_alloc &) {
-        // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-        return false;
-    } catch(const Global::Exception &E) {
-        // send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    } catch(...) {
-        // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-        return false;
     }
+    CATCHALL_RETURN(false)
 
     return true;
 }
@@ -469,28 +522,17 @@ bool ExternalProcessController::InitializeSimplifiedStateMachine()
         m_myStateManager->AddTransition(m_WaitState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_CANNOT_START_DEVICE);
         m_myStateManager->AddTransition(m_WaitState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_LOGIN_TIMEOUT);
         m_myStateManager->AddTransition(m_WaitState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_TOO_MANY_RESTARTS);
+        m_myStateManager->AddTransition(m_WaitState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_FATAL_ERROR_DEVICE);
         m_myStateManager->AddTransition(m_WaitState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
         m_myStateManager->AddTransition(m_WaitState, m_WorkingState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_CONNECTED);
         // add transitions from Working state to other states
         m_myStateManager->AddTransition(m_WorkingState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_NULL_CTRL_POINTER);
+        m_myStateManager->AddTransition(m_WorkingState, m_FatalErrorState, (StateMachines::StateEventIndexType_t)EP_FATAL_ERROR_DEVICE);
         m_myStateManager->AddTransition(m_WorkingState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_POWERDOWN);
         m_myStateManager->AddTransition(m_WorkingState, m_FinalState, (StateMachines::StateEventIndexType_t)EP_ONSTOP_RECEIVED);
         m_myStateManager->AddTransition(m_WorkingState, m_WaitState, (StateMachines::StateEventIndexType_t)EP_EXTPROCESS_DISCONNECTED);
-    } catch(const std::bad_alloc &) {
-        // send some error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_MEMORY_ALLOCATION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-        return false;
-    } catch(const Global::Exception &E) {
-        // send error message
-        Global::EventObject::Instance().RaiseException(E);
-        return false;
-    } catch(...) {
-        // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
-        return false;
     }
+    CATCHALL_RETURN(false)
 
     return true;
 }
@@ -509,6 +551,10 @@ void ExternalProcessController::ExternalProcessConnected(const QString &str)
     CHECKPTR(m_myStateManager);
     if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_EXTPROCESS_CONNECTED))) {
         /// \todo do we handle error here?
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                   Global::tTranslatableStringList() << m_ProcessName
+                                                   << "EP_EXTPROCESS_CONNECTED"
+                                                    << FILE_LINE);
         return;
     }
 }
@@ -523,12 +569,7 @@ void ExternalProcessController::ExternalProcessConnected(const QString &str)
 void ExternalProcessController::ExternalProcessDisconnected(const QString &str)
 {
     qDebug() << "ExternalProcessController: peer disconnected with string: " + str;
-
-    CHECKPTR(m_myStateManager);
-    if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_EXTPROCESS_DISCONNECTED))) {
-        /// \todo do we handle error here?
-        return;
-    }
+    QTimer::singleShot(2000, this, SLOT(DisConnected()));
 }
 
 /****************************************************************************/
@@ -544,6 +585,10 @@ void ExternalProcessController::LoginTimeout()
     CHECKPTR(m_myStateManager);
     if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_EXTPROCESS_LOGIN_TIMEOUT))) {
         /// \todo do we handle error here?
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                   Global::tTranslatableStringList() << m_ProcessName
+                                                   << "EP_EXTPROCESS_LOGIN_TIMEOUT"
+                                                    << FILE_LINE);
         return;
     }
 }
@@ -570,22 +615,32 @@ void ExternalProcessController::OnGoReceived() {
     /// \todo implement
 
     CHECKPTR(m_myStateManager);
-    if (m_RemoteLoginEnabled == "No") {
+    if (m_RemoteLoginEnabled == "No" ) {
         if (m_InitialState == NULL) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                        << FILE_LINE);
             return;
         }
         if (!m_myStateManager->Start(m_InitialState->GetName(), Global::AsInt(EP_START_OPERATION))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_STATE_MACHINE,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                       << m_InitialState->GetName()
+                                                        << FILE_LINE);
         }
     }
     else {
         if (m_WaitState == NULL) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_NULL_POINTER,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                        << FILE_LINE);
             return;
         }
         if (!m_myStateManager->Start(m_WaitState->GetName(), Global::AsInt(EP_START_OPERATION))) {
-            /// \todo log error
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_STATE_MACHINE,
+                                                       Global::tTranslatableStringList() << m_ProcessName
+                                                       << m_InitialState->GetName()
+                                                        << FILE_LINE);
         }
     }
 }
@@ -605,11 +660,20 @@ void ExternalProcessController::OnStopReceived() {
 
     // stop state Engine:
     CHECKPTR(m_myStateManager);
+    // tell the process on stop received so we are closing the process
+    if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_ONSTOP_RECEIVED))) {
+        /// \todo do we handle error here?
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                   Global::tTranslatableStringList() << m_ProcessName
+                                                   << "EP_ONSTOP_RECEIVED"
+                                                    << FILE_LINE);
+        return;
+    }
     // kill external process:
     if (m_myProcess != NULL) {
         static_cast<void> (
         // cannot use return value here anyway
-                m_myProcess->KillProcess()
+                m_myProcess->TerminateProcess()
         );
     }
 
@@ -625,11 +689,12 @@ void ExternalProcessController::OnStopReceived() {
  *
  * See detailed description in the base class' header.
  *
- * \param[in]  TheEventEntry = event from one of local objects
+ * \param[in]  TheDayEventEntry = event from one of local objects
  * \return      true if event was processed.
  */
 /****************************************************************************/
-bool ExternalProcessController::LocalProcessErrorEvent(const DataLogging::DayEventEntry & /*TheEventEntry*/) {
+bool ExternalProcessController::LocalProcessErrorEvent(const DataLogging::DayEventEntry &TheDayEventEntry) {
+    Q_UNUSED(TheDayEventEntry)
     // no processing
     return false;
 }
@@ -647,13 +712,27 @@ bool ExternalProcessController::LocalProcessErrorEvent(const DataLogging::DayEve
 void ExternalProcessController::RegisterCreatorFunctor(const QString &ClassName, const CreatorFunctorShPtr_t &Functor) {
     // check if already registered
     if(m_CreatorFunctors.contains(ClassName)) {
-        LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_CREATOR_FUNCTOR_ALREADY_REGISTERED, ClassName);
+        LOGANDTHROWARGS(EVENT_EXTERNALPROCESSCONTROL_ERROR_CREATOR_FUNCTOR_ALREADY_REGISTERED, ClassName)
     }
     // everything OK
     static_cast<void>(
         // we DO NOT NEED the return value of insert
         m_CreatorFunctors.insert(ClassName, Functor)
-    );
+                );
+}
+
+void ExternalProcessController::OnFatalErrorInDevice()
+{
+    try {
+        CHECKPTR(m_myStateManager)
+        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_FATAL_ERROR_DEVICE))) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << "EP_FATAL_ERROR_DEVICE"
+                                                       << FILE_LINE);
+        }
+    }
+    CATCHALL()
 }
 
 /****************************************************************************/
@@ -705,7 +784,7 @@ void ExternalProcessController::CreateAndDeserialize(const QByteArray &Data) {
     CreatorFunctorShPtr_t Functor = GetCreatorFunctor(ClassName);
     if(Functor == NullCreatorFunctor) {
         // throw exception
-        LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_NO_CREATOR_FUNCTOR_REGISTERED, ClassName);
+        LOGANDTHROWARG(EVENT_EXTERNALPROCESSCONTROL_ERROR_NO_CREATOR_FUNCTOR_REGISTERED, ClassName)
     }
     // execute
     Functor.GetPointerToUserData()->CreateAndDeserialize(Ref, DS);
@@ -724,14 +803,128 @@ bool ExternalProcessController::ForwardMsgToRecepient(const QByteArray &bArr)
 {
     try {
         CreateAndDeserialize(bArr);
-    } catch(const Global::Exception &E) {
-        // send error message
-        Global::EventObject::Instance().RaiseException(E);
+    }
+    CATCHALL_RETURN(false);
+
+    // no exceptions --> return true
+    return true;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Does the following
+ *          -checks if we have crossed the retry limit for starting the
+ *           external process.
+ *          -Kills the existing process.
+ *          -Destroys the network device & restarts it.
+ *          -Initializes and starts the external process.
+ */
+/****************************************************************************/
+void ExternalProcessController::KillAndRestartProcess()
+{
+    if (!RetryPreconditionCheck()) {
+        return ;
+    }
+    m_RetryCount++;
+    if (!m_myProcess->KillProcess()) {
+        qDebug() << (QString)("ExtProcessRestartState: Cannot kill the GUI Process !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_KILL_PROCESS,
+                                                   Global::tTranslatableStringList() << GetProcessName()
+                                                   << FILE_LINE);
+        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_CANNOT_KILL_EXTPROCESS))) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << "EP_CANNOT_KILL_EXTPROCESS"
+                                                       << FILE_LINE);
+        }
+        return;
+    }
+    RestartProcess(true);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief    restart the process if retry condition check is success
+ *
+ *  \iparam   PreconditionChecked = true if success, else false
+ */
+ /****************************************************************************/
+void ExternalProcessController::RestartProcess(bool PreconditionChecked) {
+    if (!PreconditionChecked) {
+        if (!RetryPreconditionCheck()) {
+            return;
+        }
+        m_RetryCount++;
+    }
+    if (DoesExternalProcessUseNetCommunication()) {
+        m_myDevice->DestroyDevice();
+        if (!InitializeExternalProcessDevice((QString)"No", (int)0)) {
+            qDebug() << "Communication Device Initialization failed";
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_INIT_FAILED,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << FILE_LINE);
+            return;
+        }
+        if (!m_myDevice->StartDevice()) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_DEVICE_PROCESS,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << FILE_LINE);
+            qDebug() << "InitialState: Cannot start ExternalProcessDevice!";
+            if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_CANNOT_START_DEVICE))) {
+                Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                           Global::tTranslatableStringList() << GetProcessName()
+                                                           << "EP_CANNOT_START_DEVICE"
+                                                           << FILE_LINE);
+            }
+            return;
+        }
+    }
+
+    m_myProcess->Initialize();
+    if (!m_myProcess->StartProcess(m_myCommand)) {
+        qDebug() << (QString)("InitialState: Cannot start the External Process !");
+        Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_START_DEVICE_PROCESS,
+                                                   Global::tTranslatableStringList() << GetProcessName()
+                                                   << FILE_LINE);
+        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_CANNOT_START_EXTPROCESS))) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << "EP_CANNOT_START_EXTPROCESS"
+                                                       << FILE_LINE);
+        }
+        return;
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief    retry the condition check
+ *
+ *  \return    true if success, else false
+ */
+ /****************************************************************************/
+bool ExternalProcessController::RetryPreconditionCheck() {
+    if (m_myProcess == NULL || m_myDevice == NULL || m_myStateManager == NULL) {
+        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_NULL_CTRL_POINTER))) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << "EP_TOO_MANY_RESTARTS"
+                                                       << FILE_LINE);
+            return false;
+        }
         return false;
-    } catch(...) {
-        // Send error message
-        LOG_EVENT(Global::EVTTYPE_FATAL_ERROR, Global::LOG_ENABLED, EVENT_GLOBAL_ERROR_UNKNOWN_EXCEPTION, FILE_LINE_LIST
-                  , Global::NO_NUMERIC_DATA, false);
+    }
+
+    if (m_RetryCount >= MAX_RETRIES) {
+
+        if (!m_myStateManager->DispatchEvent(Global::AsInt(EP_TOO_MANY_RESTARTS))) {
+            Global::EventObject::Instance().RaiseEvent(EVENT_EPC_ERROR_DISPATCH_EVENT,
+                                                       Global::tTranslatableStringList() << GetProcessName()
+                                                       << "EP_TOO_MANY_RESTARTS"
+                                                       << FILE_LINE);
+            return false;
+
+        }
         return false;
     }
     // no exceptions --> return true

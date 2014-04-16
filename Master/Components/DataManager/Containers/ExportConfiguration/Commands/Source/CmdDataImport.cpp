@@ -1,12 +1,12 @@
 /****************************************************************************/
-/*! \file CmdDataImport.cpp
+/*! \file Platform/Master/Components/DataManager/Containers/ExportConfiguration/Commands/Source/CmdDataImport.cpp
  *
  *  \brief CmdDataImport command implementation.
  *         This command class is used for the data import
  *
  *   $Version: $ 0.1
  *   $Date:    $ 18.03.2010
- *   $Author:  $ Y.Novak
+ *   $Author:  $ Y.Novak, Ramya GJ
  *
  *  \b Company:
  *
@@ -32,13 +32,15 @@ QString CmdDataImport::NAME = "MsgClasses::CmdDataImport";
  *  \brief   Constructor
  *
  * \param[in]   Timeout     Timeout for command.
- * \param[in]   ImportType  Type of import which shall be performed.
+ * \param[in]   DataStream  Data stream to import.
  */
 /****************************************************************************/
 CmdDataImport::CmdDataImport(int Timeout, const QDataStream &DataStream) :
     Command(Timeout)
 {
     m_ImportByteArray = static_cast< QBuffer *>(DataStream.device())->data();
+    setBusyStateAllowed(false);
+    setErrorStateAllowed(false);
 }
 
 /****************************************************************************/

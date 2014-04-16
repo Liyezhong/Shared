@@ -8,5 +8,5 @@ TARGET = utTestEventFilter
 SOURCES += TestEventFilter.cpp
 
 
-UseLibs(DataLogging DataManagement Global)
+UseLibs(DataLogging EventHandler Global)
 

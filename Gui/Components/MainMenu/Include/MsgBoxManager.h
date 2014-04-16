@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file MsgBoxManager.h
  *
- *  \brief MsgBoxManager definition.
+ *  \brief Header file for class CMsgBoxManager.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2012-10-18
@@ -19,8 +19,11 @@
 /****************************************************************************/
 #ifndef MSGBOXMANAGER_H
 #define MSGBOXMANAGER_H
+// QT Headers
+#include <QDataStream>
+#include <QHash>
 #include <QTimer>
-
+#include <QDateTime>
 //Project headers
 #include <Global/Include/PriorityQueue.h>
 #include <Global/Include/GlobalDefines.h>
@@ -36,6 +39,12 @@ namespace MainMenu {
 
 
 namespace MainMenu {
+
+/****************************************************************************/
+/**
+ *  \brief Structure for Message box manager.
+ */
+/****************************************************************************/
 struct MsgData{
     bool EventStatus;  //!< True to close dialog
     Global::EventType EventType; //!< EventType
@@ -44,7 +53,8 @@ struct MsgData{
     quint64 ID; //!< Event ID
     QString MsgString;  //!< Event String
     bool StatusBarIcon; //!< True to store event and display when status bar icon is clicked
-    int AutoQuitMsgBoxTime; //!< unit: second
+    QString BtnEnableConditions; //!< button enable conditions: RT_LID_OPEN_CLOSE
+    QString AutoQuitMsgBoxTime; //< timeout for the message if no user responsing
 };
 
 /****************************************************************************/
@@ -55,23 +65,27 @@ struct MsgData{
 /****************************************************************************/
 class CMsgBoxManager : public QObject {
     Q_OBJECT
+    friend class  CTestMainMenu;
 public:
     CMsgBoxManager(QWidget *p_Parent, DataManager::CUserSettingsInterface *p_SettingsInterface);
     ~CMsgBoxManager();
     void Manage(QDataStream &DS, Global::tRefType Ref);
+	void SetMessageBoxType(MsgData MessageBoxData);
     //!< Data Structure containing Data Sent from EventReport
-
+    void EnableOKButton();
 private:
     //Data Members
     Global::PriorityQueue <quint64> m_PriorityQueue;  //!< Priority Queue consisting of EventID's
-    quint64 m_CurrentMsgBoxEventID; //!< If a Event Msg box is displayed , the EventID associated with it.
-    MainMenu::CMessageDlg *mp_MessageDlg; //!< The msg dialog
-    QWidget *mp_Parent;                   //!< Parent for Msg Dlg
+    qint64 m_CurrentMsgBoxEventID;                   //!< If a Event Msg box is displayed , the EventID associated with it.
+    MainMenu::CMessageDlg *mp_MessageDlg;             //!< The msg dialog
+    QWidget *mp_Parent;                               //!< Parent for Msg Dlg
     DataManager::CUserSettingsInterface *mp_SettingsInterface;  //!< UserSettings Interface
+
     //!< we use this hash since we store only event id in queue
     QHash <quint64, MsgData> m_EventIDMsgDataHash; //!< Hash used to get MsgData Struct .
-    MsgData m_CurrentMsgData; //!< Data Structure containing Data Sent from EventReport
-    MsgData m_DisplayedMsgData; //!< The data currently displayed in Mesg Box
+    MsgData m_CurrentMsgData;                      //!< Data Structure containing Data Sent from EventReport
+    MsgData m_DisplayedMsgData;                    //!< The data currently displayed in Mesg Box
+
     /*! Hash table for storing EventId  associated with Command reference.
      * This  will be used when we user clicks a button on the Mesg box, result of which
      * is to inform main about user action.We will send the CmdRef through Ack/Nack.This
@@ -80,6 +94,7 @@ private:
     QHash<quint64, Global::tRefType> m_EvenIDCmdRefHash; //!< Hash of EventID(Key) and CmdRef(value)
     QTimer m_PopupTimer;    //!< When this timer times out, MsgBox will be poped out if queue not empty.
     QTimer m_AutoQuitMsgBoxTimer;
+    bool m_bMsgWaiting;    //!<it has a "OK" button, but it is disabled.
     //----------------End of Members------------------------//
 
     //Methods
@@ -89,6 +104,13 @@ private:
     void RemoveMsgBoxFromQueue(Global::EventType EventType, quint64 ID);
     void RemoveDataFromContainers(Global::EventType EventType, quint64 ID);
     void AddMsgBoxToQueue(Global::tRefType Ref, MsgData &CurrentMsgData);
+
+    /****************************************************************************/
+    /*! \brief Sends the message data to Status bar manager.
+     *
+     *  \iparam EventMsgStruct = Event Message structure
+     */
+     /****************************************************************************/
     void SendMsgsToStatusBar(MsgData EventMsgStruct);
 
 
@@ -97,15 +119,21 @@ private slots:
     void ButtonCenterClicked();
     void ButtonRightClicked();
     void ShowMsgBoxIfQueueNotEmpty();
+	void LanguageChanged();
     void AutoQuitMessageBox();
 
 signals:
+    /****************************************************************************/
     /*! \brief This Signal is emitted when a button on the mesg
      *         box is clicked. The CmdRef is the one which was
      *         generated when CmdEventReport was sent to GUI
      *         for this particular MsgBox.
      *
+     *  \iparam ClickedButton = Clicked button type.
+     *  \iparam CmdRef = Command reference
+     *  \iparam EventKey = Event key
      */
+     /****************************************************************************/
     void EventReportAck(NetCommands::ClickedButton_t ClickedButton, Global::tRefType CmdRef, quint64 EventKey);
 };
 

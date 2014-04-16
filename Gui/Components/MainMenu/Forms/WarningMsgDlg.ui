@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>168</width>
-    <height>74</height>
+    <width>179</width>
+    <height>75</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,12 +22,12 @@
       </font>
      </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item row="1" column="0" colspan="3">
-    <widget class="MainMenu::CScrollTable" name="widget" native="true"/>
+    <widget class="MainMenu::CScrollTable" name="scrollTable" native="true"/>
    </item>
    <item row="2" column="0">
     <spacer name="horizontalSpacer">

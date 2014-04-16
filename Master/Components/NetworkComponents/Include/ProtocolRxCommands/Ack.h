@@ -43,6 +43,13 @@ class Ack : public ProtocolRxCommand {
 
 private:
 
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(Ack)
     DECLARE_REG_CLASS(ProtocolRxCommand, Ack);   ///< Declaration of static registration instance.
 
 public:

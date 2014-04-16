@@ -25,6 +25,8 @@
 #include <Global/Include/TranslatableString.h>
 #include <Global/Include/GlobalEventCodes.h>
 #include <Global/Include/Exception.h>
+#include <NetworkComponents/Include/NetworkComponentEventCodes.h>
+#include <Global/Include/EventObject.h>
 #include <Global/Include/Utils.h>
 
 namespace NetworkBase {
@@ -43,9 +45,7 @@ DEFINE_REG_CLASS(ProtocolTxCommand, DateAndTime);
 ProtocolTxCommand::ProtocolTxCommand() :
         ProtocolCommand::ProtocolCommand(),
         m_myRef(0),
-        m_myTimer(this),
         m_myAppRef(0)
-
 {
     m_myPayloadArray.clear();
 }
@@ -102,11 +102,12 @@ bool ProtocolTxCommand::Initialize(const QString &name, quint32 ref, QObject *wO
 
     try {
         CONNECTSIGNALSLOT(&m_myTimer, timeout(), this, HandleAckTimeout());
-    } catch (...) {
-        return false;
-    }
 
-    return true;
+        return true;
+    }
+    CATCHALL();
+
+    return false;
 }
 
 /****************************************************************************/

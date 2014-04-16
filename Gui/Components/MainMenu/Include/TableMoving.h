@@ -1,7 +1,7 @@
 /****************************************************************************/
 /*! \file TableMoving.h
  *
- *  \brief TableMoving definition.
+ *  \brief Header file for class CTableMoving.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-08-23
@@ -21,7 +21,7 @@
 #ifndef MAINMENU_TABLEMOVING_H
 #define MAINMENU_TABLEMOVING_H
 
-
+#include <QAbstractTableModel>
 #include <QGroupBox>
 
 namespace MainMenu {
@@ -38,13 +38,22 @@ namespace Ui {
 class CTableMoving : public QGroupBox
 {
     Q_OBJECT
+    friend class  CTestMainMenu;
 
 public:
     explicit CTableMoving(QWidget *p_Parent = 0);
     virtual ~CTableMoving();
+    void SetTitle(qint32 StringLength, QString TitleText);
 
 private:
     Ui::CTableMoving *mp_Ui;    //!< User interface
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(CTableMoving)
 
 protected:
     void changeEvent(QEvent *p_Event);

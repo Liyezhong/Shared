@@ -42,8 +42,13 @@ private:
     Global::GUIMessageType  m_Type;     ///< Type.
     QString                 m_Text;     ///< text
     /****************************************************************************/
-    AckOKNOK(const AckOKNOK &);                     ///< Not implemented.
-    const AckOKNOK & operator = (const AckOKNOK &); ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(AckOKNOK)
 protected:
 public:
     static QString NAME;            ///< Name of Acknowledge

@@ -39,7 +39,8 @@ CmdByteArray::CmdByteArray() :
 /*!
  *  \brief   Constructor
  *
- * \param[in]   Timeout     Timeout for command.
+ *  \param[in]  Timeout Timeout for command.
+ *  \param[in]  ba      Byte array transported by the command.
  *
  ****************************************************************************/
 CmdByteArray::CmdByteArray(int Timeout, const QByteArray &ba) :

@@ -23,64 +23,24 @@
 #include <QHash>
 #include <QStringList>
 #include <QProcess>
-#include <QDir>
+#include <QtGlobal>
 
 #include <errno.h>
-
+#include <iostream> // ofstream
+#include <fstream>  //redirecting output to /dev/tty
 namespace Global {
 
-/****************************************************************************/
-/**
- * \brief List of all supported languages.
- *
- * Since Qt does not have an "inverse" QLocale::languageToString method and
- * we need that to ensure human readable entries in some xml files, we have
- * to keep a list of supported languages by ourselves. Language names have to be stored
- * as lower case names! Also searching must ensure the language name is converted to
- * lower case name!
- */
-QHash<QString, QLocale::Language>   SupportedLanguages;     ///< All supported languages.
-
-/****************************************************************************/
-void InitSupportedLanguages() {
-    AddSupportedLanguage(QLocale::English);
-    AddSupportedLanguage(QLocale::German);
-    AddSupportedLanguage(QLocale::French);
-    AddSupportedLanguage(QLocale::Italian);
-    AddSupportedLanguage(QLocale::Spanish);
-    AddSupportedLanguage(QLocale::Portuguese);
-    AddSupportedLanguage(QLocale::Dutch);
-    AddSupportedLanguage(QLocale::Swedish);
-    AddSupportedLanguage(QLocale::Norwegian);
-    AddSupportedLanguage(QLocale::Danish);
-    AddSupportedLanguage(QLocale::Polish);
-    AddSupportedLanguage(QLocale::Czech);
-    AddSupportedLanguage(QLocale::Russian);
-    AddSupportedLanguage(QLocale::Chinese);
-    AddSupportedLanguage(QLocale::Japanese);
-}
-
-/****************************************************************************/
-void AddSupportedLanguage(QLocale::Language TheLanguage) {
-    // we DO NOT NEED the return value of insert
-    static_cast<void>(
-        SupportedLanguages.insert(LanguageToString(TheLanguage).toLower(), TheLanguage)
-    );
-}
 
 /****************************************************************************/
 QLocale::Language StringToLanguage(const QString &LanguageName) {
-    QHash<QString, QLocale::Language>::const_iterator it = SupportedLanguages.find(LanguageName.toLower());
-    if(it == SupportedLanguages.constEnd()) {
-        // language not supported
-        return QLocale::C;
-    }
-    return it.value();
+    // takes lowercase, two-letter, ISO 639 language code if it does not find then return QlOcale::c
+    return QLocale(LanguageName).language();
 }
 
 /****************************************************************************/
 QString LanguageToString(const QLocale::Language TheLanguage) {
-    return QLocale::languageToString(TheLanguage);
+    // returns lowercase, two-letter, ISO 639 language code for english it is en and for german de
+    return LanguageToLanguageCode(TheLanguage);
 }
 
 /****************************************************************************/
@@ -284,18 +244,20 @@ bool StringToTrueFalse(const QString &YesNoStateString, bool CaseSensitive) {
 /****************************************************************************/
 quint32 GetButtonCountFromButtonType(GuiButtonType ButtonType) {
     switch (ButtonType) {
-        case Global::OK:
-        case Global::RECOVERYNOW:
-            return 1;
-        case Global::OK_CANCEL:
-        case Global::YES_NO:
-        case Global::CONTINUE_STOP:
-        case Global::RECOVERYLATER_RECOVERYNOW:
-            return 2;
-        default:
-            return 1;
+    case Global::OK:
+        return 1;
+    case Global::OK_CANCEL:
+    case Global::YES_NO:
+    case Global::CONTINUE_STOP:
+        return 2;
+    case Global::WITHOUT_BUTTONS:
+        return 0;
+    case Global::INVISIBLE:
+        return 0;
+    default:
+        return 1;
     }
-    return 1;
+    //return 1;
 }
 
 /****************************************************************************/
@@ -310,22 +272,25 @@ Global::GuiButtonType StringToGuiButtonType(QString ButtonTypeString) {
     else if (ButtonTypeString == "CONTINUE+STOP") {
         return Global::CONTINUE_STOP;
     }
+    else if (ButtonTypeString == "INVISIBLE") {
+        return Global::INVISIBLE;
+    }
     else if (ButtonTypeString == "OK") {
         return Global::OK;
     }
-    else if (ButtonTypeString == "RECOVERYLATER+RECOVERYNOW") {
-        return Global::RECOVERYLATER_RECOVERYNOW;
+    else if (ButtonTypeString == "WB") {
+        return Global::WITHOUT_BUTTONS;
     }
-    else if (ButtonTypeString == "RECOVERYNOW") {
-        return Global::RECOVERYNOW;
-    }
-    return Global::NO_BUTTON;
+    return Global::NOT_SPECIFIED;
 }
 
 /****************************************************************************/
 bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
-    if (DateToBeCompared.year() >= CurrentDate.year())
+    if (DateToBeCompared.year() > CurrentDate.year())
     {
+        return true;
+    }
+    else if (DateToBeCompared.year() == CurrentDate.year()) {
         if (DateToBeCompared.month() > CurrentDate.month())
         {
             return true;
@@ -351,9 +316,9 @@ bool CompareDate(QDate CurrentDate, QDate DateToBeCompared) {
 
 /****************************************************************************/
 qint32 MountStorageDevice(QString Name) {
-    Q_UNUSED(Name);
-#if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM)
     // create the QProcess
+    Q_UNUSED(Name);
+#if defined(__arm__) //Target
     QProcess ProcToMountDevice;
     QStringList CmdLineOptions;
 
@@ -368,15 +333,12 @@ qint32 MountStorageDevice(QString Name) {
     if (ProcToMountDevice.waitForFinished()) {
         return ProcToMountDevice.exitCode();
     }
-#else
-    Q_UNUSED(Name)
-    QDir usb(Global::DIRECTORY_MNT_STORAGE);
-    if(!usb.exists()){
+    return 1;
+#endif
+    if(!QFile(DIRECTORY_MNT_STORAGE).exists()){
         return 1;
     }
     return 0;
-#endif
-    return 1;
 }
 
 /****************************************************************************/
@@ -384,6 +346,68 @@ void UnMountStorageDevice() {
     QProcess ProcToMountDevice;
     ProcToMountDevice.start(MNT_SCRIPT, QStringList() << "umount");
     (void)ProcToMountDevice.waitForFinished();
+}
+
+void DumpToConsole(const QString StringToDump) {
+#if defined(__arm__) //Target
+    (void)system("./clearframebuffer &");
+    (void)system("lcd on");
+    /* Why do we use "ofstream" instead of std::cout/printf ?
+     * unfortunately, when main software is started from init scripts, it doesnt get a controlling
+     * terminal, hence the printf/cout doesnt print it out on the LCD .
+     * so as a workaround , we dump strings to tty1 which is associated with LCD.
+     */
+    std::ofstream Tty("/dev/tty1");
+    Tty << StringToDump.toStdString();
+#else
+    Global::ToConsole(StringToDump);
+#endif
+}
+
+void SetThreadPriority(const ThreadPrio_t ThreadPriority)
+{
+    int ReturnVal;
+    // We'll operate on the currently running thread.
+    pthread_t this_thread = pthread_self();
+
+    // struct sched_param is used to store the scheduling priority
+    struct sched_param params;
+
+    if (ThreadPriority == LOW_PRIO) {
+        //For schedule idle, priority must be set to 0, else
+        //setting priority will fail.
+        params.__sched_priority = 0;
+
+        // Attempt to set thread priority to the SCHED_IDLE policy
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_IDLE | SCHED_RESET_ON_FORK, &params);
+    }
+    else if (ThreadPriority == HIGH_PRIO) {
+        // We'll set the priority to the maximum.
+        params.sched_priority = sched_get_priority_min(SCHED_RR);
+
+        // Attempt to set thread real-time priority to the SCHED_FIFO policy
+        //SCHED_RESET_ON_FORK -> Reset prio to SCHED_OTHER for child processes and threads.
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_RR | SCHED_RESET_ON_FORK, &params);
+    }
+    else if (ThreadPriority == BATCH_PRIO) {
+        params.sched_priority = 0;
+
+        // Attempt to set thread priority to the SCHED_BATCH policy
+        //SCHED_RESET_ON_FORK -> Reset prio to SCHED_OTHER for child processes and threads.
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_BATCH | SCHED_RESET_ON_FORK, &params);
+    }
+    else {
+        params.sched_priority = 0;
+
+        // Attempt to set thread priority to the SCHED_OTHER policy
+        //SCHED_RESET_ON_FORK -> Reset prio to SCHED_OTHER for child processes and threads.
+        ReturnVal = pthread_setschedparam(this_thread, SCHED_OTHER | SCHED_RESET_ON_FORK, &params);
+    }
+    if (ReturnVal != 0) {
+        // Print the error
+        std::cout << "Unsuccessful in setting thread realtime prio" << std::endl;
+    }
+
 }
 
 } // end namespace Global

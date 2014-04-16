@@ -5,7 +5,7 @@
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-07-20
- *   $Author:  $ M.Scherer
+ *   $Author:  $ M.Scherer,Shuvasmita.S
  *
  *  \b Company:
  *
@@ -26,7 +26,7 @@
 
 namespace Application {
 
-Application::ProjectId_t CLeicaStyle::m_ProjId = Application::HIMALAYA_PROJECT;
+Application::DeviceType_t CLeicaStyle::m_DeviceType = DEVICE_UNDEFINED;
 
 /****************************************************************************/
 /*!
@@ -57,19 +57,24 @@ void CLeicaStyle::polish(QPalette &Palette)
 int CLeicaStyle::pixelMetric(PixelMetric Which, const QStyleOption *p_Option, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case PM_TabBarTabHSpace:
-            return 10;
-        case PM_TabBarBaseOverlap:
-            return 0;
-        case PM_IndicatorHeight:
-        case PM_SliderLength:
+    case PM_TabBarTabHSpace:
+        return 10;
+    case PM_TabBarBaseOverlap:
+        return 0;
+    case PM_IndicatorHeight:
+    case PM_SliderLength:
+        if (GetCurrentDeviceType() == Application::DEVICE_HIMALAYA) {
             return 34;
-        case PM_ExclusiveIndicatorWidth:
-        case PM_ExclusiveIndicatorHeight:
-        case PM_IndicatorWidth:
-            return 37;
-        default:
-            return QWindowsStyle::pixelMetric(Which, p_Option, p_Widget);
+        }
+        else if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            return 50;
+        }
+    case PM_ExclusiveIndicatorWidth:
+    case PM_ExclusiveIndicatorHeight:
+    case PM_IndicatorWidth:
+        return 37;
+    default:
+        return QWindowsStyle::pixelMetric(Which, p_Option, p_Widget);
     }
 }
 
@@ -86,123 +91,123 @@ int CLeicaStyle::pixelMetric(PixelMetric Which, const QStyleOption *p_Option, co
 void CLeicaStyle::drawPrimitive(PrimitiveElement Which, const QStyleOption *p_Option, QPainter *p_Painter, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case PE_FrameTabWidget:
-        {
-            const QStyleOptionTabWidgetFrame *p_TabWidgetFrame = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(p_Option);
-            QRect Cornered(p_Option->rect);
-            QRect Rounded(p_Option->rect);
-            if (p_TabWidgetFrame->shape == QTabBar::RoundedNorth) {
-                Cornered.setHeight(p_Option->rect.height() - 20);
-                Rounded.setTop(p_Option->rect.bottom() - 40);
-            }
-            else {
-                Cornered.setWidth(p_Option->rect.width() - 20);
-                Rounded.setLeft(p_Option->rect.right() - 40);
-            }
-            p_Painter->setPen(QColor(183, 185, 188));
-            p_Painter->setBrush(QColor(183, 185, 188));
-            p_Painter->drawRect(Cornered);
-            p_Painter->setRenderHint(QPainter::Antialiasing);
-            p_Painter->drawRoundedRect(Rounded, 16.0, 16.0);
-            break;
+    case PE_FrameTabWidget:
+    {
+        const QStyleOptionTabWidgetFrame *p_TabWidgetFrame = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(p_Option);
+        QRect Cornered(p_Option->rect);
+        QRect Rounded(p_Option->rect);
+        if (p_TabWidgetFrame->shape == QTabBar::RoundedNorth) {
+            Cornered.setHeight(p_Option->rect.height() - 20);
+            Rounded.setTop(p_Option->rect.bottom() - 40);
         }
-        case PE_FrameGroupBox:
-        {
-            QRect Rect = p_Option->rect;
-            QPen Pen = p_Painter->pen();
-            p_Painter->setRenderHint(QPainter::Antialiasing);
-            Rect.setLeft(Rect.left() + 1);
-            Rect.setWidth(Rect.width() - 1);
-            Rect.setHeight(Rect.height() - 1);
-            Pen.setWidth(2);
-            p_Painter->setPen(Pen);
-            p_Painter->drawRoundedRect(Rect, 1, 1);
-            break;
+        else {
+            Cornered.setWidth(p_Option->rect.width() - 20);
+            Rounded.setLeft(p_Option->rect.right() - 40);
         }
-        case PE_IndicatorRadioButton:
-        {
-            if (p_Option->state & QStyle::State_Enabled) {
-                if (p_Option->state & QStyle::State_On) {
-                    if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedPressed.png").arg(GetProjectNameString())));
-                    }
-                    else {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Checked.png").arg(GetProjectNameString())));
-                    }
+        p_Painter->setPen(QColor(183, 185, 188));
+        p_Painter->setBrush(QColor(183, 185, 188));
+        p_Painter->drawRect(Cornered);
+        p_Painter->setRenderHint(QPainter::Antialiasing);
+        p_Painter->drawRoundedRect(Rounded, 16.0, 16.0);
+        break;
+    }
+    case PE_FrameGroupBox:
+    {
+        QRect Rect = p_Option->rect;
+        QPen Pen = p_Painter->pen();
+        p_Painter->setRenderHint(QPainter::Antialiasing);
+        Rect.setLeft(Rect.left() + 1);
+        Rect.setWidth(Rect.width() - 1);
+        Rect.setHeight(Rect.height() - 1);
+        Pen.setWidth(2);
+        p_Painter->setPen(Pen);
+        p_Painter->drawRoundedRect(Rect, 1, 1);
+        break;
+    }
+    case PE_IndicatorRadioButton:
+    {
+        if (p_Option->state & QStyle::State_Enabled) {
+            if (p_Option->state & QStyle::State_On) {
+                if (p_Option->state & QStyle::State_Sunken) {
+                    p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedPressed.png").arg(GetDeviceImagesPath())));
                 }
                 else {
-                    if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Pressed.png").arg(GetProjectNameString())));
-                    }
-                    else {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Enabled.png").arg(GetProjectNameString())));
-                    }
+                    p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Checked.png").arg(GetDeviceImagesPath())));
                 }
             }
             else {
-                if (p_Option->state & QStyle::State_On) {
-                    if (!(p_Option->state & QStyle::State_Sunken)) {
-                       p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedDisabled.png").arg(GetProjectNameString())));
-                    }
+                if (p_Option->state & QStyle::State_Sunken) {
+                    p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Pressed.png").arg(GetDeviceImagesPath())));
                 }
                 else {
-                    if (!(p_Option->state & QStyle::State_Sunken)) {
-                        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Disabled.png").arg(GetProjectNameString())));
-                    }
+                    p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Enabled.png").arg(GetDeviceImagesPath())));
                 }
             }
-            break;
         }
-        case PE_IndicatorCheckBox:
-        case PE_IndicatorItemViewItemCheck:
-        {
-            if (p_Option->state & QStyle::State_Enabled) {
-                if (p_Option->state & QStyle::State_On) {
-                    if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedPressed.png").arg(GetProjectNameString())));
-                    }
-                    else {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Checked.png").arg(GetProjectNameString())));
-                    }
-                }
-                else {
-                    if (p_Option->state & QStyle::State_Sunken) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Pressed.png").arg(GetProjectNameString())));
-                    }
-                    else {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Enabled.png").arg(GetProjectNameString())));
-                    }
+        else {
+            if (p_Option->state & QStyle::State_On) {
+                if (!(p_Option->state & QStyle::State_Sunken)) {
+                    p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-CheckedDisabled.png").arg(GetDeviceImagesPath())));
                 }
             }
             else {
-                if (p_Option->state & QStyle::State_On) {
-                    if (!(p_Option->state & QStyle::State_Sunken)) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedDisabled.png").arg(GetProjectNameString())));
-                    }
-                }
-                else {
-                    if (!(p_Option->state & QStyle::State_Sunken)) {
-                        p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Disabled.png").arg(GetProjectNameString())));
-                    }
+                if (!(p_Option->state & QStyle::State_Sunken)) {
+                    p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/RadioButton/RadioButton-Disabled.png").arg(GetDeviceImagesPath())));
                 }
             }
-            break;
         }
-        case PE_PanelLineEdit:
-        {
-            p_Painter->setPen(QColor(Qt::black));
-            //white frame of the lineEdit
-            if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(p_Option)) {
+        break;
+    }
+    case PE_IndicatorCheckBox:
+    case PE_IndicatorItemViewItemCheck:
+    {
+        if (p_Option->state & QStyle::State_Enabled) {
+            if (p_Option->state & QStyle::State_On) {
+                if (p_Option->state & QStyle::State_Sunken) {
+                    p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedPressed.png").arg(GetDeviceImagesPath())));
+                }
+                else {
+                    p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Checked.png").arg(GetDeviceImagesPath())));
+                }
+            }
+            else {
+                if (p_Option->state & QStyle::State_Sunken) {
+                    p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Pressed.png").arg(GetDeviceImagesPath())));
+                }
+                else {
+                    p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Enabled.png").arg(GetDeviceImagesPath())));
+                }
+            }
+        }
+        else {
+            if (p_Option->state & QStyle::State_On) {
+                if (!(p_Option->state & QStyle::State_Sunken)) {
+                    p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-CheckedDisabled.png").arg(GetDeviceImagesPath())));
+                }
+            }
+            else {
+                if (!(p_Option->state & QStyle::State_Sunken)) {
+                    p_Painter->drawPixmap(p_Option->rect.topLeft(), QPixmap(QString(":/%1/CheckBox/CheckBox-Disabled.png").arg(GetDeviceImagesPath())));
+                }
+            }
+        }
+        break;
+    }
+    case PE_PanelLineEdit:
+    {
+        p_Painter->setPen(QColor(Qt::black));
+        //white frame of the lineEdit
+        if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(p_Option)) {
 
-                p_Painter->fillRect(panel->rect.adjusted(panel->lineWidth, panel->lineWidth, -panel->lineWidth, -panel->lineWidth),panel->palette.brush(QPalette::Base));
-            }
-            //draw black rect frame
-            p_Painter->drawRect(0,0,p_Widget->width() - 1 , p_Widget->height() - 1);
-
-            break;
+            p_Painter->fillRect(panel->rect.adjusted(panel->lineWidth, panel->lineWidth, -panel->lineWidth, -panel->lineWidth),panel->palette.brush(QPalette::Base));
         }
-        default:
-            QWindowsStyle::drawPrimitive(Which, p_Option, p_Painter, p_Widget);
+        //draw black rect frame
+        p_Painter->drawRect(0,0,p_Widget->width() - 1 , p_Widget->height() - 1);
+
+        break;
+    }
+    default:
+        QWindowsStyle::drawPrimitive(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -220,164 +225,152 @@ void CLeicaStyle::drawPrimitive(PrimitiveElement Which, const QStyleOption *p_Op
 void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option, QPainter *p_Painter, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case CE_PushButtonBevel:
-        {
-            const QStyleOptionButton *p_Button = qstyleoption_cast<const QStyleOptionButton *>(p_Option);
+    case CE_PushButtonBevel:
+    {
+        const QStyleOptionButton *p_Button = qstyleoption_cast<const QStyleOptionButton *>(p_Option);
 
-            if (!(p_Button->features & QStyleOptionButton::Flat)) {
-                QPixmap Source;
-                if(p_Widget->minimumHeight() >= 62) {
-                    if (p_Option->state & QStyle::State_Enabled) {
-                        if (p_Option->state & QStyle::State_On) {
-                            if (p_Option->state & QStyle::State_Sunken) {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-SelectedPressed.png").arg(GetProjectNameString()));
-                            }
-                            else {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Selected.png").arg(GetProjectNameString()));
-                            }
+        if (!(p_Button->features & QStyleOptionButton::Flat)) {
+            QPixmap Source;
+            if(p_Widget->minimumHeight() >= 62) {
+                if (p_Option->state & QStyle::State_Enabled) {
+                    if (p_Option->state & QStyle::State_On) {
+                        if (p_Option->state & QStyle::State_Sunken) {
+                            Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-SelectedPressed.png").arg(GetDeviceImagesPath()));
                         }
                         else {
-                            if (p_Option->state & QStyle::State_Sunken) {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Pressed.png").arg(GetProjectNameString()));
-                            }
-                            else {
-                                Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Enabled.png").arg(GetProjectNameString()));
-                            }
+                            Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Selected.png").arg(GetDeviceImagesPath()));
                         }
                     }
                     else {
-                        Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Disabled.png").arg(GetProjectNameString()));
+                        if (p_Option->state & QStyle::State_Sunken) {
+                            Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Pressed.png").arg(GetDeviceImagesPath()));
+                        }
+                        else {
+                            Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Enabled.png").arg(GetDeviceImagesPath()));
+                        }
                     }
-                    p_Painter->drawPixmap(0, 0, Source);
                 }
                 else {
-                    QPixmap Target(p_Option->rect.size());
-                    Target.fill(Qt::transparent);
+                    Source = QPixmap(QString(":/%1/IconPushButton/IconPushButton-Disabled.png").arg(GetDeviceImagesPath()));
+                }
+                p_Painter->drawPixmap(0, 0, Source);
+            }
+            else {
+                QPixmap Target(p_Option->rect.size());
+                Target.fill(Qt::transparent);
 
-                    if (p_Option->state & QStyle::State_Enabled) {
-                        if (p_Option->state & QStyle::State_On) {
-                            if (p_Option->state & QStyle::State_Sunken) {
-                                Source = QPixmap(QString(":/%1/TextButton/TextButton-SelectedPressed.png").arg(GetProjectNameString()));
-                            }
-                            else {
-                                Source = QPixmap(QString(":/%1/TextButton/TextButton-Selected.png").arg(GetProjectNameString()));
-                            }
+                if (p_Option->state & QStyle::State_Enabled) {
+                    if (p_Option->state & QStyle::State_On) {
+                        if (p_Option->state & QStyle::State_Sunken) {
+                            qDebug()<<"Selected Pressed";
+                            Source = QPixmap(QString(":/%1/TextButton/TextButton-SelectedPressed.png").arg(GetDeviceImagesPath()));
                         }
                         else {
-                            Source = QPixmap(PushButtonPath(p_Widget->palette().color(QPalette::Button), p_Option->state));
+                            qDebug()<<"Selected";
+                            Source = QPixmap(QString(":/%1/TextButton/TextButton-Selected.png").arg(GetDeviceImagesPath()));
                         }
                     }
                     else {
-                        Source = QPixmap(QString(":/%1/TextButton/TextButton-Disabled.png").arg(GetProjectNameString()));
+                        if (GetDeviceImagesPath() == "Large") {
+                            Source = QPixmap(PushButtonPath(p_Widget->palette().color(QPalette::Button), p_Option->state));
+                        }
+                        else {
+                            if ((p_Option->state & QStyle::State_Sunken)) {
+                                Source = QPixmap(QString(":/%1/TextButton/TextButton-Pressed.png").arg(GetDeviceImagesPath()));
+                            }
+                            else {
+                                Source = QPixmap(QString(":/%1/TextButton/TextButton-Enabled.png").arg(GetDeviceImagesPath()));
+                            }
+                        }
                     }
-                    BorderPixmap(&Target, &Source, 18, 0, 18, 0);
-                    p_Painter->drawPixmap(0, 0, Target);
                 }
+                else {
+                    Source = QPixmap(QString(":/%1/TextButton/TextButton-Disabled.png").arg(GetDeviceImagesPath()));
+                }
+                BorderPixmap(&Target, &Source, 24, 0, 24, 0);
+               // BorderPixmap(&Target, &Source, 20, 0, 20, 0);
+                p_Painter->drawPixmap(0, 0, Target);
             }
-            break;
         }
-        case CE_TabBarTabLabel:
-        {
-            const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+        break;
+    }
+    case CE_TabBarTabLabel:
+    {
+        const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
 
-            if (p_Tab->shape == QTabBar::RoundedNorth) {
-                QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
-            }
-            else {
-                QTransform Transform = QTransform::fromTranslate(0, -12);
-                p_Painter->setTransform(Transform);
-                QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
-                Transform = QTransform::fromTranslate(0, 0);
-                p_Painter->setTransform(Transform);
-            }
-            break;
+        if (p_Tab->shape == QTabBar::RoundedNorth) {
+            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
         }
-        case CE_TabBarTabShape:
-        {
-            QPixmap Source;
-            QPixmap Target;
-            const QStyleOptionTab *pTab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+        else {
+            QTransform Transform = QTransform::fromTranslate(0, -12);
+            p_Painter->setTransform(Transform);
+            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+            Transform = QTransform::fromTranslate(0, 0);
+            p_Painter->setTransform(Transform);
+        }
+        break;
+    }
+    case CE_TabBarTabShape:
+    {
+        QPixmap Source;
+        QPixmap Target;
+        const QStyleOptionTab *pTab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
 
             if (p_Option->state & QStyle::State_Selected) {
-                Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Down.png").arg(GetProjectNameString()));
+                Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Down.png").arg(GetDeviceImagesPath()));
             }
             else {
                 if ((pTab->position == QStyleOptionTab::Beginning && pTab->shape == QTabBar::RoundedNorth)
                         || (pTab->position == QStyleOptionTab::End && pTab->shape == QTabBar::RoundedWest)) {
-                    switch(m_ProjId) {
-                        case Application::COLORADO_PROJECT:
-                        {
-                           Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn6-Up.png").arg(GetProjectNameString()));
-                        }
-                        break;
-                        case Application::SEPIA_PROJECT:
-                        {
-                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnLast-Up.png").arg(GetProjectNameString()));
-                        }
-                        break;
-                        case Application::HIMALAYA_PROJECT:
-                        {
-                            Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Bottom_Up.png").arg(GetProjectNameString()));
-                        }
-                        break;
-                        default:
-                        {
-                            Source = QPixmap(QString(""));
+                    if (GetCurrentDeviceType() == Application::DEVICE_COLORADO) {
+                        Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn6-Up.png").arg(GetDeviceImagesPath()));
                     }
+                    else if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+                        Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnLast-Up.png").arg(GetDeviceImagesPath()));
+                    }
+                    else if (GetCurrentDeviceType() == Application::DEVICE_HIMALAYA) {
+                                Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Bottom_Up.png").arg(GetDeviceImagesPath()));
                     }
                 }
                 else if ((pTab->position == QStyleOptionTab::End && pTab->shape == QTabBar::RoundedNorth)
                         || (pTab->position == QStyleOptionTab::Beginning && pTab->shape == QTabBar::RoundedWest)) {
 
-                    switch(m_ProjId) {
-                        case Application::COLORADO_PROJECT:
-                        {
-                           Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn1-Up.png").arg(GetProjectNameString()));
+                        if (GetCurrentDeviceType() == Application::DEVICE_COLORADO) {
+                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-Btn1-Up.png").arg(GetDeviceImagesPath()));
                         }
-                        break;
-                        case Application::SEPIA_PROJECT:
-                        {
-                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnFirst-Up.png").arg(GetProjectNameString()));
+                        else if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+                            Source = QPixmap(QString(":/%1/Tab_Control/Tab_Control-BtnFirst-Up.png").arg(GetDeviceImagesPath()));
                         }
-                        break;
-                        case Application::HIMALAYA_PROJECT:
-                        {
-                            Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Top_Up.png").arg(GetProjectNameString()));
-
+                        else if (GetCurrentDeviceType() == Application::DEVICE_HIMALAYA) {
+                            Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Top_Up.png").arg(GetDeviceImagesPath()));
                         }
-                        break;
-                        default:
-                        {
-                            Source = QPixmap(QString(""));
-                    }
-                    }
                 }
                 else {
-                    Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Up.png").arg(GetProjectNameString()));
+                      Source = QPixmap(QString(":/%1/TabControl/TabControl_Tab_Up.png").arg(GetDeviceImagesPath()));
                 }
             }
 
-            if (pTab->shape == QTabBar::RoundedNorth) {
-                Target = QPixmap(p_Option->rect.width() - 4, p_Option->rect.height());
-            }
-            else {
-                Target = QPixmap(p_Option->rect.width(), p_Option->rect.height() - 4);
-            }
-            Target.fill(Qt::transparent);
-
-            if (pTab->shape == QTabBar::RoundedNorth) {
-                QTransform Transform;
-                Transform.rotate(90.0);
-                Source = Source.transformed(Transform);
-                BorderPixmap(&Target, &Source, 18, 24, 18, 5);
-            }
-            else {
-                BorderPixmap(&Target, &Source, 24, 18, 5, 18);
-            }
-
-            p_Painter->drawPixmap(p_Option->rect.topLeft(), Target);
-            break;
+        if (pTab->shape == QTabBar::RoundedNorth) {
+            Target = QPixmap(p_Option->rect.width() - 4, p_Option->rect.height());
         }
+        else {
+            Target = QPixmap(p_Option->rect.width(), p_Option->rect.height() - 4);
+        }
+        Target.fill(Qt::transparent);
+
+        if (pTab->shape == QTabBar::RoundedNorth) {
+            QTransform Transform;
+            (void)Transform.rotate(90.0);
+            Source = Source.transformed(Transform);
+            BorderPixmap(&Target, &Source, 18, 24, 18, 5);
+        }
+        else {
+            BorderPixmap(&Target, &Source, 24, 18, 5, 18);
+        }
+
+        p_Painter->drawPixmap(p_Option->rect.topLeft(), Target);
+        break;
+    }
         // For now button fonts are not fat
         /*case CE_PushButtonLabel:
         {
@@ -387,29 +380,15 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
             QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
             break;
         }*/
-        case CE_HeaderSection:
-        {
-            p_Painter->setPen(QColor(177, 175, 181));
-            p_Painter->drawLine(p_Option->rect.topRight(), p_Option->rect.bottomRight());
-            p_Painter->drawLine(p_Option->rect.bottomLeft(), p_Option->rect.bottomRight());
-            break;
-        }
-        case CE_ComboBoxLabel:
-        {
-            QPixmap Source;
-
-            Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetProjectNameString()));
-            if (p_Option->state & QStyle::State_Enabled) {
-                Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Enable.png").arg(GetProjectNameString()));
-            } else if(p_Option->state & QStyle::State_Selected) {
-                Source = QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Pressed.png").arg(GetProjectNameString()));
-            }
-             p_Painter->drawPixmap(0, 0, Source);
-             break;
-
-        }
-        default:
-            QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
+    case CE_HeaderSection:
+    {
+        p_Painter->setPen(QColor(177, 175, 181));
+        p_Painter->drawLine(p_Option->rect.topRight(), p_Option->rect.bottomRight());
+        p_Painter->drawLine(p_Option->rect.bottomLeft(), p_Option->rect.bottomRight());
+        break;
+    }
+    default:
+        QWindowsStyle::drawControl(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -426,35 +405,23 @@ void CLeicaStyle::drawControl(ControlElement Which, const QStyleOption *p_Option
 void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionComplex *p_Option, QPainter *p_Painter, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case CC_Slider:
-        {
-            const QStyleOptionSlider *p_Slider = qstyleoption_cast<const QStyleOptionSlider *>(p_Option);
-            QRect Handle = proxy()->subControlRect(CC_Slider, p_Slider, SC_SliderHandle, p_Widget);
+    case CC_Slider:
+    {
+        const QStyleOptionSlider *p_Slider = qstyleoption_cast<const QStyleOptionSlider *>(p_Option);
+        QRect Handle = proxy()->subControlRect(CC_Slider, p_Slider, SC_SliderHandle, p_Widget);
 
-            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/SlideSwitch/SlideSwitch-BG.png").arg(GetProjectNameString())));
+        p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/SlideSwitch/SlideSwitch-BG.png").arg(GetDeviceImagesPath())));
 
-            if (p_Option->state & QStyle::State_Sunken) {
-                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Pressed.png").arg(GetProjectNameString())));
-            }
-            else {
-                p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Enabled.png").arg(GetProjectNameString())));
-            }
-            break;
+        if (p_Option->state & QStyle::State_Sunken) {
+            p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Pressed.png").arg(GetDeviceImagesPath())));
         }
-        case CC_ComboBox:
-        {
-            p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Disabled.png").arg(GetProjectNameString())));
-
-            if (p_Option->state & QStyle::State_Enabled) {
-                p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Enable.png").arg(GetProjectNameString())));
-            }
-            else {
-                p_Painter->drawPixmap(0, 0, QPixmap(QString(":/%1/ComboButton/ComboButton_Button_Pressed.png").arg(GetProjectNameString())));
-            }
-            break;
+        else {
+            p_Painter->drawPixmap(Handle.x(), 0, QPixmap(QString(":/%1/SlideSwitch/SliderButton-Enabled.png").arg(GetDeviceImagesPath())));
         }
-        default:
-            QWindowsStyle::drawComplexControl(Which, p_Option, p_Painter, p_Widget);
+        break;
+    }
+    default:
+        QWindowsStyle::drawComplexControl(Which, p_Option, p_Painter, p_Widget);
     }
 }
 
@@ -473,78 +440,70 @@ void CLeicaStyle::drawComplexControl(ComplexControl Which, const QStyleOptionCom
 QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Option, const QSize &ContentsSize, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case CT_HeaderSection:
-        {
-            QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
-            Size.setHeight(28);
-            return Size;
-        }
-        case CT_PushButton:
-        {
-            const QStyleOptionButton *p_Button = qstyleoption_cast<const QStyleOptionButton *>(p_Option);
-            if (!(p_Button->features & QStyleOptionButton::Flat)) {
-                if(p_Widget->minimumHeight() >= 62) {
-                    return QSize(71, 62);
+    case CT_HeaderSection:
+    {
+        QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+        Size.setHeight(28);
+        return Size;
+    }
+    case CT_PushButton:
+    {
+        const QStyleOptionButton *p_Button = qstyleoption_cast<const QStyleOptionButton *>(p_Option);
+        if (!(p_Button->features & QStyleOptionButton::Flat)) {
+            if(p_Widget->minimumHeight() >= 62) {
+                return QSize(71, 62);
+            }
+            else {
+                QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+                if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+                    //Small push button icon height
+                    // Size.setHeight(58);
+                    Size.setHeight(42);
+                }
+                else if ((GetCurrentDeviceType() == Application::DEVICE_COLORADO) || (GetCurrentDeviceType() == Application::DEVICE_HIMALAYA)){
+                    //Large push button icon height
+                    Size.setHeight(38);
                 }
                 else {
-                    QSize Size = QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
-                    Size.setHeight(38);
-                    Size.setWidth(Size.width() + 45);
-                    return Size;
+                    // to please lint
                 }
-            }
-            else {
-                return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+                Size.setWidth(Size.width() + 45);
+                return Size;
             }
         }
-        case CT_TabBarTab:
-        {
-            const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
-            switch(m_ProjId) {
-                case Application::COLORADO_PROJECT:
-                {
-            if (p_Tab->shape == QTabBar::RoundedNorth) {
-                return QSize(ContentsSize.width() + 18, 48);
-            }
-            else {
-                    return QSize(79, 92);
-                }
-
-                }
-                break;
-                case Application::SEPIA_PROJECT:
-                {
-                    if (p_Tab->shape == QTabBar::RoundedNorth) {
-                        return QSize(ContentsSize.width() + 18, 48);
-                    }
-                else{
-                    return QSize(92, 148);
-                }
-            }
-                break;
-                case Application::HIMALAYA_PROJECT:
-                {
-                    if (p_Tab->shape == QTabBar::RoundedNorth) {
-                        return QSize(ContentsSize.width() + 18, 48);
-                    }
-                    else {
-                        return QSize(79, 111);
-                    }
-                }
-                break;
-                default:
-                {
-                    return QSize(0,0); // Undefined Value
-
-                }
-            }    // end of inside switch
-        }
-        case CT_Slider:
-            return QSize(149, 37);
-        case CT_ComboBox:
-            return QSize(300, 53);
-        default:
+        else {
             return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
+        }
+    }
+    case CT_TabBarTab:
+    {
+        const QStyleOptionTab *p_Tab = qstyleoption_cast<const QStyleOptionTab *>(p_Option);
+        if (p_Tab->shape == QTabBar::RoundedNorth) {
+            return QSize(ContentsSize.width() + 18, 48);
+        }
+        else {
+            if (m_DeviceType == Application::DEVICE_COLORADO)
+                return QSize(79, 92);
+			else if (m_DeviceType == Application::DEVICE_HIMALAYA)
+			    return QSize(79, 111); 
+            else if (m_DeviceType == Application::DEVICE_SEPIA)
+                return QSize(92, 99);
+       }
+    }
+    case CT_Slider:
+        if (GetCurrentDeviceType() == Application::DEVICE_COLORADO || GetCurrentDeviceType() == Application::DEVICE_HIMALAYA) {
+            return QSize(149, 37);
+        }
+        else if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            return QSize(149, 48);
+        }
+
+    case CT_RadioButton:
+        if (GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+            return QSize(149, 45);
+        }
+    default:
+        return QWindowsStyle::sizeFromContents(Which, p_Option, ContentsSize, p_Widget);
     }
 }
 
@@ -563,10 +522,10 @@ QSize CLeicaStyle::sizeFromContents(ContentsType Which, const QStyleOption *p_Op
 int CLeicaStyle::styleHint(StyleHint Which, const QStyleOption *p_Option, const QWidget *p_Widget, QStyleHintReturn *p_ReturnData) const
 {
     switch (Which) {
-        case SH_EtchDisabledText:
-            return 0;
-        default:
-            return QWindowsStyle::styleHint(Which, p_Option, p_Widget, p_ReturnData);
+    case SH_EtchDisabledText:
+        return 0;
+    default:
+        return QWindowsStyle::styleHint(Which, p_Option, p_Widget, p_ReturnData);
     }
 }
 
@@ -584,36 +543,35 @@ int CLeicaStyle::styleHint(StyleHint Which, const QStyleOption *p_Option, const 
 QRect CLeicaStyle::subElementRect(SubElement Which, const QStyleOption *p_Option, const QWidget *p_Widget) const
 {
     switch (Which) {
-        case SE_RadioButtonIndicator:
-            return QRect(0, 0, 37, 37);
-        case SE_CheckBoxIndicator:
-        case SE_ItemViewItemCheckIndicator:
-            return QRect(p_Option->rect.left(), p_Option->rect.top(), 37, 34);
-        case SE_TabWidgetTabContents:
-        {
-            const QStyleOptionTabWidgetFrame *p_TabWidgetFrame = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(p_Option);
+    case SE_RadioButtonIndicator:
+         return QRect(0, 0, 37, 37);
+    case SE_CheckBoxIndicator:
+    case SE_ItemViewItemCheckIndicator:
+        return QRect(p_Option->rect.left(), p_Option->rect.top(), 37, 34);
+    case SE_TabWidgetTabContents:
+    {
+        const QStyleOptionTabWidgetFrame *p_TabWidgetFrame = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(p_Option);
 
-            QRect Rect;
-            if (p_TabWidgetFrame->shape == QTabBar::RoundedNorth) {
-                Rect.setLeft(p_Option->rect.left() + 6);
-                Rect.setTop(p_TabWidgetFrame->tabBarSize.height() + p_Option->rect.top() + 4);
-            }
-            else {
-                Rect.setLeft(p_TabWidgetFrame->tabBarSize.width() + p_Option->rect.left() + 6);
-                Rect.setTop(p_Option->rect.top() + 4);
-            }
-            Rect.setRight(p_Option->rect.right() - 4);
-            Rect.setBottom(p_Option->rect.bottom() - 1);
-            return Rect;
+        QRect Rect;
+        if (p_TabWidgetFrame->shape == QTabBar::RoundedNorth) {
+            Rect.setLeft(p_Option->rect.left() + 6);
+            Rect.setTop(p_TabWidgetFrame->tabBarSize.height() + p_Option->rect.top() + 4);
         }
-        case SE_CheckBoxFocusRect:
-        case SE_PushButtonFocusRect:
-        case SE_RadioButtonFocusRect:
-            return QRect(0, 0, 0, 0);
-        case SE_ComboBoxFocusRect:
-            return QRect(0,0, 300, 53);
-        default:
-            return QWindowsStyle::subElementRect(Which, p_Option, p_Widget);
+        else {
+            Rect.setLeft(p_TabWidgetFrame->tabBarSize.width() + p_Option->rect.left() + 6);
+            Rect.setTop(p_Option->rect.top() + 4);
+        }
+        Rect.setRight(p_Option->rect.right() - 4);
+        Rect.setBottom(p_Option->rect.bottom() - 1);
+        return Rect;
+    }
+    case SE_CheckBoxFocusRect:
+    case SE_PushButtonFocusRect:
+       // return QRect(0, 0, 0, 0);
+    case SE_RadioButtonFocusRect:
+        return QRect(0, 0, 0, 0);
+    default:
+        return QWindowsStyle::subElementRect(Which, p_Option, p_Widget);
     }
 }
 
@@ -683,12 +641,12 @@ void CLeicaStyle::BorderPixmap(QPixmap *p_Target, QPixmap *p_Source, qint32 Left
  *  \brief Returns the path to a colored button pixmap
  *
  *  \iparam Color = Button color as it is specified in the data manager
- *  \iparam State = State of the button (e.g. pressed or not)
+ *  \iparam ButtonState = State of the button (e.g. pressed or not)
  *
  *  \return Path to the image
  */
 /****************************************************************************/
-QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State State)
+QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State ButtonState)
 {
     QString ColorString;
 
@@ -721,68 +679,70 @@ QString CLeicaStyle::PushButtonPath(QColor Color, QStyle::State State)
     }
 
     if (ColorString.isNull()) {
-        if (State & QStyle::State_Sunken) {
-            return (QString(":/%1/TextButton/TextButton-Pressed.png").arg(GetProjectNameString()));
+        if (ButtonState & QStyle::State_Sunken) {
+            return (QString(":/%1/TextButton/TextButton-Pressed.png").arg(GetDeviceImagesPath()));
         }
         else {
-            return (QString(":/%1/TextButton/TextButton-Enabled.png").arg(GetProjectNameString()));
+            return (QString(":/%1/TextButton/TextButton-Enabled.png").arg(GetDeviceImagesPath()));
         }
     }
     else {
-        if (State & QStyle::State_Sunken) {
-            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-").arg(GetProjectNameString())) + ColorString + "-Pressed.png";
+        if (ButtonState & QStyle::State_Sunken) {
+            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-").arg(GetDeviceImagesPath())) + ColorString + "-Pressed.png";
         }
         else {
-            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-") .arg(GetProjectNameString()))+ ColorString + ".png";
+            return (QString(":/%1/TextButton/TextButtonsColored/ColorButton-") .arg(GetDeviceImagesPath()))+ ColorString + ".png";
         }
     }
 }
 
-
 /****************************************************************************/
 /*!
- *  \brief Sets the Project Id to be used
+ *  \brief Sets the device typ to be used.
  *
- *  \iparam eProj Enumeration Value to set the current project id.
+ *  \iparam DeviceType Enumeration Value to set the current device type.
  */
 /****************************************************************************/
-void CLeicaStyle::SetProjectId(Application::ProjectId_t eProj)
+void CLeicaStyle::SetCurrentDeviceType(Application::DeviceType_t DeviceType)
 {
-    m_ProjId = eProj;
+    m_DeviceType = DeviceType;
 }
 
 /****************************************************************************/
 /*!
- *  \brief Returns currently used project  id.
+ *  \brief Returns currently used device type
  *
- *  \return Application::ProjectId_t  Enumeration value of the current project id.
+ *  \return Application::DeviceType_t  Enumeration value of the current device type.
  */
 /****************************************************************************/
-Application::ProjectId_t CLeicaStyle::GetProjectId()
+Application::DeviceType_t CLeicaStyle::GetCurrentDeviceType()
 {
-    return m_ProjId;
-
+    return m_DeviceType;
 }
 
 /****************************************************************************/
 /*!
- *  \brief Returns a string containing name of the Project
+ *  \brief Returns a string containing the images of the current device type
  *
- *  \return QString - String associated with the name of the Project
+ *  \return QString - String associated with the image directory of the device.
  */
 /****************************************************************************/
-QString CLeicaStyle::GetProjectNameString()
+QString CLeicaStyle::GetDeviceImagesPath()
 {
-    switch(m_ProjId) {
-        case Application::COLORADO_PROJECT:
-            return "Large";
-        case Application::SEPIA_PROJECT:
-            return "Small";
-        case Application::HIMALAYA_PROJECT:
+    switch (m_DeviceType) {
+    case Application::DEVICE_UNDEFINED:
+        return "";
+        break;
+    case Application::DEVICE_COLORADO:
+        return "Large";
+        break;
+    case Application::DEVICE_SEPIA:
+        return "Small";
+        break;
+	case Application::DEVICE_HIMALAYA:
             return "HimalayaImages";
         default:
             return "";
     }
 }
-
 } // end namespace Application

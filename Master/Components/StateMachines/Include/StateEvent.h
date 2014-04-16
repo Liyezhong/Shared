@@ -54,8 +54,8 @@ public:
     /*!
     *  \brief     Constructor.
     *
-    *  \param[in] t = event index
-    *  \param[in] dp = pointer to data
+    *  \iparam t = event index
+    *  \iparam dp = pointer to data
     *
     ****************************************************************************/
     inline StateEvent(StateEventIndexType_t t, StateEventDataPointer_t dp) :
@@ -68,7 +68,7 @@ public:
     /*!
     *  \brief     Constructor.
     *
-    *  \param[in] t = event index
+    *  \iparam t = event index
     *
     ****************************************************************************/
     inline StateEvent(StateEventIndexType_t t) :
@@ -81,7 +81,7 @@ public:
     /*!
     *  \brief     Copy Constructor.
     *
-    *  \param[in] rOther = event object to copy
+    *  \iparam rOther = event object to copy
     *
     ****************************************************************************/
     inline StateEvent(const StateEvent & rOther) :
@@ -105,7 +105,7 @@ public:
     /**
      * \brief     Copy from other instance.
      *
-     * \param[in] rOther = Instance to copy from.
+     * \iparam rOther = Instance to copy from.
      */
     /****************************************************************************/
     inline void CopyFrom(const StateEvent &rOther) {
@@ -116,6 +116,7 @@ public:
     /****************************************************************************/
     /*!
     *  \brief    Set function for the index.
+    *  \iparam   t state event index
     *
     ****************************************************************************/
     inline void SetIndex(StateEventIndexType_t t)
@@ -139,7 +140,7 @@ public:
     /*!
     *  \brief     Set function for the data pointer.
     *
-    *  \param[in] dp = pointer to event's data
+    *  \iparam dp = pointer to event's data
     *
     ****************************************************************************/
     inline void SetData(StateEventDataPointer_t dp)

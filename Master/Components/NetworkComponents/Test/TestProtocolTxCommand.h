@@ -23,6 +23,7 @@
 
 #include <NetworkComponents/Include/ProtocolTxCommands/HeartBeat.h>
 #include <NetworkComponents/Include/ProtocolTxCommand.h>
+#include <NetworkComponents/Include/ProtocolTxCommands/DateAndTime.h>
 #include <NetworkComponents/Include/NetworkServerDevice.h>
 
 namespace NetworkBase {
@@ -82,6 +83,7 @@ private:
     TxCommand            *m_TxCommand;  ///< the class to test
     HeartBeat            *m_HeartBeat;  ///< helper command class
     NetworkServerDevice  *m_myDevice;   ///< helper network class
+    DateAndTime          *m_DateTime;   ///< helper command class
 };
 
 } // end namespace

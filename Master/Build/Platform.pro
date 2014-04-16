@@ -11,10 +11,11 @@ SUBDIRS = ../Components/DataLogging/Build/DataLogging.pro \
           ../Components/ImportExport/Build/ImportExport.pro \
           ../Components/NetworkComponents/Build/NetworkComponents.pro \
           ../Components/StateMachines/Build/StateMachines.pro \
-          ../Components/AxedaController/Build/AxedaController.pro \
+          ../Components/RemoteCareController/Build/RemoteCareController.pro \
           ../Components/Threads/Build/Threads.pro \
           ../Components/NetCommands/Build/NetCommands.pro \
           ../Components/PasswordManager/Build/PasswordManager.pro \
-          ../Components/SoftSwitchManager/Build/SoftSwitchManager.pro
+          ../Components/GPIOManager/Build/GPIOManager.pro \
+          ../Components/HeartBeatManager/Build/HeartBeatManager.pro \
 
 CONFIG += ordered

@@ -54,7 +54,7 @@ private:
     /****************************************************************************/
     void CopyFrom(const Command &rOther);
 
-    QBitArray m_stateGuard;
+    QBitArray m_stateGuard;     ///< state gaurd
 protected:
     /****************************************************************************/
     /**
@@ -65,7 +65,7 @@ protected:
     /****************************************************************************/
     inline void CopyToStream(QDataStream &Stream) const {
         // copy internal data without name
-        Stream << m_Timeout;
+        Stream << m_Timeout << m_stateGuard;
     }
     /****************************************************************************/
     /**
@@ -76,7 +76,7 @@ protected:
     /****************************************************************************/
     inline void CopyFromStream(QDataStream &Stream) {
         // copy internal data without name
-        Stream >> m_Timeout;
+        Stream >> m_Timeout >> m_stateGuard;
     }
 public:
     static const QString    SERIALIZERSTRING;   ///< String used to detect a command when serializing.
@@ -111,6 +111,8 @@ public:
      * \brief Assignment operator.
      *
      * \param[in]   rOther      Instance to copy from.
+     *
+     * \return  Instance of this command
      */
     /****************************************************************************/
     const Command & operator = (const Command &rOther);
@@ -133,16 +135,124 @@ public:
         return m_Timeout;
     }
 
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed in system error state
+     *
+     * \return  true if allowed or else false
+     */
+    /****************************************************************************/
     inline bool isErrorStateAllowed() { return m_stateGuard.at(3); }
+
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed in system busy state
+     *
+     * \return  true if allowed or else false
+     */
+    /****************************************************************************/
     inline bool isBusyStateAllowed() { return m_stateGuard.at(2); }
+
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed in system idle state
+     *
+     * \return  true if allowed or else false
+     */
+    /****************************************************************************/
     inline bool isIdleStateAllowed() { return m_stateGuard.at(1); }
 
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed in system user action state
+     *
+     * \return  true if allowed or else false
+     */
+    /****************************************************************************/
+    inline bool isUserActionAllowed() { return m_stateGuard.at(4); }
+
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed when soft switch is pressed
+     *
+     * \return  true if allowed or else false
+     */
+    /****************************************************************************/
+    inline bool isSoftSwitchStateAllowed() { return m_stateGuard.at(5); }
+
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed in system init failure state
+     *
+     * \return  true if allowed or else false
+     */
+    /****************************************************************************/
+    inline bool isInitFailedStateAllowed() { return m_stateGuard.at(6); }
+
+    /****************************************************************************/
+    /**
+     * \brief Set if this command is allowed in system error state
+     *
+     * \iparam  allowed = true if allowed or else false
+     */
+    /****************************************************************************/
     inline void setErrorStateAllowed(bool allowed) { m_stateGuard.setBit(3, allowed); }
+
+    /****************************************************************************/
+    /**
+     * \brief Set if this command is allowed in system busy state
+     *
+     * \iparam  allowed = true if allowed or else false
+     */
+    /****************************************************************************/
     inline void setBusyStateAllowed(bool allowed) { m_stateGuard.setBit(2, allowed); }
+
+    /****************************************************************************/
+    /**
+     * \brief Set if this command is allowed in system idle state
+     *
+     * \iparam  allowed = true if allowed or else false
+     */
+    /****************************************************************************/
     inline void setIdleStateAllowed(bool allowed) { m_stateGuard.setBit(1, allowed); }
 
-    bool isStateAllowed(QString state);
+    /****************************************************************************/
+    /**
+     * \brief Set if this command is allowed in system user action state
+     *
+     * \iparam  allowed = true if allowed or else false
+     */
+    /****************************************************************************/
+    inline void setUserActionStateAllowed(bool allowed) { m_stateGuard.setBit(4, allowed);}
 
+    /****************************************************************************/
+    /**
+     * \brief Set if this command is allowed in system soft switch pressed state
+     *
+     * \iparam  allowed = true if allowed or else false
+     */
+    /****************************************************************************/
+    inline void setSoftSwitchMonitorStateAllowed(bool allowed) { m_stateGuard.setBit(5, allowed);}
+
+    /****************************************************************************/
+    /**
+     * \brief Set if this command is allowed in system init failed state
+     *
+     * \iparam  allowed = true if allowed or else false
+     */
+    /****************************************************************************/
+    inline void setInitFailedStateAllowed(bool allowed) { m_stateGuard.setBit(6, allowed);}
+
+    /****************************************************************************/
+    /**
+     * \brief Get if this command is allowed in a given state
+     *
+     * \iparam  state = system state
+     *
+     * \return true if allowed or else false
+     */
+    /****************************************************************************/
+    bool isStateAllowed(QString state);
 }; // end class Command
 
 typedef Global::SharedPointer<Global::Command>  CommandShPtr_t;   ///< Typedef for shared pointer of command.

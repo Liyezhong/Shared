@@ -1,7 +1,11 @@
 /****************************************************************************/
 /*! \file PanelFrame.cpp
  *
- *  \brief PanelFrame implementation.
+ *  \brief Implementation of file for class CPanelFrame.
+ *
+ *  \b Description:
+ *          This class implements a base widget for displaying the Panel frames
+ *          for the different menus.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-05-17
@@ -37,13 +41,11 @@ CPanelFrame::CPanelFrame(QWidget *p_Parent) : QWidget(p_Parent), mp_FrameUi(new 
 {
     mp_FrameUi->setupUi(this);
     m_IsDialog = false;
-    Application::ProjectId_t eProjId = dynamic_cast<Application::CLeicaStyle *>(qApp->style())->GetProjectId();
 
-    if(eProjId == Application::SEPIA_PROJECT) {
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
         mp_FrameUi->verticalLayout->setContentsMargins(10, 10, 10, 10);
         mp_FrameUi->panelTitle->setMinimumHeight(36);
     }
-
     QPalette Palette = mp_FrameUi->panelTitle->palette();
     Palette.setBrush(QPalette::WindowText, QColor(Qt::white));
     mp_FrameUi->panelTitle->setPalette(Palette);
@@ -77,7 +79,9 @@ void CPanelFrame::changeEvent(QEvent *p_Event)
     QWidget::changeEvent(p_Event);
     switch (p_Event->type()) {
         case QEvent::LanguageChange:
-            mp_FrameUi->retranslateUi(this);
+        /// Don't call the mp_Ui->retranslateui function
+        /// because there are no translations are required
+            emit LanguageChanged();
             break;
         default:
             break;
@@ -93,7 +97,10 @@ void CPanelFrame::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 void CPanelFrame::SetPanelTitle(QString Title)
 {
-    mp_FrameUi->panelTitle->setText(tr("%1").arg(Title));
+    mp_FrameUi->panelTitle->setText(QString("%1").arg(Title));
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_FrameUi->panelTitle->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    }
     mp_FrameUi->panelTitleAdditional->hide();
     mp_FrameUi->horizontalSpacer->changeSize(0, 0);
     mp_FrameUi->horizontalSpacer->invalidate();
@@ -109,8 +116,8 @@ void CPanelFrame::SetPanelTitle(QString Title)
 /****************************************************************************/
 void CPanelFrame::SetPanelTitle(QString TitleLeft, QString TitleRight)
 {
-    mp_FrameUi->panelTitle->setText(tr("%1").arg(TitleLeft));
-    mp_FrameUi->panelTitleAdditional->setText(tr("%1").arg(TitleRight));
+    mp_FrameUi->panelTitle->setText(QString("%1").arg(TitleLeft));
+    mp_FrameUi->panelTitleAdditional->setText(QString("%1").arg(TitleRight));
     mp_FrameUi->panelTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     mp_FrameUi->panelTitleAdditional->setAlignment(Qt::AlignRight |Qt::AlignVCenter);
     mp_FrameUi->panelTitleAdditional->show();
@@ -166,36 +173,108 @@ void CPanelFrame::paintEvent(QPaintEvent *)
 
     Target.fill(Qt::transparent);
 
-    if (m_IsDialog == false) {
-        Source = QPixmap(QString(":/%1/Panel.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        if (m_IsDialog == false) {
+            Source = QPixmap(":/Small/Panel.png").copy(9, 10, 352, 568);
+        }
+        else {
+            Source = QPixmap(":/Small/Popup/Popup.png");
+        }
     }
     else {
-        Source = QPixmap(QString(":/%1/Popup/Popup.png").arg(Application::CLeicaStyle::GetProjectNameString()));
+        if (m_IsDialog == false) {
+            Source = QPixmap(QString(":/%1/Panel.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
+        }
+        else {
+            Source = QPixmap(QString(":/%1/Popup/Popup.png").arg(Application::CLeicaStyle::GetDeviceImagesPath()));
+        }
     }
 
-    switch(Application::CLeicaStyle::GetProjectId()) {
-        case Application::COLORADO_PROJECT:
-        {
-           Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
-        }
-        break;
-        case Application::SEPIA_PROJECT:
-        {
-            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 29, 46, 29, 29);
-        }
-        break;
-        case Application::HIMALAYA_PROJECT:
-        {
-            Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
-        }
-        break;
-        default:
-        {
-            // Do Nothing
-        }
-   }
+    if ((Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_COLORADO) ||
+	(Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_HIMALAYA)) {
+        Application::CLeicaStyle::BorderPixmap(&Target, &Source, 18, 32, 20, 21);
+    }
+    else {
+        Application::CLeicaStyle::BorderPixmap(&Target, &Source, 29, 46, 29, 29);
+    }
 
     Painter.drawPixmap(0, 0, Target);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the content margins of the panel
+ *
+ *  \iparam Left = Left margin of the panel
+ *  \iparam Top  = Top margin of the panel
+ *  \iparam Right = Right margin of the panel
+ *  \iparam Bottom = Bottom margin of the panel
+ *
+ */
+/****************************************************************************/
+void CPanelFrame::SetContentsMargins(int Left, int Top, int Right, int Bottom)
+{
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_FrameUi->verticalLayout->setContentsMargins(Left, Top, Right, Bottom);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the panel title's minimum height
+ *
+ *  \iparam MinimumHeight = MinimumHeight of panel
+ *
+ */
+/****************************************************************************/
+void CPanelFrame::SetPanelTitleMinimumHeight(int MinimumHeight)
+{
+    mp_FrameUi->panelTitle->setMinimumHeight(MinimumHeight);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the panel title's minimum height
+ *
+ *  \iparam MinimumHeight = MinimumHeight of panel
+ *
+ */
+/****************************************************************************/
+void CPanelFrame::SetTitleVerticalCenter()
+{
+    mp_FrameUi->panelTitle->setAlignment(Qt::AlignVCenter);
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Chop panel title's text as per the maximum title string length.
+ *
+ *  \iparam StringLength = Maximum string lenght of dialog title.
+ *  \iparam TitleText = String to be set
+ *
+ */
+/****************************************************************************/
+void CPanelFrame::SetMaxStringPanelTitle(qint32 StringLength, QString TitleText)
+{
+    if (TitleText.length() > StringLength) {
+        (void) TitleText.remove(StringLength, TitleText.length() - StringLength);
+    }
+    mp_FrameUi->panelTitle->setText(TitleText);
+    mp_FrameUi->panelTitleAdditional->hide();
+    mp_FrameUi->horizontalSpacer->changeSize(0, 0);
+    mp_FrameUi->horizontalSpacer->invalidate();
+}
+
+/****************************************************************************/
+/*!
+ *  \brief Sets the title pixmap of the panel
+ *
+ *  \iparam TitlePixmap = Title of the panel
+ */
+/****************************************************************************/
+void CPanelFrame::SetPanelTitlePixmap(QPixmap TitlePixmap)
+{
+    mp_FrameUi->panelTitle->setPixmap(TitlePixmap);
 }
 
 } // end namespace MainMenu

@@ -40,6 +40,7 @@ const QString NSS_TYPE_AXEDA      = "axeda";         ///< server for communicati
 const QString NSS_TYPE_GUI        = "gui";           ///< server for communication with normal GUI
 const QString NSS_TYPE_SERVICE    = "service";       ///< server for communication with service SW
 const QString NSS_TYPE_SEPIA      = "sepia";         ///< server for communication with sepia
+const QString NSS_TYPE_SEPIA_GUI      = "sepiagui";         ///< server for communication with sepia GUI
 const QString NSS_TYPE_EXPORT     = "export";        ///< server for communication with Export
 const QString NSS_TYPE_BLG        = "BLG";           ///< server for communication with BLG
 const QString NSS_TYPE_INVALID    = "invalid";       ///< wrong server type
@@ -56,6 +57,7 @@ typedef enum {
     NSE_TYPE_NORMAL_GUI,          ///< server for communication with normal device gui
     NSE_TYPE_SERVICE,             ///< server for communication with service (gui) client
     NSE_TYPE_SEPIA,               ///< server for communication with sepia client
+    NSE_TYPE_SEPIA_GUI,               ///< server for communication with sepia GUI
     NSE_TYPE_EXPORT,              ///< server for communication with Export component
     NSE_TYPE_BLG,                ///< server for communication with BLG component
     NSE_TYPE_INVALID              ///< wrong server type
@@ -192,8 +194,13 @@ private:
 private:
 
     NetworkServer();                                            ///< Not implemented.
-    NetworkServer(const NetworkServer &);                       ///< Not implemented.
-    const NetworkServer & operator = (const NetworkServer &);   ///< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(NetworkServer)
 
     /*! list of all currently active connection managers
         Format: <ConnectionNumber, PointerToCManager >  */

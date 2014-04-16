@@ -42,11 +42,11 @@ const QString NC_MSG_OFF_TAG  = "</message>";
      Do NOT change them unless you change the server network configuration XML file !!! */
 const QString ClientConfiguration[][4] = {
     {"Axeda Client", "1.0", "127.0.0.15", "8801"},         ///< client runs in Axeda Process
-    {"Himalaya Device GUI", "1.0", "127.0.0.16", "8801"},  ///< client runs in Himalaya Normal GUI
+    {"Himalaya Device GUI", "1.0", "127.0.0.16", "8801"},  ///< client runs in Colorado Normal GUI
     {"Sepia Device GUI", "1.0", "127.0.0.17", "8801"},     ///< client runs in Sepia Normal GUI
-    {"Himalaya Serice SW", "1.0", "127.0.0.18", "8801"},   ///< client runs in Himalaya Service GUI
+    {"Himalaya Serice SW", "1.0", "127.0.0.18", "8801"},   ///< client runs in Colorado Service GUI
     {"Sepia Serice SW", "1.0", "127.0.0.19", "8801"},      ///< client runs in Sepia Service GUI
-    {"Sepia Client", "1.0", "127.0.0.20", "8801"},         ///< client runs in Sepia (Himalaya is Master in WSMode)
+    {"Sepia Client", "1.0", "127.0.0.20", "8801"},         ///< client runs in Sepia (Colorado is Master in WSMode)
     {"Export", "1.0", "127.0.0.21", "8801"},                ///< client runs in Export process
     {"BLG", "1.0", "127.0.0.22", "8801"}                ///< client runs in BLG process
 };
@@ -68,7 +68,7 @@ typedef enum {
     NCE_TYPE_SEPIA_GUI,              ///< client for communication with sepia gui server
     NCE_TYPE_HIMALAYA_SERVICE,       ///< client for communication with himalaya service server
     NCE_TYPE_SEPIA_SERVICE,          ///< client for communication with sepia service server
-    NCE_TYPE_SEPIA,                  ///< client for communication with himalaya device
+    NCE_TYPE_SEPIA,                  ///< client for communication with colorado device
     NCE_TYPE_INVALID                 ///< wrong client type
 } NetworkClientType_t;
 
@@ -158,6 +158,14 @@ signals:
      *
      ****************************************************************************/
     void ForwardToMessageHandler(quint8 type, QByteArray &msg);
+    /****************************************************************************/
+    /*!
+     *  \brief    This signal is emitted to start timer , when working
+     *            connection with Server fails
+     *
+     *
+     ****************************************************************************/
+     void StartConnectionLostTimer();
 
 public slots:
 
@@ -166,9 +174,17 @@ public slots:
     void HandleAuthTimeout();
     void SendMessage(quint8, const QByteArray &ba);
     void ConnectToServer();
+    void DisconnectConnection();
 
 private:
 
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(NetworkClient)
    void AckConnection();
    void HandleInitAction(const QByteArray &msg);
    void HandleAuthAction(const QByteArray &msg);
@@ -197,6 +213,8 @@ private:
     QTimer m_timer;
     /*! Block size of incomming mesg */
     qint32 m_BlockSize;
+    /*!  Internal timer for Connection establishment*/
+    QTimer *mp_Connectiontimer;
 };
 
 } // end namespace NetworkBase

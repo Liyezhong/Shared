@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Xml">
+        <file>RCConfiguration.xml</file>
+    </qresource>
+</RCC>

@@ -2,7 +2,8 @@
 TARGET = utKeyBoard
 SOURCES += TestKeyBoard.cpp
 
-INCLUDEPATH += ../../
+INCLUDEPATH += ../../ \
+            ../../../../../Platform/Master/Components \
 
 DEPENDPATH += ../../
 

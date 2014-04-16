@@ -25,9 +25,8 @@
 #include <Global/Include/Commands/AckOKNOK.h>
 
 //Adaption to device processing
-#include "DeviceControl/Include/Global/DeviceControl.h"
 //#include "DeviceControl/Include/Interface/IDeviceProcessing.h"
-
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 //#include "HimalayaDataContainer/Include/DataManager.h"
 
 #include <QMutex>
@@ -185,7 +184,7 @@ protected:
     typedef struct {
         CommandRefState_t               m_State;         ///< command state
         Global::tRefType                m_RefType;       ///< RefType from command
-        DeviceControl::DevInstanceID_t  m_DevInstanceID; ///< Device instance identification
+        quint32                         m_DevInstanceID; ///< Device instance identification
         QString                         m_CommandName;   ///< command name
     } CommandRef_t;
 
@@ -197,11 +196,11 @@ protected:
 
     bool GetFreeCommandCtrlContainer(quint8& CmdIdx);
     bool GetCommandCtrlContainer(quint8& CmdIdx,
-                                 DeviceControl::DevInstanceID_t InstanceID,
+                                 quint32 InstanceID,
                                  QStringList& CommandNameList);
 
 private:
-    ReturnCode_t ReqRFIDData(LoaderRFIDChannel_t RfidChannel);
+    //ReturnCode_t ReqRFIDData(LoaderRFIDChannel_t RfidChannel);
 
 
 

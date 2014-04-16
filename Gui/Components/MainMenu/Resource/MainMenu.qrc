@@ -135,6 +135,44 @@
         <file>Small/Icons/Main_Tabs/Monitor.png</file>
         <file>Small/Icons/Main_Tabs/Setup.png</file>
         <file>Small/Icons/Main_Tabs/User.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/153_MB_help.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png</file>
+        <file>Large/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png</file>
+        <file>Large/Icons/MISC/WaterTab_15.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Service.png</file>
+        <file>Large/Icons/User_Status/User_Manufaturing.png</file>
+        <file>Small/Icons/Main_Tabs/Modul_Status.png</file>
+        <file>Small/Icons/Main_Tabs/Parameter_Sets.png</file>
+        <file>Small/Icons/Main_Tabs/Unloader.png</file>
+        <file>Small/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Small/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Small/Icons/User_Status_PushButton/Icon_User_Service.png</file>
+        <file>Small/Icons/Configuration/Configuration_Alarm_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_CountrySpecific_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_DataManagement_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_DateTime_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Coverslip_Correction.png</file>
+        <file>Small/Icons/Configuration/Configuration_Coverslip_Correction_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Log.png</file>
+        <file>Small/Icons/Configuration/Configuration_Log_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Service_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Network.png</file>
+        <file>Small/Icons/Configuration/Configuration_Network_act.png</file>
+        <file>Small/Icons/Configuration/Configuration_Language_act.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_down_end_active.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_down_end_passive.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_up_end_active.png</file>
+        <file>Small/Icons/Scroll_Indicator/Scroll_up_end_passive.png</file>
+        <file>Small/Icons/Status_Bar/Error_small.png</file>
+        <file>Small/Icons/Status_Bar/RemoteCare_small.png</file>
+        <file>Small/Icons/Status_Bar/Status_small.png</file>
+        <file>Small/Icons/Status_Bar/Warning_small.png</file>
+        <file>Small/LAS-MessageBox-Icons/Icons_50x50/151_MB_error.png</file>
+        <file>Small/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png</file>
+        <file>Small/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png</file>
         <file>HimalayaImages/Panel.png</file>
         <file>HimalayaImages/Digits/Digit_AM.png</file>
         <file>HimalayaImages/Digits/Digit_Background.png</file>
@@ -158,8 +196,6 @@
         <file>HimalayaImages/Grid/Seperator-Selected.png</file>
         <file>HimalayaImages/Grid/Seperator_Vertical-Enabled.png</file>
         <file>HimalayaImages/Grid/Seperator_Vertical-Selected.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Agitation.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Agitation_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Alarm.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Alarm_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_CountrySpecific.png</file>
@@ -174,12 +210,8 @@
         <file>HimalayaImages/Icons/Configuration/Configuration_Log_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Network.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Network_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Oven.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Oven_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Service.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Service_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Water.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Water_act.png</file>
         <file>HimalayaImages/Icons/GridButton-Riffle/Riffle-Disabled.png</file>
         <file>HimalayaImages/Icons/GridButton-Riffle/Riffle-Enabled.png</file>
         <file>HimalayaImages/Icons/GridButton-Riffle/Riffle-Selected.png</file>
@@ -216,7 +248,6 @@
         <file>HimalayaImages/Icons/Status_Bar/RemoteCare_small.png</file>
         <file>HimalayaImages/Icons/Status_Bar/Status_small.png</file>
         <file>HimalayaImages/Icons/Status_Bar/Warning_small.png</file>
-        <file>HimalayaImages/Icons/User_Status/User_Admin.png</file>
         <file>HimalayaImages/Icons/User_Status/User_Operator.png</file>
         <file>HimalayaImages/Icons/User_Status/User_Service.png</file>
         <file>HimalayaImages/Icons/User_Status_TextButton/Btn_User_Admin.png</file>
@@ -239,9 +270,6 @@
         <file>HimalayaImages/Popup/Popup-Rack-white.png</file>
         <file>HimalayaImages/Popup/Popup-Rack-yellow.png</file>
         <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Background.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Background_Grayed.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Cover.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Cover_Grayed.png</file>
         <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Large.png</file>
         <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Large_Grayed.png</file>
         <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Small.png</file>
@@ -267,8 +295,6 @@
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow2.png</file>
         <file>HimalayaImages/Icons/Dashboard/Pipe/flow3.png</file>
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLine.png</file>
-        <file>HimalayaImages/Digits/Snow.png</file>
-        <file>HimalayaImages/Digits/SnowBig.png</file>
         <file>HimalayaImages/Icons/Program/Icon1.png</file>
         <file>HimalayaImages/Icons/Program/Icon2.png</file>
         <file>HimalayaImages/Icons/Program/Icon3.png</file>
@@ -298,5 +324,16 @@
         <file>HimalayaImages/Icons/Configuration/Configuration_Status_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Status.png</file>
         <file>HimalayaImages/Icons/MISC/Start_Background.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Admin.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Operator.png</file>
+        <file>Large/Icons/User_Status_PushButton/Icon_User_Service.png</file>
+        <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Handle.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Installation_act.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_Installation.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_SystemSetup_act.png</file>
+        <file>HimalayaImages/Icons/Configuration/Configuration_SystemSetup.png</file>
+        <file>HimalayaImages/Digits/AmbientTemperature.png</file>
+        <file>HimalayaImages/Digits/AmbientTemperatureBig.png</file>
+        <file>HimalayaImages/Icons/User_Status/User_Admin.png</file>
     </qresource>
 </RCC>

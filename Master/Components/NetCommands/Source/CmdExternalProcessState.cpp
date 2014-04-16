@@ -25,11 +25,11 @@ namespace NetCommands {
 QString CmdExternalProcessState::NAME           = "NetCommands::CmdExternalProcessState";
 
 /****************************************************************************/
-CmdExternalProcessState::CmdExternalProcessState(int TimeOut, ProcessType_t ProcessType, bool Connected) :
+CmdExternalProcessState::CmdExternalProcessState(int TimeOut, ProcessType_t ProcessType, bool Connected, bool StoppedForEver) :
     Global::Command(TimeOut),
     m_ProcessType(ProcessType),
-    m_Connected(Connected)
-
+    m_Connected(Connected),
+    m_StoppedForEver(StoppedForEver)
 {
 }
 

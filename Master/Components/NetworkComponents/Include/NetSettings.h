@@ -113,6 +113,14 @@ private:
     QString m_authConf;
     /*!  authentication reply XML Element */
     QDomElement m_authReply;
+
+    /****************************************************************************/
+    /*!
+     *  \brief Disable copy and assignment operator.
+     *
+     */
+    /****************************************************************************/
+    Q_DISABLE_COPY(NetSettings)
 };
 
 } // end namespace NetworkBase

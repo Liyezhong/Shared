@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Aes.c
+/*! \file Aes.cpp
  *
  *  \brief AES implementation for CTR mode
  *

@@ -1,7 +1,10 @@
 /****************************************************************************/
 /*! \file DateTime.cpp
  *
- *  \brief DateTime implementation.
+ *  \brief Implementation of file for class CDateTime.
+ *
+ *  \b Description:
+ *          This class implements a base widget to display Data/Time menu.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2011-06-21
@@ -63,25 +66,37 @@ CDateTime::CDateTime(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CDate
     for (int i = 0; i < 60; i++) {
         mp_MinWheel->AddItem(QString("%1").arg(i, 2, 10, QChar('0')), i);
     }
-
     mp_Ui->scrollPanelDate->Init(3);
-    mp_Ui->scrollPanelDate->SetTitle(tr("Date"));
+    mp_Ui->scrollPanelDate->SetTitle(QApplication::translate("MainMenu::CDateTime", "Date", 0, QApplication::UnicodeUTF8));
     mp_Ui->scrollPanelDate->AddScrollWheel(mp_DayWheel, 0);
-    mp_Ui->scrollPanelDate->SetSubtitle(tr("Day"), 0);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Day", 0, QApplication::UnicodeUTF8), 0);
     mp_Ui->scrollPanelDate->AddSeparator(MainMenu::CWheelPanel::FULLSTOP, 0);
     mp_Ui->scrollPanelDate->AddScrollWheel(mp_MonthWheel, 1);
-    mp_Ui->scrollPanelDate->SetSubtitle(tr("Month"), 1);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Month", 0, QApplication::UnicodeUTF8), 1);
     mp_Ui->scrollPanelDate->AddSeparator(MainMenu::CWheelPanel::FULLSTOP, 1);
     mp_Ui->scrollPanelDate->AddScrollWheel(mp_YearWheel, 2);
-    mp_Ui->scrollPanelDate->SetSubtitle(tr("Year"), 2);
+    mp_Ui->scrollPanelDate->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Year", 0, QApplication::UnicodeUTF8), 2);
 
     mp_Ui->scrollPanelTime->Init(2);
-    mp_Ui->scrollPanelTime->SetTitle(tr("Time"));
+    mp_Ui->scrollPanelTime->SetTitle(QApplication::translate("MainMenu::CDateTime", "Time", 0, QApplication::UnicodeUTF8));
     mp_Ui->scrollPanelTime->AddScrollWheel(mp_HourWheel, 0);
-    mp_Ui->scrollPanelTime->SetSubtitle(tr("Hour"), 0);
+    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Hour", 0, QApplication::UnicodeUTF8), 0);
     mp_Ui->scrollPanelTime->AddSeparator(MainMenu::CWheelPanel::COLON, 0);
     mp_Ui->scrollPanelTime->AddScrollWheel(mp_MinWheel, 1);
-    mp_Ui->scrollPanelTime->SetSubtitle(tr("Minute"), 1);
+    mp_Ui->scrollPanelTime->SetSubtitle(QApplication::translate("MainMenu::CDateTime", "Minute", 0, QApplication::UnicodeUTF8), 1);
+
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        mp_DayWheel->InitScrollWheel("Large");
+        mp_MonthWheel->InitScrollWheel("Large");
+        mp_MonthWheel->InitScrollWheel("Large");
+        mp_YearWheel->InitScrollWheel("Large");
+        mp_HourWheel->InitScrollWheel("Large");
+        mp_MinWheel->InitScrollWheel("Large");
+        mp_Ui->scrollPanelDate->SetLayoutContentsMargin(15, 20, 13, 25);
+        mp_Ui->scrollPanelDate->SetVerticalSpacing(5);        
+        mp_Ui->scrollPanelTime->SetLayoutContentsMargin(15, 20, 13, 25);
+        mp_Ui->scrollPanelTime->SetVerticalSpacing(5);
+    }
 
     if (!connect(mp_Ui->pushButton, SIGNAL(clicked()), this, SLOT(CollectData()))) {
         qDebug() << "CDateTime: cannot connect 'clicked' signal";
@@ -134,7 +149,7 @@ void CDateTime::changeEvent(QEvent *p_Event)
  *  \return Date and time displayed in the widget
  */
 /****************************************************************************/
-QDateTime &CDateTime::GetDateTime()
+QDateTime CDateTime::GetDateTime()
 {
     CollectData(false);
     return m_DateTime;
@@ -160,8 +175,8 @@ void CDateTime::RefreshDateTime(Global::TimeFormat TimeFormat)
         }
         else {
             QPixmap Pixmap = (i < 12) ? 
-                            QPixmap(QString(":/%1/Digits/Digit_AM.png").arg(Application::CLeicaStyle::GetProjectNameString())) :
-                            QPixmap(QString(":/%1/Digits/Digit_PM.png").arg(Application::CLeicaStyle::GetProjectNameString())) ;
+                            QPixmap(QString(":/%1/Digits/Digit_AM.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())) :
+                            QPixmap(QString(":/%1/Digits/Digit_PM.png").arg(Application::CLeicaStyle::GetDeviceImagesPath())) ;
             qint32 Hour = (i % 12 == 0) ? 12 : i % 12;
             mp_HourWheel->AddItem(QString("%1").arg(Hour, 2, 10, QChar('0')), i, Pixmap);
         }
@@ -178,10 +193,12 @@ void CDateTime::RefreshDateTime(Global::TimeFormat TimeFormat)
 /****************************************************************************/
 /*!
  *  \brief Reads data from the scroll wheels
+ *
+ *  \iparam Send = True if data has to be save else False.
  */
 /****************************************************************************/
 void CDateTime::CollectData(bool Send)
-{
+{    
     // make it UTC
     m_DateTime.setTimeSpec(Qt::UTC);
 
@@ -190,6 +207,8 @@ void CDateTime::CollectData(bool Send)
     m_DateTime.setTime(QTime(mp_HourWheel->GetCurrentData().toInt(), mp_MinWheel->GetCurrentData().toInt()));
 
     if (Send == true) {
+        emit ShowWaitDialog(QApplication::translate("MainMenu::CDateTime", "Saving settings ...",
+                                                 0, QApplication::UnicodeUTF8));
         emit ApplyData(m_DateTime);
     }
 }
@@ -239,22 +258,18 @@ void CDateTime::ResetButtons()
     }
 }
 
-void CDateTime::DisableApplyButton()
-{
-    mp_Ui->pushButton->setVisible(false);
-    mp_Ui->pushButton->setEnabled(false);
-}
-
 /****************************************************************************/
 /*!
  *  \brief Used to set pointer to mainwindow, used to retreive user role and
  *         process state changed.
+ *
+ *  \iparam p_MainWindow = MainWindow pointer.
  */
 /****************************************************************************/
 void CDateTime::SetPtrToMainWindow(MainMenu::CMainWindow *p_MainWindow)
 {
     mp_MainWindow = p_MainWindow;
-    CONNECTSIGNALSLOT(mp_MainWindow, ProcessStateChanged(), this, OnProcessStateChanged());
+    CONNECTSIGNALSLOTGUI(mp_MainWindow, ProcessStateChanged(), this, OnProcessStateChanged());
 }
 
 } // end namespace MainMenu

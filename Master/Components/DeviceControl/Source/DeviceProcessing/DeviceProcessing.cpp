@@ -177,31 +177,10 @@ DeviceProcessing::~DeviceProcessing()
         return;
     }
 }
+
 void DeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
 {
     ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
-}
-
-/****************************************************************************/
-/*!
- *  \brief  Forwards the error information from a device to IDeviceProcessing
- *
- *      The function forwards the error information to the IDeviceProcessing interface class
- *      (which finally throws the signal assigned to the errors)
- *
- *  \iparam InstanceID = The instance identifier of the device class which brought up the error
- *  \iparam ErrorGroup = Error group ID of the thrown error
- *  \iparam ErrorID = Error ID of the thrown error
- *  \iparam ErrorData = Additional error information
- *  \iparam ErrorTime = Time of error detection
- */
-/****************************************************************************/
-void DeviceProcessing::ThrowError(DevInstanceID_t InstanceID, quint16 ErrorGroup, quint16 ErrorID,
-                                  quint16 ErrorData, QDateTime ErrorTime)
-{
-    FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << (int) InstanceID <<
-                                      ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -223,7 +202,7 @@ void DeviceProcessing::ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint1
 {
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
-    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -249,7 +228,7 @@ void DeviceProcessing::ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup
     FILE_LOG_L(laDEVPROC, llERROR) << "  DeviceProcessing::ThrowError (" << std::hex << InstanceID <<
                                       ", " << ErrorGroup << ", " << ErrorID << ", " << ErrorData <<  ")";
     //emit ReportError(DEVICE_INSTANCE_ID_DEVPROC, ErrorGroup, ErrorID, ErrorData, ErrorTime);
-    emit ReportError((DevInstanceID_t)InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
+    emit ReportError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);
 }
 
 /****************************************************************************/
@@ -273,6 +252,7 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
         if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
         {
             retCode = InitCANMessages();
+#if 0 //merged on 2014.2.17
             if(retCode == DCL_ERR_FCT_CALL_SUCCESS)
             {
                 retCode = ReadProcessSettings();
@@ -281,6 +261,7 @@ ReturnCode_t DeviceProcessing::ReadConfiguration()
             {
                 m_LastErrorGroup = EVENT_GRP_DCL_CONFIGURATION;
             }
+#endif //merged on 2014.2.17
         }
         else
         {
@@ -848,6 +829,10 @@ ReturnCode_t DeviceProcessing::InitCommunication()
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     qint16 sResult;
     Can2TcpClient* pClient;
+    //CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+    //                    this->GetParent(), OnError(quint32, quint16, quint16, quint16, QDateTime));
+    CONNECTSIGNALSLOT(&m_canCommunicator, ReportError(quint32, quint16, quint16, quint16, QDateTime),
+                        this, OnError(quint32, quint16, quint16, quint16, QDateTime));
 
     if(m_TcpInterface == "1")
     {
@@ -897,6 +882,9 @@ void DeviceProcessing::HandleTasks()
 */
 
     static quint16 stTest = 0;
+    static quint32 RunThruCounter = 0;
+    Q_UNUSED(RunThruCounter);
+
     static DeviceProcTask* pActiveTask = NULL;
     static DeviceProcTask::TaskID_t stTaskID = DeviceProcTask::TASK_ID_DP_UNDEF;
 
@@ -1051,7 +1039,7 @@ void DeviceProcessing::HandleTasks()
         QDateTime errorTimeStamp;
         FILE_LOG_L(laDEVPROC, llERROR) << "  Error: DeviceProcessing: DispatchPendingInMessage: " << ", " << error;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_CANBUS, ERROR_DCL_CANBUS_WRITE, error, errorTimeStamp);
     }
 
     m_canCommunicator.DispatchPendingInMessage();
@@ -1181,21 +1169,8 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished";
             if(m_pConfigurationService != NULL)
             {
-                if(m_pConfigurationService->ConfigurationComplete() == true)
-                {
-                    //register BaseModule's error
-                    QListIterator<CBaseModule *> iter(m_ObjectTree);
-                    CBaseModule* pCANNode;
-                    while (iter.hasNext())
-                    {
-                        pCANNode = iter.next();
-                        bool b = connect(pCANNode, SIGNAL(ReportError(quint32, quint16, quint16, quint16, QDateTime)), this, SLOT(OnError(quint32, quint16, quint16,quint16, QDateTime)));
-                        if(!b)
-                        {
-                            LOG() << "Connect error signal failed!" << pCANNode->GetNodeID();
-                        }
-                    }
-
+                m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
+                if(m_pConfigurationService->ConfigurationComplete() == true) {
                     emit ReportConfigurationFinished(DCL_ERR_FCT_CALL_SUCCESS);
                 }
                 else
@@ -1206,7 +1181,7 @@ void DeviceProcessing::HandleTaskConfig(DeviceProcTask* pActiveTask)
             m_SubStateConfig = DP_SUB_STATE_CONFIG_FINISHED;
             TaskFinished(pActiveTask);
             //m_MainState = DP_MAIN_STATE_WAIT_FOR_ADJUST;
-            m_MainState = DP_MAIN_STATE_IDLE;
+            //m_MainState = DP_MAIN_STATE_IDLE; //merged on 2014.2.17
             break;
         case (DP_SUB_STATE_CONFIG_ERROR):
             FILE_LOG_L(laDEVPROC, llINFO) << "DeviceProcessing: DP_MAIN_STATE_CONFIG finished with error";
@@ -1237,7 +1212,7 @@ void DeviceProcessing::HandleTaskNormalOperation(DeviceProcTask* pActiveTask)
         pActiveTask->m_state = DeviceProcTask::TASK_STATE_PAUSE;
         FILE_LOG_L(laDEVPROC, llINFO) << "  pause task 'normal operation'";
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_BREAK_NORMAL_OP, 0, errorTimeStamp);
 
         return;
     }
@@ -1298,7 +1273,7 @@ void DeviceProcessing::HandleTaskDiagnostic(DeviceProcTask* pActiveTask)
         QDateTime errorTimeStamp;
         m_SubStateDiag = DP_SUB_STATE_DIAG_IDLE;
         errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-        ThrowError(0, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
+        ThrowError(DEVICE_INSTANCE_ID_UNDEFINED, EVENT_GRP_DCL_DEVCTRL, EVENT_DCL_DEVCTRL_START_DIAG, 0, errorTimeStamp);
     }
     else if(m_SubStateDiag == DP_SUB_STATE_DIAG_IDLE)
     {
@@ -1434,18 +1409,9 @@ void DeviceProcessing::RegisterMetaTypes()
 {
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<NodeState_t>("NodeState_t");
-    //qRegisterMetaType<BlockState_t>("BlockState_t");
-    //qRegisterMetaType<HeatedVesselID_t>("HeatedVesselID_t");
-    //qRegisterMetaType<LoaderPosition_t>("LoaderPosition_t");
-    //qRegisterMetaType<LoaderRFIDChannel_t>("LoaderRFIDChannel_t");
-    //qRegisterMetaType<AgitationSpeed_t>("AgitationSpeed_t");
-    //qRegisterMetaType<WaterValveID_t>("WaterValveID_t");
-    //qRegisterMetaType<OvenCoverPosition_t>("OvenCoverPosition_t");
     qRegisterMetaType<TempCtrlStatus_t>("TempCtrlStatus_t");
     qRegisterMetaType<TempCtrlOperatingMode_t>("TempCtrlOperatingMode_t");
     qRegisterMetaType<TempCtrlMainsVoltage_t>("TempCtrlMainsVoltage_t");
-    //qRegisterMetaType<RackAdapterPosition_t>("RackAdapterPosition_t");
-    //qRegisterMetaType<RackAdapterPosition_t>("AgitationPosition_t");
 }
 
 /****************************************************************************/
@@ -1540,7 +1506,7 @@ void DeviceProcessing::CheckMasterHeartbeat()
             if(ftime(&m_tbTimerHeartbeatTime) || retval != DCL_ERR_FCT_CALL_SUCCESS)
             {
                 QDateTime errorTimeStamp = Global::AdjustedTime::Instance().GetCurrentDateTime();
-                ThrowError(0, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
+                ThrowError(DEVICE_INSTANCE_ID_DEVPROC, EVENT_GRP_DCL_DEVCTRL, ERROR_DCL_DEVCTRL_HEARTBEAT_ERROR, 0, errorTimeStamp);
             }
         }
     }
@@ -1849,11 +1815,10 @@ void DeviceProcessing::Initialize()
  *  \return CBaseDevice* matches the parameter
  */
 /****************************************************************************/
-CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
+CBaseDevice* DeviceProcessing::GetDevice(quint32 InstanceID)
 {
     QListIterator<CBaseDevice*> iter(m_DeviceList);
-    CBaseDevice* pDevice;
-    CBaseDevice* pDeviceRet = NULL;
+    CBaseDevice* pDevice = NULL;
 
     while (iter.hasNext())
     {
@@ -1861,12 +1826,11 @@ CBaseDevice* DeviceProcessing::GetDevice(DevInstanceID_t InstanceID)
 
         if(pDevice->GetInstanceID() == InstanceID)
         {
-            pDeviceRet = pDevice;
             break;
         }
     }
 
-    return pDeviceRet;
+    return pDevice;
 }
 
 /****************************************************************************/

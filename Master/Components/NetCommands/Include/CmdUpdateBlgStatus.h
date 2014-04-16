@@ -25,16 +25,17 @@
 
 namespace NetCommands {
 
+//! Bathlayout generator status indicator
 typedef enum
 {
-    BATHLAYOUT_GENERATION_FAILED,
-    BATHLAYOUT_GENERATION_OK,
-    VERIFY_PROG_SEQUENCE_BLG_FAILED,
-    READING_PROG_SEQUENCE_BLG_FAILED,
-    VERIFY_STATIONS_BLG_FAILED,
-    READING_STATIONS_BLG_FAILED,
-    ERROR_STATION_NULL_POINTER,
-    ERROR_CONTAINER_NULL_POINTER
+    BATHLAYOUT_GENERATION_FAILED,       //!< Bathlayout generator process failed
+    BATHLAYOUT_GENERATION_OK,           //!< Bathlayout generator process succeeded
+    VERIFY_PROG_SEQUENCE_BLG_FAILED,    //!< ProgramSequece_BLG data verification failed
+    READING_PROG_SEQUENCE_BLG_FAILED,   //!< ProgramSequence_BLG data reading failed
+    VERIFY_STATIONS_BLG_FAILED,         //!< Stations_BLG data verification failed
+    READING_STATIONS_BLG_FAILED,        //!< Stations_BLG data reading failed
+    ERROR_STATION_NULL_POINTER,         //!< Stations pointer is null
+    ERROR_CONTAINER_NULL_POINTER        //!< Datacontainer pointer is null
 } BlgStatus_t;
 
 /****************************************************************************/
@@ -57,6 +58,13 @@ public:
     BlgStatus_t GetBlgStatusMsgId() const;      //!< Returns Blg status id (struct: BlgStatus_t).
 private:
     CmdUpdateBlgStatus(const CmdUpdateBlgStatus &);                       //!< Not implemented.
+    /****************************************************************************/
+    /*!
+     *  \brief       Not implemented.
+     *
+     *  \return
+     */
+    /****************************************************************************/
     const CmdUpdateBlgStatus & operator = (const CmdUpdateBlgStatus &);   //!< Not implemented.
 private:       
     BlgStatus_t m_BlgStatusId;     ///< BLG status message identifier
@@ -66,7 +74,7 @@ private:
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream into.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -84,7 +92,7 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdUpdateBlgStatus 
  * \brief Streaming operator.
  *
  * \param[in,out]   Stream      Stream to stream from.
- * \param[in]       Cmd         The command to stream.
+ * \iparam       Cmd         The command to stream.
  * \return                      Stream.
  */
 /****************************************************************************/
@@ -97,7 +105,7 @@ inline QDataStream & operator >> (QDataStream &Stream, CmdUpdateBlgStatus &Cmd)
     Cmd.m_BlgStatusId = (BlgStatus_t)MessageID;    
     return Stream;
 }
-
+/****************************************************************************/
 } // end namespace NetCommands
 
 #endif // NETCOMMANDS_CMDUPDATEBLGSTATUS_H
