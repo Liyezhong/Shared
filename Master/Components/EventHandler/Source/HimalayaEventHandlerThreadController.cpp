@@ -262,7 +262,7 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
         EventReportData.ID = pEvent->GetErrorId();
         EventReportData.EventKey = EventKey;
 
-        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(pStep->GetStringID(), Global::tTranslatableStringList())); //"Event String translated to the set langauge";
+        EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(pStep->GetStringID(), m_ActiveEvents[EventKey].EventStringParList)); //"Event String translated to the set langauge";
 //        EventReportData.MsgString = pStep->GetStringID();
         EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.Timeout = pStep->GetTimeOut();
