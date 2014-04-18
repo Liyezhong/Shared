@@ -30,7 +30,7 @@ DEPENDPATH += . \
               ../..
 
 # all warnings
-QMAKE_CXXFLAGS += -Wall
+QMAKE_CXXFLAGS += -Wall -std=c++0x
 
 # compute CONFIG_SUFFIX depending on debug / release
 CONFIG(debug, debug|release) {
