@@ -69,12 +69,12 @@ void DeviceCommandProcessorThreadController::CreateAndInitializeObjects()
     m_pDeviceProcessing = new IDeviceProcessing();
 
     if (m_pDeviceProcessing) {
-        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportInitializationFinished(ReturnCode_t),
-                          this, DevProcInitialisationAckn(ReturnCode_t));
-        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportConfigurationFinished(ReturnCode_t),
-                          this, DevProcConfigurationAckn(ReturnCode_t));
-        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportStartNormalOperationMode(ReturnCode_t),
-                          this, DevProcStartNormalOpModeAckn(ReturnCode_t));
+        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportInitializationFinished(quint32, ReturnCode_t),
+                          this, DevProcInitialisationAckn(quint32, ReturnCode_t));
+        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportConfigurationFinished(quint32, ReturnCode_t),
+                          this, DevProcConfigurationAckn(quint32, ReturnCode_t));
+        CONNECTSIGNALSLOT(m_pDeviceProcessing, ReportStartNormalOperationMode(quint32, ReturnCode_t),
+                          this, DevProcStartNormalOpModeAckn(quint32, ReturnCode_t));
     }
 
     // register init and cleanup functions
@@ -159,8 +159,9 @@ void DeviceCommandProcessorThreadController::OnDeviceProcessingCleanup(Global::t
  *  \param     InstanceID  = Device instance ID for grappler identification
  *  \param     InitResult  = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
-void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(ReturnCode_t InitResult)
+void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(quint32 devInstanceID, ReturnCode_t InitResult)
 {
+    Q_UNUSED(devInstanceID);
     if(InitResult == DCL_ERR_FCT_CALL_SUCCESS)
     {
         // log success
@@ -193,8 +194,9 @@ void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(ReturnCod
  *  \param     InstanceID   = Device instance ID for grappler identification
  *  \param     ConfigResult = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
-void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode_t ConfigResult)
+void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(quint32 devInstanceID, ReturnCode_t ConfigResult)
 {
+    Q_UNUSED(devInstanceID);
     //! \todo added DCL_ERR_TIMEOUT, as it was always returning DCL_ERR_TIMEOUT. It was the same way in ProtoTest.
     if(ConfigResult == DCL_ERR_FCT_CALL_SUCCESS || ConfigResult == DCL_ERR_TIMEOUT)
     {
@@ -216,8 +218,9 @@ void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(ReturnCode
  *  \param     InstanceID = Device instance ID for grappler identification
  *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
-void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(ReturnCode_t HdlInfo)
+void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(quint32 devInstanceID, ReturnCode_t HdlInfo)
 {
+    Q_UNUSED(devInstanceID);
     try {
 
         if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS) {

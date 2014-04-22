@@ -165,9 +165,9 @@ public:
     virtual void OnDeviceProcessingCleanup(Global::tRefType Ref, const CmdDeviceProcessingCleanup &Cmd);
 
 public slots:
-    void DevProcInitialisationAckn(ReturnCode_t configResult);
-    void DevProcConfigurationAckn(ReturnCode_t configResult);
-    void DevProcStartNormalOpModeAckn(ReturnCode_t hdlInfo);
+    void DevProcInitialisationAckn(quint32, ReturnCode_t configResult);
+    void DevProcConfigurationAckn(quint32, ReturnCode_t configResult);
+    void DevProcStartNormalOpModeAckn(quint32, ReturnCode_t hdlInfo);
     void StartAdjustmentServiceAckn(ReturnCode_t hdlInfo);
     void DevProcModeChangeInfo(ReturnCode_t mode, quint8 newState);
 
