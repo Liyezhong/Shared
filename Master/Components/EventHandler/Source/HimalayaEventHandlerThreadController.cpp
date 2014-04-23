@@ -111,6 +111,21 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     m_ActiveEvents.insert(EventKey,EventInfo);
                 }
             }
+#if 1
+            else{  // only for debug
+                NetCommands::EventReportDataStruct EventReportData;
+                EventReportData.EventStatus = true;
+                EventReportData.EventType = Global::EVTTYPE_DEBUG;
+                EventReportData.ID = EventID;
+                EventReportData.EventKey = EventKey;
+                EventReportData.MsgString = QString("Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
+                EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
+                EventReportData.BtnType = Global::OK;
+                EventReportData.StatusBarIcon = false;
+                Global::tRefType Ref = GetNewCommandRef();
+                SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+            }
+#endif
         }
         else{ //move to next step
             pEvent = m_ActiveEvents[EventKey].Event;
