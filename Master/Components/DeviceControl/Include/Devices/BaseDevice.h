@@ -29,6 +29,7 @@
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/Devices/FunctionModuleTaskManager.h"
+#include <Global/Include/Commands/Command.h>
 
 namespace DeviceControl
 {
@@ -138,6 +139,14 @@ public:
     static CANTemperatureCtrlTask* GetNewCANTempCtrlTask(CANTemperatureCtrlTask::CANTempCtrlTaskID_t TempCtrlTaskID);
 
     static DeviceTask* GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskState, quint16 Key);
+
+    inline void LogDebug(QString message)
+    {
+        qDebug() << message;
+#if 1
+        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE,Global::tTranslatableStringList()<<message);
+#endif
+    }
 
 public slots:
     void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);

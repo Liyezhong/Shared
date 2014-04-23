@@ -326,6 +326,7 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
+    return;
 #ifdef PTS
     FILE* pStream = Stream();
     if (!pStream)
