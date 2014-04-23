@@ -122,8 +122,10 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
                 EventReportData.BtnType = Global::OK;
                 EventReportData.StatusBarIcon = false;
-                Global::tRefType Ref = GetNewCommandRef();
-                SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+                if (m_GuiAvailable){
+                    Global::tRefType Ref = GetNewCommandRef();
+                    SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+                }
             }
 #endif
         }
