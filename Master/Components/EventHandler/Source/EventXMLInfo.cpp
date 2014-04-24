@@ -136,6 +136,10 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 {
                    errorType = EVTTYPE_INFO;
                 }
+                else if (strRet.trimmed() == "DEBUG")
+                {
+                    errorType = EVTTYPE_DEBUG;
+                }
             }
 
             Global::GuiUserLevel authType;
