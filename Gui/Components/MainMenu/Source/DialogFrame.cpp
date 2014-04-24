@@ -80,6 +80,7 @@ void CDialogFrame::changeEvent(QEvent *p_Event)
 
 void CDialogFrame::showEvent(QShowEvent *p_Event)
 {
+    QDialog::showEvent(p_Event);
     if (mp_MainWindow && (p_Event->type() == QShowEvent::Show))
     {
         QRect scr = mp_MainWindow->geometry();

@@ -51,14 +51,15 @@ public:
     void SetContent(QLayout *p_Content);
     void SetMaxStringDialogTitle(qint32 StringLength, QString TitleText);
     void SetMainWindow(QMainWindow *mp_MainWindow);
+
 protected:
     QWidget *GetContentFrame();
     void changeEvent(QEvent *p_Event);
     void showEvent(QShowEvent *p_Event);
+    QMainWindow *mp_MainWindow;       //!< For position this dialog
 
 private:
     Ui::CDialogFrame *mp_DialogUi;  //!< User interface
-    QMainWindow *mp_MainWindow;       //!< For position this dialog
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.
