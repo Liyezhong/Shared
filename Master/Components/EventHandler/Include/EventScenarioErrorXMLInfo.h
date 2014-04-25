@@ -68,6 +68,14 @@ public:
      */
     /****************************************************************************/
     const QString& GetName() const { return m_Name; }
+    /****************************************************************************/
+    /**
+     * \brief Get Id attribute in the ESEInfo object
+     *
+     * \return  value of Id class member
+     */
+    /****************************************************************************/
+    quint32 GetId() const { return m_Id; }
 private:
 	quint32					m_Id;					///< Event Id
 	QString					m_Name;					///< Event Name 
