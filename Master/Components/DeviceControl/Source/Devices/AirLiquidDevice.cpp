@@ -945,8 +945,8 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
         TimeSlotPassed++;
         if(TimeSlotPassed*500 > RELEASE_PRESSURE_MAX_TIME)
         {
-            //FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release Pressure exceed maximum setup time, exit!";
-            LogDebug(QString("WARNING:  Release Pressure exceed maximum setup time, exit!"));
+            //FILE_LOG_L(laDEVPROC, llWARNING) << "ERROR:  Release Pressure exceed maximum setup time, exit!";
+            LogDebug(QString("ERROR:  Release Pressure exceed maximum setup time, exit!"));
             //stop compressor
             StopCompressor();
             //close both valve
