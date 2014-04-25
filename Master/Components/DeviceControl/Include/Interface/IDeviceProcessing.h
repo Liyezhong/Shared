@@ -154,6 +154,7 @@ public:
 
     ReturnCode_t IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos);
     ReturnCode_t IDSealingCheck(qreal ThresholdPressure);
+    CFunctionModule* GetFunctionModuleRef(quint32 InstanceID, const QString &Key);
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);

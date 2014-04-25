@@ -2021,4 +2021,15 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         return DCL_ERR_NOT_INITIALIZED;
     }
 }
+
+CFunctionModule* IDeviceProcessing::GetFunctionModuleRef(quint32 InstanceID, const QString &Key)
+{
+    CBaseDevice* p_Device = GetDevice(InstanceID);
+
+    if (p_Device) {
+        return mp_DevProc->GetFunctionModule(p_Device->GetFctModInstanceFromKey(Key));
+    }
+    return NULL;
+}
+
 } // namespace
