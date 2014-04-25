@@ -1690,7 +1690,14 @@ qreal CAirLiquidDevice::GetRecentPressure(void)
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     if((Now - m_LastGetPressureTime) <= 500) // check if 200 msec has passed since last read
     {
-        return (m_CurrentPressure - m_PressureDrift);
+        if(m_CurrentPressure != UNDEFINED_4_BYTE)
+        {
+            return (m_CurrentPressure - m_PressureDrift);
+        }
+        else
+        {
+            return UNDEFINED_4_BYTE;
+        }
     }
     else
     {
