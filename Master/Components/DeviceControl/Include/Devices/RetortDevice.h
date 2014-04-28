@@ -66,8 +66,8 @@ private slots:
     ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
 
 
-    bool IsInsideRange(RTTempCtrlType_t Type);
-    bool IsOutsideRange(RTTempCtrlType_t Type);
+    bool IsInsideRange(RTTempCtrlType_t Type, quint8 Index);
+    bool IsOutsideRange(RTTempCtrlType_t Type, quint8 Index);
     bool IsTemperatureControlOn(RTTempCtrlType_t Type);
     bool IsTemperatureControlOff(RTTempCtrlType_t Type);
 
@@ -98,7 +98,7 @@ private:
     CDigitalInput* m_pLockDigitalInput;                               //!< Digital input for lock
     TempCtrlHardwareStatus_t m_HardwareStatus[RT_TEMP_CTRL_NUM];      //!< Hardware status for temperature control modules
 
-    qreal m_CurrentTemperatures[RT_TEMP_CTRL_NUM];                    //!< Current temperature
+    qreal m_CurrentTemperatures[RT_TEMP_CTRL_NUM][MAX_SENSOR_PER_TEMP_CTRL];                  //!< Current temperature
     qreal m_TargetTemperatures[RT_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[RT_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[RT_TEMP_CTRL_NUM];       //!< Current temperature control status

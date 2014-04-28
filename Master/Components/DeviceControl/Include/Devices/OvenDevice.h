@@ -57,8 +57,8 @@ private slots:
     quint16 GetLidStatus();
     ReturnCode_t GetLidStatusAsync();
 
-    bool IsInsideRange(OVENTempCtrlType_t Type);
-    bool IsOutsideRange(OVENTempCtrlType_t Type);
+    bool IsInsideRange(OVENTempCtrlType_t Type, quint8 Index);
+    bool IsOutsideRange(OVENTempCtrlType_t Type, quint8 Index);
     bool IsTemperatureControlOn(OVENTempCtrlType_t Type);
     bool IsTemperatureControlOff(OVENTempCtrlType_t Type);
 
@@ -86,7 +86,7 @@ private:
     CTemperatureControl* m_pTempCtrls[OVEN_TEMP_CTRL_NUM];              //!< Temperature control modules of the device
     CDigitalInput* m_pLidDigitalInput;                                  //!< Digital input function module for the lid
 
-    qreal m_CurrentTemperatures[OVEN_TEMP_CTRL_NUM];                    //!< Current temperature
+    qreal m_CurrentTemperatures[OVEN_TEMP_CTRL_NUM][MAX_SENSOR_PER_TEMP_CTRL];                    //!< Current temperature
     qreal m_TargetTemperatures[OVEN_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[OVEN_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[OVEN_TEMP_CTRL_NUM];       //!< Current temperature control status
