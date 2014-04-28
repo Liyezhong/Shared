@@ -51,11 +51,11 @@ public:
     void SetContent(QLayout *p_Content);
     void SetMaxStringDialogTitle(qint32 StringLength, QString TitleText);
     void SetMainWindow(QMainWindow *mp_MainWindow);
-
+    void CenterPosition();
+    virtual void setVisible(bool visible);
 protected:
     QWidget *GetContentFrame();
     void changeEvent(QEvent *p_Event);
-    void showEvent(QShowEvent *p_Event);
     QMainWindow *mp_MainWindow;       //!< For position this dialog
 
 private:
