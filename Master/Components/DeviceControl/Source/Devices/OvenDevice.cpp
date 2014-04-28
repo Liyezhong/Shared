@@ -401,6 +401,7 @@ void COvenDevice::CheckSensorsData()
     if(m_pTempCtrls[OVEN_BOTTOM])
     {
         (void)GetTemperatureAsync(OVEN_BOTTOM, 0);
+        (void)GetTemperatureAsync(OVEN_BOTTOM, 1);
     }
     if(m_pLidDigitalInput)
     {
