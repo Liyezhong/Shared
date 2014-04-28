@@ -428,6 +428,7 @@ void CRetortDevice::CheckSensorsData()
     if(m_pTempCtrls[RT_BOTTOM])
     {
         (void)GetTemperatureAsync(RT_BOTTOM, 0);
+        (void)GetTemperatureAsync(RT_BOTTOM, 1);
     }
     if(m_pTempCtrls[RT_SIDE])
     {
