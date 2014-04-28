@@ -1297,120 +1297,130 @@ void CBaseModule::HandleCommandRequestTask()
             // check active device commands for timeout
             if(p_ModuleCommand->ReqSendTime.Elapsed() > p_ModuleCommand->Timeout)
             {
-                RemoveCommand = true;
-                //timeout detected, forward the error information to logging and emit the command signal with error information.
-                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
-                //m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                if((p_ModuleCommand->TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME )
+                {
+                    p_ModuleCommand->TimeoutRetry = 0;
 
-                if(p_ModuleCommand->Type == CN_CMD_SET_NODE_STATE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': SetNodeState timeout error.";
-                    emit ReportNodeState(GetModuleHandle(), DCL_ERR_TIMEOUT, NODE_STATE_UNDEFINED,
-                                         RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    RemoveCommand = true;
+                    //timeout detected, forward the error information to logging and emit the command signal with error information.
+                    m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                    //m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+
+                    if(p_ModuleCommand->Type == CN_CMD_SET_NODE_STATE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': SetNodeState timeout error.";
+                        emit ReportNodeState(GetModuleHandle(), DCL_ERR_TIMEOUT, NODE_STATE_UNDEFINED,
+                                             RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_NODE_STATE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqNodeState timeout error.";
+                        emit ReportNodeState(GetModuleHandle(), DCL_ERR_TIMEOUT, NODE_STATE_UNDEFINED,
+                                             RESET_EMERGENCY_STOP, POWER_UNKNOWN);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_DATA_RESET)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqDataReset timeout error.";
+                        emit ReportDataResetAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_FORMAT_MEM)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqFormatMemory timeout error.";
+                        emit ReportFormatMemoryAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_SERIAL_NB)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqSerialNumber timeout error.";
+                        emit ReportSerialNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, QString());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_END_TEST_RESULT)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqTestResult timeout error.";
+                        emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_TIMEOUT, TEST_OPEN, QDate());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_HW_INFO)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqHWInfo timeout error.";
+                        emit ReportHWInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, QDate());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_SW_INFO)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqSWInfo timeout error.";
+                        emit ReportSWInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, QDate());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_LOADER_INFO)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqLoaderInfo timeout error.";
+                        emit ReportLoaderInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, QDate());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_LIFE_CYCLE_DATA)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqLifeCycleData timeout error.";
+                        emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_LAUNCH_DATE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqLaunchDate timeout error.";
+                        emit ReportLaunchDate(GetModuleHandle(), DCL_ERR_TIMEOUT, false, QDate());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_NAME)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqBoardName timeout error.";
+                        emit ReportBoardName(GetModuleHandle(), DCL_ERR_TIMEOUT, QString());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_OPTIONS)
+                    {
+                        emit ReportBoardOptions(GetModuleHandle(), DCL_ERR_TIMEOUT);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_CONF_VOLTAGE_MON)
+                    {
+                        //emit ReportVoltageState(GetModuleHandle(), m_lastErrorHdlInfo);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_CONF_CURRENT_MON)
+                    {
+                        //emit ReportCurrentState(GetModuleHandle(), m_lastErrorHdlInfo);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_VOLTAGE_STATE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqVoltageState timeout error.";
+                        emit ReportVoltageState(GetModuleHandle(), DCL_ERR_TIMEOUT, POWER_UNKNOWN, 0, 0);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_CURRENT_STATE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqCurrentState timeout error.";
+                        emit ReportCurrentState(GetModuleHandle(), DCL_ERR_TIMEOUT, POWER_UNKNOWN, 0, 0);
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_UNIQUE_NUMBER)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqUniqueNumber timeout error.";
+                        emit ReportUniqueNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, QByteArray());
+                    }
+                    else if(p_ModuleCommand->Type == CN_CMD_REQ_MODULE_SERIAL)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
+                                                   << "': ReqModuleSerialNumber timeout error.";
+                        emit ReportModuleSerialNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    }
                 }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_NODE_STATE)
+                else
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqNodeState timeout error.";
-                    emit ReportNodeState(GetModuleHandle(), DCL_ERR_TIMEOUT, NODE_STATE_UNDEFINED,
-                                         RESET_EMERGENCY_STOP, POWER_UNKNOWN);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_DATA_RESET)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqDataReset timeout error.";
-                    emit ReportDataResetAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_FORMAT_MEM)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqFormatMemory timeout error.";
-                    emit ReportFormatMemoryAckn(GetModuleHandle(), DCL_ERR_TIMEOUT);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_SERIAL_NB)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqSerialNumber timeout error.";
-                    emit ReportSerialNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, QString());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_END_TEST_RESULT)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqTestResult timeout error.";
-                    emit ReportEndTestResult(GetModuleHandle(), DCL_ERR_TIMEOUT, TEST_OPEN, QDate());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_HW_INFO)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqHWInfo timeout error.";
-                    emit ReportHWInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, QDate());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_SW_INFO)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqSWInfo timeout error.";
-                    emit ReportSWInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, QDate());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_LOADER_INFO)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqLoaderInfo timeout error.";
-                    emit ReportLoaderInfo(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0, QDate());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_LIFE_CYCLE_DATA)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqLifeCycleData timeout error.";
-                    emit ReportLifeCycleData(GetModuleHandle(), DCL_ERR_TIMEOUT, 0, 0);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_LAUNCH_DATE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqLaunchDate timeout error.";
-                    emit ReportLaunchDate(GetModuleHandle(), DCL_ERR_TIMEOUT, false, QDate());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_NAME)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqBoardName timeout error.";
-                    emit ReportBoardName(GetModuleHandle(), DCL_ERR_TIMEOUT, QString());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_BOARD_OPTIONS)
-                {
-                    emit ReportBoardOptions(GetModuleHandle(), DCL_ERR_TIMEOUT);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_CONF_VOLTAGE_MON)
-                {
-                    //emit ReportVoltageState(GetModuleHandle(), m_lastErrorHdlInfo);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_CONF_CURRENT_MON)
-                {
-                    //emit ReportCurrentState(GetModuleHandle(), m_lastErrorHdlInfo);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_VOLTAGE_STATE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqVoltageState timeout error.";
-                    emit ReportVoltageState(GetModuleHandle(), DCL_ERR_TIMEOUT, POWER_UNKNOWN, 0, 0);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_CURRENT_STATE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqCurrentState timeout error.";
-                    emit ReportCurrentState(GetModuleHandle(), DCL_ERR_TIMEOUT, POWER_UNKNOWN, 0, 0);
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_UNIQUE_NUMBER)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqUniqueNumber timeout error.";
-                    emit ReportUniqueNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, QByteArray());
-                }
-                else if(p_ModuleCommand->Type == CN_CMD_REQ_MODULE_SERIAL)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANNode '" << GetKey().toStdString()
-                                               << "': ReqModuleSerialNumber timeout error.";
-                    emit ReportModuleSerialNumber(GetModuleHandle(), DCL_ERR_TIMEOUT, 0);
+                    p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
+
                 }
             }
         }
@@ -3632,6 +3642,7 @@ CBaseModule::ModuleCommand_t *CBaseModule::SetModuleTask(CANNodeModuleCmdType_t 
         ModuleCommand_t *p_ModuleCommand = new ModuleCommand_t;
         p_ModuleCommand->Type = CommandType;
         p_ModuleCommand->State = MODULE_CMD_STATE_REQ;
+        p_ModuleCommand->TimeoutRetry = 0;
         m_ModuleCommand.append(p_ModuleCommand);
 
         m_TaskID = MODULE_TASKID_COMMAND_HDL;

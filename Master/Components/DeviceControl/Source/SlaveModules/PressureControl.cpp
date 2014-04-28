@@ -72,6 +72,7 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     for(quint8 idx = 0; idx < MAX_PRESSURE_MODULE_CMD_IDX; idx++)
     {
         m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+        m_ModuleCommand[idx].TimeoutRetry = 0;
     }
     memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
     ReadValveOperationTime();
@@ -600,46 +601,53 @@ void CPressureControl::HandleCommandRequestTask()
             ActiveCommandFound = true;
             if(m_ModuleCommand[idx].ReqSendTime.Elapsed() > m_ModuleCommand[idx].Timeout)
             {
-                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                if((m_ModuleCommand[idx].TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME )
+                {
+                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
                                  Global::AdjustedTime::Instance().GetCurrentDateTime());
-
-                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
-                m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
-                if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTPRESSURE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
-                                                  "': Act pressurel request timeout error.";
-                    emit ReportActPressure(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
+                    m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
+                    m_ModuleCommand[idx].TimeoutRetry = 0;
+                    if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTPRESSURE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
+                                                      "': Act pressurel request timeout error.";
+                        emit ReportActPressure(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
+                    }
+                    else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTOPMODE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
+                                                      "': Act op. mode request timeout error.";
+                        emit ReportActOperatingMode(GetModuleHandle(), m_lastErrorHdlInfo, PRESSURECTRL_OPMODE_UNDEF);
+                    }
+                    else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTSTATUS)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
+                                                      "': Act status request timeout error.";
+                        emit ReportActStatus(GetModuleHandle(), m_lastErrorHdlInfo, PRESSURECTRL_STATUS_UNDEF, PRESSURECTRL_VOLTAGE_UNDEF);
+                    }
+                    else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_OPTIME)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
+                                                      "': Operating time request timeout error.";
+                        emit ReportPumpOperatingTime(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
+                    }
+                    else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_FANSPEED)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
+                                                      "': Fan speed request timeout error.";
+                        emit ReportFanSpeed(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
+                    }
+                    else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_HARDWARE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
+                                                      "': Hardware information request timeout error.";
+                        emit ReportHardwareStatus(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0, 0);
+                    }
                 }
-                else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTOPMODE)
+                else
                 {
-                    FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
-                                                  "': Act op. mode request timeout error.";
-                    emit ReportActOperatingMode(GetModuleHandle(), m_lastErrorHdlInfo, PRESSURECTRL_OPMODE_UNDEF);
-                }
-                else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_ACTSTATUS)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
-                                                  "': Act status request timeout error.";
-                    emit ReportActStatus(GetModuleHandle(), m_lastErrorHdlInfo, PRESSURECTRL_STATUS_UNDEF, PRESSURECTRL_VOLTAGE_UNDEF);
-                }
-                else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_OPTIME)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
-                                                  "': Operating time request timeout error.";
-                    emit ReportPumpOperatingTime(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
-                }
-                else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_FANSPEED)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
-                                                  "': Fan speed request timeout error.";
-                    emit ReportFanSpeed(GetModuleHandle(), m_lastErrorHdlInfo, m_ModuleCommand[idx].Index, 0);
-                }
-                else if(m_ModuleCommand[idx].Type == FM_PRESSURE_CMD_TYPE_REQ_HARDWARE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANPressureControl '" << GetKey().toStdString() <<
-                                                  "': Hardware information request timeout error.";
-                    emit ReportHardwareStatus(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0, 0, 0, 0);
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
                 }
             }
         }
@@ -1797,6 +1805,7 @@ bool CPressureControl::SetModuleTask(CANPressureCtrlCmdType_t CommandType, quint
             {
                 m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ;
                 m_ModuleCommand[idx].Type = CommandType;
+                m_ModuleCommand[idx].TimeoutRetry = 0;
 
                 m_TaskID = MODULE_TASKID_COMMAND_HDL;
                 CommandAdded  = true;

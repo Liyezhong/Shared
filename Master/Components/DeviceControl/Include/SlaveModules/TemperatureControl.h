@@ -330,6 +330,7 @@ signals:
         TempCtrlOperatingMode_t TempCtrlOpMode; //!< temperature control operating mode
         Global::MonotonicTime ReqSendTime;      //!< time the command was executed
         qint32 Timeout;                         //!< timeout in ms
+        quint8 TimeoutRetry;                    //!< timeout retry time
         quint8 Index;                           //!< sensor, heater or fan index
         quint8 SlopeTimeInterval;
         quint8 SlopeTempChange;

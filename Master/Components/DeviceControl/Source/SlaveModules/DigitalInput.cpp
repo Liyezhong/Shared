@@ -52,6 +52,7 @@ CDigitalInput::CDigitalInput(const CANMessageConfiguration* p_MessageConfigurati
     for(quint8 idx = 0; idx < MAX_DINP_CMD_IDX; idx++)
     {
         m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+        m_ModuleCommand[idx].m_TimeoutRetry = 0;
     }
 
 }
@@ -290,16 +291,23 @@ void CDigitalInput::HandleCommandRequestTask()
             ActiveCommandFound = true;
             if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
-                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
-                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
-
-                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                if((m_ModuleCommand[idx].m_TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME)
+                {
+                    m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+                    m_ModuleCommand[idx].m_TimeoutRetry = 0;
+                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
                                  Global::AdjustedTime::Instance().GetCurrentDateTime());
 
-                if(m_ModuleCommand[idx].m_Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
+                    if(m_ModuleCommand[idx].m_Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << "  CANDigitalInput:: '" << GetKey().toStdString() << "': input value req. timeout";
+                        emit ReportActInputValue(GetModuleHandle(), m_lastErrorHdlInfo, 0);
+                    }
+                }
+                else
                 {
-                    FILE_LOG_L(laFCT, llERROR) << "  CANDigitalInput:: '" << GetKey().toStdString() << "': input value req. timeout";
-                    emit ReportActInputValue(GetModuleHandle(), m_lastErrorHdlInfo, 0);
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ;
                 }
             }
         }
@@ -515,6 +523,7 @@ bool CDigitalInput::SetModuleTask(CANDigitalInputModuleCmdType_t CommandType, qu
             {
                 m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ;
                 m_ModuleCommand[idx].m_Type = CommandType;
+                m_ModuleCommand[idx].m_TimeoutRetry = 0;
 
                 m_TaskID = MODULE_TASKID_COMMAND_HDL;
                 CommandAdded  = true;

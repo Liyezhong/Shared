@@ -178,6 +178,20 @@ DeviceProcessing::~DeviceProcessing()
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Forwards the error information from a device to IDeviceProcessing
+ *
+ *      The function forwards the error information to the IDeviceProcessing interface class
+ *      (which finally throws the signal assigned to the errors)
+ *
+ *  \iparam InstanceID = The instance identifier of the device class which brought up the error
+ *  \iparam ErrorGroup = Error group ID of the thrown error
+ *  \iparam ErrorID = Error ID of the thrown error
+ *  \iparam ErrorData = Additional error information
+ *  \iparam ErrorTime = Time of error detection
+ */
+/****************************************************************************/
 void DeviceProcessing::OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime)
 {
     ThrowError(InstanceID, ErrorGroup, ErrorID, ErrorData, ErrorTime);

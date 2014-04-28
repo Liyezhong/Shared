@@ -165,6 +165,7 @@ private:
         ModuleCmdState_t m_State;                   //!< command state
         Global::MonotonicTime m_ReqSendTime;        //!< time the command was executed
         qint32 m_Timeout;                           //!< timeout in ms
+        quint8 m_TimeoutRetry;                      //!< timeout retry time
         quint16 m_OutputValue;                      //!< requested output value
         quint16 m_Duration;                         //!< Time the ouptput is on
         quint16 m_Delay;                            //!< Time before the output is on

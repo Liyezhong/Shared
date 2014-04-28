@@ -65,14 +65,14 @@ namespace DeviceControl
 /****************************************************************************/
 CConfigurationService::CConfigurationService(DeviceProcessing* pDeviceProcessing,
                                              CANCommunicator* pCANCommunicator) :
-        m_pDeviceProcessing(pDeviceProcessing),
-        m_pCANCommunicator(pCANCommunicator),
-        m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS),
-        m_lastErrorGroup(0),
-        m_lastErrorCode(0),
-        m_lastErrorData(0),
-        m_stateTimespan(0),
-        m_ConfigurationComplete(false)
+    m_pDeviceProcessing(pDeviceProcessing),
+    m_pCANCommunicator(pCANCommunicator),
+    m_lastErrorHdlInfo(DCL_ERR_FCT_CALL_SUCCESS),
+    m_lastErrorGroup(0),
+    m_lastErrorCode(0),
+    m_lastErrorData(0),
+    m_stateTimespan(0),
+    m_ConfigurationComplete(false)
 {
     m_MainState = CS_MAIN_STATE_INIT;
     m_ErrSubState = CS_SUBSTATE_ERR_UNDEF;
