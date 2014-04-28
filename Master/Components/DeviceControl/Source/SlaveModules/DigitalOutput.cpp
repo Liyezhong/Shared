@@ -57,6 +57,7 @@ CDigitalOutput::CDigitalOutput(const CANMessageConfiguration* p_MessageConfigura
     for(quint8 idx = 0; idx < MAX_DOUTP_CMD_IDX; idx++)
     {
         m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+        m_ModuleCommand[idx].m_TimeoutRetry = 0;
     }
 }
 
@@ -412,22 +413,30 @@ void CDigitalOutput::HandleCommandRequestTask()
             ActiveCommandFound = true;
             if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
-                emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
-                                 Global::AdjustedTime::Instance().GetCurrentDateTime());
-
-                m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
-                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
-
-                if(m_ModuleCommand[idx].m_Type == FM_DO_CMD_TYPE_REQ_ACTVALUE)
+			    if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
                 {
-                    FILE_LOG_L(laFCT, llERROR) << " CANDigitalOutput:: '" << GetKey().toStdString() << "': output value req. timeout";
-                    emit ReportActOutputValue(GetModuleHandle(), m_lastErrorHdlInfo, 0);
+                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                                     Global::AdjustedTime::Instance().GetCurrentDateTime());
+
+                    m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
+                    m_ModuleCommand[idx].m_TimeoutRetry = 0;
+
+                    if(m_ModuleCommand[idx].m_Type == FM_DO_CMD_TYPE_REQ_ACTVALUE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANDigitalOutput:: '" << GetKey().toStdString() << "': output value req. timeout";
+                        emit ReportActOutputValue(GetModuleHandle(), m_lastErrorHdlInfo, 0);
+                    }
+                    else if(m_ModuleCommand[idx].m_Type == FM_DO_CMD_TYPE_REQ_LIFECYCLE)
+                    {
+                        FILE_LOG_L(laFCT, llERROR) << " CANDigitalOutput:: '" << GetKey().toStdString() << "': life time data req. timeout";
+                        emit ReportLifeTimeData(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0);
+                    }
                 }
-                else if(m_ModuleCommand[idx].m_Type == FM_DO_CMD_TYPE_REQ_LIFECYCLE)
-                {
-                    FILE_LOG_L(laFCT, llERROR) << " CANDigitalOutput:: '" << GetKey().toStdString() << "': life time data req. timeout";
-                    emit ReportLifeTimeData(GetModuleHandle(), m_lastErrorHdlInfo, 0, 0);
-                }
+            }
+            else
+            {
+                m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ;
             }
         }
     }

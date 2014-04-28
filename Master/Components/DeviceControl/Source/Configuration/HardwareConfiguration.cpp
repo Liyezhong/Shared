@@ -764,9 +764,9 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     strDebounce = child.attribute("debounce");
 
     pCANObjFctDigitInEntry = new CANFctModuleDigitInput();
-    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_bEnabled = strEnabled.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitInEntry->m_bEnabled < 0)||(pCANObjFctDigitInEntry->m_bEnabled >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitInEntry;
         pCANObjFctDigitInEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
@@ -774,18 +774,18 @@ CANFctModuleDigitInput* HardwareConfiguration::ParseDigitalInPort(const QDomElem
     }
 #endif
     pCANObjFctDigitInEntry->m_bTimeStamp = strTimestamp.toShort(&ok, 10);
-    pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_sPolarity = strPolarity.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitInEntry->m_sPolarity < 0)||(pCANObjFctDigitInEntry->m_sPolarity >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitInEntry;
         pCANObjFctDigitInEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return pCANObjFctDigitInEntry;
     }
 #endif
-    pCANObjFctDigitInEntry->m_sThreshold = strThreshold.toShort(&ok, 10);
+    pCANObjFctDigitInEntry->m_sThreshold = strThreshold.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitInEntry->m_sThreshold < 0)||(pCANObjFctDigitInEntry->m_sThreshold >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitInEntry;
         pCANObjFctDigitInEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
@@ -831,46 +831,53 @@ CANFctModuleDigitOutput* HardwareConfiguration::ParseDigitalOutPort(const QDomEl
 
     pCANObjFctDigitOutEntry = new CANFctModuleDigitOutput();
 
-    pCANObjFctDigitOutEntry->m_bEnabled           = strEnabled.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_bEnabled           = strEnabled.toUShort(&ok, 10);
+    if(!ok)
+    {
+        delete pCANObjFctDigitOutEntry;
+        pCANObjFctDigitOutEntry = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANObjFctDigitOutEntry;
+    }
+    pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitOutEntry->m_bEnabled < 0)||(pCANObjFctDigitOutEntry->m_bEnabled >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitOutEntry;
         pCANObjFctDigitOutEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return pCANObjFctDigitOutEntry;
     }
 #endif
-    pCANObjFctDigitOutEntry->m_bInaktivAtShutdown = strInactivShdw.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitOutEntry->m_bInaktivAtShutdown < 0)||(pCANObjFctDigitOutEntry->m_bInaktivAtShutdown >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitOutEntry;
         pCANObjFctDigitOutEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return pCANObjFctDigitOutEntry;
     }
 #endif
-    pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop = strInactivEmcy.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_sPolarity          = strPolarity.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop < 0)||(pCANObjFctDigitOutEntry->m_bInaktivAtEmgyStop >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitOutEntry;
         pCANObjFctDigitOutEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return pCANObjFctDigitOutEntry;
     }
 #endif
-    pCANObjFctDigitOutEntry->m_sPolarity          = strPolarity.toShort(&ok, 10);
-    pCANObjFctDigitOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_sOutvalInactiv     = strOutvalInactiv.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitOutEntry->m_sOutvalInactiv < 0)||(pCANObjFctDigitOutEntry->m_sOutvalInactiv >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitOutEntry;
         pCANObjFctDigitOutEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
         return pCANObjFctDigitOutEntry;
     }
 #endif
-    pCANObjFctDigitOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toShort(&ok, 10);
+    pCANObjFctDigitOutEntry->m_sLivetimeLimit     = strLivetimeLimit.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //Issac request for CV test on 2014.3.11
-    if((pCANObjFctDigitOutEntry->m_sLivetimeLimit < 0)||(pCANObjFctDigitOutEntry->m_sLivetimeLimit >65535)) {
+    if(!ok) {
         delete pCANObjFctDigitOutEntry;
         pCANObjFctDigitOutEntry = 0;
         m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
@@ -1087,9 +1094,16 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     pCANFctModuleStepperMotor->sMinSpeed = strSpeedMin.toShort(&ok, 10);
     pCANFctModuleStepperMotor->sMaxSpeed = strSpeedMax.toShort(&ok, 10);
 
-    pCANFctModuleStepperMotor->runCurrentScale = strRunCurrent.toShort(&ok, 10);
-    pCANFctModuleStepperMotor->stopCurrentScale = strStopCurrent.toShort(&ok, 10);
-    pCANFctModuleStepperMotor->stopCurrentDelay = strStopCurrentDelay.toShort(&ok, 10);
+    pCANFctModuleStepperMotor->runCurrentScale = strRunCurrent.toUShort(&ok, 10);
+    pCANFctModuleStepperMotor->stopCurrentScale = strStopCurrent.toUShort(&ok, 10);
+    pCANFctModuleStepperMotor->stopCurrentDelay = strStopCurrentDelay.toUShort(&ok, 10);
+    if(!ok)
+    {
+        delete pCANFctModuleStepperMotor;
+        pCANFctModuleStepperMotor = 0;
+        m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
+        return pCANFctModuleStepperMotor;
+    }
 
 #ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
         if((pCANFctModuleStepperMotor->runCurrentScale < 0)||(pCANFctModuleStepperMotor->runCurrentScale >31)) {
@@ -1104,8 +1118,8 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return pCANFctModuleStepperMotor;
         }
-        quint32 stopCurrentDelay = strStopCurrentDelay.toUInt(&ok, 10);
-        if((stopCurrentDelay < 0)||(stopCurrentDelay >65535)) {
+        strStopCurrentDelay.toShort(&ok, 10);
+        if(!ok) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;

@@ -39,6 +39,7 @@ namespace DeviceControl
 class CANCommunicator;
 class CANMessageConfiguration;
 
+#define MODULE_CMD_MAX_RESEND_TIME (10)
 /****************************************************************************/
 /*!
  *  \brief  Base class for the base module and all function modules

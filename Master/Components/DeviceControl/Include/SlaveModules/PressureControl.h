@@ -313,6 +313,7 @@ private:
         PressureCtrlOperatingMode_t PressureCtrlOpMode; //!< pressure control operating mode
         Global::MonotonicTime ReqSendTime;              //!< time the command was executed
         qint32 Timeout;                                 //!< timeout in ms
+        quint8 TimeoutRetry;                            //!< timeout retry time
         quint8 Index;                                   //!< sensor, pump or fan index
         quint8 ValveIndex;                              //!< Valve index
         quint8 ValveState;                              //!< Valve State. 0: off, 1: on

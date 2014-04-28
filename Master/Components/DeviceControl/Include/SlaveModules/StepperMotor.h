@@ -458,6 +458,7 @@ private:
         quint16                         SubCommandData;     //!< additional data, depending on subcommand
         Global::MonotonicTime           m_ReqSendTime;      //!< time the command wasexecuted
         qint32                          m_Timeout;          //!< timeout in ms
+        quint8                          m_TimeoutRetry;     //!< timeout retry time
     } ModuleCommand_t;
 
     //! module command array

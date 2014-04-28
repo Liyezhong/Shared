@@ -104,7 +104,7 @@ public:
                                m_bInterval = 0;
                                m_bDebounce = 0;
                               }
-    quint8  m_bEnabled;     //!< Enabled flag
+    quint16 m_bEnabled;     //!< Enabled flag
     quint8  m_bTimeStamp;   //!< Time stamp flag
     quint16 m_sPolarity;    //!< input polarity
     quint16 m_sThreshold; //!< Threshold flag
@@ -130,9 +130,9 @@ public:
         m_sLivetimeLimit = 0;
     }
 
-    quint8  m_bEnabled;             //!< Enable/Disable modul
-    quint8  m_bInaktivAtShutdown;   //!< set inaktiv in shutdown mode
-    quint8  m_bInaktivAtEmgyStop;   //!< set inaktiv in emergency stop mode
+    quint16 m_bEnabled;             //!< Enable/Disable modul
+    quint16 m_bInaktivAtShutdown;   //!< set inaktiv in shutdown mode
+    quint16 m_bInaktivAtEmgyStop;   //!< set inaktiv in emergency stop mode
     quint16 m_sPolarity;            //!< output polarity
     quint16 m_sOutvalInactiv;       //!< output value when inactiv
     quint16 m_sLivetimeLimit;       //!< on/off limit for lifetim counter
@@ -659,7 +659,7 @@ public:
     }
 
     QString m_Type;                     //!< device type
-    quint32 m_InstanceID;       //!< Instance id
+    quint32 m_InstanceID;               //!< Instance id
     bool m_Optional;                    //!< optional device
     quint8 m_OrderNr;                   //!< creation order number
     DeviceFctModList m_DevFctModList;   //!< list of the function modules need by the device
