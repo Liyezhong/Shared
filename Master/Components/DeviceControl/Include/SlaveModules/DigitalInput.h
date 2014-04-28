@@ -124,6 +124,7 @@ private:
         ModuleCmdState_t m_State;               //!< command state
         Global::MonotonicTime m_ReqSendTime;    //!< time the command was executed
         qint32 m_Timeout;                       //!< timeout in ms
+        quint8 m_TimeoutRetry;                  //!< timeout retry time
     } ModuleCommand_t;
 
     ModuleCommand_t m_ModuleCommand[MAX_DINP_CMD_IDX];  //!< // array of module commands for simultaneously execution
