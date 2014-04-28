@@ -532,6 +532,7 @@ private:
         NodeState_t NodeState;          //!< node state
         Global::MonotonicTime ReqSendTime;  //!< time the command was executed
         qint32 Timeout;                     //!< timeout in ms
+        quint8 TimeoutRetry;                //!< timeout retry time
     } ModuleCommand_t;
 
     QList<ModuleCommand_t *> m_ModuleCommand;   //!< Queue of module commands for simultaneous execution
