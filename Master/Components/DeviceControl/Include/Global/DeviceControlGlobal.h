@@ -39,6 +39,7 @@ namespace DeviceControl
 #define UNDEFINED_4_BYTE    (0xFFFFFFFF)
 
 #define MINIMUM_CHECK_SENSOR_T (100) //in msec
+#define MAX_SENSOR_PER_TEMP_CTRL (2)
 
 //****************************************************************************/
 // Module constants
