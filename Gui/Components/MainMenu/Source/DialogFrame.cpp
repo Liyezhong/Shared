@@ -77,11 +77,18 @@ void CDialogFrame::changeEvent(QEvent *p_Event)
     }
 }
 
-
-void CDialogFrame::showEvent(QShowEvent *p_Event)
+void CDialogFrame::setVisible(bool visible)
 {
-    QDialog::showEvent(p_Event);
-    if (mp_MainWindow && (p_Event->type() == QShowEvent::Show))
+    QDialog::setVisible(visible);
+    if (visible)
+    {
+        CenterPosition();
+    }
+}
+
+void CDialogFrame::CenterPosition()
+{
+    if (mp_MainWindow)
     {
         QRect scr = mp_MainWindow->geometry();
         this->move( scr.center() - this->rect().center());
