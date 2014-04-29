@@ -485,7 +485,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportHeaterOperatingTime(GetModuleHandle(), RetVal, (quint8)m_ModuleCommand[idx].State, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_FANSPEED)
@@ -501,7 +501,7 @@ void CTemperatureControl::HandleCommandRequestTask()
                 }
                 else
                 {
-                    emit ReportFanSpeed(GetModuleHandle(), RetVal, m_ModuleCommand[idx].State, 0);
+                    emit ReportFanSpeed(GetModuleHandle(), RetVal, (quint8)m_ModuleCommand[idx].State, 0);
                 }
             }
             else if(m_ModuleCommand[idx].Type == FM_TEMP_CMD_TYPE_REQ_HARDWARE)
@@ -566,7 +566,7 @@ void CTemperatureControl::HandleCommandRequestTask()
             {
                 if((m_ModuleCommand[idx].TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME )
                 {
-                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                    emit ReportError(GetModuleHandle(), (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT,
                                  Global::AdjustedTime::Instance().GetCurrentDateTime());
                     m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                     m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
@@ -1416,7 +1416,7 @@ ReturnCode_t CTemperatureControl::SetSwitchState(qint8 SwitchState, qint8 AutoSw
     else
     {
         RetVal = DCL_ERR_INVALID_STATE;
-        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << m_TaskID;
+        FILE_LOG_L(laFCT, llERROR) << " CTemperatureControl, Invalid state: " << (quint32)m_TaskID;
     }
 
     return RetVal;

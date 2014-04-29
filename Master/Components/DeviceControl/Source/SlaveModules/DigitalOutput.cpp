@@ -413,9 +413,9 @@ void CDigitalOutput::HandleCommandRequestTask()
             ActiveCommandFound = true;
             if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
             {
-			    if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
+                if(m_ModuleCommand[idx].m_ReqSendTime.Elapsed() > m_ModuleCommand[idx].m_Timeout)
                 {
-                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                    emit ReportError(GetModuleHandle(), (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT,
                                      Global::AdjustedTime::Instance().GetCurrentDateTime());
 
                     m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;

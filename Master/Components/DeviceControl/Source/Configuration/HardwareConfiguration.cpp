@@ -1233,7 +1233,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
 
         if ((posCodeIndex <= 0) || (posCodeIndex >= 4)) {
             ErrorCleanUp(pCANFctModuleStepperMotor);
-            return 0;
+            return 0;  //lint !e429
         }
 
         if(posCodeIndex == 1) {
@@ -1257,7 +1257,7 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     if(child.isNull())
     {
         ErrorCleanUp(pCANFctModuleStepperMotor);
-        return 0;
+        return 0;  //lint !e429
     }
     strStepLossWarnLimit  = child.attribute("steploss_warn_limit");
     strStepLossErrorLimit = child.attribute("steploss_error_limit");

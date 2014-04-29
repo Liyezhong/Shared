@@ -120,8 +120,8 @@ qint16 CANCommunicator::StartComm(const char* ifaceCAN)
         }
         else
         {
-            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_START, DCL_ERR_CANCOMMUTOR_START,
-                             DCL_ERR_CANCOMMUTOR_START,Global::AdjustedTime::Instance().GetCurrentDateTime());
+            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, (quint16)DCL_ERR_CANCOMMUTOR_START, (quint16)DCL_ERR_CANCOMMUTOR_START,
+                             (quint16)DCL_ERR_CANCOMMUTOR_START,Global::AdjustedTime::Instance().GetCurrentDateTime());
         }
     }
     else
@@ -131,8 +131,8 @@ qint16 CANCommunicator::StartComm(const char* ifaceCAN)
 
         if (!m_pClient->Initialize()) {
             FILE_LOG_L(laINIT, llDEBUG) << "  CANCommunicator ERROR: cannot initialize TCP-Client... ";
-            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
-                             DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
+            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, (quint16)DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
+                             (quint16)DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT, (quint16)DCL_ERR_CANCOMMUTOR_TCPCLIENT_INIT,
                              Global::AdjustedTime::Instance().GetCurrentDateTime());
             sReturn = -1;
         }
@@ -247,8 +247,8 @@ qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
         FILE_LOG_L(laINIT, llDEBUG) << " can open returns " <<  sRetval;
         if (sRetval < 0)
         {
-            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN, DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,
-                             DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,Global::AdjustedTime::Instance().GetCurrentDateTime());
+            emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, (quint16)DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN, (quint16)DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,
+                             (quint16)DCL_ERR_CANCOMMUTOR_INTERFACE_OPEN,Global::AdjustedTime::Instance().GetCurrentDateTime());
         }
     }
 
@@ -265,8 +265,8 @@ qint16 CANCommunicator::OpenCAN(const char* ifaceCAN)
 /****************************************************************************/
 void CANCommunicator::SetCommunicationError(qint16 nError, qint16 nErrorAdditionalInfo)
 {
-    emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, DCL_ERR_CANCOMMUTOR_COMM_FAILED, DCL_ERR_CANCOMMUTOR_COMM_FAILED,
-                     DCL_ERR_CANCOMMUTOR_COMM_FAILED,Global::AdjustedTime::Instance().GetCurrentDateTime());
+    emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED, (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED,
+                     (quint16)DCL_ERR_CANCOMMUTOR_COMM_FAILED,Global::AdjustedTime::Instance().GetCurrentDateTime());
     //pthread_mutex_lock( &mutexCOB );
     if(nError != m_nErrorCode)
     {
@@ -419,7 +419,7 @@ ReturnCode_t CANCommunicator::SendCOB(can_frame& canmsg)
 
     if (DCL_ERR_FCT_CALL_SUCCESS != retval)
     {
-        emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, retval, retval, retval,
+        emit ReportError(DEVICE_INSTANCE_ID_CAN_COMMUTOR, (quint16)retval, (quint16)retval, (quint16)retval,
                          Global::AdjustedTime::Instance().GetCurrentDateTime());
     }
     return retval;
