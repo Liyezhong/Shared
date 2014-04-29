@@ -135,8 +135,8 @@ private slots:
     //ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
 
 
-    bool IsInsideRange(ALTempCtrlType_t Type);
-    bool IsOutsideRange(ALTempCtrlType_t Type);
+    bool IsInsideRange(ALTempCtrlType_t Type, quint8 Index);
+    bool IsOutsideRange(ALTempCtrlType_t Type, quint8 Index);
     bool IsTemperatureControlOn(ALTempCtrlType_t Type);
     bool IsTemperatureControlOff(ALTempCtrlType_t Type);
     bool IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qreal Tolerance, qint32 Num, bool Init);
@@ -189,7 +189,7 @@ private:
     qint64 m_LastGetPressureTime;                        //!< Last time of getting pressure
     QList<qreal> m_PIDDataList;                          //!< PID parameters list
 
-    qreal m_CurrentTemperatures[AL_TEMP_CTRL_NUM];                    //!< Current temperature
+    qreal m_CurrentTemperatures[AL_TEMP_CTRL_NUM][MAX_SENSOR_PER_TEMP_CTRL];   //!< Current temperature
     qreal m_TargetTemperatures[AL_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[AL_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[AL_TEMP_CTRL_NUM];       //!< Current temperature control status

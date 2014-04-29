@@ -1722,7 +1722,7 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
     qreal RetValue;
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
     {
-        RetValue = m_CurrentTemperatures[Type];
+        RetValue = m_CurrentTemperatures[Type][Index];
     }
     else
     {
@@ -1860,11 +1860,11 @@ TempCtrlState_t CAirLiquidDevice::GetTemperatureControlState(ALTempCtrlType_t Ty
     }
     else if (IsTemperatureControlOn(Type))
     {
-        if (IsInsideRange(Type))
+        if (IsInsideRange(Type, 0))
         {
             controlstate = TEMPCTRL_STATE_INSIDE_RANGE;
         }
-        else if (IsOutsideRange(Type))
+        else if (IsOutsideRange(Type, 0))
         {
             controlstate = TEMPCTRL_STATE_OUTSIDE_RANGE;
         }
@@ -1916,14 +1916,14 @@ void CAirLiquidDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGr
  *  \return  True if is inside the range, else not.
  */
 /****************************************************************************/
-bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
+bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
         {
-            if ((m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] - TOLERANCE)||
-                            (m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] + TOLERANCE))
+            if ((m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] - TOLERANCE)||
+                            (m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] + TOLERANCE))
             {
                 return true;
             }
@@ -1946,14 +1946,14 @@ bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type)
  *  \return  True if is outside the range, else not.
  */
 /****************************************************************************/
-bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type)
+bool CAirLiquidDevice::IsOutsideRange(ALTempCtrlType_t Type, quint8 Index)
 {
     if(GetTemperature(Type, 0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type] != UNDEFINED_4_BYTE))
+        if((m_TargetTemperatures[Type] != UNDEFINED_4_BYTE) || (m_CurrentTemperatures[Type][Index] != UNDEFINED_4_BYTE))
         {
-            if ((m_CurrentTemperatures[Type] < m_TargetTemperatures[Type] - TOLERANCE)||
-                            (m_CurrentTemperatures[Type] > m_TargetTemperatures[Type] + TOLERANCE))
+            if ((m_CurrentTemperatures[Type][Index] < m_TargetTemperatures[Type] - TOLERANCE)||
+                            (m_CurrentTemperatures[Type][Index] > m_TargetTemperatures[Type] + TOLERANCE))
             {
                 return true;
             }
@@ -2066,7 +2066,7 @@ void CAirLiquidDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode
 qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    qreal RetValue = m_CurrentTemperatures[Type];
+    qreal RetValue = m_CurrentTemperatures[Type][Index];
     if((Now - m_LastGetTempTime[Type][Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         ReturnCode_t retCode = m_pTempCtrls[Type]->ReqActTemperature(Index);
@@ -2083,7 +2083,7 @@ qreal CAirLiquidDevice::GetTemperature(ALTempCtrlType_t Type, quint8 Index)
             }
             else
             {
-                RetValue = m_CurrentTemperatures[Type];
+                RetValue = m_CurrentTemperatures[Type][Index];
             }
             m_LastGetTempTime[Type][Index] = Now;
         }
@@ -2193,12 +2193,12 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
     if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
     {
         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: AL Get temperature successful! ";
-        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = Temp;
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]][Index] = Temp;
     }
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]] = UNDEFINED_4_BYTE;
+        m_CurrentTemperatures[m_InstTCTypeMap[InstanceID]][Index] = UNDEFINED_4_BYTE;
     }
     m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_GET_TEMP, ReturnCode);
 }
