@@ -603,7 +603,7 @@ void CBaseModule::HandleTaskInitialization(can_frame* pCANframe)
                                             << (m_FunctionModuleList.count() + 1) << " - " << (int) m_ChannelCount;
                 // Switch to the boot loader to change the firmware
                 mp_BootLoader->WaitForUpdate(true);
-                SendCANMsgReset();
+                (void)SendCANMsgReset();
             }
             else
             {

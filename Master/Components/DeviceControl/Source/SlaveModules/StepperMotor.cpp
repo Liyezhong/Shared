@@ -1474,7 +1474,7 @@ void CStepperMotor::HandleCommandRequestTask()
             {
                 if((m_ModuleCommand[idx].m_TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME)
                 {
-                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                    emit ReportError(GetModuleHandle(), (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT,
                                      Global::AdjustedTime::Instance().GetCurrentDateTime());
                     m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                     m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;

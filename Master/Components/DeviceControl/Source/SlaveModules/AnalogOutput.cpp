@@ -493,7 +493,7 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
         canmsg.data[0] |= 0x20;
     }
 
-	canmsg.data[1] = pCANObjConfAnaOutPort->m_sBitCount;
+    canmsg.data[1] = pCANObjConfAnaOutPort->m_sBitCount;
     SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sOutvalInactiv, 2);
     SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sLivetimeLimit, 4);
 

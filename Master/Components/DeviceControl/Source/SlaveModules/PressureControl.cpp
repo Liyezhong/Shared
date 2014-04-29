@@ -75,7 +75,7 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
         m_ModuleCommand[idx].TimeoutRetry = 0;
     }
     memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
-    ReadValveOperationTime();
+    (void)ReadValveOperationTime();
 }
 
 /****************************************************************************/
@@ -603,7 +603,7 @@ void CPressureControl::HandleCommandRequestTask()
             {
                 if((m_ModuleCommand[idx].TimeoutRetry++) >= MODULE_CMD_MAX_RESEND_TIME )
                 {
-                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                    emit ReportError(GetModuleHandle(), (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT,
                                  Global::AdjustedTime::Instance().GetCurrentDateTime());
                     m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                     m_ModuleCommand[idx].State = MODULE_CMD_STATE_FREE;
@@ -1411,7 +1411,7 @@ ReturnCode_t CPressureControl::SetValve(quint8 ValveIndex, quint8 ValveState)
         m_ModuleCommand[CmdIndex].ValveState = ValveState;
         FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Valve Index: " << ValveIndex;
         FILE_LOG_L(laDEV, llINFO) << " CPressureControl, Valve State: " << ValveState;
-        AddValveOperationTime(ValveIndex);
+        (void)AddValveOperationTime(ValveIndex);
     }
     else
     {

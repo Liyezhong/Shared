@@ -1458,8 +1458,8 @@ RVPosition_t CRotaryValveDevice::ReqAdjacentPosition(RVPosition_t position)
     if(position != RV_UNDEF)
     {
         quint8 remainder = (quint8)position % 2;
-        quint8 left = (quint8)position / 2;
-        result = (RVPosition_t)(left * 2 + remainder * 2 + remainder - 1);
+        quint8 residue = (quint8)position / 2;
+        result = (RVPosition_t)(residue * 2 + remainder * 2 + remainder - 1);
     }
     return result;
 }
@@ -1948,7 +1948,7 @@ void CRotaryValveDevice::OnGetPosition(quint32 /*InstanceID*/, ReturnCode_t Retu
     m_CurrentPosition = Position;
     m_CurrentLimitSwitchCode = PosCode;
     if (ReturnCode != DCL_ERR_FCT_CALL_SUCCESS) {
-        LogDebug(QString( "WRANING! Unexpected return code at OnGetPosition: %1").arg(ReturnCode));
+        LogDebug(QString( "WRANING! Unexpected return code at OnGetPosition: %1").arg((quint32)ReturnCode));
     } else {
         //m_CurrentPositionKnown = true;
     }
@@ -2374,7 +2374,7 @@ void CRotaryValveDevice::OnReferenceRun(quint32 InstanceID, ReturnCode_t ReturnC
     }
     else
     {
-        LogDebug(QString( "WARNING! Unexpected return code at OnReferenceRun: %1").arg(ReturnCode));
+        LogDebug(QString( "WARNING! Unexpected return code at OnReferenceRun: %1").arg((quint32)ReturnCode));
     }
     if(m_pDevProc)
     {
@@ -2455,7 +2455,7 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
 {
     // exit from eventloop: 1 success, 0 timeout, -1 failure
     if ( DCL_ERR_FCT_CALL_SUCCESS  !=ReturnCode) {
-        LogDebug(QString( "WARNING! Unexpected return code at OnSetMotorState: %1").arg(ReturnCode));
+        LogDebug(QString( "WARNING! Unexpected return code at OnSetMotorState: %1").arg((quint32)ReturnCode));
     }
 
     if(m_pDevProc)

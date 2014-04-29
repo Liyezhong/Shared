@@ -296,7 +296,7 @@ void CDigitalInput::HandleCommandRequestTask()
                     m_lastErrorHdlInfo = DCL_ERR_TIMEOUT;
                     m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_FREE;
                     m_ModuleCommand[idx].m_TimeoutRetry = 0;
-                    emit ReportError(GetModuleHandle(), DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT, DCL_ERR_TIMEOUT,
+                    emit ReportError(GetModuleHandle(), (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT, (quint16)DCL_ERR_TIMEOUT,
                                  Global::AdjustedTime::Instance().GetCurrentDateTime());
 
                     if(m_ModuleCommand[idx].m_Type == FM_DI_CMD_TYPE_ACTVALUE_REQ)
