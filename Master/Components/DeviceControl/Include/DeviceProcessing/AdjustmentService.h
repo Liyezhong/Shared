@@ -47,6 +47,17 @@ class CANCommunicator;
 class CAdjustmentService
 {
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CAdjustmentService
+     *
+     *  \param pDeviceProcessing = DeviceProcessing type parameter
+     *  \param pCANCommunicator =  CANCommunicator type parameter
+     *  \param pObjectTree =  ObjectTree type parameter
+     *
+     *  \return from CAdjustmentService
+     */
+    /****************************************************************************/
     CAdjustmentService(DeviceProcessing* pDeviceProcessing, CANCommunicator* pCANCommunicator, ObjectTree* pObjectTree);
     virtual ~CAdjustmentService();
 
@@ -67,14 +78,62 @@ public:
     /****************************************************************************/
     AdjustmentServiceMainState_t GetState() { return m_mainState; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTasks
+     *
+     *  \return from HandleTasks
+     */
+    /****************************************************************************/
     void HandleTasks();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ThrowErrorSignal
+     *
+     *  \param usNodeID = quint16 type parameter
+     *  \param ulModulInfo =  quint32 type parameter
+     *  \param usErrorGroup =  quint16 type parameter
+     *  \param usErrorID =  quint16 type parameter
+     *  \param sErrorData =  qint16 type parameter
+     *
+     *  \return from ThrowErrorSignal
+     */
+    /****************************************************************************/
     void ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo, quint16 usErrorGroup, quint16 usErrorID, qint16 sErrorData);
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleInitializationState
+     *
+     *  \return from HandleInitializationState
+     */
+    /****************************************************************************/
     void HandleInitializationState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleConfigurationState
+     *
+     *  \return from HandleConfigurationState
+     */
+    /****************************************************************************/
     void HandleConfigurationState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleIdleState
+     *
+     *  \return from HandleIdleState
+     */
+    /****************************************************************************/
     void HandleIdleState();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCANNodesTask
+     *
+     *  \return from HandleCANNodesTask
+     */
+    /****************************************************************************/
     void HandleCANNodesTask();
 
     DeviceProcessing* m_pDeviceProcessing;  //!< Global device processing

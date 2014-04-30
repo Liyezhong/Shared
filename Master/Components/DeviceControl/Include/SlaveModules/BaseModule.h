@@ -59,6 +59,18 @@ class CBaseModule : public CModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CBaseModule
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param nCANNodeType
+     *  \param nCANNodeIndex
+     *
+     *  \return from CBaseModule
+     */
+    /****************************************************************************/
     CBaseModule(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                 int nCANNodeType, int nCANNodeIndex);
     ~CBaseModule();
@@ -68,7 +80,23 @@ public:
     void HandleTasks(); //!< Task handling function
     void HandleCanMessage(can_frame* pCANframe);    //!< CAN message handing function
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetBootLoader
+     *
+     *  \return from GetBootLoader
+     */
+    /****************************************************************************/
     CBootLoader *GetBootLoader();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function BootLoaderUpdate
+     *
+     *  \param State = CBootLoader::State_t type parameter
+     *
+     *  \return from BootLoaderUpdate
+     */
+    /****************************************************************************/
     void BootLoaderUpdate(CBootLoader::State_t State);
 
     //! Adds a function module to the internal module list
@@ -162,6 +190,15 @@ public:
     /****************************************************************************/
     quint16 GetSWVersion() const { return m_SWVersion; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetModuleSWVersion
+     *
+     *  \param ModuleID = CModuleConfig::CANObjectType_t type parameter
+     *
+     *  \return from GetModuleSWVersion
+     */
+    /****************************************************************************/
     quint16 GetModuleSWVersion(CModuleConfig::CANObjectType_t ModuleID) const;
 
     ReturnCode_t SetNodeState(NodeState_t); //!< Set node state
@@ -183,14 +220,49 @@ public:
     ReturnCode_t ReqLaunchDate();           //!< Request launch date
     ReturnCode_t ReqBoardName();            //!< Request board name
     ReturnCode_t ReqBoardOptions();         //!< Request board options
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ConfigureVoltageMonitor
+     *
+     *  \param Enable
+     *  \param Filter
+     *  \param SamplingPeriod
+     *  \param GoodThreshold
+     *  \param FailThreshold
+     *
+     *  \return from ConfigureVoltageMonitor
+     */
+    /****************************************************************************/
     ReturnCode_t ConfigureVoltageMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
                                          quint16 GoodThreshold, quint16 FailThreshold);
     ReturnCode_t ReqVoltageState();         //!< Request voltage monitor status
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ConfigureCurrentMonitor
+     *
+     *  \param Enable
+     *  \param Filter
+     *  \param SamplingPeriod
+     *  \param GoodThreshold
+     *  \param FailThreshold
+     *
+     *  \return from ConfigureCurrentMonitor
+     */
+    /****************************************************************************/
     ReturnCode_t ConfigureCurrentMonitor(bool Enable, quint8 Filter, quint8 SamplingPeriod,
                                          quint16 GoodThreshold, quint16 FailThreshold);
     ReturnCode_t ReqCurrentState();         //!< Request current monitor status
     ReturnCode_t ReqUniqueNumber();         //!< Request unique number
     ReturnCode_t ReqModuleSerialNumber();   //!< Request module serial number
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetModuleSerialNumber
+     *
+     *  \param ModuleSerialNumber = quint64 type parameter
+     *
+     *  \return from SetModuleSerialNumber
+     */
+    /****************************************************************************/
     ReturnCode_t SetModuleSerialNumber(quint64 ModuleSerialNumber) const;
 
     static QMap<quint32, std::string> m_EventString;    //!< list with info strings for CAN events
@@ -387,7 +459,7 @@ signals:
 private:
     CBaseModule();   ///< Not implemented.
     CBaseModule(const CBaseModule &); ///< Not implemented.
-    const CBaseModule & operator = (const CBaseModule &); ///< Not implemented.
+    //const CBaseModule & operator = (const CBaseModule &); ///< Not implemented.
 
     ReturnCode_t InitializeCANMessages();   //!< CAN message ID initialization
     ReturnCode_t RegisterCANMessages();     //!< Registers the can messages to communication layer
@@ -433,7 +505,7 @@ private:
     ReturnCode_t SendCANMsgReqCurrentState();           //!< sends the can message 'CurrentState'
     ReturnCode_t SendCANMsgReqUniqueNumber();           //!< sends the can message 'RequestUniqueNumber'
     ReturnCode_t SendCANMsgReqModuleSerialNumber();     //!< sends the can message 'RequestModuleSerialNumber'
-    ReturnCode_t SendCANMsgSetModuleSerialNumber();     //!< sends the can message 'SetModuleSerialNumber'
+    //ReturnCode_t SendCANMsgSetModuleSerialNumber();     //!< sends the can message 'SetModuleSerialNumber'
 
     // evaluation of received CAN messages
     void HandleCANMsgHeartbeatSlave(can_frame* pCANframe);          //!< handles the receipt of can message 'HeartbeatSlave'
@@ -461,6 +533,16 @@ private:
 
     //! Helper functions
     static void CalcTimeDiff(struct timeb tpTimeEnd, struct timeb tbTimeStart, qint16& nSeconds, qint32& nMilliSeconds);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ThrowEvent
+     *
+     *  \param EventCode = quint32 type parameter
+     *  \param EventData =  quint16 type parameter
+     *
+     *  \return from ThrowEvent
+     */
+    /****************************************************************************/
     void ThrowEvent(quint32 EventCode, quint16 EventData);
 
     /*! Initialisation state type definition */

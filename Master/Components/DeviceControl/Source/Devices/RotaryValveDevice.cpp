@@ -2467,8 +2467,6 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
 /*!
  *  \brief   Get actual current of device's heater.
  *
- *  \iparam  Type = The target temperature contorl module to control.
- *
  *  \return  The current of heater in mA.
  */
 /****************************************************************************/
@@ -2518,6 +2516,8 @@ quint16 CRotaryValveDevice::GetHeaterCurrent(void)
  *  \iparam Heaters = Number of heating elements connected to the board
  *  \iparam Pids = Number of PID controllers in the control loop
  *  \iparam Current = Current through the heatinf circuit in milliamperes
+ *  \param InstanceID
+ *  \param HeaterSwitchType
  */
 /****************************************************************************/
 void CRotaryValveDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,

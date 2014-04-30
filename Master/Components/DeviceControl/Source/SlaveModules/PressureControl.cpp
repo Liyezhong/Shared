@@ -1092,7 +1092,7 @@ ReturnCode_t CPressureControl::SendCANMsgSetPressure(quint8 flag, float Pressure
  *  \brief  Send the CAN message to set valves' state
  *
  *  \iparam ValveIndex = index of the valves, start from 0
- *  \iparam falgs = 0: close  1: open
+ *  \iparam flags = 0: close  1: open
  *
  *  \return The return value is set from SendCOB(can_frame)
  */
@@ -1178,7 +1178,7 @@ ReturnCode_t CPressureControl::SendCANMsgSetFan(quint8 State)
 /*!
  *  \brief  Send the CAN message to enable/disable calibration function.
  *
- *  \iparam Enabl= true: Enable  false: Disable
+ *  \iparam Enable= true: Enable  false: Disable
  *
  *  \return The return value is set from SendCOB(can_frame)
  */
@@ -1486,10 +1486,10 @@ ReturnCode_t CPressureControl::SetCalibration(bool Enable)
 /*!
  *  \brief  Set PWM parameters.
  *
- *  \iparam MaxActuatingValue = Maximum actuaing value
- *  \iparam MinActuatingValue = Minumum actuaing value
- *  \iparam MaxPwmDuty = Maximum PWM duty
- *  \iparam MinPwmDuty = Minumum PWM duty
+ *  \iparam maxActuatingValue = Maximum actuaing value
+ *  \iparam minActuatingValue = Minumum actuaing value
+ *  \iparam maxPwmDuty = Maximum PWM duty
+ *  \iparam minPwmDuty = Minumum PWM duty
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise an error code

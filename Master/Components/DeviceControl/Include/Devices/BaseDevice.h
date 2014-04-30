@@ -33,6 +33,11 @@
 
 namespace DeviceControl
 {
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of typedef ListBaseModule
+ */
+/****************************************************************************/
 typedef QList<CBaseModule *> ListBaseModule;
 /****************************************************************************/
 /*!
@@ -46,6 +51,16 @@ class CBaseDevice : public QObject
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CBaseDevice
+     *
+     *  \param pDeviceProcessing = DeviceProcessing type parameter
+     *  \param Type =  QString type parameter
+     *
+     *  \return from CBaseDevice
+     */
+    /****************************************************************************/
     CBaseDevice(DeviceProcessing* pDeviceProcessing, QString Type);
     virtual ~CBaseDevice();
 
@@ -121,25 +136,141 @@ public:
     /*****************************************************************************/
     DeviceProcessing* GetDeviceProcessing() const { return m_pDevProc; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetFctModInstanceFromKey
+     *
+     *  \param Key =  QString type parameter
+     *
+     *  \return from GetFctModInstanceFromKey
+     */
+    /****************************************************************************/
     quint32 GetFctModInstanceFromKey(const QString &Key);
 
     //! Get Function module key from instance ID
     QString GetFctModKeyFromInstance(const quint32 instanceID);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetBaseModuleList
+     *
+     *  \return from GetBaseModuleList
+     */
+    /****************************************************************************/
     ListBaseModule GetBaseModuleList() const {return m_BaseModuleList;}
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function InsertBaseModule
+     *
+     *  \param pBase = CBaseModule type parameter
+     *
+     *  \return from InsertBaseModule
+     */
+    /****************************************************************************/
     bool InsertBaseModule(CBaseModule* pBase);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCANNodeFromID
+     *
+     *  \param CANNodeID = quint16 type parameter
+     *
+     *  \return from GetCANNodeFromID
+     */
+    /****************************************************************************/
     CBaseModule* GetCANNodeFromID(quint16 CANNodeID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetBaseModuleVoltage
+     *
+     *  \param CANNodeID = quint16 type parameter
+     *
+     *  \return from GetBaseModuleVoltage
+     */
+    /****************************************************************************/
     quint16 GetBaseModuleVoltage(quint16 CANNodeID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetBaseModuleCurrent
+     *
+     *  \param CANNodeID = quint16 type parameter
+     *
+     *  \return from GetBaseModuleCurrent
+     */
+    /****************************************************************************/
     quint16 GetBaseModuleCurrent(quint16 CANNodeID);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetNewCANStepperMotorTask
+     *
+     *  \param MotorTaskID = CANStepperMotorTask::CANStepperMotorTaskID_t type parameter
+     *
+     *  \return from GetNewCANStepperMotorTask
+     */
+    /****************************************************************************/
     static CANStepperMotorTask*    GetNewCANStepperMotorTask(CANStepperMotorTask::CANStepperMotorTaskID_t MotorTaskID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetNewCANRFIDTask
+     *
+     *  \param RFIDTaskID = CANRFIDTask::CANRFIDTaskID_t type parameter
+     *
+     *  \return from GetNewCANRFIDTask
+     */
+    /****************************************************************************/
     static CANRFIDTask*            GetNewCANRFIDTask(CANRFIDTask::CANRFIDTaskID_t RFIDTaskID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetNewCANDigitalOutputTask
+     *
+     *  \param DigOutpTaskID = CANDigitalOutputTask::CANDigitalOutputTaskID_t type parameter
+     *
+     *  \return from GetNewCANDigitalOutputTask
+     */
+    /****************************************************************************/
     static CANDigitalOutputTask*   GetNewCANDigitalOutputTask(CANDigitalOutputTask::CANDigitalOutputTaskID_t DigOutpTaskID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetNewCANDigitalInputTask
+     *
+     *  \param DigInpTaskID = CANDigitalInputTask::CANDigitalInputTaskID_t type parameter
+     *
+     *  \return from GetNewCANDigitalInputTask
+     */
+    /****************************************************************************/
     static CANDigitalInputTask*    GetNewCANDigitalInputTask(CANDigitalInputTask::CANDigitalInputTaskID_t DigInpTaskID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetNewCANTempCtrlTask
+     *
+     *  \param TempCtrlTaskID = CANTemperatureCtrlTask::CANTempCtrlTaskID_t type parameter
+     *
+     *  \return from GetNewCANTempCtrlTask
+     */
+    /****************************************************************************/
     static CANTemperatureCtrlTask* GetNewCANTempCtrlTask(CANTemperatureCtrlTask::CANTempCtrlTaskID_t TempCtrlTaskID);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetNewDeviceTask
+     *
+     *  \param TaskState = DeviceTask::DeviceTaskState_t type parameter
+     *  \param Key =  quint16 type parameter
+     *
+     *  \return from GetNewDeviceTask
+     */
+    /****************************************************************************/
     static DeviceTask* GetNewDeviceTask(DeviceTask::DeviceTaskState_t TaskState, quint16 Key);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function LogDebug
+     *
+     *  \param message = QString type parameter
+     *
+     *  \return from LogDebug
+     */
+    /****************************************************************************/
     inline void LogDebug(QString message)
     {
         qDebug() << message;
@@ -149,14 +280,47 @@ public:
     }
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnFunctionModuleError
+     */
+    /****************************************************************************/
     void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnReportVoltageState
+     */
+    /****************************************************************************/
     void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Voltage);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnReportCurrentState
+     */
+    /****************************************************************************/
     void OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Current);
 protected:
     /// Compact function to set the error parameter and error time by one code line
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetProcSettingMotionProfile
+     *
+     *  \param Key = QString type parameter
+     *
+     *  \return from GetProcSettingMotionProfile
+     */
+    /****************************************************************************/
     MotionProfileIdx_t GetProcSettingMotionProfile(QString Key);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetProcSettingPosition
+     *
+     *  \param Key = QString type parameter
+     *
+     *  \return from GetProcSettingPosition
+     */
+    /****************************************************************************/
     Position_t         GetProcSettingPosition(QString Key);
 
     DeviceProcessing*   m_pDevProc;         ///< pointer to the device processing class
@@ -180,10 +344,10 @@ protected:
     qint16 m_stateTimespan;                 ///< max. time delay of current active timeout observation
 
     QString      m_TypeKey;                 ///< key, used for process settings access
-    ListBaseModule m_BaseModuleList;        /// The list contain all the base modules.
-    quint16 m_BaseModuleVoltage;            /// The base module's actual voltage
-    quint16 m_BaseModuleCurrent;            /// The base module's actual current
-    qint64 m_LastSensorCheckTime;           /// The last check sensor's time(in sec since Epoch)
+    ListBaseModule m_BaseModuleList;        ///< The list contain all the base modules.
+    quint16 m_BaseModuleVoltage;            ///< The base module's actual voltage
+    quint16 m_BaseModuleCurrent;            ///< The base module's actual current
+    qint64 m_LastSensorCheckTime;           ///< The last check sensor's time(in sec since Epoch)
 };
 
 } //namespace

@@ -72,11 +72,47 @@ public:
         Undefined             //!< undefined
     };
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Connection
+     *
+     *  \param pParent = QObject type parameter
+     *
+     *  \return from Connection
+     */
+    /****************************************************************************/
     Connection(QObject *pParent = 0);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function name
+     *
+     *  \return from name
+     */
+    /****************************************************************************/
     QString name() const;
+
     void SetGreetingMessage(const QString &message);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMessage
+     *
+     *  \param pCANframe = can_frame type parameter
+     *
+     *  \return from SendCANMessage
+     */
+    /****************************************************************************/
     bool SendCANMessage(can_frame* pCANframe);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Initialize
+     *
+     *  \param ip = QString type parameter
+     *  \param port =  QString type parameter
+     *
+     *  \return from Initialize
+     */
+    /****************************************************************************/
     bool Initialize(QString ip, QString port);
 
 signals:
@@ -107,20 +143,87 @@ signals:
     void newCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3, quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc);
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot connectToServer
+     */
+    /****************************************************************************/
     void connectToServer();
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot processReadyRead
+     */
+    /****************************************************************************/
     void processReadyRead();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot sendPing
+     */
+    /****************************************************************************/
     void sendPing();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot sendGreetingMessage
+     */
+    /****************************************************************************/
     void sendGreetingMessage();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot handleSocketError
+     */
+    /****************************************************************************/
     void handleSocketError(QAbstractSocket::SocketError);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot disconnectFromServer
+     */
+    /****************************************************************************/
     void disconnectFromServer();
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function readDataIntoBuffer
+     *
+     *  \param maxSize = int type parameter
+     *
+     *  \return from readDataIntoBuffer
+     */
+    /****************************************************************************/
     int readDataIntoBuffer(int maxSize = MaxBufferSize);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function dataLengthForCurrentDataType
+     *
+     *  \return from dataLengthForCurrentDataType
+     */
+    /****************************************************************************/
     int dataLengthForCurrentDataType();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function readProtocolHeader
+     *
+     *  \return from readProtocolHeader
+     */
+    /****************************************************************************/
     bool readProtocolHeader();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function hasEnoughData
+     *
+     *  \return from hasEnoughData
+     */
+    /****************************************************************************/
     bool hasEnoughData();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function processData
+     *
+     *  \return from processData
+     */
+    /****************************************************************************/
     void processData();
 
     QString m_GreetingMessage;              //!< greeting message for connection establishing

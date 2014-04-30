@@ -46,6 +46,17 @@ class CJoystick : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CJoystick
+     *
+     *  \param mp_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CJoystick
+     */
+    /****************************************************************************/
     CJoystick(const CANMessageConfiguration *mp_MessageConfiguration, CANCommunicator* pCANCommunicator,
               CBaseModule* pParentNode);
     ~CJoystick();
@@ -55,8 +66,33 @@ public:
     void HandleTasks();
     void HandleCanMessage(can_frame* pCANframe);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReqActInputValue
+     *
+     *  \return from ReqActInputValue
+     */
+    /****************************************************************************/
     ReturnCode_t ReqActInputValue();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetActInputValue
+     *
+     *  \param inputValue = quint16 type parameter
+     *
+     *  \return from GetActInputValue
+     */
+    /****************************************************************************/
     ReturnCode_t GetActInputValue(quint16& inputValue);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetContactLimitValue
+     *
+     *  \param contactValue = quint16 type parameter
+     *
+     *  \return from SetContactLimitValue
+     */
+    /****************************************************************************/
     ReturnCode_t SetContactLimitValue(quint16 contactValue);
 
 signals:
@@ -75,18 +111,83 @@ private:
     ReturnCode_t InitializeCANMessages();
     ReturnCode_t RegisterCANMessages();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendConfiguration
+     *
+     *  \return from SendConfiguration
+     */
+    /****************************************************************************/
     void SendConfiguration();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleIdleState
+     *
+     *  \return from HandleIdleState
+     */
+    /****************************************************************************/
     void HandleIdleState();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgConfig
+     *
+     *  \return from SendCANMsgConfig
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgConfig();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgMechanicalOffsetReq
+     *
+     *  \return from SendCANMsgMechanicalOffsetReq
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgMechanicalOffsetReq();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgDisplacementReq
+     *
+     *  \return from SendCANMsgDisplacementReq
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgDisplacementReq();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCANMsgInputValueResp
+     *
+     *  \param pCANframe = can_frame type parameter
+     *
+     *  \return from HandleCANMsgInputValueResp
+     */
+    /****************************************************************************/
     void HandleCANMsgInputValueResp(can_frame* pCANframe);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleDisplacmentRequestTask
+     *
+     *  \return from HandleDisplacmentRequestTask
+     */
+    /****************************************************************************/
     void HandleDisplacmentRequestTask();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleContactLimitSetTask
+     *
+     *  \return from HandleContactLimitSetTask
+     */
+    /****************************************************************************/
     void HandleContactLimitSetTask();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ResetTask
+     *
+     *  \return from ResetTask
+     */
+    /****************************************************************************/
     void ResetTask();
 
     /*! configuration state defines */
@@ -107,11 +208,11 @@ private:
     quint32 m_unCanIDMechOffsetReq;     //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDMechOffset;        //!< CAN-message id of 'TBD' message
 
-    Global::MonotonicTime m_timeAction;
-    qint16 m_aktionTimespan;
+    Global::MonotonicTime m_timeAction;       ///<  Definition/Declaration of variable m_timeAction
+    qint16 m_aktionTimespan;       ///<  Definition/Declaration of variable m_aktionTimespan
 
-    quint16 m_actInputValue;
-    quint16 m_contactLimit;
+    quint16 m_actInputValue;       ///<  Definition/Declaration of variable m_actInputValue
+    quint16 m_contactLimit;       ///<  Definition/Declaration of variable m_contactLimit
 };
 
 } //namespace

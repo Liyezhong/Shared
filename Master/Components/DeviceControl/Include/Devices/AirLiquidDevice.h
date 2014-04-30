@@ -79,89 +79,453 @@ public:
     void HandleTasks();
     //! Air Liquid device function
     ReturnCode_t SetPressureCtrlON(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetPressureCtrlOFF
+     *
+     *  \return from SetPressureCtrlOFF
+     */
+    /****************************************************************************/
     ReturnCode_t SetPressureCtrlOFF(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReleasePressure
+     *
+     *  \return from ReleasePressure
+     */
+    /****************************************************************************/
     ReturnCode_t ReleasePressure(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Pressure
+     *
+     *  \return from Pressure
+     */
+    /****************************************************************************/
     ReturnCode_t Pressure(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Vaccum
+     *
+     *  \return from Vaccum
+     */
+    /****************************************************************************/
     ReturnCode_t Vaccum(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Draining
+     *
+     *  \param DelayTime = quint32 type parameter
+     *
+     *  \return from Draining
+     */
+    /****************************************************************************/
     ReturnCode_t Draining(quint32 DelayTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Filling
+     *
+     *  \param DelayTime = quint32 type parameter
+     *
+     *  \return from Filling
+     */
+    /****************************************************************************/
     ReturnCode_t Filling(quint32 DelayTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetRecentPressure
+     *
+     *  \return from GetRecentPressure
+     */
+    /****************************************************************************/
     qreal GetRecentPressure(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function PressureForBottoleCheck
+     *
+     *  \return from PressureForBottoleCheck
+     */
+    /****************************************************************************/
     ReturnCode_t PressureForBottoleCheck(void);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTempCtrlON
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *
+     *  \return from SetTempCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t SetTempCtrlON(ALTempCtrlType_t Type);
+
     ReturnCode_t SetTempCtrlOFF(ALTempCtrlType_t type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTemperaturePid
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from SetTemperaturePid
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartTemperatureControl
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *
+     *  \return from StartTemperatureControl
+     */
+    /****************************************************************************/
     ReturnCode_t StartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartTemperatureControlWithPID
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from StartTemperatureControlWithPID
+     */
+    /****************************************************************************/
     ReturnCode_t StartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetRecentTemperature
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param Index =  quint8 type parameter
+     *
+     *  \return from GetRecentTemperature
+     */
+    /****************************************************************************/
     qreal GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetTemperatureControlState
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *
+     *  \return from GetTemperatureControlState
+     */
+    /****************************************************************************/
     TempCtrlState_t GetTemperatureControlState(ALTempCtrlType_t Type);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function TurnOnFan
+     *
+     *  \return from TurnOnFan
+     */
+    /****************************************************************************/
     ReturnCode_t TurnOnFan();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function TurnOffFan
+     *
+     *  \return from TurnOffFan
+     */
+    /****************************************************************************/
     ReturnCode_t TurnOffFan();
     //qint32 GetFanOperationTime();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function BreakAllOperation
+     *
+     *  \return from BreakAllOperation
+     */
+    /****************************************************************************/
     ReturnCode_t BreakAllOperation(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function AllStop
+     *
+     *  \return from AllStop
+     */
+    /****************************************************************************/
     ReturnCode_t AllStop(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetPressureDrift
+     *
+     *  \param pressureDrift = float type parameter
+     *
+     *  \return from SetPressureDrift
+     */
+    /****************************************************************************/
     ReturnCode_t SetPressureDrift(float pressureDrift);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetHeaterCurrent
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *
+     *  \return from GetHeaterCurrent
+     */
+    /****************************************************************************/
     quint16 GetHeaterCurrent(ALTempCtrlType_t Type);
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot Reset
+     */
+    /****************************************************************************/
     void Reset();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot HandleInitializationState
+     */
+    /****************************************************************************/
     ReturnCode_t HandleInitializationState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot HandleConfigurationState
+     */
+    /****************************************************************************/
     ReturnCode_t HandleConfigurationState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot ConfigureDeviceTasks
+     */
+    /****************************************************************************/
     ReturnCode_t ConfigureDeviceTasks();
     //! idle state handling task
     void HandleIdleState();
     //! error handling task
     void HandleErrorState();
     // void HandleErrorState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetPressure
+     */
+    /****************************************************************************/
     ReturnCode_t SetPressure(quint8 flag, float NominalPressure);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetPressure
+     */
+    /****************************************************************************/
     qreal GetPressure(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetTargetPressure
+     */
+    /****************************************************************************/
     ReturnCode_t SetTargetPressure(quint8 flag, float pressure);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetValve
+     */
+    /****************************************************************************/
     ReturnCode_t SetValve(quint8 ValveIndex, quint8 ValveState);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot etPressureControlStatus
+     */
+    /****************************************************************************/
     ReturnCode_t SetPressureControlStatus(PressureCtrlStatus_t PressureCtrlStatus);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot StopCompressor
+     */
+    /****************************************************************************/
     void StopCompressor(void);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetTemperatureControlStatus
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperatureControlStatus(ALTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetTemperature
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperature(ALTempCtrlType_t Type, float NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetTemperature
+     */
+    /****************************************************************************/
     qreal GetTemperature(ALTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetTemperatureAsync
+     */
+    /****************************************************************************/
     ReturnCode_t GetTemperatureAsync(ALTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetPressureAsync
+     */
+    /****************************************************************************/
     ReturnCode_t GetPressureAsync(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetHeaterCurrentAsync
+     */
+    /****************************************************************************/
     ReturnCode_t GetHeaterCurrentAsync(ALTempCtrlType_t Type);
 
 
     //ReturnCode_t SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsInsideRange
+     */
+    /****************************************************************************/
     bool IsInsideRange(ALTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsOutsideRange
+     */
+    /****************************************************************************/
     bool IsOutsideRange(ALTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsTemperatureControlOn
+     */
+    /****************************************************************************/
     bool IsTemperatureControlOn(ALTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsTemperatureControlOf
+     */
+    /****************************************************************************/
     bool IsTemperatureControlOff(ALTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsPIDDataSteady
+     */
+    /****************************************************************************/
     bool IsPIDDataSteady(qreal TargetValue, qreal CurrentValue, qreal Tolerance, qint32 Num, bool Init);
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot  PressureTimerCB
+     */
+    /****************************************************************************/
     void PressureTimerCB(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot VaccumTimerCB
+     */
+    /****************************************************************************/
     void VaccumTimerCB(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot DrainingTimerCB
+     */
+    /****************************************************************************/
     void DrainingTimerCB(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot ReleasePressureTimerCB
+     */
+    /****************************************************************************/
     void ReleasePressureTimerCB(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SuckingTimerCB
+     */
+    /****************************************************************************/
     void SuckingTimerCB(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot CheckSensorsData
+     */
+    /****************************************************************************/
     void CheckSensorsData();
 
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetPressure
+     */
+    /****************************************************************************/
     void OnSetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, float TargetPressure);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetValve
+     */
+    /****************************************************************************/
     void OnSetValve(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 ValveIndex, quint8 ValveState);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnGetPressure
+     */
+    /****************************************************************************/
     void OnGetPressure(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint8 Index, float ActPressure);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetTemp
+     */
+    /****************************************************************************/
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnGetTemp
+     */
+    /****************************************************************************/
     void OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetTempPid
+     */
+    /****************************************************************************/
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnLevelSensorState
+     */
+    /****************************************************************************/
     void OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quint8 State);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnTempControlStatus
+     */
+    /****************************************************************************/
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnGetLifeTime
+     */
+    /****************************************************************************/
     void OnGetLifeTime(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint32 LifeTime, quint32 LifeCycles);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetFanStatus
+     */
+    /****************************************************************************/
     void OnSetFanStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 FanStatus);
     //void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnTCGetHardwareStatus
+     */
+    /****************************************************************************/
     void OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
                                 quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
     //! command handling task

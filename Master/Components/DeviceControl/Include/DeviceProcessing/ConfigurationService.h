@@ -61,9 +61,26 @@ class CPressureControl;
 class CConfigurationService
 {
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CConfigurationService
+     *
+     *  \param pDeviceProcessing = DeviceProcessing type parameter
+     *  \param pCANCommunicator =  CANCommunicator type parameter
+     *
+     *  \return from CConfigurationService
+     */
+    /****************************************************************************/
     CConfigurationService(DeviceProcessing* pDeviceProcessing, CANCommunicator* pCANCommunicator);
     virtual ~CConfigurationService();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTasks
+     *
+     *  \return from HandleTasks
+     */
+    /****************************************************************************/
     void HandleTasks();
 
     /****************************************************************************/
@@ -94,27 +111,142 @@ public:
     /****************************************************************************/
     ConfigServiceMainState_t GetState() { return m_MainState; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ThrowErrorSignal
+     *
+     *  \param usNodeID = quint16 type parameter
+     *  \param ulModulInfo =  quint32 type parameter
+     *  \param usErrorGroup =  quint16 type parameter
+     *  \param usErrorID =  quint16 type parameter
+     *  \param sErrorData =  qint16 type parameter
+     *
+     *  \return from ThrowErrorSignal
+     */
+    /****************************************************************************/
     void ThrowErrorSignal(quint16 usNodeID, quint32 ulModulInfo, quint16 usErrorGroup, quint16 usErrorID, qint16 sErrorData);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ConfigurationComplete
+     *
+     *  \return from ConfigurationComplete
+     */
+    /****************************************************************************/
     bool ConfigurationComplete();
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateDeviceComponents
+     *
+     *  \return from CreateDeviceComponents
+     */
+    /****************************************************************************/
     ReturnCode_t CreateDeviceComponents();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateObjectTree
+     *
+     *  \param pHWConfiguration = HardwareConfiguration type parameter
+     *
+     *  \return from CreateObjectTree
+     */
+    /****************************************************************************/
     ReturnCode_t CreateObjectTree(HardwareConfiguration* pHWConfiguration);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateDevices
+     *
+     *  \param pHWConfiguration = HardwareConfiguration type parameter
+     *
+     *  \return from CreateDevices
+     */
+    /****************************************************************************/
     ReturnCode_t CreateDevices(HardwareConfiguration* pHWConfiguration);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCANNodesTask
+     *
+     *  \return from HandleCANNodesTask
+     */
+    /****************************************************************************/
     void HandleCANNodesTask();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IsCANNodesStateIdle
+     *
+     *  \return from IsCANNodesStateIdle
+     */
+    /****************************************************************************/
     ReturnCode_t IsCANNodesStateIdle();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateDiscoveredHWConfiguration
+     *
+     *  \return from CreateDiscoveredHWConfiguration
+     */
+    /****************************************************************************/
     ReturnCode_t CreateDiscoveredHWConfiguration();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetErrorParameter
+     *
+     *  \param errorGroup = quint16 type parameter
+     *  \param errorCode =  quint16 type parameter
+     *  \param errorData =  quint16 type parameter
+     *
+     *  \return from SetErrorParameter
+     */
+    /****************************************************************************/
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateAndGetCANNode
+     *
+     *  \param sCANNodeType = qint16 type parameter
+     *  \param sCANNodeIndex =  qint16 type parameter
+     *
+     *  \return from CreateAndGetCANNode
+     */
+    /****************************************************************************/
     CBaseModule* CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex);
     template <class TFunctionModule>
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateAndAddFunctionModule
+     *
+     *  \param pCANNode = CBaseModule type parameter
+     *  \param pCANObjectConfigFct =  CModuleConfig type parameter
+     *
+     *  \return from CreateAndAddFunctionModule
+     */
+    /****************************************************************************/
     void CreateAndAddFunctionModule(CBaseModule* pCANNode, CModuleConfig* pCANObjectConfigFct);
 
     template <class TDevice>
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateAndGetDevice
+     *
+     *  \param pBaseDeviceCfg = BaseDeviceConfiguration type parameter
+     *
+     *  \return from CreateAndGetDevice
+     */
+    /****************************************************************************/
     TDevice* CreateAndGetDevice(BaseDeviceConfiguration* pBaseDeviceCfg);
     template <class TDevice>
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateAndGetIndexedDevice
+     *
+     *  \param pBaseDeviceCfg = BaseDeviceConfiguration type parameter
+     *
+     *  \return from CreateAndGetIndexedDevice
+     */
+    /****************************************************************************/
     TDevice* CreateAndGetIndexedDevice(BaseDeviceConfiguration* pBaseDeviceCfg);
 
     /// Configuration error sub state definitions

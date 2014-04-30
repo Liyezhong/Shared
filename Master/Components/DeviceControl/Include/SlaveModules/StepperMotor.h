@@ -29,9 +29,23 @@
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "Global/Include/MonotonicTime.h"
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of typedef UInt8
+ */
+/****************************************************************************/
 typedef quint8 UInt8;
 #include "FunctionModules/defStepperMotor.h"
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of function ValToDB2
+ *
+ *  \param val = quint16 type parameter
+ *
+ *  \return from ValToDB2
+ */
+/****************************************************************************/
 inline Msg_DB2_t ValToDB2 (quint16 val)
 {
     Msg_DB2_t db;
@@ -40,11 +54,29 @@ inline Msg_DB2_t ValToDB2 (quint16 val)
     return db;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of function DB2ToVal
+ *
+ *  \param db = Msg_DB2_t type parameter
+ *
+ *  \return from DB2ToVal
+ */
+/****************************************************************************/
 inline quint16 DB2ToVal (Msg_DB2_t db)
 {
     return (db.hi << 8 | db.lo);
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of function ValToDB3
+ *
+ *  \param val = quint32 type parameter
+ *
+ *  \return from ValToDB3
+ */
+/****************************************************************************/
 inline Msg_DB3_t ValToDB3 (quint32 val)
 {
     Msg_DB3_t data;
@@ -54,6 +86,15 @@ inline Msg_DB3_t ValToDB3 (quint32 val)
     return data;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of function ValToDB4
+ *
+ *  \param val = quint32 type parameter
+ *
+ *  \return from ValToDB4
+ */
+/****************************************************************************/
 inline Msg_DB4_t ValToDB4 (quint32 val)
 {
     Msg_DB4_t data;
@@ -64,6 +105,15 @@ inline Msg_DB4_t ValToDB4 (quint32 val)
     return data;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of function DB4ToVal
+ *
+ *  \param data = Msg_DB4_t type parameter
+ *
+ *  \return from DB4ToVal
+ */
+/****************************************************************************/
 inline quint32 DB4ToVal (Msg_DB4_t data)
 {
     return (data.db_3 << 24 | data.db_2 << 16 | data.db_1 << 8 | data.db_0);
@@ -90,6 +140,17 @@ class CStepperMotor : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CStepperMotor
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CStepperMotor
+     */
+    /****************************************************************************/
     CStepperMotor(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                   CBaseModule* pParentNode);
     ~CStepperMotor();
@@ -133,11 +194,6 @@ public:
 
     //! Request motor direction changes count
     ReturnCode_t RequestDirChangeCountData();
-
-    //! Request limit switch state
-    ReturnCode_t RequestLimitSwitchState();
-    //! Get limit switch state as buffer on master side
-    ReturnCode_t GetLimitSwitchState();
 
     //! motor positioning command
     ReturnCode_t DriveToPosition(quint32 TargetPosition,
@@ -310,6 +366,16 @@ private:
     ReturnCode_t RegisterCANMessages();     //!< registers the can messages to communication layer
 
     void HandleConfigurationState();        //!< configuration task handling function
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetupLimitSwitchConfigData
+     *
+     *  \param LimitSwitch = CANFctModuleLimitSwitch type parameter
+     *  \param ls =  ConfigData_LS_t type parameter
+     *
+     *  \return from SetupLimitSwitchConfigData
+     */
+    /****************************************************************************/
     void SetupLimitSwitchConfigData (CANFctModuleLimitSwitch &LimitSwitch, ConfigData_LS_t &ls);    //! configure limit switch data
     void SetupPosCodeConfigData (CANFctModulePosCode &PosCode, ConfigData_LSPOS_t &pc);             //! configure position code data
     StepperMotorRotDir_t SetupRotationDir (CANFctModuleStepperMotor::RotationDir_t dir);            //! configure rotation dir
@@ -362,6 +428,13 @@ private:
     //! handles the receipt of can message 'LiveCycleData'
     //void HandleCANMsgLiveCycleData(can_frame* pCANframe);
     //! handles the receipt of can message 'ActSpeed'
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCANMsgActSpeedResp
+     *
+     *  \param pCANframe
+     */
+    /****************************************************************************/
     void HandleCANMsgActSpeedResp(can_frame* pCANframe);
     //! handles the receipt of can message 'OperationTimeData'
     void HandleCANMsgOperationTimeData(can_frame* pCANframe);
@@ -493,11 +566,6 @@ private:
     Position_t m_MinPosition;   ///< minimal position
     Position_t m_MaxPosition;   ///< maximal position
     qint16 m_MaxSpeed;          ///< maximal speed
-
-    // for testing purpose
-    void TestOutput(QString text);  //!< test
-    bool m_bTestOutput;             //!< test
-    quint16 m_nCounter;             //!< test
 
     //life cycle data
     quint32 m_RevolutionCount;      //!< count of motor revolutions during life cycle

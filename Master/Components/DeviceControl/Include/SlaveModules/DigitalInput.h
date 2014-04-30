@@ -46,6 +46,17 @@ class CDigitalInput : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CDigitalInput
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CDigitalInput
+     */
+    /****************************************************************************/
     CDigitalInput(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                   CBaseModule* pParentNode);
     ~CDigitalInput();
@@ -59,6 +70,13 @@ public:
     void HandleCanMessage(can_frame* pCANframe);
 
     //!< Request actual input
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReqActInputValue
+     *
+     *  \return from ReqActInputValue
+     */
+    /****************************************************************************/
     ReturnCode_t ReqActInputValue();
 
 signals:
@@ -74,7 +92,13 @@ signals:
     void ReportActInputValue(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 InputValue);
 
 private:
-    //!< CAN message ID initialization
+    /****************************************************************************/
+    /*!
+     *  \brief CAN message ID initialization
+     *
+     *  \return from ReqActInputValue
+     */
+    /****************************************************************************/
     ReturnCode_t InitializeCANMessages();
     //!< registers the CAN messages to communication layer
     ReturnCode_t RegisterCANMessages();
@@ -94,6 +118,13 @@ private:
     void HandleCANMsgDigInputState(can_frame* pCANframe);
 
     //!< command handling function
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCommandRequestTask
+     *
+     *  \return from HandleCommandRequestTask
+     */
+    /****************************************************************************/
     void HandleCommandRequestTask();
 
     /*! configuration sub states */
@@ -132,6 +163,7 @@ private:
     //!< set the module command type to free entry within array
     bool SetModuleTask(CANDigitalInputModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
     //!< clears all entrys with the specified module command type to free
+
     void ResetModuleCommand(CANDigitalInputModuleCmdType_t CommandType);
 };
 

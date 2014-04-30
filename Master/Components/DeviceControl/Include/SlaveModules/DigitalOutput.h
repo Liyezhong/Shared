@@ -46,6 +46,17 @@ class CDigitalOutput : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CDigitalOutput
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CDigitalOutput
+     */
+    /****************************************************************************/
     CDigitalOutput(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                    CBaseModule* pParentNode);
     ~CDigitalOutput();
@@ -63,6 +74,13 @@ public:
     //!< Request actual output
     ReturnCode_t ReqOutputValue();
     //!< Request life time data
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReqLifeTimeData
+     *
+     *  \return from ReqLifeTimeData
+     */
+    /****************************************************************************/
     ReturnCode_t ReqLifeTimeData();
     //! Request data reset
     ReturnCode_t ReqDataReset();
@@ -103,7 +121,13 @@ signals:
     void ReportLifeTimeData(quint32 InstanceID, ReturnCode_t HdlInfo, quint32 LifeTime, quint32 LifeCycles);
 
 private:
-    //!< CAN message ID initialization
+    /****************************************************************************/
+    /*!
+     *  \brief  CAN message ID initialization
+     *
+     *  \return from InitializeCANMessages
+     */
+    /****************************************************************************/
     ReturnCode_t InitializeCANMessages();
     //!< registers the CAN messages to communication layer
     ReturnCode_t RegisterCANMessages();
@@ -129,6 +153,13 @@ private:
     void HandleCANMsgLifeTimeData(can_frame* pCANframe);
 
     //!< command handling function
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCommandRequestTask
+     *
+     *  \return from HandleCommandRequestTask
+     */
+    /****************************************************************************/
     void HandleCommandRequestTask();
 
     /*! configuration sub states */

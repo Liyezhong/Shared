@@ -38,7 +38,11 @@ namespace DeviceControl
 
 class CANCommunicator;
 class CANMessageConfiguration;
-
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of macro MODULE_CMD_MAX_RESEND_TIME
+ */
+/****************************************************************************/
 #define MODULE_CMD_MAX_RESEND_TIME (10)
 /****************************************************************************/
 /*!
@@ -54,6 +58,17 @@ class CModule : public QObject
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CModule
+     *
+     *  \param eObjectType
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *
+     *  \return from CModule
+     */
+    /****************************************************************************/
     CModule(CModuleConfig::CANObjectType_t eObjectType, const DeviceControl::CANMessageConfiguration *p_MessageConfiguration,
             CANCommunicator* pCANCommunicator);
     virtual ~CModule();
@@ -138,7 +153,16 @@ public:
     /****************************************************************************/
     QString GetKey() const { return m_pCANObjectConfig->m_strKey; }
 
-    /// \todo rename to InstanceID
+
+    /****************************************************************************/
+    /**
+     * \brief Return the key attribute
+     *
+     * \todo rename to InstanceID
+     *
+     * \return   Key attribut
+     */
+    /****************************************************************************/
     quint32 GetModuleHandle();
 
     /****************************************************************************/
@@ -150,8 +174,29 @@ public:
     /****************************************************************************/
     CModuleConfig::CANObjectType_t GetType() const { return m_eObjectType; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartTimeDelay
+     *
+     *  \return from StartTimeDelay
+     */
+    /****************************************************************************/
     void StartTimeDelay();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetTimeDelay
+     *
+     *  \return from GetTimeDelay
+     */
+    /****************************************************************************/
     quint16 GetTimeDelay();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StopTimeDelay
+     *
+     *  \return from StopTimeDelay
+     */
+    /****************************************************************************/
     void StopTimeDelay();
 
 signals:
@@ -198,21 +243,144 @@ protected:
     /****************************************************************************/
     virtual quint32 GetNodeID() const = 0;
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgReqDataReset
+     *
+     *  \return from SendCANMsgReqDataReset
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgReqDataReset();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCANMsgError
+     *
+     *  \param pCANframe = can_frame type parameter
+     *
+     *  \return from HandleCANMsgError
+     */
+    /****************************************************************************/
     void HandleCANMsgError(can_frame* pCANframe);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function InitializeEventCANMessages
+     *
+     *  \param ModuleID = quint8 type parameter
+     *
+     *  \return from InitializeEventCANMessages
+     */
+    /****************************************************************************/
     ReturnCode_t InitializeEventCANMessages(quint8 ModuleID);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RegisterEventCANMessages
+     *
+     *  \return from RegisterEventCANMessages
+     */
+    /****************************************************************************/
     ReturnCode_t RegisterEventCANMessages();
     void HandleCANMsgAcknDataReset(can_frame* pCANframe);   //!< Handles the receipt of can message 'AcknDataReset'
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetCANMsgDataU32
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param msgData =  quint32 type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from SetCANMsgDataU32
+     */
+    /****************************************************************************/
     static void SetCANMsgDataU32(can_frame* pCANframe, quint32 msgData, quint8 offset);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetCANMsgDataS32
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param msgData =  qint32 type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from SetCANMsgDataS32
+     */
+    /****************************************************************************/
     static void SetCANMsgDataS32(can_frame* pCANframe, qint32 msgData, quint8 offset);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetCANMsgDataU16
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param msgData =  quint16 type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from SetCANMsgDataU16
+     */
+    /****************************************************************************/
     static void SetCANMsgDataU16(can_frame* pCANframe, quint16 msgData, quint8 offset);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetCANMsgDataS16
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param msgData =  qint16 type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from SetCANMsgDataS16
+     */
+    /****************************************************************************/
     static void SetCANMsgDataS16(can_frame* pCANframe, qint16 msgData, quint8 offset);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCANMsgDataU16
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from GetCANMsgDataU16
+     */
+    /****************************************************************************/
     static quint16 GetCANMsgDataU16(can_frame* pCANframe, quint8 offset);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCANMsgDataS16
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from GetCANMsgDataS16
+     */
+    /****************************************************************************/
     static qint16 GetCANMsgDataS16(can_frame* pCANframe, quint8 offset);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCANMsgDataU32
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param offset =  quint8 type parameter
+     *
+     *  \return from GetCANMsgDataU32
+     */
+    /****************************************************************************/
     static quint32 GetCANMsgDataU32(can_frame* pCANframe, quint8 offset);
     static quint64 GetCANMsgDataU64(can_frame* pCANframe);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetCANMsgDataU64
+     *
+     *  \param pCANframe = can_frame type parameter
+     *  \param msgData =  quint64 type parameter
+     *
+     *  \return from SetCANMsgDataU64
+     */
+    /****************************************************************************/
     static void SetCANMsgDataU64 (can_frame* pCANframe, quint64 msgData);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ComputePassword
+     *
+     *  \return from ComputePassword
+     */
+    /****************************************************************************/
     quint16 ComputePassword();
     CANCommunicator* m_pCANCommunicator;                    //!< Communicator object
     const CANMessageConfiguration* mp_MessageConfiguration; //!< Message configuration
@@ -256,14 +424,39 @@ protected:
 private:
     CModule();                                    ///< Not implemented.
     CModule(const CModule &);                     ///< Not implemented.
-    const CModule & operator = (const CModule &); ///< Not implemented.
-
-    //!< CAN message ID initialization
+    /****************************************************************************/
+    /*!
+     *  \brief  Not implemented
+     *
+     *  \return from HandleIdleState
+     */
+    /****************************************************************************/
+    const CModule & operator = (const CModule &);
+    /****************************************************************************/
+    /*!
+     *  \brief  CAN message ID initialization
+     *
+     *  \return Initialisation result
+     */
+    /****************************************************************************/
     virtual ReturnCode_t InitializeCANMessages() = 0;
-    //!< registers the CAN messages to communication layer
+    /****************************************************************************/
+    /*!
+     *  \brief  Registers the CAN messages to communication layer
+     *
+     *  \return Result
+     */
+    /****************************************************************************/
     virtual ReturnCode_t RegisterCANMessages() = 0;
 
     //!< Idle taks handling function
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleIdleState
+     *
+     *  \return from HandleIdleState
+     */
+    /****************************************************************************/
     virtual void HandleIdleState() = 0;
 
     CModuleConfig::CANObjectType_t m_eObjectType;   ///< object type

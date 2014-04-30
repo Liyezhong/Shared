@@ -94,32 +94,248 @@ public:
     //! Return the pointer to the CBaseModule which is next in list
     CBaseModule* GetNode(bool First);
     //Air liquid device funcs
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALSetPressureCtrlON
+     *
+     *  \return from ALSetPressureCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t ALSetPressureCtrlON();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALSetPressureCtrlOFF
+     *
+     *  \return from ALSetPressureCtrlOFF
+     */
+    /****************************************************************************/
     ReturnCode_t ALSetPressureCtrlOFF();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALReleasePressure
+     *
+     *  \return from ALReleasePressure
+     */
+    /****************************************************************************/
     ReturnCode_t ALReleasePressure(void);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALPressure
+     *
+     *  \return from ALPressure
+     */
+    /****************************************************************************/
     ReturnCode_t ALPressure();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALVaccum
+     *
+     *  \return from ALVaccum
+     */
+    /****************************************************************************/
     ReturnCode_t ALVaccum();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALDraining
+     *
+     *  \param DelayTime = quint32 type parameter
+     *
+     *  \return from ALDraining
+     */
+    /****************************************************************************/
     ReturnCode_t ALDraining(quint32 DelayTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALFilling
+     *
+     *  \param DelayTime = quint32 type parameter
+     *
+     *  \return from ALFilling
+     */
+    /****************************************************************************/
     ReturnCode_t ALFilling(quint32 DelayTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALGetRecentPressure
+     *
+     *  \return from ALGetRecentPressure
+     */
+    /****************************************************************************/
     qreal ALGetRecentPressure();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALSetTempCtrlON
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *
+     *  \return from ALSetTempCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t ALSetTempCtrlON(ALTempCtrlType_t Type);
     ReturnCode_t ALSetTempCtrlOFF(ALTempCtrlType_t type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALSetTemperaturePid
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from ALSetTemperaturePid
+     */
+    /****************************************************************************/
     ReturnCode_t ALSetTemperaturePid(ALTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALStartTemperatureControl
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *
+     *  \return from ALStartTemperatureControl
+     */
+    /****************************************************************************/
     ReturnCode_t ALStartTemperatureControl(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALGetRecentTemperature
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param Index =  quint8 type parameter
+     *
+     *  \return from ALGetRecentTemperature
+     */
+    /****************************************************************************/
     qreal ALGetRecentTemperature(ALTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALGetTemperatureControlState
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *
+     *  \return from ALGetTemperatureControlState
+     */
+    /****************************************************************************/
     TempCtrlState_t ALGetTemperatureControlState(ALTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALTurnOnFan
+     *
+     *  \return from ALTurnOnFan
+     */
+    /****************************************************************************/
     ReturnCode_t ALTurnOnFan();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALTurnOffFan
+     *
+     *  \return from ALTurnOffFan
+     */
+    /****************************************************************************/
     ReturnCode_t ALTurnOffFan();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALAllStop
+     *
+     *  \return from ALAllStop
+     */
+    /****************************************************************************/
     ReturnCode_t ALAllStop();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALBreakAllOperation
+     *
+     *  \return from ALBreakAllOperation
+     */
+    /****************************************************************************/
     ReturnCode_t ALBreakAllOperation();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALSetPressureDrift
+     *
+     *  \param pressureDrift = qreal type parameter
+     *
+     *  \return from ALSetPressureDrift
+     */
+    /****************************************************************************/
     ReturnCode_t ALSetPressureDrift(qreal pressureDrift);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALStartTemperatureControlWithPID
+     *
+     *  \param Type = ALTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from ALStartTemperatureControlWithPID
+     */
+    /****************************************************************************/
     ReturnCode_t ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Rotary Valve device func
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVSetTempCtrlON
+     *
+     *  \return from RVSetTempCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t RVSetTempCtrlON();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVSetTempCtrlOFF
+     *
+     *  \return from RVSetTempCtrlOFF
+     */
+    /****************************************************************************/
     ReturnCode_t RVSetTempCtrlOFF();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVSetTemperaturePid
+     *
+     *  \param MaxTemperature = quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from RVSetTemperaturePid
+     */
+    /****************************************************************************/
     ReturnCode_t RVSetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVStartTemperatureControl
+     *
+     *  \param NominalTemperature = qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *
+     *  \return from RVStartTemperatureControl
+     */
+    /****************************************************************************/
     ReturnCode_t RVStartTemperatureControl(qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVGetRecentTemperature
+     *
+     *  \param Index = quint32 type parameter
+     *
+     *  \return from RVGetRecentTemperature
+     */
+    /****************************************************************************/
     qreal RVGetRecentTemperature(quint32 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVGetTemperatureControlState
+     *
+     *  \return from RVGetTemperatureControlState
+     */
+    /****************************************************************************/
     TempCtrlState_t RVGetTemperatureControlState();
     //! Execute the move to intial position of the RV
     ReturnCode_t RVReqMoveToInitialPosition();
@@ -127,33 +343,261 @@ public:
     ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition);
     //! Request actual oven cover position
     RVPosition_t RVReqActRVPosition();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVStartTemperatureControlWithPID
+     *
+     *  \param NominalTemperature = qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from RVStartTemperatureControlWithPID
+     */
+    /****************************************************************************/
     ReturnCode_t RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Oven device func
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenSetTempCtrlON
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return from OvenSetTempCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t OvenSetTempCtrlON(OVENTempCtrlType_t Type);
     ReturnCode_t OvenSetTempCtrlOFF(OVENTempCtrlType_t type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenSetTemperaturePid
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from OvenSetTemperaturePid
+     */
+    /****************************************************************************/
     ReturnCode_t OvenSetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenStartTemperatureControl
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *
+     *  \return from OvenStartTemperatureControl
+     */
+    /****************************************************************************/
     ReturnCode_t OvenStartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenGetRecentTemperature
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param Index =  quint8 type parameter
+     *
+     *  \return from OvenGetRecentTemperature
+     */
+    /****************************************************************************/
     qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenGetRecentLidStatus
+     *
+     *  \return from OvenGetRecentLidStatus
+     */
+    /****************************************************************************/
     quint16 OvenGetRecentLidStatus();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenGetTemperatureControlState
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return from OvenGetTemperatureControlState
+     */
+    /****************************************************************************/
     TempCtrlState_t OvenGetTemperatureControlState(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function OvenStartTemperatureControlWithPID
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from OvenStartTemperatureControlWithPID
+     */
+    /****************************************************************************/
     ReturnCode_t OvenStartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     //Retort device func
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTSetTempCtrlON
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *
+     *  \return from RTSetTempCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t RTSetTempCtrlON(RTTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTSetTempCtrlOFF
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *
+     *  \return from RTSetTempCtrlOFF
+     */
+    /****************************************************************************/
     ReturnCode_t RTSetTempCtrlOFF(RTTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTSetTemperaturePid
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from RTSetTemperaturePid
+     */
+    /****************************************************************************/
     ReturnCode_t RTSetTemperaturePid(RTTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTStartTemperatureControl
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *
+     *  \return from RTStartTemperatureControl
+     */
+    /****************************************************************************/
     ReturnCode_t RTStartTemperatureControl(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTStartTemperatureControlWithPID
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from RTStartTemperatureControlWithPID
+     */
+    /****************************************************************************/
     ReturnCode_t RTStartTemperatureControlWithPID(RTTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTGetRecentTemperature
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *  \param Index =  quint8 type parameter
+     *
+     *  \return from RTGetRecentTemperature
+     */
+    /****************************************************************************/
     qreal RTGetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTGetTemperatureControlState
+     *
+     *  \param Type = RTTempCtrlType_t type parameter
+     *
+     *  \return from RTGetTemperatureControlState
+     */
+    /****************************************************************************/
     TempCtrlState_t RTGetTemperatureControlState(RTTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTUnlock
+     *
+     *  \return from RTUnlock
+     */
+    /****************************************************************************/
     ReturnCode_t RTUnlock();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTLock
+     *
+     *  \return from RTLock
+     */
+    /****************************************************************************/
     ReturnCode_t RTLock();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RTGetRecentLockStatus
+     *
+     *  \return from RTGetRecentLockStatus
+     */
+    /****************************************************************************/
     quint16 RTGetRecentLockStatus();
     //Periphery device func
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function PerTurnOffMainRelay
+     *
+     *  \return from PerTurnOffMainRelay
+     */
+    /****************************************************************************/
     ReturnCode_t PerTurnOffMainRelay();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function PerTurnOnMainRelay
+     *
+     *  \return from PerTurnOnMainRelay
+     */
+    /****************************************************************************/
     ReturnCode_t PerTurnOnMainRelay();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IDBottleCheck
+     *
+     *  \param ReagentGrpID = QString type parameter
+     *  \param TubePos =  RVPosition_t type parameter
+     *
+     *  \return from IDBottleCheck
+     */
+    /****************************************************************************/
     ReturnCode_t IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IDSealingCheck
+     *
+     *  \param ThresholdPressure = qreal type parameter
+     *
+     *  \return from IDSealingCheck
+     */
+    /****************************************************************************/
     ReturnCode_t IDSealingCheck(qreal ThresholdPressure);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetFunctionModuleRef
+     *
+     *  \param InstanceID = quint32 type parameter
+     *  \param Key =  QString type parameter
+     *
+     *  \return from GetFunctionModuleRef
+     */
+    /****************************************************************************/
     CFunctionModule* GetFunctionModuleRef(quint32 InstanceID, const QString &Key);
 signals:
     //! Forward the 'intitialisation finished' notification
@@ -163,10 +607,31 @@ signals:
     //! Forward the 'normal operation mode started' notification
     void ReportStartNormalOperationMode(quint32, ReturnCode_t);
 
-    //! Forward error information
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information via a signal
+     *
+     *  \iparam instanceID = the error reporting object
+     *  \iparam usErrorGroup = Error group ID
+     *  \iparam usErrorID    = Error group ID
+     *  \iparam usErrorData  = Optional error data
+     *  \iparam timeStamp  = Error time stamp
+     */
+    /****************************************************************************/
     void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                      quint16 usErrorData, QDateTime timeStamp);
-    //! Forward error information
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information via a signal
+     *
+     *  \iparam instanceID = the error reporting object
+     *  \iparam usErrorGroup = Error group ID
+     *  \iparam usErrorID    = Error group ID
+     *  \iparam usErrorData  = Optional error data
+     *  \iparam timeStamp  = Error time stamp
+     *  \iparam strErrorInfo  = Error information
+     */
+    /****************************************************************************/
     void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
     //! Forward the 'Destroy finished' to IDeviceProcessing
@@ -178,6 +643,11 @@ public slots:
 private slots:
     //! Task handling
     void HandleTasks();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot ThreadStarted
+     */
+    /****************************************************************************/
     void ThreadStarted();
 
     //! Get the 'intitialisation finished' notification
@@ -193,6 +663,11 @@ private slots:
     //! Device control layer diagnostic service acknwoledge
     void OnDiagnosticServiceClosed(qint16 DiagnosticResult);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnDestroyFinished
+     */
+    /****************************************************************************/
     void OnDestroyFinished();
 
 private:

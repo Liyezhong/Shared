@@ -99,7 +99,7 @@ CFunctionModuleTaskManager::~CFunctionModuleTaskManager()
  *  \xparam   bActionStateInProgress = Returns true if already a task with state
  *                                     GRAPPLER_DEV_STATE_PROGRESS or GRAPPLER_DEV_STATE_INIT is in the task list.
  *                                     Returns false, if all tasks are finished, used by the calling device as finishing condition
- *  \xparam   bActionStateWithErrorDetect = returns true if a task with taskState==GrapplerDevTask::GRAPPLER_DEV_STATE_ERROR
+ *  \xparam   bActionStateWithErrorDetect = returns true if a task with taskState == GRAPPLER_DEV_STATE_ERROR
  *            was detect.
  *
  *  \return   Pointer to FunctionModuleTask instance whichs task state is GRAPPLER_DEV_STATE_INIT and which can be started now.
@@ -475,15 +475,6 @@ FunctionModuleTask* CFunctionModuleTaskManager::GetTaskWithState(FunctionModuleT
     return pFunctionModuleTaskRet;
 }
 
-/****************************************************************************/
-/*!
- *  \brief    Checks, if there are function module task pending for beeing started, and start them
- *
- *  \iparam   bActionStateInProgress =
- *  \iparam   bActionStateWithErrorDetect =
- *  \return   void
- */
-/****************************************************************************/
 /*void CCoverLineDevice::CFunctionModuleTaskManager(bool& bActionStateInProgress, bool& bActionStateWithErrorDetect)
 {
     FunctionModuleTask* pFunctionModuleTask = 0;

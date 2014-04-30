@@ -35,7 +35,7 @@ namespace DeviceControl
 /*!
  *  \brief    Constructor for the CANJoystick
  *
- *  \param    p_MessageConfiguration = Message configuration
+ *  \param    mp_MessageConfiguration = Message configuration
  *  \param    pCANCommunicator = pointer to communication class
  *  \param    pParentNode = pointer to CANNode, where this module is assigned to
  *

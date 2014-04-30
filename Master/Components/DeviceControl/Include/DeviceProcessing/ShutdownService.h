@@ -46,9 +46,27 @@ class DeviceProcessing;
 class CShutdownService
 {
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CShutdownService
+     *
+     *  \param pDeviceProcessing = DeviceProcessing type parameter
+     *  \param pCANCommunicator =  CANCommunicator type parameter
+     *  \param pObjectTree =  ObjectTree type parameter
+     *
+     *  \return from CShutdownService
+     */
+    /****************************************************************************/
     CShutdownService(DeviceProcessing* pDeviceProcessing, CANCommunicator* pCANCommunicator, ObjectTree* pObjectTree);
     virtual ~CShutdownService();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTasks
+     *
+     *  \return from HandleTasks
+     */
+    /****************************************************************************/
     void HandleTasks();
 
     //! Configuration service main states definitions
@@ -71,7 +89,21 @@ public:
     ShutdownServiceMainState_t GetState() { return m_MainState; }
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RequestNodeStateShutdown
+     *
+     *  \return from RequestNodeStateShutdown
+     */
+    /****************************************************************************/
     ReturnCode_t RequestNodeStateShutdown();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CheckNodeState
+     *
+     *  \return from CheckNodeState
+     */
+    /****************************************************************************/
     ReturnCode_t CheckNodeState();
 
     ShutdownServiceMainState_t m_MainState; ///< main state

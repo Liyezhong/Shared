@@ -85,23 +85,100 @@ class DeviceProcessing : public QObject
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function DeviceProcessing
+     *
+     *  \param p_Parent = QObject type parameter
+     *
+     *  \return from DeviceProcessing
+     */
+    /****************************************************************************/
     DeviceProcessing(QObject *p_Parent);
     virtual ~DeviceProcessing();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ThrowError
+     *
+     *  \param InstanceID = quint32 type parameter
+     *  \param ErrorGroup =  quint16 type parameter
+     *  \param ErrorID =  quint16 type parameter
+     *  \param ErrorData =  quint16 type parameter
+     *  \param ErrorTime =  QDateTime type parameter
+     *
+     *  \return from ThrowError
+     */
+    /****************************************************************************/
     void ThrowError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ThrowErrorWithInfo
+     *
+     *  \param InstanceID = quint32 type parameter
+     *  \param ErrorGroup =  quint16 type parameter
+     *  \param ErrorID =  quint16 type parameter
+     *  \param ErrorData =  quint16 type parameter
+     *  \param ErrorTime =  QDateTime type parameter
+     *  \param ErrorInfo =  QString type parameter
+     *
+     *  \return from ThrowErrorWithInfo
+     */
+    /****************************************************************************/
     void ThrowErrorWithInfo(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime, QString ErrorInfo);
 
     //! Returns the serial number from config file
     static bool GetSerialNumber(QString& SerialNo);
 
-    //! Return the hardware config file name
+    /****************************************************************************/
+    /*!
+     *  \brief  Return the hardware config file name
+     *
+     *  \return The hardware config file name
+     */
+    /****************************************************************************/
     static QString GetHWConfigFile() { return m_HWConfigFileName; }
 
-    //! Return the parent object 
+    /****************************************************************************/
+    /*!
+     *  \brief  Return the parent object
+     *
+     *  \return The parent object
+     */
+    /****************************************************************************/
 	QObject* GetParent() const { return mp_Parent; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function BlockingForSyncCall
+     *
+     *  \param CmdType = SyncCmdType_t type parameter
+     *
+     *  \return from BlockingForSyncCall
+     */
+    /****************************************************************************/
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function BlockingForSyncCall
+     *
+     *  \param CmdType = SyncCmdType_t type parameter
+     *  \param Timeout =  ulong type parameter
+     *
+     *  \return from BlockingForSyncCall
+     */
+    /****************************************************************************/
     ReturnCode_t BlockingForSyncCall(SyncCmdType_t CmdType, ulong Timeout);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ResumeFromSyncCall
+     *
+     *  \param CmdType = SyncCmdType_t type parameter
+     *  \param RetCode =  ReturnCode_t type parameter
+     *
+     *  \return from ResumeFromSyncCall
+     */
+    /****************************************************************************/
     void ResumeFromSyncCall(SyncCmdType_t CmdType,  ReturnCode_t RetCode);
     //! Main state typde definition
     typedef enum {
@@ -126,6 +203,13 @@ public:
     DeviceProcessingMainState_t GetState() const { return m_MainState; }
 
     //!< return the CAN message configuration
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetMessageConfig
+     *
+     *  \return from GetMessageConfig
+     */
+    /****************************************************************************/
     CANMessageConfiguration* GetMessageConfig();
 
     //virtual function derived from CANObjectBase
@@ -168,6 +252,15 @@ public:
 
     //! Return function module specified by it's instance identifier
     CFunctionModule* GetFunctionModule(quint32 InstanceID) const;
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetBaseModule
+     *
+     *  \param InstanceID = quint32 type parameter
+     *
+     *  \return from GetBaseModule
+     */
+    /****************************************************************************/
     CBaseModule* GetBaseModule(quint32 InstanceID) const;
 
     //! Returns if the function module has been detetcted and configured via CAN
@@ -196,6 +289,11 @@ public:
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnError
+     */
+    /****************************************************************************/
     void OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
 
 signals:
@@ -206,12 +304,40 @@ signals:
     //! Forward the 'normal operation mode started' notification
     void ReportStartNormalOperationMode(ReturnCode_t);
 
-    //! Forward error information to IDeviceProcessing
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information to IDeviceProcessing
+     *
+     *  \iparam instanceID = Instance identifier of this function module instance
+     *  \iparam usErrorGroup = Error group
+     *  \iparam usErrorID = Error ID
+     *  \iparam usErrorData = Additional error information
+     *  \iparam timeStamp = Error time
+     */
+    /****************************************************************************/
     void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
-    //! Forward error information to IDeviceProcessing
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information to IDeviceProcessing
+     *
+     *  \iparam instanceID = Instance identifier of this function module instance
+     *  \iparam usErrorGroup = Error group
+     *  \iparam usErrorID = Error ID
+     *  \iparam usErrorData = Additional error information
+     *  \iparam timeStamp = Error time
+     *  \iparam strErrorInfo = Error information
+     */
+    /****************************************************************************/
     void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
 
-    //! Forward the 'Diagnostics service closed' to IDeviceProcessing
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward the 'Diagnostics service closed' to IDeviceProcessing
+     *
+     *  \param DiagnosticResult = Diagnostic Result
+     *
+     */
+    /****************************************************************************/
     void ReportDiagnosticServiceClosed(qint16 DiagnosticResult);
 
     //! Forward the 'Destroy finished' to IDeviceProcessing
@@ -228,7 +354,7 @@ private slots:
 
 private:
     DeviceProcessing(const DeviceProcessing &);                     ///< Not implemented.
-    const DeviceProcessing & operator = (const DeviceProcessing &); ///< Not implemented.
+    //const DeviceProcessing & operator = (const DeviceProcessing &); ///< Not implemented.
 
     //! Read the hardware configuration file
     ReturnCode_t ReadHWSettings();
@@ -238,7 +364,25 @@ private:
     //! Initialize the communication via CAN or tcp/ip
     ReturnCode_t InitCommunication();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetErrorParameter
+     *
+     *  \param ErrorGroup = quint16 type parameter
+     *  \param ErrorCode =  quint16 type parameter
+     *  \param ErrorData =  quint16 type parameter
+     *
+     *  \return from SetErrorParameter
+     */
+    /****************************************************************************/
     void SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReadProcessSettings
+     *
+     *  \return from ReadProcessSettings
+     */
+    /****************************************************************************/
     ReturnCode_t ReadProcessSettings();
 
     CANCommunicator m_canCommunicator;  //!< CAN bus communication class
@@ -328,9 +472,37 @@ private:
     DeviceProcTask* GetActiveTask(DeviceProcTask* pActTask);    //!< Returns the active task
     void TaskFinished(DeviceProcTask* pActiveTask);             //!< Marks the task as finished, task will be deleted from list
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RegisterMetaTypes
+     *
+     *  \return from RegisterMetaTypes
+     */
+    /****************************************************************************/
     void RegisterMetaTypes();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function InitCANMessages
+     *
+     *  \return from InitCANMessages
+     */
+    /****************************************************************************/
     ReturnCode_t InitCANMessages();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReadConfiguration
+     *
+     *  \return from ReadConfiguration
+     */
+    /****************************************************************************/
     ReturnCode_t ReadConfiguration();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function InitTasks
+     *
+     *  \return from InitTasks
+     */
+    /****************************************************************************/
     ReturnCode_t InitTasks();
 
     //! Return CANNode specified by it's ID
@@ -338,13 +510,72 @@ private:
     //! Return CANNode specified by it's key
     CBaseModule* GetNodeFromKey(QString nodeKey);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTaskConfig
+     *
+     *  \param pActiveTask = DeviceProcTask type parameter
+     *
+     *  \return from HandleTaskConfig
+     */
+    /****************************************************************************/
     void HandleTaskConfig(DeviceProcTask* pActiveTask);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTaskDiagnostic
+     *
+     *  \param pActiveTask = DeviceProcTask type parameter
+     *
+     *  \return from HandleTaskDiagnostic
+     */
+    /****************************************************************************/
     void HandleTaskDiagnostic(DeviceProcTask* pActiveTask);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTaskNormalOperation
+     *
+     *  \param pActiveTask = DeviceProcTask type parameter
+     *
+     *  \return from HandleTaskNormalOperation
+     */
+    /****************************************************************************/
     void HandleTaskNormalOperation(DeviceProcTask* pActiveTask);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTaskAdjustment
+     *
+     *  \param pActiveTask = DeviceProcTask type parameter
+     *
+     *  \return from HandleTaskAdjustment
+     */
+    /****************************************************************************/
     void HandleTaskAdjustment(DeviceProcTask* pActiveTask);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTaskShutDown
+     *
+     *  \param pActiveTask = DeviceProcTask type parameter
+     *
+     *  \return from HandleTaskShutDown
+     */
+    /****************************************************************************/
     void HandleTaskShutDown(DeviceProcTask* pActiveTask);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCANNodesTask
+     *
+     *  \return from HandleCANNodesTask
+     */
+    /****************************************************************************/
     void HandleCANNodesTask();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleDevicesTask
+     *
+     *  \return from HandleDevicesTask
+     */
+    /****************************************************************************/
     void HandleDevicesTask();
 
     //! CAN message handling
@@ -355,6 +586,13 @@ private:
     QDomDocument m_DocHwDescr;  //!< Hardware specification XML file
 
     struct timeb m_tbTimerHeartbeatTime;    //!< Measurement of heartbeat interval
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CheckMasterHeartbeat
+     *
+     *  \return from CheckMasterHeartbeat
+     */
+    /****************************************************************************/
     void CheckMasterHeartbeat();
 
 	QObject* mp_Parent;					//!< Parent Object 

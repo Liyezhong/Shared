@@ -46,6 +46,17 @@ class CUart : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CUart
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CUart
+     */
+    /****************************************************************************/
     CUart(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
           CBaseModule* pParentNode);
     ~CUart();
@@ -64,8 +75,26 @@ public:
 
 signals:
     //!< report data
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of signal ReportReadData
+     *
+     *  \param InstanceID = quint32 type parameter
+     *  \param hdlInfo =  ReturnCode_t type parameter
+     *  \param rfidDataMSB =  quint32 type parameter
+     *  \param rfidDataLSB =  quint32 type parameter
+     */
+    /****************************************************************************/
     void ReportReadData(quint32 InstanceID, ReturnCode_t hdlInfo, quint32 rfidDataMSB, quint32 rfidDataLSB);
     //!< report a write operation acknowledge
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of signal ReportWriteAckn
+     *
+     *  \param InstanceID = quint32 type parameter
+     *  \param hdlInfo =  ReturnCode_t type parameter
+     */
+    /****************************************************************************/
     void ReportWriteAckn(quint32 InstanceID, ReturnCode_t hdlInfo);
 
 private:
@@ -105,6 +134,11 @@ private:
     void ResetTask();
 
     //!< configuration state defines
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of enum CANNodeSubStateConfig_t
+     */
+    /****************************************************************************/
     typedef enum {
         FM_UART_SUB_STATE_CONFIG_INIT   = 0x00, //!< Configuration initial state
         FM_UART_SUB_STATE_CONFIG_START  = 0x01, //!< Start state, used to trigger the configuration transmission

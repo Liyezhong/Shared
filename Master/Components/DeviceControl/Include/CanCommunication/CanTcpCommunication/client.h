@@ -56,7 +56,23 @@ public:
     ~Can2TcpClient();
 
     bool HasConnection(QHostAddress senderIp, int senderPort = -1);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendMessage
+     *
+     *  \param pCANframe = can_frame type parameter
+     *
+     *  \return from SendMessage
+     */
+    /****************************************************************************/
     void SendMessage(can_frame* pCANframe);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Initialize
+     *
+     *  \return from Initialize
+     */
+    /****************************************************************************/
     bool Initialize();
 
 signals:
@@ -97,8 +113,23 @@ signals:
     void newParticipant(const QString &nick);
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot connectionError
+     */
+    /****************************************************************************/
     void connectionError(QAbstractSocket::SocketError socketError);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot disconnected
+     */
+    /****************************************************************************/
     void disconnected();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot readyForUse
+     */
+    /****************************************************************************/
     void readyForUse();
 
 private:

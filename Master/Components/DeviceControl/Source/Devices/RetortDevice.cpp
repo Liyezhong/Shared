@@ -752,6 +752,7 @@ void CRetortDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnC
  *  \brief  Judge if the temperature is inside the range.
  *
  *  \iparam  Type = The target temperature contorl module to control.
+ *  \param Index =  quint8 type parameter
  *
  *  \return  True if is inside the range, else not.
  */
@@ -782,6 +783,7 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type, quint8 Index)
  *  \brief  Judge if the temperature is outside the range.
  *
  *  \iparam  Type = The target temperature contorl module to control.
+ *  \param Index =  quint8 type parameter
  *
  *  \return  True if is outside the range, else not.
  */

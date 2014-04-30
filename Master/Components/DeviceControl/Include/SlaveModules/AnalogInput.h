@@ -48,6 +48,17 @@ class CAnalogInput : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CAnalogInput
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CAnalogInput
+     */
+    /****************************************************************************/
     CAnalogInput(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                  CBaseModule* pParentNode);
     ~CAnalogInput();
@@ -60,6 +71,15 @@ public:
     //! CAN-message handling function
     void HandleCanMessage(can_frame* pCANframe);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetState
+     *
+     *  \param Enable = bool type parameter
+     *
+     *  \return from SetState
+     */
+    /****************************************************************************/
     ReturnCode_t SetState(bool Enable);
     //! Request actual input
     ReturnCode_t ReqActInputValue();
