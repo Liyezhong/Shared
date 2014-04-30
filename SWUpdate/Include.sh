@@ -270,13 +270,13 @@ ExitOnError()
 	
 	if [ $# -gt 1 ]; then        
 		if [ $# -eq 2 ]; then
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" >> $LOGDIR/$LOGFILE
 		elif [ $# -eq 3 ]; then
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" "$3" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" "$3" >> $LOGDIR/$LOGFILE
 		elif [ $# -eq 4 ]; then
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" "$3" "$4" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" "$3" "$4" >> $LOGDIR/$LOGFILE
 		else
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" "$3" "$4" "$5" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" "$3" "$4" "$5" >> $LOGDIR/$LOGFILE
 	
 		fi
 		# add an empty line for readbility in log file
@@ -304,13 +304,13 @@ Log()
 	# check for the Parameter count, if the parameter count greater than zero then log the data	
 	if [ $# -gt 1 ]; then        
 		if [ $# -eq 2 ]; then						
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" >> $LOGDIR/$LOGFILE
 		elif [ $# -eq 3 ]; then
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" "$3" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" "$3" >> $LOGDIR/$LOGFILE
 		elif [ $# -eq 4 ]; then
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" "$3" "$4" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" "$3" "$4" >> $LOGDIR/$LOGFILE
 		else
-			printf "$DATE, $1, $(($2+BASE_EVENT_ID)), ${EventType[$2]}, ${EventLevel[$2]}, ${EventString[$2]}\n" "$3" "$4" "$5" >> $LOGDIR/$LOGFILE
+			printf "$DATE; $1; $(($2+BASE_EVENT_ID)); ${EventType[$2]}; ${EventLevel[$2]}; ${EventString[$2]}\n" "$3" "$4" "$5" >> $LOGDIR/$LOGFILE
 	
 		fi
 		# add an empty line for readbility in log file
