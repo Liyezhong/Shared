@@ -429,12 +429,12 @@ private:
     quint32 m_unCanIDServiceFan;            //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDHardwareReq;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDHardware;              //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDValveSet;              //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDCalibration;       ///<  Definition/Declaration of variable m_unCanIDCalibration
     quint32 m_unCanIDPWMParamSet;       ///<  Definition/Declaration of variable m_unCanIDPWMParamSet
+    quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
+    quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
+    quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDFanSet;       ///<  Definition/Declaration of variable m_unCanIDFanSet
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
