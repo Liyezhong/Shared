@@ -1169,11 +1169,12 @@ SORTIE:
  *
  *  \iparam  DelayTime = Delay a small period (in Millisecodns) before turn-off
  *                       the pump when retort has been detected full.
+ *  \iparam  EnableInsufficientCheck = Enable Insufficient Check
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
+ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficientCheck)
 {
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1183,7 +1184,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
-    bool StopInsufficientCheck = false;
+    bool StopInsufficientCheck = EnableInsufficientCheck;
     qint64 TimeNow, TimeStartPressure, TimeStopFilling;
     TimeStopFilling = 0;
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
