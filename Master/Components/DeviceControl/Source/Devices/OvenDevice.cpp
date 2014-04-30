@@ -1124,7 +1124,7 @@ void COvenDevice::OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, 
 /****************************************************************************/
 quint16 COvenDevice::GetRecentOvenLidStatus()
 {
-   // QMutexLocker Locker(&m_Mutex);
+    // QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     quint16 RetValue;
     if((Now - m_LastGetLidStatusTime) <= 500) // check if 500 msec has passed since last read
