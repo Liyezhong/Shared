@@ -205,15 +205,15 @@ public:
     quint32 m_unCanIDLogin;                //!< CAN-message id of 'Login' message
     quint32 m_unCanIDLoginAckn;            //!< CAN-message id of 'LoginAckn' message
     quint32 m_unCanIDWriteUserData;        //!< CAN-message id of 'WriteUserData' message
-    quint32 m_unCanIDWriteUserDataAckn;    //!< CAN-message id of 'WriteUserDataAckn' message
     quint32 m_unCanIDWritePassword;        //!< CAN-message id of 'WritePassword' message
-    quint32 m_unCanIDWritePasswordAckn;    //!< CAN-message id of 'WritePasswordAckn' message
     quint32 m_unCanIDWriteConfig;          //!< CAN-message id of 'WriteConfig' message
-    quint32 m_unCanIDWriteConfigAckn;      //!< CAN-message id of 'WriteConfigAckn' message
     quint32 m_unCanIDUserDataReq;          //!< CAN-message id of 'ReadUserData' message
     quint32 m_unCanIDUserData;             //!< CAN-message id of 'UserData' message
     quint32 m_unCanIDUIDReq;               //!< CAN-message id of 'ReadUID' message
     quint32 m_unCanIDUID;                  //!< CAN-message id of 'UID' message
+    quint32 m_unCanIDWriteUserDataAckn;    //!< CAN-message id of 'WriteUserDataAckn' message
+    quint32 m_unCanIDWritePasswordAckn;    //!< CAN-message id of 'WritePasswordAckn' message
+    quint32 m_unCanIDWriteConfigAckn;      //!< CAN-message id of 'WriteConfigAckn' message
 
     /*! digital output command type definitions */
     typedef enum {

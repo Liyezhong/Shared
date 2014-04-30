@@ -492,14 +492,14 @@ private:
     quint32  m_unCanIDDiagSoftware;           ///< CAN message 'Diagnostic Software'
     quint32  m_unCanIDDiagHardwareReq;        ///< CAN message 'Diagnostic Hardware request'
     quint32  m_unCanIDDiagHardware;           ///< CAN message 'Diagnostic Hardware'
-    quint32  m_unCanIDDebug;                  ///< CAN message 'Debug data'
-    quint32  m_unCanIDDebug2;                 ///< CAN message 'Debug2 data'
     quint32  m_unCanIDOpTimeDataReq;          ///< CAN message 'Motor operation time request'
     quint32  m_unCanIDOpTimeData;             ///< CAN message 'Motor operation time data'
     quint32  m_unCanIDRevCountDataReq;        ///< CAN message 'Motor revolution count request'
     quint32  m_unCanIDRevCountData;           ///< CAN message 'Motor revolution count data'
     quint32  m_unCanIDDirCountDataReq;        ///< CAN message 'Motor direction changes count request'
     quint32  m_unCanIDDirCountData;           ///< CAN message 'Motor direction changes count data'
+    quint32  m_unCanIDDebug;                  ///< CAN message 'Debug data'
+    quint32  m_unCanIDDebug2;                 ///< CAN message 'Debug2 data'
 
     /*! motor movement command type */
     typedef enum {
@@ -562,15 +562,15 @@ private:
     quint32 m_TripCounter;      //!< count of changes in direction during life cycle
     quint32 m_OperationTime;    //!< motor operation time in minutes during life cycle
 #endif
-    //configuration data
-    Position_t m_MinPosition;   ///< minimal position
-    Position_t m_MaxPosition;   ///< maximal position
-    qint16 m_MaxSpeed;          ///< maximal speed
-
     //life cycle data
     quint32 m_RevolutionCount;      //!< count of motor revolutions during life cycle
     quint32 m_DirChangeCount;       //!< count of changes in direction during life cycle
     quint32 m_OperationTime;        //!< motor operation time in hours during life cycle
+
+    //configuration data
+    Position_t m_MinPosition;   ///< minimal position
+    Position_t m_MaxPosition;   ///< maximal position
+    qint16 m_MaxSpeed;          ///< maximal speed
 
     static QMap<quint32, std::string> m_eventString;    //!< list with info strings for CAN events
 };

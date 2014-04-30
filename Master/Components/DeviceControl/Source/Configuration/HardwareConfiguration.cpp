@@ -1094,8 +1094,6 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
     pCANFctModuleStepperMotor->sMinSpeed = strSpeedMin.toShort(&ok, 10);
     pCANFctModuleStepperMotor->sMaxSpeed = strSpeedMax.toShort(&ok, 10);
 
-    pCANFctModuleStepperMotor->runCurrentScale = strRunCurrent.toUShort(&ok, 10);
-    pCANFctModuleStepperMotor->stopCurrentScale = strStopCurrent.toUShort(&ok, 10);
     pCANFctModuleStepperMotor->stopCurrentDelay = strStopCurrentDelay.toUShort(&ok, 10);
     if(!ok)
     {
@@ -1105,20 +1103,26 @@ CANFctModuleStepperMotor* HardwareConfiguration::ParseStepperMotor(const QDomEle
         return pCANFctModuleStepperMotor;
     }
 
+    pCANFctModuleStepperMotor->runCurrentScale = strRunCurrent.toUShort(&ok, 10);
 #ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
-        if((pCANFctModuleStepperMotor->runCurrentScale < 0)||(pCANFctModuleStepperMotor->runCurrentScale >31)) {
+        if((!ok)||(pCANFctModuleStepperMotor->runCurrentScale >31)) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return pCANFctModuleStepperMotor;
         }
-        if((pCANFctModuleStepperMotor->stopCurrentScale < 0)||(pCANFctModuleStepperMotor->stopCurrentScale >31)) {
+#endif
+    pCANFctModuleStepperMotor->stopCurrentScale = strStopCurrent.toUShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
+        if((!ok)||(pCANFctModuleStepperMotor->stopCurrentScale >31)) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
             m_usErrorID = ERROR_DCL_CONFIG_HW_CFG_FORMAT_ERROR_FCT;
             return pCANFctModuleStepperMotor;
         }
+#endif
         strStopCurrentDelay.toShort(&ok, 10);
+#ifdef PRE_ALFA_TEST //added for V&V CV test, requested by Brandon, 2013.7.16
         if(!ok) {
             delete pCANFctModuleStepperMotor;
             pCANFctModuleStepperMotor = 0;
