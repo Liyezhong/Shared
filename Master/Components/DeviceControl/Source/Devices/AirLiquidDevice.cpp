@@ -1183,6 +1183,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
+    bool StopInsufficientCheck = false;
     qint64 TimeNow, TimeStartPressure, TimeStopFilling;
     TimeStopFilling = 0;
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
@@ -1238,6 +1239,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                     stop = true;
                 }
             }
+            StopInsufficientCheck = true;
         }
         //else if(levelSensorState == 0)
         else if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 == retCode)
@@ -1308,7 +1310,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                     RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
                     goto SORTIE;
                 }
-                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM))
+                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM)&&(!StopInsufficientCheck))
                 {
                     LogDebug(QString("ERROR: Insufficient reagent in the station! Exit now"));
                     for(qint32 i = 0; i < PressureBuf.length(); i++)
