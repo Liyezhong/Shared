@@ -2,12 +2,14 @@
 #include "DeviceControl/Include/Devices/PeripheryDevice.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
+#include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
 
 namespace DeviceControl
 {
+#define CHECK_SENSOR_TIME (200) // in msecs
 /****************************************************************************/
 /*!
  *  \brief    Constructor of the CPeripheryDevice class
@@ -53,9 +55,13 @@ void CPeripheryDevice::Reset()
     m_ErrorTaskState   = PER_DEV_ERRTASK_STATE_FREE;
 
     m_instanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL;
+    m_LastGetLocalAlarmStatusTime = 0;
+    m_LastGetRemoteAlarmStatusTime = 0;
 
     memset( &m_pDigitalOutputs, 0 , sizeof(m_pDigitalOutputs));  //lint !e545
     memset( &m_TargetDOOutputValues, 0 , sizeof(m_TargetDOOutputValues)); //lint !e545
+    memset( &m_pDigitalInputs, 0 , sizeof(m_pDigitalInputs));  //lint !e545
+    memset( &m_TargetDIInputValues, 0 , sizeof(m_TargetDIInputValues)); //lint !e545
 
 }
 
@@ -150,6 +156,7 @@ void CPeripheryDevice::HandleTasks()
 /****************************************************************************/
 void CPeripheryDevice::HandleIdleState()
 {
+    CheckSensorsData();
 }
 
 
@@ -252,6 +259,54 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
+
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerLocalAlarmDIKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
+    {
+        m_pDigitalInputs[PER_LOCAL_ALARM_STATUS] = (CDigitalInput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_LOCALALARMDI not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
+            m_InstDITypeMap[CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI] = PER_LOCAL_ALARM_STATUS;  //lint !e641
+        }
+    }
+    else
+    {
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmDIKey);
+    pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
+    (void)InsertBaseModule(pBaseModule);
+    if(m_pDevProc->CheckFunctionModuleExistence(InstanceID))
+    {
+        m_pDigitalInputs[PER_REMOTE_ALARM_STATUS] = (CDigitalInput*) m_pDevProc->GetFunctionModule(InstanceID);
+        if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS] == 0)
+        {
+            // the function module could not be allocated
+            SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
+            FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMDI not allocated.";
+            RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
+            m_InstDITypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI] = PER_REMOTE_ALARM_STATUS;  //lint !e641
+        }
+    }
+    else
+    {
+        RetVal = DCL_ERR_FCT_CALL_FAILED;
+    }
     /*    m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey));
     if(m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] == 0)
     {
@@ -302,7 +357,7 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect digital output signal 'ReportOutputValueAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
-/*
+    /*
     if(!connect(m_pDigitalOutputs[PER_REMOTE_ALARM_SET], SIGNAL(ReportOutputValueAckn(quint32, ReturnCode_t, quint16)),
                 this, SLOT(OnSetDOOutputValue(quint32, ReturnCode_t, quint16))))
     {
@@ -318,9 +373,58 @@ ReturnCode_t CPeripheryDevice::HandleConfigurationState()
         return DCL_ERR_FCT_CALL_FAILED;
     }
 */
+    if(!connect(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS], SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
+                this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS], SIGNAL(ReportActInputValue(quint32, ReturnCode_t, quint16)),
+                this, SLOT(OnGetDIValue(quint32, ReturnCode_t, quint16))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportActInputValue'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if(!connect(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS], SIGNAL(ReportError(quint32,quint16,quint16,quint16,QDateTime)),
+                this, SLOT(OnFunctionModuleError(quint32,quint16,quint16,quint16,QDateTime))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_OVEN_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect digital input signal 'ReportError'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
 
     return DCL_ERR_FCT_CALL_SUCCESS;
 
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Read device's sensors data asynchronizely
+ */
+/****************************************************************************/
+void CPeripheryDevice::CheckSensorsData()
+{
+    if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS])
+    {
+        (void)GetLocalAlarmStatusAsync();
+    }
+    if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS])
+    {
+        (void)GetRemoteAlarmStatusAsync();
+    }
 }
 
 /****************************************************************************/
@@ -368,6 +472,9 @@ void CPeripheryDevice::HandleErrorState()
         m_pDigitalOutputs[PER_MAIN_RELAY] = 0;
         //m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = 0;
         m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] = 0;
+        m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] = 0;
+        m_pDigitalInputs[PER_LOCAL_ALARM_STATUS] = 0;
+        m_pDigitalInputs[PER_REMOTE_ALARM_STATUS] = 0;
        // m_pDigitalOutputs[PER_REMOTE_ALARM_SET] = 0;
     }
 }
@@ -504,5 +611,199 @@ ReturnCode_t CPeripheryDevice::TurnOffRemoteAlarm()
 {
     return SetDOValue(PER_REMOTE_ALARM_CTRL, 0, 0, 0);
 }
+
+/****************************************************************************/
+/*!
+ *  \brief  Get Local Alarm status asynchronously.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::GetLocalAlarmStatusAsync()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetLocalAlarmStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetLocalAlarmStatusTime = Now;
+        if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS])
+        {
+            return m_pDigitalInputs[PER_LOCAL_ALARM_STATUS]->ReqActInputValue();
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
+    }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Get Remote Alarm status asynchronously.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t CPeripheryDevice::GetRemoteAlarmStatusAsync()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetRemoteAlarmStatusTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetRemoteAlarmStatusTime = Now;
+        if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS])
+        {
+            return m_pDigitalInputs[PER_REMOTE_ALARM_STATUS]->ReqActInputValue();
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
+    }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+/****************************************************************************/
+/*!
+ *  \brief   slot associated with get digital input value.
+ *
+ *  This slot is connected to the signal, ReportActInputValue
+ *
+ *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam InputValue = Actual digital input value.
+ *
+ */
+/****************************************************************************/
+void CPeripheryDevice::OnGetDIValue(quint32 InstanceID, ReturnCode_t ReturnCode, quint16 InputValue)
+{
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Per Get DI value successful! ";
+        m_TargetDIInputValues[m_InstDOTypeMap[InstanceID]] = InputValue;
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Per Get DI value failed! " << ReturnCode; //lint !e641
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_PER_GET_DI_VALUE, ReturnCode);
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Get Local Alarm Connection status.
+ *
+ *  \return  1: Conencted, 0: Not connected
+ */
+/****************************************************************************/
+quint16 CPeripheryDevice::GetLocalAlarmStatus()
+{
+    //Log(tr("GetValue"));
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS])
+    {
+        retCode = m_pDigitalInputs[PER_LOCAL_ALARM_STATUS]->ReqActInputValue();
+    }
+    else
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    if(m_pDevProc)
+    {
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_GET_DI_VALUE);
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    return m_TargetDIInputValues[PER_LOCAL_ALARM_STATUS];
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the Remote Alarm status captured in last 500 milliseconds.
+ *
+ *  \return  Actual connection status, UNDEFINED if failed.
+ */
+/****************************************************************************/
+quint16 CPeripheryDevice::GetRecentRemoteAlarmStatus()
+{
+    // QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue;
+    if((Now - m_LastGetRemoteAlarmStatusTime) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_TargetDIInputValues[PER_REMOTE_ALARM_STATUS];
+    }
+    else
+    {
+        RetValue = UNDEFINED_2_BYTE;
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the Local Alarm status captured in last 500 milliseconds.
+ *
+ *  \return  Actual connection status, UNDEFINED if failed.
+ */
+/****************************************************************************/
+quint16 CPeripheryDevice::GetRecentLocalAlarmStatus()
+{
+    // QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint16 RetValue;
+    if((Now - m_LastGetLocalAlarmStatusTime) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_TargetDIInputValues[PER_LOCAL_ALARM_STATUS];
+    }
+    else
+    {
+        RetValue = UNDEFINED_2_BYTE;
+    }
+    return RetValue;
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief  Get Remote Alarm Connection status.
+ *
+ *  \return  1: Conencted, 0: Not connected
+ */
+/****************************************************************************/
+quint16 CPeripheryDevice::GetRemoteAlarmStatus()
+{
+    //Log(tr("GetValue"));
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS])
+    {
+        retCode = m_pDigitalInputs[PER_REMOTE_ALARM_STATUS]->ReqActInputValue();
+    }
+    else
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    if(m_pDevProc)
+    {
+        retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_PER_GET_DI_VALUE);
+    }
+    if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+    {
+        return UNDEFINED_2_BYTE;
+    }
+    return m_TargetDIInputValues[PER_REMOTE_ALARM_STATUS];
+}
+
+
 
 } //namespace

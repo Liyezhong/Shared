@@ -8,6 +8,7 @@
 namespace DeviceControl
 {
 class CDigitalOutput;
+class CDigitalInput;
 
 /****************************************************************************/
 /*!
@@ -32,8 +33,15 @@ public:
         PER_LOCAL_ALARM_CTRL  = 2,
         //PER_REMOTE_ALARM_SET   = 2,
         //PER_REMOTE_ALARM_CLEAR = 3,
-        PER_TOTAL_NUM = 3
+        PER_DO_TOTAL_NUM = 3
     } PerDOType_t;
+
+    //! type for digital input fucntiom modules in this device
+    typedef enum {
+        PER_LOCAL_ALARM_STATUS   = 0,
+        PER_REMOTE_ALARM_STATUS  = 1,
+        PER_DI_TOTAL_NUM = 2
+    } PerDIType_t;
 
     //! general task handling function
     void HandleTasks();
@@ -87,6 +95,61 @@ public:
     /****************************************************************************/
     ReturnCode_t TurnOnRemoteAlarm();
 
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Remote Alarm status asynchronously.
+     *
+     *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
+    ReturnCode_t GetRemoteAlarmStatusAsync();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Local Alarm status asynchronously.
+     *
+     *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
+    ReturnCode_t GetLocalAlarmStatusAsync();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Local Alarm Connection status.
+     *
+     *  \return  1: Conencted, 0: Not connected
+     */
+    /****************************************************************************/
+    quint16 GetLocalAlarmStatus();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Remote Alarm Connection status.
+     *
+     *  \return  1: Conencted, 0: Not connected
+     */
+    /****************************************************************************/
+    quint16 GetRemoteAlarmStatus();
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Get the Local Alarm status captured in last 500 milliseconds.
+     *
+     *  \return  Actual connection status, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint16 GetRecentLocalAlarmStatus();
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Get the Remote Alarm status captured in last 500 milliseconds.
+     *
+     *  \return  Actual connection status, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint16 GetRecentRemoteAlarmStatus();
+
 private slots:
     /****************************************************************************/
     /*!
@@ -133,6 +196,19 @@ private slots:
     /****************************************************************************/
     void OnSetDOOutputValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 OutputValue);
 
+    /****************************************************************************/
+    /*!
+     *  \brief   slot associated with get digital input value.
+     */
+    /****************************************************************************/
+    void OnGetDIValue(quint32 InstanceID, ReturnCode_t ReturnCode, quint16 InputValue);
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Read device's sensors data asynchronizely
+     */
+    /****************************************************************************/
+    void CheckSensorsData();
     //! command handling task
     //  void HandleCommandRequestTask();
     //  void HandleDeviceTaskActions();
@@ -144,9 +220,14 @@ private slots:
 
 private:
     //Function modules
-    CDigitalOutput* m_pDigitalOutputs[PER_TOTAL_NUM]; //!< Digital outputs FMs used in this device
-    QMap<quint32, PerDOType_t> m_InstDOTypeMap;       //!< Map between instance ID and digital output function modules
-    qint16 m_TargetDOOutputValues[PER_TOTAL_NUM];     //!< Target output value; for verification of action result
+    CDigitalOutput* m_pDigitalOutputs[PER_DO_TOTAL_NUM]; //!< Digital outputs FMs used in this device
+    CDigitalInput* m_pDigitalInputs[PER_DI_TOTAL_NUM]; //!< Digital inputs FMs used in this device
+    QMap<quint32, PerDOType_t> m_InstDOTypeMap;        //!< Map between instance ID and digital output function modules
+    qint16 m_TargetDOOutputValues[PER_DO_TOTAL_NUM];   //!< Target output value; for verification of action result
+    qint16 m_TargetDIInputValues[PER_DI_TOTAL_NUM];    //!< Target input value; for verification of action result
+    QMap<quint32, PerDIType_t> m_InstDITypeMap;        //!< Map between instance ID and digital input function modules
+    qint64 m_LastGetLocalAlarmStatusTime;              //!< Last get local alarm status time
+    qint64 m_LastGetRemoteAlarmStatusTime;             //!< Last get remote alarm status time
 
     /*! error task state definitiosn */
     typedef enum {

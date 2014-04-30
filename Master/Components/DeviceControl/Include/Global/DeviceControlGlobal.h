@@ -509,10 +509,12 @@ public:
     static const QString m_RetortLockDOKey;          //!< Retort lock digital output
     static const QString m_RetortLockDIKey;          //!< Retort lock digital output
     static const QString m_PerRemoteAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
-    static const QString m_PerLocalAlarmCtrlDOKey;  //!< Miscellaneous remote alarm ctrl digital output
+    static const QString m_PerLocalAlarmCtrlDOKey;   //!< Miscellaneous remote alarm ctrl digital output
 //    static const QString m_PerRemoteAlarmSetDOKey;   //!< Miscellaneous remote alarm set digital output
 //    static const QString m_PerRemoteAlarmClearDOKey;  //!< Miscellaneous remote alarm clear digital output
-    static const QString m_PerMainRelayDOKey;     //!< Miscellaneous heater relay digital output
+    static const QString m_PerMainRelayDOKey;        //!< Miscellaneous heater relay digital output
+    static const QString m_PerLocalAlarmDIKey;       //!< Miscellaneous local alarm digital input
+    static const QString m_PerRemoteAlarmDIKey;      //!< Miscellaneous remote alarm digital input
 
 
     // calling the DeviceProcessing::GetFunctionModule-method
@@ -536,11 +538,13 @@ public:
         FCTMOD_RETORT_SIDETEMPCTRL    = 0x40005,  //!< Retort side temp control
         FCTMOD_RETORT_LOCKDO          = 0x6000F,  //!< Retort lock digital output
         FCTMOD_RETORT_LOCKDI          = 0xA000F,  //!< Retort lock digital input
-        FCTMOD_PER_REMOTEALARMCTRLDO  = 0x8000F,  //!< Miscellaneous remote alarm ctrl digital output
-        FCTMOD_PER_LOCALALARMCTRLDO   = 0x9000F,  //!< Miscellaneous remote alarm set digital output
+        FCTMOD_PER_REMOTEALARMCTRLDO  = 0x8000F,  //!< Miscellaneous remote alarm set digital output
+        FCTMOD_PER_LOCALALARMCTRLDO   = 0x9000F,  //!< Miscellaneous local alarm set digital output
         //FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
         //FCTMOD_PER_REMOTEALARMCLEARDO = 0xA00F,  //!< Miscellaneous remote alarm clear digital output
-        FCTMOD_PER_MAINRELAYDO        = 0x7000F   //!< Miscellaneous heater relay digital output
+        FCTMOD_PER_MAINRELAYDO        = 0x7000F,   //!< Miscellaneous heater relay digital output
+        FCTMOD_PER_REMOTEALARMDI      = 0xC000F,   //!< Miscellaneous remote alarm status digital input
+        FCTMOD_PER_LOCALALARMDI       = 0xB000F    //!< Miscellaneous local alarm status digital input
     } CANObjectIdentifier_t;
 };
 
