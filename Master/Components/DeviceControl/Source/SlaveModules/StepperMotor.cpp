@@ -107,8 +107,7 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
     m_ReqMovementProfile(0), m_ReqSubCommandID(0), m_ReqSubCommandData(0),
     m_aktionTimespan(0), MotionProfileIndex(0), MotionProfileSubIndex(0), m_MotorState(false),
     m_RevolutionCount(0), m_DirChangeCount(0), m_OperationTime(0),
-    m_MinPosition(0), m_MaxPosition(0), m_MaxSpeed(0),
-    m_bTestOutput(0), m_nCounter(0)
+    m_MinPosition(0), m_MaxPosition(0), m_MaxSpeed(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -124,9 +123,6 @@ CStepperMotor::CStepperMotor(const CANMessageConfiguration *p_MessageConfigurati
         m_ModuleCommand[idx].m_TimeoutRetry = 0;
     }
 
-    //quick and easy testing
-    m_bTestOutput = false;
-    m_nCounter = 0;
 
     // init event string list
     m_eventString[1]  = "E_SMOT_INVALID_STATE: a command was received while the motor's state is not able to execute it";
@@ -2836,16 +2832,4 @@ ReturnCode_t CStepperMotor::DoReconfiguration(CANFctModuleStepperMotor *pConfig)
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
-void CStepperMotor::TestOutput(QString text)
-{
-    if(m_bTestOutput == true)
-    {
-        m_nCounter++;
-        if(m_nCounter > 100)
-        {
-            FILE_LOG_L(laFCT, llINFO) << "   CANStepperMotor<" << GetKey().toStdString() << "> " << text.toStdString() << "  " << std::hex << this;
-            m_nCounter = 0;
-        }
-    }
-}
 } //namespace

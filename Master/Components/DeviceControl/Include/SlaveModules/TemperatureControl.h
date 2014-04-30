@@ -46,6 +46,17 @@ class CTemperatureControl : public CFunctionModule
     Q_OBJECT
 
  public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CTemperatureControl
+     *
+     *  \param  p_MessageConfiguration
+     *  \param  pCANCommunicator
+     *  \param  pParentNode
+     *
+     *  \return from CTemperatureControl
+     */
+    /****************************************************************************/
     CTemperatureControl(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                         CBaseModule* pParentNode);
     ~CTemperatureControl();
@@ -77,6 +88,16 @@ class CTemperatureControl : public CFunctionModule
     ReturnCode_t GetHardwareStatus();
     //! Set temperature ctrl. status
     ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetSwitchState
+     *
+     *  \param SwitchState = qint8 type parameter
+     *  \param AutoSwitch =  qint8 type parameter
+     *
+     *  \return from SetSwitchState
+     */
+    /****************************************************************************/
     ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 
 
@@ -239,6 +260,15 @@ signals:
      */
     /****************************************************************************/
     void ReportSetPidAckn(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of signal ReportSetSwitchState
+     *  \iparam InstanceID = Instance identifier of this function module instance
+     *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
+     *  \iparam SwitchState = Switch State
+     *  \iparam AutoSwitch = Auto Switch
+     */
+    /****************************************************************************/
     void ReportSetSwitchState(quint32 InstanceID, ReturnCode_t HdlInfo, qint8 SwitchState, qint8 AutoSwitch);
 
 
@@ -257,7 +287,21 @@ signals:
     ReturnCode_t SendCANMsgPidParametersSet(quint8 Index);
     //! sends the can message 'PidParameters'
     ReturnCode_t SendCANMsgPidParametersSet(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgAcCurrentWatchdogSet
+     *
+     *  \return from SendCANMsgAcCurrentWatchdogSet
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgAcCurrentWatchdogSet();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgAcCurrentWatchdogSetExt
+     *
+     *  \return from SendCANMsgAcCurrentWatchdogSetExt
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgAcCurrentWatchdogSetExt();
 
     //! sends the can set message 'Temperature'
@@ -275,6 +319,16 @@ signals:
     //! sends the can request message 'HardwareReq'
     ReturnCode_t SendCANMsgHardwareReq();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgSetSwitchState
+     *
+     *  \param SwitchState = qint8 type parameter
+     *  \param AutoSwitch =  qint8 type parameter
+     *
+     *  \return from SendCANMsgSetSwitchState
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgSetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 
     //! handles the receipt of can response message 'ServiceSensor'
@@ -332,14 +386,14 @@ signals:
         qint32 Timeout;                         //!< timeout in ms
         quint8 TimeoutRetry;                    //!< timeout retry time
         quint8 Index;                           //!< sensor, heater or fan index
-        quint8 SlopeTimeInterval;
-        quint8 SlopeTempChange;
-        quint16 MaxTemperature;
-        quint16 ControllerGain;
-        quint16 ResetTime;
-        quint16 DerivativeTime;
-        qint8 SwitchState;
-        qint8 AutoSwitch;
+        quint8 SlopeTimeInterval;       ///<  Definition/Declaration of variable SlopeTimeInterval
+        quint8 SlopeTempChange;       ///<  Definition/Declaration of variable SlopeTempChange
+        quint16 MaxTemperature;       ///<  Definition/Declaration of variable MaxTemperature
+        quint16 ControllerGain;       ///<  Definition/Declaration of variable ControllerGain
+        quint16 ResetTime;       ///<  Definition/Declaration of variable ResetTime
+        quint16 DerivativeTime;       ///<  Definition/Declaration of variable DerivativeTime
+        qint8 SwitchState;       ///<  Definition/Declaration of variable SwitchState
+        qint8 AutoSwitch;       ///<  Definition/Declaration of variable AutoSwitch
     } TempCtrlCommand_t;
 
     TempCtrlCommand_t m_ModuleCommand[MAX_TEMP_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -371,8 +425,8 @@ signals:
     quint32 m_unCanIDNotiAutoTune;          //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDLevelSensorState;
-    quint32 m_unCanIDSetSwitchState;
+    quint32 m_unCanIDLevelSensorState;       ///<  Definition/Declaration of variable m_unCanIDLevelSensorState
+    quint32 m_unCanIDSetSwitchState;       ///<  Definition/Declaration of variable m_unCanIDSetSwitchState
     quint32 m_unCanIDAcCurrentWatchdogSet;    //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDAcCurrentWatchdogSetExt; //!< CAN-message id of 'TBD' message
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection

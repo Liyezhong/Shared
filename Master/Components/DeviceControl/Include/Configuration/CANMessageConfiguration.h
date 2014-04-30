@@ -62,9 +62,20 @@ public:
     //! Return the CAN message ID from the specified parameters
     unsigned int GetCANMessageID(quint8 bModuleID, QString strMessageKey, quint8 bIfaceID, quint32 unNodeID) const;
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetLastError
+     *
+     *  \param usErrorID = quint16 type parameter
+     *  \param strErrorInfo =  QString type parameter
+     *
+     *  \return from GetLastError
+     */
+    /****************************************************************************/
     void GetLastError(quint16& usErrorID, QString& strErrorInfo);
 
 private:
+
     ReturnCode_t ParseCANMessageElement(const QDomNode &element, quint8 bFctModuleIfaceID);
 
     CANMessageList m_CANMessageList;    //!< List of all CAN messages

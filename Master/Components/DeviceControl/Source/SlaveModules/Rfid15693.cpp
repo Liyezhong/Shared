@@ -874,7 +874,6 @@ ReturnCode_t CRfid15693::WriteBlock(quint8 Address, quint32 Data)
  *      The task will be acknowledged by sending the signal ReportLockBlock
  *
  *  \iparam Address = Block address
- *  \iparam Data = Data to be written
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *          otherwise DCL_ERR_INVALID_STATE

@@ -39,7 +39,7 @@ class DeviceProcTask
 private:
     DeviceProcTask();                                           ///< Not implemented.
     DeviceProcTask(const DeviceProcTask &);                     ///< Not implemented.
-    const DeviceProcTask & operator = (const DeviceProcTask &); ///< Not implemented.
+    //const DeviceProcTask & operator = (const DeviceProcTask &); ///< Not implemented.
 
 public:
     /*! Task identification definitions */

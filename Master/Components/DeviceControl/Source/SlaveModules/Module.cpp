@@ -479,7 +479,6 @@ quint32 CModule::GetCANMsgDataU32 (can_frame* pCANframe, quint8 offset)
  *  \brief  Returns a quint64 from can message data
  *
  *  \iparam pCANframe = CAN message
- *  \iparam offset = Byte offset in the CAN message's data field
  *
  *  \return CAN data as quint64
  */

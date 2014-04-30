@@ -376,6 +376,13 @@ class DeviceTask
 public:
     DeviceTask();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CreateFunctionModuleTask
+     *
+     *  \return from CreateFunctionModuleTask
+     */
+    /****************************************************************************/
     FunctionModuleTask* CreateFunctionModuleTask();
 
     /*! task state type definition */
@@ -430,19 +437,80 @@ public:
     CFunctionModuleTaskManager();
     ~CFunctionModuleTaskManager();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetStartupTask
+     *
+     *  \param taskMap = FunctionModuleTaskMap type parameter
+     *  \param bActionStateInProgress =  bool type parameter
+     *  \param bActionStateWithErrorDetect =  bool type parameter
+     *
+     *  \return from GetStartupTask
+     */
+    /****************************************************************************/
     FunctionModuleTask* GetStartupTask(FunctionModuleTaskMap& taskMap, bool& bActionStateInProgress, bool& bActionStateWithErrorDetect);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetTaskFromIndex
+     *
+     *  \param taskMap = FunctionModuleTaskMap type parameter
+     *  \param taskIndex =  quint8 type parameter
+     *
+     *  \return from GetTaskFromIndex
+     */
+    /****************************************************************************/
     FunctionModuleTask* GetTaskFromIndex(FunctionModuleTaskMap& taskMap, quint8 taskIndex);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetTaskFromInstanceID
+     *
+     *  \param taskMap = FunctionModuleTaskMap type parameter
+     *  \param instanceID =  quint32 type parameter
+     *  \param pLastFunctionModuleTask =  FunctionModuleTask type parameter
+     *
+     *  \return from GetTaskFromInstanceID
+     */
+    /****************************************************************************/
     FunctionModuleTask* GetTaskFromInstanceID(FunctionModuleTaskMap& taskMap, quint32 instanceID, FunctionModuleTask* pLastFunctionModuleTask);
+
     FunctionModuleTask* GetTaskFromInstanceID(DeviceTaskMap& taskList, quint32 instanceID, FunctionModuleTask* pLastFunctionModuleTask, int& DeviceTaskKey);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartTask
+     *
+     *  \param pFunctionModuleTask = FunctionModuleTask type parameter
+     *
+     *  \return from StartTask
+     */
+    /****************************************************************************/
     ReturnCode_t StartTask(FunctionModuleTask* pFunctionModuleTask);
 
     static FunctionModuleTask* GetTaskWithState(FunctionModuleTaskMap& taskMap,
                                                 FunctionModuleTask::FunctionModuleTaskID_t taskID,
                                                 FunctionModuleTask::FunctionModuleTaskState_t taskState);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CheckTasksTimeOut
+     *
+     *  \param TaskMap = FunctionModuleTaskMap type parameter
+     *  \param pFctModTaskTimeout =  FunctionModuleTask type parameter
+     *
+     *  \return from CheckTasksTimeOut
+     */
+    /****************************************************************************/
     ReturnCode_t CheckTasksTimeOut(FunctionModuleTaskMap& TaskMap, FunctionModuleTask* pFctModTaskTimeout);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ResetTasks
+     *
+     *  \param TaskMap = FunctionModuleTaskMap type parameter
+     *
+     *  \return from ResetTasks
+     */
+    /****************************************************************************/
     void ResetTasks(FunctionModuleTaskMap& TaskMap);
 
     Global::MonotonicTime m_Timer;  ///< timer for timeout observation

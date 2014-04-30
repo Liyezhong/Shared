@@ -25,7 +25,11 @@
 #include <string>
 
 
-
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of macro LOG()
+ */
+/****************************************************************************/
 #define LOG() qDebug()
 
 /*-------------------------------------------------
@@ -127,7 +131,7 @@ private:
     //! Overloaded constructor
     Log(const Log&);
     //! Assignment operator definition
-    Log& operator =(const Log&);
+    //Log& operator =(const Log&);
 };
 
 /****************************************************************************/

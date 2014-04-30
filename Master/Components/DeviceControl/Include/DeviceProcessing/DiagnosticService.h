@@ -41,9 +41,27 @@ class CANCommunicator;
 class CDiagnosticService
 {
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CDiagnosticService
+     *
+     *  \param pDeviceProcessing = DeviceProcessing type parameter
+     *  \param pCANCommunicator =  CANCommunicator type parameter
+     *  \param pObjectTree =  ObjectTree type parameter
+     *
+     *  \return from CDiagnosticService
+     */
+    /****************************************************************************/
     CDiagnosticService(DeviceProcessing* pDeviceProcessing, CANCommunicator* pCANCommunicator, ObjectTree* pObjectTree);
     virtual ~CDiagnosticService();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleTasks
+     *
+     *  \return from HandleTasks
+     */
+    /****************************************************************************/
     void HandleTasks();
 
     //! Main states of the diagnostics service
@@ -64,11 +82,45 @@ public:
     /****************************************************************************/
     DiagnosticServiceMainState_t GetState() { return m_MainState; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ThrowErrorSignal
+     *
+     *  \param InstanceID = quint32 type parameter
+     *  \param ErrorGroup =  quint16 type parameter
+     *  \param ErrorID =  quint16 type parameter
+     *  \param ErrorData =  quint16 type parameter
+     *  \param ErrorTime =  QDateTime type parameter
+     *
+     *  \return from ThrowErrorSignal
+     */
+    /****************************************************************************/
     void ThrowErrorSignal(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
 
 private:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleConfigurationTask
+     *
+     *  \return from HandleConfigurationTask
+     */
+    /****************************************************************************/
     void HandleConfigurationTask();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CheckNodeState
+     *
+     *  \return from CheckNodeState
+     */
+    /****************************************************************************/
     ReturnCode_t CheckNodeState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RequestNodeStateService
+     *
+     *  \return from RequestNodeStateService
+     */
+    /****************************************************************************/
     ReturnCode_t RequestNodeStateService();
 
     DeviceProcessing* m_pDeviceProcessing;  //!< Device processing

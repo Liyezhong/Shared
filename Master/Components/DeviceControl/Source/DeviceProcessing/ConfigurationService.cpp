@@ -60,7 +60,6 @@ namespace DeviceControl
  *
  *  \iparam pDeviceProcessing = Pointer to DeviceProcessing
  *  \iparam pCANCommunicator = Pointer to communication interface
- *  \iparam pObjectTree = Pointer to CAN-object container
  */
 /****************************************************************************/
 CConfigurationService::CConfigurationService(DeviceProcessing* pDeviceProcessing,

@@ -714,6 +714,7 @@ void COvenDevice::OnTempControlStatus(quint32 InstanceID, ReturnCode_t ReturnCod
  *  \brief  Judge if the temperature is inside the range.
  *
  *  \iparam  Type = The target temperature contorl module to control.
+ *  \param Index =  quint8 type parameter
  *
  *  \return  True if is inside the range, else not.
  */
@@ -744,6 +745,7 @@ bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type, quint8 Index)
  *  \brief  Judge if the temperature is outside the range.
  *
  *  \iparam  Type = The target temperature contorl module to control.
+ *  \param Index =  quint8 type parameter
  *
  *  \return  True if is outside the range, else not.
  */
@@ -1192,6 +1194,8 @@ quint16 COvenDevice::GetHeaterCurrent(OVENTempCtrlType_t Type)
  *  \iparam Heaters = Number of heating elements connected to the board
  *  \iparam Pids = Number of PID controllers in the control loop
  *  \iparam Current = Current through the heatinf circuit in milliamperes
+ *  \param HeaterSwitchType
+ *  \param InstanceID
  */
 /****************************************************************************/
 void COvenDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,

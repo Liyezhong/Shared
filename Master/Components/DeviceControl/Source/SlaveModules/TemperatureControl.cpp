@@ -1775,7 +1775,7 @@ ReturnCode_t CTemperatureControl::SetTemperaturePid(quint16 MaxTemperature, quin
     ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
     quint8 CmdIndex;
 
-    if(MaxTemperature > 132)
+    if(MaxTemperature > 130)
     {
         RetVal = DCL_ERR_INVALID_PARAM;
     }

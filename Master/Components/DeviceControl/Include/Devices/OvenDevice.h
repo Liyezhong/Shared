@@ -29,46 +29,233 @@ public:
     //! general task handling function
     void HandleTasks();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTempCtrlON
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return from SetTempCtrlON
+     */
+    /****************************************************************************/
     ReturnCode_t SetTempCtrlON(OVENTempCtrlType_t Type);
     ReturnCode_t SetTempCtrlOFF(OVENTempCtrlType_t type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTemperaturePid
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from SetTemperaturePid
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperaturePid(OVENTempCtrlType_t Type, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartTemperatureControl
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *
+     *  \return from StartTemperatureControl
+     */
+    /****************************************************************************/
     ReturnCode_t StartTemperatureControl(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartTemperatureControlWithPID
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param NominalTemperature =  qreal type parameter
+     *  \param SlopeTempChange =  quint8 type parameter
+     *  \param MaxTemperature =  quint16 type parameter
+     *  \param ControllerGain =  quint16 type parameter
+     *  \param ResetTime =  quint16 type parameter
+     *  \param DerivativeTime =  quint16 type parameter
+     *
+     *  \return from StartTemperatureControlWithPID
+     */
+    /****************************************************************************/
     ReturnCode_t StartTemperatureControlWithPID(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetRecentTemperature
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *  \param Index =  quint8 type parameter
+     *
+     *  \return from GetRecentTemperature
+     */
+    /****************************************************************************/
     qreal GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetRecentOvenLidStatus
+     *
+     *  \return from GetRecentOvenLidStatus
+     */
+    /****************************************************************************/
     quint16 GetRecentOvenLidStatus();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetTemperatureControlState
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return from GetTemperatureControlState
+     */
+    /****************************************************************************/
     TempCtrlState_t GetTemperatureControlState(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetHeaterCurrent
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return from GetHeaterCurrent
+     */
+    /****************************************************************************/
     quint16 GetHeaterCurrent(OVENTempCtrlType_t Type);
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot Reset
+     */
+    /****************************************************************************/
     void Reset();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot HandleInitializationState
+     */
+    /****************************************************************************/
     ReturnCode_t HandleInitializationState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot  HandleConfigurationState
+     */
+    /****************************************************************************/
     ReturnCode_t HandleConfigurationState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot ConfigureDeviceTasks
+     */
+    /****************************************************************************/
     ReturnCode_t ConfigureDeviceTasks();
     //! idle state handling task
     void HandleIdleState();
     //! error handling task
     void HandleErrorState();
     // void HandleErrorState();
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetTemperatureControlStatus
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetTemperature
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperature(OVENTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetTemperature
+     */
+    /****************************************************************************/
     qreal GetTemperature(OVENTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetTemperatureAsync
+     */
+    /****************************************************************************/
     ReturnCode_t GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetLidStatus
+     */
+    /****************************************************************************/
     quint16 GetLidStatus();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot GetLidStatusAsync
+     */
+    /****************************************************************************/
     ReturnCode_t GetLidStatusAsync();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsInsideRange
+     */
+    /****************************************************************************/
     bool IsInsideRange(OVENTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsOutsideRange
+     */
+    /****************************************************************************/
     bool IsOutsideRange(OVENTempCtrlType_t Type, quint8 Index);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsTemperatureControlOn
+     */
+    /****************************************************************************/
     bool IsTemperatureControlOn(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot IsTemperatureControlOff
+     */
+    /****************************************************************************/
     bool IsTemperatureControlOff(OVENTempCtrlType_t Type);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot CheckSensorsData
+     */
+    /****************************************************************************/
     void CheckSensorsData();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetTemp
+     */
+    /****************************************************************************/
     void OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, qreal Temperature);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnGetTemp
+     */
+    /****************************************************************************/
     void OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Index, qreal Temp);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetTempPid
+     */
+    /****************************************************************************/
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnTempControlStatus
+     */
+    /****************************************************************************/
     void OnTempControlStatus(quint32 /*InstanceID*/, ReturnCode_t ReturnCode,TempCtrlStatus_t TempCtrlStatus, TempCtrlMainsVoltage_t MainsVoltage);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnGetDIValue
+     */
+    /****************************************************************************/
     void OnGetDIValue(quint32 /*InstanceID*/, ReturnCode_t ReturnCode, quint16 InputValue);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnTCGetHardwareStatus
+     */
+    /****************************************************************************/
     void OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 Sensors, quint8 Fans,
                                                quint8 Heaters, quint8 Pids, quint16 Current, quint8 HeaterSwitchType);
 

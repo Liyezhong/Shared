@@ -46,6 +46,17 @@ class CRfid11785 : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CRfid11785
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CRfid11785
+     */
+    /****************************************************************************/
     CRfid11785(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                CBaseModule* pParentNode);
     ~CRfid11785();

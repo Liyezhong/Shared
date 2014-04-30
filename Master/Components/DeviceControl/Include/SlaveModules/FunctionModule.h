@@ -96,10 +96,24 @@ public:
     void Confirm() { m_mainState = FM_MAIN_STATE_CONFIRMED; }
 
 protected:
-    //!< Initialisation of event CAN message IDs
+    /****************************************************************************/
+    /*!
+     *  \brief  Initialisation of event CAN message IDs
+     *
+     *  \param ModuleID
+     *
+     *  \return from InitializeEventCANMessages
+     */
+    /****************************************************************************/
     ReturnCode_t InitializeEventCANMessages(quint8 ModuleID);
 
-    //!< Registers the can messages to communication layer
+    /****************************************************************************/
+    /*!
+     *  \brief  Registers the can messages to communication layer
+     *
+     *  \return from RegisterEventCANMessages
+     */
+    /****************************************************************************/
     ReturnCode_t RegisterEventCANMessages();
 
     CANFctModMainState_t m_mainState;   //!< Main state
@@ -108,7 +122,7 @@ protected:
 private:
     CFunctionModule();                                              ///< Not implemented.
     CFunctionModule(const CFunctionModule &);                       ///< Not implemented.
-    const CFunctionModule & operator = (const CFunctionModule &);   ///< Not implemented.
+    //const CFunctionModule & operator = (const CFunctionModule &);   ///< Not implemented.
 };
 
 } //namespace

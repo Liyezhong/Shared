@@ -270,8 +270,8 @@ public:
     qint32  position;       //!< centered limit switch position in half-steps
     quint8  width;          //!< active limit switch width in half-steps
     quint8  deviation;      //!< tolerated deviation (+/-) in half-steps
-    quint8  bRotDirCheck;
-    quint8  hitSkip;
+    quint8  bRotDirCheck;       ///<  Definition/Declaration of variable bRotDirCheck
+    quint8  hitSkip;       ///<  Definition/Declaration of variable hitSkip
 };
 
 
@@ -386,8 +386,8 @@ public:
     // reference run parameters
     qint8         refRunRefPos;            //!< the limit switch position code used as reference position
     qint32        lRefRunMaxDistance;      //!< maximum number of half-steps during reference run
-    quint16        sRefRunTimeout;         //work around, need value bigger than 32767 !< maximum duration to perform each movement in ms
-    //qint16        sRefRunTimeout;          //!< maximum duration to perform each movement in ms
+    quint16        sRefRunTimeout;         //!< work around, need value bigger than 32767 !< maximum duration to perform each movement in ms
+    //qint16        sRefRunTimeout;          //!<  maximum duration to perform each movement in ms
     qint32        lRefRunReverseDistance;  //!< distance for reverse move between high and low speed cycle
     qint32        lRefPosOffset;           //!< offset between the reference position and internal position system
     qint16        sRefRunSlowSpeed;        //!< low speed during reference run in half-steps/sec
@@ -524,15 +524,20 @@ public:
     quint16 sHeaterCurrent;     //!< current through the heaters in mA
     quint16 sHeaterThreshold;   //!< current threshold of the heaters in mA
     quint16 sCurrentDeviation;  //!< current deviation in mA
-    quint16 sCurrentMin230_Serial;
-    quint16 sCurrentMax230_Serial;
-    quint16 sCurrentMin100_Serial;
-    quint16 sCurrentMax100_Serial;
-    quint16 sCurrentMin100_Parallel;
-    quint16 sCurrentMax100_Parallel;
+    quint16 sCurrentMin230_Serial;       ///<  Definition/Declaration of variable sCurrentMin230_Serial
+    quint16 sCurrentMax230_Serial;       ///<  Definition/Declaration of variable sCurrentMax230_Serial
+    quint16 sCurrentMin100_Serial;       ///<  Definition/Declaration of variable sCurrentMin100_Serial
+    quint16 sCurrentMax100_Serial;       ///<  Definition/Declaration of variable sCurrentMax100_Serial
+    quint16 sCurrentMin100_Parallel;       ///<  Definition/Declaration of variable sCurrentMin100_Parallel
+    quint16 sCurrentMax100_Parallel;       ///<  Definition/Declaration of variable sCurrentMax100_Parallel
     QList<CANFctPidController> listPidControllers;  //!< List of PID parameter sets
 };
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of class DeviceControl::CANPressureFctPidController
+ */
+/****************************************************************************/
 class CANPressureFctPidController
 {
 public:
@@ -544,12 +549,17 @@ public:
         sDerivativeTime = 0;
     }
     qint16 sMaxPressure;        //!< Max target pressure of the
-    qint16 sMinPressure;
+    qint16 sMinPressure;       ///<  Definition/Declaration of variable sMinPressure
     quint16 sControllerGain;    //!< PID controller gain parameter
     quint16 sResetTime;         //!< Integral parameter of the PID [hundredth of seconds]
     qint8 sDerivativeTime;    //!< Derivative parameter of the PID [hundredth of seconds]
 };
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of class DeviceControl::CANPressureFctPwmController
+ */
+/****************************************************************************/
 class CANPressureFctPwmController
 {
 public:
@@ -560,12 +570,17 @@ public:
     sMinPwmDuty = 0;
 }
 
-    quint16 sMaxActuatingValue;
-    quint16 sMinActuatingValue;
-    quint8 sMaxPwmDuty;
-    quint8 sMinPwmDuty;
+    quint16 sMaxActuatingValue;       ///<  Definition/Declaration of variable sMaxActuatingValue
+    quint16 sMinActuatingValue;       ///<  Definition/Declaration of variable sMinActuatingValue
+    quint8 sMaxPwmDuty;       ///<  Definition/Declaration of variable sMaxPwmDuty
+    quint8 sMinPwmDuty;       ///<  Definition/Declaration of variable sMinPwmDuty
 };
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of class DeviceControl::CANFctModulePressureCtrl
+ */
+/****************************************************************************/
 class CANFctModulePressureCtrl : public CModuleConfig
 {
 public:
@@ -580,7 +595,7 @@ public:
         sFanCurrent = 0;
         sFanCurrentGain = 0;
     }
-    quint8 bPressureTolerance;      //!<
+    quint8 bPressureTolerance;      //!<       ///<  Definition/Declaration of variable bPressureTolerance
     quint16 sSamplingPeriod;    //!< sampling period in hundredth of seconds
     //quint16 sFanSpeed;          //!< fan speed in rotations per minute
     quint16 sFanCurrent;        //!< fan current
@@ -590,7 +605,7 @@ public:
     quint16 sPumpCurrent;       //!< current through the pumps in mA
     quint16 sPumpThreshold;     //!< current threshold of the pumps in mA
     QList<CANPressureFctPidController> listPidControllers;  //!< List of PID parameter sets
-    CANPressureFctPwmController pwmController;
+    CANPressureFctPwmController pwmController;       ///<  Definition/Declaration of variable pwmController
 };
 /*! \brief This class transfers the CANoystick-Object configuration.
 *    The class contains configuration parameter of the CANoystick-Object

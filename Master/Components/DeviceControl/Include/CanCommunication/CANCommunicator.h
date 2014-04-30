@@ -88,26 +88,147 @@ public:
     /****************************************************************************/
     Can2TcpClient* GetTcpClient() { return m_pClient; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StartComm
+     *
+     *  \param ifaceCAN =  char type parameter
+     *
+     *  \return from StartComm
+     */
+    /****************************************************************************/
     qint16 StartComm(const char* ifaceCAN);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function StopComm
+     *
+     *  \return from StopComm
+     */
+    /****************************************************************************/
     ReturnCode_t StopComm();
 
     void SetCommunicationError(qint16 nError, qint16 nErrorAdditionalInfo);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCommunicationError
+     *
+     *  \param nErrorAdditionalInfo = qint16 type parameter
+     *
+     *  \return from GetCommunicationError
+     */
+    /****************************************************************************/
     qint16 GetCommunicationError(qint16& nErrorAdditionalInfo);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCommunicationStatus
+     *
+     *  \return from GetCommunicationStatus
+     */
+    /****************************************************************************/
     int  GetCommunicationStatus();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetCANInterface
+     *
+     *  \return from GetCANInterface
+     */
+    /****************************************************************************/
     CANInterface* GetCANInterface();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RegisterCOB
+     *
+     *  \param unCanID = unsigned int type parameter
+     *  \param pCallbackModule =  CModule type parameter
+     *
+     *  \return from RegisterCOB
+     */
+    /****************************************************************************/
     ReturnCode_t RegisterCOB(unsigned int unCanID, CModule* pCallbackModule);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCOB
+     *
+     *  \param canmsg = can_frame type parameter
+     *
+     *  \return from SendCOB
+     */
+    /****************************************************************************/
     ReturnCode_t SendCOB(can_frame& canmsg);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function DispatchMessage
+     *
+     *  \param canmsg = can_frame type parameter
+     *
+     *  \return from DispatchMessage
+     */
+    /****************************************************************************/
     void DispatchMessage(can_frame& canmsg);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function DispatchPendingInMessage
+     *
+     *  \return from DispatchPendingInMessage
+     */
+    /****************************************************************************/
     void DispatchPendingInMessage();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function AppendToReceiveQueue
+     *
+     *  \param canmsg = can_frame type parameter
+     *
+     *  \return from AppendToReceiveQueue
+     */
+    /****************************************************************************/
     void AppendToReceiveQueue(can_frame& canmsg);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IsOutMessagePending
+     *
+     *  \return from IsOutMessagePending
+     */
+    /****************************************************************************/
     bool IsOutMessagePending();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IsInMessagePending
+     *
+     *  \return from IsInMessagePending
+     */
+    /****************************************************************************/
     bool IsInMessagePending();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function PopPendingOutMessage
+     *
+     *  \return from PopPendingOutMessage
+     */
+    /****************************************************************************/
     can_frame PopPendingOutMessage();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function PopPendingInMessage
+     *
+     *  \return from PopPendingInMessage
+     */
+    /****************************************************************************/
     can_frame PopPendingInMessage();
 signals:
-    //! Forward error information to IDeviceProcessing
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward error information to IDeviceProcessing
+     *
+     *  \iparam instanceID = Instance identifier of this function module instance
+     *  \iparam usErrorGroup = Error group
+     *  \iparam usErrorID = Error ID
+     *  \iparam usErrorData = Additional error information
+     *  \iparam timeStamp = Error time
+     */
+    /****************************************************************************/
     void ReportError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID, quint16 usErrorData, QDateTime timeStamp);
 
 private:

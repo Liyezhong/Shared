@@ -25,6 +25,17 @@ class CPressureControl : public CFunctionModule
     Q_OBJECT
 
  public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CPressureControl
+     *
+     *  \param p_MessageConfiguration =  CANMessageConfiguration type parameter
+     *  \param pCANCommunicator =  CANCommunicator type parameter
+     *  \param pParentNode =  CBaseModule type parameter
+     *
+     *  \return from CPressureControl
+     */
+    /****************************************************************************/
     CPressureControl(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator, CBaseModule* pParentNode);
     ~CPressureControl();
 
@@ -62,7 +73,23 @@ class CPressureControl : public CFunctionModule
     //! Set PWM parameters
     ReturnCode_t SetPWMParams(quint16 maxActuatingValue, quint16 minActuatingValue, quint8 maxPwmDuty, quint8 minPwmDuty);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetValveOperationTime
+     *
+     *  \param ValveIndex = quint32 type parameter
+     *
+     *  \return from GetValveOperationTime
+     */
+    /****************************************************************************/
     quint32 GetValveOperationTime(quint32 ValveIndex);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ResetValveOperationTime
+     *
+     *  \return from ResetValveOperationTime
+     */
+    /****************************************************************************/
     ReturnCode_t ResetValveOperationTime();
 signals:
     /****************************************************************************/
@@ -94,7 +121,7 @@ signals:
      *
      *  \iparam InstanceID = Instance identifier of this function module instance
      *  \iparam HdlInfo = Return code, DCL_ERR_FCT_CALL_SUCCESS, otherwise the error code
-     *  \iparam PressureCtrlStatus = Pressure ctrl. status
+     *  \iparam Status = Pressure ctrl. status
      *  \iparam Voltage = Voltage mode
      */
     /****************************************************************************/
@@ -227,6 +254,13 @@ private:
 //    void SendConfiguration();   //!< configuration task handling function
     void HandleIdleState();     //!< idle task handling function
 //    //! sends the can message 'FanWatchdog'
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgFanWatchdogSet
+     *
+     *  \return from SendCANMsgFanWatchdogSet
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgFanWatchdogSet();
     //! sends the can message 'CurrentWatchdog'
     ReturnCode_t SendCANMsgCurrentWatchdogSet();
@@ -250,7 +284,28 @@ private:
     ReturnCode_t SendCANMsgSetValve(quint8 ValveIndex, quint8 flags);
     //! sends the can request message 'Calibration'
     ReturnCode_t SendCANMsgCalibration(bool Enable);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgSetPWMParam
+     *
+     *  \param MaxActuatingValue = quint16 type parameter
+     *  \param MinActuatingValue =  quint16 type parameter
+     *  \param MaxPwmDuty =  quint8 type parameter
+     *  \param MinPwmDuty =  quint8 type parameter
+     *
+     *  \return from SendCANMsgSetPWMParam
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgSetPWMParam(quint16 MaxActuatingValue, quint16 MinActuatingValue, quint8 MaxPwmDuty, quint8 MinPwmDuty);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SendCANMsgSetFan
+     *
+     *  \param State = quint8 type parameter
+     *
+     *  \return from SendCANMsgSetFan
+     */
+    /****************************************************************************/
     ReturnCode_t SendCANMsgSetFan(quint8 State);
 
 
@@ -269,8 +324,31 @@ private:
     //! command handling function
     void HandleCommandRequestTask();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function AddValveOperationTime
+     *
+     *  \param ValveIndex = quint8 type parameter
+     *
+     *  \return from AddValveOperationTime
+     */
+    /****************************************************************************/
     ReturnCode_t AddValveOperationTime(quint8 ValveIndex);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ReadValveOperationTime
+     *
+     *  \return from ReadValveOperationTime
+     */
+    /****************************************************************************/
     ReturnCode_t ReadValveOperationTime();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function WriteValveOperationTime
+     *
+     *  \return from WriteValveOperationTime
+     */
+    /****************************************************************************/
     ReturnCode_t WriteValveOperationTime();
 
 
@@ -318,11 +396,11 @@ private:
         quint8 ValveIndex;                              //!< Valve index
         quint8 ValveState;                              //!< Valve State. 0: off, 1: on
         bool EnableCalibration;                         //!< Enable or disable calibration
-        quint16 MaxActuatingValue;
-        quint16 MinActuatingValue;
-        quint8 MaxPwmDuty;
-        quint8 MinPwmDuty;
-        quint8 FanState;
+        quint16 MaxActuatingValue;       ///<  Definition/Declaration of variable MaxActuatingValue
+        quint16 MinActuatingValue;       ///<  Definition/Declaration of variable MinActuatingValue
+        quint8 MaxPwmDuty;       ///<  Definition/Declaration of variable MaxPwmDuty
+        quint8 MinPwmDuty;       ///<  Definition/Declaration of variable MinPwmDuty
+        quint8 FanState;       ///<  Definition/Declaration of variable FanState
     } PressureCtrlCommand_t;
 
     PressureCtrlCommand_t m_ModuleCommand[MAX_PRESSURE_MODULE_CMD_IDX]; //!< module command array for simultaneously command execution
@@ -355,12 +433,12 @@ private:
     quint32 m_unCanIDNotiInRange;           //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDNotiOutOfRange;        //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDValveSet;              //!< CAN-message id of 'TBD' message
-    quint32 m_unCanIDCalibration;
-    quint32 m_unCanIDPWMParamSet;
-    quint32 m_unCanIDFanSet;
+    quint32 m_unCanIDCalibration;       ///<  Definition/Declaration of variable m_unCanIDCalibration
+    quint32 m_unCanIDPWMParamSet;       ///<  Definition/Declaration of variable m_unCanIDPWMParamSet
+    quint32 m_unCanIDFanSet;       ///<  Definition/Declaration of variable m_unCanIDFanSet
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
-    quint32 m_valveOperationTime[VALVE_NUM];
+    quint32 m_valveOperationTime[VALVE_NUM];       ///<  Definition/Declaration of variable m_valveOperationTime[VALVE_NUM]
 };
 
 } //namespace

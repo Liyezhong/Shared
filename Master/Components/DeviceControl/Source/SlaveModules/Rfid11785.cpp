@@ -751,7 +751,8 @@ ReturnCode_t CRfid11785::SendCANMessageConfiguration()
  *
  *      The RFID login password will be sent via CAN-Bus to the slave.
  *
- *  \iparam MotionCmdIdx = Command index
+ *  \iparam Password
+ *
  *  \return DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */
 /****************************************************************************/
@@ -877,7 +878,9 @@ ReturnCode_t CRfid11785::SendCANMsgWritePassword(quint32 Password)
  *
  *      A configuration write request will be sent via CAN-Bus to the slave.
  *
- *  \iparam Password = Password to be written
+ *  \param ReadLogin
+ *  \param WriteLogin
+ *  \param ReaderTalkFirst
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS or error code from SendCOB
  */

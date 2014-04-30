@@ -437,7 +437,7 @@ quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
  *  This slot is connected to the signal, ReportVoltageState
  *
  *  \iparam InstanceID = Instance ID of the function module
- *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam HdlInfo
  *  \iparam Voltage = The actual voltage.
  *
  */
@@ -496,7 +496,7 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
  *  This slot is connected to the signal, ReportCurrentState
  *
  *  \iparam InstanceID = Instance ID of the function module
- *  \iparam ReturnCode = ReturnCode of function level Layer
+ *  \iparam HdlInfo
  *  \iparam Current = The actual current.
  *
  */

@@ -664,7 +664,7 @@ ReturnCode_t CAirLiquidDevice::SetPressure(quint8 flag, float NominalPressure)
  *  This slot is connected to the signal, ReportRefPressure
  *
  *  \iparam ReturnCode = ReturnCode of function level Layer
- *  \iparam Pressure = Actual pressure
+ *  \iparam TargetPressure = Actual pressure
  *
  */
 /****************************************************************************/
@@ -1183,7 +1183,6 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
     int levelSensorState = 0xFF;
     bool stop = false;
     bool WarnShowed = false;
-    bool StopInsufficientCheck = false;
     qint64 TimeNow, TimeStartPressure, TimeStopFilling;
     TimeStopFilling = 0;
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
@@ -1239,7 +1238,6 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                     stop = true;
                 }
             }
-            StopInsufficientCheck = true;
         }
         //else if(levelSensorState == 0)
         else if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 == retCode)
@@ -1310,7 +1308,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime)
                     RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
                     goto SORTIE;
                 }
-                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM)&&(!StopInsufficientCheck))
+                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM))
                 {
                     LogDebug(QString("ERROR: Insufficient reagent in the station! Exit now"));
                     for(qint32 i = 0; i < PressureBuf.length(); i++)
@@ -1914,6 +1912,7 @@ void CAirLiquidDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGr
  *  \brief  Judge if the temperature is inside the range.
  *
  *  \iparam  Type = The target temperature contorl module to control.
+ *  \param Index =  quint8 type parameter
  *
  *  \return  True if is inside the range, else not.
  */
@@ -1944,6 +1943,7 @@ bool CAirLiquidDevice::IsInsideRange(ALTempCtrlType_t Type, quint8 Index)
  *  \brief  Judge if the temperature is outside the range.
  *
  *  \iparam  Type = The target temperature contorl module to control.
+ *  \param Index =  quint8 type parameter
  *
  *  \return  True if is outside the range, else not.
  */
@@ -2211,6 +2211,8 @@ void CAirLiquidDevice::OnGetTemp(quint32 InstanceID, ReturnCode_t ReturnCode, qu
  *
  *  This slot is connected to the signal ReportHardwareStatus
  *
+ *  \iparam InstanceID
+ *  \iparam HeaterSwitchType
  *  \iparam ReturnCode = ReturnCode of function level Layer
  *  \iparam Sensors = Number of temperature sensors connected to the board
  *  \iparam Fans = Number of ventilation fans connected to the board
@@ -2308,63 +2310,16 @@ void CAirLiquidDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 Ma
 
 /****************************************************************************/
 /*!
- *  \brief   Set fan's digital output value.
+ *  \brief   slot associated with set FAN status.
  *
+ *  This slot is connected to the signal, ReportRefFanState
  *
- *  \iparam OutputValue = Actual output value of fan's digital output module.
- *  \iparam Duration = Duration of the output(not used now).
- *  \iparam Delay = UNUSED.
- *
- *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
- */
-/****************************************************************************/
-/*
-ReturnCode_t CAirLiquidDevice::SetDOValue(quint16 OutputValue, quint16 Duration, quint16 Delay)
-{
-    if(m_pFanDigitalOutput)
-    {
-        m_TargetDOOutputValue = OutputValue;
-        ReturnCode_t retCode = m_pFanDigitalOutput->SetOutputValue(m_TargetDOOutputValue, Duration, Delay);
-        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-        {
-            return retCode;
-        }
-        return m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_SET_DO_VALVE);
-    }
-    else
-    {
-        return DCL_ERR_NOT_INITIALIZED;
-    }
-}
-*/
-/****************************************************************************/
-/*!
- *  \brief   slot associated with set digital output value.
- *
- *  This slot is connected to the signal, ReportOutputValueAckn
- *
- *  \iparam ReturnCode = ReturnCode of function level Layer
- *  \iparam OutputValue = Output Value.
+ *  \iparam  InstanceID = Instance ID.
+ *  \iparam  ReturnCode = ReturnCode of function level Layer
+ *  \iparam  FanStatus = Fan Status.
  *
  */
 /****************************************************************************/
-/*
-void CAirLiquidDevice::OnSetDOOutputValue(quint32 InstanceID, ReturnCode_t ReturnCode, quint16 OutputValue)
-{
-    Q_UNUSED(OutputValue)
-    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
-    {
-        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: AL Set DO output successful! ";
-    }
-    else
-    {
-        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL set DO output failed! " << ReturnCode; //lint !e641
-    }
-    m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_SET_DO_VALVE, ReturnCode);
-
-}
-*/
-
 void CAirLiquidDevice::OnSetFanStatus(quint32 InstanceID, ReturnCode_t ReturnCode, quint8 FanStatus)
 {
     Q_UNUSED(FanStatus)

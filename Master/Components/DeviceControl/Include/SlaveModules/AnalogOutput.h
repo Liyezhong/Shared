@@ -48,6 +48,17 @@ class CAnalogOutput : public CFunctionModule
     Q_OBJECT
 
 public:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function CAnalogOutput
+     *
+     *  \param p_MessageConfiguration
+     *  \param pCANCommunicator
+     *  \param pParentNode
+     *
+     *  \return from CAnalogOutput
+     */
+    /****************************************************************************/
     CAnalogOutput(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                   CBaseModule* pParentNode);
     ~CAnalogOutput();
@@ -125,10 +136,26 @@ private:
 
     //! handles the receipt of can message 'OutputState'
     void HandleCANMsgAnalogOutputState(can_frame* pCANframe);
-    //! handles the receipt of can message 'LivetimeData'
+
+    /****************************************************************************/
+    /*!
+     *  \brief  handles the receipt of can message 'LivetimeData'
+     *
+     *  \param pCANframe
+     *
+     *  \return from HandleCANMsgAnalogOutputLifetime
+     */
+    /****************************************************************************/
     void HandleCANMsgAnalogOutputLifetime(can_frame* pCANframe);
 
     //!< command handling function
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function HandleCommandRequestTask
+     *
+     *  \return from HandleCommandRequestTask
+     */
+    /****************************************************************************/
     void HandleCommandRequestTask();
 
     /*! configuration sub state declaration */

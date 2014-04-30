@@ -749,7 +749,23 @@ void DeviceProcessing::TaskFinished(DeviceProcTask* pActiveTask)
     }
 }
 
-//test
+/****************************************************************************/
+/*!
+ *  \brief  Append received data to queue
+ *
+ *
+ *  \iparam ID = CAN msg ID
+ *  \iparam data0 = The data 0
+ *  \iparam data1 = The data 1
+ *  \iparam data2 = The data 2
+ *  \iparam data3 = The data 3
+ *  \iparam data4 = The data 4
+ *  \iparam data5 = The data 5
+ *  \iparam data6 = The data 6
+ *  \iparam data7 = The data 7
+ *  \iparam dlc = The data length
+ */
+/****************************************************************************/
 void DeviceProcessing::ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3,
                                          quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc)
 {
