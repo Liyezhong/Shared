@@ -1182,6 +1182,41 @@ quint16 COvenDevice::GetHeaterCurrent(OVENTempCtrlType_t Type)
     return RetValue;
 }
 
+quint8 COvenDevice::GetHeaterSwitchType()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint8 RetValue = UNDEFINED_1_BYTE;
+    if(m_pTempCtrls[OVEN_TOP] != NULL)
+    {
+        if((Now - m_LastGetTCCurrentTime[OVEN_TOP]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        {
+            ReturnCode_t retCode = m_pTempCtrls[OVEN_TOP]->GetHardwareStatus();
+            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
+            {
+                if(m_pDevProc)
+                {
+                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_TC_GET_HW_STATUS);
+                }
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED_1_BYTE;
+                }
+                else
+                {
+                    RetValue = m_TCHardwareStatus[OVEN_TOP].HeaterSwitchType;
+                }
+                m_LastGetTCCurrentTime[OVEN_TOP] = Now;
+            }
+        }
+        else
+        {
+
+            RetValue = m_TCHardwareStatus[OVEN_TOP].HeaterSwitchType;
+        }
+    }
+    return RetValue;
+}
+
 /****************************************************************************/
 /*!
  *  \brief  slot for getting the hardware information

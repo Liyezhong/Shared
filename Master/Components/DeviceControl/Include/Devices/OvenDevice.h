@@ -121,6 +121,7 @@ public:
      */
     /****************************************************************************/
     quint16 GetHeaterCurrent(OVENTempCtrlType_t Type);
+    quint8 GetHeaterSwitchType();
 
 private slots:
     /****************************************************************************/

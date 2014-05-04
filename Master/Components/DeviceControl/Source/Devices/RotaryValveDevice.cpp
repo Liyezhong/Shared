@@ -2505,6 +2505,41 @@ quint16 CRotaryValveDevice::GetHeaterCurrent(void)
     return RetValue;
 }
 
+quint8 CRotaryValveDevice::GetHeaterSwitchType(void)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint8 RetValue = UNDEFINED_1_BYTE;
+    if(m_pTempCtrl != NULL)
+    {
+        if((Now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+        {
+            ReturnCode_t retCode = m_pTempCtrl->GetHardwareStatus();
+            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
+            {
+                if(m_pDevProc)
+                {
+                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_TC_GET_HW_STATUS);
+                }
+                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+                {
+                    RetValue = UNDEFINED_1_BYTE;
+                }
+                else
+                {
+                    RetValue = m_TCHardwareStatus.HeaterSwitchType;
+                }
+                m_LastGetTCCurrentTime = Now;
+            }
+        }
+        else
+        {
+            RetValue = m_TCHardwareStatus.HeaterSwitchType;
+        }
+    }
+    return RetValue;
+}
+
+
 /****************************************************************************/
 /*!
  *  \brief  slot for getting the hardware information
