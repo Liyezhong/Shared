@@ -278,7 +278,7 @@ private:
     TempCtrlStatus_t m_TargetTempCtrlStatus[OVEN_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[OVEN_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[OVEN_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
-    qint64 m_LastGetTempTime[OVEN_TEMP_CTRL_NUM][5];                    //!< Last get temperature time
+    qint64 m_LastGetTempTime[OVEN_TEMP_CTRL_NUM][MAX_SENSOR_PER_TEMP_CTRL];                    //!< Last get temperature time
     qint64 m_LastGetLidStatusTime;                                      //!< Last get lid status time
     QMap<quint32, OVENTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperatre control modules
     quint16 m_LidStatus;     //!< Target output value; for verification of action result
