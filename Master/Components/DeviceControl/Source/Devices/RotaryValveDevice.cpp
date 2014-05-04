@@ -393,6 +393,7 @@ void CRotaryValveDevice::CheckSensorsData()
     if(m_pTempCtrl)
     {
         (void)GetTemperatureAsync(0);
+        (void)GetTemperatureAsync(1);
     }
 }
 
@@ -605,7 +606,7 @@ void CRotaryValveDevice::OnSetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
 qreal CRotaryValveDevice::GetTemperature(quint32 Index)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    qreal RetValue = m_CurrentTemperature;
+    qreal RetValue = m_CurrentTemperature[Index];
     if((Now - m_LastGetTempTime[Index]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
     {
         ReturnCode_t retCode;
@@ -637,7 +638,7 @@ qreal CRotaryValveDevice::GetTemperature(quint32 Index)
             }
             else
             {
-                RetValue = m_CurrentTemperature;
+                RetValue = m_CurrentTemperature[Index];
             }
             m_LastGetTempTime[Index] = Now;
         }
@@ -689,7 +690,7 @@ qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
     qreal RetValue = UNDEFINED_4_BYTE;
     if((Now - m_LastGetTempTime[Index]) <= 500) // check if 500 msec has passed since last read
     {
-        RetValue = m_CurrentTemperature;
+        RetValue = m_CurrentTemperature[Index];
     }
     return RetValue;
 }
@@ -713,12 +714,12 @@ void CRotaryValveDevice::OnGetTemp(quint32 /*InstanceID*/, ReturnCode_t ReturnCo
     if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
     {
         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: RV Get temperature successful! ";
-        m_CurrentTemperature = Temp;
+        m_CurrentTemperature[Index] = Temp;
     }
     else
     {
         FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: AL get temperature failed! " << ReturnCode; //lint !e641
-        m_CurrentTemperature = UNDEFINED_4_BYTE;
+        m_CurrentTemperature[Index] = UNDEFINED_4_BYTE;
     }
     if(m_pDevProc)
     {
@@ -987,11 +988,11 @@ TempCtrlState_t CRotaryValveDevice::GetTemperatureControlState()
     }
     else if (IsTemperatureControlOn())
     {
-        if (IsInsideRange())
+        if (IsInsideRange(0))
         {
             controlstate = TEMPCTRL_STATE_INSIDE_RANGE;
         }
-        else if (IsOutsideRange())
+        else if (IsOutsideRange(0))
         {
             controlstate = TEMPCTRL_STATE_OUTSIDE_RANGE;
         }
@@ -1062,14 +1063,14 @@ bool CRotaryValveDevice::IsTemperatureControlOff()
  *  \return  True if is inside the range, else not.
  */
 /****************************************************************************/
-bool CRotaryValveDevice::IsInsideRange()
+bool CRotaryValveDevice::IsInsideRange(quint8 Index)
 {
     if(GetTemperature(0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature != UNDEFINED_4_BYTE))
+        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature[Index] != UNDEFINED_4_BYTE))
         {
-            if ((m_CurrentTemperature > m_TargetTemperature - TOLERANCE)||
-                            (m_CurrentTemperature < m_TargetTemperature + TOLERANCE))
+            if ((m_CurrentTemperature[Index] > m_TargetTemperature - TOLERANCE)||
+                            (m_CurrentTemperature[Index] < m_TargetTemperature + TOLERANCE))
             {
                 return true;
             }
@@ -1090,14 +1091,14 @@ bool CRotaryValveDevice::IsInsideRange()
  *  \return  True if is outside the range, else not.
  */
 /****************************************************************************/
-bool CRotaryValveDevice::IsOutsideRange()
+bool CRotaryValveDevice::IsOutsideRange(quint8 Index)
 {
     if(GetTemperature(0) != UNDEFINED_4_BYTE)
     {
-        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature != UNDEFINED_4_BYTE))
+        if((m_TargetTemperature != UNDEFINED_4_BYTE) || (m_CurrentTemperature[Index] != UNDEFINED_4_BYTE))
         {
-            if ((m_CurrentTemperature < m_TargetTemperature - TOLERANCE)||
-                            (m_CurrentTemperature > m_TargetTemperature + TOLERANCE))
+            if ((m_CurrentTemperature[Index] < m_TargetTemperature - TOLERANCE)||
+                            (m_CurrentTemperature[Index] > m_TargetTemperature + TOLERANCE))
             {
                 return true;
             }
@@ -2269,7 +2270,7 @@ void CRotaryValveDevice::Reset()
     memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
     m_TargetTempCtrlStatus = TEMPCTRL_STATUS_UNDEF;
     m_CurrentTempCtrlStatus = TEMPCTRL_STATUS_UNDEF;
-    m_CurrentTemperature = 0;
+    memset(&m_CurrentTemperature, 0, sizeof(m_CurrentTemperature)); //lint !e545
     m_TargetTemperature = 0;
     memset( &m_MainsVoltageStatus, 0 , sizeof(m_MainsVoltageStatus)); //lint !e545
     memset( &m_TCHardwareStatus, 0 , sizeof(m_TCHardwareStatus)); //lint !e545

@@ -313,7 +313,7 @@ private:
     TempCtrlStatus_t m_TargetTempCtrlStatus[RT_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[RT_TEMP_CTRL_NUM];       //!< Current temperature control status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[RT_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
-    qint64 m_LastGetTempTime[RT_TEMP_CTRL_NUM][5];                    //!< Last get temperature time
+    qint64 m_LastGetTempTime[RT_TEMP_CTRL_NUM][MAX_SENSOR_PER_TEMP_CTRL];                    //!< Last get temperature time
     QMap<quint32, RTTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperature control FMs
 
     qint64 m_LastGetLockStatusTime;                                   //!< Last get lock status time
