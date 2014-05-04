@@ -154,6 +154,7 @@ public:
      */
     /****************************************************************************/
     quint16 GetHeaterCurrent();
+    quint8 GetHeaterSwitchType(void);
     //! Request actual oven temperature
     //! Set oven nominal temperature
     //    ReturnCode_t SetTemperature(qint16 Temperatur);
