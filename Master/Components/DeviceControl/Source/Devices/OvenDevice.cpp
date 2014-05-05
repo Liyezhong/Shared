@@ -1210,7 +1210,6 @@ quint8 COvenDevice::GetHeaterSwitchType()
         }
         else
         {
-
             RetValue = m_TCHardwareStatus[OVEN_TOP].HeaterSwitchType;
         }
     }

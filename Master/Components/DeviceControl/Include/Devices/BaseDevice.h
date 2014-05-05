@@ -291,13 +291,14 @@ public slots:
      *  \brief  Definition/Declaration of slot OnReportVoltageState
      */
     /****************************************************************************/
-    void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Voltage);
+    //void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Voltage);
+    void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnReportCurrentState
      */
     /****************************************************************************/
-    void OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Current);
+    void OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
 protected:
     /// Compact function to set the error parameter and error time by one code line
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
