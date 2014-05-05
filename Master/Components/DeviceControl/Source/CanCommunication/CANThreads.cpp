@@ -71,10 +71,6 @@ void CANReceiveThread::run()
             {
                 m_pCANCommunicator->AppendToReceiveQueue(frame);
             }
-            else
-            {
-                m_pCANCommunicator->SetCommunicationError(nReadResult, 0);
-            }
         }
 
         // check the thread's break condition
