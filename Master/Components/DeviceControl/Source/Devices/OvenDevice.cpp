@@ -9,7 +9,6 @@
 
 namespace DeviceControl
 {
-//#define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -26,7 +25,6 @@ COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CB
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Oven device created";
-    //LOG() <<  "Oven device cons thread id is " << QThread::currentThreadId();
 }//lint !e1566
 
 /****************************************************************************/
@@ -116,7 +114,6 @@ void COvenDevice::HandleTasks()
         if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
         {
             m_MainState = DEVICE_MAIN_STATE_FCT_MOD_CFG;
-            /// \todo maybe we need a state to ensure the reference run call!!
         }
         else
         {
@@ -203,7 +200,6 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         }
         else
         {
-            //m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL & 0xF)] = OVEN_TOP;
             m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;  //lint !e641
         }
     }
@@ -227,7 +223,6 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL & 0xF)] = OVEN_BOTTOM;
             m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;  //lint !e641
         }
     }
@@ -391,9 +386,6 @@ ReturnCode_t COvenDevice::HandleConfigurationState()
 /****************************************************************************/
 void COvenDevice::CheckSensorsData()
 {
-
-    //  LOG() <<  "AL timer thread id is " << QThread::currentThreadId();
-
     if(m_pTempCtrls[OVEN_TOP])
     {
         (void)GetTemperatureAsync(OVEN_TOP, 0);
@@ -555,7 +547,6 @@ ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
     {
-        // Log(tr("Not able to read the temperature control status"));
         return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
     }
     if (IsTemperatureControlOn(Type))
@@ -568,14 +559,12 @@ ReturnCode_t COvenDevice::StartTemperatureControl(OVENTempCtrlType_t Type, qreal
         ReturnCode_t retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            // Log(tr("Not able to set temperature"));
             return retCode;
         }
         //ON the temperature control
         retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            // Log(tr("Not able to start temperature control"));
             return retCode;
         }
     }
@@ -606,7 +595,6 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
     {
-        // Log(tr("Not able to read the temperature control status"));
         return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
     }
     if (IsTemperatureControlOn(Type))
@@ -626,14 +614,12 @@ ReturnCode_t COvenDevice::StartTemperatureControlWithPID(OVENTempCtrlType_t Type
     retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        // Log(tr("Not able to set temperature"));
         return retCode;
     }
     //ON the temperature control
     retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        // Log(tr("Not able to start temperature control"));
         return retCode;
     }
 
@@ -736,7 +722,6 @@ bool COvenDevice::IsInsideRange(OVENTempCtrlType_t Type, quint8 Index)
             }
         }
     }
-    //Log(tr("Error"));
     return false;
 }
 
@@ -767,7 +752,6 @@ bool COvenDevice::IsOutsideRange(OVENTempCtrlType_t Type, quint8 Index)
             }
         }
     }
-    //   Log(tr("Error"));
     return false;
 }
 
@@ -1037,7 +1021,6 @@ void COvenDevice::OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemp
 /****************************************************************************/
 quint16 COvenDevice::GetLidStatus()
 {
-    //Log(tr("GetValue"));
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
     if(m_pLidDigitalInput)
     {
@@ -1182,6 +1165,13 @@ quint16 COvenDevice::GetHeaterCurrent(OVENTempCtrlType_t Type)
     return RetValue;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief  Definition/Declaration of function GetHeaterSwitchType
+ *
+ *  \return from Heater switch type
+ */
+/****************************************************************************/
 quint8 COvenDevice::GetHeaterSwitchType()
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();

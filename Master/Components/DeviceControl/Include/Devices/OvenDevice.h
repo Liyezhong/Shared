@@ -39,6 +39,15 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t SetTempCtrlON(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTempCtrlOFF
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return from SetTempCtrlOFF
+     */
+    /****************************************************************************/
     ReturnCode_t SetTempCtrlOFF(OVENTempCtrlType_t type);
     /****************************************************************************/
     /*!
@@ -121,6 +130,13 @@ public:
      */
     /****************************************************************************/
     quint16 GetHeaterCurrent(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetHeaterSwitchType
+     *
+     *  \return from Heater switch type
+     */
+    /****************************************************************************/
     quint8 GetHeaterSwitchType();
 
 private slots:
@@ -263,11 +279,6 @@ private slots:
     //! command handling task
     //  void HandleCommandRequestTask();
     //  void HandleDeviceTaskActions();
-
-    //! Return the oven cover position type from motor position
-    //  RVPosition_t GetRVPositionFromEncoderDiskPos(qint32 EDPosition);
-    //! Return the motor position from oven cover position type
-    // qint32 GetEDPosFromRVPos(RVPosition_t RVPosition);
 
 private:
     //Function modules

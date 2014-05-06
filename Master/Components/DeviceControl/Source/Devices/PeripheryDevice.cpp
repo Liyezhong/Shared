@@ -23,7 +23,6 @@ CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString 
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";
-    //LOG() <<  "Retort device cons thread id is " << QThread::currentThreadId();
 }//lint !e1566
 
 /****************************************************************************/
@@ -109,7 +108,6 @@ void CPeripheryDevice::HandleTasks()
         if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
         {
             m_MainState = DEVICE_MAIN_STATE_FCT_MOD_CFG;
-            /// \todo maybe we need a state to ensure the reference run call!!
         }
         else
         {
@@ -192,7 +190,6 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         }
         else
         {
-            //m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO & 0xF)] = PER_MAIN_RELAY;
             m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_MAINRELAYDO] = PER_MAIN_RELAY;  //lint !e641
         }
     }
@@ -200,19 +197,6 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
-    /*    m_pDigitalOutputs[PER_REMOTE_ALARM_SET] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmSetDOKey));
-    if(m_pDigitalOutputs[PER_REMOTE_ALARM_SET] == 0)
-    {
-    // the function module could not be allocated
-    SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO);
-    FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_BOTTOMTEMPCTRL not allocated.";
-    RetVal = DCL_ERR_FCT_CALL_FAILED;
-    }
-    else
-    {
-    m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMSETDO & 0xF)] = PER_REMOTE_ALARM_SET;
-    }
-*/
     InstanceID = GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmCtrlDOKey);
     pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
     (void)InsertBaseModule(pBaseModule);
@@ -228,7 +212,6 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xF)] = PER_REMOTE_ALARM_CTRL;
             m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_REMOTE_ALARM_CTRL;  //lint !e641
         }
     }
@@ -251,7 +234,6 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
             m_InstDOTypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO] = PER_LOCAL_ALARM_CTRL;  //lint !e641
         }
     }
@@ -275,7 +257,6 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
             m_InstDITypeMap[CANObjectKeyLUT::FCTMOD_PER_LOCALALARMDI] = PER_LOCAL_ALARM_STATUS;  //lint !e641
         }
     }
@@ -299,7 +280,6 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCTRLDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_LOCALALARMCTRLDO & 0xF)] = PER_LOCAL_ALARM_CTRL;
             m_InstDITypeMap[CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMDI] = PER_REMOTE_ALARM_STATUS;  //lint !e641
         }
     }
@@ -307,19 +287,7 @@ ReturnCode_t CPeripheryDevice::HandleInitializationState()
     {
         RetVal = DCL_ERR_FCT_CALL_FAILED;
     }
-    /*    m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = (CDigitalOutput*) m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(CANObjectKeyLUT::m_PerRemoteAlarmClearDOKey));
-    if(m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] == 0)
-    {
-    // the function module could not be allocated
-    SetErrorParameter(EVENT_GRP_DCL_MC_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO);
-    FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_PER_REMOTEALARMCLEARDO not allocated.";
-    RetVal = DCL_ERR_FCT_CALL_FAILED;
-    }
-    else
-    {
-    m_InstDOTypeMap[((CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_PER_REMOTEALARMCLEARDO & 0xF)] = PER_REMOTE_ALARM_CLEAR;
-    }
-*/
+
     return RetVal;
 
 }
@@ -446,10 +414,6 @@ void CPeripheryDevice::HandleErrorState()
     }
     else if(m_ErrorTaskState == PER_DEV_ERRTASK_STATE_REPORT_IFACE)
     {
-        /*if(m_pIOvenDev != 0)
-    {
-    m_pIOvenDev->RouteError(m_instanceID, m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
-    }*/
         m_ErrorTaskState = PER_DEV_ERRTASK_STATE_REPORT_DEVPROC;
     }
     else if(m_ErrorTaskState == PER_DEV_ERRTASK_STATE_REPORT_DEVPROC)
@@ -470,12 +434,10 @@ void CPeripheryDevice::HandleErrorState()
         m_lastErrorData = 0;
         // reset the function module references
         m_pDigitalOutputs[PER_MAIN_RELAY] = 0;
-        //m_pDigitalOutputs[PER_REMOTE_ALARM_CLEAR] = 0;
         m_pDigitalOutputs[PER_REMOTE_ALARM_CTRL] = 0;
         m_pDigitalOutputs[PER_LOCAL_ALARM_CTRL] = 0;
         m_pDigitalInputs[PER_LOCAL_ALARM_STATUS] = 0;
         m_pDigitalInputs[PER_REMOTE_ALARM_STATUS] = 0;
-       // m_pDigitalOutputs[PER_REMOTE_ALARM_SET] = 0;
     }
 }
 
@@ -698,7 +660,6 @@ void CPeripheryDevice::OnGetDIValue(quint32 InstanceID, ReturnCode_t ReturnCode,
 /****************************************************************************/
 quint16 CPeripheryDevice::GetLocalAlarmStatus()
 {
-    //Log(tr("GetValue"));
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
     if(m_pDigitalInputs[PER_LOCAL_ALARM_STATUS])
     {
@@ -779,7 +740,6 @@ quint16 CPeripheryDevice::GetRecentLocalAlarmStatus()
 /****************************************************************************/
 quint16 CPeripheryDevice::GetRemoteAlarmStatus()
 {
-    //Log(tr("GetValue"));
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
     if(m_pDigitalInputs[PER_REMOTE_ALARM_STATUS])
     {

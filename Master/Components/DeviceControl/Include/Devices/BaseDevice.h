@@ -291,7 +291,6 @@ public slots:
      *  \brief  Definition/Declaration of slot OnReportVoltageState
      */
     /****************************************************************************/
-    //void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, quint16 Voltage);
     void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
     /****************************************************************************/
     /*!

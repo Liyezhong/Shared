@@ -10,7 +10,6 @@
 
 namespace DeviceControl
 {
-//#define UNDEFINED (999)
 #define CHECK_SENSOR_TIME (200) // in msecs
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
@@ -206,7 +205,6 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstTCTypeMap[((CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL & 0xF)] = RT_BOTTOM;
             m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL] = RT_BOTTOM;  //lint !e641
         }
     }
@@ -230,7 +228,6 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         }
         else
         {
-            // m_InstTCTypeMap[ ((CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xFFF0)<<4)|(CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL & 0xF)] = RT_SIDE;
             m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL] = RT_SIDE;  //lint !e641
         }
     }
@@ -422,9 +419,6 @@ ReturnCode_t CRetortDevice::HandleConfigurationState()
 /****************************************************************************/
 void CRetortDevice::CheckSensorsData()
 {
-
-    //  LOG() <<  "AL timer thread id is " << QThread::currentThreadId();
-
     if(m_pTempCtrls[RT_BOTTOM])
     {
         (void)GetTemperatureAsync(RT_BOTTOM, 0);
@@ -459,10 +453,6 @@ void CRetortDevice::HandleErrorState()
     }
     else if(m_ErrorTaskState == RT_DEV_ERRTASK_STATE_REPORT_IFACE)
     {
-        /*if(m_pIOvenDev != 0)
-    {
-    m_pIOvenDev->RouteError(m_instanceID, m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
-    }*/
         m_ErrorTaskState = RT_DEV_ERRTASK_STATE_REPORT_DEVPROC;
     }
     else if(m_ErrorTaskState == RT_DEV_ERRTASK_STATE_REPORT_DEVPROC)
@@ -554,7 +544,6 @@ ReturnCode_t CRetortDevice::SetTempCtrlOFF(RTTempCtrlType_t Type)
 qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
 {
    // QMutexLocker Locker(&m_Mutex);
-//quint32 thisadd =(quint32)this;
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue;
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
@@ -588,7 +577,6 @@ ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
     {
-        // Log(tr("Not able to read the temperature control status"));
         return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
     }
     if (IsTemperatureControlOn(Type))
@@ -601,14 +589,12 @@ ReturnCode_t CRetortDevice::StartTemperatureControl(RTTempCtrlType_t Type, qreal
         retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            // Log(tr("Not able to set temperature"));
             return retCode;
         }
         //ON the temperature control
         retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
         if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
-            // Log(tr("Not able to start temperature control"));
             return retCode;
         }
     }
@@ -639,7 +625,6 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
     m_TargetTempCtrlStatus[Type] = TEMPCTRL_STATUS_ON;
     if (GetTemperatureControlState(Type) == TEMPCTRL_STATE_ERROR)
     {
-        // Log(tr("Not able to read the temperature control status"));
         return DCL_ERR_DEV_TEMP_CTRL_STATE_ERR;
     }
     if (IsTemperatureControlOn(Type))
@@ -659,14 +644,12 @@ ReturnCode_t CRetortDevice::StartTemperatureControlWithPID(RTTempCtrlType_t Type
     retCode = SetTemperature(Type, NominalTemperature, SlopeTempChange);
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        // Log(tr("Not able to set temperature"));
         return retCode;
     }
     //ON the temperature control
     retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
     if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
     {
-        // Log(tr("Not able to start temperature control"));
         return retCode;
     }
 
@@ -774,7 +757,6 @@ bool CRetortDevice::IsInsideRange(RTTempCtrlType_t Type, quint8 Index)
             }
         }
     }
-    //Log(tr("Error"));
     return false;
 }
 
@@ -805,7 +787,6 @@ bool CRetortDevice::IsOutsideRange(RTTempCtrlType_t Type, quint8 Index)
             }
         }
     }
-    //   Log(tr("Error"));
     return false;
 }
 
@@ -1253,7 +1234,6 @@ ReturnCode_t CRetortDevice::GetLockStatusAsync()
 /****************************************************************************/
 quint16 CRetortDevice::GetLidStatus()
 {
-    //Log(tr("GetValue"));
     ReturnCode_t retCode;
     if(m_pLockDigitalInput)
     {

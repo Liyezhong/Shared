@@ -438,12 +438,16 @@ quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
  *
  *  \iparam InstanceID = Instance ID of the function module
  *  \iparam HdlInfo
- *  \iparam Voltage = The actual voltage.
+ *  \iparam State = The power state
+ *  \iparam Value = The voltage value
+ *  \iparam Failures = The failures number
  *
  */
 /****************************************************************************/
 void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures)
 {
+    (void)State;
+    (void)Failures;
     if(m_pDevProc)
     {
         CBaseModule* pBaseModule = m_pDevProc->GetBaseModule(InstanceID);
@@ -497,12 +501,16 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
  *
  *  \iparam InstanceID = Instance ID of the function module
  *  \iparam HdlInfo
- *  \iparam Current = The actual current.
+ *  \iparam State = The Power state
+ *  \iparam Value = The current value
+ *  \iparam Failures = Failures numbers
  *
  */
 /****************************************************************************/
 void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures)
 {
+    (void)State;
+    (void)Failures;
     if(m_pDevProc)
     {
         CBaseModule* pBaseModule = m_pDevProc->GetBaseModule(InstanceID);

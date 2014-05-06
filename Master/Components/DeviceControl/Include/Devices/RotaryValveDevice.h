@@ -154,10 +154,14 @@ public:
      */
     /****************************************************************************/
     quint16 GetHeaterCurrent();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetHeaterSwitchType
+     *
+     *  \return from Heater switch type
+     */
+    /****************************************************************************/
     quint8 GetHeaterSwitchType(void);
-    //! Request actual oven temperature
-    //! Set oven nominal temperature
-    //    ReturnCode_t SetTemperature(qint16 Temperatur);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ClearErrorState
