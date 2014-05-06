@@ -639,7 +639,7 @@ void CPeripheryDevice::OnGetDIValue(quint32 InstanceID, ReturnCode_t ReturnCode,
     if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
     {
         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Per Get DI value successful! ";
-        m_TargetDIInputValues[m_InstDOTypeMap[InstanceID]] = InputValue;
+        m_TargetDIInputValues[m_InstDITypeMap[InstanceID]] = InputValue;
     }
     else
     {
