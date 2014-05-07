@@ -119,7 +119,7 @@ void IDeviceProcessing::ThreadStarted()
 {
     mp_DevProcTimer = new QTimer(this);
     CONNECTSIGNALSLOT(mp_DevProcTimer, timeout(), this, HandleTasks());
-    mp_DevProcTimer->start(20);
+    mp_DevProcTimer->start(10);
 }
 
 /****************************************************************************/
