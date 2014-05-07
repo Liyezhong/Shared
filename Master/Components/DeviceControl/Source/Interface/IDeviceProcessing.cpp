@@ -2033,4 +2033,59 @@ CFunctionModule* IDeviceProcessing::GetFunctionModuleRef(quint32 InstanceID, con
     return NULL;
 }
 
+quint16 IDeviceProcessing::IDGetSlaveCurrent(HimSlaveType_t Type)
+{
+    quint16 current = UNDEFINED_2_BYTE;
+    switch(Type)
+    {
+    case Slave_3:
+        if(m_pRotaryValve)
+        {
+            current = m_pRotaryValve->GetBaseModuleCurrent((quint16)Type);
+        }
+        break;
+    case Slave_5:
+        if(m_pOven)
+        {
+            current = m_pOven->GetBaseModuleCurrent((quint16)Type);
+        }
+        break;
+    case Slave_15:
+        if(m_pAirLiquid)
+        {
+            current = m_pAirLiquid->GetBaseModuleCurrent((quint16)Type);
+        }
+        break;
+    }
+    return current;
+}
+
+quint16 IDeviceProcessing::IDGetSlaveVoltage(HimSlaveType_t Type)
+{
+    quint16 voltage = UNDEFINED_2_BYTE;
+    switch(Type)
+    {
+    case Slave_3:
+        if(m_pRotaryValve)
+        {
+            voltage = m_pRotaryValve->GetBaseModuleVoltage((quint16)Type);
+        }
+        break;
+    case Slave_5:
+        if(m_pOven)
+        {
+            voltage = m_pOven->GetBaseModuleVoltage((quint16)Type);
+        }
+        break;
+    case Slave_15:
+        if(m_pAirLiquid)
+        {
+            voltage = m_pAirLiquid->GetBaseModuleVoltage((quint16)Type);
+        }
+        break;
+    }
+    return voltage;
+}
+
+
 } // namespace
