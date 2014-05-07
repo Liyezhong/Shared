@@ -12,6 +12,14 @@
 namespace DeviceControl
 {
 #define CHECK_SENSOR_TIME (200) // in msecs
+#define AL_TARGET_PRESSURE_POSITIVE (30)
+#define AL_TARGET_PRESSURE_NEGATIVE (-30)
+#define AL_TARGET_PRESSURE_BOTTLECHECK (10)
+#define AL_PUMP_MODE_OFF             (0)
+#define AL_PUMP_MODE_ON_OFF_POSITIVE (1)
+#define AL_PUMP_MODE_ON_OFF_NEGATIVE (9)
+#define AL_PUMP_MODE_PWM_POSITIVE    (17)
+#define AL_PUMP_MODE_PWM_NEGATIVE    (25)
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -64,8 +72,8 @@ void CAirLiquidDevice::Reset()
     m_TargetPressure = UNDEFINED_4_BYTE;
     m_CurrentPressure = UNDEFINED_4_BYTE;
 
-    m_WorkingPressurePositive = 30;
-    m_WorkingPressureNegative = -30;
+    m_WorkingPressurePositive = AL_TARGET_PRESSURE_POSITIVE;
+    m_WorkingPressureNegative = AL_TARGET_PRESSURE_NEGATIVE;
     if(!m_PIDDataList.isEmpty())
     {
         m_PIDDataList.clear();
@@ -867,7 +875,7 @@ ReturnCode_t CAirLiquidDevice::SetPressureCtrlOFF()
 void CAirLiquidDevice::StopCompressor(void)
 {
     FILE_LOG_L(laDEVPROC, llINFO) << " INFO: Shut down compressor. ";
-    (void)SetPressure(0, 1);
+    (void)SetPressure(AL_PUMP_MODE_OFF, 1);
 }
 
 /****************************************************************************/
@@ -948,7 +956,7 @@ ReturnCode_t CAirLiquidDevice::Vaccum()
         goto SORTIE;
     }
     (void)TurnOnFan();
-    RetValue = SetTargetPressure(9, m_WorkingPressureNegative);
+    RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_NEGATIVE, m_WorkingPressureNegative);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
         //stop compressor
@@ -979,7 +987,7 @@ ReturnCode_t CAirLiquidDevice::Pressure()
         goto SORTIE;
     }
     (void)TurnOnFan();
-    RetValue = SetTargetPressure(1, m_WorkingPressurePositive);
+    RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_POSITIVE, m_WorkingPressurePositive);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
         //stop compressor
@@ -1027,7 +1035,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     }
 
     (void)TurnOnFan();
-    RetValue = SetTargetPressure(17, m_WorkingPressurePositive);
+    RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_POSITIVE, m_WorkingPressurePositive);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
         goto SORTIE;
@@ -1161,8 +1169,8 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
     }
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
     (void)TurnOnFan();
-    RetValue = SetTargetPressure(25, m_WorkingPressureNegative);
-    if(DCL_ERR_FCT_CALL_SUCCESS != SetTargetPressure(25, m_WorkingPressureNegative))
+    RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_NEGATIVE, m_WorkingPressureNegative);
+    if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
         goto SORTIE;
     }
@@ -1318,7 +1326,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
     }
 
     //start compressor
-    retCode = SetTargetPressure(1, 10);
+    retCode = SetTargetPressure(AL_PUMP_MODE_ON_OFF_POSITIVE, AL_TARGET_PRESSURE_BOTTLECHECK);
     if(DCL_ERR_FCT_CALL_SUCCESS != retCode )
     {
 

@@ -66,27 +66,114 @@ class CTemperatureControl : public CFunctionModule
     void HandleTasks(); ///< Task handling function
     void HandleCanMessage(can_frame* pCANframe);    ///< CAN-message handling function
 
-    //! Set reference temperature
+    /****************************************************************************/
+    /*!
+     *  \brief Set reference temperature
+     *
+     *  \param Temperature = Target temperature to set
+     *  \param SlopeTempChange = A temperature drop before level sensor report
+     *                           status changing
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperature(qreal Temperature, quint8 SlopeTempChange=0);
-    //! Request actual temperature
+    /****************************************************************************/
+    /*!
+     *  \brief Request actual temperature
+     *
+     *  \param Index = Index of the phsical sensor
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t ReqActTemperature(quint8 Index);
-    //! Set temperature ctrl. status
+    /****************************************************************************/
+    /*!
+     *  \brief Set temperature ctrl. status
+     *
+     *  \param TempCtrlState = Temperature control state to change
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t SetStatus(TempCtrlStatus_t TempCtrlState);
-    //! Request temperature ctrl. status
+    /****************************************************************************/
+    /*!
+     *  \brief Request temperature ctrl. status
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t ReqStatus();
-    //! Set temperature ctrl. operating mode
+    /****************************************************************************/
+    /*!
+     *  \brief Set temperature ctrl. operating mode
+     *
+     *  \param TempCtrlOpMode Temperature control operation mode to be set
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t SetOperatingMode(TempCtrlOperatingMode_t TempCtrlOpMode);
-    //! Request temperature ctrl. operating mode
+    /****************************************************************************/
+    /*!
+     *  \brief Request temperature ctrl. operating mode
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t ReqOperatingMode();
-    //! Reset the heater operating time
+    /****************************************************************************/
+    /*!
+     *  \brief Reset the heater operating time
+     *
+     *  \param Index = Physical temperature sensor index
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t ResetHeaterOperatingTime(quint8 Index);
-    //! Get the heater operating time in seconds
+    /****************************************************************************/
+    /*!
+     *  \brief Get the heater operating time in seconds
+     *
+     *  \param Index = Physical temperature sensor index
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t GetHeaterOperatingTime(quint8 Index);
-    //! Get the fan speed in revelations per minute
+    /****************************************************************************/
+    /*!
+     *  \brief Get the fan speed in revelations per minute
+     *
+     *  \param Index = Physical temperature sensor index
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t GetFanSpeed(quint8 Index);
-    //! Get the hardware status
+    /****************************************************************************/
+    /*!
+     *  \brief Get the hardware status
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t GetHardwareStatus();
-    //! Set temperature ctrl. status
+    /****************************************************************************/
+    /*!
+     *  \brief Set temperature ctrl PID parameters
+     *
+     *  \param  MaxTemperature = Maximum temperature.
+     *  \param  ControllerGain = Controller Gain.
+     *  \param  ResetTime = Reset time.
+     *  \param  DerivativeTime = Derivative time.
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t SetTemperaturePid(quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
     /****************************************************************************/
     /*!
