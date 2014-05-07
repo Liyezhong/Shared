@@ -362,14 +362,23 @@ public:
     //Oven device func
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of function OvenSetTempCtrlON
+     *  \brief  Enable Oven temperature control
      *
      *  \param Type = OVENTempCtrlType_t type parameter
      *
-     *  \return from OvenSetTempCtrlON
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
      */
     /****************************************************************************/
     ReturnCode_t OvenSetTempCtrlON(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief Disable Oven temperature control
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+     */
+    /****************************************************************************/
     ReturnCode_t OvenSetTempCtrlOFF(OVENTempCtrlType_t type);
     /****************************************************************************/
     /*!
