@@ -600,6 +600,26 @@ public:
      */
     /****************************************************************************/
     CFunctionModule* GetFunctionModuleRef(quint32 InstanceID, const QString &Key);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IDGetSlaveCurrent
+     *
+     *  \param Type = Slave module type
+     *
+     *  \return Slave current
+     */
+    /****************************************************************************/
+    quint16 IDGetSlaveCurrent(HimSlaveType_t Type);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IDGetSlaveVoltage
+     *
+     *  \param Type = Slave module type
+     *
+     *  \return Slave voltage
+     */
+    /****************************************************************************/
+    quint16 IDGetSlaveVoltage(HimSlaveType_t Type);
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
@@ -704,7 +724,7 @@ private:
     quint16 m_reqTaskParameter1;                    //!< Task parameter 1
     quint16 m_reqTaskParameter2;                    //!< Task parameter 2
 
-    quint32 m_instanceID;                   //!< Instance identification
+    quint32 m_instanceID;                           //!< Instance identification
     CRotaryValveDevice *m_pRotaryValve;             //!< Rotary Valve device
     CAirLiquidDevice *m_pAirLiquid;                 //!< Air-liquid device
     CRetortDevice *m_pRetort;                       //!< Retort device

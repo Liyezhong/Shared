@@ -454,6 +454,13 @@ const quint32 DEVICE_INSTANCE_ID_RETORT         = 0x000080C3;   //!< Retort
 const quint32 DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4;   //!< Main Control
 const quint32 DEVICE_INSTANCE_ID_CAN_COMMUTOR   = 0x000080C5;   //!< CAN Communicator 
 
+/*! Slaves used in Himalaya project */
+typedef enum {
+    Slave_3 = 3,
+    Slave_5 = 5,
+    Slave_15 = 15
+}HimSlaveType_t;
+
 /*! Air-liquid device's temperature control function module*/
 typedef enum {
     AL_LEVELSENSOR = 0,
