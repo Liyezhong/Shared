@@ -126,7 +126,7 @@ static const bmModuleParameters_t ModuleInitTable[] = {
 #endif
 #ifdef ASB15_VER_B
     { MODULE_ID_DIGITAL_OUT, 4, doInitializeModule },
-    { MODULE_ID_DIGITAL_IN,  2, diInitializeModule }
+    { MODULE_ID_DIGITAL_IN,  4, diInitializeModule }
 #endif
 };
 static const int NumberOfModules = ELEMENTS(ModuleInitTable);
