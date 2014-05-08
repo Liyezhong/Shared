@@ -1175,7 +1175,8 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
         goto SORTIE;
     }
     TimeStartPressure = QDateTime::currentMSecsSinceEpoch();
-
+    // For Paraffin reagent, we need NOT insufficient check all the time. For Non-paraffin ones, we need
+    // check insufficient before FM_TEMP_LEVEL_SENSOR_STATE_1, and NOT need this after STATE_1
     //set timeout to 2 minutes
     while(!stop)
     {
@@ -1208,7 +1209,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                     stop = true;
                 }
             }
-            InsufficientCheckFlag = true;
+            InsufficientCheckFlag = false;
         }
         else if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 == retCode)
         {
@@ -1274,7 +1275,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                     RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
                     goto SORTIE;
                 }
-                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM)&&(EnableInsufficientCheck))
+                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM)&&(InsufficientCheckFlag))
                 {
                     LogDebug(QString("ERROR: Insufficient reagent in the station! Exit now"));
                     for(qint32 i = 0; i < PressureBuf.length(); i++)
