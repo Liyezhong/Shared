@@ -1183,7 +1183,7 @@ ReturnCode_t CRotaryValveDevice::DoReferenceRunWithStepCheck(quint32 LowerLimit,
             if((retry++) < 20)
             {
                 stop = false;
-                LogDebug(QString("WARNING: Motor running lower limit exception: retry time: %1, retry now.").arg(retry));
+                LogDebug(QString("WARNING: Motor running lower limit exception: step: %1; Lower limit: %2; retry time: %3, retry now.").arg(Step).arg(LowerLimit).arg(retry));
             }
             else
             {
