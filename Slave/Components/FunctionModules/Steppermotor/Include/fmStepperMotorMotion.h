@@ -205,6 +205,7 @@ typedef struct {
 
 //! CCR data used for ISR timing
     smCCR_t                 CCR;
+//! limit switch hit counter
     UInt8                   LSHitCnt;   
 //! used to store return code from HAL functions called in ISR
     Error_t                 HALStatus;

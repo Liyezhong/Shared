@@ -73,7 +73,9 @@
 //****************************************************************************/
 
 Error_t diInitializeModule   (UInt16 ModuleID, UInt16 NumberOfInstances);
+#ifdef DEBUG
 void    diRegisterDebugNames (UInt16 ModuleID);
+#endif
 
 //****************************************************************************/
 

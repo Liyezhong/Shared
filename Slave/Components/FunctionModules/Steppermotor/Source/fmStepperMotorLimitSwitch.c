@@ -530,11 +530,13 @@ void smCheckPosCode(UInt16 Instance) {
  ******************************************************************************/
 Error_t smRotDirIsAllowed(Bool CCW, smLimitSwitches_t *LimitSwitches) {
 
-    if (FALSE == LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].RotDirCheck)
+    if (FALSE == LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].RotDirCheck) {
         return NO_ERROR;
+    }
     
-    if (FALSE == LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].Stop)
+    if (FALSE == LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].Stop) {
         return NO_ERROR;
+    }
 
     if (CCW) {
         if (LimitSwitches->PosCodeConfig[LimitSwitches->PosCode.Value].StopDir == SMOT_ROTDIR_CCW) {

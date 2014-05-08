@@ -82,7 +82,9 @@
 //****************************************************************************/
 
 Error_t aoInitializeModule (UInt16 ModuleID, UInt16 Instances);
-void aoRegisterDebugNames  (UInt16 ModuleID);
+#ifdef DEBUG
+void    aoRegisterDebugNames  (UInt16 ModuleID);
+#endif
 
 //****************************************************************************/
 

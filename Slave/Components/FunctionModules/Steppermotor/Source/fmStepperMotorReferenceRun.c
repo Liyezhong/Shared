@@ -200,6 +200,7 @@ Error_t smCheckReferenceRunConfig(smReferenceRun_t *RefRun, smLimitSwitches_t *L
  *      Check if position code indicates that motor have reached reference position.
  *
  *  \xparam  Data = Module instance data pointer
+ *  \iparam  bPrint = Enable/Disable printing debug info
  * 
  *  \return  true, if motor have reached reference position
  *

@@ -49,12 +49,11 @@ typedef struct {
     Handle_t HandleSwitch;      //!< Handle for the pumping element circuit switch
     Handle_t *HandleControl;    //!< Array of handles for the pumping element control outputs
 #ifdef ASB15_VER_B
-    Handle_t *HandlePWMControl;
+    Handle_t *HandlePWMControl; //!< Array of handles for the PWM control outputs
 #endif    
-    Int16 MinValue;             //!< Minimal value of the last current half-wave
-    Int16 MaxValue;             //!< Maximal value of the last current half-wave
+    Int16 MinValue;             //!< Minimal value of the last current sampling period
+    Int16 MaxValue;             //!< Maximal value of the last current sampling period
     UInt16 EffectiveCurrent;    //!< Effective value of the pumping element current in mA
-    Bool ParallelCircuit;       //!< Pumping elment circuit is switched serially or parallelly
     PressPumpParams_t Params;   //!< Parameters for the pump current measurements
     UInt16 Instances;           //!< Total number of module instances
     UInt16 MaxActive;           //!< Maximum number of active pumping elements
@@ -92,6 +91,7 @@ static PressPumpMonitor_t PressPumpMonitor;
 static Error_t pressPumpGetFilteredInput (PressPumpMonitor_t *Monitor);
 
 
+#ifdef ASB15_VER_A
 /*****************************************************************************/
 /*!
  *  \brief  Initializes the handling of the pumping elements
@@ -110,14 +110,31 @@ static Error_t pressPumpGetFilteredInput (PressPumpMonitor_t *Monitor);
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-
-#ifdef ASB15_VER_A
 Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Device_t SwitchChannel, Device_t ControlChannel, UInt16 Instances)
 #endif
 
-#ifdef ASB15_VER_B
+
+//#ifdef ASB15_VER_B
+/*****************************************************************************/
+/*!
+ *  \brief  Initializes the handling of the pumping elements
+ *
+ *      This methods opens the peripheral handlers needed for the control of
+ *      the pumping elements. It also allocates the memory required by this
+ *      task and initializes the pumping element switching circuit and the
+ *      measurement of the effective current through the elements.
+ *
+ *  \oparam  Params = Points to the public data of this module
+ *  \iparam  CurrentChannel = HAL channel for the current measurement
+ *  \iparam  ControlChannel = HAL channel for the pump control
+ *  \iparam  PWMControlChannel = HAL channel for the pump PWM control
+ *  \iparam  Instances = Total number of module instances
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
 Error_t pressPumpInit (PressPumpParams_t **Params, Device_t CurrentChannel, Device_t ControlChannel, Device_t PWMControlChannel, UInt16 Instances)
-#endif
+//#endif
 {
     UInt16 i;
     //Error_t Error;
@@ -311,6 +328,9 @@ Error_t pressSampleCurrent(void)
  *      This function computes the effective current through pumps. It should 
  *      be called by the task function as often as possible.
  *
+ *  \iparam Instance = Number of the instance calling the function
+ *
+ *  \return  Nothing
  *
  ****************************************************************************/
  
@@ -332,6 +352,8 @@ void pressCalcEffectiveCurrent(UInt16 Instance)
  *
  *      This method updates active status of pumps. It should be called by the 
  *      task function as often as possible.
+ *
+ *  \iparam  PumpControl = Boolean flag for enabling/disabling pump switch-off
  *
  *  \return  NO_ERROR or (negative) error code
  *
@@ -474,6 +496,7 @@ Bool pressPumpFailed ()
 }
 
 
+#ifdef ASB15_VER_A
 /*****************************************************************************/
 /*! 
  *  \brief   Sets the actuating variable of a pumping element
@@ -489,8 +512,7 @@ Bool pressPumpFailed ()
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
-
-#ifdef ASB15_VER_A 
+  
 Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance)
 {
     PressPumpData.StartingTime[Instance] = bmGetTime ();
@@ -520,6 +542,22 @@ Error_t pressPumpActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance)
 #endif
 
 #ifdef ASB15_VER_B
+/*****************************************************************************/
+/*! 
+ *  \brief   Sets the actuating variable of a pumping element
+ *
+ *      This function receives the actuating variable computed by the PID
+ *      controller. This input value is converted into a pulse width
+ *      modulation signal that is passed to an analog output port.
+ * 
+ *  \xparam  OperatingTime = Active time in milliseconds
+ *  \iparam  EndTime = End of the sampling period in milliseconds
+ *  \iparam  Instance = Instance number
+ *
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ****************************************************************************/
+
 Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance)
 {
     UInt32 OptTime = 0;
@@ -586,7 +624,7 @@ Error_t pressPumpActuate (UInt32* OperatingTime, UInt32 EndTime, UInt16 Instance
  *  \iparam  ActuatingPwmWidth = PWM duty in percentage
  *  \iparam  EndTime = End of the sampling period in milliseconds
  *  \iparam  Instance = Instance number
- *  \iparam  OperatingTime = Returned active time in milliseconds
+ *  \oparam  OperatingTime = Returned active time in milliseconds
  *
  *  \return  NO_ERROR or (negative) error code
  *

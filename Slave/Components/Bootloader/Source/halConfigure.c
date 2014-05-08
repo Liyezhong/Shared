@@ -103,6 +103,7 @@ const halPinDesciptor_t halPinDescriptors[] = {
 #endif
 };
 
+//! Processor hardware pin descriptor table size
 const UInt32 halPinDescriptorCount = ELEMENTS(halPinDescriptors);
 
 
@@ -144,6 +145,8 @@ const halPortDescriptor_t halPortDescriptors[] = {
 #endif
 
 };
+
+//! Digital input/output port descriptor table size
 const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
 
@@ -170,6 +173,7 @@ const UInt32 halPortDescriptorCount = ELEMENTS(halPortDescriptors);
 
 const halAnalogDescriptor_t halAnalogDescriptors[] = {0};
 
+//! Analog input/output channel descriptor table size
 const UInt32 halAnalogDescriptorCount = 0;
 
 
@@ -197,6 +201,7 @@ const UInt32 halAnalogDescriptorCount = 0;
 
 const halTimerDescriptor_t halTimerDescriptors[] = {0};
 
+//! Timer descriptor table size
 const UInt32 halTimerDescriptorCount = 0;
 
 
@@ -221,6 +226,7 @@ const UInt32 halTimerDescriptorCount = 0;
 
 const halExtIntrDescriptor_t halExtIntrDescriptors[] = {0};
 
+//! External interrupt input descriptor table size
 const UInt32 halExtIntrDescriptorCount = 0;
 
 
@@ -243,6 +249,7 @@ const UInt32 halExtIntrDescriptorCount = 0;
 
 const halStepperDescriptor_t halStepperDescriptors[] = {0};
 
+//! Stepper motor descriptor table size
 const UInt32 halStepperDescriptorCount = 0;
 
 
@@ -272,6 +279,8 @@ const UInt32 halStepperDescriptorCount = 0;
 const halStorageDescriptor_t halStorageDescriptors[] = {
    { HAL_STORAGE_FLASH, MEM_CLASS_FLASH, HAL_OPEN_RWE, 0x08000000, 0x20000 },
 };
+
+//! Storage descriptor table size
 const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 
 
@@ -299,6 +308,8 @@ const UInt32 halStorageDescriptorCount = ELEMENTS(halStorageDescriptors);
 const halSerialDescriptor_t halSerialDescriptors[] = {
     { HAL_CAN_SYSTEM, 0,                  SIO_TYPE_CAN, 1, 0,  500000 },
 };
+
+//! Serial bus (I2C, SPI) descriptor table size
 const UInt32 halSerialDescriptorCount = ELEMENTS(halSerialDescriptors);
 
 

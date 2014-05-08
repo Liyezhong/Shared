@@ -51,9 +51,10 @@ typedef struct {
 //****************************************************************************/
 // Public Function Prototypes
 //****************************************************************************/
-
+#ifdef DEBUG
 UInt32 bmGetErrorStrings (const ErrorString_t *ErrorStrings[]);
 UInt32 bmGetCanIdStrings (const bmCanIdNames_t *CanIdStrings[]);
+#endif
 
 //****************************************************************************/
 

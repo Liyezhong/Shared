@@ -546,9 +546,9 @@ typedef struct {
     UInt8                       valid       : 1;    //!< Limit switch position code is plausible
     UInt8                       stop        : 1;    //!< Motor should stop
     StepperMotorRotDir_t        stopDir     : 1;    //!< stop at position code if movement runs in this direction
-        UInt8                       rotDirCheck : 1;
-        UInt8                       hitSkip     : 1;
-        UInt8                       reserved	: 3;
+    UInt8                       rotDirCheck : 1;    //!< Enable/Disable rotation direction check
+    UInt8                       hitSkip     : 1;    //!< If set to 1, the first hit of reference run is skipped
+    UInt8                       reserved	: 3;
 }  ConfigData_LSPOS_Flag_t;
 
 
