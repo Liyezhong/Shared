@@ -909,8 +909,10 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     UInt8 i;
     Bool Running;
     Error_t Status = NO_ERROR;
-    
+ 
+#ifdef DEBUG
     UInt16 InstanceID = bmGetInstance(Channel);
+#endif
     
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
 
