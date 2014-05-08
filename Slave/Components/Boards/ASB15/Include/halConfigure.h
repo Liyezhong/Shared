@@ -116,6 +116,12 @@
 //! Oven door sensor signal
 #define HAL_OVENDOOR_SIGNAL      HAL_DIGITAL_INPUT_1
 
+//! Local Alarm Connection signal
+#define HAL_LOCAL_ALARM_CONNECT  HAL_DIGITAL_INPUT_2
+
+//! Remote Alarm Connection signal
+#define HAL_REMOTE_ALARM_CONNECT HAL_DIGITAL_INPUT_3
+
 //! PWM output for pump control
 //#define HAL_PUMP_PWM_CONTROL     HAL_ANALOG_OUTPUT_0
 
