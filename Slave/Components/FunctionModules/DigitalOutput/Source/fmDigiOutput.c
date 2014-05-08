@@ -1249,7 +1249,7 @@ Error_t doInitializeModule (UInt16 ModuleID, UInt16 Instances) {
             return (Data->Memory);
         }
 		
-		printf("DO size:%d\n", DO_PARAM_TOTAL_SIZE);
+		dbgPrint("DO size:%d\n", DO_PARAM_TOTAL_SIZE);
 
         Data->ModuleState = MODULE_STATE_READY;
 

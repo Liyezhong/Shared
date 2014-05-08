@@ -76,14 +76,16 @@ typedef enum {
     PHASE_HOLD      //!< Hold phase
 } PressPumpPhase_t;
 
+/*! Current pump working mode (pressure or vacuum) */
 typedef enum {
     MODE_PRESSURE,  //!< Pressure phase (to positive)
     MODE_VACUUM     //!< Vacuum phase (to negtive)
 } PressPumpMode_t;
 
+/*! Current pump actuating method (ON/OFF or PWM) */
 typedef enum {
-    ACTUATE_ONOFF,
-    ACTUATE_PWM
+    ACTUATE_ONOFF,  //!< ON/OFF actuating
+    ACTUATE_PWM     //!< PWM actuating
 } PressPumpActuateMode_t;
 
 /*! Contains all variables for a instance of this module */
@@ -101,15 +103,15 @@ typedef struct {
     UInt16 TolerancePress;       //!< Pressure tolerance (in Pa steps)
 
     Int32* ServicePress;         //!< Pressure of a certain sensor in 0.001 KPa steps     
-	UInt8* ServiceValve;
+	UInt8* ServiceValve;         //!< Valve status
     
-    UInt32* SensorErrTimestamp;
+    UInt32* SensorErrTimestamp;  //!< Time stamp for trigeering sensor error reporting
 
     UInt32 AutoTuneStartTime;    //!< Time in milliseconds auto tuning was started
     UInt32 AutoTuneDuration;     //!< Duration of the auto tuning algorithm in milliseconds
-    UInt8  AutoTunePidNumber;     //!< Number of controller currently tuned
-    Int32  ActuatingValue;        //!< Most recent actuating value for pressure regulation
-    UInt8  ActuatingPwmWidth;
+    UInt8  AutoTunePidNumber;    //!< Number of controller currently tuned
+    Int32  ActuatingValue;       //!< Most recent actuating value for pressure regulation
+    UInt8  ActuatingPwmWidth;    //!< PWM duty in percentage
 
     UInt8 NumberSensors;         //!< Number of independent pressure sensors
     UInt8 NumberPumps;           //!< Number of pumping elements
@@ -614,7 +616,7 @@ static Error_t pressShutDown (InstanceData_t *Data, Error_t Error, UInt16 Instan
  *      violated, an error message is sent over the CAN Bus.
  *
  *  \xparam  Data = Data of one instance of the functional module
- *  \iparam Instance = Number of the instance calling the function
+ *  \iparam  Instance = Number of the instance calling the function
  *  \oparam  Fail = Did one of the tests fail
  *
  *  \return  NO_ERROR or (negative) error code

@@ -159,7 +159,7 @@ Error_t tempTimeInit (UInt16 ModuleID, UInt16 Instance, TempTimeParams_t *Params
     Params->Start = GET_PARAM_SIZE (PARAM_LAYOUT_VERSION);
     Size = Params->Start + NumberHeaters * sizeof(UInt32);
     
-    printf("Temp size:%d\n", Size);
+    //printf("Temp size:%d\n", Size);
     
     // Open storage
     Params->Handle = bmOpenPermStorage (ModuleID, Instance, Size);

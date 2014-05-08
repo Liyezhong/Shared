@@ -32,9 +32,9 @@
 //****************************************************************************/
 // Private Constants and Macros 
 //****************************************************************************/
-#define SWAP(X,Y) {X=X^Y;Y=X^Y;X=X^Y;}
+#define SWAP(X,Y) {X=X^Y;Y=X^Y;X=X^Y;}//!< Swap the value of two variables
 
-#define TEMP_SENSOR_MAX 200 //!< Maximal sensor temperature in degree Celsius 
+#define TEMP_SENSOR_MAX 200           //!< Maximal sensor temperature in degree Celsius 
 
 #define TEMP_SENSOR_VOLTAGE     3000  //!< ADC supply voltage used for the NTC 10K3A1I
 
@@ -253,7 +253,7 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
     Int16 Voltage;
        
     if (ColdJunction / 100 >= TEMP_SENSOR_MAX) {
-        printf("CJ:%d ", ColdJunction);
+        dbgPrint("CJ:%d ", ColdJunction);
         return (E_TEMP_SENSOR_OUT_OF_RANGE);
     }
 
@@ -266,15 +266,15 @@ Error_t tempSensorRead (Handle_t Handle, TempSensorType_t Type, UInt16 ColdJunct
 #if 1    
  // Median filtering
     if ((Error = halAnalogRead (Handle, &AdcValue1)) < 0) {
-        printf("AD:Err1[%d] ", Error);
+        dbgPrint("AD:Err1[%d] ", Error);
         return (Error);
     }
     if ((Error = halAnalogRead (Handle, &AdcValue2)) < 0) {
-        printf("AD:Err2[%d] ", Error);
+        dbgPrint("AD:Err2[%d] ", Error);
         return (Error);
     }
     if ((Error = halAnalogRead (Handle, &AdcValue3)) < 0) {
-        printf("AD:Err3[%d] ", Error);
+        dbgPrint("AD:Err3[%d] ", Error);
         return (Error);
     }
     

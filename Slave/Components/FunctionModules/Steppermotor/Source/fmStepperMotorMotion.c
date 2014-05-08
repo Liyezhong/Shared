@@ -1170,13 +1170,13 @@ Error_t smSpeedRequest (UInt16 Instance, Int32 Speed, UInt8 ProfileIndex) {
     
         if (AbsSpeed < Data->Profiles.Set[ProfileIndex].Config.vMin / SM_PROFILE_MICROSTEPS_PER_HALFSTEP) {
 //      if (AbsSpeed < Data->config.profiles[ProfileIndex].vMin / PROFILE_MICROSTEPS_PER_HALFSTEP)
-            printf("vmin:%d absspeed:%d\n", Data->Profiles.Set[ProfileIndex].Config.vMin, AbsSpeed);
+            //printf("vmin:%d absspeed:%d\n", Data->Profiles.Set[ProfileIndex].Config.vMin, AbsSpeed);
             return E_SMOT_MOTION_PROFILE_UNFIT;
         }
     
         if (AbsSpeed > Data->Profiles.Set[ProfileIndex].Config.vMax / SM_PROFILE_MICROSTEPS_PER_HALFSTEP) {
 //      if (AbsSpeed > Data->config.profiles[ProfileIndex].vMax / PROFILE_MICROSTEPS_PER_HALFSTEP)
-            printf("vmax:%d absspeed:%d\n", Data->Profiles.Set[ProfileIndex].Config.vMax, AbsSpeed);
+            //printf("vmax:%d absspeed:%d\n", Data->Profiles.Set[ProfileIndex].Config.vMax, AbsSpeed);
             return E_SMOT_MOTION_PROFILE_UNFIT;
         }
     }

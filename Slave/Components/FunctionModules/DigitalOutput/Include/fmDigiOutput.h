@@ -90,7 +90,9 @@
 //****************************************************************************/
 
 Error_t doInitializeModule (UInt16 ModuleID, UInt16 Instances);
-void doRegisterDebugNames  (UInt16 ModuleID);
+#ifdef DEBUG
+void    doRegisterDebugNames  (UInt16 ModuleID);
+#endif
 
 //****************************************************************************/
 

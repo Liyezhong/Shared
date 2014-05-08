@@ -69,8 +69,8 @@ typedef struct {
     Int32                   Position;           //!< centered limit switch position in half-steps
     UInt8                   Width;              //!< limit switch width in half-steps
     UInt8                   Deviation;          //!< tolerated deviation (+/-) in half-steps
-    Bool                 RotDirCheck;
-    UInt8                HitSkip;
+    Bool                    RotDirCheck;        //!< Enable/Disable rotation direction check
+    UInt8                   HitSkip;            //!< If set to 1, the first hit of reference run is skipped
 } smLimitSwitchPosConfig_t;
 
 //! position code data

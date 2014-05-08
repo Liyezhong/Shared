@@ -208,6 +208,9 @@ static Error_t InitTestBootloaderInfoBlock (void) {
  *      After initialization the base module calls the task functions of
  *      the function modules in a regular interval.
  *
+ *  \iparam  argc = Argument counter
+ *  \iparam  argv = Argument vector
+ *
  *  \return  Should never return
  *
  ****************************************************************************/

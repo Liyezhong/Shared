@@ -116,8 +116,9 @@ Int32 pressPidGetOutput (const PressPidParams_t *Param)
  *      they can be calculated by the auto tuning algorithm.
  * 
  *  \xparam Param = Structure containg all parameters for the PID
- *  \iparam DesiredTemp = Desired pressure
- *  \iparam ActualTemp = Measured pressure
+ *  \iparam DesiredPress = Desired pressure
+ *  \iparam ActualPress = Measured pressure
+ *  \iparam Direction = 0:increasing pressure, 1:decreasing pressure
  *
  *  \return Returns if the PID controller is configured correctly
  *

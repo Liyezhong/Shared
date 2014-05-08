@@ -74,7 +74,9 @@
 //****************************************************************************/
 
 Error_t aiInitializeModule   (UInt16 ModuleID, UInt16 NumberOfInstances);
+#ifdef DEBUG
 void    aiRegisterDebugNames (UInt16 ModuleID);
+#endif
 
 //****************************************************************************/
 

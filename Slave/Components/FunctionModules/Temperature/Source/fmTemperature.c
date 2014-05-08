@@ -108,12 +108,12 @@ typedef struct {
     UInt8 NumberFans;            //!< Number of ventilation fans to be watched
     UInt8 NumberPid;             //!< Number of cascaded PID controllers
     UInt8 IndexPidSensor;        //!< Index of sensor used for PID calculation.
-                                 //!< 0xF: Sensor wiht lowest temperature is used for caculation
+                                 //!< 0xF: Sensor with lowest temperature is used for calculation
 
-    UInt8 DetectSlope;           //!< 0: No, 1: Yes
+    UInt8 DetectSlope;           //!< 0: Disable, 1: Enable
     UInt8 SlopeTimeInterval;     //!< Time in milliseconds
-    UInt16 SlopeTempChange;      //!< Temperature in 0.01 degree Celsius steps
-    UInt8 SlopeSampleCnt;
+    UInt16 SlopeTempChange;      //!< Temperature for slope detection(in 0.01 degree Celsius steps)
+    UInt8 SlopeSampleCnt;        //!< Number of total temperature samples from the very beginning
     
     TempHeaterType_t HeaterType; //!< 0: AC, 1: DC      
     TempSensorType_t SensorType; //!< Type of temperature sensor used by this module
@@ -176,7 +176,7 @@ static Error_t tempRegulation  (InstanceData_t *Data, UInt16 Instance);
 static Error_t tempReadOptions (InstanceData_t *Data, UInt16 ModuleID, UInt16 Instance);
 static Error_t tempDeviceAlloc (InstanceData_t *Data);
 static Error_t tempHandleOpen  (InstanceData_t *Data, UInt16 Instance);
-static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus);
+static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 TempChangeDir);
 
 static Error_t tempSetTemperature         (UInt16 Channel, CanMessage_t* Message);
 static Error_t tempSetFanWatchdog         (UInt16 Channel, CanMessage_t* Message);
@@ -576,7 +576,7 @@ static Error_t tempFetchCheck (InstanceData_t *Data, UInt16 Instance, Bool *Fail
     // Compute and check heater current      
     if ( Instance == 0 ) {
         tempCalcEffectiveCurrent(Instance, Data->HeaterType);
-        dbgPrint("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
+        //dbgPrint("Heater current[%d]:%d\n", Instance, tempHeaterCurrent());
     }
     if ((Data->Flags & MODE_MODULE_ENABLE) != 0 ) {
 
@@ -737,19 +737,20 @@ static Error_t tempNotifRange (InstanceData_t *Data)
  *      master. There are separate messages for entering and leaving the
  *      temperature range.
  *
- *  \xparam  Data = Data of one instance of the functional module
+ *  \iparam  Data = Data of one instance of the functional module
+ *  \iparam  TempChangeDir = 0:temperature rises up, 1:temperature falls down
  *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
 
-static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 LevelStatus)
+static Error_t tempNotifySlope (InstanceData_t *Data, UInt8 TempChangeDir)
 {
     CanMessage_t Message;
 
     Message.CanID = MSG_TEMP_NOTI_SLOPE_DETECTED;
     Message.Length = 1;
-    bmSetMessageItem (&Message, LevelStatus, 0, 1);
+    bmSetMessageItem (&Message, TempChangeDir, 0, 1);
     return (canWriteMessage(Data->Channel, &Message));
 
     //return (NO_ERROR);
@@ -909,12 +910,9 @@ static Error_t tempSetTemperature (UInt16 Channel, CanMessage_t* Message)
     Bool Running;
     Error_t Status = NO_ERROR;
     
-    UInt16 InstanceID = 99;
+    UInt16 InstanceID = bmGetInstance(Channel);
     
     InstanceData_t* Data = &DataTable[bmGetInstance(Channel)];
-    
-    InstanceID = bmGetInstance(Channel);
-
 
     if (Message->Length != 8) {
         return (E_MISSING_PARAMETERS);
@@ -1227,19 +1225,15 @@ static Error_t tempSetHeaterTime (UInt16 Channel, CanMessage_t* Message)
 
 /*****************************************************************************/
 /*!
- *  \brief  Sets current watchdog parameters
+ *  \brief  Sets heater switch state
  *
  *      This function is called by the CAN message dispatcher when a message
- *      setting fan speed and heater current watchdog parameters is received
- *      from the master. The parameters in the message are transfered to the
- *      data structure of the addressed module instance. The modified settings
- *      influence the behavior of the module task. The following settings will
- *      be modified:
+ *      setting heater switch state is received from the master. The electric 
+ *      power circuit of the heating elements will be switched immediately.
+ *      The following settings will be modified:
  *
- *      - Current sensor idle output voltage (mV)
- *      - Current sensor gain factor (mA/V)
- *      - Desired heater current (in milliampere)
- *      - Heater current threshold (in milliampere)
+ *      - State of heater switch (SERIAL/PARALLEL)
+ *      - Boolean flag of AC heater auto switch (TRUE/FALSE)
  *
  *  \iparam  Channel = Logical channel number
  *  \iparam  Message = Received CAN message

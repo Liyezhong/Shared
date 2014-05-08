@@ -158,7 +158,7 @@ Error_t pressTimeInit (UInt16 ModuleID, UInt16 Instance, PressTimeParams_t *Para
     Params->Start = GET_PARAM_SIZE (PARAM_LAYOUT_VERSION);
     Size = Params->Start + NumberPumps * sizeof(UInt32);
     
-    printf("Press size:%d\n", Size);
+    //printf("Press size:%d\n", Size);
     // Open storage
     Params->Handle = bmOpenPermStorage (ModuleID, Instance, Size);
     if (Params->Handle < 0) {

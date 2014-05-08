@@ -70,14 +70,30 @@ Error_t smConfigTMC26x(smMotor_t *Motor, UInt32 RegVal, UInt8 Index, UInt8 Dlc) 
     return smConfigureTMC26x(Motor, RegVal, Index); 
 }
 
-
+/******************************************************************************/
+/*! 
+ *  \brief  Set limit swtich configuration data
+ *
+ *      Configuration data received from master is applied to the appropriate
+ *      limit switches.
+ * 
+ *  \iparam  LimitSwitches  = pointer to limit switches data
+ *  \iparam  Index          = index number of the limit switch
+ *  \iparam  Param          = pointer to configuration data received from master
+ *  \iparam  Dlc            = amount of CAN data bytes
+ * 
+ *  \return  NO_ERROR or (negative) error code
+ *
+ ******************************************************************************/
 Error_t smConfigureLimitSwitchParam(smLimitSwitches_t* LimitSwitches, UInt8 Index, ConfigData_LS_t* Param, UInt8 Dlc)
 {
-    if (Dlc != sizeof(ConfigData_LS_t) + sizeof(SubIndex_t))
+    if (Dlc != sizeof(ConfigData_LS_t) + sizeof(SubIndex_t)) {
         return E_MISSING_PARAMETERS;
+    }
 
     return smConfigureLimitSwitch(LimitSwitches, Index, Param);
 }
+
 
 /******************************************************************************/
 /*! 

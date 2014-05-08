@@ -112,6 +112,7 @@ static Error_t tempHeaterSwitch (Handle_t Handle, TempHeaterState_t State);
 
 //static UInt16 DesiredCurrent;
 
+/*! Active status for all heating elements */
 static UInt32 ActiveStatus;
 /*****************************************************************************/
 /*!
@@ -126,6 +127,7 @@ static UInt32 ActiveStatus;
  *  \iparam  CurrentChannel = HAL channel for the current measurement
  *  \iparam  SwitchChannel = HAL channel for the circuit switch
  *  \iparam  ControlChannel = HAL channel for the heater control
+ *  \iparam  HeaterType = Type of heater (AC or DC)
  *  \iparam  Instances = Total number of module instances
  *
  *  \return  NO_ERROR or (negative) error code
@@ -312,6 +314,8 @@ static Error_t tempHeaterGetFilteredInput (TempHeaterMonitor_t *Monitor) {
  *      pulses controlling the heating elements. It should be called by the
  *      task function as often as possible.
  *
+ *  \iparam  HeaterType = Type of heater (AC or DC)
+ *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
@@ -419,6 +423,8 @@ Error_t tempHeaterProgress (TempHeaterType_t HeaterType)
  *      This function reads the analog input value delivered by the current
  *      sensor. It should be called by the task function as often as possible.
  *
+ *  \iparam  HeaterType = Type of heater (AC or DC)
+ *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
@@ -495,6 +501,8 @@ UInt8 tempHeaterSwitchState (void)
  *
  *      This method sets the state of heating elements.
  *
+ *  \iparam  State = State of heater switch (UNDEF/SERIAL/PARALLEL)
+ *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
@@ -513,7 +521,10 @@ Error_t tempSetHeaterSwitchState(UInt8 State)
  *      also able to detect a zero-crossing of the AC wave. It should be called 
  *      by the task function as often as possible.
  *
- *  \return  NO_ERROR or (negative) error code
+ *  \iparam  Instance = Instance number
+ *  \iparam  HeaterType = Type of heater (AC or DC)
+ *
+ *  \return  Nothing
  *
  ****************************************************************************/
  
@@ -559,6 +570,11 @@ void tempCalcEffectiveCurrent(UInt16 Instance, TempHeaterType_t HeaterType)
  *      elements are switched in parallel. When neither one is correct, the
  *      module issues an error message.
  *
+ *  \iparam  Instance = Instance number
+ *  \iparam  HeaterType = Type of heater (AC or DC)
+ *  \iparam  CurrentCheck = Boolean flag for enabling/disabling current check
+ *  \iparam  AutoSwitch = Boolean flag for enabling/disabling auto switch
+ *
  *  \return  NO_ERROR or (negative) error code
  *
  ****************************************************************************/
@@ -569,12 +585,12 @@ Error_t tempHeaterCheck (UInt16 Instance, TempHeaterType_t HeaterType, Bool Curr
     UInt16 Current = 0;
     UInt16 DesiredCurThreshold = 0, DesiredCurrent = 0;
     UInt16 CurrentDeviation = 0, CurrentGain = 0;
-    UInt16 CurMin230_S, CurMax230_S, CurMin100_S, CurMax100_S;
-    UInt16 CurMin100_P, CurMax100_P;
-    UInt16 ActiveDesiredCurrent;
-    UInt16 ActiveDesiredCurThreshold;
-    UInt16 ActCurrentMin230_S, ActCurrentMax230_S, ActCurrentMin100_S, ActCurrentMax100_S;
-    UInt16 ActCurrentMin100_P, ActCurrentMax100_P;
+    UInt16 CurMin230_S = 0, CurMax230_S = 0, CurMin100_S = 0, CurMax100_S = 0;
+    UInt16 CurMin100_P = 0, CurMax100_P = 0;
+    UInt16 ActiveDesiredCurrent = 0;
+    UInt16 ActiveDesiredCurThreshold = 0;
+    UInt16 ActCurrentMin230_S = 0, ActCurrentMax230_S = 0, ActCurrentMin100_S = 0, ActCurrentMax100_S = 0;
+    UInt16 ActCurrentMin100_P = 0, ActCurrentMax100_P = 0;
     UInt16 ActiveCount = TempHeaterData.MaxActive;
 
     TempHeaterParams_t *Params = TempHeaterData.Params;
@@ -816,7 +832,7 @@ Error_t tempHeaterActuate (UInt32 OperatingTime, UInt32 EndTime, UInt16 Instance
  *      different countries. 
  *
  *  \iparam  Handle = Handle of the digital port switching the circuit
- *  \iparam  Parallel = Parallel (TRUE) or serial (FALSE)
+ *  \iparam  State = State of heater switch (UNDEF/SERIAL/PARALLEL)
  * 
  *  \return  NO_ERROR or (negative) error code
  *
@@ -940,7 +956,21 @@ UInt16 tempGetActiveDesiredCurThreshold(void)
     return (DesiredCurThreshold);  
 }
 
-
+/*****************************************************************************/
+/*! 
+ *  \brief   Returns the total active desired current in serial mode 
+ *
+ *      This function returns the total desired current of currently active 
+ *      heating elements in serial mode.
+ *
+ *  \iparam CurMin230_S = Desired minimal effective current in mA for 230 VAC in Serial mode
+ *  \iparam CurMax230_S = Desired maximum effective current in mA for 230 VAC in Serial mode
+ *  \iparam CurMin100_S = Desired minimal effective current in mA for 100 VAC in Serial mode
+ *  \iparam CurMax100_S = Desired maximum effective current in mA for 100 VAC in Serial mode
+ *
+ *  \return  Total desired current of active heating elements
+ *
+ ****************************************************************************/
 void tempGetActiveAcCurrentSerial(UInt16* CurMin230_S, UInt16* CurMax230_S, UInt16* CurMin100_S, UInt16* CurMax100_S)
 {
     UInt16 i;
@@ -955,7 +985,19 @@ void tempGetActiveAcCurrentSerial(UInt16* CurMin230_S, UInt16* CurMax230_S, UInt
     }
 }
 
-
+/*****************************************************************************/
+/*! 
+ *  \brief   Returns the total active desired current in parallel mode 
+ *
+ *      This function returns the total desired current of currently active 
+ *      heating elements in parallel mode.
+ *
+ *  \iparam CurMin100_P = Desired minimal effective current in mA for 100 VAC in Parallel mode
+ *  \iparam CurMax100_P = Desired maximum effective current in mA for 100 VAC in Parallel mode
+ *
+ *  \return  Total desired current of active heating elements
+ *
+ ****************************************************************************/
 void tempGetActiveAcCurrentParallel(UInt16* CurMin100_P, UInt16* CurMax100_P)
 {
     UInt16 i;

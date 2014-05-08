@@ -257,6 +257,9 @@ Error_t pressFanSampleCurrent(void)
  *      This function computes the effective current through fans. It should 
  *      be called by the task function as often as possible.
  *
+ *  \iparam  Instance = Instance number
+ *
+ *  \return  Nothing
  *
  ****************************************************************************/
  

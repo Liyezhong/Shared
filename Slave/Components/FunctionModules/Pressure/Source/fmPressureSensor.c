@@ -31,7 +31,7 @@
 //****************************************************************************/
 // Private Constants and Macros 
 //****************************************************************************/
-#define SWAP(X,Y) {X=X^Y;Y=X^Y;X=X^Y;}
+#define SWAP(X,Y) {X=X^Y;Y=X^Y;X=X^Y;}    //!< Swap the value of two variables
 
 #define TEMP_SENSOR_MAX 120 //!< Maximal sensor pressure in degree Celsius 
 

@@ -97,6 +97,7 @@ static Error_t blReadCanCommands (void);
 static Error_t blSendUpdateRequired(void);
 static void blTaskFunction (void);
 
+/*! Pointer to the start of firmware */
 typedef void (*blFunction)(void);
 
 
@@ -198,8 +199,6 @@ static Error_t blInitBaseModule (void)
  *      a firmware image is present, its size will be checked. The integrity
  *      of the firmware code is verified using the CRC checksum stored in
  *      flash.
- *
- *  \oparam  Result = Firmware is valid (0), invalid (1), not found (2)
  *
  *  \return  NO_ERROR or (negative) error code
  *
