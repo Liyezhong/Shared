@@ -170,19 +170,19 @@ static Error_t InitTestBoardInfoBlock (void) {
     InfoBlock.VersionMajor    = 0;
     InfoBlock.VersionMinor    = 1;
 
-    InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 8;
-    InfoBlock.ProductionDay   = 7;
+    InfoBlock.ProductionYear  = 14;
+    InfoBlock.ProductionMonth = 5;
+    InfoBlock.ProductionDay   = 8;
 #endif
 
 
 #ifdef ASB5_VER_B
     InfoBlock.VersionMajor    = 0;
-    InfoBlock.VersionMinor    = 3;
+    InfoBlock.VersionMinor    = 4;
 
-    InfoBlock.ProductionYear  = 13;
-    InfoBlock.ProductionMonth = 7;
-    InfoBlock.ProductionDay   = 15;
+    InfoBlock.ProductionYear  = 14;
+    InfoBlock.ProductionMonth = 5;
+    InfoBlock.ProductionDay   = 9;
 #endif
 
     InfoBlock.EndTestYear     = 10;
