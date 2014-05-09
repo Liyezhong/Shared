@@ -17,3 +17,5 @@ HEADERS += ../Include/Interface/*.h
 HEADERS += ../Include/Global/*.h
 
 UseLibs(Global DeviceControl)
+
+LIBS += -ldl

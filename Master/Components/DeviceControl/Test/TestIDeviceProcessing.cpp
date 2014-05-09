@@ -46,23 +46,24 @@ public:
 
 public slots:
 
-    void DevProcInitialisationAckn(quint32 a, ReturnCode_t b)
+    void DevProcInitialisationAckn(quint32 /*a*/, ReturnCode_t /*b*/)
     {
         qDebug() << "ReportInitializationFinished";
     }
 
-    void DevProcConfigurationAckn(quint32 a, ReturnCode_t b)
+    void DevProcConfigurationAckn(quint32 /*a*/, ReturnCode_t /*b*/)
     {
         qDebug() << "ReportConfigurationFinished";
     }
 
-    void DevProcStartNormalOpModeAckn(quint32 a, ReturnCode_t b)
+    void DevProcStartNormalOpModeAckn(quint32 /*a*/, ReturnCode_t /*b*/)
     {
         qDebug() << "ReportStartNormalOperationMode";
     }
 
-    void ThrowError(quint32 a, quint16 b, quint16 c, quint16 d , const QDateTime &time)
+    void ThrowError(quint32 /*a*/, quint16 /*b*/, quint16 /*c*/, quint16 /*d */, const QDateTime &/*time*/)
     {
+
     }
 
     void DevProcDestroyAckn()
@@ -146,7 +147,7 @@ void TestIDeviceProcessing::caseALDraining()
 
 void TestIDeviceProcessing::caseALFilling()
 {
-    QCOMPARE(p_IDeviceProcessing->ALFilling(100), DCL_ERR_FCT_CALL_SUCCESS);
+    QCOMPARE(p_IDeviceProcessing->ALFilling(100, false), DCL_ERR_FCT_CALL_SUCCESS);
 }
 
 void TestIDeviceProcessing::caseRTLock()
