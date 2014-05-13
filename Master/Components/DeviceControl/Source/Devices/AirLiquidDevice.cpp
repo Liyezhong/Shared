@@ -1153,6 +1153,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     QList<qreal> PressureBuf;
     int levelSensorState = 0xFF;
+    bool NeedOverflowChecking = true;
     bool stop = false;
 	bool InsufficientCheckFlag = EnableInsufficientCheck;
     bool WarnShowed = false;
@@ -1190,6 +1191,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                 LogDebug(QString("INFO: Hit target level. Sucking Finished."));
                 if(DelayTime > 0)
                 {
+                    NeedOverflowChecking = false;
                     //waiting for some time
                     if(DelayTime < SUCKING_MAX_DELAY_TIME)
                     {
@@ -1265,7 +1267,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                      lastValue = PressureBuf.at(i);
                 }
 
-                if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM))
+                if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM) && NeedOverflowChecking)
                 {
                     LogDebug(QString("ERROR: Overflow occured! Exit now"));
                     for(qint32 i = 0; i < PressureBuf.length(); i++)
