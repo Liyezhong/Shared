@@ -256,7 +256,7 @@ IsUpdateStarted=false			# Store the SW update start value
 ExitOnError()
 {	
 	# IN1424 fix
-	DATE=`date +%Y-%m-%d,%T:%N | sed 's/......$//'`
+	DATE=`date +%Y-%m-%d %T:%N | sed 's/......$//'`
 	# check whether USB is mounted, if mounted then unmount it
 	if [ $IsMounted == true ]; then
 		UnmountUSB
@@ -300,7 +300,7 @@ ExitOnError()
 Log()
 {
 	# IN1424 fix	
-	DATE=`date +%Y-%m-%d,%T:%N | sed 's/......$//'`	
+	DATE=`date +%Y-%m-%d %T:%N | sed 's/......$//'`	
 	# check for the Parameter count, if the parameter count greater than zero then log the data	
 	if [ $# -gt 1 ]; then        
 		if [ $# -eq 2 ]; then						
