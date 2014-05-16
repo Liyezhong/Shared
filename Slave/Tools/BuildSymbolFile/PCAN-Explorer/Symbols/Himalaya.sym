@@ -2525,6 +2525,110 @@ Type=Extended
 DLC=2
 Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
 
+[ASB15::MsgDinEventInfo@3]
+ID=800B01Eh	// Info message
+Type=Extended
+DLC=8
+Var=InfoCode unsigned 0,16 -m /ln:"Info code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[ASB15::MsgDinEventWarning@3]
+ID=808B01Eh	// Warning message
+Type=Extended
+DLC=8
+Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[ASB15::MsgDinEventError@3]
+ID=810B01Eh	// Error message
+Type=Extended
+DLC=8
+Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[ASB15::MsgDinSrvStatistics@3]
+ID=1C00B01Eh	// Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[ASB15::MsgDinSrvAckResetData@3]
+ID=1C08B01Eh	// Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[ASB15::MsgDinInputState@3]
+ID=1038B01Eh	// Actual state of digital input
+Type=Extended
+DLC=6
+Var=InputValue unsigned 0,16 -m /ln:"Actual digital input value"
+Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
+
+[ASB15::MsgDinProcData@3]
+ID=1808B01Eh	// Process data of digital input
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+
+[ASB15::MsgDinEventInfo@4]
+ID=800C01Eh	// Info message
+Type=Extended
+DLC=8
+Var=InfoCode unsigned 0,16 -m /ln:"Info code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[ASB15::MsgDinEventWarning@4]
+ID=808C01Eh	// Warning message
+Type=Extended
+DLC=8
+Var=WarnCode unsigned 0,16 -m /ln:"Warning code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[ASB15::MsgDinEventError@4]
+ID=810C01Eh	// Error message
+Type=Extended
+DLC=8
+Var=ErrorCode unsigned 0,16 -m /ln:"Error code"
+Var=TimeStamp unsigned 16,32 -m /u:ms /ln:"Time stamp"
+Var=AddInfo unsigned 48,16 -m /ln:"Additional info"
+
+[ASB15::MsgDinSrvStatistics@4]
+ID=1C00C01Eh	// Task statistics
+Type=Extended
+DLC=8
+Var=RunCount unsigned 0,16 -m /ln:"Task run counter"
+Var=MinTime unsigned 16,16 -m /u:us /ln:"Minimal task run time"
+Var=AvgTime unsigned 32,16 -m /u:us /ln:"Average task run time"
+Var=MaxTime unsigned 48,16 -m /u:us /ln:"Maximal task run time"
+
+[ASB15::MsgDinSrvAckResetData@4]
+ID=1C08C01Eh	// Reset permanent data acknowledge
+Type=Extended
+DLC=1
+Var=Success unsigned 0,8 -m /e:EnumBoolean /ln:"Reseting data successful"
+
+[ASB15::MsgDinInputState@4]
+ID=1038C01Eh	// Actual state of digital input
+Type=Extended
+DLC=6
+Var=InputValue unsigned 0,16 -m /ln:"Actual digital input value"
+Var=ChangeTime unsigned 16,32 -m /ln:"Timestamp of sampling"
+
+[ASB15::MsgDinProcData@4]
+ID=1808C01Eh	// Process data of digital input
+Type=Extended
+DLC=2
+Var=Value unsigned 0,16 -m /ln:"Actual Value of process data"
+
 
 {SENDRECEIVE}
 
@@ -4752,6 +4856,114 @@ Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
 
 [ASB15::MsgDinReqProcData@2]
 ID=1808A01Fh	// Request process data of digital input
+Type=Extended
+DLC=0
+
+[ASB15::MsgDinSrvCfgStatistics@3]
+ID=1C00B01Fh	// Configure and request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[ASB15::MsgDinSrvReqResetData@3]
+ID=1C08B01Fh	// Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[ASB15::MsgDinConfigInput@3]
+ID=1028B01Fh	// Configure digital input
+Type=Extended
+DLC=7
+Var=EnableInput unsigned 0,1 -m /ln:"Enable digital input module"
+Var=UseTimestamp unsigned 1,1 -m /ln:"Add timestamp when sending"
+Var=Polarity unsigned 8,16 -m /ln:"Threshold for autom. sending"
+Var=Threshold unsigned 24,16 -m /ln:"Threshold for autom. sending"
+Var=SampleRate unsigned 40,8 -m /u:ms /ln:"Input sample rate"
+Var=SampleCount unsigned 48,8 -m /ln:"Number of samples to average over"
+
+[ASB15::MsgDinConfigLimits@3]
+ID=1030B01Fh	// Configure digital input limits
+Type=Extended
+DLC=8
+Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
+Var=Limit1 unsigned 8,16 -m /ln:"Limit 1 threshold"
+Var=Flags2 unsigned 24,8 -m -h /ln:"Limit 2 mode bits"
+Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
+Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
+
+[ASB15::MsgDinReqInputState@3]
+ID=1038B01Fh	// Request digital input status
+Type=Extended
+DLC=0
+
+[ASB15::MsgDinProcConfigure@3]
+ID=1800B01Fh	// Configure process data of digital input
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[ASB15::MsgDinReqProcData@3]
+ID=1808B01Fh	// Request process data of digital input
+Type=Extended
+DLC=0
+
+[ASB15::MsgDinSrvCfgStatistics@4]
+ID=1C00C01Fh	// Configure and request statistics
+Type=Extended
+DLC=1
+Var=Enable unsigned 0,1 -m /ln:"Enable statistics collection"
+Var=Clear unsigned 1,1 -m /ln:"Clear statistics counters"
+Var=Scale unsigned 4,1 -m /ln:"Scale run count by 1000"
+Var=Select unsigned 6,2 -m /e:EnumStatSelect /ln:"Select statistics data set"
+
+[ASB15::MsgDinSrvReqResetData@4]
+ID=1C08C01Fh	// Request reset permanent data
+Type=Extended
+DLC=2
+Var=Password unsigned 0,16 -m /ln:"Protection password"
+
+[ASB15::MsgDinConfigInput@4]
+ID=1028C01Fh	// Configure digital input
+Type=Extended
+DLC=7
+Var=EnableInput unsigned 0,1 -m /ln:"Enable digital input module"
+Var=UseTimestamp unsigned 1,1 -m /ln:"Add timestamp when sending"
+Var=Polarity unsigned 8,16 -m /ln:"Threshold for autom. sending"
+Var=Threshold unsigned 24,16 -m /ln:"Threshold for autom. sending"
+Var=SampleRate unsigned 40,8 -m /u:ms /ln:"Input sample rate"
+Var=SampleCount unsigned 48,8 -m /ln:"Number of samples to average over"
+
+[ASB15::MsgDinConfigLimits@4]
+ID=1030C01Fh	// Configure digital input limits
+Type=Extended
+DLC=8
+Var=Flags1 unsigned 0,8 -m -h /ln:"Limit 1 mode bits"
+Var=Limit1 unsigned 8,16 -m /ln:"Limit 1 threshold"
+Var=Flags2 unsigned 24,8 -m -h /ln:"Limit 2 mode bits"
+Var=Limit2 unsigned 32,16 -m /ln:"Limit 2 threshold"
+Var=Delta unsigned 48,16 -m /ln:"Limit hysteresis"
+
+[ASB15::MsgDinReqInputState@4]
+ID=1038C01Fh	// Request digital input status
+Type=Extended
+DLC=0
+
+[ASB15::MsgDinProcConfigure@4]
+ID=1800C01Fh	// Configure process data of digital input
+Type=Extended
+DLC=5
+Var=Mode unsigned 0,8 -m /ln:"Mode of process data"
+Var=Interval unsigned 8,16 -m /ln:"Process data send interval"
+Var=Threshold unsigned 24,16 -m /ln:"Process data send threshold"
+
+[ASB15::MsgDinReqProcData@4]
+ID=1808C01Fh	// Request process data of digital input
 Type=Extended
 DLC=0
 
