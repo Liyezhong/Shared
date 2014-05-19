@@ -96,7 +96,7 @@ void TestEventScenarioErrorXMLInfo::UTAll()
     QCOMPARE(errorId, id);
 
     //error case;
-    errorId = m_pESEXMLInfo->GetErrorCode(500030021, 276);
+    errorId = m_pESEXMLInfo->GetErrorCode(500030021, 250);
     id = 0;
     QCOMPARE(errorId, id);
 }
@@ -105,7 +105,8 @@ void TestEventScenarioErrorXMLInfo::UTAll()
 void TestEventScenarioErrorXMLInfo::initTestCase()
 {
     m_pESEXMLInfo = QSharedPointer<EventScenarioErrXMLInfo>(new EventScenarioErrXMLInfo("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventScenarioErrorMap.xml"));
-    m_pESEXMLInfo->InitXMLInfo();
+    bool ret = m_pESEXMLInfo->InitXMLInfo();
+    QVERIFY(ret);
 }
 
 /****************************************************************************/
