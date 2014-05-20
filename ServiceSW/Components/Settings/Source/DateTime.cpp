@@ -21,6 +21,7 @@
  */
 /****************************************************************************/
 
+#include "../Include/PlatformServiceEventCodes.h"
 #include <Global/Include/AdjustedTime.h>
 #include "Application/Include/LeicaStyle.h"
 #include "Settings/Include/DateTime.h"
@@ -213,6 +214,7 @@ void CDateTime::CollectData(bool Send)
     m_DateTime.setTime(QTime(mp_HourWheel->GetCurrentData().toInt(), mp_MinWheel->GetCurrentData().toInt()));
 
     if (Send == true) {
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_DATETIME_UPDATED);
         emit ApplyData(m_DateTime);
     }
 }

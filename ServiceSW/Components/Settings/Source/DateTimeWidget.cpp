@@ -111,7 +111,9 @@ Settings::CDateTime *CDateTimeWidget::GetContent()
 /****************************************************************************/
 void CDateTimeWidget::showEvent(QShowEvent *p_Event) {
     if ((mp_DateTime != NULL) && (p_Event != NULL) &&
-            !p_Event->spontaneous()) {     
+            !p_Event->spontaneous()) {
+        // widget is quite before to be shown (again) Refresh contents.
+        mp_DateTime->RefreshDateTime(Global::TIME_24);
         mp_DateTime->ResetButtons();
         SetButtonStatus();
     }

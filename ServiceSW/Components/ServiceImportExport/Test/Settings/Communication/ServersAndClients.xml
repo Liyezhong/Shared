@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE net_setup>
+<net_setup version="1.0">
+<!-- Authentication section shall be read by both Servers and Clients to
+     identify the format of authentication messages -->
+    <authentication>
+        <request>Authenticate</request>
+        <reply>
+            <cmd>Authentication</cmd>
+            <name></name>
+            <version></version>
+        </reply>
+        <confirmation>Welcome</confirmation>
+    </authentication>
+<!-- Identity section shall be read by Clients to fetch
+     the authentication parameters (TBD: might be located in
+     some other file later) -->
+    <identity>
+        <gui>
+            <name>Colorado Device GUI</name>
+            <version>1.0</version>
+            <servertype>gui</servertype>
+        </gui>
+        <axeda>
+            <name>Axeda Client</name>
+            <version>1.0</version>
+            <servertype>axeda</servertype>
+        </axeda>
+        <service>
+            <name>Service Client</name>
+            <version>1.0</version>
+            <servertype>service</servertype>
+        </service>
+        <sepia>
+            <name>Sepia Client</name>
+            <version>1.0</version>
+            <servertype>sepia</servertype>
+        </sepia>
+		<export>
+            <name>Export</name>
+            <version>1.0</version>
+            <servertype>export</servertype>
+        </export>
+		<BLG>
+            <name>Colorado BLG</name>
+            <version>1.0</version>
+            <servertype>BLG</servertype>
+        </BLG>
+    </identity>
+<!-- Networks section shall be read by Servers to identify
+     which IP/Port they shall serve -->
+    <networks>
+        <!-- 
+           The KEY attribute is not used so far.
+           This attribute allows usage of different network 
+           settings for one server type.
+        -->
+        <axeda>
+            <network key="">
+                <IP_address>127.0.0.15</IP_address>
+                <port>8801</port>
+            </network>
+        </axeda>
+        <gui>
+            <network key="">
+                <IP_address>127.0.0.16</IP_address>
+                <port>8801</port>
+            </network>
+        </gui>
+        <service>
+            <network key="">
+                <IP_address>127.0.0.18</IP_address>
+                <port>8801</port>
+            </network>
+        </service>
+        <sepia>
+            <network key="">
+                <IP_address>127.0.0.20</IP_address>
+           <!--     <IP_address>192.168.3.10</IP_address> -->
+                <port>8801</port>
+            </network>
+        </sepia>
+		<export>
+            <network key="">
+                <IP_address>127.0.0.21</IP_address>
+                <port>8801</port>
+            </network>
+        </export>
+		<BLG>
+            <network key="">
+                <IP_address>127.0.0.22</IP_address>
+                <port>8801</port>
+            </network>
+        </BLG>
+    </networks>
+<!-- Clients section shall be read by Servers to identify
+     which Clients are allowed to connect -->
+    <clients>
+        <axeda>
+            <client>
+                <name>Axeda Client</name>
+                <version>1.0</version>
+            </client>
+        </axeda>
+        <gui>
+            <client>
+                <name>Colorado Device GUI</name>
+                <version>1.0</version>
+            </client>
+        </gui>
+        <service>
+            <client>
+                <name>Service Client</name>
+                <version>1.0</version>
+            </client>
+        </service>
+        <sepia>
+            <client>
+                <name>Sepia Client</name>
+                <version>1.0</version>
+            </client>
+        </sepia>
+		<export>
+            <client>
+                <name>Export Client</name>
+                <version>1.0</version>
+            </client>
+        </export>
+		<BLG>
+            <client>
+                <name>Colorado BLG Client</name>
+                <version>1.0</version>
+            </client>
+        </BLG>
+    </clients>
+<!-- Servers section shall be read by Clients to identify
+     which Servers they shall connect to -->
+    <servers>
+        <axeda>
+            <server key="">
+                <IP_address>127.0.0.15</IP_address>
+                <port>8801</port>
+            </server>
+        </axeda>
+        <gui>
+            <server key="">
+                <IP_address>127.0.0.16</IP_address>
+                <port>8801</port>
+            </server>
+        </gui>
+        <service>
+            <server key="">
+                <IP_address>127.0.0.18</IP_address>
+                <port>8801</port>
+            </server>
+        </service>
+        <sepia>
+            <server key="">
+                <IP_address>127.0.0.20</IP_address>
+           <!--     <IP_address>192.168.3.10</IP_address> -->
+                <port>8801</port>
+            </server>
+        </sepia>
+		<export>
+            <server key="">
+                <IP_address>127.0.0.21</IP_address>
+                <port>8801</port>
+            </server>
+        </export>
+		<BLG>
+            <server key="">
+                <IP_address>127.0.0.22</IP_address>
+                <port>8801</port>
+            </server>
+        </BLG>
+    </servers>
+</net_setup>

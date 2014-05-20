@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ExportConfiguration Version="1">
+  <Source Directory="../Settings/" />
+  <Destination Directory="" Filename="" />
+  <ServiceConfig>
+    <List Encryption="active" Certified="active" Compressed="active" PackageType="native">
+      <File Path="InstrumentHistory.xml" />
+      <File Path="InstrumentHistoryArchive.xml" />
+      <File Path="ServiceParameters.xml" />    
+      <Group File="Logfiles" />
+    </List>
+  </ServiceConfig>
+</ExportConfiguration>

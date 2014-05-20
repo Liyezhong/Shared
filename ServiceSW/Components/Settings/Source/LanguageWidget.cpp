@@ -151,10 +151,10 @@ void CLanguageWidget::PopulateLanguageList()
 void CLanguageWidget::OnBtnApplyClicked()
 {
     if (m_SelectedLanguage == m_LanguageList.value(0)) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "Deutsch");
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "Deutsch");
         emit SetLanguage(PlatformService::DEUTSCH);
     } else {
-        Global::EventObject::Instance().RaiseEvent(EVENT_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "U.S English");
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "U.S English");
         emit SetLanguage(PlatformService::US_ENGLISH);
     }
 }

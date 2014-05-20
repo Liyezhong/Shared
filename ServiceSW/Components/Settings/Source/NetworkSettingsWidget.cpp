@@ -22,6 +22,7 @@
  */
 /****************************************************************************/
 
+#include "../Include/PlatformServiceEventCodes.h"
 #include "Settings/Include/NetworkSettingsWidget.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
@@ -91,6 +92,9 @@ CNetworkSettingsWidget::CNetworkSettingsWidget(QWidget *p_Parent)
 
     mp_Ui->tableWidget->setMinimumSize(mp_TableWidget->width(), mp_TableWidget->height());
     mp_Ui->tableWidget->SetContent(mp_TableWidget);
+
+    mp_Ui->proxyIpAddressButton->setEnabled(false);
+    mp_Ui->saveButton->setEnabled(false);
 
     mp_Ui->firmwareCheckBoxLabel->setPixmap(QPixmap(QString::fromUtf8(":/Large/CheckBoxLarge/CheckBox-enabled-large.png")));
 
@@ -183,6 +187,19 @@ void CNetworkSettingsWidget::AddItem(QString TestName)
 
 /****************************************************************************/
 /*!
+ *  \brief Updated Ip address
+ *  \iparam IpAddress = Ip address
+ */
+/****************************************************************************/
+void CNetworkSettingsWidget::UpdateIpAddress(QString IpAddress)
+{
+    mp_Ui->proxyIpAddressButton->setText(IpAddress);
+    mp_Ui->proxyIpAddressButton->setEnabled(true);
+    mp_Ui->saveButton->setEnabled(true);
+}
+
+/****************************************************************************/
+/*!
  *  \brief Shows the on screen keyboard to Enter Proxy IP Address
  */
 /****************************************************************************/
@@ -247,7 +264,8 @@ void CNetworkSettingsWidget::OnOkClicked(QString EnteredText)
 /****************************************************************************/
 void CNetworkSettingsWidget::OnSave()
 {
-    emit SaveProxyIPAddress(mp_Ui->proxyIpAddressButton->text());
+    Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IPADDRESS_UPDATED);
+    emit SaveIPAddress(mp_Ui->proxyIpAddressButton->text());
 }
 
 /****************************************************************************/
@@ -390,35 +408,6 @@ void CNetworkSettingsWidget::KeyBoardValidateEnteredString(QString Value)
     emit KeyBoardStringValidationComplete(true);
 }
 
-
-/****************************************************************************/
-/*!
- *  \brief Formats the port number
- *
- *  \iparam PortNumber = Port number value
- *
- *  \return Formatted port number
- */
-/****************************************************************************/
-QString CNetworkSettingsWidget::FormatPortNumber(QString PortNumber)
-{
-    switch (PortNumber.length()) {
-        case 1:
-            PortNumber = PortNumber.prepend("0000");
-            break;
-        case 2:
-            PortNumber = PortNumber.prepend("000");
-            break;
-        case 3:
-            PortNumber = PortNumber.prepend("00");
-            break;
-        case 4:
-            PortNumber = PortNumber.prepend("0");
-            break;
-    }
-    return PortNumber;
-}
-
 /****************************************************************************/
 /*!
  *  \brief Sets the Save button status
@@ -522,6 +511,22 @@ void CNetworkSettingsWidget::SetNetworkSettingsResult(PlatformService::NetworkSe
     default:
         break;
     }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief To reset the check boxes.
+ */
+/****************************************************************************/
+void CNetworkSettingsWidget::reset()
+{
+    QPixmap SetPixmap;
+    QPixmap PixMap(QString(":/Large/CheckBoxLarge/CheckBox-enabled-large.png"));
+    SetPixmap = (PixMap.scaled(45,45,Qt::KeepAspectRatio));
+    (void) m_Model.setData(m_Model.index(0, 1), SetPixmap, (int) Qt::DecorationRole);
+    (void) m_Model.setData(m_Model.index(1, 1), SetPixmap, (int) Qt::DecorationRole);
+    (void) m_Model.setData(m_Model.index(2, 1), SetPixmap, (int) Qt::DecorationRole);
+    mp_Ui->firmwareCheckBoxLabel->setPixmap(QPixmap(QString::fromUtf8(":/Large/CheckBoxLarge/CheckBox-enabled-large.png")));
 }
 
 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE external_processes>
+<external_processes version="1.0">
+
+<!--
+    ==========================================
+     List of all available in device external 
+     processes and their configurations.
+    ==========================================
+-->
+
+    <process>
+        <!-- Process Name: 
+        ExternalProcessController takes Process Name
+        as input parameter during initialization.
+        Corresponding startcmd will be fetched and
+        executed to start the process. -->
+        <name>Colorado Device GUI</name>
+        <!-- Start commando -->
+        <!--
+            GUI command and args for the regular case: 
+                "nice -n %X% ./guiclient 127.0.0.16 8801 -qws &";
+            GUI command for Remote Desktop Session:    
+                "nice -n %X% ./guiclient -qws -display VNC:linuxfb &"; 
+            note:   %X% is the desired priority of the (linux) process
+        -->
+        <startcmd>nice -n 5 ./colorado_gui 127.0.0.16 8801 &amp;</startcmd>
+        <!-- Remote login: Yes/No  (if empty, "No" is assumed) -->
+        <!-- If External Process is not started by Master and its exact login timing is 
+        undefined, remotelogin shall be set to "Yes". -->
+        <remotelogin>No</remotelogin>
+        <!-- Timeout for remote login option, in seconds. 
+        Zero means infinite waiting. -->
+        <remotetimeout>0</remotetimeout>
+    </process>
+
+    <process>
+        <!-- Process Name: 
+        ExternalProcessController takes Process Name
+        as input parameter during initialization.
+        Corresponding startcmd will be fetched and
+        executed to start the process. -->
+        <name>Axeda Client</name>
+        <!-- Start commando -->
+        <startcmd>nice -n 5 ./RemoteCareAgent 127.0.0.15 8801 &amp;</startcmd>
+        <!-- Remote login: Yes/No  (if empty, "No" is assumed) -->
+        <!-- If External Process is not started by Master and its exact login timing is 
+        undefined, remotelogin shall be set to "Yes". -->
+        <remotelogin>Yes</remotelogin>
+        <!-- Timeout for remote login option, in seconds. 
+        Zero means infinite waiting. -->
+        <remotetimeout>0</remotetimeout>
+    </process>
+
+    <process>
+        <!-- Process Name: 
+        ExternalProcessController takes Process Name
+        as input parameter during initialization.
+        Corresponding startcmd will be fetched and
+        executed to start the process. -->
+        <name>Sepia Client</name>
+        <!-- Start commando is empty for Sepia -->
+        <startcmd></startcmd>
+        <!-- Sepia is never started by Master, remotelogin for Sepia shall always be "Yes". -->
+        <remotelogin>Yes</remotelogin>
+        <!-- Timeout for remote login option, in seconds.
+        Zero means infinite waiting. -->
+        <remotetimeout>0</remotetimeout>
+    </process>	
+	
+	<process>
+        <!-- Process Name: 
+        ExternalProcessController takes Process Name
+        as input parameter during initialization.
+        Corresponding startcmd will be fetched and
+        executed to start the process. -->
+        <name>Platform Export</name>
+        <!-- Start commando -->
+        <startcmd>nice -n 5 ./Export 127.0.0.21 8801 &amp;</startcmd>
+        <!-- Master starts the Export process when user clicks "User Export" or "Service Export" button in GUI. -->
+        <remotelogin>No</remotelogin>
+        <!-- Timeout for remote login option, in seconds.
+        Zero means infinite waiting. -->
+        <remotetimeout>0</remotetimeout>
+    </process>
+	
+	<process>
+        <!-- Process Name: 
+        ExternalProcessController takes Process Name
+        as input parameter during initialization.
+        Corresponding startcmd will be fetched and
+        executed to start the process. -->
+        <name>colorado_BLG</name>
+        <!-- Start commando is empty for Sepia -->
+        <startcmd>nice -n 5 ./colorado_BLG 127.0.0.22 8801 &amp;</startcmd>
+        <!-- Sepia is never started by Master, remotelogin for Sepia shall always be "Yes". -->
+        <remotelogin>No</remotelogin>
+        <!-- Timeout for remote login option, in seconds.
+        Zero means infinite waiting. -->
+        <remotetimeout>0</remotetimeout>
+    </process>
+
+</external_processes>
+

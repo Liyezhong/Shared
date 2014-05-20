@@ -1,0 +1,27 @@
+
+<!DOCTYPE ProgramsSequence>
+<ProgramsSequence Version="1">
+    <Program ID="L1" Used="true" Counter="47" StartCapable="true" StartCapableResult="8"/>
+    <Program ID="U3" Used="true" Counter="47" StartCapable="false" StartCapableResult="2"/>
+    <Program ID="U2" Used="false" Counter="11" StartCapable="false" StartCapableResult="7"/>
+    <Program ID="U1" Used="false" Counter="15" StartCapable="false" StartCapableResult="7"/>
+    <Program ID="U4" Used="false" Counter="20" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U6" Used="false" Counter="25" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U5" Used="false" Counter="47" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U7" Used="false" Counter="11" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U8" Used="false" Counter="15" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U9" Used="false" Counter="20" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U10" Used="false" Counter="25" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U11" Used="false" Counter="47" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U12" Used="false" Counter="11" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U13" Used="false" Counter="15" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U14" Used="false" Counter="20" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U15" Used="false" Counter="25" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U16" Used="false" Counter="47" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U17" Used="false" Counter="11" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U18" Used="false" Counter="15" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U19" Used="false" Counter="20" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U20" Used="true" Counter="25" StartCapable="true" StartCapableResult="4"/>
+    <Program ID="U21" Used="true" Counter="25" StartCapable="true" StartCapableResult="0"/>
+    <Program ID="U33" Used="false" Counter="0" StartCapable="false" StartCapableResult="-1"/>
+</ProgramsSequence>

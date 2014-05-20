@@ -29,15 +29,15 @@
 #include <QDir>
 
 namespace PasswordManager {
-///< Authentication errors or infos
+//!< Authentication errors or infos
 enum ServiceUserAuthentication {
-    AUTHENTICATION_VALID,    ///< Authentication is valid
-    NO_SERVICE_KEY_FILE,     ///< No service key file is found
-    CHECKSUM_NOT_MATCHING,   ///< Check sum is not matching
-    HASH_NOT_MATCHING,       ///< Hash is not matching
-    NO_DEVICE_TAG,           ///< Device tag not exists in service key file
-    BASIC_TAG_NOT_MATCHING,  ///< Basic tag not matching or might not available
-    DATE_EXPIRED             ///< Date is expired for the service key
+    AUTHENTICATION_VALID,    //!< Authentication is valid
+    NO_SERVICE_KEY_FILE,     //!< No service key file is found
+    CHECKSUM_NOT_MATCHING,   //!< Check sum is not matching
+    HASH_NOT_MATCHING,       //!< Hash is not matching
+    NO_DEVICE_TAG,           //!< Device tag not exists in service key file
+    BASIC_TAG_NOT_MATCHING,  //!< Basic tag not matching or might not available
+    DATE_EXPIRED             //!< Date is expired for the service key
 };
 
 /****************************************************************************/
@@ -49,14 +49,14 @@ enum ServiceUserAuthentication {
  */
 /****************************************************************************/
 class CServicePassword {    
-    friend class TestServicePassword; ///< this is to test the private functions of the class in unit test project
+    friend class TestServicePassword; //!< this is to test the private functions of the class in unit test project
 private:
-    QByteArray m_ServiceFileContent; ///< To store the servicekey.xml file information
-    QString m_ServicePin;            ///< To store the service PIN
-    QString m_DeviceName;            ///< To store the device name
-    ServiceUserAuthentication m_Authentication;   ///< To store authentication value
+    QByteArray m_ServiceFileContent; //!< To store the servicekey.xml file information
+    QString m_ServicePin;            //!< To store the service PIN
+    QString m_DeviceName;            //!< To store the device name
+    ServiceUserAuthentication m_Authentication;   //!< To store authentication value
 
-    CServicePassword();                          ///< Not implemented
+    CServicePassword();                          //!< Not implemented
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.

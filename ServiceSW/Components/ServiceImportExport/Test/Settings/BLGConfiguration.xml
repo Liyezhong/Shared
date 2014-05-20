@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE BLGConfiguration>
+<Configuration Version="1">
+	<Rules>
+	<Rule ShortName="PER_TWS" LongName="Performance rule transfer water stations" HardRule="true" />
+	<Rule ShortName="PER_LP" LongName="Performance rule Leica Programs" HardRule="true" />
+	<Rule ShortName="PER_ROC" LongName="Performance rule reagents of one class" HardRule="true" />
+        <Rule ShortName="APP_SR" LongName="Application rule staining reagent" HardRule="false" />         
+        <Rule ShortName="APP_DR" LongName="Application rule differentiating" HardRule="false" />
+        <Rule ShortName="APP_S/DR" LongName="Application rule staining/ differentiating" HardRule="false" />
+        <Rule ShortName="PER_HC" LongName="Performance rule heated cuvettes" HardRule="false" />
+        <Rule ShortName="PER_PS" LongName="Performance rule parallel stations" HardRule="false" />
+        <Rule ShortName="PER_LRD" LongName="Performance rule left right distribution" HardRule="false" />
+	</Rules>
+<TerminationCount Count="3" />
+<MaxParallelStations Count="2" />
+<ReagentsPreferredColumns Dewaxing="03,04,05,06" StainDiffInLeftZone="08,09" StainDiffInRightZone="12,13" Dehydrating="15,16"/>
+</Configuration>

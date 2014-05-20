@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings version="1">
+    <language name="English">
+        <string id="33882113" text="&apos;%1&apos; is not a valid Program ID."/>
+        <string id="33882114" text="Program name &apos;%1&apos; already in use. Please choose different Program name."/>
+        <string id="33882115" text="Program Short name &apos;%1&apos; already in use. Please choose different Program Short name."/>
+        <string id="33882116" text="Please select oven as first step for the program."/>
+        <string id="33882117" text="Same Reagent used in multiple steps in the program &apos;%1&apos;. Reagent should be exclusive to a step in the program."/>
+        <string id="33882118" text="Program with only unloader or loader steps are invalid. Please add steps to program &apos;%1&apos;."/>
+    </language>
+</strings>
