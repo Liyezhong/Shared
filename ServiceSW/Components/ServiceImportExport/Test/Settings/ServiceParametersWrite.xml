@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ServiceParameters>
+<ServiceParameters Version="1">
+    <Network ProxyUserName="The User Name" ProxyPassword="1234" ProxyIPAddress="123.456.789.012" ProxyIPPort="0"/>
+    <LoaderRFID Rack1="0xAB12345CADFE1234" Rack2="0xAB12345CFFFE5671" Rack3="0xAB12345CFFFE5675" Rack4="0xAB12345CFFFE5123" Rack5="0xAB12345CFFFE5123"/>
+    <UnloaderRFID Rack1="0xAB12345CADFEABCD" Rack2="0xAB12345CFFFE5671" Rack3="0xAB12345CFFFE5675" Rack4="0xAB12345CFFFE5123" Rack5="0xAB12345CFFFE5123"/>
+    <YZModuleRFID Rfid="0xAB12345CADFEABCD"/>
+    <XArmLeft Filledx="5" Filledy="2" Emptyx="4" Emptyy="5" Rackx="8" Racky="6"/>
+    <XArmRight Filledx="5" Filledy="2" Emptyx="4" Emptyy="5" Rackx="8" Racky="6"/>
+    <OvenHeatingTest MaxDiff="3" RoomTempLow="18" RoomTempHigh="30" HTime1="1" HTime2="2" TempDiff="15" OvenMaxLow="40" OvenMaxHigh="70"/>
+    <CuvettesHeatingTest MaxDiff="3" RoomTempLow="18" RoomTempHigh="30" HTime1="1" HTime2="2" TempDiff="15" OvenMaxLow="40" OvenMaxHigh="70"/>
+</ServiceParameters>

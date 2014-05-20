@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE colorado_station_layout>
+<colorado_station_layout version="1.0" >
+    <station_layout>
+        <row index="1">
+            <vessel pos="1" row="532" column="136"/>
+            <vessel pos="2" row="532" column="408"/>
+            <vessel pos="3" row="532" column="680"/>
+            <vessel pos="4" row="532" column="952"/>
+            <vessel pos="5" row="532" column="1224"/>
+            <vessel pos="6" row="532" column="1496"/>
+            <vessel pos="7" row="532" column="1768"/>
+            <vessel pos="8" row="532" column="2040"/>
+            <vessel pos="9" row="532" column="2312"/>
+            <vessel pos="10" row="532" column="2584"/>
+            <vessel pos="11" row="532" column="2856"/>
+            <vessel pos="12" row="532" column="3128"/>
+            <vessel pos="13" row="532" column="3400"/>
+            <vessel pos="14" row="532" column="3672"/>
+            <vessel pos="15" row="532" column="3944"/>
+            <vessel pos="16" row="532" column="4216"/>
+            <vessel pos="17" row="532" column="4488"/>
+            <vessel pos="18" row="532" column="4760"/>
+        </row>
+        <row index="2">
+            <vessel pos="1" row="1596" column="136"/>
+            <vessel pos="2" row="1596" column="408"/>
+            <vessel pos="3" row="1596" column="680"/>
+            <vessel pos="4" row="1596" column="952"/>
+            <vessel pos="5" row="1596" column="1224"/>
+            <vessel pos="6" row="1596" column="1496"/>
+            <vessel pos="7" row="1596" column="1768"/>
+            <vessel pos="8" row="1596" column="2040"/>
+            <vessel pos="9" row="1596" column="2312"/>
+            <vessel pos="10" row="1596" column="2584"/>
+            <vessel pos="11" row="1596" column="2856"/>
+            <vessel pos="12" row="1596" column="3128"/>
+            <vessel pos="13" row="1596" column="3400"/>
+            <vessel pos="14" row="1596" column="3672"/>
+            <vessel pos="15" row="1596" column="3944"/>
+            <vessel pos="16" row="1596" column="4216"/>
+            <vessel pos="17" row="1596" column="4488"/>
+            <vessel pos="18" row="1596" column="4760"/>
+        </row>
+        <row index="3">
+            <vessel pos="1" row="2660" column="136"/>
+            <vessel pos="2" row="2660" column="408"/>
+            <vessel pos="3" row="2660" column="680"/>
+            <vessel pos="4" row="2660" column="952"/>
+            <vessel pos="5" row="2660" column="1224"/>
+            <vessel pos="6" row="2660" column="1496"/>
+            <vessel pos="7" row="2660" column="1768"/>
+            <vessel pos="8" row="2660" column="2040"/>
+            <vessel pos="9" row="2660" column="2312"/>
+            <vessel pos="10" row="2660" column="2584"/>
+            <vessel pos="11" row="2660" column="2856"/>
+            <vessel pos="12" row="2660" column="3128"/>
+            <vessel pos="13" row="2660" column="3400"/>
+            <vessel pos="14" row="2660" column="3672"/>
+            <vessel pos="15" row="2660" column="3944"/>
+            <vessel pos="16" row="2660" column="4216"/>
+            <vessel pos="17" row="2660" column="4488"/>
+            <vessel pos="18" row="2660" column="4760"/>
+        </row>
+        <row index="4">
+            <vessel pos="1" row="3723" column="136"/>
+            <vessel pos="2" row="3723" column="408"/>
+            <vessel pos="3" row="3723" column="680"/>
+            <vessel pos="4" row="3723" column="952"/>
+            <vessel pos="5" row="3723" column="1224"/>
+            <vessel pos="6" row="3723" column="1496"/>
+            <vessel pos="7" row="3723" column="1768"/>
+            <vessel pos="8" row="3723" column="2040"/>
+            <vessel pos="9" row="3723" column="2312"/>
+            <vessel pos="10" row="3723" column="2584"/>
+            <vessel pos="11" row="3723" column="2856"/>
+            <vessel pos="12" row="3723" column="3128"/>
+            <vessel pos="13" row="3723" column="3400"/>
+            <vessel pos="14" row="3723" column="3672"/>
+            <vessel pos="15" row="3723" column="3944"/>
+            <vessel pos="16" row="3723" column="4216"/>
+            <vessel pos="17" row="3723" column="4488"/>
+            <vessel pos="18" row="3723" column="4760"/>
+        </row>        
+    </station_layout>
+</colorado_station_layout>    

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Stations><Stations Version="0">
+<Station ID="R11" ReagentID="L3" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" BestBeforeDate="2013-01-01" LotNumber="UNDEFINED" ProgramID="L2" StepID="17"/>
+<Station ID="R12" ReagentID="U15" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R25" ReagentID="U16" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R07" ReagentID="L5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" BestBeforeDate="2013-01-01" LotNumber="UNDEFINED" ProgramID="L2" StepID="10"/>
+<Station ID="R06" ReagentID="L4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" BestBeforeDate="2013-01-01" LotNumber="UNDEFINED" ProgramID="L2" StepID="9"/>
+<Station ID="R21" ReagentID="L2" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" BestBeforeDate="2013-01-01" LotNumber="UNDEFINED" ProgramID="L2" StepID="12"/>
+<Station ID="R10" ReagentID="L1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" BestBeforeDate="2013-01-01" LotNumber="UNDEFINED" ProgramID="L2" StepID="14"/>
+<Station ID="H01" ReagentID="U30" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="H02" ReagentID="U30" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R03" ReagentID="U31" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R04" ReagentID="U31" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="H15" ReagentID="U32" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="H16" ReagentID="U32" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R17" ReagentID="U4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R18" ReagentID="U5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R29" ReagentID="U6" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R30" ReagentID="U33" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R20" ReagentID="L5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" BestBeforeDate="2013-01-01" LotNumber="UNDEFINED" ProgramID="L2" StepID="10"/>
+<Station ID="R14" ReagentID="U29" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R13" ReagentID="U28" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R28" ReagentID="U27" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R27" ReagentID="U34" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="O01" ReagentID="S4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="O02" ReagentID="S4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="O03" ReagentID="S4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R05" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="W08" ReagentID="S5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="W09" ReagentID="S5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="P02" ReagentID="S10" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="O04" ReagentID="S4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="O05" ReagentID="S4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="O06" ReagentID="S4" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R19" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="W22" ReagentID="S5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="W23" ReagentID="S5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R24" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R26" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="TRA" ReagentID="S8" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="SID" ReagentID="S3" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R31" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R32" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R33" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R34" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R35" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="W36" ReagentID="S5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="W37" ReagentID="S5" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R38" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R39" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R40" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R41" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="R42" ReagentID="-1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="P01" ReagentID="S10" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="L01" ReagentID="S1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="L02" ReagentID="S1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="L03" ReagentID="S1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="L04" ReagentID="S1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="L05" ReagentID="S1" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="D01" ReagentID="S9" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="D02" ReagentID="S9" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="U01" ReagentID="S7" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="U02" ReagentID="S7" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="U03" ReagentID="S7" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="U04" ReagentID="S7" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+<Station ID="U05" ReagentID="S7" ExpiryDate="2013-01-01T00:00:00" ActualSlides="0" ProgramID="-1" StepID="-1"/>
+</Stations>

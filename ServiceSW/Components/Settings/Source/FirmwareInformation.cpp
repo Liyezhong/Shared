@@ -118,8 +118,9 @@ void CFirmwareInformation::updateGUI(DataManager::CModuleDataList *p_ModuleList)
                 DataManager::CSubModule* p_SubModule = p_Module->GetSubModuleInfo(j);
 
                 QString SubModuleName = p_SubModule->GetSubModuleName();
+                QString SubModuleType = p_SubModule->GetSubModuleType();
 
-                if (SubModuleName.startsWith("asb")) {
+                if ((SubModuleName.startsWith("asb")) && (SubModuleType.startsWith("Board"))) {
                     DataManager::Parameter_t *Parameter;
                     Parameter = p_SubModule->GetParameterInfo("SoftwareVersion");
                     AddItem(SubModuleName, Parameter->ParameterValue);
@@ -140,7 +141,7 @@ void CFirmwareInformation::updateGUI(DataManager::CModuleDataList *p_ModuleList)
 /****************************************************************************/
 void CFirmwareInformation::OnRefreshButtonClicked()
 {
-    Global::EventObject::Instance().RaiseEvent(EVENT_GUI_SETTINGS_FIRMWARE_INFO_REQUESTED);
+    Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_FIRMWARE_INFO_REQUESTED);
     if (mp_ModuleList)
     {
         for (int i = 0; i < mp_ModuleList->GetNumberofModules(); i++)

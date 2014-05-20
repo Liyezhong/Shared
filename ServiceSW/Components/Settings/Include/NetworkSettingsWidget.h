@@ -84,8 +84,7 @@ private:
     QStandardItemModel m_Model;                             //!< Model for the table
 
     void ConnectKeyBoardSignalSlots();
-    void DisconnectKeyBoardSignalSlots();
-    QString FormatPortNumber(QString PortNumber);
+    void DisconnectKeyBoardSignalSlots();    
 
 signals:
     /****************************************************************************/
@@ -95,7 +94,7 @@ signals:
      *  \iparam ServiceParameters = ServiceParameters reference.
      */
     /****************************************************************************/
-    void SaveProxyIPAddress(QString);
+    void SaveIPAddress(QString);
 
     /****************************************************************************/
     /*!
@@ -123,8 +122,10 @@ private slots:
 
 public slots:
     void OnDownloadFirmware();
+    void UpdateIpAddress(QString IpAddress);
     void SetInformwationText(QString Text, QString Color);
     void SetNetworkSettingsResult(PlatformService::NetworkSettings_t, bool);
+    void reset();
 
 };
 

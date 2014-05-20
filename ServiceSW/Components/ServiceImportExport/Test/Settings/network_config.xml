@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE net_config>
+<!-- legend: 
+     These are network settings for simulation environment.
+     CAN messages will be forwarded via TCP-IP to the HW
+     simulator.
+     Simulation mode activates automatically via flag in 
+     the hw_specification.xml configuration file:
+         <tcp_interface usage="1"> for simulation
+         <tcp_interface usage="0"> for real HW
+-->
+<net_config version="1.0">
+<!-- README:
+     Change the servertype to 'local' if Device SW runs
+     on the same host. Or to 'remote' if Device SW runs
+     on target. Adjust IP/Port of each server if needed.
+ -->
+    <servertype>
+        <type>local</type>
+    </servertype>
+    <servers>
+        <local>
+            <server>
+                <IP_address>127.0.0.11</IP_address>
+                <port>7777</port>
+            </server>
+        </local>
+        <remote>
+            <server>
+                <IP_address>192.168.3.10</IP_address>
+                <port>7777</port>
+            </server>
+        </remote>
+    </servers>
+</net_config>

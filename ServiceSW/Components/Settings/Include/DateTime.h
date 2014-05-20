@@ -81,7 +81,7 @@ signals:
      *  \iparam OffSet = Send offset value of the time
      */
     /****************************************************************************/
-    void ApplyData(const QDateTime& DateTime);
+    void ApplyData(QDateTime DateTime);
 
 private slots:
     void CollectData(bool Send = true);

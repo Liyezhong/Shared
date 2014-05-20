@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SW_Version Version="1">
+  <SW>
+    <Release Version="ST_12.123" Date="2012-09-10" />
+  </SW>
+  <Master_SW>
+    <file Filename="Colorado" Version="MAIN_1.123" Date="2012-09-10"></file>
+    <file Filename="RemoteCare" Version="RECA_2.123" Date="2011-12-10"></file>
+    <file Filename="GUI" Version="GUI_3.234" Date="2012-09-08"></file>
+    <file Filename="BLG" Version="BLG_2.345" Date="2012-09-09"></file>
+    <file Filename="Export" Version="EXP_1.123" Date="2012-05-22"></file>
+  </Master_SW>
+  <Firmware>
+    <file Filename="ASB1.bin" Version="ASB1_1.123" Date="2012-06-22"></file>
+    <file Filename="ASB2.bin" Version="ASB2_1.123" Date="2012-06-22"></file>
+    <file Filename="ASB3.bin" Version="ASB3_1.123" Date="2012-06-22"></file>
+    <file Filename="ASB4.bin" Version="ASB4_1.123" Date="2012-06-22"></file>
+    <file Filename="ASB5.bin" Version="ASB5_1.123" Date="2012-06-22"></file>
+    <file Filename="ASB12.bin" Version="ASB12_1.123" Date="2012-06-22"></file>
+    <file Filename="ASB13.bin" Version="ASB13_1.123" Date="2012-06-22"></file>
+    <file Filename="SABa.bin" Version="SABA_1.123" Date="2012-06-22"></file>
+    <file Filename="SABb.bin" Version="SABB_1.123" Date="2012-06-22"></file>
+  </Firmware>
+</SW_Version>

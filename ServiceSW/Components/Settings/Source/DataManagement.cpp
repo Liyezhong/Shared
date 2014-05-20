@@ -95,7 +95,8 @@ void CDataManagement::changeEvent(QEvent *p_Event)
 /****************************************************************************/
 void CDataManagement::ExportFiles()
 {
-    Global::EventObject::Instance().RaiseEvent(EVENT_GUI_SETTINGS_DATAMANAGEMENT_EXPORT);
+    Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_DATAMANAGEMENT_EXPORT);
+
     emit ExecSending("Export", "Service");
     if (mp_WaitDialog) {
         delete mp_WaitDialog;
@@ -119,7 +120,7 @@ void CDataManagement::ExportFiles()
 /****************************************************************************/
 void CDataManagement::ImportFiles()
 {    
-    Global::EventObject::Instance().RaiseEvent(EVENT_GUI_SETTINGS_DATAMANAGEMENT_IMPORT);
+    Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_DATAMANAGEMENT_IMPORT);
     emit ExecSending("Import", "Service");
 
     if (mp_WaitDialog) {
@@ -155,87 +156,105 @@ void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
     mp_MessageDlg->setModal(true);
 
     switch(ExitCode) {
-    case EVENT_EXPORT_FAILED:
+    case EVENT_SERVICE_EXPORT_FAILED:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FAILED);
         DialogTitle = QString("Data Export");
         MessageInfo = QString("Export of data failed.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_FAILED:
+    case EVENT_SERVICE_IMPORT_FAILED:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_FAILED);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Import of data failed.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_NO_FILES_TO_IMPORT:
+    case EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_NO_FILES_TO_IMPORT);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: No files to import.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORTEXPORT_IMPORT_NO_USB:
+    case EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB);
+        qDebug() << EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB;
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: No USB connected.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORTEXPORT_EXPORT_NO_USB:
+    case EVENT_SERVICE_IMPORTEXPORT_EXPORT_NO_USB:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_EXPORT_NO_USB);
         DialogTitle = QString("Data Export");
         MessageInfo = QString("Data Export failed: No USB connected.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_EXPORT_DIRECTORY_CREATION_FAILED:
+    case EVENT_SERVICE_EXPORT_DIRECTORY_CREATION_FAILED:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_DIRECTORY_CREATION_FAILED);
         DialogTitle = QString("Data Export");
         MessageInfo = QString("Data Export failed: Export directory creation failed.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_EXPORT_FILES_NOT_COPIED:
+    case EVENT_SERVICE_EXPORT_FILES_NOT_COPIED:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_FILES_NOT_COPIED);
         DialogTitle = QString("Data Export");
         MessageInfo = QString("Data Export failed: Cannot copy files.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_EXPORT_UNABLE_TO_CREATE_FILE_TEMP_EXPORTCONFIGURATION:
+    case EVENT_SERVICE_EXPORT_UNABLE_TO_CREATE_FILE_TEMP_EXPORTCONFIGURATION:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_UNABLE_TO_CREATE_FILE_TEMP_EXPORTCONFIGURATION);
         DialogTitle = QString("Data Export");
         MessageInfo = QString("Data Export failed: Unable to create Temp export configuration file.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_UPDATE_ROLLBACK_FAILED:
+    case EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: update rollback files failed.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_TAMPERED_ARCHIVE_FILE:
+    case EVENT_SERVICE_IMPORT_TAMPERED_ARCHIVE_FILE:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_TAMPERED_ARCHIVE_FILE);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_DEVICE_NAME_NOT_MATCHING:
+    case EVENT_SERVICE_IMPORT_DEVICE_NAME_NOT_MATCHING:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_DEVICE_NAME_NOT_MATCHING);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: Device name is not matching.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER:
+    case EVENT_SERVICE_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: Invalid archive file format.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_TYPEOFIMPORTNOTVALID:
+    case EVENT_SERVICE_IMPORT_TYPEOFIMPORTNOTVALID:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_TYPEOFIMPORTNOTVALID);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: Invalid type of Import.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_REQUIRED_FILES_NOT_AVAILABLE:
+    case EVENT_SERVICE_IMPORT_REQUIRED_FILES_NOT_AVAILABLE:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_REQUIRED_FILES_NOT_AVAILABLE);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: Import files are not available.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_IMPORT_ROLLBACK_FAILED:
+    case EVENT_SERVICE_IMPORT_ROLLBACK_FAILED:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_ROLLBACK_FAILED);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import failed: Rollback failed.");
         mp_MessageDlg->SetIcon(QMessageBox::Critical);
         break;
-    case EVENT_EXPORT_SUCCESS:
+    case EVENT_SERVICE_EXPORT_SUCCESS:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_SUCCESS);
         DialogTitle = QString("Data Emport");
         MessageInfo = QString("Data Export completed successfully.");
         mp_MessageDlg->SetIcon(QMessageBox::Information);
         break;
-    case EVENT_IMPORT_SUCCESS:
+    case EVENT_SERVICE_IMPORT_SUCCESS:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_SUCCESS);
         DialogTitle = QString("Data Import");
         MessageInfo = QString("Data Import completed successfully.");
         mp_MessageDlg->SetIcon(QMessageBox::Information);

@@ -27,7 +27,7 @@
 
 namespace PasswordManager {
 
-typedef QHashIterator<QString, QString> tPasswordIterator;  ///< typedef for password iterator
+typedef QHashIterator<QString, QString> tPasswordIterator;  //!< typedef for password iterator
 
 /****************************************************************************/
 /**
@@ -40,9 +40,9 @@ typedef QHashIterator<QString, QString> tPasswordIterator;  ///< typedef for pas
 class CPasswordManager {
 friend class TestPasswordManager;
 private:
-    QHash<QString, QString>     m_Passwords;            ///< List of names with password hashes.
-    QString                     m_NewPassword;          ///< New password for the current user
-    bool                        m_FallbackPassword;     ///< Fallback password flag
+    QHash<QString, QString>     m_Passwords;            //!< List of names with password hashes.
+    QString                     m_NewPassword;          //!< New password for the current user
+    bool                        m_FallbackPassword;     //!< Fallback password flag
     /****************************************************************************/
     /****************************************************************************/
     /*!

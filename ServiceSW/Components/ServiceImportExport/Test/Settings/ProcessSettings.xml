@@ -1,0 +1,118 @@
+
+<!DOCTYPE ProcessSettings>
+<ProcessSettings Version="1">
+    <DeviceList>
+        <Device Key="Agitation">
+            <SpeedProfile>
+                <Parameter Key="Agitation" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Agitation_StopPosition" Value="300" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Agitation_circumference" Value="40"/>
+            </Circumference>
+        </Device>
+        <Device Key="LeftXyz">
+            <SpeedProfile>
+                <Parameter Key="X_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="X_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Y_Axis_attach_detach_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Z_Axis_move_down_with_rack" Value="2"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="3"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="4"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Y_Axis_offset_rack_attached" Value="65" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_slide_count" Value="500" Offset="0"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1000" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="0" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="800" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="X_Axis_circumference" Value="90"/>
+                <Parameter Key="Y_Axis_circumference" Value="60"/>
+                <Parameter Key="Z_Axis_circumference" Value="60"/>
+            </Circumference>
+        </Device>
+        <Device Key="RightXyz">
+            <SpeedProfile>
+                <Parameter Key="X_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="X_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Y_Axis_attach_detach_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Z_Axis_move_down_with_rack" Value="2"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="3"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="4"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Y_Axis_offset_rack_attached" Value="65" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_slide_count" Value="500" Offset="0"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1000" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="0" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="800" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="X_Axis_circumference" Value="90"/>
+                <Parameter Key="Y_Axis_circumference" Value="60"/>
+                <Parameter Key="Z_Axis_circumference" Value="60"/>
+            </Circumference>
+        </Device>
+        <Device Key="Loader">
+            <SpeedProfile>
+                <Parameter Key="Drawer_close" Value="1"/>
+                <Parameter Key="Drawer_open" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Drawer_close" Value="0" Offset="-12"/>
+                <Parameter Key="Drawer_open" Value="2300" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Drawer_circumference" Value="40.840704"/>
+            </Circumference>
+        </Device>
+        <Device Key="Unloader">
+            <SpeedProfile>
+                <Parameter Key="Drawer_close" Value="1"/>
+                <Parameter Key="Drawer_open" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Drawer_close" Value="0" Offset="-12"/>
+                <Parameter Key="Drawer_open" Value="2300" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Drawer_circumference" Value="40.840704"/>
+            </Circumference>
+        </Device>
+        <Device Key="Oven">
+            <SpeedProfile>
+                <Parameter Key="Cover_close" Value="1"/>
+                <Parameter Key="Cover_open" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Cover_close" Value="20" Offset="0"/>
+                <Parameter Key="Cover_open" Value="950" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Cover_circumference" Value="119.38"/>
+            </Circumference>
+        </Device>
+        <Device Key="RackTransfer">
+            <SpeedProfile>
+                <Parameter Key="RackTransfer" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Load_position" Value="0" Offset="-20"/>
+                <Parameter Key="Transfer_position" Value="1725" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Transfer_circumference" Value="60"/>
+            </Circumference>
+        </Device>
+    </DeviceList>
+</ProcessSettings>
