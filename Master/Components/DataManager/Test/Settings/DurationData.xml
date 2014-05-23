@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AverageDuration>
+    <Average ActivateAgitation="1800"/>
+    <Average Attach="1000"/>
+    <Average CheckSlideCounterReady="200"/>
+    <Average CheckStationReady="100"/>
+    <Average CheckOvenReady="600"/>
+    <Average CloseOvenCover="2500"/>
+    <Average CountSlides="4000"/>
+    <Average DeactivateAgitation="4000"/>
+    <Average Detach="1000"/>    
+    <Average DrainWaterStation="10000"/>        
+    <Average FillWaterStation="20000"/>        
+    <Average LockLoadTray="1500"/>
+    <Average LockUnloadTray="1500"/>
+    <Average MoveDown="1200"/>
+    <Average MoveDownSlow="1200"/>
+    <Average MoveUp="2000"/>
+    <Average MoveUpSlow="4500"/>
+    <Average OpenOvenCover="2500"/>
+    <Average UnlockLoadTray="1500"/>
+    <Average UnlockUnloadTray="1500"/>
+    <Average HeatStationOVEN="20000"/>   
+    <Average UnheatStationOVEN="25000"/>      
+    <Average HeatStationH01="542000"/>    
+    <Average HeatStationH02="542000"/>    
+    <Average UnheatStationH01="600000"/>    
+    <Average UnheatStationH02="600000"/>    
+    <Average HeatStationH15="542000"/>    
+    <Average HeatStationH16="542000"/>    
+    <Average UnheatStationH15="600000"/>    
+    <Average UnheatStationH16="600000"/>    
+</AverageDuration>

@@ -1,0 +1,7 @@
+#*TheardId,*ThreadMacro,*ThreadName,"*Action (Log + Restart, Log+shutdown)",*WaitDurationInHeartBeatTick
+#ThreadId,ThreadMacro,ThreadName,ActionType,3
+1,THREAD_ID_MASTERTHREAD,Master Thread,Shutdown,3
+2,THREAD_ID_DATALOGGING,Data Logging Thread,Restart,3
+3,THREAD_ID_EVENTHANDLER,Event Handler Thread,Restart,3
+4,THREAD_ID_GPIO_MANAGER,GPIO Thread,Restart,3
+5,THREAD_ID_AXEDA,Axeda Thread,Restart,3

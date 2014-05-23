@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE StainingPrograms>
+<StainingPrograms Version="4">
+    <ProgramList>
+        <Program ID="L1" ShortName="LHE" LongName="Leica HE" Color="darkblue" Locked="true">
+            <StepList>
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="0" MinDuration="10m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U30" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U33" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U35" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U4" Exclusive="false" ParallelStations="0" MinDuration="1m 20s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="U5" Exclusive="false" ParallelStations="0" MinDuration="1m 20s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="U36" Exclusive="false" ParallelStations="0" MinDuration="1m 20s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="8" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m 20s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="9" ReagentID="L4" Exclusive="true" ParallelStations="0" MinDuration="30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="10" ReagentID="L5" Exclusive="true" ParallelStations="0" MinDuration="1m 15s" MaxDuration="0%" Intensity="2" NumberOfSteps="9" RangeLow="1m" RangeHigh="3m"/>
+                <Step ID="11" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="12" ReagentID="L2" Exclusive="true" ParallelStations="0" MinDuration="2m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="13" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="14" ReagentID="L1" Exclusive="true" ParallelStations="0" MinDuration="48s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="15" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="16" ReagentID="U34" Exclusive="false" ParallelStations="0" MinDuration="1m 20s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="17" ReagentID="L3" Exclusive="true" ParallelStations="0" MinDuration="1m 15s" MaxDuration="0%" Intensity="4" NumberOfSteps="5" RangeLow="30s" RangeHigh="1m 30s"/>
+                <Step ID="18" ReagentID="U10" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="19" ReagentID="U11" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="20" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="1m 30s" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="21" ReagentID="U28" Exclusive="false" ParallelStations="0" MinDuration="1m 30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="23" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U1" ShortName="HEA" LongName="HE average" Color="pink" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="0" MinDuration="10m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U30" Exclusive="false" ParallelStations="0" MinDuration="5m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U31" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U4" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="U20" Exclusive="false" ParallelStations="0" MinDuration="4m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="8" ReagentID="U9" Exclusive="false" ParallelStations="0" MinDuration="10s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="9" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="10" ReagentID="U18" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="11" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="12" ReagentID="U1" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="13" ReagentID="U2" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="14" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="15" ReagentID="U28" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="16" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U2" ShortName="PAS" LongName="PAS HE Re.-Dehydration" Color="white" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="U30" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U31" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U32" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U4" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="U6" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="U13" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="8" ReagentID="S6" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="9" ReagentID="U23" Exclusive="false" ParallelStations="3" MinDuration="5m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="10" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="11" ReagentID="U25" Exclusive="false" ParallelStations="3" MinDuration="15m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="12" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="13" ReagentID="U20" Exclusive="false" ParallelStations="3" MinDuration="2m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="14" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="15" ReagentID="U1" Exclusive="false" ParallelStations="3" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="16" ReagentID="U2" Exclusive="false" ParallelStations="3" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="17" ReagentID="U3" Exclusive="false" ParallelStations="3" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="18" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="19" ReagentID="U28" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="20" ReagentID="U29" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="21" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U3" ShortName="TRG" LongName="Trichrome van Gieson" Color="yellow" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="0" MinDuration="10m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U30" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U31" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U4" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="U35" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="U32" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="8" ReagentID="U13" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="9" ReagentID="S6" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="10" ReagentID="U21" Exclusive="false" ParallelStations="0" MinDuration="5m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="11" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="12" ReagentID="U26" Exclusive="false" ParallelStations="0" MinDuration="5m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="13" ReagentID="U1" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="14" ReagentID="U2" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="15" ReagentID="U3" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="16" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="17" ReagentID="U28" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="18" ReagentID="U29" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="19" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U4" ShortName="DWX" LongName="Dewaxing" Color="lightblue" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="0" MinDuration="10m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U30" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U31" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U13" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U14" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="U8" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="S6" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U5" ShortName="DHY" LongName="Dehydrating" Color="grey" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="S6" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U10" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U1" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U2" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="U28" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="U29" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U6" ShortName="Pap" LongName="Papanicolaou" Color="red" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="U13" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U33" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U8" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U17" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U38" Exclusive="false" ParallelStations="0" MinDuration="8m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="U19" Exclusive="false" ParallelStations="0" MinDuration="5s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="4m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="8" ReagentID="U37" Exclusive="false" ParallelStations="0" MinDuration="30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="9" ReagentID="U34" Exclusive="false" ParallelStations="0" MinDuration="30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="10" ReagentID="U15" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="11" ReagentID="U22" Exclusive="true" ParallelStations="0" MinDuration="3m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="12" ReagentID="U16" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="13" ReagentID="U36" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="14" ReagentID="U24" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="15" ReagentID="U10" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="16" ReagentID="U11" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="17" ReagentID="U1" Exclusive="false" ParallelStations="0" MinDuration="1m 30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="18" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="1m 30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="19" ReagentID="U28" Exclusive="false" ParallelStations="0" MinDuration="1m 30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="20" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U7" ShortName="TS1" LongName="Test short" Color="green" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="S4" Exclusive="false" ParallelStations="0" MinDuration="40s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U69" Exclusive="false" ParallelStations="0" MinDuration="1m 30s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U8" ShortName="PS1" LongName="PAS HE Re.-Dehydration1" Color="white" Locked="false">
+            <StepList>
+                <Step ID="0" ReagentID="U30" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="1" ReagentID="U31" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="75%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="2" ReagentID="U4" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="3" ReagentID="U13" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="4" ReagentID="U8" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="5" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="6" ReagentID="U23" Exclusive="false" ParallelStations="0" MinDuration="5m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="7" ReagentID="U17" Exclusive="false" ParallelStations="0" MinDuration="20s" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="8" ReagentID="U60" Exclusive="false" ParallelStations="0" MinDuration="10m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="9" ReagentID="U51" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="10" ReagentID="U59" Exclusive="false" ParallelStations="0" MinDuration="3m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="11" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="10m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="12" ReagentID="U52" Exclusive="false" ParallelStations="0" MinDuration="4m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="13" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="30s" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="14" ReagentID="U53" Exclusive="false" ParallelStations="0" MinDuration="15s" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="15" ReagentID="S5" Exclusive="false" ParallelStations="0" MinDuration="30s" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="16" ReagentID="U7" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="17" ReagentID="U12" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="18" ReagentID="U1" Exclusive="false" ParallelStations="0" MinDuration="1m" MaxDuration="50%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="19" ReagentID="U27" Exclusive="false" ParallelStations="0" MinDuration="2m" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+                <Step ID="20" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="0%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+        <Program ID="U09" ShortName="t" LongName="Test short_cp" Color="white" Locked="false">
+            <StepList>
+                <Step ID="7" ReagentID="U68" Exclusive="false" ParallelStations="0" MinDuration="12s" MaxDuration="50%" Intensity="0" NumberOfSteps="9" RangeLow="30s" RangeHigh="1m"/>
+                <Step ID="8" ReagentID="U69" Exclusive="false" ParallelStations="0" MinDuration="3s" MaxDuration="50%" Intensity="0" NumberOfSteps="9" RangeLow="30s" RangeHigh="1m"/>
+                <Step ID="5" ReagentID="S7" Exclusive="false" ParallelStations="0" MinDuration="1s" MaxDuration="100%" Intensity="0" NumberOfSteps="0" RangeLow="0s" RangeHigh="0s"/>
+            </StepList>
+        </Program>
+    </ProgramList>
+</StainingPrograms>

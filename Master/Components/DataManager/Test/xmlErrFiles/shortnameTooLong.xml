@@ -1,0 +1,21 @@
+<!--... encoding utf-8 XXX -->
+<reagentlist version="1">
+  <reagent>
+    <id>1</id>
+    <shortname>Xy</shortname>
+    <longname>Xylol</longname>
+    <maxtime>1d 12h 30m 15s</maxtime>
+    <maxcycles>300</maxcycles>
+    <class>0</class>
+    <rack5>true</rack5>
+  </reagent>
+  <reagent>
+    <id>2</id>
+    <shortname>lubbl-lubbl-blubblubblubb</shortname>
+    <longname>Allo-ohohoho-hoooohl!! Hicks.</longname>
+    <maxtime>30m</maxtime>
+    <maxcycles>2</maxcycles>
+    <class>0</class>
+    <rack5>false</rack5>
+  </reagent>
+</reagentlist>

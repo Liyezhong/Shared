@@ -1,22 +1,26 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2013-01-09T17:16:51
+#
+#-------------------------------------------------
+
 !include("DataManager.pri"):error("DataManager.pri not found")
 
 QT += xml
 QT += xmlpatterns
 QT += network
 
-TARGET = utTestDataManagerInclude
+TARGET = utTestCmdInterface
 
-INCLUDEPATH += ../../../
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
+INCLUDEPATH += ../../../ \
+ ../../../../../../../Platform/Master/Components/
 
-DEPENDPATH += ../../../
+DEPENDPATH += ../../../ \
 
-SOURCES = TestDataManagerInclude.cpp
+
+SOURCES = TestCmdInterface.cpp
 
 UseDepLibs(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
 		   RemoteCareController HeartBeatManager EventHandler GPIOManager ExternalProcessController \
 		   NetworkComponents StateMachines PasswordManager SWUpdateManager ExportController ImportExport)
-
 LIBS += -ldl

@@ -1,19 +1,15 @@
 !include("DataManager.pri"):error("DataManager.pri not found")
 
-QT += xml
-QT += xmlpatterns
-QT += network
+TARGET = utTestUserSettings
 
-TARGET = utTestDataManagerInclude
-
-INCLUDEPATH += ../../../
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
+INCLUDEPATH += ../../../ \
+ ../../../../../../../Platform/Master/Components/
 
 DEPENDPATH += ../../../
+RESOURCES += ../Containers/UserSettings/Resources/*.qrc
 
-SOURCES = TestDataManagerInclude.cpp
+
+SOURCES = TestUserSettings.cpp
 
 UseDepLibs(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
 		   RemoteCareController HeartBeatManager EventHandler GPIOManager ExternalProcessController \

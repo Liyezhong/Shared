@@ -1,0 +1,187 @@
+
+<!DOCTYPE ProcessSettings>
+<ProcessSettings Version="1">
+    <DeviceList>
+        <Device Key="Agitation">
+            <SpeedProfile>
+                <Parameter Key="Agitation" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Agitation_StopPosition" Value="725" Offset="0"/>
+		<Parameter Key="Agitation_LimitSwitchfirst_position" Value="745" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchsecond_position" Value="745" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchthird_position" Value="745" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchfirst_deviation" Value="186" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchsecond_deviation" Value="186" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchthird_deviation" Value="20" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchfirst_width" Value="0" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchsecond_width" Value="0" Offset="0"/>
+                <Parameter Key="Agitation_LimitSwitchthird_width" Value="0" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Agitation_circumference" Value="40"/>
+            </Circumference>
+        </Device>
+        <Device Key="LeftXyz">
+            <SpeedProfile>
+                <Parameter Key="X_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="X_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Y_Axis_attach_detach_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_slide_counter" Value="3"/>
+                <Parameter Key="Y_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Z_Axis_move_down_with_rack" Value="2"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="3"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="4"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Adjusment_BabyStep" Value="1" Offset="0"/>
+                <Parameter Key="Adjusment_OffsetX" Value="50" Offset="0"/>
+                <Parameter Key="Adjusment_OffsetX_Dry_Station" Value="100" Offset="0"/>
+                <Parameter Key="Adjusment_OffsetY" Value="350" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_Spl_Station" Value="1080" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_XAxisMove" Value="1300" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_YAxisMove" Value="1190" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_Oven" Value="1130" Offset="0"/>
+                <Parameter Key="Adjustment_Threshold_Joystick_Displacement" Value="750" Offset="0"/>
+                <Parameter Key="Liquid_Level_Covered" Value="50" Offset="0"/>
+                <Parameter Key="Liquid_Level_Empty" Value="5000" Offset="0"/>
+                <Parameter Key="Liquid_Level_Full" Value="2800" Offset="0"/>
+                <Parameter Key="Liquid_Level_Minimum" Value="4200" Offset="0"/>
+                <Parameter Key="Liquid_Level_Missing" Value="9500" Offset="0"/>
+                <Parameter Key="Liquid_Level_Rack" Value="700" Offset="0"/>
+                <Parameter Key="X_Axis_offset_level_sensor" Value="200" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_level_sensor" Value="25" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_rack_attached" Value="67" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_slide_count" Value="630" Offset="0"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1000" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="0" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="800" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="X_Axis_circumference" Value="90"/>
+                <Parameter Key="Y_Axis_circumference" Value="60"/>
+                <Parameter Key="Z_Axis_circumference" Value="60"/>
+            </Circumference>
+        </Device>
+        <Device Key="RightXyz">
+            <SpeedProfile>
+                <Parameter Key="X_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="X_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Y_Axis_attach_detach_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_slide_counter" Value="3"/>
+                <Parameter Key="Y_Axis_move_with_rack" Value="2"/>
+                <Parameter Key="Y_Axis_move_without_rack" Value="1"/>
+                <Parameter Key="Z_Axis_move_down_with_rack" Value="2"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="3"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="4"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Adjusment_BabyStep" Value="1" Offset="0"/>
+                <Parameter Key="Adjusment_OffsetX" Value="50" Offset="0"/>
+                <Parameter Key="Adjusment_OffsetX_Dry_Station" Value="100" Offset="0"/>
+                <Parameter Key="Adjusment_OffsetY" Value="350" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_Spl_Station" Value="1080" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_XAxisMove" Value="1300" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_YAxisMove" Value="1190" Offset="0"/>
+                <Parameter Key="Adjusment_ZPosition_Oven" Value="1130" Offset="0"/>
+                <Parameter Key="Adjustment_Threshold_Joystick_Displacement" Value="750" Offset="0"/>
+                <Parameter Key="Liquid_Level_Covered" Value="50" Offset="0"/>
+                <Parameter Key="Liquid_Level_Empty" Value="5000" Offset="0"/>
+                <Parameter Key="Liquid_Level_Full" Value="2800" Offset="0"/>
+                <Parameter Key="Liquid_Level_Minimum" Value="4200" Offset="0"/>
+                <Parameter Key="Liquid_Level_Missing" Value="9500" Offset="0"/>
+                <Parameter Key="Liquid_Level_Rack" Value="700" Offset="0"/>
+                <Parameter Key="X_Axis_offset_level_sensor" Value="200" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_level_sensor" Value="75" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_rack_attached" Value="67" Offset="0"/>
+                <Parameter Key="Y_Axis_offset_slide_count" Value="625" Offset="0"/>
+                <Parameter Key="Z_Axis_move_empty" Value="1000" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_fast_with_rack" Value="0" Offset="0"/>
+                <Parameter Key="Z_Axis_move_up_slow_with_rack" Value="800" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="X_Axis_circumference" Value="90"/>
+                <Parameter Key="Y_Axis_circumference" Value="60"/>
+                <Parameter Key="Z_Axis_circumference" Value="60"/>
+            </Circumference>
+        </Device>
+        <Device Key="Loader">
+            <SpeedProfile>
+                <Parameter Key="Drawer_close" Value="1"/>
+                <Parameter Key="Drawer_open" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Drawer_LimitSwitch_close" Value="-51" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitch_open" Value="2332" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitchclose_deviation" Value="16" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitchopen_deviation" Value="20" Offset="0"/>
+                <Parameter Key="Drawer_close" Value="-15" Offset="0"/>
+                <Parameter Key="Drawer_open" Value="2300" Offset="0"/>
+		<Parameter Key="Drawer_LimitSwitchfirst_width" Value="120" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitchsecond_width" Value="120" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Drawer_circumference" Value="40.8407"/>
+            </Circumference>
+        </Device>
+        <Device Key="Unloader">
+            <SpeedProfile>
+                <Parameter Key="Drawer_close" Value="1"/>
+                <Parameter Key="Drawer_open" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Drawer_LimitSwitch_close" Value="-55" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitch_open" Value="2333" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitchclose_deviation" Value="10" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitchopen_deviation" Value="20" Offset="0"/>
+                <Parameter Key="Drawer_close" Value="-20" Offset="0"/>
+                <Parameter Key="Drawer_open" Value="2300" Offset="0"/>
+		<Parameter Key="Drawer_LimitSwitchfirst_width" Value="120" Offset="0"/>
+                <Parameter Key="Drawer_LimitSwitchsecond_width" Value="120" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Drawer_circumference" Value="40.8407"/>
+            </Circumference>
+        </Device>
+        <Device Key="Oven">
+            <SpeedProfile>
+                <Parameter Key="Cover_close" Value="1"/>
+                <Parameter Key="Cover_open" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Cover_LimitSwitch_close" Value="-45" Offset="0"/>
+                <Parameter Key="Cover_LimitSwitch_open" Value="1024" Offset="0"/>
+                <Parameter Key="Cover_LimitSwitchclose_deviation" Value="12" Offset="0"/>
+                <Parameter Key="Cover_LimitSwitchopen_deviation" Value="12" Offset="0"/>
+                <Parameter Key="Cover_close" Value="-15" Offset="0"/>
+                <Parameter Key="Cover_open" Value="990" Offset="0"/>
+		<Parameter Key="Oven_LimitSwitchfirst_width" Value="100" Offset="0"/>
+                <Parameter Key="Oven_LimitSwitchsecond_width" Value="100" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Cover_circumference" Value="119.38"/>
+            </Circumference>
+        </Device>
+        <Device Key="RackTransfer">
+            <SpeedProfile>
+                <Parameter Key="RackTransfer" Value="1"/>
+            </SpeedProfile>
+            <Position>
+                <Parameter Key="Load_LimitSwitch_position" Value="-45" Offset="0"/>
+                <Parameter Key="Load_LimitSwitchposition_deviation" Value="10" Offset="0"/>
+                <Parameter Key="Load_position" Value="-20" Offset="0"/>
+                <Parameter Key="Transfer_LimitSwitch_position" Value="1755" Offset="0"/>
+                <Parameter Key="Transfer_LimitSwitchposition_deviation" Value="10" Offset="0"/>
+                <Parameter Key="Transfer_position" Value="1725" Offset="0"/>
+		<Parameter Key="RackTransfer_LimitSwitchfirst_width" Value="100" Offset="0"/>
+                <Parameter Key="RackTransfer_LimitSwitchsecond_width" Value="100" Offset="0"/>
+            </Position>
+            <Circumference>
+                <Parameter Key="Transfer_circumference" Value="60"/>
+            </Circumference>
+        </Device>
+    </DeviceList>
+</ProcessSettings>
