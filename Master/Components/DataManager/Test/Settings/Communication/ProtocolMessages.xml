@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE netlayer_messages>
+<netlayer_messages version="1.0">
+
+<!-- ========================================================= -->
+<!-- Start of message definitions -->
+<!-- ========================================================= -->
+<server_messages>
+
+  <!-- Request Authentication from AxedaClient 
+    <message>  
+        <cmd name="Authenticate" ref="" />
+    </message> -->
+
+  <!-- Authentication reply to AxedaClient 
+    <message>  
+        <cmd name="Authentication" ref="" /> -->
+        <!-- status: success OR denied -->
+        <!-- reason (only relevant if status=denied): wrongname/wrongversion/error 
+        <dataitems status="" reason="" />
+    </message> -->
+
+  <!-- Command acknowledge -->
+    <message>
+        <cmd name="Ack" ref="" />
+        <!-- Command name which is being acknowledged -->
+        <dataitems cmd="" status="" />
+    </message>
+
+  <!-- Periodic Date and Time Message -->
+    <message>
+        <cmd name="SetDateAndTime" ref="" />
+        <dataitems dt="" />
+    </message>
+
+  <!-- Send HeartBeat for IPC check -->
+    <message>
+        <cmd name="HeartBeatServer" ref="" />
+        <dataitems nr="" />
+    </message>
+
+  <!-- Application message container, where
+       %MessageName%: is the name of the application command, it is variable.
+       This type of message carries its payload as QByteArray and is processed by 
+       the Application layer. NetworkLayer only checks and removes the XML header.
+    <message>
+        <cmd name="%MessageName%" ref="" />
+    </message>
+  -->
+ 
+    
+</server_messages>
+
+<!-- ========================================================= -->
+<!--                   Placeholder                             -->
+<!-- ========================================================= -->
+
+<client_messages>
+
+  <!-- Command acknowledge -->
+    <message id="" >
+        <cmd name="Ack" ref="" />
+        <!-- Command name which is being acknowledged -->
+        <dataitems cmd="" status="" />
+    </message>
+    
+  <!-- Send HeartBeat for IPC check -->
+    <message>
+        <cmd name="HeartBeatClient" ref="" />
+        <dataitems nr="" />
+    </message>
+
+  <!-- Application message container, where
+       %MessageName%: is the name of the application command, it is variable.
+       This type of message carries its payload as QByteArray and is processed by 
+       the Application layer. NetworkLayer only checks and removes the XML header.
+    <message>
+        <cmd name="%MessageName%" ref="" />
+    </message>
+  -->
+
+</client_messages>
+
+<!-- ========================================================= -->
+<!-- End of all message definitions -->
+<!-- ========================================================= -->
+</netlayer_messages>

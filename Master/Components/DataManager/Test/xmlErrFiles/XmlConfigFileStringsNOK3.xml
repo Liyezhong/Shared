@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings version="1">
+    <languageNOK name="en">
+        <string id="1" text="English 1"/>
+        <string id="2" text="English 2"/>
+        <string id="3" text="English 3"/>
+    </languageNOK>
+</strings>

@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Reagents>
+<Reagents Version="4">
+    <SpecialReagents>
+        <Reagent ID="S0" ShortName="RGT" LongName="Reagent Station" Visible="false"/>
+        <Reagent ID="S1" ShortName="LOD" LongName="Loader" Visible="false"/>
+        <Reagent ID="S2" ShortName="SID" LongName="Slide ID" Visible="false"/>
+        <Reagent ID="S3" ShortName="CNT" LongName="Slide counter" Visible="false"/>
+        <Reagent ID="S4" ShortName="OVN" LongName="Oven" Visible="true"/>
+        <Reagent ID="S5" ShortName="TAP" LongName="Tap water station" Visible="true"/>
+        <Reagent ID="S6" ShortName="DIST" LongName="Dist. water station" Visible="true"/>
+        <Reagent ID="S7" ShortName="UNL" LongName="Unloader" Visible="true"/>
+        <Reagent ID="S8" ShortName="TRA" LongName="Transfer station" Visible="true"/>
+        <Reagent ID="S9" ShortName="DRY" LongName="Dry station" Visible="false"/>
+        <Reagent ID="S10" ShortName="PRK" LongName="Park Poistion" Visible="false"/>
+        <Reagent ID="S11" ShortName="HRT" LongName="Heated Station" Visible="false"/>
+    </SpecialReagents>
+    <LeicaReagents>
+        <Reagent ID="L1" ShortName="L Bluing" LongName="Leica Bluing agent" Class="5" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="2500"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="L2" ShortName="L Diff" LongName="Leica Differentiator" Class="5" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="2500"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="L3" ShortName="L Eosin" LongName="Leica Eosin" Class="4" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="2d" MaxSlides="2500"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="L4" ShortName="L Hema" LongName="Leica Hemalast" Class="5" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="3d" MaxSlides="2500"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="L5" ShortName="L Hematox" LongName="Leica Hematoxylin" Class="4" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="2500"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+    </LeicaReagents>
+    <UserReagents>
+        <Reagent ID="U1" ShortName="Alc100dhy1" LongName="Alcohol 100% dehydrating 1" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U2" ShortName="Alc100dhy2" LongName="Alcohol 100% dehydrating 2" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U3" ShortName="Alc100dhy3" LongName="Alcohol 100% dehydrating 3" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U4" ShortName="Alc100dwx1" LongName="Alcohol 100% dewaxing 1" Class="1" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U5" ShortName="Alc100dwx2" LongName="Alcohol 100% dewaxing 2" Class="1" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U6" ShortName="Alc100dwx3" LongName="Alcohol 100% dewaxing 3" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U7" ShortName="Alc70dhy1" LongName="Alcohol 70% dehydrating 1" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U8" ShortName="Alc70dwx1" LongName="Alcohol 70% dewaxing 1" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U9" ShortName="AcidAlc" LongName="Acid Alcohol" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="46" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U10" ShortName="Alc96dhy1" LongName="Alcohol 96% dehydrating 1" Class="6" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U11" ShortName="Alc96dhy2" LongName="Alcohol 96% dehydrating 2" Class="6" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U12" ShortName="Alc96dhy3" LongName="Alcohol 96% dehydrating 3" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U13" ShortName="Alc96dwx1" LongName="Alcohol 96% dewaxing 1" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U14" ShortName="Alc96dwx2" LongName="Alcohol 96% dewaxing 2" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U15" ShortName="Alc96neut1" LongName="Alcohol 96% neutralizing 1" Class="2" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U16" ShortName="Alc96neut2" LongName="Alcohol 96% neutralizing 2" Class="2" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U17" ShortName="Adest NR" LongName="Distilled water non rinsing" Class="2" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U18" ShortName="Eosin" LongName="Eosin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="2d" MaxSlides="1000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U19" ShortName="HCL/A.Dest" LongName="HCl/A. dest." Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="1d" MaxSlides="1000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U20" ShortName="Hematox" LongName="Hematoxylin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="2d" MaxSlides="1500"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U21" ShortName="IronHema" LongName="Iron Hematoxylin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U22" ShortName="Orange" LongName="Orange II" Class="4" Rack5="true" Locked="false">
+            <UsageLimitation MaxTime="1d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U23" ShortName="PerAcid" LongName="Periodic acid" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="3d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U24" ShortName="PolyChr" LongName="Polychromlösung" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U25" ShortName="SchiffsR" LongName="Schiff´s Reagent" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="3d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U26" ShortName="V Gieson" LongName="Van Gieson" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U27" ShortName="Xyl dhy1" LongName="Xylene dehydrating 1" Class="6" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U28" ShortName="Xyl dhy2" LongName="Xylene dehydrating 2" Class="6" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U29" ShortName="Xyl dhy3" LongName="Xylene dehydrating 3" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U30" ShortName="Xyl dwx 1" LongName="Xylene dewaxing 1" Class="1" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U31" ShortName="Xyl dwx 2" LongName="Xylene dewaxing 2" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U32" ShortName="Xyl dwx 3" LongName="Xylene dewaxing 3" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U33" ShortName="Alc80dwx1" LongName="Alcohol 80% dewaxing 1" Class="1" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U34" ShortName="Alc80neut1" LongName="Alcohol 80% neutralisng 1" Class="2" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U35" ShortName="Alc80neut2" LongName="Alcohol 80% neutralisng 2" Class="2" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U36" ShortName="Alc96neut3" LongName="Alcohol 96% neutralizing 3" Class="2" Rack5="false" Locked="true">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U37" ShortName="Alc70neut1" LongName="Alcohol 70% neutralisng 1" Class="2" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U38" ShortName="HemaGill" LongName="Hematoxylin n. Gill" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="2d" MaxSlides="1500"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U39" ShortName="Alc90dwx1" LongName="Alcohol 90% dewaxing 1" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U40" ShortName="Alc70dwx2" LongName="Alcohol 70% dewaxing 2" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U41" ShortName="MayHema" LongName="Mayer’s Hematoxylin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U42" ShortName="Scott’s" LongName="Scott’s" Class="2" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U43" ShortName="Alc90dhy1" LongName="Alcohol 90% dehydrating 1" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U44" ShortName="Eh-Hema" LongName="Ehrlich’s haematoxylin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U45" ShortName="IsoYxdhy" LongName="Isopropyl alcohol/Xylene dhy" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U46" ShortName="ScottSub" LongName="Scott’s tap water substitute" Class="2" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U47" ShortName="EA50" LongName="eosin solution with light green" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="46" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U48" ShortName="AcetAcid" LongName="Acetic Acid 3%" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U49" ShortName="AcetAcid 2" LongName="Acetic Acid 3% 2" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U50" ShortName="Alcianblue" LongName="Alcianblue" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U51" ShortName="SO2-Water" LongName="SO2-Water" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U52" ShortName="Hämalaun" LongName="Hämalaun" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U53" ShortName="Ammonia" LongName="Ammonia" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U54" ShortName="ResFu" LongName="Resorcinfuchsin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U55" ShortName="HTX-Weiger" LongName="HTX-Weigert" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U56" ShortName="HCL-Alcoho" LongName="HCL-Alcohol" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U57" ShortName="FE-Reagent" LongName="FE-Reagent" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U58" ShortName="Kernechtre" LongName="Kernechtred" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U59" ShortName="SO2-Water2" LongName="SO2-Water 2" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U60" ShortName="Schiffs" LongName="Schiff´s Reagent non heated" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="3d" MaxSlides="2000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U61" ShortName="SO3-Water" LongName="SO3-Water" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U62" ShortName="SO3-Water2" LongName="SO3-Water2" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U63" ShortName="HariHema" LongName="Harris Hematoxylin" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U64" ShortName="Alc95dhy1" LongName="Alcohol 95% dehydrating 1" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U65" ShortName="Eosin Y" LongName="Eosin Yellow" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U66" ShortName="Clarifier" LongName="Clarifier" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U67" ShortName="Alc80dhy1" LongName="Alcohol 80% dehydrating 1" Class="6" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U68" ShortName="AcetAcid1" LongName="Acetic Acid 1%" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U69" ShortName="AcetAcid12" LongName="Acetic Acid 1% 2" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U70" ShortName="Verhoeff" LongName="Verhoeff-Solution" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U71" ShortName="BCF Acid" LongName="Brillant-Crocein Fuchsin Acid" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtDeviceStart"/>
+        </Reagent>
+        <Reagent ID="U72" ShortName="PWAcid 2%" LongName="Phosphorus Wolfram Acid 2%" Class="5" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U73" ShortName="Safron" LongName="Safron du Gatinais" Class="4" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="5d" MaxSlides="3000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+        <Reagent ID="U101" ShortName="hh" LongName="hh" Class="1" Rack5="false" Locked="false">
+            <UsageLimitation MaxTime="4d" MaxSlides="1000"/>
+            <Heating Temperature="0" StartMode="AtProgramStart"/>
+        </Reagent>
+    </UserReagents>
+</Reagents>

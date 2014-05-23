@@ -1,0 +1,435 @@
+#*EventCODE,*MACRO,*EventType,*Action ( Reboot + 3+ shutdown) or Error/Warning/Info/Busy/Idle/Stop,"Response to negative options selected by the user - Cancel, No etc","*SourceComponent , mandatory if Ack is true",Yes/No,High/Medium/Low/None,True/False,EnglishString,Ok-Yes+No-Continue+Stop-Ok+Cancel-WB(WithoutButtons)+Invisible,Yes/No,Alternate Strings
+#EventId,EventMacro,EventType,ActionTypePositive,ActionTypeNegative,Source,AlarmTone,*LogLevel,UserLog,EventString,GUIEvent,StatusBarIcon,AlternateEventStrings
+33619969,EVENT_RACK_INSERTED,Info,,,,No,Low,FALSE,Rack %1 has been inserted into drawer %2,,,
+33619970,EVENT_RACK_REMOVED,Info,,,,No,Low,TRUE,Rack %1 has been removed from instrument.,,,
+33619971,EVENT_COLORADO_START,Info,,,,No,Low,TRUE,Stainer started (serial number is %1 and type is %2),,,
+33619975,EVENT_PROCESS_COLORADO_GUI_STOPPED,Error,,,,yes,High,TRUE,Stainer GUI process has stopped,Ok,,
+33619976,EVENT_PROCESS_SEPIA_STOPPED,Warning,,,,yes,High,TRUE,Coverslipper not available,Ok,Yes,
+33619977,EVENT_STATIONS_DEFECT,Error,,,,yes,Medium,TRUE,The following station(s) are not available: %n. Programs using these stations are temporarily not startable. Programs will be startable when the station issue is resolved.,Ok,No,Slide counter station is defect. Slide counting step would be skipped. Staining would continue assuming maximum slides.
+33619978,EVENT_PROCESS_SEPIA_CONNECTED,Info,,,,No,High,TRUE,Coverslipper connected,Ok,,
+33619979,EVENT_PROCESS_COLORADO_GUI_CONNECTED,Info,,,,No,High,TRUE,Stainer GUI connected,,,
+33619980,EVENT_DI_WATER_NOT_AVAILABLE,Info,,,,No,High,TRUE,DI water not available. Program(s) using DI water step will no longer be startable.,Ok,,
+33619981,EVENT_REAGENT_NOT_PRESENT_IN_BATHLAYOUT,Info,,,,No,High,TRUE,Program %1 no longer startable since the following Reagent(s) are not available in bathlayout: %n. Please generate new Bathlayout.,Ok,,
+33619982,EVENT_REAGENT_EXPIRED_PROG_NOT_STARTABLE,Info,,,,No,High,FALSE,Leica Program %1 no longer startable since Reagent(s) %n expired.,,No,
+33619983,EVENT_5_SLIDE_REAGENT_USED_FOR_NORMAL_RACK,Info,,,,No,Medium,TRUE,Program only compatible with five-slide-rack. Please remove rack from station %1. ,Ok,,
+33619984,EVENT_REMOVE_RACK_PROG_NOT_STARTABLE,Warning,,,,yes,Medium,TRUE,Program %2 is not startable. Please remove rack from station %1 and check instrument setup.,Ok,,
+33619985,EVENT_COLORADO_INITIALIZATION_FAILED,Error,Reboot + 3 + Shutdown,,Main,Yes,High,TRUE,Initialization of the system failed. Please press OK to reboot now.,OK,Yes,Initialization of the system failed. Rebooting the system did not fix the error. Please contact service to resolve the error. Press OK to shutdown.
+33619986,EVENT_5_SLIDE_RACK_WITH_LAST_STEP_TRANSFER,Warning,,,,No,Medium,FALSE,Since five-slide-racks cannot be processed in Coverslipper the last step of program %1 will be set to unload drawer.,,,
+33619987,EVENT_COLORADO_DM_GV_FAILED,Error,,,,No,Low,FALSE,Group verification failed,,,
+33619988,EVENT_INCORRECT_RACK_ORIENTATION,Warning,,,,Yes,High,TRUE,The orientation of the rack(s) in station(s) %n is incorrect. Please change orientation of the rack(s) in these station(s).,Ok,No,
+33619989,EVENT_HOOD_OPEN_NO_RACK_PROCESSING,Info,,,,No,Low,TRUE,The device will not start to process rack(s) in station(s) %n unless the hood is closed.,,,
+33619990,EVENT_ONDEMAND_SCAN_NOT_POSSIBLE,Info,,,,No,Low,TRUE,Due to initialization error fill level scan cannot be started.,Ok,,,
+33619991,EVENT_RACKS_WITH_SAME_RFID,Info,,,,No,High,TRUE,Racks with identical RFID found in stations: %n. Please remove the racks.,Ok,,,
+33619992,EVENT_HOOD_OPEN_FILLLEVEL_SCAN,Info,,,,No,Low,TRUE,Please close the hood to start fill level scan.,WB,,
+33619993,EVENT_UNKNOWN_DRAWER_RFID,Warning,,,,Yes,High,TRUE,The rack in station %1 has been inserted manually and cannot be used. Please remove the rack.,Ok,No,
+33619994,EVENT_LOADER_OPEN,Warning,,,,Yes,High,TRUE,The load drawer has been open longer than 60 seconds. Please close.,Ok,No,
+33619995,EVENT_UNLOADER_OPEN,Warning,,,,Yes,High,TRUE,The unload drawer has been open longer than 60 seconds. Please close.,Ok,No,
+33619996,EVENT_HOOD_OPEN_BUSY_STATE,Warning,,,,Yes,High,TRUE,Opening the hood can extend the staining durations beyond the allowed limit. Please close the hood.,Ok,No,
+33619997,EVENT_RACK_STAINING_STARTS_AFTER_USER_ACTION,Info,,,,No,High,TRUE,Rack(s) in load drawer will be processed after completion of %1.,Ok,No,
+33619998,EVENT_OVEN_SWITCHING_PERMANENT_MODE,Info,,,,No,High,TRUE,Heating of oven switched to mode %1.,,No,
+33619999,EVENT_REMOVE_RACK_FROM_UNLOADER,Warning,,,,Yes,High,TRUE,Please remove rack(s) from the unloading station(s): %n,Ok,No,
+33620000,EVENT_NO_STARTABLE_PROGRAM_FOR_WHITE_RACK,Info,,,,No,Medium,TRUE,No startable programs available. Please remove the white rack(s) from loader stations %n and generate Bathlayout.,Ok,No,
+33620001,EVENT_NO_PROGRAM_ASSOCIATED_WITH_RACK_COLOR,Info,,,,No,Medium,TRUE,Rack with color %1 in station %2 could not be associated with a program. Please remove the rack from loader.,Ok,,
+33620002,EVENT_STARTABLITY_STATION_NOT_AVAILABLE,Info,,,,No,Medium,TRUE,Program(s) %n are no longer startable since stations are no longer available.,Ok,,
+33620004,EVENT_WHITE_RACK_SEPIA_NOT_AVAILABLE,Info,ContinueStaining,DontProcessRack,Main,No,Medium,TRUE,Coverslipper not available. To finalize staining process in unload drawer press 'Continue'.  Otherwise press 'Stop' and remove rack from drawer station %1.,Continue+Stop,,
+33620005,EVENT_DEVICE_NOT_READY_FOR_STAINING,Info,,,,,HIGH,TRUE,Instrument is not ready for staining.,Ok,,
+33620006,EVENT_LOADER_OPENED,Info,,,,,Low,TRUE,Loader has been opened.,,,
+33620007,EVENT_LOADER_CLOSED,Info,,,,,Low,TRUE,Loader has been closed.,,,
+33620008,EVENT_UNLOADER_OPENED,Info,,,,,Low,TRUE,Unloader has been opened.,,,
+33620009,EVENT_UNLOADER_CLOSED,Info,,,,,Low,TRUE,Unloader has been closed.,,,
+33620016,EVENT_DEVICE_SCAN_FINISHED,Info,,,,,,TRUE,Fill level scan finished.,,,
+33620017,EVENT_DEVICE_SCAN_EMPTY_STATIONS,Warning,,,,Yes,High,TRUE,The following stations are empty: %n. Fill cuvette and reinsert.,Ok,,
+33620018,EVENT_DEVICE_SCAN_COVERED_STATIONS,Warning,,,,Yes,High,TRUE,The following stations are covered: %n. Remove lid(s).,Ok,,
+33620019,EVENT_DEVICE_SCAN_CUVETTES_MISSING,Warning,,,,Yes,High,TRUE,Cuvette is missing in the following stations: %n.,Ok,,
+33620020,EVENT_DEVICE_SCAN_RACKS_IN_STATIONS,Warning,,,,Yes,High,TRUE,The following stations contain racks: %n. Remove rack(s).,Ok,,
+33620021,EVENT_DEVICE_SCAN_UNREADABLE_STATIONS,Warning,,,,Yes,High,TRUE,The following stations are not detected: %n.,Ok,,
+33620022,EVENT_DEVICE_SCAN_RESCAN_REQUEST,Info,Rescan,FinishInit,Main,No,High,TRUE,Please solve issue. Do you want to rescan ?,Yes+No,,
+33620023,EVENT_DEVICE_SCAN_RESCAN_INFO,Info,Rescan,,Main,No,High,TRUE,Please remove rack(s). Ready to rescan?,Ok,,
+33620024,EVENT_DEVICE_SCAN_WATER_TAP,Error,,,,Yes,High,TRUE,No water flow detected. Did you open the water tap?,Ok,,
+33620025,EVENT_DEVICE_SCAN_REQUEST_RESCAN,Info,Rescan,,Main,No,High,TRUE,The latest fill level scan is older than 24 hours. Do you want to rescan?,Yes+No,,
+33620026,EVENT_DEVICE_SCAN_FAILED,Error,,,,Yes,High,TRUE,Fill level scan failed. Please check fill level by visual inspection and ensure that no racks are left in the instrument.,Ok,Yes,
+33620027,EVENT_DEVICE_SCAN_TUB_OVERFILL,Error,CheckOverfill,,Scheduler,Yes,High,TRUE,Drainage system overflow. Please check and clean the drain system and press 'Ok'.,Ok,,
+33620028,EVENT_REAGENT_FILLED_PROG_STARTABLE,Info,,,,,Low,FALSE,Program %1 status changed to startable since reagent(s) %n  updated.,,,
+33620029,EVENT_STRING_BATHLAYOUT_GENERATION,Info,,,,No,None,TRUE,Bathlayout Generation,,,
+33620030,EVENT_STRING_IMPORT,Info,,,,No,None,TRUE,Import,,,
+33620031,EVENT_STRING_EXPORT,Info,,,,No,None,TRUE,Export,,,
+33620032,EVENT_STRING_SW_UPDATE,Info,,,,No,None,TRUE,Software Update,,,
+33620033,EVENT_STRING_LEICA_REAGENT_UPDATE,Info,,,,No,None,TRUE,Leica reagent update,,,
+33620034,EVENT_MULTIPLE_RACKS_IN_STATION,Warning,,,,Yes,High,TRUE,Multiple Racks are present in Station %1. Please remove the racks.,ok,,
+33620035,EVENT_GENERATING_POSSIBLE_STATIONS_FAILED,Warning,,,,No,High,TRUE,Generation of possible stations failed for the program %1.,Ok,,Internal software error occurred. Please contact service.
+33620036,EVENT_REJECT_RACK_UNLOADER_DEFECT,Warning,,,,Yes,Medium,TRUE,Staining of inserted rack in station %1 is not possible because of defective  output-drawer. Please remove the rack.,Ok,Yes,
+33620048,EVENT_DEVICE_SCAN_STARTED,Info,,,,No,High,TRUE,Fill level scan of bathlayout started,,,
+33620049,EVENT_DEVICE_SCAN_INTERRUPTED,Warning,,,,yes,Medium,TRUE,Fill level scan of bathlayout interrupted,Ok,,
+33620050,EVENT_COLORADO_INITIALIZATION_FAILED_PARTIALLY,Warning,,,,No,High,TRUE,Initialization failed partially. Device can be used with limitations,,,
+33620051,EVENT_STATION_TEMPERATURE,Info,,,,No,Medium,FALSE,Station %1 temperature: %2 ,,,
+33620052,EVENT_COLORADO_INITIALIZATION_DEVICE_FAILED,Error,,,,yes,Medium,TRUE,Initialization of devices failed,Ok,Yes,Initialization of components failed.
+33620053,EVENT_COLORADO_INITIALIZATION_DEFECT_DEVICES,Warning,,,,No,Medium,TRUE,Defective devices: %1,,,Defective components: %1
+33620054,EVENT_PROGRAM_STARTABLE_AGAIN,Info,,,,No,Medium,TRUE,Following program(s) are startable again: %n,,,
+33620055,EVENT_PROGRAM_NOT_READY_TO_START,Info,,,,No,Medium,TRUE,Following program(s) are not startable temporarily: %n,,,
+33620056,EVENT_HOOD_OPEN_INIT_STATE,Info,,,,No,Medium,TRUE,Hood is open during initialization. Please close.,Ok,,
+33620057,EVENT_RECOVERED_FROM_POWER_FAIL,Info,,,,No,High,TRUE,Instrument recovered from power failure. Remove all racks.,Ok,,
+33620065,EVENT_STARTING_SERVICE_SOFTWARE,Info,,,,No,High,FALSE,Starting colorado service software,,,
+33620066,EVENT_UNASSOCIATED_RACK_INSERTED,Info,Busy,,,No,Medium,TRUE,Rack with either wrong orientation or with no program associated inserted into drawer,,,
+33620067,EVENT_UNASSOCIATED_RACK_REMOVED,Info,Idle,,,No,Medium,TRUE,Rack with either wrong orientation or with no program associated removed from drawer,,,
+33620068,EVENT_SCAN_REQUEST_AFTER_BLG,Info,Rescan,NoRescan,Main,No,Medium,TRUE,Do you want to rescan ?,Yes+No,,
+33620069,EVENT_DEVICE_SCAN_OVEN_STATIONS,Warning,,,,Yes,High,TRUE,Oven stations could not be scanned because oven cover is not working,Ok,,
+33620070,EVENT_REINIT_OVEN_COVER_FAILED,Warning,,,,Yes,Medium,TRUE,Initialization of oven cover failed,Ok,,
+33620071,EVENT_DEVICE_SCAN_IMPOSSIBLE_DRAWER_OPEN,Info,Rescan,,Main,No,High,TRUE,Please close drawer to start rescan,Ok,,
+33620072,EVENT_MAIN_REVISION,Info,,,,No,Low,TRUE,Software revision %1 - Build date %2,,,
+33620073,EVENT_INVALID_CHANNELID,Error,,,,No,Low,FALSE,Invalid command channel ID (%1),,,
+33685505,EVENT_VERIFIER_ERROR_RACK_ALREADY_IN_USE,Error,,,,No,Low,FALSE,Schedule Verifier: Rack with ID %1 is already in use,,,
+33685506,EVENT_VERIFIER_ERROR_PROGRAMSTEP_LEFT,Error,,,,No,Low,FALSE,Schedule Verifier: a program step not executed: program ID %1 step id %2,,,
+33685507,EVENT_VERIFIER_ERROR_TIME_UNDERRUN,Error,,,,No,Low,FALSE,Schedule Verifier: program %1 actual duration %2 sec in station %3 did not reach minimal bath time %4 sec,,,
+33685508,EVENT_VERIFIER_ERROR_TIME_OVERRUN,Error,,,,No,Low,FALSE,Schedule Verifier: program %1 actual duration %2 sec in station %3 exceeded maximal bath time %4 sec,,,
+33685509,EVENT_VERIFIER_ERROR_RESOURCE_COLLISION,Error,,,,No,Low,FALSE,Schedule Verifier resource %1 used by more than two actions in the time %2,,,
+33685510,EVENT_VERIFIER_ERROR_UNKNOWN_RACK,Error,,,,No,Low,FALSE,Schedule Verifier: unknown rack %1,,,
+33685511,EVENT_VERIFIER_ERROR_ACTION_RESOURCE_EMPTY,Error,,,,No,Low,FALSE,Schedule Verifier: The resource for %1 action is empty.,,,
+33685512,EVENT_VERIFIER_ERROR_ACTION_INVALID_IDS,Error,,,,No,Low,FALSE,Schedule Verifier: invalid id successor and predecessor for %1 action.,,,
+33685513,EVENT_VERIFIER_ERROR_ACTION_RESOURCE_INVALIDGRIPPER,Error,,,,No,Low,FALSE,Schedule Verifier: Invalid Grippernumber in %1 action.,,,
+33685514,EVENT_VERIFIER_ERROR_ACTION_INVALID_DURATIONS,Error,,,,No,Low,FALSE,Schedule Verifier: Invalid time durations in %1 action.,,,
+33685515,EVENT_VERIFIER_ERROR_MISSING_GRIPPER_ACTION,Error,,,,No,Low,FALSE,Schedule Verifier: Gripper action missing for %1 action.,,,
+33685516,EVENT_VERIFIER_ERROR_PROGRAMSTEP_INVALID_RESOURCE,Error,,,,No,Low,FALSE,Schedule Verifier: Action Id %1: The program %2 step %3 has invalid resources.,,,
+33685517,EVENT_VERIFIER_ERROR_PROGRAMSTEP_INVALID_DURATION,Error,,,,No,Low,FALSE,Schedule Verifier: Action Id %1: The program %2 step %3 has invalid max/min durations.,,,
+33685518,EVENT_VERIFIER_ERROR_RESOURCE_MISSING_ACTION,Error,,,,No,Low,FALSE,Schedule Verifier: Action Id %1 for the resource %2 not listed in resource section.,,,
+33685519,EVENT_VERIFIER_ERROR_RESOURCE_INVALID_ACTION,Error,,,,No,Low,FALSE,Schedule Verifier: Action Id %1 for the resource %2 in resource section is invalid action.,,,
+33685520,EVENT_VERIFIER_ERROR_RESOURCE_INVALID,Error,,,,No,Low,FALSE,Schedule Verifier: Resource with empty id/name found in resource list.,,,
+33685521,EVENT_VERIFIER_ERROR_ACTION_COLLISION,Error,,,,No,Low,FALSE,Schedule Verifier: Action %1 is completed after its successor %2,,,
+33685522,EVENT_VERIFIER_ERROR_MOVEEMPTY_WITH_RACK,Error,,,,No,Low,FALSE,Schedule Verifier: Moveempty command called on %1 for rack %2 while its attached to another rack.,,,
+33685523,EVENT_VERIFIER_ERROR_TRANSPORT_WITHOUT_RACK,Error,,,,No,Low,FALSE,Schedule Verifier: Transport called on %1 for rack %2 while its not attached to any rack.,,,
+33685524,EVENT_VERIFIER_ERROR_MOVEEMPTY_POS_DOWN,Error,,,,No,Low,FALSE,Schedule Verifier: Moveempty command called on %1 for rack %2 while Gripper is at lower position.,,,
+33685525,EVENT_VERIFIER_ERROR_TRANSPORT_POS_DOWN,Error,,,,No,Low,FALSE,Schedule Verifier: Transport called on %1 for rack %2 while Gripper is at lower position.,,,
+33685526,EVENT_VERIFIER_ERROR_ATTACH_POS_UP,Error,,,,No,Low,FALSE,Schedule Verifier: Attach command called on %1 for rack %2 while Gripper is at upper position.,,,
+33685527,EVENT_VERIFIER_ERROR_DETACH_POS_UP,Error,,,,No,Low,FALSE,Schedule Verifier: Detach called on %1 for rack %2 while Gripper is at upper position.,,,
+33685528,EVENT_VERIFIER_RECEIVED_COMMAND,Info,,,,No,Low,FALSE,Schedule Verifier: Received command %1,,,
+33751041,EVENT_SCHEDULER_IDLE,Info,,,,No,MEDIUM,FALSE,Scheduler is idle,,,
+33751042,EVENT_SCHEDULER_UNLOAD_TRAY_OPEN_SCHEDULE_STOPPED,Error,,,,Yes,MEDIUM,TRUE,Schedule execution has stopped as unload drawer is not accessible,Ok,,Please close unload drawer.
+33751043,EVENT_SCHEDULER_UNLOAD_TRAY_OCCUPIED_SCHEDULE_STOPPED,Error,,,,Yes,MEDIUM,TRUE,Schedule execution  has stopped as unload drawer is occupied,Ok,,Please remove racks from unload drawer.
+33751044,EVENT_SCHEDULER_SCHEDULING_ACTIVE,Info,,,,No,MEDIUM,FALSE,Scheduling is active,,,
+33751045,EVENT_SCHEDULER_NEW_SCHEDULE_AVAILABLE,Info,,,,No,MEDIUM,FALSE,New schedule is available,,,
+33751046,EVENT_SCHEDULER_MISSED_EXECUTION,Error,,,,No,MEDIUM,FALSE,Command has not been executed in time,,,
+33751047,EVENT_SCHEDULER_LOAD_TRAY_OPEN,Info,,,,No,MEDIUM,TRUE,Load drawer is open,,,
+33751048,EVENT_SCHEDULER_NO_VALID_SOLUTION,Error,,,,No,MEDIUM,FALSE,Scheduler has not found any valid solution,,,
+33751049,EVENT_SCHEDULER_INVALID_PROGRAM,Warning,,,,Yes,MEDIUM,TRUE,Rack in station %3 with program %2 could not be started,Ok,,
+33751050,EVENT_SCHEDULER_EXECUTION_HALTED,Info,,,,No,MEDIUM,FALSE,Execution has been suspended,,,
+33751051,EVENT_SCHEDULER_EXECUTION_CONTINUED,Info,,,,No,MEDIUM,FALSE,Execution is continuing,,,
+33751052,EVENT_SCHEDULER_STATION_NOT_AVAILABLE,Error,,,,No,MEDIUM,FALSE,Required station is not available,,,
+33751053,EVENT_SCHEDULER_UNLOAD_TRAY_REQUESTED,Info,,,,No,MEDIUM,FALSE,First attempt to block unload tray,,,
+33751054,EVENT_SCHEDULER_INVALID_SCHEDULE_DETECTED_BY_VERIFIER,Error,,,,No,HIGH,TRUE,Verifier has detected an invalid schedule,,,
+33751055,EVENT_SCHEDULER_INVALID_EXECUTION_DETECTED_BY_VERIFIER,Error,,,,Yes,HIGH,TRUE,Internal device error: Verifier has detected an invalid command '%1' with reason %2. Execution is suspended.,Ok,Yes,Major error occured. Staining has been terminated. 
+33751056,EVENT_SCHEDULER_COMMAND_FAILED,Warning,,,,No,MEDIUM,FALSE,Execution of command has failed %1,,,
+33751057,EVENT_SCHEDULER_COMMAND_TIMEOUT,Warning,,,,No,MEDIUM,FALSE,Command %1 could not be executed in time,,,
+33751058,EVENT_SCHEDULER_OVEN_COVER_OPEN,Info,,,,,MEDIUM,TRUE,Oven cover is opened,,,
+33751059,EVENT_SCHEDULER_OVEN_COVER_CLOSED,Info,,,,,MEDIUM,TRUE,Oven cover is closed,,,
+33751060,EVENT_SCHEDULER_SKIP_SLIDE_COUNTER_OVEN_COVER_OPEN,Warning,,,,Yes,MEDIUM,TRUE,Skipping slide counting as oven cover is open,Ok,Yes,
+33751061,EVENT_SCHEDULER_DURATION_DATA_MISSING,Error,Stop,,,Yes,MEDIUM,TRUE,Internal software error: Command duration could not be determined,Ok,,Internal software error
+33751062,EVENT_SCHEDULER_NO_VALID_STATION_FOR_SCHEDULING,Error,,,,Yes,MEDIUM,TRUE,No station available to schedule step,Ok,,No station available to schedule step. Please check the program.
+33751063,EVENT_SCHEDULER_RACK_INSERTED,Info,Busy,,,No,MEDIUM,FALSE,Rack %1 has been included into scheduler,,,
+33751064,EVENT_SCHEDULER_RACK_REMOVED,Info,Idle,,,No,MEDIUM,FALSE,Rack %1 will be removed from schedule,,,
+33751065,EVENT_SCHEDULER_COMMAND_WITHOUT_DURATION,Error,,,,No,MEDIUM,FALSE,Duration of command is zero,,,
+33751066,EVENT_SCHEDULER_INVALID_PROGRAM_ID,Info,,,,No,MEDIUM,FALSE,%1 is not a valid Program ID.,,,
+33751067,EVENT_SCHEDULER_UNEXPECTED_ERROR_WHILE_SCHEDULING,Error,,,,No,MEDIUM,FALSE,An unexpected error has occurred while scheduling,,,
+33751068,EVENT_SCHEDULER_UNDEFINED_COMMAND,Info,,,,No,MEDIUM,FALSE,Scheduler undefined command,,,
+33751069,EVENT_SCHEDULER_CMD_HEAT_STATION,Info,,,,No,MEDIUM,FALSE,Scheduler Command Heat Station %1 with temperature %2,,,
+33751070,EVENT_SCHEDULER_CMD_UNHEAT_STATION,Info,,,,No,MEDIUM,FALSE,Scheduler Command Unheat Station %1,,,
+33751071,EVENT_SCHEDULER_CMD_MOVE_EMPTY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Move Empty to station %1,,,
+33751072,EVENT_SCHEDULER_CMD_ATTACH,Info,,,,No,MEDIUM,FALSE,Scheduler Command Attach rack %2 at station %1,,,
+33751073,EVENT_SCHEDULER_CMD_TRANSPORT,Info,,,,No,MEDIUM,FALSE,Scheduler Command Transport rack %2 to station %1,,,
+33751074,EVENT_SCHEDULER_CMD_DETACH,Info,,,,No,MEDIUM,FALSE,Scheduler Command Detach rack %2 at station %1,,,
+33751075,EVENT_SCHEDULER_CMD_LOCK_LOAD_TRAY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Lock Load Tray,,,
+33751076,EVENT_SCHEDULER_CMD_LOCK_UNLOAD_TRAY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Lock Unload Tray,,,
+33751077,EVENT_SCHEDULER_CMD_TRY_LOCK_UNLOAD_TRAY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Try Lock Unload Tray,,,
+33751078,EVENT_SCHEDULER_CMD_UNLOCK_LOAD_TRAY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Unlock Load Tray,,,
+33751079,EVENT_SCHEDULER_CMD_UNLOCK_UNLOAD_TRAY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Unlock Unload Tray,,,
+33751080,EVENT_SCHEDULER_CMD_FILL_WATER_STATION,Info,,,,No,MEDIUM,FALSE,Scheduler Command Fill Water Station %1,,,
+33751081,EVENT_SCHEDULER_CMD_DRAIN_WATER_STATION,Info,,,,No,MEDIUM,FALSE,Scheduler Command Drain Water Station %1,,,
+33751082,EVENT_SCHEDULER_CMD_ACTIVATE_AGITATION,Info,,,,No,MEDIUM,FALSE,Scheduler Command Activate Agitation,,,
+33751083,EVENT_SCHEDULER_CMD_DEACTIVATE_AGITATION,Info,,,,No,MEDIUM,FALSE,Scheduler Command Deactivate Agitation,,,
+33751084,EVENT_SCHEDULER_CMD_OPEN_OVEN_COVER,Info,,,,No,MEDIUM,FALSE,Scheduler Command Open Oven Cover,,,
+33751085,EVENT_SCHEDULER_CMD_CLOSE_OVEN_COVER,Info,,,,No,MEDIUM,FALSE,Scheduler Command Close Oven Cover,,,
+33751086,EVENT_SCHEDULER_CMD_COUNT_SLIDES,Info,,,,No,MEDIUM,FALSE,Scheduler Command Count Slides,,,
+33751087,EVENT_SCHEDULER_CMD_MOVE_DOWN,Info,,,,No,MEDIUM,FALSE,Scheduler Command Move Down at station %1,,,
+33751088,EVENT_SCHEDULER_CMD_MOVE_UP,Info,,,,No,MEDIUM,FALSE,Scheduler Command Move Up at station %1,,,
+33751089,EVENT_SCHEDULER_CMD_MOVE_DOWN_SLOW,Info,,,,No,MEDIUM,FALSE,Scheduler Command Move Down Slow at station %1,,,
+33751090,EVENT_SCHEDULER_CMD_MOVE_UP_SLOW,Info,,,,No,MEDIUM,FALSE,Scheduler Command Move Up Slow at station %1,,,
+33751091,EVENT_SCHEDULER_CMD_CHECK_STATION_READY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Check Station Ready at station %1,,,
+33751092,EVENT_SCHEDULER_CMD_CHECK_SLIDE_COUNTER_READY,Info,,,,No,MEDIUM,FALSE,Scheduler Command Check Slide Counter Ready,,,
+33751093,EVENT_SCHEDULER_CMD_STOP_GRIPPER,Info,,,,No,MEDIUM,FALSE,Scheduler Command Stop Gripper,,,
+33751094,EVENT_SCHEDULER_DURATION_EXCEEDED,Warning,,,,No,Low,TRUE,Staining duration may have been exceeded,Ok,,
+33751095,EVENT_SCHEDULER_PROGRAM_INVALID_NO_STEP_STATION,Warning,,,,No,Medium,FALSE,Program %1 is not valid because step %2 has no station associated to it,,,
+33751096,EVENT_SCHEDULER_PROGRAM_INVALID_FIRST_STATION_UNACCESSIBLE,Warning,,,,No,Medium,FALSE,Program %1 is not valid because first step is not accessible,,,
+33751097,EVENT_SCHEDULER_PROGRAM_INVALID_LAST_STATION_UNACCESSIBLE,Warning,,,,No,Medium,FALSE,Program %1 is not valid because last step is not accessible,,,
+33751098,EVENT_SCHEDULER_PROGRAM_INVALID_UNKNOWN_STATION,Warning,,,,No,Medium,FALSE,Program %1 is not valid because station %2 is unknown,,,
+33751099,EVENT_SCHEDULER_PROGRAM_INVALID_STATIONS_SCATTERED,Warning,,,,No,Medium,FALSE,Program %1 is not valid because stations %2 and %3 are in different zones,,,
+33751100,EVENT_SCHEDULER_PROGRAM_INVALID_STATION_DISABLED,Warning,,,,No,Medium,FALSE,Program %1 is not valid because there is no enabled station for step %2,,,
+33751101,EVENT_SCHEDULER_PROGRAM_INVALID_STATION_UNACCESSIBLE,Warning,,,,No,Medium,FALSE,Program %1 is not valid because station %2 is not accessible,,,
+33751102,EVENT_SCHEDULER_FINAL_STATION_UNLOADER,Warning,,,,Yes,High,TRUE,Final step of rack %1 has changed to unload drawer,Ok,,Final step of program %1 has directed to unload drawer since Coverslipper is not ready
+33751103,EVENT_SCHEDULER_FINAL_STATION_TRANSFER,Warning,,,,Yes,High,TRUE,Final step of rack %1 has changed to coverslipper transfer,Ok,,Final step of program %1 has directed to Coverslipper transfer
+33751104,EVENT_SCHEDULER_WRONG_RACK_AT_GRAPPLER_1,Error,,,,Yes,High,TRUE,Wrong rack at left arm (found %1 - expected %2),Ok,,Unexpected rack at left arm
+33751105,EVENT_SCHEDULER_WRONG_RACK_AT_GRAPPLER_2,Error,,,,Yes,High,TRUE,Wrong rack at right arm (found %1 - expected %2),Ok,,Unexpected rack at right arm
+33751106,EVENT_SCHEDULER_REMOVE_ALL_RACKS,Info,RemoveAllRacks,,Scheduler,No,High,TRUE,Please remove all racks from instrument and press Ok when finished,Ok,,
+33751107,EVENT_SCHEDULER_REQUEST_RACK_REMOVAL,Warning,RemoveRack,,Scheduler,Yes,High,TRUE,Confirm removal of rack from station %1,Yes+No,,Confirm removal of rack from station %1. If No processing will be stopped.
+33751108,EVENT_SCHEDULER_REMOVE_RACK,Warning,RemoveRack,,Scheduler,Yes,High,TRUE,Please remove rack(s) from station(s) %1 and press OK,Ok,,
+33751109,EVENT_SCHEDULER_STATION_DEFECT,Error,,,,Yes,High,TRUE,Cannot continue because station %1 is defect,Ok,,
+33751110,EVENT_SCHEDULER_STATION_NOT_READY,Warning,,,Scheduler,No,High,TRUE,Waiting for station %1 being ready,Ok,,
+33751111,EVENT_SCHEDULER_RACK_ALREADY_PRESENT,Error,RemoveRack,,Scheduler,Yes,High,TRUE,Cannot process rack in station %1 because it has a duplicate already running in station %2. Please remove both racks,Ok,,
+33751112,EVENT_SCHEDULER_UNLOADER_TRAY_OCCUPIED,Warning,,,,Yes,High,TRUE,Please remove racks from unload drawer,Ok,,
+33751113,EVENT_SCHEDULER_SEPIA_TRANSFER_OCCUPIED,Error,UseUnloader,,Scheduler,Yes,High,TRUE,Coverslipper transfer is occupied. Transport rack to unload drawer?,Yes+No,,
+33751114,EVENT_SCHEDULER_REMOVE_ATTACHED_RACK,Error,RemoveRack,,Scheduler,Yes,High,TRUE,Please remove rack currently attached to arm %2 and press Ok when finished,Ok,,
+33751115,EVENT_SCHEDULER_AGITATION_DEFECT,Error,,,,Yes,High,TRUE,Agitation status unclear. No reliable rack transfer. Staining will stop.,Ok,Yes,
+33751116,EVENT_SCHEDULER_SLIDE_COUNTER_DEFECT,Warning,,,,Yes,High,TRUE,Slide counting is not available. Staining continues assuming maximum number of slides.,Ok,,
+33751117,EVENT_SCHEDULER_HEATING_VERIFICATION_FAILED,Error,,,,No,High,FALSE,Schedule is not valid since heating cannot be executed in time,,,
+33751118,EVENT_SCHEDULER_READING_RFID_GRAPPLER_1_FAILED,Warning,,,,No,High,FALSE,Reading of rack at arm 1 failed,,,
+33751119,EVENT_SCHEDULER_READING_RFID_GRAPPLER_2_FAILED,Warning,,,,No,High,FALSE,Reading of rack at arm 2 failed,,,
+33751120,EVENT_SCHEDULER_HEATING_OVEN_TEMPERATURE_NOT_REACHED,Warning,,,,Yes,High,TRUE,Oven temperature not reached,Ok,,
+33751121,EVENT_SCHEDULER_HEATING_CUVETTE_TEMPERATURE_NOT_REACHED,Warning,,,,Yes,High,TRUE,Heated cuvette temperature not reached,Ok,,
+33751122,EVENT_SCHEDULER_HEATING_OVEN_COVER_DEFECT,Warning,,,,Yes,High,TRUE,Oven cover is defect,Ok,Yes,
+33751123,EVENT_SCHEDULER_CMD_CHECK_FINAL_STATION,Warning,,,,No,Low,FALSE,Checking if final station is available,,,
+33751124,EVENT_SCHEDULER_SCHEDULING_RETRY_SUCCESSFUL,Info,,,,No,High,FALSE,Retry of scheduling was successful,,,
+33751125,EVENT_SCHEDULER_UNLOAD_TRAY_DEFECT,Error,,,,Yes,MEDIUM,TRUE,Schedule execution has stopped as unload drawer is not usable. Please open and remove all racks from it.,Ok,Yes,Program execution has stopped as unload drawer is defective. Please open hood and remove all racks.
+33751126,EVENT_SCHEDULER_REINIT_INPUT_DRAWER,Error,Reinit+2+FinishInit,,Scheduler,Yes,MEDIUM,TRUE,Load drawer is not working properly.  Please check drawer for blockage and press Ok.,Ok,,
+33751127,EVENT_SCHEDULER_REINIT_OUTPUT_DRAWER,Error,Reinit+2+FinishInit,,Scheduler,Yes,MEDIUM,TRUE,Output drawer is not working properly.  Please check drawer for blockage and press Ok.,Ok,,
+33751128,EVENT_SCHEDULER_REINIT_XYZ_1,Error,,,,No,MEDIUM,FALSE,Left arm is not working properly,,,
+33751129,EVENT_SCHEDULER_REINIT_XYZ_2,Error,,,,No,MEDIUM,FALSE,Right arm is not working properly,,,
+33751130,EVENT_SCHEDULER_REINIT_RACK_TRANSFER,Error,,,,No,MEDIUM,FALSE,Coverslipper rack transfer unit is not working properly,,,
+33751131,EVENT_SCHEDULER_REINIT_OVEN_COVER,Error,,,,No,MEDIUM,FALSE,Oven cover is not working properly.,,,
+33751132,EVENT_SCHEDULER_REINIT_FAILED,Error,Stop,,,Yes,MEDIUM,TRUE,Not able to recover from hardware error. Staining not possible. Please call service.,Ok,Yes,
+33751133,EVENT_SCHEDULER_INVALID_SOLUTION_REMOVE_RACK,Warning,,,,Yes,MEDIUM,TRUE,Please remove rack at station %1 as it could not be scheduled,Ok,,Please remove rack at station %1 as it could not be processed.
+33751134,EVENT_SCHEDULER_TIMING_CORRUPT,Error,,,,No,MEDIUM,FALSE,Internal timing mismatch,,,
+33751135,EVENT_SCHEDULER_TIMING_INSTABLE,Warning,,,,No,MEDIUM,TRUE,Internal timing instable,,,
+33751136,EVENT_SCHEDULER_REINIT_INPUT_DRAWER_FAILED,Error,,,,Yes,MEDIUM,TRUE,Load drawer not working. ,Ok,Yes,Load drawer not working. Please contact service.
+33751137,EVENT_SCHEDULER_SLIDE_COUNT,Info,,,,,MEDIUM,TRUE,Rack %1 contains %2 slides,,,
+33751138,EVENT_SCHEDULER_HEATING_STATE_FAILURE,Warning,,,,No,MEDIUM,FALSE,Failed to receive heating data from station %1,,,
+33751139,EVENT_SCHEDULER_USER_RETRY_COMMAND,Warning,Retry,RejectRetry,Scheduler,Yes,MEDIUM,TRUE,Command could not be executed. Do you want to retry ?,Yes+No,,Action could not be performed. Do you want to retry?
+33751140,EVENT_SCHEDULER_REINIT_OVEN_COVER_RETRY,Error,Reinit+1+FinishInit,,Scheduler,Yes,MEDIUM,TRUE,Oven cover is not moving properly. Please open manually and check for any blocking objects.,Ok,No,
+33751141,EVENT_SCHEDULER_START_TIME_RACK,Info,,,,,LOW,TRUE,Rack in station %1 will use program '%2' and start at %3,Ok,,
+33751142,EVENT_SCHEDULER_START_TIME_RACK_DELAYED,Info,,,,,LOW,TRUE,Rack in station %1 will use program '%2' and start at %3 if existing problem is resolved,Ok,,
+33751143,EVENT_SCHEDULER_COMPLETION_RACK,Info,,,,,LOW,TRUE,Rack using program %1 has finished,,,
+33751144,EVENT_SCHEDULER_REMOVE_RACK_IN_LOADER,Warning,,,,Yes,HIGH,TRUE,Because of a defect rack in station %1 needs to be removed from load drawer,Ok,,
+33751145,EVENT_SCHEDULER_CMD_READ_GRAPPLER_RFID,Info,,,,No,MEDIUM,FALSE,Reading Rfid of arm %1,,,
+33751146,EVENT_SCHEDULER_RECOVERY_ACTIONS,Info,,,,No,LOW,FALSE,Recovering arm %1 state by executing commands: %2,,,
+33751147,EVENT_SCHEDULER_RACK_MISSING_XYZ_1,Error,,,,Yes,High,TRUE,No rack found at left arm (expected %2),Ok,,No rack found at left arm
+33751148,EVENT_SCHEDULER_RACK_MISSING_XYZ_2,Error,,,,Yes,High,TRUE,No rack found at right arm (expected %2),Ok,,No rack found at right arm
+33751149,EVENT_SCHEDULER_UNEXPECTED_RACK_XYZ_1,Error,,,,Yes,High,TRUE,Unexpected rack found at left arm (found %1),Ok,,Unexpected rack found at left arm
+33751150,EVENT_SCHEDULER_UNEXPECTED_RACK_XYZ_2,Error,,,,Yes,High,TRUE,Unexpected rack found at right arm (found %1),Ok,,Unexpected rack found at right arm
+33751151,EVENT_SCHEDULER_HOOD_RECOVERY_COMPLETED,Info,,,,No,LOW,FALSE,Recovery actions finished for arm %1,,,
+33751152,EVENT_SCHEDULER_RECOVERY_INTERRUPTED,Info,,,,No,LOW,FALSE,Recovery action interrupted for arm %1,,,
+33751153,EVENT_SCHEDULER_SUSPENSION_REASON_ADDED,Info,,,,No,LOW,FALSE,Suspension reason added: %1,,,
+33751154,EVENT_SCHEDULER_SUSPENSION_REASON_REMOVED,Info,,,,No,LOW,FALSE,Suspension reason removed: %1,,,
+33751155,EVENT_SCHEDULER_DEVICE_INIT_TRIGGERED,Info,,,,No,LOW,FALSE,Reinitialization of component %1 triggered,,,
+33751156,EVENT_SCHEDULER_DEFECT_STATION_REASON_ADDED,Info,,,,No,Low,FALSE,Station %1 defect reason added %2,,,
+33751157,EVENT_SCHEDULER_DEFECT_STATION_REASON_REMOVED,Info,,,,No,LOW,FALSE,Station %1 defect reason removed %2,,,
+33751158,EVENT_SCHEDULER_CMD_READ_DRAWER_RFID,Info,,,,No,Low,FALSE,Reading Rfid of drawer,,,
+33751159,EVENT_SCHEDULER_STAINING_WITHOUT_AGITATION,Warning,,,,Yes,High,TRUE,Agitation could not be started. Staining will be continued without agitation.,Ok,Yes,
+33751160,EVENT_SCHEDULER_RACK_INSERTED_WHILE_STOPPED,Warning,,,,Yes,Medium,TRUE,Inserted rack will start only after resolving existing problem,Ok,,
+33751161,EVENT_SCHEDULER_OVEN_NOT_READY,Warning,,,,Yes,Medium,TRUE,Cannot continue rack because oven is not ready,Ok,,
+33751162,EVENT_SCHEDULER_HEATING_OVEN_TEMPERATURE_OVERSHOOT,Warning,,,,Yes,Medium,TRUE,Oven temperature overshoot,Ok,,
+33751163,EVENT_SCHEDULER_HEATING_CUVETTE_TEMPERATURE_OVERSHOOT,Warning,,,,Yes,Medium,TRUE,Heated cuvette temperature overshoot,Ok,,
+33751164,EVENT_SCHEDULER_HEATING_POWERFAIL_TRIGGERED,Info,,,,No,Medium,TRUE,Switch off heaters due to a power failure detection,Ok,,
+33751165,EVENT_SCHEDULER_HEATING_POWERFAIL_REVERTED,Info,,,,No,Medium,TRUE,Revert heater state after power resumption,Ok,,
+33751166,EVENT_SCHEDULER_HEATING_POWERFAIL_FINISHED,Info,,,,No,Medium,TRUE,All heaters back to normal operation after power resumption,Ok,,
+33751167,EVENT_SCHEDULER_DEVICE_DEFECT,Warning,,,,Yes,High,TRUE,The component %1 is defect,Ok,Yes,
+33751168,EVENT_SCHEDULER_REQUEST_RACK_REMOVAL_LEFT_ARM,Warning,RemoveRack,,Scheduler,Yes,High,TRUE,Confirm removal of rack from left arm,Yes+No,,Confirm removal of rack from left arm. If No processing will be stopped.
+33751169,EVENT_SCHEDULER_REQUEST_RACK_REMOVAL_RIGHT_ARM,Warning,RemoveRack,,Scheduler,Yes,High,TRUE,Confirm removal of rack from right arm,Yes+No,,Confirm removal of rack from right arm. If No processing will be stopped.
+33751170,EVENT_SCHEDULER_READING_RFID_OMITTED,Info,,,,No,Low,FALSE,Reading of RFID at arm %1 omitted,,,
+33751171,EVENT_SCHEDULER_RACK_STATISTICS,Info,,,,No,Medium,TRUE,Program %4 took %3 seconds (programmed min %1 max %2),,,
+33751172,EVENT_SCHEDULER_SUSPENSION_WAITFORREF,Error,,,,Yes,High,TRUE,Processing of racks not possible while waiting for acknowledgement,Ok,Yes,
+33751173,EVENT_SCHEDULER_SUSPENSION_RACKREMOVALREQUEST,Error,,,,Yes,High,TRUE,Processing of racks not possible because of a pending rack removal request,Ok,Yes,
+33751174,EVENT_SCHEDULER_SUSPENSION_INVALIDCOMMAND,Error,,,,Yes,High,TRUE,Processing of racks not possible because of an invalid command,Ok,Yes,
+33751175,EVENT_SCHEDULER_SUSPENSION_RACKMISMATCH,Error,,,,Yes,High,TRUE,Processing of racks not possible because racks don't match,Ok,Yes,
+33751176,EVENT_SCHEDULER_SUSPENSION_SEPIATRANSFEROCCUPIED,Error,,,,Yes,High,TRUE,Processing of racks not possible because waiting for transfer to coverslipper,Ok,Yes,
+33751177,EVENT_SCHEDULER_SUSPENSION_OVERFILL,Error,,,,Yes,High,TRUE,Processing of racks not possible because of a tub overfill,Ok,Yes,
+33751178,EVENT_SCHEDULER_SUSPENSION_RECOVERYACTIONSGR1,Error,,,,Yes,High,TRUE,Processing of racks not possible because recovering left arm position,Ok,Yes,
+33751179,EVENT_SCHEDULER_SUSPENSION_RECOVERYACTIONSGR2,Error,,,,Yes,High,TRUE,Processing of racks not possible because recovering right arm position,Ok,Yes,
+33751180,EVENT_SCHEDULER_SUSPENSION_COVEROPENLEFT,Error,,,,No,High,TRUE,Processing of racks not possible because hood is open,Invisible,Yes,
+33751181,EVENT_SCHEDULER_SUSPENSION_COVEROPENRIGHT,Error,,,,Yes,High,TRUE,Processing of racks not possible because hood is open,Ok,Yes,
+33751182,EVENT_SCHEDULER_SUSPENSION_SHUTDOWN,Error,,,,Yes,High,TRUE,Processing of racks not possible because of shutdown,Ok,Yes,
+33751183,EVENT_SCHEDULER_SUSPENSION_POWERFAIL,Error,,,,Yes,High,TRUE,Processing of racks not possible because of power failure,Ok,Yes,
+33751184,EVENT_SCHEDULER_SUSPENSION_RECOVERYFAILED,Error,,,,Yes,High,TRUE,Processing of racks not possible because recovery failed,Ok,Yes,
+33751185,EVENT_SCHEDULER_SUSPENSION_REINITFAILED,Error,,,,Yes,High,TRUE,Processing of racks not possible because reinit failed,Ok,Yes,
+33751186,EVENT_SCHEDULER_SUSPENSION_COMMANDFAILED,Error,,,,Yes,High,TRUE,Processing of racks not possible because command failed or timed out,Ok,Yes,
+33751187,EVENT_SCHEDULER_SUSPENSION_EXTERNALEVENT,Error,,,,Yes,High,TRUE,Processing of racks not possible because of an external event,Ok,Yes,
+33751188,EVENT_SCHEDULER_SUSPENSION_UNDEFINEDERROR,Error,,,,Yes,High,TRUE,Processing of racks not possible because of an system error,Ok,Yes,
+33751189,EVENT_SCHEDULER_SCHEDULING_DISABLED,Info,,,,No,Low,FALSE,Scheduling has been disabled,,,
+33751190,EVENT_SCHEDULER_SCHEDULING_INTERRUPTED,Info,,,,No,Low,FALSE,Scheduling has been interrupted,,,
+33751191,EVENT_SCHEDULER_SCHEDULING_POSTPONED,Info,,,,No,Low,FALSE,Scheduling has been postponed,,,
+33751192,EVENT_SCHEDULER_SCHEDULING_REJECTED_HOOD_OPEN,Info,,,,No,Low,FALSE,Scheduling not possible since hood is open,,,
+33751193,EVENT_SCHEDULER_SCHEDULING_REJECTED_LOADER_OPEN,Info,,,,No,Low,FALSE,Scheduling not possible since loader is open,,,
+33751194,EVENT_SCHEDULER_FINAL_STATION_UNLOADER_OPEN,Info,,,,No,Low,FALSE,Unloader is requested but not available,,,
+33751195,EVENT_SCHEDULER_FINAL_STATION_UNLOADER_UNAVAILABLE,Info,,,,No,Low,FALSE,Unloader is not available for scheduler,,,
+33751196,EVENT_SCHEDULER_PROGRAM_CANCELED,Info,,,,No,Low,FALSE,Program associated to rack %1 has been canceled by user,,,
+33751197,EVENT_SCHEDULER_SUSPENSION_LOCK_UNLOADER_FAILED,Error,,,,Yes,High,TRUE,Execution suspended because unload drawer cannot be accessed,Ok,Yes,
+33751198,EVENT_SCHEDULER_REINIT_AGITATION,Error,,,,No,MEDIUM,FALSE,Agitation is not working properly,,,
+33751199,EVENT_SCHEDULER_SUSPENSION_AGITATIONDEFECT,Error,,,,Yes,High,TRUE,Processing of racks not possible because agitation could not be stopped,Ok,Yes,
+33751200,EVENT_SCHEDULER_REMOVE_ATTACHED_RACK_LEFT_ARM,Error,RemoveRack,,Scheduler,Yes,High,TRUE,Please remove rack currently attached to the left arm and press Ok when finished,Ok,,
+33751201,EVENT_SCHEDULER_REMOVE_ATTACHED_RACK_RIGHT_ARM,Error,RemoveRack,,Scheduler,Yes,High,TRUE,Please remove rack currently attached to the right arm and press Ok when finished,Ok,,
+33751202,EVENT_SCHEDULER_DEVICE_DEFECT_XYZ_1,Warning,,,,Yes,High,TRUE,The left arm is defect,Ok,Yes,
+33751203,EVENT_SCHEDULER_DEVICE_DEFECT_XYZ_2,Warning,,,,Yes,High,TRUE,The right arm is defect,Ok,Yes,
+33751204,EVENT_SCHEDULER_DEVICE_DEFECT_OVEN,Warning,,,,Yes,High,TRUE,The oven is defect,Ok,Yes,
+33751205,EVENT_SCHEDULER_DEVICE_DEFECT_LOADER,Warning,,,,Yes,High,TRUE,The load drawer is defect,Ok,Yes,
+33751206,EVENT_SCHEDULER_DEVICE_DEFECT_UNLOADER,Warning,,,,Yes,High,TRUE,The unload drawer is defect,Ok,Yes,
+33751207,EVENT_SCHEDULER_DEVICE_DEFECT_HVESSELS,Warning,,,,Yes,High,TRUE,The heated station %3 is defect,Ok,Yes,
+33751208,EVENT_SCHEDULER_DEVICE_DEFECT_AGITATION,Warning,,,,Yes,High,TRUE,The agitation is defect,Ok,Yes,
+33751209,EVENT_SCHEDULER_DEVICE_DEFECT_RACKTRANSFER,Warning,,,,Yes,High,TRUE,The rack transfer is defect,Ok,Yes,
+33751210,EVENT_SCHEDULER_DEVICE_DEFECT_EXHAUST,Warning,,,,Yes,High,TRUE,The exhaust is defect,Ok,Yes,
+33751211,EVENT_SCHEDULER_DEVICE_DEFECT_WATER,Warning,,,,Yes,High,TRUE,The water stations are defect,Ok,Yes,
+33751212,EVENT_SCHEDULER_DEVICE_DEFECT_HOOD,Warning,,,,Yes,High,TRUE,The hood is defect,Ok,Yes,
+33751213,EVENT_SCHEDULER_DEVICE_DEFECT_LIGHT_1,Warning,,,,Yes,High,TRUE,The light is defect,Ok,Yes,
+33751214,EVENT_SCHEDULER_DEVICE_DEFECT_CONSUMABLES_1,Warning,,,,Yes,High,TRUE,The consumables reader is defect,Ok,Yes,
+33751215,EVENT_SCHEDULER_DEVICE_DEFECT_SLIDE_ID,Warning,,,,Yes,High,TRUE,The slide counter is defect,Ok,Yes,
+33816577,EVENT_DM_INVALID_PROGRAM_ID,Info,,,,No,Medium,TRUE,%1 is not a valid Program ID.,,,
+33816578,EVENT_DM_PROGRAM_NAME_NOT_UNIQUE,Info,,,,No,Medium,TRUE,Program name %1 not unique,,,Program name must be unique.
+33816579,EVENT_DM_SHORT_NAME_NOT_UNIQUE,Info,,,,No,Medium,TRUE,Program short name %1 not unique,,,Abbreviation must be unique.
+33816580,EVENT_DM_OVEN_NOT_FIRST_STEP,Info,,,,No,Medium,TRUE,Please select oven as first step for the program %1.,,,Oven station should be the first step of the program.
+33816581,EVENT_DM_REAGENTID_NOT_UNIQUE,Info,,,,No,Medium,TRUE,Same Reagent used in multiple steps in the program %1. Reagent should be exclusive to a step in the program.,,,
+33816582,EVENT_DM_TRANS_UNLOADER_STEP_ONLY,Info,,,,No,Medium,TRUE,Program cannot contain only Unloader/Transfer program step.,,,
+33816583,EVENT_DM_CONSTRUCTION_FAILED,Info,,,,No,Medium,TRUE,DataManager Construction Failed.,,,Internal Software Error. Please contact service
+33816584,EVENT_DM_PROGRAM_XML_READ_FAILED,Info,,,,No,Medium,FALSE,Reading Programs.xml failed.,,No,Internal Software Error. Please contact service
+33816586,EVENT_DM_PROG_SEQ_XML_READ_FAILED,Info,,,,No,Medium,FALSE,Reading ProgramsSequence.xml failed.,,No,Internal Software Error. Please contact service
+33816592,EVENT_DM_PROGRAM_VERIFICATION_FAILED,Info,,,,No,Medium,TRUE,Verifying Programs.xml  failed.,Ok,No,Invalid/corrupt data. Please contact service
+33816593,EVENT_DM_PROG_SEQ_VERIFICATION_FAILED,Info,,,,No,Medium,TRUE,Verifying ProgramsSequence.xml failed.,Ok,No,Invalid/corrupt data. Please contact service
+33816594,EVENT_DM_BLG_CONF_READ_FAILED,Info,,,,No,Medium,TRUE,Reading BLGConfiguration.xml failed.,Ok,No,Internal Software Error. Please contact service
+33816595,EVENT_DM_BLG_CONF_VERIFICATION_FAILED,Info,,,,No,Medium,TRUE,Verifying BLGConfiguration.xml failed.,Ok,No,Invalid/corrupt data. Please contact service
+33816596,EVENT_DM_PROGRAM_INVALID_INDEX,Info,,,,No,Medium,TRUE,Invalid Index in program hash table.,,,Invalid/corrupt data. Please contact service
+33816597,EVENT_DM_PROG_COUNT_EXCEEDS_LIMIT,Error,,,,No,Medium,TRUE,Program list contains more than %1 programs. Only %1 programs allowed,,,
+33816598,EVENT_DM_NEXT_STEPID_INVALID,Error,,,,No,Medium,TRUE,ProgramList: Invalid Next Step ID .,,,Invalid/corrupt data. Please contact service.
+33816599,EVENT_DM_NEXT_STEPID_LESS_THAN_ONE,Error,,,,No,Medium,TRUE,ProgramList: Next Step ID less than one.,,,Invalid/corrupt data. Please contact service.
+33816600,EVENT_DM_PROGRAM_ID_NOT_FOUND,Info,,,,No,Medium,TRUE,Program ID %1 for the program %2 not found,,,
+33816601,EVENT_DM_PROGSHORT_NAME_LENGTH_CHECK_FAILED,info,,,,No,Medium,TRUE,Length of the Program short name exceeds limit for the program %1. Valid Range %2 - %3 characters.,,,
+33816602,EVENT_DM_PROGLONG_NAME_LENGTH_CHECK_FAILED,info,,,,No,Medium,TRUE,Length of the Program  name exceeds limit for the program %1.Valid Range %2 - %3 characters.,,,
+33816603,EVENT_DM_UKNOWN_PROG_COLOUR,Error,,,,No,Medium,TRUE,Program %1 assigned to unknown color %2.,,,Invalid/corrupt data. Please contact service.
+33816604,EVENT_DM_PROG_COLOUR_NOT_UNIQUE,Error,,,,No,Medium,TRUE,One or more Programs associated with same color %1.,,,
+33816605,EVENT_DM_PROG_STEP_COUNT_EXCEEDS_LIMIT,info,,,,No,Medium,TRUE,Number of steps in Program %1 exceeds limit. Max 50 steps allowed.,,,
+33816606,EVENT_DM_PROG_VERFIER_INVALID_REAGENT_ID,info,,,,No,Medium,TRUE,Program Verifier found invalid Reagent ID %2 in the program %1.,,,Data verification failed because invalid/corrupt data. Please contact service.
+33816607,EVENT_DM_REAGENT_USED_IN_MULTIPLE_PROG_STEPS,info,,,,No,Medium,TRUE,Reagent %2 is used in multiple program steps of the program %1.,,,
+33816608,EVENT_DM_INVALID_STEP_ID,info,,,,No,Medium,TRUE,Step ID %2 in Program %1 is invalid,,,
+33816609,EVENT_DM_INVALID_LEICA_PARALLEL_STN_CNT,info,,,,No,Medium,TRUE,Program step(s) in Program %1 has invalid Leica parallel stations count. Valid range is %2-%3 .,,,Invalid/corrupt data. Please contact service.
+33816610,EVENT_DM_INTENSITY_STEP_COUNT_INVALID,info,,,,No,Medium,TRUE,Program step(s) in Program %1 has invalid Intensity Step count: %2.Valid range is %3-%4 .,,,Invalid/corrupt data. Please contact service.
+33816611,EVENT_DM_STEP_INTENSITY_VALUE_INVALID,info,,,,No,Medium,TRUE,Program step(s) in Program %1 has invalid Intensity value: %2.Valid range is %3-%4 .,,,Invalid/corrupt data. Please contact service.
+33816612,EVENT_DM_STEP_RANGE_LOW_VALUE_EMPTY,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains empty 'step range low' value.,,,Invalid/corrupt data. Please contact service.
+33816613,EVENT_DM_STEP_RANGE_LOW_ZERO,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains 'step range low' value of zero,,,Invalid/corrupt data. Please contact service.
+33816614,EVENT_DM_STEP_RANGE_HIGH_VALUE_EMPTY,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains empty 'step range high' value.,,,Invalid/corrupt data. Please contact service.
+33816615,EVENT_DM_STEP_RANGE_HIGH_ZERO,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains 'step range high' value of zero,,,Invalid/corrupt data. Please contact service.
+33816616,EVENT_DM_STEP_MIN_DURATION_EMPTY,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains 'Minimum duration' value of zero,,,Invalid/corrupt data. Please contact service.
+33816617,EVENT_DM_STEP_MIN_DURATION_INVALID,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains empty 'Minimum duration'.,,,Invalid/corrupt data. Please contact service.
+33816618,EVENT_DM_STEP_MAX_DURATION_INVALID,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains empty 'Maximum duration'.,,,Invalid/corrupt data. Please contact service.
+33816620,EVENT_DM_PROG_INVALID_DURATION_FORMAT,info,,,,No,Medium,TRUE,Program step(s) in Program %1 contains invalid duration format,,,Invalid/corrupt data. Please contact service.
+33816622,EVENT_DM_PROG_EDITED_LEICA_REAGENT_COUNT_INVALID,info,,,,No,Medium,TRUE,Leica Program %1 contains more than 2 Leica special reagents,,,
+33816623,EVENT_DM_PROG_ID_NOT_UNIQUE,info,,,,No,Medium,TRUE,Program ID %1 associated with Program %2 is not unique .,,,Invalid/corrupt data. Please contact service.
+33816624,EVENT_DM_PROG_DELETE_FAILED_ID_NOT_FOUND,info,,,,No,Medium,TRUE,Delete program failed due to invalid Program ID %1.,,,Invalid/corrupt data. Please contact service.
+33816625,EVENT_DM_PROG_UPDATE_FAILED_INTERNAL_ERR,Error,,,,No,Medium,TRUE,Internal Software Error. Program update failed. Please contact service.,,,
+33816626,EVENT_DM_PROG_ADD_FAILED_INTERNAL_ERR,Error,,,,No,Medium,TRUE,Internal Software Error. Adding Program failed. Please contact service.,,,
+33816627,EVENT_DM_ADJUSTMENT_CONF_READ_FAILED,Info,,,,,Medium,FALSE,Reading Adjustments.xml failed.,,,
+33816628,EVENT_DM_ADJUSTMENT_VERIFICATION_FAILED,Info,,,,,Medium,FALSE,Verifying Adjustments.xml failed.,,,
+33816629,EVENT_DM_USER_PROGRAM_CONTAINS_LEICA_REAGENT,Error,,,,No,Medium,FALSE,User program %1 contains the Leica reagent %2,,,
+33816630,EVENT_DM_LEICA_PROGRAMS_CONTAIN_SAME_LEICA_REAGENT,Error,,,,No,Medium,FALSE,Leica reagent %1 is used in two or more Leica programs %2,,,
+33816631,EVENT_DM_PROG_DEL_FAILED_INTERNAL_ERR,Error,,,,No,Medium,TRUE,Internal Software Error. Program delete failed. Please contact service.,,,
+33816634,EVENT_DM_WATER_STEP_MIN_DURATION_INVALID,Error,,,,No,Medium,TRUE,Water step in Program %1 is less than the minimum duration of 15 seconds for step %2. Please correct the program step.,Ok,,
+33816635,EVENT_DM_PROG_CONTAINS_SUCCESSIVE_WATER_STEPS,Error,,,,No,Medium,TRUE,Program %1 has successive water steps. Please correct the program steps.,Ok,,
+33817088,EVENT_DM_GV_REAGENTID_EXIST_IN_PROG_NOT_IN_REAGENT_LIST,Error,,,,No,Medium,FALSE,Reagent ID exists in Program list but not in Reagent list: %1,,,
+33817089,EVENT_DM_GV_REAGENTID_EXIST_IN_STATION_NOT_IN_REAGENT_LIST,Error,,,,No,Medium,FALSE,Reagent ID exists in Station list but not in Reagent list : %1,,,
+33817090,EVENT_DM_GV_NO_OF_PROGRAMS_NOT_MATCHING,Error,,,,No,Medium,FALSE,No of programs in Program sequence list does not match with program list,,,
+33817091,EVENT_DM_GV_PROG_ID_EXIST_IN_PROGSEQ_NOT_IN_PROG_LIST,Error,,,,No,Medium,FALSE,Program ID exists in the Program sequence list but not in Program list : %1,,,
+33817092,EVENT_DM_GV_REAGENTID_EXIST_IN_SETTINGS_NOT_IN_REAGENT_LIST,Error,,,,No,Medium,FALSE,Reagent ID exist in User settings but not in  Reagent list: %1,,,
+33817093,EVENT_DM_GV_STATIONID_EXIST_IN_STATION_NOT_IN_STATIONMATRIX,Error,,,,No,Medium,FALSE,Station ID exist in Station list but not in Station matrix : %1,,,
+33817094,EVENT_DM_GV_CONTAINER_IS_NOT_INITIALIZED,Error,,,,No,Medium,FALSE,Group verification failed. %1 container is not initialized.,,,
+33817095,EVENT_DM_GV_INVALID_CONTAINER_TYPE,Error,,,,No,Medium,FALSE,Group verification failed. Container type is not valid.,,,
+33817096,EVENT_DM_GV_PROG_ID_EXIST_IN_PROG_NOT_IN_PROGSEQ_LIST,Error,,,,No,Medium,FALSE,Program ID exists in the Program  list but not in Program Sequence list : %1,,,Invalid/corrupt data. Please contact service.
+33817097,EVENT_DM_GV_PROGRAMID_EXIST_IN_STATION_NOT_IN_PROGRAM_LIST,Error,,,,No,Medium,FALSE,Program ID %1 in the Station %2 does not exists in Program list.,,,
+33817098,EVENT_DM_GV_LOCK_STATUS_FALSE_REAGENT_LEICA_PROGRAM,Error,,,,No,Medium,FALSE,The locked status for reagent %1 used in Leica program is not set to true.,,,
+33817099,EVENT_DM_GV_LOCK_STATUS_TRUE_REAGENT_NOTIN_LEICA_PROGRAM,Error,,,,No,Medium,FALSE,The locked status for reagent %1 is set to true but not used in Leica program.,,,
+33817100,EVENT_DM_GV_LEICA_REAGENT_IN_LOADER_STATION,Error,,,,No,Medium,FALSE,Loader station %1 has leica reagent,,,
+33817101,EVENT_DM_GV_PARALLEL_STATIONS_DIFFERENT_ZONE,Error,,,,No,Medium,FALSE,The following parallel station(s) are not in same zone of bathlayout: %n.,,,
+33817344,EVENT_DM_PROGSEQ_EVENTS,Error,,,,No,Medium,FALSE,Base event,,,
+33817345,EVENT_DM_PROGSEQ_ID_REPEATED,Error,,,,No,Medium,TRUE,Program Sequence ID %1 already in use. Please choose different ID.,,,Invalid/corrupt data. Please contact service.
+33817346,EVENT_DM_PROGSEQ_ID_DOESTNOT_EXISTS,Error,,,,No,Medium,TRUE,Program Sequence ID %1 does not exists in the list.,,,Invalid/corrupt data. Please contact service.
+33817347,EVENT_DM_PROGSEQ_OPERATION_FAILED,Error,,,,No,Medium,TRUE,Program Sequence %1 operation failed,,,Invalid/corrupt data. Please contact service.
+33817348,EVENT_DM_PROGSEQ_MAX_COUNT_REACHED,Error,,,,No,Medium,TRUE,Too many Program Sequence (max 50 allowed):,,,Invalid/corrupt data. Please contact service.
+33817349,EVENT_DM_PROGSEQ_INVALID_PREFIX,Error,,,,No,Medium,TRUE,Program Sequence: '%1' Program ID shall start with L/U and should be greater than 0:,,,Invalid/corrupt data. Please contact service.
+33817350,EVENT_DM_PROGSEQ_INVALID_BLGRESULT,Error,,,,No,Medium,TRUE,Program Sequence BLGResult: Can't have more than 5 Error codes. BLG Result can be either success or failure and not both.,,,Invalid/corrupt data. Please contact service.
+33817351,EVENT_DM_PROGSEQ_INVALID_BLGRESULT_CODE,Error,,,,No,Medium,TRUE,Program Sequence : '%1' : Invalid BLG result code,,,Invalid/corrupt data. Please contact service.
+33817352,EVENT_DM_PROGSEQ_LEICA_PROGRAM_AFTER_USER_PROGRAM,Error,,,,No,Medium,TRUE,Program Sequence. The Leica program %s is after a user program,,,Invalid/corrupt data. Please contact service.
+33817600,EVENT_DM_BLGCONF_EVENTS,Error,,,,No,Medium,FALSE,Base event,,,
+33817601,EVENT_DM_BLGCONF_TERMCOUNT_EXCEEDS_LIMIT,Error,,,,No,Medium,TRUE,Blgconf : '%1' : Termination Count value is more than 10,,,Invalid/corrupt data. Please contact service.
+33817602,EVENT_DM_BLGCONF_PARALLEL_STATIONS_EXCEEDS_LIMIT,Error,,,,No,Medium,TRUE,Blgconf : '%1' : Maximum Parallel Stations Count value is more than 10,,,Invalid/corrupt data. Please contact service.
+33817603,EVENT_DM_BLGCONF_SHORTNAME_EXCEEDS_LENGHT,Error,,,,No,Medium,TRUE,Blgconf : '%1' : Rule ShortName more than 8 characters,,,Invalid/corrupt data. Please contact service.
+33817604,EVENT_DM_BLGCONF_LONGNAME_EXCEEDS_LENGHT,Error,,,,No,Medium,TRUE,Blgconf : '%1' : Rule Longname more than 50 characters,,,Invalid/corrupt data. Please contact service.
+33882113,EVENT_BLG_GENERATION_SUCCESS,Info,,,,No,Medium,TRUE,Bathlayout successfully generated,,,
+33882114,EVENT_BLG_READING_INPUTFILE_FAILED,Error,,,,No,High,TRUE,BLG failed : one or more Invalid Input files,OK,,Bathlayout generation failed. Please restart instrument.
+33882115,EVENT_BLG_USED_PROGRAM_LIST_EMPTY,Error,,,,No,High,TRUE,BLG failed : Used programs list is empty,OK,,Bathlayout generation failed. Please restart instrument.
+33882116,EVENT_BLG_EMPTY_BLGRULES_LIST,Error,,,,No,High,TRUE,BLG failed : Empty BLG rules,OK,,Bathlayout generation failed. Please restart instrument.
+33882117,EVENT_BLG_WRITING_OUTPUT_FILES_FAILED,Error,,,,No,High,TRUE,BLG failed : Writing output files,OK,,Bathlayout generation failed. Please restart instrument.
+33882118,EVENT_BLG_BATHLAYOUT_SELECTION_FAILED_TREE_EMPTY,Error,,,,No,High,TRUE,BLG failed : Final bathlayout selection failed,OK,,Bathlayout generation failed. Please restart instrument.
+33882119,EVENT_BLG_GENERATION_FAILURE,Error,,,,No,High,TRUE,Bathlayout generation failed,Ok,,Bathlayout generation failed. Please restart instrument.
+33882120,EVENT_BLG_BATHLAYOUT_TOO_MANY_USED_PROGRAMS,Error,,,,No,High,TRUE,More than 20 programs selected for bathlayout generation,OK,,Please select less than 20 programs for bathlayout generation.
+33882123,EVENT_BLG_MAIN_READING_STATIONS_FAILED,Error,,,,No,Medium,TRUE,Bathlayout generator Station data read failed.,Ok,,Bathlayout generation failed. Please restart instrument.
+33882124,EVENT_BLG_MAIN_STATIONS_VERIFY_FAILED,Error,,,,No,Medium,TRUE,Bathlayout generator Station data error.,Ok,,Bathlayout generation failed. Please restart instrument.
+33882125,EVENT_BLG_MAIN_READING_PROG_SEQ_FAILED,Error,,,,No,Medium,TRUE,Bathlayout generator Program Sequence data read failed.,Ok,,Bathlayout generation failed. Please restart instrument.
+33882126,EVENT_BLG_MAIN_PROG_SEQ_VERIFY_FAILED,Error,,,,No,Medium,TRUE,Bathlayout generator Program Sequence data error.,Ok,,Bathlayout generation failed. Please restart instrument.
+33882127,EVENT_BLG_MAIN_ERROR_STATION_NULL_POINTER,Error,,,,No,Medium,FALSE,Stations list container pointer is NULL.,,,
+33882128,EVENT_BLG_MAIN_ERROR_CONTAINER_NULL_POINTER,Error,,,,No,Medium,FALSE,DataManager data container pointer is NULL.,,,
+33882129,EVENT_BLG_MAIN_CANNOT_START_BLG_SYSTEM_NOT_IDLE,Warning,,,,No,Medium,TRUE,Bathlayout cannot be generated. System is busy.,Ok,,
+33882130,EVENT_BLG_MAIN_ABORT_BLG_PROCESS,Info,,,,No,Low,TRUE,BLG process aborted,,,
+33947649,EVENT_IMPORTEXPORT_IMPORT_NO_USB,Error,,,,No,Medium,TRUE,No USB devices found in the system to import files,,,
+33947650,EVENT_IMPORT_DIRECTORY_CREATION_FAILED,Error,,,,No,Medium,TRUE,Import failed. Directory creation failed,,,Import failed. Please contact service.
+33947651,EVENT_IMPORT_NO_USB_DIRECTORY_EXIST,Error,,,,No,Medium,TRUE,Import failed. There is no USB directory  in /mnt folder,,,Import failed. Please contact service.
+33947652,EVENT_IMPORT_NO_FILES_TO_IMPORT,Error,,,,No,Medium,TRUE,Import failed. There are no files to import.,,,
+33947653,EVENT_IMPORT_ARCHIVE_FILE_FORMAT_NOT_PROPER,Error,,,,No,Medium,TRUE,Import failed. Format of import file is not correct.,,,
+33947654,EVENT_IMPORT_TAMPERED_ARCHIVE_FILE,Error,,,,No,Medium,TRUE,Import failed. Original import file was manipulated.,,,
+33947655,EVENT_IMPORT_REQUIRED_FILES_NOT_AVAILABLE,Error,,,,No,Medium,TRUE,Import failed. Required files are not complete.,,,
+33947656,EVENT_IMPORT_SWVERSION_NOT_MATCHING,Error,,,,No,Medium,TRUE,Import failed. SW versions are not compatible to import.,,,
+33947657,EVENT_IMPORT_INIT_CONTAINER_FAILED,Error,,,,No,Medium,TRUE,Import failed. Container initialization failed,,,Import failed. Please contact service.
+33947658,EVENT_IMPORT_VERIFICATION_CONTAINER_FAILED,Error,,,,No,Medium,TRUE,Import failed. Verification of the container failed,,,Import failed. Please contact service.
+33947659,EVENT_IMPORT_ROLLBACK_FAILED,Error,,,,No,Medium,TRUE,Import failed. Rollback failed,,,Import failed. Please contact service.
+33947660,EVENT_IMPORT_UPDATE_ROLLBACK_FAILED,Error,,,,No,Medium,TRUE,Import failed. Updating rollback failed,,,Import failed. Please contact service.
+33947661,EVENT_IMPORT_NEW_EVENTSTRING_FILE_MISSING,Info,,,,No,Medium,TRUE,Files for language import are not complete.,,,
+33947662,EVENT_IMPORT_SUCCESS,Info,,,,No,Medium,TRUE,Import of programs successful. Please prioritize programs and generate new bathlayout.,Ok,,
+33947663,EVENT_IMPORT_SUCCESS_LANGUAGE,Info,,,,No,Medium,TRUE,Language import successful.,Ok,,
+33947664,EVENT_IMPORT_FAILED,Error,,,,No,Medium,TRUE,Import failed,,,
+33947665,EVENT_IMPORTEXPORT_THREADRUNNING,Info,,,,No,Low,TRUE,ImportExport thread is running already,Ok,,Import/Export request is already in progress. Please try again.
+33947666,EVENT_IMPORTEXPORT_EXPORT_NO_USB,Error,,,,No,Medium,TRUE,No USB device for export found.,,,
+33947667,EVENT_IMPORT_TYPEOFIMPORTNOTVALID,Error,,,,No,Medium,TRUE,Import failed. Type of import is not supported.,Ok,,
+33947668,EVENT_IMPORTEXPORT_SIGNALSLOTERROR,Error,,,,No,Medium,TRUE,Import failed. Not able to connect to signal slot,,,Import failed. Please restart instrument.
+33947669,EVENT_IMPORT_SUCCESS_ALL_TYPES,Info,,,,No,Medium,TRUE,Import successful. Language files and programs are updated. Please prioritize programs and generate new bathlayout.,Ok,,
+33947670,EVENT_IMPORT_DEVICE_NAME_NOT_MATCHING,Error,,,,No,Medium,TRUE,Import failed. Wrong device type detected.,,,
+33947671,EVENT_IMPORT_CONTAINER_FAILED,Error,,,,No,Medium,TRUE,Import failed. Initialization/verification of container failed,,,Import failed. Please restart instrument.
+33947672,EVENT_IMPORT_UNABLE_TO_WRITE_FILES,Error,,,,No,Medium,TRUE,Import failed. Unable to write files to flash,,,Import failed. Please restart instrument.
+33947673,EVENT_IMPORT_IMPORT_LEICA_REAGENTS_FAILED,Error,,,,No,Medium,TRUE,Import failed. Updating Leica reagents failed,,,Import failed. Please restart instrument.
+33947674,EVENT_IMPORT_IMPORT_LEICA_PROGRAMS_FAILED,Error,,,,No,Medium,TRUE,Import failed. Updating Leica programs failed,,,Import failed. Please restart instrument.
+33947675,EVENT_IMPORT_UPDATE_USERSETTINGS_FAILED,Error,,,,No,Medium,TRUE,Import failed. Updating user settings failed,,,Import failed. Please restart instrument.
+34013185,EVENT_RMS_BOTTLE_SCAN_TIMEOUT,Error,,,,No,Low,TRUE,No Leica reagent bottle could be detected.,,No,No Leica reagent bottle could be detected. Please press OK to try again.
+34013186,EVENT_RMS_KIT_SCAN_TIMEOUT,Error,,,,No,Low,TRUE,No Leica reagent kit could be detected.,Ok,No,No Leica reagent kit could be detected.
+34013187,EVENT_RMS_CONSUMABLES_ALREADY_USED,Error,,,,No,Medium,TRUE,Consumable already used.,,No,Consumable already used. Retry with new consumable.
+34013188,EVENT_RMS_KIT_BEST_BEFORE_EXPIRED,Error,,,,No,Medium,TRUE,The scanned Leica reagent kit is expired.,Ok,No,
+34013189,EVENT_RMS_INVALID_KIT_PROG_ID,Error,,,,No,Low,TRUE,The scanned Leica reagent kit does not match with selected station of Leica program.,Ok,No,
+34013190,EVENT_RMS_WRITE_STATIONS_FAILED,Error,,,,No,Medium,TRUE,Consumable scan error. Consumable invalid.,Ok,No,
+34013191,EVENT_RMS_INVALID_SCAN_ORDER,Error,,,,No,Medium,TRUE,Please scan the Leica reagent kit first followed by Leica reagent bottles. ,Ok,No,
+34013192,EVENT_RMS_KIT_DATA_ERROR,Error,,,,No,Medium,TRUE,Leica reagent kit data error. Consumable invalid.,Ok,No,
+34013193,EVENT_RMS_BOTTLE_DATA_ERROR,Error,,,,No,Medium,TRUE,Leica reagent bottle data error. Consumable invalid.,Ok,No,
+34013194,EVENT_RMS_CONSUMABLES_RFID_SCAN_ERROR,Error,,,,No,Medium,TRUE,Consumable scan error. Consumable invalid.,,No,
+34013195,EVENT_RMS_CONSUMABLE_ALREADY_EXPIRED,Error,,,,No,Medium,TRUE,Leica consumable already expired.,Ok,No,
+34013196,EVENT_RMS_WRITE_REAGENTS_FAILED,Error,,,,No,Medium,FALSE,Writing reagents xml failed.,,,
+34013197,EVENT_RMS_KIT_CONTAINS_LESS_BOTTLE_COUNT,Error,,,,No,Medium,TRUE,Leica reagent kit invalid. Please contact Leica for exchange.,Ok,,Leica reagent kit invalid. Please contact Leica for exchange.
+34013198,EVENT_RMS_ERROR_DATA_CONTAINER_NULL_POINTER,Error,,,,No,Medium,FALSE,Data container pointer is NULL.,,No,
+34013199,EVENT_RMS_ERROR_UPDATE_STATION,Error,,,,No,Medium,FALSE,Updating station data to local container failed.,,No,
+34013200,EVENT_RMS_NO_STATION_PRESENT,Error,,,,No,Medium,FALSE,The station doesn't exists in the station list.,,No,
+34013201,EVENT_RMS_NO_REAGENT_PRESENT,Error,,,,No,Medium,FALSE,Station ID passed doesn't contain reagent.,,No,
+34013202,EVENT_RMS_ERROR_UPDATE_REAGENT,Error,,,,No,Medium,FALSE,Updating reagent data to local container failed.,,No,
+34013203,EVENT_RMS_REAGENT_ERROR_NULL_POINTER,Error,,,,No,Medium,FALSE,Reagent data container pointer is NULL.,,No,
+34013204,EVENT_RMS_LEICA_REAGENT_EXPIRED,Warning,,,,No,Medium,TRUE,One or more reagent(s) which are part of Leica program(s) are expired: %n. The respective Leica programs are not startable.,Ok,Yes,
+34013205,EVENT_RMS_REAGENT_ID_NOT_VALID,Error,,,,No,Medium,FALSE,Invalid reagent.,,No,
+34013206,EVENT_RMS_STATION_ID_NOT_VALID,Error,,,,No,Medium,FALSE,Invalid station.,,No,
+34013207,EVENT_RMS_REAGENT_ID_NOT_PRESENT,Error,,,,No,Medium,TRUE,The scanned Leica reagent bottle does not belong to the scanned Leica reagent kit. Press OK to retry with correct bottle.,Ok,No,
+34013208,EVENT_RMS_LOT_NUMBER_NOT_PRESENT_IN_KIT,Error,,,,No,Medium,TRUE,Lot number of the bottle doesn't exist in the kit.,,No,The scanned Leica reagent bottle does not belong to the scanned Leica reagent kit. Press OK to retry with correct bottle.
+34013209,EVENT_RMS_ERROR_CONFIRM_LEICA_REAGENT,Error,,,,No,Medium,TRUE,Confirmation of Leica reagent failed.,Ok,No,Data error while scanning Leica reagents. Please press OK to retry with new kit. If failed twice please contact Leica Service.
+34013210,EVENT_RMS_ERROR_CONFIRM_BATHLAYOUT,Error,,,,No,Medium,TRUE,Data error while generating bathlayout. Please contact Leica Service.,Ok,No,Data error while generating bathlayout. Please contact Leica Service.
+34013211,EVENT_RMS_ERROR_RESET_STATION_RMS,Error,,,,No,Medium,TRUE,Data error while updating RMS of station %1 failed.,Ok,No,Data error while updating RMS. 
+34013212,EVENT_RMS_ERROR_UPDATE_REAGENT_CONTAINER,Error,,,,No,Medium,FALSE,The reagent data container failed to update.,,No,
+34013213,EVENT_RMS_ERROR_UPDATE_STATION_CONTAINER,Error,,,,No,Medium,FALSE,The station data container failed to update.,,No,
+34013214,EVENT_RMS_INVALID_LEICA_CONSUMABLE,Error,,,,No,Medium,TRUE,Scanned object is neither Leica reagent bottle nor Leica reagent kit.,Ok,No,
+34013215,EVENT_RMS_ERROR_UPDATE_CONTAINERS,Error,,,,No,Medium,FALSE,Update data container failed.,,No,
+34013216,EVENT_RMS_STATIONLIST_VERIFICATION_FAILED,Error,,,,No,Medium,FALSE,Station list verification failed.,,No,
+34013217,EVENT_RMS_ERROR_UPDATE_LEICA_REAGENT,Error,,,,No,Medium,TRUE,Update Leica reagent failed.,Ok,No,Data error while updating Leica reagent. Please press OK to retry with new kit. If failed twice please contact Leica Service.
+34013218,EVENT_RMS_WRITE_PROG_SEQ_FAILED,Error,,,,No,Medium,FALSE,Writing program sequence data to xml failed.,,,
+34013219,EVENT_RMS_LEICA_REAGENT_90PERCENT_EXPIRED,Warning,,,,No,Medium,TRUE,One or more reagent(s) which are part of Leica program(s) are above 90% of their usage: %n. Please prepare for reagent change.,Ok,Yes,One or more reagent(s) which are part of Leica program(s) are above 90% of their usage: %n. Please prepare for reagent change.
+34013220,EVENT_RMS_CONSUMABLES_RFID_WRITE_ERROR,Error,,,,No,Medium,FALSE,Leica consumables RFID write error,,No,
+34078721,EVENT_COLORADO_SEPIA_CONNECTED_NOT_WORKSTATION,Error,,,,No,Medium,FALSE,Coverslipper connected but not in workstation mode,,No,

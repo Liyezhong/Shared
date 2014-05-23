@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SW_Version Version="1">
+  <SW>
+    <Release Version="ST_12.123" Date="2012-09-10" />
+  </SW>
+  <Master_SW>
+    <file Filename="colorado" Version="MAIN_1.125" Date="2012-09-10"></file>
+    <file Filename="RemoteCare" Version="RECA_2.123" Date="2011-12-10"></file>
+    <file Filename="colorado_gui" Version="GUI_3.234" Date="2012-09-08"></file>
+    <file Filename="colorado_BLG" Version="BLG_2.345" Date="2012-09-09"></file>
+    <file Filename="Export" Version="EXP_1.123" Date="2012-05-22"></file>
+    <file Filename="colorado_service" Version="SERV_1.123" Date="2012-05-22"></file>
+  </Master_SW>
+  <Firmware>
+    <file Filename="ASB1_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB1_1.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB2_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB2_1.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB2_2.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB3_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB4_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB4_1.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB5_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB12_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB13_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB6_0.bin" Version="2" Date="2012-06-22"></file>
+    <file Filename="ASB7_0.bin" Version="2" Date="2012-06-22"></file>
+  </Firmware>
+</SW_Version>

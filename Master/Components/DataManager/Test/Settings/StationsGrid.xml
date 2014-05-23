@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE StationsGrid>
+<StationsGrid Version="1" Rows="4" Columns="18">
+    <Row>
+		<Item   StationID="O01" Zone="Left" StationType="S4"/>
+		<Item   StationID="O02" Zone="Left" StationType="S4"/>
+		<Item   StationID="O03" Zone="Left" StationType="S4"/>
+		<Item   StationID="H01" Zone="Left" StationType="S11" HardwareID="1"/>
+		<Item   StationID="H02" Zone="Left" StationType="S11" HardwareID="2"/>
+		<Item   StationID="R03" Zone="Left" StationType="S0"/>
+		<Item   StationID="R04" Zone="Left" StationType="S0"/>
+		<Item   StationID="R05" Zone="Left" StationType="S0"/>
+		<Item   StationID="R06" Zone="Left" StationType="S0"/>
+		<Item   StationID="R07" Zone="Left" StationType="S0"/>
+		<Item   StationID="W08" Zone="Collision" StationType="S5" HardwareID="5"/>
+		<Item   StationID="W09" Zone="Collision" StationType="S5" HardwareID="6"/>
+		<Item   StationID="R10" Zone="Right" StationType="S0"/>
+		<Item   StationID="R11" Zone="Right" StationType="S0"/>
+		<Item   StationID="R12" Zone="Right" StationType="S0"/>
+		<Item   StationID="R13" Zone="Right" StationType="S0" />
+		<Item   StationID="R14" Zone="Right" StationType="S0"  />
+		<Item   StationID="P02" Zone="Right" StationType="S10" />
+    </Row>
+	<Row>
+		<Item   StationID="O04" Zone="Left" StationType="S4" />
+		<Item   StationID="O05" Zone="Left" StationType="S4" />
+		<Item   StationID="O06" Zone="Left" StationType="S4" />
+		<Item   StationID="H15" Zone="Left" StationType="S11" HardwareID="3"/>
+		<Item   StationID="H16" Zone="Left" StationType="S11" HardwareID="4"/>
+		<Item   StationID="R17" Zone="Left" StationType="S0" />
+		<Item   StationID="R18" Zone="Left" StationType="S0" />
+		<Item   StationID="R19" Zone="Left" StationType="S0" />
+		<Item   StationID="R20" Zone="Left" StationType="S0" />
+		<Item   StationID="R21" Zone="Left" StationType="S0"  />
+		<Item   StationID="W22" Zone="Collision" StationType="S5" HardwareID="3"/>
+		<Item   StationID="W23" Zone="Collision" StationType="S5" HardwareID="4"/>
+		<Item   StationID="R24" Zone="Right" StationType="S0" />
+		<Item   StationID="R25" Zone="Right" StationType="S0" />
+		<Item   StationID="R26" Zone="Right" StationType="S0" />
+		<Item   StationID="R27" Zone="Right" StationType="S0" />
+		<Item   StationID="R28" Zone="Right" StationType="S0" />
+		<Item   StationID="TRA" Zone="Right" StationType="S8" />
+    </Row>
+	<Row>
+        <Item   StationID="UNDEFINED" Zone="Left" StationType="" />
+		<Item   StationID="SID" Zone="Left" StationType="S3" />
+		<Item   StationID="UNDEFINED" Zone="Left" StationType="" />
+		<Item   StationID="R29" Zone="Left" StationType="S0" />
+		<Item   StationID="R30" Zone="Left" StationType="S0" />
+		<Item   StationID="R31" Zone="Left" StationType="S0" />
+		<Item   StationID="R32" Zone="Left" StationType="S0" />
+		<Item   StationID="R33" Zone="Left" StationType="S0" />
+		<Item   StationID="R34" Zone="Left" StationType="S0" />
+		<Item   StationID="R35" Zone="Left" StationType="S0" />
+		<Item   StationID="W36" Zone="Collision" StationType="S5" HardwareID="1"/>
+		<Item   StationID="W37" Zone="Collision" StationType="S5" HardwareID="2"/>
+		<Item   StationID="R38" Zone="Right" StationType="S0" />
+		<Item   StationID="R39" Zone="Right" StationType="S0" />
+		<Item   StationID="R40" Zone="Right" StationType="S0" />
+		<Item   StationID="R41" Zone="Right" StationType="S0" />
+		<Item   StationID="R42" Zone="Right" StationType="S0" />
+		<Item   StationID="UNDEFINED" Zone="Right" StationType="" />	
+    </Row>
+	<Row>
+		<Item   StationID="P01" Zone="Left" StationType="S10" />
+		<Item   StationID="UNDEFINED" Zone="Left" StationType="" />
+		<Item   StationID="UNDEFINED" Zone="Left" StationType="" />
+		<Item   StationID="UNDEFINED" Zone="Left" StationType="" />
+		<Item   StationID="UNDEFINED" Zone="Left" StationType="" />
+		<Item   StationID="L01" Zone="Left" StationType="S1" />
+		<Item   StationID="L02" Zone="Left" StationType="S1" />
+		<Item   StationID="L03" Zone="Left" StationType="S1" />
+		<Item   StationID="L04" Zone="Left" StationType="S1" />
+		<Item   StationID="L05" Zone="Left" StationType="S1" />
+		<Item   StationID="D01" Zone="Collision" StationType="S9" />
+		<Item   StationID="D02" Zone="Collision" StationType="S9" />
+		<Item   StationID="U01" Zone="Right" StationType="S7" />
+		<Item   StationID="U02" Zone="Right" StationType="S7" />
+		<Item   StationID="U03" Zone="Right" StationType="S7" />
+		<Item   StationID="U04" Zone="Right" StationType="S7" />
+		<Item   StationID="U05" Zone="Right" StationType="S7" />
+		<Item   StationID="UNDEFINED" Zone="Right" StationType="" />	
+    </Row>
+</StationsGrid>

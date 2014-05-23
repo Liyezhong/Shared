@@ -1,0 +1,14 @@
+
+<!DOCTYPE ProgramsSequence>
+<ProgramsSequence Version="1">
+    <Program ID="L1" Used="false" Counter="47" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U3" Used="false" Counter="47" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U2" Used="false" Counter="11" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U1" Used="false" Counter="15" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U4" Used="false" Counter="20" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U6" Used="false" Counter="25" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U5" Used="false" Counter="47" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U7" Used="true" Counter="11" StartCapable="true" StartCapableResult="0"/>
+    <Program ID="U8" Used="false" Counter="15" StartCapable="false" StartCapableResult="0"/>
+    <Program ID="U09" Used="true" Counter="0" StartCapable="false" StartCapableResult="7"/>
+</ProgramsSequence>

@@ -4,16 +4,15 @@ QT += xml
 QT += xmlpatterns
 QT += network
 
-TARGET = utTestDataManagerInclude
+TARGET = utTestDeviceConfigurationSepia
 
-INCLUDEPATH += ../../../
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components/
-INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
+INCLUDEPATH += ../../../ \
+ ../../../../../../../Platform/Master/Components/
 
 DEPENDPATH += ../../../
+RESOURCES += ../Containers/DeviceConfiguration/Resources/*.qrc
 
-SOURCES = TestDataManagerInclude.cpp
+SOURCES = TestDeviceConfigurationSepia.cpp
 
 UseDepLibs(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
 		   RemoteCareController HeartBeatManager EventHandler GPIOManager ExternalProcessController \

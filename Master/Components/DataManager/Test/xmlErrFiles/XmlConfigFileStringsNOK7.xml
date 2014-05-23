@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings version="1">
+    <language name="de">
+        <string id="1" text1="Ding-Dang-Dong 1" text2="dad"/>
+        <string id="2" text1="Ding-Dang-Dong 2" text2="bla"/>
+        <string id="3" text1="Ding-Dang-Dong 3" text2="bla" />
+    </language>
+</strings>

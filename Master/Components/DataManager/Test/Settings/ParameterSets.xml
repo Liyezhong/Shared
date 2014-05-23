@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE CoverslippingParameterSets>
+<CoverslippingParameterSets Version="1">
+    <ParameterSets>
+        <ParameterSet ID="L1" MountantName="LCV" CoverglassLength="40 mm" MountantVolume="-5" RackColours="white" StartCapable="true" StartCapableResult="-1" />
+	<ParameterSet ID="L2" MountantName="LCV" CoverglassLength="40 mm" MountantVolume="-4" RackColours="yellow" StartCapable="false" StartCapableResult="-1" />
+        <ParameterSet ID="L3" MountantName="LCV" CoverglassLength="40 mm" MountantVolume="-3" RackColours="lightblue" StartCapable="false" StartCapableResult="-1" />
+	 <ParameterSet ID="L4" MountantName="LCV" CoverglassLength="50 mm" MountantVolume="-2" RackColours="darkblue" StartCapable="false" StartCapableResult="-1" />
+	 <ParameterSet ID="L5" MountantName="LCV" CoverglassLength="55 mm" MountantVolume="-1" RackColours="pink" StartCapable="true" StartCapableResult="-1" />
+	 <ParameterSet ID="L6" MountantName="LCV" CoverglassLength=" 55 mm" MountantVolume="0" RackColours="red" StartCapable="true" StartCapableResult="-1" />
+	 <ParameterSet ID="L7" MountantName="LCV" CoverglassLength="60 mm" MountantVolume="1" RackColours="green" StartCapable="true" StartCapableResult="-1" />
+	 <ParameterSet ID="L8" MountantName="LCV" CoverglassLength="60 mm" MountantVolume="2" RackColours="black" StartCapable="true" StartCapableResult="-1" />
+	 <ParameterSet ID="L9" MountantName="LCV" CoverglassLength="40 mm" MountantVolume="3" RackColours="grey" StartCapable="false" StartCapableResult="-1" />
+	 <ParameterSet ID="L10" MountantName="LCV" CoverglassLength="60 mm" MountantVolume="4" RackColours="white" StartCapable="false" StartCapableResult="-1" />
+    </ParameterSets>	
+</CoverslippingParameterSets>
