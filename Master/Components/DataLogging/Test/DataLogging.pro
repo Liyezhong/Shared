@@ -4,11 +4,12 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS =   TestBaseLogger.pro \
-            TestBaseLoggerReusable.pro \
-            TestDayOperationLoggerConfig.pro \
-            TestDayOperationEntry.pro \
-            TestEventFilter.pro \
-	    TestDayLogFileInformation.pro
+SUBDIRS     =   TestBaseLogger.pro
+SUBDIRS  +=   TestBaseLoggerReusable.pro
+SUBDIRS  +=   TestDayOperationLoggerConfig.pro
+SUBDIRS  +=   TestDayOperationEntry.pro
+SUBDIRS  +=   TestEventFilter.pro
+SUBDIRS  +=   TestDayLogFileInformation.pro
+SUBDIRS  +=   TestEventFilterNetworkServer.pro
 
 CONFIG += ordered

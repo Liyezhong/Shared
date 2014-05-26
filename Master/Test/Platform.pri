@@ -42,7 +42,7 @@ CONFIG(debug, debug|release) {
         QMAKE_LFLAGS_RELEASE += -fprofile-arcs
         QMAKE_CXXFLAGS_RELEASE -= -O2
         QMAKE_CXXFLAGS_RELEASE += -O0
-
+		LIBS += -lgcov
     }
 }
 
