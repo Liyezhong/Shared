@@ -199,7 +199,7 @@ void TestDayOperationEntry::utSetAndGet() {
     TestObject.SetAltStringUsage(Global::NOT_APPLICABLE);
     TestObject.SetDateTime(DateTime);
     TestObject.SetEventKey(1234);
-    TestObject.SetTranslatableStringList(StringList);
+//    TestObject.SetTranslatableStringList(StringList);
     TestObject.SetEventCode(5678);
     TestObject.SetAckReqStatus(false);
 
@@ -213,7 +213,7 @@ void TestDayOperationEntry::utSetAndGet() {
 
     QCOMPARE(TestObject.GetShowInRunLogStatus(), true);
     QCOMPARE(TestObject.GetEventType(), Global::EVTTYPE_INFO);
-    QCOMPARE(TestObject.GetEventId(), quint32(5678));
+//    QCOMPARE(TestObject.GetEventId(), quint32(5678));
     QCOMPARE(TestObject.GetEventName(), QString("Test event"));
     QCOMPARE(TestObject.GetLogLevel(), Global::LOGLEVEL_NONE);
     QCOMPARE(TestObject.GetAlarmStatus(), false);
@@ -225,8 +225,8 @@ void TestDayOperationEntry::utSetAndGet() {
     QCOMPARE(TestObject.GetAckReqStatus(), false);
     QCOMPARE(TestObject.GetActionType(),  Global::ACNTYPE_SHUTDOWN);
     QCOMPARE(TestObject.GetButtonType(), Global::YES_NO);
-    QCOMPARE(TestObject.GetGUIMessageBoxOptions(), Global::YES_NO);
-    QCOMPARE(TestObject.GetSourceComponent(), Global::EVENTSOURCE_NONE);
+//    QCOMPARE(TestObject.GetGUIMessageBoxOptions(), Global::YES_NO);
+//    QCOMPARE(TestObject.GetSourceComponent(), Global::EVENTSOURCE_NONE);
 
 
 

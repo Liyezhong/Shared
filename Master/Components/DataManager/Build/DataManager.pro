@@ -31,5 +31,5 @@ SOURCES += ../Helper/Source/*.cpp \
  ../Containers/InstrumentHistory/Commands/Source/*.cpp \
  ../CommandInterface/Source/*.cpp \
  ../Source/*.cpp \
- ../Containers/RCConfiguration/Source/*.cpp \
+ ../Containers/RCConfiguration/Source/*.cpp
 
