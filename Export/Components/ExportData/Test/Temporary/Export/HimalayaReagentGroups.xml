@@ -1,0 +1,12 @@
+
+<!DOCTYPE ReagentGroups>
+<ReagentGroups Version="1">
+    <ReagentGroup ID="RG1" Name="Fixation" NameID="50331653" Color="D9FFD9" CleaningReagentGroup="false" IsParraffinGroup="false" MinTemprature="35" MaxTemprature="45"/>
+    <ReagentGroup ID="RG2" Name="Water" NameID="50331654" Color="A9B7FF" CleaningReagentGroup="false" IsParraffinGroup="false" MinTemprature="0" MaxTemprature="0"/>
+    <ReagentGroup ID="RG3" Name="Dehydrating,diluted" NameID="50331655" Color="B2F1FC" CleaningReagentGroup="false" IsParraffinGroup="false" MinTemprature="35" MaxTemprature="50"/>
+    <ReagentGroup ID="RG4" Name="Dehydrating,absolute" NameID="50331656" Color="4CDDF7" CleaningReagentGroup="false" IsParraffinGroup="false" MinTemprature="35" MaxTemprature="50"/>
+    <ReagentGroup ID="RG5" Name="Clearing" NameID="50331657" Color="FFC8FF" CleaningReagentGroup="false" IsParraffinGroup="false" MinTemprature="35" MaxTemprature="60"/>
+    <ReagentGroup ID="RG6" Name="Paraffin" NameID="50331658" Color="FFD2B2" CleaningReagentGroup="false" IsParraffinGroup="True" MinTemprature="50" MaxTemprature="70"/>
+    <ReagentGroup ID="RG7" Name="Cleaning Solvent" NameID="50331659" Color="FFA6FF" CleaningReagentGroup="True" IsParraffinGroup="false" MinTemprature="67" MaxTemprature="67"/>
+    <ReagentGroup ID="RG8" Name="Cleaning Alcohol" NameID="50331660" Color="A9F1FF" CleaningReagentGroup="True" IsParraffinGroup="false" MinTemprature="62" MaxTemprature="62"/>
+</ReagentGroups>

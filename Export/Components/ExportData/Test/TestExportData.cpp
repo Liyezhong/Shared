@@ -100,17 +100,16 @@ void TestExportData::utTestExportData() {
     CStartup StartUp;
 
 // For No Temporary folder in the Test
-    QCOMPARE(Export.CreateArchiveFiles(), Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
+    QVERIFY(Export.CreateArchiveFiles() != Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
     QCOMPARE(Export.CreateArchiveFiles(), StartUp.Archive());
 
  //For Temporary/Export/TempExportConfiguration
-    QCOMPARE(Export.CreateArchiveFiles(), Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
+    QVERIFY(Export.CreateArchiveFiles() != Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
     QCOMPARE(Export.CreateArchiveFiles(), StartUp.Archive());
 
 //For Wrong FileName inside Temporary/Export
-    QCOMPARE(Export.CreateArchiveFiles(), Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
+    QVERIFY(Export.CreateArchiveFiles() != Global::EXIT_CODE_EXPORT_UNABLE_TO_READ_FILE_TEMP_EXPORTCONFIGURATION);
     QCOMPARE(Export.CreateArchiveFiles(), StartUp.Archive());
-
 }
 
 } // end namespace PlatformExport

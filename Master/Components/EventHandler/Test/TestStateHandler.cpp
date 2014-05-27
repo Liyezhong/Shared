@@ -107,17 +107,18 @@ void TestStateHandler::initTestCase() {
 }
 
 /****************************************************************************/
-void TestStateHandler::init() {
-
-
+void TestStateHandler::init()
+{
 }
 
 /****************************************************************************/
-void TestStateHandler::cleanup() {
+void TestStateHandler::cleanup()
+{
 }
 
 /****************************************************************************/
-void TestStateHandler::cleanupTestCase() {
+void TestStateHandler::cleanupTestCase()
+{
 }
 
 

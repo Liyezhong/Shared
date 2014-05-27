@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE TissuePrograms>
+<TissuePrograms Version="1">
+    <ProgramList NextProgramID="U1">
+        <Program ID="C01" Name="CleaningProgram" NameID="50331652" Icon="Icon_Leica" LeicaProgram="true" Favorite="false">
+            <StepList NextStepID="15">
+                <Step ID="0" ReagentID="L10" Duration="12m" Temperature="67" Pressure="Off" Vacuum="Off"/>
+                <Step ID="1" ReagentID="L11" Duration="6m" Temperature="62" Pressure="Off" Vacuum="Off"/>
+            </StepList>
+        </Program>
+        <Program ID="L02" Name="LeicaOvernight" NameID="50331650" Icon="Leica_Overnight" LeicaProgram="true" Favorite="true">
+            <StepList NextStepID="14">
+                <Step ID="0" ReagentID="L1" Duration="1h" Temperature="37" Pressure="On" Vacuum="On"/>
+                <Step ID="1" ReagentID="L9" Duration="2m" Temperature="-1" Pressure="Off" Vacuum="Off"/>
+                <Step ID="2" ReagentID="L2" Duration="40m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="3" ReagentID="L3" Duration="40m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="4" ReagentID="L5" Duration="40m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="5" ReagentID="L6" Duration="1h" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="6" ReagentID="L6" Duration="1h" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="7" ReagentID="L6" Duration="1h" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="8" ReagentID="L7" Duration="1h" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="9" ReagentID="L7" Duration="1h" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="10" ReagentID="L7" Duration="1h" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="11" ReagentID="L8" Duration="1h" Temperature="65" Pressure="Off" Vacuum="On"/>
+                <Step ID="12" ReagentID="L8" Duration="1h" Temperature="65" Pressure="Off" Vacuum="On"/>
+                <Step ID="13" ReagentID="L8" Duration="1h 30m" Temperature="65" Pressure="Off" Vacuum="On"/>
+            </StepList>
+        </Program>
+        <Program ID="L03" Name="LeicaBiopsie" NameID="50331651" Icon="Leica_Biopsie" LeicaProgram="true" Favorite="true">
+            <StepList NextStepID="1">
+                <Step ID="0" ReagentID="L1" Duration="15m" Temperature="37" Pressure="On" Vacuum="On"/>
+                <Step ID="1" ReagentID="L9" Duration="2m" Temperature="-1" Pressure="Off" Vacuum="Off"/>
+                <Step ID="2" ReagentID="L2" Duration="5m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="3" ReagentID="L3" Duration="5m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="4" ReagentID="L5" Duration="5m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="5" ReagentID="L6" Duration="5m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="6" ReagentID="L6" Duration="5m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="7" ReagentID="L6" Duration="10m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="8" ReagentID="L7" Duration="10m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="9" ReagentID="L7" Duration="10m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="10" ReagentID="L7" Duration="10m" Temperature="45" Pressure="Off" Vacuum="Off"/>
+                <Step ID="11" ReagentID="L8" Duration="5m" Temperature="65" Pressure="Off" Vacuum="Off"/>
+                <Step ID="12" ReagentID="L8" Duration="5m" Temperature="65" Pressure="Off" Vacuum="Off"/>
+                <Step ID="13" ReagentID="L8" Duration="10m" Temperature="65" Pressure="Off" Vacuum="On"/>
+            </StepList>
+        </Program>
+        <Program ID="L04" Name="FastProgram" NameID="50331653" Icon="Leica_Biopsie" LeicaProgram="true" Favorite="true">
+            <StepList NextStepID="1">
+                <Step ID="0" ReagentID="L1" Duration="1m" Temperature="37" Pressure="On" Vacuum="On"/>
+            </StepList>
+        </Program>
+    </ProgramList>
+</TissuePrograms>

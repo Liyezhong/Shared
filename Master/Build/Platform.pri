@@ -44,6 +44,7 @@ CONFIG(debug, debug|release) {
         QMAKE_CXXFLAGS_RELEASE += -fprofile-arcs -ftest-coverage
         QMAKE_CXXFLAGS_RELEASE -= -O2
         QMAKE_CXXFLAGS_RELEASE += -O0
+		LIBS += -lgcov
     }
 }
 

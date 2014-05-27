@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExportConfiguration Version="1">
+	<Source Directory="../Temporary/Export"/>
+    <Destination Directory="../mnt_storage" Filename="Himalaya_Service_12345678_%1"/>
+    <ServiceConfig>
+        <List Encryption="active" Certified="active" Compressed="active" PackageType="nonnative">
+            <File Path="HimalayaReagents.xml"/>
+            <File Path="HimalayaReagentGroups.xml"/>
+            <File Path="HimalayaReagentGroupColors.xml"/>
+            <File Path="HimalayaPrograms.xml"/>
+            <File Path="HimalayaStations.xml"/>
+            <File Path="UserSettings.xml"/>
+            <File Path="SW_Version.xml"/>
+            <File Path="hw_specification.xml"/>
+            <File Path="DeviceConfiguration.xml"/>
+            <Group File="Logfiles"/>
+        </List>
+    </ServiceConfig>
+    <UserConfig>
+        <List Encryption="active" Certified="active" Compressed="active" PackageType="nonnative">
+            <File Path="HimalayaReagents.xml"/>
+            <File Path="HimalayaReagentGroups.xml"/>
+            <File Path="HimalayaReagentGroupColors.xml"/>
+            <File Path="HimalayaPrograms.xml"/>
+            <File Path="HimalayaStations.xml"/>
+            <File Path="UserSettings.xml"/>
+            <File Path="SW_Version.xml"/>
+        </List>
+        <UserReport>
+            <List Encryption="inactive" Certified="inactive" Compressed="active" PackageType="nonnative">
+                <Group File="DailyRun"/>
+            </List>
+        </UserReport>
+    </UserConfig>
+</ExportConfiguration>

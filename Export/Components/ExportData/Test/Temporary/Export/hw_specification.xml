@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hw_specification>
+<hwconfig version="1.0">
+    <parameter_master folded="yes">
+        <can_interface interface="can0"> </can_interface> 
+        <tcp_interface usage="0"> </tcp_interface> 
+        <nodetype>0</nodetype>
+        <nodeindex>0</nodeindex>
+        <serial_number serialno="holdrio4711"> </serial_number>
+    </parameter_master>
+    <parameter_slaves>
+        <slave type="base" key="asb3_0" name="asb 3 0" virtual="0">
+            <nodetype>3</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="steppermotor" key="motor_rv" name="motor_rv" interface="1">
+                    <rotation type="lin" direction="ccw" steps_revolution="400" position_min="-200" position_max="5000" speed_min="50" speed_max="1000" run_cs="30" stop_cs="3" stop_cs_delay="500"/>
+                    <reference_run ref_position="1" max_distance="15000" timeout="60000" reverse_distance="0" slow_speed="50" high_speed="150" refpos_offset="0"/>
+                    <position_coverage>
+                        <encoder type="0" resolution="400" rotation="cw"/>
+                        <limitswitches>
+                            <limitswitch index="0">
+                                <configuration polarity="0" sample_rate="10" debounce="4"/>
+                            </limitswitch>
+                            <limitswitch index="1">
+                                <configuration polarity="0" sample_rate="10" debounce="4"/>
+                            </limitswitch>
+                            <position_code value="1" stop="1" stop_dir="ccw" position="0" width="0" deviation="0" dir_check="0" hit_skip="1"/>
+                            <position_code value="2" stop="0" stop_dir="ccw" position="0" width="0" deviation="0" dir_check="0" hit_skip="1"/>
+                            <position_code value="3" stop="1" stop_dir="ccw" position="0" width="0" deviation="0" dir_check="0" hit_skip="1"/>
+                        </limitswitches>
+                    </position_coverage>
+                    <supervision steploss_warn_limit="10" steploss_error_limit="50" current_limit="3500"/>
+                    <driver type="tmc26x" reg_chopConf="901B4" reg_smartEn="A8200" reg_sgcsConf="D401F" reg_drvConf="E02D0"/>
+                    <motion_profiles>
+                        <motion_profile speed_min="50" speed_max="150" acc="20" dec="20" acc_time="50" dec_time="50" micro_steps="32" ramp_type="1"/>
+                        <motion_profile speed_min="50" speed_max="1000" acc="2000" dec="2000" acc_time="50" dec_time="50" micro_steps="32" ramp_type="1"/>
+                        <motion_profile speed_min="50" speed_max="1500" acc="3000" dec="3000" acc_time="50" dec_time="50" micro_steps="32" ramp_type="1"/>
+                        <motion_profile speed_min="50" speed_max="2000" acc="4000" dec="4000" acc_time="50" dec_time="50" micro_steps="16" ramp_type="1"/>
+                        <motion_profile speed_min="50" speed_max="3000" acc="6000" dec="6000" acc_time="50" dec_time="50" micro_steps="16" ramp_type="1"/>
+                    </motion_profiles>
+                </functionmodule>
+                <functionmodule type="temperature_control" key="temp_rv" name="temp_rv" interface="2">
+                    <configuration temp_tolerance="5" sampling_period="500" fan_speed="2950" fan_threshold="295" current_gain="13022" heater_current="456" heater_threshold="309" current_deviation="200" current_min_230_serial="361" current_max_230_serial="755" current_min_100_serial="164" current_max_100_serial="360" current_min_100_parallel="455" current_max_100_parallel="1358"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="130" controller_gain="1212" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+            </functionmodules>
+        </slave>
+        <slave type="base" key="asb5_0" name="asb 5 0" virtual="0">
+            <nodetype>5</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+
+                <functionmodule type="temperature_control" key="temp_oven_top" name="temp_oven_top" interface="1">
+                    <configuration temp_tolerance="2" sampling_period="500" current_gain="13022" heater_current="498" heater_threshold="314" current_deviation="200" current_min_230_serial="402" current_max_230_serial="816" current_min_100_serial="183" current_max_100_serial="401" current_min_100_parallel="530" current_max_100_parallel="1484"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="100" controller_gain="6000" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+
+                <functionmodule type="temperature_control" key="temp_oven_bottom" name="temp_oven_bottom" interface="2">
+                    <configuration temp_tolerance="2" sampling_period="500" current_gain="13022" heater_current="1314" heater_threshold="532" current_deviation="200" current_min_230_serial="953" current_max_230_serial="1822" current_min_100_serial="375" current_max_100_serial="952" current_min_100_parallel="1725" current_max_100_parallel="3585"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="100" controller_gain="6000" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+
+                <functionmodule type="temperature_control" key="temp_retort_bottom" name="temp_retort_bottom" interface="3">
+                    <configuration temp_tolerance="2" sampling_period="500" current_gain="13022" heater_current="2039" heater_threshold="725" current_deviation="200" current_min_230_serial="1446" current_max_230_serial="2661" current_min_100_serial="570" current_max_100_serial="1444" current_min_100_parallel="2721" current_max_100_parallel="5335"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="100" controller_gain="6000" reset_time="30000" derivative_time="0"/>
+                    </pid_controllers>
+                </functionmodule>
+
+                <functionmodule type="temperature_control" key="temp_retort_side" name="temp_retort_side" interface="4">
+                    <configuration temp_tolerance="2" sampling_period="500" current_gain="13022" heater_current="363" heater_threshold="277" current_deviation="200" current_min_230_serial="292" current_max_230_serial="648" current_min_100_serial="133" current_max_100_serial="291" current_min_100_parallel="330" current_max_100_parallel="1134"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="100" controller_gain="6000" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+
+            </functionmodules>
+        </slave>
+       <slave type="base" key="asb15_0" name="asb 15 0" virtual="0">
+            <nodetype>15</nodetype>
+            <nodeindex>0</nodeindex>
+            <functionmodules>
+                <functionmodule type="pressure_control" key="pressurectrl" name="pressurectrl" interface="1">
+                    <configuration pressure_tolerance="2" sampling_period="200" fan_current_gain="120" fan_current="300"  fan_threshold="200" current_gain="1241" pump_current="600" pump_threshold="500"/>
+                    <pid_controllers>
+                        <pid_controller max_pressure="60" min_pressure="-60" controller_gain="40" reset_time="20000" derivative_time="0"/>
+                    </pid_controllers>
+                    <pwm_controller max_actuating_value="8000" min_actuating_value="200" max_pwm_duty="100" min_pwm_duty="60"/>
+                </functionmodule>
+              <functionmodule type="temperature_control" key="temp_lsensor" name="temp_lsensor" interface="2">
+                    <configuration temp_tolerance="5" sampling_period="500" fan_speed="2950" fan_threshold="295" current_gain="620" heater_current="600" heater_threshold="200" current_deviation="200" current_min_230_serial="99" current_max_230_serial="99" current_min_100_serial="99" current_max_100_serial="99" current_min_100_parallel="99" current_max_100_parallel="99"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="120" controller_gain="1212" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+              <functionmodule type="temperature_control" key="temp_tube1" name="temp_tube1" interface="3">
+                    <configuration temp_tolerance="5" sampling_period="500" fan_speed="2950" fan_threshold="295" current_gain="620" heater_current="208" heater_threshold="200" current_deviation="200" current_min_230_serial="99" current_max_230_serial="99" current_min_100_serial="99" current_max_100_serial="99" current_min_100_parallel="99" current_max_100_parallel="99"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="100" controller_gain="6000" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+              <functionmodule type="temperature_control" key="temp_tube2" name="temp_tube2" interface="4">
+                    <configuration temp_tolerance="5" sampling_period="500" fan_speed="2950" fan_threshold="295" current_gain="620" heater_current="208" heater_threshold="200" current_deviation="200" current_min_230_serial="99" current_max_230_serial="99" current_min_100_serial="99" current_max_100_serial="99" current_min_100_parallel="99" current_max_100_parallel="99"/>
+                    <pid_controllers>
+                        <pid_controller max_temperature="100" controller_gain="6000" reset_time="1000" derivative_time="80"/>
+                    </pid_controllers>
+                </functionmodule>
+  <!--
+              <functionmodule type="digital_out" key="pump_fan" name="pump_fan" interface="5">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+  -->
+              <functionmodule type="digital_out" key="lid_control" name="lid_control" interface="5">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+                <functionmodule type="digital_out" key="heater_relay" name="heater_relay" interface="6">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_out" key="remote_alarm_ctrl" name="remote_alarm_ctrl" interface="7">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_out" key="local_alarm_ctrl" name="local_alarm_ctrl" interface="8">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_in" key="lid_status" name="lid_status" interface="9">
+                    <configuration enabled="1" timestamp="0" polarity="1" threshold="1" interval="10" debounce="5"/>
+                </functionmodule>
+<!--
+              <functionmodule type="digital_out" key="local_alarm_ctrl" name="local_alarm_ctrl" interface="11">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_out" key="local_alarm_set" name="local_alarm_set" interface="12">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+              <functionmodule type="digital_out" key="local_alarm_clear" name="local_alarm_clear" interface="13">
+                    <configuration enabled="1" inactiv_shutdown="1" inactiv_emcy="1" polarity="0" outval_inactiv="0" livetime_limit="0"/>
+                </functionmodule>
+-->
+              <functionmodule type="digital_in" key="oven_door_status" name="oven_door_status" interface="10">
+                    <configuration enabled="1" timestamp="0" polarity="1" threshold="1" interval="10" debounce="5"/>
+                </functionmodule>
+              <functionmodule type="digital_in" key="local_alarm_status" name="local_alarm_status" interface="11">
+                    <configuration enabled="1" timestamp="0" polarity="1" threshold="1" interval="10" debounce="5"/>
+                </functionmodule>
+              <functionmodule type="digital_in" key="remote_alarm_status" name="remote_alarm_status" interface="12">
+                    <configuration enabled="1" timestamp="0" polarity="1" threshold="1" interval="10" debounce="5"/>
+                </functionmodule>
+            </functionmodules>
+        </slave>
+
+<!-- ************************************************************************************************* -->
+
+    </parameter_slaves>
+    <devices>
+        <!-- This section lists all devices, which should be created at configuration procedure -->
+        <!-- the key entries at the function_module section must match the QStrings at DeviceProcessing.cpp -->
+        <!-- the fct_instanceID entries must match the function module's channel <12..19>, the parent's NodeIndex <8...11>, and the NodeType <0...7> -->
+      
+<!-- *************************************************************************************************
+        
+************************************************************************************************* -->
+        <device type="RotaryValveDevice" dev_instanceID="0x000080C0" optional="0">
+            <functionmodules>
+                <functionmodule key="RV_motor" fct_instanceID="0x10003"/>
+                <functionmodule key="RV_temp_ctrl" fct_instanceID="0x20003"/>
+            </functionmodules>
+        </device>
+        <device type="AirLiquidDevice" dev_instanceID="0x000080C1" optional="0">
+            <functionmodules>
+                <functionmodule key="AL_pressure_ctrl" fct_instanceID="0x1000F"/>
+                <functionmodule key="AL_level_sensor_temp_ctrl" fct_instanceID="0x2000F"/>
+                <functionmodule key="AL_tube1_temp_ctrl" fct_instanceID="0x3000F"/>
+                <functionmodule key="AL_tube2_temp_ctrl" fct_instanceID="0x4000F"/>
+            <!--    <functionmodule key="AL_fan_digital_output" fct_instanceID="0x5000F"/>-->
+            </functionmodules>
+        </device>
+        <device type="OvenDevice" dev_instanceID="0x000080C2" optional="0">
+            <functionmodules>
+                <functionmodule key="OVEN_top_temp_ctrl" fct_instanceID="0x10005"/>
+                <functionmodule key="OVEN_bottom_temp_ctrl" fct_instanceID="0x20005"/>
+                <functionmodule key="OVEN_lid_digital_input" fct_instanceID="0xA000F"/>
+            </functionmodules>
+        </device>
+        <device type="RetortDevice" dev_instanceID="0x000080C3" optional="0">
+            <functionmodules>
+                <functionmodule key="RETORT_bottom_temp_ctrl" fct_instanceID="0x30005"/>
+                <functionmodule key="RETORT_side_temp_ctrl" fct_instanceID="0x40005"/>
+                <functionmodule key="RETORT_lock_digital_output" fct_instanceID="0x6000F"/>
+                <functionmodule key="RETORT_lock_digital_input" fct_instanceID="0x9000F"/>
+            </functionmodules>
+        </device>
+        <device type="PeripheryDevice" dev_instanceID="0x000080C4" optional="0">
+            <functionmodules>
+                <functionmodule key="PER_remote_alarm_ctrl_digital_output" fct_instanceID="0x7000F"/>
+                <functionmodule key="PER_local_alarm_ctrl_digital_output" fct_instanceID="0x8000F"/>
+                <functionmodule key="PER_main_relay_digital_output" fct_instanceID="0x6000F"/>
+                <functionmodule key="PER_local_alarm_digital_input" fct_instanceID="0xB000F"/>
+                <functionmodule key="PER_remote_alarm_digital_input" fct_instanceID="0xC000F"/>
+            </functionmodules>
+        </device>
+    </devices>
+</hwconfig>

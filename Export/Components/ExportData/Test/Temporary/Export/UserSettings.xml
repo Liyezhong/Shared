@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Settings>
+<Settings Version="1">
+    <Localization Language="en" DateFormat="ISO" TimeFormat="24" TemperatureFormat="C"/>
+    <Sound>
+        <ErrorTone Number="1" Level="9"/>
+        <WarningTone Number="2" Level="9"/>
+    </Sound>
+    <Network RemoteCare="On" DirectConnection="Off" ProxyUserName="Himalaya" ProxyPassword="Himalaya" ProxyIPAddress="012.126.123.123" ProxyIPPort="1234"/>
+    <ERRORTONE PERIODIC="on"/>
+    <ERRORTONE PERIODICTIME="10m"/>
+    <INFORMATIONTONE LEVEL="9"/>
+    <INFORMATIONTONE NUMBER="2"/>
+    <INFORMATIONTONE PERIODIC="on"/>
+    <INFORMATIONTONE PERIODICTIME="10m"/>
+    <PARAFFINBATH TEMPERATURE="70"/>
+    <PV FREQUENCY="1000"/>
+    <REAGENTIDOFLASTSTEP ID="L1"/>
+    <RMS CLEANINGMODE="cycles"/>
+    <RMS PROCESSINGMODE="cassettes"/>
+    <SERVICE ACTIVECARBONHOURS="0"/>
+    <SERVICE OPERATIONHOURS="0"/>
+    <SETTINGS VERSION="1"/>
+    <WARNINGTONE PERIODIC="on"/>
+    <WARNINGTONE PERIODICTIME="10m"/>
+</Settings>
