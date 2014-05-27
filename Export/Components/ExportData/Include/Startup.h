@@ -37,7 +37,7 @@ public:
     CStartup();
 
     int Archive();
-    virtual ~CStartup();
+    ~CStartup();
 
 private:
     //CStartup();
