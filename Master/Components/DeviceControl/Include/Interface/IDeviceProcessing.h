@@ -666,6 +666,9 @@ signals:
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
+
+    //! Forward the 'level sensor change to 1' to scheduler module
+    void ReportLevelSensorStatus1();
 public slots:
     //! Get error information from DeviceProcessing
     void OnError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,

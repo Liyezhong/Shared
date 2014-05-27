@@ -1535,6 +1535,7 @@ void CAirLiquidDevice::OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quin
     {
         if(m_pDevProc)
         {
+            m_pDevProc->OnReportLevelSensorStatus1();
             m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1);
         }
     }

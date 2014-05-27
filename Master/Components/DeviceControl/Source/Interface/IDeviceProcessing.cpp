@@ -84,6 +84,7 @@ IDeviceProcessing::IDeviceProcessing() :
                       this, OnErrorWithInfo(quint32, quint16, quint16, quint16, QDateTime, QString));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
+    CONNECTSIGNALSIGNAL(mp_DevProc, ReportLevelSensorStatus1(), this, ReportLevelSensorStatus1());
     m_ParentThreadID = QThread::currentThreadId();
 }
 

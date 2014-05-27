@@ -288,6 +288,16 @@ public:
     //! Return the specified process setting parameter
     MotionProfileIdx_t GetProcSettingMotionProfileIdx(QString Key);
 
+    /*****************************************************************************/
+    /*!
+     *  \brief  emit signal on level sensnor status change to 1
+     *
+     *  \param  no
+     *  \return void
+     */
+    /*****************************************************************************/
+    void OnReportLevelSensorStatus1() { emit ReportLevelSensorStatus1(); }
+
 public slots:
     /****************************************************************************/
     /*!
@@ -342,6 +352,9 @@ signals:
 
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
+
+    //! Forward AirLiquid's level sensor status change to upper layer
+    void ReportLevelSensorStatus1();
 
 private slots:
     //! Slot fucntion used to receive CAN message
