@@ -330,20 +330,23 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
-    return;
-#ifdef PTS
-    FILE* pStream = Stream();
-    if (!pStream)
-        return;
-    fprintf(pStream, "%s", msg.c_str());     
-/*lint -save -e534 */
-//ignoring return value of fflush
-    fflush(pStream);
+    bool device_log = (access("./DEBUG", 4) == 0);
+
+    if(device_log)
+    {
+        FILE* pStream = Stream();
+        if (!pStream)
+            return;
+        fprintf(pStream, "%s", msg.c_str());
+    /*lint -save -e534 */
+    //ignoring return value of fflush
+        fflush(pStream);
+    }
 /*lint -restore */
-#else
-   QString s =  QString(msg.c_str());
-   //LOG() << s; //disbale the log now, or will get too much information on debug output
-#endif
+//#else
+//   QString s =  QString(msg.c_str());
+//   //LOG() << s; //disbale the log now, or will get too much information on debug output
+//#endif
 }
 
 
