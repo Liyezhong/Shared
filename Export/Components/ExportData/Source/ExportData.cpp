@@ -531,6 +531,7 @@ void CExportData::RemoveFiles()
 /*!
  *  \brief Remove the files if any error occured while creating the files
  *
+ *  \iparam Destination device to be checked.
  *
  *  \return true: USB has enough space to export, or false
  */
