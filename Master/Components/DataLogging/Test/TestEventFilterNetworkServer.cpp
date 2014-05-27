@@ -24,6 +24,7 @@
 #include <DataLogging/Include/EventFilterNetworkServer.h>
 #include <unistd.h>
 #include <QTimer>
+#include <QSignalSpy>
 
 // Run exec for a maximum of TIMEOUT msecs
 #define QCOREAPPLICATION_EXEC(TIMEOUT) \
@@ -49,7 +50,7 @@ class TestEventFilterNetworkServer : public QObject {
 private:
      EventFilterNetworkServer  *m_pEventFilterNetworkServer;
      QTcpSocket   *sock;
-
+     QSignalSpy  *spyServer;
 public slots:
      void readMsg();
 
@@ -79,6 +80,8 @@ void TestEventFilterNetworkServer::initTestCase()
 {
     m_pEventFilterNetworkServer = new EventFilterNetworkServer(this, 9876);
     QVERIFY(m_pEventFilterNetworkServer != NULL);
+    spyServer = new QSignalSpy(m_pEventFilterNetworkServer->m_pServer, SIGNAL(newConnection()));
+    QVERIFY(spyServer != NULL);
 }
 
 /****************************************************************************/
@@ -103,11 +106,13 @@ void TestEventFilterNetworkServer::connectCase()
 void TestEventFilterNetworkServer::readMsg()
 {
       qDebug() << sock->readAll();
+
 }
 
 /****************************************************************************/
 void TestEventFilterNetworkServer::cleanupTestCase()
 {
+      QCOMPARE(spyServer->count(), 1);
       delete m_pEventFilterNetworkServer;
 }
 
