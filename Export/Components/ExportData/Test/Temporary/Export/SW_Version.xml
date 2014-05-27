@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SW_Version Version="1">
+  <SW>
+    <Release Version="ST_01.000" Date="2012-09-10" />
+  </SW>
+  <Master_SW>
+    <file Filename="himalaya" Version="MAIN_1.000" Date="2013-09-10"></file>
+    <file Filename="RemoteCare" Version="RECA_1.000" Date="2013-9-10"></file>
+    <file Filename="himalaya_gui" Version="GUI_1.000" Date="2013-09-10"></file>
+    <file Filename="Export" Version="EXP_1.000" Date="2013-09-10"></file>
+    <file Filename="himalaya_service" Version="SERV_1.000" Date="2013-09-10"></file>
+  </Master_SW>
+  <Firmware>
+    <file Filename="ASB3_0.bin" Version="1" Date="2012-06-22"></file>
+    <file Filename="ASB5_0.bin" Version="1" Date="2012-06-22"></file>
+    <file Filename="ASB15_0.bin" Version="1" Date="2012-06-22"></file>
+  </Firmware>
+</SW_Version>
