@@ -330,7 +330,13 @@ inline FILE*& Output2FILE::Stream()
  ****************************************************************************/
 inline void Output2FILE::Output(const std::string& msg)
 {
-    bool device_log = (access("./DEBUG", 4) == 0);
+    bool device_log = false;
+    FILE *fp = NULL;
+    if((fp = fopen("./DEBUG", "r")) != NULL)
+    {
+        device_log = true;
+        fclose(fp);
+    }
 
     if(device_log)
     {
