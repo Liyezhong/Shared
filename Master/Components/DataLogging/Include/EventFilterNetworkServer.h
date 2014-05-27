@@ -37,6 +37,7 @@ namespace DataLogging {
  */
 /****************************************************************************/
 class EventFilterNetworkServer : public QObject {
+    friend class TestEventFilterNetworkServer;
     Q_OBJECT
 private:
     QTcpServer      *m_pServer;         ///< Socket server.

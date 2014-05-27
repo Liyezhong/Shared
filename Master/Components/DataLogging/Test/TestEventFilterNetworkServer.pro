@@ -9,6 +9,5 @@ TARGET = utTestEventFilterNetworkServer
 
 SOURCES += TestEventFilterNetworkServer.cpp
 
-
 UseLibs(DataLogging EventHandler Global)
 
