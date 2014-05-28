@@ -248,6 +248,7 @@ void TestEventHandlerThreadController::initTestCase() {
     mp_EventHandlerThreadController->VerifyStringList(QString("EventString"));
     mp_EventHandlerThreadController->OnAcknowledge(Ref,Ack);
 
+
     mp_EventHandlerThreadController->OnGoReceived();
     mp_EventHandlerThreadController->CleanupAndDestroyObjects();
     //mp_EventHandlerThreadController->CreateAndInitializeObjects();
@@ -258,6 +259,8 @@ void TestEventHandlerThreadController::initTestCase() {
     mp_EventHandlerThreadController->SetOperatingMode(QString("xyz"));
     mp_EventHandlerThreadController->SetEventLoggerBaseFileName(QString("Logging File"));
     mp_EventHandlerThreadController->SetSerialNumber(QString("sr123"));
+
+
 
 }
 

@@ -6,7 +6,10 @@
 lcov -z -d ..
 lcov -c -i -d .. -b $PWD -o base.info
 
-find bin_rel -name 'ut*' -exec {} \;
+cwd=$PWD
+cd bin_rel
+find . -name 'ut*' -exec {} \;
+cd ..
 
 lcov -c -d .. -b $PWD -o coverage.info
 

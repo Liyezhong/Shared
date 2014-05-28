@@ -1,17 +1,17 @@
 /****************************************************************************/
-/*! \file TestEventXMLInfo.cpp
+/*! \file TestActionHandler.cpp
  *
- *  \brief Implementation file for class TestEventXMLInfo.
+ *  \brief Implementation file for class TestActionHandler.
  *
  *  $Version:   $ 0.1
- *  $Date:      $ 2013-27-12
- *  $Author:    $ Songtao Yu
+ *  $Date:      $ 2013-03-03
+ *  $Author:    $ Aparna
  *
  *  \b Company:
  *
  *       Leica Biosystems Nussloch GmbH.
  *
- *  (C) Copyright 2013 by Leica Biosystems Nussloch GmbH. All rights reserved.
+ *  (C) Copyright 2010 by Leica Biosystems Nussloch GmbH. All rights reserved.
  *  This is unpublished proprietary source code of Leica. The copyright notice
  *  does not evidence any actual or intended publication.
  *
@@ -19,25 +19,46 @@
 /****************************************************************************/
 
 #include <QTest> 
-
 #include <Global/Include/Exception.h>
 #include <Global/Include/Utils.h>
-#include <EventHandler/Include/EventXMLInfo.h>
+#include <DataLogging/Include/DayEventEntry.h>
+#include <NetCommands/Include/CmdEventReport.h>
+#include "EventHandler/Include/RemoteCareHandler.h"
+#include <../../../Global/Include/Utils.h>
+#include <../../../EventHandler/Include/EventHandlerThreadController.h>
+#include <../../../NetCommands/Include/CmdSystemAction.h>
 
 namespace EventHandler {
+
+//class Foo : public RemoteCareHandler {
+//	Q_OBJECT
+//public:
+//	Foo():RemoteCareHandler(3)
+//	{
+//	}
+
+//	virtual ~Foo()
+//	{
+//	}
+
+//public slots:
+//	virtual void ForwardEventToRemoteCare(const DataLogging::DayEventEntry &a)
+//	{
+
+//	}
+//};
 
 /****************************************************************************/
 /**
  * \brief Test class for XmlConfigFile class.
  */
 /****************************************************************************/
-class TestEventXMLInfo : public QObject {
+class TestRemoteCareHandler : public QObject {
     Q_OBJECT
 
-private:
-    QSharedPointer<EventXMLInfo> m_pEventXMLInfo;
+public:
 private slots:
-    /****************************************************************************/
+     /****************************************************************************/
     /**
      * \brief Called before the first testfunction is executed.
      */
@@ -61,63 +82,31 @@ private slots:
      */
     /****************************************************************************/
     void cleanupTestCase();
-    /****************************************************************************/
+}; // end class TestRemoteCareHandler
 
-    void UTAll();
-
-}; // end class TestEventCSVInfo
-
-
-void TestEventXMLInfo::UTAll()
+/****************************************************************************/
+void TestRemoteCareHandler::initTestCase()
 {
-    //Source in each XMLEvent
-    QString source = "Himalaya";
-    QCOMPARE((m_pEventXMLInfo->GetEventList())[513030001]->GetSource(), source);
-#if 0
-    source = "Platform";
-    QCOMPARE((m_pEventXMLInfo->GetEventList())[16842755]->GetSource(), source);
-
-   //Code of each XMLEvent;
-   quint32 code = 0;
-   QCOMPARE((m_pEventXMLInfo->GetEventList())[513030091]->GetCode(), code);
-
-   //"single" type
-   const EventStep* step = m_pEventXMLInfo->GetEvent(500030001, 200)->GetStep(3);
-   QString type = "ACT";
-   QCOMPARE(step->GetType(), type);
-#endif
-//   QCOMPARE(step->GetId(), 0);
-
-
-}
-
-/******************************************************************ls**********/
-void TestEventXMLInfo::initTestCase()
-{
-    QStringList list;
-    list.append("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventConfig.xml");
-    m_pEventXMLInfo = QSharedPointer<EventXMLInfo>(new EventXMLInfo(list, "../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/EventScenarioErrorMap.xml"));
-    QVERIFY(m_pEventXMLInfo->InitXMLInfo() == true);
+//	Foo foo;
 }
 
 /****************************************************************************/
-void TestEventXMLInfo::init()
+void TestRemoteCareHandler::init()
 {
 }
 
 /****************************************************************************/
-void TestEventXMLInfo::cleanup()
+void TestRemoteCareHandler::cleanup()
 {
 }
 
 /****************************************************************************/
-void TestEventXMLInfo::cleanupTestCase()
+void TestRemoteCareHandler::cleanupTestCase()
 {
-
 }
 
 } // end namespace EventHandler
 
-QTEST_MAIN(EventHandler::TestEventXMLInfo)
+QTEST_MAIN(EventHandler::TestRemoteCareHandler)
 
-#include "TestEventXMLInfo.moc"
+#include "TestRemoteCareHandler.moc"

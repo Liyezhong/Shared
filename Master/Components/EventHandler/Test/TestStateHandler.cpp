@@ -104,6 +104,7 @@ void TestStateHandler::initTestCase() {
     m_StateHandler.onOperationStateChanged();
     m_StateHandler.onInitStateEntered();
     m_StateHandler.onSoftSwitchMonitorStateEntered();
+    m_StateHandler.SetInitializationFailed();
 }
 
 /****************************************************************************/

@@ -51,9 +51,6 @@ using namespace Threads;
 
 namespace EventHandler {
 
-
-
-
 /****************************************************************************/
 /**
  * \brief Test class for XmlConfigFile class.
@@ -66,7 +63,6 @@ public:
     TestHimalayaEventHandlerThreadController()
         : mp_alarmHandler(NULL)
     {
-
     }
 
 private:
@@ -143,6 +139,10 @@ void TestHimalayaEventHandlerThreadController::TestOnAcknowledge() {
     mp_HimalayaEventHandlerThreadController->OnAcknowledge(2,ack);
     EventRuntimeInfo_t evt = mp_HimalayaEventHandlerThreadController->m_ActiveEvents.value(2);
     QVERIFY(evt.CurrentStep == 2);
+
+    Global::tRefType Ref;
+    Global::AckOKNOK Ack;
+    mp_HimalayaEventHandlerThreadController->OnAckOKNOK(Ref, Ack);
 }
 
 void TestHimalayaEventHandlerThreadController::TestProcessEvents(){
@@ -169,35 +169,29 @@ void TestHimalayaEventHandlerThreadController::init()
     mp_DataLoggingThreadController = new DataLogging::DataLoggingThreadController(THREAD_ID_DATALOGGING, m_EventLoggerBaseFileName);
     Global::SystemPaths::Instance().SetSettingsPath("../../../../../../Himalaya/HimalayaMain/Master/Components/Main/Build/Settings/");
     mp_HimalayaEventHandlerThreadController = new EventHandler::HimalayaEventHandlerThreadController(THREAD_ID_EVENTHANDLER, 0,
-                                                                    QStringList() << Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventConfigure.xml");
+								    QStringList() << Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventConfig.xml");
     mp_HimalayaEventHandlerThreadController->CreateAndInitializeObjects();
     mp_HimalayaEventHandlerThreadController->ConnectToEventObject();
 
 }
 /****************************************************************************/
-void TestHimalayaEventHandlerThreadController::cleanup() {
-
-
+void TestHimalayaEventHandlerThreadController::cleanup()
+{
 }
 
 
 /****************************************************************************/
-void TestHimalayaEventHandlerThreadController::cleanupTestCase() {
+void TestHimalayaEventHandlerThreadController::cleanupTestCase()
+{
+	if (mp_HimalayaEventHandlerThreadController) {
+		mp_HimalayaEventHandlerThreadController->CleanupAndDestroyObjects();
+		delete mp_HimalayaEventHandlerThreadController;
+	}
 
-    if(mp_HimalayaEventHandlerThreadController) {
-        delete mp_HimalayaEventHandlerThreadController;
-        mp_HimalayaEventHandlerThreadController = NULL;
-    }
-
-    if(mp_alarmHandler) {
-        delete mp_alarmHandler;
-        mp_alarmHandler = NULL;
-    }
-
-    if(mp_DataLoggingThreadController) {
-        delete mp_DataLoggingThreadController;
-        mp_DataLoggingThreadController = NULL;
-    }
+	if (mp_alarmHandler)
+		delete mp_alarmHandler;
+	if (mp_DataLoggingThreadController)
+		delete mp_DataLoggingThreadController;
 }
 
 
