@@ -557,6 +557,6 @@ public:
 
 }
 
-//Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
+Q_DECLARE_METATYPE(DeviceControl::RTTempCtrlType_t)
 Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
 #endif /* DEVICE_CONTROL_GLOBAL_H */
