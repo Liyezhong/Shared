@@ -20,10 +20,10 @@
  *
  */
 /****************************************************************************/
-
+//lint -e18
 #include <getopt.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include "Main/Include/Main.h"
 #include "ExportData/Include/Startup.h"
