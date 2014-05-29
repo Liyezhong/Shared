@@ -276,7 +276,7 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
         NetCommands::EventReportDataStruct EventReportData;
         EventReportData.EventStatus = EventStatus; //False means event not active, True if event active.
         EventReportData.EventType = pEvent->GetErrorType();
-        EventReportData.ID = pEvent->GetErrorId();
+	EventReportData.ID = (((quint64)pEvent->GetErrorId()) << 32) | (quint64)EventKey;
         EventReportData.EventKey = EventKey;
 
         EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(pStep->GetStringID(), m_ActiveEvents[EventKey].EventStringParList)); //"Event String translated to the set langauge";
