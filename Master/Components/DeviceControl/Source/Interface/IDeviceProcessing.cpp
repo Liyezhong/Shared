@@ -84,6 +84,8 @@ IDeviceProcessing::IDeviceProcessing() :
                       this, OnErrorWithInfo(quint32, quint16, quint16, quint16, QDateTime, QString));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
+    // Shutdown signal to device threads
+    CONNECTSIGNALSIGNAL(this, DeviceShutdown(), mp_DevProc, DeviceShutdown());
     CONNECTSIGNALSIGNAL(mp_DevProc, ReportLevelSensorStatus1(), this, ReportLevelSensorStatus1());
     m_ParentThreadID = QThread::currentThreadId();
 }
@@ -538,27 +540,6 @@ void IDeviceProcessing::EmergencyStop()
 
 /****************************************************************************/
 /*!
- *  \brief  Forward the system's shutdown to the device control layer
- *
- *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was acceppted,
- *          otherwise the error code
- */
-/****************************************************************************/
-void IDeviceProcessing::Shutdown()
-{
-    QMutexLocker locker(&m_IMutex);
-
-    m_taskID = IDEVPROC_TASKID_REQ_TASK;
-    m_taskState = IDEVPROC_TASK_STATE_REQ;
-
-    m_reqTaskID = DeviceProcTask::TASK_ID_DP_DESTROY;
-    m_reqTaskPriority = DeviceProcTask::TASK_PRIO_MIDDLE;
-    m_reqTaskParameter1 = 0;
-    m_reqTaskParameter2 = 0;
-}
-
-/****************************************************************************/
-/*!
  *  \brief  Forward the system's standby command to the device control layer
  *
  *  \return DCL_ERR_FCT_CALL_SUCCESS if the request was acceppted,
@@ -592,14 +573,18 @@ void IDeviceProcessing::Standby()
 void IDeviceProcessing::Destroy()
 {
     QMutexLocker locker(&m_IMutex);
+    if(mp_DevProcTimer->isActive()) {
+        m_taskID = IDEVPROC_TASKID_REQ_TASK;
+        m_taskState = IDEVPROC_TASK_STATE_REQ;
 
-    m_taskID = IDEVPROC_TASKID_REQ_TASK;
-    m_taskState = IDEVPROC_TASK_STATE_REQ;
-
-    m_reqTaskID = DeviceProcTask::TASK_ID_DP_DESTROY;
-    m_reqTaskPriority = DeviceProcTask::TASK_PRIO_MIDDLE;
-    m_reqTaskParameter1 = 0;
-    m_reqTaskParameter2 = 0;
+        m_reqTaskID = DeviceProcTask::TASK_ID_DP_DESTROY;
+        m_reqTaskPriority = DeviceProcTask::TASK_PRIO_MIDDLE;
+        m_reqTaskParameter1 = 0;
+        m_reqTaskParameter2 = 0;
+        emit DeviceShutdown();
+    } else {
+        emit ReportDestroyFinished();
+    }
 }
 
 /****************************************************************************/

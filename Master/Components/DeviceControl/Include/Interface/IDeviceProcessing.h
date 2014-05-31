@@ -70,8 +70,6 @@ public:
 
     //! Emergency stop
     void EmergencyStop();   // should be called if the device's cover was opened by the user
-    //! Shutdown the device
-    void Shutdown();        // should be called if the device's power failed shortly
     //! Switch to standby mode
     void Standby();         // should be called to change to standby mode
     //! Clean up the environment
@@ -666,7 +664,12 @@ signals:
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Emitted when all devices should shut down
+     */
+    /****************************************************************************/
+    void DeviceShutdown();
     //! Forward the 'level sensor change to 1' to scheduler module
     void ReportLevelSensorStatus1();
 public slots:

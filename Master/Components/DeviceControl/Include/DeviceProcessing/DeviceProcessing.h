@@ -353,6 +353,13 @@ signals:
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Emitted when all devices should shut down
+     */
+    /****************************************************************************/
+    void DeviceShutdown();
+
     //! Forward AirLiquid's level sensor status change to upper layer
     void ReportLevelSensorStatus1();
 
