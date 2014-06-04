@@ -35,7 +35,7 @@ namespace MainMenu {
  *  \iparam p_Parent = Parent widget
  */
 /****************************************************************************/
-CDialogFrame::CDialogFrame(QWidget *p_Parent, QMainWindow *pMainWindow) : QDialog(p_Parent, Qt::FramelessWindowHint),
+CDialogFrame::CDialogFrame(QWidget *p_Parent, QWidget *pMainWindow) : QDialog(p_Parent, Qt::FramelessWindowHint),
     mp_DialogUi(new Ui::CDialogFrame), mp_MainWindow(pMainWindow)
 {
     mp_DialogUi->setupUi(this);
@@ -168,7 +168,7 @@ void CDialogFrame::SetMaxStringDialogTitle(qint32 StringLength, QString TitleTex
  *
  */
 /****************************************************************************/
-void CDialogFrame::SetMainWindow(QMainWindow *pMainWindow)
+void CDialogFrame::SetMainWindow(QWidget *pMainWindow)
 {
     mp_MainWindow = pMainWindow;
 }

@@ -22,6 +22,7 @@
 #include "../Include/PlatformServiceEventCodes.h"
 #include "ServiceKeyValidator/Include/USBKeyValidator.h"
 #include <QApplication>
+#include <QDesktopWidget>
 
 namespace ServiceKeyValidator {
 
@@ -40,7 +41,7 @@ CUSBKeyValidator::CUSBKeyValidator(QString DeviceName) :
     m_SystemLogOff(false),
     m_ManufacturingKey("manufacturing")
 {    
-    mp_KeyBoardWidget = new KeyBoard::CKeyBoard(KeyBoard::SIZE_1, KeyBoard::QWERTY_KEYBOARD);
+    mp_KeyBoardWidget = new KeyBoard::CKeyBoard(KeyBoard::SIZE_1, KeyBoard::QWERTY_KEYBOARD, NULL, QApplication::desktop()->screen());
     mp_MessageDlg = new MainMenu::CMessageDlg(mp_KeyBoardWidget);
     mp_MessageDlg->setModal(true);
     mp_KeyBoardWidget->setModal(true);

@@ -73,8 +73,11 @@ qint32 CKeyBoard::m_KeyBoardYPosition = 100; //! Default value for SIZE_1
  *  \iparam KeyBoardType = QWERTY/ QWERTZ keyboard
  */
 /****************************************************************************/
-CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardType)
-    : MainMenu::CDialogFrame(),
+CKeyBoard::CKeyBoard(KeyBoard::Model_t Model,
+                     KeyBoard::KeyBoardType_t KeyBoardType,
+                     QWidget *p_Parent,
+                     QWidget *pMainWindow)
+    : MainMenu::CDialogFrame(p_Parent, pMainWindow),
       mp_ClickedMapper(NULL),
       mp_PressedMapper(NULL),
       mp_BaseKeyLayout(NULL),
@@ -111,7 +114,7 @@ CKeyBoard::CKeyBoard(KeyBoard::Model_t Model, KeyBoard::KeyBoardType_t KeyBoardT
     mp_RegValidator = NULL;
     m_EnableInternalValidation = true;
     m_DisplayNumericKeypadAtStart = false;
-    this->move(DEFAULT_POSITION_X_COORDINATE, DEFAULT_POSITION_Y_COORDINATE);
+    //this->move(DEFAULT_POSITION_X_COORDINATE, DEFAULT_POSITION_Y_COORDINATE);
 
     setAttribute(Qt::WA_TranslucentBackground);
     //! \warning Don't change order of below function calls.
