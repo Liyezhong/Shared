@@ -197,7 +197,10 @@ private:
     void ConnectButtons();
 
 public:
-    explicit CKeyBoard(Model_t Model = SIZE_1, KeyBoardType_t KeyBoardType = QWERTY_KEYBOARD);
+    explicit CKeyBoard(Model_t Model = SIZE_1,
+                       KeyBoardType_t KeyBoardType = QWERTY_KEYBOARD,
+                       QWidget *p_Parent = 0,
+                       QWidget *pMainWindow = 0);
     ~CKeyBoard();
 
     void SetPasswordMode(bool Mode);

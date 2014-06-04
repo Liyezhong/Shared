@@ -42,7 +42,7 @@ class CDialogFrame : public QDialog
     friend class  CTestMainMenu;
 
 public:
-    explicit CDialogFrame(QWidget *p_Parent = 0, QMainWindow *pMainWindow = 0);
+    explicit CDialogFrame(QWidget *p_Parent = 0, QWidget *pMainWindow = 0);
   //  explicit CDialogFrame(QWidget *p_Parent = 0, Qt::WindowFlags f = 0);
     virtual ~CDialogFrame();
 
@@ -50,13 +50,13 @@ public:
     void SetDialogTitle(QString TitleLeftCorner, QString TitleRightCorner);
     void SetContent(QLayout *p_Content);
     void SetMaxStringDialogTitle(qint32 StringLength, QString TitleText);
-    void SetMainWindow(QMainWindow *mp_MainWindow);
+    void SetMainWindow(QWidget *mp_MainWindow);
     void CenterPosition();
     virtual void setVisible(bool visible);
 protected:
     QWidget *GetContentFrame();
     void changeEvent(QEvent *p_Event);
-    QMainWindow *mp_MainWindow;       //!< For position this dialog
+    QWidget *mp_MainWindow;       //!< For position this dialog
 
 private:
     Ui::CDialogFrame *mp_DialogUi;  //!< User interface
