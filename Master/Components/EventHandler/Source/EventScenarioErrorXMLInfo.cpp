@@ -35,35 +35,27 @@ EventScenarioErrXMLInfo::EventScenarioErrXMLInfo(const QString& XMLFile, bool ge
 bool EventScenarioErrXMLInfo::InitXMLInfo()
 {
 	QFile xmlFile(m_XMLFile);
-	if (xmlFile.exists())
-	{
-		if (xmlFile.open(QIODevice::ReadOnly))
-		{
-            m_pXMLReader = QSharedPointer<QXmlStreamReader>(new QXmlStreamReader(xmlFile.readAll()));
+	if (xmlFile.exists()){
+        if (xmlFile.open(QIODevice::ReadOnly)){
+            m_pXMLReader = QSharedPointer<QXmlStreamReader>(new QXmlStreamReader(xmlFile.readAll()));/*lint -e525 */
 		}
-		else
-		{
+		else{
 			return false;
 		}
 	}
-	else
-	{
+	else{
 		return false;
 	}
 
-    while (!m_pXMLReader->atEnd())
-    {
+    while (!m_pXMLReader->atEnd()){
         m_pXMLReader->readNextStartElement();
 
 		// Insert all the scenarios into m_ScenarioList
-        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "scenariolist")
-        {
+        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "scenariolist"){
 			m_ScenarioPrefix = m_pXMLReader->attributes().value("prefixId").toString(); 
-			while (m_pXMLReader->name() != "scenariolist" || !m_pXMLReader->isEndElement())
-			{
+			while (m_pXMLReader->name() != "scenariolist" || !m_pXMLReader->isEndElement()){
 				m_pXMLReader->readNextStartElement();
-				if (m_pXMLReader->name() == "scenario" && !m_pXMLReader->isEndElement())
-				{
+				if (m_pXMLReader->name() == "scenario" && !m_pXMLReader->isEndElement()){
                     QString id = m_ScenarioPrefix  + m_pXMLReader->attributes().value("id").toString();
 					QString name = m_pXMLReader->attributes().value("name").toString();	
 					m_ScenarioList.insert(id, name);
@@ -71,63 +63,48 @@ bool EventScenarioErrXMLInfo::InitXMLInfo()
 			}
         }
 		//Insert all the events into m_EventScenarioErrList
-        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "eventlist")
-		{
-            if (false ==ConstructESEInfoList())
-            {
+        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "eventlist"){
+            if (false ==ConstructESEInfoList()){
                 return false;
             }
 		}
-
 		// Get eventId-errorID-scenarioID map for each ESSInfo object
-        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "correspondinglist")
-		{
-            if (ConstructSEMap4ESEInfo() == false)
-			{
+        if (m_pXMLReader->isStartElement() && m_pXMLReader->name()== "correspondinglist"){
+            if (ConstructSEMap4ESEInfo() == false){
 				return false;
 			}	
 		} 
     }
-
     return true;
 }
 
 bool EventScenarioErrXMLInfo::ConstructESEInfoList()
 {
     QSharedPointer<ESEInfo> pESEObj;
-    while (m_pXMLReader->name()!="eventlist" || !m_pXMLReader->isEndElement())
-    {
+    while (m_pXMLReader->name()!="eventlist" || !m_pXMLReader->isEndElement()){
         m_pXMLReader->readNextStartElement();
 		QString group="";
-        if (m_pXMLReader->name() == "group" && !m_pXMLReader->isEndElement())
-        {
-            if (m_pXMLReader->attributes().hasAttribute("name"))
-            {
+        if (m_pXMLReader->name() == "group" && !m_pXMLReader->isEndElement()){
+            if (m_pXMLReader->attributes().hasAttribute("name")){
                 group = m_pXMLReader->attributes().value("name").toString();
             }
         }
-        else if (m_pXMLReader->name() == "event" && !m_pXMLReader->isEndElement())
-        {
+        else if (m_pXMLReader->name() == "event" && !m_pXMLReader->isEndElement()){
             quint32 id = 0;
-			if (m_pXMLReader->attributes().hasAttribute("id"))
-			{
+            if (m_pXMLReader->attributes().hasAttribute("id")){
                 bool ok = false;
-                id = m_pXMLReader->attributes().value("id").toString().toInt(&ok);
-                if (false == ok)
-                {
+                id = m_pXMLReader->attributes().value("id").toString().toInt(&ok);/*lint -e525 */
+                if (false == ok){/*lint -e525 */
                     return false;
                 }
-			}
-
+            }
 			QString name="";
-			if (m_pXMLReader->attributes().hasAttribute("name"))
-			{
-                name = m_pXMLReader->attributes().value("name").toString();
+            if (m_pXMLReader->attributes().hasAttribute("name")){
+                name = m_pXMLReader->attributes().value("name").toString();/*lint -e525 */
 			}
 			pESEObj = QSharedPointer<ESEInfo>(new ESEInfo(id, name, group));
             m_EventScenarioErrList.insert(id, pESEObj);
-            if (true == m_GenRetCode)
-            {
+            if (true == m_GenRetCode){
                 m_ESEInfoList.push_back(pESEObj);
             }
         }
@@ -144,86 +121,66 @@ bool EventScenarioErrXMLInfo::ConstructSEMap4ESEInfo()
     {
         m_pXMLReader->readNextStartElement();
 
-        if (m_pXMLReader->name() == "event" && !m_pXMLReader->isEndElement())
-        {
-			if ( m_pXMLReader->attributes().hasAttribute("eventid") )
-			{
+        if (m_pXMLReader->name() == "event" && !m_pXMLReader->isEndElement()){
+			if ( m_pXMLReader->attributes().hasAttribute("eventid") ){
                 bool ok = false;
                 quint32 eventId = m_pXMLReader->attributes().value("eventid").toString().toInt(&ok);
-                if (false == ok)
-                {
+                if (false == ok){/*lint -e525 */
                     return false;
                 }
-                iter = m_EventScenarioErrList.find(eventId);
+                iter = m_EventScenarioErrList.find(eventId);/*lint -e525 */
 
 				// Check if the eventid is in the m_EventScenarioErrList 
-				if (iter == m_EventScenarioErrList.end())
-				{
+				if (iter == m_EventScenarioErrList.end()){
 					return false;
-				}
-				
+				}		
 			}
         }
         else if (m_pXMLReader->name() == "error" && !m_pXMLReader->isEndElement())
 		{
-			if ( m_pXMLReader->attributes().hasAttribute("errorid") )
-			{
+			if ( m_pXMLReader->attributes().hasAttribute("errorid") ){
                 bool ok = false;
-                errorId = m_pXMLReader->attributes().value("errorid").toString().toInt(&ok);
-                if (false == ok)
-                {
+                errorId = m_pXMLReader->attributes().value("errorid").toString().toInt(&ok);/*lint -e525 */
+                if (false == ok){/*lint -e525 */
                     return false;
                 }
 			}
         }
-        else if (m_pXMLReader->name() == "scenario" && !m_pXMLReader->isEndElement())
-		{
+        else if (m_pXMLReader->name() == "scenario" && !m_pXMLReader->isEndElement()){
 			QString type = "";
-			if (m_pXMLReader->attributes().hasAttribute("type"))
-			{
+			if (m_pXMLReader->attributes().hasAttribute("type")){
 				type = m_pXMLReader->attributes().value("type").toString();
 			}
-			else
-			{
+			else{
 				return false;
 			}
-
-			if (type == "single")
-			{
+			if (type == "single"){
 				QString scenarioId = "";	
-				if (m_pXMLReader->attributes().hasAttribute("id"))
-				{
+				if (m_pXMLReader->attributes().hasAttribute("id")){
 					scenarioId = m_ScenarioPrefix + m_pXMLReader->attributes().value("id").toString();
 				}
 				// Check if scenario ID is in m_ScenarioList
-				if (m_ScenarioList.find(scenarioId) == m_ScenarioList.end())
-				{
+				if (m_ScenarioList.find(scenarioId) == m_ScenarioList.end()){
 					return false;
 				}
-                iter.value()->m_ScenarioErrorList.insert(scenarioId, errorId);
+                iter.value()->m_ScenarioErrorList.insert(scenarioId, errorId);/*lint -e525 */
 			}
-			else if (type == "range")
-			{
+			else if (type == "range"){
 				int startId = 0, endId = 0;
-				if (m_pXMLReader->attributes().hasAttribute("startid") && m_pXMLReader->attributes().hasAttribute("endid"))
-				{
-                    startId =  m_pXMLReader->attributes().value("startid").toString().toInt();
-                    endId = m_pXMLReader->attributes().value("endid").toString().toInt();
-					for (int i= startId; i<=endId; i++)
-					{
+				if (m_pXMLReader->attributes().hasAttribute("startid") && m_pXMLReader->attributes().hasAttribute("endid")){
+                    startId =  m_pXMLReader->attributes().value("startid").toString().toInt();/*lint -e525 */
+                    endId = m_pXMLReader->attributes().value("endid").toString().toInt();/*lint -e525 */
+					for (int i= startId; i<=endId; i++){
                         // Check if scenario ID is in m_ScenarioList. If yes, insert it. Otherwise, just ignore it.
-						if (m_ScenarioList.find(m_ScenarioPrefix+QString::number(i)) == m_ScenarioList.end())
-						{
-                            continue;
+						if (m_ScenarioList.find(m_ScenarioPrefix+QString::number(i)) == m_ScenarioList.end()){
+                            continue;/*lint -e525 */
 						}
-
-                        iter.value()->m_ScenarioErrorList.insert(m_ScenarioPrefix+QString::number(i), errorId);
+                        iter.value()->m_ScenarioErrorList.insert(m_ScenarioPrefix+QString::number(i), errorId);/*lint -e525 */
 					}
 				}
 			}
-			else if (type == "all")
-			{
-                iter.value()->m_ScenarioErrorList.insert("all", errorId);
+			else if (type == "all"){
+                iter.value()->m_ScenarioErrorList.insert("all", errorId);/*lint -e525 */
 			}
 		}
 	}
@@ -234,8 +191,7 @@ bool EventScenarioErrXMLInfo::ConstructSEMap4ESEInfo()
 quint32 EventScenarioErrXMLInfo::GetErrorCode(quint32 eventId, quint32 scenarioId)
 {
     QHash< quint32, QSharedPointer<ESEInfo> >::iterator iter = m_EventScenarioErrList.find(eventId);
-	if (iter == m_EventScenarioErrList.end())
-	{
+	if (iter == m_EventScenarioErrList.end()){
         return 0;
 	}
 
@@ -244,15 +200,13 @@ quint32 EventScenarioErrXMLInfo::GetErrorCode(quint32 eventId, quint32 scenarioI
 	int size = scenarioErrList.size();
     QHash<QString, quint32>::iterator sceErrIter = scenarioErrList.begin();
 	// If scenarioId is empty, we suppose scenario type is "all" and there is only one element in the list
-    if (scenarioId == 0 && size == 1 && sceErrIter.key() == "all")
-	{
+    if (scenarioId == 0 && size == 1 && sceErrIter.key() == "all"){
 		return sceErrIter.value();
 	}
     QString strScenarioId = "";
     strScenarioId.sprintf("%03d", scenarioId);
     sceErrIter = scenarioErrList.find(m_ScenarioPrefix +strScenarioId);
-	if (sceErrIter != scenarioErrList.end())
-	{
+	if (sceErrIter != scenarioErrList.end()){
 		return sceErrIter.value();
 	}
 

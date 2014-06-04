@@ -145,7 +145,17 @@ public:
     }
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void SetProcessState(bool &ProcessState);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void SetRemoteCareState(bool &RemoteCareState);
 
 signals:

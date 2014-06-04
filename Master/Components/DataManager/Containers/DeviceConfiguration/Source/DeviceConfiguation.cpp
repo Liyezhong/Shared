@@ -27,7 +27,6 @@
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
 
-
 namespace DataManager {
 
 /****************************************************************************/
@@ -177,6 +176,7 @@ bool CDeviceConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader,
         QXmlStreamAttributes attributes = XmlStreamReader.attributes();
         foreach (QXmlStreamAttribute attribute, attributes)
         {
+            /*lint -e534 */
             m_ValueList.insert(attribute.name().toString().toUpper(), attribute.value().toString());
         }
     }
@@ -244,6 +244,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfiguration&
         qDebug() << "CDeviceConfiguration::Operator Streaming (SerializeContent) failed.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        /*lint -e534 */
         const_cast<CDeviceConfiguration &>(DeviceConfig).m_ErrorMap.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
     }
@@ -276,6 +277,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfiguration& Device
     if (!DeviceConfig.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CDeviceConfiguration::Operator Streaming (DeSerializeContent) failed.";
         DeviceConfig.m_ErrorMap.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
+        /*lint -e534 */
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);

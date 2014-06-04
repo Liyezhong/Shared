@@ -95,6 +95,7 @@ NetworkServer::~NetworkServer()
         }
         m_myServer = NULL;
     }
+    /*lint -e1551 */
     CATCHALL();
 }
 

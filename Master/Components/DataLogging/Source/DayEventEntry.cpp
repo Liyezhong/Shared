@@ -34,7 +34,23 @@ DayEventEntry::DayEventEntry()
       m_EventKey(0),
       m_TimeStamp(Global::AdjustedTime::Instance().GetCurrentDateTime()),
       m_Count(0),
-      m_AltEventStringUsage(Global::NOT_APPLICABLE) {
+      m_AltEventStringUsage(Global::NOT_APPLICABLE),
+      m_EventCode(0),
+      m_ActionNegative(Global::ACNTYPE_NONE),
+      m_ActionPositive(Global::ACNTYPE_NONE),
+      m_ActionFinal(Global::ACNTYPE_NONE),
+      m_EventSoure(Global::EVENTSOURCE_NONE),
+      m_AlarmStatus(false),
+      m_AlarmType(Global::ALARMPOS_NONE),
+      m_LogLevel(Global::LOGLEVEL_NONE),
+      m_ShowRunLogStatus(false),
+      m_ButtonType(Global::NOT_SPECIFIED),
+      m_StatusIcon(false),
+      m_RetryAttempts(0),
+      m_AckReqStatus(false),
+      m_Scenario(0),
+      m_StringID(0),
+      m_EventType(Global::EVTTYPE_UNDEFINED){
     m_AckType = NetCommands::NOT_SPECIFIED;
     m_String.clear();
 }
@@ -52,7 +68,23 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslat
       m_TimeStamp(TimeStamp),
       m_Count(0),
       m_String(String),
-      m_AltEventStringUsage(Global::NOT_APPLICABLE) {
+      m_AltEventStringUsage(Global::NOT_APPLICABLE),
+      m_EventCode(0),
+      m_ActionNegative(Global::ACNTYPE_NONE),
+      m_ActionPositive(Global::ACNTYPE_NONE),
+      m_ActionFinal(Global::ACNTYPE_NONE),
+      m_EventSoure(Global::EVENTSOURCE_NONE),
+      m_AlarmStatus(false),
+      m_AlarmType(Global::ALARMPOS_NONE),
+      m_LogLevel(Global::LOGLEVEL_NONE),
+      m_ShowRunLogStatus(false),
+      m_ButtonType(Global::NOT_SPECIFIED),
+      m_StatusIcon(false),
+      m_RetryAttempts(0),
+      m_AckReqStatus(false),
+      m_Scenario(0),
+      m_StringID(0),
+      m_EventType(Global::EVTTYPE_UNDEFINED){
     m_AckType = NetCommands::NOT_SPECIFIED;
 }
 
@@ -62,14 +94,28 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, quint32 EventKey, bool 
                              NetCommands::ClickedButton_t ClickButton, Global::tRefType Ref):
     m_EventStatus(EventStatus),
     m_Ref(Ref),
-    m_AckType(ClickButton),
     m_EventKey(EventKey),
     m_TimeStamp(TimeStamp),
     m_Count(Count),
     m_AltEventStringUsage(Global::NOT_APPLICABLE),
-    m_String(String){
+    m_String(String),
+    m_EventCode(0),
+    m_ActionNegative(Global::ACNTYPE_NONE),
+    m_ActionPositive(Global::ACNTYPE_NONE),
+    m_ActionFinal(Global::ACNTYPE_NONE),
+    m_EventSoure(Global::EVENTSOURCE_NONE),
+    m_AlarmStatus(false),
+    m_AlarmType(Global::ALARMPOS_NONE),
+    m_LogLevel(Global::LOGLEVEL_NONE),
+    m_ShowRunLogStatus(false),
+    m_ButtonType(Global::NOT_SPECIFIED),
+    m_StatusIcon(false),
+    m_RetryAttempts(0),
+    m_AckReqStatus(false),
+    m_Scenario(0),
+    m_StringID(0),
+    m_EventType(Global::EVTTYPE_UNDEFINED){
     m_AckType = ClickButton;
-
 }
 
 
@@ -110,7 +156,10 @@ void DayEventEntry::CopyFrom(const DayEventEntry &rOther) {
     m_StatusIcon = rOther.m_StatusIcon;
     m_ShowRunLogStatus = rOther.m_ShowRunLogStatus;
     m_ButtonType = rOther.m_ButtonType;
-
+    m_ActionNegative = Global::ACNTYPE_NONE;
+    m_ActionPositive = Global::ACNTYPE_NONE;
+    m_ActionFinal = Global::ACNTYPE_NONE;
+    m_RetryAttempts = 0;
 }
 
 /****************************************************************************/

@@ -837,7 +837,7 @@ bool CSWVersionList::DeleteSWDetails(const QString SWName)
             return false;
         }
 
-        return false;
+
     }
     CATCHALL();
 

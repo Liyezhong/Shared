@@ -58,13 +58,13 @@ bool CUserSettingsVerifier::VerifyData(CDataContainerBase* p_UserSettingsInterfa
                 //QString ErrorDescription;
 
                 // assign pointer to member variable
-                mp_USettingsInterface = static_cast<CUserSettingsInterface*>(p_UserSettingsInterface);
+        mp_USettingsInterface = static_cast<CUserSettingsInterface*>(p_UserSettingsInterface);
         CHECKPTR(mp_USettingsInterface)
                 // check content of user settings
-                CUserSettings* p_UserSettings = mp_USettingsInterface->GetUserSettings();
+        CUserSettings* p_UserSettings = mp_USettingsInterface->GetUserSettings();
         CHECKPTR(p_UserSettings)
                 // check the language
-                switch (p_UserSettings->GetLanguage()) {
+        switch (p_UserSettings->GetLanguage()) {
             case QLocale::C:
                 qDebug() << "Unsupported language is detected";
                 m_ErrorMap.insert(EVENT_DM_ERROR_NOT_SUPPORTED_LANGUAGE, Global::tTranslatableStringList() << p_UserSettings->GetLanguage());

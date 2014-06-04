@@ -200,7 +200,17 @@ private:
 
     void OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Acknowledge);
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void OnCommandTimeoutSlot(Global::tRefType Ref, QString CommandName);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ProcessNetMessage(const QString &msgname, const QByteArray &barray);
 
 signals:

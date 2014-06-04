@@ -97,9 +97,29 @@ signals:
      void StartConnectionLostTimer();
 
 public slots:
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
     void Go();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void Stop();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     bool SendMessageToMaster(const QString &, const QByteArray &, Global::tRefType Ref);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ForwardMsgToRecipient(const QString &cmdname, const QByteArray &barray);
 
 private:

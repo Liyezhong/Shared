@@ -53,7 +53,9 @@ CmdAlarmToneTest::~CmdAlarmToneTest()
 
 CmdAlarmToneTest::CmdAlarmToneTest():Command(0)
 {
-
+    m_Sound = 0;
+    m_Volume = 0;
+    m_AlarmType = false;
 }
 
 /****************************************************************************/

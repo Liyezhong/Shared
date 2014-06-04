@@ -120,6 +120,7 @@ void ExternalProcessController::DeleteActiveStateObjects()
         m_WaitState = NULL;
     }
     CATCHALL();
+    /*lint -e1578 */
 }
 
 /****************************************************************************/

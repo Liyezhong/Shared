@@ -532,7 +532,8 @@ void CRCConfigurationVerifier::CheckDataItems(CRCConfiguration* p_RCConfiguratio
         CRCDataItem DataItem;
 
         p_RCConfiguration->GetDataItem(Index, DataItem);
-
+        //the folowing code are expected never used
+        /*lint -e568 */
         if( ((qint32)DataItem.GetType() < (qint32)RemoteCare::RDI_Analog) ||
                 ((qint32)DataItem.GetType() > (qint32)RemoteCare::RDI_Undefined))
         {
@@ -545,7 +546,8 @@ void CRCConfigurationVerifier::CheckDataItems(CRCConfiguration* p_RCConfiguratio
                                                        Global::tTranslatableStringList() << DataItem.GetName() , true);
             VerifiedData = false;
         }
-
+        //the folowing code are expected never used
+        /*lint -e568 */
         if( ((qint32)DataItem.GetQuality() < (qint32)RemoteCare::RDI_DataGood) ||
                 ((qint32)DataItem.GetQuality() > (qint32)RemoteCare::RDI_DataUncertain))
         {

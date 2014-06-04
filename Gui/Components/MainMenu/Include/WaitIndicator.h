@@ -53,6 +53,11 @@ private:
     Q_DISABLE_COPY(CWaitIndicator)
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void MoveIndicator();
 };
 

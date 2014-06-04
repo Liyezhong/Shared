@@ -61,7 +61,7 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_unCanIDServiceFanReq(0), m_unCanIDServiceFan(0),
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),
     m_aktionTimespan(0), m_unCanIDNotiAutoTune(0),
-    m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),
+    m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),m_unCanIDSetSwitchState(0),
     m_unCanIDLevelSensorState(0), m_unCanIDAcCurrentWatchdogSet(0), m_unCanIDAcCurrentWatchdogSetExt(0)
 {
     // main state

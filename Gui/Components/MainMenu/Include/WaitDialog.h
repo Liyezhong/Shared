@@ -50,6 +50,11 @@ public:
     void show();
     void BlgProcessProgress(bool IsBlgProcessStarted);
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void done(int Result);
 
 protected:
@@ -71,8 +76,23 @@ private:
     Q_DISABLE_COPY(CWaitDialog)
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void LockDialog();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void UnlockDialog();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void AbortWaitDialog();
 
 signals:

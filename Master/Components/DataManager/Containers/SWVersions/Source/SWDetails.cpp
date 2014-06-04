@@ -18,7 +18,7 @@
  *
  */
 /****************************************************************************/
-
+//lint -sem(DataManager::CSWDetails::CopyFromOther,initializer)
 #include <QDebug>
 #include <QString>
 #include <QBuffer>

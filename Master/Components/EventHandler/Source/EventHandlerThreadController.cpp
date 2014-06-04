@@ -995,6 +995,7 @@ void EventHandlerThreadController::OnAcknowledge(Global::tRefType Ref, const Net
     NetCommands::CmdSystemAction *p_CmdSystemAction;
     p_CmdSystemAction = new NetCommands::CmdSystemAction();
     EventKey = (Ack.GetEventKey() & 0x00000000ffffffff);
+    /*lint -e435 */
     EventID = (quint32)((Ack.GetEventKey() & 0xffffffff00000000) >> 32) ;
     p_CmdSystemAction->SetEventKey(EventKey);
     p_CmdSystemAction->SetEventID(EventID);

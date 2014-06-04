@@ -145,6 +145,11 @@ public:
     static const char *inputName(QtScroller::Input input);
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void targetDestroyed();
 
 public:

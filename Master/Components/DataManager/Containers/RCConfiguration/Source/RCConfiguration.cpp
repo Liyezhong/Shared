@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-
+//lint -sem(DataManager::CRCConfiguration::CopyFromOther,initializer)
 #include <QReadLocker>
 #include <QWriteLocker>
 #include <QDebug>
@@ -28,6 +28,7 @@
 #include "Global/Include/EventObject.h"
 //lint -e641
 //lint -e1536
+
 
 namespace DataManager {
 

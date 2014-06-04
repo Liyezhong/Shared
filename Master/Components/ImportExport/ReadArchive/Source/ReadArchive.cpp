@@ -213,7 +213,7 @@ void ReadKeyData(QByteArray &keydata, int &hashIndex, QByteArray &deviceID, QByt
 /****************************************************************************/
 void ImportArchiveFiles(FailSafeOpen &fd, ReadAndBuffer &fdrb,
                         QStringList &importfilelist, bool &compressed,
-                        bool &encrypt, AbstractFile* fout, QString & filepath,
+                        bool &enCrypt, AbstractFile* fout, QString & filepath,
                         int &noentries, QByteArray &purpose, QByteArray &keydata, QByteArray &deviceID)
 {
     // check HMACs
@@ -235,7 +235,7 @@ void ImportArchiveFiles(FailSafeOpen &fd, ReadAndBuffer &fdrb,
     }
 
     // "file descriptor" for read entries and computing HMACs
-    DecryptUncompress fdr(&fd, cs, encrypt, compressed);
+    DecryptUncompress fdr(&fd, cs, enCrypt, compressed);
     // counter for entries
     int counter = 0;
     // iterate over entries

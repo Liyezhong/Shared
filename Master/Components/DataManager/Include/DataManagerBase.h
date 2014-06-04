@@ -51,6 +51,7 @@ protected:
     bool DeinitDataContainer();
 
 public:
+    /*lint -e18 */
     CUserSettingsCommandInterface *mp_SettingsCommandInterface; //!< Handles commands related to User Settings
     CDeviceConfigurationInterface *mp_DeviceConfigurationInterface; //!< Handles commands related to device configuration
     quint32 InitDataContainer();
@@ -70,8 +71,8 @@ public:
      */
     /****************************************************************************/
     virtual const CDataContainerCollectionBase* GetDataContainer() { return mp_DataContainerCollectionBase; }
-    CUserSettingsInterface* GetUserSettingsInterface();
-    CDeviceConfigurationInterface* GetDeviceConfigurationInterface();
+    virtual CUserSettingsInterface* GetUserSettingsInterface();
+    virtual CDeviceConfigurationInterface* GetDeviceConfigurationInterface();
     CRCConfigurationInterface* GetRCConfigurationInterface();
 
     /****************************************************************************/

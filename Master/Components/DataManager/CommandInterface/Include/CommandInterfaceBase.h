@@ -139,15 +139,6 @@ protected:
             (void)mp_MasterThreadController->SendCommand(Command, AckCommandChannel); //avoid lint 534
         }
     }
-
-private:
-    /****************************************************************************/
-    /*!
-     *  \brief Disable copy and assignment operator.
-     *
-     */
-    /****************************************************************************/
-    Q_DISABLE_COPY(CCommandInterfaceBase)
 };
 
 }// end of namespace DataManager

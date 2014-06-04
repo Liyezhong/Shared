@@ -54,7 +54,17 @@ private:
     Q_DISABLE_COPY(CServiceExportDlg)
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void OkClicked();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void RetranslateUI();
 
 signals:

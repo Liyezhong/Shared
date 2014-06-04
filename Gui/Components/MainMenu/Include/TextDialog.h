@@ -66,6 +66,11 @@ signals:
 protected:
     void changeEvent(QEvent *p_Event);
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void CloseDailog();
 };
 

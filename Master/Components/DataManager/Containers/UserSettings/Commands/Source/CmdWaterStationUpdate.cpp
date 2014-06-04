@@ -58,6 +58,7 @@ CmdWaterStationUpdate::~CmdWaterStationUpdate()
 /****************************************************************************/
 CmdWaterStationUpdate::CmdWaterStationUpdate() : Command(0)
 {
+    m_WaterFlowState = 0;
 }
 
 /****************************************************************************/

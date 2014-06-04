@@ -82,12 +82,32 @@ protected:
     void changeEvent(QEvent *p_Event);
 
 private slots:
-    void UpdateVerticalScrollBar();   
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
+    void UpdateVerticalScrollBar();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ScrollStep(const QVariant &Value);
     
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ScrollContent(int Direction);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ScrollRangeChanged();
 
 signals:

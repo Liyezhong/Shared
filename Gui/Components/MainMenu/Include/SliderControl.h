@@ -65,6 +65,11 @@ private:
     Q_DISABLE_COPY(CSliderControl)
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void OnValueChanged(int Value);
 };
 

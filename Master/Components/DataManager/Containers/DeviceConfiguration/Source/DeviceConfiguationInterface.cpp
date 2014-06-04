@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-
+//lint -sem(DataManager::CDeviceConfigurationInterface::CopyFromOther,initializer)
 #include <QReadLocker>
 #include <QWriteLocker>
 #include <QDebug>
@@ -27,8 +27,6 @@
 #include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
 #include "DataManager/Helper/Include/DataManagerEventCodes.h"
 #include "Global/Include/EventObject.h"
-
-
 
 namespace DataManager {
 
@@ -75,6 +73,7 @@ CDeviceConfigurationInterface::CDeviceConfigurationInterface(const CDeviceConfig
  *  \return
  */
 /****************************************************************************/
+/*lint -e1565 */
 void CDeviceConfigurationInterface::CopyFromOther(const CDeviceConfigurationInterface &Other)
 {
     //QReadWriteLock is not copied. We use the existing lock object
@@ -110,8 +109,10 @@ CDeviceConfigurationInterface::~CDeviceConfigurationInterface()
 void CDeviceConfigurationInterface::SetDefaultAttributes()
 {
     // create the Read write lock for threads
+    /*lint -e423 */
     mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
     m_DataVerificationMode = true;
+    /*lint -e423 */
     mp_DeviceConfig = new CDeviceConfiguration();
 }
 
@@ -426,6 +427,7 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CDeviceConfigurationI
         qDebug() << "CDeviceConfigurationInterface::Operator Streaming (SerializeContent) failed.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        /*lint -e534 */
         const_cast<CDeviceConfigurationInterface &>(DCInterface).m_ErrorMap.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
 
@@ -451,6 +453,7 @@ QDataStream& operator >>(QDataStream& InDataStream, CDeviceConfigurationInterfac
         qDebug() << "CDeviceConfigurationInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         // throws an exception
         //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
+        /*lint -e534 */
         DCInterface.m_ErrorMap.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "DeviceConfiguration", true);
 

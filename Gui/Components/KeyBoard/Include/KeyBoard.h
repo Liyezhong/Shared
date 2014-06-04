@@ -358,14 +358,54 @@ signals:
 	 void ValidateEnteredString(QString EnteredString);
 
 private slots:
-    void OnButtonClicked(int Button);
-    void SetNumericMode(bool Checked);
-    void PressAndHold(int Button);
-    void SubSpellerClicked();
-    void EscClicked();
-    void OnOkClicked();
-    void OnValidationComplete(const bool ValidationResult);
-    void SwitchLayout(const QString Language);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void OnButtonClicked(int Button);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void SetNumericMode(bool Checked);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void PressAndHold(int Button);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void SubSpellerClicked();
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void EscClicked();
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void OnOkClicked();
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void OnValidationComplete(const bool ValidationResult);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void SwitchLayout(const QString Language);
 
 };
 

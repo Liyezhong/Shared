@@ -56,7 +56,7 @@ private:
     GPIOPin m_LEDGPIOGreen;         //!< GPIO connected to the LED on EBox
     GPIOPin m_LEDGPIORed;           //!< GPIO connected to the LED on EBox
     // State machine attributes
-    QStateMachine           *mp_LEDStateMachine;        //!< StateMachine managing LED workflow
+    QStateMachine           *mp_LEDStateMachine;       //!< StateMachine managing LED workflow
     GenericStateTemplate    *mp_StandByState;          //!< StandBy State
     GenericStateTemplate    *mp_InitComplete;          //!< State when System Init is compelete
 

@@ -114,6 +114,11 @@ signals:
     void SubSpellerClicked();
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void OnButtonClicked(int Button);
 };
 

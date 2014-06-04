@@ -140,6 +140,7 @@ CSubModule::~CSubModule()
 void CSubModule::DeleteAllParameters()
 {
     // get parameter pointer for each entry and free memory
+    /*lint -e665 */
     foreach(Parameter_t* p, m_ListOfParameters) {
         delete p;
     }

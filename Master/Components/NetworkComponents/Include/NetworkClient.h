@@ -168,12 +168,41 @@ signals:
      void StartConnectionLostTimer();
 
 public slots:
-
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
     void ReadRawSocket();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void HandleSocketError(QAbstractSocket::SocketError);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void HandleAuthTimeout();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void SendMessage(quint8, const QByteArray &ba);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ConnectToServer();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void DisconnectConnection();
 
 private:

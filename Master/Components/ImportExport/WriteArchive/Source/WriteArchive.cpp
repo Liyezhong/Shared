@@ -101,7 +101,7 @@ void WriteArchive(QByteArray archive_name,
  */
 /****************************************************************************/
 void WriteFiles(WriteAndHmac &fdwh, FailSafeOpen &fd,
-       CryptoService &cs, QList<QByteArray> &filelist, bool &compressed, bool &encrypt)
+       CryptoService &cs, QList<QByteArray> &filelist, bool &compressed, bool &enCrypt)
 {
 
     // add HMACs
@@ -113,7 +113,7 @@ void WriteFiles(WriteAndHmac &fdwh, FailSafeOpen &fd,
     }
 
     // "file descriptor" for writing entries and computing HMACs
-    CompressEncrypt fdw(&fd, cs, encrypt, compressed);
+    CompressEncrypt fdw(&fd, cs, enCrypt, compressed);
     // counter for entries
     int counter = 1;
 

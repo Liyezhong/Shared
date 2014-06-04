@@ -73,8 +73,17 @@ public:
     bool StartDateTimeSync(int period);
 
 public slots:
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     virtual void HandleNetworkError(NetworkBase::DisconnectType_t , const QString &);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     virtual void SyncDateAndTime();
 
 private:

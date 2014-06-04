@@ -40,17 +40,15 @@ public:
 
 private:
     bool m_ConnToOtherProcess;//!< Flag for connection to other process
-    /****************************************************************************/
-    /*!
-     *  \brief Disable copy and assignment operator.
-     *
-     */
-    /****************************************************************************/
-    Q_DISABLE_COPY(CUserSettingsCommandInterface)
     void RegisterCommands();
     void SettingsUpdateHandler(Global::tRefType, const MsgClasses::CmdChangeUserSettings &Cmd, Threads::CommandChannel &AckCommandChannel);
     void AlarmTestToneHandler(Global::tRefType Ref, const MsgClasses::CmdAlarmToneTest &Cmd, Threads::CommandChannel &AckCommandChannel);
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void ConnectedToOtherProcess(bool Connected);
 
 signals:

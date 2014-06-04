@@ -31,7 +31,8 @@ EventXMLInfo::EventXMLInfo(const QStringList& eventXMLFileList, const QString& E
     : m_eventXMLFileList(eventXMLFileList),
       m_ESEXMLFile(ESEXMLFile),
       m_pXMLReader(NULL),
-      m_pESEXMLInfo(NULL)
+      m_pESEXMLInfo(NULL),
+      m_ParsingStatus(false)
 {
 }
 
@@ -260,7 +261,9 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             pXMLEvent->m_ErrorId = errorId;
             pXMLEvent->m_EventName = EventName;
             pXMLEvent->m_ErrorType = errorType;
+            /*lint -e644 */
             pXMLEvent->m_AuthType = authType;
+            /*lint -e644 */
             pXMLEvent->m_AlarmType = alarmType;
             pXMLEvent->m_RootStep = rootStep;
             pXMLEvent->m_EventSource = eventSource;
@@ -292,21 +295,21 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
                 Type = m_pXMLReader->attributes().value("Type").toString();
             }
 
-            Global::EventLogLevel LogLevel = Global::LOGLEVEL_NONE;
+            Global::EventLogLevel logLevel = Global::LOGLEVEL_NONE;
             if (m_pXMLReader->attributes().hasAttribute("LogLevel"))
             {
                 QString Level = m_pXMLReader->attributes().value("LogLevel").toString().toUpper();
                 if (Level.trimmed().compare("LOW",Qt::CaseInsensitive) == 0)
                 {
-                    LogLevel = Global::LOGLEVEL_LOW;
+                    logLevel = Global::LOGLEVEL_LOW;
                 }
                 else if (Level.trimmed().compare("MEDIUM",Qt::CaseInsensitive) == 0)
                 {
-                    LogLevel = Global::LOGLEVEL_MEDIUM;
+                    logLevel = Global::LOGLEVEL_MEDIUM;
                 }
                 else if (Level.trimmed().compare("HIGH",Qt::CaseInsensitive) == 0)
                 {
-                    LogLevel = Global::LOGLEVEL_HIGH;
+                    logLevel = Global::LOGLEVEL_HIGH;
                 }
             }
 
@@ -456,7 +459,7 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
 
             QSharedPointer<EventStep> pEventStep(new EventStep(Id, Type));
             pEventStep->m_Action = Action;
-            pEventStep->m_LogLevel = LogLevel;
+            pEventStep->m_LogLevel = logLevel;
             pEventStep->m_UserLog = UserLog;
             pEventStep->m_NextStepOnFail = NextStepOnFail;
             pEventStep->m_NextStepOnSuccess = NextStepOnSuccess;

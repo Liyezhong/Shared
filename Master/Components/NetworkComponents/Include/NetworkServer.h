@@ -179,9 +179,18 @@ signals:
      void DestroyConnection(NetworkBase::DisconnectType_t dtype);
 
 public slots:
-
-    void DestroyManager(quint32 number, const QString &client, NetworkBase::DisconnectType_t dtype);
-    void RegisterConnection(quint32 number, const QString &client);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void DestroyManager(quint32 number, const QString &client, NetworkBase::DisconnectType_t dtype);
+     /****************************************************************************/
+     /*!
+      *  \brief  Definition/Declaration of slot UpdateReagentList
+      */
+     /****************************************************************************/
+     void RegisterConnection(quint32 number, const QString &client);
 
 private:
 

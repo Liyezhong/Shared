@@ -480,19 +480,16 @@ ReturnCode_t CAnalogOutput::SendCANMessageConfiguration()
     canmsg.can_dlc = 6;
 
     canmsg.data[0] = 0;
-    if(pCANObjConfAnaOutPort->m_bEnabled)
-    {
+    if(pCANObjConfAnaOutPort->m_bEnabled){
         canmsg.data[0] = 0x80;
     }
-    if(pCANObjConfAnaOutPort->m_bInaktivAtShutdown)
-    {
+    if(pCANObjConfAnaOutPort->m_bInaktivAtShutdown){
         canmsg.data[0] |= 0x40;
     }
-    if(pCANObjConfAnaOutPort->m_bInaktivAtEmgyStop)
-    {
+    if(pCANObjConfAnaOutPort->m_bInaktivAtEmgyStop){
         canmsg.data[0] |= 0x20;
     }
-
+    /*lint -e539 */
 	canmsg.data[1] = pCANObjConfAnaOutPort->m_sBitCount;
     SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sOutvalInactiv, 2);
     SetCANMsgDataU16(&canmsg, pCANObjConfAnaOutPort->m_sLivetimeLimit, 4);

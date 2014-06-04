@@ -61,7 +61,11 @@ public:
     void HandleAck(const QString &status); ///< needs to be re-implemented for this command
 
 private slots:
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void HandleAckTimeout();               ///< needs to be re-implemented for this command
 
 private:

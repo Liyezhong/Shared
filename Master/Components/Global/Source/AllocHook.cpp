@@ -53,6 +53,7 @@ void * my_realloc_hook (void * ptr, size_t size, const void *caller)
     result = realloc(ptr, size);
 
     // do logging
+    /*lint -e449 */
     printf ("realloc (%u) for pointer %p returns %p\n", (unsigned int) size, ptr, result);
     if (NULL != result) {
         if (NULL == ptr) {      // like malloc
@@ -92,7 +93,7 @@ void my_free_hook (void * ptr, const void *caller)
     malloc_hook_active = 0;
 
     free (ptr);
-
+    /*lint -e449 */
     printf ("freed pointer %p\n", ptr);
     size_t size = ptrTable.value(ptr);
     allocMemory -= size;
@@ -101,26 +102,34 @@ void my_free_hook (void * ptr, const void *caller)
     // reactivate hooks
     malloc_hook_active = 1;
 }
-
+/*lint -e1548 */
 void * malloc (size_t size)
 {
     if (NULL == __os_malloc) {
+        /*lint -e620 */
+        /*lint -e611 */
        __os_malloc = (void * (*) (size_t)) dlsym(RTLD_NEXT, "malloc");
     }
     if (malloc_hook_active) {
-        void *caller = __builtin_return_address(0);
+        /*lint -e1550 */
+        void *caller = (void *)__builtin_return_address(0);
+        /*lint -e1550 */
         return my_malloc_hook(size, caller);
     }
     return __os_malloc(size);
 }
-
+/*lint -e1548 */
 void * realloc (void* ptr, size_t size)
 {
     if (NULL == __os_realloc) {
+        /*lint -e620 */
+        /*lint -e611 */
        __os_realloc = (void * (*) (void* ptr, size_t size)) dlsym(RTLD_NEXT, "realloc");
     }
     if (malloc_hook_active) {
-        void *caller = __builtin_return_address(0);
+        /*lint -e1550 */
+        void *caller = (void *)__builtin_return_address(0);
+        /*lint -e1550 */
         return my_realloc_hook(ptr, size, caller);
     }
     return __os_realloc(ptr, size);
@@ -132,7 +141,7 @@ void free (void * ptr)
        __os_free = (void (*) (void *)) dlsym(RTLD_NEXT, "free");
     }
     if (malloc_hook_active) {
-        void *caller = __builtin_return_address(0);
+        void *caller = (void *)__builtin_return_address(0);
         return my_free_hook(ptr, caller);
     }
     return __os_free(ptr);

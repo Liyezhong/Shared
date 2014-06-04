@@ -132,6 +132,7 @@ quint32 CDataManagerBase::InitDataContainer()
         return EVENT_DM_RCCONFIG_VERIFICATION_FAILED;
     }
     //Command interface to handle Settings command
+    /*lint -e64 */
     mp_SettingsCommandInterface = new CUserSettingsCommandInterface(this , mp_MasterThreadController, mp_DataContainerCollectionBase);
     return INIT_OK;
 }
@@ -153,6 +154,7 @@ bool CDataManagerBase::DeinitDataContainer()
     mp_DeviceConfigurationInterface = NULL;
     mp_MasterThreadController = NULL;
     mp_DataContainerCollectionBase = NULL;
+    /*lint -e1404 */
     delete mp_SettingsCommandInterface;
     return true;
 }

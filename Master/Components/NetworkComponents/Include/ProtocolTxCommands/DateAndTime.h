@@ -57,7 +57,11 @@ private:
     Q_DISABLE_COPY(DateAndTime)
 
 private slots:
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void HandleAckTimeout();               ///< needs to be re-implemented for this command
 
 }; // command

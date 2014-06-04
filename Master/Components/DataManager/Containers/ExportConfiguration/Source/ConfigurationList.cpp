@@ -18,7 +18,7 @@
  *
  */
 /****************************************************************************/
-
+//lint -sem(DataManager::CConfigurationList::CopyFromOther,initializer)
 #include <QDebug>
 #include <QString>
 #include <QBuffer>

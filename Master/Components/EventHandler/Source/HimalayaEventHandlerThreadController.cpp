@@ -349,6 +349,7 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
     }
     else{
         quint32 Result =  EventInfo.ActionResult ? Global::EVENT_GLOBAL_STRING_ID_RESOLVED : Global::EVENT_GLOBAL_STRING_ID_EVTTYPE_ERROR;
+        /*lint -e539 */
         m_EventEntry.SetStringID(STR_SCHEDULER_EVENT_SCENARIO_ACTION_RESULT);
         m_EventEntry.SetString(Global::tTranslatableStringList() <<QString("%1").arg(EventInfo.EventID)
                                              << QString("%1").arg(EventInfo.Scenario)

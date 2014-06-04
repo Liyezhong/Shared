@@ -66,6 +66,7 @@ bool CExportConfigurationVerifier::VerifyData(CDataContainerBase* p_Configuratio
             // check the source directory existence
             if(mp_ECD->GetSourceDir().compare("") == 0) {
                 qDebug() << "ExportConfig:Empty Source directory name.";
+                /*lint -e534 */
                 m_ErrorMap.insert(EVENT_EXPORTCONFIG_EMPTY_SOURCEDIR,
                                   Global::tTranslatableStringList() << "");
                 Global::EventObject::Instance().RaiseEvent(EVENT_EXPORTCONFIG_EMPTY_SOURCEDIR,
@@ -79,6 +80,7 @@ bool CExportConfigurationVerifier::VerifyData(CDataContainerBase* p_Configuratio
             if(mp_ECD->GetTargetDir().compare("") != 0) {
                 if(mp_ECD->GetTargetFileName().compare("") == 0) {
                     qDebug() << "ExportConfig:Empty target file name";
+                    /*lint -e534 */
                     m_ErrorMap.insert(EVENT_EXPORTCONFIG_EMPTY_TARGETFILE,
                                       Global::tTranslatableStringList() << "");
                     Global::EventObject::Instance().RaiseEvent(EVENT_EXPORTCONFIG_EMPTY_TARGETFILE,
@@ -179,6 +181,7 @@ bool CExportConfigurationVerifier::CheckFileNames(CConfigurationList Configurati
         if (!PackageTye.contains(Configuration.GetPackageType())) {
             qDebug() << "ExportConfig:The package type of ### configuration is invalid, it should be native or nonnative."
                         <<ConfigurationName;
+            /*lint -e534 */
             m_ErrorMap.insert(EVENT_EXPORTCONFIG_INVALID_PACKAGETYPE,
                               Global::tTranslatableStringList() << ConfigurationName);
             Global::EventObject::Instance().RaiseEvent(EVENT_EXPORTCONFIG_INVALID_PACKAGETYPE,
@@ -195,6 +198,7 @@ bool CExportConfigurationVerifier::CheckFileNames(CConfigurationList Configurati
             if (FileName.compare("")== 0) {
                 qDebug() << "ExportConfig:Empty file name found in file list of the ### configuration."
                             <<ConfigurationName;
+                /*lint -e534 */
                 m_ErrorMap.insert(EVENT_EXPORTCONFIG_EMPTY_FILE_LIST,
                                   Global::tTranslatableStringList() << ConfigurationName);
                 Global::EventObject::Instance().RaiseEvent(EVENT_EXPORTCONFIG_EMPTY_FILE_LIST,
@@ -210,6 +214,7 @@ bool CExportConfigurationVerifier::CheckFileNames(CConfigurationList Configurati
             if(Configuration.GetGroupFileName().compare("") == 0) {
                 qDebug() << "ExportConfig:Empty file name found in group file list of ### configuration."
                             <<ConfigurationName;
+                /*lint -e534 */
                 m_ErrorMap.insert(EVENT_EXPORTCONFIG_EMPTY_GROUP_FILE,
                                   Global::tTranslatableStringList() << ConfigurationName);
                 Global::EventObject::Instance().RaiseEvent(EVENT_EXPORTCONFIG_EMPTY_GROUP_FILE,

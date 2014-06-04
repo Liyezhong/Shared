@@ -82,7 +82,17 @@ private:
     Q_DISABLE_COPY(CErrorMsgDlg)
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void PopUp();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void RetranslateUI();
 protected:
     void changeEvent(QEvent *p_Event);

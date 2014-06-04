@@ -1458,8 +1458,8 @@ RVPosition_t CRotaryValveDevice::ReqAdjacentPosition(RVPosition_t position)
     if(position != RV_UNDEF)
     {
         quint8 remainder = (quint8)position % 2;
-        quint8 left = (quint8)position / 2;
-        result = (RVPosition_t)(left * 2 + remainder * 2 + remainder - 1);
+        quint8 left_position = (quint8)position / 2;
+        result = (RVPosition_t)(left_position * 2 + remainder * 2 + remainder - 1);
     }
     return result;
 }

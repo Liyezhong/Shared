@@ -72,6 +72,11 @@ public:
     void HideAllButtons();
 
 public slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void Show();
 
 private slots:

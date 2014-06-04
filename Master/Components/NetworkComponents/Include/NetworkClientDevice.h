@@ -59,8 +59,17 @@ public:
     virtual bool SetDateAndTime(const QString &, const QDateTime &);
 
 public slots:
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     virtual bool ProcessIncomingMessage(const QString &cmdname, const QString &ref, const QByteArray &bArr);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     virtual void HandleNetworkError(NetworkBase::NetworkClientErrorType_t);
 
 signals:

@@ -186,6 +186,11 @@ signals:
     void Buttonclicked();
 
 private slots:
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot UpdateReagentList
+     */
+    /****************************************************************************/
     void TimeOut();
 
 };

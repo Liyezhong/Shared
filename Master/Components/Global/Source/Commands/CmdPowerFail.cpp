@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-
+//lint -sem(Global::CmdPowerFail::CopyFrom,initializer)
 #include <Global/Include/Commands/CmdPowerFail.h>
 
 namespace Global {

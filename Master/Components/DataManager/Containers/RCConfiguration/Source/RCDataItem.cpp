@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-
+//lint -sem(DataManager::CRCDataItem::CopyFromOther,initializer)
 #include <QDebug>
 #include <QString>
 #include <QBuffer>
