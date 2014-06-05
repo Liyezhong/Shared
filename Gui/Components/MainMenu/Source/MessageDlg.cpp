@@ -93,6 +93,7 @@ void CMessageDlg::SetTitle(const QString &TitleLeft, const QString &TitleRight)
 /****************************************************************************/
 void CMessageDlg::SetText(const QString &Text)
 {
+    mp_Ui->labelMessage->setTextFormat(Qt::RichText);
     mp_Ui->labelMessage->setText(QString("%1").arg(Text));
 }
 
