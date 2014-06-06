@@ -34,10 +34,12 @@ namespace EventHandler {
 HimalayaEventHandlerThreadController::HimalayaEventHandlerThreadController(quint32 ThreadID, quint32 RebootCount, QStringList FileList)
     :EventHandlerThreadController(ThreadID,RebootCount,QStringList())
     ,m_EventManager(FileList, Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator() + "EventScenarioErrorMap.xml")
-    ,m_GuiAvailable(false)
+    ,m_GuiAvailable(false),m_TestMode(false)
 {
     m_ActiveEvents.clear();
     m_PendingGuiEvent.clear();
+    m_PendingActions.clear();
+    m_TestMode = QFile::exists("TEST_ISSAC");
 }
 
 
@@ -191,6 +193,13 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
     quint32 EventKey = m_EventKeyRefMap.value(ref);
     m_EventKeyRefMap.remove(ref);
     if(m_ActiveEvents.contains(EventKey)){
+        if(m_TestMode && m_PendingActions.contains(EventKey))
+        {
+            Global::tRefType NewRef = GetNewCommandRef();
+            SendCommand(NewRef,  m_PendingActions.value(EventKey));
+            m_PendingActions.remove(EventKey);
+            return;
+        }
         const XMLEvent* pEvent = NULL; // current Event
         const EventStep* pCurrentStep = NULL; // current step
         const EventStep* pNextStep = NULL; // Next step
@@ -206,6 +215,7 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                     case NetCommands::OK_BUTTON:
                         NextStepID = pCurrentStep->GetNextStepOnClickOK();
                         break;
+                    case NetCommands::TIMEOUT:
                     default: //time out
                         NextStepID = pCurrentStep->GetNextStepOnTimeOut();
                 }
@@ -264,9 +274,43 @@ void HimalayaEventHandlerThreadController::SendACTCommand(quint32 EventKey, cons
     p_CmdSystemAction->SetSource(pEvent->GetEventSource());
     p_CmdSystemAction->SetActionString(pStep->GetAction());
 
-    Global::tRefType NewRef = GetNewCommandRef();
-    SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
-    DEBUGWHEREAMI;
+    if(!m_TestMode)
+    {
+        Global::tRefType NewRef = GetNewCommandRef();
+        SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
+        DEBUGWHEREAMI;
+    }
+    else
+    {
+        m_PendingActions.insert(EventKey,Global::CommandShPtr_t(p_CmdSystemAction));
+        SendDebugMSG(EventKey,pEvent,pStep);
+    }
+}
+
+void HimalayaEventHandlerThreadController::SendDebugMSG(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep)
+{
+    if (pStep && pEvent)
+    {
+        NetCommands::EventReportDataStruct EventReportData;
+        EventReportData.EventStatus = true; //False means event not active, True if event active.
+        EventReportData.EventType =Global::EVTTYPE_DEBUG;
+        EventReportData.ID = (((quint64)pEvent->GetErrorId()) << 32) | (quint64)EventKey;
+        EventReportData.EventKey = EventKey;
+
+        EventReportData.MsgString = QString("DEBUG  Event: %1  Scenario: %2  Next Action: %3").arg(m_ActiveEvents[EventKey].EventID)
+                .arg(m_ActiveEvents[EventKey].Scenario).arg(pStep->GetAction());
+        EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
+        EventReportData.Timeout = "";
+        EventReportData.BtnEnableConditions = "";
+        EventReportData.BtnType = Global::OK;
+        EventReportData.StatusBarIcon = false;   //true if GUI must set status bar icon.
+        if (m_GuiAvailable)
+        {
+            Global::tRefType Ref = GetNewCommandRef();
+            m_EventKeyRefMap.insert(Ref,EventKey);
+            SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+        }
+    }
 }
 
 void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep, bool EventStatus)
@@ -276,13 +320,20 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
         NetCommands::EventReportDataStruct EventReportData;
         EventReportData.EventStatus = EventStatus; //False means event not active, True if event active.
         EventReportData.EventType = pEvent->GetErrorType();
-	EventReportData.ID = (((quint64)pEvent->GetErrorId()) << 32) | (quint64)EventKey;
+        EventReportData.ID = (((quint64)pEvent->GetErrorId()) << 32) | (quint64)EventKey;
         EventReportData.EventKey = EventKey;
 
         EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(pStep->GetStringID(), m_ActiveEvents[EventKey].EventStringParList)); //"Event String translated to the set langauge";
 //        EventReportData.MsgString = pStep->GetStringID();
         EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
-        EventReportData.Timeout = pStep->GetTimeOut();
+        if(m_TestMode)
+        {
+            EventReportData.Timeout = "";
+        }
+        else
+        {
+            EventReportData.Timeout = pStep->GetTimeOut();
+        }
         EventReportData.BtnEnableConditions = pStep->GetButtonEnableConditon();
         EventReportData.BtnType = pStep->GetButtonType();
         EventReportData.StatusBarIcon = pStep->GetStatusBar();   //true if GUI must set status bar icon.
