@@ -19,7 +19,7 @@
 /****************************************************************************/
 
 #include <Global/Include/Utils.h>
-
+#include <Global/Include/SystemPaths.h>
 #include <QHash>
 #include <QStringList>
 #include <QProcess>
@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <iostream> // ofstream
 #include <fstream>  //redirecting output to /dev/tty
+#include <unistd.h> //for fsync
 namespace Global {
 
 
@@ -322,7 +323,7 @@ qint32 MountStorageDevice(QString Name) {
     QProcess ProcToMountDevice;
     QStringList CmdLineOptions;
 
-    CmdLineOptions << "mount";
+    CmdLineOptions << "mount_usb";
     // check whether anything needs to be  searched in the mounted device
     if (Name.compare("") != 0) {
         CmdLineOptions << "search" << Name;
@@ -344,7 +345,7 @@ qint32 MountStorageDevice(QString Name) {
 /****************************************************************************/
 void UnMountStorageDevice() {
     QProcess ProcToMountDevice;
-    ProcToMountDevice.start(MNT_SCRIPT, QStringList() << "umount");
+    ProcToMountDevice.start(MNT_SCRIPT, QStringList() << "umount_usb");
     (void)ProcToMountDevice.waitForFinished();
 }
 
@@ -409,5 +410,25 @@ void SetThreadPriority(const ThreadPrio_t ThreadPriority)
     }
 
 }
-
+void UpdateRebootFile(const QMap<QString, QString> RebootFileContent)
+{
+    const QString RebootPath = Global::SystemPaths::Instance().GetSettingsPath() + "/BootConfig.txt";
+    QFile RebootFile(RebootPath);
+    if(!RebootFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
+        //!< todo raise event.
+        qDebug()<<"Reboot file open failed";
+    }
+    QTextStream RebootFileStream(&RebootFile);
+    RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
+    QMapIterator<QString, QString> RebootfileItr(RebootFileContent);
+    while (RebootfileItr.hasNext()) {
+        RebootfileItr.next();
+        QString Key = RebootfileItr.key();
+        QString Value = RebootFileContent.value(Key);
+        RebootFileStream << Key << ":" << Value << "\n" << left;
+    }
+    RebootFile.flush();
+    fsync(RebootFile.handle());
+    RebootFile.close();
+}
 } // end namespace Global

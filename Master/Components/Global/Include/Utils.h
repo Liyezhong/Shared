@@ -44,6 +44,7 @@ const int KIT_BOTTLE_RETRY_COUNT = 3;   //!< Kit/Bottle max retry count
 
 /****************************************************************************/
 /**
+const int MOUNTING_MEDIUM_COVERSLIP_RETRY_COUNT = 3;   //!< Coverslip/Mounting medium max retry count
 * \brief  TWENTY_FOUR_HOURS_IN_SECONDS
 *  provides value of 24 hours in seconds
 */
@@ -247,7 +248,7 @@ namespace Global {
 *    When USB is mounted then the device will be mounted to /mnt_storage
 */
 /****************************************************************************/
-const QString DIRECTORY_MNT_STORAGE = "/mnt_storage";  //!< Storage path of the mounted device
+const QString DIRECTORY_MNT_STORAGE = "/mnt/mnt_storage";  //!< Storage path of the mounted device
 
 
 /****************************************************************************/
@@ -256,7 +257,7 @@ const QString DIRECTORY_MNT_STORAGE = "/mnt_storage";  //!< Storage path of the 
 *    location of the script where mounting of USB device is available
 */
 /****************************************************************************/
-const QString MNT_SCRIPT = "/etc/init.d/EBox-MountUSB-Script.sh";  //!< location of the mounted script
+const QString MNT_SCRIPT = "/home/Leica/Scripts/EBox-Utils.sh";  //!< location of the mounted script
 
 
 /****************************************************************************/
@@ -622,6 +623,7 @@ typedef enum {
 /****************************************************************************/
 void SetThreadPriority(const ThreadPrio_t ThreadPriority);
 
+void UpdateRebootFile(const QMap<QString, QString> RebootFileContent);
 } // end namespace Global
 
 #endif // GLOBAL_UTILS_H
