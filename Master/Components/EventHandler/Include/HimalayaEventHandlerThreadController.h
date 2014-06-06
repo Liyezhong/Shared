@@ -208,6 +208,15 @@ private:
      */
     /****************************************************************************/
     void SendMSGCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep, bool EventStatus);
+    /****************************************************************************/
+    /*!
+     *  \brief  Function to send msg to gui
+     *
+     *  \param    pEvent XMLEvent
+     *  \param    pStep EventStep
+     */
+    /****************************************************************************/
+    void SendDebugMSG(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep);
 
 private:
     DataLogging::DayEventEntry m_EventEntry;
@@ -216,6 +225,8 @@ private:
     bool m_GuiAvailable;                        //!< index Gui is available or not
     QList<quint32> m_PendingGuiEvent;           //!< store all eventkey that should be send to Gui after gui available
     QHash<Global::tRefType, quint32> m_EventKeyRefMap;//!< Hash of Event Key Reference Map
+    bool m_TestMode; //!< flag for test mode
+    QMap<quint32,Global::CommandShPtr_t> m_PendingActions;    //!< all pending action
 
 };
 } //end if namespace EventHandler
