@@ -2073,5 +2073,10 @@ quint16 IDeviceProcessing::IDGetSlaveVoltage(HimSlaveType_t Type)
     return voltage;
 }
 
+CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
+{
+    return mp_DevProc->GetBaseModule(Type);
+}
+
 
 } // namespace
