@@ -627,6 +627,18 @@ public:
      */
     /****************************************************************************/
     quint16 IDGetSlaveVoltage(HimSlaveType_t Type);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetBaseModule
+     *
+     *  \param Type = Slave module type
+     *
+     *  \return BaseModule
+     */
+    /****************************************************************************/
+    CBaseModule* GetBaseModule(HimSlaveType_t Type);
+
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
