@@ -35,15 +35,8 @@ CPasswordManager::CPasswordManager() :
 /****************************************************************************/
 QString CPasswordManager::ComputeHash(const QString &Value) {
     // fill up to 16 characters repeating Value as much as neccessary
-    QString Str = Value;
-    if(Value.size() != 0) {
-        while(Str.size() < 16) {
-            Str += Value;
-        }
-        Str = Str.left(16);
-    }
-    qDebug() << "Hash value ::  " << QCryptographicHash::hash(Str.toUtf8(), QCryptographicHash::Md5).toHex().toUpper();
-    return QCryptographicHash::hash(Str.toUtf8(), QCryptographicHash::Md5).toHex().toUpper();
+    qDebug() << "Hash value ::  " << QCryptographicHash::hash(Value.toUtf8(), QCryptographicHash::Md5).toHex().toUpper();
+    return QCryptographicHash::hash(Value.toUtf8(), QCryptographicHash::Md5).toHex().toUpper();
 }
 
 /****************************************************************************/
