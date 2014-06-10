@@ -87,8 +87,8 @@ private slots:
     /****************************************************************************/
     void OnButtonLeftClicked()
     {
-        reject();
         emit ButtonLeftClicked();
+	 reject();
     }
 
     /****************************************************************************/
@@ -98,8 +98,8 @@ private slots:
     /****************************************************************************/
     void OnButtonCenterClicked()
     {
-        accept();
-        emit ButtonCenterClicked();
+	emit ButtonCenterClicked();
+	accept();
     }
 
     /****************************************************************************/
@@ -109,8 +109,8 @@ private slots:
     /****************************************************************************/
     void OnButtonRightClicked()
     {
+	emit ButtonRightClicked();
         accept();
-        emit ButtonRightClicked();
     }
 
 signals:
