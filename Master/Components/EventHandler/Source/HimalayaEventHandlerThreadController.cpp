@@ -118,9 +118,9 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 NetCommands::EventReportDataStruct EventReportData;
                 EventReportData.EventStatus = true;
                 EventReportData.EventType = Global::EVTTYPE_DEBUG;
-                EventReportData.ID = EventID;
+                EventReportData.ID = ((quint64)EventID) << 32 + EventKey;
                 EventReportData.EventKey = EventKey;
-                EventReportData.MsgString = QString("Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
+                EventReportData.MsgString = QString("DBG: Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
                 EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
                 EventReportData.BtnType = Global::OK;
                 EventReportData.StatusBarIcon = false;
@@ -297,7 +297,7 @@ void HimalayaEventHandlerThreadController::SendDebugMSG(quint32 EventKey, const 
         EventReportData.ID = (((quint64)pEvent->GetErrorId()) << 32) | (quint64)EventKey;
         EventReportData.EventKey = EventKey;
 
-        EventReportData.MsgString = QString("DEBUG  Event: %1  Scenario: %2  Next Action: %3").arg(m_ActiveEvents[EventKey].EventID)
+        EventReportData.MsgString = QString("DBG  Event: %1  Scenario: %2  Next Action: %3").arg(m_ActiveEvents[EventKey].EventID)
                 .arg(m_ActiveEvents[EventKey].Scenario).arg(pStep->GetAction());
         EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
         EventReportData.Timeout = "";
