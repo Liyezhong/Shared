@@ -106,7 +106,7 @@ bool CDataContainerBase::Write()
         }
         // close the file to rename
         File.close();
-        (void)fsync(File.handle());
+	sync();
         if (!QFile::rename(TEMP_CONTAINER_XMLFILE, GetFilename())) {
             qDebug() << "File renamed failed in Write: " << TEMP_CONTAINER_XMLFILE;
             return false;
