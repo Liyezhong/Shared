@@ -60,8 +60,8 @@ bool CDataContainerBase::Write(QString Filename)
             return false;
         }
 
-	(void)File.flush();
-	(void)fsync(File.handle());
+		(void)File.flush();
+		(void)fsync(File.handle());
         File.close();
         //flush data
 
@@ -107,9 +107,16 @@ bool CDataContainerBase::Write()
             }
         }
         // close the file to rename
+<<<<<<< HEAD
         File.close();
 //	fsync(File.handle());
 	sync();
+=======
+	File.flush();
+	fsync(File.handle());
+	File.close();
+
+>>>>>>> fix bug:Him-730
         if (!QFile::rename(TEMP_CONTAINER_XMLFILE, GetFilename())) {
             qDebug() << "File renamed failed in Write: " << TEMP_CONTAINER_XMLFILE;
             return false;
