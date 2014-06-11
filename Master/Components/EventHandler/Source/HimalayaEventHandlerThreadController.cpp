@@ -118,7 +118,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 NetCommands::EventReportDataStruct EventReportData;
                 EventReportData.EventStatus = true;
                 EventReportData.EventType = Global::EVTTYPE_DEBUG;
-                EventReportData.ID = ((quint64)EventID) << 32 + EventKey;
+                EventReportData.ID = (((quint64)EventID) << 32) + EventKey;
                 EventReportData.EventKey = EventKey;
                 EventReportData.MsgString = QString("DBG: Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
                 EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
