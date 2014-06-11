@@ -925,7 +925,7 @@ void MasterThreadController::Shutdown() {
     Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList() <<"");
     //write buffered data to disk-> refer man pages for sync
     system("sync &");
-    system("lcd off");
+    //system("lcd off");
     //send shutdown signal to RemoteCarecontroller
     if(mp_RemoteCareManager) {
         mp_RemoteCareManager->SendCommandToRemoteCare(
