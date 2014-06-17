@@ -23,9 +23,10 @@
 namespace Global {
 
 bool Global::AppSettings::SimulationEnabled = false;
+int Global::AppSettings::SimulationAccelerationFactor = 1;
 bool Global::AppSettings::ExtendedLoggingEnabled = false;
 bool Global::AppSettings::TraceDebugMessagesEnabled = false;
-bool Global::AppSettings::DCPLoggingEnabled = false;
 QString Global::AppSettings::RevisionNumber = "";
+bool Global::AppSettings::SettingsRolledBack = false;
 
 } // end namespace Global

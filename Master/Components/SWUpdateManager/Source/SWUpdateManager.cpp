@@ -37,12 +37,8 @@ const QString SW_UPDATE_STARTER_SCRIPT_NAME         = "MasterSWupdateStarter.sh"
 const QString SW_UPDATE_OPTION_CHECK                = "-check";  //!< SW update option
 const QString SW_UPDATE_OPTION_UPDATEROLLBACK       = "-updateRollback"; //!< SW update option
 const QString SW_UPDATE_OPTION_UPDATE               = "-update"; //!< SW update option
-const QString SW_UPDATE_OPTION_CLEAN                = "-Clean"; //!< Clean tmp files
+const QString SW_UPDATE_OPTION_CLEAN                = "-clean"; //!< Clean tmp files
 const qint32  SW_UPDATE_CHECK_SUCCESS               = 0; //!< SW return value for success
-
-//! Software Update script shall not not hang on infinitely , if there is no response withing 60 seconds , we signal error
-//! in SW update
-const quint32 TIMEOUT_FOR_SW_UPDATE_STARTER = 100000; //!< 10 [s] .
 
 /****************************************************************************/
 /*!
@@ -58,8 +54,6 @@ SWUpdateManager::SWUpdateManager(Threads::MasterThreadController &MasterThreadRe
     this->setParent(&m_MasterThreadControllerRef);
     m_MasterThreadControllerRef.RegisterCommandForProcessing<NetCommands::CmdSWUpdate, SWUpdateManager>
             (&SWUpdateManager::SWUpdateHandler, this);
-    CONNECTSIGNALSLOT(&m_SWUpdateCheckTimer, timeout(), this, OnNoResponseFromSWUpdate());
-    m_SWUpdateCheckTimer.setSingleShot(true);
 }
 
 /****************************************************************************/
@@ -85,7 +79,6 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
         if (m_ScriptExited) { // Make sure that sw update script is not running already.
             m_ScriptExited = false;
             m_UpdateOption = Option;
-            m_SWUpdateCheckTimer.start(TIMEOUT_FOR_SW_UPDATE_STARTER);
             mp_SWUpdateStarter = new ExternalProcessControl::ExternalProcess("SWUpdate", this);
             mp_SWUpdateStarter->Initialize();
             // connect ProcessManager's start/exit/error signals:
@@ -98,18 +91,18 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
                 emit WaitDialog(true, Global::SOFTWARE_UPDATE_TEXT);
                 #if defined(__arm__)
                 //On Target we execute as root. sudo is not needed
-                mp_SWUpdateStarter->StartProcess(QString("./%1 %2 %3 %4").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
+                mp_SWUpdateStarter->StartProcess(QString("./%1 %2 %3 %4 %5").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
                                                  arg(Option).
                                                  arg(UpdateFrom).
-                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)));
-                                                 //arg("ST8200"));
+                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).
+                                                 arg(m_MasterThreadControllerRef.m_InstrumentName.simplified().remove(" ")));
                 #else
                 //Need "sudo" on Desktop
-                mp_SWUpdateStarter->StartProcess(QString("sudo ./%1 %2 %3 %4").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
+                mp_SWUpdateStarter->StartProcess(QString("sudo ./%1 %2 %3 %4 %5").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
                                                 arg(Option).
                                                 arg(UpdateFrom).
-                                                arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)));
-                                                // arg("ST8200"));
+                                                arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).
+                                                 arg(m_MasterThreadControllerRef.m_InstrumentName.simplified().remove(" ")));
                 #endif
             }
             else if (Option == SW_UPDATE_OPTION_UPDATEROLLBACK || Option == SW_UPDATE_OPTION_CLEAN) {
@@ -117,10 +110,12 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
                 mp_SWUpdateStarter->StartProcess(QString("./%1 %2 %3").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
                                                 arg(Option).
                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)));
+                mp_SWUpdateStarter->WaitForFinished();
                 #else
                 mp_SWUpdateStarter->StartProcess(QString("sudo ./%1 %2 %3").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
                                                 arg(Option).
                                                 arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)));
+                mp_SWUpdateStarter->WaitForFinished();
                 #endif
             }
             else {
@@ -143,7 +138,7 @@ void SWUpdateManager::UpdateSoftware(const QString &Option, const QString &Updat
 
 /****************************************************************************/
 /*!
- *  \brief  Halts software update script on power fail & updates Reboot.txt
+ *  \brief  Halts software update script on power fail & updates BootConfig.txt
  *
  */
 /****************************************************************************/
@@ -152,10 +147,12 @@ void SWUpdateManager::PowerFailed()
     if (m_ScriptExited == false) { //this means sw update is in progress
         mp_SWUpdateStarter->KillProcess();
         mp_SWUpdateStarter->deleteLater();
+        // lint -esym(423,SWUpdate::SWUpdateManager::mp_SWUpdateStarter)
+        mp_SWUpdateStarter = NULL;
         m_ScriptExited = true;
         emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
         emit SWUpdateStatus(false);
-        UpdateRebootFile("NA", "Failure", "No");
+        UpdateRebootFile("NA", "NA");
     }
 }
 
@@ -171,24 +168,11 @@ void SWUpdateManager::SWUpdateProcessExited(const QString &ScriptName, int ExitC
 {
     //Once script has exited we no longer need the external process , hence deleted.
     qDebug() << "\n SWUpdateManager: ExternalProcessExited called.\n" << ScriptName << ExitCode;
-    m_SWUpdateCheckTimer.stop();
-    mp_SWUpdateStarter->blockSignals(true);
-    mp_SWUpdateStarter->deleteLater();
-    mp_SWUpdateStarter = NULL;
-    m_ScriptExited = true;
+
     if (m_UpdateOption == SW_UPDATE_OPTION_CHECK ) {
         if (ExitCode == SW_UPDATE_CHECK_SUCCESS) {
-            emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
             //Since check is success, we can start update now.
-            #if defined(__arm__)
-            system(QString("./%1 %2 %3 &").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
-                                             arg(SW_UPDATE_OPTION_UPDATE).
-                                             arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).toLocal8Bit().data());
-            #else
-            system(QString("sudo ./%1 %2 %3 &").arg(SW_UPDATE_STARTER_SCRIPT_NAME).
-                                             arg(SW_UPDATE_OPTION_UPDATE).
-                                             arg(QString::number(EVENT_GROUP_PLATFORM_SW_UPDATE)).toLocal8Bit().data());
-            #endif
+            UpdateRebootFile("NA", "SW_Update");
             m_MasterThreadControllerRef.InitiateShutdown();
         }
         else {
@@ -202,22 +186,32 @@ void SWUpdateManager::SWUpdateProcessExited(const QString &ScriptName, int ExitC
     else if (m_UpdateOption == SW_UPDATE_OPTION_UPDATEROLLBACK) {
         if (ExitCode != SW_UPDATE_CHECK_SUCCESS) {
             //Inform User
-            Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
+            if (m_UpdateOption == SW_UPDATE_OPTION_UPDATEROLLBACK) {
+                //We don't log much details since SW update script has its own logging
+                //mechanism and details are logged by it.
+                Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_ROLLBACK_UPDATE_FAILED);
+            }
+            else {
+                Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_STARTER_FAILED);
+            }
             EventHandler::StateHandler::Instance().setInitStageProgress(1, false); // Initialization failed
             m_MasterThreadControllerRef.SetSWUpdateStatus(false);
-            UpdateRebootFile("Yes");
             m_MasterThreadControllerRef.m_UpdatingRollback = false;
         }
         else {
             //Inform user that software update is success
             Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_SUCCESS);
-            qDebug() <<"\n\n  SW UPDATE SUCCESS \n\n";
             m_MasterThreadControllerRef.SetSWUpdateStatus(true);
-            UpdateRebootFile("No");
+            UpdateRebootFile("NA", "NA");
             m_MasterThreadControllerRef.m_UpdatingRollback = false;
             emit RollBackComplete();
         }
     }
+    mp_SWUpdateStarter->blockSignals(true);
+    mp_SWUpdateStarter->deleteLater();
+    // lint -esym(423,SWUpdate::SWUpdateManager::mp_SWUpdateStarter)
+    mp_SWUpdateStarter = NULL;
+    m_ScriptExited = true;
     //we don't check for "-update" because  Main S/W is shutdown after update is started.
 }
 
@@ -231,13 +225,19 @@ void SWUpdateManager::SWUpdateError(int ErrorCode)
 {
     qDebug()<<"\n SWUpdate Process Error" << ErrorCode;
     m_ScriptExited = true;
-    m_SWUpdateCheckTimer.stop();
+    QString ProcessName = mp_SWUpdateStarter->GetProcessName();
+    if (ProcessName.contains(QString("%1").arg(SW_UPDATE_OPTION_UPDATEROLLBACK))) {
+        //We don't log much details since SW update script has its own logging
+        //mechanism and details are logged by it.
+        Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_ROLLBACK_UPDATE_FAILED);
+    }
+    else {
+        Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_STARTER_FAILED);
+    }
     mp_SWUpdateStarter->blockSignals(true);
     mp_SWUpdateStarter->deleteLater();
     mp_SWUpdateStarter = NULL;
-    //We don't log much details since SW update script has its own logging
-    //mechanism and details are logged by it.
-    Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED); //Informs user
+
     m_MasterThreadControllerRef.SetSWUpdateStatus(false);
     m_MasterThreadControllerRef.m_UpdatingRollback = false;
     emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
@@ -257,24 +257,6 @@ void SWUpdateManager::SWUpdateStarted(const QString &Name)
 
 /****************************************************************************/
 /*!
- *  \brief  Slot called when SWUpdate Script doesn't repond (Hang)
- */
-/****************************************************************************/
-void SWUpdateManager::OnNoResponseFromSWUpdate()
-{
-    mp_SWUpdateStarter->blockSignals(true);
-    mp_SWUpdateStarter->deleteLater();
-    mp_SWUpdateStarter = NULL;
-    m_ScriptExited = true;
-    Global::EventObject::Instance().RaiseEvent(EVENT_SW_UPDATE_FAILED);
-    m_MasterThreadControllerRef.SetSWUpdateStatus(false);
-    m_MasterThreadControllerRef.m_UpdatingRollback = false;
-    emit WaitDialog(false, Global::SOFTWARE_UPDATE_TEXT);
-    emit SWUpdateStatus(false);
-}
-
-/****************************************************************************/
-/*!
  *  \brief   Function to handle SW Update
  *  \iparam Ref = Command reference
  *  \iparam Cmd = Command
@@ -289,33 +271,17 @@ void SWUpdateManager::SWUpdateHandler(Global::tRefType Ref, const NetCommands::C
 
 /****************************************************************************/
 /*!
- *  \brief  Sets SW  Update parameters in Reboot.txt
- *  \iparam Rollback = "Yes" or "No"
+ *  \brief  Sets SW  Update parameters in BootConfig.txt
  *  \iparam UpdateStatus = "NA" or "Success" or "Failure"
- *  \iparam CheckStatus = "Success" or "Failure" or "NA"
+ *  \iparam StartProcess = "SW_Update"
  */
 /****************************************************************************/
-void SWUpdateManager::UpdateRebootFile(const QString UpdateStatus, const QString CheckStatus, const QString Rollback) {
-    QString RebootPath = Global::SystemPaths::Instance().GetSettingsPath() + "/Reboot.txt";
-    QFile RebootFile(RebootPath);
-    if(!RebootFile.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
-        //!< todo raise event.
-        qDebug()<<"Reboot file open failed";
-    }
-    m_MasterThreadControllerRef.m_RebootFileContent.insert("Update_RollBack_Failed", Rollback);
-    m_MasterThreadControllerRef.m_RebootFileContent.insert("Software_Update_Status", UpdateStatus);
-    m_MasterThreadControllerRef.m_RebootFileContent.insert("Software_Update_Check_Status", CheckStatus);
-    QTextStream RebootFileStream(&RebootFile);
-    RebootFileStream.setFieldAlignment(QTextStream::AlignLeft);
-    QMapIterator<QString, QString> RebootfileItr(m_MasterThreadControllerRef.m_RebootFileContent);
-    while (RebootfileItr.hasNext()) {
-        RebootfileItr.next();
-        QString Key = RebootfileItr.key();
-        QString Value = m_MasterThreadControllerRef.m_RebootFileContent.value(Key);
-        RebootFileStream << Key << ":" << Value << "\n" << left;
-    }
-    RebootFile.close();
-    (void)fsync(RebootFile.handle());
+void SWUpdateManager::UpdateRebootFile(const QString UpdateStatus,
+                                       const QString StartProcess)
+{
+    m_MasterThreadControllerRef.m_BootConfigFileContent.insert("Software_Update_Status", UpdateStatus);
+    m_MasterThreadControllerRef.m_BootConfigFileContent.insert("Start_Process", StartProcess);
+    Global::UpdateRebootFile(m_MasterThreadControllerRef.m_BootConfigFileContent);
 }
 
 /****************************************************************************/

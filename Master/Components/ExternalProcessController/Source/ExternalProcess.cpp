@@ -175,7 +175,7 @@ void ExternalProcess::ProcessFinished(int exitcode)
 {
     // external process exited
     /// \todo evaluate the exit code ?
-    qDebug() << (QString)("ExternalProcess: my process exited with the code " + QString::number(exitcode, 10));
+    qDebug() << (QString)("ExternalProcess: " + m_myName + " exited with the code " + QString::number(exitcode, 10));
     emit ProcessExited(m_myName, exitcode);
 }
 
@@ -197,9 +197,11 @@ void ExternalProcess::ProcessFinished(int exitcode)
  ****************************************************************************/
 void ExternalProcess::ProcessRuns()
 {
-    // external process started running
-    qDebug() << (QString)("ExternalProcess: my process started.");
-    emit ProcessStarted(m_myName);
+    if (m_myProcess != NULL) {
+        // external process started running
+        qDebug() << QString("ExternalProcess: " + m_myName + " started. PID=" + QString::number(m_myProcess->pid()));
+        emit ProcessStarted(m_myName);
+    }
 }
 
 /****************************************************************************/
@@ -259,13 +261,15 @@ bool ExternalProcess::TerminateProcess()
             this->disconnect()
         );
         m_myProcess->terminate();
-        if (!m_myProcess->waitForFinished(2000)) {
+        if (!m_myProcess->waitForFinished(5000)) {
             m_myProcess->deleteLater();
+            //lint -esym(423, ExternalProcessControl::ExternalProcess::m_myProcess)
             m_myProcess = NULL;
             return false;
         }
         else {
             m_myProcess->deleteLater();
+            //lint -esym(423, ExternalProcessControl::ExternalProcess::m_myProcess)
             m_myProcess = NULL;
             return true;
         }
@@ -299,7 +303,7 @@ bool ExternalProcess::KillProcess()
             this->disconnect()
         );
         m_myProcess->kill();
-        m_myProcess->waitForFinished(2000);
+        m_myProcess->waitForFinished(5000);
         m_myProcess->deleteLater();
         m_myProcess = NULL;
         return true;

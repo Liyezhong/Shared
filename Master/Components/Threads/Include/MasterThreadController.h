@@ -116,7 +116,6 @@ class MasterThreadController : public BaseThreadController {
 private:
     QString                                     m_OperatingMode;                    ///< Operating mode.
     QString                                     m_EventLoggerBaseFileName;          ///< Base for file name for event logging.
-    QString                                     m_SerialNumber;                     ///< Serial number.
     qint64                                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                                         m_DayEventLoggerMaxFileCount;       ///< Max number of files for day operation logger.
     int                                         m_MaxAdjustedTimeOffset;            ///< Max alowed offset to system time [seconds]. 0 means no check has to be done.
@@ -439,16 +438,19 @@ protected:
     CommandChannel                              m_CommandChannelHeartBeat;      //!< Command channel for SoftSwitch Manager
     Threads::CommandChannel                     m_CommandChannelRemoteCare;     ///< Command channel for remote care thread controller.
     RemoteCare::RemoteCareManager               *mp_RemoteCareManager;          //!< pointer to remote care manager
-    bool                                        m_MainRebooted;                 ///< Flag indicating if the Main Software rebooted
-    QString                                     m_SWUpdateStatus;               ///< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
-    QString                                     m_SWUpdateCheckStatus;               ///< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
-    bool                                        m_UpdateRollBackFailed;         ///< Flag to indicating if updating rollback failed
+    bool                                        m_MainRebooted;                 //!< Flag indicating if the Main Software rebooted
+    QString                                     m_SWUpdateStatus;               //!< SWUpdate status \note - Doesnt indicate the success of updating Rollback folder.
     bool                                        m_SWUpdateSuccess;              //!< true indicate sw update is success , including Rollback , else false
-    QMap<QString, QString>                      m_RebootFileContent;            ///< Map containing reboot file content.
+    QMap<QString, QString>                      m_BootConfigFileContent;            //!< Map containing reboot file content.
     bool                                        m_UpdatingRollback;             ///< true- Indicates update rollback is in progress.
     bool                                        m_PowerFailed;                  ///< true- Power failed during previous run , false - no power failure
     bool                                        m_RaiseGUIEvent;                        ///< Store GUI event flag
     bool                                        m_GUIEventStatus;                       ///< Store GUI event status
+    SWUpdate::SWUpdateManager                   *mp_SWUpdateManager;            //!< The SWUpdate Manager
+    QString                                     m_InstrumentName;               //!< Instrument name
+    QString                                     m_InstrumentType;               //!< Instrument type
+    QString                                     m_Eth0MacAddress;               //!< MAC address of eth0 network interface
+    QString                                     m_SerialNumber;                     //!< Serial number.
 
 
     /****************************************************************************/
@@ -849,12 +851,7 @@ protected:
      */
     /****************************************************************************/
     void CreateRebootFile(QFile *p_RebootFile);
-    /****************************************************************************/
-    /**
-     * \brief Update Reboot FileReboot
-     */
-    /****************************************************************************/
-    void UpdateRebootFile();
+
     /****************************************************************************/
     /**
      * \brief Reads Reboot file
@@ -863,7 +860,7 @@ protected:
      *
      */
     /****************************************************************************/
-    void ReadRebootFile(QFile *p_RebootFile);
+    void ReadBootConfigFile(QFile *p_RebootFile);
 
     /****************************************************************************/
     /**
@@ -874,6 +871,15 @@ protected:
      */
     /****************************************************************************/
     virtual void SendDCLContainerTo(Threads::CommandChannel &rCommandChannel);
+
+    /****************************************************************************/
+    /**
+     * \brief Power will fail shortly.
+     * \iparam PowerFailStage = Type of power fail stage
+     */
+    /****************************************************************************/
+    virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
+
 
 public:
     /****************************************************************************/

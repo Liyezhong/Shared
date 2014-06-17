@@ -65,6 +65,22 @@ public:
      /****************************************************************************/
     QProcess::ProcessState IsRunning() { return m_myProcess->state();}
 
+    /****************************************************************************/
+    /*!
+     *  \brief    wait for external process to finish
+     */
+     /****************************************************************************/
+    void WaitForFinished() { m_myProcess->waitForFinished(-1); }
+
+    /****************************************************************************/
+    /*!
+     *  \brief    gets the running process name
+     *
+     *  \return    running process name
+     */
+     /****************************************************************************/
+    QString GetProcessName() const { return m_myName; }
+
 signals:
 
     /****************************************************************************/
@@ -107,7 +123,7 @@ private slots:
 
 private:
 
-    ExternalProcess();                                              ///< Not implemented.
+    ExternalProcess();                                              //!< Not implemented.
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.

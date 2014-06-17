@@ -69,7 +69,6 @@ private:
     ExternalProcessControl::ExternalProcess *mp_SWUpdateStarter; //!< SWUpdate script process.
     bool m_ScriptExited; //!< Flag indicating if script is running or exited
     Threads::MasterThreadController &m_MasterThreadControllerRef; //!< Reference to master thread controller reference.
-    QTimer m_SWUpdateCheckTimer; //!< Timer to check unresponsive software update script
 
     /****************************************************************************/
     /*!
@@ -79,13 +78,13 @@ private:
     /****************************************************************************/
     Q_DISABLE_COPY(SWUpdateManager)
     void SWUpdateHandler(Global::tRefType Ref, const NetCommands::CmdSWUpdate &Cmd, Threads::CommandChannel &AckCommandChannel);
-    void UpdateRebootFile(const QString UpdateStatus, const QString CheckStatus = "NA", const QString Rollback = "No");
+    void UpdateRebootFile(const QString UpdateStatus = "NA",
+                          const QString StartProcess = "NA");
 
 private slots:
     void SWUpdateProcessExited(const QString &ScriptName, int ExitCode);
     void SWUpdateError(int ErrorCode);
     void SWUpdateStarted(const QString &Name);
-    void OnNoResponseFromSWUpdate();
     void OnSWUpdateFromRC();
 
 signals:

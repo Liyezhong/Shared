@@ -3,12 +3,17 @@
 #/****************************************************************************/
 #/*! \file MasterSWUpdate.sh
  #
- #  \brief: 	This updates the new Software binaries and Slave Firmware also
- #		rollback the binaries and firmware on error.
+ #  \brief: Implementation for Software update.
+ #              -Updates Software binaries
+ #              -Updates Settings & Translations
+ #	            -Init Scripts
+ #              -Firmware
+ #              -Slave board options
+ #              -Hanldes errors occuring in above steps
  #
- #   $Version: $ 1.0, 2.0, 3.0
- #   $Date:    $ 2013-04-04, 2013-05-22, 2013-06-19
- #   $Author:  $ Hemanth Kumar
+ #   $Version: $ 1.2
+ #   $Date:    $ 2014-03-03
+ #   $Author:  $ Hemanth Kumar, Nikhil Kamath
  #
  #  \b Company:
  #
@@ -24,232 +29,394 @@
 # Extract directory path from where this script is executing
 CURRDIR="$( cd "$( dirname "$0" )" && pwd )"
 
-if [ -f $CURRDIR/Include.sh ]; then
-	. $CURRDIR/Include.sh
+if [ -f $CURRDIR/Utils.sh ]; then
+	. $CURRDIR/Utils.sh
 else
-	echo "$CURRDIR/Include.sh file missing"
+	echo "$CURRDIR/Utils.sh file missing"
+	exit 1
+fi
+if [ -f $CURRDIR/ProjectSpecificConfig.sh ]; then
+	. $CURRDIR/ProjectSpecificConfig.sh
+else
+	echo "$CURRDIR/ProjectSpecificConfig.sh file missing"
 	exit 1
 fi
 
 # Extract current script name
 PROGNAME=$(basename $0) 
 
-CMDARG="Usage: $0 [-update] [-updateRollback] [baseeventid]"
+CMDARG="Usage: $0 [-update / -updateRollback] [baseeventid]"
 
 # Clean Temp file on Abort or terminate
 trap Clean ABRT TERM  
+# USR1 signal is sent from powerfailmonitor script. On reception exit.
+# we don't clean up becuase we need to tmp folder for rollback
+trap "PowerFailed;exit 1" USR1  
 
-# Rollback on keyboard interrupt
-trap Rollback INT
+# to store all current software versions - read from Settings/SW_Version.xml
+declare -A CurrSWNameVersionMap
+# to store current firmware versions - read from Settings/SW_Version.xml
+declare -A CurrFWNameVersionMap
+# to store temporary software versions - read from tmp/Settings/SW_Version.xml
+declare -A UpdatePkgSWNameVersionMap
+# to store temporary firmware versions - read from tmp/Settings/SW_Version.xml
+declare -A UpdatePkgFWNameVersionMap
 
-# to declare associative arrays it is require to use -A option
-# to store all current software versions - reads from Settings/SW_Version.xml
-declare -A CurrSW
-# to store current firmware versions - reads from Settings/SW_Version.xml
-declare -A CurrFW
-# to store temporary software versions - reads from tmp/Settings/SW_Version.xml
-declare -A TmpSW
-# to store temporary firmware versions - reads from tmp/Settings/SW_Version.xml
-declare -A TmpFW
+# to store temporary  versions of "InitScripts" section- read from tmp/Settings/SW_Version.xml
+declare -A UpdatePkgInitScriptsNameVersionMap
+# to store current versions of "InitScripts" - read from Settings/SW_Version.xml
+declare -A CurrInitScriptsNameVersionMap
+
+# to store temporary  versions of "BoardOptions" section- read from tmp/Settings/SW_Version.xml
+declare -A UpdatePkgBoardOptionNameVersionMap
+# to store current versions of "BoardOptions" - read from Settings/SW_Version.xml
+declare -A CurrBoardOptionNameVersionMap
+
+#Indicates if the software binaries got updated.Doesnt indicated if update itself was success or failure
+SwUpdated=false
+#Indicates if firmware got updated.Doesnt indicated if update itself was success or failure
+FwUpdated=false
+#Indicates if init scripts got updated.Doesnt indicated if update itself was success or failure
+InitScriptsUpdated=false
+
 
 #=== FUNCTION ================================================================
-# NAME: MasterSWUpdate
-# DESCRIPTION:  Check the presence of Rollback and SW_Version.xml file and 
-#		update the latest SW binaries and Slave FW files.
-#		If SW_Version.xml is not present on the device, update all the
-#		the SW and FW files.	
+# NAME: LogRollBackAndExit
+# DESCRIPTION:  Logs error, Rollbacks required module and exits with error 
+# PARAMETER 1: RollbackFlag = "SW" /"FW"/"BoardOptions"/"All"
+# PARAMETER 2..N:Arguments for logging
+#=============================================================================
+LogRollBackAndExit()
+{
+    local RollbackFlag=$1
+    #Shift argument list by one , i.e $2 arg will become 1st , $3 will become $2 and so on...
+    shift 
+    Log "$EVENT_SOURCE_MASTER" "$@"
+    Rollback $RollbackFlag
+
+    if [ $InitScriptsUpdated = "true" ]; then
+        #changes in init scripts need an reboot to take effect
+        ExitAndReboot 
+    else
+        ExitOnError
+    fi
+}
+
+#=== FUNCTION ================================================================
+#NAME: VerifyMd5sum
+#DESCRIPTION: Verifies Md5sum of the directory passed as argument
+#PARAMETER: $1 -> Directory for which md5sum needs to checked
+#RETURN:0 on md5sum check success, else 1
+#=============================================================================
+VerifyMd5sum()
+{
+    cd "$1"
+    md5sum -c .md5sum.txt >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        cd - >/dev/null 2>&1 
+        return 1
+    else
+        cd - >/dev/null 2>&1 
+        return 0
+    fi
+}
+
+#=== FUNCTION ================================================================
+#NAME: CheckIfAnyModulesWereUpdated
+#DESCRIPTION: Checks if S/W update was performed
+#PARAMETER:Na
+#RETURN:0 means one of the modules was updated, else 1
+#=============================================================================
+CheckIfAnyModulesWereUpdated()
+{
+    if [[ ( $SwUpdated = "true" ) || ( $FwUpdated = "true" ) || ( $InitScriptsUpdated = "true" ) 
+        || ( $BoardOptionsUpdated = "true" ) ]] ; then
+        return 0
+    else
+        return 1
+    fi
+}
+#=== FUNCTION ================================================================
+# NAME: UpdateMd5SumForSWVersionXml
+# DESCRIPTION: Updates Md5sum for SW version xml
 # PARAMETER : NA 
 #=============================================================================
-
-MasterSWUpdate()
+UpdateMd5SumForSWVersionXml()
 {
-	# Checking for presence of Rollback folder
-	if [ -d "$ROLLBACKDIR" ]; then	
+    local SWVersionFileName=$(basename $SWVERFILE)
+    cd $SETTINGDIR
+    local SWVersionMd5sum=$(md5sum $SWVersionFileName)
+    sed -i "/\s$SWVersionFileName\b/c\\$SWVersionMd5sum" $SETTINGDIR/.md5sum.txt
+    cd - >/dev/null 2>&1
+}
 
-                ReadXMLintoArray
-		RetVal=$?
-                if [  $RetVal -eq 0 ]; then
-			UpdateSWBinaries
-			UpdateSlaveFW
+#=== FUNCTION ================================================================
+# NAME: UpdateMd5SumForSettings
+# DESCRIPTION: Updates Md5sum for Settings directory
+# PARAMETER : NA 
+#=============================================================================
+UpdateMd5SumForSettings()
+{
+    local Line
+    while read Line; do
+        local FileName=$(echo "$Line" | awk '{print $2}')
+        CheckIfMd5SumNeedsToBeUpdatedForFileInSettings $FileName
+        [ $? -eq 0 ] && sed -i "/\s$FileName\b/c\\$Line" $SETTINGDIR/.md5sum.txt
+    done < $TMPSETTINGDIR/.md5sum.txt
+    UpdateMd5SumForSWVersionXml
+    VerifyMd5sum "$SETTINGDIR"
+    [ $? -ne 0 ] && LogRollBackAndExit "SW" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$SETTINGDIR"
+}
 
-		else
+#=== FUNCTION ================================================================
+# NAME: UpdateMd5SumForBin
+# DESCRIPTION: Updates Md5sum for Bin Directory
+# PARAMETER : NA 
+#=============================================================================
+UpdateMd5SumForBin()
+{
+    local Line
+    while read Line; do
+        local FileName=$(echo "$Line" | awk '{print $2}')
+        CheckIfMd5SumNeedsToBeUpdateForFileInBin $FileName
+        [ $? -eq 0 ] && sed -i "/\s$FileName\b/c\\$Line" $BINDIR/.md5sum.txt
+    done < $TMPBINDIR/.md5sum.txt
+    VerifyMd5sum "$BINDIR"
+    [ $? -ne 0 ] && LogRollBackAndExit "SW" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$BINDIR"
+}
 
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPBINDIR/" "$ROOTDIR/"
+#=== FUNCTION ================================================================
+# NAME: UpdateMd5SumForFirmware
+# DESCRIPTION: Updates Md5sum for Firmware Directory
+# PARAMETER : NA 
+#=============================================================================
+UpdateMd5SumForFirmware()
+{
+    local Line
+    while read Line; do
+        local FileName=$(echo "$Line" | awk '{print $2}')
+        CheckIfMd5SumNeedsToBeUpdateForFileInFirmware $FileName
+        [ $? -eq 0 ] && sed -i "/\s$FileName\b/c\\$Line" $FIRMWAREDIR/.md5sum.txt
+    done < $TMPFIRMWAREDIR/.md5sum.txt
+    VerifyMd5sum "$FIRMWAREDIR"
+    [ $? -ne 0 ] && LogRollBackAndExit "FW" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$FIRMWAREDIR"
+}
 
-			# Updating all SW binaries
-			cp -r $TMPBINDIR/ $ROOTDIR/
-			if [ $? -ne 0 ]; then
-				RollbackSW
-				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/" "$ROOTDIR/" 
-			fi
+#=== FUNCTION ================================================================
+# NAME: CheckIfMd5SumNeedsToBeUpdateForFileInFirmware
+# DESCRIPTION: checks if a firmware binary got updated, which means we need to
+#              update its md5sum
+# PARAMETER : NA 
+#=============================================================================
+CheckIfMd5SumNeedsToBeUpdateForFileInFirmware()
+{
+    local FileName
+    for FileName in "${UPDATED_FIRMWARE[@]}"; do
+        [[ "$1" = "$FileName" ]] && return 0 || continue
+    done
+    return 1
+}
 
-			[ -f $BINDIR/$PROGNAME ] && rm $BINDIR/$PROGNAME			
-
-			# Creating temp directory and copying all FW files for update
-			mkdir -p $SLAVEFILEDIR 
-			if [ $? -ne 0 ]; then
-				RollbackFWAndSW
-				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$SLAVEFILEDIR" 
-			fi
-                        
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPFIRMWAREDIR/" "$SLAVEFILEDIR"
-
-			cp -r $TMPFIRMWAREDIR/* $SLAVEFILEDIR 
-			if [ $? -ne 0 ]; then
-				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPFIRMWAREDIR" "$SLAVEFILEDIR" 
-			fi
-
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$UPDATESWVERFILE" "$SETTINGDIR/"
-
-			cp $UPDATESWVERFILE $SETTINGDIR/
-			if [ $? -ne 0 ]; then
-				RollbackFWAndSW
-				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$UPDATESWVERFILE" "$SETTINGDIR" 
-			fi	
-		        
-			FWUpdateStatus=$(ExecuteSlaveFWUpdate)
-			if [ "$FWUpdateStatus" != "True" ]; then				
-				RollbackFWAndSW				
-				ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
-			else
-				# IN1301 fix		
-				cp -r $SLAVEFILEDIR/* $FIRMWAREDIR
-				if [ $? -ne 0 ]; then
-					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SLAVEFILEDIR" "$FIRMWAREDIR"
-				fi
-			fi
-
-		fi
-        else
-        	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$ROLLBACKDIR"
-        fi
+#=== FUNCTION ================================================================
+# NAME: CheckIfMd5SumNeedsToBeUpdateForFileInBin
+# DESCRIPTION: checks if a Software binary got updated, which means we need to
+#              update its md5sum
+# PARAMETER : NA 
+#=============================================================================
+CheckIfMd5SumNeedsToBeUpdateForFileInBin()
+{
+    local FileName
+    for FileName in "${UPDATED_SW_BINARIES[@]}"; do
+        [[ "$1" = $FileName ]] && return 0 || continue
+    done 
+    return 1
 }
 
 
+#=== FUNCTION ================================================================
+# NAME: CheckIfMd5SumNeedsToBeUpdatedForFileInSettings
+# DESCRIPTION: checks if a Settings File got updated, which means we need to
+#              update its md5sum
+# PARAMETER 1: File in Setting directory
+#=============================================================================
+CheckIfMd5SumNeedsToBeUpdatedForFileInSettings()
+{
+    [[ ${READONLY_OR_INSTRUMENT_SPECIFIC_FILES[*]} =~ $1 ]] && return 1
+    local Directory
+    for Directory in ${READONLY_OR_INSTRUMENT_SPECIFIC_DIR_LIST[@]}; do
+         [[ $1 =~ $Directory/ ]] && return 1
+    done
+    #Md5sum needs to be updated
+    return 0
+}
+
 #=== FUNCTION ===================================================================
 # NAME: UpdateSlaveFW
-# DESCRIPTION: 	Check for the higher version of firmware available at package
+# DESCRIPTION: 	Check for the higher version of firmware available at package.
 #		Copy the higher version firmware files to temp directory. 
 #		Execute Slave FW Update SW to update required Slave device
 #		Also updates the SW_Version.xml file 
 # PARAMETER : NA 
 #=============================================================================
-
 UpdateSlaveFW()
 {
 	# Counter for no. of FW files needs update
-   	FWCount=0
-	if [ -e $SLAVEFILEDIR ]; then
-		rm -r $SLAVEFILEDIR
-	fi
-
+    local FWCount=0
 	mkdir -p $SLAVEFILEDIR 
-	if [ $? -ne 0 ]; then
-		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$SLAVEFILEDIR"
-	fi
-
-	for Name in "${!TmpFW[@]}";do		
-		# if the name does not exist in the associative array then it returns nothing		
-		if [ "${CurrFW[$Name]}" == "" ]; then
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_XML_ATTR" "$Name" "$UPDATESWVERFILE" "$SWVERFILE"
-		else		
-			Return=$(CompareVersion ${CurrFW[$Name]} ${TmpFW[$Name]})
-		        if [ $Return == "LOWER" ]; then
-		                ((FWCount++))
-		                Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPFIRMWAREDIR/$Name" "$SLAVEFILEDIR" 
-		                cp $TMPFIRMWAREDIR/$Name $SLAVEFILEDIR
-				if [ $? -ne 0 ]; then
-					RollbackFWAndSW
-					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPFIRMWAREDIR/$Name" "$SLAVEFILEDIR"
-				fi
-
-				# Update the SW_Version.xml with latest version
-				sed '/'$Name' *"/{s/'${CurrFW[$Name]}'/'${TmpFW[$Name]}'/}'\
-		                $SWVERFILE > $TMPSWVERSIONFILE
-		                cp $TMPSWVERSIONFILE $SWVERFILE
-				if [ $? -ne 0 ]; then
-					RollbackFWAndSW
-					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPSWVERSIONFILE" "$SWVERFILE"
-				fi
-		        fi			
-		fi
-	done	
-	
-
-	if [ $FWCount -ne 0 ]; then		
-	 	FWUpdateStatus=$(ExecuteSlaveFWUpdate)
-		if [ "$FWUpdateStatus" != "True" ]; then			
-			RollbackFWAndSW
-			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
-		else
-			# IN1301 fix		
-			cp -r $SLAVEFILEDIR/* $FIRMWAREDIR
-			if [ $? -ne 0 ]; then
-		        	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SLAVEFILEDIR" "$FIRMWAREDIR"
-			fi
-		fi
-	fi
-}
-
-#===To do: FUNCTION ==========================================================
-# NAME: ExecuteSlaveFWUpdate
-# DESCRIPTION: To execute SlaveFWUpdateSW 
-# PARAMETER : NA 
-#=============================================================================
-
-ExecuteSlaveFWUpdate()
-{
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$PTSFILE"
-	# To execute SlaveFWUpdateSW with $SLAVEFILEDIR as parameter
-	# IN1303 fix
-	SlaveUpdatePar=""
-	for fm in `ls $SLAVEFILEDIR`
-	do
-		if echo "$fm" | grep ASB3 >/dev/null; then
-			SlaveUpdatePar=$SlaveUpdatePar" 3 "$SLAVEFILEDIR/$fm
-		fi
-		if echo "$fm" | grep ASB5 >/dev/null; then
-			SlaveUpdatePar=$SlaveUpdatePar" 5 "$SLAVEFILEDIR/$fm
-		fi
-		if echo "$fm" | grep ASB15 >/dev/null; then
-			SlaveUpdatePar=$SlaveUpdatePar" 15 "$SLAVEFILEDIR/$fm
-		fi
-	done
-	#ReturnValue="$(timeout "$PTS_TIMEOUT" "$PTSFILE" "$SLAVEUPDATEFILE" "$BASE_EVENT_ID")"
-	$(timeout $PTS_TIMEOUT $PTSFILE $SlaveUpdatePar >/dev/null)
-	ReturnValue=$?
-	if [ $ReturnValue -eq 0 ]; then
-		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_SUCCESS"
-		echo "True" 
-	else
-		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_FAILED"
-		echo "False"
-	fi	
+	[ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_CREATION_FAILED" "$SLAVEFILEDIR"
+   
+    #Create a list of firmwares which need update with respect to the version number
+	for Name in "${!UpdatePkgFWNameVersionMap[@]}";do	#Name would contain firmware names per ASB. e.g. ASB2_0.bin, ASB2_2.bin	
+	    Return=$(CompareVersion ${CurrFWNameVersionMap[$Name]} ${UpdatePkgFWNameVersionMap[$Name]})
+		if [ "$Return" = "LOWER" ]; then
+            FIRMWARES_TO_BE_UPDATED+=( "$Name" )
+        fi        
+    done
+    FilterUnAvailableASBs
+    for Name in "${FIRMWARES_TO_BE_UPDATED[@]}";do
+        ((FWCount++))
+        local FirmwareName=$(GenerateFirmwareName $Name)
+        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE"  "$TMPFIRMWAREDIR/$FirmwareName" "$SLAVEFILEDIR/$Name" 
+        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATING_FILE" "$Name" "${CurrFWNameVersionMap[$Name]}" "${UpdatePkgFWNameVersionMap[$Name]}"
+        cp  $TMPFIRMWAREDIR/$FirmwareName $SLAVEFILEDIR/$Name
+        [ $? -ne 0 ] && LogRollBackAndExit "FW" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPFIRMWAREDIR/$Name" "$SLAVEFILEDIR"
+        UPDATED_FIRMWARE+=( "$FirmwareName" )
+    done    
+	if [ $FWCount -ne 0 ]; then 
+        ExecutePTS "$SLAVEUPDATEFILE"
+        for Name in "${FIRMWARES_TO_BE_UPDATED[@]}";do
+            #Update Version in SW_Version.xml    
+            xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgFWNameVersionMap[$Name]} $SWVERFILE
+        done
+        UpdateMd5SumForFirmware
+        UpdateMd5SumForSWVersionXml
+        VerifyMd5sum "$SETTINGDIR"
+        [ $? -ne 0 ] && LogRollBackAndExit "FW" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$SETTINGDIR"
+    fi
 }
 
 #=== FUNCTION ================================================================
-# NAME: RollbackFWAndSW
-# DESCRIPTION: Rollback on SW Update error 
+# NAME: GenerateFirmwareName
+# DESCRIPTION: Converts firmware binary name of the format ASBX_Y.bin to
+#              ASBX.bin. e.g ASB13_0.bin to ASB13.bin
+# PARAMETER 1: Fimrware binary  name in the format ASBX_Y.bin
+#=============================================================================
+GenerateFirmwareName()
+{
+    #Hack - Legacy naming convention 
+    if [[ "$1" =~ "ASB8_0" ]]; then
+        local  FirmwareName="ASB8a.bin"
+    elif [[ "$1" =~ "ASB9_0" ]]; then
+        local  FirmwareName="ASB8b.bin"
+    elif [[ "$1" =~ "ASB6_0" ]]; then
+        local  FirmwareName="SABa.bin"
+    elif [[ "$1" =~ "ASB7_0" ]]; then
+        local  FirmwareName="SABb.bin"
+    else
+        local  FirmwareName=$(echo $1 | awk -F_ '{ print $1 }').bin # e,g, ASB13_0.bin will become ASB13.bin
+    fi
+    echo $FirmwareName
+}
+
+#===FUNCTION ==========================================================
+# NAME: ExecutePTS
+# DESCRIPTION: executes PTS binary which implements the actual slave firmware
+#              update 
+# PARAMETER 1: Slaveupdate js file/ Board options js file  
+# PARAMETER 2: DontRollbackOnFailure="true"/"false"
+#=============================================================================
+ExecutePTS()
+{
+    Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_EXECUTING_COMPONENT" "$PTSFILE"
+    cd $TMPBINDIR
+    "./${PTSFILE##*/}" "$1" "$BASE_EVENT_ID" -qws > /dev/null 2>&1
+    local ReturnValue=$?
+    cd - > /dev/null 2>&1
+    FwUpdated=true
+    if [ $ReturnValue -eq 0 ]; then
+        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_SUCCESS"
+        if [ "$1" = "$SLAVEUPDATEFILE" ]; then 
+            for File in "${UPDATED_FIRMWARE[@]}"; do
+                Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE"  "$TMPFIRMWAREDIR/$File" "$FIRMWAREDIR" 
+                cp "$TMPFIRMWAREDIR"/"$File" "$FIRMWAREDIR/" > /dev/null 2>&1
+                if [ $? -ne 0 ]; then
+                    if [ "$2" != "DontRollbackOnFailure" ]; then
+                        LogRollBackAndExit "FW" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SLAVEFILEDIR" "$FIRMWAREDIR"
+                    else
+                        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SLAVEFILEDIR" "$FIRMWAREDIR"
+                        return 1
+                    fi
+                fi
+            done
+        fi
+    else
+        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PTS_FAILED" "$ReturnValue"
+        if [ "$2" = "DontRollbackOnFailure" ]; then
+            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
+        else
+            if [ "$1" = $SLAVEUPDATEFILE ]; then
+                local RollbackType="FW" 
+            else
+                local RollbackType="BoardOptions"
+            fi
+            LogRollBackAndExit "$RollbackType" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
+        fi
+    fi
+    return $ReturnValue
+}
+
+
+#=== FUNCTION ================================================================
+# NAME: RollbackInitScripts 
+# DESCRIPTION: Rolls back init scripts from rollback directory
 # PARAMETER : NA 
 #=============================================================================
+RollbackInitScripts()
+{
+    cp "$ROLLBACKINITSCRIPTS"/* "$EBOXINITSCRIPTSDIR"
+    cp -r "$ROLLBACKSCRIPTSDIR"/. "$SCRIPTSDIR"
+	[ $? -ne 0 ] && { RollbackFailed=true; ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED" ;}
+}
 
-RollbackFWAndSW()
-{	
-	rm -r $SLAVEFILEDIR/* || ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DELETION_FAILED" "$SLAVEFILEDIR"
 
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$SLAVEFILEDIR" "$ROLLBACKFIRMWAREDIR/"
+#=== FUNCTION ================================================================
+# NAME: RollbackFW
+# DESCRIPTION: Rolls back Firmware
+# PARAMETER : NA 
+#=============================================================================
+RollbackFW()
+{
+    #remove old files from slave update dir
+    rm -rf $SLAVEFILEDIR/*
+	mkdir -p $SLAVEFILEDIR 
+    #FIRMWARES_TO_BE_UPDATED contains all the firmwares that were getting updated. We rollback only those.
+    for Name in "${FIRMWARES_TO_BE_UPDATED[@]}"; do
+        local FirmwareName=$(GenerateFirmwareName $Name)
+        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE"  "$ROLLBACKFIRMWAREDIR/$FirmwareName" "$SLAVEFILEDIR/$Name" 
+    	cp $ROLLBACKFIRMWAREDIR/$FirmwareName $SLAVEFILEDIR/$Name
+        if [ $? -ne 0 ]; then
+            RollbackFailed=true
+            ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKFIRMWAREDIR/" "$SLAVEFILEDIR"
+        fi
+    done
+    ExecutePTS "$SLAVEUPDATEFILE" "DontRollbackOnFailure"
+	if [ $? -ne 0 ];then 
+        RollbackFailed=true
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED"
+    fi
+}
 
-	cp -r $ROLLBACKFIRMWAREDIR/* $SLAVEFILEDIR	
-	if [ $? -ne 0 ]; then
-		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKFIRMWAREDIR/" "$SLAVEFILEDIR"
-	fi
 
- 	FWUpdateStatus=$(ExecuteSlaveFWUpdate)
-	if [ "$FWUpdateStatus" != "True" ]; then			
-		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
-	fi
-
-	RollbackSW	
+#=== FUNCTION ================================================================
+# NAME: RollbackBoardOptions 
+# DESCRIPTION: Rolls back Board options. JS File present in Bin will be used
+# PARAMETER : NA 
+#=============================================================================
+RollbackBoardOptions()
+{
+    GenerateBoardOptionsTemp "rollbackmode"
+    ExecutePTS "$BOARDOPTIONSFILETEMP" "DontRollbackOnFailure" 
+	[ $? -ne 0 ] && { RollbackFailed=true; ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED" ;}
 }
 
 #=== FUNCTION ================================================================
@@ -257,20 +424,70 @@ RollbackFWAndSW()
 # DESCRIPTION: To perform Rollback of SW on error 
 # PARAMETER : NA 
 #=============================================================================
-
 RollbackSW()
 {
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$ROOTDIR/" "$ROLLBACKBINDIR/"
-	cp -r $ROLLBACKBINDIR/ $ROOTDIR/
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$BINDIR,$SETTINGDIR,$TRANSLATIONSSERVDIR and $TRANSLATIONSDIR" "$ROLLBACKBINDIR/"
+	cp -rf $ROLLBACKBINDIR $ROOTDIR/
 	if [ $? -ne 0 ]; then
-		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKBINDIR/" "$ROOTDIR/"
-	fi
+        RollbackFailed=true
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKBINDIR/" "$ROOTDIR/"
+    fi
 	
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLINGBACK" "$SETTINGDIR/" "$ROLLSWVERFILE" 
-	cp $ROLLSWVERFILE $SETTINGDIR/
-	if [ $? -ne 0 ]; then
-                ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLSWVERFILE" "$SETTINGDIR"
-        fi
+	cp -r $ROLLBACKSETTINGSDIR $ROOTDIR
+	if [ $? -ne 0 ];then
+        RollbackFailed=true
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKSETTINGSDIR" "$SETTINGDIR"
+    fi
+
+    cp -r $ROLLBACKTRANSLATIONS $ROOTDIR
+	if [ $? -ne 0 ];then 
+        RollbackFailed=true
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKTRANSLATIONS" "$TRANSLATIONSDIR"
+    fi
+
+    cp -r $ROLLBACKTRANSLATIONSSERV $ROOTDIR
+	if [ $? -ne 0 ];then 
+        RollbackFailed=true
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKTRANSLATIONSSERV" "$TRANSLATIONSSERVDIR"
+    fi
+}
+
+#=== FUNCTION ================================================================
+# NAME: Rollback 
+# DESCRIPTION: Toplevel Rollback interface. Calls specific rollback function.
+#              [Recursive function]
+#               
+# PARAMETER : NA 
+#=============================================================================
+Rollback()
+{
+    case $1 in
+        "InitScripts")
+            RollbackInitScripts
+            ;;
+        "SW")
+            RollbackSW
+            [ "$InitScriptsUpdated" = "true" ] && Rollback "InitScripts"
+            ;;
+        "FW")
+            RollbackFW
+            [ "$SwUpdated" = "true" ] && Rollback "SW"
+            ;;
+        "BoardOptions")
+            RollbackBoardOptions
+            if [ "$FwUpdated" = "true" ]; then  
+                Rollback "FW"
+            elif [ "$SwUpdate" = "true" ]; then
+                Rollback "SW"
+            fi
+            ;;
+        "All")
+            RollbackInitScripts
+            RollbackSW
+            RollbackFW
+            RollbackBoardOptions
+            ;;
+    esac
 }
 
 #=== FUNCTION ================================================================
@@ -278,18 +495,47 @@ RollbackSW()
 # DESCRIPTION: To Update Rollback folder after update process is successful 
 # PARAMETER : NA 
 #=============================================================================
-
 UpdateRollback()
 {	
 	Clean
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$BINDIR/" "$ROLLBACKDIR"
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$FIRMWAREDIR/" "$ROLLBACKDIR"
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$SETTINGDIR/" "$ROLLBACKDIR"
+    
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$BINDIR" "$ROLLBACKDIR"
+        # if any warning occurs then log into the log file so that it can be tracked.
+        # If any file error occurs while copying the file cp discards the one which is not possible
+        # and tries to copy other files
+	cp -rf $BINDIR $ROLLBACKDIR 2>&1 
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$BINDIR $ROLLBACKDIR"
 
-	cp -r $BINDIR/ $FIRMWAREDIR/ $SETTINGDIR/ $ROLLBACKDIR/
-	if [ $? -ne 0 ]; then
-                ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$BINDIR/, $FIRMWAREDIR/,  $SETTINGDIR/" "$ROLLBACKDIR"
-        fi
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$FIRMWAREDIR" "$ROLLBACKDIR"
+	cp -rf $FIRMWAREDIR $ROLLBACKDIR
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$FIRMWAREDIR" "$ROLLBACKDIR"
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$SETTINGDIR" "$ROLLBACKDIR"
+	cp -rf $SETTINGDIR $ROLLBACKDIR
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SETTINGDIR" "$ROLLBACKDIR"
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TRANSLATIONSDIR" "$ROLLBACKDIR"
+	cp -rf $TRANSLATIONSDIR $ROLLBACKDIR
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TRANSLATIONSDIR" "$ROLLBACKDIR"
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TRANSLATIONSSERVDIR" "$ROLLBACKDIR"
+	cp -rf $TRANSLATIONSSERVDIR $ROLLBACKDIR
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TRANSLATIONSSERVDIR" "$ROLLBACKDIR"
+
+    mkdir -p $ROLLBACKSCRIPTSDIR $ROLLBACKINITSCRIPTS
+    [[ $? -ne 0 ]] && ExitOnError
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$EBOXINITSCRIPTSDIR" "$ROLLBACKDIR"
+    cp -rf $EBOXINITSCRIPTSDIR/EBox-*.sh $ROLLBACKINITSCRIPTS
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$EBOXINITSCRIPTSDIR" "$ROLLBACKINITSCRIPTS"
+	
+    Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$SCRIPTSDIR" "$ROLLBACKDIR"
+    cp -rf $SCRIPTSDIR/. $ROLLBACKSCRIPTSDIR 
+    [[ $? -ne 0 ]] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$SCRIPTSDIR" "$ROLLBACKSCRIPTSDIR"
+    
+    cd $ROLLBACKDIR 
+    find . -type f ! -name .md5sum.txt -exec md5sum {} \;  | sed 's/.\///' | tee .md5sum.txt    
+    cd - > /dev/null 2>&1
 }
 
 
@@ -300,186 +546,455 @@ UpdateRollback()
 #               Also updates the SW_Version.xml file
 # PARAMETER : NA 
 #========================================================================================
-
 UpdateSWBinaries()
 {
 	# Counter for no. of SW files need to be updated
-	SWCount=0
-	
-	for Name in "${!TmpSW[@]}";do
-		# if the name does not exist in the associative array then it returns nothing
-		if [ "${CurrSW[$Name]}" == "" ]; then
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_MISSING_XML_ATTR" "$Name" "$UPDATESWVERFILE" "$SWVERFILE"
-		else		
-			Return=$(CompareVersion ${CurrSW[$Name]} ${TmpSW[$Name]})
-			if [ $Return == "LOWER" ]; then
-				((SWCount++))
-		                Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPBINDIR/$Name" "$BINDIR/$Name"
-				cp $TMPBINDIR/$Name $BINDIR/$Name  &>/dev/null
-				if [ $? -ne 0 ]; then
-					RollbackSW
-					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/$Name" "$BINDIR/$Name" 
-				fi
-				sed '/'$Name' *"/{s/'${CurrSW[$Name]}'/'${TmpSW[$Name]}'/}'\
-		                $SWVERFILE > $TMPSWVERSIONFILE 
-				cp $TMPSWVERSIONFILE $SWVERFILE
-				if [ $? -ne 0 ]; then
-					RollbackSW
-					ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPSWVERSIONFILE" "$SWVERFILE" 
-				fi
-		        fi
-		fi
-	done	
-	
+	local SWCount=0
+    local Name
+	for Name in "${!UpdatePkgSWNameVersionMap[@]}";do
+        #chop the version string , e.g. MAIN_1.123 will become 1.123
+        local  CurrentSWVersion=$(echo ${CurrSWNameVersionMap[$Name]} | cut -d_ -f2)
+        local  TmpSWVersion=$(echo ${UpdatePkgSWNameVersionMap[$Name]} | cut -d_ -f2)
+		local  Return=$(CompareVersion $CurrentSWVersion $TmpSWVersion)
+		if [ "$Return" = "LOWER" ]; then
+		    ((SWCount++))
+            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_COPYING_FILE" "$TMPBINDIR/$Name" "$BINDIR/$Name"
+            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATING_FILE" "$Name" "${CurrSWNameVersionMap[$Name]}" "${UpdatePkgSWNameVersionMap[$Name]}"
+				
+            cp -f $TMPBINDIR/$Name $BINDIR/$Name  &>/dev/null
+			[ $? -ne 0 ] && LogRollBackAndExit "SW" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$TMPBINDIR/$Name" "$BINDIR/$Name" 
+            UPDATED_SW_BINARIES+=( "$Name" )
+            xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgSWNameVersionMap[$Name]} $SWVERFILE
+	    fi
+	done
+    if [ ${#UPDATED_SW_BINARIES[@]} -gt 0 ]; then 
+        UpdateSettingsAndTranslations	
+        UpdateMd5SumForBin
+        UpdateMd5SumForSettings
+        SwUpdated=true;
+    fi
 }
 
 #=== FUNCTION ================================================================
-# NAME: ReadXMLintoArray
-# DESCRIPTION:  To Read XML file for SW Name and Version, from current device and 
-#		update package
+# NAME: CreateDirAndFileFilterListForSettings
+# DESCRIPTION: Creates file filter options for find command, which is used
+#              to copy only required files to "Settings". For example, 
+#              instrument specific files are not copied.
 # PARAMETER : NA 
 #=============================================================================
-
-ReadXMLintoArray()
+CreateDirAndFileFilterListForSettings()
 {
+    local  BaseString="-name"
+    local Limit=${#READONLY_OR_INSTRUMENT_SPECIFIC_DIR_LIST[@]}
+    for (( i = 0; i < Limit; i++))
+    do
+        if  (( i < Limit - 1 )) ; then
+            DIR_FILTER_LIST+=("$BaseString "${READONLY_OR_INSTRUMENT_SPECIFIC_DIR_LIST[$i]}" -o ")
+        else
+            DIR_FILTER_LIST+=("$BaseString "${READONLY_OR_INSTRUMENT_SPECIFIC_DIR_LIST[$i]}"")
+        fi
+    done
 
-	# check whether SW_Version.xml file exists in the TMP directory, if not don't proceed further			
-	if [ ! -f $UPDATESWVERFILE ]; then
-		ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$UPDATESWVERFILE"
-	fi	
+    Limit=${#READONLY_OR_INSTRUMENT_SPECIFIC_FILES[@]}
+    for (( i = 0; i < Limit; i++))
+    do
+        if  (( i < Limit - 1 )) ; then
+            FILE_FILTER_LIST+=("$BaseString "${READONLY_OR_INSTRUMENT_SPECIFIC_FILES[$i]}" -o ")
+        else
+            FILE_FILTER_LIST+=("$BaseString "${READONLY_OR_INSTRUMENT_SPECIFIC_FILES[$i]}"")
+        fi
+    done
+}
 
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PARSING_XML" "$UPDATESWVERFILE"
-
-        ReadXML $UPDATESWVERFILE
-
-        TmpSWName=(""$SWNAME"")
-        TmpSWVer=(""$SWVER"")
-
-	Index=0
-	# store the data in associative array using the key value(SW name)
-	# for this array we need not require to check the name because
-	# this data will be read from the zip file so if any problem 
-	# occurs to the unzip file then it will abort the program
-	for Name in "${TmpSWName[@]}";do
-		if [ "$Name" == "" ]; then			
-			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
-		fi		
-		TmpSW[$Name]=${TmpSWVer[$Index]}
-		((Index++))
-	done
-
-        TmpFWName=(""$FWNAME"")	
-        TmpFWVer=(""$FWVER"")
-
-	Index=0
-	# store the data in associative array using the key value(FW name)
-	for Name in "${TmpFWName[@]}";do
-		if [ "$Name" == "" ]; then			
-			ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
-		fi
-		TmpFW[$Name]=${TmpFWVer[$Index]}
-		((Index++))
-	done
-
-	# check whether SW_Version.xml file exists or not
-	if [ ! -f $SWVERFILE ]; then
-		Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SWVERSION_FILE_NOT_FOUND" "$SWVERFILE"
-		return 1
-	fi
-
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PARSING_XML" "$SWVERFILE"
-
-	ReadXML $SWVERFILE
-
-	# converting the string to array
-	CurrSWName=(""$SWNAME"")	
-        CurrSWVer=(""$SWVER"")
-	
-	Index=0
-	
-	# store the data in associative array using the key value(SW name)
-	for Name in "${CurrSWName[@]}";do
-		# check the name exists in the array as empty or not, if empty don't create array
-		if [ "$Name" != "" ]; then			
-			CurrSW[$Name]=${CurrSWVer[$Index]}
-		else
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
-			return 1
-		fi
-		((Index++))
-	done
-	CurrFWName=(""$FWNAME"")	
-	CurrFWVer=(""$FWVER"")	
-
-	Index=0
-	# store the data in associative array using the key value(FW name)
-	for Name in "${CurrFWName[@]}";do
-		# check the name exists in the array as empty or not, if empty don't create array
-		if [ "$Name" != "" ]; then			
-			CurrFW[$Name]=${CurrFWVer[$Index]}
-		else
-			Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
-			return 1
-		fi
-		((Index++))
-	done
-
-	return 0
+#=== FUNCTION ================================================================
+# NAME: RemoveObsoleteFiles
+# DESCRIPTION: Removes obsolete files present in Settings
+# PARAMETER : NA 
+#=============================================================================
+RemoveObsoleteFiles()
+{
+    cd $SETTINGDIR 
+    find . -type f | while read FileName; do
+        if [ ! -f $TMPSETTINGDIR/$FileName ]; then 
+            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_REMOVE_OBSOLETE_FILE" "$SETTINGDIR"/"$FileName"
+            rm $FileName
+            local BaseFileName=${FileName##*/}
+            #remove entry from md5sum file
+            sed -i "/$BaseFileName/d" .md5sum.txt
+        fi
+    done
+    cd - >/dev/null 2>&1
 }
 
 
+#=== FUNCTION ================================================================
+# NAME: UpdateSettingsAndTranslations
+# DESCRIPTION: Updates Settings and Translations to the ones present in 
+#              update package. 
+#              NOTE: Instrument specific files/ Readonly files are not copied
+#              for now.
+# PARAMETER : NA 
+#=============================================================================
+UpdateSettingsAndTranslations()
+{
+    CreateDirAndFileFilterListForSettings
+    
+    cd $TMPSETTINGDIR
+    #copy only required files & folder to target Settings
+    local FILES_FOLDERS_TO_COPY=($(find . \( ${FILE_FILTER_LIST[@]} -o ${DIR_FILTER_LIST[@]} \) -prune -o -print | sed 's/\.$//'))  
+    for File in "${FILES_FOLDERS_TO_COPY[@]}";do
+        cp -r "$File" $SETTINGDIR
+    done
+    RemoveObsoleteFiles
+
+    #update translations    
+    cp -r $TMPTRANSLATIONDIR/. $TRANSLATIONSDIR
+    cp -r $TMPTRANSLATIONSSERVICEDIR/. $TRANSLATIONSSERVDIR
+}
+
+
+#=== FUNCTION ================================================================
+# NAME: UpdateInitScripts
+# DESCRIPTION: update init scripts
+# PARAMETER : NA 
+#=============================================================================
+UpdateInitScripts()
+{
+    local Name
+	for Name in "${!UpdatePkgInitScriptsNameVersionMap[@]}";do
+    	Return=$(CompareVersion ${CurrInitScriptsNameVersionMap[$Name]} ${UpdatePkgInitScriptsNameVersionMap[$Name]})
+	    if [ "$Return" = "LOWER" ]; then
+            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATING_FILE" "$Name" "${CurrInitScriptsNameVersionMap[$Name]}" "${UpdatePkgInitScriptsNameVersionMap[$Name]}"
+            cp $TMPINITD/* $EBOXINITSCRIPTSDIR
+            cp -r $TMPSCRIPTS/. $SCRIPTSDIR
+            xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgInitScriptsNameVersionMap[$Name]} $SWVERFILE
+            InitScriptsUpdated="true"
+        fi
+    done
+    if [ $InitScriptsUpdated = "true" ]; then
+        UpdateMd5SumForSWVersionXml
+        VerifyMd5sum $SETTINGDIR
+        [ $? -ne 0 ] && LogRollBackAndExit "InitScripts" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$SETTINGDIR"
+    fi
+}
+
+
+#=== FUNCTION ================================================================
+# NAME: UpdateBoardOptions
+# DESCRIPTION: Interface to update Slave Board options
+# PARAMETER : NA 
+#=============================================================================
+UpdateBoardOptions()
+{
+    local Name
+	for Name in "${!UpdatePkgBoardOptionNameVersionMap[@]}";do
+    	local  CompareResult=$(CompareVersion ${CurrBoardOptionNameVersionMap[$Name]} ${UpdatePkgBoardOptionNameVersionMap[$Name]})
+	    if [ "$CompareResult" = "LOWER" ]; then
+            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATING_FILE" "$Name" "${CurrBoardOptionNameVersionMap[$Name]}" "${UpdatePkgBoardOptionNameVersionMap[$Name]}"
+            GenerateBoardOptionsTemp
+            ExecutePTS "$BOARDOPTIONSFILETEMP" 
+            xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgBoardOptionNameVersionMap[$Name]} $SWVERFILE
+            BoardOptionsUpdated="true"
+        fi
+    done
+    if [ "$BoardOptionsUpdated" = "true" ]; then 
+        cp $BOARDOPTIONSFILE $BINDIR
+        local BoardOptionsFileName=$(basename $BOARDOPTIONSFILE)
+        local BoardOptionsFileMd5Sum=$(grep "\sBoardOptionsFileName$" $TMPBINDIR/.md5sum.txt)
+        sed -i "/\s$BoardOptionsFileName$/c\\$BoardOptionsFileMd5Sum" $BINDIR/.md5sum.txt
+        VerifyMd5sum $BINDIR
+        [ $? -ne 0 ] && LogRollBackAndExit "BoardOptions" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$BINDIR"
+        UpdateMd5SumForSWVersionXml
+        VerifyMd5sum $SETTINGDIR
+        [ $? -ne 0 ] && LogRollBackAndExit "BoardOptions" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$SETTINGDIR"
+    fi
+}
+
+
+#=== FUNCTION ================================================================
+# NAME: StoreDataReadFromPackageSWVersionXml
+# DESCRIPTION: Stores data read from SW_Version.xml in update pacakge to 
+#              arrays
+# PARAMETER : NA 
+#=============================================================================
+StoreDataReadFromPackageSWVersionXml()
+{
+    UpdatePkgSWNames=(""$SWNAME"")
+    UpdatePkgSWVersions=(""$SWVER"")
+    CheckSWVersionString
+    UpdatePkgFWNames=(""$FWNAME"")	
+    UpdatePkgFWVersions=(""$FWVER"")
+    CheckVersionString UpdatePkgFWVersions[@]
+    UpdatePkgInitScriptName=(""$INITSCRIPTNAME"")	
+    UpdatePkgInitScriptVer=(""$INITSCRIPTVERSION"")
+    CheckVersionString UpdatePkgInitScriptVer[@]
+    UpdatePkgBoardOptionName=(""$BOARDOPTIONNAME"")	
+    UpdatePkgBoardOptionVer=(""$BOARDOPTIONVERSION"")
+    CheckVersionString UpdatePkgBoardOptionVer[@]
+    
+	local Index=0
+    local Name
+	for Name in "${UpdatePkgSWNames[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+		UpdatePkgSWNameVersionMap[$Name]=${UpdatePkgSWVersions[$Index]}
+		((Index++))
+	done
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${UpdatePkgFWNames[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+		UpdatePkgFWNameVersionMap[$Name]=${UpdatePkgFWVersions[$Index]}
+		((Index++))
+	done
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${UpdatePkgInitScriptName[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+		UpdatePkgInitScriptsNameVersionMap[$Name]=${UpdatePkgInitScriptVer[$Index]}
+		((Index++))
+	done
+    
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${UpdatePkgBoardOptionName[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+		UpdatePkgBoardOptionNameVersionMap[$Name]=${UpdatePkgBoardOptionVer[$Index]}
+		((Index++))
+	done
+}
+
+#=== FUNCTION ================================================================
+# NAME: CheckSWVersionString
+# DESCRIPTION: Checks if the version strings present in the passed array
+#              are valid. 
+# PARAMETER : Array containing version strings
+#=============================================================================
+CheckSWVersionString() 
+{
+   for Version in "${UpdatePkgSWVersions[@]}";do
+       Version=$(echo $Version | cut -d_ -f2)
+       #check if version consists 1-3 digits before the decimal point and
+       # 1-3 digits after the decimal point.
+       echo "$Version" | grep "\b[0-9]\{1,3\}\.[0-9]\{1,3\}$"
+       [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+   done
+}
+
+#=== FUNCTION ================================================================
+# NAME: CheckVersionString
+# DESCRIPTION: Checks if passed version value is a number in range 0-999
+# PARAMETER : Array containing version numbers
+#=============================================================================
+CheckVersionString()
+{
+  for Version in "${!1}";do
+       echo "$Version" | grep "\b[0-9]\{1,3\}$" #begins with a number,digits min 1, max 3
+       [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+  done
+  return 0
+}
+
+#=== FUNCTION ================================================================
+# NAME: StoreDataReadFromExistingSWVersionXml
+# DESCRIPTION: Stores data read from SW_Version.xml in Settings to 
+#              arrays
+# PARAMETER : NA 
+#=============================================================================
+StoreDataReadFromExistingSWVersionXml()
+{
+	# converting the string to array
+	CurrSWNames=(""$SWNAME"")	
+    CurrSWVer=(""$SWVER"")
+	CurrFWNames=(""$FWNAME"")	
+	CurrFWVer=(""$FWVER"")	
+	CurrInitScriptName=(""$INITSCRIPTNAME"")	
+	CurrInitScriptVer=(""$INITSCRIPTVERSION"")	
+	CurrBoardOptionName=(""$BOARDOPTIONNAME"")	
+	CurrBoardOptionVer=(""$BOARDOPTIONVERSION"")	
+	
+	local Index=0
+	local Name
+	# store the data in associative array using the key value(SW name)
+	for Name in "${CurrSWNames[@]}";do
+		# check the name exists in the array as empty or not, if empty don't create array
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+		CurrSWNameVersionMap[$Name]=${CurrSWVer[$Index]}
+		((Index++))
+	done
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${CurrFWNames[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+		CurrFWNameVersionMap[$Name]=${CurrFWVer[$Index]}
+		((Index++))
+	done
+
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${CurrInitScriptName[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+	    CurrInitScriptsNameVersionMap[$Name]=${CurrInitScriptVer[$Index]}
+		((Index++))
+	done
+
+	Index=0
+	# store the data in associative array using the key value(FW name)
+	for Name in "${CurrBoardOptionName[@]}";do
+		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+		CurrBoardOptionNameVersionMap[$Name]=${CurrBoardOptionVer[$Index]}
+		((Index++))
+	done
+}
+
+
+#=== FUNCTION ================================================================
+# NAME: CompareExistingAndPackageXmlData
+# DESCRIPTION: Compare Existing and Package Version information. 
+# PARAMETER : NA 
+#=============================================================================
+CompareExistingAndPackageXmlData()
+{
+    diff <(printf "%s\n" "${CurrSWNames[@]}") <(printf "%s\n" "${UpdatePkgSWNames[@]}") > /dev/null 2>&1
+    [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
+
+    diff <(printf "%s\n" "${CurrFWNames[@]}") <(printf "%s\n" "${UpdatePkgFWNames[@]}") > /dev/null 2>&1
+    [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
+
+    diff <(printf "%s\n" "${CurrInitScriptName[@]}") <(printf "%s\n" "${UpdatePkgInitScriptName[@]}") > /dev/null 2>&1
+    [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
+
+    diff <(printf "%s\n" "${CurrBoardOptionName[@]}") <(printf "%s\n" "${UpdatePkgBoardOptionName[@]}") > /dev/null 2>&1
+    [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
+}
 
 #=== FUNCTION ================================================================
 # NAME: ReadXML 
-# DESCRIPTION: To read the xml file into Array for filename and version
-# PARAMETER 1: SW_Version.xml path
+# DESCRIPTION: Reads SW_Version.xml and stores filenames and versions in two
+#              separate strings
+# PARAMETER 1: SW_Version.xml ( with path )
 #=============================================================================
-
 ReadXML()
 {        
-	# IN1425 fix
+    xmlstarlet val "$1" 
+    [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$1"
+
 	SWNAME="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Filename -n  "$1" 2>/dev/null)"
 
-        SWVER="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Version -n  "$1" 2>/dev/null | cut -d'_' -f2)"
+    SWVER="$(xmlstarlet sel -t -m '(/SW_Version/Master_SW/file)' -v @Version -n  "$1" 2>/dev/null)"
 
-        FWNAME="$(xmlstarlet sel -t -m '(/SW_Version/Firmware/file)' -v @Filename -n  "$1" 2>/dev/null)"
+    FWNAME="$(xmlstarlet sel -t -m '(/SW_Version/Firmware/file)' -v @Filename -n  "$1" 2>/dev/null)"
 
-        FWVER="$(xmlstarlet sel -t -m '(/SW_Version/Firmware/file)' -v @Version -n  "$1" 2>/dev/null | cut -d'_' -f2)"
+    FWVER="$(xmlstarlet sel -t -m '(/SW_Version/Firmware/file)' -v @Version -n  "$1" 2>/dev/null)"
 
+	INITSCRIPTNAME="$(xmlstarlet sel -t -m '(/SW_Version/InitScripts/file)' -v @Filename -n  "$1" 2>/dev/null)"
+
+    INITSCRIPTVERSION="$(xmlstarlet sel -t -m '(/SW_Version/InitScripts/file)' -v @Version -n  "$1" 2>/dev/null)"
+
+    BOARDOPTIONNAME="$(xmlstarlet sel -t -m '(/SW_Version/BoardOptions/file)' -v @Filename -n  "$1" 2>/dev/null)"
+
+    BOARDOPTIONVERSION="$(xmlstarlet sel -t -m '(/SW_Version/BoardOptions/file)' -v @Version -n  "$1" 2>/dev/null)"
 }
 
+#=== FUNCTION ================================================================
+# NAME: ProcessSWVersionXml
+# DESCRIPTION: Top level interface for processing SW version xml present in
+#              Settings and update package  
+# PARAMETER : NA 
+#=============================================================================
+ProcessSWVersionXml()
+{
+    [ ! -f $UPDATESWVERFILE ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$UPDATESWVERFILE"
+    [ ! -f $SWVERFILE ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$SWVERFILE"
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PARSING_XML" "$UPDATESWVERFILE"
+    ReadXML $UPDATESWVERFILE
+    StoreDataReadFromPackageSWVersionXml
+
+	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_PARSING_XML" "$SWVERFILE"
+	ReadXML $SWVERFILE
+    StoreDataReadFromExistingSWVersionXml
+
+    CompareExistingAndPackageXmlData
+	return 0
+}
+
+#=== FUNCTION ================================================================
+# NAME: MasterSWUpdate
+# DESCRIPTION:  Interface for Master software update 
+# PARAMETER : NA 
+#=============================================================================
+MasterSWUpdate()
+{
+	# Checking for presence of Rollback folder
+	if [ -d "$ROLLBACKDIR" ]; then	
+        ProcessSWVersionXml
+        UpdateInitScripts
+		UpdateSWBinaries
+		UpdateSlaveFW
+        UpdateBoardOptions
+        CheckIfAnyModulesWereUpdated
+        if [ $? -eq 0 ]; then
+            UpdateBootConfigFile "Software_Update_Status" "Success"
+        else
+            UpdateBootConfigFile "Software_Update_Status" "HigherVersionNA"
+        fi
+    else
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$ROLLBACKDIR"
+    fi
+}
 
 #==============================================================
-# Script Begins from Here
-# -update:  	Update the latest SW and Slave FW files
-# -updateRollback: Update the rollback folder with new SW and 
-#	    	   Slave FW files
+#  Interface for starting SW Update related procedures, which 
+#  includes updating Software Binaries and configuration,Firmware,
+#  InitScripts and Slave Board Options.
+#  PARAMETER 1:
+# -update:  	   Update the latest SW and Slave FW files
+# -updateRollback: Update the rollback folder
+# -rollback:       rollback all modules
+#  PARAMETER 2: Base Event Id
+#  Usage ex: ./MasterSWUpdate.sh -update 100
 #==============================================================
 
 [ ! $# -eq 2 ] && { ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"; }
-# Second argument will be  event ID
-FirstArgument=$1
-if [ $FirstArgument = "-update" ]; then
-	BASE_EVENT_ID=$2
-	IsUpdateStarted=true	
-	exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Running.png -qws & 
-	lcd on	
-	MasterSWUpdate
-	UpdateRebootFile "Success"
-	Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"	
-	kill -9 $(pidof ImageTestApp)
 
-elif [ $FirstArgument = "-updateRollback" ]; then	
-	BASE_EVENT_ID=$2	
-	UpdateRollback	
-elif [ $FirstArgument = "-Rollback" ]; then
-	lcd on
-	exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Rollback.png -qws & 
-	RollbackFWAndSW
-	Clean
-else
-	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"	
-fi	
-
-exit 0
+case "$1" in
+    -update)
+        BASE_EVENT_ID=$2
+        UpdateStarted=true
+        #Start the power fail monitoring script
+        chmod 755  $TMPBINDIR/$POWERFAILSCRIPT
+        exec $TMPBINDIR/$POWERFAILSCRIPT & > /dev/null 2>&1
+        exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Running.png -qws & >/dev/null 2>&1
+        #turn on lcd
+        lcd on
+        MasterSWUpdate
+        Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"
+        #reboot the os if init script is updated
+        [ $InitScriptsUpdated = true ] && reboot
+        $(kill -9 $(pidof -x PowerFailMonitor.sh)) > /dev/null 2>&1
+        $(kill -9 $(pidof ImageTestApp)) > /dev/null 2>&1
+        exit 0
+        ;;
+    -updateRollback)
+        BASE_EVENT_ID=$2	
+        UpdateRollback	
+        exit 0
+        ;;
+    -rollback)
+        BASE_EVENT_ID=$2
+        #turn on lcd
+        lcd on
+        $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Rollback.png -qws & > /dev/null 2>&1
+        Rollback "All"
+        Clean
+        exit 0
+        ;;
+    *)
+        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_INVALID_CMD_ARGS" "$CMDARG"	
+        ;;
+esac
 

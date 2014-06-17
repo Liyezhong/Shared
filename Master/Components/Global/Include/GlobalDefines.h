@@ -33,11 +33,11 @@
 /****************************************************************************/
 namespace Global {
 
-typedef quint16 gSourceType;            ///< typedef for HeartBeat source: source type.
-typedef quint16 gSubComponentType;      ///< typedef for logging source: subcomponent type.
-typedef quint64 tRefType;               ///< typedef for tRefType.
+typedef quint16 gSourceType;            //!< typedef for HeartBeat source: source type.
+typedef quint16 gSubComponentType;      //!< typedef for logging source: subcomponent type.
+typedef quint64 tRefType;               //!< typedef for tRefType.
 
-const QString NO_NUMERIC_DATA = "";     ///< Self explaining
+const QString NO_NUMERIC_DATA = "";     //!< Self explaining
 
 /****************************************************************************/
 /**
@@ -45,11 +45,11 @@ const QString NO_NUMERIC_DATA = "";     ///< Self explaining
  */
 /****************************************************************************/
 enum {
-    RETCODE_OK                  = 0,    ///< Everything OK.
-    RETCODE_TIME_OFFSET         = 1,    ///< Reading or writing to time offset file failed.
-    RETCODE_CONNECT_FAILED      = 2,    ///< A connect between a signal and a slot failed.
-    RETCODE_MASTERTHREAD_INIT   = 3,    ///< Master thread initialization failed.
-    RETCODE_MASTERTHREAD_WAIT   = 4     ///< Waiting for master thread failed.
+    RETCODE_OK                  = 0,    //!< Everything OK.
+    RETCODE_TIME_OFFSET         = 1,    //!< Reading or writing to time offset file failed.
+    RETCODE_CONNECT_FAILED      = 2,    //!< A connect between a signal and a slot failed.
+    RETCODE_MASTERTHREAD_INIT   = 3,    //!< Master thread initialization failed.
+    RETCODE_MASTERTHREAD_WAIT   = 4     //!< Waiting for master thread failed.
 };
 
 /****************************************************************************/
@@ -320,7 +320,8 @@ enum StationDefectReason_t {
     STATION_DEFECT_MOTOR,
     STATION_DEFECT_INIT,
     STATION_DEFECT_NO_RESPONSE,
-    STATION_DEFECT_WORKFLOW         ///< defect as consequence of workflow interruption
+    STATION_DEFECT_WORKFLOW,         //!< defect as consequence of workflow interruption
+    STATION_DEFECT_REAGENT_EXPIRED
 };
 
 
@@ -478,10 +479,12 @@ class AppSettings
 {
 public:
     static bool SimulationEnabled;  //!< simulation enabled
+    static int SimulationAccelerationFactor; //!< simulation acceleration factor
     static bool ExtendedLoggingEnabled; //!<  extended logging enabled like scheduler files
     static bool TraceDebugMessagesEnabled; //!< debug messages enabled
     static bool DCPLoggingEnabled;          //!<  dcp log file be created
     static QString RevisionNumber;          //!<  revision number
+    static bool SettingsRolledBack; //!< Settings /configuration rolled back to last known valid settings.
 };
 
 /****************************************************************************/
@@ -496,6 +499,16 @@ enum CoverSlipLinesNumber
     TWOLINE        //!< two cover slip line
 };
 
+/****************************************************************************/
+/**
+ * \brief Enum refers to Service Software Mode
+ */
+/****************************************************************************/
+enum ServiceSoftwareMode {
+    SERVICE_MODE,               //!< Service Mode
+    MANUFACTURING_MODE,         //!< Manufacturing Mode
+    INVALID_MODE                //!< Invalid Mode
+};
 
 } // end namespace Global
 

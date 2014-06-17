@@ -44,21 +44,23 @@ class SystemPaths {
 friend class TestSystemPaths;
 
 private:
-    static SystemPaths      m_InstA;                ///< The one and only instance.
-    mutable QReadWriteLock  m_SyncObject;           ///< Synchronization object.
-    QString                 m_SettingsPath;         ///< Settings directory.
-    QString                 m_InstrumentPath;       ///< Instrument specific Settings directory
-    QString                 m_FirmwarePath;         ///< Firmware directory.
-    QString                 m_UpdatePath;           ///< Update directory.
-    QString                 m_LogfilesPath;         ///< Log files directory.
-    QString                 m_ComponentTestPath;    ///< Component test directory.
-    QString                 m_ManualPath;           ///< manual / help directory.
-    QString                 m_UploadsPath;          ///< Folder for Axeda uploads.
-    QString                 m_TempPath;             ///< Folder for temporary files.
-    QString                 m_RollbackPath;         ///< Folder for Rollback directory
-    QString                 m_TranslationsPath;     ///< Translations path( qm files are placed here)
-    QString                 m_SoundsPath;            ///< Sounds path( wav files are placed here)
-    QString                 m_RemoteCarePath;       ///< RemoteCare path(remote care input/output files are placed here)
+    static SystemPaths      m_InstA;                //!< The one and only instance.
+    mutable QReadWriteLock  m_SyncObject;           //!< Synchronization object.
+    QString                 m_SettingsPath;         //!< Settings directory.
+    QString                 m_InstrumentPath;       //!< Instrument specific Settings directory
+    QString                 m_FirmwarePath;         //!< Firmware directory.
+    QString                 m_UpdatePath;           //!< Update directory.
+    QString                 m_LogfilesPath;         //!< Log files directory.
+    QString                 m_ComponentTestPath;    //!< Component test directory.
+    QString                 m_ManualPath;           //!< manual / help directory.
+    QString                 m_UploadsPath;          //!< Folder for Axeda uploads.
+    QString                 m_TempPath;             //!< Folder for temporary files.
+    QString                 m_RollbackPath;         //!< Folder for Rollback directory
+    QString                 m_TranslationsPath;     //!< Translations path( qm files are placed here)
+    QString                 m_SoundsPath;            //!< Sounds path( wav files are placed here)
+    QString                 m_RemoteCarePath;       //!< RemoteCare path(remote care input/output files are placed here)
+    QString                 m_ScriptsPath;          //!< Path for shell scripts
+    QString                 m_TranslationsServicePath; //!< Service Translations path
     /****************************************************************************/
     /****************************************************************************/
     /**
@@ -440,6 +442,60 @@ public:
         QWriteLocker WL(&m_SyncObject);
         m_RemoteCarePath = QDir::cleanPath(ComputePath() + "/" + RemoteCarePath);
     }
+
+    /****************************************************************************/
+    /**
+     * \brief Set path to Script files
+     *
+     * <b>The application path is prepended automatically!</b>
+     *
+     * \iparam   ScriptsPath      The path.
+     */
+    /****************************************************************************/
+    inline void SetScriptsPath(const QString &ScriptsPath) {
+        QWriteLocker WL(&m_SyncObject);
+        m_ScriptsPath = QDir::cleanPath(ComputePath() + "/" + ScriptsPath);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get path to Script files
+     *
+     * \return  Scripts path.
+     */
+    /****************************************************************************/
+    inline QString GetScriptsPath() const {
+        QReadLocker RL(&m_SyncObject);
+        return m_ScriptsPath;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set  path to Service Translations
+     *
+     * <b>The application path is prepended automatically!</b>
+     *
+     * \iparam   ServiceTranslationsPath The path.
+     */
+    /****************************************************************************/
+    inline void SetServiceTranslationsPath(const QString &ServiceTranslationsPath) {
+        QWriteLocker WL(&m_SyncObject);
+        m_TranslationsServicePath = QDir::cleanPath(ComputePath() + "/" + ServiceTranslationsPath);
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Get path to Translations Files
+     *
+     * \return  Translations Service Path
+     */
+    /****************************************************************************/
+    inline QString GetServiceTranslationsPath() const {
+        QReadLocker RL(&m_SyncObject);
+        return m_TranslationsServicePath;
+    }
+
+
 
 
 }; // end class SystemPaths
