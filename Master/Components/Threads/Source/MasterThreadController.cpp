@@ -196,7 +196,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
         Global::EventObject::Instance().RaiseEvent(Global::EVENT_RECOVERED_FROM_POWER_FAIL);
     }
 
-    mp_GPIOThreadController->SkipSoftSwitchAtBoot(m_MainRebooted);
+    mp_GPIOThreadController->SkipSoftSwitchAtBoot(true);
 
 }
 
