@@ -21,7 +21,7 @@
 #****************************************************************************/
 
 
-readonly ROOTDIR="/home/Leica/"					# Path of Root Directory 
+readonly ROOTDIR="/home/Leica"					# Path of Root Directory 
 if [ ! -d $ROOTDIR ]; then
 	echo "$ROOTDIR does not exist"
 	exit 1
