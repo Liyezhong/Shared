@@ -2229,6 +2229,35 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
     return mp_DevProc->GetBaseModule(Type);
 }
 
+bool IDeviceProcessing::GetCurrentVoltageStatus()
+{
+    quint8 ret = m_pRetort->GetHeaterSwitchType();
+    if (1 != ret && 2 != ret)
+    {
+        return false;
+    }
+
+    ret = m_pOven->GetHeaterSwitchType();
+    if (1 != ret && 2 != ret)
+    {
+        return false;
+    }
+
+    ret = m_pRotaryValve->GetHeaterSwitchType();
+    if (1 != ret && 2 != ret)
+    {
+        return false;
+    }
+
+    ret = m_pAirLiquid->GetHeaterSwitchType();
+    if (1 != ret && 2 != ret)
+    {
+        return false;
+    }
+
+    return true;
+}
+
             //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
             //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
             //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);

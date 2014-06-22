@@ -665,6 +665,17 @@ public:
     void InitArchiveServiceInforState();
     void ArchiveServiceInfor();
     void NotifySavedServiceInfor(const QString& deviceType);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Current and Voltage status of all the slave devices
+     *  \param  void
+     *
+     *  \return bool
+     */
+    /****************************************************************************/
+    bool GetCurrentVoltageStatus();
+
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
