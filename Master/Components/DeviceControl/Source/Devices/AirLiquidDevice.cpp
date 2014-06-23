@@ -1185,6 +1185,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, SUCKING_POOLING_TIME);
         if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 == retCode)
         {
+            m_pDevProc->OnReportLevelSensorStatus1();
             if(TimeStopFilling == 0)
             {
                 FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Hit target level. Sucking Finished.";
@@ -1535,7 +1536,6 @@ void CAirLiquidDevice::OnLevelSensorState(quint32, ReturnCode_t ReturnCode, quin
     {
         if(m_pDevProc)
         {
-            m_pDevProc->OnReportLevelSensorStatus1();
             m_pDevProc->ResumeFromSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1);
         }
     }
