@@ -662,6 +662,7 @@ public:
      */
     /****************************************************************************/
     CBaseModule* GetBaseModule(HimSlaveType_t Type);
+<<<<<<< HEAD
     void InitArchiveServiceInforState();
     void ArchiveServiceInfor();
     void NotifySavedServiceInfor(const QString& deviceType);
@@ -676,6 +677,26 @@ public:
     /****************************************************************************/
     bool GetCurrentVoltageStatus();
 
+<<<<<<< HEAD
+
+||||||| merged common ancestors
+=======
+||||||| merged common ancestors
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Current and Voltage status of all the slave devices
+     *
+     *  \param  void
+     *
+     *  \return bool
+     */
+    /****************************************************************************/
+    bool GetCurrentVoltageStatus();
+
+=======
+
+>>>>>>> Scheduler Refact - pretest
+>>>>>>> Scheduler Refact - pretest
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
@@ -768,6 +789,14 @@ private slots:
     void OnDestroyFinished();
     void OnTimeOutSaveServiceInfor();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Get the return code of Sealing checking
+     */
+    /****************************************************************************/
+    void OnTimerOut() {}
+
+
 private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
@@ -808,11 +837,27 @@ private:
     COvenDevice *m_pOven;                           //!< Oven device
     CPeripheryDevice *m_pPeriphery;                 //!< Periphery device
 
+<<<<<<< HEAD
+    QMutex m_IMutex;                                //!< Handles thread safety of IDeviceProcessing
+    QMutex m_Mutex;                                 //!< Handles thread safety of DeviceProcessing
+||||||| merged common ancestors
     QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
+=======
+<<<<<<< HEAD
+    QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
+    QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
+>>>>>>> Scheduler Refact - pretest
     QStateMachine m_machine;        //!< State machine
     QTimer m_TimerSaveServiceInfor;
     QList<quint32> m_deviceList;
+||||||| merged common ancestors
+    QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
+    QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
+=======
+    QMutex m_IMutex;                                //!< Handles thread safety of IDeviceProcessing
+    QMutex m_Mutex;                                 //!< Handles thread safety of DeviceProcessing
+>>>>>>> Scheduler Refact - pretest
 };
 
 } //namespace

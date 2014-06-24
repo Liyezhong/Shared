@@ -2059,6 +2059,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             density = 1;
             basePressure = 0.6;
         }
+        // Move RV to tube position
         retCode = m_pRotaryValve->ReqMoveToRVPosition(TubePos);
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
@@ -2228,36 +2229,6 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
 {
     return mp_DevProc->GetBaseModule(Type);
 }
-
-bool IDeviceProcessing::GetCurrentVoltageStatus()
-{
-    quint8 ret = m_pRetort->GetHeaterSwitchType();
-    if (1 != ret && 2 != ret)
-    {
-        return false;
-    }
-
-    ret = m_pOven->GetHeaterSwitchType();
-    if (1 != ret && 2 != ret)
-    {
-        return false;
-    }
-
-    ret = m_pRotaryValve->GetHeaterSwitchType();
-    if (1 != ret && 2 != ret)
-    {
-        return false;
-    }
-
-    ret = m_pAirLiquid->GetHeaterSwitchType();
-    if (1 != ret && 2 != ret)
-    {
-        return false;
-    }
-
-    return true;
-}
-
             //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
             //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
             //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
