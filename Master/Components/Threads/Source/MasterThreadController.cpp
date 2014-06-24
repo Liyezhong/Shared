@@ -154,6 +154,9 @@ void MasterThreadController::CreateAndInitializeObjects() {
     mp_DataLoggingThreadController->SetSerialNumber(m_SerialNumber);
     mp_DataLoggingThreadController->SetEventLoggerMaxFileSize(m_EventLoggerMaxFileSize);
     mp_DataLoggingThreadController->SetDayEventLoggerMaxFileCount(m_DayEventLoggerMaxFileCount);
+    m_InstrumentName = p_DeviceConfigInterface->GetDeviceConfiguration()->GetValue("DEVICENAME");
+    QNetworkInterface Eth0(QNetworkInterface::interfaceFromName("eth0"));
+    m_Eth0MacAddress = Eth0.hardwareAddress();
 
     MasterThreadController::RegisterCommands();
 
