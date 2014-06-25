@@ -2139,6 +2139,12 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
 
         (void)usleep(10000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure();
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
+        qreal previousPressure = m_pAirLiquid->GetRecentPressure();
+        m_pAirLiquid->StopCompressor();
 
         LOG()<<"Sealing test pressure: " << pressure;
 

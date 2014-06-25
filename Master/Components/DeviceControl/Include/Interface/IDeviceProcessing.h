@@ -789,14 +789,6 @@ private slots:
     void OnDestroyFinished();
     void OnTimeOutSaveServiceInfor();
 
-    /****************************************************************************/
-    /*!
-     *  \brief  Get the return code of Sealing checking
-     */
-    /****************************************************************************/
-    void OnTimerOut() {}
-
-
 private:
     //! Handle the state 'Task request pending'
     void HandleTaskRequestState();
