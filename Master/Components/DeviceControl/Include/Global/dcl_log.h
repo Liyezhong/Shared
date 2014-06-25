@@ -161,7 +161,7 @@ std::ostringstream& Log<T>::Get(TLogArea_t area, TLogLevel_t level, std::string 
 {
     Q_UNUSED(strClass);
 
-    os << "- " << NowTime();
+    os << "- " << NowDateTime();//NowTime();
     os << " " << ToStringArea(area) << ":";
     os << " " << ToString(level) << ":";
     //os << std::string(level > llDEBUG ? level - llDEBUG : 0, '\t') << strFunction << std::string("\t") << strClass << std::string("\t");

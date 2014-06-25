@@ -1210,6 +1210,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                 else
                 {
                     stop = true;
+                    return DCL_ERR_FCT_CALL_SUCCESS;
                 }
             }
             InsufficientCheckFlag = false;

@@ -27,6 +27,7 @@
 #include "DeviceControl/Include/Configuration/CANMessageConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include <iostream>
 
 namespace DeviceControl
 {
@@ -727,7 +728,11 @@ void CTemperatureControl::HandleCANMsgServiceSensor(can_frame* pCANframe)
         qreal ActTemperature;
         ActTemperature = (qreal)GetCANMsgDataS16(pCANframe, 1) / 100;
 
-        FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl Temperature received: " << ActTemperature;
+        FILE_LOG_L(laFCT, llDEBUG) << " CANTemperatureControl Temperature received: " << ActTemperature << " data: "<< GetCANMsgDataU32(pCANframe,0);
+//        if(pCANframe->can_id == 0x1868201e)
+//        {
+//            std::cout << "###########LevelSensorTemp: "<< ActTemperature << " data: "<< GetCANMsgDataU32(pCANframe,0) << std::endl;
+//        }
         emit ReportActTemperature(GetModuleHandle(), hdlInfo, pCANframe->data[0], ActTemperature);
     }
     else
