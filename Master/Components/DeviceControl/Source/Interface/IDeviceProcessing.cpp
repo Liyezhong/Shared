@@ -2069,7 +2069,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal pressure = m_pAirLiquid->GetRecentPressure();
 
         LOG()<<"Bottle Check pressure: " << pressure;
-
+#ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY ;
