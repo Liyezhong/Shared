@@ -777,6 +777,32 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsuffic
 /**
  *  \brief  Device interface function.
  *
+ *  \iparam  DelayTime = Delay time before stop pump.
+ *  \iparam  EnableInsufficientCheck = Flag to indicate if Insufficient check is needed.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t IDeviceProcessing::ALFillingForService(quint32 DelayTime, bool EnableInsufficientCheck)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->FillingForService(DelayTime, EnableInsufficientCheck);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+/****************************************************************************/
+/**
+ *  \brief  Device interface function.
+ *
  *
  *  \return  Actual Pressure
  */

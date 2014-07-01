@@ -1306,6 +1306,169 @@ SORTIE:
     return RetValue;
 }
 
+/****************************************************************************/
+/*!
+ *  \brief   Fill the system automatically.
+ *
+ *  \iparam  DelayTime = Delay a small period (in Millisecodns) before turn-off
+ *                       the pump when retort has been detected full.
+ *  \iparam  EnableInsufficientCheck = Enable Insufficient Check
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+
+ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableInsufficientCheck)
+{
+    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
+    QList<qreal> PressureBuf;
+    int levelSensorState = 0xFF;
+    bool NeedOverflowChecking = true;
+    bool stop = false;
+    bool InsufficientCheckFlag = EnableInsufficientCheck;
+    qint64 TimeNow, TimeStartPressure, TimeStopFilling;
+    TimeStopFilling = 0;
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking procedure.";
+    LogDebug(QString("INFO: Start Filling procedure."));
+
+    //release pressure
+    RetValue = ReleasePressure();
+    if( DCL_ERR_FCT_CALL_SUCCESS != RetValue )
+    {
+        goto SORTIE;
+    }
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Start Sucking now.";
+    (void)TurnOnFan();
+    RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_NEGATIVE, m_WorkingPressureNegative);
+    if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
+    {
+        goto SORTIE;
+    }
+    TimeStartPressure = QDateTime::currentMSecsSinceEpoch();
+    // For Paraffin reagent, we need NOT insufficient check all the time. For Non-paraffin ones, we need
+    // check insufficient before FM_TEMP_LEVEL_SENSOR_STATE_1, and NOT need this after STATE_1
+    //set timeout to 2 minutes
+    while(!stop)
+    {
+        TimeNow = QDateTime::currentMSecsSinceEpoch();
+        retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR, SUCKING_POOLING_TIME);
+        if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_1 == retCode)
+        {
+            m_pDevProc->OnReportLevelSensorStatus1();
+            if(TimeStopFilling == 0)
+            {
+                FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Hit target level. Sucking Finished.";
+                LogDebug(QString("INFO: Hit target level. Sucking Finished."));
+                if(DelayTime > 0)
+                {
+                    NeedOverflowChecking = false;
+                    //waiting for some time
+                    if(DelayTime < 70*1000) //yuan@note:TODO for verify!
+                    {
+                        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << DelayTime<<" milliseconds.";
+                        LogDebug(QString("INFO: Delay for %1 milliseconds.").arg(DelayTime));
+                        TimeStopFilling = TimeNow + DelayTime;
+                    }
+                    else
+                    {
+                        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << SUCKING_MAX_DELAY_TIME<<" milliseconds.";
+                        LogDebug(QString("INFO: Delay for %1 milliseconds.").arg(SUCKING_MAX_DELAY_TIME));
+                        TimeStopFilling = TimeNow + SUCKING_MAX_DELAY_TIME;
+                    }
+                }
+                else
+                {
+                    stop = true;
+                    return DCL_ERR_FCT_CALL_SUCCESS;
+                }
+            }
+            InsufficientCheckFlag = false;
+        }
+        else if(DCL_ERR_FM_TEMP_LEVEL_SENSOR_STATE_0 == retCode)
+        {
+            FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Received level sensor signal 0 ";
+            LogDebug(QString("INFO: Received level sensor signal 0 "));
+        }
+        else if(DCL_ERR_UNEXPECTED_BREAK == retCode)
+        {
+            FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
+            LogDebug(QString("WARNING: Current procedure has been interrupted, exit now."));
+            RetValue = DCL_ERR_UNEXPECTED_BREAK;
+            goto SORTIE;
+        }
+        else if(DCL_ERR_TIMER_TIMEOUT == retCode)
+        {
+            if(TimeNow > (TimeStartPressure + 120*1000))
+            {
+                FILE_LOG_L(laDEVPROC, llERROR) << "ERROR! Do not get level sensor data in" << (SUCKING_MAX_SETUP_TIME / 1000)<<" seconds, Time out! Exit!";
+                LogDebug(QString("ERROR! Do not get level sensor data in %1 seconds, Timeout! Exit!").arg(SUCKING_SETUP_WARNING_TIME / 1000));
+                RetValue = DCL_ERR_DEV_LA_FILLING_TIMEOUT_2MIN;
+                goto SORTIE;
+            }
+            if((TimeStopFilling!=0)&&(TimeNow >= TimeStopFilling))
+            {
+                FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay finished!";
+                LogDebug(QString("INFO: Delay finished"));
+                goto SORTIE;
+            }
+            //check pressure here
+            qreal CurrentPressure = GetPressure();
+            if(CurrentPressure != (UNDEFINED_4_BYTE))
+            {
+                PressureBuf.append(CurrentPressure);
+            }
+            if(PressureBuf.length() >= SUCKING_OVERFLOW_SAMPLE_SIZE)
+            {
+                //with 4 wire pump
+                qreal Sum = 0;
+                qreal DeltaSum = 0;
+                qreal lastValue = PressureBuf.at(0);
+                for(qint32 i = 0; i < PressureBuf.length(); i++)
+                {
+                     Sum += PressureBuf.at(i);
+                     DeltaSum += PressureBuf.at(i) - lastValue;
+                     lastValue = PressureBuf.at(i);
+                }
+
+                if(((Sum/ PressureBuf.length()) < SUCKING_OVERFLOW_PRESSURE)&&(DeltaSum < SUCKING_OVERFLOW_4SAMPLE_DELTASUM) && NeedOverflowChecking)
+                {
+                    LogDebug(QString("ERROR: Overflow occured! Exit now"));
+                    for(qint32 i = 0; i < PressureBuf.length(); i++)
+                    {
+                        LogDebug(QString("INFO: Pressur buf: %1").arg(PressureBuf.at(i)));
+                    }
+                    RetValue = DCL_ERR_DEV_LA_FILLING_OVERFLOW;
+                    goto SORTIE;
+                }
+                else if(((Sum/ PressureBuf.length()) < SUCKING_INSUFFICIENT_PRESSURE)&&(DeltaSum > SUCKING_INSUFFICIENT_4SAMPLE_DELTASUM)&&(InsufficientCheckFlag))
+                {
+                    LogDebug(QString("ERROR: Insufficient reagent in the station! Exit now"));
+                    for(qint32 i = 0; i < PressureBuf.length(); i++)
+                    {
+                        LogDebug(QString("INFO: Insufficient Pressure %1 is: %2").arg(i).arg(PressureBuf.at(i)));
+                    }
+                    RetValue = DCL_ERR_DEV_LA_FILLING_INSUFFICIENT;
+                    goto SORTIE;
+                }
+                PressureBuf.pop_front();
+            }
+        }
+        else
+        {
+            FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Unexpected level sensor state value: " << levelSensorState;
+            LogDebug(QString("WARNING: Unexpected level sensor state value: %1").arg(levelSensorState));
+        }
+    }
+
+
+SORTIE:
+    (void)ReleasePressure();
+    (void)TurnOffFan();
+    return RetValue;
+
+}
+
 
 /****************************************************************************/
 /*!

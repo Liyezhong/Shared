@@ -153,6 +153,19 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t ALFilling(quint32 DelayTime, bool EnableInsufficientCheck);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALFillingForService
+     *
+     *  \param DelayTime = quint32 type parameter
+     *  \param EnableInsufficientCheck = flag to indicate if Insufficient check is needed
+     *
+     *  \return from ALFilling
+     */
+    /****************************************************************************/
+    ReturnCode_t ALFillingForService(quint32 DelayTime, bool EnableInsufficientCheck);
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALGetRecentPressure

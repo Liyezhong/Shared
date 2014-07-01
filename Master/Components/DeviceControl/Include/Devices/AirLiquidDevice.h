@@ -132,6 +132,18 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t Filling(quint32 DelayTime, bool EnableInsufficientCheck);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function Filling4Service
+     *
+     *  \param DelayTime = quint32 type parameter
+     *  \iparam  EnableInsufficientCheck = Enable Insufficient Check
+     *
+     *  \return from Filling
+     */
+    /****************************************************************************/
+    ReturnCode_t FillingForService(quint32 DelayTime, bool EnableInsufficientCheck);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetRecentPressure
