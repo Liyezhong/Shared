@@ -1362,7 +1362,7 @@ ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableI
                 LogDebug(QString("INFO: Hit target level. Sucking Finished."));
                 if(DelayTime > 0)
                 {
-                    NeedOverflowChecking = false;
+                    //NeedOverflowChecking = false;
                     //waiting for some time
                     int MaxDelayTime = 70*1000;
                     if(DelayTime <= MaxDelayTime)

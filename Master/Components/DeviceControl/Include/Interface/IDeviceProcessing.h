@@ -590,6 +590,17 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief  Definition/Declaration of function PerControlAlarm
+     *  \param On = true: On, false: Off
+     *  \param Remote =  true: Remote, false:Local
+     *
+     *  \return from PerTurnOnMainRelay
+     */
+    /****************************************************************************/
+    ReturnCode_t PerControlAlarm(bool On, bool Remote);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function IDBottleCheck
      *
      *  \param ReagentGrpID = QString type parameter

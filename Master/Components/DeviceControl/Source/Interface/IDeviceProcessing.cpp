@@ -399,6 +399,7 @@ void IDeviceProcessing::OnStartNormalOperationMode(ReturnCode_t HdlInfo)
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::StartDiagnosticService()
 {
+
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
 
     QMutexLocker locker(&m_IMutex);
@@ -426,6 +427,7 @@ ReturnCode_t IDeviceProcessing::StartDiagnosticService()
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::CloseDiagnosticService()
 {
+
     ReturnCode_t retval = DCL_ERR_FCT_CALL_SUCCESS;
 
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing: close diagnostic service.";
@@ -1886,6 +1888,45 @@ ReturnCode_t IDeviceProcessing::PerTurnOnMainRelay()
     if(m_pPeriphery)
     {
         return m_pPeriphery->TurnOnMainRelay();
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+/****************************************************************************/
+/*!
+ *  \brief  Turn on/off the remote/local alarm
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t IDeviceProcessing::PerControlAlarm(bool On, bool Remote)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pPeriphery)
+    {
+        if (On) {
+            if (Remote) {
+                return m_pPeriphery->TurnOnRemoteAlarm();
+            }
+            else {
+                return m_pPeriphery->TurnOnLocalAlarm();
+            }
+
+        }
+        else {
+            if (Remote) {
+                return m_pPeriphery->TurnOffRemoteAlarm();
+            }
+            else {
+                return m_pPeriphery->TurnOffLocalAlarm();
+            }
+        }
     }
     else
     {
