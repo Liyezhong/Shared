@@ -48,10 +48,10 @@ PROGNAME=$(basename $0)
 CMDARG="Usage: $0 [-update / -updateRollback] [baseeventid]"
 
 # Clean Temp file on Abort or terminate
-trap Clean ABRT TERM  
+#trap Clean ABRT TERM  
 # USR1 signal is sent from powerfailmonitor script. On reception exit.
 # we don't clean up becuase we need to tmp folder for rollback
-trap "PowerFailed;exit 1" USR1  
+#trap "PowerFailed;exit 1" USR1  
 
 # to store all current software versions - read from Settings/SW_Version.xml
 declare -A CurrSWNameVersionMap
@@ -129,8 +129,7 @@ VerifyMd5sum()
 #=============================================================================
 CheckIfAnyModulesWereUpdated()
 {
-    if [[ ( $SwUpdated = "true" ) || ( $FwUpdated = "true" ) || ( $InitScriptsUpdated = "true" ) 
-        || ( $BoardOptionsUpdated = "true" ) ]] ; then
+    if [[ ( $SwUpdated = "true" ) || ( $FwUpdated = "true" ) || ( $InitScriptsUpdated = "true" ) ]] ; then
         return 0
     else
         return 1
@@ -356,8 +355,6 @@ ExecutePTS()
         else
             if [ "$1" = $SLAVEUPDATEFILE ]; then
                 local RollbackType="FW" 
-            else
-                local RollbackType="BoardOptions"
             fi
             LogRollBackAndExit "$RollbackType" "$EVENT_SWUPDATE_SLAVE_UPDATE_FAILED"
         fi
@@ -412,12 +409,12 @@ RollbackFW()
 # DESCRIPTION: Rolls back Board options. JS File present in Bin will be used
 # PARAMETER : NA 
 #=============================================================================
-RollbackBoardOptions()
-{
-    GenerateBoardOptionsTemp "rollbackmode"
-    ExecutePTS "$BOARDOPTIONSFILETEMP" "DontRollbackOnFailure" 
-	[ $? -ne 0 ] && { RollbackFailed=true; ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED" ;}
-}
+#RollbackBoardOptions()
+#{
+#    GenerateBoardOptionsTemp "rollbackmode"
+#    ExecutePTS "$BOARDOPTIONSFILETEMP" "DontRollbackOnFailure" 
+#	[ $? -ne 0 ] && { RollbackFailed=true; ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED" ;}
+#}
 
 #=== FUNCTION ================================================================
 # NAME: RollbackSW
@@ -473,19 +470,19 @@ Rollback()
             RollbackFW
             [ "$SwUpdated" = "true" ] && Rollback "SW"
             ;;
-        "BoardOptions")
-            RollbackBoardOptions
-            if [ "$FwUpdated" = "true" ]; then  
-                Rollback "FW"
-            elif [ "$SwUpdate" = "true" ]; then
-                Rollback "SW"
-            fi
-            ;;
+#        "BoardOptions")
+#            RollbackBoardOptions
+#            if [ "$FwUpdated" = "true" ]; then  
+#                Rollback "FW"
+#            elif [ "$SwUpdate" = "true" ]; then
+#                Rollback "SW"
+#            fi
+#            ;;
         "All")
             RollbackInitScripts
             RollbackSW
             RollbackFW
-            RollbackBoardOptions
+#            RollbackBoardOptions
             ;;
     esac
 }
@@ -684,31 +681,31 @@ UpdateInitScripts()
 # DESCRIPTION: Interface to update Slave Board options
 # PARAMETER : NA 
 #=============================================================================
-UpdateBoardOptions()
-{
-    local Name
-	for Name in "${!UpdatePkgBoardOptionNameVersionMap[@]}";do
-    	local  CompareResult=$(CompareVersion ${CurrBoardOptionNameVersionMap[$Name]} ${UpdatePkgBoardOptionNameVersionMap[$Name]})
-	    if [ "$CompareResult" = "LOWER" ]; then
-            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATING_FILE" "$Name" "${CurrBoardOptionNameVersionMap[$Name]}" "${UpdatePkgBoardOptionNameVersionMap[$Name]}"
-            GenerateBoardOptionsTemp
-            ExecutePTS "$BOARDOPTIONSFILETEMP" 
-            xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgBoardOptionNameVersionMap[$Name]} $SWVERFILE
-            BoardOptionsUpdated="true"
-        fi
-    done
-    if [ "$BoardOptionsUpdated" = "true" ]; then 
-        cp $BOARDOPTIONSFILE $BINDIR
-        local BoardOptionsFileName=$(basename $BOARDOPTIONSFILE)
-        local BoardOptionsFileMd5Sum=$(grep "\sBoardOptionsFileName$" $TMPBINDIR/.md5sum.txt)
-        sed -i "/\s$BoardOptionsFileName$/c\\$BoardOptionsFileMd5Sum" $BINDIR/.md5sum.txt
-        VerifyMd5sum $BINDIR
-        [ $? -ne 0 ] && LogRollBackAndExit "BoardOptions" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$BINDIR"
-        UpdateMd5SumForSWVersionXml
-        VerifyMd5sum $SETTINGDIR
-        [ $? -ne 0 ] && LogRollBackAndExit "BoardOptions" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$SETTINGDIR"
-    fi
-}
+#UpdateBoardOptions()
+#{
+#   local Name
+#	for Name in "${!UpdatePkgBoardOptionNameVersionMap[@]}";do
+#    	local  CompareResult=$(CompareVersion ${CurrBoardOptionNameVersionMap[$Name]} ${UpdatePkgBoardOptionNameVersionMap[$Name]})
+#	    if [ "$CompareResult" = "LOWER" ]; then
+#            Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_UPDATING_FILE" "$Name" "${CurrBoardOptionNameVersionMap[$Name]}" "${UpdatePkgBoardOptionNameVersionMap[$Name]}"
+#            GenerateBoardOptionsTemp
+#            ExecutePTS "$BOARDOPTIONSFILETEMP" 
+#            xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgBoardOptionNameVersionMap[$Name]} $SWVERFILE
+#            BoardOptionsUpdated="true"
+#        fi
+#    done
+#    if [ "$BoardOptionsUpdated" = "true" ]; then 
+#        cp $BOARDOPTIONSFILE $BINDIR
+#        local BoardOptionsFileName=$(basename $BOARDOPTIONSFILE)
+#        local BoardOptionsFileMd5Sum=$(grep "\sBoardOptionsFileName$" $TMPBINDIR/.md5sum.txt)
+#        sed -i "/\s$BoardOptionsFileName$/c\\$BoardOptionsFileMd5Sum" $BINDIR/.md5sum.txt
+#        VerifyMd5sum $BINDIR
+#        [ $? -ne 0 ] && LogRollBackAndExit "BoardOptions" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$BINDIR"
+ #       UpdateMd5SumForSWVersionXml
+ #       VerifyMd5sum $SETTINGDIR
+ #       [ $? -ne 0 ] && LogRollBackAndExit "BoardOptions" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$SETTINGDIR"
+#    fi
+#}
 
 
 #=== FUNCTION ================================================================
@@ -728,9 +725,9 @@ StoreDataReadFromPackageSWVersionXml()
     UpdatePkgInitScriptName=(""$INITSCRIPTNAME"")	
     UpdatePkgInitScriptVer=(""$INITSCRIPTVERSION"")
     CheckVersionString UpdatePkgInitScriptVer[@]
-    UpdatePkgBoardOptionName=(""$BOARDOPTIONNAME"")	
-    UpdatePkgBoardOptionVer=(""$BOARDOPTIONVERSION"")
-    CheckVersionString UpdatePkgBoardOptionVer[@]
+ #   UpdatePkgBoardOptionName=(""$BOARDOPTIONNAME"")	
+ #  UpdatePkgBoardOptionVer=(""$BOARDOPTIONVERSION"")
+ # CheckVersionString UpdatePkgBoardOptionVer[@]
     
 	local Index=0
     local Name
@@ -758,11 +755,11 @@ StoreDataReadFromPackageSWVersionXml()
     
 	Index=0
 	# store the data in associative array using the key value(FW name)
-	for Name in "${UpdatePkgBoardOptionName[@]}";do
-		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
-		UpdatePkgBoardOptionNameVersionMap[$Name]=${UpdatePkgBoardOptionVer[$Index]}
-		((Index++))
-	done
+#	for Name in "${UpdatePkgBoardOptionName[@]}";do
+#		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$UPDATESWVERFILE"
+#		UpdatePkgBoardOptionNameVersionMap[$Name]=${UpdatePkgBoardOptionVer[$Index]}
+#		((Index++))
+#	done
 }
 
 #=== FUNCTION ================================================================
@@ -811,8 +808,8 @@ StoreDataReadFromExistingSWVersionXml()
 	CurrFWVer=(""$FWVER"")	
 	CurrInitScriptName=(""$INITSCRIPTNAME"")	
 	CurrInitScriptVer=(""$INITSCRIPTVERSION"")	
-	CurrBoardOptionName=(""$BOARDOPTIONNAME"")	
-	CurrBoardOptionVer=(""$BOARDOPTIONVERSION"")	
+#	CurrBoardOptionName=(""$BOARDOPTIONNAME"")	
+#	CurrBoardOptionVer=(""$BOARDOPTIONVERSION"")	
 	
 	local Index=0
 	local Name
@@ -843,11 +840,11 @@ StoreDataReadFromExistingSWVersionXml()
 
 	Index=0
 	# store the data in associative array using the key value(FW name)
-	for Name in "${CurrBoardOptionName[@]}";do
-		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
-		CurrBoardOptionNameVersionMap[$Name]=${CurrBoardOptionVer[$Index]}
-		((Index++))
-	done
+#	for Name in "${CurrBoardOptionName[@]}";do
+#		[ "$Name" == "" ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_TMP_SWVERSION_FILE_CORRUPTED" "$SWVERFILE"
+#		CurrBoardOptionNameVersionMap[$Name]=${CurrBoardOptionVer[$Index]}
+#		((Index++))
+#	done
 }
 
 
@@ -867,8 +864,8 @@ CompareExistingAndPackageXmlData()
     diff <(printf "%s\n" "${CurrInitScriptName[@]}") <(printf "%s\n" "${UpdatePkgInitScriptName[@]}") > /dev/null 2>&1
     [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
 
-    diff <(printf "%s\n" "${CurrBoardOptionName[@]}") <(printf "%s\n" "${UpdatePkgBoardOptionName[@]}") > /dev/null 2>&1
-    [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
+  #  diff <(printf "%s\n" "${CurrBoardOptionName[@]}") <(printf "%s\n" "${UpdatePkgBoardOptionName[@]}") > /dev/null 2>&1
+   # [ $? -ne 0 ] && ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_XML_NODE_ERROR"
 }
 
 #=== FUNCTION ================================================================
@@ -894,9 +891,9 @@ ReadXML()
 
     INITSCRIPTVERSION="$(xmlstarlet sel -t -m '(/SW_Version/InitScripts/file)' -v @Version -n  "$1" 2>/dev/null)"
 
-    BOARDOPTIONNAME="$(xmlstarlet sel -t -m '(/SW_Version/BoardOptions/file)' -v @Filename -n  "$1" 2>/dev/null)"
+ #   BOARDOPTIONNAME="$(xmlstarlet sel -t -m '(/SW_Version/BoardOptions/file)' -v @Filename -n  "$1" 2>/dev/null)"
 
-    BOARDOPTIONVERSION="$(xmlstarlet sel -t -m '(/SW_Version/BoardOptions/file)' -v @Version -n  "$1" 2>/dev/null)"
+ #   BOARDOPTIONVERSION="$(xmlstarlet sel -t -m '(/SW_Version/BoardOptions/file)' -v @Version -n  "$1" 2>/dev/null)"
 }
 
 #=== FUNCTION ================================================================
@@ -931,17 +928,20 @@ MasterSWUpdate()
 {
 	# Checking for presence of Rollback folder
 	if [ -d "$ROLLBACKDIR" ]; then	
+		UpdateBootConfigFile "PowerFailed" "Yes"
+		UpdateBootConfigFile "Software_Update_Status" "Failure"
         ProcessSWVersionXml
         UpdateInitScripts
 		UpdateSWBinaries
 		UpdateSlaveFW
-        UpdateBoardOptions
+#        UpdateBoardOptions
         CheckIfAnyModulesWereUpdated
         if [ $? -eq 0 ]; then
             UpdateBootConfigFile "Software_Update_Status" "Success"
         else
             UpdateBootConfigFile "Software_Update_Status" "HigherVersionNA"
         fi
+		UpdateBootConfigFile "PowerFailed" "No"
     else
         ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_DOESNOT_EXISTS" "$ROLLBACKDIR"
     fi
@@ -966,8 +966,8 @@ case "$1" in
         BASE_EVENT_ID=$2
         UpdateStarted=true
         #Start the power fail monitoring script
-        chmod 755  $TMPBINDIR/$POWERFAILSCRIPT
-        exec $TMPBINDIR/$POWERFAILSCRIPT & > /dev/null 2>&1
+#        chmod 755  $TMPBINDIR/$POWERFAILSCRIPT
+#        exec $TMPBINDIR/$POWERFAILSCRIPT & > /dev/null 2>&1
         exec $BINDIR/ImageTestApp $SETTINGDIR/SWUpdate_Running.png -qws & >/dev/null 2>&1
         #turn on lcd
         lcd on
@@ -975,7 +975,7 @@ case "$1" in
         Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"
         #reboot the os if init script is updated
         [ $InitScriptsUpdated = true ] && reboot
-        $(kill -9 $(pidof -x PowerFailMonitor.sh)) > /dev/null 2>&1
+#        $(kill -9 $(pidof -x PowerFailMonitor.sh)) > /dev/null 2>&1
         $(kill -9 $(pidof ImageTestApp)) > /dev/null 2>&1
         exit 0
         ;;
