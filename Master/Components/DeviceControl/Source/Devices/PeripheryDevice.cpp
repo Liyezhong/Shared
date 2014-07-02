@@ -535,7 +535,7 @@ ReturnCode_t CPeripheryDevice::TurnOffMainRelay()
 /****************************************************************************/
 ReturnCode_t CPeripheryDevice::TurnOnLocalAlarm()
 {
-    return SetDOValue(PER_LOCAL_ALARM_CTRL,1, 0, 0);
+    return SetDOValue(PER_LOCAL_ALARM_CTRL,0, 0, 0);
 }
 
 /****************************************************************************/
@@ -547,7 +547,7 @@ ReturnCode_t CPeripheryDevice::TurnOnLocalAlarm()
 /****************************************************************************/
 ReturnCode_t CPeripheryDevice::TurnOffLocalAlarm()
 {
-    return SetDOValue(PER_LOCAL_ALARM_CTRL, 0, 0, 0);
+    return SetDOValue(PER_LOCAL_ALARM_CTRL, 1, 0, 0);
 }
 
 /****************************************************************************/
@@ -559,7 +559,7 @@ ReturnCode_t CPeripheryDevice::TurnOffLocalAlarm()
 /****************************************************************************/
 ReturnCode_t CPeripheryDevice::TurnOnRemoteAlarm()
 {
-    return SetDOValue(PER_REMOTE_ALARM_CTRL,1, 0, 0);
+    return SetDOValue(PER_REMOTE_ALARM_CTRL,0, 0, 0);
 }
 
 /****************************************************************************/
@@ -571,7 +571,7 @@ ReturnCode_t CPeripheryDevice::TurnOnRemoteAlarm()
 /****************************************************************************/
 ReturnCode_t CPeripheryDevice::TurnOffRemoteAlarm()
 {
-    return SetDOValue(PER_REMOTE_ALARM_CTRL, 0, 0, 0);
+    return SetDOValue(PER_REMOTE_ALARM_CTRL, 1, 0, 0);
 }
 
 /****************************************************************************/
