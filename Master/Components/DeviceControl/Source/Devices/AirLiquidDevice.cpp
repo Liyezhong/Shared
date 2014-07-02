@@ -1364,7 +1364,8 @@ ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableI
                 {
                     NeedOverflowChecking = false;
                     //waiting for some time
-                    if(DelayTime < 70*1000) //yuan@note:TODO for verify!
+                    int MaxDelayTime = 70*1000;
+                    if(DelayTime <= MaxDelayTime)
                     {
                         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << DelayTime<<" milliseconds.";
                         LogDebug(QString("INFO: Delay for %1 milliseconds.").arg(DelayTime));
@@ -1372,9 +1373,9 @@ ReturnCode_t CAirLiquidDevice::FillingForService(quint32 DelayTime, bool EnableI
                     }
                     else
                     {
-                        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << SUCKING_MAX_DELAY_TIME<<" milliseconds.";
-                        LogDebug(QString("INFO: Delay for %1 milliseconds.").arg(SUCKING_MAX_DELAY_TIME));
-                        TimeStopFilling = TimeNow + SUCKING_MAX_DELAY_TIME;
+                        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Delay for " << MaxDelayTime<<" milliseconds.";
+                        LogDebug(QString("INFO: Delay for %1 milliseconds.").arg(MaxDelayTime));
+                        TimeStopFilling = TimeNow + MaxDelayTime;
                     }
                 }
                 else
