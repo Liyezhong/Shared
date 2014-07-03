@@ -504,6 +504,14 @@ typedef enum {
     OD_Pressure_Sensor = 3,
     OD_OtherModule_NUM = 4
 } OtherDeviceModuleType_t;
+/*! error list from slave module */
+typedef struct {
+    quint32           instanceID;
+    quint16           errorGroup;
+    quint16           errorCode;
+    quint16           errorData;
+    QDateTime         errorTime;
+}ReportError_t;
 
 /****************************************************************************/
 /*! \class CANObjectKeyLUT

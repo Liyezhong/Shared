@@ -681,17 +681,18 @@ public:
 
 ||||||| merged common ancestors
 =======
-||||||| merged common ancestors
     /****************************************************************************/
     /*!
-     *  \brief  Get Current and Voltage status of all the slave devices
+     *  \brief  Get report error for the specific slave module
      *
-     *  \param  void
+     *  \param  Qstring devName - Device name
+     *  \param  quint32 - sensor name
      *
-     *  \return bool
+     *  \return ReportError_t
      */
     /****************************************************************************/
-    bool GetCurrentVoltageStatus();
+    ReportError_t GetSlaveModuleReportError(const QString& devName, quint32 sensorName);
+
 
 =======
 

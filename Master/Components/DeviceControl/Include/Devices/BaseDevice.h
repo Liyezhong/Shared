@@ -428,6 +428,8 @@ protected:
 
     CServiceState *mp_Service;      //!< Service functionality of the base device
     QMap<QString, CModule *> m_ModuleMap;   //!< Maps keys to Slave module pointers
+
+    QVector<ReportError_t>  m_ReportErrorList;
     QStateMachine m_machine;        //!< State machine
     ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
 
