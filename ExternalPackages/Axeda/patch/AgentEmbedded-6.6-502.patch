@@ -1,0 +1,437 @@
+From b690f96a46b271bb382198c73c6b1b800ecf2b3e Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Wed, 19 Mar 2014 11:11:45 +0100
+Subject: [PATCH 1/2] Makefile customize
+
+---
+ .../Axeda/AgentEmbedded-6.6-502/Makefile           | 29 +++++++++++++++-------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Makefile b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Makefile
+index 2323f61..a474441 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Makefile
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Makefile
+@@ -1,14 +1,24 @@
+ # Specify target platform settings and set of features
+ 
+-# Generic Linux settings
+-PLATFORM = linux-generic
+-CROSS_COMPILE =
+-EXTRA_CFLAGS =
+-EXTRA_LDFLAGS =
++# run 'make HOST=1' for Linux/i368 build
++ifdef HOST
++  # Linux/i368 settings
++  PLATFORM = linux-i386
++  CROSS_COMPILE =
++  EXTRA_CFLAGS  = $(EXTRA_ARCH)
++  EXTRA_LDFLAGS = $(EXTRA_ARCH)
++else
++  # E-Box settings
++  PATH := /opt/poky/1.3.2/sysroots/i686-pokysdk-linux/usr/bin/armv6-vfp-poky-linux-gnueabi:$(PATH)
++  PLATFORM =
++  CROSS_COMPILE = arm-poky-linux-gnueabi-
++  EXTRA_CFLAGS = -I/opt/poky/1.3.2/sysroots/armv6-vfp-poky-linux-gnueabi/usr/include
++  EXTRA_LDFLAGS = -L/opt/poky/1.3.2/sysroots/armv6-vfp-poky-linux-gnueabi/usr/lib
++endif
+ BIG_ENDIAN = no
+ HAVE_OPENSSL = yes
+ HAVE_PTHREADS = yes
+-ENABLE_LARGEFILE64 = yes
++ENABLE_LARGEFILE64 = no
+ 
+ # uClinux/m68k-pic-coff settings
+ #PLATFORM = uClinux-m68k-coff
+@@ -47,7 +57,8 @@ ENABLE_LARGEFILE64 = yes
+ #	-DENABLE_REMOTE_SESSION		- remote session support 
+ #	-DENABLE_FILE_TRANSFER		- file transfer support
+ 
+-FEATURES = -D_REENTRANT -D__GATEWAY__ -DENABLE_REMOTE_SESSION -DENABLE_FILE_TRANSFER -DENABLE_SSL
++#FEATURES = -D_REENTRANT -D__GATEWAY__ -DENABLE_REMOTE_SESSION -DENABLE_FILE_TRANSFER -DENABLE_SSL
++FEATURES = -D_REENTRANT -DENABLE_REMOTE_SESSION -DENABLE_FILE_TRANSFER -DENABLE_SSL
+ 
+ TOP_DIR = $(shell pwd)
+ DEMO_DIR = $(TOP_DIR)/Demo
+@@ -131,7 +142,7 @@ clean:
+ 		$(MAKE) -C $$n $(LIB_MAKE_FLAGS) $@ || exit 1; \
+ 	done
+ 	rm -f $(OBJS) $(DEPS) $(AE_LIB)
+-	$(MAKE) -C $(DEMO_DIR) $(APP_MAKE_FLAGS) $@
++	#$(MAKE) -C $(DEMO_DIR) $(APP_MAKE_FLAGS) $@
+ ifneq ($(wildcard $(TEST_HARNESS_DIR)),)
+ 	$(MAKE) -C $(TEST_HARNESS_DIR) $(APP_MAKE_FLAGS) $@
+ endif
+@@ -145,7 +156,7 @@ $(AE_LIB): $(OBJS)
+ 	$(AR) rc $@ $^
+ 
+ demo:
+-	$(MAKE) -C $(DEMO_DIR) $(APP_MAKE_FLAGS) all
++	#$(MAKE) -C $(DEMO_DIR) $(APP_MAKE_FLAGS) all
+ 
+ test_harness:
+ ifneq ($(wildcard $(TEST_HARNESS_DIR)),)
+-- 
+1.8.5.2
+
+
+From 66f739b0aad9d059e03f2568eb0893763a941f68 Mon Sep 17 00:00:00 2001
+From: Boris Stach <boris.stach@leicabiosystems.com>
+Date: Wed, 19 Mar 2014 11:23:06 +0100
+Subject: [PATCH 2/2] Integrate C++98-compliance and fix build errors and
+ warnings
+
+---
+ .../Axeda/AgentEmbedded-6.6-502/AeWebCommon.c      |  8 ++---
+ .../Axeda/AgentEmbedded-6.6-502/Include/AeError.h  |  6 ++--
+ .../Axeda/AgentEmbedded-6.6-502/Include/AeOS.h     |  8 ++---
+ .../Axeda/AgentEmbedded-6.6-502/Include/AeTypes.h  | 38 +++++++++++-----------
+ .../AgentEmbedded-6.6-502/Sysdeps/Unix/AeOS.c      | 16 ++++-----
+ .../AgentEmbedded-6.6-502/Sysdeps/Unix/AeOSLocal.h |  2 +-
+ 6 files changed, 39 insertions(+), 39 deletions(-)
+
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/AeWebCommon.c b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/AeWebCommon.c
+index 0015815..e01c97c 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/AeWebCommon.c
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/AeWebCommon.c
+@@ -92,7 +92,7 @@ AeBool AeWebGetCachedIPAddress(AeChar *pHostName, AeUInt32 *piIPAddress)
+     if (pItem)
+     {
+         AeWebHostEntry *pEntry;
+-        
++
+         pEntry = AeListData(pItem, AeWebHostEntry);
+ 
+         /* remove stale entry */
+@@ -185,7 +185,7 @@ static void AeWebHostNameEntryRelease(AePointer pObject)
+ AeWebHeaders *AeWebHeadersNew(void)
+ {
+     AeWebHeaders *pHeaders;
+-    
++
+     pHeaders = AeListNew((AeCompareFunc) AeWebHeaderCompare,
+         (AeReleaseFunc) AeWebHeaderRelease);
+     if (!pHeaders)
+@@ -232,10 +232,10 @@ AeChar *AeWebHeadersGet(AeWebHeaders *pHeaders, AeChar *pName)
+ /******************************************************************************/
+ void AeWebHeadersRemove(AeWebHeaders *pHeaders, AeChar *pName)
+ {
+-    AeWebHeader keyHeader;
++//    AeWebHeader keyHeader;
+     AeListItem *pItem;
+ 
+-    keyHeader.pName = pName;
++//    keyHeader.pName = pName;
+     pItem = AeListFind(pHeaders, pName);
+     if (pItem)
+     {
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeError.h b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeError.h
+index d92798d..9e65f88 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeError.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeError.h
+@@ -7,16 +7,15 @@
+  **************************************************************************
+  *
+  *  Filename   :  AeError.h
+- *  
++ *
+  *  Subsystem  :  Axeda Agent Embedded
+- *  
++ *
+  *  Description:  Error declarations
+  *
+  **************************************************************************/
+ #ifndef _AE_ERROR_H_
+ #define _AE_ERROR_H_
+ 
+-typedef enum _AeError AeError;
+ 
+ enum _AeError
+ {
+@@ -57,5 +56,6 @@ enum _AeError
+     AeENetHostUnreach,              /* 34 */
+     AeBadURL                        /* 35 */
+ };
++typedef enum _AeError AeError;
+ 
+ #endif
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeOS.h b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeOS.h
+index c6ebb5e..969ed16 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeOS.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeOS.h
+@@ -7,9 +7,9 @@
+  **************************************************************************
+  *
+  *  Filename   :  AeOS.h
+- *  
++ *
+  *  Subsystem  :  Axeda Agent Embedded
+- *  
++ *
+  *  Description:  System-dependent function declarations
+  *
+  **************************************************************************/
+@@ -44,8 +44,6 @@
+ #endif /* AE_BIG_ENDIAN */
+ 
+ typedef struct _AeNetAddress AeNetAddress;
+-typedef enum _AeLogRecordType AeLogRecordType;
+-typedef AeLogRecordType AeLogLevel;
+ 
+ /* IP address and port number in the network byte order. */
+ struct _AeNetAddress
+@@ -64,6 +62,8 @@ enum _AeLogRecordType
+     AeLogDebug,
+     AeLogTrace
+ };
++typedef enum _AeLogRecordType AeLogRecordType;
++typedef AeLogRecordType AeLogLevel;
+ 
+ /* Log message category values (may be OR-ed) */
+ #define AE_LOG_CATEGORY_NONE            0
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeTypes.h b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeTypes.h
+index a556154..16fe89e 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeTypes.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Include/AeTypes.h
+@@ -7,9 +7,9 @@
+  **************************************************************************
+  *
+  *  Filename   :  AeTypes.h
+- *  
++ *
+  *  Subsystem  :  Axeda Agent Embedded
+- *  
++ *
+  *  Description:  Axeda Agent Embedded types and macros
+  *
+  **************************************************************************/
+@@ -45,15 +45,6 @@ typedef unsigned long   AeUInt32;
+ #define AeFalse         0
+ 
+ typedef struct _AeTimeValue AeTimeValue;
+-typedef enum _AeWebVersion AeWebVersion;
+-typedef enum _AeWebProxyProtocol AeWebProxyProtocol;
+-typedef enum _AeWebCryptoLevel AeWebCryptoLevel;
+-typedef enum _AeDRMDeviceType AeDRMDeviceType;
+-typedef enum _AeDRMServerConfigType AeDRMServerConfigType;
+-typedef enum _AeDRMQueuePriority AeDRMQueuePriority;
+-typedef enum _AeDRMQueueStatus AeDRMQueueStatus;
+-typedef enum _AeDRMDataType AeDRMDataType;
+-typedef enum _AeDRMDataQuality AeDRMDataQuality;
+ typedef struct _AeDRMDataValue AeDRMDataValue;
+ typedef struct _AeDRMDataItem AeDRMDataItem;
+ typedef struct _AeDRMAlarm AeDRMAlarm;
+@@ -63,9 +54,6 @@ typedef struct _AeDRMSOAPCommandStatus AeDRMSOAPCommandStatus;
+ typedef struct _AeDRMSOAPCommandId AeDRMSOAPCommandId;
+ typedef struct _AeDRMPingRate AeDRMPingRate;
+ 
+-typedef enum _AeFileType AeFileType;
+-typedef enum _AeFileCompression AeFileCompression;
+-typedef enum _AeFileTransferEvent AeFileTransferEvent;
+ typedef struct _AeFileStat AeFileStat;
+ typedef struct _AeFileUploadSpec AeFileUploadSpec;
+ typedef struct _AeFileUploadRequestParam AeFileUploadRequestParam;
+@@ -144,6 +132,7 @@ enum _AeWebVersion
+     AeWebHTTP10,                    /* HTTP/1.0 */
+     AeWebHTTP11                     /* HTTP/1.1 */
+ };
++typedef enum _AeWebVersion AeWebVersion;
+ 
+ /* Proxy server protocol. */
+ enum _AeWebProxyProtocol
+@@ -152,6 +141,7 @@ enum _AeWebProxyProtocol
+     AeWebProxyProtoSOCKS,           /* SOCKS proxy */
+     AeWebProxyProtoHTTP             /* HTTP proxy */
+ };
++typedef enum _AeWebProxyProtocol AeWebProxyProtocol;
+ 
+ /* SSL encryption level. */
+ enum _AeWebCryptoLevel
+@@ -161,6 +151,7 @@ enum _AeWebCryptoLevel
+     AeWebCryptoMedium,              /* medium-strength cipher */
+     AeWebCryptoHigh                 /* high-strength cipher */
+ };
++typedef enum _AeWebCryptoLevel AeWebCryptoLevel;
+ 
+ /* Device type. */
+ enum _AeDRMDeviceType
+@@ -168,6 +159,7 @@ enum _AeDRMDeviceType
+     AeDRMDeviceMaster,              /* master device */
+     AeDRMDeviceManaged              /* managed device (Gateway only) */
+ };
++typedef enum _AeDRMDeviceType AeDRMDeviceType;
+ 
+ /* Configuration type for the Enterprise server - Primary, Backup, Additional.*/
+ enum _AeDRMServerConfigType
+@@ -176,6 +168,7 @@ enum _AeDRMServerConfigType
+     AeDRMServerConfigAdditional,    /* additional Enterprise server */
+     AeDRMServerConfigBackup         /* backup Enterprise server */
+ };
++typedef enum _AeDRMServerConfigType AeDRMServerConfigType;
+ 
+ /* Priority of item sent to the data queue - could be a file, data item value, alarm, event.*/
+ enum _AeDRMQueuePriority
+@@ -184,6 +177,7 @@ enum _AeDRMQueuePriority
+     AeDRMQueuePriorityNormal,       /* normal priority */
+     AeDRMQueuePriorityUrgent        /* high priority */
+ };
++typedef enum _AeDRMQueuePriority AeDRMQueuePriority;
+ 
+ /* Status of the data queue. */
+ enum _AeDRMQueueStatus
+@@ -192,6 +186,7 @@ enum _AeDRMQueueStatus
+     AeDRMQueueNonEmpty,             /* the queue is non-empty */
+     AeDRMQueueFull                  /* the queue is full */
+ };
++typedef enum _AeDRMQueueStatus AeDRMQueueStatus;
+ 
+ /* Type of data item value. */
+ enum _AeDRMDataType
+@@ -200,6 +195,7 @@ enum _AeDRMDataType
+     AeDRMDataDigital,               /* digital (0/1) */
+     AeDRMDataString                 /* string */
+ };
++typedef enum _AeDRMDataType AeDRMDataType;
+ 
+ /* Quality of the data item value. */
+ enum _AeDRMDataQuality
+@@ -208,6 +204,7 @@ enum _AeDRMDataQuality
+     AeDRMDataBad,                   /* bad */
+     AeDRMDataUncertain              /* uncertain (undefined) */
+ };
++typedef enum _AeDRMDataQuality AeDRMDataQuality;
+ 
+ /* Structure for a data item value. */
+ struct _AeDRMDataValue
+@@ -304,6 +301,7 @@ enum _AeFileType
+     AeFileTypeRegular,
+     AeFileTypeDirectory
+ };
++typedef enum _AeFileType AeFileType;
+ 
+ /* Type of compression for file transfer (None disables compression.)*/
+ enum _AeFileCompression
+@@ -311,11 +309,12 @@ enum _AeFileCompression
+     AeFileCompressionNone,
+     AeFileCompressionTarGzip
+ };
++typedef enum _AeFileCompression AeFileCompression;
+ 
+-/* Structure for File description. 
++/* Structure for File description.
+    The structure is used to communicate file attributes from Agent Embedded
+-   to the application during file download. It is also used to communicate 
+-   the attributes from the application to Agent Embedded during file upload. 
++   to the application during file download. It is also used to communicate
++   the attributes from the application to Agent Embedded during file upload.
+    When ENABLE_LARGEFILE64 is defined, the file size limitions are as follows.
+    Compressed transfers are limited to 8 GB. Uncompressed transfers have a
+    theoretical limit of 9223372036854775807 bytes. Your C compiler must support
+@@ -343,14 +342,15 @@ enum _AeFileTransferEvent
+     AeFileTransferPreempted,
+     AeFileTransferReactivated
+ };
++typedef enum _AeFileTransferEvent AeFileTransferEvent;
+ 
+ /* File upload specification structure.
+    The application uses this structure to request a file upload (one
+-   structure for each file). In this case, Agent Embedded ignores 
++   structure for each file). In this case, Agent Embedded ignores
+    the iPosition field. This structure is also passed from Agent
+    Embedded to the application (one structure per file) when the upload
+    command is received from the Enterprise server. In this case, if it
+-   intends to provide file data, the application must start with the file 
++   intends to provide file data, the application must start with the file
+    position indicated by iPosition. */
+ struct _AeFileUploadSpec
+ {
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOS.c b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOS.c
+index b8abee2..eae7203 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOS.c
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOS.c
+@@ -10,7 +10,7 @@ static AeError UnixTranslateError(int iError);
+ static void UnixSignalHandlerStub(int iSignal);
+ static void _AeLogEx(AeLogRecordType iType, AeUInt32 iCategory, AeChar *pFormat, va_list *pArgs);
+ 
+-/* 
++/*
+  * intermediate function to handle the following warning about the use of %c:
+  * warning: `%c' yields only last 2 digits of year in some locales
+  */
+@@ -56,14 +56,14 @@ void *AeRealloc(void* memptr,int NewSize)
+ AeError AeNetInitialize(void)
+ {
+     struct sigaction sa;
+-    memset(&sa, sizeof(sa), 0);
++    memset(&sa, 0, sizeof(sa));
+     sigemptyset(&sa.sa_mask);
+     sa.sa_flags = SA_RESTART;
+ 
+     // essentially ignore SIGPIPE
+     sa.sa_handler = UnixSignalHandlerStub;
+     sigaction(SIGPIPE, &sa, NULL);
+-	
++
+     return AeEOK;
+ }
+ 
+@@ -71,7 +71,7 @@ AeError AeNetInitialize(void)
+ AeError AeNetGetSocket(AeSocket *pSock, AeBool bStream)
+ {
+     int iType;
+-    
++
+     if (bStream)
+         iType = SOCK_STREAM;
+     else
+@@ -335,7 +335,7 @@ void AeGetElapsedTime(AeTimeValue *pTime)
+     struct tms t;
+ 
+     iCurElapsedTicks = times(&t);
+-    
++
+     if (iInitialized == 0)
+     {
+         iFrequency = sysconf(_SC_CLK_TCK);
+@@ -426,7 +426,7 @@ static void _AeLogEx(AeLogRecordType iType, AeUInt32 iCategory, AeChar *pFormat,
+     }
+ 
+     AeGetLogCategoryString(iCategory, pCategoryStr, sizeof(pCategoryStr));
+-    
++
+     iFinalFormatSize = strlen(pTimeStr) + 1 + strlen(pEvent) + 1 + strlen(pCategoryStr) + 3 + strlen(pFormat) + 2;
+     pFinalFormat = AeAlloc(iFinalFormatSize);
+     if (!pFinalFormat)
+@@ -592,7 +592,7 @@ AeBool AeFileExist(AeChar *pName)
+ AeInt32	AeFileGetSize(AeChar *pName)
+ {
+     struct stat statBuf;
+-   
++
+     if (stat(pName, &statBuf) != 0)
+         return -1;
+ 
+@@ -602,7 +602,7 @@ AeInt32	AeFileGetSize(AeChar *pName)
+ AeInt64	AeFileGetSize64(AeChar *pName)
+ {
+     struct stat64 statBuf;
+-   
++
+     if (stat64(pName, &statBuf) != 0)
+         return -1;
+ 
+diff --git a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOSLocal.h b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOSLocal.h
+index 53b7708..f237674 100644
+--- a/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOSLocal.h
++++ b/ExternalPackages/Axeda/AgentEmbedded-6.6-502/Sysdeps/Unix/AeOSLocal.h
+@@ -3,7 +3,7 @@
+ #ifndef _AE_OS_LOCAL_H_
+ #define _AE_OS_LOCAL_H_
+ 
+-#define _GNU_SOURCE
++//#define _GNU_SOURCE
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-- 
+1.8.5.2
+

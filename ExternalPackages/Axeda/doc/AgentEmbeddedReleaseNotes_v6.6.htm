@@ -1,0 +1,654 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="Generator" content="Microsoft Word 14 (filtered)">
+<title>Axeda Agent Embedded Readme</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;}
+@font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:"Lucida Console";
+	panose-1:2 11 6 9 4 5 4 2 2 4;}
+@font-face
+	{font-family:Verdana;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+h1
+	{mso-style-link:"Heading 1 Char";
+	margin-top:24.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Cambria","serif";
+	color:#365F91;
+	font-weight:bold;}
+h2
+	{mso-style-link:"Heading 2 Char";
+	margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+h3
+	{mso-style-link:"Heading 3 Char";
+	margin-right:0in;
+	margin-left:0in;
+	font-size:13.5pt;
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+h4
+	{mso-style-link:"Heading 4 Char";
+	margin-right:0in;
+	margin-left:0in;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+span.MsoFootnoteReference
+	{font-family:"Times New Roman","serif";
+	vertical-align:super;}
+p.MsoBodyText, li.MsoBodyText, div.MsoBodyText
+	{mso-style-link:"Body Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	text-autospace:none;
+	font-size:10.0pt;
+	font-family:"Verdana","sans-serif";}
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+	{mso-style-link:"Body Text Indent Char";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Verdana","sans-serif";}
+p.MsoBodyTextIndent2, li.MsoBodyTextIndent2, div.MsoBodyTextIndent2
+	{mso-style-link:"Body Text Indent 2 Char";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Verdana","sans-serif";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{mso-style-link:"Document Map Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	background:navy;
+	font-size:10.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{mso-style-link:"Plain Text Char";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.4in;
+	font-size:8.0pt;
+	font-family:"Courier New";}
+p
+	{mso-style-link:"Normal \(Web\) Char";
+	margin-right:0in;
+	margin-left:0in;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+address
+	{mso-style-link:"HTML Address Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Verdana","sans-serif";
+	font-style:italic;}
+pre
+	{mso-style-link:"HTML Preformatted Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+span.HTMLAddressChar
+	{mso-style-name:"HTML Address Char";
+	mso-style-link:"HTML Address";
+	font-family:"Verdana","sans-serif";
+	font-style:italic;}
+span.Heading1Char
+	{mso-style-name:"Heading 1 Char";
+	mso-style-link:"Heading 1";
+	font-family:"Cambria","serif";
+	color:#365F91;
+	font-weight:bold;}
+span.Heading2Char
+	{mso-style-name:"Heading 2 Char";
+	mso-style-link:"Heading 2";
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+span.Heading3Char
+	{mso-style-name:"Heading 3 Char";
+	mso-style-link:"Heading 3";
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+span.Heading4Char
+	{mso-style-name:"Heading 4 Char";
+	mso-style-link:"Heading 4";
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+span.HTMLPreformattedChar
+	{mso-style-name:"HTML Preformatted Char";
+	mso-style-link:"HTML Preformatted";
+	font-family:Consolas;}
+span.NormalWebChar
+	{mso-style-name:"Normal \(Web\) Char";
+	mso-style-link:"Normal \(Web\)";
+	font-family:"Verdana","sans-serif";}
+span.BodyTextChar
+	{mso-style-name:"Body Text Char";
+	mso-style-link:"Body Text";
+	font-family:"Verdana","sans-serif";}
+span.BodyTextIndentChar
+	{mso-style-name:"Body Text Indent Char";
+	mso-style-link:"Body Text Indent";
+	font-family:"Verdana","sans-serif";}
+span.BodyTextIndent2Char
+	{mso-style-name:"Body Text Indent 2 Char";
+	mso-style-link:"Body Text Indent 2";
+	font-family:"Verdana","sans-serif";}
+span.DocumentMapChar
+	{mso-style-name:"Document Map Char";
+	mso-style-link:"Document Map";
+	font-family:"Tahoma","sans-serif";}
+span.PlainTextChar
+	{mso-style-name:"Plain Text Char";
+	mso-style-link:"Plain Text";
+	font-family:"Courier New";}
+p.HowTobulletsNEW, li.HowTobulletsNEW, div.HowTobulletsNEW
+	{mso-style-name:"How To_bulletsNEW";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+p.HowTobullets, li.HowTobullets, div.HowTobullets
+	{mso-style-name:"How To bullets";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+p.TipNoteTextBulleted, li.TipNoteTextBulleted, div.TipNoteTextBulleted
+	{mso-style-name:"Tip\/Note Text Bulleted";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:34.55pt;
+	margin-bottom:.0001pt;
+	text-indent:-13.7pt;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+p.step, li.step, div.step
+	{mso-style-name:step;
+	margin-right:0in;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+p.TableText2, li.TableText2, div.TableText2
+	{mso-style-name:"Table Text2";
+	margin-top:4.0pt;
+	margin-right:0in;
+	margin-bottom:2.0pt;
+	margin-left:.1in;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:10.0pt;
+	font-family:"Arial","sans-serif";}
+p.msochpdefault, li.msochpdefault, div.msochpdefault
+	{mso-style-name:msochpdefault;
+	margin-right:0in;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Verdana","sans-serif";}
+p.stepsBodyText, li.stepsBodyText, div.stepsBodyText
+	{mso-style-name:steps_BodyText;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	text-indent:-.25in;
+	font-size:10.0pt;
+	font-family:"Arial","sans-serif";}
+p.StepHead, li.StepHead, div.StepHead
+	{mso-style-name:Step_Head;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	font-size:8.0pt;
+	font-family:"Verdana","sans-serif";}
+p.howto, li.howto, div.howto
+	{mso-style-name:how_to;
+	margin-top:4.0pt;
+	margin-right:6.5pt;
+	margin-bottom:0in;
+	margin-left:.2in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Arial","sans-serif";}
+p.Default, li.Default, div.Default
+	{mso-style-name:Default;
+	margin:0in;
+	margin-bottom:.0001pt;
+	text-autospace:none;
+	font-size:12.0pt;
+	font-family:"Arial","sans-serif";
+	color:black;}
+span.form
+	{mso-style-name:form;
+	font-family:"Arial","sans-serif";
+	color:navy;}
+span.m1
+	{mso-style-name:m1;
+	color:blue;}
+span.pi1
+	{mso-style-name:pi1;
+	color:blue;}
+span.t1
+	{mso-style-name:t1;
+	color:#990000;}
+span.c
+	{mso-style-name:c;}
+span.cb1
+	{mso-style-name:cb1;
+	font-family:Courier;
+	color:#888888;}
+span.b1
+	{mso-style-name:b1;
+	font-family:"Courier New";
+	color:red;
+	font-weight:bold;
+	text-decoration:none none;}
+span.tx1
+	{mso-style-name:tx1;
+	font-weight:bold;}
+span.apple-style-span
+	{mso-style-name:apple-style-span;}
+span.spelle
+	{mso-style-name:spelle;}
+.MsoChpDefault
+	{font-size:10.0pt;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang="EN-US" link="blue" vlink="blue">
+
+<div class="WordSection1">
+
+<h2>Axeda® Agent Embedded<br>
+Release Notes</h2>
+
+<h2>Axeda Agent Embedded, Version 6.6, Build 502<br>
+<span style="font-size:9.0pt">September 2013</span></h2>
+
+<p>These release notes address the changes made for version 6.6, Build 502, of
+Axeda Agent Embedded.&nbsp; </p>
+
+<p><a name="contents"><b>Contents of these release notes</b></a></p>
+
+<ul style="margin-top:0in" type="disc">
+ <li class="MsoNormal"><a href="#_Introduction">Introduction</a></li>
+ <li class="MsoNormal"><a href="#_Supported_Platforms">Supported Platforms</a></li>
+ <li class="MsoNormal"><a href="#_Contents_of_the">Contents of the Build</a></li>
+ <li class="MsoNormal"><a href="#_Using_this_Build">Using this Build</a></li>
+ <li class="MsoNormal"><a href="#_Technical_Support_1">Technical Support</a></li>
+</ul>
+
+<h2><a name="_Introduction"></a><span style="font-size:14.0pt">Introduction</span></h2>
+
+<p>Release 6.6, build 502, of Axeda Agent Embedded provides updates for 64-bit
+platforms. It also provides updated examples. The following API change should
+be noted for this update:</p>
+
+<p class="MsoNormal" style="margin-left:.5in;text-indent:-.25in">Timestamp
+members in <span class="spelle"><span style="font-family:&quot;Lucida Console&quot;">AeTimeValue</span></span>
+and <span class="spelle"><span style="font-family:&quot;Lucida Console&quot;">AeFileStat</span></span>
+types (in <i>Include/<span class="spelle">AeTypes.h</span></i>) are now declared
+as <span class="spelle"><span style="font-family:&quot;Lucida Console&quot;">time_t</span></span>
+(instead of <span style="font-family:&quot;Lucida Console&quot;">AeInt32</span>).</p>
+
+<p>This build contains fixes for the following issues:</p>
+
+<table class="MsoNormalTable" style="width:576.1pt" border="1" cellpadding="0" width="768">
+ <tbody><tr>
+  <td style="width:42.75pt;border:inset 1.0pt;border-left:none;
+  padding:2.25pt 2.25pt 2.25pt 2.25pt" width="57">
+  <p class="MsoNormal"><strong><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">IDs</span></strong></p>
+  </td>
+  <td style="width:39.15pt;padding:0in 0in 0in 0in" valign="top" width="52">
+  <p class="MsoNormal"><strong><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Case
+  ID</span></strong></p>
+  </td>
+  <td style="width:488.2pt;border:inset 1.0pt;border-right:none;
+  padding:2.25pt 2.25pt 2.25pt 2.25pt" width="651">
+  <p class="MsoNormal"><strong><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Description</span></strong></p>
+  </td>
+ </tr>
+ <tr>
+  <td style="width:42.75pt;padding:2.25pt 2.25pt 2.25pt 2.25pt" width="57">
+  <p>CONN-1648 </p>
+  </td>
+  <td style="width:39.15pt;padding:0in 0in 0in 0in" width="52">
+  <p class="MsoNormal">97756</p>
+  </td>
+  <td style="width:488.2pt;padding:2.25pt 2.25pt 2.25pt 2.25pt" width="651">
+  <p class="MsoNormal"><i>Connection through Agent Embedded remote session fails
+  when remote endpoint is local</i></p>
+  <p class="MsoNormal"><i>&nbsp;</i></p>
+  <p class="MsoNormal">When connecting to the remote session endpoint, Agent
+  Embedded expects the underlying connection operation to be pending before it
+  succeeds or fails. However, on some systems connection operations that are
+  carried out over loopback interfaces can complete immediately. When this
+  happens, the connection fails.</p>
+  <p class="MsoNormal"><i>&nbsp;</i></p>
+  <p class="MsoNormal">RESOLUTION: This build resolves this issue. Specifically,
+  to fix the problem, the AeRemoteChannel state machine is put into the
+  AeRemoteChannelConnecting state before initiating the connection operation.</p>
+  </td>
+ </tr>
+ <tr>
+  <td style="width:42.75pt;padding:2.25pt 2.25pt 2.25pt 2.25pt" width="57">
+  <p>BTJ-4694 </p>
+  </td>
+  <td style="width:39.15pt;padding:0in 0in 0in 0in" width="52">
+  <p class="MsoNormal">&nbsp;91987</p>
+  </td>
+  <td style="width:488.2pt;padding:2.25pt 2.25pt 2.25pt 2.25pt" width="651">
+  <p class="MsoNormal"><i>Agent Embedded sends device status messages that the
+  Axeda Enterprise Server does not handle correctly</i></p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">There are two issues here.<br>
+  Issue 1: Agent messages for an Agent Embedded agent do not send enough
+  context of the situation for the Axeda Enterprise Server to be able to
+  properly interpret the message. A device status message is used to
+  communicate the status of communication between it and its gateway asset. The
+  Agent Embedded message only mentions the managed asset and not its managing
+  gateway asset. </p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">Issue 2: Agent Embedded sends device status messages for
+  the gateway asset itself. Since device status messages are meant to communicate
+  the connectivity status between a managed asset and its managing gateway, it
+  makes no sense for the gateway to be sending device status messages for
+  itself.</p>
+  <p class="MsoNormal"><i>&nbsp;</i></p>
+  <p class="MsoNormal">RESOLUTION: This build resolves these issues.
+  Specifically, </p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">Issue 1: To allow efficient message processing on the
+  server, Gateway identification attributes have been added to eMessages that
+  contain one or more Device State messages.</p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">Issue 2: To avoid message processing error on the server
+  side, Agent Embedded will not send Device State message on behalf of the
+  "Gateway" device.</p>
+  </td>
+ </tr>
+</tbody></table>
+
+<p>&nbsp;</p>
+
+<p>This build also contains fixes from release 6.5, build 402:</p>
+
+<table class="MsoNormalTable" style="width:576.1pt" border="1" cellpadding="0" width="768">
+ <tbody><tr>
+  <td style="width:32.1pt;border:inset 1.0pt;border-left:none;
+  padding:2.25pt 2.25pt 2.25pt 2.25pt" width="43">
+  <p class="MsoNormal"><strong><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">IDs</span></strong></p>
+  </td>
+  <td style="width:49.25pt;padding:0in 0in 0in 0in" valign="top" width="66">
+  <p class="MsoNormal"><strong><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Case
+  ID</span></strong></p>
+  </td>
+  <td style="width:488.75pt;border:inset 1.0pt;border-right:none;
+  padding:2.25pt 2.25pt 2.25pt 2.25pt" width="652">
+  <p class="MsoNormal"><strong><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Description</span></strong></p>
+  </td>
+ </tr>
+ <tr>
+  <td style="width:32.1pt;padding:2.25pt 2.25pt 2.25pt 2.25pt" width="43">
+  <p>4625 (CONN-942)</p>
+  </td>
+  <td style="width:49.25pt;padding:0in 0in 0in 0in" width="66">
+  <p class="MsoNormal"><i>93090</i></p>
+  </td>
+  <td style="width:488.75pt;padding:2.25pt 2.25pt 2.25pt 2.25pt" width="652">
+  <p class="MsoNormal"><i>OS time changes can cause Agent Embedded to stop
+  communication</i></p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">Because Agent Embedded uses absolute system time for
+  internal time keeping and scheduling of various activities, a non-monotonic
+  change of system time was directly affecting time-based Agent functions.
+  Specifically, setting the system clock back could cause the Agent to delay
+  all activities until the time before the clock change. Instead of absolute
+  system time, Agent Embedded should be using a time source that is not
+  affected by system clock changes. </p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">RESOLUTION: To address the problem, Agent Embedded now
+  uses a newly introduced system-dependent function, AeGetElapsedTime(). The
+  function retrieves the amount of time that has elapsed since an
+  arbitrary&nbsp; point in the past (for example, system start-up time). This
+  point must not change from one invocation of AeGetElapsedTime() within the
+  process to another.</p>
+  <p class="MsoNormal">&nbsp;</p>
+  <p class="MsoNormal">An implementation of AeGetElapsedTime() has been added to
+  the default set of</p>
+  <p class="MsoNormal">system-dependent functions for both Windows
+  (Sysdeps/Win32/AeOS.c) and Unix</p>
+  <p class="MsoNormal">(Sysdeps/Unix/AeOS.c). The function has been added to the
+  set of System-Dependent Functions in the <i>Axeda Agent Embedded
+  Developer’s Reference</i>. </p>
+  </td>
+ </tr>
+</tbody></table>
+
+<p><a href="#contents">Back to Top</a></p>
+
+<h2><a name="_Environment"></a><a name="_Supported_Platforms"></a><span style="font-size:14.0pt">Supported Platforms</span></h2>
+
+<p class="MsoNormal"><a name="OLE_LINK8"></a><a name="OLE_LINK7"></a>Agent
+Embedded is distributed with build files for Unix and Microsoft Visual Studio.
+Built on ANSI C, Agent Embedded can be used on most targets for which an ANSI C
+compiler is available.</p>
+
+<p class="MsoNormal">&nbsp;&nbsp;</p>
+
+<p class="HowTobulletsNEW" style="margin-left:0in;text-indent:0in"><a href="#contents">Back to Top</a></p>
+
+<h2><a name="_Contents_of_the_1"></a><a name="_Contents_of_the"></a><span style="font-size:14.0pt">Contents of the Build</span></h2>
+
+<p><a name="_Installing_the_patch"></a><a name="_Technical_Support"></a>Axeda
+Agent Embedded v6.6, Build 502, is a full build of Agent Embedded in the
+archive file, <i>AgentEmbedded-6.6-502.tar.gz</i>. The <i>Axeda® Agent
+Embedded Developer’s Reference</i> has updated version and
+copyright/trademark information. The PDF is available from the Axeda Support
+site, <a href="http://help.axeda.com/">http://help.axeda.com/</a>. </p>
+
+<p><a href="#contents">Back to Top</a></p>
+
+<h2><a name="_Installing_the_patch_1"></a><a name="_Installing_the_Build"></a><a name="_Using_this_Build"></a><span style="font-size:14.0pt">Using this Build</span></h2>
+
+<p class="MsoNormal"><a name="_Impact_to_Product"></a>To install this build of
+Agent Embedded:</p>
+
+<p class="MsoNormal">&nbsp;</p>
+
+<p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:12.0pt;
+margin-left:.5in;text-indent:-.25in">1.<span style="font-size:7.0pt;font-family:
+&quot;Times New Roman&quot;,&quot;serif&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span>Extract the content
+of the <i>AgentEmbedded-6.6-502.tar.gz </i>to your current installation
+directory for Agent Embedded. When prompted whether to overwrite the files,
+answer Yes.</p>
+
+<p class="MsoNormal" style="margin-left:.5in;text-indent:-.25in">2.<span style="font-size:7.0pt;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;">&nbsp;&nbsp;&nbsp;&nbsp;
+</span>From your IDE, recompile your project with the new Agent Embedded
+libraries.</p>
+
+<p>&nbsp;</p>
+
+<p><a href="#contents">Back to Top</a></p>
+
+<h2><a name="_Technical_Support_1"></a><span style="font-size:14.0pt">Technical
+Support</span></h2>
+
+<p>The Axeda technical support team will be happy to help with any questions
+you may have.</p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><a name="OLE_LINK2"></a><a name="OLE_LINK1"></a><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;" lang="FR">Axeda
+Corporation</span></p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><span style="font-family:
+&quot;Verdana&quot;,&quot;sans-serif&quot;" lang="FR">25 Forbes Boulevard, Suite 3</span></p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Foxborough,
+MA&nbsp; 02035</span></p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Tel:
++ 1 (866) GO AXEDA (+1-866-462-9332)</span></p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><span style="font-family:
+&quot;Verdana&quot;,&quot;sans-serif&quot;" lang="FR">Fax:&nbsp; + 1 (508) 337-9201</span></p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><span style="font-family:
+&quot;Verdana&quot;,&quot;sans-serif&quot;" lang="FR">E-mail: </span><a href="mailto:support@axeda.com"><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;" lang="FR">support@axeda.com</span></a></p>
+
+<p class="MsoPlainText" style="margin-left:.5in"><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">Web:
+</span><a href="http://help.axeda.com/"><span style="font-family:&quot;Verdana&quot;,&quot;sans-serif&quot;">http://help.axeda.com/</span></a></p>
+
+<p><a href="#contents">Back to Top</a></p>
+
+<p>--------------------------------------------------------</p>
+
+<p><b>Copyright (C) 1999 - 2013 Axeda Corporation. All rights reserved. <br>
+</b><b><span style="font-size:9.0pt">Portions of Axeda® protected by U.S.
+Pat. Nos.: 6,757,714, 7,046,134, 7,117,239, 7,149,792, 7,185,014, <br>
+and 8,065,397; and EU Patent Nos.: 1,350,367, 1,305,712.</span></b></p>
+
+<p class="MsoNormal" style="margin-left:50.0pt;text-indent:-50.0pt;line-height:
+9.0pt;text-autospace:none"><span style="color:black">Axeda Corporation</span></p>
+
+<p class="MsoNormal" style="margin-left:50.0pt;text-indent:-50.0pt;line-height:
+9.0pt;text-autospace:none"><span style="color:black">25 Forbes Boulevard, Suite
+3</span></p>
+
+<p class="MsoNormal" style="margin-left:50.0pt;text-indent:-50.0pt;line-height:
+9.0pt;text-autospace:none"><span style="color:black">Foxborough, MA 02035</span></p>
+
+<p class="MsoNormal" style="margin-left:50.0pt;text-indent:-50.0pt;line-height:
+9.0pt;text-autospace:none"><span style="color:black">USA</span></p>
+
+<p class="MsoNormal" style="margin-left:50.0pt;text-indent:-50.0pt;line-height:
+9.0pt;text-autospace:none"><span style="color:black">(508) 337-9200 </span></p>
+
+<p class="MsoNormal"><i>Axeda’s software and services, including, but not
+limited to, Axeda’s Machine Cloud®, the Axeda® Platform and
+Axeda® M2M Connectivity software (collectively, “Axeda
+Products”) and the Questra® IDM software (“IDM Software”)
+are protected by contract law, copyright laws, and international treaties.
+Axeda Products and IDM Software are supplied under license and/or services
+contracts with Axeda’s customers and only users authorized under the
+applicable contract are permitted to access and use the Axeda Products and IDM
+Software. Unauthorized use and distribution may result in civil and criminal
+penalties.</i></p>
+
+<p class="MsoNormal"><i>For any customer or end user of the Axeda Products and
+IDM Software that is a U.S. federal government end user, the Axeda Products and
+IDM Software are&nbsp; “Commercial Items” as that term is defined
+at 48 C.F.R. §2.101, consisting of “Commercial Computer
+Software” and “Commercial Computer Software Documentation”,
+as those terms are used in 48 C.F.R. §12.212 or 48 C.F.R.
+§227.7202.&nbsp; Consistent with 48 C.F.R. §12.212 or 48 C.F.R.
+§227.7202-1 through 227.7202-4, as applicable, the Axeda Products and IDM
+Software are licensed to each such customer and end user only with those rights
+as expressly provided under the terms and conditions of the applicable license
+or subscription services agreement.&nbsp; </i></p>
+
+<p class="MsoNormal"><i>Portions of the Axeda Products include one or more open
+source programs. Authorized customers can refer to the
+Open_Source_License_Requirements.pdf available through the Axeda Support Site
+for important notices and licensing information related to such programs.&nbsp;</i></p>
+
+<p class="MsoNormal"><i>“Axeda”, “Machine Cloud”, and
+“Questra” are registered trademarks of Axeda Corporation. The Axeda
+logo, “Firewall-Friendly”, “Connected Configuration”,
+“Connected Service”, “Connected Access”,
+“Connected Content”, “Connected Reporting”, and
+“Connected Product Management Applications” are trademarks of Axeda
+Corporation.&nbsp; All rights reserved.&nbsp; </i></p>
+
+<p class="MsoNormal"><i>AT&amp;T, the AT&amp;T logo and all other AT&amp;T marks
+contained herein are trademarks of AT&amp;T Intellectual Property and/or
+AT&amp;T affiliated companies. </i></p>
+
+<p class="MsoNormal"><i>All other third party brand or product names included herein,
+including but not limited to products of Microsoft, IBM and Oracle, are the
+trademarks or registered trademarks of their respective companies or
+organizations.</i></p>
+
+<p class="MsoNormal"><i><span style="color:black">&nbsp;</span></i></p>
+
+<p class="MsoNormal"><i><span style="color:black">.</span></i></p>
+
+<p class="MsoNormal" style="text-autospace:none"><i>&nbsp;</i></p>
+
+<p class="MsoNormal"><a href="#contents">Back to Top</a></p>
+
+</div>
+
+
+
+
+</body></html>

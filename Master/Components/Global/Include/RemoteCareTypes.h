@@ -25,24 +25,24 @@ namespace RCAgentNamespace {
 
 /// Type of data item value
 typedef enum {
-    ADI_Analog,         ///< analog
-    ADI_Digital,        ///< digital (0/1)
-    ADI_String,         ///< string
-    ADI_Undefined       ///< undefined
+    ADI_Analog,         //!< analog
+    ADI_Digital,        //!< digital (0/1)
+    ADI_String,         //!< string
+    ADI_Undefined       //!< undefined
 } AxedaDataItemType_t;
 
 /// Quality of the data item value
 typedef enum {
-    ADI_DataGood,       ///< good
-    ADI_DataBad,        ///< bad
-    ADI_DataUncertain   ///< uncertain (undefined)
+    ADI_DataGood,       //!< good
+    ADI_DataBad,        //!< bad
+    ADI_DataUncertain   //!< uncertain (undefined)
 } AxedaDataItemQuality_t;
 
 /// Range for the digital data type
 typedef enum {
-    ADI_DataNull,       ///< digital 0
-    ADI_DataOne,        ///< digital 1
-    ADI_DataError       ///< erroneous value
+    ADI_DataNull,       //!< digital 0
+    ADI_DataOne,        //!< digital 1
+    ADI_DataError       //!< erroneous value
 } AxedaDigitalDataItemRange_t;
 }
 
@@ -56,10 +56,10 @@ namespace RemoteCare {
 /****************************************************************************/
 typedef enum
 {
-    RCWebProxyProtoNone,            ///< no proxy
-    RCWebProxyProtoSOCKS,           ///< SOCKS proxy
-    RCWebProxyProtoHTTP,             ///< HTTP proxy
-    RCWebProxyProtoInvalid          ///< Invalid value
+    RCWebProxyProtoNone,            //!< no proxy
+    RCWebProxyProtoSOCKS,           //!< SOCKS proxy
+    RCWebProxyProtoHTTP,             //!< HTTP proxy
+    RCWebProxyProtoInvalid          //!< Invalid value
 } RCWebProxyProtocol_t;
 
 /****************************************************************************/
@@ -107,10 +107,10 @@ typedef enum
  */
 /****************************************************************************/
 typedef enum {
-    RDI_Analog,         ///< analog
-    RDI_Digital,        ///< digital (0/1)
-    RDI_String,         ///< string
-    RDI_Undefined,       ///< undefined
+    RDI_Analog,         //!< analog
+    RDI_Digital,        //!< digital (0/1)
+    RDI_String,         //!< string
+    RDI_Undefined,       //!< undefined
     RDI_TypeInvalid
 } RCDataItemType_t;
 
@@ -120,24 +120,26 @@ typedef enum {
  */
 /****************************************************************************/
 typedef enum {
-    RDI_DataGood,       ///< good
-    RDI_DataBad,        ///< bad
-    RDI_DataUncertain,   ///< uncertain (undefined)
+    RDI_DataGood,       //!< good
+    RDI_DataBad,        //!< bad
+    RDI_DataUncertain,   //!< uncertain (undefined)
     RDI_DataInvalid
 } RCDataItemQuality_t;
 
-const QString RC_DATAITEM_REQUEST_REMOTE_SESSION    = "RequestRemoteSession";   ///< Request remote session
-const QString RC_DATAITEM_REQUEST_ASSET_INFO        = "RequestAssetInformation"; ///< request asset info
-const QString RC_DATAITEM_SET_EVENT_CLASS           = "SetEventClass";          ///< set event class
-const QString RC_DATAITEM_SET_EVENT_PRIORITY        = "SetEventPriority";       ///< set event priority
-const QString RC_DATAITEM_SET_LOG_NUMBER            = "SetLogNumber";           ///< set number of log files
-const QString RC_DATAITEM_SET_SUBSCRIPTION          = "SetSubscription";        ///< set subscription
-const QString RC_DATAITEM_SET_UPDATE_AVAILABLE      = "SetUpdateAvailable";     ///< set update available
-const QString RC_DATAITEM_SET_DOWNLOAD_FINISHED     = "SetDownloadFinished";    ///< set download finished
-const QString RC_DATAITEM_SET_PING_RATE             = "SetPingRate";            ///< set ping rate
-const QString RC_DATAITEM_ENABLE_SOFTWARE_UPDATE    = "EnableSoftwareUpdate";   ///< enable software update
-const QString RC_DATAITEM_STATE_ASSET_COMPLETE      = "StateAssetComplete";     ///< state asset complete
-
+const QString RC_DATAITEM_REQUEST_REMOTE_SESSION    = "RequestRemoteSession";   //!< Request remote session
+const QString RC_DATAITEM_REQUEST_ASSET_INFO        = "RequestAssetInformation"; //!< request asset info
+const QString RC_DATAITEM_SET_EVENT_CLASS           = "SetEventClass";          //!< set event class
+const QString RC_DATAITEM_SET_EVENT_PRIORITY        = "SetEventPriority";       //!< set event priority
+const QString RC_DATAITEM_SET_LOG_NUMBER            = "SetLogNumber";           //!< set number of log files
+const QString RC_DATAITEM_SET_SUBSCRIPTION          = "SetSubscription";        //!< set subscription
+const QString RC_DATAITEM_SET_UPDATE_AVAILABLE      = "SetUpdateAvailable";     //!< set update available
+const QString RC_DATAITEM_SET_DOWNLOAD_FINISHED     = "SetDownloadFinished";    //!< set download finished
+const QString RC_DATAITEM_SET_PING_RATE             = "SetPingRate";            //!< set ping rate
+const QString RC_DATAITEM_ENABLE_SOFTWARE_UPDATE    = "EnableSoftwareUpdate";   //!< enable software update
+const QString RC_DATAITEM_STATE_ASSET_COMPLETE      = "StateAssetComplete";     //!< state asset complete
+const QString RC_DATAITEM_STATE_DOWNLOAD_FOLDER     = "StateDownloadFolder";    //!< state download folder
+const QString RC_DATAITEM_STATE_SESSION_TYPE        = "StateSessionType";       //!< state remote session type
+const QString RC_DATAITEM_STATE_SESSION_PORT        = "StateSessionPort";       //!< state remote session port
 } // end namespace
 
 #endif // REMOTECARETYPES_H
