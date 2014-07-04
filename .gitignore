@@ -46,3 +46,6 @@ warnings.log
 
 #Lib
 Gui/Components/kineticscroller/lib/
+
+#RemoteCareAgent
+RemoteCareAgent
