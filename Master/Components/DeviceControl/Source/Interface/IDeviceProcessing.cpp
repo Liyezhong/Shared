@@ -1321,7 +1321,7 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
+ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition(RVPosition_t RVPosition)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
@@ -1329,7 +1329,7 @@ ReturnCode_t IDeviceProcessing::RVReqMoveToInitialPosition()
     }
     if(m_pRotaryValve)
     {
-        return m_pRotaryValve->ReqMoveToInitialPosition();
+        return m_pRotaryValve->ReqMoveToInitialPosition(RVPosition);
     }
     else
     {

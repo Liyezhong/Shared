@@ -350,7 +350,7 @@ public:
     /****************************************************************************/
     TempCtrlState_t RVGetTemperatureControlState();
     //! Execute the move to intial position of the RV
-    ReturnCode_t RVReqMoveToInitialPosition();
+    ReturnCode_t RVReqMoveToInitialPosition(RVPosition_t RVPosition = RV_UNDEF);
     //! Position the oven cover
     ReturnCode_t RVReqMoveToRVPosition( RVPosition_t RVPosition);
     //! Request actual oven cover position

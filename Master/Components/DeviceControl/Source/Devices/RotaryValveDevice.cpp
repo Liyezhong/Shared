@@ -1064,8 +1064,16 @@ bool CRotaryValveDevice::IsOutsideRange(quint8 Index)
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition()
+ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition(RVPosition_t RVPosition)
 {
+    if(RVPosition != RV_UNDEF)
+    {
+        LogDebug(QString( "INFO: Set the current RV position:%1").arg(RVPosition));
+        SetEDPosition(RVPosition);
+        SetPrevEDPosition(RVPosition);
+        return DCL_ERR_FCT_CALL_SUCCESS;
+    }
+
     QString lsCode;
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     bool ParaChange = false;
