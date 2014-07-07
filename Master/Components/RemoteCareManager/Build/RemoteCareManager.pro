@@ -4,6 +4,9 @@
 
 TARGET = RemoteCareManager
 
+#include Platform
+INCLUDEPATH += ../../../../../../Platform
+
 HEADERS +=  ../Include/*.h
 
 SOURCES += ../Source/*.cpp

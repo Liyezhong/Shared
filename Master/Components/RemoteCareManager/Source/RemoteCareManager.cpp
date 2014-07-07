@@ -3,9 +3,9 @@
  *
  *  \brief Implementation file for class RemoteCareManager
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-06-03
- *  $Author:    $ Ramya
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
+ *  $Author:    $ Ramya GJ
  *
  *  \b Company:
  *
@@ -20,6 +20,7 @@
 #include <RemoteCareManager/Include/RemoteCareManager.h>
 #include <RemoteCareController/Include/RemoteCareThreadController.h>
 #include <Threads/Include/PlatformThreadIDs.h>
+#include <RemoteCareAgent/Include/RemoteCareEventCodes.h>
 
 
 #include <NetCommands/Include/CmdRCReportEvent.h>
@@ -29,6 +30,7 @@
 #include <NetCommands/Include/CmdRCNotifyReconnection.h>
 #include <RemoteCareManager/Include/RCManagerEventCodes.h>
 #include <NetCommands/Include/CmdRCSoftwareUpdate.h>
+#include <NetCommands/Include/CmdRemoteCareState.h>
 
 const QString RC_EVENT_CLASS_ALARM = "1";        //!< event log level, only alarms
 const QString RC_EVENT_CLASS_ALARM_WARN = "2";   //!< event log level, alarms+warnings
@@ -76,6 +78,15 @@ RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThre
     if(mp_RCConfigurationInterface) {
         mp_RCConfiguration = mp_RCConfigurationInterface->GetRCConfiguration();
     }
+
+    m_FctTagNameHash[RC_DATAITEM_REQUEST_REMOTE_SESSION] = &RemoteCareManager::RequestRemoteSessionHandler;
+    m_FctTagNameHash[RC_DATAITEM_SET_EVENT_PRIORITY]     = &RemoteCareManager::SetEventPriorityHandler;
+    m_FctTagNameHash[RC_DATAITEM_SET_EVENT_CLASS]        = &RemoteCareManager::SetEventClassHandler;
+    m_FctTagNameHash[RC_DATAITEM_REQUEST_ASSET_INFO]     = &RemoteCareManager::RequestAssetInfoHandler;
+    m_FctTagNameHash[RC_DATAITEM_SET_LOG_NUMBER]         = &RemoteCareManager::SetLogNumberHandler;
+    m_FctTagNameHash[RC_DATAITEM_SET_SUBSCRIPTION]       = &RemoteCareManager::SetSubscriptionHandler;
+    m_FctTagNameHash[RC_DATAITEM_SET_UPDATE_AVAILABLE]   = &RemoteCareManager::SetUpdateAvailable;
+    m_FctTagNameHash[RC_DATAITEM_SET_DOWNLOAD_FINISHED]  = &RemoteCareManager::SetDownloadFinished;
 }
 
 /****************************************************************************/
@@ -86,14 +97,14 @@ RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThre
 void RemoteCareManager::Init()
 {
     try {
-        RemoteCare::RemoteCareController *p_RemoteCareController = new RemoteCare::RemoteCareController(THREAD_ID_REMOTECARE);
+        RemoteCare::RemoteCareController *p_RemoteCareController = new RemoteCare::RemoteCareController(Threads::THREAD_ID_REMOTECARE, "Axeda Client", NetworkBase::NSE_TYPE_AXEDA);
         // Send configuration data to RCA when its connected to Main
         CONNECTSIGNALSLOT(p_RemoteCareController, ProcessExited(const QString &, int), this, ExternalProcessExited(const QString &, int));
         CONNECTSIGNALSLOT(p_RemoteCareController, ProcessStoppedForEver(), this, ExternalProcessStoppedForever());
         CONNECTSIGNALSLOT(p_RemoteCareController, RCAConnected(), this, RCAConnected());
 
         m_MasterThreadControllerRef.AddAndConnectController
-                (p_RemoteCareController, &m_MasterThreadControllerRef.m_CommandChannelRemoteCare, THREAD_ID_REMOTECARE, false);
+                (p_RemoteCareController, &m_MasterThreadControllerRef.m_CommandChannelRemoteCare, Threads::THREAD_ID_REMOTECARE, false);
         RegisterCommands();
     }
     CATCHALL();
@@ -122,6 +133,9 @@ void RemoteCareManager::RegisterCommands()
 void RemoteCareManager::RCAConnected() {
 
     m_RCAAvailable = true;
+
+    //broadcast this msg so that gui receives this.
+//    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
 }
 
 /****************************************************************************/
@@ -130,6 +144,9 @@ void RemoteCareManager::ExternalProcessExited(const QString &name, int code)
     qDebug() << "\nExternalProcessController: ExternalProcessExited called.\n" << name << code;
 
     m_RCAAvailable = false;
+
+    //broadcast this msg so that gui receives this.
+//    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
 }
 
 /****************************************************************************/
@@ -139,11 +156,14 @@ void RemoteCareManager::ExternalProcessStoppedForever()
 
     m_RCAAvailable = false;
 
+    //broadcast this msg so that gui receives this.
+//    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+
     Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_RCA_STOPPED_FOREVER);
 }
 
 /****************************************************************************/
-void RemoteCareManager::OnCmdRCSetLogEventHandler(Global::tRefType Ref,
+void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
                                        const NetCommands::CmdRCSetLogEvent &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
@@ -159,6 +179,13 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(Global::tRefType Ref,
     qint32 AltStringUsage;
     EventDataStream >> AltStringUsage;
     RCEventData.AltStringUsage = (Global::AlternateEventStringUsage) AltStringUsage;
+
+
+    if (RCEventData.EventCode == RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS) {
+        //broadcast this msg so that gui receives this.
+//        emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+    }
+
     // check the string list count
     if (RCEventData.EventStringList.count() > 0) {
         Global::tTranslatableStringList TrStringList;
@@ -183,7 +210,7 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(Global::tRefType Ref,
 }
 
 /****************************************************************************/
-void RemoteCareManager::SetEventPriorityHandler(Global::tRefType Ref,
+void RemoteCareManager::SetEventPriorityHandler(const Global::tRefType &Ref,
                                        const NetCommands::CmdRCSetTag &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
@@ -202,6 +229,10 @@ void RemoteCareManager::SetEventPriorityHandler(Global::tRefType Ref,
     {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
         return;
     }
 
@@ -211,13 +242,17 @@ void RemoteCareManager::SetEventPriorityHandler(Global::tRefType Ref,
 }
 
 /****************************************************************************/
-void RemoteCareManager::SetEventClassHandler(Global::tRefType Ref,
+void RemoteCareManager::SetEventClassHandler(const Global::tRefType &Ref,
                                        const NetCommands::CmdRCSetTag &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
     if(Cmd.GetTagValue() < RC_EVENT_CLASS_ALARM || Cmd.GetTagValue() > RC_EVENT_CLASS_ALARM_WARN_INFO ) {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
         return;
     }
 
@@ -280,13 +315,7 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
 
         EventReportData.m_EventName = QString::number(EventId64);
 
-        //        const Global::AlternateEventStringUsage AltStringUsage = TheEvent.GetAltStringUsageType();
         bool UseAltEventString = false;
-        //        if (AltStringUsage == Global::GUI_MSG_BOX ||
-        //            AltStringUsage == Global::GUI_MSG_BOX_AND_LOGGING ||
-        //            AltStringUsage == Global::GUI_MSG_BOX_LOGGING_AND_USER_RESPONSE) {
-        //                UseAltEventString = true;
-        //        }
 
         //add msg string
         QString MsgString = Global::UITranslator::TranslatorInstance().Translate(
@@ -307,7 +336,7 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
         }
 
         //add time stamp
-        EventReportData.m_TimeStamp = TheEvent.GetTimeStamp().toString();
+        EventReportData.m_TimeStamp = TheEvent.GetTimeStamp().toString(NetworkBase::DATEANDTIME_FORMAT);
 
         (void)m_MasterThreadControllerRef.SendCommand(
                 Global::CommandShPtr_t(new NetCommands::CmdRCReportEvent(15000, EventReportData)),
@@ -316,7 +345,7 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
 }
 
 /****************************************************************************/
-void RemoteCareManager::SetSubscriptionHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+void RemoteCareManager::SetSubscriptionHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                                Threads::CommandChannel &AckCommandChannel)
 {
     m_MasterThreadControllerRef.SendAcknowledgeOK(Ref, AckCommandChannel);
@@ -326,13 +355,17 @@ void RemoteCareManager::SetSubscriptionHandler(Global::tRefType Ref, const NetCo
 }
 
 /****************************************************************************/
-void RemoteCareManager::RequestAssetInfoHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+void RemoteCareManager::RequestAssetInfoHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                                  Threads::CommandChannel &AckCommandChannel)
 {
     //check that the data item type is valid
     if(("1" != Cmd.GetTagValue()))  {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
         return;
     }
 
@@ -345,7 +378,7 @@ void RemoteCareManager::RequestAssetInfoHandler(Global::tRefType Ref, const NetC
 }
 
 /****************************************************************************/
-void RemoteCareManager::SetLogNumberHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+void RemoteCareManager::SetLogNumberHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                                  Threads::CommandChannel &AckCommandChannel)
 {
     if("1" == Cmd.GetTagValue()) {
@@ -364,6 +397,10 @@ void RemoteCareManager::SetLogNumberHandler(Global::tRefType Ref, const NetComma
     {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
         return;
     }
 
@@ -373,7 +410,7 @@ void RemoteCareManager::SetLogNumberHandler(Global::tRefType Ref, const NetComma
 }
 
 /****************************************************************************/
-void RemoteCareManager::SetUpdateAvailable(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+void RemoteCareManager::SetUpdateAvailable(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                                   Threads::CommandChannel &AckCommandChannel)
 {
     QString UpdateType;
@@ -387,6 +424,10 @@ void RemoteCareManager::SetUpdateAvailable(Global::tRefType Ref, const NetComman
     else {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
         return;
     }
 
@@ -400,7 +441,7 @@ void RemoteCareManager::SetUpdateAvailable(Global::tRefType Ref, const NetComman
 }
 
 /****************************************************************************/
-void RemoteCareManager::SetDownloadFinished(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+void RemoteCareManager::SetDownloadFinished(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                             Threads::CommandChannel &AckCommandChannel)
 {
     if("1" == Cmd.GetTagValue()) {
@@ -413,6 +454,10 @@ void RemoteCareManager::SetDownloadFinished(Global::tRefType Ref, const NetComma
     else {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
         return;
     }
 
@@ -422,7 +467,7 @@ void RemoteCareManager::SetDownloadFinished(Global::tRefType Ref, const NetComma
 }
 
 /****************************************************************************/
-void RemoteCareManager::OnCmdRCRequestRemoteSession(Global::tRefType Ref,
+void RemoteCareManager::OnCmdRCRequestRemoteSession(const Global::tRefType Ref,
                                        const RemoteCare::CmdRCRequestRemoteSession &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
@@ -450,7 +495,7 @@ void RemoteCareManager::OnCmdRCRequestRemoteSession(Global::tRefType Ref,
 }
 
 /****************************************************************************/
-void RemoteCareManager::OnCmdRCSoftwareUpdate(Global::tRefType Ref,
+void RemoteCareManager::OnCmdRCSoftwareUpdate(const Global::tRefType Ref,
                                        const RemoteCare::CmdRCSoftwareUpdate &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
@@ -459,7 +504,7 @@ void RemoteCareManager::OnCmdRCSoftwareUpdate(Global::tRefType Ref,
 
     if (RemoteCare::SWUpdate_StartDownload == Cmd.GetUpdateType())
     {
-        // denied, inform remote care
+        // inform remote care to download the new sw package
         SendNotifyDataItem(RC_DATAITEM_ENABLE_SOFTWARE_UPDATE, RDI_DataGood, "1");
     }
 }
@@ -515,28 +560,37 @@ void RemoteCareManager::RCExportFinished(const QString FileName)
              QDir::Reversed | QDir::Name, QDir::Files | QDir::CaseSensitive);
     QStringList FileNames = Dir.entryList();
 
-    // inform remote care
-    (void)m_MasterThreadControllerRef.SendCommand(
-                Global::CommandShPtr_t(new NetCommands::CmdRCNotifyAssetComplete(15000, FileNames.at(0))),
-                m_MasterThreadControllerRef.m_CommandChannelRemoteCare);
+    if (!FileNames.isEmpty())
+    {
+        // inform remote care
+        (void)m_MasterThreadControllerRef.SendCommand(
+                    Global::CommandShPtr_t(new NetCommands::CmdRCNotifyAssetComplete(15000, Global::SystemPaths::Instance().GetRemoteCarePath() + "/"+ FileNames.value(0))),
+                    m_MasterThreadControllerRef.m_CommandChannelRemoteCare);
 
-    //log command sent.
-    Global::FmtArgs  Arguments;
-    Arguments << "CmdRCNotifyAssetComplete";
-    Arguments << FileNames.at(0);
-    Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_SENT_COMMAND, Arguments);
+        //log command sent.
+        Global::FmtArgs  Arguments;
+        Arguments << "CmdRCNotifyAssetComplete";
+        Arguments << FileNames.value(0);
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_SENT_COMMAND, Arguments);
+    }
+    else
+    {
+       // should not happen actually, but who knows
+       Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_ID_DEBUG_MESSAGE, Global::FmtArgs() << "RCManager: No files found for export");
+    }
 }
 
 /****************************************************************************/
-void RemoteCareManager::OnCmdRCSetTag(Global::tRefType Ref,
+void RemoteCareManager::OnCmdRCSetTag(const Global::tRefType Ref,
                                        const NetCommands::CmdRCSetTag &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
+    FctTagName callbackFct;
     //log command received.
-//    Global::FmtArgs  Arguments;
-//    Arguments << Cmd.GetName() << Cmd.GetTagName() << Cmd.GetTagType() << Cmd.GetTagValue();
+    Global::FmtArgs  Arguments;
+    Arguments << Cmd.GetName() << Cmd.GetTagName() << Cmd.GetTagType() << Cmd.GetTagValue();
 
-//    Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_RECEIVED_COMMAND, Arguments);
+    Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_RECEIVED_COMMAND, Arguments);
 
     //now check for the data item
     DataManager::CRCDataItem DataItem1;
@@ -545,6 +599,9 @@ void RemoteCareManager::OnCmdRCSetTag(Global::tRefType Ref,
     {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_INAVLID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName());
         return;
     }
 
@@ -552,6 +609,10 @@ void RemoteCareManager::OnCmdRCSetTag(Global::tRefType Ref,
     if(Cmd.GetTagType()!= DataItem1.GetType()) {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_TYPE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << QString::number((int)Cmd.GetTagType()));
         return;
     }
 
@@ -564,51 +625,29 @@ void RemoteCareManager::OnCmdRCSetTag(Global::tRefType Ref,
         else {
             //send the NACK
             m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+            Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_INVALID_REQUEST_SUBSCRIPTION_NOTSET);
             return;
         }
     }
 
-    if(RC_DATAITEM_REQUEST_REMOTE_SESSION == Cmd.GetTagName())
+    if (m_FctTagNameHash.contains(Cmd.GetTagName()))
     {
-        RequestRemoteSessionHandler(Ref, Cmd, AckCommandChannel);
+        callbackFct = m_FctTagNameHash.value(Cmd.GetTagName());
+        if ( callbackFct != NULL )
+        {
+            (*this.*callbackFct)(Ref, Cmd, AckCommandChannel);
+        }
     }
-    else if(RC_DATAITEM_SET_EVENT_PRIORITY == Cmd.GetTagName())
+    else
     {
-        SetEventPriorityHandler(Ref, Cmd, AckCommandChannel);
-    }
-    else if(RC_DATAITEM_SET_EVENT_CLASS == Cmd.GetTagName())
-    {
-        SetEventClassHandler(Ref, Cmd, AckCommandChannel);
-    }
-    else if(RC_DATAITEM_REQUEST_ASSET_INFO == Cmd.GetTagName())
-    {
-        RequestAssetInfoHandler(Ref, Cmd, AckCommandChannel);
-    }
-    else if(RC_DATAITEM_SET_LOG_NUMBER == Cmd.GetTagName())
-    {
-        SetLogNumberHandler(Ref, Cmd, AckCommandChannel);
-    }
-    else if(RC_DATAITEM_SET_SUBSCRIPTION == Cmd.GetTagName())
-    {
-        SetSubscriptionHandler(Ref, Cmd, AckCommandChannel);
-    }
-    else if(RC_DATAITEM_SET_UPDATE_AVAILABLE == Cmd.GetTagName())
-    {
-        SetUpdateAvailable(Ref, Cmd, AckCommandChannel);
-    }
-    else if(RC_DATAITEM_SET_DOWNLOAD_FINISHED == Cmd.GetTagName())
-    {
-        SetDownloadFinished(Ref, Cmd, AckCommandChannel);
-    }
-    else{
-        //send the NACK
-        m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
-        return;
+        // since we checked the xml for the data item we can update the date container
+        UpdateContainerDataItem(Cmd);
     }
 }
 
 /****************************************************************************/
-void RemoteCareManager::RequestRemoteSessionHandler(Global::tRefType Ref,
+void RemoteCareManager::RequestRemoteSessionHandler(const Global::tRefType &Ref,
                                        const NetCommands::CmdRCSetTag &Cmd,
                                        Threads::CommandChannel &AckCommandChannel)
 {
@@ -645,16 +684,22 @@ void RemoteCareManager::RequestRemoteSessionHandler(Global::tRefType Ref,
         emit SendRCCmdToGui(Global::CommandShPtr_t(new CmdRCRequestRemoteSession(15000, RemoteSession_Ended)));
 
         UpdateContainerDataItem(Cmd);
+
+        SendNotifyReconnectToRemoteCare();
     }
     else {
         //send the NACK
         m_MasterThreadControllerRef.SendAcknowledgeNOK(Ref, AckCommandChannel);
+
+        Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_DATAITEM_VALUE_INVALID,
+                                                   Global::tTranslatableStringList() << Cmd.GetTagName()
+                                                   << Cmd.GetTagValue());
     }
 }
 
 /****************************************************************************/
-RemoteCare::RCDataItemType_t RemoteCareManager::UpdateContainerDataItem(const NetCommands::CmdRCSetTag &Cmd,
-                                                                        bool WriteToDisk)
+void RemoteCareManager::UpdateContainerDataItem(const NetCommands::CmdRCSetTag &Cmd,
+                                                                        const bool &WriteToDisk)
 {
     if(mp_RCConfigurationInterface && mp_RCConfiguration) {
         DataManager::CRCDataItem DataItem1;
@@ -662,23 +707,34 @@ RemoteCare::RCDataItemType_t RemoteCareManager::UpdateContainerDataItem(const Ne
         if(mp_RCConfiguration->GetDataItem(Cmd.GetTagName(), DataItem1))
         {
             DataItem1.SetValue(Cmd.GetTagValue());
-            mp_RCConfiguration->UpdateDataItem(Cmd.GetTagName(), DataItem1);
-            mp_RCConfigurationInterface->UpdateRCConfiguration(mp_RCConfiguration);
+            if(mp_RCConfiguration->UpdateDataItem(Cmd.GetTagName(), DataItem1)) {
+                if(mp_RCConfigurationInterface->UpdateRCConfiguration(mp_RCConfiguration)) {
 
-            if(WriteToDisk)
-            {
-                mp_RCConfigurationInterface->Write();
+                    if(WriteToDisk)
+                    {
+                        //inform remotecare agent
+                        (void)m_MasterThreadControllerRef.SendCommand(
+                                    Global::CommandShPtr_t(new NetCommands::CmdRCNotifyDataItem(
+                                                               15000,
+                                                               DataItem1.GetName(),
+                                                               DataItem1.GetType(),
+                                                               DataItem1.GetQuality(),
+                                                               DataItem1.GetValue(),
+                                    Global::AdjustedTime::Instance().GetCurrentDateTime().toString())),
+                                    m_MasterThreadControllerRef.m_CommandChannelRemoteCare);
+
+                        (void)mp_RCConfigurationInterface->Write();                        
+                    }
+                }
             }
-            return DataItem1.GetType();
         }
     }
-    return RDI_TypeInvalid;
 }
 
 /****************************************************************************/
-RemoteCare::RCDataItemType_t RemoteCareManager::UpdateContainerDataItem(QString Name,
-                             RemoteCare::RCDataItemQuality_t Quality, QString Value,
-                                                                        bool WriteToDisk)
+RemoteCare::RCDataItemType_t RemoteCareManager::UpdateContainerDataItem(const QString &Name,
+                             const RemoteCare::RCDataItemQuality_t &Quality, const QString &Value,
+                                                                        const bool &WriteToDisk)
 {
     if(mp_RCConfigurationInterface && mp_RCConfiguration) {
         DataManager::CRCDataItem DataItem1;
@@ -687,23 +743,25 @@ RemoteCare::RCDataItemType_t RemoteCareManager::UpdateContainerDataItem(QString 
         {
             DataItem1.SetValue(Value);
             DataItem1.SetQuality(Quality);
-            mp_RCConfiguration->UpdateDataItem(Name, DataItem1);
-            mp_RCConfigurationInterface->UpdateRCConfiguration(mp_RCConfiguration);
+            if(mp_RCConfiguration->UpdateDataItem(Name, DataItem1)) {
+                if(mp_RCConfigurationInterface->UpdateRCConfiguration(mp_RCConfiguration)) {
 
-            if(WriteToDisk)
-            {
-                mp_RCConfigurationInterface->Write();
+                    if(WriteToDisk)
+                    {
+                        (void)mp_RCConfigurationInterface->Write();
+                    }
+
+                    return DataItem1.GetType();
+                }
             }
-
-            return DataItem1.GetType();
         }
     }
     return RDI_TypeInvalid;
 }
 
 /****************************************************************************/
-void RemoteCareManager::SendNotifyDataItem(QString Name, RemoteCare::RCDataItemQuality_t Quality, QString Value,
-                                           bool WriteToDisk)
+void RemoteCareManager::SendNotifyDataItem(const QString &Name, const RemoteCare::RCDataItemQuality_t &Quality, const QString &Value,
+                                           const bool &WriteToDisk)
 {
     //send command only if RCA is connected
     if(!m_RCAAvailable) {

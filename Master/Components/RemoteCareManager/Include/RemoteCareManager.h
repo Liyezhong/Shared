@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class RemoteCareManager
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-06-03
- *  $Author:    $ Ramya
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
+ *  $Author:    $ Ramya GJ
  *
  *  \b Company:
  *
@@ -61,13 +61,20 @@ public:
 
 private:
 
+    typedef void (RemoteCareManager::*FctTagName)(const Global::tRefType &,
+                           const NetCommands::CmdRCSetTag &,
+                           Threads::CommandChannel &);              //! function pointer definition
+    typedef QHash<QString, FctTagName> FctTagNameHash;              //! hash map definition
+
+    FctTagNameHash m_FctTagNameHash;                                //! hash map list
+
     //Data Members
     Threads::MasterThreadController &m_MasterThreadControllerRef; //!< Master thread controller.
     QString m_EventCLass; //!< The event class
     Global::EventLogLevel m_EventPriority; //!< The event class
     bool m_RCAAvailable; //!< is remote care agent active
     bool m_SubscriptionStatus; //!< is remote care subscribed
-    quint8 m_NumberOfLogFiles; //!< totlanumberof log filesto be exported to RC
+    quint8 m_NumberOfLogFiles; //!< total number of log files to be exported to RC
     DataManager::CRCConfigurationInterface *mp_RCConfigurationInterface; //!< RC Config interface.
     DataManager::CRCConfiguration *mp_RCConfiguration; //!< RC Config.
 
@@ -91,156 +98,156 @@ private:
     /**
      * \brief Used for the remote care events to log in the log file
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void OnCmdRCSetLogEventHandler(Global::tRefType Ref, const NetCommands::CmdRCSetLogEvent &Cmd,
+    void OnCmdRCSetLogEventHandler(const Global::tRefType Ref, const NetCommands::CmdRCSetLogEvent &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when set event priority data item is received from RCA
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void SetEventPriorityHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void SetEventPriorityHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when set event class data item is received from RCA
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void SetEventClassHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void SetEventClassHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when SetSubscription data item is received from RCA
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void SetSubscriptionHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void SetSubscriptionHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                 Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when RequestAssetInformation data item is received from RCA
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void RequestAssetInfoHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void RequestAssetInfoHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when SetLogNumber data item is received from RCA
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void SetLogNumberHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void SetLogNumberHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Called when RCA informs that a new SW is available or not
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void SetUpdateAvailable(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void SetUpdateAvailable(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                             Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Called when RCA informs that a new SW is downloaded or not
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void SetDownloadFinished(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void SetDownloadFinished(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                                 Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when remote session is accepted/denied by user through GUI
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void OnCmdRCRequestRemoteSession(Global::tRefType Ref, const RemoteCare::CmdRCRequestRemoteSession &Cmd,
+    void OnCmdRCRequestRemoteSession(const Global::tRefType Ref, const RemoteCare::CmdRCRequestRemoteSession &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when software update if requested from GUI
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void OnCmdRCSoftwareUpdate(Global::tRefType Ref, const RemoteCare::CmdRCSoftwareUpdate &Cmd,
+    void OnCmdRCSoftwareUpdate(const Global::tRefType Ref, const RemoteCare::CmdRCSoftwareUpdate &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief comamnd hanlder for the incoming CmdRCSetTag Command
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void OnCmdRCSetTag(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void OnCmdRCSetTag(const Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
                                Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
     /**
      * \brief Used when RequestRemoteSession data item is received from RCA
      *
-     * \param Ref - Refernce of the command argument
-     * \param Cmd - Command class
-     * \param AckCommandChannel - Channel class for the command
+     * \iparam Ref - Reference of the command argument
+     * \iparam Cmd - Command class
+     * \iparam AckCommandChannel - Channel class for the command
      *
      */
     /****************************************************************************/
-    void RequestRemoteSessionHandler(Global::tRefType Ref, const NetCommands::CmdRCSetTag &Cmd,
+    void RequestRemoteSessionHandler(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                      Threads::CommandChannel &AckCommandChannel);
 
     /****************************************************************************/
@@ -250,39 +257,39 @@ private:
      * \iparam Cmd - Command class
      * \iparam WriteToDisk - whether the data to be written on disk or not
      *
-     * \return Data Item type (analog, digital, string etc)
+     * \return void
      */
     /****************************************************************************/
-    RemoteCare::RCDataItemType_t UpdateContainerDataItem(const NetCommands::CmdRCSetTag &Cmd,
-                                                         bool WriteToDisk=true);
+    void UpdateContainerDataItem(const NetCommands::CmdRCSetTag &Cmd,
+                                                         const bool &WriteToDisk=true);
 
     /****************************************************************************/
     /**
      * \brief updates the data item present in the container
      *
-     * \param Name - data item name
-     * \param Quality - data item Quality
-     * \param Value - data item Value
+     * \iparam Name - data item name
+     * \iparam Quality - data item Quality
+     * \iparam Value - data item Value
      * \iparam WriteToDisk - whether the data to be written on disk or not
      *
      * \return Data Item type (analog, digital, string etc)
      */
     /****************************************************************************/
-    RemoteCare::RCDataItemType_t UpdateContainerDataItem(QString Name,
-                                 RemoteCare::RCDataItemQuality_t Quality, QString Value, bool WriteToDisk=true);
+    RemoteCare::RCDataItemType_t UpdateContainerDataItem(const QString &Name,
+                                 const RemoteCare::RCDataItemQuality_t &Quality, const QString &Value, const bool &WriteToDisk=true);
 
     /****************************************************************************/
     /**
      * \brief send the notify data item command to RCS
      *
-     * \param Name - data item name
-     * \param Quality - data item Quality
-     * \param Value - data item Value
+     * \iparam Name - data item name
+     * \iparam Quality - data item Quality
+     * \iparam Value - data item Value
      * \iparam WriteToDisk - whether the data to be written on disk or not
      */
     /****************************************************************************/
-    void SendNotifyDataItem(QString Name, RemoteCare::RCDataItemQuality_t Quality, QString Value
-                            , bool WriteToDisk=true);
+    void SendNotifyDataItem(const QString &Name, const RemoteCare::RCDataItemQuality_t &Quality, const QString &Value
+                            , const bool &WriteToDisk=true);
 
 public slots:
     /****************************************************************************/

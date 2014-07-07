@@ -3,9 +3,9 @@
  *
  *  \brief Implementation file for class RemoteCareController.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-08-30
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
+ *  $Author:    $ Ramya GJ
  *
  *  \b Company:
  *
@@ -41,9 +41,11 @@ namespace RemoteCare {
  * \iparam   ThreadID    Thread ID.
  */
 /****************************************************************************/
-RemoteCareController::RemoteCareController(quint32 ThreadID) :
-        ExternalProcessController::ExternalProcessController(REMOTECARE_PROCESS_NAME, ThreadID),
-        mp_RemoteCareDevice(NULL)
+RemoteCareController::RemoteCareController(const quint32 ThreadID, const QString networkProcessName, NetworkBase::NetworkServerType_t serverType)
+    : ExternalProcessController::ExternalProcessController(networkProcessName, ThreadID)
+    , mp_RemoteCareDevice(NULL)
+    , m_networkProcessName(networkProcessName)
+    , m_networkServerType(serverType)   //NetworkBase::NSE_TYPE_AXEDA
 {
 }
 
@@ -70,13 +72,13 @@ RemoteCareController::~RemoteCareController() {
  */
 /****************************************************************************/
 void RemoteCareController::CreateAndInitializeObjects() {
-
+    Global::EventObject::Instance().RaiseEvent(Global::EVENT_THREAD_CREATE_AND_INITIALIZE, Global::FmtArgs() << "Remotecare controller");
     qDebug() << "RemoteCareController: initializing objects...";
 
     QString path = Global::SystemPaths::Instance().GetSettingsPath() + NetworkBase::CMH_PATH_TO_SETTINGS;
-    mp_RemoteCareDevice = new ExternalProcessControl::ExternalProcessDevice(NetworkBase::NSE_TYPE_AXEDA, REMOTECARE_PROCESS_NAME, path, this, this);
+    mp_RemoteCareDevice = new ExternalProcessControl::ExternalProcessDevice(m_networkServerType, m_networkProcessName, path, this, this);
 
-    // register GuiDevice with Base Class
+    // register remote care device with Base Class
     ExternalProcessController::RegisterExternalProcessDevice(mp_RemoteCareDevice);
 
     // register acknowledge processing and timeout functors
@@ -93,7 +95,6 @@ void RemoteCareController::CreateAndInitializeObjects() {
 /****************************************************************************/
 void RemoteCareController::CleanupAndDestroyObjects() {
     // destroy all objects
-    /// \todo implement
     qDebug() << (QString)("RemoteCareController: CleanupAndDestroyObjects called.");
     ExternalProcessController::CleanupAndDestroyObjects();
 }
@@ -107,6 +108,7 @@ void RemoteCareController::CleanupAndDestroyObjects() {
  */
 /****************************************************************************/
 void RemoteCareController::OnGoReceived() {
+    Global::EventObject::Instance().RaiseEvent(Global::EVENT_THREAD_ON_GO_RECEIVED, Global::FmtArgs() << "Remote care controller");
     qDebug() << (QString)("RemoteCareController: OnGo received");
     ExternalProcessController::OnGoReceived();
 }
@@ -153,8 +155,8 @@ void RemoteCareController::OnStopReceived() {
  *  \iparam PowerFailStage
  */
 /****************************************************************************/
-void RemoteCareController::OnPowerFail(const Global::PowerFailStages PowerFailStage) {
-    /// \todo implement
+void RemoteCareController::OnPowerFail(const Global::PowerFailStages PowerFailStage)
+{
     Q_UNUSED(PowerFailStage)
 }
 
@@ -166,12 +168,6 @@ void RemoteCareController::OnPowerFail(const Global::PowerFailStages PowerFailSt
 /****************************************************************************/
 void RemoteCareController::RegisterThreadAcksAndTimeouts()
 {
-    // Outgoing Axeda commands
-/*  // general commands
-    /// \todo JB: implement ack and acknowledge handling (see gui for details)
-    RegisterAxedaDeviceAck<Global::AckOKNOK>();*/
-
-
     // Outgoing remotecare commands
     RegisterCommandForProcessing<NetCommands::CmdRCNotifyDataItem, RemoteCare::RemoteCareController>
             (&RemoteCareController::SendCmdToExternalProcess<NetCommands::CmdRCNotifyDataItem>, this);
@@ -207,11 +203,10 @@ void RemoteCareController::RegisterThreadAcksAndTimeouts()
  * \iparam       CmdName     Name of command.
  */
 /****************************************************************************/
-void RemoteCareController::OnCmdTimeout(Global::tRefType Ref, const QString &CmdName)
+void RemoteCareController::OnCmdTimeout(const Global::tRefType Ref, const QString &CmdName)
 {
     Q_UNUSED(Ref)
     Q_UNUSED(CmdName)
-    /// \todo: implement
 }
 
 /****************************************************************************/
@@ -224,11 +219,10 @@ void RemoteCareController::OnCmdTimeout(Global::tRefType Ref, const QString &Cmd
  *  \return  true if success, false otherwise
  */
 /****************************************************************************/
-void RemoteCareController::OnCommandAckReceived(Global::tRefType Ref, const Global::Acknowledge &Ack)
+void RemoteCareController::OnCommandAckReceived(const Global::tRefType Ref, const Global::Acknowledge &Ack)
 {
     Q_UNUSED(Ref)
     Q_UNUSED(Ack)
-    /// \todo: implement
 }
 
 /****************************************************************************/

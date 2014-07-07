@@ -26,6 +26,7 @@ INCLUDEPATH += ../..
 INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Include
 INCLUDEPATH += ../../../../../Himalaya/HimalayaMain/Master/Components
 INCLUDEPATH += ../../../../../Himalaya/Shared/Master/Components
+INCLUDEPATH += ../../../../../
 DEPENDPATH += ../..
 #              ../../../../../Platform/Master/Components/
 #              ../../../../../Himalaya/Shared/Master/Components/

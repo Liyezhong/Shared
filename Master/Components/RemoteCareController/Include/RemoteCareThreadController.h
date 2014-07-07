@@ -3,9 +3,9 @@
  *
  *  \brief Definition file for class AxedaThreadController.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2010-08-30
- *  $Author:    $ J.Bugariu
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
+ *  $Author:    $ Ramya GJ
  *
  *  \b Company:
  *
@@ -25,8 +25,6 @@
 
 namespace RemoteCare {
 
-/// internal name of the external process
-const QString REMOTECARE_PROCESS_NAME = "Axeda Client";
 
 /****************************************************************************/
 /**
@@ -47,7 +45,7 @@ class RemoteCareController : public ExternalProcessControl::ExternalProcessContr
 
 private:
 
-    RemoteCareController();                                                    ///< Not implemented.
+    RemoteCareController();                                                    //!< Not implemented.
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.
@@ -65,35 +63,25 @@ protected:
     virtual void OnPowerFail(const Global::PowerFailStages PowerFailStage);
     virtual void OnStopWorking(bool StopForEver = false);
 
-    /****************************************************************************/
-    /**
-     * \brief \todo comment.
-     */
-    /****************************************************************************/
-    template<class TCAckClass>
-    void RegisterRemoteCareDeviceAck()
-    {
-        // create functor
-        Threads::AcknowledgeProcessorFunctor *pFunctor = new Threads::TemplateAcknowledgeProcessorFunctor<RemoteCareController,
-                Global::Acknowledge> (this, &RemoteCareController::OnCommandAckReceived);
-        // register functor
-        RegisterAcknowledgeProcessorFunctor(TCAckClass::NAME, pFunctor);
-    }
-
 public:
 
-    RemoteCareController(quint32 ThreadID);
+    RemoteCareController(const quint32 ThreadID, const QString networkProcessName, NetworkBase::NetworkServerType_t serverType);
     virtual ~RemoteCareController();
     virtual void CreateAndInitializeObjects();
     virtual void CleanupAndDestroyObjects();
 
-    void OnCommandAckReceived(Global::tRefType Ref, const Global::Acknowledge &Ack);
-    void OnCmdTimeout(Global::tRefType Ref, const QString &CmdName);
+    void OnCommandAckReceived(const Global::tRefType Ref, const Global::Acknowledge &Ack);
+    void OnCmdTimeout(const Global::tRefType Ref, const QString &CmdName);
 
 private:
 
     /// Network Device for communication with Remote Care Agent
     ExternalProcessControl::ExternalProcessDevice   *mp_RemoteCareDevice;
+
+    /// internal name of the external process
+    QString m_networkProcessName;       //REMOTECARE_PROCESS_NAME = "Axeda Client";
+    NetworkBase::NetworkServerType_t m_networkServerType;
+
 
 signals:
     /****************************************************************************/
@@ -113,6 +101,6 @@ signals:
 
 }; // end class RemoteCareController
 
-} // end namespace Axeda
+} // end namespace RemoteCare
 
 #endif // REMOTECARE_REMOTECARECONTROLLER_H
