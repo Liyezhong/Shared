@@ -975,8 +975,13 @@ void MasterThreadController::Shutdown() {
     // stop all threads and wait for them
     WaitForThreads();
 
+    // Cleanup controllers
+    CleanupControllers();
+    // destroy controllers and threads
+    DestroyControllersAndThreads();
+
     // call own Stop method
-    Stop();
+//    Stop();
     for (qint32 I = 0; I < m_BroadcastChannels.count(); I++ ) {
         Threads::CommandChannel *p_Channel = m_BroadcastChannels.at(I);
         p_Channel->setParent(NULL);
