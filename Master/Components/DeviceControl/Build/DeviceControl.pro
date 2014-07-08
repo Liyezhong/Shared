@@ -5,7 +5,7 @@
 TARGET = DeviceControl
 
 DEFINES += PRE_ALFA_TEST
-
+DEFINES += HAL_CV_TEST
 INCLUDEPATH += ../../../../../Platform/Common/Components
 
 HEADERS +=  ../Include/CanCommunication/*.h \
