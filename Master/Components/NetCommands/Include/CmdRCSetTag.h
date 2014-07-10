@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCSetTag command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 16.07.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -37,16 +37,16 @@ namespace NetCommands {
 class CmdRCSetTag : public Global::Command
 {
     /// streaming operators are friends
-    friend QDataStream & operator << (QDataStream &, const CmdRCSetTag &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCSetTag &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCSetTag &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCSetTag &);
 
 public:
 
-    static QString NAME; ///< name of this command
+    static QString NAME; //!< name of this command
 
     CmdRCSetTag();
-    CmdRCSetTag(int timeout);
-    CmdRCSetTag(int timeout, const QString &name, RemoteCare::RCDataItemType_t type, const QString &value);
+    CmdRCSetTag(const int& timeout);
+   CmdRCSetTag(const int& timeout, const QString &name, const RemoteCare::RCDataItemType_t& type, const QString &value);
     CmdRCSetTag(const CmdRCSetTag &rOther);
     const CmdRCSetTag & operator = (const CmdRCSetTag &rOther);
     virtual ~CmdRCSetTag();
@@ -57,7 +57,7 @@ public:
     QString GetTagName() const;
     RemoteCare::RCDataItemType_t GetTagType() const;
     QString GetTagValue() const;
-    virtual void SetCommandData(RemoteCare::RCDataItemType_t type, const QString &value);
+    virtual void SetCommandData(const RemoteCare::RCDataItemType_t& type, const QString &value);
 
 private:
 
@@ -65,9 +65,9 @@ private:
 
 protected:
 
-    QString             m_Name;       ///< DataItem name
-    RemoteCare::RCDataItemType_t    m_Type;       ///< DataItem type (digital/analog/string)
-    QString             m_Value;      ///< The value of the DataItem
+    QString             m_Name;       //!< DataItem name
+    RemoteCare::RCDataItemType_t    m_Type;       //!< DataItem type (digital/analog/string)
+    QString             m_Value;      //!< The value of the DataItem
 
 }; // end class
 
@@ -83,15 +83,16 @@ protected:
  * \return  Stream with the serialized command
  *
  ****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCSetTag &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCSetTag &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
+    Cmd.CopyToStream(StreamRef);
     // stream the CmdRCSetTag private members
-    Stream << Cmd.m_Name;
-    Stream << (quint8&)(Cmd.m_Type);
-    Stream << Cmd.m_Value;
-    return Stream;
+    StreamRef << Cmd.m_Name;
+    StreamRef << (quint8&)(Cmd.m_Type);
+    StreamRef << Cmd.m_Value;
+    return StreamRef;
 }
 
 /****************************************************************************/
@@ -105,15 +106,18 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdRCSetTag &Cmd)
  * \return  Stream
  *
  ****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCSetTag &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCSetTag &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCSetTag& CmdRef = const_cast<CmdRCSetTag &>(Cmd);
+
     // copy base class data
-    Cmd.CopyFromStream(Stream);
+    CmdRef.CopyFromStream(StreamRef);
     // stream the CmdRCSetTag private members
-    Stream >> Cmd.m_Name;
-    Stream >> (quint8&)(Cmd.m_Type);
-    Stream >> Cmd.m_Value;
-    return Stream;
+    StreamRef >> CmdRef.m_Name;
+    StreamRef >> (quint8&)(CmdRef.m_Type);
+    StreamRef >> CmdRef.m_Value;
+    return StreamRef;
 }
 
 } // end namespace

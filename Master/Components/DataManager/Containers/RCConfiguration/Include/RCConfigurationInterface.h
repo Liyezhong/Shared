@@ -1,10 +1,10 @@
 /****************************************************************************/
 /*! \file Components/DataManager/Containers/RCConfiguration/Include/RCConfigurationInterface.h
  *
- *  \brief RCConfigurationVerifier definition.
+ *  \brief RCConfigurationInterface definition.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-05-23
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -17,8 +17,8 @@
  *
  */
 /****************************************************************************/
-#ifndef DATAMANAGER_RCConfigurationINTERFACE_H
-#define DATAMANAGER_RCConfigurationINTERFACE_H
+#ifndef DATAMANAGER_RCCONFIGURATIONINTERFACE_H
+#define DATAMANAGER_RCCONFIGURATIONINTERFACE_H
 
 #include <QString>
 #include <QReadWriteLock>
@@ -36,7 +36,7 @@ namespace DataManager {
 
 /****************************************************************************/
 /**
- * \brief Class for reading / writing XML based configuration file for user settings.
+ * \brief Class for reading / writing XML based configuration file for remote care.
  *
  * <b>This class is not thread safe.</b>
  */
@@ -44,15 +44,15 @@ namespace DataManager {
 class CRCConfigurationInterface : public CDataContainerBase
 {
 private:
-    QReadWriteLock*             mp_ReadWriteLock;       ///< Synchronisation object.
-    bool                        m_DataVerificationMode; ///< Store the Date verification mode flag
-    CRCConfiguration*           mp_RCConfiguration;        ///< Store the user settings
-    QString                     m_FileName;             ///< Store the file name
+    QReadWriteLock*             mp_ReadWriteLock;       //!< Synchronisation object.
+    bool                        m_DataVerificationMode; //!< Store the Date verification mode flag
+    CRCConfiguration*           mp_RCConfiguration;        //!< Store the user settings
+    QString                     m_FileName;             //!< Store the file name
     /****************************************************************************/
 
 
-    bool SerializeContent(QIODevice& p_Device, bool CompleteData);
-    bool DeserializeContent(QIODevice& p_Device, bool CompleteData);
+    bool SerializeContent(QIODevice& IODevice, bool CompleteData);
+    bool DeserializeContent(QIODevice& IODevice, bool CompleteData);
     ErrorMap_t m_ErrorMap;  //!< Event List for GUI. This member is not copied when using copy constructor/Assignment operator
 
 protected:
@@ -64,8 +64,8 @@ public:
 
     ~CRCConfigurationInterface();
 
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfigurationInterface& RCInterface);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CRCConfigurationInterface& RCInterface);
+    friend QDataStream& operator <<(const QDataStream& OutDataStream, const CRCConfigurationInterface& RCInterface);
+    friend QDataStream& operator >>(const QDataStream& InDataStream, const CRCConfigurationInterface& RCInterface);
 
     CRCConfigurationInterface & operator = (const CRCConfigurationInterface &);
 
@@ -96,12 +96,11 @@ public:
     /****************************************************************************/
     void SetDataVerificationMode(const bool Value) { m_DataVerificationMode = Value; }
 
-    bool Read(QString FileName);
+    bool Read(const QString& FileName);
 
     bool UpdateRCConfiguration(const CRCConfiguration* p_RCConfiguration);
-    // not required now, because by default the interface class does this.
-    //CRCConfiguration* CreateRCConfiguration();
-    CRCConfiguration* GetRCConfiguration(bool CopySettings);
+
+    CRCConfiguration* GetRCConfiguration(const bool& CopySettings);
 
     /****************************************************************************/
     /*!
@@ -148,9 +147,9 @@ public:
     QString GetFilename() {return m_FileName;}
 
 
-}; // end class CRCConfiguration
+}; // end class CRCConfigurationInterface
 
 } // end namespace DataManager
 
 
-#endif // RCConfigurationINTERFACE_H
+#endif // DATAMANAGER_RCCONFIGURATIONINTERFACE_H

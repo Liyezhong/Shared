@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCSetLogEvent command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -30,7 +30,7 @@ namespace NetCommands {
 //!< Data Structure containing EventReportData
 struct RCLogEventReportStruct{
     quint32 EventCode; //!< Event ID
-    QList<QString> EventStringList; ///< EventString List
+    QList<QString> EventStringList; //!< EventString List
     Global::AlternateEventStringUsage AltStringUsage;  //!< Event String
 };
 
@@ -38,18 +38,16 @@ struct RCLogEventReportStruct{
 /****************************************************************************/
 /*!
  *  \brief  This class implements a CmdRCSetLogEvent command.
- *
- * \todo implement
  */
 /****************************************************************************/
 class CmdRCSetLogEvent : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdRCSetLogEvent &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCSetLogEvent &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCSetLogEvent &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCSetLogEvent &);
 public:
-    static QString NAME;    ///< Command name.
+    static QString NAME;    //!< Command name.
     /****************************************************************************/
-    CmdRCSetLogEvent(int TimeOut, RCLogEventReportStruct &EventReportData);
-    CmdRCSetLogEvent();                                                    ///< Not implemented.
+    CmdRCSetLogEvent(const int& TimeOut, const RCLogEventReportStruct &EventReportData);
+    CmdRCSetLogEvent();                                                    //!< Not implemented.
     ~CmdRCSetLogEvent();
 
     virtual QString GetName() const;
@@ -63,53 +61,50 @@ public:
     QByteArray const & GetEventData() const { return m_RCEventReportByteArray;}
 
 private:
-    CmdRCSetLogEvent(const CmdRCSetLogEvent &);                       ///< Not implemented.
-    /****************************************************************************/
-    /*!
-     *  \brief       Not implemented.
-     *
-     *  \return
-     */
-    /****************************************************************************/
-    const CmdRCSetLogEvent & operator = (const CmdRCSetLogEvent &);   ///< Not implemented.
-    QByteArray m_RCEventReportByteArray; ///< Event Report Data ByteArray
+    CmdRCSetLogEvent(const CmdRCSetLogEvent &);                       //!< Not implemented.
+    const CmdRCSetLogEvent & operator = (const CmdRCSetLogEvent &);   //!< Not implemented.
+    QByteArray m_RCEventReportByteArray; //!< Event Report Data ByteArray
 
 }; // end class CmdRCSetLogEvent
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Output Stream Operator which streams data
  *
  * \iparam   Stream      Stream to stream into.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \iparam   Cmd         The command to stream.
+ * \return   Output Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCSetLogEvent &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCSetLogEvent &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
+    Cmd.CopyToStream(StreamRef);
     // copy internal data
-    Stream << Cmd.m_RCEventReportByteArray;
-    return Stream;
+    StreamRef << Cmd.m_RCEventReportByteArray;
+    return StreamRef;
 }
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Input Stream Operator which streams data
  *
  * \iparam   Stream      Stream to stream from.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \iparam   Cmd         The command to stream.
+ * \return   Input Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCSetLogEvent &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCSetLogEvent &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCSetLogEvent& CmdRef = const_cast<CmdRCSetLogEvent &>(Cmd);
+
     // copy base class data
-    Cmd.CopyFromStream(Stream);
+    CmdRef.CopyFromStream(StreamRef);
     // copy internal data
-    Stream >> Cmd.m_RCEventReportByteArray;
-    return Stream;
+    StreamRef >> CmdRef.m_RCEventReportByteArray;
+    return StreamRef;
 }
 
 

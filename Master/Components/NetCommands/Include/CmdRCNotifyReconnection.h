@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyReconnection command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 16.07.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -33,58 +33,56 @@ namespace NetCommands {
  */
 /****************************************************************************/
 class CmdRCNotifyReconnection : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdRCNotifyReconnection &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCNotifyReconnection &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCNotifyReconnection &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCNotifyReconnection &);
 public:
-    static QString NAME;    ///< Command name.
-    CmdRCNotifyReconnection(int Timeout);
+    static QString NAME;    //!< Command name.
+    CmdRCNotifyReconnection(const int& Timeout);
     CmdRCNotifyReconnection();
     ~CmdRCNotifyReconnection();
     virtual QString GetName() const;
 private:
     
-    CmdRCNotifyReconnection(const CmdRCNotifyReconnection &);                       ///< Not implemented.
-    /****************************************************************************/
-    /*!
-     *  \brief       Not implemented.
-     *
-     *  \return
-     */
-    /****************************************************************************/
-    const CmdRCNotifyReconnection & operator = (const CmdRCNotifyReconnection &);   ///< Not implemented.
+    CmdRCNotifyReconnection(const CmdRCNotifyReconnection &);                       //!< Not implemented.
+    const CmdRCNotifyReconnection & operator = (const CmdRCNotifyReconnection &);   //!< Not implemented.
 private:
 }; // end class CmdRCNotifyReconnection
 
 /****************************************************************************/
 /**
-     * \brief Streaming operator.
+     * \brief Output Stream Operator which streams data
      *
      * \iparam   Stream      Stream to stream into.
-     * \iparam       Cmd         The command to stream.
-     * \return                      Stream.
+     * \iparam   Cmd         The command to stream.
+     * \return   Output Stream.
      */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCNotifyReconnection &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCNotifyReconnection &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
-    return Stream;
+    Cmd.CopyToStream(StreamRef);
+    return StreamRef;
 }
 
 /****************************************************************************/
 /**
-     * \brief Streaming operator.
+     * \brief Input Stream Operator which streams data
      *
      * \iparam   Stream      Stream to stream from.
-     * \iparam       Cmd         The command to stream.
-     * \return                      Stream.
+     * \iparam   Cmd         The command to stream.
+     * \return   Input Stream.
      */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCNotifyReconnection &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCNotifyReconnection &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCNotifyReconnection& CmdRef = const_cast<CmdRCNotifyReconnection &>(Cmd);
+
 	// copy base class data
-    Cmd.CopyFromStream(Stream);
-    return Stream;
+    CmdRef.CopyFromStream(StreamRef);
+
+    return StreamRef;
 }
 
 } // end namespace NetCommands

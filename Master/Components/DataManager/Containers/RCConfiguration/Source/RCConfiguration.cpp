@@ -3,8 +3,8 @@
  *
  *  \brief Implementation file for class CRCConfiguration.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-05-23
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-//lint -sem(DataManager::CRCConfiguration::CopyFromOther,initializer)
+
 #include <QReadLocker>
 #include <QWriteLocker>
 #include <QDebug>
@@ -28,8 +28,7 @@
 #include "Global/Include/EventObject.h"
 //lint -e641
 //lint -e1536
-
-
+//lint -sem(DataManager::CRCConfiguration::CopyFromOther,initializer)
 namespace DataManager {
 
 /****************************************************************************/
@@ -55,9 +54,7 @@ CRCConfiguration::CRCConfiguration() :
     m_DeviceId(15),
     m_ProxyProtocol(RemoteCare::RCWebProxyProtoNone),
     m_RemoteSessionName("ColoradoRemote"),
-    m_RemoteSessionType("desktop"),
     m_RemoteSessionIPAddress("127.0.0.1"),
-    m_RemoteSessionIPPort(5900),
     m_Compression(Global::ONOFFSTATE_OFF),
     m_MaxChunkSize(1000000)
 {
@@ -111,9 +108,7 @@ void CRCConfiguration::CopyFromOther(const CRCConfiguration &Other)
     m_DeviceId = OtherRCConfig.GetDeviceId();
     m_ProxyProtocol = OtherRCConfig.GetProxyProtocol();
     m_RemoteSessionName = OtherRCConfig.GetRemoteSessionName();
-    m_RemoteSessionType = OtherRCConfig.GetRemoteSessionType();
     m_RemoteSessionIPAddress = OtherRCConfig.GetRemoteSessionIPAddress();
-    m_RemoteSessionIPPort  = OtherRCConfig.GetRemoteSessionIPPort();
     m_Compression = OtherRCConfig.GetCompression();
     m_MaxChunkSize = OtherRCConfig.GetMaxChunkSize();
     m_ErrorMap = OtherRCConfig.m_ErrorMap;
@@ -160,9 +155,7 @@ void CRCConfiguration::SetDefaultAttributes()
     m_DeviceId              =   15;
     m_ProxyProtocol         =   RemoteCare::RCWebProxyProtoNone;
     m_RemoteSessionName     =   "Colorado_Remote";
-    m_RemoteSessionType     =   "desktop";
     m_RemoteSessionIPAddress    =   "127.0.0.1";
-    m_RemoteSessionIPPort   =   5900;
     m_Compression           =   Global::ONOFFSTATE_OFF;
     m_MaxChunkSize          =   1000000;
 }
@@ -173,16 +166,17 @@ void CRCConfiguration::SetDefaultAttributes()
 /*!
  *  \brief Writes from the CRCConfiguration object to a IODevice.
  *
- *  \iparam XmlStreamWriter = Instance of the QXmlStreamWriter
+ *  \oparam StreamWriter = Instance of the QXmlStreamWriter
  *  \iparam CompleteData = bool type if true writes Complete data of object
  *
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData)
+bool CRCConfiguration::SerializeContent(const QXmlStreamWriter& StreamWriter, const bool& CompleteData)
 {
-    QString StringValue; ///< to store the version number
+    QString StringValue; //!< to store the version number
     bool Result = true;
+    QXmlStreamWriter& XmlStreamWriter = const_cast<QXmlStreamWriter &>(StreamWriter);
 
     // write version number
     (void) StringValue.setNum(GetVersion());  //to suppress lint-534
@@ -258,9 +252,7 @@ bool CRCConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool 
     /// Remote Session parameters
     XmlStreamWriter.writeStartElement("RemoteSession");
     XmlStreamWriter.writeAttribute("RemoteSessionName", GetRemoteSessionName());
-    XmlStreamWriter.writeAttribute("RemoteSessionType", GetRemoteSessionType());
     XmlStreamWriter.writeAttribute("RemoteSessionIPAddress", GetRemoteSessionIPAddress());
-    XmlStreamWriter.writeAttribute("RemoteSessionIPPort", QString::number(GetRemoteSessionIPPort(), 10));
     XmlStreamWriter.writeEndElement();
 
     /// file upload parameters
@@ -300,12 +292,12 @@ bool CRCConfiguration::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool 
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData)
+bool CRCConfiguration::DeserializeContent(const QXmlStreamReader& XmlStreamReader, const bool& CompleteData)
 {
     while ((!XmlStreamReader.atEnd()) &&
            ((XmlStreamReader.name() != "ClassTemporaryData") || (XmlStreamReader.tokenType() != QXmlStreamReader::StartElement)))
     {
-        XmlStreamReader.readNextStartElement();
+        const_cast<QXmlStreamReader &>(XmlStreamReader).readNextStartElement();
 
         if (XmlStreamReader.tokenType() == QXmlStreamReader::StartElement)
         {
@@ -379,9 +371,7 @@ bool CRCConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader, boo
     if (CompleteData) {
         // do nothing
     }
-    //XmlStreamReader.device()->reset();
-//    qDebug()<<"RCConfiguration Class";
-//    qDebug()<<"RCConfiguration"<<XmlStreamReader.device()->readAll();
+
     return true;
 }
 
@@ -394,7 +384,7 @@ bool CRCConfiguration::DeserializeContent(QXmlStreamReader& XmlStreamReader, boo
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadGeneral(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadGeneral(const QXmlStreamReader& XmlStreamReader)
 {
     // read QueueSize
     if (!XmlStreamReader.attributes().hasAttribute("QueueSize"))
@@ -435,7 +425,7 @@ bool CRCConfiguration::ReadGeneral(QXmlStreamReader& XmlStreamReader)
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadSecureConnectionSettings(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadSecureConnectionSettings(const QXmlStreamReader &XmlStreamReader)
 {
     // read HTTPSecureConnection
     if (!XmlStreamReader.attributes().hasAttribute("HTTPSecureConnection"))
@@ -505,7 +495,7 @@ bool CRCConfiguration::ReadSecureConnectionSettings(QXmlStreamReader& XmlStreamR
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadRemoteCareServerSettings(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadRemoteCareServerSettings(const QXmlStreamReader &XmlStreamReader)
 {
     // read exectime
     if (!XmlStreamReader.attributes().hasAttribute("ExecTime"))
@@ -580,7 +570,7 @@ bool CRCConfiguration::ReadRemoteCareServerSettings(QXmlStreamReader& XmlStreamR
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadLocalDeviceSettings(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadLocalDeviceSettings(const QXmlStreamReader& XmlStreamReader)
 {
     // read DeviceType
     if (!XmlStreamReader.attributes().hasAttribute("DeviceType"))
@@ -624,7 +614,7 @@ bool CRCConfiguration::ReadLocalDeviceSettings(QXmlStreamReader& XmlStreamReader
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadLocalNetworkProxySettings(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadLocalNetworkProxySettings(const QXmlStreamReader &XmlStreamReader)
 {
     if (!XmlStreamReader.attributes().hasAttribute("ProxyProtocol"))
     {
@@ -662,7 +652,7 @@ bool CRCConfiguration::ReadLocalNetworkProxySettings(QXmlStreamReader& XmlStream
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadRemoteSessionSettings(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadRemoteSessionSettings(const QXmlStreamReader& XmlStreamReader)
 {
     if (!XmlStreamReader.attributes().hasAttribute("RemoteSessionName"))
     {
@@ -672,14 +662,6 @@ bool CRCConfiguration::ReadRemoteSessionSettings(QXmlStreamReader& XmlStreamRead
     }
     SetRemoteSessionName(XmlStreamReader.attributes().value("RemoteSessionName").toString());
 
-    if (!XmlStreamReader.attributes().hasAttribute("RemoteSessionType"))
-    {
-        qDebug() << "CRCConfiguration::ReadRemoteSessionSettings:### attribute <RemoteSessionType> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "RemoteSessionType", true);
-        return false;
-    }
-    SetRemoteSessionType(XmlStreamReader.attributes().value("RemoteSessionType").toString());
-
     if (!XmlStreamReader.attributes().hasAttribute("RemoteSessionIPAddress"))
     {
         qDebug() << "CRCConfiguration::ReadRemoteSessionSettings:### attribute <RemoteSessionIPAddress> is missing => abort reading";
@@ -688,13 +670,6 @@ bool CRCConfiguration::ReadRemoteSessionSettings(QXmlStreamReader& XmlStreamRead
     }
     SetRemoteSessionIPAddress(XmlStreamReader.attributes().value("RemoteSessionIPAddress").toString());
 
-    if (!XmlStreamReader.attributes().hasAttribute("RemoteSessionIPPort"))
-    {
-        qDebug() << "CRCConfiguration::ReadRemoteSessionSettings:### attribute <RemoteSessionIPPort> is missing => abort reading";
-        Global::EventObject::Instance().RaiseEvent(EVENT_DM_ERROR_XML_ATTRIBUTE_NOT_FOUND, Global::tTranslatableStringList() << "RemoteSessionIPPort", true);
-        return false;
-    }
-    SetRemoteSessionIPPort(XmlStreamReader.attributes().value("RemoteSessionIPPort").toString().toInt());
     return true;
 }
 
@@ -707,7 +682,7 @@ bool CRCConfiguration::ReadRemoteSessionSettings(QXmlStreamReader& XmlStreamRead
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadFileUploadSettings(QXmlStreamReader& XmlStreamReader)
+bool CRCConfiguration::ReadFileUploadSettings(const QXmlStreamReader &XmlStreamReader)
 {
     if (!XmlStreamReader.attributes().hasAttribute("Compression"))
     {
@@ -738,14 +713,15 @@ bool CRCConfiguration::ReadFileUploadSettings(QXmlStreamReader& XmlStreamReader)
  *  \return Output Stream
  */
 /****************************************************************************/
-QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfiguration& RCConfiguration)
+QDataStream& operator <<(const QDataStream& OutDataStream, const CRCConfiguration& RCConfiguration)
 {
     // remove the constant and store it in a local variable
     CRCConfiguration* p_TempRCConfiguration = const_cast<CRCConfiguration*>(&RCConfiguration);
-    QXmlStreamWriter XmlStreamWriter; ///< Writer for the XML
+    QDataStream& OutDataStreamRef = const_cast<QDataStream &>(OutDataStream);
+    QXmlStreamWriter XmlStreamWriter; //!< Writer for the XML
 
     // set the IO device
-    QIODevice* IODevice = OutDataStream.device();
+    QIODevice* IODevice = OutDataStreamRef.device();
 
     XmlStreamWriter.setDevice(IODevice);
     XmlStreamWriter.setAutoFormatting(true);
@@ -757,15 +733,13 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfiguration& RCC
     if (!p_TempRCConfiguration->SerializeContent(XmlStreamWriter, true))
     {
         qDebug() << "CRCConfiguration::Operator Streaming (SerializeContent) failed.";
-        // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
         const_cast<CRCConfiguration &>(RCConfiguration).m_ErrorMap.insert(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "RCConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "RCConfiguration", true);
     }
 
     // write enddocument
     XmlStreamWriter.writeEndDocument();
-    return OutDataStream;
+    return OutDataStreamRef;
 }
 
 /****************************************************************************/
@@ -778,26 +752,26 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfiguration& RCC
  *  \return Input Stream
  */
 /****************************************************************************/
-QDataStream& operator >>(QDataStream& InDataStream, CRCConfiguration& RCConfiguration)
+QDataStream& operator >>(const QDataStream& InDataStream, const CRCConfiguration& RCConfiguration)
 {
-    QXmlStreamReader XmlStreamReader; ///< Reader for the XML
+    QDataStream& InDataStreamRef = const_cast<QDataStream &>(InDataStream);
+    CRCConfiguration& RCConfigurationRef = const_cast<CRCConfiguration &>(RCConfiguration);
+    QXmlStreamReader XmlStreamReader; //!< Reader for the XML
     // store the IO device
-    QIODevice* IODevice = InDataStream.device();
+    QIODevice* IODevice = InDataStreamRef.device();
 
     XmlStreamReader.setDevice(IODevice);
 
     // deserialize the content of the xml
-    if (!RCConfiguration.DeserializeContent(XmlStreamReader, true))
+    if (!RCConfigurationRef.DeserializeContent(XmlStreamReader, true))
     {
         qDebug() << "CRCConfiguration::Operator Streaming (DeSerializeContent) failed.";
-        // throws an exception
-        //THROWARG(Global::EVENT_GLOBAL_UNKNOWN_STRING_ID, Global::tTranslatableStringList() << FILE_LINE);
-        RCConfiguration.m_ErrorMap.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "RCConfiguration");
+        RCConfigurationRef.m_ErrorMap.insert(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "RCConfiguration");
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "RCConfiguration", true);
     }
     XmlStreamReader.device()->reset();
     qDebug()<<">> Stream OPERATOR "<<XmlStreamReader.device()->readAll();
-    return InDataStream;
+    return InDataStreamRef;
 }
 
 /****************************************************************************/
@@ -842,11 +816,11 @@ ErrorMap_t& CRCConfiguration::GetErrors()
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfiguration::ReadDataItems(QXmlStreamReader& XmlStreamReader, bool CompleteData)
+bool CRCConfiguration::ReadDataItems(const QXmlStreamReader& XmlStreamReader, const bool& CompleteData)
 {
     while (!XmlStreamReader.atEnd())
     {
-        if (XmlStreamReader.readNext() == QXmlStreamReader::Invalid)
+        if (const_cast<QXmlStreamReader &>(XmlStreamReader).readNext() == QXmlStreamReader::Invalid)
         {
             qDebug() << "Reading " << XmlStreamReader.name() << " at line number: " << XmlStreamReader.lineNumber();
             qDebug() << "Invalid Token. Error: " << XmlStreamReader.errorString();
@@ -872,7 +846,6 @@ bool CRCConfiguration::ReadDataItems(QXmlStreamReader& XmlStreamReader, bool Com
         } // end of start element comparison
         else if (XmlStreamReader.isEndElement() && XmlStreamReader.name().toString() == "DataItems")
         {
-            //qDebug() << "It has reached the end of the particular Node , Stop reading for this rule";
             break; // exit from while loop
         }
     } // end of while loop
@@ -889,7 +862,7 @@ bool CRCConfiguration::ReadDataItems(QXmlStreamReader& XmlStreamReader, bool Com
  *  \return true or false.
  */
 /****************************************************************************/
-bool CRCConfiguration::AddDataItem(const QString Name, const CRCDataItem &RCDataItem)
+bool CRCConfiguration::AddDataItem(const QString& Name, const CRCDataItem& RCDataItem)
 {
     m_RCDataItemMap.insert(Name,RCDataItem);
 
@@ -905,7 +878,7 @@ bool CRCConfiguration::AddDataItem(const QString Name, const CRCDataItem &RCData
  *  \return true or false.
  */
 /****************************************************************************/
-bool CRCConfiguration::UpdateDataItem(const QString Name, const CRCDataItem &RCDataItem)
+bool CRCConfiguration::UpdateDataItem(const QString& Name, const CRCDataItem& RCDataItem)
 {
     if(m_RCDataItemMap.contains(Name))
     {
@@ -926,7 +899,7 @@ bool CRCConfiguration::UpdateDataItem(const QString Name, const CRCDataItem &RCD
  *  \return true or false.
  */
 /****************************************************************************/
-bool CRCConfiguration::DeleteDataItem(const QString Name)
+bool CRCConfiguration::DeleteDataItem(const QString& Name)
 {
     if(m_RCDataItemMap.contains(Name))
     {

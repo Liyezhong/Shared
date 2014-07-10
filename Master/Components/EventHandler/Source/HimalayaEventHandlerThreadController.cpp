@@ -409,19 +409,22 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
 
         m_EventEntry.SetButtonType(Global::NOT_SPECIFIED);
     }
-//    if (EventHandler::StateHandler::Instance().getCurrentOperationState().compare("DefaultState") == 0) {
-//        m_Daym_EventEntryList.append(m_EventEntry);
-//    }
-//    else {
-//        // emit all the pending entries
-//        if (m_Daym_EventEntryList.count() > 0) {
-//            for (int Counter = 0; Counter < m_DayEventEntryList.count(); Counter++) {
-//                emit LogEventEntry(m_DayEventEntryList.value(Counter));
-//            }
-//            m_DayEventEntryList.clear();
-//        }
-        //qDebug()<< "Sending event to DataLogger";
-        emit LogEventEntry(m_EventEntry); //Log the event
-//    }
+
+    emit LogEventEntry(m_EventEntry); //Log the event
+
+    // check signal connection
+    if (receivers(SIGNAL(SendEventToRemoteCare(const DataLogging::DayEventEntry&, const quint64))) == 0)
+        return;
+
+    if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
+        return;
+//    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
+//        return;
+
+    quint64 EventId64 = ((quint64)EventInfo.EventID << 32) | EventInfo.EventKey;
+
+    /// \todo this is a test of Axeda Remote Care error reporting:
+    emit SendEventToRemoteCare(m_EventEntry, EventId64);
 }
+
 }//end of namespace EventHandler

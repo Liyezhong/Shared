@@ -3,8 +3,8 @@
  *
  *  \brief Definition for RCDataItem class.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-07-08
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -27,11 +27,11 @@
 #include "Global/Include/RemoteCareTypes.h"
 namespace DataManager {
 
-const int NUMBER_OF_RDI_QUALITY = 4; ///< total number of rdi quality types
-const QString NameOfRDIQuality[4] = {"DataGood", "DataBad", "DataUncertain", "Invalid"}; ///< text for quality
+const int NUMBER_OF_RDI_QUALITY = 4; //!< total number of rdi quality types
+const QString NameOfRDIQuality[4] = {"DataGood", "DataBad", "DataUncertain", "Invalid"}; //!< text for quality
 
-const int NUMBER_OF_RDI_TYPE = 5;  ///< total number of rdi data types
-const QString NameOfRDIType[5] = {"Analog", "Digital", "String", "Undefined", "Invalid"};///< text for each type
+const int NUMBER_OF_RDI_TYPE = 5;  //!< total number of rdi data types
+const QString NameOfRDIType[5] = {"Analog", "Digital", "String", "Undefined", "Invalid"};//!< text for each type
 
 
 /****************************************************************************/
@@ -44,25 +44,25 @@ class CRCDataItem
     friend class CRCConfiguration;
 
 private:
-    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+    bool SerializeContent(const QXmlStreamWriter& StreamWriter, const bool& CompleteData);
+    bool DeserializeContent(const QXmlStreamReader& XmlStreamReader, const bool& CompleteData);
 
 protected:
 
-    QString                 m_Name;       ///< DataItem name
-    RemoteCare::RCDataItemType_t     m_Type;       ///< DataItem type (digital/analog/string)
-    RemoteCare::RCDataItemQuality_t  m_Quality;    ///< DataItem quality (good/bad/uncertain)
-    QString                 m_Value;      ///< The value of the DataItem
+    QString                 m_Name;       //!< DataItem name
+    RemoteCare::RCDataItemType_t     m_Type;       //!< DataItem type (digital/analog/string)
+    RemoteCare::RCDataItemQuality_t  m_Quality;    //!< DataItem quality (good/bad/uncertain)
+    QString                 m_Value;      //!< The value of the DataItem
 
 public:
     CRCDataItem();
-    CRCDataItem(const QString Name);
+    CRCDataItem(const QString& Name);
     CRCDataItem(const CRCDataItem&);
     void CopyFromOther(const CRCDataItem &RCDataItem);
     ~CRCDataItem();
 
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CRCDataItem& RCDataItem);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CRCDataItem& RCDataItem);
+    friend QDataStream& operator <<(const QDataStream& OutDataStream, const CRCDataItem& RCDataItem);
+    friend QDataStream& operator >>(const QDataStream& InDataStream, const CRCDataItem& RCDataItem);
     CRCDataItem& operator=(const CRCDataItem&);
 
     /******************** INLINE FuNCTIONS **************************************/
@@ -87,7 +87,7 @@ public:
      *  \return
      */
     /****************************************************************************/
-    void SetName(const QString Name)
+    void SetName(const QString& Name)
     {
         m_Name = Name;
     }
@@ -113,7 +113,7 @@ public:
      *  \return
      */
     /****************************************************************************/
-    void SetType(const RemoteCare::RCDataItemType_t Type)
+    void SetType(const RemoteCare::RCDataItemType_t& Type)
     {
         m_Type = Type;
     }
@@ -139,7 +139,7 @@ public:
      *  \return
      */
     /****************************************************************************/
-    void SetQuality(const RemoteCare::RCDataItemQuality_t Quality)
+    void SetQuality(const RemoteCare::RCDataItemQuality_t& Quality)
     {
         m_Quality = Quality;
     }
@@ -165,7 +165,7 @@ public:
      *  \return
      */
     /****************************************************************************/
-    void SetValue(const QString Value)
+    void SetValue(const QString& Value)
     {
         m_Value = Value.trimmed();
     }

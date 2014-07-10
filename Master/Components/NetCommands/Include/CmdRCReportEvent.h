@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCReportEvent command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -43,13 +43,13 @@ struct RCEventReportDataStruct{
  */
 /****************************************************************************/
 class CmdRCReportEvent : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdRCReportEvent &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCReportEvent &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCReportEvent &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCReportEvent &);
 public:
-    static QString NAME;    ///< Command name.
+    static QString NAME;    //!< Command name.
     /****************************************************************************/
-    CmdRCReportEvent(int TimeOut, RCEventReportDataStruct &EventReportData);
-    CmdRCReportEvent();                                                    ///< Not implemented.
+    CmdRCReportEvent(const int& TimeOut, const RCEventReportDataStruct &EventReportData);
+    CmdRCReportEvent();                                                    //!< Not implemented.
     ~CmdRCReportEvent();
 
     virtual QString GetName() const;
@@ -82,52 +82,49 @@ public:
     }
 
 private:
-    CmdRCReportEvent(const CmdRCReportEvent &);                       ///< Not implemented.
-    /****************************************************************************/
-    /*!
-     *  \brief       Not implemented.
-     *
-     *  \return
-     */
-    /****************************************************************************/
-    const CmdRCReportEvent & operator = (const CmdRCReportEvent &);   ///< Not implemented.
-    QByteArray m_RCEventReportByteArray;  ///< ByteArray for storing Event Report data.
+    CmdRCReportEvent(const CmdRCReportEvent &);                       //!< Not implemented.
+    const CmdRCReportEvent & operator = (const CmdRCReportEvent &);   //!< Not implemented.
+    QByteArray m_RCEventReportByteArray;  //!< ByteArray for storing Event Report data.
 }; // end class CmdRCReportEvent
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Output Stream Operator which streams data
  *
  * \iparam   Stream      Stream to stream into.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \iparam   Cmd         The command to stream.
+ * \return   Output Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCReportEvent &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCReportEvent &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
+    Cmd.CopyToStream(StreamRef);
     // copy internal data
-    Stream <<Cmd.m_RCEventReportByteArray;
-    return Stream;
+    StreamRef <<Cmd.m_RCEventReportByteArray;
+    return StreamRef;
 }
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Input Stream Operator which streams data
  *
  * \iparam   Stream      Stream to stream from.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \iparam   Cmd         The command to stream.
+ * \return   Input Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCReportEvent &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCReportEvent &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCReportEvent& CmdRef = const_cast<CmdRCReportEvent &>(Cmd);
+
     // copy base class data
-    Cmd.CopyFromStream(Stream);
+    CmdRef.CopyFromStream(StreamRef);
     // copy internal data
-    Stream >> Cmd.m_RCEventReportByteArray;
-    return Stream;
+    StreamRef >> CmdRef.m_RCEventReportByteArray;
+    return StreamRef;
 }
 
 

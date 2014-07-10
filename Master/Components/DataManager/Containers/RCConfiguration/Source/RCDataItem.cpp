@@ -3,8 +3,8 @@
  *
  *  \brief RCDataItem class implementation.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-07-08
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -17,7 +17,7 @@
  *
  */
 /****************************************************************************/
-//lint -sem(DataManager::CRCDataItem::CopyFromOther,initializer)
+
 #include <QDebug>
 #include <QString>
 #include <QBuffer>
@@ -29,6 +29,9 @@
 #include <Global/Include/EventObject.h>
 #include <DataManager/Helper/Include/DataManagerEventCodes.h>
 #include "DataManager/Helper/Include/Helper.h"
+
+//lint -e1566
+//lint -sem(DataManager::CRCDataItem::CopyFromOther,initializer)
 
 namespace DataManager {
 
@@ -52,7 +55,7 @@ CRCDataItem::CRCDataItem() :
  *  \iparam Name = data item name
  */
 /****************************************************************************/
-CRCDataItem::CRCDataItem(const QString Name) :
+CRCDataItem::CRCDataItem(const QString& Name) :
     m_Name(Name),
     m_Type(RemoteCare::RDI_Undefined),
     m_Quality(RemoteCare::RDI_DataUncertain),
@@ -114,9 +117,10 @@ CRCDataItem::~CRCDataItem()
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCDataItem::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData)
+bool CRCDataItem::SerializeContent(const QXmlStreamWriter& StreamWriter, const bool& CompleteData)
 {
     bool Result = true;
+    QXmlStreamWriter& XmlStreamWriter = const_cast<QXmlStreamWriter &>(StreamWriter);
 
     XmlStreamWriter.writeStartElement("DataItem"); //Data Item
 
@@ -161,7 +165,7 @@ bool CRCDataItem::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool Compl
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCDataItem::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData)
+bool CRCDataItem::DeserializeContent(const QXmlStreamReader& XmlStreamReader, const bool& CompleteData)
 {
     // name
     if (!XmlStreamReader.attributes().hasAttribute("Name"))
@@ -250,18 +254,19 @@ bool CRCDataItem::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool Com
  *  \return Output Stream
  */
 /****************************************************************************/
-QDataStream& operator <<(QDataStream& OutDataStream, const CRCDataItem& RCDataItem)
+QDataStream& operator <<(const QDataStream& OutDataStream, const CRCDataItem& RCDataItem)
 {
     CRCDataItem *p_TempRCDataItem = const_cast<CRCDataItem*>(&RCDataItem);
+    QDataStream& OutDataStreamRef = const_cast<QDataStream &>(OutDataStream);
 
     QXmlStreamWriter XmlStreamWriter;
-    XmlStreamWriter.setDevice(OutDataStream.device());
+    XmlStreamWriter.setDevice(OutDataStreamRef.device());
 
     if (!p_TempRCDataItem->SerializeContent(XmlStreamWriter, true))
     {
         qDebug() << "CRCDataItem::Operator Streaming (SerializeContent) failed.";
     }
-    return OutDataStream;
+    return OutDataStreamRef;
 }
 
 /****************************************************************************/
@@ -275,22 +280,24 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRCDataItem& RCDataIt
  */
 /****************************************************************************/
 
-QDataStream& operator >>(QDataStream& InDataStream, CRCDataItem& RCDataItem)
+QDataStream& operator >>(const QDataStream& InDataStream, const CRCDataItem& RCDataItem)
 {
+    QDataStream& InDataStreamRef = const_cast<QDataStream &>(InDataStream);
+    CRCDataItem& RCDataItemRef = const_cast<CRCDataItem &>(RCDataItem);
     QXmlStreamReader XmlStreamReader;
-    XmlStreamReader.setDevice(InDataStream.device());
+    XmlStreamReader.setDevice(InDataStreamRef.device());
 
     if (!Helper::ReadNode(XmlStreamReader, QString("DataItem")))
     {
         qDebug() << "CRCDataItem::Operator Streaming (DeSerializeContent) Node not found: DataItem";
     }
 
-    if (!RCDataItem.DeserializeContent(XmlStreamReader, true))
+    if (!RCDataItemRef.DeserializeContent(XmlStreamReader, true))
     {
         qDebug() << "CRCDataItem::Operator Streaming (DeSerializeContent) failed.";
     }
 
-    return InDataStream;
+    return InDataStreamRef;
 }
 
 /****************************************************************************/

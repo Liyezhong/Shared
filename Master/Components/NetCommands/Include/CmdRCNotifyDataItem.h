@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyDataItem command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 16.07.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -37,19 +37,19 @@ namespace NetCommands {
 class CmdRCNotifyDataItem : public Global::Command
 {
     /// streaming operators are friends
-    friend QDataStream & operator << (QDataStream &, const CmdRCNotifyDataItem &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCNotifyDataItem &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCNotifyDataItem &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCNotifyDataItem &);
 
 public:
 
-    static QString NAME; ///< name of this command
+    static QString NAME; //!< name of this command
 
     CmdRCNotifyDataItem();
-    CmdRCNotifyDataItem(int timeout);
-    CmdRCNotifyDataItem(int timeout, const QString &name, RemoteCare::RCDataItemType_t type, \
-                     RemoteCare::RCDataItemQuality_t quality, const QString &value, const QString &timestamp);
-    CmdRCNotifyDataItem(const CmdRCNotifyDataItem &rOther);
-    const CmdRCNotifyDataItem & operator = (const CmdRCNotifyDataItem &rOther);
+//    CmdRCNotifyDataItem(const int& timeout);
+    CmdRCNotifyDataItem(const int& timeout, const QString& name, const RemoteCare::RCDataItemType_t& type, \
+                     const RemoteCare::RCDataItemQuality_t& quality, const QString& value, const QString& timestamp);
+    CmdRCNotifyDataItem(const CmdRCNotifyDataItem& rOther); //!< Not implemented
+    const CmdRCNotifyDataItem & operator = (const CmdRCNotifyDataItem& rOther);
     ~CmdRCNotifyDataItem();
 
     // inherited function
@@ -67,11 +67,11 @@ private:
 
 private:
 
-    QString                 m_Name;       ///< DataItem name
-    RemoteCare::RCDataItemType_t        m_Type;       ///< DataItem type (digital/analog/string)
-    RemoteCare::RCDataItemQuality_t  m_Quality;    ///< DataItem quality (good/bad/uncertain)
-    QString                 m_Value;      ///< The value of the DataItem
-    QString                 m_Timestamp;  ///< timestamp of the DataItem logging
+    QString                 m_Name;       //!< DataItem name
+    RemoteCare::RCDataItemType_t        m_Type;       //!< DataItem type (digital/analog/string)
+    RemoteCare::RCDataItemQuality_t  m_Quality;    //!< DataItem quality (good/bad/uncertain)
+    QString                 m_Value;      //!< The value of the DataItem
+    QString                 m_Timestamp;  //!< timestamp of the DataItem logging
 
 }; // end class
 
@@ -87,17 +87,18 @@ private:
  * \return  Stream with the serialized command
  *
  ****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCNotifyDataItem &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCNotifyDataItem &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
+    Cmd.CopyToStream(StreamRef);
     // stream the CmdRCNotifyDataItem private members
-    Stream << Cmd.m_Name;
-    Stream << (quint8&)(Cmd.m_Type);
-    Stream << (quint8&)(Cmd.m_Quality);
-    Stream << Cmd.m_Value;
-    Stream << Cmd.m_Timestamp;
-    return Stream;
+    StreamRef << Cmd.m_Name;
+    StreamRef << (quint8&)(Cmd.m_Type);
+    StreamRef << (quint8&)(Cmd.m_Quality);
+    StreamRef << Cmd.m_Value;
+    StreamRef << Cmd.m_Timestamp;
+    return StreamRef;
 }
 
 /****************************************************************************/
@@ -111,17 +112,20 @@ inline QDataStream & operator << (QDataStream &Stream, const CmdRCNotifyDataItem
  * \return  Stream
  *
  ****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCNotifyDataItem &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCNotifyDataItem &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCNotifyDataItem& CmdRef = const_cast<CmdRCNotifyDataItem &>(Cmd);
+
     // copy base class data
-    Cmd.CopyFromStream(Stream);
+    CmdRef.CopyFromStream(StreamRef);
     // stream the CmdRCNotifyDataItem private members
-    Stream >> Cmd.m_Name;
-    Stream >> (quint8&)(Cmd.m_Type);
-    Stream >> (quint8&)(Cmd.m_Quality);
-    Stream >> Cmd.m_Value;
-    Stream >> Cmd.m_Timestamp;
-    return Stream;
+    StreamRef >> CmdRef.m_Name;
+    StreamRef >> (quint8&)(CmdRef.m_Type);
+    StreamRef >> (quint8&)(CmdRef.m_Quality);
+    StreamRef >> CmdRef.m_Value;
+    StreamRef >> CmdRef.m_Timestamp;
+    return StreamRef;
 }
 
 } // end namespace

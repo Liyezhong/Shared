@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCReportEvent command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -32,7 +32,7 @@ QString CmdRCReportEvent::NAME = "NetCommands::CmdRCReportEvent";
  *  \iparam   EventReportData         Event Report DataStruct
  */
 /****************************************************************************/
-CmdRCReportEvent::CmdRCReportEvent(int Timeout, RCEventReportDataStruct &EventReportData) :
+CmdRCReportEvent::CmdRCReportEvent(const int& Timeout, const RCEventReportDataStruct &EventReportData) :
     Command(Timeout)
 {
     QDataStream Stream(&m_RCEventReportByteArray, QIODevice::ReadWrite);

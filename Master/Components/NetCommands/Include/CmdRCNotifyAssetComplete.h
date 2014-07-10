@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyAssetComplete command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -28,64 +28,61 @@ namespace NetCommands {
  */
 /****************************************************************************/
 class CmdRCNotifyAssetComplete : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdRCNotifyAssetComplete &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCNotifyAssetComplete &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCNotifyAssetComplete &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCNotifyAssetComplete &);
 public:
-    static QString NAME;    ///< Command name.
-    CmdRCNotifyAssetComplete(int TimeOut,const QString &FilePath);
+    static QString NAME;    //!< Command name.
+    CmdRCNotifyAssetComplete(const int& TimeOut,const QString& FilePath);
     CmdRCNotifyAssetComplete();
     ~CmdRCNotifyAssetComplete();
     virtual QString GetName() const;
     QString GetFilePath() const;
 
 private:
-    CmdRCNotifyAssetComplete(const CmdRCNotifyAssetComplete &);                       ///< Not implemented.
-    /****************************************************************************/
-    /*!
-     *  \brief       Not implemented.
-     *
-     *  \return
-     */
-    /****************************************************************************/
-    const CmdRCNotifyAssetComplete & operator = (const CmdRCNotifyAssetComplete &);   ///< Not implemented.
-    QString m_FilePath;   ///< asset archive file path
+    CmdRCNotifyAssetComplete(const CmdRCNotifyAssetComplete &);                       //!< Not implemented.
+    const CmdRCNotifyAssetComplete & operator = (const CmdRCNotifyAssetComplete &);   //!< Not implemented.
+    QString m_FilePath;   //!< asset archive file path
 };
 
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Output Stream Operator which streams data
  *
  * \iparam   Stream      Stream to stream into.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \iparam   Cmd         The command to stream.
+ * \return   Output Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCNotifyAssetComplete &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCNotifyAssetComplete &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
+    Cmd.CopyToStream(StreamRef);
     // copy internal data
-    Stream << Cmd.m_FilePath;
-    return Stream;
+    StreamRef << Cmd.m_FilePath;
+    return StreamRef;
 }
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Input Stream Operator which streams data
  *
  * \iparam   Stream      Stream to stream from.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \iparam   Cmd         The command to stream.
+ * \return   Input Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCNotifyAssetComplete &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCNotifyAssetComplete &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCNotifyAssetComplete& CmdRef = const_cast<CmdRCNotifyAssetComplete &>(Cmd);
+
     // copy base class data
-    Cmd.CopyFromStream(Stream);
+    CmdRef.CopyFromStream(StreamRef);
     // copy internal data
-    Stream >> Cmd.m_FilePath;
-    return Stream;
+    StreamRef >> CmdRef.m_FilePath;
+    return StreamRef;
 }
 
 } // End of namespace NetCommands

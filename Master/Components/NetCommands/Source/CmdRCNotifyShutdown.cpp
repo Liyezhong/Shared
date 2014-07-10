@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyShutdown command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -31,7 +31,7 @@ QString CmdRCNotifyShutdown::NAME = "NetCommands::CmdRCNotifyShutdown";
  *  \iparam   Timeout     Timeout for command.
  */
 /****************************************************************************/
-CmdRCNotifyShutdown::CmdRCNotifyShutdown(int Timeout) :
+CmdRCNotifyShutdown::CmdRCNotifyShutdown(const int& Timeout) :
     Command(Timeout)
 {
 }

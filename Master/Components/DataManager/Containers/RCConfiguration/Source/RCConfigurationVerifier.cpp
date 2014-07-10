@@ -3,8 +3,8 @@
  *
  *  \brief Implementation file for class RCConfigurationVerifier.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-05-23
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -41,14 +41,14 @@ CRCConfigurationVerifier::CRCConfigurationVerifier() : mp_RCConfigurationInterfa
 
 /****************************************************************************/
 /*!
- *  \brief  Verifies user settings
+ *  \brief  Verifies rc configuration
  *
- *  \iparam p_RCConfigurationInterface = user settings interface class object
+ *  \iparam p_RCConfigurationInterface = rc configuration interface class object
  *
  *  \return Successful (true) or not (false)
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::VerifyData(CDataContainerBase* p_RCConfigurationInterface)
+bool CRCConfigurationVerifier::VerifyData(const CDataContainerBase* p_RCConfigurationInterface)
 {    
     // by default make the verification flag to true
     bool VerifiedData = true;
@@ -59,7 +59,8 @@ bool CRCConfigurationVerifier::VerifyData(CDataContainerBase* p_RCConfigurationI
         QString ErrorDescription;
 
         // assign pointer to member variable
-        mp_RCConfigurationInterface = static_cast<CRCConfigurationInterface*>(p_RCConfigurationInterface);
+        mp_RCConfigurationInterface = static_cast<CRCConfigurationInterface*>
+                (const_cast<CDataContainerBase*>(p_RCConfigurationInterface));
         CHECKPTR(mp_RCConfigurationInterface)
         // check content of user settings
         CRCConfiguration* p_RCConfiguration = mp_RCConfigurationInterface->GetRCConfiguration();
@@ -120,7 +121,7 @@ void CRCConfigurationVerifier::ResetErrors()
  *  \return bool - On successful (True) otherwise (False)
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::IsLocalVerifier()
+bool CRCConfigurationVerifier::IsLocalVerifier() const
 {
     return true;
 }
@@ -303,24 +304,11 @@ void CRCConfigurationVerifier::CheckRemoteSessionSettings(CRCConfiguration* p_RC
         VerifiedData = false;
     }
 
-    if(!CheckStringLenghtRange(p_RCConfiguration->GetRemoteSessionType(), MIN_REMOTESESSION_TYPE_LENGTH,
-                               MAX_REMOTESESSION_TYPE_LENGTH, EVENT_DM_RC_REMOTESESSION_TYPE_LENGHT_OUTOF_RANGE))
-    {
-        qDebug() << "REMOTE SESSION TYPE LENGHT OUT OF RANGE";
-        VerifiedData = false;
-    }
-
     if (!(CheckIPAddress(p_RCConfiguration->GetRemoteSessionIPAddress())))
     {
         qDebug() << "REMOTE SESSION IP ADDRESS NOT VALID";
         m_ErrorMap.insert(EVENT_DM_RC_INVALID_REMOTESESSION_IP_ADDRESS, Global::tTranslatableStringList() << p_RCConfiguration->GetRemoteSessionIPAddress());
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_RC_INVALID_REMOTESESSION_IP_ADDRESS, Global::tTranslatableStringList() <<  p_RCConfiguration->GetRemoteSessionIPAddress(), true);
-        VerifiedData = false;
-    }
-
-    if (!(CheckIPPort(p_RCConfiguration->GetRemoteSessionIPPort(), EVENT_DM_RC_REMOTESESSION_PORT_OUTOF_RANGE)))
-    {
-        qDebug() << "REMOTE SESSION IP PORT NUMBER NOT IN RANGE";
         VerifiedData = false;
     }
 }
@@ -358,7 +346,7 @@ void CRCConfigurationVerifier::CheckFileUploadSettings(CRCConfiguration* p_RCCon
  *  \return True - If IP address is valid else False
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::CheckIPAddress(QString IPAddress)
+bool CRCConfigurationVerifier::CheckIPAddress(const QString& IPAddress)
 {
     qDebug()<<"CRCConfigurationVerifier::CheckIPAddress, Count= "<< IPAddress.split(".").count();
     bool VerifiedIPAddress = false;
@@ -421,7 +409,7 @@ bool CRCConfigurationVerifier::CheckIPAddress(QString IPAddress)
  *  \return True - If IP address is valid else False
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::CheckIPPort(int IPPort, const quint32 EventId)
+bool CRCConfigurationVerifier::CheckIPPort(const int& IPPort, const quint32& EventId)
 {
     if (IPPort < MIN_IP_PORT || IPPort > MAX_IP_PORT)
     {
@@ -446,7 +434,7 @@ bool CRCConfigurationVerifier::CheckIPPort(int IPPort, const quint32 EventId)
  *  \return True - If valid else False
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::CheckOnOffState(const Global::OnOffState Attribute, const quint32 EventId)
+bool CRCConfigurationVerifier::CheckOnOffState(const Global::OnOffState& Attribute, const quint32& EventId)
 {
     if (!((Attribute == Global::ONOFFSTATE_ON || Attribute == Global::ONOFFSTATE_OFF)))
     {
@@ -469,8 +457,8 @@ bool CRCConfigurationVerifier::CheckOnOffState(const Global::OnOffState Attribut
  *  \return True - If valid else False
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::CheckStringLenghtRange(const QString Attribute, const int MinLenght,
-                                                      const int MaxLenght, const quint32 EventId)
+bool CRCConfigurationVerifier::CheckStringLenghtRange(const QString& Attribute, const int& MinLenght,
+                                                      const int& MaxLenght, const quint32& EventId)
 {
     if (!((Attribute.isEmpty() != true && Attribute.length() >= MinLenght && Attribute.length() <= MaxLenght)))
     {
@@ -497,7 +485,8 @@ bool CRCConfigurationVerifier::CheckStringLenghtRange(const QString Attribute, c
  *  \return True - If valid else False
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::CheckDataRange(quint64 Attribute, quint64 MinValue, quint64 MaxValue, const quint32 EventId)
+bool CRCConfigurationVerifier::CheckDataRange(const quint64& Attribute, const quint64& MinValue,
+                                              const quint64& MaxValue, const quint32& EventId)
 {
     if (Attribute < MinValue || Attribute > MaxValue)
     {
@@ -532,8 +521,7 @@ void CRCConfigurationVerifier::CheckDataItems(CRCConfiguration* p_RCConfiguratio
         CRCDataItem DataItem;
 
         p_RCConfiguration->GetDataItem(Index, DataItem);
-        //the folowing code are expected never used
-        /*lint -e568 */
+
         if( ((qint32)DataItem.GetType() < (qint32)RemoteCare::RDI_Analog) ||
                 ((qint32)DataItem.GetType() > (qint32)RemoteCare::RDI_Undefined))
         {
@@ -546,8 +534,7 @@ void CRCConfigurationVerifier::CheckDataItems(CRCConfiguration* p_RCConfiguratio
                                                        Global::tTranslatableStringList() << DataItem.GetName() , true);
             VerifiedData = false;
         }
-        //the folowing code are expected never used
-        /*lint -e568 */
+
         if( ((qint32)DataItem.GetQuality() < (qint32)RemoteCare::RDI_DataGood) ||
                 ((qint32)DataItem.GetQuality() > (qint32)RemoteCare::RDI_DataUncertain))
         {

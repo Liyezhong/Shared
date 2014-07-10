@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCSetTag command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 16.07.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -22,6 +22,7 @@
 
 #include <QDataStream>
 #include <QDebug>
+//lint -e1565
 
 namespace NetCommands {
 
@@ -45,13 +46,16 @@ CmdRCSetTag::CmdRCSetTag() :
  *  \brief   Constructor
  *
  *  \iparam timeout = Timeout of this command.
+ *  \iparam name = data item's name (Axeda parameter)
+ *  \iparam type = data item's type (Axeda parameter)
+ *  \iparam value = the value of the data item (Axeda parameter)
  *
  ****************************************************************************/
-CmdRCSetTag::CmdRCSetTag(int timeout) :
+CmdRCSetTag::CmdRCSetTag(const int& timeout, const QString &name, const RemoteCare::RCDataItemType_t& type, const QString &value) :
         Command(timeout),
-        m_Name(""),
-        m_Type(RemoteCare::RDI_Undefined),
-        m_Value("")
+        m_Name(name),
+        m_Type(type),
+        m_Value(value)
 {
 }
 
@@ -60,16 +64,13 @@ CmdRCSetTag::CmdRCSetTag(int timeout) :
  *  \brief   Constructor
  *
  *  \iparam timeout = Timeout of this command.
- *  \iparam name = data item's name (Axeda parameter)
- *  \iparam type = data item's type (Axeda parameter)
- *  \iparam value = the value of the data item (Axeda parameter)
  *
  ****************************************************************************/
-CmdRCSetTag::CmdRCSetTag(int timeout, const QString &name, RemoteCare::RCDataItemType_t type, const QString &value) :
+CmdRCSetTag::CmdRCSetTag(const int& timeout) :
         Command(timeout),
-        m_Name(name),
-        m_Type(type),
-        m_Value(value)
+        m_Name(""),
+        m_Type(RemoteCare::RDI_Undefined),
+        m_Value("")
 {
 }
 
@@ -188,7 +189,7 @@ QString CmdRCSetTag::GetTagValue() const
  *  \iparam value = the data
  *
  ****************************************************************************/
-void CmdRCSetTag::SetCommandData(RemoteCare::RCDataItemType_t type, const QString &value)
+void CmdRCSetTag::SetCommandData(const RemoteCare::RCDataItemType_t& type, const QString &value)
 {
     m_Type = type;
     m_Value = value;

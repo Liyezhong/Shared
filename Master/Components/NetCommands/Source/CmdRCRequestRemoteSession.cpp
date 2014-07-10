@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCRequestRemoteSession command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -32,7 +32,7 @@ QString CmdRCRequestRemoteSession::NAME = "RemoteCare::CmdRCRequestRemoteSession
  *  \iparam   RequestType  Request type
  */
 /****************************************************************************/
-CmdRCRequestRemoteSession::CmdRCRequestRemoteSession(int Timeout, QString RequestType) :
+CmdRCRequestRemoteSession::CmdRCRequestRemoteSession(const int& Timeout, const QString& RequestType) :
     Command(Timeout),
     m_RequestType(RequestType)
 {

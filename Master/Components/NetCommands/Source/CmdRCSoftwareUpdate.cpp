@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCSoftwareUpdate command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -22,7 +22,7 @@
 
 namespace RemoteCare {
 
-QString CmdRCSoftwareUpdate::NAME = "NetCommands::CmdRCSoftwareUpdate";
+QString CmdRCSoftwareUpdate::NAME = "RemoteCare::CmdRCSoftwareUpdate";
 
 /****************************************************************************/
 /*!
@@ -32,7 +32,7 @@ QString CmdRCSoftwareUpdate::NAME = "NetCommands::CmdRCSoftwareUpdate";
  *  \iparam  SWUpdateType  Update Type
  */
 /****************************************************************************/
-CmdRCSoftwareUpdate::CmdRCSoftwareUpdate(int Timeout, QString SWUpdateType) :
+CmdRCSoftwareUpdate::CmdRCSoftwareUpdate(const int& Timeout, const QString& SWUpdateType) :
     Command(Timeout),
     m_SWUpdateType(SWUpdateType)
 {

@@ -24,22 +24,23 @@
 namespace NetCommands {
 /****************************************************************************/
 /*!
- *  \brief  This class implements a CmdRackRemove command.
+ *  \brief  This class implements a CmdRemoteCareState command.
  */
 /****************************************************************************/
 class CmdRemoteCareState : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdRemoteCareState &);
-    friend QDataStream & operator >> (QDataStream &, CmdRemoteCareState &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRemoteCareState &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRemoteCareState &);
 public:
-    static QString NAME;    ///< Command name.
-    CmdRemoteCareState(int TimeOut,const bool &RemoteCareState);
+    static QString NAME;    //!< Command name.
+    CmdRemoteCareState(int TimeOut, const bool &RemoteCareState, QString ConnectionType = "RemoteCare");
     CmdRemoteCareState();
     ~CmdRemoteCareState();
     virtual QString GetName() const;
     bool GetRemoteCareState() const;
+    QString GetConnectionType() const;
 
 private:
-    CmdRemoteCareState(const CmdRemoteCareState &);                       ///< Not implemented.
+    CmdRemoteCareState(const CmdRemoteCareState &);                       //!< Not implemented.
     /****************************************************************************/
     /*!
      *  \brief       Not implemented.
@@ -47,45 +48,52 @@ private:
      *  \return
      */
     /****************************************************************************/
-    const CmdRemoteCareState & operator = (const CmdRemoteCareState &);   ///< Not implemented.
-    bool m_RemoteCareState;   ///< RemoteCare State - True if RemoteCare running, else false
+    const CmdRemoteCareState & operator = (const CmdRemoteCareState &);   //!< Not implemented.
+    bool m_AgentState;   //!< RemoteCare State - True if RemoteCare running, else false
+    QString m_ConnectionType;   //!< "RemoteCare", "LeicaApps"
 };
 
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Output Stream Operator which streams data
  *
- * \param[in,out]   Stream      Stream to stream into.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \oparam   Stream      Stream to stream into.
+ * \iparam   Cmd         The command to stream.
+ * \return   Output Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRemoteCareState &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRemoteCareState &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
+    Cmd.CopyToStream(StreamRef);
     // copy internal data
-    Stream << Cmd.m_RemoteCareState;
-    return Stream;
+    StreamRef << Cmd.m_AgentState;
+    StreamRef << Cmd.m_ConnectionType;
+    return StreamRef;
 }
 
 /****************************************************************************/
 /**
- * \brief Streaming operator.
+ * \brief Input Stream Operator which streams data
  *
- * \param[in,out]   Stream      Stream to stream from.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \oparam   Stream      Stream to stream from.
+ * \iparam   Cmd         The command to stream.
+ * \return   Input Stream.
  */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRemoteCareState &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRemoteCareState &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRemoteCareState& CmdRef = const_cast<CmdRemoteCareState &>(Cmd);
+
     // copy base class data
-    Cmd.CopyFromStream(Stream);
+    CmdRef.CopyFromStream(StreamRef);
     // copy internal data
-    Stream >> Cmd.m_RemoteCareState;
-    return Stream;
+    StreamRef >> CmdRef.m_AgentState;
+    StreamRef >> CmdRef.m_ConnectionType;
+    return StreamRef;
 }
 
 } // End of namespace NetCommands

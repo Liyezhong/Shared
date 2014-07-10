@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCSoftwareUpdate command definition.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -29,14 +29,14 @@ namespace RemoteCare {
 
 /****************************************************************************/
 /**
- * \brief remote care data item quality.
+ * \brief sw update status type.
  */
 /****************************************************************************/
-const QString   SWUpdate_Available  = "Available";        ///< new software available for update
-const QString   SWUpdate_NotAvailable   = "NotAvailable";       ///< no new software available for update
-const QString   SWUpdate_DownloadSuccess    = "DownloadSuccess";       ///< Downloading new software failed
-const QString   SWUpdate_DownloadFailed = "DownloadFailed";       ///< Downloading new software failed
-const QString   SWUpdate_StartDownload  = "StartDownload";       ///< User clicked on RC software update button
+const QString   SWUpdate_Available  = "Available";        //!< new software available for update
+const QString   SWUpdate_NotAvailable   = "NotAvailable";       //!< no new software available for update
+const QString   SWUpdate_DownloadSuccess    = "DownloadSuccess";       //!< Downloading new software failed
+const QString   SWUpdate_DownloadFailed = "DownloadFailed";       //!< Downloading new software failed
+const QString   SWUpdate_StartDownload  = "StartDownload";       //!< User clicked on RC software update button
 
 /****************************************************************************/
 /*!
@@ -44,62 +44,59 @@ const QString   SWUpdate_StartDownload  = "StartDownload";       ///< User click
  */
 /****************************************************************************/
 class CmdRCSoftwareUpdate : public Global::Command {
-    friend QDataStream & operator << (QDataStream &, const CmdRCSoftwareUpdate &);
-    friend QDataStream & operator >> (QDataStream &, CmdRCSoftwareUpdate &);
+    friend QDataStream & operator << (const QDataStream &, const CmdRCSoftwareUpdate &);
+    friend QDataStream & operator >> (const QDataStream &, const CmdRCSoftwareUpdate &);
 public:
-    static QString NAME;    ///< Command name.
-    CmdRCSoftwareUpdate(int Timeout, QString SWUpdateType);
+    static QString NAME;    //!< Command name.
+    CmdRCSoftwareUpdate(const int& Timeout, const QString& SWUpdateType);
     CmdRCSoftwareUpdate();
     ~CmdRCSoftwareUpdate();
     virtual QString GetName() const;
     QString GetUpdateType() const;
 private:
     
-    CmdRCSoftwareUpdate(const CmdRCSoftwareUpdate &);                       ///< Not implemented.
-    /****************************************************************************/
-    /*!
-     *  \brief       Not implemented.
-     *
-     *  \return
-     */
-    /****************************************************************************/
-    const CmdRCSoftwareUpdate & operator = (const CmdRCSoftwareUpdate &);   ///< Not implemented.
+    CmdRCSoftwareUpdate(const CmdRCSoftwareUpdate &);                       //!< Not implemented.
+    const CmdRCSoftwareUpdate & operator = (const CmdRCSoftwareUpdate &);   //!< Not implemented.
 private:
-    QString m_SWUpdateType;      ///< update type
+    QString m_SWUpdateType;      //!< update type
 }; // end class CmdRCSoftwareUpdate
 
 /****************************************************************************/
 /**
-     * \brief Streaming operator.
+     * \brief Output Stream Operator which streams data
      *
      * \iparam   Stream      Stream to stream into.
-     * \iparam       Cmd         The command to stream.
-     * \return                      Stream.
+     * \iparam   Cmd         The command to stream.
+     * \return   Output Stream.
      */
 /****************************************************************************/
-inline QDataStream & operator << (QDataStream &Stream, const CmdRCSoftwareUpdate &Cmd)
+inline QDataStream & operator << (const QDataStream &Stream, const CmdRCSoftwareUpdate &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
     // copy base class data
-    Cmd.CopyToStream(Stream);
-    Stream << Cmd.m_SWUpdateType;
-    return Stream;
+    Cmd.CopyToStream(StreamRef);
+    StreamRef << Cmd.m_SWUpdateType;
+    return StreamRef;
 }
 
 /****************************************************************************/
 /**
-     * \brief Streaming operator.
+     * \brief Input Stream Operator which streams data
      *
      * \iparam   Stream      Stream to stream from.
-     * \iparam       Cmd         The command to stream.
-     * \return                      Stream.
+     * \iparam   Cmd         The command to stream.
+     * \return   Input Stream.
      */
 /****************************************************************************/
-inline QDataStream & operator >> (QDataStream &Stream, CmdRCSoftwareUpdate &Cmd)
+inline QDataStream & operator >> (const QDataStream &Stream, const CmdRCSoftwareUpdate &Cmd)
 {
+    QDataStream& StreamRef = const_cast<QDataStream &>(Stream);
+    CmdRCSoftwareUpdate& CmdRef = const_cast<CmdRCSoftwareUpdate &>(Cmd);
+
 	// copy base class data
-    Cmd.CopyFromStream(Stream);
-    Stream >> Cmd.m_SWUpdateType;
-    return Stream;
+    CmdRef.CopyFromStream(StreamRef);
+    StreamRef >> CmdRef.m_SWUpdateType;
+    return StreamRef;
 }
 
 } // end namespace RemoteCare

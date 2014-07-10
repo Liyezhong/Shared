@@ -3,8 +3,8 @@
  *
  *  \brief RCConfigurationVerifier definition.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-05-23
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -17,8 +17,8 @@
  *
  */
 /****************************************************************************/
-#ifndef DATAMANAGER_CRCConfigurationVERIFIER_H
-#define DATAMANAGER_CRCConfigurationVERIFIER_H
+#ifndef DATAMANAGER_RCCONFIGURATIONVERIFIER_H
+#define DATAMANAGER_RCCONFIGURATIONVERIFIER_H
 
 #include <QString>
 #include <QXmlStreamReader>
@@ -30,41 +30,38 @@
 
 namespace DataManager {
 
-const quint32 MIN_QUEUE_SIZE   = 10; ///< Minimum value of queue size
-const quint32 MAX_QUEUE_SIZE   = 10000000; ///< Maximum value of queue size
+const quint32 MIN_QUEUE_SIZE   = 10; //!< Minimum value of queue size
+const quint32 MAX_QUEUE_SIZE   = 10000000; //!< Maximum value of queue size
 
-const quint32 MIN_EXEC_TIME   = 1; ///< Minimum value of exec time
-const quint32 MAX_EXEC_TIME   = 60; ///< Maximum value of exec time
+const quint32 MIN_EXEC_TIME   = 1; //!< Minimum value of exec time
+const quint32 MAX_EXEC_TIME   = 60; //!< Maximum value of exec time
 
-const int MIN_CERT_FILENAME_LENGTH = 10;///< Minimum length
-const int MAX_CERT_FILENAME_LENGTH = 100;///< Maximum length
+const int MIN_CERT_FILENAME_LENGTH = 10;//!< Minimum length
+const int MAX_CERT_FILENAME_LENGTH = 100;//!< Maximum length
 
-const int MIN_TARGET_DATABASE_LENGTH = 10;///< Minimum length
-const int MAX_TARGET_DATABASE_LENGTH = 100;///< Maximum length
+const int MIN_TARGET_DATABASE_LENGTH = 10;//!< Minimum length
+const int MAX_TARGET_DATABASE_LENGTH = 100;//!< Maximum length
 
-const int MIN_SERVER_URL_LENGTH = 10;///< Minimum length
-const int MAX_SERVER_URL_LENGTH = 100;///< Maximum length
+const int MIN_SERVER_URL_LENGTH = 10;//!< Minimum length
+const int MAX_SERVER_URL_LENGTH = 100;//!< Maximum length
 
-const quint32 MIN_SERVER_ID   = 12; ///< Minimum value of server id
-const quint32 MAX_SERVER_ID   = 10000002; ///< Maximum value of server id
+const quint32 MIN_SERVER_ID   = 12; //!< Minimum value of server id
+const quint32 MAX_SERVER_ID   = 10000002; //!< Maximum value of server id
 
-const quint32 MIN_DEVICE_ID   = 10; ///< Minimum value of device id
-const quint32 MAX_DEVICE_ID   = 10000003; ///< Maximum value of device id
+const quint32 MIN_DEVICE_ID   = 10; //!< Minimum value of device id
+const quint32 MAX_DEVICE_ID   = 10000003; //!< Maximum value of device id
 
-const int MIN_IP_PORT   = 1; ///< Minimum value of IP/remote session Port
-const int MAX_IP_PORT   = 65535; ///< Maximum value of IP/remote session Port
+const int MIN_IP_PORT   = 1; //!< Minimum value of IP/remote session Port
+const int MAX_IP_PORT   = 65535; //!< Maximum value of IP/remote session Port
 
-const int MIN_RS_IP_ADDRESS_NUMBER = 0;    ///< Minimum value of IP Address Number
-const int MAX_RS_IP_ADDRESS_NUMBER = 255;  ///< Maximum value of IP Address Number
+const int MIN_RS_IP_ADDRESS_NUMBER = 0;    //!< Minimum value of IP Address Number
+const int MAX_RS_IP_ADDRESS_NUMBER = 255;  //!< Maximum value of IP Address Number
 
-const int MIN_REMOTESESSION_NAME_LENGTH = 10;///< Minimum length
-const int MAX_REMOTESESSION_NAME_LENGTH = 100;///< Maximum length
+const int MIN_REMOTESESSION_NAME_LENGTH = 10;//!< Minimum length
+const int MAX_REMOTESESSION_NAME_LENGTH = 100;//!< Maximum length
 
-const int MIN_REMOTESESSION_TYPE_LENGTH = 5;///< Minimum length
-const int MAX_REMOTESESSION_TYPE_LENGTH = 100;///< Maximum length
-
-const quint32 MIN_MAXCHUNKSIZE   = 10; ///< Minimum value of max xhunk size for file upload
-const quint32 MAX_MAXCHUNKSIZE   = 2000000; ///< Maximum value of max xhunk size for file upload
+const quint32 MIN_MAXCHUNKSIZE   = 10; //!< Minimum value of max xhunk size for file upload
+const quint32 MAX_MAXCHUNKSIZE   = 2000000; //!< Maximum value of max xhunk size for file upload
 
 
 /****************************************************************************/
@@ -77,15 +74,15 @@ class CRCConfigurationVerifier : public IVerifierInterface
 public:
     CRCConfigurationVerifier();
 
-    bool VerifyData(CDataContainerBase* p_RCConfigurationInterface);  // use concrete class for concrete verifier
+    bool VerifyData(const CDataContainerBase* p_RCConfigurationInterface);  // use concrete class for concrete verifier
 
     ErrorMap_t &GetErrors();
 
     void ResetErrors();
-    bool IsLocalVerifier();
+    bool IsLocalVerifier() const;
 
 protected:
-    CRCConfigurationInterface* mp_RCConfigurationInterface;   ///< Local pointer to a rack list
+    CRCConfigurationInterface* mp_RCConfigurationInterface;   //!< Local pointer to a rack list
     ErrorMap_t m_ErrorMap;          //!< To store Error ID and any arguments associated
 private:
     /****************************************************************************/
@@ -103,14 +100,14 @@ private:
     void CheckLocalNetWorkSettings(CRCConfiguration* p_RCConfiguration, bool& VerifiedData);
     void CheckRemoteSessionSettings(CRCConfiguration* p_RCConfiguration, bool& VerifiedData);
     void CheckFileUploadSettings(CRCConfiguration* p_RCConfiguration, bool& VerifiedData);
-    bool CheckIPAddress(QString IPAddress);
-    bool CheckIPPort(int IPPort, const quint32 EventId);
-    bool CheckOnOffState(Global::OnOffState Attribute, const quint32 EventId);
-    bool CheckStringLenghtRange(const QString Attribute, const int MinLenght,
-                                const int MaxLenght, const quint32 EventId);
-    bool CheckDataRange(quint64 Attribute, quint64 MinValue, quint64 MaxValue, const quint32 EventId);
+    bool CheckIPAddress(const QString& IPAddress);
+    bool CheckIPPort(const int& IPPort, const quint32& EventId);
+    bool CheckOnOffState(const Global::OnOffState& Attribute, const quint32& EventId);
+    bool CheckStringLenghtRange(const QString& Attribute, const int& MinLenght,
+                                const int& MaxLenght, const quint32& EventId);
+    bool CheckDataRange(const quint64& Attribute, const quint64& MinValue, const quint64& MaxValue, const quint32& EventId);
     void CheckDataItems(CRCConfiguration* p_RCConfiguration, bool& VerifiedData);
 };
 
 } // namespace DataManager
-#endif // DATAMANAGER_CRCConfigurationVERIFIER_H
+#endif // DATAMANAGER_RCCONFIGURATIONVERIFIER_H

@@ -22,7 +22,7 @@
 
 namespace NetCommands {
 
-QString CmdRemoteCareState::NAME = "NetCommands::CmdRemoteCareState"; ///< Name of the command
+QString CmdRemoteCareState::NAME = "NetCommands::CmdRemoteCareState"; //!< Name of the command
 
 /****************************************************************************/
 /*!
@@ -30,11 +30,13 @@ QString CmdRemoteCareState::NAME = "NetCommands::CmdRemoteCareState"; ///< Name 
  *
  * \iparam   Timeout         Timeout for command.
  * \iparam   RemoteCareState    Flag for the RemoteCare state.
+ * \iparam   ConnectionType   Connection type
  */
 /****************************************************************************/
-CmdRemoteCareState::CmdRemoteCareState(int Timeout, const bool &RemoteCareState) :
-    Command(Timeout),
-    m_RemoteCareState(RemoteCareState)
+CmdRemoteCareState::CmdRemoteCareState(int Timeout, const bool &RemoteCareState, QString ConnectionType)
+    : Command(Timeout)
+    , m_AgentState(RemoteCareState)
+    , m_ConnectionType(ConnectionType)
 {
 }
 
@@ -52,7 +54,10 @@ CmdRemoteCareState::~CmdRemoteCareState()
  *  \brief  Constructor to receive commands
  */
 /****************************************************************************/
-CmdRemoteCareState::CmdRemoteCareState() : Command(0)
+CmdRemoteCareState::CmdRemoteCareState()
+    : Command(0)
+    , m_AgentState(false)
+    , m_ConnectionType("")
 {
 }
 
@@ -77,7 +82,18 @@ QString CmdRemoteCareState::GetName() const
 /****************************************************************************/
 bool CmdRemoteCareState::GetRemoteCareState() const
 {
-    return m_RemoteCareState;
+    return m_AgentState;
+}
+/****************************************************************************/
+/*!
+ *  \brief   This function returns Connection type
+ *
+ *  \return  Connection type
+ */
+/****************************************************************************/
+QString CmdRemoteCareState::GetConnectionType() const
+{
+    return m_ConnectionType;
 }
 
 }//End of namespace NetCommands

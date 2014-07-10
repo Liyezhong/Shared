@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyDataItem command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 16.07.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -22,7 +22,7 @@
 
 #include <QDataStream>
 #include <QDebug>
-
+//lint -e1565
 namespace NetCommands {
 
 QString CmdRCNotifyDataItem::NAME = "NetCommands::CmdRCNotifyDataItem";
@@ -47,23 +47,6 @@ CmdRCNotifyDataItem::CmdRCNotifyDataItem() :
  *  \brief   Constructor
  *
  *  \iparam timeout = Timeout of this command.
- *
- ****************************************************************************/
-CmdRCNotifyDataItem::CmdRCNotifyDataItem(int timeout) :
-        Command(timeout),
-        m_Name(""),
-        m_Type(RemoteCare::RDI_Undefined),
-        m_Quality(RemoteCare::RDI_DataUncertain),
-        m_Value(""),
-        m_Timestamp("")
-{
-}
-
-/****************************************************************************/
-/*!
- *  \brief   Constructor
- *
- *  \iparam timeout = Timeout of this command.
  *  \iparam name = data item's name (Axeda parameter)
  *  \iparam type = data item's type (Axeda parameter)
  *  \iparam quality = data item's quality (Axeda parameter)
@@ -71,8 +54,8 @@ CmdRCNotifyDataItem::CmdRCNotifyDataItem(int timeout) :
  *  \iparam timestamp = timestamp of the data item logging (Axeda parameter)
  *
  ****************************************************************************/
-CmdRCNotifyDataItem::CmdRCNotifyDataItem(int timeout, const QString &name, RemoteCare::RCDataItemType_t type, \
-                                   RemoteCare::RCDataItemQuality_t quality, const QString &value, const QString &timestamp) :
+CmdRCNotifyDataItem::CmdRCNotifyDataItem(const int& timeout, const QString& name, const RemoteCare::RCDataItemType_t& type, \
+                                   const RemoteCare::RCDataItemQuality_t& quality, const QString& value, const QString& timestamp) :
         Command(timeout),
         m_Name(name),
         m_Type(type),
@@ -84,19 +67,6 @@ CmdRCNotifyDataItem::CmdRCNotifyDataItem(int timeout, const QString &name, Remot
 
 /****************************************************************************/
 /*!
- *  \brief   Copy Constructor
- *
- *  \iparam rOther = instance to copy
- *
- ****************************************************************************/
-CmdRCNotifyDataItem::CmdRCNotifyDataItem(const CmdRCNotifyDataItem &rOther) :
-        Command(rOther)
-{
-    CopyFrom(rOther);
-}
-
-/****************************************************************************/
-/*!
  *  \brief   Assignment operator
  *
  *  \iparam rOther = instance to assign
@@ -104,7 +74,7 @@ CmdRCNotifyDataItem::CmdRCNotifyDataItem(const CmdRCNotifyDataItem &rOther) :
  *  \return
  *
  ****************************************************************************/
-const CmdRCNotifyDataItem & CmdRCNotifyDataItem::operator = (const CmdRCNotifyDataItem &rOther)
+const CmdRCNotifyDataItem & CmdRCNotifyDataItem::operator = (const CmdRCNotifyDataItem& rOther)
 {
     if (this != &rOther) {
         Command::operator = (rOther);
@@ -130,7 +100,7 @@ CmdRCNotifyDataItem::~CmdRCNotifyDataItem()
  *  \iparam rOther = instance to copy from
  *
  ****************************************************************************/
-void CmdRCNotifyDataItem::CopyFrom(const CmdRCNotifyDataItem &rOther)
+void CmdRCNotifyDataItem::CopyFrom(const CmdRCNotifyDataItem& rOther)
 {
     m_Name = rOther.m_Name;
     m_Type = rOther.m_Type;

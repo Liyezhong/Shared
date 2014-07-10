@@ -3,8 +3,8 @@
  *
  *  \brief Definition file for class CRCConfiguration.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-05-23
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -18,8 +18,8 @@
  */
 /****************************************************************************/
 
-#ifndef DATAMANAGER_CRCConfiguration_H
-#define DATAMANAGER_CRCConfiguration_H
+#ifndef DATAMANAGER_RCCONFIGURATION_H
+#define DATAMANAGER_RCCONFIGURATION_H
 
 #include <QString>
 #include <QReadWriteLock>
@@ -36,19 +36,21 @@
 #include "Global/Include/RemoteCareTypes.h"
 #include <DataManager/Containers/RCConfiguration/Include/RCDataItem.h>
 
+//lint -sem(DataManager::CRCConfiguration::CopyFromOther,initializer)
+
 namespace DataManager {
 
-const int NUMBER_OF_PROXY_PROTOCOL = 4; ///< total number of proxy protocols
-const QString NameOfProxyProtocols[4] = {"None", "SOCKS", "HTTP", "Invalid" }; ///< text for each protocol
+const int NUMBER_OF_PROXY_PROTOCOL = 4; //!< total number of proxy protocols
+const QString NameOfProxyProtocols[4] = {"None", "SOCKS", "HTTP", "Invalid" }; //!< text for each protocol
 
-const int NUMBER_OF_ENCRYPT_LEVEL = 5;  ///< total number of encryption levels
-const QString NameOfEncryptionLevels[5] = {"None", "Low", "Medium", "High", "Invalid" };///< text for each encryption level
+const int NUMBER_OF_ENCRYPT_LEVEL = 5;  //!< total number of encryption levels
+const QString NameOfEncryptionLevels[5] = {"None", "Low", "Medium", "High", "Invalid" };//!< text for each encryption level
 
-const int NUMBER_OF_DEVICE_TYPE = 3; ///< total number of device types
-const QString NameOfDeviceTypes[3] = {"Master", "Managed", "Invalid" }; ///< text for each device type
+const int NUMBER_OF_DEVICE_TYPE = 3; //!< total number of device types
+const QString NameOfDeviceTypes[3] = {"Master", "Managed", "Invalid" }; //!< text for each device type
 
-const int NUMBER_OF_SERVER_TYPE = 4; ///< total number of server types
-const QString NameOfServerTypes[4] = {"Primary", "Additional", "Backup", "Invalid" }; ///< text for each server type
+const int NUMBER_OF_SERVER_TYPE = 4; //!< total number of server types
+const QString NameOfServerTypes[4] = {"Primary", "Additional", "Backup", "Invalid" }; //!< text for each server type
 
 typedef QMap<QString, CRCDataItem> RCDataItemMap_t;               //!< Hash table for data items
 
@@ -62,40 +64,38 @@ typedef QMap<QString, CRCDataItem> RCDataItemMap_t;               //!< Hash tabl
 class CRCConfiguration {
     friend class CRCConfigurationInterface;
 private:
-    int                 m_Version;              ///< Store the version number of the file
-    quint32             m_QueueSize;           ///< Outgoing message queue size (in bytes)
-    Global::OnOffState  m_HTTPConnectionPersistence;            ///< If persistent HTTP(S) connection to RC Server shall be used
-    Global::OnOffState  m_Debug;              ///< If debug messages shall be enabled
+    int                 m_Version;              //!< Store the version number of the file
+    quint32             m_QueueSize;           //!< Outgoing message queue size (in bytes)
+    Global::OnOffState  m_HTTPConnectionPersistence;            //!< If persistent HTTP(S) connection to RC Server shall be used
+    Global::OnOffState  m_Debug;              //!< If debug messages shall be enabled
 
     /// Secure connection config parameters
-    Global::OnOffState  m_HTTPSecureConnection;             ///< If secure HTTPS connection to RC Server shall be used
-    RemoteCare::RCWebCryptoLevel_t    m_EncryptionLevel;          ///< Encryption level (low, medium or high)
-    Global::OnOffState  m_Authentication;           ///< If server certificate shall be validated
-    QString             m_CertificateFileName;          ///< Link to file which contains certificate
+    Global::OnOffState  m_HTTPSecureConnection;             //!< If secure HTTPS connection to RC Server shall be used
+    RemoteCare::RCWebCryptoLevel_t    m_EncryptionLevel;          //!< Encryption level (low, medium or high)
+    Global::OnOffState  m_Authentication;           //!< If server certificate shall be validated
+    QString             m_CertificateFileName;          //!< Link to file which contains certificate
 
     /// Remote Care Server parameters
-    quint32                 m_ExecTime;            ///< exec time (in ms)
-    RemoteCare::RCDRMServerConfigType_t   m_ServerType;          ///< RC Server type: primary/additional/backup.
-    QString                 m_TargetDataBase;             ///< The name of target database
-    QString                 m_ServerURL;         ///< URL of the RC Server
-    quint32                 m_ServerId;            ///< The assigned server ID (output parameter, assigned by Agent)
+    quint32                 m_ExecTime;            //!< exec time (in ms)
+    RemoteCare::RCDRMServerConfigType_t   m_ServerType;          //!< RC Server type: primary/additional/backup.
+    QString                 m_TargetDataBase;             //!< The name of target database
+    QString                 m_ServerURL;         //!< URL of the RC Server
+    quint32                 m_ServerId;            //!< The assigned server ID (output parameter, assigned by Agent)
 
     /// Local Device Identification
-    RemoteCare::RCDRMDeviceType_t         m_DeviceType;          ///< Local device's type (master or managed)
-    quint32                 m_DeviceId;            ///< The assigned device ID (output parameter, assigned by Agent)
+    RemoteCare::RCDRMDeviceType_t         m_DeviceType;          //!< Local device's type (master or managed)
+    quint32                 m_DeviceId;            //!< The assigned device ID (output parameter, assigned by Agent)
 
     /// Local network proxy parameters
-    RemoteCare::RCWebProxyProtocol_t m_ProxyProtocol;       ///< Communication protocol to use with the Proxy (no proxy, SOCKS proxy, HTTP proxy)
+    RemoteCare::RCWebProxyProtocol_t m_ProxyProtocol;       //!< Communication protocol to use with the Proxy (no proxy, SOCKS proxy, HTTP proxy)
 
     /// Remote Session parameters
-    QString                 m_RemoteSessionName; ///< Arbitrary Remote Session name
-    QString                 m_RemoteSessionType; ///< Session type (e.g. desktop/telnet/browser)
-    QString                 m_RemoteSessionIPAddress; ///< Local VNC Server's IP (e.g (AeChar*)"127.0.0.1")
-    int                     m_RemoteSessionIPPort;   ///< Local VNC Server's Port (e.g 5900)
+    QString                 m_RemoteSessionName; //!< Arbitrary Remote Session name
+    QString                 m_RemoteSessionIPAddress; //!< Local VNC Server's IP (e.g (AeChar*)"127.0.0.1")
 
     /// file upload parameters
-    Global::OnOffState      m_Compression;           ///< If compression shall be used for uploads
-    quint32                 m_MaxChunkSize;        ///< Maximum size of the file upload data chunk (in bytes)
+    Global::OnOffState      m_Compression;           //!< If compression shall be used for uploads
+    quint32                 m_MaxChunkSize;        //!< Maximum size of the file upload data chunk (in bytes)
 
     RCDataItemMap_t         m_RCDataItemMap; //!< Map of Data items
 
@@ -103,17 +103,17 @@ private:
     QMap<QString, QString>      m_ValueList; //!< User Settings Map
     /****************************************************************************/
 
-    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+    bool SerializeContent(const QXmlStreamWriter& StreamWriter, const bool& CompleteData);
+    bool DeserializeContent(const QXmlStreamReader& XmlStreamReader, const bool& CompleteData);
 
-    bool ReadGeneral(QXmlStreamReader& XmlStreamReader);
-    bool ReadSecureConnectionSettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadRemoteCareServerSettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadLocalDeviceSettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadLocalNetworkProxySettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadRemoteSessionSettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadFileUploadSettings(QXmlStreamReader& XmlStreamReader);
-    bool ReadDataItems(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+    bool ReadGeneral(const QXmlStreamReader &XmlStreamReader);
+    bool ReadSecureConnectionSettings(const QXmlStreamReader& XmlStreamReader);
+    bool ReadRemoteCareServerSettings(const QXmlStreamReader& XmlStreamReader);
+    bool ReadLocalDeviceSettings(const QXmlStreamReader& XmlStreamReader);
+    bool ReadLocalNetworkProxySettings(const QXmlStreamReader& XmlStreamReader);
+    bool ReadRemoteSessionSettings(const QXmlStreamReader& XmlStreamReader);
+    bool ReadFileUploadSettings(const QXmlStreamReader& XmlStreamReader);
+    bool ReadDataItems(const QXmlStreamReader& XmlStreamReader, const bool& CompleteData);
 
     /****************************************************************************/
     /*!
@@ -122,7 +122,7 @@ private:
      *  \iparam Value = version number
      */
     /****************************************************************************/
-    void SetVersion(int Value)
+    void SetVersion(const int& Value)
     {
         m_Version = Value;
     }
@@ -136,8 +136,8 @@ public:
 
     ~CRCConfiguration();
 
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfiguration& RCConfiguration);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CRCConfiguration& RCConfiguration);
+    friend QDataStream& operator <<(const QDataStream& OutDataStream, const CRCConfiguration& RCConfiguration);
+    friend QDataStream& operator >>(const QDataStream& InDataStream, const CRCConfiguration& RCConfiguration);
     CRCConfiguration & operator = (const CRCConfiguration &);
 
     void SetDefaultAttributes();
@@ -152,7 +152,7 @@ public:
      *  \return version number
      */
     /****************************************************************************/
-    int GetVersion() const
+    int GetVersion() const 
     {
         return m_Version;
     }
@@ -176,7 +176,7 @@ public:
      *  \iparam QueueSize = Outgoing message queue size (in bytes).
      */
     /****************************************************************************/
-    void SetQueueSize(quint32 QueueSize)
+    void SetQueueSize(const quint32& QueueSize)
     {
         m_QueueSize = QueueSize;
     }
@@ -202,7 +202,7 @@ public:
      *              connection to RC Server shall be use else off.
      */
     /****************************************************************************/
-    void SetHTTPConnectionPersistence(Global::OnOffState HTTPConnectionPersistenceOnOffState)
+    void SetHTTPConnectionPersistence(const Global::OnOffState& HTTPConnectionPersistenceOnOffState)
     {
         m_HTTPConnectionPersistence = HTTPConnectionPersistenceOnOffState;
     }
@@ -226,7 +226,7 @@ public:
      *  \iparam DebugOnOffState = On if debug is enabled else off.
      */
     /****************************************************************************/
-    void SetDebug(Global::OnOffState DebugOnOffState)
+    void SetDebug(const Global::OnOffState& DebugOnOffState)
     {
         m_Debug = DebugOnOffState;
     }
@@ -250,7 +250,7 @@ public:
      *  \iparam HTTPSecureConnectionOnOffState = On if SecureConnection needs to be used else off.
      */
     /****************************************************************************/
-    void SetHTTPSecureConnection(Global::OnOffState HTTPSecureConnectionOnOffState)
+    void SetHTTPSecureConnection(const Global::OnOffState& HTTPSecureConnectionOnOffState)
     {
         m_HTTPSecureConnection = HTTPSecureConnectionOnOffState;
     }
@@ -274,7 +274,7 @@ public:
      *  \iparam EncryptionLevel (none, low, medium or high).
      */
     /****************************************************************************/
-    void SetEncryptionLevel(RemoteCare::RCWebCryptoLevel_t EncryptionLevel)
+    void SetEncryptionLevel(const RemoteCare::RCWebCryptoLevel_t& EncryptionLevel)
     {
         m_EncryptionLevel = EncryptionLevel;
     }
@@ -299,7 +299,7 @@ public:
      *  \iparam AuthenticationOnOffState = On if Authentication is enabled.
      */
     /****************************************************************************/
-    void SetAuthentication(Global::OnOffState AuthenticationOnOffState)
+    void SetAuthentication(const Global::OnOffState& AuthenticationOnOffState)
     {
         m_Authentication = AuthenticationOnOffState;
     }
@@ -323,7 +323,7 @@ public:
      *  \iparam CertificateFileName
      */
     /****************************************************************************/
-    void SetCertificateFileName(QString CertificateFileName)
+    void SetCertificateFileName(const QString& CertificateFileName)
     {
         m_CertificateFileName = CertificateFileName;
     }
@@ -347,7 +347,7 @@ public:
      *  \iparam ExecTime value.
      */
     /****************************************************************************/
-    void SetExecTime(quint32 ExecTime)
+    void SetExecTime(const quint32& ExecTime)
     {
         m_ExecTime = ExecTime;
     }
@@ -371,7 +371,7 @@ public:
      *  \iparam ServerType (primary/additional/backup).
      */
     /****************************************************************************/
-    void SetServerType(RemoteCare::RCDRMServerConfigType_t ServerType)
+    void SetServerType(const RemoteCare::RCDRMServerConfigType_t& ServerType)
     {
         m_ServerType = ServerType;
     }
@@ -395,7 +395,7 @@ public:
      *  \iparam TargetDataBase
      */
     /****************************************************************************/
-    void SetTargetDataBase(QString TargetDataBase)
+    void SetTargetDataBase(const QString& TargetDataBase)
     {
         m_TargetDataBase = TargetDataBase;
     }
@@ -419,7 +419,7 @@ public:
      *  \iparam ServerURL
      */
     /****************************************************************************/
-    void SetServerURL(QString ServerURL)
+    void SetServerURL(const QString& ServerURL)
     {
         m_ServerURL = ServerURL;
     }
@@ -443,7 +443,7 @@ public:
      *  \iparam ServerId
      */
     /****************************************************************************/
-    void SetServerId(quint32 ServerId)
+    void SetServerId(const quint32& ServerId)
     {
         m_ServerId = ServerId;
     }
@@ -467,7 +467,7 @@ public:
      *  \iparam DeviceType = master or managed.
      */
     /****************************************************************************/
-    void SetDeviceType(RemoteCare::RCDRMDeviceType_t DeviceType)
+    void SetDeviceType(const RemoteCare::RCDRMDeviceType_t& DeviceType)
     {
         m_DeviceType = DeviceType;
     }
@@ -491,7 +491,7 @@ public:
      *  \iparam DeviceId = Id of the local device.
      */
     /****************************************************************************/
-    void SetDeviceId(quint32 DeviceId)
+    void SetDeviceId(const quint32& DeviceId)
     {
         m_DeviceId = DeviceId;
     }
@@ -514,7 +514,7 @@ public:
      *  \iparam ProxyProtocol = proxy protocol(no proxy, SOCKS proxy, HTTP proxy).
      */
     /****************************************************************************/
-    void SetProxyProtocol( RemoteCare::RCWebProxyProtocol_t ProxyProtocol)
+    void SetProxyProtocol( const RemoteCare::RCWebProxyProtocol_t& ProxyProtocol)
     {
         m_ProxyProtocol = ProxyProtocol;
     }
@@ -538,33 +538,9 @@ public:
      *  \iparam RemoteSessionName = Remote Session Name
      */
     /****************************************************************************/
-    void SetRemoteSessionName(QString RemoteSessionName)
+    void SetRemoteSessionName(const QString& RemoteSessionName)
     {
         m_RemoteSessionName = RemoteSessionName;
-    }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Get the RemoteSession Type
-     *
-     *  \return Remot Session Type
-     */
-    /****************************************************************************/
-    QString GetRemoteSessionType() const
-    {
-        return m_RemoteSessionType;
-    }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Set the Remote Session Type
-     *
-     *  \iparam RemoteSessionType = Remote Session Type
-     */
-    /****************************************************************************/
-    void SetRemoteSessionType(QString RemoteSessionType)
-    {
-        m_RemoteSessionType = RemoteSessionType;
     }
 
     /****************************************************************************/
@@ -586,33 +562,9 @@ public:
      *  \iparam RemoteSessionIPAddress = Remote Session IP Address
      */
     /****************************************************************************/
-    void SetRemoteSessionIPAddress(QString RemoteSessionIPAddress)
+    void SetRemoteSessionIPAddress(const QString& RemoteSessionIPAddress)
     {
         m_RemoteSessionIPAddress = RemoteSessionIPAddress;
-    }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Get the Remote Session IP Port
-     *
-     *  \return int
-     */
-    /****************************************************************************/
-    int GetRemoteSessionIPPort() const
-    {
-        return m_RemoteSessionIPPort;
-    }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Set the Remote Session IP Port
-     *
-     *  \iparam RemoteSessionIPPort = Remote Session IP Port
-     */
-    /****************************************************************************/
-    void SetRemoteSessionIPPort(int RemoteSessionIPPort)
-    {
-        m_RemoteSessionIPPort = RemoteSessionIPPort;
     }
 
     /****************************************************************************/
@@ -634,7 +586,7 @@ public:
      *  \iparam CompressionOnOffState = On if compression is needed.
      */
     /****************************************************************************/
-    void SetCompression(Global::OnOffState CompressionOnOffState)
+    void SetCompression(const Global::OnOffState& CompressionOnOffState)
     {
         m_Compression = CompressionOnOffState;
     }
@@ -658,14 +610,14 @@ public:
      *  \iparam MaxChunkSize = Maximum file upload databyte.
      */
     /****************************************************************************/
-    void SetMaxChunkSize(quint32 MaxChunkSize)
+    void SetMaxChunkSize(const quint32& MaxChunkSize)
     {
         m_MaxChunkSize = MaxChunkSize;
     }
 
     /****************************************************************************/
     /*!
-     *  \brief Gets a particular data item based on item anme
+     *  \brief Gets a particular data item based on item name
      *
      *  \iparam Name = Nameof data item.
      *  \iparam RCDataItem = Data item which will be filled.
@@ -673,7 +625,7 @@ public:
      *  \return true if the dataitem exists, else false.
      */
     /****************************************************************************/
-    bool GetDataItem(const QString Name, CRCDataItem &RCDataItem) const
+    bool GetDataItem(const QString& Name, CRCDataItem& RCDataItem) const
     {
         if(m_RCDataItemMap.contains(Name))
         {
@@ -686,6 +638,27 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief Gets a particular data item value based on item name
+     *
+     *  \iparam Name = Nameof data item.
+     *
+     *  return data item value otherwise throw exception
+     */
+    /****************************************************************************/
+    const QString GetDataItemValue(const QString& Name) const
+    {
+        DataManager::CRCDataItem DataItem;
+
+        if(GetDataItem(Name, DataItem))
+        {
+            return DataItem.GetValue();
+        }
+
+        THROW(Global::EVENT_GLOBAL_EXCEPTION);
+    }
+
+    /****************************************************************************/
+    /*!
      *  \brief Gets a particular data item based on index
      *
      *  \iparam Index = Index in the data item Map.
@@ -694,7 +667,7 @@ public:
      *  \return true if the indexed dataitem exists, else false.
      */
     /****************************************************************************/
-    bool GetDataItem(const int Index, CRCDataItem &RCDataItem) const
+    bool GetDataItem(const int& Index, CRCDataItem& RCDataItem) const
     {
         if(Index >= 0 && Index < m_RCDataItemMap.count())
         {
@@ -718,12 +691,12 @@ public:
         return m_RCDataItemMap.count();
     }
 
-    bool AddDataItem(const QString Name, const CRCDataItem &RCDataItem);
-    bool UpdateDataItem(const QString Name, const CRCDataItem &RCDataItem);
-    bool DeleteDataItem(const QString Name);
+    bool AddDataItem(const QString& Name, const CRCDataItem& RCDataItem);
+    bool UpdateDataItem(const QString& Name, const CRCDataItem& RCDataItem);
+    bool DeleteDataItem(const QString& Name);
 
 }; // end class CRCConfiguration
 
 } // end namespace DataManager
 
-#endif // DATAMANAGEMENT_CRCConfiguration_H
+#endif // DATAMANAGER_RCCONFIGURATION_H

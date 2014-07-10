@@ -3,8 +3,8 @@
  *
  *  \brief Implementation file for class CRCConfigurationInterface.
  *
- *  $Version:   $ 0.1
- *  $Date:      $ 2013-05-23
+ *  $Version:   $ 1.0
+ *  $Date:      $ 2014-03-13
  *  $Author:    $ Ramya GJ
  *
  *  \b Company:
@@ -115,9 +115,9 @@ CRCConfigurationInterface::~CRCConfigurationInterface()
 
 /****************************************************************************/
 /*!
- *  \brief  Updates user settings
+ *  \brief  Updates rc configuration
  *
- *  \iparam p_RCConfiguration = Pointer to a User settings
+ *  \iparam p_RCConfiguration = Pointer to a rc configuration
  *
  *  \return Successful (true) or not (false)
  */
@@ -196,14 +196,14 @@ bool CRCConfigurationInterface::UpdateRCConfiguration(const CRCConfiguration* p_
 
 /****************************************************************************/
 /*!
- *  \brief Get the user settings
+ *  \brief Get the rc configuration settings
  *
  *  \iparam CopySettings = Flag for copying settings (either deep or shallow copy)
  *
- *  \return user settings class
+ *  \return rc configuration class
  */
 /****************************************************************************/
-CRCConfiguration* CRCConfigurationInterface::GetRCConfiguration(bool CopySettings)
+CRCConfiguration* CRCConfigurationInterface::GetRCConfiguration(const bool& CopySettings)
 {
     CHECKPTR_RETURN(mp_RCConfiguration, NULL);
 
@@ -241,9 +241,9 @@ bool CRCConfigurationInterface::SerializeContent(QIODevice& IODevice, bool Compl
         return false;
     }
     qDebug()<<"COMPLETE DATA"<<CompleteData;
-    QXmlStreamWriter XmlStreamWriter; ///< Xml stream writer object to write the Xml contents in a file
+    QXmlStreamWriter XmlStreamWriter; //!< Xml stream writer object to write the Xml contents in a file
 
-    XmlStreamWriter.setDevice(&IODevice);
+    XmlStreamWriter.setDevice(&(const_cast<QIODevice &>(IODevice)));
     XmlStreamWriter.setAutoFormatting(true);
 
     // start the XML Document
@@ -325,8 +325,6 @@ bool CRCConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool Com
         while ((!XmlStreamReader.atEnd()) &&
                ((XmlStreamReader.name() != "ClassTemporaryData") || (XmlStreamReader.tokenType() != QXmlStreamReader::EndElement)))
         {
-//            qDebug() << "CRCConfiguration::DeserializeContent, checking" << XmlStreamReader.name() << XmlStreamReader.tokenType();
-
             if (XmlStreamReader.tokenType() == QXmlStreamReader::StartElement)
             {
                 if (XmlStreamReader.name() == "ClassTemporaryData")
@@ -363,8 +361,7 @@ bool CRCConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool Com
         }
 
     }
-    //XmlStreamReader.device()->reset();
-//    qDebug()<<"User Settings Interface Deserialize Content"<<XmlStreamReader.device()->readAll();
+
     return true;
 }
 
@@ -377,7 +374,7 @@ bool CRCConfigurationInterface::DeserializeContent(QIODevice& IODevice ,bool Com
  *  \return True or False
  */
 /****************************************************************************/
-bool CRCConfigurationInterface::Read(QString FileName)
+bool CRCConfigurationInterface::Read(const QString& FileName)
 {
     //check if file exists
     if (!QFile::exists(FileName))
@@ -386,7 +383,7 @@ bool CRCConfigurationInterface::Read(QString FileName)
         return false;
     }
 
-    bool Result = true; ///< store the result flag in the local variable
+    bool Result = true; //!< store the result flag in the local variable
 
     if (m_DataVerificationMode)
     {
@@ -428,9 +425,6 @@ bool CRCConfigurationInterface::Read(QString FileName)
     {
         QWriteLocker locker(mp_ReadWriteLock);
 
-        // clear content and add default values
-        //SetDefaultAttributes();
-
         // Initialise the m_Filename to a known string "UNDEFINED"
         m_FileName = "UNDEFINED";
 
@@ -469,18 +463,19 @@ bool CRCConfigurationInterface::Read(QString FileName)
  *  \return Output Stream
  */
 /****************************************************************************/
-QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfigurationInterface& RCInterface)
+QDataStream& operator <<(const QDataStream& OutDataStream, const CRCConfigurationInterface& RCInterface)
 {
     // remove the constant by using type cast opeator
     CRCConfigurationInterface* p_TempRCInterface = const_cast<CRCConfigurationInterface*>(&RCInterface);
+    QDataStream& OutDataStreamRef = const_cast<QDataStream &>(OutDataStream);
 
-    if (!p_TempRCInterface->SerializeContent(*OutDataStream.device(), true))
+    if (!p_TempRCInterface->SerializeContent(*OutDataStreamRef.device(), true))
     {
         qDebug() << "CRCConfigurationInterface::Operator Streaming (SerializeContent) failed.";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMOUT_FAILED, Global::tTranslatableStringList() << "RCConfiguration", true);
     }
 
-    return OutDataStream;
+    return OutDataStreamRef;
 }
 
 /****************************************************************************/
@@ -493,15 +488,17 @@ QDataStream& operator <<(QDataStream& OutDataStream, const CRCConfigurationInter
  *  \return Input Stream
  */
 /****************************************************************************/
-QDataStream& operator >>(QDataStream& InDataStream, CRCConfigurationInterface& RCInterface)
+QDataStream& operator >>(const QDataStream& InDataStream, const CRCConfigurationInterface& RCInterface)
 {
+    QDataStream& InDataStreamRef = const_cast<QDataStream &>(InDataStream);
+    CRCConfigurationInterface& RCInterfaceRef = const_cast<CRCConfigurationInterface &>(RCInterface);
     // deserialize the content from the data stream
-    if (!RCInterface.DeserializeContent(*InDataStream.device(), true))
+    if (!RCInterfaceRef.DeserializeContent(*InDataStreamRef.device(), true))
     {
         qDebug() << "CRCConfigurationInterface::Operator Streaming (DeSerializeContent) failed because it does not have any Data to stream.";
         Global::EventObject::Instance().RaiseEvent(EVENT_DM_STREAMIN_FAILED, Global::tTranslatableStringList() << "RCConfiguration", true);
     }
-    return InDataStream;
+    return InDataStreamRef;
 }
 
 /****************************************************************************/

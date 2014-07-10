@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyAssetComplete command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -22,7 +22,7 @@
 
 namespace NetCommands {
 
-QString CmdRCNotifyAssetComplete::NAME = "NetCommands::CmdRCNotifyAssetComplete"; ///< Name of the command
+QString CmdRCNotifyAssetComplete::NAME = "NetCommands::CmdRCNotifyAssetComplete"; //!< Name of the command
 
 /****************************************************************************/
 /*!
@@ -32,7 +32,7 @@ QString CmdRCNotifyAssetComplete::NAME = "NetCommands::CmdRCNotifyAssetComplete"
  *  \iparam   FilePath    asset archive file path
  */
 /****************************************************************************/
-CmdRCNotifyAssetComplete::CmdRCNotifyAssetComplete(int Timeout, const QString &FilePath) :
+CmdRCNotifyAssetComplete::CmdRCNotifyAssetComplete(const int& Timeout, const QString& FilePath) :
     Command(Timeout),
     m_FilePath(FilePath)
 {

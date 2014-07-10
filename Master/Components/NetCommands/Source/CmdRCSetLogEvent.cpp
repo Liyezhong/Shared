@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCSetLogEvent command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 30.04.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -32,7 +32,7 @@ QString CmdRCSetLogEvent::NAME = "NetCommands::CmdRCSetLogEvent";
  *  \iparam   EventReportData  Event Report DataStruct
  */
 /****************************************************************************/
-CmdRCSetLogEvent::CmdRCSetLogEvent(int Timeout, RCLogEventReportStruct &EventReportData) :
+CmdRCSetLogEvent::CmdRCSetLogEvent(const int& Timeout, const RCLogEventReportStruct &EventReportData) :
     Command(Timeout)
 {
     QDataStream Stream(&m_RCEventReportByteArray, QIODevice::ReadWrite);

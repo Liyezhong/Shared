@@ -3,8 +3,8 @@
  *
  *  \brief CmdRCNotifyReconnection command implementation.
  *
- *   $Version: $ 0.1
- *   $Date:    $ 16.07.2013
+ *   $Version: $ 1.0
+ *   $Date:    $ 2014-03-13
  *   $Author:  $ Ramya GJ
  *
  *  \b Company:
@@ -31,7 +31,7 @@ QString CmdRCNotifyReconnection::NAME = "NetCommands::CmdRCNotifyReconnection";
  *  \iparam   Timeout     Timeout for command.
  */
 /****************************************************************************/
-CmdRCNotifyReconnection::CmdRCNotifyReconnection(int Timeout) :
+CmdRCNotifyReconnection::CmdRCNotifyReconnection(const int& Timeout) :
     Command(Timeout)
 {
 }
