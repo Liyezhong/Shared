@@ -2129,6 +2129,11 @@ ReturnCode_t CAirLiquidDevice::SetTemperature(ALTempCtrlType_t Type, float Nomin
 {
     m_TargetTemperatures[Type] = NominalTemperature;
     ReturnCode_t retCode;
+    if( Type == AL_LEVELSENSOR )
+    {
+        LogDebug(QString("LevelSensor nominalTemperature:%1, Slope:%2").arg(NominalTemperature).arg(SlopeTempChange));
+    }
+
     if(m_pTempCtrls[Type] != NULL)
     {
         retCode = m_pTempCtrls[Type]->SetTemperature(NominalTemperature, SlopeTempChange);
