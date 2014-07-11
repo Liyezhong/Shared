@@ -48,7 +48,7 @@ CRCConfigurationVerifier::CRCConfigurationVerifier() : mp_RCConfigurationInterfa
  *  \return Successful (true) or not (false)
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::VerifyData(const CDataContainerBase* p_RCConfigurationInterface)
+bool CRCConfigurationVerifier::VerifyData(CDataContainerBase* p_RCConfigurationInterface)
 {    
     // by default make the verification flag to true
     bool VerifiedData = true;
@@ -121,7 +121,7 @@ void CRCConfigurationVerifier::ResetErrors()
  *  \return bool - On successful (True) otherwise (False)
  */
 /****************************************************************************/
-bool CRCConfigurationVerifier::IsLocalVerifier() const
+bool CRCConfigurationVerifier::IsLocalVerifier()
 {
     return true;
 }

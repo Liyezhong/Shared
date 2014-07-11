@@ -74,12 +74,12 @@ class CRCConfigurationVerifier : public IVerifierInterface
 public:
     CRCConfigurationVerifier();
 
-    bool VerifyData(const CDataContainerBase* p_RCConfigurationInterface);  // use concrete class for concrete verifier
+    bool VerifyData(CDataContainerBase* p_RCConfigurationInterface);  // use concrete class for concrete verifier
 
     ErrorMap_t &GetErrors();
 
     void ResetErrors();
-    bool IsLocalVerifier() const;
+    bool IsLocalVerifier();
 
 protected:
     CRCConfigurationInterface* mp_RCConfigurationInterface;   //!< Local pointer to a rack list

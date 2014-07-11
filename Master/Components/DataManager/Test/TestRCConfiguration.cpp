@@ -135,9 +135,7 @@ void TestRCConfiguration::utTestRCConfiguration() {
     Settings1->SetProxyProtocol(RemoteCare::RCWebProxyProtoSOCKS);
 
     Settings1->SetRemoteSessionName("Remote");
-    Settings1->SetRemoteSessionType("Desktop");
     Settings1->SetRemoteSessionIPAddress("123.234.121.222");
-    Settings1->SetRemoteSessionIPPort(9090);
 
     CRCDataItem DataItem;
 
@@ -193,9 +191,7 @@ void TestRCConfiguration::utTestRCConfiguration() {
     QCOMPARE(Settings1->GetProxyProtocol(), RemoteCare::RCWebProxyProtoSOCKS);
 
     QCOMPARE(Settings1->GetRemoteSessionName(), QString("Remote"));
-    QCOMPARE(Settings1->GetRemoteSessionType(), QString("Desktop"));
     QCOMPARE(Settings1->GetRemoteSessionIPAddress(), QString("123.234.121.222"));
-    QCOMPARE(Settings1->GetRemoteSessionIPPort(), 9090);
 
     // Use copy constructor
 
@@ -216,9 +212,7 @@ void TestRCConfiguration::utTestRCConfiguration() {
     Settings3 = Settings2;
 
     QCOMPARE(Settings3->GetRemoteSessionName(), QString("Remote"));
-    QCOMPARE(Settings3->GetRemoteSessionType(), QString("Desktop"));
     QCOMPARE(Settings3->GetRemoteSessionIPAddress(), QString("123.234.121.222"));
-    QCOMPARE(Settings3->GetRemoteSessionIPPort(), 9090);
 
     QCOMPARE(Settings3->GetDataItemCount(), 4);
 
@@ -307,9 +301,7 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationInterface() {
     QCOMPARE(Settings->GetProxyProtocol(), RemoteCare::RCWebProxyProtoSOCKS);
 
     QCOMPARE(Settings->GetRemoteSessionName(), QString("Remote Session name"));
-    QCOMPARE(Settings->GetRemoteSessionType(), QString("Desktop"));
     QCOMPARE(Settings->GetRemoteSessionIPAddress(), QString("127.0.0.1"));
-    QCOMPARE(Settings->GetRemoteSessionIPPort(), 5900);
 
     QCOMPARE(Settings->GetDataItemCount(), 2);
     CRCDataItem DataItem1;
@@ -351,9 +343,7 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationInterface() {
     Settings->SetProxyProtocol(RemoteCare::RCWebProxyProtoSOCKS);
 
     Settings->SetRemoteSessionName("Remote");
-    Settings->SetRemoteSessionType("Desktop");
     Settings->SetRemoteSessionIPAddress("123.234.121.222");
-    Settings->SetRemoteSessionIPPort(9090);
     SettingsInterface.UpdateRCConfiguration(Settings);
 
     DataItem1.SetName("SetDownloadFinished");
@@ -396,9 +386,7 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationInterface() {
     Settings->SetProxyProtocol(RemoteCare::RCWebProxyProtoHTTP);
 
     Settings->SetRemoteSessionName("Remote1");
-    Settings->SetRemoteSessionType("Desktop1");
     Settings->SetRemoteSessionIPAddress("123.234.121.221");
-    Settings->SetRemoteSessionIPPort(9091);
     SettingsInterface.UpdateRCConfiguration(Settings);
 
 //    // now test settings
@@ -423,9 +411,7 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationInterface() {
     QCOMPARE(Settings->GetProxyProtocol(), RemoteCare::RCWebProxyProtoHTTP);
 
     QCOMPARE(Settings->GetRemoteSessionName(), QString("Remote1"));
-    QCOMPARE(Settings->GetRemoteSessionType(), QString("Desktop1"));
     QCOMPARE(Settings->GetRemoteSessionIPAddress(), QString("123.234.121.221"));
-    QCOMPARE(Settings->GetRemoteSessionIPPort(), 9091);
 
 //    // now read settings from the file
     SettingsInterface.Read(FilesPathWrite + "RCConfiguration_Test.xml");
@@ -453,9 +439,7 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationInterface() {
     QCOMPARE(Settings->GetProxyProtocol(), RemoteCare::RCWebProxyProtoSOCKS);
 
     QCOMPARE(Settings->GetRemoteSessionName(), QString("Remote"));
-    QCOMPARE(Settings->GetRemoteSessionType(), QString("Desktop"));
     QCOMPARE(Settings->GetRemoteSessionIPAddress(), QString("123.234.121.222"));
-    QCOMPARE(Settings->GetRemoteSessionIPPort(), 9090);
 
 
     QVERIFY(Settings->GetDataItem("SetEventClass", DataItem1)==true);
@@ -715,22 +699,6 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationVerifier() {
     Settings.SetRemoteSessionName(RemoteSessionName);
     QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), true);
 
-    // lenght check for server URL
-    QByteArray RemoteSessionType;
-    SettingsInterface.SetDataVerificationMode(true);
-    RemoteSessionType = RemoteSessionType.fill('A', MIN_REMOTESESSION_TYPE_LENGTH-1);
-    Settings.SetRemoteSessionType(RemoteSessionType);
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), false);
-    RemoteSessionType = RemoteSessionType.fill('A', MAX_REMOTESESSION_TYPE_LENGTH+1);
-    Settings.SetRemoteSessionType(RemoteSessionType);
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), false);
-    RemoteSessionType = RemoteSessionType.fill('A', MIN_REMOTESESSION_TYPE_LENGTH);
-    Settings.SetRemoteSessionType(RemoteSessionType);
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), true);
-    RemoteSessionType = RemoteSessionType.fill('A', MAX_REMOTESESSION_TYPE_LENGTH);
-    Settings.SetRemoteSessionType(RemoteSessionType);
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), true);
-
     // check remote session IP Address
     SettingsInterface.SetDataVerificationMode(true);
     Settings.SetRemoteSessionIPAddress("256.121.111.011");
@@ -744,16 +712,6 @@ void TestRCConfiguration::utTestWriteReadRCConfigurationVerifier() {
     Settings.SetRemoteSessionIPAddress("123.256.111.011.123");
     QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), false);
     Settings.SetRemoteSessionIPAddress("123.121.111.011");
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), true);
-
-    // check remote session IP Port number
-    SettingsInterface.SetDataVerificationMode(true);
-    Settings.SetRemoteSessionIPPort(65535);
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), true);
-    Settings.SetRemoteSessionIPPort(65536);
-    SettingsInterface.SetDataVerificationMode(true);
-    QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), false);
-    Settings.SetRemoteSessionIPPort(001);
     QCOMPARE(SettingsInterface.UpdateRCConfiguration(&Settings), true);
 
     // on off values for compression
