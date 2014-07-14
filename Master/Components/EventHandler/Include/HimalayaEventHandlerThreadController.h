@@ -35,19 +35,34 @@
 
 namespace EventHandler {
 
+/****************************************************************************/
+/**
+ * \brief runtime information for event
+ *
+ */
+/****************************************************************************/
 struct EventRuntimeInfo_t
 {
-    quint32 EventKey;
-    quint32 EventID;
-    quint32 Scenario;
-    const XMLEvent* Event;
-    quint32 CurrentStep;
-    bool ActionResult;
-    NetCommands::ClickedButton_t UserSelect;
-    Global::tTranslatableStringList EventStringParList;
-    Global::tTranslatableStringList EventRDStringParList;
+    quint32 EventKey;                               //!< event key
+    quint32 EventID;                                //!< event ID
+    quint32 Scenario;                               //!< scenario
+    const XMLEvent* Event;                          //!< event info
+    quint32 CurrentStep;                            //!< current step info
+    bool ActionResult;                              //!< action result
+    NetCommands::ClickedButton_t UserSelect;        //!< button selected by user
+    Global::tTranslatableStringList EventStringParList;     //!< event parameters strings
+    Global::tTranslatableStringList EventRDStringParList;   //!< event RD parameter strings
 };
 
+/****************************************************************************/
+/**
+ * \brief This is a system level EventHandler.
+ *
+ * All system level events (e.g. NOT local component events) from all
+ * ThreadControllers are sent to this (and only to this!) class. EventHandler
+ * will forward events to DataLogger and, if needed, to ErrorHandler.
+ */
+/****************************************************************************/
 class HimalayaEventHandlerThreadController : public EventHandlerThreadController
 { 
 public:
@@ -56,9 +71,9 @@ public:
     /*!
      *  \brief    Constructor for the HimalayaEventHandlerThreadController
      *
-     *  \iparam ThreaID
-     *  \iparam RebootCount
-     *  \sparam FileList
+     *  \iparam ThreaID  thread it
+     *  \iparam RebootCount reboot count
+     *  \iparam FileList  event config file list
      *
      ****************************************************************************/
     HimalayaEventHandlerThreadController(quint32 ThreadID, quint32 RebootCount, QStringList FileList);
@@ -105,7 +120,7 @@ public:
     /*!
      *  \brief  Log the events which are there in queue
      *
-     *  \iparam    &EventEntry
+     *  \iparam    EventEntry event entry object
      */
     /****************************************************************************/
     void LogEntry(const EventRuntimeInfo_t& EventInfo);
@@ -121,10 +136,10 @@ public slots:
      *
      *  \iparam    EventKey
      *  \iparam    EventIDScenario
-     *  \bparam    Active
-     *  \bparam    ActionResult
-     *  \lparam    EventStringParList
-     *  \lparam    EventRDStringParList
+     *  \iparam    Active
+     *  \iparam    ActionResult
+     *  \iparam    EventStringParList
+     *  \iparam    EventRDStringParList
      *
      *
      ****************************************************************************/
@@ -146,9 +161,9 @@ public slots:
      *      according to the event type.
      *
      *  \iparam    EventID
-     *  \iparam    &EventStringList
+     *  \iparam    EventStringList
      *  \iparam    EventStatus
-     *  \iparam    EventKey
+     *  \iparam    EventKeyRef
      *  \iparam    AltStringUsuage
      *
      *

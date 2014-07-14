@@ -51,7 +51,7 @@ private:
     quint32                         m_EventKey;              ///< Event Key for every event raised. NULL until raised.
     QDateTime                       m_TimeStamp;             ///< TimeStamp for entry.
     quint8                          m_Count;                 ///< Number of times the event has occured
-
+    Global::tTranslatableStringList m_String;                ///< The translatable string.
 
 
     quint32 m_EventCode;                                    ///< EVENT CODE
@@ -66,7 +66,6 @@ private:
     Global::AlarmPosType m_AlarmType;                           ///< alarm type
     Global::EventLogLevel m_LogLevel;                          ///< Event log level
     bool m_ShowRunLogStatus;                                  ///< show in user log or not
-    Global::tTranslatableStringList m_String;                ///< The translatable string.
     Global::GuiButtonType m_ButtonType;                     ///< Button type for message box.
     bool m_StatusIcon;                                      ///< put on status bar or not
     Global::AlternateEventStringUsage m_AltEventStringUsage; ///< Alternate Event string type
@@ -109,7 +108,6 @@ public:
      * \iparam  Count           No. of time event occured
      * \iparam  ClickButton     Clicked button on GUI
      * \iparam  Ref             Reference number of the command
-     * \iparam  CSVInfo         Event info strucutre
      *
      */
     /****************************************************************************/
@@ -242,7 +240,7 @@ public:
     /**
      * \brief set the argument list .
      *
-     * \param  Argument list.
+     * \param  String Argument list.
      */
     /****************************************************************************/
     inline void SetString(const Global::tTranslatableStringList &String) {
@@ -265,7 +263,7 @@ public:
     /**
      * \brief Set the run log status value .
      *
-     * \param  Log status value.
+     * \param  RunLogStatus Log status value.
      */
     /****************************************************************************/
     void SetShowInRunLogStatus(bool RunLogStatus){
@@ -286,7 +284,7 @@ public:
     /****************************************************************************/
     /**
      * \brief Set the event type .
-     *
+     * \param  EventType event type.
      * \return  void.
      */
     /****************************************************************************/
@@ -310,7 +308,7 @@ public:
     /**
      * \brief Set the event name .
      *
-     * \param   Name of the event.
+     * \param   EventName Name of the event.
      */
     /****************************************************************************/
     inline void SetEventName(QString EventName) {
@@ -332,7 +330,7 @@ public:
     /**
      * \brief Set the event log level .
      *
-     * \param  Event log level.
+     * \param  LogLevel Event log level.
      */
     /****************************************************************************/
     inline void SetLogLevel(Global::EventLogLevel LogLevel) {
@@ -375,7 +373,7 @@ public:
     /**
      * \brief Set the alaram status .
      *
-     * \param  Alaram status is ON or OFF.
+     * \param  AlarmStatus Alaram status is ON or OFF.
      */
     /****************************************************************************/
     inline void SetAlarmStatus(bool AlarmStatus) {
@@ -397,7 +395,7 @@ public:
     /**
      * \brief Set the alaram type .
      *
-     * \param  Alaram status is ON or OFF.
+     * \param  AlarmType Alaram status is ON or OFF.
      */
     /****************************************************************************/
     inline void SetAlarmType(Global::AlarmPosType AlarmType) {
@@ -419,7 +417,7 @@ public:
     /**
      * \brief Get the action negative value .
      *
-     * \return  Action negative value.
+     * \return  GetActionNegative Action negative value.
      */
     /****************************************************************************/
     inline Global::ActionType GetActionNegative() const {
@@ -452,7 +450,7 @@ public:
     /**
      * \brief Set the final action value .
      *
-     * \return  Action final value.
+     * \return Action Action final value.
      */
     /****************************************************************************/
     inline  void SetFinalAction(Global::ActionType Action) {
@@ -473,7 +471,7 @@ public:
     /**
      * \brief Set the Status Icon value .
      *
-     * \param  Status icon value is true or false.
+     * \param  StatusIcon Status icon value is true or false.
      */
     /****************************************************************************/
     inline void SetStatusIcon(bool StatusIcon) {
@@ -528,7 +526,7 @@ public:
     /**
      * \brief Set the button type .
      *
-     * \param  Button type.
+     * \param  ButtonType Button type.
      */
     /****************************************************************************/
     inline void SetButtonType(Global::GuiButtonType ButtonType) {
@@ -550,7 +548,7 @@ public:
     /**
      * \brief Set the source cmponent .
      *
-     * \param  Source component.
+     * \param  EventSource Source component.
      */
     /****************************************************************************/
     inline void SetEventSource(Global::EventSourceType EventSource) {
@@ -616,7 +614,7 @@ public:
     /**
      * \brief Set the action string .
      *
-     * \param  action string.
+     * \param  ActionString action string.
      */
     /****************************************************************************/
     inline void SetActionString(QString ActionString) {
@@ -637,7 +635,7 @@ public:
     /**
      * \brief Set string ID
      *
-     * \iparam    string id.
+     * \iparam  StringID  string id.
      */
     /****************************************************************************/
     inline void SetStringID(qint32 StringID){
@@ -658,7 +656,7 @@ public:
     /**
      * \brief Set Scenario
      *
-     * \iparam    Scenario.
+     * \iparam Scenario   Scenario.
      */
     /****************************************************************************/
     inline void SetScenario(qint32 Scenario){
@@ -668,7 +666,7 @@ public:
     /**
      * \brief Update Event entry by csv
      *
-     * \param  EventCSVInfo
+     * \param EventCsv EventCSVInfo
      */
     /****************************************************************************/
     void SetEventCSVInfo(const EventHandler::EventCSVInfo& EventCsv);

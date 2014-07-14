@@ -34,8 +34,8 @@ DayEventEntry::DayEventEntry()
       m_EventKey(0),
       m_TimeStamp(Global::AdjustedTime::Instance().GetCurrentDateTime()),
       m_Count(0),
-      m_AltEventStringUsage(Global::NOT_APPLICABLE),
       m_EventCode(0),
+      m_EventType(Global::EVTTYPE_UNDEFINED),
       m_ActionNegative(Global::ACNTYPE_NONE),
       m_ActionPositive(Global::ACNTYPE_NONE),
       m_ActionFinal(Global::ACNTYPE_NONE),
@@ -46,11 +46,11 @@ DayEventEntry::DayEventEntry()
       m_ShowRunLogStatus(false),
       m_ButtonType(Global::NOT_SPECIFIED),
       m_StatusIcon(false),
+      m_AltEventStringUsage(Global::NOT_APPLICABLE),
       m_RetryAttempts(0),
       m_AckReqStatus(false),
       m_Scenario(0),
-      m_StringID(0),
-      m_EventType(Global::EVTTYPE_UNDEFINED){
+      m_StringID(0){
     m_AckType = NetCommands::NOT_SPECIFIED;
     m_String.clear();
 }
@@ -68,8 +68,8 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslat
       m_TimeStamp(TimeStamp),
       m_Count(0),
       m_String(String),
-      m_AltEventStringUsage(Global::NOT_APPLICABLE),
       m_EventCode(0),
+      m_EventType(Global::EVTTYPE_UNDEFINED),
       m_ActionNegative(Global::ACNTYPE_NONE),
       m_ActionPositive(Global::ACNTYPE_NONE),
       m_ActionFinal(Global::ACNTYPE_NONE),
@@ -80,11 +80,11 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, const Global::tTranslat
       m_ShowRunLogStatus(false),
       m_ButtonType(Global::NOT_SPECIFIED),
       m_StatusIcon(false),
+      m_AltEventStringUsage(Global::NOT_APPLICABLE),
       m_RetryAttempts(0),
       m_AckReqStatus(false),
       m_Scenario(0),
-      m_StringID(0),
-      m_EventType(Global::EVTTYPE_UNDEFINED){
+      m_StringID(0){
     m_AckType = NetCommands::NOT_SPECIFIED;
 }
 
@@ -97,9 +97,9 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, quint32 EventKey, bool 
     m_EventKey(EventKey),
     m_TimeStamp(TimeStamp),
     m_Count(Count),
-    m_AltEventStringUsage(Global::NOT_APPLICABLE),
     m_String(String),
     m_EventCode(0),
+    m_EventType(Global::EVTTYPE_UNDEFINED),
     m_ActionNegative(Global::ACNTYPE_NONE),
     m_ActionPositive(Global::ACNTYPE_NONE),
     m_ActionFinal(Global::ACNTYPE_NONE),
@@ -110,11 +110,11 @@ DayEventEntry::DayEventEntry(const QDateTime &TimeStamp, quint32 EventKey, bool 
     m_ShowRunLogStatus(false),
     m_ButtonType(Global::NOT_SPECIFIED),
     m_StatusIcon(false),
+    m_AltEventStringUsage(Global::NOT_APPLICABLE),
     m_RetryAttempts(0),
     m_AckReqStatus(false),
     m_Scenario(0),
-    m_StringID(0),
-    m_EventType(Global::EVTTYPE_UNDEFINED){
+    m_StringID(0){
     m_AckType = ClickButton;
 }
 
