@@ -685,13 +685,14 @@ public:
     /*!
      *  \brief  Get report error for the specific slave module
      *
+     *  \param  quint8 errorCode - Error Code of temperature module
      *  \param  Qstring devName - Device name
      *  \param  quint32 - sensor name
      *
      *  \return ReportError_t
      */
     /****************************************************************************/
-    ReportError_t GetSlaveModuleReportError(const QString& devName, quint32 sensorName);
+    ReportError_t GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName);
 
 
 =======

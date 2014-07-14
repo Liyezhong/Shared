@@ -2246,7 +2246,7 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
             //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
 
 
-ReportError_t IDeviceProcessing::GetSlaveModuleReportError(const QString& devName, quint32 sensorName)
+ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName)
 {
     ReportError_t reportError;
     memset(&reportError, 0, sizeof(reportError));
@@ -2255,41 +2255,41 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(const QString& devNam
     {
         if (RT_BOTTOM == sensorName)
         {
-            reportError = m_pRetort->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
         }
         else if (RT_SIDE == sensorName)
         {
-            reportError = m_pRetort->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
         }
     }
     else if ("Oven" == devName)
     {
         if (OVEN_BOTTOM == sensorName)
         {
-            reportError = m_pOven->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
         }
         else if (OVEN_TOP == sensorName)
         {
-            reportError = m_pOven->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
         }
     }
     else if ("RV" == devName)
     {
-        reportError = m_pOven->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
     }
     else if ("LA" == devName)
     {
         if (AL_LEVELSENSOR == sensorName)
         {
-            reportError = m_pAirLiquid->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
         }
         else if (AL_TUBE1 == sensorName)
         {
-            reportError = m_pAirLiquid->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
         }
         else if (AL_TUBE2 == sensorName)
         {
-            reportError = m_pAirLiquid->GetSlaveModuleError(CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
         }
     }
 
