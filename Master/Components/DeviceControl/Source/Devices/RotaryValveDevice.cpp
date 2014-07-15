@@ -890,10 +890,10 @@ ReturnCode_t CRotaryValveDevice::StartTemperatureControlWithPID(qreal NominalTem
         return retCode;
     }
     //ON the temperature control
-    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(TEMPCTRL_STATUS_ON))
-    {
-        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
-    }
+//    if (DCL_ERR_FCT_CALL_SUCCESS != SetTemperatureControlStatus(TEMPCTRL_STATUS_ON))
+//    {
+//        return DCL_ERR_DEV_TEMP_CTRL_SET_STATE_ERR;
+//    }
 
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
