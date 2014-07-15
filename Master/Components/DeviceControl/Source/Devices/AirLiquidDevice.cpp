@@ -1951,11 +1951,11 @@ ReturnCode_t CAirLiquidDevice::StartTemperatureControlWithPID(ALTempCtrlType_t T
         return retCode;
     }
     //ON the temperature control
-    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
-    if ( DCL_ERR_FCT_CALL_SUCCESS != retCode)
-    {
-        return retCode;
-    }
+//    retCode = SetTemperatureControlStatus(Type, TEMPCTRL_STATUS_ON);
+//    if ( DCL_ERR_FCT_CALL_SUCCESS != retCode)
+//    {
+//        return retCode;
+//    }
 
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
