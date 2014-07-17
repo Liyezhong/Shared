@@ -797,7 +797,7 @@ ReturnCode_t IDeviceProcessing::ALVaccum()
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime)
+ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, qint32 targetPressure)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
@@ -805,7 +805,7 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime)
     }
     if(m_pAirLiquid)
     {
-        return m_pAirLiquid->Draining(DelayTime);
+        return m_pAirLiquid->Draining(DelayTime, targetPressure);
     }
     else
     {

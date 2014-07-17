@@ -122,7 +122,7 @@ public:
      *  \return from Draining
      */
     /****************************************************************************/
-    ReturnCode_t Draining(quint32 DelayTime);
+    ReturnCode_t Draining(quint32 DelayTime, qint32 targetPressure = 30);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function Filling

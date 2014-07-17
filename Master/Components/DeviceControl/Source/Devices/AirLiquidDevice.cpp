@@ -12,15 +12,17 @@
 
 namespace DeviceControl
 {
-#define CHECK_SENSOR_TIME (200) // in msecs
-#define AL_TARGET_PRESSURE_POSITIVE (30)
-#define AL_TARGET_PRESSURE_NEGATIVE (-30)
-#define AL_TARGET_PRESSURE_BOTTLECHECK (10)
-#define AL_PUMP_MODE_OFF             (0)
-#define AL_PUMP_MODE_ON_OFF_POSITIVE (1)
-#define AL_PUMP_MODE_ON_OFF_NEGATIVE (9)
-#define AL_PUMP_MODE_PWM_POSITIVE    (17)
-#define AL_PUMP_MODE_PWM_NEGATIVE    (25)
+#define CHECK_SENSOR_TIME               (200) // in msecs
+#define AL_TARGET_PRESSURE_POSITIVE     (30)
+#define AL_TARGET_PRESSURE_NEGATIVE     (-30)
+#define AL_TARGET_PRESSURE_BOTTLECHECK  (10)
+#define AL_PUMP_MODE_OFF                (0)
+#define AL_PUMP_MODE_ON_OFF_POSITIVE    (1)
+#define AL_PUMP_MODE_ON_OFF_NEGATIVE    (9)
+#define AL_PUMP_MODE_PWM_POSITIVE       (17)
+#define AL_PUMP_MODE_PWM_NEGATIVE       (25)
+#define AL_TARGET_PRESSURE_RCDRAIN      (40)
+#define AL_RELEASE_PRESSURE_VALUE       (2)
 const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and outside range
 
 /****************************************************************************/
@@ -937,7 +939,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
     qreal CurrentPressure = GetPressure();
 
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Wait for current pressure get to ZERO";
-    while((CurrentPressure > 5)||(CurrentPressure < (-5)))
+    while(qAbs(CurrentPressure) > AL_RELEASE_PRESSURE_VALUE)
     {
         CurrentPressure = GetPressure();
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_RELEASE_PRESSURE, 500);
@@ -1038,7 +1040,7 @@ SORTIE:
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
+ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, qint32 targetPressure)
 {
 
     bool stop = false;
@@ -1061,7 +1063,14 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime)
     }
 
     (void)TurnOnFan();
-    RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_POSITIVE, m_WorkingPressurePositive);
+    if (targetPressure == AL_TARGET_PRESSURE_RCDRAIN)
+    {
+        RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_POSITIVE, AL_TARGET_PRESSURE_RCDRAIN);
+    }
+    else
+    {
+        RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_POSITIVE, m_WorkingPressurePositive);
+    }
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
         goto SORTIE;

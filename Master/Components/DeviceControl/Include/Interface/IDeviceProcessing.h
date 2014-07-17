@@ -141,7 +141,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t ALDraining(quint32 DelayTime);
+    ReturnCode_t ALDraining(quint32 DelayTime, qint32 targetPressure = 30);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALFilling
