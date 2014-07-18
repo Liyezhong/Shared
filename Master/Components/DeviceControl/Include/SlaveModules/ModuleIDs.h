@@ -43,6 +43,8 @@
 #define MODULE_ID_UART            12    //!< Module ID for serial interface
 
 #define MODULE_ID_PRESSURE        13    //!< Module ID for serial interface
+#define MODULE_ID_OTHER           14    //!< Module ID for other
+
 
 #define MODULE_ID_SIMUALTION      0xFFF //!< Modules ID for test simulation
 

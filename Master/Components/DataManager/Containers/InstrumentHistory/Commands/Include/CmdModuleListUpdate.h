@@ -38,12 +38,12 @@ class CmdModuleListUpdate : public Global::Command {
 
 public:
     static QString NAME;    //!< Command name.
-
-    CmdModuleListUpdate(int Timeout, const DataManager::CModule& ModuleData);
+    QString               m_DeviceType;      //!< Device type
+    bool                  m_Error;           //!< true if module data is erroneous
+    CmdModuleListUpdate(int Timeout, const DataManager::CModule& ModuleData, const QString& DeviceType, const bool Error = false);
     CmdModuleListUpdate();   
     ~CmdModuleListUpdate();
     virtual QString GetName() const;
-
 
     /****************************************************************************/
     /*!
@@ -53,8 +53,9 @@ public:
     /****************************************************************************/
     DataManager::CModule const* GetModuleData() const { return mp_ModuleData; }
 
-private:
+    const QString& DeviceType() const { return m_DeviceType; }
 
+private:
     DataManager::CModule *mp_ModuleData;     //!< Pointer to Module object
 
     /****************************************************************************/

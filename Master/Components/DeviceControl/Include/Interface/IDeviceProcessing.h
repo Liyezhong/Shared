@@ -662,7 +662,9 @@ public:
      */
     /****************************************************************************/
     CBaseModule* GetBaseModule(HimSlaveType_t Type);
-
+    void InitArchiveServiceInforState();
+    void ArchiveServiceInfor();
+    void NotifySavedServiceInfor(const QString& deviceType);
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
@@ -708,10 +710,22 @@ signals:
     void DeviceShutdown();
     //! Forward the 'level sensor change to 1' to scheduler module
     void ReportLevelSensorStatus1();
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the service information of a device
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     *  \iparam ModuleInfo = Contains the service information
+     */
+    /****************************************************************************/
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString&);
+    void ReportSavedServiceInfor(const QString& deviceType);
+
 public slots:
     //! Get error information from DeviceProcessing
     void OnError(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                  quint16 usErrorData, QDateTime timeStamp);
+
 private slots:
     //! Task handling
     void HandleTasks();
@@ -741,6 +755,7 @@ private slots:
      */
     /****************************************************************************/
     void OnDestroyFinished();
+    void OnTimeOutSaveServiceInfor();
 
 private:
     //! Handle the state 'Task request pending'
@@ -784,6 +799,9 @@ private:
 
     QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
+    QStateMachine m_machine;        //!< State machine
+    QTimer m_TimerSaveServiceInfor;
+    QList<quint32> m_deviceList;
 };
 
 } //namespace

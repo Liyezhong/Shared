@@ -34,12 +34,16 @@ QString CmdModuleListUpdate::NAME = "MsgClasses::CmdModuleListUpdate";
 /*!
  * \brief   Constructor for sending
  *
- * \param[in]   Timeout             Timeout for command.
- * \param[in]   Module
+ * \iparam   Timeout             Timeout for command.
+ * \iparam   Module
+ * \iparam   DeviceName          Name of the device for which information is
+ *                               being sent
+ * \iparam   Error               set to true if retrieving module information
+ *                               had failed ,else false.
  */
 /****************************************************************************/
-CmdModuleListUpdate::CmdModuleListUpdate(int Timeout, const DataManager::CModule& Module) :
-    Command(Timeout), mp_ModuleData(NULL)
+CmdModuleListUpdate::CmdModuleListUpdate(int Timeout, const DataManager::CModule& Module, const QString& DeviceType, const bool Error) :
+    Command(Timeout), m_DeviceType(DeviceType), m_Error(Error), mp_ModuleData(NULL)
 {   
     mp_ModuleData = new DataManager::CModule();
     *mp_ModuleData = Module;

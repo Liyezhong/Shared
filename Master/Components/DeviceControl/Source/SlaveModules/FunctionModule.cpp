@@ -45,7 +45,8 @@ CFunctionModule::CFunctionModule(CModuleConfig::CANObjectType_t eObjectType, con
                                  CANCommunicator* pCANCommunicator, CBaseModule* pParentNode) :
     CModule(eObjectType, p_MessageConfiguration, pCANCommunicator),
     m_mainState(FM_MAIN_STATE_UNDEF),
-    m_pParent(pParentNode)
+    m_pParent(pParentNode),
+    m_pPartLifeCycleRecord(NULL)
 {
 }
 

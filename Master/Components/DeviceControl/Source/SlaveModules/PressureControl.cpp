@@ -75,7 +75,6 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
         m_ModuleCommand[idx].TimeoutRetry = 0;
     }
     memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
-    (void)ReadValveOperationTime();
 }
 
 /****************************************************************************/
@@ -1859,72 +1858,21 @@ ReturnCode_t CPressureControl::AddValveOperationTime(quint8 ValveIndex)
     if(ValveIndex < VALVE_NUM)
     {
         m_valveOperationTime[ValveIndex] = m_valveOperationTime[ValveIndex] + 1;
-        return WriteValveOperationTime();
-    }
-    else
-    {
-        return DCL_ERR_FCT_CALL_FAILED;
-    }
-}
-
-ReturnCode_t CPressureControl::ReadValveOperationTime()
-{
-#if 1
-    memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
-    return DCL_ERR_FCT_CALL_SUCCESS;
-#else
-    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
-    QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/ValveOperationTime.txt";
-    FILE* pFile;
-
-    if ((pFile = fopen(FileName.toStdString().c_str(), "r")) == NULL)
-    {
-        memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
-        return retCode;
-    }
-
-    char Buf[200];
-    memset(Buf, 0, sizeof(Buf));
-    if(fread(Buf, 1, 200, pFile) > 0 )
-    {
-        QString Content = QString::fromAscii(Buf, -1);
-        QStringList StrList = Content.split(";");
-        if(StrList.size() >= 2)
-        {
-            m_valveOperationTime[0] = StrList.at(0).toUInt();
-            m_valveOperationTime[1] = StrList.at(1).toUInt();
-            retCode = DCL_ERR_FCT_CALL_SUCCESS;
-        }
-
-    }
-    fclose(pFile);
-    return retCode;
-#endif
-}
-
-ReturnCode_t CPressureControl::WriteValveOperationTime()
-{
-#if 1
-        return DCL_ERR_FCT_CALL_SUCCESS;
-#else
-    QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/ValveOperationTime.txt";
-    QString msg = tr("%1;%2;\n").arg(m_valveOperationTime[0]).arg(m_valveOperationTime[1]);
-    FILE* pFile = fopen(FileName.toStdString().c_str(), "w+");
-    if(pFile)
-    {
-        fprintf(pFile, "%s", msg.toStdString().c_str());
-        fflush(pFile);
-        fclose(pFile);
         return DCL_ERR_FCT_CALL_SUCCESS;
     }
     else
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-#endif
 }
 
-quint32 CPressureControl::GetValveOperationTime(quint32 ValveIndex)
+void CPressureControl::SetValveLifeCycle(quint32 valve1Cycle, quint32 valve2Cycle)
+{
+    m_valveOperationTime[0] = valve1Cycle;
+    m_valveOperationTime[1] = valve2Cycle;
+}
+
+quint32 CPressureControl::GetValveLifeCycle(quint32 ValveIndex)
 {
     if(ValveIndex < VALVE_NUM)
     {
@@ -1939,7 +1887,7 @@ quint32 CPressureControl::GetValveOperationTime(quint32 ValveIndex)
 ReturnCode_t CPressureControl::ResetValveOperationTime()
 {
     memset(m_valveOperationTime, 0, sizeof(m_valveOperationTime));
-    return WriteValveOperationTime();
+    return DCL_ERR_FCT_CALL_FAILED;
 }
 
 } //namespace

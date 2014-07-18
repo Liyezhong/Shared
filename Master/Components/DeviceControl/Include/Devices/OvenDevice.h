@@ -23,7 +23,10 @@ class COvenDevice : public CBaseDevice
 public:
 
     //! constructor
-    COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type);
+    COvenDevice(DeviceProcessing* pDeviceProcessing,
+                QString& Type,
+                const DeviceModuleList_t &ModuleList,
+                quint32 InstanceID);
     //! destructor
     virtual ~COvenDevice();
     //! general task handling function

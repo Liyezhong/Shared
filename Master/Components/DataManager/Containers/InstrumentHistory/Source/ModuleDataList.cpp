@@ -5,7 +5,7 @@
  *
  *  $Version:   $ 0.1
  *  $Date:      $ 2012-12-21
- *  $Author:    $ Soumya. D
+ *  $Author:    $ Soumya. D , Shuvasmita
  *
  *  \b Company:
  *
@@ -25,11 +25,7 @@
 //#include "Global/Include/EventObject.h"
 
 #include <QDebug>
-#include <QFile>
 #include <QBuffer>
-#include <QReadLocker>
-#include <QWriteLocker>
-#include <QReadWriteLock>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -41,13 +37,9 @@ namespace DataManager
  *  \brief Default Constructor
  */
 /****************************************************************************/
-CModuleDataList::CModuleDataList() : CDataContainerBase(), m_InstrumentName(""),
-    m_ModuleTimeStamp(""),
-    m_DataVerificationMode(true),
-    m_FileName(""),
-    mp_ReadWriteLock(NULL)
-{
-    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+CModuleDataList::CModuleDataList() :
+    m_ModuleTimeStamp("")
+{   
 
 }
 
@@ -57,14 +49,10 @@ CModuleDataList::CModuleDataList() : CDataContainerBase(), m_InstrumentName(""),
  *  \iparam TimeStamp
  */
 /****************************************************************************/
-CModuleDataList::CModuleDataList(QString TimeStamp) : CDataContainerBase(), m_InstrumentName(""),
-    m_ModuleTimeStamp(""),
-    m_DataVerificationMode(true),
-    m_FileName(""),
-    mp_ReadWriteLock(NULL)
+CModuleDataList::CModuleDataList(QString TimeStamp) :
+    m_ModuleTimeStamp(TimeStamp)
 {
-    m_ModuleTimeStamp = TimeStamp;
-    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+
 }
 
 /****************************************************************************/
@@ -75,14 +63,8 @@ CModuleDataList::CModuleDataList(QString TimeStamp) : CDataContainerBase(), m_In
  *
  */
 /****************************************************************************/
-CModuleDataList::CModuleDataList(const CModuleDataList& ModuleDataList) : CDataContainerBase(),
-    m_InstrumentName(""),
-    m_ModuleTimeStamp(""),
-    m_DataVerificationMode(true),
-    m_FileName(""),
-    mp_ReadWriteLock(NULL)
-{
-    mp_ReadWriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+CModuleDataList::CModuleDataList(const CModuleDataList& ModuleDataList)
+{    
     CopyFromOther(ModuleDataList);
 }
 /****************************************************************************/
@@ -91,18 +73,15 @@ CModuleDataList::CModuleDataList(const CModuleDataList& ModuleDataList) : CDataC
  *         This function should be called from CopyConstructor or
  *         Assignment operator only.
  *
- *  \iparam ListofModules = Instance of the CModuleDataList class
+ *  \iparam Other = Instance of the CModuleDataList class
 .*  \note  Method for internal use only
  *
  *  \return
  */
 /****************************************************************************/
 void CModuleDataList::CopyFromOther(const CModuleDataList &Other)
-{
-    QString InstrumentName = const_cast<CModuleDataList&>(Other).GetInstrumentName();
-    QString TimeStamp = const_cast<CModuleDataList&>(Other).GetModuleTimeStamp();
-
-    this->SetInstrumentName(InstrumentName);
+{    
+    QString TimeStamp = const_cast<CModuleDataList&>(Other).GetModuleTimeStamp();   
     this->SetModuleTimeStamp(TimeStamp);
 
     //qDebug() <<"ModuleList Keys"<< m_ModuleList.keys().toSet();
@@ -172,7 +151,6 @@ void CModuleDataList::AddModuleWithoutVerification(CModule const* p_Module)
         CModule *p_TempModule = new CModule();
         *p_TempModule = *p_Module;
 
-        QWriteLocker locker(mp_ReadWriteLock);
         m_ModuleList.insert(p_TempModule->GetModuleName(), p_TempModule);
         m_ListofModules.append(p_TempModule->GetModuleName());
     }
@@ -192,88 +170,6 @@ CModuleDataList::~CModuleDataList()
     }
     CATCHALL_DTOR();
 
-    if (mp_ReadWriteLock != NULL) {
-        try {
-            delete mp_ReadWriteLock;
-        }
-        CATCHALL_DTOR();
-        mp_ReadWriteLock = NULL;
-    }
-}
-
-/****************************************************************************/
-/*!
- *  \brief Reads an xml file and fill ModuleList object
- *
- *  \iparam FileName = Filename to read
- *
- *  \return true on success, false on failure
- */
-/****************************************************************************/
-bool CModuleDataList::ReadFile(const QString FileName)
-{
-
-    SetFileName(FileName);
-    QFile File(FileName);
-    if (!QFile::exists(FileName)) {
-        return false;
-    }
-
-    bool Result = true;
-    if (m_DataVerificationMode) {
-        //To make sure other threads cant write when reading is active
-        QWriteLocker locker(mp_ReadWriteLock);
-
-        // create instance of CModuleDataList for verification
-        CModuleDataList* p_MDL_Verification = new CModuleDataList();
-
-        // create clone from current state
-        *p_MDL_Verification = *this;
-
-        // disable verification in clone
-        p_MDL_Verification->SetDataVerificationMode(false);
-
-        // execute required action (Read) in clone
-        Result = true;
-        if (!p_MDL_Verification->ReadFile(FileName)) {
-            Result = false;
-        } else {
-
-            // now check new content => call all active verifiers
-            if (DoLocalVerification(p_MDL_Verification)) {
-                // if content ok, clone backwards
-                *this = *p_MDL_Verification;
-                Result = true;
-            }
-            else {
-                Result = false;
-            }
-        }
-        // delete test clone
-        delete p_MDL_Verification;
-    }
-    else {
-        QWriteLocker locker(mp_ReadWriteLock);
-
-        // Initialise the m_Filename to a known string "UNDEFINED"
-        m_FileName = "UNDEFINED";
-
-
-        if (!File.open(QFile::ReadOnly | QFile::Text )) {
-            qDebug() << "Open file to read failed " << FileName;
-            return false;
-        }
-
-        if (!DeserializeContent(File, false)) {
-            qDebug() << " CModuleDataList::Read failed for file during deserializing: " << FileName;
-            return false;
-        }
-
-        m_FileName = FileName;
-
-        File.close();
-    }
-    return Result;
 }
 
 /****************************************************************************/
@@ -286,32 +182,9 @@ bool CModuleDataList::ReadFile(const QString FileName)
  *  \return True or False
  */
 /****************************************************************************/
-bool CModuleDataList::DeserializeContent(QIODevice& IODevice, bool CompleteData)
+bool CModuleDataList::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData)
 {   
     bool Result = true;
-    QXmlStreamReader XmlStreamReader;
-    XmlStreamReader.setDevice(&IODevice);
-
-    // look for node <InstrumentHistory>
-    if (!Helper::ReadNode(XmlStreamReader, "InstrumentHistory")) {
-        qDebug() << "DeserializeContent: abort reading. Node not found: System";
-        return false;
-    }
-
-    // Read attribute Name
-    if (!XmlStreamReader.attributes().hasAttribute("name")) {
-        qDebug() << " attribute System <name> is missing => abort reading";
-        return false;
-    }
-
-    SetInstrumentName(XmlStreamReader.attributes().value("name").toString());
-
-    // Look for node <ModuleList>
-    if (!Helper::ReadNode(XmlStreamReader, "ModuleList")) {
-        qDebug() << "DeserializeContent: abort reading. Node not found: ModuleList";
-        return false;
-    }
-
     // Read Attribute TimeStamp
     if (!XmlStreamReader.attributes().hasAttribute("timestamp")) {
         qDebug() << " attribute <timestamp> is missing => abort reading";
@@ -321,32 +194,6 @@ bool CModuleDataList::DeserializeContent(QIODevice& IODevice, bool CompleteData)
     SetModuleTimeStamp(XmlStreamReader.attributes().value("timestamp").toString());
 
     Result = ReadModules(XmlStreamReader, CompleteData);
-
-    if (CompleteData && Result) {
-        if (!Helper::ReadNode(XmlStreamReader, "NonXmlData")) {
-            return false;
-        }
-
-        if (!XmlStreamReader.attributes().hasAttribute("VerificationMode")) {
-            qDebug() << "### attribute <VerificationMode> is missing";
-            return false;
-        }
-
-        if (XmlStreamReader.attributes().value("VerificationMode").toString() == "true") {
-            SetDataVerificationMode(true);
-        }
-        else {
-            SetDataVerificationMode(false);
-        }
-
-        if (!XmlStreamReader.attributes().hasAttribute("FileName")) {
-            qDebug() << "### attribute <FileName> is missing";
-            return false;
-        }
-        SetFileName(XmlStreamReader.attributes().value("FileName").toString());
-
-    }
-    (void)XmlStreamReader.device()->reset();
 
     return Result;
 }
@@ -361,20 +208,8 @@ bool CModuleDataList::DeserializeContent(QIODevice& IODevice, bool CompleteData)
  *  \return True or False
  */
 /****************************************************************************/
-bool CModuleDataList::SerializeContent(QIODevice& IODevice, bool CompleteData)
+bool CModuleDataList::SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData)
 {
-    QXmlStreamWriter XmlStreamWriter;
-    XmlStreamWriter.setDevice(&IODevice);
-
-    XmlStreamWriter.setAutoFormatting(true);
-    XmlStreamWriter.writeStartDocument();
-
-    // XmlStreamWriter.writeDTD("<InstrumentHistory>");
-    XmlStreamWriter.writeStartElement("InstrumentHistory");
-
-    // write attribute name
-    XmlStreamWriter.writeAttribute("name", GetInstrumentName());
-
     // write section ModuleList
     XmlStreamWriter.writeStartElement("ModuleList");
 
@@ -395,21 +230,6 @@ bool CModuleDataList::SerializeContent(QIODevice& IODevice, bool CompleteData)
 
     XmlStreamWriter.writeEndElement(); // ModuleList
 
-    if (CompleteData) {
-        XmlStreamWriter.writeStartElement("NonXmlData");
-        if (GetDataVerificationMode()) {
-            XmlStreamWriter.writeAttribute("VerificationMode", "true");
-        } else {
-            XmlStreamWriter.writeAttribute("VerificationMode", "false");
-        }
-
-        XmlStreamWriter.writeAttribute("FileName", GetFilename());
-        XmlStreamWriter.writeEndElement();
-    }
-
-    XmlStreamWriter.writeEndElement(); // for Instrument History
-    XmlStreamWriter.writeEndDocument(); // End of Document
-
     return true;
 }
 
@@ -423,14 +243,14 @@ bool CModuleDataList::SerializeContent(QIODevice& IODevice, bool CompleteData)
  *  \return true - read success or false - read failure
  */
 /****************************************************************************/
-bool CModuleDataList::ReadModules(QXmlStreamReader &XmlStreamReader, bool CompleteData)
+bool CModuleDataList::ReadModules(const QXmlStreamReader &XmlStreamReader, bool CompleteData)
 {
     bool Result = true;
 
     // Look for node <Module>
     while(!XmlStreamReader.atEnd())
     {
-        if (static_cast<int>(XmlStreamReader.readNext()) == 1) {
+        if (static_cast<int>(const_cast<QXmlStreamReader &>(XmlStreamReader).readNext()) == 1) {
             qDebug() << "Reading " << XmlStreamReader.name() << " at line number: " << XmlStreamReader.lineNumber();
             qDebug() << "Invalid Token. Error: " << XmlStreamReader.errorString();
         }
@@ -478,66 +298,15 @@ bool CModuleDataList::AddModule(CModule const* p_Module)
         qDebug() << "Name already exists";
         return false;
     }
-
+    Result = true;
     CModule *p_TempModule = new CModule();
     *p_TempModule = *p_Module;
 
+    //QWriteLocker locker(mp_ReadWriteLock);
+    m_ModuleList.insert(p_TempModule->GetModuleName(), p_TempModule);
+    m_ListofModules.append(p_TempModule->GetModuleName());
+
     Result = true;
-    if ((m_DataVerificationMode)) {
-        CModuleDataList* p_MDL_Verification = new CModuleDataList();
-        CHECKPTR(p_MDL_Verification);
-        //p_MDL_Verification = NULL;
-
-        // first lock current state for reading
-        {   // code block defined for QReadLocker.
-            QReadLocker locker(mp_ReadWriteLock);
-
-            // create clone from current state
-            *p_MDL_Verification = *this;
-
-            // disable verification in clone
-            p_MDL_Verification->SetDataVerificationMode(false);
-
-            // execute required action (AddModule) in clone
-            Result = p_MDL_Verification->AddModule(p_TempModule);
-
-            if (Result) {
-                // now check new content => call all active verifiers
-                Result = DoLocalVerification(p_MDL_Verification);
-            }
-        }
-        if (Result) {
-            // if content ok, clone backwards
-            *this = *p_MDL_Verification;
-        }
-        else {
-            //Store errors.
-            // Since we are going to delete p_MDL_Verification
-            // We need to store the errors generated by it.
-            // For now Errors are not copied by assignment or copy constructors.
-            ListOfErrors_t ErrorList = p_MDL_Verification->GetErrorList();
-            if (!ErrorList.isEmpty()) {
-                // Control reaches here means Error list is not empty.
-                // Considering only the first element in list since
-                // verfier can atmost add only one Hash has to the error list
-                m_ErrorMap = *(ErrorList.first());
-                SetErrorList(&m_ErrorMap);
-            }
-        }
-
-        // delete test clone
-        delete p_MDL_Verification;
-        delete p_TempModule;
-
-    } else {
-
-        //QWriteLocker locker(mp_ReadWriteLock);
-        m_ModuleList.insert(p_TempModule->GetModuleName(), p_TempModule);
-        m_ListofModules.append(p_TempModule->GetModuleName());
-
-        Result = true;
-    }
-
     return Result;
 }
 
@@ -560,85 +329,10 @@ bool CModuleDataList::UpdateModule(CModule const* p_Module)
     }
 
     bool Result = false;
-    if (m_DataVerificationMode) {
 
-        //CModuleDataList* p_MDL_Verification = new CModuleDataList();
-        CModuleDataList MDL_Verification;
-        //p_MDL_Verification = NULL;
-        //        CModule* p_ModuleData = new CModule();
-        //        CHECKPTR(p_ModuleData);
-
-        //CModule* p_ModuleData = m_ModuleList.value(ModuleName, NULL);
-
-        //QString SerialNumber = p_Module->GetSerialNumber();
-        //        QString DateOfProd = p_Module->GetDateOfProduction();
-        //QString OperatingHrs = p_Module->GetOperatingHours();
-
-        // CHECKPTR(p_ModuleData);
-        // first lock current state for reading
-        {   // code block defined for QReadLocker.
-            QReadLocker locker(mp_ReadWriteLock);
-
-            // create clone from current state
-            MDL_Verification = *this;
-
-            // disable verification in clone
-            MDL_Verification.SetDataVerificationMode(false);
-
-            // execute required action (UpdateModule) in clone
-            Result = MDL_Verification.UpdateModule(p_Module);
-
-            if (Result) {
-                // now check new content => call all active verifiers
-                Result = DoLocalVerification(&MDL_Verification);
-                if (!Result) {
-                    //Store errors.
-                    // Since we are going to delete p_DPL_Verification
-                    // We need to store the errors generated by it.
-                    // For now Errors are not copied by assignment or copy constructors.
-                    ListOfErrors_t ErrorList = MDL_Verification.GetErrorList();
-                    if (!ErrorList.isEmpty()) {
-                        // Control reaches here means Error list is not empty.
-                        // Considering only the first element in list since
-                        // verfier can atmost add only one Hash has to the error list
-                        m_ErrorMap = *(ErrorList.first());
-                        SetErrorList(&m_ErrorMap);
-                    }
-                }
-            }
-
-            if (Result) {
-                *this = MDL_Verification;
-            }
-
-//            //        p_ModuleData = m_ModuleList.value(ModuleName, NULL);
-//            //int Index = m_ModuleList.
-
-//            if (SerialNumber != p_ModuleData->GetSerialNumber()) {
-//                p_ModuleData->SetSerialNumber(SerialNumber);
-//            }
-
-//            if (OperatingHrs != p_ModuleData->GetOperatingHours()) {
-//                p_ModuleData->SetOperatingHours(OperatingHrs);
-//            }
-
-//            //        if (DateOfProd != p_ModuleData->GetDateOfProduction()) {
-//            //            p_ModuleData->SetDateOfProduction(DateOfProd);
-//            //        }
-
-//            *m_ModuleList.value(ModuleName) = *p_ModuleData;
-
-//            delete p_MDL_Verification;
-
-        }
-    } else {
-        QWriteLocker locker(mp_ReadWriteLock);
-
-        // do a deep copy
-        *m_ModuleList.value(ModuleName) = *p_Module;
-        Result = true;
-    }
-
+    // do a deep copy
+    *m_ModuleList.value(ModuleName) = *p_Module;
+    Result = true;
     return Result;
 }
 
@@ -661,7 +355,6 @@ CModule* CModuleDataList::GetModule(const unsigned int Index)
     return NULL;
 }
 
-//deep copy
 /****************************************************************************/
 /*!
  *  \brief Function to retrieve module Infor for given Module Name. Module
@@ -674,9 +367,7 @@ CModule* CModuleDataList::GetModule(const unsigned int Index)
  */
 /****************************************************************************/
 bool CModuleDataList::GetModule(const QString ModuleName, CModule& Module)
-{
-    QReadLocker locker(mp_ReadWriteLock);
-
+{    
     if (m_ModuleList.contains(ModuleName)) {
         Module = *(m_ModuleList.value(ModuleName));
         return true;
@@ -730,7 +421,6 @@ bool CModuleDataList::DeleteModule(const QString ModuleName)
         }
 
         // IndexCount MUST never be -1
-        Q_ASSERT(IndexCount != -1);
         m_ListofModules.removeAt(IndexCount);
         return true;
     }
@@ -777,7 +467,6 @@ CModuleDataList& CModuleDataList::operator=(const CModuleDataList& ListofModules
 {
     if (this != &ListofModules) {
 
-        //this->DeleteAllModules();
         CopyFromOther(ListofModules);
     }
     return *this;
@@ -793,14 +482,18 @@ CModuleDataList& CModuleDataList::operator=(const CModuleDataList& ListofModules
  *  \return Output Stream
  */
 /****************************************************************************/
-QDataStream& operator << (QDataStream& OutDataStream, const CModuleDataList& ModuleList)
+QDataStream& operator << (const QDataStream& OutDataStream, const CModuleDataList& ModuleList)
 {
+    QXmlStreamWriter XmlStreamWriter;
+    XmlStreamWriter.setDevice(OutDataStream.device());
+    QDataStream &OutDataStreamRef = const_cast<QDataStream &>(OutDataStream);
     CModuleDataList* p_TempModuleList = const_cast<CModuleDataList*>(&ModuleList);
 
-    if (!p_TempModuleList->SerializeContent(*OutDataStream.device(), true)) {
+    if (!p_TempModuleList->SerializeContent(XmlStreamWriter, true)) {
         qDebug() << "CModuleList::Operator Streaming (SerializeContent) failed.";
     }
-    return OutDataStream;
+    return OutDataStreamRef;
+
 }
 
 /****************************************************************************/
@@ -811,14 +504,25 @@ QDataStream& operator << (QDataStream& OutDataStream, const CModuleDataList& Mod
  *  \iparam ModuleList = CModuleDataList class object
  *
  *  \return Input Stream
+ *
  */
 /****************************************************************************/
-QDataStream& operator >> (QDataStream& InDataStream, CModuleDataList& ModuleList)
+QDataStream& operator >> (const QDataStream& InDataStream, const CModuleDataList& ModuleList)
 {
-    if (!ModuleList.DeserializeContent(*InDataStream.device(), true)) {
+    QXmlStreamReader XmlStreamReader;
+    XmlStreamReader.setDevice(InDataStream.device());
+    QDataStream &InDataStreamRef = const_cast<QDataStream &>(InDataStream);
+    CModuleDataList &ModuleListRef = const_cast<CModuleDataList &>(ModuleList);
+
+    if (!Helper::ReadNode(XmlStreamReader, QString("ModuleList"))) {
+        qDebug() << "CModuleList::Operator Streaming (DeSerializeContent) Node not found: Module";
+    }
+
+    if (!ModuleListRef.DeserializeContent(XmlStreamReader, true)) {
         qDebug() << "CModuleList::Operator Streaming (DeSerializeContent) failed.";
     }
-    return InDataStream;
+
+    return InDataStreamRef;
 }
 
 }   // namespace DataManager

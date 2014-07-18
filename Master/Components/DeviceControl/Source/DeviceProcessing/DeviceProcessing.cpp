@@ -68,6 +68,11 @@ const QString CANObjectKeyLUT::m_PerMainRelayDOKey= "PER_main_relay_digital_outp
 const QString CANObjectKeyLUT::m_PerLocalAlarmDIKey= "PER_local_alarm_digital_input";     //!< Miscellaneous local alarm digital input
 const QString CANObjectKeyLUT::m_PerRemoteAlarmDIKey= "PER_remote_alarm_digital_input";     //!< Miscellaneous remote alarm digital input
 
+const QString CANObjectKeyLUT::m_OtherDeviceEBoxKey = "OtherDevice_EBox";              //!< EBox
+const QString CANObjectKeyLUT::m_OtherDeviceVentilationFanKey = "OtherDevice_Ventilation_Fan";    //!< VentilationFan
+const QString CANObjectKeyLUT::m_OtherDeviceTouchScreenKey = "OtherDevice_Touch_Screen";       //!< TouchScreen
+const QString CANObjectKeyLUT::m_OtherDevicePressureSensor = "OtherDevice_Pressure_Sensor";       //!< TouchScreen
+
 //QString DeviceProcessing::m_HWConfigFileName = "hw_specification_sepia.xml";
 QString DeviceProcessing::m_HWConfigFileName = "hw_specification.xml";
 
@@ -1439,6 +1444,7 @@ void DeviceProcessing::HandleTaskShutDown(DeviceProcTask* pActiveTask)
 /****************************************************************************/
 void DeviceProcessing::RegisterMetaTypes()
 {
+    qRegisterMetaType<TestResult_t>("TestResult_t");
     qRegisterMetaType<ReturnCode_t>("ReturnCode_t");
     qRegisterMetaType<NodeState_t>("NodeState_t");
     qRegisterMetaType<TempCtrlStatus_t>("TempCtrlStatus_t");
@@ -1954,7 +1960,7 @@ void DeviceProcessing::LogObjectTree(int Parameter)
  *  \return CANNode* to the requested node, if found, otherwise 0.
  */
 /****************************************************************************/
-CBaseModule* DeviceProcessing::GetNodeFromID(quint16 NodeID) const
+CBaseModule* DeviceProcessing::GetNodeFromID(quint32 NodeID) const
 {
     QListIterator<CBaseModule *> iter(m_ObjectTree);
     CBaseModule* p_BaseModule;
@@ -2108,6 +2114,19 @@ void DeviceProcessing::SetErrorParameter(quint16 ErrorGroup, quint16 ErrorCode, 
     m_LastErrorGroup = ErrorGroup;
     m_LastErrorCode  = ErrorCode;
     m_LastErrorData  = ErrorData;
+}
+
+void DeviceProcessing::OnReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceType)
+{
+    emit ReportGetServiceInfo(ReturnCode, ModuleInfo, deviceType);
+}
+
+void DeviceProcessing::WriteDeviceLifeCycle()
+{
+    if (m_pConfigurationService)
+    {
+        m_pConfigurationService->WriteDeviceLifeCycle();
+    }
 }
 
 #ifdef HAL_CV_TEST

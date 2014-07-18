@@ -22,7 +22,10 @@ class CPeripheryDevice : public CBaseDevice
 public:
 
     //! constructor
-    CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString Type);
+    CPeripheryDevice(DeviceProcessing* pDeviceProcessing,
+                     QString& Type,
+                     const DeviceModuleList_t &ModuleList,
+                     quint32 InstanceID);
     //! destructor
     virtual ~CPeripheryDevice();
 

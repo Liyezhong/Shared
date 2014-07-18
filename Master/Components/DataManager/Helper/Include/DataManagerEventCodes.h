@@ -74,6 +74,8 @@ const quint32 EVENT_DM_REAGENT_VERIFICATION_FAILED                   = EVENT_GRO
 const quint32 EVENT_DM_STATIONS_XML_READ_FAILED                      = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x02A;  ///< Stations XML read Failed
 const quint32 EVENT_DM_STATION_VERIFICATION_FAILED                   = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x02B;  ///< Stations Verification Failed
 const quint32 EVENT_DM_STATION_INVALID_STATION_TYPE                  = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x02C; ///< Station Matrix Station %1 type is invalid.
+const quint32 EVENT_DM_MODULE_CONF_READ_FAILED                       = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x02D; ///< Instrument history XML read failed.
+
 
 const quint32 EVENT_DM_PROCESS_SETTINGS_CONF_READ_FAILED             = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0030; ///< Reading ProcessSettings.xml failed.
 const quint32 EVENT_DM_PROCESS_SETTINGS_VERIFICATION_FAILED          = EVENT_GROUP_PLATFORM_DATAMANAGER + 0x0031; ///< Verifying ProcessSettings.xml failed.

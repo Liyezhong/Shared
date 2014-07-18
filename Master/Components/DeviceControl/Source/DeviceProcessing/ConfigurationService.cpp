@@ -35,6 +35,7 @@
 #include "DeviceControl/Include/Devices/RetortDevice.h"
 #include "DeviceControl/Include/Devices/OvenDevice.h"
 #include "DeviceControl/Include/Devices/PeripheryDevice.h"
+#include "DeviceControl/Include/Devices/OtherDevice.h"
 #include "DeviceControl/Include/SlaveModules/DigitalInput.h"
 #include "DeviceControl/Include/SlaveModules/DigitalOutput.h"
 #include "DeviceControl/Include/SlaveModules/AnalogInput.h"
@@ -46,10 +47,12 @@
 #include "DeviceControl/Include/SlaveModules/Joystick.h"
 #include "DeviceControl/Include/SlaveModules/TemperatureControl.h"
 #include "DeviceControl/Include/SlaveModules/PressureControl.h"
+#include "DeviceControl/Include/SlaveModules/OtherModule.h"
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
 #include "Global/Include/Utils.h"
+
 
 namespace DeviceControl
 {
@@ -228,6 +231,9 @@ void CConfigurationService::HandleCANNodesTask()
 /****************************************************************************/
 ReturnCode_t CConfigurationService::CreateDeviceComponents()
 {
+    m_pDeviceLifeCycleRecord =  new DeviceLifeCycleRecord();
+    m_pDeviceLifeCycleRecord->ReadRecord();
+
     // Read hardware configuration (CAN-objects and devices)
     // The configuration information is stored inside the HardwareConfiguration class
     HardwareConfiguration Configuration;
@@ -256,6 +262,12 @@ ReturnCode_t CConfigurationService::CreateDeviceComponents()
     return RetVal;
 }
 
+void CConfigurationService::WriteDeviceLifeCycle()
+{
+    if (m_pDeviceLifeCycleRecord)
+        m_pDeviceLifeCycleRecord->WriteRecord();
+}
+
 /****************************************************************************/
 /*!
  *  \brief  Create all CAN objects and adds them to the object tree
@@ -282,7 +294,7 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
     {
         FILE_LOG_L(laINIT, llDEBUG1) << "++++++++++++++++++++++++++++++++++++++++++++";
         //create the CANNode instance and insert it into the device manager's object tree
-        pCANNode = CreateAndGetCANNode(pCANObjectConfigNode->m_sCANNodeType, pCANObjectConfigNode->m_sCANNodeIndex);
+        pCANNode = CreateAndGetCANNode(pCANObjectConfigNode->m_sCANNodeType, pCANObjectConfigNode->m_sCANNodeIndex, pCANObjectConfigNode->m_IsVirtual);
         pCANNode->SetCANConfiguration(pCANObjectConfigNode);
         RetVal = pCANNode->Initialize();
         if(RetVal != DCL_ERR_FCT_CALL_SUCCESS)
@@ -363,6 +375,11 @@ ReturnCode_t CConfigurationService::CreateObjectTree(HardwareConfiguration* pHWC
                     CreateAndAddFunctionModule<CPressureControl>(pCANNode, pCANObjectConfigFct);
                     break;
                 }
+                case CModuleConfig::CAN_OBJ_TYPE_OTHER:
+                {
+                    CreateAndAddFunctionModule<COtherModule>(pCANNode, pCANObjectConfigFct);
+                    break;
+                }
                 default:
                     //pfui, undefined CAN object type
                     break;
@@ -390,6 +407,7 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
 
     BaseDeviceConfiguration* pBaseDeviceCfg;
     CBaseDevice* pBaseDevice = 0;
+    ModuleLifeCycleRecord* pModuleLifeCycleRecord = 0;
 
     pBaseDeviceCfg = pHWConfiguration->GetDevice(0);
     while(pBaseDeviceCfg != 0)
@@ -403,18 +421,26 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
         else if(pBaseDeviceCfg->m_Type == "AirLiquidDevice")
         {
             pBaseDevice = CreateAndGetDevice<CAirLiquidDevice>(pBaseDeviceCfg);
+            pModuleLifeCycleRecord = m_pDeviceLifeCycleRecord->m_ModuleLifeCycleMap.value("LA");
         }
         else if(pBaseDeviceCfg->m_Type == "RetortDevice")
         {
             pBaseDevice = CreateAndGetDevice<CRetortDevice>(pBaseDeviceCfg);
+            pModuleLifeCycleRecord = m_pDeviceLifeCycleRecord->m_ModuleLifeCycleMap.value("RetortDevice");
         }
         else if(pBaseDeviceCfg->m_Type == "OvenDevice")
         {
             pBaseDevice = CreateAndGetDevice<COvenDevice>(pBaseDeviceCfg);
+            pModuleLifeCycleRecord = m_pDeviceLifeCycleRecord->m_ModuleLifeCycleMap.value("OvenDevice");
         }
         else if(pBaseDeviceCfg->m_Type == "PeripheryDevice")
         {
             pBaseDevice = CreateAndGetDevice<CPeripheryDevice>(pBaseDeviceCfg);
+        }
+        else if(pBaseDeviceCfg->m_Type == "OtherDevice")
+        {
+            pBaseDevice = CreateAndGetDevice<COtherDevice>(pBaseDeviceCfg);
+            pModuleLifeCycleRecord = m_pDeviceLifeCycleRecord->m_ModuleLifeCycleMap.value("OtherDevice");
         }
         else
         {
@@ -440,15 +466,13 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
             pBaseDevice->SetTypeKey(pBaseDeviceCfg->m_Type);
 
             FILE_LOG_L(laINIT, llDEBUG1) << " CConfigurationService - Device " << pBaseDevice->GetType().toStdString() << " created.";
-        }
-
+            pBaseDevice->SetModuleLifeCycleRecord(pModuleLifeCycleRecord);
+         }
         // get next device from configuration file, if any
         pBaseDeviceCfg = pHWConfiguration->GetDevice(pBaseDeviceCfg);
     }
-
     return RetVal;
 }
-
 /****************************************************************************/
 /*!
  *  \brief  Create a device object
@@ -462,9 +486,10 @@ template <class TDevice>
 TDevice* CConfigurationService::CreateAndGetDevice(BaseDeviceConfiguration* pBaseDeviceCfg)
 {
     TDevice* pDevice;
-
-    pDevice = new TDevice(m_pDeviceProcessing, pBaseDeviceCfg->m_Type);
-    pDevice->SetFunctionModuleList(pBaseDeviceCfg->m_DevFctModList);
+    pDevice = new TDevice(m_pDeviceProcessing, pBaseDeviceCfg->m_Type,
+                          pBaseDeviceCfg->m_ModuleList,
+                          pBaseDeviceCfg->m_InstanceID);
+    pDevice->SetFunctionModuleList(pBaseDeviceCfg->m_ModuleList);
 
     return pDevice;
 }
@@ -484,7 +509,7 @@ TDevice* CConfigurationService::CreateAndGetIndexedDevice(BaseDeviceConfiguratio
     TDevice* pDevice;
 
     pDevice = new TDevice(m_pDeviceProcessing, pBaseDeviceCfg->m_Type, pBaseDeviceCfg->m_InstanceID);
-    pDevice->SetFunctionModuleList(pBaseDeviceCfg->m_DevFctModList);
+    pDevice->SetFunctionModuleList(pBaseDeviceCfg->m_ModuleList);
 
     return pDevice;
 }
@@ -499,10 +524,10 @@ TDevice* CConfigurationService::CreateAndGetIndexedDevice(BaseDeviceConfiguratio
  *  \return CANNode instance
  */
 /****************************************************************************/
-CBaseModule* CConfigurationService::CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex)
+CBaseModule* CConfigurationService::CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex, bool isVirtual)
 {
     CBaseModule* pCANNode = 0;
-    pCANNode = new CBaseModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, sCANNodeType, sCANNodeIndex);
+    pCANNode = new CBaseModule(m_pDeviceProcessing->GetMessageConfig(), m_pCANCommunicator, sCANNodeType, sCANNodeIndex, isVirtual);
 
     // Register Signal-Signal forwarding
 //    CONNECTSIGNALSLOT(pCANNode, ReportError(quint32, quint16, quint16, quint16, QDateTime),
@@ -672,6 +697,12 @@ ReturnCode_t CConfigurationService::IsCANNodesStateIdle()
 
     pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(true);
     while (pCANNode) {
+        if (pCANNode->IsVirtual())
+        {
+            pCANNode = m_pDeviceProcessing->GetCANNodeFromObjectTree(false);
+            continue;
+        }
+
         if (pCANNode->GetMainState() == CBaseModule::CN_MAIN_STATE_ERROR) {
             SetErrorParameter(EVENT_GRP_DCL_CONFIGURATION, ERROR_DCL_CONFIG_CAN_NODE_ERROR,
                               (quint16) pCANNode->GetModuleHandle());

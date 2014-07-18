@@ -263,7 +263,7 @@ BaseDeviceConfiguration* HardwareConfiguration::ParseDeviceElement(const QDomEle
 
 /*lint -save -e534 */
         //ignoring return value of insert
-        pDevConfig->m_DevFctModList.insert(strKey, FctInstanceID);
+        pDevConfig->m_ModuleList.insert(strKey, FctInstanceID);
 /*lint -restore */
 
         FILE_LOG_L(laINIT, llDEBUG1) << " HardwareConfiguration: DeviceDependency found: " << strKey.toStdString() << " 0x" << std::hex << FctInstanceID;
@@ -347,12 +347,14 @@ CModuleConfig* HardwareConfiguration::ParseCANNode(const QDomElement &element, c
     QString strCANNodeKey;
     QString strCANNodeName;
     QString strCANNodeType;
+    QString strVirtual;
 
     int nCANNodeIndex = 0, nCANNodeType = 0;
 
     strCANNodeKey = element.attribute("key");
     strCANNodeName = element.attribute("name");
     strCANNodeType = element.attribute("type");
+    strVirtual = element.attribute("virtual");
 
     child = element.firstChildElement("nodetype");
     if(child.isNull())
@@ -380,6 +382,7 @@ CModuleConfig* HardwareConfiguration::ParseCANNode(const QDomElement &element, c
     pCANObjCfgEntry->m_ObjectType = CModuleConfig::CAN_OBJ_TYPE_NODE;
     pCANObjCfgEntry->m_strKey        = strCANNodeKey;
     pCANObjCfgEntry->m_strName       = strCANNodeName;
+    pCANObjCfgEntry->m_IsVirtual      = (bool)strVirtual.toInt();
     pCANObjCfgEntry->m_sCANNodeIndex = nCANNodeIndex;
     pCANObjCfgEntry->m_sCANNodeType  = nCANNodeType;
     pCANObjCfgEntry->m_sOrderNr      = sOrderNrNode;
@@ -429,7 +432,25 @@ ReturnCode_t HardwareConfiguration::ParseFunctionModule(const QDomElement &eleme
         return DCL_ERR_FCT_CALL_FAILED;
     }
 
-    if(CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR == sObjectType)
+    if(CModuleConfig::CAN_OBJ_TYPE_OTHER == sObjectType)
+    {
+        CModuleConfig* pCANObjFctOtherEntry = new CModuleConfig();
+        pCANObjFctOtherEntry->m_ObjectType = sObjectType;
+        pCANObjFctOtherEntry->m_strKey = strCANFctModuleKey;
+        pCANObjFctOtherEntry->m_strName = strCANFctModuleName;
+        pCANObjFctOtherEntry->pParent = pCANObjCfgNode;
+        pCANObjFctOtherEntry->m_sChannel = sIface;
+        pCANObjFctOtherEntry->m_sOrderNr = sOrderNrFct;
+        pCANObjFctOtherEntry->m_sCANNodeType = pCANObjCfgNode->m_sCANNodeType;
+        pCANObjFctOtherEntry->m_sCANNodeIndex = pCANObjCfgNode->m_sCANNodeIndex;
+
+        m_CANObjectCfgList[strCANFctModuleKey] = pCANObjFctOtherEntry;
+        FILE_LOG_L(laINIT, llDEBUG1) << "    - fct-mod: " << pCANObjFctOtherEntry->m_strKey.toStdString() <<
+                                        ", Order:" << pCANObjFctOtherEntry->m_sOrderNr <<
+                                        " Type: " << strCANFctModuleType.toStdString() << ", " << (int) pCANObjFctOtherEntry->m_ObjectType;
+
+    }
+    else if(CModuleConfig::CAN_OBJ_TYPE_STEPPERMOTOR == sObjectType)
     {
         CANFctModuleStepperMotor* pCANObjFctMotorEntry;
 
@@ -1925,6 +1946,10 @@ CModuleConfig::CANObjectType_t HardwareConfiguration::GetObjectTypeFromString(co
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_PRESSURE_CTL;
     }
+    else if(strCANObjectType == "Other_device")
+    {
+        eObjectType = CModuleConfig::CAN_OBJ_TYPE_OTHER;
+    }
     else
     {
         eObjectType = CModuleConfig::CAN_OBJ_TYPE_UNDEF;
@@ -2021,6 +2046,9 @@ quint32 HardwareConfiguration::GetDeviceIDFromValue(quint32 DeviceValue)
         break;
         case 0x000080C4:
             DevInstanceID = DEVICE_INSTANCE_ID_MAIN_CONTROL; //!< Main contorl
+        break;
+        case 0x000080C6:
+            DevInstanceID = DEVICE_INSTANCE_ID_OTHER_DEVICE; //!< Other device
         break;
         default:
             DevInstanceID = DEVICE_INSTANCE_ID_UNDEFINED;

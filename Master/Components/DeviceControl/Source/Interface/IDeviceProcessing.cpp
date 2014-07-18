@@ -40,11 +40,15 @@
 #include "Global/Include/AdjustedTime.h"
 #include "Global/Include/Exception.h"
 #include "Global/Include/Utils.h"
-
+#include <DeviceControl/Include/Devices/DeviceState.h>
+#include <DeviceControl/Include/Devices/ArchiveServiceInforState.h>
 #include <unistd.h>
+#include <QFinalState>
+
 namespace DeviceControl
 {
-
+//2* 24 * 60 * 60 * 1000;
+const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2 * 60 * 1000;
 /****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
@@ -52,7 +56,7 @@ namespace DeviceControl
 /****************************************************************************/
 IDeviceProcessing::IDeviceProcessing() :
         m_reqTaskID(DeviceProcTask::TASK_ID_DP_UNDEF), m_reqTaskPriority(DeviceProcTask::TASK_PRIO_LOW),
-        m_reqTaskParameter1(0), m_reqTaskParameter2(0)
+        m_reqTaskParameter1(0), m_reqTaskParameter2(0), m_TimerSaveServiceInfor(this), m_machine(this)
 {
     m_taskID = IDEVPROC_TASKID_FREE;
     m_taskState = IDEVPROC_TASK_STATE_FREE;
@@ -84,10 +88,21 @@ IDeviceProcessing::IDeviceProcessing() :
                       this, OnErrorWithInfo(quint32, quint16, quint16, quint16, QDateTime, QString));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDiagnosticServiceClosed(qint16), this, OnDiagnosticServiceClosed(qint16));
     CONNECTSIGNALSLOT(mp_DevProc, ReportDestroyFinished(), this, OnDestroyFinished());
+    CONNECTSIGNALSLOT(&m_TimerSaveServiceInfor, timeout(),this, OnTimeOutSaveServiceInfor());
+    m_TimerSaveServiceInfor.setInterval(INTERVAL_SAVE_SERVICE_LIFE_CYCLE);
     // Shutdown signal to device threads
     CONNECTSIGNALSIGNAL(this, DeviceShutdown(), mp_DevProc, DeviceShutdown());
     CONNECTSIGNALSIGNAL(mp_DevProc, ReportLevelSensorStatus1(), this, ReportLevelSensorStatus1());
+    CONNECTSIGNALSIGNAL(mp_DevProc, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&),
+                     this, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&));
     m_ParentThreadID = QThread::currentThreadId();
+
+    m_deviceList <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
+                  << DEVICE_INSTANCE_ID_AIR_LIQUID
+                  << DEVICE_INSTANCE_ID_OVEN
+                  << DEVICE_INSTANCE_ID_RETORT
+                  << DEVICE_INSTANCE_ID_MAIN_CONTROL
+                  << DEVICE_INSTANCE_ID_OTHER_DEVICE;
 }
 
 /****************************************************************************/
@@ -324,15 +339,8 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
     FILE_LOG_L(laDEVPROC, llINFO) << "  IDeviceProcessing::RouteConfigurationFinished: " << (int) HdlInfo;
     if((HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)||(HdlInfo == DCL_ERR_TIMEOUT))
     {
-        QList<quint32> list;
-        list <<  DEVICE_INSTANCE_ID_ROTARY_VALVE
-              << DEVICE_INSTANCE_ID_AIR_LIQUID
-              << DEVICE_INSTANCE_ID_OVEN
-              << DEVICE_INSTANCE_ID_RETORT
-              << DEVICE_INSTANCE_ID_MAIN_CONTROL;
-
         quint32 id;
-        foreach (id, list)
+        foreach (id, m_deviceList)
         {
             CBaseDevice *pDevice = mp_DevProc->GetDevice(id);
             if (pDevice && pDevice->GetMainState() == CBaseDevice::DEVICE_MAIN_STATE_IDLE)
@@ -368,9 +376,53 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
 
         }
     }
+    emit ReportConfigurationFinished(m_instanceID, HdlInfo);
+    InitArchiveServiceInforState();
+}
 
- emit ReportConfigurationFinished(m_instanceID, HdlInfo);
 
+void IDeviceProcessing::InitArchiveServiceInforState()
+{
+    CState *p_Active = new CState("Active", &m_machine);
+    QFinalState *p_Final = new QFinalState(&m_machine);
+    m_machine.setInitialState(p_Active);
+    CState *p_LastState = NULL;
+    quint32 id;
+    foreach (id, m_deviceList)
+    {
+        CBaseDevice *pDevice = mp_DevProc->GetDevice(id);
+        if (!pDevice)
+          continue;
+
+        CState *p_NewState = new CArchiveServiceInforState(pDevice, p_Active);
+
+        if (p_LastState == NULL)
+        {
+            p_Active->setInitialState(p_NewState);
+        }
+        else
+        {
+            p_LastState->addTransition(p_LastState, SIGNAL(finished()), p_NewState);
+        }
+        p_LastState = p_NewState;
+
+        CONNECTSIGNALSLOT(this, ReportSavedServiceInfor(const QString&), pDevice, OnReportSavedServiceInfor(const QString&));
+
+    }
+    p_LastState->addTransition(p_LastState, SIGNAL(finished()), p_Final);
+    //m_TimerSaveServiceInfor.start();
+    //m_machine.start();
+}
+
+void IDeviceProcessing::ArchiveServiceInfor()
+{
+    m_machine.stop();
+    m_machine.start();
+}
+
+void IDeviceProcessing::NotifySavedServiceInfor(const QString& deviceType)
+{
+    emit ReportSavedServiceInfor(deviceType);
 }
 
 /****************************************************************************/
@@ -602,6 +654,15 @@ void IDeviceProcessing::OnDestroyFinished()
 {
     mp_DevProcTimer->stop();
     emit ReportDestroyFinished();
+}
+
+void IDeviceProcessing::OnTimeOutSaveServiceInfor()
+{
+    ArchiveServiceInfor();
+    if (mp_DevProc)
+    {
+        mp_DevProc->WriteDeviceLifeCycle();
+    }
 }
 
 /****************************************************************************/

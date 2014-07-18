@@ -1,6 +1,6 @@
 #ifndef DEVICE_CONTROL_RETURNCODE_H
 #define DEVICE_CONTROL_RETURNCODE_H
-
+#include <QMetaType>
 namespace DeviceControl
 {
 typedef enum {

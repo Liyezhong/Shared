@@ -79,6 +79,10 @@ public:
     /****************************************************************************/
     ReturnCode_t ReqActInputValue();
 
+    void SetLifeCycle(quint32 times);
+
+    quint32 GetLifeCycle() { return m_LifeCycle; }
+
 signals:
     /****************************************************************************/
     /*!
@@ -165,6 +169,9 @@ private:
     //!< clears all entrys with the specified module command type to free
 
     void ResetModuleCommand(CANDigitalInputModuleCmdType_t CommandType);
+    quint32 m_LifeCycle;
+    bool m_bLogLifeCycle;
+    quint16 m_LastInputValue;
 };
 
 } //namespace

@@ -61,7 +61,7 @@ QMap<quint32, std::string> CBaseModule::m_EventString;  // static string list wi
  */
 /****************************************************************************/
 CBaseModule::CBaseModule(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
-                         int nCANNodeType, int nCANNodeIndex)
+                         int nCANNodeType, int nCANNodeIndex, bool isVirtual)
 : CModule(CModuleConfig::CAN_OBJ_TYPE_NODE, p_MessageConfiguration, pCANCommunicator),
     m_SubStateInit(CN_SUB_STATE_INIT_UNDEF),
     m_SubStateConfig(CN_SUB_STATE_CONFIG_UNDEF),
@@ -83,7 +83,8 @@ CBaseModule::CBaseModule(const CANMessageConfiguration *p_MessageConfiguration, 
     m_unCanIDCfgCurrentMonitor(0), m_unCanIDReqCurrentState(0), m_unCanIDCurrentState(0),
     m_unCanIDReqUniqueNumber(0), m_unCanIDUniqueNumber(0),
     m_unCanIDReqModuleSerial(0), m_unCanIDModuleSerial(0), m_unCanIDSetModuleSerial(0),
-    m_NodeState(NODE_STATE_UNDEFINED)
+    m_NodeState(NODE_STATE_UNDEFINED),
+    m_IsVirtual(isVirtual)
 {
     mp_MessageConfiguration = p_MessageConfiguration;
     m_pCANCommunicator = pCANCommunicator;

@@ -30,15 +30,26 @@
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/Devices/FunctionModuleTaskManager.h"
 #include <Global/Include/Commands/Command.h>
+#include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
+#include <QStateMachine>
+
+namespace DataManager
+{
+    class CModule;
+}
 
 namespace DeviceControl
 {
+class CServiceState;
 /****************************************************************************/
 /*!
  *  \brief  Definition/Declaration of typedef ListBaseModule
  */
 /****************************************************************************/
 typedef QList<CBaseModule *> ListBaseModule;
+
+class ModuleLifeCycleRecord;
+
 /****************************************************************************/
 /*!
  *  \brief This is the base class of the device classes
@@ -61,7 +72,10 @@ public:
      *  \return from CBaseDevice
      */
     /****************************************************************************/
-    CBaseDevice(DeviceProcessing* pDeviceProcessing, QString Type);
+    CBaseDevice(DeviceProcessing* pDeviceProcessing,
+                QString& Type,
+                const DeviceModuleList_t &ModuleList,
+                quint32 InstanceID);
     virtual ~CBaseDevice();
 
     /*****************************************************************************/
@@ -125,7 +139,7 @@ public:
      *  \iparam FctModList = Function module list
      */
     /*****************************************************************************/
-    void SetFunctionModuleList(const DeviceFctModList& FctModList) { m_FctModList = FctModList; }
+    void SetFunctionModuleList(const DeviceModuleList_t& FctModList) { m_ModuleList = FctModList; }
 
     /*****************************************************************************/
     /*!
@@ -279,6 +293,52 @@ public:
 #endif
     }
 
+    void SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord);
+
+signals:
+    /****************************************************************************/
+    /*!
+     *  \brief  Requests the service information from the device
+     */
+    /****************************************************************************/
+    void GetServiceInfo();
+    // command request interface to DCP
+    /****************************************************************************/
+    /*! \brief  To trigger device configuration.
+     *
+     *          Triggers transition from start state to configuring state
+     */
+    /****************************************************************************/
+    /****************************************************************************/
+    /*!
+     *  \brief  Resets the service information of the device
+     */
+    /****************************************************************************/
+    void ResetServiceInfIo();
+
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the service information of a device
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     *  \iparam ModuleInfo = Contains the service information
+     *  \iparam deviceName = Contains the device name
+     */
+    /****************************************************************************/
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceName);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Acknowledges the reset of the service information of the device
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     */
+    /****************************************************************************/
+    void ReportResetServiceInfo(ReturnCode_t ReturnCode);
+
+    void ReportSavedServiceInfor();
+
 public slots:
     /****************************************************************************/
     /*!
@@ -298,6 +358,19 @@ public slots:
      */
     /****************************************************************************/
     void OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Add device name in this slot function
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     *  \iparam ModuleInfo = Contains the service information
+     *  \iparam deviceName = Contains the device name
+     */
+    /****************************************************************************/
+    void OnReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo);
+    void OnGetServiceInfor();
+    void OnReportSavedServiceInfor(const QString& deviceType);
 protected:
     /// Compact function to set the error parameter and error time by one code line
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
@@ -325,7 +398,7 @@ protected:
 
     DeviceProcessing*   m_pDevProc;         ///< pointer to the device processing class
 
-    DeviceFctModList    m_FctModList;       ///< contains function modules idetifiers
+    DeviceModuleList_t    m_ModuleList;       ///< contains function modules idetifiers
 
     DeviceMainState_t   m_MainState;        ///< main state
     DeviceMainState_t   m_MainStateOld;     ///< previous main state, used for logging
@@ -348,6 +421,11 @@ protected:
     quint16 m_BaseModuleVoltage;            ///< The base module's actual voltage
     quint16 m_BaseModuleCurrent;            ///< The base module's actual current
     qint64 m_LastSensorCheckTime;           ///< The last check sensor's time(in sec since Epoch)
+    CServiceState *mp_Service;      //!< Service functionality of the base device
+    QMap<QString, CModule *> m_ModuleMap;   //!< Maps keys to Slave module pointers
+    QStateMachine m_machine;        //!< State machine
+    ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
+
 };
 
 } //namespace

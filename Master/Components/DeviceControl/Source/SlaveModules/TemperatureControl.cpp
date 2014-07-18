@@ -63,7 +63,9 @@ CTemperatureControl::CTemperatureControl(const CANMessageConfiguration *p_Messag
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),
     m_aktionTimespan(0), m_unCanIDNotiAutoTune(0),
     m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),m_unCanIDSetSwitchState(0),
-    m_unCanIDLevelSensorState(0), m_unCanIDAcCurrentWatchdogSet(0), m_unCanIDAcCurrentWatchdogSetExt(0)
+    m_unCanIDLevelSensorState(0), m_unCanIDAcCurrentWatchdogSet(0), m_unCanIDAcCurrentWatchdogSetExt(0),
+    m_LifeCycle(0),
+    m_bLogLifeCycle(false)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;
@@ -704,7 +706,17 @@ void CTemperatureControl::HandleCANMsgLevelSensorState(can_frame* pCANframe)
         ReturnCode_t hdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
         quint8 LevelSensorState = pCANframe->data[0];
         emit ReportLevelSensorState(GetModuleHandle(), hdlInfo, LevelSensorState); //lint -esym(526, DeviceControl::ReportLevelSensorState) -esym(628, DeviceControl::ReportLevelSensorState)
+        if (m_bLogLifeCycle && (1 == LevelSensorState))
+        {
+            m_LifeCycle = m_LifeCycle + 1;
+        }
     }
+}
+
+void CTemperatureControl::SetLifeCycle(quint32 times)
+{
+    m_LifeCycle = times;
+    m_bLogLifeCycle = true;
 }
 /****************************************************************************/
 /*!

@@ -24,7 +24,9 @@ class CRetortDevice : public CBaseDevice
 public:
 
     //! constructor
-    CRetortDevice(DeviceProcessing* pDeviceProcessing, QString Type);
+    CRetortDevice(DeviceProcessing* pDeviceProcessing, QString& Type,
+                  const DeviceModuleList_t &ModuleList,
+                  quint32 InstanceID);
     //! destructor
     virtual ~CRetortDevice();
 

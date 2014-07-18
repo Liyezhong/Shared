@@ -50,24 +50,18 @@ typedef QList<QString> ListofOrderedModules_t; //!< List for module names
  *  Reading all Module information from XML and FunctionStoring in a Container
  */
 /****************************************************************************/
-class CModuleDataList : public CDataContainerBase
+class CModuleDataList
 {
 
     friend class TestDataModuleList;
-    friend class CInstrumentHistoryArchive;
+    friend class CInstrumentHistory;
 
-    QString m_InstrumentName;   //!< name of the Instrument
-    QString m_ModuleTimeStamp;  //!< Time Stamp of the Module
-    bool m_DataVerificationMode; //!< Verification mode flag , verify the Container
+    QString m_ModuleTimeStamp;  //!< Time Stamp of the Module    
     ListofModules_t m_ModuleList;   //!< Module List
-    ListofOrderedModules_t m_ListofModules; //!< List of Module Names
-    QString m_FileName; //!< XML file name
+    ListofOrderedModules_t m_ListofModules; //!< List of Module Names    
 
-    QReadWriteLock *mp_ReadWriteLock; //!< Synchronization for data access
-    ErrorMap_t m_ErrorMap;      //!< Event List for GUI and for logging purpose. This member is not copied when using copy constructor/Assignment operator
-
-    bool SerializeContent(QIODevice& IODevice, bool CompleteData);
-    bool DeserializeContent(QIODevice& IODevice, bool CompleteData);
+    bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
+    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
     /****************************************************************************/
     /*!
@@ -77,10 +71,10 @@ class CModuleDataList : public CDataContainerBase
      *  \return true on success, false on failure
      */
     /****************************************************************************/
-    bool ReadModules(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+    bool ReadModules(const QXmlStreamReader &XmlStreamReader, bool CompleteData);
 
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CModuleDataList&  ModuleList);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CModuleDataList& ModuleList);
+    friend QDataStream& operator <<(const QDataStream& OutDataStream, const CModuleDataList&  ModuleList);
+    friend QDataStream& operator >>(const QDataStream& InDataStream, const CModuleDataList& ModuleList);
 
     QStringList GetModuleIdList() const;
     void AddModuleWithoutVerification(CModule const* p_Module);
@@ -91,32 +85,7 @@ public:
     CModuleDataList(const CModuleDataList&);    //!< Copy Constructor
     ~CModuleDataList();
     void CopyFromOther(const CModuleDataList &ListofModules);
-    CModuleDataList& operator=(const CModuleDataList&); //!< Assignment Operator Overloading
-
-    /********************************************* QReadWriteLock* mp_ReadWriteLock;   ///< Synchronisation for data access
-*******************************/
-    /*!
-     *  \brief returns the  Data container type
-     *  \return Data container type
-     */
-    /****************************************************************************/
-    DataContainerType_t GetDataContainerType() {return INSTRUMENTHISTORY;}
-
-    /****************************************************************************/
-    /*!
-     *  \brief  To set Instrument Name
-     *  \iparam value = Name to set
-     */
-    /****************************************************************************/
-    void SetInstrumentName(const QString value) { m_InstrumentName = value; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Returns the name of the Instrument
-     *  \return Instrument name
-     */
-    /****************************************************************************/
-    QString GetInstrumentName() { return m_InstrumentName; }
+    CModuleDataList& operator=(const CModuleDataList&); //!< Assignment Operator Overloading  
 
     /****************************************************************************/
     /*!
@@ -132,7 +101,7 @@ public:
      *  \return Time stamp
      */
     /****************************************************************************/
-    QString GetModuleTimeStamp() { return m_ModuleTimeStamp; }
+    QString GetModuleTimeStamp() const { return m_ModuleTimeStamp; }
 
     /****************************************************************************/
     /*!
@@ -170,16 +139,7 @@ public:
      *  \return Module info
      */
     /****************************************************************************/
-    bool GetModule(const QString ModuleName, CModule& Module);
-
-    /****************************************************************************/
-    /*!
-     *  \brief  To read XML file
-     *  \iparam FileName
-     *  \return true on success, false on failure
-     */
-    /****************************************************************************/
-    bool ReadFile(const QString FileName);
+    bool GetModule(const QString ModuleName, CModule& Module);    
 
     /****************************************************************************/
     /*!
@@ -214,39 +174,7 @@ public:
      *  \return true - delete success , false - delete failure
      */
     /****************************************************************************/
-    bool DeleteAllModules();
-
-    /****************************************************************************/
-    /*!
-     *  \brief Sets the XML file name
-     *  \iparam Value = Filename to set
-     */
-    /****************************************************************************/
-    void SetFileName(const QString Value) { m_FileName = Value; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Returns the filename of the xml file read
-     *  \return File name
-     */
-    /****************************************************************************/
-    QString GetFilename() {return m_FileName;}
-
-    /****************************************************************************/
-    /*!
-     *  \brief Sets verification mode
-     *  \iparam value = true-verification on, false - verification off
-     */
-    /****************************************************************************/
-    void SetDataVerificationMode(const bool value) { m_DataVerificationMode = value; }
-
-    /****************************************************************************/
-    /*!
-     *  \brief Retrieves the status of Verification
-     *  \return true-verification on , false-verification off
-     */
-    /****************************************************************************/
-    bool GetDataVerificationMode() { return m_DataVerificationMode; }
+    bool DeleteAllModules();        
 
     /****************************************************************************/
     /*!

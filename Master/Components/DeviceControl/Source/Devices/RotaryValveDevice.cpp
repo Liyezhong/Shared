@@ -22,7 +22,8 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  *  \param    Type = Device type string
  */
 /****************************************************************************/
-CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
+CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString& Type, const DeviceModuleList_t &ModuleList,
+                                       quint32 InstanceID) : CBaseDevice(pDeviceProcessing, Type, ModuleList, InstanceID),
         m_pTempCtrl(0), m_pMotorRV(0), m_RVCurrentPosition(RV_UNDEF), m_RVPrevPosition(RV_UNDEF)
 {
     Reset();

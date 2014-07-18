@@ -78,7 +78,7 @@ public:
         static int ConvertTimeStringToSeconds(QString TimeDuration);
         static QDate ConvertDateStringToQDate(QString Date);
         static QDateTime ConvertDateTimeStringToQDateTime(QString DateTime);
-        static bool ReadNode(QXmlStreamReader& XmlStreamReader, QString NodeName);
+        static bool ReadNode(const QXmlStreamReader& XmlStreamReader, QString NodeName);
         static void ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString);
 
 	

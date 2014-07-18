@@ -19,7 +19,13 @@ namespace DeviceControl
  *  \param    Type = Device type string
  */
 /****************************************************************************/
-CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type)
+CPeripheryDevice::CPeripheryDevice(DeviceProcessing* pDeviceProcessing,
+                                   QString& Type,
+                                   const DeviceModuleList_t &ModuleList,
+                                   quint32 InstanceID)
+                                   :CBaseDevice(pDeviceProcessing,
+                                                Type, ModuleList,
+                                                InstanceID)
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Retort device created";

@@ -1,11 +1,11 @@
 /****************************************************************************/
-/*! \file ModuleDataListVerifier.h
+/*! \file InstrumentHistoryVerifier.h
  *
- *  \brief Definition for CModuleDataListVerifier class.
+ *  \brief Definition for CInstrumentHistoryVerifier class.
  *
  *   $Version: $ 0.1
  *   $Date:    $ 2013-01-08
- *   $Author:  $ Soumya D
+ *   $Author:  $ Soumya D , Shuvasmita
  *
  *  \b Company:
  *
@@ -17,13 +17,14 @@
  *
  */
 /****************************************************************************/
-#ifndef DATAMANAGER_MODULEDATALISTVERIFIER_H
-#define DATAMANAGER_MODULEDATALISTVERIFIER_H
+#ifndef DATAMANAGER_INSTRUMENTHISTORYVERIFIER_H
+#define DATAMANAGER_INSTRUMENTHISTORYVERIFIER_H
 
 #include <QStringList>
 #include <QDebug>
 
 #include "DataManager/Containers/InstrumentHistory/Include/ModuleDataList.h"
+#include "DataManager/Containers/InstrumentHistory/Include/InstrumentHistory.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"
 
 namespace DataManager
@@ -34,26 +35,26 @@ namespace DataManager
  *  \brief  This class implements Module List verifier
  */
 /****************************************************************************/
-class CModuleDataListVerifier :public IVerifierInterface
+class CInstrumentHistoryVerifier :public IVerifierInterface
 {
 public:
-    CModuleDataListVerifier();
+    CInstrumentHistoryVerifier();
     /****************************************************************************/
     /*!
      *  \brief  Destructor
      */
     /****************************************************************************/
-    virtual ~CModuleDataListVerifier() {}
+    virtual ~CInstrumentHistoryVerifier() {}
 
-    bool VerifyData(CDataContainerBase* p_ModuleDataList);
+    bool VerifyData(const CDataContainerBase* p_InstrumentHistory);
     ErrorMap_t &GetErrors();
 
     void ResetErrors();
 
-    bool IsLocalVerifier();
+    bool IsLocalVerifier() const;
 
 private:
-    CModuleDataList *mp_MDL;  //!< Module List Container
+    CInstrumentHistory *mp_MDL;  //!< Module List Container
     ErrorMap_t m_ErrorMap; //!< To store Error ID and any arguments associated
 
     /****************************************************************************/
@@ -62,9 +63,9 @@ private:
      *
      */
     /****************************************************************************/
-    Q_DISABLE_COPY(CModuleDataListVerifier)
+    Q_DISABLE_COPY(CInstrumentHistoryVerifier)
 
 };
 
 }
-#endif // DATAMANAGER_MODULEDATALISTVERIFIER_H
+#endif // DATAMANAGER_INSTRUMENTHISTORYVERIFIER_H

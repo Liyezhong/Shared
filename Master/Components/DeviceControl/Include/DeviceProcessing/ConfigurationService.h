@@ -27,6 +27,7 @@
 
 #include "Global/Include/MonotonicTime.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
+#include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 #include <QHash>
 
@@ -133,6 +134,7 @@ public:
      */
     /****************************************************************************/
     bool ConfigurationComplete();
+    void WriteDeviceLifeCycle();
 
 private:
     /****************************************************************************/
@@ -212,7 +214,7 @@ private:
      *  \return from CreateAndGetCANNode
      */
     /****************************************************************************/
-    CBaseModule* CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex);
+    CBaseModule* CreateAndGetCANNode(qint16 sCANNodeType, qint16 sCANNodeIndex, bool isVirtual);
     template <class TFunctionModule>
     /****************************************************************************/
     /*!
@@ -272,6 +274,7 @@ private:
     qint16 m_stateTimespan;             ///< max. time delay of current active timeout observation
 
     bool m_ConfigurationComplete;   //!< Indicates if the expected hardware is found
+    DeviceLifeCycleRecord* m_pDeviceLifeCycleRecord;     ///< device's lifeCycle record;
 };
 
 }  //namespace

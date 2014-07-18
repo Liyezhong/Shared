@@ -8,6 +8,7 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
+#include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 namespace DeviceControl
 {
@@ -31,8 +32,12 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  *  \param    Type = Device type string
  */
 /****************************************************************************/
-CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type),
-        m_pPressureCtrl(0)/*,  m_pFanDigitalOutput(0)*/
+CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing,
+                                   QString& Type,
+                                   const DeviceModuleList_t &ModuleList,
+                                   quint32 InstanceID) :
+        CBaseDevice(pDeviceProcessing, Type, ModuleList, InstanceID),
+        m_pPressureCtrl(0)/*  m_pFanDigitalOutput(0)*/
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Air-liquid device created";
@@ -226,6 +231,16 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_AL_PRESSURECTRL not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
+        if (m_ModuleLifeCycleRecord)
+        {
+            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_pressure_ctrl");
+            if (pPartLifeCycleRecord)
+            {
+                quint32 valve1LifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Valve1_LifeCycle").toUInt();
+                quint32 valve2LifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Valve2_LifeCycle").toUInt();
+                m_pPressureCtrl->SetValveLifeCycle(valve1LifeCycle, valve2LifeCycle);
+            }
+        }
     }
     else
     {
@@ -248,6 +263,12 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR; //lint !e641
+        }
+        if (m_ModuleLifeCycleRecord)
+        {
+            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
+            quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value("level_sensor_LifeCycle").toUInt();
+            m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
         }
     }
     else

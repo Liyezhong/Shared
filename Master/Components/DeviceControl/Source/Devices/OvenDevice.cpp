@@ -6,6 +6,7 @@
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include <sys/stat.h>
 #include <QtDebug>
+#include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 namespace DeviceControl
 {
@@ -21,7 +22,10 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  *  \param    Type = Device type string
  */
 /****************************************************************************/
-COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString Type) : CBaseDevice(pDeviceProcessing, Type)
+COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString& Type,
+                         const DeviceModuleList_t &ModuleList,
+                         quint32 InstanceID) :
+    CBaseDevice(pDeviceProcessing, Type, ModuleList, InstanceID)
 {
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Oven device created";
@@ -243,6 +247,15 @@ ReturnCode_t COvenDevice::HandleInitializationState()
             SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        if (m_ModuleLifeCycleRecord)
+        {
+            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Oven_Cover_Sensor");
+            if (pPartLifeCycleRecord)
+            {
+                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Oven_Cover_Sensor_LifeCycle").toUInt();
+                m_pLidDigitalInput->SetLifeCycle(lifeCycle);
+            }
         }
     }
     else

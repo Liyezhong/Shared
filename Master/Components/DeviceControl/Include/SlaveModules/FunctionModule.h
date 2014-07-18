@@ -30,6 +30,7 @@
 
 #include "DeviceControl/Include/SlaveModules/Module.h"
 #include "DeviceControl/Include/SlaveModules/ModuleConfig.h"
+#include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 namespace DeviceControl
 {
@@ -94,7 +95,16 @@ public:
      */
     /****************************************************************************/
     void Confirm() { m_mainState = FM_MAIN_STATE_CONFIRMED; }
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the base module of the function module
+     *
+     *  \return Pointer to the base module
+     */
+    /****************************************************************************/
+    const CBaseModule *GetBaseModule() const { return m_pParent; }
+    void SetPartLifeCycleRecord(PartLifeCycleRecord* pPartLifeCycleRecord) { m_pPartLifeCycleRecord = pPartLifeCycleRecord;}
+    PartLifeCycleRecord* GetPartLifeCycleRecord() {return m_pPartLifeCycleRecord; }
 protected:
     /****************************************************************************/
     /*!
@@ -118,7 +128,7 @@ protected:
 
     CANFctModMainState_t m_mainState;   //!< Main state
     CBaseModule* m_pParent;             //!< Pointer to CANNode this module is assigned to
-
+    PartLifeCycleRecord* m_pPartLifeCycleRecord;
 private:
     CFunctionModule();                                              ///< Not implemented.
     CFunctionModule(const CFunctionModule &);                       ///< Not implemented.

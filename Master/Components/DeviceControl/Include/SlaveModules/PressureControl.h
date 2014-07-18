@@ -75,14 +75,14 @@ class CPressureControl : public CFunctionModule
 
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of function GetValveOperationTime
+     *  \brief  Definition/Declaration of function GetValveLifeCycle
      *
      *  \param ValveIndex = quint32 type parameter
      *
-     *  \return from GetValveOperationTime
+     *  \return from GetValveLifeCycle
      */
     /****************************************************************************/
-    quint32 GetValveOperationTime(quint32 ValveIndex);
+    quint32 GetValveLifeCycle(quint32 ValveIndex);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ResetValveOperationTime
@@ -91,6 +91,14 @@ class CPressureControl : public CFunctionModule
      */
     /****************************************************************************/
     ReturnCode_t ResetValveOperationTime();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetValveLifeCycle
+     *
+     *  \return from SetValveLifeCycle
+     */
+    /****************************************************************************/
+    void SetValveLifeCycle(quint32 valve1Cycle, quint32 valve2Cycle);
 signals:
     /****************************************************************************/
     /*!
@@ -334,22 +342,6 @@ private:
      */
     /****************************************************************************/
     ReturnCode_t AddValveOperationTime(quint8 ValveIndex);
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function ReadValveOperationTime
-     *
-     *  \return from ReadValveOperationTime
-     */
-    /****************************************************************************/
-    ReturnCode_t ReadValveOperationTime();
-    /****************************************************************************/
-    /*!
-     *  \brief  Definition/Declaration of function WriteValveOperationTime
-     *
-     *  \return from WriteValveOperationTime
-     */
-    /****************************************************************************/
-    ReturnCode_t WriteValveOperationTime();
 
 
     /*! configuration state definitions */

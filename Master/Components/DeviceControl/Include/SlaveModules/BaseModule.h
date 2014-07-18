@@ -72,7 +72,7 @@ public:
      */
     /****************************************************************************/
     CBaseModule(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
-                int nCANNodeType, int nCANNodeIndex);
+                int nCANNodeType, int nCANNodeIndex, bool isVirtual);
     ~CBaseModule();
 
     ReturnCode_t Initialize();  //!< Initialisation
@@ -266,7 +266,7 @@ public:
     ReturnCode_t SetModuleSerialNumber(quint64 ModuleSerialNumber) const;
 
     static QMap<quint32, std::string> m_EventString;    //!< list with info strings for CAN events
-
+    bool IsVirtual(){ return m_IsVirtual; }
 signals:
     /****************************************************************************/
     /*!
@@ -711,6 +711,7 @@ private:
 
     QString m_SerialNumber;     //!< Serial number of the slave
     QByteArray m_UniqueNumber;  //!< Unique number of the slave
+    bool m_IsVirtual;
 };
 
 QTextStream& operator<< (QTextStream& s, const NodeState_t &NodeState); //!< convert NodeState_t to string

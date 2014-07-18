@@ -71,7 +71,9 @@ class CAirLiquidDevice : public CBaseDevice
 public:
 
     //! constructor
-    CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString Type);
+    CAirLiquidDevice(DeviceProcessing* pDeviceProcessing, QString& Type,
+                     const DeviceModuleList_t &ModuleList,
+                     quint32 InstanceID);
     //! destructor
     virtual ~CAirLiquidDevice();
 

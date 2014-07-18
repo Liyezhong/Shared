@@ -39,7 +39,9 @@ class CRotaryValveDevice : public CBaseDevice
 public:
 
     //! constructor
-    CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString Type);
+    CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString& Type,
+                       const DeviceModuleList_t &ModuleList,
+                       quint32 InstanceID);
     //! destructor
     virtual ~CRotaryValveDevice();
 

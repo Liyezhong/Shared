@@ -294,7 +294,7 @@ QDateTime Helper::ConvertDateTimeStringToQDateTime(QString DateTime)
  *  \return True or False
  */
 /****************************************************************************/
-bool Helper::ReadNode(QXmlStreamReader& XmlStreamReader, QString NodeName)
+bool Helper::ReadNode(const QXmlStreamReader& XmlStreamReader, QString NodeName)
 {
     // look for node <NodeName>
     if (XmlStreamReader.atEnd())
@@ -305,7 +305,7 @@ bool Helper::ReadNode(QXmlStreamReader& XmlStreamReader, QString NodeName)
     bool Result = false;
     while (!XmlStreamReader.atEnd())
     {
-        if (XmlStreamReader.readNext() == QXmlStreamReader::Invalid) {
+        if (const_cast<QXmlStreamReader &>(XmlStreamReader).readNext() == QXmlStreamReader::Invalid) {
             qDebug() << "Reading " << XmlStreamReader.name() << " at line number: " << XmlStreamReader.lineNumber();
             qDebug() << "Invalid Token. Error: " << XmlStreamReader.errorString();
         }

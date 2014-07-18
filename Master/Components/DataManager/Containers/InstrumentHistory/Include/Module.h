@@ -60,7 +60,7 @@ class CModule
     SubModuleList_t m_OrderedSubModuleList; //!< List of SubModule Names
 
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
-    bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
+    bool DeserializeContent(const QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
     bool ReadSubModuleInfo(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 

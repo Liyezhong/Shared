@@ -452,7 +452,9 @@ const quint32 DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1;   //!< Air liquid 
 const quint32 DEVICE_INSTANCE_ID_OVEN           = 0x000080C2;   //!< Oven
 const quint32 DEVICE_INSTANCE_ID_RETORT         = 0x000080C3;   //!< Retort
 const quint32 DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4;   //!< Main Control
-const quint32 DEVICE_INSTANCE_ID_CAN_COMMUTOR   = 0x000080C5;   //!< CAN Communicator 
+const quint32 DEVICE_INSTANCE_ID_CAN_COMMUTOR   = 0x000080C5;   //!< CAN Communicator
+const quint32 DEVICE_INSTANCE_ID_OTHER_DEVICE   = 0x000080C6;   //!< Other device
+
 
 /*! Slaves used in Himalaya project */
 typedef enum {
@@ -482,6 +484,15 @@ typedef enum {
     RT_SIDE = 1,
     RT_TEMP_CTRL_NUM =2
 } RTTempCtrlType_t;
+
+/*! Other device's modules */
+typedef enum {
+    OD_EBox = 0,
+    OD_VentilationFan = 1,
+    OD_TouchScreen = 2,
+    OD_Pressure_Sensor = 3,
+    OD_OtherModule_NUM = 4
+} OtherDeviceModuleType_t;
 
 /****************************************************************************/
 /*! \class CANObjectKeyLUT
@@ -523,6 +534,12 @@ public:
     static const QString m_PerLocalAlarmDIKey;       //!< Miscellaneous local alarm digital input
     static const QString m_PerRemoteAlarmDIKey;      //!< Miscellaneous remote alarm digital input
 
+    static const QString m_OtherDeviceEBoxKey;       //!< EBox
+    static const QString m_OtherDeviceVentilationFanKey;   //!< VentilationFan
+    static const QString m_OtherDeviceTouchScreenKey;      //!< TouchScreen
+    static const QString m_OtherDevicePressureSensor;      //!< PressureSensor
+
+
 
     // calling the DeviceProcessing::GetFunctionModule-method
     //!< can object IDs, used for identification by Id
@@ -559,4 +576,5 @@ public:
 
 Q_DECLARE_METATYPE(DeviceControl::RTTempCtrlType_t)
 Q_DECLARE_METATYPE(DeviceControl::CANObjectKeyLUT::CANObjectIdentifier_t)
+Q_DECLARE_METATYPE(DeviceControl::TestResult_t)
 #endif /* DEVICE_CONTROL_GLOBAL_H */

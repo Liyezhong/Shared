@@ -187,6 +187,9 @@ class CTemperatureControl : public CFunctionModule
     /****************************************************************************/
     ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 
+    void SetLifeCycle(quint32 times);
+
+    quint32 GetLifeCycle() { return m_LifeCycle; }
 
 signals:
     /****************************************************************************/
@@ -518,6 +521,8 @@ signals:
     quint32 m_unCanIDAcCurrentWatchdogSet;    //!< CAN-message id of 'TBD' message
     quint32 m_unCanIDAcCurrentWatchdogSetExt; //!< CAN-message id of 'TBD' message
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
+    quint32 m_LifeCycle;
+    bool m_bLogLifeCycle;
 };
 
 } //namespace

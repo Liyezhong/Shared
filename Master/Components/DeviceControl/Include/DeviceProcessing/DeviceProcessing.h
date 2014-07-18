@@ -41,6 +41,12 @@
 #include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DeviceControl/Include/SlaveModules/BaseModule.h"
 #include <QEventLoop>
+
+namespace DataManager
+{
+    class CModule;
+}
+
 namespace DeviceControl
 {
 
@@ -297,7 +303,14 @@ public:
      */
     /*****************************************************************************/
     void OnReportLevelSensorStatus1() { emit ReportLevelSensorStatus1(); }
-
+    //! Return CANNode specified by it's ID
+    CBaseModule* GetNodeFromID(quint32 nodeID) const;
+    /****************************************************************************/
+    /*!
+     *  \brief  Save device life cycle record
+     */
+    /****************************************************************************/
+    void WriteDeviceLifeCycle();
 public slots:
     /****************************************************************************/
     /*!
@@ -305,6 +318,12 @@ public slots:
      */
     /****************************************************************************/
     void OnError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorID, quint16 ErrorData, QDateTime ErrorTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnReportGetServiceInfo
+     */
+    /****************************************************************************/
+    void OnReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceType);
 
 signals:
     //! Forward the 'intitialisation finished' notification
@@ -362,6 +381,15 @@ signals:
 
     //! Forward AirLiquid's level sensor status change to upper layer
     void ReportLevelSensorStatus1();
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the service information of a device
+     *
+     *  \iparam ReturnCode = ReturnCode of Device Control Layer
+     *  \iparam ModuleInfo = Contains the service information
+     */
+    /****************************************************************************/
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceType);
 
 private slots:
     //! Slot fucntion used to receive CAN message
@@ -525,8 +553,7 @@ private:
     /****************************************************************************/
     ReturnCode_t InitTasks();
 
-    //! Return CANNode specified by it's ID
-    CBaseModule* GetNodeFromID(quint16 nodeID) const;
+
     //! Return CANNode specified by it's key
     CBaseModule* GetNodeFromKey(QString nodeKey);
 

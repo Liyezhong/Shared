@@ -25,6 +25,9 @@
 #include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
+#include "DeviceControl/Include/Devices/ServiceState.h"
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
+#include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
 
 namespace DeviceControl
 {
@@ -39,16 +42,22 @@ namespace DeviceControl
  *  \param    Type = Device type string
  *
  ****************************************************************************/
- CBaseDevice::CBaseDevice(DeviceProcessing* pDeviceProcessing, QString Type) :
+ CBaseDevice::CBaseDevice(DeviceProcessing* pDeviceProcessing,
+                          QString& Type,
+                          const DeviceModuleList_t &ModuleList,
+                          quint32 InstanceID) :
     m_pDevProc(pDeviceProcessing),
     m_Type(Type),
+    m_instanceID(InstanceID),
     m_stateTimespan(0),
-    m_LastSensorCheckTime(0)
+    m_LastSensorCheckTime(0),
+    m_ModuleList(ModuleList),
+    m_machine(this),
+    m_ModuleLifeCycleRecord(0)
 {
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;
-
-    m_instanceID = DEVICE_INSTANCE_ID_UNDEFINED;
+    qRegisterMetaType<DataManager::CModule>("DataManager::CModule");
 
     // error handling
     m_lastErrorHdlInfo = DCL_ERR_FCT_CALL_SUCCESS;
@@ -59,7 +68,50 @@ namespace DeviceControl
     m_BaseModuleCurrent = 0;
     //m_lastErrorTime;
 
+    QMapIterator<QString, quint32> Iterator(m_ModuleList);
+    while (Iterator.hasNext()) {
+        Iterator.next();
+        CModule *p_Module = m_pDevProc->GetNodeFromID(GetFctModInstanceFromKey(Iterator.key()));
+
+        if (p_Module == NULL) {
+            p_Module = m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(Iterator.key()));
+        }
+        if (p_Module != NULL) {
+            m_ModuleMap[Iterator.key()] = p_Module;
+        }
+    }
+
+    mp_Service = new CServiceState(m_ModuleMap, this->GetType(), &m_machine);
+    m_machine.setInitialState(mp_Service);
+
+    connect(this, SIGNAL(GetServiceInfo()), mp_Service, SIGNAL(GetServiceInfo()));
+    connect(mp_Service, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule)),
+                     this, SLOT(OnReportGetServiceInfo(ReturnCode_t, DataManager::CModule)));
+
+    /*connect(this, SIGNAL(ResetServiceInfo()), mp_Service, SIGNAL(ResetServiceInfo()));
+    connect(mp_Service, SIGNAL(ReportResetServiceInfo(ReturnCode_t)),
+                     this, SIGNAL(ReportResetServiceInfo(ReturnCode_t)));*/
+
+    m_machine.start();
     FILE_LOG_L(laDEV, llINFO) << " CBaseDevice constuctor";
+}
+
+void CBaseDevice::OnReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo)
+{
+    m_pDevProc->OnReportGetServiceInfo(ReturnCode, ModuleInfo, m_Type);
+}
+
+void CBaseDevice::OnGetServiceInfor()
+{
+    emit GetServiceInfo();
+}
+
+void CBaseDevice::OnReportSavedServiceInfor(const QString& deviceType)
+{
+    if (deviceType == m_Type)
+    {
+        emit ReportSavedServiceInfor();
+    }
 }
 
  /****************************************************************************/
@@ -87,9 +139,9 @@ quint32 CBaseDevice::GetFctModInstanceFromKey(const QString &Key)
 {
     quint32 InstanceID = 0;
 
-    if(m_FctModList.contains(Key))
+    if(m_ModuleList.contains(Key))
     {
-        InstanceID = m_FctModList.value(Key);
+        InstanceID = m_ModuleList.value(Key);
     }
 
     return InstanceID;
@@ -106,7 +158,7 @@ quint32 CBaseDevice::GetFctModInstanceFromKey(const QString &Key)
  ****************************************************************************/
 QString CBaseDevice::GetFctModKeyFromInstance(const quint32 instanceID)
 {
-    return m_FctModList.key(instanceID, "NOT FOUND");
+    return m_ModuleList.key(instanceID, "NOT FOUND");
 }
 
 /****************************************************************************/
@@ -521,6 +573,11 @@ void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo,
         }
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_BASE_GET_CURRENT, HdlInfo);
     }
+}
+
+void CBaseDevice::SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord)
+{
+    m_ModuleLifeCycleRecord = pModuleLifeCycleRecord;
 }
 
 } //namespace

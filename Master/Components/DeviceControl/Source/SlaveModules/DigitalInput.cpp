@@ -43,7 +43,10 @@ namespace DeviceControl
 CDigitalInput::CDigitalInput(const CANMessageConfiguration* p_MessageConfiguration, CANCommunicator* pCANCommunicator,
                              CBaseModule* pParentNode) :
     CFunctionModule(CModuleConfig::CAN_OBJ_TYPE_DIGITAL_IN_PORT, p_MessageConfiguration, pCANCommunicator, pParentNode),
-    m_unCanIDDigInputConfigInput(0), m_unCanIDDigInputConfigLimits(0), m_unCanIDDigInputStateReq(0), m_unCanIDDigInputState(0)
+    m_unCanIDDigInputConfigInput(0), m_unCanIDDigInputConfigLimits(0), m_unCanIDDigInputStateReq(0), m_unCanIDDigInputState(0),
+    m_LifeCycle(0),
+    m_bLogLifeCycle(false),
+    m_LastInputValue(-999999)
 {
     m_mainState = FM_MAIN_STATE_BOOTUP;
     m_SubStateConfig = FM_DINP_SUB_STATE_CONFIG_INIT;
@@ -380,14 +383,17 @@ void CDigitalInput::HandleCANMsgDigInputState(can_frame* pCANframe)
     if(pCANframe->can_dlc == 2)
     {
         //CAN message without timestamp
-        quint16 InputValue;
 
-        InputValue = (((quint16) pCANframe->data[0]) << 8);
+        quint16 InputValue = (((quint16) pCANframe->data[0]) << 8);
         InputValue = ((quint16) pCANframe->data[1]);
 
         FILE_LOG_L(laFCT, llINFO) << "  CANDigitalInput::HandleCANMsgDigInputState emit ReportActInputValue";
 
         emit ReportActInputValue(GetModuleHandle(), DCL_ERR_FCT_CALL_SUCCESS, InputValue);
+        if (m_bLogLifeCycle && m_LastInputValue != InputValue)
+            m_LifeCycle = m_LifeCycle + 1;
+
+        m_LastInputValue = InputValue;
     }
     else if(pCANframe->can_dlc == 6)
     {
@@ -572,6 +578,12 @@ void CDigitalInput::ResetModuleCommand(CANDigitalInputModuleCmdType_t ModuleComm
     {
         m_TaskID = MODULE_TASKID_FREE;
     }
+}
+
+void CDigitalInput::SetLifeCycle(quint32 times)
+{
+    m_LifeCycle = times;
+    m_bLogLifeCycle = true;
 }
 
 } //namespace

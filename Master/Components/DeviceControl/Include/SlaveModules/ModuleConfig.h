@@ -73,6 +73,7 @@ public:
         CAN_OBJ_TYPE_TEMPERATURE_CTL  = MODULE_ID_TEMPERATURE,  ///< temperature control
         CAN_OBJ_TYPE_UART             = MODULE_ID_UART,         ///< serial interface UART
         CAN_OBJ_TYPE_PRESSURE_CTL     = MODULE_ID_PRESSURE,
+        CAN_OBJ_TYPE_OTHER            = MODULE_ID_OTHER,
         CAN_OBJ_TYPE_DEVICEMNG        = 98,                     ///< Device processing
         CAN_OBJ_TYPE_UNDEF            = 99                      ///< undefined type
     } CANObjectType_t;
@@ -80,6 +81,7 @@ public:
     CANObjectType_t m_ObjectType;   //!< Type of the object
     QString m_strKey;               //!< unique key of the object
     QString m_strName;              //!< Name of the object (used by GUI)
+    bool m_IsVirtual;            //!< Is virtual Device or not
 
     short m_sCANNodeType;           //!< Type of the CANNode (hardware identifier)
     short m_sCANNodeIndex;          //!< Index of the CANNode (to differenciate equal hardware identifiers)
@@ -657,7 +659,7 @@ public:
 *
 */
 /*! fuction module list, assignment between function module key and it's identifier */
-typedef QMap<QString, quint32> DeviceFctModList;
+typedef QMap<QString, quint32> DeviceModuleList_t;
 
 /****************************************************************************/
 /*!
@@ -677,7 +679,7 @@ public:
     quint32 m_InstanceID;               //!< Instance id
     bool m_Optional;                    //!< optional device
     quint8 m_OrderNr;                   //!< creation order number
-    DeviceFctModList m_DevFctModList;   //!< list of the function modules need by the device
+    DeviceModuleList_t m_ModuleList;   //!< list of the function modules need by the device
 };
 
 } //namespace

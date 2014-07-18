@@ -345,24 +345,18 @@ bool CModule::UpdateSubModule(const CSubModule* p_SubModule)
 {
     bool Result = true;
     QString Name = const_cast<CSubModule*>(p_SubModule)->GetSubModuleName();
-    CSubModule* p_CurrentSubModuleData = GetSubModuleInfo(Name);
-    CSubModule* p_SubModuleData = m_SubModuleList.value(Name, NULL);
+    CSubModule* p_SubModuleData = new CSubModule();
+    if (p_SubModule == NULL || p_SubModuleData == NULL) {
+        return false;
+    }
 
-    if (QString::compare(p_SubModuleData->GetSubModuleName(), p_CurrentSubModuleData->GetSubModuleName()) == 0) {
-        *p_SubModuleData = *p_CurrentSubModuleData;
-
-        Result = true;
-        if (p_SubModuleData == NULL) {
-            return false;
-        }
-
-        if (m_SubModuleList.contains(Name)) {
-            m_SubModuleList.insert(Name, p_SubModuleData);
-            return Result;
-        }
-        else {
-            return false;
-        }
+    *p_SubModuleData = *p_SubModule;
+    if (m_SubModuleList.contains(Name)) {
+        m_SubModuleList.insert(Name, p_SubModuleData);
+        return Result;
+    }
+    else {
+        return false;
     }
     return Result;
 }
@@ -377,67 +371,67 @@ bool CModule::UpdateSubModule(const CSubModule* p_SubModule)
  *  \return True or False
  */
 /****************************************************************************/
-bool CModule::DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData)
+bool CModule::DeserializeContent(const QXmlStreamReader& XmlStreamReader, bool CompleteData)
 {    
     bool Result = true;
-
+    QXmlStreamReader &XmlStreamReaderRef = const_cast<QXmlStreamReader &>(XmlStreamReader);
     //Module Name
-    if (!XmlStreamReader.attributes().hasAttribute("name")) {
+    if (!XmlStreamReaderRef.attributes().hasAttribute("name")) {
         qDebug() <<  " attribute Module <name> is missing => abort reading";
         return false;
     }
-    SetModuleName(XmlStreamReader.attributes().value("name").toString());   
+    SetModuleName(XmlStreamReaderRef.attributes().value("name").toString());
 
     //Module Description
-    if (!XmlStreamReader.attributes().hasAttribute("description")) {
+    if (!XmlStreamReaderRef.attributes().hasAttribute("description")) {
         qDebug() <<  " attribute Module <description> is missing => abort reading";
         return false;
     }
-    SetModuleDescription(XmlStreamReader.attributes().value("description").toString());
+    SetModuleDescription(XmlStreamReaderRef.attributes().value("description").toString());
 
     // Serial Number
-    if (!Helper::ReadNode(XmlStreamReader, "SerialNumber")) {
+    if (!Helper::ReadNode(XmlStreamReaderRef, "SerialNumber")) {
         qDebug() << "DeserializeContent: abort reading. Node not found: SerialNumber";
         return false;
     }
-    SetSerialNumber(XmlStreamReader.readElementText());      
+    SetSerialNumber(XmlStreamReaderRef.readElementText());
 
     //Operating Hrs
-    if (!Helper::ReadNode(XmlStreamReader, "OperatingHours")) {
+    if (!Helper::ReadNode(XmlStreamReaderRef, "OperatingHours")) {
         qDebug() << "DeserializeContent: abort reading. Node not found: OperatingHours";
         return false;
     }
-    SetOperatingHours(XmlStreamReader.readElementText());    
+    SetOperatingHours(XmlStreamReaderRef.readElementText());
 
     //Calibration Date
-    if (!Helper::ReadNode(XmlStreamReader, "CalibrationDate")) {
+    if (!Helper::ReadNode(XmlStreamReaderRef, "CalibrationDate")) {
         qDebug() << "DeserializeContent: abort reading. Node not found: CalibrationDate";
         return false;
     }
-    SetCalibrationDate(XmlStreamReader.readElementText());
+    SetCalibrationDate(XmlStreamReaderRef.readElementText());
 
     //Calibration Result
-    if (!Helper::ReadNode(XmlStreamReader, "CalibrationResult")) {
+    if (!Helper::ReadNode(XmlStreamReaderRef, "CalibrationResult")) {
         qDebug() << "DeserializeContent: abort reading. Node not found: CalibrationResult";
         return false;
     }
-    SetCalibrationResult(XmlStreamReader.readElementText());
+    SetCalibrationResult(XmlStreamReaderRef.readElementText());
 
     //Test Date
-    if (!Helper::ReadNode(XmlStreamReader, "TestDate")) {
+    if (!Helper::ReadNode(XmlStreamReaderRef, "TestDate")) {
         qDebug() << "DeserializeContent: abort reading. Node not found: TestDate";
         return false;
     }
-    SetTestDate(XmlStreamReader.readElementText());
+    SetTestDate(XmlStreamReaderRef.readElementText());
 
     //Test Result
-    if (!Helper::ReadNode(XmlStreamReader, "TestResult")) {
+    if (!Helper::ReadNode(XmlStreamReaderRef, "TestResult")) {
         qDebug() << "DeserializeContent: abort reading. Node not found: TestResult";
         return false;
     }
-    SetTestResult(XmlStreamReader.readElementText());
+    SetTestResult(XmlStreamReaderRef.readElementText());
 
-    Result = ReadSubModuleInfo(XmlStreamReader, CompleteData);
+    Result = ReadSubModuleInfo(XmlStreamReaderRef, CompleteData);
 
     return Result;
 }
