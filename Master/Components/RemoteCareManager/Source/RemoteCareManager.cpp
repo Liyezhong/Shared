@@ -64,7 +64,7 @@ const quint32 CONFIG_FILE_TIMER_INTERVAL    = 3000;  //!< 3[s] for desktop
 RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThreadControllerRef,
                                      DataManager::CRCConfigurationInterface *RCConfigurationInterface)
     : m_MasterThreadControllerRef(MasterThreadControllerRef)
-    , m_EventCLass(RC_EVENT_CLASS_ALARM_WARN_INFO)
+    , m_EventClass(RC_EVENT_CLASS_ALARM_WARN_INFO)
     , m_EventPriority(Global::LOGLEVEL_NONE)
     , m_RCAAvailable(false)
     , m_SubscriptionStatus(false)
@@ -87,6 +87,8 @@ RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThre
     m_FctTagNameHash[RC_DATAITEM_SET_SUBSCRIPTION]       = &RemoteCareManager::SetSubscriptionHandler;
     m_FctTagNameHash[RC_DATAITEM_SET_UPDATE_AVAILABLE]   = &RemoteCareManager::SetUpdateAvailable;
     m_FctTagNameHash[RC_DATAITEM_SET_DOWNLOAD_FINISHED]  = &RemoteCareManager::SetDownloadFinished;
+
+    SetupMaps();
 }
 
 /****************************************************************************/
@@ -106,8 +108,32 @@ void RemoteCareManager::Init()
         m_MasterThreadControllerRef.AddAndConnectController
                 (p_RemoteCareController, &m_MasterThreadControllerRef.m_CommandChannelRemoteCare, Threads::THREAD_ID_REMOTECARE, false);
         RegisterCommands();
+        ReadCurrentSettingsState();
     }
     CATCHALL();
+}
+
+/****************************************************************************/
+void RemoteCareManager::ReadCurrentSettingsState()
+{
+    if(mp_RCConfiguration) {
+        try {
+          m_EventClass          = mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_EVENT_CLASS);
+          m_EventPriority       = m_EventLogLevelEnumMap.find(
+                                                   mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_EVENT_PRIORITY)).value();
+          m_SubscriptionStatus  = static_cast<bool>(mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_SUBSCRIPTION).toInt());
+          m_NumberOfLogFiles    = static_cast<quint8>(mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_LOG_NUMBER).toInt());
+          qDebug() << "State " << __FILE__ << __LINE__ << m_EventClass << m_EventPriority << m_SubscriptionStatus << m_NumberOfLogFiles;
+        }
+        CATCHALL();
+    }
+}
+
+/****************************************************************************/
+void RemoteCareManager::SetupMaps() {
+    m_EventLogLevelEnumMap.insert(RC_EVENT_PRIORITY_MEDIUM, Global::LOGLEVEL_MEDIUM);
+    m_EventLogLevelEnumMap.insert(RC_EVENT_PRIORITY_LOW, Global::LOGLEVEL_LOW);
+    m_EventLogLevelEnumMap.insert(RC_EVENT_PRIORITY_HIGH, Global::LOGLEVEL_HIGH);
 }
 
 /****************************************************************************/
@@ -135,7 +161,7 @@ void RemoteCareManager::RCAConnected() {
     m_RCAAvailable = true;
 
     //broadcast this msg so that gui receives this.
-//    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
+    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, true, "RemoteCare")));
 }
 
 /****************************************************************************/
@@ -146,7 +172,7 @@ void RemoteCareManager::ExternalProcessExited(const QString &name, int code)
     m_RCAAvailable = false;
 
     //broadcast this msg so that gui receives this.
-//    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
 }
 
 /****************************************************************************/
@@ -157,7 +183,7 @@ void RemoteCareManager::ExternalProcessStoppedForever()
     m_RCAAvailable = false;
 
     //broadcast this msg so that gui receives this.
-//    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+    emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
 
     Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_RCA_STOPPED_FOREVER);
 }
@@ -183,7 +209,7 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
 
     if (RCEventData.EventCode == RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS) {
         //broadcast this msg so that gui receives this.
-//        emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
+        emit SendRCCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRemoteCareState(15000, false, "RemoteCare")));
     }
 
     // check the string list count
@@ -259,7 +285,7 @@ void RemoteCareManager::SetEventClassHandler(const Global::tRefType &Ref,
     //send the acknowledgement
     m_MasterThreadControllerRef.SendAcknowledgeOK(Ref, AckCommandChannel);
 
-    m_EventCLass = Cmd.GetTagValue();
+    m_EventClass = Cmd.GetTagValue();
 
     UpdateContainerDataItem(Cmd);
 }
@@ -276,20 +302,20 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
             SendEvent = false;
         }
         //send only those event types registered by Remote Care
-        if(RC_EVENT_CLASS_ALARM == m_EventCLass) {
+        if(RC_EVENT_CLASS_ALARM == m_EventClass) {
             if(Global::EVTTYPE_ERROR == TheEvent.GetEventType() ||
                     Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
                 SendEvent = true;
             }
         }
-        else if(RC_EVENT_CLASS_ALARM_WARN == m_EventCLass) {
+        else if(RC_EVENT_CLASS_ALARM_WARN == m_EventClass) {
             if(Global::EVTTYPE_WARNING == TheEvent.GetEventType() ||
                     Global::EVTTYPE_ERROR == TheEvent.GetEventType() ||
                     Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
                 SendEvent = true;
             }
         }
-        else if(RC_EVENT_CLASS_ALARM_WARN_INFO == m_EventCLass) {
+        else if(RC_EVENT_CLASS_ALARM_WARN_INFO == m_EventClass) {
             if(Global::EVTTYPE_INFO == TheEvent.GetEventType() ||
                     Global::EVTTYPE_WARNING == TheEvent.GetEventType() ||
                     Global::EVTTYPE_ERROR == TheEvent.GetEventType() ||
@@ -720,7 +746,7 @@ void RemoteCareManager::UpdateContainerDataItem(const NetCommands::CmdRCSetTag &
                                                                DataItem1.GetType(),
                                                                DataItem1.GetQuality(),
                                                                DataItem1.GetValue(),
-                                    Global::AdjustedTime::Instance().GetCurrentDateTime().toString())),
+                                    Global::AdjustedTime::Instance().GetCurrentDateTime().toString(NetworkBase::DATEANDTIME_FORMAT))),
                                     m_MasterThreadControllerRef.m_CommandChannelRemoteCare);
 
                         (void)mp_RCConfigurationInterface->Write();                        

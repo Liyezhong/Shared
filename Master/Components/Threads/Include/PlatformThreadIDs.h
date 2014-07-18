@@ -7,6 +7,10 @@ namespace Threads {
     const quint32 THREAD_ID_GPIO_MANAGER   = 0x0004;  ///< GPIO Manager
     const quint32 THREAD_ID_REMOTECARE     = 0x0005;  ///< Remote Care
     const quint32 THREAD_ID_HEARTBEAT      = 0x0006;  ///< Heart beat
+    const quint32 THREAD_ID_GUI            = 0x0007;  ///< Gui
+    const quint32 THREAD_ID_IMPORTEXPORT   = 0x0008;  ///< ImportExport Thread
+    const quint32 THREAD_ID_EXPORT         = 0x0009;  ///< Export
+    const quint32 THREAD_ID_LEICAAPPS      = 0x000A;  ///< Leica Apps
 }
 
 

@@ -43,6 +43,7 @@
 #include <DataLogging/Include/DataLoggingThreadController.h>
 #include <RemoteCareManager/Include/RemoteCareManager.h>
 #include <NetCommands/Include/CmdRCNotifyShutdown.h>
+#include <NetCommands/Include/CmdRequestShutDown.h>
 
 #include <EventHandler/Include/HimalayaEventHandlerThreadController.h>
 #include <EventHandler/Include/EventHandlerEventCodes.h>
@@ -841,7 +842,8 @@ void MasterThreadController::ReadUITranslations(QLocale::Language UserLanguage, 
     Global::UITranslator::TranslatorInstance().SetFallbackLanguage(FallbackLanguage);
 }
 
-/****************************************************************************/
+/**********************************************************
+    m_PowerFailed(false),******************/
 bool MasterThreadController::ReadTimeOffsetFile() {
     DataManager::XmlConfigFileTimeOffset ConfigFileTimeOffset;
     QString FileName = Global::SystemPaths::Instance().GetSettingsPath() + "/" + TimeOffsetFileName;
@@ -949,26 +951,26 @@ void MasterThreadController::OnStopReceived() {
 }
 
 /****************************************************************************/
-void MasterThreadController::Shutdown() {    
+void MasterThreadController::Shutdown()
+{
+    if (!m_PowerFailed) {
+        const QString MD5sumGenerator = QString("%1%2").arg(Global::SystemPaths::Instance().GetScriptsPath()).
+                                        arg(QString("/EBox-Utils.sh update_md5sum_for_settings"));
+        (void)system(MD5sumGenerator.toStdString().c_str());
+    }
 
-        if (!m_PowerFailed) {
-            const QString MD5sumGenerator = QString("%1%2").arg(Global::SystemPaths::Instance().GetScriptsPath()).
-                                            arg(QString("/EBox-Utils.sh update_md5sum_for_settings"));
-            (void)system(MD5sumGenerator.toStdString().c_str());
-        }
-
-        std::cout <<"\n\n Shutdown Start time " << Global::AdjustedTime::Instance().GetCurrentTime().toString().toStdString();
-        Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList() <<"");
-        //write buffered data to disk-> refer man pages for sync
-        (void)system("sync &");
-        (void)system("lcd off");
-        //send shutdown signal to RemoteCarecontroller
-        if(mp_RemoteCareManager) {
-            //! \todo uncomment after shutdown bug is fixed
-    //        mp_RemoteCareManager->SendCommandToRemoteCare(
-    //                    Global::CommandShPtr_t(new NetCommands::CmdRCNotifyShutdown(Global::Command::NOTIMEOUT)));
-        }
-        mp_HeartBeatThreadController->DontCheckHeartBeat(true);
+    std::cout <<"\n\n Shutdown Start time " << Global::AdjustedTime::Instance().GetCurrentTime().toString().toStdString();
+    Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList() <<"");
+    //write buffered data to disk-> refer man pages for sync
+    (void)QProcess::startDetached("sync &");
+    (void)QProcess::startDetached("lcd off");
+    //send shutdown signal to RemoteCarecontroller
+    if (mp_RemoteCareManager) {
+        /// arthur 2014/07/14
+        mp_RemoteCareManager->SendCommandToRemoteCare(
+                    Global::CommandShPtr_t(new NetCommands::CmdRCNotifyShutdown(Global::Command::NOTIMEOUT)));
+    }
+    mp_HeartBeatThreadController->DontCheckHeartBeat(true);
 
     // send Stop signal to all thread controllers
     emit SendStop();
@@ -1334,7 +1336,6 @@ void MasterThreadController::SendEventReportToGUI() {
     }
 }
 
-
 void MasterThreadController::AddControllerForHeartBeatCheck(const Threads::BaseThreadController *p_Controller){
     //heartbeat thread itself is not monitored
     if (mp_HeartBeatThreadController != p_Controller) {
@@ -1355,5 +1356,72 @@ void MasterThreadController::AddControllerForHeartBeatCheck(const Threads::BaseT
         CATCHALL()
     }
 }
+
+void MasterThreadController::OnMissingHeartBeats(const QSet<quint32> Missing)
+{
+    //heart beats might be missing from many threads
+    //no matter which heart beat is missing, ask user to shutdown using softswitch
+
+    //heartbeat missing may come again and again, inform user only if not informed
+    static bool InformedUserAlreadyOnGUI = false;
+    static bool InformedUserAlreadyOnConsole = false;
+
+    if((!Missing.contains(THREAD_ID_GUI)) && (m_GUIEventStatus)) {
+        //send command to GUI asking user to shutdown the system if gpio thread controller is available
+        if(!Missing.contains(THREAD_ID_GPIO_MANAGER)) {
+            if(!InformedUserAlreadyOnGUI) {
+                //log the event
+                Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_REQUEST_TOUSER, true);
+
+                //broadcast this msg so that gui receives this.
+                emit SendCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRequestShutDown(15000, false)));
+
+                InformedUserAlreadyOnGUI = true;
+            }
+        }
+        //gpio thread controller is not available, send command to GUI asking user to inform that system
+        //will be shutdown.
+        else {
+            //system will be shut down after user acknowledges this message,
+            //hence stop checking for heartbeat
+            mp_HeartBeatThreadController->DontCheckHeartBeat(true);
+
+            //log the event
+            Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_ON_SYSTEM_ERROR, true);
+
+            //broadcast this msg so that gui receives this.
+            emit SendCmdToGui(Global::CommandShPtr_t(new NetCommands::CmdRequestShutDown(15000, true)));
+        }
+    }
+    //GUI is not available
+    else {
+        //ask user to shutdown the system using console if gpio thread controller is available
+        if(!Missing.contains(THREAD_ID_GPIO_MANAGER)) {
+            if(!InformedUserAlreadyOnConsole) {
+                //log the event
+                Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_REQUEST_TOUSER, true);
+
+                std::cout << "Heart beat missing for one or more threads. Please shutdown using softswitch";
+
+                InformedUserAlreadyOnConsole = true;
+            }
+        }
+        // inform user through console and shutdown the system
+        else {
+            //stop checking for heartbeat
+            mp_HeartBeatThreadController->DontCheckHeartBeat(true);
+
+            //log the event
+            Global::EventObject().Instance().RaiseEvent(Global::EVENT_SHUTDOWN_ON_SYSTEM_ERROR, true);
+
+            std::cout << "Heart beat missing for one or more threads. Shutting down the system..";
+
+            //shutdown the system
+            InitiateShutdown();
+        }
+    }
+}
+
+
 
 } // end namespace Threads

@@ -63,20 +63,22 @@ private:
 
     typedef void (RemoteCareManager::*FctTagName)(const Global::tRefType &,
                            const NetCommands::CmdRCSetTag &,
-                           Threads::CommandChannel &);              //! function pointer definition
-    typedef QHash<QString, FctTagName> FctTagNameHash;              //! hash map definition
+                           Threads::CommandChannel &);                   //! function pointer definition
+    typedef QHash<QString, FctTagName> FctTagNameHash;                   //! hash map definition
 
-    FctTagNameHash m_FctTagNameHash;                                //! hash map list
+    FctTagNameHash m_FctTagNameHash;                                     //! hash map list
 
     //Data Members
-    Threads::MasterThreadController &m_MasterThreadControllerRef; //!< Master thread controller.
-    QString m_EventCLass; //!< The event class
-    Global::EventLogLevel m_EventPriority; //!< The event class
-    bool m_RCAAvailable; //!< is remote care agent active
-    bool m_SubscriptionStatus; //!< is remote care subscribed
-    quint8 m_NumberOfLogFiles; //!< total number of log files to be exported to RC
+    Threads::MasterThreadController &m_MasterThreadControllerRef;        //!< Master thread controller.
+    QString m_EventClass;                                                //!< The event class
+    Global::EventLogLevel m_EventPriority;                               //!< The event priority
+    bool m_RCAAvailable;                                                 //!< is remote care agent active
+    bool m_SubscriptionStatus;                                           //!< is remote care subscribed
+    quint8 m_NumberOfLogFiles;                                           //!< total number of log files to be exported to RC
     DataManager::CRCConfigurationInterface *mp_RCConfigurationInterface; //!< RC Config interface.
-    DataManager::CRCConfiguration *mp_RCConfiguration; //!< RC Config.
+    DataManager::CRCConfiguration *mp_RCConfiguration;                   //!< RC Config.
+
+    QHash<QString, Global::EventLogLevel> m_EventLogLevelEnumMap;        //!< Hash of Event Log Level to RemoteCare values
 
 
     /****************************************************************************/
@@ -93,6 +95,19 @@ private:
      */
     /****************************************************************************/
     void RegisterCommands();
+
+    /****************************************************************************/
+    /**
+     * \brief This function reads current settings form xml file
+     */
+    /****************************************************************************/
+    void ReadCurrentSettingsState();
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Function to setup maps
+     */
+    void SetupMaps();
 
     /****************************************************************************/
     /**

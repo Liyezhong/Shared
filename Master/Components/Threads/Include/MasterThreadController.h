@@ -403,6 +403,15 @@ signals:
     /****************************************************************************/
     void AddControllerForHeartBeatCheck(quint32 ThreadID) ;
 
+    /****************************************************************************/
+    /**
+     * \brief This signal is to send command to GUI
+     *
+     *  \iparam Cmd = command to be sent to gui
+     */
+    /****************************************************************************/
+    void SendCmdToGui(const Global::CommandShPtr_t &Cmd);
+
 private slots:
     /****************************************************************************/
     /**
@@ -423,6 +432,7 @@ private slots:
      */
     /****************************************************************************/
     void OnThreadControllerStarted(const BaseThreadController *p_BaseThreadController);
+    void OnMissingHeartBeats(const QSet<quint32> Missing);
 
 protected: 
     tControllerMap                              m_ControllerMap;                ///< Thread controller

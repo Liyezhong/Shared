@@ -108,6 +108,26 @@ private slots:
     void StartHeartBeatCheckTimer();
     void StopHeartBeatCheckTimer();
     void AddControllerForHeartBeatCheck(quint32 ThreadID);
+
+
+signals:
+    /****************************************************************************/
+    /**
+     * \brief signal to inform master thread controllers abt the missing heart beats.
+     *
+     * \iparam Missing = set of missing heart beat thread ids.
+     */
+    /****************************************************************************/
+    void HeartBeatNotReceived(const QSet<quint32> Missing);
+
+
+    /****************************************************************************/
+    /**
+     * \brief signal to request heartbeat of the thread controllers that they are alive.
+     *
+     */
+    /****************************************************************************/
+    void RequestHeartBeatOfThread();
 };
 
 } // end namespace HeartBeatManager

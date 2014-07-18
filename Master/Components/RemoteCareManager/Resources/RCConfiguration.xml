@@ -22,7 +22,7 @@
                 ProxyProtocol="SOCKS">
     <RemoteSession
                 RemoteSessionSetup="Off"
-                RemoteSessionName="ColoradoRemote"
+                RemoteSessionName="HimalayaRemote"
                 RemoteSessionType="desktop"
                 RemoteSessionIPAddress="127.0.0.1"
                 RemoteSessionIPPort="5900"/>
