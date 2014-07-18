@@ -74,7 +74,7 @@ bool CInfoOtherModule::Finished(QEvent *p_Event)
 {
     PartLifeCycleRecord* pPartLifeCycleRecord = mp_OtherModule->GetPartLifeCycleRecord();
     if (!pPartLifeCycleRecord)
-        return true;
+        return false;
 
     const QString& paramName = mp_SubModule->GetSubModuleName() + "_LifeTime";
     uint lifeTimeOld = pPartLifeCycleRecord->m_ParamMap[paramName].toUInt();

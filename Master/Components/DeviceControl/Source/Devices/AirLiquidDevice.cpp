@@ -269,6 +269,12 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         if (m_ModuleLifeCycleRecord)
         {
             PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
+            quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value("level_sensor_LifeCycle").toUInt();
+            m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
+        }
+        if (m_ModuleLifeCycleRecord)
+        {
+            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
             if (pPartLifeCycleRecord)
             {
                 quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value(m_pTempCtrls[AL_LEVELSENSOR]->GetKey()+"_LifeCycle").toUInt();

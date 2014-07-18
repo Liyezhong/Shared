@@ -253,6 +253,15 @@ ReturnCode_t COvenDevice::HandleInitializationState()
             PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Oven_Cover_Sensor");
             if (pPartLifeCycleRecord)
             {
+                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Oven_Cover_Sensor_LifeCycle").toUInt();
+                m_pLidDigitalInput->SetLifeCycle(lifeCycle);
+            }
+        }
+        if (m_ModuleLifeCycleRecord)
+        {
+            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Oven_Cover_Sensor");
+            if (pPartLifeCycleRecord)
+            {
                 quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value(m_pLidDigitalInput->GetKey() + "_LifeCycle").toUInt();
                 m_pLidDigitalInput->SetLifeCycle(lifeCycle);
                 m_pLidDigitalInput->SetPartLifeCycleRecord(pPartLifeCycleRecord);

@@ -277,6 +277,15 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
             {
                 quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Retort_Lid_Lock_LifeCycle").toUInt();
                 m_pLockDigitalInput->SetLifeCycle(lifeCycle);
+            }
+        }
+        if (m_ModuleLifeCycleRecord)
+        {
+            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Retort_Lid_Lock");
+            if (pPartLifeCycleRecord)
+            {
+                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Retort_Lid_Lock_LifeCycle").toUInt();
+                m_pLockDigitalInput->SetLifeCycle(lifeCycle);
                 m_pLockDigitalInput->SetPartLifeCycleRecord(pPartLifeCycleRecord);
             }
         }

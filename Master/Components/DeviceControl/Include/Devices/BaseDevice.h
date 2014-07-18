@@ -426,6 +426,11 @@ protected:
     QStateMachine m_machine;        //!< State machine
     ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
 
+    CServiceState *mp_Service;      //!< Service functionality of the base device
+    QMap<QString, CModule *> m_ModuleMap;   //!< Maps keys to Slave module pointers
+    QStateMachine m_machine;        //!< State machine
+    ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
+
 };
 
 } //namespace

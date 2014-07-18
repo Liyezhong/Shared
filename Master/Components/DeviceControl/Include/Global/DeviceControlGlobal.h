@@ -496,6 +496,14 @@ typedef enum {
     OD_Pressure_Sensor = 3,
     OD_OtherModule_NUM = 4
 } OtherDeviceModuleType_t;
+/*! Other device's modules */
+typedef enum {
+    OD_EBox = 0,
+    OD_VentilationFan = 1,
+    OD_TouchScreen = 2,
+    OD_Pressure_Sensor = 3,
+    OD_OtherModule_NUM = 4
+} OtherDeviceModuleType_t;
 
 /****************************************************************************/
 /*! \class CANObjectKeyLUT

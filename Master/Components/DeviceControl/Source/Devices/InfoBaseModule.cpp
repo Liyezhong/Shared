@@ -114,7 +114,7 @@ CInfoBaseModule::CInfoBaseModule(CBaseModule *p_BaseModule, DataManager::CSubMod
     mp_SubModule->AddParameterInfo("BootLoaderMajorVersion", QString());
     mp_SubModule->AddParameterInfo("BootLoaderMinorVersion", QString());
     mp_SubModule->AddParameterInfo("BootLoaderReleaseDate", QString());
-    mp_SubModule->AddParameterInfo("OperationTime", "seconds", QString());
+    mp_SubModule->AddParameterInfo("OperationTime", "minutes", QString());
     mp_SubModule->AddParameterInfo("StartUpCycles", QString());
     mp_SubModule->AddParameterInfo("LaunchedFlag", QString());
     mp_SubModule->AddParameterInfo("FirstLaunchDate", QString());

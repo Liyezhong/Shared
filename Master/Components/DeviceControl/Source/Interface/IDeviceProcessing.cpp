@@ -661,6 +661,15 @@ void IDeviceProcessing::OnDestroyFinished()
 
 void IDeviceProcessing::OnTimeOutSaveServiceInfor()
 {
+    ArchiveServiceInfor();
+    if (mp_DevProc)
+    {
+        mp_DevProc->WriteDeviceLifeCycle();
+    }
+}
+
+void IDeviceProcessing::OnTimeOutSaveServiceInfor()
+{
     if (mp_DevProc)
     {
         mp_DevProc->WriteDeviceLifeCycle();
