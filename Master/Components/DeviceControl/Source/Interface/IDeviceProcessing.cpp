@@ -410,8 +410,8 @@ void IDeviceProcessing::InitArchiveServiceInforState()
 
     }
     p_LastState->addTransition(p_LastState, SIGNAL(finished()), p_Final);
-    //m_TimerSaveServiceInfor.start();
-    //m_machine.start();
+    m_TimerSaveServiceInfor.start();
+    m_machine.start();
 }
 
 void IDeviceProcessing::ArchiveServiceInfor()

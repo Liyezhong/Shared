@@ -2082,8 +2082,6 @@ ReturnCode_t CBaseModule::SendCANMsgReqModuleSerialNumber()
 /****************************************************************************/
 void CBaseModule::HandleCanMessage(can_frame* pCANframe)
 {
-    QMutexLocker Locker(&m_Mutex);
-
     FILE_LOG_L(laCOMM, llDEBUG3) << "   0x" << (quint32) pCANframe->can_id << " received";
     FILE_LOG_L(laCOMM, llDEBUG3) << "         "  << std::hex << (int)pCANframe->data[0] << " "  << std::hex << (int)pCANframe->data[1] <<
                                            " "  << std::hex << (int)pCANframe->data[2] << " "  << std::hex << (int)pCANframe->data[3];
