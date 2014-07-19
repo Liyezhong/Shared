@@ -128,6 +128,16 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
+
+    PartLifeCycleRecord* pPartLifeCycleRecord = mp_TemperatureControl->GetPartLifeCycleRecord();
+    if (!pPartLifeCycleRecord)
+        return true;
+
+    QString paramName = mp_SubModule->GetSubModuleName() + "_LifeCycle";
+    QString strLifeTimeNew = QString().setNum(mp_TemperatureControl->GetLifeCycle());
+    QMap<QString, QString>::const_iterator iter = pPartLifeCycleRecord->m_ParamMap.find(paramName);
+    if (iter != pPartLifeCycleRecord->m_ParamMap.end())
+        pPartLifeCycleRecord->m_ParamMap[paramName] = strLifeTimeNew;
     return true;
 }
 

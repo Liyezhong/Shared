@@ -85,6 +85,16 @@ bool CInfoDigitalInput::Finished(QEvent *p_Event)
         return false;
     }
 
+    PartLifeCycleRecord* pPartLifeCycleRecord = mp_DigitalInput->GetPartLifeCycleRecord();
+    if (!pPartLifeCycleRecord)
+        return true;
+
+    QString paramName = mp_SubModule->GetSubModuleName() + "_LifeCycle";
+    QString strLifeTimeNew = QString().setNum(mp_DigitalInput->GetLifeCycle());
+    QMap<QString, QString>::const_iterator iter = pPartLifeCycleRecord->m_ParamMap.find(paramName);
+    if (iter != pPartLifeCycleRecord->m_ParamMap.end())
+        pPartLifeCycleRecord->m_ParamMap[paramName] = strLifeTimeNew;
+
     return true;
 }
 

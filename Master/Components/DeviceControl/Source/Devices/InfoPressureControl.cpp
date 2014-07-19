@@ -142,10 +142,20 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
-   /* if (!mp_SubModule->UpdateParameterInfo("Distance", QString().setNum(StepCounter * mp_StepperMotor->GetCircumference()))) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
-        return false;
-    }*/
+
+    PartLifeCycleRecord* pPartLifeCycleRecord = mp_PressureControl->GetPartLifeCycleRecord();
+    if (!pPartLifeCycleRecord)
+        return true;
+
+    QString strLifeCycleNew = QString().setNum(mp_PressureControl->GetValveLifeCycle(0));
+    QMap<QString, QString>::const_iterator iter = pPartLifeCycleRecord->m_ParamMap.find("Valve1_LifeCycle");
+    if (iter != pPartLifeCycleRecord->m_ParamMap.end())
+        pPartLifeCycleRecord->m_ParamMap["Valve1_LifeCycle"] = strLifeCycleNew;
+
+    QString strLifeCycleNew2 = QString().setNum(mp_PressureControl->GetValveLifeCycle(1));
+    QMap<QString, QString>::const_iterator iter2 = pPartLifeCycleRecord->m_ParamMap.find("Valve2_LifeCycle");
+    if (iter2 != pPartLifeCycleRecord->m_ParamMap.end())
+        pPartLifeCycleRecord->m_ParamMap["Valve2_LifeCycle"] = strLifeCycleNew2;
 
     return true;
 }

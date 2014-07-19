@@ -239,6 +239,7 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
                 quint32 valve1LifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Valve1_LifeCycle").toUInt();
                 quint32 valve2LifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Valve2_LifeCycle").toUInt();
                 m_pPressureCtrl->SetValveLifeCycle(valve1LifeCycle, valve2LifeCycle);
+                m_pPressureCtrl->SetPartLifeCycleRecord(pPartLifeCycleRecord);
             }
         }
     }
@@ -267,8 +268,12 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         if (m_ModuleLifeCycleRecord)
         {
             PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
-            quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value("level_sensor_LifeCycle").toUInt();
-            m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
+            if (pPartLifeCycleRecord)
+            {
+                quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value(m_pTempCtrls[AL_LEVELSENSOR]->GetKey()+"_LifeCycle").toUInt();
+                m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
+                m_pTempCtrls[AL_LEVELSENSOR]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+            }
         }
     }
     else
