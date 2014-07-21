@@ -2110,7 +2110,8 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             }
         }
 
-        retCode = m_pAirLiquid->Pressure();
+        //retCode = m_pAirLiquid->Pressure();
+        retCode = m_pAirLiquid->SealingCheckPressure();
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;

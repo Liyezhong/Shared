@@ -1030,6 +1030,30 @@ SORTIE:
     return RetValue;
 }
 
+ReturnCode_t CAirLiquidDevice::SealingCheckPressure()
+{
+    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+    if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING:  Release pressure failed, exit now.";
+        goto SORTIE;
+    }
+    (void)TurnOnFan();
+    RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_POSITIVE, 15);
+    if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
+    {
+        //stop compressor
+        StopCompressor();
+        //close both valve
+        (void)SetValve(VALVE_1_INDEX, VALVE_STATE_CLOSE);
+        (void)SetValve(VALVE_2_INDEX, VALVE_STATE_CLOSE);
+        (void)TurnOffFan();
+    }
+SORTIE:
+    FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Pressure finished, exit";
+    return RetValue;
+}
+
 /****************************************************************************/
 /*!
  *  \brief   Drain the system automatically.

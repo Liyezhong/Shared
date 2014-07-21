@@ -105,6 +105,16 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t Pressure(void);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SealingCheckPressure
+     *
+     *  \return from SealingCheckPressure
+     */
+    /****************************************************************************/
+    ReturnCode_t SealingCheckPressure();
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function Vaccum
