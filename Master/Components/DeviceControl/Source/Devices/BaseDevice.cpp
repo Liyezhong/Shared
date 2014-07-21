@@ -22,12 +22,13 @@
  */
 /******************************************************************/
 #include <QtDebug>
+#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DeviceControl/Include/Devices/BaseDevice.h"
 #include "DeviceControl/Include/Global/dcl_log.h"
 #include "Global/Include/AdjustedTime.h"
 #include "DeviceControl/Include/Devices/ServiceState.h"
-#include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceLifeCycleRecord.h"
+#include <QMetaType>
 
 namespace DeviceControl
 {
@@ -71,7 +72,7 @@ namespace DeviceControl
     QMapIterator<QString, quint32> Iterator(m_ModuleList);
     while (Iterator.hasNext()) {
         Iterator.next();
-        CModule *p_Module = m_pDevProc->GetNodeFromID(GetFctModInstanceFromKey(Iterator.key()));
+        DeviceControl::CModule *p_Module = m_pDevProc->GetNodeFromID(GetFctModInstanceFromKey(Iterator.key()));
 
         if (p_Module == NULL) {
             p_Module = m_pDevProc->GetFunctionModule(GetFctModInstanceFromKey(Iterator.key()));
@@ -85,8 +86,8 @@ namespace DeviceControl
     m_machine.setInitialState(mp_Service);
 
     connect(this, SIGNAL(GetServiceInfo()), mp_Service, SIGNAL(GetServiceInfo()));
-    connect(mp_Service, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule)),
-                     this, SLOT(OnReportGetServiceInfo(ReturnCode_t, DataManager::CModule)));
+    connect(mp_Service, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule&)),
+                     this, SLOT(OnReportGetServiceInfo(ReturnCode_t, DataManager::CModule&)));
 
     /*connect(this, SIGNAL(ResetServiceInfo()), mp_Service, SIGNAL(ResetServiceInfo()));
     connect(mp_Service, SIGNAL(ReportResetServiceInfo(ReturnCode_t)),

@@ -40,6 +40,7 @@
 #include "DeviceControl/Include/SlaveModules/OtherModule.h"
 #include "DeviceControl/Include/Devices/InfoPressureControl.h"
 #include "DeviceControl/Include/Devices/InfoDigitalInput.h"
+#include <DataManager/Containers/InstrumentHistory/Include/SubModule.h>
 
 namespace DeviceControl
 {
