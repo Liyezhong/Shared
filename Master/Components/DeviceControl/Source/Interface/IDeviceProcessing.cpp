@@ -2110,12 +2110,22 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             }
         }
 
-        //retCode = m_pAirLiquid->Pressure();
-        retCode = m_pAirLiquid->SealingCheckPressure();
+        qreal targetPressure = 0.0;
+        if(QFile::exists("TEST_FREDDY"))
+        {
+            targetPressure = 15.0;
+            retCode = m_pAirLiquid->SealingCheckPressure();
+        }
+        else
+        {
+            targetPressure = 30.0;
+            retCode = m_pAirLiquid->Pressure();
+        }
         if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
         {
             return retCode;
         }
+            if (std::abs(targetPressure - m_pAirLiquid->GetRecentPressure()) < 5.0)
 
         (void)usleep(10000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure();
