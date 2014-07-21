@@ -86,8 +86,8 @@ namespace DeviceControl
     m_machine.setInitialState(mp_Service);
 
     connect(this, SIGNAL(GetServiceInfo()), mp_Service, SIGNAL(GetServiceInfo()));
-    connect(mp_Service, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule&)),
-                     this, SLOT(OnReportGetServiceInfo(ReturnCode_t, DataManager::CModule&)));
+    connect(mp_Service, SIGNAL(ReportGetServiceInfo(ReturnCode_t, DataManager::CModule)),
+                     this, SLOT(OnReportGetServiceInfo(ReturnCode_t, DataManager::CModule)));
 
     /*connect(this, SIGNAL(ResetServiceInfo()), mp_Service, SIGNAL(ResetServiceInfo()));
     connect(mp_Service, SIGNAL(ReportResetServiceInfo(ReturnCode_t)),
