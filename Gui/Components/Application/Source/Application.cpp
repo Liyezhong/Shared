@@ -73,9 +73,9 @@ bool CApplication::notify ( QObject * receiver, QEvent * event )
             isTouch = true;
     }
 
-    if (isTouch)
+    /*if (isTouch)
         emit this->InteractStart();
-
+*/
     return QApplication::notify(receiver, event);
 }
 
