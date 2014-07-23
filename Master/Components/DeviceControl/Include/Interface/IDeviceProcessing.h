@@ -123,7 +123,7 @@ public:
      *  \return from ALPressure
      */
     /****************************************************************************/
-    ReturnCode_t ALPressure();
+    ReturnCode_t ALPressure(float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALVaccum
@@ -141,7 +141,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t ALDraining(quint32 DelayTime, qint32 targetPressure = 30);
+    ReturnCode_t ALDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALFilling

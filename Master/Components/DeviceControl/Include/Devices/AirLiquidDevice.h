@@ -104,7 +104,7 @@ public:
      *  \return from Pressure
      */
     /****************************************************************************/
-    ReturnCode_t Pressure(void);
+    ReturnCode_t Pressure(float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
 
     /****************************************************************************/
     /*!
@@ -132,7 +132,7 @@ public:
      *  \return from Draining
      */
     /****************************************************************************/
-    ReturnCode_t Draining(quint32 DelayTime, qint32 targetPressure = 30);
+    ReturnCode_t Draining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function Filling

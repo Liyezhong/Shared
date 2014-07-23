@@ -210,6 +210,9 @@ namespace DeviceControl
 #define EVENT_CODE_TIMEOUT_WARNING           0x12    //!< Event Code: Timeout for Warning
 #define EVENT_CODE_TIMEOUT_ERROR             0x13    //!< Event Code: Timeout for Error
 
+#define AL_TARGET_PRESSURE_POSITIVE                 (30)
+#define AL_TARGET_PRESSURE_NEGATIVE                 (-30)
+
 /*! Synchronized functions definitions */
 typedef enum
 {

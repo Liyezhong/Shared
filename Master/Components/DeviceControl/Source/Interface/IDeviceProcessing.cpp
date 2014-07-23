@@ -748,7 +748,7 @@ ReturnCode_t IDeviceProcessing::ALReleasePressure(void)
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALPressure()
+ReturnCode_t IDeviceProcessing::ALPressure(float targetPressure)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
@@ -756,7 +756,7 @@ ReturnCode_t IDeviceProcessing::ALPressure()
     }
     if(m_pAirLiquid)
     {
-        return m_pAirLiquid->Pressure();
+        return m_pAirLiquid->Pressure(targetPressure);
     }
     else
     {
@@ -797,7 +797,7 @@ ReturnCode_t IDeviceProcessing::ALVaccum()
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, qint32 targetPressure)
+ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressure)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
