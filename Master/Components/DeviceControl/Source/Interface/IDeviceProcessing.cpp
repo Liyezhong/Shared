@@ -2220,5 +2220,14 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
     return mp_DevProc->GetBaseModule(Type);
 }
 
+            //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
+            //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
+            //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
+            //FILE_LOG_L(laFCT, llERROR) <<"Oven top current is: "<<m_pOven->GetHeaterCurrent(OVEN_TOP);
+        //FILE_LOG_L(laFCT, llERROR) <<"RV current is: "<<m_pRotaryValve->GetHeaterCurrent();
+        reportError = m_pRotaryValve->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+            //FILE_LOG_L(laFCT, llERROR) <<"LA LevelSensor current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
+            //FILE_LOG_L(laFCT, llERROR) <<"LA Tube1 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
+            //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
 
 } // namespace

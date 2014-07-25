@@ -546,6 +546,56 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
     return retValue;
 }
 
+    switch (instanceID)
+     {
+     case CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL:
+         LogDebug("In RV temperature control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL:
+         LogDebug("In LA LevelSensor temperature control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL:
+         LogDebug("In LA tube1 temperature control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL:
+         LogDebug("In LA tube2 tempertuare control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL:
+         LogDebug("In Oven Bottom tempertuare control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL:
+         LogDebug("In Oven top tempertuare control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL:
+         LogDebug("In Retort Bottom tempertuare control");
+         break;
+     case CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL:
+         LogDebug("In Retort Side tempertuare control");
+         break;
+     default:
+         break;
+     }
+
+        LogDebug("Temperature module errorlist is empty");
+    else
+    {
+       LogDebug(QString("Temperature module errorlist is NOT empty, the size is: %1").arg(m_ReportErrorList.size()));
+    }
+
+    for (int i=0; i<m_ReportErrorList.size(); ++i)
+    {
+        LogDebug(QString("The Error InstanceID is: %1, error code is: %2").arg(m_ReportErrorList[i].instanceID).arg(m_ReportErrorList[i].errorCode));
+    }
+
+    bool found = false;
+            found = true;
+    }
+
+    // Clean up the vector if the element was found
+    if (true == found)
+    {
+        QVector<ReportError_t> empVector(0);
+        m_ReportErrorList.swap(empVector);
 /****************************************************************************/
 /*!
  *  \brief  Slot associated with get base module's current.
