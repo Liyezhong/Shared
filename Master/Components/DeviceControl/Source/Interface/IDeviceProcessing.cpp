@@ -377,7 +377,10 @@ void  IDeviceProcessing::OnConfigurationFinished(ReturnCode_t HdlInfo)
         }
     }
     emit ReportConfigurationFinished(m_instanceID, HdlInfo);
-    InitArchiveServiceInforState();
+    if (DCL_ERR_FCT_CALL_SUCCESS == HdlInfo)
+    {
+        InitArchiveServiceInforState();
+    }
 }
 
 
