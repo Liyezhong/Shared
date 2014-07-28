@@ -1451,6 +1451,20 @@ void CStepperMotor::HandleCommandRequestTask()
                     emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0, 0);
                 }
             }
+            else if(m_ModuleCommand[idx].m_Type == FM_SM_CMD_TYPE_REQ_DATA_RESET)
+            {
+                RetVal = SendCANMsgReqDataReset();
+                if (RetVal == DCL_ERR_FCT_CALL_SUCCESS)
+                {
+                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].m_Timeout = CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ;
+                }
+                else
+                {
+                    emit ReportDataResetAckn(GetModuleHandle(), RetVal);
+                }
+            }
+
             //check for success
             if(RetVal == DCL_ERR_FCT_CALL_SUCCESS)
             {
@@ -1560,6 +1574,11 @@ void CStepperMotor::HandleCanMessage(can_frame* pCANframe)
         if ((pCANframe->can_id == m_unCanIDEventError) || (pCANframe->can_id == m_unCanIDEventFatalError)) {
             emit ReportError(GetModuleHandle(), m_lastErrorGroup, m_lastErrorCode, m_lastErrorData, m_lastErrorTime);
         }
+    }
+    else if(m_unCanIDAcknDataReset == pCANframe->can_id)
+    {
+        ResetModuleCommand(FM_SM_CMD_TYPE_REQ_DATA_RESET);
+        HandleCANMsgAcknDataReset(pCANframe);
     }
     else if(m_unCanIDTargetPosCmdAckn == pCANframe->can_id)
     {
@@ -2830,6 +2849,32 @@ ReturnCode_t CStepperMotor::DoReconfiguration(CANFctModuleStepperMotor *pConfig)
 
 
     return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
+
+/****************************************************************************/
+/*!
+ *  \brief  Request a data reset
+ *
+ *  \return DCL_ERR_FCT_CALL_SUCCESS if the request can be forwarded, otherwise error code
+ */
+/****************************************************************************/
+ReturnCode_t CStepperMotor::ReqDataReset()
+{
+    QMutexLocker Locker(&m_Mutex);
+    ReturnCode_t RetVal = DCL_ERR_FCT_CALL_SUCCESS;
+
+    if(SetModuleTask(FM_SM_CMD_TYPE_REQ_DATA_RESET))
+    {
+        FILE_LOG_L(laDEV, llDEBUG) << " CANStepperMotor: Req Data Reset";
+    }
+    else
+    {
+        RetVal = DCL_ERR_INVALID_STATE;
+        FILE_LOG_L(laFCT, llERROR) << " CANStepperMotor '" << GetKey().toStdString() << "' invalid state: " << (int) m_TaskID;
+    }
+
+    return RetVal;
 }
 
 } //namespace

@@ -239,6 +239,9 @@ public:
     /****************************************************************************/
     qint16 GetMaxSpeed() { return m_MaxSpeed; }
 
+    //! Request data reset
+    ReturnCode_t ReqDataReset();
+
 signals:
     /****************************************************************************/
     /*!
@@ -516,7 +519,8 @@ private:
         FM_SM_CMD_TYPE_DEBUG_CMD_1         = 0x0a,  //!< debug request
         FM_SM_CMD_TYPE_OPTIME_DATA_REQ     = 0x0b,  //!< operation time data request
         FM_SM_CMD_TYPE_REVCOUNT_DATA_REQ   = 0x0c,  //!< revolution count data request
-        FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ   = 0x0d  //!< direction change count data request
+        FM_SM_CMD_TYPE_DIRCOUNT_DATA_REQ   = 0x0d,  //!< direction change count data request
+        FM_SM_CMD_TYPE_REQ_DATA_RESET      = 0x0e   //!< data reset request
     } CANStepperMotorMotionCmdType_t;
 
     /*! motor command data, used for internal data transfer */
