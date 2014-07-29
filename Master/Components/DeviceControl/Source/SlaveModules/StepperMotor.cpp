@@ -1451,12 +1451,12 @@ void CStepperMotor::HandleCommandRequestTask()
                     emit ReportLifeCycleData(GetModuleHandle(), RetVal, 0, 0, 0);
                 }
             }
-            else if(m_ModuleCommand[idx].m_Type == FM_SM_CMD_TYPE_REQ_DATA_RESET)
+            else if(m_ModuleCommand[idx].Type == FM_SM_CMD_TYPE_REQ_DATA_RESET)
             {
                 RetVal = SendCANMsgReqDataReset();
                 if (RetVal == DCL_ERR_FCT_CALL_SUCCESS)
                 {
-                    m_ModuleCommand[idx].m_State = MODULE_CMD_STATE_REQ_SEND;
+                    m_ModuleCommand[idx].State = MODULE_CMD_STATE_REQ_SEND;
                     m_ModuleCommand[idx].m_Timeout = CAN_STEPPERMOTOR_TIMEOUT_LIFECYCLEDATA_REQ;
                 }
                 else
