@@ -196,33 +196,11 @@
         <file>HimalayaImages/Grid/Seperator-Selected.png</file>
         <file>HimalayaImages/Grid/Seperator_Vertical-Enabled.png</file>
         <file>HimalayaImages/Grid/Seperator_Vertical-Selected.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Alarm.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Alarm_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_CountrySpecific.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_CountrySpecific_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_DataManagement.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_DataManagement_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_DateTime.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_DateTime_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Language.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Language_act.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Log.png</file>
         <file>HimalayaImages/Icons/Configuration/Configuration_Log_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Network.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Network_act.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Service.png</file>
-        <file>HimalayaImages/Icons/Configuration/Configuration_Service_act.png</file>
-        <file>HimalayaImages/Icons/GridButton-Riffle/Riffle-Disabled.png</file>
-        <file>HimalayaImages/Icons/GridButton-Riffle/Riffle-Enabled.png</file>
-        <file>HimalayaImages/Icons/GridButton-Riffle/Riffle-Selected.png</file>
-        <file>HimalayaImages/Icons/Lock/Lock-Disabled.png</file>
-        <file>HimalayaImages/Icons/Lock/Lock-Enabled.png</file>
-        <file>HimalayaImages/Icons/Lock/Lock-Selected.png</file>
         <file>HimalayaImages/Icons/MISC/ClosePanel.png</file>
         <file>HimalayaImages/Icons/MISC/Icon_Leica.png</file>
-        <file>HimalayaImages/Icons/MISC/ParallelStation.png</file>
         <file>HimalayaImages/Icons/MISC/TickOk.png</file>
-        <file>HimalayaImages/Icons/MISC/WaterTab_15.png</file>
         <file>HimalayaImages/Icons/Move/Icon_Move_Down.png</file>
         <file>HimalayaImages/Icons/Move/Icon_Move_Down_End.png</file>
         <file>HimalayaImages/Icons/Move/Icon_Move_Up.png</file>
@@ -246,7 +224,6 @@
         <file>HimalayaImages/Icons/Speller/ShiftLock.png</file>
         <file>HimalayaImages/Icons/Status_Bar/Error_small.png</file>
         <file>HimalayaImages/Icons/Status_Bar/RemoteCare_small.png</file>
-        <file>HimalayaImages/Icons/Status_Bar/Status_small.png</file>
         <file>HimalayaImages/Icons/Status_Bar/Warning_small.png</file>
         <file>HimalayaImages/Icons/User_Status/User_Operator.png</file>
         <file>HimalayaImages/Icons/User_Status/User_Service.png</file>
@@ -259,28 +236,9 @@
         <file>HimalayaImages/LAS-MessageBox-Icons/Icons_50x50/154_MB_warning.png</file>
         <file>HimalayaImages/LAS-MessageBox-Icons/Icons_50x50/155_MB_information.png</file>
         <file>HimalayaImages/Popup/Popup.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-black.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-darkblue.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-green.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-grey.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-lightblue.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-pink.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-purple.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-red.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-white.png</file>
-        <file>HimalayaImages/Popup/Popup-Rack-yellow.png</file>
         <file>HimalayaImages/Icons/Dashboard/Bottle/Bottle_Background.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Large.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Large_Grayed.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Small.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Expiry/Expiry_Expired_Small_Grayed.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Operation/Operation_Abort.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Operation/Operation_Pause.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Operation/Operation_Start_Resume.png</file>
         <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Background.png</file>
         <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Background_Grayed.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Cover.png</file>
-        <file>HimalayaImages/Icons/Dashboard/Paraffinbath/Paraffinbath_Cover_Grayed.png</file>
         <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Unlocked.png</file>
         <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Locked01.png</file>
         <file>HimalayaImages/Icons/Dashboard/Retort/Retort_Locked02.png</file>
@@ -308,7 +266,6 @@
         <file>HimalayaImages/Icons/Program/Icon11.png</file>
         <file>HimalayaImages/Icons/Program/Icon0.png</file>
         <file>HimalayaImages/Icons/Program/Icon_Leica.png</file>
-        <file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenSaver.png</file>
         <file>HimalayaImages/Icons/Program/IconEmpty.png</file>
         <file>HimalayaImages/Icons/MISC/LeicaLogo.png</file>
         <file>HimalayaImages/Icons/Dashboard/ProgressLine/ProgressLineRed.png</file>
@@ -335,5 +292,6 @@
         <file>HimalayaImages/Digits/AmbientTemperature.png</file>
         <file>HimalayaImages/Digits/AmbientTemperatureBig.png</file>
         <file>HimalayaImages/Icons/User_Status/User_Admin.png</file>
+        <file>HimalayaImages/Icons/Dashboard/ScreenSaver/ScreenSaver.png</file>
     </qresource>
 </RCC>
