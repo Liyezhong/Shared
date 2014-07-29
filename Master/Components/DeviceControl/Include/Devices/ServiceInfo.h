@@ -25,7 +25,7 @@
 #define DEVICECONTROL_SERVICEINFO_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlReturnCode.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 
 #ifdef Q_UNIT_TEST

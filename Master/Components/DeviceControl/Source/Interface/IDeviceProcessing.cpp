@@ -23,6 +23,7 @@
 /******************************************************************/
 
 #include <QMutex>
+#include <QCoreApplication>
 
 //#include "DataLogging/Include/LoggingObject.h"
 #include "DeviceControl/Include/Configuration/HardwareConfiguration.h"
@@ -666,15 +667,6 @@ void IDeviceProcessing::OnTimeOutSaveServiceInfor()
     {
         mp_DevProc->WriteDeviceLifeCycle();
     }
-}
-
-void IDeviceProcessing::OnTimeOutSaveServiceInfor()
-{
-    if (mp_DevProc)
-    {
-        mp_DevProc->WriteDeviceLifeCycle();
-    }
-    ArchiveServiceInfor();  
 }
 
 /****************************************************************************/
@@ -2091,7 +2083,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_BLOCKAGE;
             LOG()<<"Bottle Check: Blockage";
         }
-
+#endif
         (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         return retCode;
     }
@@ -2104,6 +2096,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
         return retCode;
@@ -2121,6 +2114,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             }
         }
 
+        // Make sure to get the target pressure (30Kpa) in 30 seconds
         qreal targetPressure = 0.0;
         if(QFile::exists("TEST_FREDDY"))
         {
@@ -2136,19 +2130,46 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         {
             return retCode;
         }
+        QTime delayTime = QTime::currentTime().addMSecs(30000);
+        bool targetPressureFlag = false;
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents,100);
             if (std::abs(targetPressure - m_pAirLiquid->GetRecentPressure()) < 5.0)
-        (void)usleep(10000*1000);
-        qreal pressure = m_pAirLiquid->GetRecentPressure();
+            {
+                targetPressureFlag = true;
+                break;
+            }
+        }
+        if (false == targetPressureFlag)
+        {
+            return DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
+        }
+#ifdef __arm__
+        //make the stable threshold time 5 seconds
+        delayTime = QTime::currentTime().addMSecs(5000);
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
         }
+#endif
         qreal previousPressure = m_pAirLiquid->GetRecentPressure();
+
+        // Turn off pump
         m_pAirLiquid->StopCompressor();
 
-        LOG()<<"Sealing test pressure: " << pressure;
-
-        if(pressure < (ThresholdPressure))
+        // Due to the limitation of simulator, we just return success in PC.
+#ifndef __arm__
+        return DCL_ERR_FCT_CALL_SUCCESS;
+#endif
+        // Wait for 30 seconds to get current pressure
+        delayTime = QTime::currentTime().addMSecs(30000);
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
+        qreal currentPressure = m_pAirLiquid->GetRecentPressure();
+        if((previousPressure-currentPressure) > ThresholdPressure)
         {
             retCode = DCL_ERR_DEV_LA_SEALING_FAILED_PRESSURE;
             LOG()<<"Sealing test: Failed.";
@@ -2160,12 +2181,72 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
         }
         (void)m_pAirLiquid->ReleasePressure();
         return retCode;
-    }
-    else
-    {
-        return DCL_ERR_NOT_INITIALIZED;
-    }
+   }
+   else
+   {
+       return DCL_ERR_NOT_INITIALIZED;
+   }
+
+   return DCL_ERR_FCT_CALL_SUCCESS;
 }
+ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName)
+{
+    ReportError_t reportError;
+    memset(&reportError, 0, sizeof(reportError));
+    FILE_LOG_L(laFCT, llERROR) << " Device name is: "<<devName.toStdString()<<" sensorname is: "<< sensorName;
+    if ("Retort" == devName)
+    {
+        if (RT_BOTTOM == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
+            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
+        }
+        else if (RT_SIDE == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
+            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
+        }
+    }
+    else if ("Oven" == devName)
+    {
+        if (OVEN_BOTTOM == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
+            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
+        }
+        else if (OVEN_TOP == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"Oven top current is: "<<m_pOven->GetHeaterCurrent(OVEN_TOP);
+            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
+        }
+    }
+    else if ("RV" == devName)
+    {
+        //FILE_LOG_L(laFCT, llERROR) <<"RV current is: "<<m_pRotaryValve->GetHeaterCurrent();
+        reportError = m_pRotaryValve->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+    }
+    else if ("LA" == devName)
+    {
+        if (AL_LEVELSENSOR == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"LA LevelSensor current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
+        }
+        else if (AL_TUBE1 == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"LA Tube1 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
+        }
+        else if (AL_TUBE2 == sensorName)
+        {
+            //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+        }
+    }
+
+    return reportError;
+}
+
 
 CFunctionModule* IDeviceProcessing::GetFunctionModuleRef(quint32 InstanceID, const QString &Key)
 {
@@ -2236,19 +2317,4 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
     return mp_DevProc->GetBaseModule(Type);
 }
 
-            //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
-            //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
-            //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
-            //FILE_LOG_L(laFCT, llERROR) <<"Oven top current is: "<<m_pOven->GetHeaterCurrent(OVEN_TOP);
-        //FILE_LOG_L(laFCT, llERROR) <<"RV current is: "<<m_pRotaryValve->GetHeaterCurrent();
-        reportError = m_pRotaryValve->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
-            //FILE_LOG_L(laFCT, llERROR) <<"LA LevelSensor current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
-            //FILE_LOG_L(laFCT, llERROR) <<"LA Tube1 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
-            //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
-        }
-    }
-
-    return reportError;
-}
 } // namespace

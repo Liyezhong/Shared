@@ -545,7 +545,10 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
     }
     return retValue;
 }
-
+ReportError_t CBaseDevice::GetSlaveModuleError(quint8 errorCode, quint32 instanceID)
+{
+    ReportError_t reportError;
+    memset(&reportError, 0, sizeof(reportError));
     switch (instanceID)
      {
      case CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL:
@@ -576,7 +579,11 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
          break;
      }
 
+    if (m_ReportErrorList.empty())
+    {
         LogDebug("Temperature module errorlist is empty");
+        return reportError;
+    }
     else
     {
        LogDebug(QString("Temperature module errorlist is NOT empty, the size is: %1").arg(m_ReportErrorList.size()));
@@ -587,8 +594,19 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
         LogDebug(QString("The Error InstanceID is: %1, error code is: %2").arg(m_ReportErrorList[i].instanceID).arg(m_ReportErrorList[i].errorCode));
     }
 
+    FILE_LOG_L(laFCT, llERROR) << " Error instanceID is: 0x"<<std::hex<<m_ReportErrorList[0].instanceID;
+
+    QVector<ReportError_t>::const_iterator iter = m_ReportErrorList.end();
+    iter--;
     bool found = false;
+    for (; iter>=m_ReportErrorList.begin(); --iter)
+    {
+        if (instanceID == iter->instanceID && errorCode == iter->errorCode)
+        {
+            reportError = (*iter);
             found = true;
+            break;
+        }
     }
 
     // Clean up the vector if the element was found
@@ -596,6 +614,11 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
     {
         QVector<ReportError_t> empVector(0);
         m_ReportErrorList.swap(empVector);
+    }
+
+    return reportError;
+}
+
 /****************************************************************************/
 /*!
  *  \brief  Slot associated with get base module's current.

@@ -25,6 +25,7 @@
 #define DEVICE_CONTROL_GLOBAL_H
 #include <QObject>
 #include <QMetaType>
+#include <QDateTime>
 
 #include "DeviceControl/Include/Global/DeviceControlReturnCode.h"
 
@@ -455,9 +456,8 @@ const quint32 DEVICE_INSTANCE_ID_AIR_LIQUID     = 0x000080C1;   //!< Air liquid 
 const quint32 DEVICE_INSTANCE_ID_OVEN           = 0x000080C2;   //!< Oven
 const quint32 DEVICE_INSTANCE_ID_RETORT         = 0x000080C3;   //!< Retort
 const quint32 DEVICE_INSTANCE_ID_MAIN_CONTROL   = 0x000080C4;   //!< Main Control
-const quint32 DEVICE_INSTANCE_ID_CAN_COMMUTOR   = 0x000080C5;   //!< CAN Communicator
+const quint32 DEVICE_INSTANCE_ID_CAN_COMMUTOR   = 0x000080C5;   //!< CAN Communicator 
 const quint32 DEVICE_INSTANCE_ID_OTHER_DEVICE   = 0x000080C6;   //!< Other device
-
 
 /*! Slaves used in Himalaya project */
 typedef enum {
@@ -496,14 +496,7 @@ typedef enum {
     OD_Pressure_Sensor = 3,
     OD_OtherModule_NUM = 4
 } OtherDeviceModuleType_t;
-/*! Other device's modules */
-typedef enum {
-    OD_EBox = 0,
-    OD_VentilationFan = 1,
-    OD_TouchScreen = 2,
-    OD_Pressure_Sensor = 3,
-    OD_OtherModule_NUM = 4
-} OtherDeviceModuleType_t;
+
 /*! error list from slave module */
 typedef struct {
     quint32           instanceID;
@@ -552,12 +545,10 @@ public:
     static const QString m_PerMainRelayDOKey;        //!< Miscellaneous heater relay digital output
     static const QString m_PerLocalAlarmDIKey;       //!< Miscellaneous local alarm digital input
     static const QString m_PerRemoteAlarmDIKey;      //!< Miscellaneous remote alarm digital input
-
-    static const QString m_OtherDeviceEBoxKey;       //!< EBox
-    static const QString m_OtherDeviceVentilationFanKey;   //!< VentilationFan
-    static const QString m_OtherDeviceTouchScreenKey;      //!< TouchScreen
-    static const QString m_OtherDevicePressureSensor;      //!< PressureSensor
-
+    static const QString m_OtherDeviceEBoxKey; //!< EBox
+    static const QString m_OtherDeviceVentilationFanKey; //!< VentilationFan
+    static const QString m_OtherDeviceTouchScreenKey; //!< TouchScreen
+    static const QString m_OtherDevicePressureSensor; //!< PressureSensor
 
 
     // calling the DeviceProcessing::GetFunctionModule-method
@@ -566,8 +557,8 @@ public:
     {
         FCTMOD_INVALID                = 0x0000,   //!< node invalid
 
-        FCTMOD_RV_MOTOR               = 0x30003,  //!< Rotary valve motor
-        FCTMOD_RV_TEMPCONTROL         = 0x40003,  //!< Rotary valve temperature control
+        FCTMOD_RV_MOTOR               = 0x10003,  //!< Rotary valve motor
+        FCTMOD_RV_TEMPCONTROL         = 0x20003,  //!< Rotary valve temperature control
 
         FCTMOD_AL_PRESSURECTRL        = 0x1000F,  //!< Air-liquid pressure control
         FCTMOD_AL_LEVELSENSORTEMPCTRL = 0x2000F,  //!< Air-liquid level sensor temp control
@@ -576,21 +567,31 @@ public:
         FCTMOD_AL_FANDO               = 0x5000F,  //!< Air-liquid fan digital output
         FCTMOD_OVEN_TOPTEMPCTRL       = 0x10005,  //!< Oven top temp control
         FCTMOD_OVEN_BOTTOMTEMPCTRL    = 0x20005,  //!< Oven bottom temp control
-        FCTMOD_OVEN_LIDDI             = 0xB000F,  //!< Oven lid digital input
+        FCTMOD_OVEN_LIDDI             = 0xA000F,  //!< Oven lid digital input
         FCTMOD_RETORT_BOTTOMTEMPCTRL  = 0x30005,  //!< Retort bottom temp control
         FCTMOD_RETORT_SIDETEMPCTRL    = 0x40005,  //!< Retort side temp control
         FCTMOD_RETORT_LOCKDO          = 0x6000F,  //!< Retort lock digital output
-        FCTMOD_RETORT_LOCKDI          = 0xA000F,  //!< Retort lock digital input
+        FCTMOD_RETORT_LOCKDI          = 0x9000F,  //!< Retort lock digital input
         FCTMOD_PER_REMOTEALARMCTRLDO  = 0x8000F,  //!< Miscellaneous remote alarm set digital output
         FCTMOD_PER_LOCALALARMCTRLDO   = 0x9000F,  //!< Miscellaneous local alarm set digital output
         //FCTMOD_PER_REMOTEALARMSETDO   = 0x900F,  //!< Miscellaneous remote alarm set digital output
         //FCTMOD_PER_REMOTEALARMCLEARDO = 0xA00F,  //!< Miscellaneous remote alarm clear digital output
-        FCTMOD_PER_MAINRELAYDO        = 0x7000F,   //!< Miscellaneous heater relay digital output
-        FCTMOD_PER_REMOTEALARMDI      = 0xC000F,   //!< Miscellaneous remote alarm status digital input
-        FCTMOD_PER_LOCALALARMDI       = 0xB000F    //!< Miscellaneous local alarm status digital input
-    } CANObjectIdentifier_t;
-};
+        FCTMOD_PER_MAINRELAYDO        = 0x6000F,   //!< Miscellaneous heater relay digital output
+        FCTMOD_PER_LOCALALARMDI       = 0xB000F,    //!< Miscellaneous local alarm status digital input
+        FCTMOD_PER_REMOTEALARMDI      = 0xC000F     //!< Miscellaneous remote alarm status digital input
 
+    } CANObjectIdentifier_t;
+
+};
+    //Temperature module related errors
+    const quint8 TEMP_PID_NOT_CONFIGURED = 0;	//!< The parameter of the PID controller are not set
+    const quint8 TEMP_MODULE_ACTIVE = 1; 		//!< The module is heating, operation not permitted 
+    const quint8 TEMP_MODULE_INACTIVE = 2; 		//!< The module is stopped or in standby 
+    const quint8 TEMP_FAN_OUT_OF_RANGE = 3; 	//!< Speed of a fan is out of range
+    const quint8 TEMP_CURRENT_OUT_OF_RANGE = 4; //!< The current through the heating elements is too high or too low
+    const quint8 TEMP_SENSOR_OUT_OF_RANGE = 5; 	//!< Temperature is too high
+    const quint8 TEMP_SENSOR_INCONSISTENT = 6; 	//!< Temperature sensors are measuring different values
+    const quint8 TEMP_SENSOR_NOT_SUPPORTED= 7; 	//!< Unsupported type of temperature sensor
 }
 
 Q_DECLARE_METATYPE(DeviceControl::RTTempCtrlType_t)

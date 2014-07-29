@@ -1129,7 +1129,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure)
                 if(TimeNow > (TimeStartPressure + DRAINGING_PRESSURE_BUILD_TIME))
                 {
                     LogDebug(QString("ERROR: Pressure can't be built up in 2 minutes."));
-                    RetValue = DCL_ERR_DEV_LA_DRAINING_TIMEOUT_BUILDPRESSURE;
+                    RetValue = DCL_ERR_DEV_LA_DRAINING_TIMEOUT_BULIDPRESSURE;
                     goto SORTIE;
                 }
             }

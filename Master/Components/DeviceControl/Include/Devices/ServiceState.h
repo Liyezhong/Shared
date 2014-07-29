@@ -25,7 +25,7 @@
 #define DEVICECONTROL_SERVICESTATE_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlReturnCode.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 #include "DataManager/Containers/InstrumentHistory/Include/Module.h"
 
 

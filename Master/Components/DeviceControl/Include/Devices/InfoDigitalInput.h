@@ -26,7 +26,7 @@
 #define DEVICECONTROL_INFODIGITALINPUT_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlReturnCode.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 
 
 namespace DataManager {

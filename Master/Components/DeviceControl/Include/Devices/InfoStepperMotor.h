@@ -25,7 +25,7 @@
 #define DEVICECONTROL_INFOSTEPPERMOTOR_H
 
 #include "DeviceState.h"
-#include "DeviceControl/Include/Global/DeviceControlReturnCode.h"
+#include "DeviceControl/Include/Global/DeviceControlGlobal.h"
 
 #ifdef Q_UNIT_TEST
 #include "Simulator.h"

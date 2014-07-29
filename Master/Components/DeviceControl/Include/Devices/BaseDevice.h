@@ -215,6 +215,18 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief  Get the report error based on instance Id
+     *
+     *  \param  errorCode, error code of temperature module
+     *  \param  instanceID, instance id of slave module
+     *
+     *  \return ReportError_t
+     */
+    /****************************************************************************/
+    ReportError_t GetSlaveModuleError(quint8 errorCode, quint32 instanceID);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function GetNewCANStepperMotorTask
      *
      *  \param MotorTaskID = CANStepperMotorTask::CANStepperMotorTaskID_t type parameter
@@ -421,10 +433,6 @@ protected:
     quint16 m_BaseModuleVoltage;            ///< The base module's actual voltage
     quint16 m_BaseModuleCurrent;            ///< The base module's actual current
     qint64 m_LastSensorCheckTime;           ///< The last check sensor's time(in sec since Epoch)
-    CServiceState *mp_Service;      //!< Service functionality of the base device
-    QMap<QString, CModule *> m_ModuleMap;   //!< Maps keys to Slave module pointers
-    QStateMachine m_machine;        //!< State machine
-    ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
 
     CServiceState *mp_Service;      //!< Service functionality of the base device
     QMap<QString, CModule *> m_ModuleMap;   //!< Maps keys to Slave module pointers
