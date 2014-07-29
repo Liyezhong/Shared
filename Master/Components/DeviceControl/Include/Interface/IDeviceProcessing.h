@@ -820,22 +820,9 @@ private:
     COvenDevice *m_pOven;                           //!< Oven device
     CPeripheryDevice *m_pPeriphery;                 //!< Periphery device
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    QMutex m_IMutex;                                //!< Handles thread safety of IDeviceProcessing
-    QMutex m_Mutex;                                 //!< Handles thread safety of DeviceProcessing
-||||||| merged common ancestors
+
     QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
     QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
-=======
-<<<<<<< HEAD
-||||||| merged common ancestors
-<<<<<<< HEAD
-=======
->>>>>>> code merge between develop and errorhandling
-    QMutex m_IMutex;    //!< Handles thread safety of IDeviceProcessing
-    QMutex m_Mutex;     //!< Handles thread safety of DeviceProcessing
->>>>>>> Scheduler Refact - pretest
     QStateMachine m_machine;        //!< State machine
     QTimer m_TimerSaveServiceInfor;
     QList<quint32> m_deviceList;

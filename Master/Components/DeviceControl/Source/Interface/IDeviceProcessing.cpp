@@ -2069,6 +2069,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         qreal pressure = m_pAirLiquid->GetRecentPressure();
 
         LOG()<<"Bottle Check pressure: " << pressure;
+
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
@@ -2136,7 +2137,6 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
             return retCode;
         }
             if (std::abs(targetPressure - m_pAirLiquid->GetRecentPressure()) < 5.0)
-
         (void)usleep(10000*1000);
         qreal pressure = m_pAirLiquid->GetRecentPressure();
         while (QTime::currentTime() < delayTime)
@@ -2235,6 +2235,7 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
 {
     return mp_DevProc->GetBaseModule(Type);
 }
+
             //FILE_LOG_L(laFCT, llERROR) <<"Retort bottom current is: "<<m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
             //FILE_LOG_L(laFCT, llERROR) <<"Retort side current is: "<<m_pRetort->GetHardwareStatus(RT_SIDE).Current;
             //FILE_LOG_L(laFCT, llERROR) <<"Oven Bottom current is: "<<m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
@@ -2244,51 +2245,6 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
             //FILE_LOG_L(laFCT, llERROR) <<"LA LevelSensor current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
             //FILE_LOG_L(laFCT, llERROR) <<"LA Tube1 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
             //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
-
-
-ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName)
-{
-    ReportError_t reportError;
-    memset(&reportError, 0, sizeof(reportError));
-
-    if ("Retort" == devName)
-    {
-        if (RT_BOTTOM == sensorName)
-        {
-            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL);
-        }
-        else if (RT_SIDE == sensorName)
-        {
-            reportError = m_pRetort->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RETORT_SIDETEMPCTRL);
-        }
-    }
-    else if ("Oven" == devName)
-    {
-        if (OVEN_BOTTOM == sensorName)
-        {
-            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL);
-        }
-        else if (OVEN_TOP == sensorName)
-        {
-            reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL);
-        }
-    }
-    else if ("RV" == devName)
-    {
-        reportError = m_pOven->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
-    }
-    else if ("LA" == devName)
-    {
-        if (AL_LEVELSENSOR == sensorName)
-        {
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL);
-        }
-        else if (AL_TUBE1 == sensorName)
-        {
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL);
-        }
-        else if (AL_TUBE2 == sensorName)
-        {
             reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
         }
     }
