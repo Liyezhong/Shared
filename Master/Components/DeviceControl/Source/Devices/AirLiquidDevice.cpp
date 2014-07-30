@@ -239,7 +239,12 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
             {
                 quint32 valve1LifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Valve1_LifeCycle").toUInt();
                 quint32 valve2LifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Valve2_LifeCycle").toUInt();
+                quint32 activeCarbonFilterLifeTime = pPartLifeCycleRecord->m_ParamMap.value("ActiveCarbonFilter_LifeTime").toUInt();
+                quint32 exhaustFanLifeTime = pPartLifeCycleRecord->m_ParamMap.value("Exhaust_Fan_LifeTime").toUInt();
+
                 m_pPressureCtrl->SetValveLifeCycle(valve1LifeCycle, valve2LifeCycle);
+                m_pPressureCtrl->SetActiveCarbonFilterLifeTime(activeCarbonFilterLifeTime);
+                m_pPressureCtrl->SetExhaustFanLifeTime(exhaustFanLifeTime);
                 m_pPressureCtrl->SetPartLifeCycleRecord(pPartLifeCycleRecord);
             }
         }

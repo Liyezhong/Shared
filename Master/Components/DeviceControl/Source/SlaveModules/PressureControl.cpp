@@ -61,7 +61,9 @@ CPressureControl::CPressureControl(const CANMessageConfiguration *p_MessageConfi
     m_unCanIDHardwareReq(0), m_unCanIDHardware(0),m_unCanIDValveSet(0),
     m_unCanIDCalibration(0),m_unCanIDPWMParamSet(0),
     m_unCanIDNotiAutoTune(0), m_unCanIDNotiInRange(0), m_unCanIDNotiOutOfRange(0),
-    m_unCanIDFanSet(0), m_aktionTimespan(0)
+    m_unCanIDFanSet(0), m_aktionTimespan(0),
+    m_ActiveCarbonFilterLifeTime(0),
+    m_ExhaustFanLifeTime(0)
 {
     // main state
     m_mainState = FM_MAIN_STATE_BOOTUP;

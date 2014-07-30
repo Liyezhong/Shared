@@ -99,6 +99,27 @@ class CPressureControl : public CFunctionModule
      */
     /****************************************************************************/
     void SetValveLifeCycle(quint32 valve1Cycle, quint32 valve2Cycle);
+
+    void SetActiveCarbonFilterLifeTime(quint32 setVal)
+    {
+        m_ActiveCarbonFilterLifeTime = setVal;
+    }
+
+    void SetExhaustFanLifeTime(quint32 setVal)
+    {
+        m_ExhaustFanLifeTime = setVal;
+    }
+
+    quint32 GetActiveCarbonFilterLifeTime()
+    {
+        return m_ActiveCarbonFilterLifeTime;
+    }
+
+    quint32 GetExhaustFanLifeTime()
+    {
+        return m_ExhaustFanLifeTime;
+    }
+
 signals:
     /****************************************************************************/
     /*!
@@ -431,6 +452,8 @@ private:
     Global::MonotonicTime m_timeAction; ///< Action start time, for timeout detection
     qint16 m_aktionTimespan;            ///< Delay im ms, for timeout detection
     quint32 m_valveOperationTime[VALVE_NUM];       ///<  Definition/Declaration of variable m_valveOperationTime[VALVE_NUM]
+    quint32 m_ActiveCarbonFilterLifeTime;
+    quint32 m_ExhaustFanLifeTime;
 };
 
 } //namespace

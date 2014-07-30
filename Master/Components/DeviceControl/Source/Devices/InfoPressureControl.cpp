@@ -47,13 +47,12 @@ CInfoPressureControl::CInfoPressureControl(CPressureControl *p_PressureControl, 
                                      QState *p_Parent) :
     CState(p_SubModule->GetSubModuleName(), p_Parent),
     mp_PressureControl(p_PressureControl),
-    mp_SubModule(p_SubModule)
+    mp_SubModule(p_SubModule),
+    m_LastPumpOperationTime(0)
 {
     CState *p_Init = new CState("Init", this);
     CState *p_RequestPumpLifeTimeData = new CState("RequestPumpLifeTimeData", this);
-    //CState *p_RequestValveLifeCycleData = new CState("RequestValveLifeCycleData", this);
-    //CState *p_RequestFanLifeTimeData = new CState("RequestFanLifeTimeData", this);
-    //CState *p_RequestValve2LifeCycleData = new CState("RequestValve2LifeCycleData", this);
+
     QFinalState *p_Final = new QFinalState(this);
     setInitialState(p_Init);
 
@@ -67,15 +66,12 @@ CInfoPressureControl::CInfoPressureControl(CPressureControl *p_PressureControl, 
         *this, &CInfoPressureControl::Finished,
         p_Final));
 
-    /*p_RequestValveLifeCycleData->addTransition(new CInfoPressureControlTransition(
-        mp_PressureControl, SIGNAL(ReportRefValveState(quint32, ReturnCode_t, quint8, quint8)),
-        *this, &CInfoPressureControl::RequestFanLifeTimeData,
-        p_RequestFanLifeTimeData));
-    */
     mp_SubModule->AddParameterInfo("SoftwareVersion", QString());
-    mp_SubModule->AddParameterInfo("PumpOperationTime", "Hours", QString());
+    mp_SubModule->AddParameterInfo("PumpOperationTime", "seconds", QString());
     mp_SubModule->AddParameterInfo("Valve1OperationCycle", QString());
     mp_SubModule->AddParameterInfo("Valve2OperationCycle", QString());
+    mp_SubModule->AddParameterInfo("ActiveCarbonFilterLifeTime", QString());
+    mp_SubModule->AddParameterInfo("ExhaustFanLifeTime", QString());
 }
 
 /****************************************************************************/
@@ -112,7 +108,7 @@ bool CInfoPressureControl::RequestPumpLifeTimeData(QEvent *p_Event)
 bool CInfoPressureControl::Finished(QEvent *p_Event)
 {
     ReturnCode_t ReturnCode;
-    quint32 OperationTime;
+    quint32 pumpOperationTime;
 
     QString Version = QString().setNum(mp_PressureControl->GetBaseModule()->GetModuleSWVersion(mp_PressureControl->GetType()));
 
@@ -121,7 +117,7 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         emit ReportError(ReturnCode);
         return false;
     }
-    if (!CInfoPressureControlTransition::GetEventValue(p_Event, 3, OperationTime)) {
+    if (!CInfoPressureControlTransition::GetEventValue(p_Event, 3, pumpOperationTime)) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
@@ -130,7 +126,7 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
-    if (!mp_SubModule->UpdateParameterInfo("PumpOperationTime", QString().setNum(OperationTime))) {
+    if (!mp_SubModule->UpdateParameterInfo("PumpOperationTime", QString().setNum(pumpOperationTime))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
@@ -143,6 +139,24 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         return false;
     }
 
+    quint32 diffPump = pumpOperationTime - m_LastPumpOperationTime;
+    quint32 newVal = mp_PressureControl->GetActiveCarbonFilterLifeTime() + diffPump;
+    mp_PressureControl->SetActiveCarbonFilterLifeTime(newVal);
+
+    newVal = mp_PressureControl->GetExhaustFanLifeTime() + diffPump;
+    mp_PressureControl->SetExhaustFanLifeTime(newVal);
+
+    if (!mp_SubModule->UpdateParameterInfo("ActiveCarbonFilterLifeTime", QString().setNum(mp_PressureControl->GetActiveCarbonFilterLifeTime()))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("ExhaustFanLifeTime", QString().setNum(mp_PressureControl->GetExhaustFanLifeTime()))) {
+        emit ReportError(DCL_ERR_INVALID_PARAM);
+        return false;
+    }
+
+    //also update the DeviceLifeCycleRecord.xml
     PartLifeCycleRecord* pPartLifeCycleRecord = mp_PressureControl->GetPartLifeCycleRecord();
     if (!pPartLifeCycleRecord)
         return true;
@@ -156,6 +170,16 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     QMap<QString, QString>::const_iterator iter2 = pPartLifeCycleRecord->m_ParamMap.find("Valve2_LifeCycle");
     if (iter2 != pPartLifeCycleRecord->m_ParamMap.end())
         pPartLifeCycleRecord->m_ParamMap["Valve2_LifeCycle"] = strLifeCycleNew2;
+
+    QString strLifeTimeCarbonFilter = QString().setNum(mp_PressureControl->GetActiveCarbonFilterLifeTime());
+    QMap<QString, QString>::const_iterator iterFilter = pPartLifeCycleRecord->m_ParamMap.find("ActiveCarbonFilter_LifeTime");
+    if (iterFilter != pPartLifeCycleRecord->m_ParamMap.end())
+        pPartLifeCycleRecord->m_ParamMap["ActiveCarbonFilter_LifeTime"] = strLifeTimeCarbonFilter;
+
+    QString strLifeTimeExhaustFan = QString().setNum(mp_PressureControl->GetExhaustFanLifeTime());
+    QMap<QString, QString>::const_iterator iterExhaustFan = pPartLifeCycleRecord->m_ParamMap.find("Exhaust_Fan_LifeTime");
+    if (iterExhaustFan != pPartLifeCycleRecord->m_ParamMap.end())
+        pPartLifeCycleRecord->m_ParamMap["Exhaust_Fan_LifeTime"] = strLifeTimeExhaustFan;
 
     return true;
 }
