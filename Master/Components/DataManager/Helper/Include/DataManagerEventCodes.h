@@ -111,23 +111,6 @@ const quint32 EVENT_DM_INVALID_CAMERA_SLIDEID_DATA                   = EVENT_GRO
 const quint32 EVENT_DM_INVALID_STAINER_DEV_NAME_WIDTH                = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0007; ///< Stainer Device name character count is Invalid.
 const quint32 EVENT_DM_ERROR_INVALID_SETTINGS_XML_DATA_FOUND         = EVENT_GROUP_PLATFORM_DM_DEVICECONFIG + 0x0008; ///< Invalid Settings XML data found
 
-const quint32 EVENT_DM_RACK_ID_NOT_UNIQUE                           = EVENT_GROUP_PLATFORM_DM_RACK + 0x0001; ///< Rack with rfid %1 already exists in the list.
-const quint32 EVENT_DM_RACK_ID_NOT_FOUND                            = EVENT_GROUP_PLATFORM_DM_RACK + 0x0002; ///< Rack with rfid %1 not found in the list.
-const quint32 EVENT_DM_RACK_INVALID_INDEX                           = EVENT_GROUP_PLATFORM_DM_RACK + 0x0003; ///< Deleting rack failed, invalid rack index.
-const quint32 EVENT_DM_RACK_DELETE_FAILED_ID_NOT_FOUND              = EVENT_GROUP_PLATFORM_DM_RACK + 0x0004; ///< Deleting rack failed, Rack with rfid %1 not found in the list.
-const quint32 EVENT_DM_RACK_COUNT_EXCEEDS_LIMIT                     = EVENT_GROUP_PLATFORM_DM_RACK + 0x0005; ///< Rack list count %1 exceeds the limit, maximum 100 racks allowed.
-const quint32 EVENT_DM_RACK_ID_BIG                                  = EVENT_GROUP_PLATFORM_DM_RACK + 0x0006; ///< Rack RF ID %1 is too big, maximum 9999999999 allowed.
-const quint32 EVENT_DM_RACK_PROGID_EMPTY                            = EVENT_GROUP_PLATFORM_DM_RACK + 0x0007; ///< Rack %1 program id is empty.
-const quint32 EVENT_DM_RACK_PROGID_INVALID                          = EVENT_GROUP_PLATFORM_DM_RACK + 0x0008; ///< Rack %1 program id %2 invalid. Program id should start with U or L and should be integer.
-const quint32 EVENT_DM_RACK_PARAMSET_NOT_WITHIN_RANGE               = EVENT_GROUP_PLATFORM_DM_RACK + 0x0009; ///< Rack %1 ParameterSet %2 ot with the range of 1 to 8.
-const quint32 EVENT_DM_RACK_PROGSTEP_LENGHT_EXCEEDS_LIMIT           = EVENT_GROUP_PLATFORM_DM_RACK + 0x000A; ///< Rack %1 Step index %2 is too bi, max id is 99999.
-const quint32 EVENT_DM_RACK_STATIONID_LENGHT_EXCEEDS_LIMIT          = EVENT_GROUP_PLATFORM_DM_RACK + 0x000B; ///< Rack %1 Station ID %2 is too big, max 10 characters are allowed.
-const quint32 EVENT_DM_RACK_COLOR_INVALID                           = EVENT_GROUP_PLATFORM_DM_RACK + 0x000C; ///< Rack %1 color %2 in ivalid. Only white, yellow, lightblue, darkblue, pink, red, green, black, grey are allowed.
-const quint32 EVENT_DM_RACK_STARTTIME_INVALID                       = EVENT_GROUP_PLATFORM_DM_RACK + 0x000D; ///< Rack %1 start time %2 is ivalid. Time should not be zero and should be in 'M'M'd'd'y'yyyyhh:mm:ss format.
-const quint32 EVENT_DM_RACK_COLORADO_ENDTIME_INVALID                = EVENT_GROUP_PLATFORM_DM_RACK + 0x000E; ///< Rack %1 colorado end time %2 is ivalid. Time should not be zero and should be in 'M'M'd'd'y'yyyyhh:mm:ss format.
-const quint32 EVENT_DM_RACK_SEPIA_ENDTIME_INVALID                   = EVENT_GROUP_PLATFORM_DM_RACK + 0x000F; ///< Rack %1 sepia end time %2 is ivalid. Time should not be zero and should be in 'M'M'd'd'y'yyyyhh:mm:ss format.
-const quint32 EVENT_DM_RACK_INVALID_SIZE                            = EVENT_GROUP_PLATFORM_DM_RACK + 0x0010; ///< Invalid Rack Size: %1
-
 const quint32 EVENT_SWVERSION_RELEASE_DATE_VERION_EMPTY             = EVENT_GROUP_PLATFORM_DM_SWVERSION + 0x0001; ///< The release date/version is empty in SW_Version.xml.
 const quint32 EVENT_SWVERSION_SW_DATE_VERION_EMPTY                  = EVENT_GROUP_PLATFORM_DM_SWVERSION + 0x0002; ///< The release date/version of component %1 is empty in SW_Version.xml.
 const quint32 EVENT_SWVERSION_SW_NAME_EMPTY                         = EVENT_GROUP_PLATFORM_DM_SWVERSION + 0x0003; ///< The SW component name is empty in SW_Version.xml.
