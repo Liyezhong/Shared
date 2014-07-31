@@ -2012,7 +2012,7 @@ ReturnCode_t IDeviceProcessing::PerControlAlarm(bool On, bool Remote)
 /****************************************************************************/
 ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t TubePos)
 {
-    ReturnCode_t retCode = DCL_ERR_FCT_CALL_FAILED;
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
         return DCL_ERR_FCT_CALL_FAILED;
