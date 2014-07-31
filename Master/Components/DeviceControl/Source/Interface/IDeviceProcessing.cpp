@@ -2062,6 +2062,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         LOG()<<"Bottle Check pressure: " << pressure;
 
+#ifdef 0
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
@@ -2084,6 +2085,8 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             LOG()<<"Bottle Check: Blockage";
         }
 #endif
+#endif
+
         (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         return retCode;
     }
