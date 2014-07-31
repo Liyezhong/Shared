@@ -2062,7 +2062,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         LOG()<<"Bottle Check pressure: " << pressure;
 
-#ifdef 0
+#if 0
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
