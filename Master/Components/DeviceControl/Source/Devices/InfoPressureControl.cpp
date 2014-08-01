@@ -70,8 +70,8 @@ CInfoPressureControl::CInfoPressureControl(CPressureControl *p_PressureControl, 
     mp_SubModule->AddParameterInfo("PumpOperationTime", "seconds", QString());
     mp_SubModule->AddParameterInfo("Valve1OperationCycle", QString());
     mp_SubModule->AddParameterInfo("Valve2OperationCycle", QString());
-    mp_SubModule->AddParameterInfo("ActiveCarbonFilterLifeTime", QString());
-    mp_SubModule->AddParameterInfo("ExhaustFanLifeTime", QString());
+    mp_SubModule->AddParameterInfo("ActiveCarbonFilterLifeTime", "seconds", QString());
+    mp_SubModule->AddParameterInfo("ExhaustFanLifeTime", "seconds", QString());
 }
 
 /****************************************************************************/
