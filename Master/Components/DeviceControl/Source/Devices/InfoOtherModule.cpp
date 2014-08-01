@@ -57,7 +57,7 @@ CInfoOtherModule::CInfoOtherModule(COtherModule *p_OtherModule, DataManager::CSu
         *this, &CInfoOtherModule::Finished,
         p_Final));
 
-    mp_SubModule->AddParameterInfo("LifeTime", "Seconds", QString());
+    mp_SubModule->AddParameterInfo("LifeTime", "seconds", QString());
     m_LastSaveTime = QDateTime::currentDateTime();
 }
 
