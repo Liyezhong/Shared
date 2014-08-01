@@ -57,7 +57,7 @@ CInfoOtherModule::CInfoOtherModule(COtherModule *p_OtherModule, DataManager::CSu
         *this, &CInfoOtherModule::Finished,
         p_Final));
 
-    mp_SubModule->AddParameterInfo("LifeTime", "seconds", QString());
+    mp_SubModule->AddParameterInfo("OperationTime", "seconds", QString());
     m_LastSaveTime = QDateTime::currentDateTime();
 }
 
@@ -81,7 +81,7 @@ bool CInfoOtherModule::Finished(QEvent *p_Event)
     quint32 elpaseSec = m_LastSaveTime.secsTo(QDateTime::currentDateTime());
     quint32 lifeTimeNew = elpaseSec + lifeTimeOld;
     QString strLifeTimeNew = QString().setNum(lifeTimeNew);
-    if (!mp_SubModule->UpdateParameterInfo("LifeTime", strLifeTimeNew)) {
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", strLifeTimeNew)) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }

@@ -63,8 +63,8 @@ CInfoTemperatureControl::CInfoTemperatureControl(CTemperatureControl *p_Temperat
         p_Final));
 
     mp_SubModule->AddParameterInfo("SoftwareVersion", QString());
-    mp_SubModule->AddParameterInfo("OperatingTime", "seconds", QString());
-    mp_SubModule->AddParameterInfo("OperatingTimeCycle", QString());
+    mp_SubModule->AddParameterInfo("OperationTime", "seconds", QString());
+    mp_SubModule->AddParameterInfo("OperationCycles", QString());
 }
 
 /****************************************************************************/
@@ -118,13 +118,13 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
-    if (!mp_SubModule->UpdateParameterInfo("OperatingTime", QString().setNum(OperatingTime))) {
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperatingTime))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
 
     quint32 lifeCycle = mp_TemperatureControl->GetLifeCycle();
-    if (!mp_SubModule->UpdateParameterInfo("OperatingTimeCycle", QString().setNum(lifeCycle))) {
+    if (!mp_SubModule->UpdateParameterInfo("OperationCycles", QString().setNum(lifeCycle))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }

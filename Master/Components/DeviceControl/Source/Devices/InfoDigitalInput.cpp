@@ -59,7 +59,7 @@ CInfoDigitalInput::CInfoDigitalInput(CDigitalInput *p_DigitalInput, DataManager:
         p_Final));
 
     mp_SubModule->AddParameterInfo("SoftwareVersion", QString());
-    mp_SubModule->AddParameterInfo("LifeCycle", QString());
+    mp_SubModule->AddParameterInfo("OperationTime", QString());
 }
 
 /****************************************************************************/
@@ -80,7 +80,7 @@ bool CInfoDigitalInput::Finished(QEvent *p_Event)
         return false;
     }
 
-    if (!mp_SubModule->UpdateParameterInfo("LifeCycle", QString().setNum(mp_DigitalInput->GetLifeCycle()))) {
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(mp_DigitalInput->GetLifeCycle()))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
