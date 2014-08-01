@@ -81,7 +81,7 @@ CInfoStepperMotor::CInfoStepperMotor(CStepperMotor *p_StepperMotor, DataManager:
     mp_SubModule->AddParameterInfo("SoftwareVersion", QString());
     //mp_SubModule->AddParameterInfo("RevolutionCounter", QString());
     //mp_SubModule->AddParameterInfo("DirectionChangeCounter", QString());
-    mp_SubModule->AddParameterInfo("OperationTime", "hours", QString());
+    mp_SubModule->AddParameterInfo("OperationTime", "minutes", QString());
     //mp_SubModule->AddParameterInfo("Distance", "mm", QString());
 }
 
