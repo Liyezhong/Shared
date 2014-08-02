@@ -93,9 +93,6 @@ CNetworkSettingsWidget::CNetworkSettingsWidget(QWidget *p_Parent)
     mp_Ui->tableWidget->setMinimumSize(mp_TableWidget->width(), mp_TableWidget->height());
     mp_Ui->tableWidget->SetContent(mp_TableWidget);
 
-    mp_Ui->proxyIpAddressButton->setEnabled(false);
-    mp_Ui->saveButton->setEnabled(false);
-
     mp_Ui->firmwareCheckBoxLabel->setPixmap(QPixmap(QString::fromUtf8(":/Large/CheckBoxLarge/CheckBox-enabled-large.png")));
 
     CONNECTSIGNALSLOTGUI(mp_Ui->proxyIpAddressButton, clicked(), this, OnProxyIPAddress());
