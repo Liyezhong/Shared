@@ -469,35 +469,41 @@ void CNetworkSettingsWidget::SetNetworkSettingsResult(PlatformService::NetworkSe
     switch (NtService) {
     case PlatformService::HOST_REACHABLE:
         if (Result) {
-            if (!PixMapPass.isNull())
+            if (!PixMapPass.isNull()) {
                 SetPixMap = (PixMapPass.scaled(45,45,Qt::KeepAspectRatio));
+            }
             (void) m_Model.setData(m_Model.index(0, 1), SetPixMap, (int) Qt::DecorationRole);
 
         } else {
-            if (!PixMapFail.isNull())
+            if (!PixMapFail.isNull()) {
                 SetPixMap = (PixMapFail.scaled(45,45,Qt::KeepAspectRatio));
+            }
             (void) m_Model.setData(m_Model.index(0, 1), SetPixMap, (int) Qt::DecorationRole);
         }
         break;
     case PlatformService::SERVICE_AVAILABLE:
         if (Result) {
-            if (!PixMapPass.isNull())
+            if (!PixMapPass.isNull()) {
                 SetPixMap = (PixMapPass.scaled(45,45,Qt::KeepAspectRatio));
+            }
             (void) m_Model.setData(m_Model.index(1, 1), SetPixMap, (int) Qt::DecorationRole);
         } else {
-            if (!PixMapFail.isNull())
+            if (!PixMapFail.isNull()) {
                 SetPixMap = (PixMapFail.scaled(45,45,Qt::KeepAspectRatio));
+            }
             (void) m_Model.setData(m_Model.index(1, 1), SetPixMap, (int) Qt::DecorationRole);
         }
         break;
     case PlatformService::ACCESS_RIGHTS:
         if (Result) {
-            if (!PixMapPass.isNull())
+            if (!PixMapPass.isNull()) {
                 SetPixMap = (PixMapPass.scaled(45,45,Qt::KeepAspectRatio));
+            }
             (void) m_Model.setData(m_Model.index(2, 1), SetPixMap, (int) Qt::DecorationRole);
         } else {
-            if (!PixMapFail.isNull())
+            if (!PixMapFail.isNull()) {
                 SetPixMap = (PixMapFail.scaled(45,45,Qt::KeepAspectRatio));
+            }
             (void) m_Model.setData(m_Model.index(2, 1), SetPixMap, (int) Qt::DecorationRole);
         }
         break;
@@ -522,7 +528,9 @@ void CNetworkSettingsWidget::reset()
 {
     QPixmap SetPixmap;
     QPixmap PixMap(QString(":/Large/CheckBoxLarge/CheckBox-enabled-large.png"));
-    SetPixmap = (PixMap.scaled(45,45,Qt::KeepAspectRatio));
+    if (!PixMap.isNull()) {
+        SetPixmap = (PixMap.scaled(45,45,Qt::KeepAspectRatio));
+    }
     (void) m_Model.setData(m_Model.index(0, 1), SetPixmap, (int) Qt::DecorationRole);
     (void) m_Model.setData(m_Model.index(1, 1), SetPixmap, (int) Qt::DecorationRole);
     (void) m_Model.setData(m_Model.index(2, 1), SetPixmap, (int) Qt::DecorationRole);

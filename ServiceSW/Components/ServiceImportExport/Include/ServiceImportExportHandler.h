@@ -24,15 +24,12 @@
 #include <iostream>
 
 #include "Threads/Include/ThreadController.h"
-//#include "ServiceMasterThreadController/Include/ServiceMasterThreadController.h"
 #include "DataManager/Containers/ExportConfiguration/Include/ExportConfigurationVerifier.h"
 #include "DataManager/Containers/DeviceConfiguration/Include/DeviceConfigurationInterface.h"
-#include "DataManager/Containers/InstrumentHistory/Include/ModuleDataListVerifier.h"
+#include "DataManager/Containers/InstrumentHistory/Include/InstrumentHistoryVerifier.h"
 #include "Global/Include/SystemPaths.h"
 #include "EncryptionDecryption/WriteArchive/Include/WriteArchive.h"
 #include "EncryptionDecryption/ReadArchive/Include/ReadArchive.h"
-//#include "Core/Include/ServiceGUIConnector.h"
-//#include "ServiceDataManager/Include/ServiceDataManager.h"
 #include <QProcess>
 #include <QMutex>
 #include <QWaitCondition>
@@ -53,12 +50,11 @@ class CServiceImportExportHandler : public QObject {
 
     Q_OBJECT
 private:
-//    DataManager::CServiceDataManager *mp_ServiceDataManager;           ///< Service data manager object
     DataManager::CDeviceConfigurationInterface *mp_DeviceConfigInterface;   ///< Device Configuration Interface object
     DataManager::CExportConfiguration* mp_ExportConfiguration;  ///< Store export configuration
     quint32 m_NoOfLogFiles;                                     ///< Store the no of log files value for service export
-    QString m_CommandName;                                      ///< Store the command name i.e. either user export or service export
-    QString m_CommandValue;                                     ///< Store the command value
+    QString m_OperationName;                                    ///< Store the Operation name name i.e. either user export or service export
+    QString m_OperationType;                                    ///< Store the Operation Type
     QString m_SerialNumber;                                     ///< Store the serial number of the device
     QString m_DeviceName;                                       ///< Store the device name
     bool m_NewLanguageAdded;                                    ///< Store the flag for new language
@@ -72,6 +68,7 @@ private:
     QString m_EventLogFileName;                                 ///< Store the event log file name
     QString m_TargetFileName;                                   ///< Store the target file name
     bool m_TakeBackUp;                                          ///< Backup true or false
+    bool m_IsSelectionRequested;                                  ///< If multiple lpkg files exists, sets to true else false
 
     /****************************************************************************/
     /**
@@ -338,13 +335,6 @@ public:
     /****************************************************************************/
     void CreateAndInitializeObjects();
 
-//    /****************************************************************************/
-//    /**
-//     * \brief Cleanup and destroy the loggers.
-//     */
-//    /****************************************************************************/
-//    void CleanupAndDestroyObjects();
-
     /****************************************************************************/
     /**
      * \brief Creates the containers and update the containers.
@@ -356,19 +346,6 @@ public:
      */
     /****************************************************************************/
     bool CreateAndUpdateContainers(const QString TypeOfImport, const QString FilePath);
-
-
-//    /****************************************************************************/
-//    /**
-//     * \brief Sets the event log file name.
-//     *
-//     * \iparam       FileName    Event log file name
-//     *
-//     */
-//    /****************************************************************************/
-//    void SetEventLogFileName(QString FileName) {
-//        m_EventLogFileName = FileName;
-//    }
 
 signals:
     /****************************************************************************/
@@ -387,13 +364,12 @@ signals:
      *  about the language import
      *
      * \iparam       EventCode                   Event code
-     * \iparam       IsImport           True or false
+     * \iparam       TypeofOperation           True for Import,False for Export
+     * \iparam       IsAborted                 When ImportedFile is null,It is made true
      *
      */
     /****************************************************************************/
-    void ThreadFinished(quint32 EventCode, bool IsImport); /*const bool IsTaskDone, QStringList ImportTypeList, quint32 EventCode,
-                        bool UpdatedCurrentLanguage = false, bool NewLanguageAdded = false);*/
-
+    void ThreadFinished(quint32 EventCode, bool TypeofOperation, bool IsAborted);
 
     /****************************************************************************/
     /**

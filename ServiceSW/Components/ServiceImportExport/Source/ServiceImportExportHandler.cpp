@@ -33,13 +33,12 @@
 #include "Global/Include/Utils.h"
 #include <ExportController/Include/ExportController.h>
 #include <QMetaType>
+#include "Application/Include/LeicaStyle.h"
 
 namespace ImportExport {
 
 // constants for the different files
 const QString FILENAME_SERVICEHELPTEXT          = "ServiceHelpText.txt";                ///< const for the ServiceHelpText file name
-const QString FILENAME_QM                       = "ColoradoService_*.qm";               ///< const for the QM file name
-const QString FILENAME_EVENTSTRING              = "ColoradoEventStrings_*.xml";         ///< const for the event string file name
 const QString FILENAME_EXPORTCONFIG             = "ExportConfiguration.xml";            ///< const for the service export configuration file name
 const QString FILENAME_TEMPEXPORTCONFIG         = "TempExportConfiguration.xml";        ///< const for the temporary service export configuration file name
 const QString FILTER_EXTENSION_LOG              = "*.log";                              ///< const for the log file names
@@ -64,8 +63,6 @@ const QString FILETYPE_LPKG                 = "*.lpkg"; ///< constant for the lp
 
 // constants for the type of Import
 const QString TYPEOFIMPORT_SERVICE          = "Service"; ///< constant for the 'Service' of Import
-const QString TYPEOFIMPORT_USER             = "User"; ///< constant for the 'User' of Import
-const QString TYPEOFIMPORT_LANGUAGE         = "Language"; ///< constant for the 'Language' of Import
 
 // constant for strings
 const QString STRING_UNDEFINED              = "UNDEFINED"; ///< constant for the UNDEFINED string
@@ -77,14 +74,9 @@ const QString DELIMITER_STRING_UNDERSCORE   = "_"; ///< constant for the delimit
 
 // constants for commands
 const QString COMMAND_MKDIR                 = "mkdir "; ///< constant string for the command 'mkdir'
-const QString COMMAND_MOUNT                 = "mount "; ///< constant string for the command 'mount'
-const QString COMMAND_UNMOUNT               = "umount -l "; ///< constant string for the command 'umount'
-const QString COMMAND_LS                    = "ls "; ///< constant string for the command 'ls'
 const QString COMMAND_RM                    = "rm "; ///< constant string for the command 'rm'
-const QString COMMAND_RMDIR                 = "rmdir "; ///< constant string for the command 'rmdir'
 const QString COMMAND_ARGUMENT_C            = "-c"; ///< constant string for the command argument for shell '-c'
 const QString COMMAND_ARGUMENT_R            = "-rf"; ///< constant string for the command argument for recursive files '-r'
-const QString COMMAND_BLKID                 = "blkid | grep 'TYPE=\"vfat\"' | cut -d':' -f1"; ///< Command for the block ids
 
 // constants for wildcharacters
 const QString WILDCHAR_ASTRIK               = "*"; ///< constant for wild char
@@ -110,7 +102,9 @@ CServiceImportExportHandler::CServiceImportExportHandler() :
     m_TranslationsFolderUpdatedFiles(false),
     m_EventCode(0),
     m_EventLogFileName(""),
-    m_TargetFileName("") {
+    m_TargetFileName(""),
+    m_IsSelectionRequested(false)
+{
     m_TakeBackUp = true;
     m_NoOfLogFiles = 5;
 }
@@ -126,8 +120,8 @@ CServiceImportExportHandler::CServiceImportExportHandler() :
 CServiceImportExportHandler::CServiceImportExportHandler(DataManager::CDeviceConfigurationInterface *p_DeviceConfigInterface, QString SourceType, QString CommandValue) :
     mp_DeviceConfigInterface(p_DeviceConfigInterface),
     mp_ExportConfiguration(NULL),
-    m_CommandName(SourceType),
-    m_CommandValue(CommandValue),
+    m_OperationName(SourceType),
+    m_OperationType(CommandValue),
     m_SerialNumber(STRING_UNDEFINED),
     m_DeviceName(STRING_UNDEFINED),
     m_NewLanguageAdded(false),
@@ -164,8 +158,6 @@ void CServiceImportExportHandler::CreateAndInitializeObjects() {
 
     // get the device configuration so that we can use the device name
     // and serial number of the device for the Export component
-    //DataManager::CDeviceConfigurationInterface *p_DeviceInterface = NULL;
-    //p_DeviceInterface = mp_DataConnector->GetDeviceConfigurationInterface();
 
     if (mp_DeviceConfigInterface != NULL) {
         DataManager::CDeviceConfiguration *p_DeviceConfiguration = NULL;
@@ -191,8 +183,9 @@ void CServiceImportExportHandler::CleanupDestroyObjects() {
 void CServiceImportExportHandler::StartImportExportProcess() {
 
     CreateRequiredDirectories();
+    m_IsSelectionRequested = false;
 
-    if (!m_CommandName.contains(COMMAND_NAME_IMPORT)) {
+    if (!m_OperationName.contains(COMMAND_NAME_IMPORT)) {
         bool ErrorInExecution = true;
         if (MountDevice()) {
             // do pre-tasks before emitting the Export process signal
@@ -216,19 +209,19 @@ void CServiceImportExportHandler::StartImportExportProcess() {
                 m_EventCode = EVENT_SERVICE_EXPORT_FAILED;
             }
             // emit the thread finished flag - with error code
-            emit ThreadFinished(m_EventCode, false); //false, QStringList(), m_EventCode);
+            emit ThreadFinished(m_EventCode, false,false);
         }
     }
     else {
         bool IsImported = false;
-        bool IsSelectionRequested = false;
         // mount the USB device
 
         if (MountDevice(true)) {
             // to store the files in the directory
             QStringList DirFileNames;
-//            QDir Dir(qApp->applicationDirPath());
+            //            QDir Dir(qApp->applicationDirPath());
             QDir Dir(Global::DIRECTORY_MNT_STORAGE);
+
             // get the lpkg files from the directory
             DirFileNames = Dir.entryList(QStringList(m_DeviceName + FILETYPE_LPKG), QDir::Files, QDir::Name | QDir::Time);
 
@@ -245,7 +238,7 @@ void CServiceImportExportHandler::StartImportExportProcess() {
                 IsImported = true;
                 break;
             default:
-                IsSelectionRequested = true;
+                m_IsSelectionRequested = true;
                 // sort the files
                 qSort(DirFileNames.begin(), DirFileNames.end(), qGreater<QString>());
                 emit RequestFileSelectionToImport(DirFileNames);
@@ -253,17 +246,17 @@ void CServiceImportExportHandler::StartImportExportProcess() {
             }
 
         }
-        if (!IsSelectionRequested) {
+        if (!m_IsSelectionRequested) {
             // if the import is not successful then raise event
             if (!IsImported) {
                 // if the event is not raised then display an error due to any reason
                 if (!m_EventRaised) {
                     Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_FAILED, true);
                     m_EventCode = EVENT_SERVICE_IMPORT_FAILED;
-                }               
+                }
             }
             // emit the thread finished flag
-            emit ThreadFinished(m_EventCode, true); //IsImported, QStringList() << TypeOfImport, m_EventCode, m_CurrentLanguageUpdated, m_NewLanguageAdded);
+            emit ThreadFinished(m_EventCode, true,false);
         }
     }
 }
@@ -273,8 +266,8 @@ bool CServiceImportExportHandler::MountDevice(bool IsImport) {
     QString FileName("");
 
     if (IsImport) {
-        FileName = Global::DIRECTORY_MNT_STORAGE + QDir::separator() + m_DeviceName + "*.lpkg";
-//        FileName = qApp->applicationDirPath() + QDir::separator() + m_DeviceName + "*.lpkg";
+        FileName = m_DeviceName + DELIMITER_STRING_UNDERSCORE + FILETYPE_LPKG;
+        //        FileName = qApp->applicationDirPath() + QDir::separator() + m_DeviceName + "*.lpkg";
     }
 
     // check for the file existence in the mounted device.
@@ -283,7 +276,7 @@ bool CServiceImportExportHandler::MountDevice(bool IsImport) {
     switch (MountedValue) {
     default:
         m_EventRaised = true;
-        if (m_CommandName.contains(COMMAND_NAME_IMPORT)) {
+        if (m_OperationName.contains(COMMAND_NAME_IMPORT)) {
             // log the event code
             Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB);
             m_EventCode = EVENT_SERVICE_IMPORTEXPORT_IMPORT_NO_USB;
@@ -379,7 +372,7 @@ void CServiceImportExportHandler::CreateRequiredDirectories() {
 void CServiceImportExportHandler::CleanTempDirectory() {
     QString DirectoryName;
     // this temporary directory will be used everybody so dont use the command line arguments
-    if (!m_CommandName.contains(COMMAND_NAME_IMPORT)) {
+    if (!m_OperationName.contains(COMMAND_NAME_IMPORT)) {
         DirectoryName = DIRECTORY_EXPORT;
     }
     else {
@@ -408,7 +401,7 @@ bool CServiceImportExportHandler::DoPretasks() {
         CleanTempDirectory();
 
         // set the target directory path "/mnt/USB"
-//        mp_ExportConfiguration->SetTargetDir(qApp->applicationDirPath());
+        //        mp_ExportConfiguration->SetTargetDir(qApp->applicationDirPath());
         mp_ExportConfiguration->SetTargetDir(Global::DIRECTORY_MNT_STORAGE);
 
         // create the Export directory in "Temporary" folder
@@ -418,11 +411,7 @@ bool CServiceImportExportHandler::DoPretasks() {
             // form the trget file name format is devicename_typeofexport_serialnumber_datetimestamp
             QString TargetFileName = m_DeviceName + DELIMITER_STRING_UNDERSCORE;
 
-            if (m_CommandValue.compare(TYPEOFIMPORT_USER) == 0) {
-                mp_ExportConfiguration->SetUserConfigurationFlag(true);
-                TargetFileName += TYPEOFIMPORT_USER + DELIMITER_STRING_UNDERSCORE;
-            }
-            else if (m_CommandValue.compare(TYPEOFIMPORT_SERVICE) == 0) {
+            if (m_OperationType.compare(TYPEOFIMPORT_SERVICE) == 0) {
                 mp_ExportConfiguration->SetServiceConfigurationFlag(true);
                 // concatenate other informtion to the target file name
                 TargetFileName += TYPEOFIMPORT_SERVICE + DELIMITER_STRING_UNDERSCORE;
@@ -459,8 +448,14 @@ bool CServiceImportExportHandler::WriteTempExportConfigurationAndFiles() {
 
     DataManager::CConfigurationList ConfigurationList = mp_ExportConfiguration->GetServiceConfiguration().GetServiceConfigurationList();
     QStringList FileList = ConfigurationList.GetFileList();
-    if(FileList.contains("RMS_Status.csv")) {
-        (void) FileList.removeOne("RMS_Status.csv");
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        if (FileList.contains("CMS_Status.csv")) {
+            (void) FileList.removeOne("CMS_Status.csv");
+        }
+    } else {
+        if (FileList.contains("RMS_Status.csv")) {
+            (void) FileList.removeOne("RMS_Status.csv");
+        }
     }
     ConfigurationList.SetFileList(FileList);
 
@@ -506,8 +501,14 @@ bool CServiceImportExportHandler::CopyConfigurationFiles(const DataManager::CCon
 
     QStringList FileNames = Configuration.GetFileList();
 
-    if(FileNames.contains("RMS_Status.csv")) {
-        (void) FileNames.removeOne("RMS_Status.csv");
+    if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
+        if (FileNames.contains("CMS_Status.csv")) {
+            (void) FileNames.removeOne("CMS_Status.csv");
+        }
+    } else {
+        if (FileNames.contains("RMS_Status.csv")) {
+            (void) FileNames.removeOne("RMS_Status.csv");
+        }
     }
 
     Configuration.SetFileList(FileNames);
@@ -557,7 +558,7 @@ bool CServiceImportExportHandler::CopyConfigurationFiles(const DataManager::CCon
         else {
             UserLogDirectory = true;
             (void)LogDirectory.setPath(Global::SystemPaths::Instance().GetLogfilesPath() + QDir::separator() +
-                                       Configuration.GetGroupFileName()); //to avoid lint-534            
+                                       Configuration.GetGroupFileName()); //to avoid lint-534
         }
 
         if (LogDirectory.exists()) {
@@ -637,7 +638,12 @@ void CServiceImportExportHandler::StartImportingFiles(const QStringList FileList
 
     ImportTypeList.clear();
 
-    //    m_TakeBackUp = true;
+
+    if (FileList.count() == 0) {
+        //File list is Null so we are aborting the operation
+        emit ThreadFinished(m_EventCode, true,true);
+        return;
+    }
 
     for (qint32 Counter = 0; Counter < FileList.count(); Counter++) {
         if (!ImportArchiveFiles(TypeOfImport, FileList.value(Counter))) {
@@ -649,7 +655,7 @@ void CServiceImportExportHandler::StartImportingFiles(const QStringList FileList
 
     if (IsImport && ImportTypeList.count() > 0) {
         // if everything goes well then update the files and take a backup of the files
-        if (!ImportTypeList.contains(TYPEOFIMPORT_LANGUAGE)) {
+        if (ImportTypeList.contains(TYPEOFIMPORT_SERVICE)) {
             // before updating take a back-up of the configuration files
             QStringList FileNameList;
             FileNameList << FILENAME_SERVICEHELPTEXT;
@@ -670,54 +676,21 @@ void CServiceImportExportHandler::StartImportingFiles(const QStringList FileList
                 IsImport = false;
             }
         }
-        if (ImportTypeList.contains(TYPEOFIMPORT_LANGUAGE)) {
-            // before updating take a back-up of the configuration files
-            QStringList FileLanguageList;
-            // store the file names in the list "Colorado_*.qm" , "ColoradoEventStrings_*.xml"
-            FileLanguageList << FILENAME_QM /*<< FILENAME_EVENTSTRING*/;
-            // Update the rollback folder after the import is done
-            if (!UpdateFolderWithFiles(FileLanguageList, Global::SystemPaths::Instance().GetRollbackPath()
-                                       + QDir::separator() + DIRECTORY_TRANSLATIONS + QDir::separator(),
-                                       Global::SystemPaths::Instance().GetTranslationsPath()
-                                       + QDir::separator())) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED, true);
-                m_EventCode = EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED;
-                m_EventRaised = true;
-                IsImport = false;
-            }
-        }
     }
 
     if (!IsImport  && ImportTypeList.count() > 0) {
-        if (!ImportTypeList.contains(TYPEOFIMPORT_LANGUAGE) && m_SettingsFolderUpdatedFiles) {
+        if (ImportTypeList.contains(TYPEOFIMPORT_SERVICE) && m_SettingsFolderUpdatedFiles) {
             (void)UpdateSettingsWithRollbackFolder();
         }
-        if (ImportTypeList.contains(TYPEOFIMPORT_LANGUAGE) && m_TranslationsFolderUpdatedFiles) {
-            QStringList FileQMList;
-            // store the file names in the list "Colorado_*.qm" , "ColoradoEventStrings_*.xml"
-            FileQMList << FILENAME_QM << FILENAME_EVENTSTRING;
-            m_CurrentLanguageUpdated = false;
-            m_NewLanguageAdded = false;
-
-            // copy all the files from rollback folder
-            if (!UpdateFolderWithFiles(FileQMList, Global::SystemPaths::Instance().GetRollbackPath()
-                                       + QDir::separator() + DIRECTORY_TRANSLATIONS + QDir::separator(),
-                                       Global::SystemPaths::Instance().GetTranslationsPath()
-                                       + QDir::separator())) {
-                Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED, true);
-                m_EventCode = EVENT_SERVICE_IMPORT_UPDATE_ROLLBACK_FAILED;
-                m_EventRaised = true;
-                IsImport = false;
-            }
-        }
     }
-    Q_UNUSED(IsImport);
-    // emit the thread finished flag
-    emit ThreadFinished(m_EventCode, true); //IsImport, ImportTypeList, m_EventCode, m_CurrentLanguageUpdated, m_NewLanguageAdded);
 
+    if(m_IsSelectionRequested) {
+        emit ThreadFinished(m_EventCode, true,false);
+        m_IsSelectionRequested = false;
+    }
 }
 
-// Import
+
 /****************************************************************************/
 bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, QString FileName) {
     // remove the const cast
@@ -731,7 +704,7 @@ bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, 
     EncryptionDecryption::RAMFile RFile;
     // to store the file list
     QStringList FileList;
-//    QDir Dir(qApp->applicationDirPath());
+    //        QDir Dir(qApp->applicationDirPath());
     QDir Dir(Global::DIRECTORY_MNT_STORAGE);
 
     // check the file format - consider the first file
@@ -747,8 +720,8 @@ bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, 
                 try {
                     // read the archive file - add try catch
                     EncryptionDecryption::ReadArchive(qPrintable(Dir.absoluteFilePath(FileName)), &RFile,
-                                "Import", KeyBytes, FileList, Global::SystemPaths::Instance().GetTempPath()
-                                + QDir::separator() + DIRECTORY_IMPORT + QDir::separator());
+                                                      "Import", KeyBytes, FileList, Global::SystemPaths::Instance().GetTempPath()
+                                                      + QDir::separator() + DIRECTORY_IMPORT + QDir::separator());
                 }
                 catch (...) {
                     m_EventCode = EVENT_SERVICE_IMPORT_TAMPERED_ARCHIVE_FILE;
@@ -784,23 +757,16 @@ bool CServiceImportExportHandler::ImportArchiveFiles(const QString &ImportType, 
 
 // Import
 /****************************************************************************/
-bool CServiceImportExportHandler::AddFilesForImportType(const QString &TypeOfImport, const QStringList &ListOfFiles) {
-
+bool CServiceImportExportHandler::AddFilesForImportType(const QString &TypeOfImport, const QStringList &ListOfFiles)
+{
     QStringList& FileList = const_cast<QStringList&>(ListOfFiles);
     // check the type of Import
-    if (TypeOfImport.compare(TYPEOFIMPORT_SERVICE, Qt::CaseInsensitive) == 0 ||
-            TypeOfImport.compare(TYPEOFIMPORT_USER, Qt::CaseInsensitive) == 0) {
+    if (TypeOfImport.compare(TYPEOFIMPORT_SERVICE, Qt::CaseInsensitive) == 0) {
         // for the type of import "user" or "Service"
         FileList << FILENAME_SERVICEHELPTEXT;
-    }
-    else if (TypeOfImport.compare(TYPEOFIMPORT_LANGUAGE, Qt::CaseInsensitive) == 0) {
-        // for the type of import "Language"
-        FileList << FILENAME_QM;
-    }
-    else {
+    } else {
         m_EventCode = EVENT_SERVICE_IMPORT_TYPEOFIMPORTNOTVALID;
         return false;
-        //ErrorString = "Type of Import is not valid";
     }
     return true;
 }
@@ -812,17 +778,11 @@ bool CServiceImportExportHandler::WriteFilesAndImportData(const QString &TypeOfI
     bool RequiredFilesImported = false;
     EncryptionDecryption::RAMFile RFile = const_cast<EncryptionDecryption::RAMFile&>(RamFile);
     // check the type of Import
-    if (TypeOfImport.compare(TYPEOFIMPORT_LANGUAGE, Qt::CaseInsensitive) == 0) {
-        if (RFile.getFiles().count() >= 2) {
-            RequiredFilesImported = true;
-        }
+    // for other import check for the file count
+    if (RFile.getFiles().count() == FileList.count()) {
+        RequiredFilesImported = true;
     }
-    else {
-        // for other import check for the file count
-        if (RFile.getFiles().count() == FileList.count()) {
-            RequiredFilesImported = true;
-        }
-    }
+
     // check file count
     if (RequiredFilesImported) {
         // create the temporary directory
@@ -849,7 +809,7 @@ bool CServiceImportExportHandler::WriteFilesAndImportData(const QString &TypeOfI
             }
 
             if ((CreateAndUpdateContainers(TypeOfImport, QString(Global::SystemPaths::Instance().GetTempPath()
-                                                                  + QDir::separator() + DIRECTORY_IMPORT)))) {
+                                                                 + QDir::separator() + DIRECTORY_IMPORT)))) {
                 // if everything is success then return code is positive
                 return true;
             }
@@ -866,12 +826,11 @@ bool CServiceImportExportHandler::WriteFilesAndImportData(const QString &TypeOfI
 
 /****************************************************************************/
 bool CServiceImportExportHandler::CreateAndUpdateContainers(const QString TypeOfImport,
-                                                             const QString FilePath) {
+                                                            const QString FilePath) {
 
     Q_UNUSED(FilePath);
     // check the type of Import
-    if ((TypeOfImport.compare(TYPEOFIMPORT_SERVICE, Qt::CaseInsensitive) == 0) ||
-            (TypeOfImport.compare(TYPEOFIMPORT_USER, Qt::CaseInsensitive) == 0)) {
+    if ((TypeOfImport.compare(TYPEOFIMPORT_SERVICE, Qt::CaseInsensitive) == 0)) {
 
         // before updating take a back-up of the configuration files
         QStringList FileList;
@@ -909,9 +868,9 @@ bool CServiceImportExportHandler::CreateAndUpdateContainers(const QString TypeOf
 bool CServiceImportExportHandler::WriteFilesInSettingsFolder() {
 
     QString SourcePath = Global::SystemPaths::Instance().GetTempPath() + QDir::separator() + DIRECTORY_IMPORT
-                         + QDir::separator() + FILENAME_SERVICEHELPTEXT;
+            + QDir::separator() + FILENAME_SERVICEHELPTEXT;
     QString TargetPath = Global::SystemPaths::Instance().GetSettingsPath() + QDir::separator()
-                         + FILENAME_SERVICEHELPTEXT;
+            + FILENAME_SERVICEHELPTEXT;
 
     (void)QFile::remove(TargetPath); //to avoid lint-534
 
@@ -974,13 +933,11 @@ bool CServiceImportExportHandler::UpdateFolderWithFiles(QStringList FileList, QS
                 if (!QFile::copy(SourcePath + WildCharFileName,
                                  TargetPath + WildCharFileName)) {
                     /// this never happens - If it happens something wrong with file writing in the flash
-                    //ErrorString = "Something wrong with the USB flash";
                     return false;
                 }
             }
         }
         else {
-            qDebug() << TargetPath << SourcePath << endl;
             // remove the file then try to write it
             (void)QFile::remove(TargetPath + FileName); //to avoid lint-534
             // not able to take backup of the files
@@ -988,7 +945,6 @@ bool CServiceImportExportHandler::UpdateFolderWithFiles(QStringList FileList, QS
                              TargetPath + FileName)) {
                 qDebug() << "File cannot be copied to Settings folder";
                 /// this never happens - If it happens something wrong with file writing in the flash
-                //ErrorString = "Something wrong with the USB flash";
                 return false;
             }
         }
@@ -996,4 +952,4 @@ bool CServiceImportExportHandler::UpdateFolderWithFiles(QStringList FileList, QS
     return true;
 }
 
-}
+}   // end of namespace ImportExport

@@ -148,12 +148,13 @@ void CDataManagement::ImportFiles()
 /****************************************************************************/
 void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
 {
-    QString DialogTitle("");
-    QString MessageInfo("");
+    QString DialogTitle("Data Import/Export failed.");
+    QString MessageInfo("Data Import/Export failed.");
 
     (void) mp_WaitDialog->close();
     mp_MessageDlg = new MainMenu::CMessageDlg(this);
     mp_MessageDlg->setModal(true);
+    mp_MessageDlg->SetIcon(QMessageBox::Critical);
 
     switch(ExitCode) {
     case EVENT_SERVICE_EXPORT_FAILED:
@@ -249,7 +250,13 @@ void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
         break;
     case EVENT_SERVICE_EXPORT_SUCCESS:
         Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_SUCCESS);
-        DialogTitle = QString("Data Emport");
+        DialogTitle = QString("Data Export");
+        MessageInfo = QString("Data Export completed successfully.");
+        mp_MessageDlg->SetIcon(QMessageBox::Information);
+        break;
+    case Global::EVENT_EXPORT_SUCCESS:
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_EXPORT_SUCCESS);
+        DialogTitle = QString("Data Export");
         MessageInfo = QString("Data Export completed successfully.");
         mp_MessageDlg->SetIcon(QMessageBox::Information);
         break;
@@ -268,16 +275,6 @@ void CDataManagement::ImportExportFinished(int ExitCode, bool IsImport)
             } else {
                 DialogTitle = QString("Data Import");
                 MessageInfo = QString("Data Import completed successfully.");
-                mp_MessageDlg->SetIcon(QMessageBox::Information);
-            }
-        } else {
-            if (ExitCode != 0) {
-                DialogTitle = QString("Data Export");
-                MessageInfo = QString("Data Export Failed.");
-                mp_MessageDlg->SetIcon(QMessageBox::Critical);
-            } else {
-                DialogTitle = QString("Data Export");
-                MessageInfo = QString("Data Export completed successfully.");
                 mp_MessageDlg->SetIcon(QMessageBox::Information);
             }
         }
