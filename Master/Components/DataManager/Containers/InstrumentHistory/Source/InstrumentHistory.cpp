@@ -158,7 +158,7 @@ bool CInstrumentHistory::ReadFile(const QString FileName)
 /****************************************************************************/
 bool CInstrumentHistory::WriteArchiveFile(const QString FileName)
 {
-    QString InstrumentHistoryFile = Global::SystemPaths::Instance().GetSettingsPath() + "/InstrumentHistory.xml";
+    QString InstrumentHistoryFile = Global::SystemPaths::Instance().GetSettingsPath() + "/InstrumentHistoryRef.xml";
     QFile XMLFile(InstrumentHistoryFile);
     if (!QFile::exists(InstrumentHistoryFile)) {
         return false;
