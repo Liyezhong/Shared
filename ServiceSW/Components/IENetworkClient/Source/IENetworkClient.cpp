@@ -33,16 +33,18 @@ namespace NetworkClient {
  *  \iparam IPAddress = IPAddress
  */
 /****************************************************************************/
-IENetworkClient::IENetworkClient(QString IPAddress, QString ApplicationDirPath):
+IENetworkClient::IENetworkClient(QString IPAddress, QString UserName, QString ApplicationDirPath):
     m_IPAddress(IPAddress)
+  , m_UserName(UserName)
   , m_ApplicationDirPath(ApplicationDirPath)
-  , m_HostPingScriptName("Ping.sh")
-  , m_ServiceAvailableScriptName("sshServiceAvaiable.sh")
-  , m_AccessRightsScriptName("sshAccessRights.sh")
-  , m_CheckForNewFilesScriptName("sshCheckForNewFiles.sh")
-  , m_FileDownloadScriptName("sshDownloadFiles.sh")
+  , m_HostPingParameter("ping_SaM_server")
+  , m_AccessRightsParameter("test_file_copy_to_SaM_server")
+  , m_SendReportParameter("send_reports_to_SaM_server")
+  , m_CheckNewFileParameter("check_if_SaM_server_has_new_firmware")
+  , m_DownloadFileParameter("copy_firmware_files_from_SaM_server")
 {    
-
+    m_SshAddress = m_UserName + "@" + m_IPAddress;
+    m_ScriptName = m_ApplicationDirPath + "/EBox-Utils-Manufacturing-Support.sh";
 }
 
 /****************************************************************************/
@@ -56,18 +58,11 @@ bool IENetworkClient::SetIPAddress(QString IPAddress)
 bool IENetworkClient::PerformHostReachableTest()
 {
     QString Command("");
-    QString FilePath(m_ApplicationDirPath);
-    FilePath.append("/");
-    FilePath.append(m_HostPingScriptName);
-    if (QFile::exists(FilePath))
+    if (QFile::exists(m_ScriptName))
     {
-        Command.append("chmod 755 ");
-        Command.append(m_HostPingScriptName);
-        qDebug()<<"Executing command "<<Command;
-        (void) system(Command.toStdString().c_str());
-        Command.clear();
-        Command.append("./");
-        Command.append(m_HostPingScriptName);
+        Command.append(m_ScriptName);
+        Command.append(" ");
+        Command.append(m_HostPingParameter);
         Command.append(" ");
         Command.append(m_IPAddress);
         qDebug()<<"Executing command "<<Command;
@@ -80,26 +75,106 @@ bool IENetworkClient::PerformHostReachableTest()
 }
 
 /****************************************************************************/
-bool IENetworkClient::PerformServiceAvailableTest()
+bool IENetworkClient::PerformAccessRightsCheck(QString& ServicePath)
 {
+    QString Command;
+    if (QFile::exists(m_ScriptName))
+    {
+        Command.append(m_ScriptName);
+        Command.append(" ");
+        Command.append(m_AccessRightsParameter);
+        Command.append(" ");
+        Command.append(m_ScriptName);
+        Command.append(" ");
+        Command.append(m_SshAddress);
+        Command.append(" ");
+        Command.append(ServicePath);
+
+        qDebug()<<"Executing command "<<Command;
+        int ret = system(Command.toStdString().c_str());
+        if(0 == ret)
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 
 /****************************************************************************/
-bool IENetworkClient::PerformAccessRightsCheck()
+bool IENetworkClient::SendReprotFile(QString& ReportFile, QString& ReportPath)
 {
+    QString Command;
+    if (QFile::exists(m_ScriptName))
+    {
+        Command.append(m_ScriptName);
+        Command.append(" ");
+        Command.append(m_SendReportParameter);
+        Command.append(" ");
+        Command.append(ReportFile);
+        Command.append(" ");
+        Command.append(m_SshAddress);
+        Command.append(" ");
+        Command.append(ReportPath);
+
+        qDebug()<<"Executing command "<<Command;
+        int ret = system(Command.toStdString().c_str());
+        if(0 == ret)
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 
 /****************************************************************************/
-bool IENetworkClient::CheckForNewFiles()
+bool IENetworkClient::CheckForNewFiles(QString& FilePath)
 {
+    QString Command;
+    if (QFile::exists(m_ScriptName))
+    {
+        Command.append(m_ScriptName);
+        Command.append(" ");
+        Command.append(m_CheckNewFileParameter);
+        Command.append(" ");
+        Command.append(m_SshAddress);
+        Command.append(" ");
+        Command.append(FilePath);
+
+        qDebug()<<"Executing command "<<Command;
+        int ret = system(Command.toStdString().c_str());
+        if(0 == ret)
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 
 /****************************************************************************/
-bool IENetworkClient::DownloadFiles()
+bool IENetworkClient::DownloadFiles(QString& DestPath)
 {
+    QString Command;
+    if (QFile::exists(m_ScriptName))
+    {
+        Command.append(m_ScriptName);
+        Command.append(" ");
+        Command.append(m_DownloadFileParameter);
+        Command.append(" ");
+        Command.append(m_SshAddress);
+        Command.append(" ");
+        Command.append(DestPath);
+
+        qDebug()<<"Executing command "<<Command;
+        int ret = system(Command.toStdString().c_str());
+        if(0 == ret)
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 

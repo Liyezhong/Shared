@@ -342,15 +342,7 @@ void CNetworkSettingsWidget::KeyBoardValidateEnteredString(QString Value)
                 bool Result = false;
                 // convert the value to integer
                 qint32 AddressNumber = AddressNumberString.trimmed().toInt(&Result, 10);
-                if (AddressNumberString.trimmed().length() == 1) {
-                    m_IPAddress += "00" + AddressNumberString.trimmed();
-                }
-                else if (AddressNumberString.trimmed().length() == 2) {
-                    m_IPAddress += "0" + AddressNumberString.trimmed();
-                }
-                else {
-                    m_IPAddress += AddressNumberString.trimmed();
-                }
+                m_IPAddress += AddressNumberString.trimmed();
                 if (Result) {
                     // check the ip address number
                     if (AddressNumber >= MIN_IP_ADDRESS_NUMBER &&

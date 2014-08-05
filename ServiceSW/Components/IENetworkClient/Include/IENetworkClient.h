@@ -33,23 +33,25 @@ namespace NetworkClient {
 class IENetworkClient
 {
     QString m_IPAddress;
+    QString m_UserName;
+    QString m_SshAddress;
     QString m_ApplicationDirPath;
-    QString m_HostPingScriptName;
-    QString m_ServiceAvailableScriptName;
-    QString m_AccessRightsScriptName;
-    QString m_CheckForNewFilesScriptName;
-    QString m_FileDownloadScriptName;
-
+    QString m_ScriptName;
+    QString m_HostPingParameter;
+    QString m_AccessRightsParameter;
+    QString m_SendReportParameter;
+    QString m_CheckNewFileParameter;
+    QString m_DownloadFileParameter;
 public:
 
-    IENetworkClient(QString IPAddress, QString ApplicationDirPath);
+    IENetworkClient(QString IPAddress, QString UserName, QString ApplicationDirPath);
     bool SetIPAddress(QString IPAddress);
 
     bool PerformHostReachableTest();
-    bool PerformServiceAvailableTest();
-    bool PerformAccessRightsCheck();
-    bool CheckForNewFiles();
-    bool DownloadFiles();
+    bool PerformAccessRightsCheck(QString& ServicePath);
+    bool SendReprotFile(QString& ReportFile, QString& ReportPath);
+    bool CheckForNewFiles(QString& FilePath);
+    bool DownloadFiles(QString& DestPath);
 
 };
 
