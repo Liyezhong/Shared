@@ -123,7 +123,7 @@ private slots:
 public slots:
     void OnDownloadFirmware();
     void UpdateIpAddress(QString IpAddress);
-    void SetInformwationText(QString Text, QString Color);
+    void SetInformationText(QString Text, QString Color);
     void SetNetworkSettingsResult(PlatformService::NetworkSettings_t, bool);
     void reset();
 

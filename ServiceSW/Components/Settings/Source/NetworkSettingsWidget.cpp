@@ -436,7 +436,7 @@ void CNetworkSettingsWidget::OnDownloadFirmware()
  *  \iparam Color = color
  */
 /****************************************************************************/
-void CNetworkSettingsWidget::SetInformwationText(QString Text, QString Color)
+void CNetworkSettingsWidget::SetInformationText(QString Text, QString Color)
 {
     QString TextFormat = tr("<font color='%1'>%2</font>");
     mp_Ui->instructionLabel->setText(TextFormat.arg(Color, Text));
