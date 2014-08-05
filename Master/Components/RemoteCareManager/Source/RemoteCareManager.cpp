@@ -332,10 +332,10 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
             return;
         }
 
-        // send only the requested priority of events
-        if(TheEvent.GetLogLevel() != m_EventPriority) {
-            return;
-        }
+//        // send only the requested priority of events
+//        if(TheEvent.GetLogLevel() != m_EventPriority) {
+//            return;
+//        }
 
         NetCommands::RCEventReportDataStruct EventReportData;
 
@@ -377,6 +377,7 @@ void RemoteCareManager::SetSubscriptionHandler(const Global::tRefType &Ref, cons
     m_MasterThreadControllerRef.SendAcknowledgeOK(Ref, AckCommandChannel);
 
     m_SubscriptionStatus = Cmd.GetTagValue().toInt();
+    qDebug() << "\n\n\n" << __FUNCTION__ << ": m_SubscriptionStatus: " << m_SubscriptionStatus << "\n\n\n";
     UpdateContainerDataItem(Cmd);
 }
 
@@ -470,7 +471,9 @@ void RemoteCareManager::SetUpdateAvailable(const Global::tRefType &Ref, const Ne
 void RemoteCareManager::SetDownloadFinished(const Global::tRefType &Ref, const NetCommands::CmdRCSetTag &Cmd,
                                             Threads::CommandChannel &AckCommandChannel)
 {
+//    qDebug() << "\n\n\n" <<  __FUNCTION__ << "___Cmd.GetTagName:" << Cmd.GetTagName() << " Cmd.GetTagValue:" << Cmd.GetTagValue() << "\n\n\n";
     if("1" == Cmd.GetTagValue()) {
+//        emit SendRCCmdToGui(Global::CommandShPtr_t(new CmdRCSoftwareUpdate(15000, SWUpdate_DownloadSuccess)));
         emit UpdateSoftwareFromRC();
     }
     else if("0" == Cmd.GetTagValue()) {
@@ -616,6 +619,8 @@ void RemoteCareManager::OnCmdRCSetTag(const Global::tRefType Ref,
     Global::FmtArgs  Arguments;
     Arguments << Cmd.GetName() << Cmd.GetTagName() << Cmd.GetTagType() << Cmd.GetTagValue();
 
+//   qDebug() << "\n\n\n\n" << __FUNCTION__ << " , " << __LINE__ << "Cmd.GetTagName: " << Cmd.GetTagName();
+
     Global::EventObject::Instance().RaiseEvent(EVENT_RCMANAGER_RECEIVED_COMMAND, Arguments);
 
     //now check for the data item
@@ -656,6 +661,7 @@ void RemoteCareManager::OnCmdRCSetTag(const Global::tRefType Ref,
             return;
         }
     }
+
 
     if (m_FctTagNameHash.contains(Cmd.GetTagName()))
     {

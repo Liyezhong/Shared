@@ -93,7 +93,7 @@ void TestRemoteCareController::cleanupTestCase() {
 /****************************************************************************/
 void TestRemoteCareController::utTestRemoteCareController() {
 
-    RemoteCareController *Controller = new RemoteCareController(5);
+    RemoteCareController *Controller = new RemoteCareController(5, "Axeda Client", NetworkBase::NSE_TYPE_AXEDA);
 
     try {
 
