@@ -963,7 +963,7 @@ void MasterThreadController::Shutdown()
     Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_STRING_TERMINATING, Global::tTranslatableStringList() <<"");
     //write buffered data to disk-> refer man pages for sync
     (void)QProcess::startDetached("sync &");
-    (void)QProcess::startDetached("lcd off");
+    //(void)QProcess::startDetached("lcd off");
     //send shutdown signal to RemoteCarecontroller
     if (mp_RemoteCareManager) {
         /// arthur 2014/07/14
