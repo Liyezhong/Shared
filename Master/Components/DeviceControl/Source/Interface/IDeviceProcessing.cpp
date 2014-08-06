@@ -2250,6 +2250,53 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
     return reportError;
 }
 
+quint16 IDeviceProcessing::GetSensorCurrent(const QString& DevName, quint8 Index)
+{
+    quint16 current = 0;
+    if ("Retort" == DevName)
+    {
+        if (0 == Index)
+        {
+            current = m_pRetort->GetHardwareStatus(RT_SIDE).Current;
+        }
+        else if (1 == Index)
+        {
+            current = m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
+        }
+    }
+    else if ("Oven" == DevName)
+    {
+        if (0 == Index)
+        {
+            current = m_pOven->GetHeaterCurrent(OVEN_TOP);
+        }
+        else if (1 == Index)
+        {
+            current = m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
+        }
+    }
+    else if ("LA" == DevName)
+    {
+        if (0 == Index)
+        {
+            current = m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
+        }
+        else if (1 == Index)
+        {
+            current = m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
+        }
+        else if (2 == Index)
+        {
+            current = m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
+        }
+    }
+    else if ("RV" == DevName)
+    {
+        current = m_pRotaryValve->GetHeaterCurrent();
+    }
+
+    return current;
+}
 
 CFunctionModule* IDeviceProcessing::GetFunctionModuleRef(quint32 InstanceID, const QString &Key)
 {

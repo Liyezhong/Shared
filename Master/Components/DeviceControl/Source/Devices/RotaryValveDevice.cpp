@@ -1151,7 +1151,7 @@ ReturnCode_t CRotaryValveDevice::ReqMoveToInitialPosition(RVPosition_t RVPositio
         SetEDPosition(RV_UNDEF);
         SetPrevEDPosition(RV_UNDEF);
         LogDebug(QString("WARNING: Hit unexpected position, please retry!"));
-        RetValue = refRunRet;
+        RetValue = DCL_ERR_DEV_RV_MOTOR_CANNOTGET_ORIGINALPOSITION;
     }
     return RetValue;
 }

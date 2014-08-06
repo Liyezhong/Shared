@@ -688,6 +688,20 @@ public:
      */
     /****************************************************************************/
     ReportError_t GetSlaveModuleReportError(quint8 errorCode, const QString& devName, quint32 sensorName);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Get current of the specific sensor
+     *
+     *  \param  Qstring DevName - Device name
+     *  \param  quint32 - sensor name
+     *
+     *  \return quint16 - sensor's current
+     */
+    /****************************************************************************/
+    quint16 GetSensorCurrent(const QString& DevName, quint8 Index);
+
+
 signals:
     //! Forward the 'intitialisation finished' notification
     void ReportInitializationFinished(quint32, ReturnCode_t);
