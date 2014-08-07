@@ -69,6 +69,9 @@ CNetworkSettingsWidget::CNetworkSettingsWidget(QWidget *p_Parent)
     mp_KeyBoardWidget = new KeyBoard::CKeyBoard(KeyBoard::SIZE_1, KeyBoard::QWERTY_KEYBOARD);
     mp_KeyBoardWidget->setModal(true);
 
+    mp_WaitDlg    = new MainMenu::CWaitDialog(this);
+    mp_WaitDlg->setModal(true);
+
     mp_TableWidget = new MainMenu::CBaseTable;
     mp_TableWidget->resize(SET_FIXED_TABLE_WIDTH, SET_FIXED_TABLE_HEIGHT);
     mp_TableWidget->SetVisibleRows(VISIBLE_TABLE_ROWS);
@@ -111,7 +114,9 @@ CNetworkSettingsWidget::CNetworkSettingsWidget(QWidget *p_Parent)
 CNetworkSettingsWidget::~CNetworkSettingsWidget()
 {
     try {
-
+        if (mp_WaitDlg) {
+            delete mp_WaitDlg;
+        }
         if (mp_MessageDlg) {
             delete mp_MessageDlg;
         }
@@ -426,6 +431,11 @@ void CNetworkSettingsWidget::SetSaveButtonStatus()
 void CNetworkSettingsWidget::OnDownloadFirmware()
 {
     qDebug() << " On download firmware";
+    mp_WaitDlg->SetText("Downloading...");
+    mp_WaitDlg->HideAbort();
+    mp_WaitDlg->show();
+
+    mp_Ui->downloadFirmwareBtn->setEnabled(false);
     emit DownloadFirmware();
 }
 
@@ -454,6 +464,8 @@ void CNetworkSettingsWidget::SetNetworkSettingsResult(PlatformService::NetworkSe
     QPixmap PixMapPass(QString(":/Large/CheckBoxLarge/CheckBox-Checked_large_green.png"));
     QPixmap PixMapFail(QString(":/Large/CheckBoxLarge/CheckBox-Crossed_large_red.png"));
     QPixmap SetPixMap;
+
+    mp_WaitDlg->close();
 
     switch (NtService) {
     case PlatformService::HOST_REACHABLE:
@@ -506,6 +518,7 @@ void CNetworkSettingsWidget::SetNetworkSettingsResult(PlatformService::NetworkSe
     default:
         break;
     }
+    mp_Ui->downloadFirmwareBtn->setEnabled(true);
 }
 
 /****************************************************************************/

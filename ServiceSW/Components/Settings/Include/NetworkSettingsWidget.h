@@ -79,6 +79,7 @@ private:
     ButtonType_t m_ButtonType;                              //!< Button Type
     QString m_Password;                                     //!< String to hold Password
     MainMenu::CMessageDlg *mp_MessageDlg;                   //!< Message dialog object.
+    MainMenu::CWaitDialog *mp_WaitDlg;                      //!< Waiting dialog
     QString m_IPAddress;                                    //!< To store the Ip address
     MainMenu::CBaseTable *mp_TableWidget;                   //!< Base Table widget
     QStandardItemModel m_Model;                             //!< Model for the table
