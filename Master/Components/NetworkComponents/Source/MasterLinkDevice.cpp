@@ -65,13 +65,6 @@ CMasterLinkDevice::~CMasterLinkDevice()
     CATCHALL_DTOR();
 }
 
-/****************************************************************************/
-/*!
- *  \brief Initializes the network layers
- *
- *  \return
- */
-/****************************************************************************/
 bool CMasterLinkDevice::NetworkInit()
 {
     if (!mp_NetworkObject) {

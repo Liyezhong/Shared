@@ -71,6 +71,8 @@ qint32 CKeyBoard::m_KeyBoardYPosition = 100; //! Default value for SIZE_1
  *
  *  \iparam Model = SIZE_1 (800 x 600) ,  SIZE_2 ( 640 X 480)
  *  \iparam KeyBoardType = QWERTY/ QWERTZ keyboard
+ *  \iparam p_Parent = keyboard's parent
+ *  \iparam pMainWindow = the main window
  */
 /****************************************************************************/
 CKeyBoard::CKeyBoard(KeyBoard::Model_t Model,
