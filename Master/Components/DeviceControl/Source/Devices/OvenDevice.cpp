@@ -412,11 +412,13 @@ void COvenDevice::CheckSensorsData()
     if(m_pTempCtrls[OVEN_TOP])
     {
         (void)GetTemperatureAsync(OVEN_TOP, 0);
+        (void)GetHeaterCurrentAsync(OVEN_TOP);
     }
     if(m_pTempCtrls[OVEN_BOTTOM])
     {
         (void)GetTemperatureAsync(OVEN_BOTTOM, 0);
         (void)GetTemperatureAsync(OVEN_BOTTOM, 1);
+        (void)GetHeaterCurrentAsync(OVEN_BOTTOM);
     }
     if(m_pLidDigitalInput)
     {
@@ -543,6 +545,30 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_CurrentTemperatures[Type][Index];
+    }
+    else
+    {
+        RetValue = UNDEFINED_4_BYTE;
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get recent current of sensor captured in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Actual Current, UNDEFINED if failed.
+ */
+/****************************************************************************/
+quint32 COvenDevice::GetRecentCurrent(OVENTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint32 RetValue;
+    if((Now - m_LastGetTCCurrentTime[Type]) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_TCHardwareStatus[Type].Current;
     }
     else
     {
@@ -1153,39 +1179,15 @@ quint16 COvenDevice::GetRecentOvenLidStatus()
  *  \return  The current of heater in mA.
  */
 /****************************************************************************/
-quint16 COvenDevice::GetHeaterCurrent(OVENTempCtrlType_t Type)
+ReturnCode_t COvenDevice::GetHeaterCurrentAsync(OVENTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    quint16 RetValue = UNDEFINED_2_BYTE;
-    if(m_pTempCtrls[Type] != NULL)
+    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME && m_pTempCtrls[Type] != NULL)
     {
-        if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
-        {
-            ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
-            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
-            {
-                if(m_pDevProc)
-                {
-                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_OVEN_TC_GET_HW_STATUS);
-                }
-                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-                {
-                    RetValue = UNDEFINED_2_BYTE;
-                }
-                else
-                {
-                    RetValue = m_TCHardwareStatus[Type].Current;
-                }
-                m_LastGetTCCurrentTime[Type] = Now;
-            }
-        }
-        else
-        {
-
-            RetValue = m_TCHardwareStatus[Type].Current;
-        }
+        m_LastGetTCCurrentTime[Type] = Now;
+        return m_pTempCtrls[Type]->GetHardwareStatus();
     }
-    return RetValue;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/

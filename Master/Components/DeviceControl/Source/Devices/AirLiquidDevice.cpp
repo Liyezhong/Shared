@@ -581,14 +581,17 @@ void CAirLiquidDevice::CheckSensorsData()
     if(m_pTempCtrls[AL_LEVELSENSOR])
     {
         (void)GetTemperatureAsync(AL_LEVELSENSOR, 0);
+        (void)GetHeaterCurrentAsync(AL_LEVELSENSOR);
     }
     if(m_pTempCtrls[AL_TUBE1])
     {
         (void)GetTemperatureAsync(AL_TUBE1, 0);
+        (void)GetHeaterCurrentAsync(AL_TUBE1);
     }
     if(m_pTempCtrls[AL_TUBE2])
     {
         (void)GetTemperatureAsync(AL_TUBE2, 0);
+        (void)GetHeaterCurrentAsync(AL_TUBE2);
     }
 }
 
@@ -1900,6 +1903,30 @@ qreal CAirLiquidDevice::GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index
 
 /****************************************************************************/
 /*!
+ *  \brief   Get recent current of sensor captured in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Actual current, UNDEFINED if failed.
+ */
+/****************************************************************************/
+quint32 CAirLiquidDevice::GetRecentCurrent(ALTempCtrlType_t Type)
+{
+  //  QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint32 RetValue;
+    if((Now - m_LastGetTCCurrentTime[Type]) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_TCHardwareStatus[Type].Current;
+    }
+    else
+    {
+        RetValue = UNDEFINED_4_BYTE;
+    }
+    return RetValue;
+}
+/****************************************************************************/
+/*!
  *  \brief   Start temperature control.
  *
  *  \iparam  Type = The target temperature contorl module to control.
@@ -2324,7 +2351,7 @@ quint16 CAirLiquidDevice::GetHeaterCurrent(ALTempCtrlType_t Type)
 ReturnCode_t CAirLiquidDevice::GetHeaterCurrentAsync(ALTempCtrlType_t Type)
 {
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    if((Now - m_LastGetTCCurrentTime[Type]) >= CHECK_SENSOR_TIME && m_pTempCtrls[Type] != NULL) // check if 200 msec has passed since last read
     {
         m_LastGetTCCurrentTime[Type] = Now;
         return m_pTempCtrls[Type]->GetHardwareStatus();

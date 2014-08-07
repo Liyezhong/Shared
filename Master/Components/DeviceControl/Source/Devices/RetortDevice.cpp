@@ -74,6 +74,7 @@ void CRetortDevice::Reset()
     m_TargetDOOutputValue = 0;
     m_LockStatus = 0;
     m_LastGetLockStatusTime = 0;
+    memset(&m_LastGetHardwareStatusTime, 0, sizeof(m_LastGetHardwareStatusTime));
 }
 
 /****************************************************************************/
@@ -444,10 +445,12 @@ void CRetortDevice::CheckSensorsData()
     {
         (void)GetTemperatureAsync(RT_BOTTOM, 0);
         (void)GetTemperatureAsync(RT_BOTTOM, 1);
+        (void)GetHardwareStatusAsync(RT_BOTTOM);
     }
     if(m_pTempCtrls[RT_SIDE])
     {
         (void)GetTemperatureAsync(RT_SIDE, 0);
+        (void)GetHardwareStatusAsync(RT_SIDE);
     }
     if(m_pLockDigitalInput)
     {
@@ -570,6 +573,30 @@ qreal CRetortDevice::GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index)
     if((Now - m_LastGetTempTime[Type][Index]) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_CurrentTemperatures[Type][Index];
+    }
+    else
+    {
+        RetValue = UNDEFINED_4_BYTE;
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get the current of temperature sensor in last 500 milliseconds.
+ *
+ *  \iparam  Type = The target temperature contorl module to control.
+ *
+ *  \return  Actual current, UNDEFINED if failed.
+ */
+/****************************************************************************/
+quint32 CRetortDevice::GetRecentCurrent(RTTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint32 RetValue;
+    if((Now - m_LastGetHardwareStatusTime[Type]) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_HardwareStatus[Type].Current;
     }
     else
     {
@@ -1292,30 +1319,15 @@ quint16 CRetortDevice::GetLidStatus()
  *  \return  Temperature control module's hardware status.
  */
 /****************************************************************************/
-TempCtrlHardwareStatus_t CRetortDevice::GetHardwareStatus(RTTempCtrlType_t Type)
+ReturnCode_t CRetortDevice::GetHardwareStatusAsync(RTTempCtrlType_t Type)
 {
-    TempCtrlHardwareStatus_t hwStatus;
-    memset( &hwStatus, 0 , sizeof(hwStatus)); //lint !e545
-    if(m_pTempCtrls[Type] != NULL)
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if((now - m_LastGetHardwareStatusTime[Type]) >= CHECK_SENSOR_TIME && m_pTempCtrls[Type] != NULL)
     {
-        ReturnCode_t retCode = m_pTempCtrls[Type]->GetHardwareStatus();
-        if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
-        {
-            if(m_pDevProc)
-            {
-                retCode = m_pDevProc->BlockingForSyncCall(SYNC_CMD_RT_GET_HW_STATUS);
-            }
-            else
-            {
-                retCode = DCL_ERR_NOT_INITIALIZED;
-            }
-            if(DCL_ERR_FCT_CALL_SUCCESS == retCode)
-            {
-                hwStatus = m_HardwareStatus[Type];
-            }
-        }
+        m_LastGetHardwareStatusTime[Type] = now;
+        return m_pTempCtrls[Type]->GetHardwareStatus();
     }
-    return hwStatus;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/

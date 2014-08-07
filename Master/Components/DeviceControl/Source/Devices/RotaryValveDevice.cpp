@@ -352,6 +352,7 @@ void CRotaryValveDevice::CheckSensorsData()
     {
         (void)GetTemperatureAsync(0);
         (void)GetTemperatureAsync(1);
+        (void)GetHeaterCurrentAsync();
     }
 }
 
@@ -639,12 +640,31 @@ ReturnCode_t CRotaryValveDevice::GetTemperatureAsync(quint8 Index)
 /****************************************************************************/
 qreal CRotaryValveDevice::GetRecentTemperature(quint32 Index)
 {
-    QMutexLocker Locker(&m_Mutex);
+    //QMutexLocker Locker(&m_Mutex);
     qint64 Now = QDateTime::currentMSecsSinceEpoch();
     qreal RetValue = UNDEFINED_4_BYTE;
     if((Now - m_LastGetTempTime[Index]) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_CurrentTemperature[Index];
+    }
+    return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Get recent current of temperature sensor captured in last 500 milliseconds.
+ *
+ *  \return  Actual current, UNDEFINED if failed.
+ */
+/****************************************************************************/
+quint32 CRotaryValveDevice::GetRecentCurrent()
+{
+    //QMutexLocker Locker(&m_Mutex);
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint32 RetValue = UNDEFINED_4_BYTE;
+    if((Now - m_LastGetTCCurrentTime) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_TCHardwareStatus.Current;
     }
     return RetValue;
 }
@@ -2362,38 +2382,15 @@ void CRotaryValveDevice::OnSetMotorState(quint32 /*InstanceID*/, ReturnCode_t Re
  *  \return  The current of heater in mA.
  */
 /****************************************************************************/
-quint16 CRotaryValveDevice::GetHeaterCurrent(void)
+ReturnCode_t CRotaryValveDevice::GetHeaterCurrentAsync(void)
 {
-    qint64 Now = QDateTime::currentMSecsSinceEpoch();
-    quint16 RetValue = UNDEFINED_2_BYTE;
-    if(m_pTempCtrl != NULL)
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if((now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME && m_pTempCtrl != NULL)
     {
-        if((Now - m_LastGetTCCurrentTime) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
-        {
-            ReturnCode_t retCode = m_pTempCtrl->GetHardwareStatus();
-            if (DCL_ERR_FCT_CALL_SUCCESS == retCode )
-            {
-                if(m_pDevProc)
-                {
-                    retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_TC_GET_HW_STATUS);
-                }
-                if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
-                {
-                    RetValue = UNDEFINED_2_BYTE;
-                }
-                else
-                {
-                    RetValue = m_TCHardwareStatus.Current;
-                }
-                m_LastGetTCCurrentTime = Now;
-            }
-        }
-        else
-        {
-            RetValue = m_TCHardwareStatus.Current;
-        }
+        m_LastGetTCCurrentTime = now;
+        return m_pTempCtrl->GetHardwareStatus();
     }
-    return RetValue;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/

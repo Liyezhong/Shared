@@ -549,6 +549,7 @@ ReportError_t CBaseDevice::GetSlaveModuleError(quint8 errorCode, quint32 instanc
 {
     ReportError_t reportError;
     memset(&reportError, 0, sizeof(reportError));
+#if 0
     switch (instanceID)
      {
      case CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL:
@@ -578,22 +579,23 @@ ReportError_t CBaseDevice::GetSlaveModuleError(quint8 errorCode, quint32 instanc
      default:
          break;
      }
-
+#endif
     if (m_ReportErrorList.empty())
     {
-        LogDebug("Temperature module errorlist is empty");
+        //LogDebug("Temperature module errorlist is empty");
         return reportError;
     }
     else
     {
-       LogDebug(QString("Temperature module errorlist is NOT empty, the size is: %1").arg(m_ReportErrorList.size()));
+       //LogDebug(QString("Temperature module errorlist is NOT empty, the size is: %1").arg(m_ReportErrorList.size()));
     }
 
+#if 0
     for (int i=0; i<m_ReportErrorList.size(); ++i)
     {
         LogDebug(QString("The Error InstanceID is: %1, error code is: %2").arg(m_ReportErrorList[i].instanceID).arg(m_ReportErrorList[i].errorCode));
     }
-
+#endif
     FILE_LOG_L(laFCT, llERROR) << " Error instanceID is: 0x"<<std::hex<<m_ReportErrorList[0].instanceID;
 
     QVector<ReportError_t>::const_iterator iter = m_ReportErrorList.end();

@@ -239,6 +239,17 @@ public:
      */
     /****************************************************************************/
     qreal GetRecentTemperature(ALTempCtrlType_t Type, quint8 Index);
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Get recent current of sensor captured in last 500 milliseconds.
+     *
+     *  \iparam  Type = The target temperature contorl module to control.
+     *
+     *  \return  Actual current, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint32 GetRecentCurrent(ALTempCtrlType_t Type);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetTemperatureControlState

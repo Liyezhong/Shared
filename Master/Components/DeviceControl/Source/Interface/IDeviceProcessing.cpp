@@ -2062,7 +2062,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         LOG()<<"Bottle Check pressure: " << pressure;
 
-#if 0
+
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
@@ -2085,7 +2085,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             LOG()<<"Bottle Check: Blockage";
         }
 #endif
-#endif
+
 
         (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         return retCode;
@@ -2257,42 +2257,42 @@ quint16 IDeviceProcessing::GetSensorCurrent(const QString& DevName, quint8 Index
     {
         if (0 == Index)
         {
-            current = m_pRetort->GetHardwareStatus(RT_SIDE).Current;
+            current = m_pRetort->GetRecentCurrent(RT_SIDE);
         }
         else if (1 == Index)
         {
-            current = m_pRetort->GetHardwareStatus(RT_BOTTOM).Current;
+            current = m_pRetort->GetRecentCurrent(RT_BOTTOM);
         }
     }
     else if ("Oven" == DevName)
     {
         if (0 == Index)
         {
-            current = m_pOven->GetHeaterCurrent(OVEN_TOP);
+            current = m_pOven->GetRecentCurrent(OVEN_TOP);
         }
         else if (1 == Index)
         {
-            current = m_pOven->GetHeaterCurrent(OVEN_BOTTOM);
+            current = m_pOven->GetRecentCurrent(OVEN_BOTTOM);
         }
     }
     else if ("LA" == DevName)
     {
         if (0 == Index)
         {
-            current = m_pAirLiquid->GetHeaterCurrent(AL_LEVELSENSOR);
+            current = m_pAirLiquid->GetRecentCurrent(AL_LEVELSENSOR);
         }
         else if (1 == Index)
         {
-            current = m_pAirLiquid->GetHeaterCurrent(AL_TUBE1);
+            current = m_pAirLiquid->GetRecentCurrent(AL_TUBE1);
         }
         else if (2 == Index)
         {
-            current = m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
+            current = m_pAirLiquid->GetRecentCurrent(AL_TUBE2);
         }
     }
     else if ("RV" == DevName)
     {
-        current = m_pRotaryValve->GetHeaterCurrent();
+        current = m_pRotaryValve->GetRecentCurrent();
     }
 
     return current;

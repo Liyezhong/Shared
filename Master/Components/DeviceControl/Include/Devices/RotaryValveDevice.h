@@ -114,6 +114,16 @@ public:
      */
     /****************************************************************************/
     qreal GetRecentTemperature(quint32 Index);
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Get recent current of temperature sensor captured in last 500 milliseconds.
+     *
+     *  \return  Actual current, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint32 GetRecentCurrent();
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetTemperatureControlState
@@ -152,10 +162,10 @@ public:
     /*!
      *  \brief  Definition/Declaration of function GetHeaterCurrent
      *
-     *  \return from GetHeaterCurrent
+     *  \return ReturnCode_t
      */
     /****************************************************************************/
-    quint16 GetHeaterCurrent();
+    ReturnCode_t GetHeaterCurrentAsync();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetHeaterSwitchType

@@ -97,6 +97,18 @@ public:
      */
     /****************************************************************************/
     qreal GetRecentTemperature(RTTempCtrlType_t Type, quint8 Index);
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Get the current of temperature sensor in last 500 milliseconds.
+     *
+     *  \iparam  Type = The target temperature contorl module to control.
+     *
+     *  \return  Actual current, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint32 GetRecentCurrent(RTTempCtrlType_t Type);
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetTemperatureControlState
@@ -113,10 +125,10 @@ public:
      *
      *  \param Type = RTTempCtrlType_t type parameter
      *
-     *  \return from GetHardwareStatus
+     *  \return ReturnCode_t
      */
     /****************************************************************************/
-    TempCtrlHardwareStatus_t GetHardwareStatus(RTTempCtrlType_t Type);
+    ReturnCode_t GetHardwareStatusAsync(RTTempCtrlType_t Type);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetLidStatus
@@ -319,6 +331,7 @@ private:
     QMap<quint32, RTTempCtrlType_t> m_InstTCTypeMap;                  //!< Map between instance ID and temperature control FMs
 
     qint64 m_LastGetLockStatusTime;                                   //!< Last get lock status time
+    qint64 m_LastGetHardwareStatusTime[RT_TEMP_CTRL_NUM];             //!< Last time for getting hardware status
     qint16 m_TargetDOOutputValue;                                     //!< Target output value; for verification of action result
     qint16 m_LockStatus;                                              //!< Target output value; for verification of action result
 

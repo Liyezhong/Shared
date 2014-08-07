@@ -105,6 +105,18 @@ public:
      */
     /****************************************************************************/
     qreal GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
+
+    /****************************************************************************/
+    /*!
+     *  \brief   Get recent current of sensor captured in last 500 milliseconds.
+     *
+     *  \iparam  Type = The target temperature contorl module to control.
+     *
+     *  \return  Actual Current, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint32 GetRecentCurrent(OVENTempCtrlType_t Type);
+
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetRecentOvenLidStatus
@@ -129,10 +141,10 @@ public:
      *
      *  \param Type = OVENTempCtrlType_t type parameter
      *
-     *  \return from GetHeaterCurrent
+     *  \return ReturnCode_t
      */
     /****************************************************************************/
-    quint16 GetHeaterCurrent(OVENTempCtrlType_t Type);
+    ReturnCode_t GetHeaterCurrentAsync(OVENTempCtrlType_t Type);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetHeaterSwitchType
