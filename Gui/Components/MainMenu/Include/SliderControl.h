@@ -18,6 +18,8 @@
  */
 /****************************************************************************/
 
+//lint -e578
+
 #ifndef MAINMENU_SLIDERCONTROL_H
 #define MAINMENU_SLIDERCONTROL_H
 

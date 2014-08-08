@@ -21,6 +21,8 @@
  */
 /****************************************************************************/
 
+//lint -e1512
+
 #include "Global/Include/Utils.h"
 #include "Global/Include/Exception.h"
 #include "MainMenu/Include/WarningMsgDlg.h"

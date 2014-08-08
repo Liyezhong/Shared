@@ -39,6 +39,8 @@
 **
 ****************************************************************************/
 
+//lint -e1577
+
 #ifndef QTSCROLLERPROPERTIES_H
 #define QTSCROLLERPROPERTIES_H
 

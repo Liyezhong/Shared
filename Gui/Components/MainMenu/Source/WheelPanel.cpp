@@ -22,6 +22,8 @@
  */
 /****************************************************************************/
 
+//lint -e1512
+
 #include "Application/Include/LeicaStyle.h"
 #include "MainMenu/Include/WheelPanel.h"
 #include "MainMenu/Include/SemiTransparentOverlay.h"
