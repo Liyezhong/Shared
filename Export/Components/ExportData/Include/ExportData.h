@@ -20,7 +20,7 @@
 #ifndef EXPORT_EXPORTDATA_H
 #define EXPORT_EXPORTDATA_H
 
-#include "ImportExport/WriteArchive/Include/WriteArchive.h"
+#include "EncryptionDecryption/WriteArchive/Include/WriteArchive.h"
 #include "DataManager/Containers/ExportConfiguration/Include/ExportConfiguration.h"
 #include "DataManager/Containers/ExportConfiguration/Include/ExportConfigurationVerifier.h"
 #include "DataManager/Containers/ContainerBase/Include/VerifierInterface.h"

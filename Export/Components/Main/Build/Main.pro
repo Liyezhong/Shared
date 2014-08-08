@@ -23,7 +23,7 @@ PLATFORM_EXPORT_COMPONENTS = ExportData
 
 ################# list used platform libraries #################
 PLATFORM_COMPONENTS_DIR = ../../../../Master/Components
-PLATFORM_COMPONENTS = ImportExport \
+PLATFORM_COMPONENTS = EncryptionDecryption \
                       Global \
                       DataManager
 ################################################################

@@ -28,7 +28,7 @@
 #include "Global/Include/AdjustedTime.h"
 #include "Global/Include/SystemPaths.h"
 #include "Global/Include/GlobalExitCodes.h"
-#include "ImportExport/General/Include/General.h"
+#include "EncryptionDecryption/General/Include/General.h"
 #include "QProcess"
 #include "QDebug"
 
@@ -236,8 +236,8 @@ int CExportData::StartPackTheFiles(const DataManager::CExportConfiguration &Expo
             int ErrorNumber = WritelpkgFile(ExportFile, KeyName, DateValue);
 
             // remove files if it exists it
-            (void)QFile::remove(ImportExport::Constants::keyfile); //to avoid lint-534
-            (void)QFile::remove(ImportExport::Constants::counter); //to avoid lint-534
+            (void)QFile::remove(EncryptionDecryption::Constants::keyfile); //to avoid lint-534
+            (void)QFile::remove(EncryptionDecryption::Constants::counter); //to avoid lint-534
 
             if (ErrorNumber != Global::EXIT_CODE_EXPORT_SUCCESS) {
                 RemoveFiles();
@@ -414,14 +414,14 @@ int CExportData::WritelpkgFile(const DataManager::CExportConfiguration &ExportCo
 
     const_cast<QString&>(KeyName) = KeyName.arg(DateValue);
     // these files are required to create the archive
-    QByteArray keybytes(ImportExport::Constants::KEYFILESIZE, 0);
-    keybytes[2*ImportExport::Constants::HASH_SIZE-1] = 1;
+    QByteArray keybytes(EncryptionDecryption::Constants::KEYFILESIZE, 0);
+    keybytes[2*EncryptionDecryption::Constants::HASH_SIZE-1] = 1;
     // first create the key file. These files will be used by Writearchieve method
-    ImportExport::FailSafeOpen keyfile(ImportExport::Constants::keyfile, FILE_WRITEMODE);
+    EncryptionDecryption::FailSafeOpen keyfile(EncryptionDecryption::Constants::keyfile, FILE_WRITEMODE);
     keyfile.write(keybytes);
     keyfile.close();
     // create the counter file
-    ImportExport::FailSafeOpen ctrfile(ImportExport::Constants::counter, FILE_WRITEMODE);
+    EncryptionDecryption::FailSafeOpen ctrfile(EncryptionDecryption::Constants::counter, FILE_WRITEMODE);
     ctrfile.write(QByteArray(4, 0));
     ctrfile.close();
 
@@ -447,60 +447,60 @@ int CExportData::WriteArchiveFile(const QString &KeyName, const QList<QByteArray
     // try to catach all the errors while archiving the files
     try {
         // write the archive file
-        ImportExport::WriteArchive(qPrintable(KeyName), Files, 1, Encryption, Compressed);
+        EncryptionDecryption::WriteArchive(qPrintable(KeyName), Files, 1, Encryption, Compressed);
         // store the created file name
         m_CreatedFileList.append(KeyName);
     }
-    catch (ImportExport::ExceptionNumber ExNumber) {
+    catch (EncryptionDecryption::ExceptionNumber ExNumber) {
         // if error then remove the file also
         (void)QFile::remove(KeyName); //to avoid lint-534
 
         qint32 ExitCode = Global::EXIT_CODE_EXPORT_UNABLE_ARCHIVE_FILES;
 
         switch(ExNumber.getErrorNumber()) {
-            case ImportExport::ERROR_IMPORTEXPORT_CRYTOSERVICE_RUNNING:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_CRYTOSERVICE_RUNNING:
                 ExitCode = Global::EXIT_CODE_EXPORT_CRYTOSERVICE_RUNNING;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_CANNOT_OPEN_FILE_FOR_READ:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_CANNOT_OPEN_FILE_FOR_READ:
                 ExitCode = Global::EXIT_CODE_EXPORT_CANNOT_OPEN_FILE_FOR_READ;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_CANNOT_OPEN_FILE_FOR_WRITE:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_CANNOT_OPEN_FILE_FOR_WRITE:
                 ExitCode = Global::EXIT_CODE_EXPORT_CANNOT_OPEN_FILE_FOR_WRITE;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_ERROR_TO_READ:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_ERROR_TO_READ:
                 ExitCode = Global::EXIT_CODE_EXPORT_ERROR_TO_READ;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_ERROR_TO_WRITE:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_ERROR_TO_WRITE:
                 ExitCode = Global::EXIT_CODE_EXPORT_ERROR_TO_WRITE;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_ARCHIVEFILE_FORMAT_WRONG:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_ARCHIVEFILE_FORMAT_WRONG:
                 ExitCode = Global::EXIT_CODE_EXPORT_TARGET_FILE_FORMAT_IS_WRONG;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_INDEX_IS_MATCHING:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_INDEX_IS_MATCHING:
                 ExitCode = Global::EXIT_CODE_EXPORT_INDEX_IS_MATCHING;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_KEY_SIZE_LESS:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_KEY_SIZE_LESS:
                 ExitCode = Global::EXIT_CODE_EXPORT_KEY_SIZE_LESS;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_KEYDATA_SIZE_IS_NOT_MATCHING:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_KEYDATA_SIZE_IS_NOT_MATCHING:
                 ExitCode = Global::EXIT_CODE_EXPORT_KEYDATA_SIZE_IS_NOT_MATCHING;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_HMAC_NOT_INITIALIZED:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_HMAC_NOT_INITIALIZED:
                 ExitCode = Global::EXIT_CODE_EXPORT_HMAC_NOT_INITIALIZED;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_AES_NOT_INITIALIZED:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_AES_NOT_INITIALIZED:
                 ExitCode = Global::EXIT_CODE_EXPORT_AES_NOT_INITIALIZED;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_INTEGER_SIZE_IS_MORE:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_INTEGER_SIZE_IS_MORE:
                 ExitCode = Global::EXIT_CODE_EXPORT_INTEGER_SIZE_IS_MORE;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_MSB_BIT_IS_NOT_SET :
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_MSB_BIT_IS_NOT_SET :
                 ExitCode = Global::EXIT_CODE_EXPORT_MSB_BIT_IS_NOT_SET;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_INVALID_FILE_MODE:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_INVALID_FILE_MODE:
                 ExitCode = Global::EXIT_CODE_EXPORT_INVALID_FILE_MODE;
                 break;
-            case ImportExport::ERROR_IMPORTEXPORT_HMAC_COMPUTATION_STARTED:
+            case EncryptionDecryption::ERROR_ENCRYPTIONDECRYPTION_HMAC_COMPUTATION_STARTED:
                 ExitCode = Global::EXIT_CODE_EXPORT_HMAC_COMPUTATION_STARTED;
                 break;
         }

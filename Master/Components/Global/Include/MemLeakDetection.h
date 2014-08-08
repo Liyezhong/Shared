@@ -224,7 +224,7 @@ private:
        void              *allocate       (void* ptr);
        void               free           (const void  *ptr);
        void*              search		 (const void  *ptr);
-       const unsigned int getElementSize () const {return m_elementSize;}
+       unsigned int getElementSize () const {return m_elementSize;}
        const void        *getFirstPtr    () const {return reinterpret_cast<void*>(m_elements);}
        //lint -save -e613
        const void        *getLastPtr     () const {return reinterpret_cast<void*>(m_elements + (ElementHeaderSize + m_elementSize) * m_elementNo);}
