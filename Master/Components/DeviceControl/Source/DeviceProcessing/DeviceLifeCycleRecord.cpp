@@ -110,7 +110,7 @@ void DeviceLifeCycleRecord::WriteRecord()
     QDomDocument domDocument;
     QDomElement root;
     QFile file(m_DeviceLifeCycleRecordFileName);
-    if (!file.open(QFile::WriteOnly | QFile::Truncate))
+    if (!file.open(QFile::WriteOnly))
     {
         file.close();
         return;
