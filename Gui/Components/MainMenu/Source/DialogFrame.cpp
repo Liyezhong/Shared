@@ -36,7 +36,7 @@ namespace MainMenu {
  */
 /****************************************************************************/
 CDialogFrame::CDialogFrame(QWidget *p_Parent, QWidget *pMainWindow) : QDialog(p_Parent, Qt::FramelessWindowHint),
-    mp_DialogUi(new Ui::CDialogFrame), mp_MainWindow(pMainWindow)
+    mp_MainWindow(pMainWindow), mp_DialogUi(new Ui::CDialogFrame)
 {
     mp_DialogUi->setupUi(this);
     mp_DialogUi->widget->SetTitleCenter();
