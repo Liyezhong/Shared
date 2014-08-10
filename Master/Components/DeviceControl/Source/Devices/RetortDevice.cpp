@@ -209,6 +209,14 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_RETORT_BOTTOMTEMPCTRL] = RT_BOTTOM;  //lint !e641
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("temp_retort_bottom");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pTempCtrls[RT_BOTTOM]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
         }
     }
     else
@@ -271,15 +279,7 @@ ReturnCode_t CRetortDevice::HandleInitializationState()
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
-        if (m_ModuleLifeCycleRecord)
-        {
-            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Retort_Lid_Lock");
-            if (pPartLifeCycleRecord)
-            {
-                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Retort_Lid_Lock_LifeCycle").toUInt();
-                m_pLockDigitalInput->SetLifeCycle(lifeCycle);
-            }
-        }
+
         if (m_ModuleLifeCycleRecord)
         {
             PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Retort_Lid_Lock");

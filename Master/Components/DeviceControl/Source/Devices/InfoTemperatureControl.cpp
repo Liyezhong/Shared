@@ -118,7 +118,15 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
-    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperatingTime))) {
+
+    quint32 history_OperationTime = 0;
+    PartLifeCycleRecord* pPartLifeCycleRecord = mp_TemperatureControl->GetPartLifeCycleRecord();
+    if (pPartLifeCycleRecord)
+    {
+        history_OperationTime = pPartLifeCycleRecord->m_ParamMap.value("History_OperationTime").toUInt();
+    }
+
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperatingTime + history_OperationTime))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
@@ -129,7 +137,7 @@ bool CInfoTemperatureControl::Finished(QEvent *p_Event)
         return false;
     }
 
-    PartLifeCycleRecord* pPartLifeCycleRecord = mp_TemperatureControl->GetPartLifeCycleRecord();
+
     if (!pPartLifeCycleRecord)
         return true;
 

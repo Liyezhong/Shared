@@ -205,6 +205,14 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_TOPTEMPCTRL] = OVEN_TOP;  //lint !e641
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("temp_oven_top");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pTempCtrls[OVEN_TOP]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
         }
     }
     else
@@ -228,6 +236,14 @@ ReturnCode_t COvenDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[CANObjectKeyLUT::FCTMOD_OVEN_BOTTOMTEMPCTRL] = OVEN_BOTTOM;  //lint !e641
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("temp_oven_bottom");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pTempCtrls[OVEN_BOTTOM]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
         }
     }
     else
@@ -247,15 +263,6 @@ ReturnCode_t COvenDevice::HandleInitializationState()
             SetErrorParameter(EVENT_GRP_DCL_RT_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_OVEN_LIDDI);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RETORT_LOCKDI not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
-        }
-        if (m_ModuleLifeCycleRecord)
-        {
-            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("Oven_Cover_Sensor");
-            if (pPartLifeCycleRecord)
-            {
-                quint32 lifeCycle = pPartLifeCycleRecord->m_ParamMap.value("Oven_Cover_Sensor_LifeCycle").toUInt();
-                m_pLidDigitalInput->SetLifeCycle(lifeCycle);
-            }
         }
         if (m_ModuleLifeCycleRecord)
         {

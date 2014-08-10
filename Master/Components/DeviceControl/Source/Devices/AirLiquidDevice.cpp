@@ -270,21 +270,15 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_LEVELSENSORTEMPCTRL ] = AL_LEVELSENSOR; //lint !e641
-        }
-        if (m_ModuleLifeCycleRecord)
-        {
-            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
-            quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value("level_sensor_LifeCycle").toUInt();
-            m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
-        }
-        if (m_ModuleLifeCycleRecord)
-        {
-            PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
-            if (pPartLifeCycleRecord)
+            if (m_ModuleLifeCycleRecord)
             {
-                quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value(m_pTempCtrls[AL_LEVELSENSOR]->GetKey()+"_LifeCycle").toUInt();
-                m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
-                m_pTempCtrls[AL_LEVELSENSOR]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("AL_level_sensor_temp_ctrl");
+                if (pPartLifeCycleRecord)
+                {
+                    quint32 m_LevelSensorLifeCycle = pPartLifeCycleRecord->m_ParamMap.value(m_pTempCtrls[AL_LEVELSENSOR]->GetKey()+"_LifeCycle").toUInt();
+                    m_pTempCtrls[AL_LEVELSENSOR]->SetLifeCycle(m_LevelSensorLifeCycle);
+                    m_pTempCtrls[AL_LEVELSENSOR]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
             }
         }
     }
@@ -309,6 +303,14 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE1TEMPCTRL ] = AL_TUBE1; //lint !e641
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("temp_tube1");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pTempCtrls[AL_TUBE1]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
         }
     }
     else
@@ -332,6 +334,14 @@ ReturnCode_t CAirLiquidDevice::HandleInitializationState()
         else
         {
             m_InstTCTypeMap[ CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL ] = AL_TUBE2; //lint !e641
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("temp_tube2");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pTempCtrls[AL_TUBE2]->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
         }
     }
     else

@@ -126,7 +126,14 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
-    if (!mp_SubModule->UpdateParameterInfo("PumpOperationTime", QString().setNum(pumpOperationTime))) {
+
+    //Add the historyData
+    quint32 history_Pump_OperationTime = 0;
+    PartLifeCycleRecord* pPartLifeCycleRecord = mp_PressureControl->GetPartLifeCycleRecord();
+    if (pPartLifeCycleRecord)
+        history_Pump_OperationTime = pPartLifeCycleRecord->m_ParamMap.value("History_Pump_OperationTime").toUInt();
+
+    if (!mp_SubModule->UpdateParameterInfo("PumpOperationTime", QString().setNum(pumpOperationTime + history_Pump_OperationTime))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
@@ -157,7 +164,6 @@ bool CInfoPressureControl::Finished(QEvent *p_Event)
     }
 
     //also update the DeviceLifeCycleRecord.xml
-    PartLifeCycleRecord* pPartLifeCycleRecord = mp_PressureControl->GetPartLifeCycleRecord();
     if (!pPartLifeCycleRecord)
         return true;
 

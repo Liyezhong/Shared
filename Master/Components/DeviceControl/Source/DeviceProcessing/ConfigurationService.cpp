@@ -417,6 +417,7 @@ ReturnCode_t CConfigurationService::CreateDevices(HardwareConfiguration* pHWConf
         if(pBaseDeviceCfg->m_Type == "RotaryValveDevice")
         {
             pBaseDevice = CreateAndGetDevice<CRotaryValveDevice>(pBaseDeviceCfg);
+            pModuleLifeCycleRecord = m_pDeviceLifeCycleRecord->m_ModuleLifeCycleMap.value("RotaryValveDevice");
         }
         else if(pBaseDeviceCfg->m_Type == "AirLiquidDevice")
         {

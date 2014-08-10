@@ -169,6 +169,17 @@ ReturnCode_t CRotaryValveDevice::HandleInitializationState()
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RV_TEMPCONTROL not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
         }
+        else
+        {
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("temp_rv");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pTempCtrl->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
+        }
     }
     else
     {
@@ -187,6 +198,17 @@ ReturnCode_t CRotaryValveDevice::HandleInitializationState()
             SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_INIT_FCT_ALLOC_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_MOTOR);
             FILE_LOG_L(laDEV, llERROR) << "   Error at initialisation state, FCTMOD_RV_MOTOR not allocated.";
             RetVal = DCL_ERR_FCT_CALL_FAILED;
+        }
+        else
+        {
+            if (m_ModuleLifeCycleRecord)
+            {
+                PartLifeCycleRecord* pPartLifeCycleRecord = m_ModuleLifeCycleRecord->m_PartLifeCycleMap.value("motor_rv");
+                if (pPartLifeCycleRecord)
+                {
+                    m_pMotorRV->SetPartLifeCycleRecord(pPartLifeCycleRecord);
+                }
+            }
         }
     }
     else

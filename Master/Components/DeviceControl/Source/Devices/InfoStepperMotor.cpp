@@ -173,14 +173,7 @@ bool CInfoStepperMotor::Finished(QEvent *p_Event)
         emit ReportError(ReturnCode);
         return false;
     }
-    /*if (!CInfoStepperMotorTransition::GetEventValue(p_Event, 2, StepCounter)) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
-        return false;
-    }
-    if (!CInfoStepperMotorTransition::GetEventValue(p_Event, 3, DirChangeCounter)) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
-        return false;
-    }*/
+
     if (!CInfoStepperMotorTransition::GetEventValue(p_Event, 4, OperationTime)) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
@@ -191,22 +184,16 @@ bool CInfoStepperMotor::Finished(QEvent *p_Event)
         return false;
     }
 
-    /*if (!mp_SubModule->UpdateParameterInfo("RevolutionCounter", QString().setNum(StepCounter))) {
+    quint32 history_motor_OperationTime = 0;
+    PartLifeCycleRecord* pPartLifeCycleRecord = mp_StepperMotor->GetPartLifeCycleRecord();
+    if (pPartLifeCycleRecord)
+        history_motor_OperationTime = pPartLifeCycleRecord->m_ParamMap.value("History_OperationTime").toUInt();
+
+    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperationTime + history_motor_OperationTime))) {
         emit ReportError(DCL_ERR_INVALID_PARAM);
         return false;
     }
-    if (!mp_SubModule->UpdateParameterInfo("DirectionChangeCounter", QString().setNum(DirChangeCounter))) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
-        return false;
-    }*/
-    if (!mp_SubModule->UpdateParameterInfo("OperationTime", QString().setNum(OperationTime))) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
-        return false;
-    }
-   /* if (!mp_SubModule->UpdateParameterInfo("Distance", QString().setNum(StepCounter * mp_StepperMotor->GetCircumference()))) {
-        emit ReportError(DCL_ERR_INVALID_PARAM);
-        return false;
-    }*/
+
 
     return true;
 }
