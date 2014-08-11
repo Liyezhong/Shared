@@ -517,4 +517,16 @@ const EventStep* XMLEvent::GetStep(quint32 stepId) const
     return iter.value().data();
 }
 
+bool XMLEvent::IsLastStep(quint32 stepId) const
+{
+    bool ret = true;
+    const EventStep *step =  GetStep(stepId);
+    if(step)
+    {
+        ret = (step->GetNextStepOnClickNO() + step->GetNextStepOnClickOK() + step->GetNextStepOnClickYES()
+               + step->GetNextStepOnFail() + step->GetNextStepOnSuccess() + step->GetNextStepOnTimeOut()) <= 0 ;
+    }
+    return ret;
+}
+
 } // end namespace EventHandler

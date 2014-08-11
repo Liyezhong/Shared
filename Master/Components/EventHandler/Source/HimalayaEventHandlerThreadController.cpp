@@ -91,12 +91,11 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 SetGuiAvailable(true);
                 return;
         }
-
         const XMLEvent* pEvent = NULL; // current Event
         const EventStep* pCurrentStep = NULL; // current step
         const EventStep* pNextStep = NULL; // Next step
         quint32 NextStepID = 0;
-        if(! m_ActiveEvents.contains(EventKey)){ // first coming
+        if(!m_ActiveEvents.contains(EventKey)){ // first coming
             pEvent = m_EventManager.GetEvent(EventID,Scenario);
             if(pEvent){
                 pNextStep = pEvent->GetStep(0);
@@ -137,9 +136,9 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
             if(pEvent && pCurrentStep){ //caculate the next step
                 m_ActiveEvents[EventKey].ActionResult = ActionResult;
                 if(pCurrentStep->GetType().compare("ACT") == 0){ //action step
+                    LogEntry(m_ActiveEvents[EventKey]); //log the action result
                     if(ActionResult){
                         m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
-                        LogEntry(m_ActiveEvents[EventKey]);
                         NextStepID = pCurrentStep->GetNextStepOnSuccess();
                     }
                     else{
@@ -148,6 +147,9 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     if(NextStepID != 0){
                         pNextStep = pEvent->GetStep(NextStepID);
                         m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
+                    }
+                    else{ // event finished
+                        m_ActiveEvents.remove(EventKey);
                     }
                 }
                 else{ // this case should be processed in onAcknowledge()
@@ -165,15 +167,16 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
                     SendMSGCommand(EventKey, pEvent, pNextStep,Active);
                 }
+                else{ // event only for logging
+                    m_ActiveEvents.remove(EventKey);
+                }
             }
         }
-        else if(pEvent && ! pNextStep){ // event finished
-            m_ActiveEvents.remove(EventKey);
-        }
+
 
     }
     else{  //incative event: remove from m_ActiveEvents
-
+        m_ActiveEvents.remove(EventKey);
     }
 }
 
@@ -222,6 +225,9 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                 if(NextStepID != 0){
                     pNextStep = pEvent->GetStep(NextStepID);
                     m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
+                }
+                else{
+                    m_ActiveEvents.remove(EventKey); // remove
                 }
             }
             else{ // this case should be processed in processEvent()
@@ -279,6 +285,7 @@ void HimalayaEventHandlerThreadController::SendACTCommand(quint32 EventKey, cons
         Global::tRefType NewRef = GetNewCommandRef();
         SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
         DEBUGWHEREAMI;
+        LogEntry(m_ActiveEvents[EventKey]);
     }
     else
     {

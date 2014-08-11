@@ -47,8 +47,8 @@ public:
      */
     /****************************************************************************/
     explicit EventStep(quint32 stepId, const QString& strType)
-    : m_Id(stepId),
-	  m_Type(strType)	
+        : m_Id(stepId),m_NextStepOnClickNO(0),m_NextStepOnClickOk(0),m_NextStepOnClickYES(0),
+          m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_NextStepOnTimeOut(0),m_Type(strType)
 	{ }
 
     /****************************************************************************/
@@ -262,6 +262,9 @@ public:
      */
     /****************************************************************************/
     const EventStep*  GetStep(quint32 stepId) const;
+
+
+    bool IsLastStep(quint32 stepId) const;
 
     /****************************************************************************/
     /**
