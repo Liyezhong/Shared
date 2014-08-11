@@ -29,9 +29,10 @@
 #include "ExportData/Include/Startup.h"
 #include "Global/Include/SystemPaths.h"
 #include "Global/Include/GlobalExitCodes.h"
+#include "Global/Include/Utils.h"
 
 
-static const QString Version = "EXP_0.002"; ///< version string for the export component
+static const QString Version = "EXP_0.003"; ///< version string for the export component
 
 /****************************************************************************/
 /*!
@@ -74,9 +75,10 @@ int main(int argc, char *argv[]) {
     if (argc > 0) {
         // create application object
         QCoreApplication App(argc, argv);
+        //lint (1502,Startup)
         // create the startup class object
-        /*lint -e1502 */
         Export::CStartup Startup;
+        (void)Global::SetThreadPriority(Global::LOW_PRIO);
         // start application and archive the data
         int ReturnCode = Startup.Archive();
         // and exit
