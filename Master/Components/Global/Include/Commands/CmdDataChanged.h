@@ -18,7 +18,7 @@
  */
 /****************************************************************************/
 
-//lint -esym(1511, Global::Command::CopyFrom)
+//lint -esym(1511, QWidget::show)
 //  No polymorphic behaviour desired at this point
 
 #ifndef GLOBAL_CMDDATACHANGED_H

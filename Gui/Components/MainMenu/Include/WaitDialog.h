@@ -17,6 +17,9 @@
  *
  */
 /****************************************************************************/
+//lint -esym(1511, Global::Command::CopyFrom)
+//lint -esym(1511, QWidget::show)
+
 
 #ifndef MAINMENU_WAITDIALOG_H
 #define MAINMENU_WAITDIALOG_H
