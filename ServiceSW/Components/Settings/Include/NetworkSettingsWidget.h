@@ -83,6 +83,8 @@ private:
     QString m_IPAddress;                                    //!< To store the Ip address
     MainMenu::CBaseTable *mp_TableWidget;                   //!< Base Table widget
     QStandardItemModel m_Model;                             //!< Model for the table
+    QString m_strWaitTitle;                                 //!< Waiting dialog title
+    QString m_strDownloading;                               //!< Downloading string for translate
 
     void ConnectKeyBoardSignalSlots();
     void DisconnectKeyBoardSignalSlots();    

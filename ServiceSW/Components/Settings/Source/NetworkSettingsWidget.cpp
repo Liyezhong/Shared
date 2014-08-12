@@ -63,6 +63,10 @@ CNetworkSettingsWidget::CNetworkSettingsWidget(QWidget *p_Parent)
       mp_MessageDlg(NULL)
 {
     mp_Ui->setupUi(GetContentFrame());
+    m_strDownloading = QApplication::translate("ServiceUpdates::CNetworkSettingsWidget",
+                                               "Downloading...", 0, QApplication::UnicodeUTF8);
+    m_strWaitTitle   = QApplication::translate("ServiceUpdates::CNetworkSettingsWidget",
+                                               "Please Wait", 0, QApplication::UnicodeUTF8);
     SetPanelTitle(QApplication::translate("ServiceUpdates::CNetworkSettingsWidget", "Network", 0,
                                           QApplication::UnicodeUTF8));
 
@@ -431,7 +435,8 @@ void CNetworkSettingsWidget::SetSaveButtonStatus()
 void CNetworkSettingsWidget::OnDownloadFirmware()
 {
     qDebug() << " On download firmware";
-    mp_WaitDlg->SetText("Downloading...");
+    mp_WaitDlg->SetDialogTitle(m_strWaitTitle);
+    mp_WaitDlg->SetText(m_strDownloading);
     mp_WaitDlg->HideAbort();
     mp_WaitDlg->show();
 
@@ -569,6 +574,11 @@ void CNetworkSettingsWidget::RetranslateUI()
 
     mp_TableWidget->horizontalHeader()->resizeSection(0, 230);       // 0 => Index  450 => Size
     mp_TableWidget->horizontalHeader()->resizeSection(1, 60);        // 1 => Index  50 => Size
+
+    m_strDownloading = QApplication::translate("ServiceUpdates::CNetworkSettingsWidget",
+                                               "Downloading...", 0, QApplication::UnicodeUTF8);
+    m_strWaitTitle   = QApplication::translate("ServiceUpdates::CNetworkSettingsWidget",
+                                               "Please Wait", 0, QApplication::UnicodeUTF8);
 }
 
 } // end namespace Settings
