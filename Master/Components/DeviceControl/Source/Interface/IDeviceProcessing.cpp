@@ -2062,7 +2062,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         LOG()<<"Bottle Check pressure: " << pressure;
 
-
+#if 0
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
@@ -2085,7 +2085,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             LOG()<<"Bottle Check: Blockage";
         }
 #endif
-
+#endif
 
         (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
         return retCode;
@@ -2255,42 +2255,42 @@ quint16 IDeviceProcessing::GetSensorCurrent(const QString& DevName, quint8 Index
     quint16 current = 0;
     if ("Retort" == DevName)
     {
-        if (0 == Index)
+        if (0 == Index && m_pRetort != NULL)
         {
             current = m_pRetort->GetRecentCurrent(RT_SIDE);
         }
-        else if (1 == Index)
+        else if (1 == Index  && m_pRetort != NULL)
         {
             current = m_pRetort->GetRecentCurrent(RT_BOTTOM);
         }
     }
     else if ("Oven" == DevName)
     {
-        if (0 == Index)
+        if (0 == Index && m_pOven != NULL)
         {
             current = m_pOven->GetRecentCurrent(OVEN_TOP);
         }
-        else if (1 == Index)
+        else if (1 == Index && m_pOven != NULL)
         {
             current = m_pOven->GetRecentCurrent(OVEN_BOTTOM);
         }
     }
     else if ("LA" == DevName)
     {
-        if (0 == Index)
+        if (0 == Index && m_pAirLiquid != NULL)
         {
             current = m_pAirLiquid->GetRecentCurrent(AL_LEVELSENSOR);
         }
-        else if (1 == Index)
+        else if (1 == Index && m_pAirLiquid != NULL)
         {
             current = m_pAirLiquid->GetRecentCurrent(AL_TUBE1);
         }
-        else if (2 == Index)
+        else if (2 == Index && m_pAirLiquid != NULL)
         {
             current = m_pAirLiquid->GetRecentCurrent(AL_TUBE2);
         }
     }
-    else if ("RV" == DevName)
+    else if ("RV" == DevName && m_pRotaryValve != NULL)
     {
         current = m_pRotaryValve->GetRecentCurrent();
     }
