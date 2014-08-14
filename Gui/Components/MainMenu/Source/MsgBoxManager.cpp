@@ -420,7 +420,7 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
         if ("" != m_CurrentMsgData.AutoQuitMsgBoxTime)
         {
             int timeInSeconds = DataManager::Helper::ConvertTimeStringToSeconds(m_CurrentMsgData.AutoQuitMsgBoxTime);
-            m_AutoQuitMsgBoxTimer.start(timeInSeconds);
+            m_AutoQuitMsgBoxTimer.start(timeInSeconds*1000);
         }
 
         //disable "OK"

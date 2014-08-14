@@ -220,6 +220,7 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                         break;
                     case NetCommands::TIMEOUT:
                     default: //time out
+                    qDebug() << "I get the timeout message";
                         NextStepID = pCurrentStep->GetNextStepOnTimeOut();
                 }
                 if(NextStepID != 0){
@@ -333,14 +334,8 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
         EventReportData.MsgString = Global::UITranslator::TranslatorInstance().Translate(Global::TranslatableString(pStep->GetStringID(), m_ActiveEvents[EventKey].EventStringParList)); //"Event String translated to the set langauge";
 //        EventReportData.MsgString = pStep->GetStringID();
         EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
-        if(m_TestMode)
-        {
-            EventReportData.Timeout = "";
-        }
-        else
-        {
-            EventReportData.Timeout = pStep->GetTimeOut();
-        }
+
+        EventReportData.Timeout = pStep->GetTimeOut();
         EventReportData.BtnEnableConditions = pStep->GetButtonEnableConditon();
         EventReportData.BtnType = pStep->GetButtonType();
         EventReportData.StatusBarIcon = pStep->GetStatusBar();   //true if GUI must set status bar icon.
