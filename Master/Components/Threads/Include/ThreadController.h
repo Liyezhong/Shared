@@ -91,16 +91,6 @@ protected:
     CommandChannel                  m_CommandChannel;           ///< Command channel.
     /****************************************************************************/
     /**
-     * \brief Send a command over its command channel.
-     *
-     *
-     * \iparam   Cmd     The command.
-     * \iparam   Ref     The command reference.
-     */
-    /****************************************************************************/
-    virtual void SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
-    /****************************************************************************/
-    /**
      * \brief Send a acknowledge over its command channel.
      *
      * \iparam   Ref     Acknowledge reference.
@@ -161,6 +151,16 @@ protected:
     /****************************************************************************/
     virtual void OnExecuteCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd, CommandChannel &AckCommandChannel);
 public:
+    /****************************************************************************/
+    /**
+     * \brief Send a command over its command channel.
+     *
+     *
+     * \iparam   Cmd     The command.
+     * \iparam   Ref     The command reference.
+     */
+    /****************************************************************************/
+    virtual void SendCommand(Global::tRefType Ref, const Global::CommandShPtr_t &Cmd);
 
     /****************************************************************************/
     /**
