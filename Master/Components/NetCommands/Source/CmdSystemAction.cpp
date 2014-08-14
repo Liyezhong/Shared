@@ -63,7 +63,14 @@ CmdSystemAction::CmdSystemAction(int Timeout, const QString &theStrErrorInfo, bo
  */
 /****************************************************************************/
 CmdSystemAction::CmdSystemAction() :
-    Command(15000)
+    Command(15000),
+    m_StrErrorInfo(""),
+    m_Ack(false),
+    m_MaxNumberofRetries (0),
+    m_UserRetry(false),
+    m_EventKey(0),
+    m_EventID(0),
+    m_SourceComponent(Global::EVENTSOURCE_NONE)
 {
 }
 

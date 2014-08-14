@@ -339,12 +339,13 @@ void CMsgBoxManager::ButtonRightClicked()
 
 void CMsgBoxManager::AutoQuitMessageBox()
 {
+    Global::tRefType CmdRef = m_EvenIDCmdRefHash.value(m_CurrentMsgData.ID);
+    emit EventReportAck(NetCommands::TIMEOUT, CmdRef, m_CurrentMsgData.ID);
     RemoveMsgBoxFromQueue(static_cast<Global::EventType>(m_CurrentMsgData.EventType), m_CurrentMsgBoxEventID);
     //Removing the messages with Status as Inactive
     MainMenu::CStatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(m_CurrentMsgData.EventType) , m_CurrentMsgBoxEventID);
 
-    Global::tRefType CmdRef = m_EvenIDCmdRefHash.value(m_CurrentMsgData.ID);
-    emit EventReportAck(NetCommands::TIMEOUT, CmdRef, m_CurrentMsgData.ID);
+
 }
 
 /****************************************************************************/
