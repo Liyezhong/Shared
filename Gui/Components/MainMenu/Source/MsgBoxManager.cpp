@@ -344,12 +344,6 @@ void CMsgBoxManager::AutoQuitMessageBox()
     RemoveDataFromContainers(m_CurrentMsgData.EventType, m_CurrentMsgData.ID);
     m_CurrentMsgBoxEventID  = 0;
     ShowMsgBoxIfQueueNotEmpty();
-
-//    RemoveMsgBoxFromQueue(static_cast<Global::EventType>(m_CurrentMsgData.EventType), m_CurrentMsgBoxEventID);
-//    //Removing the messages with Status as Inactive
-//    MainMenu::CStatusBarManager::GetInstance()->RemoveEventMessages(static_cast<Global::EventType>(m_CurrentMsgData.EventType) , m_CurrentMsgBoxEventID);
-
-
 }
 
 /****************************************************************************/
