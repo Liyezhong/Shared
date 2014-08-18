@@ -429,6 +429,19 @@ void IDeviceProcessing::NotifySavedServiceInfor(const QString& deviceType)
     emit ReportSavedServiceInfor(deviceType);
 }
 
+void IDeviceProcessing::ResetActiveCarbonFilterLifeTime()
+{
+    if(m_pAirLiquid)
+    {
+        m_pAirLiquid->ResetActiveCarbonFilterLifeTime();
+    }
+    ArchiveServiceInfor();
+    if (mp_DevProc)
+    {
+        mp_DevProc->WriteDeviceLifeCycle();
+    }
+}
+
 /****************************************************************************/
 /*!
  *  \brief Forwards the 'normal operation mode starts' notification

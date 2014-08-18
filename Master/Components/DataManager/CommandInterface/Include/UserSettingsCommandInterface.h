@@ -78,6 +78,13 @@ signals:
      */
     /****************************************************************************/
     void UserSettingsWaterTypeChanged(const bool TapWaterType);
+    /****************************************************************************/
+    /**
+     * \brief This signal is emitted when User resets the life time of ActiveCarbonFilter
+     *
+     */
+    /****************************************************************************/
+    void ResetActiveCarbonFilterLifeTime();
 };
 
 }// End of namespace DataManager

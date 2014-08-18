@@ -2624,4 +2624,18 @@ ReturnCode_t CAirLiquidDevice::SetPressureDrift(float pressureDrift)
     m_PressureDrift = pressureDrift;
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
+/****************************************************************************/
+/*!
+ *  \brief  Reset the life time of ActiveCarbonFilter
+ */
+/****************************************************************************/
+void CAirLiquidDevice::ResetActiveCarbonFilterLifeTime()
+{
+    if (m_pPressureCtrl)
+    {
+        m_pPressureCtrl->SetActiveCarbonFilterLifeTime(0);
+    }
+
+}
+
 } //namespace

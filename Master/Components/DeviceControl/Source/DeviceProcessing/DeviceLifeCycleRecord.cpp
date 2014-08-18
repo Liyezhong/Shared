@@ -34,6 +34,7 @@ DeviceLifeCycleRecord::DeviceLifeCycleRecord()
 
 DeviceLifeCycleRecord::~DeviceLifeCycleRecord()
 {
+    FreeObjects();
 }
 
 void DeviceLifeCycleRecord::ReadRecord()
@@ -161,4 +162,23 @@ void DeviceLifeCycleRecord::WriteRecord()
     domDocument.save(out, IndentSize);
     file.close();
 }
+
+void DeviceLifeCycleRecord::FreeObjects()
+{
+    QMapIterator<QString, ModuleLifeCycleRecord*> iter(m_ModuleLifeCycleMap);
+    while (iter.hasNext()) {
+        iter.next();
+        ModuleLifeCycleRecord* pModuleLifeCycleRecord = iter.value();
+        QMapIterator<QString, PartLifeCycleRecord*> iterPart(pModuleLifeCycleRecord->m_PartLifeCycleMap);
+        while (iterPart.hasNext()) {
+            iterPart.next();
+            PartLifeCycleRecord* partLifeCycleRecord = iterPart.value();
+            delete partLifeCycleRecord;
+        }
+        pModuleLifeCycleRecord->m_PartLifeCycleMap.clear();
+        delete pModuleLifeCycleRecord;
+    }
+    m_ModuleLifeCycleMap.clear();
+}
+
 

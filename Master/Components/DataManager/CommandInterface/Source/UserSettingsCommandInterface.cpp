@@ -75,13 +75,13 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
         QByteArray SettingsData(const_cast<QByteArray &>(Cmd.GetUserSettings()));
         QDataStream SettingsDataStream(&SettingsData, QIODevice::ReadWrite);
         SettingsDataStream.setVersion(static_cast<int>(QDataStream::Qt_4_0));
-        CUserSettings Settings;
+        CHimalayaUserSettings Settings;
         SettingsDataStream >> Settings;
         bool ProxySettingsChanged = false;
 
         // compare the previous settings with the present settings and log the events
         bool LanguageChanged = false;
-        const CUserSettings TempSettings(*mp_DataContainer->SettingsInterface->GetUserSettings());
+        const CHimalayaUserSettings TempSettings(*mp_DataContainer->SettingsInterface->GetUserSettings());
 
         bool Result = true;
         Result = mp_DataContainer->SettingsInterface->UpdateUserSettings(&Settings);
@@ -112,6 +112,12 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                                                            Global::FmtArgs() << QLocale::languageToString(Settings.GetLanguage()));
                 LanguageChanged = true;
             }
+
+            if (0 == Settings.GetActiveCarbonHours())
+            {
+                emit ResetActiveCarbonFilterLifeTime();
+            }
+
             // raise the event if the oven temperature is changed
             if (TempSettings.GetValue("Oven_Temp") != Settings.GetValue("Oven_Temp")) {
                 Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_OVEN_TEMP_CHANGED,

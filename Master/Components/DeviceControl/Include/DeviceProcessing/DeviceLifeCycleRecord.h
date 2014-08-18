@@ -52,6 +52,7 @@ namespace DeviceControl
         void WriteRecord();
         QMap<QString, ModuleLifeCycleRecord*> m_ModuleLifeCycleMap;
     private:
+        void FreeObjects();
         QString m_DeviceLifeCycleRecordFileName;
     };
 }

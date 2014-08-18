@@ -662,11 +662,34 @@ public:
      */
     /****************************************************************************/
     CBaseModule* GetBaseModule(HimSlaveType_t Type);
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Initialize the state machine for archieve service information
+     *
+     */
+    /****************************************************************************/
     void InitArchiveServiceInforState();
+    /****************************************************************************/
+    /*!
+     *  \brief  start to archieve service information
+     *
+     */
+    /****************************************************************************/
     void ArchiveServiceInfor();
+    /****************************************************************************/
+    /*!
+     *  \brief  report last service information is saved
+     *
+     */
+    /****************************************************************************/
     void NotifySavedServiceInfor(const QString& deviceType);
-
+    /****************************************************************************/
+    /*!
+     *  \brief  Reset the life time of ActiveCarbonFilter
+     *
+     */
+    /****************************************************************************/
+    void ResetActiveCarbonFilterLifeTime();
     /****************************************************************************/
     /*!
      *  \brief  Get Current and Voltage status of all the slave devices
