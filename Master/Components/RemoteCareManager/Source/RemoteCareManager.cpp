@@ -333,9 +333,9 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
         }
 
 //        // send only the requested priority of events
-//        if(TheEvent.GetLogLevel() != m_EventPriority) {
-//            return;
-//        }
+        if(TheEvent.GetLogLevel() != m_EventPriority) {
+            return;
+        }
 
         NetCommands::RCEventReportDataStruct EventReportData;
 

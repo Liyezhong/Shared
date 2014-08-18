@@ -420,8 +420,8 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
 
     if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
         return;
-//    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
-//        return;
+    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
+        return;
 
     quint64 EventId64 = ((quint64)EventInfo.EventID << 32) | EventInfo.EventKey;
 
