@@ -52,6 +52,7 @@ typedef enum NetworkSettings {
  */
 /****************************************************************************/
 typedef enum Languages {
+    CHINESE,                    ///< Chinese language
     DEUTSCH,                    ///< Deutsch language
     US_ENGLISH                  ///< English language
 } Languages_t;                  ///< Enum variable

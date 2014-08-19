@@ -165,6 +165,12 @@ public:
         return m_SaMUserMode;
     }
 
+    /****************************************************************************/
+    /*!
+     *  \brief This function clears the TabWidget
+     */
+    /****************************************************************************/
+    void Clear();
 
 private:
     Ui::CMainWindow *mp_Ui;                     //!< User interface

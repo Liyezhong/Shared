@@ -267,6 +267,16 @@ void CMainWindow::SetUserMode(QString Mode)
 
 /****************************************************************************/
 /*!
+ *  \brief This function clears the TabWidget
+ */
+/****************************************************************************/
+void CMainWindow::Clear()
+{
+    mp_Ui->TabWidget->clear();
+}
+
+/****************************************************************************/
+/*!
  *  \brief Sets the status icons in the status bar
  *
  *  \iparam Status = Status of the

@@ -58,6 +58,8 @@ CMenuGroup::CMenuGroup(QWidget *p_Parent) : QWidget(p_Parent), mp_Ui(new Ui::CMe
     mp_Widget->setMinimumSize(438, 349);
     mp_Ui->horizontalLayout->addWidget(mp_Widget);
 
+    mp_VBoxLayout = new QVBoxLayout();
+
     mp_ButtonLayout = new QVBoxLayout();
     mp_ButtonLayout->addStretch(1);
     mp_Ui->menuWidget->SetContent(mp_ButtonLayout);
@@ -80,6 +82,7 @@ CMenuGroup::~CMenuGroup()
         delete mp_ContentStack;
         delete mp_ContentLayout;
 
+        delete mp_VBoxLayout;
         delete mp_ButtonGroup;
         delete mp_ButtonLayout;
 
@@ -137,10 +140,9 @@ void CMenuGroup::AddSettingsPanel(QString Title, QWidget *p_Content)
 {
     AddButton(Title);
 
-    QVBoxLayout *Layout = new QVBoxLayout(this);
-    Layout->setContentsMargins(0, 0, 0, 0);
-    Layout->addWidget(p_Content);
-    mp_Widget->setLayout(Layout);    
+    mp_VBoxLayout->setContentsMargins(0, 0, 0, 0);
+    mp_VBoxLayout->addWidget(p_Content);
+    mp_Widget->setLayout(mp_VBoxLayout);
     mp_Ui->contentWidget->setVisible(false);
 
     m_ItemCount++;
@@ -162,6 +164,28 @@ void CMenuGroup::AddSettingsPanel(QString Title, QWidget *p_Content)
 QWidget *CMenuGroup::GetCurrentPanel()
 {
     return (mp_ContentStack->currentWidget());
+}
+
+/****************************************************************************/
+/*!
+ *  \brief This function deletes all widgets and buttons from button group
+ */
+/****************************************************************************/
+void CMenuGroup::Clear()
+{
+    QList<QAbstractButton*> ButtonList = mp_ButtonGroup->buttons();
+    foreach (QAbstractButton* pButton, ButtonList) {
+        mp_ButtonGroup->removeButton(pButton);
+        mp_ButtonLayout->removeWidget(pButton);
+        delete pButton;
+    }
+
+    while(m_ItemCount) {
+        mp_ContentStack->removeWidget(mp_ContentStack->widget(0));
+        m_ItemCount--;
+    }
+
+    mp_VBoxLayout->removeWidget(mp_VBoxLayout->widget());
 }
 
 /****************************************************************************/

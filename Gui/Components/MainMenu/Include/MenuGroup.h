@@ -54,6 +54,7 @@ public:
     void AddSettingsPanel (QString Title, QWidget *p_Content);
     QWidget *GetCurrentPanel();
 
+    void Clear();
 private:
     void AddButton (QString Text);
 
@@ -67,6 +68,8 @@ private:
     QWidget *mp_Widget;
     int m_ButtonNumber;
     int m_CurrentTabIndex;
+
+    QVBoxLayout *mp_VBoxLayout;         //!< Vertical box layout object
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.

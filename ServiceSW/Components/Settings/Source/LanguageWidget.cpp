@@ -56,7 +56,8 @@ CLanguageWidget::CLanguageWidget(QWidget *p_Parent) :
     mp_TableWidget->setModel(&m_LanguageModel);
     mp_Ui->tableWidget->SetContent(mp_TableWidget);    
     PopulateLanguageList();
-    m_LanguageList.append("Deutsch");
+    m_LanguageList.append(QApplication::translate("ServiceUpdates::CLanguageWidget",
+                                                  "Chinese", 0, QApplication::UnicodeUTF8));
     m_LanguageList.append("U.S English");
 
     mp_MessageDlg = new MainMenu::CMessageDlg(this);
@@ -151,8 +152,8 @@ void CLanguageWidget::PopulateLanguageList()
 void CLanguageWidget::OnBtnApplyClicked()
 {
     if (m_SelectedLanguage == m_LanguageList.value(0)) {
-        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "Deutsch");
-        emit SetLanguage(PlatformService::DEUTSCH);
+        Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "Chinese");
+        emit SetLanguage(PlatformService::CHINESE);
     } else {
         Global::EventObject::Instance().RaiseEvent(EVENT_SERVICE_GUI_SETTINGS_LANGUAGE_CHANGE, Global::tTranslatableStringList() << "U.S English");
         emit SetLanguage(PlatformService::US_ENGLISH);
