@@ -1,11 +1,10 @@
-!include("../../../Test/Platform.pri"):error("TestDataManager.pri not found")
-TARGET = utKeyBoard
-SOURCES += TestKeyBoard.cpp
+# build all components recursive
 
-INCLUDEPATH += ../../ \
-            ../../../../../Platform/Master/Components \
+TEMPLATE = subdirs
+SUBDIRS = ../../../../Master/Components/Global/Build/Global.pro \
+          ../../../../Gui/Components/Application/Build/Application.pro \
+        ../Build/KeyBoard.pro \
+       ../../MainMenu/Build/MainMenu.pro \
+       ./MainTest/Build/MainTest.pro
 
-DEPENDPATH += ../../
-
-UseLibs(KeyBoard MainMenu Application)
-UseLib(../../../../Master/Components/Global)
+CONFIG += ordered

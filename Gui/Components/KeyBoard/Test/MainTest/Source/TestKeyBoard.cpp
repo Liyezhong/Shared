@@ -20,7 +20,7 @@
 
 #include <QTest>
 #include <QDebug>
-#include <KeyBoard/Include/KeyBoard.h>
+#include "../../../../KeyBoard/Include/KeyBoard.h"
 #include <QObject>
 
 namespace KeyBoard {
