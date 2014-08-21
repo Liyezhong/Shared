@@ -148,7 +148,7 @@ void CNetworkSettingsWidget::changeEvent(QEvent *p_Event)
     case QEvent::LanguageChange:
         //Commented below line because it calls retranslateUi of ui_NetworkSettingsWidget.h
         // which sets the buttons(UserNameButton, Password, IPAddress and IP Port) text to default values.
-       // mp_Ui->retranslateUi(this);      
+        mp_Ui->retranslateUi(this);
         RetranslateUI();
         break;
     default:

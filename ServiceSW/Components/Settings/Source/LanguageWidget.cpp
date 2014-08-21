@@ -56,8 +56,10 @@ CLanguageWidget::CLanguageWidget(QWidget *p_Parent) :
     mp_TableWidget->setModel(&m_LanguageModel);
     mp_Ui->tableWidget->SetContent(mp_TableWidget);    
     PopulateLanguageList();
+    //m_LanguageList.append(QApplication::translate("ServiceUpdates::CLanguageWidget",
+                                                  //"Chinese", 0, QApplication::UnicodeUTF8));
     m_LanguageList.append(QApplication::translate("ServiceUpdates::CLanguageWidget",
-                                                  "Chinese", 0, QApplication::UnicodeUTF8));
+                                                  "中文", 0, QApplication::UnicodeUTF8));
     m_LanguageList.append("U.S English");
 
     mp_MessageDlg = new MainMenu::CMessageDlg(this);
