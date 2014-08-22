@@ -1173,7 +1173,7 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure)
                 FILE_LOG_L(laDEVPROC, llWARNING) << "Warning: Draining do not finished in expected time";
                 LogDebug(QString("WARNING: Draining do not finished in expected time"));
                 WarnShowed = true;
-                RetValue = DCL_ERR_DEV_LA_DRAINING_TIMEOUT_EMPTY_2MIN;
+                m_pDevProc->OnReportDrainingTimeOut2Min();
             }
             if(TimeNow > (TimeStartDraining + DRAINGING_MAX_SETUP_TIME))
             {
@@ -1310,7 +1310,7 @@ ReturnCode_t CAirLiquidDevice::Filling(quint32 DelayTime, bool EnableInsufficien
                 FILE_LOG_L(laDEVPROC, llWARNING) << "Warning! Do not get level sensor data in" << (SUCKING_SETUP_WARNING_TIME / 1000)<<" seconds.";
                 LogDebug(QString("WARNING! Do not get level sensor data in %1 seconds").arg(SUCKING_SETUP_WARNING_TIME / 1000));
                 WarnShowed = true;
-                RetValue = DCL_ERR_DEV_LA_FILLING_TIMEOUT_2MIN;
+                m_pDevProc->OnReportFillingTimeOut2Min();
             }
             if(TimeNow > (TimeStartPressure + SUCKING_MAX_SETUP_TIME))
             {

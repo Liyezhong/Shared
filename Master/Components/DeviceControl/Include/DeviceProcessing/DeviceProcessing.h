@@ -297,12 +297,30 @@ public:
     /*****************************************************************************/
     /*!
      *  \brief  emit signal on level sensnor status change to 1
-     *
      *  \param  no
      *  \return void
      */
     /*****************************************************************************/
     void OnReportLevelSensorStatus1() { emit ReportLevelSensorStatus1(); }
+
+    /*****************************************************************************/
+    /*!
+     *  \brief  emit signal on Filling TimeOut 2Min
+     *  \param  no
+     *  \return void
+     */
+    /*****************************************************************************/
+    void OnReportFillingTimeOut2Min() { emit ReportFillingTimeOut2Min(); }
+
+    /*****************************************************************************/
+    /*!
+     *  \brief  emit signal on Draining TimeOut 2Min
+     *  \param  no
+     *  \return void
+     */
+    /*****************************************************************************/
+    void OnReportDrainingTimeOut2Min() { emit ReportDrainingTimeOut2Min(); }
+
     //! Return CANNode specified by it's ID
     CBaseModule* GetNodeFromID(quint32 nodeID) const;
     /****************************************************************************/
@@ -379,8 +397,27 @@ signals:
     /****************************************************************************/
     void DeviceShutdown();
 
-    //! Forward AirLiquid's level sensor status change to upper layer
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward AirLiquid's level sensor status change to upper layer
+     */
+    /****************************************************************************/
     void ReportLevelSensorStatus1();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward Filling TimeOut 2Min to upper layer
+     */
+    /****************************************************************************/
+    void ReportFillingTimeOut2Min();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward Draining empty TimeOut 2Min to upper layer
+     */
+    /****************************************************************************/
+    void ReportDrainingTimeOut2Min();
+
     /****************************************************************************/
     /*!
      *  \brief  Returns the service information of a device

@@ -768,8 +768,28 @@ signals:
      */
     /****************************************************************************/
     void DeviceShutdown();
-    //! Forward the 'level sensor change to 1' to scheduler module
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward the 'level sensor change to 1' to scheduler module
+     */
+    /****************************************************************************/
     void ReportLevelSensorStatus1();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward Filling TimeOut 2Min to scheduler module
+     */
+    /****************************************************************************/
+    void ReportFillingTimeOut2Min();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Forward Draining TimeOut 2Min to scheduler module
+     */
+    /****************************************************************************/
+    void ReportDrainingTimeOut2Min();
+
     /****************************************************************************/
     /*!
      *  \brief  Returns the service information of a device
