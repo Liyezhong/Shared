@@ -503,7 +503,7 @@ typedef struct {
     quint16           errorGroup;
     quint16           errorCode;
     quint16           errorData;
-    QDateTime         errorTime;
+    qint64            errorTime;
 }ReportError_t;
 
 /****************************************************************************/
