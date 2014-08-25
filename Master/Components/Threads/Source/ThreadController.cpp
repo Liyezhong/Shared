@@ -174,7 +174,8 @@ void ThreadController::OnExecuteCommand(Global::tRefType Ref, const Global::Comm
             if(Functor == NullCommandExecuteFunctor) {
                 qDebug()<<"ThreadController" << Cmd->GetName();
                 // throw exception
-                LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName())                
+                LOGANDTHROWARG(EVENT_THREADS_ERROR_UNSUPPORTED_COMMAND, Cmd->GetName())
+                return;
             }
             // execute
             Functor.GetPointerToUserData()->Execute(Ref, Cmd.GetPointerToUserData());
