@@ -94,6 +94,8 @@ IDeviceProcessing::IDeviceProcessing() :
     // Shutdown signal to device threads
     CONNECTSIGNALSIGNAL(this, DeviceShutdown(), mp_DevProc, DeviceShutdown());
     CONNECTSIGNALSIGNAL(mp_DevProc, ReportLevelSensorStatus1(), this, ReportLevelSensorStatus1());
+    CONNECTSIGNALSIGNAL(mp_DevProc, ReportFillingTimeOut2Min(), this, ReportFillingTimeOut2Min());
+    CONNECTSIGNALSIGNAL(mp_DevProc, ReportDrainingTimeOut2Min(), this, ReportDrainingTimeOut2Min());
     CONNECTSIGNALSIGNAL(mp_DevProc, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&),
                      this, ReportGetServiceInfo(ReturnCode_t, const DataManager::CModule&, const QString&));
     m_ParentThreadID = QThread::currentThreadId();

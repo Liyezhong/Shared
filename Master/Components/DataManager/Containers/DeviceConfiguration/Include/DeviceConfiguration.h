@@ -161,7 +161,16 @@ public:
     /****************************************************************************/
     QString GetValue(QString key) const
     {
-        return m_ValueList.value(key.toUpper(), "");
+
+        QString sn = m_ValueList.value(key.toUpper(), "");
+        if(key.toUpper().compare("SERIALNUMBER") == 0){
+            sn.remove(QRegExp("\\W"));
+        }
+        else if(key.toUpper().compare("DEVICENAME") == 0){
+            sn.remove(QRegExp("\\s"));
+        }
+
+        return sn;
     }
 
     /****************************************************************************/

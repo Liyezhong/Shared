@@ -446,8 +446,8 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             bool StatusBar = true;
             if (m_pXMLReader->attributes().hasAttribute("StatusBar"))
             {
-                QString strRet = m_pXMLReader->attributes().value("StatusBar").toString();
-                if (strRet.trimmed().compare("YES",Qt::CaseInsensitive))
+                QString strRet = m_pXMLReader->attributes().value("StatusBar").toString().toUpper();
+                if (strRet.trimmed().compare("YES",Qt::CaseInsensitive) == 0)
                 {
                     StatusBar = true;
                 }

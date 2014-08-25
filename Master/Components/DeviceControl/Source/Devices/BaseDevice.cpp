@@ -394,6 +394,12 @@ void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, 
         }
         //LOG()<<"Function module: "<< FuncModName <<" Error, Error Group: "<< ErrorGroup<<" Error Code: "<<ErrorCode<<" Error Data: "<<ErrorData<<" Error Time: "<<ErrorTime;
         FILE_LOG_L(laDEV, llDEBUG)<<"Function module: "<< FuncModName.toStdString()<<" Error, Error Group: "<<  std::hex << ErrorGroup<<" Error Code: "<<std::hex<<ErrorCode<<" Error Data: "<<std::hex<<ErrorData<<" Error Time: "<<ErrorTime.toString().toStdString();
+        ReportError_t reportErr;
+        reportErr.instanceID = InstanceID;
+        reportErr.errorGroup = ErrorGroup;
+        reportErr.errorCode = ErrorCode;
+        reportErr.errorTime = ErrorTime.toMSecsSinceEpoch();
+        m_ReportErrorList.push_back(reportErr);
     }
 }
 
