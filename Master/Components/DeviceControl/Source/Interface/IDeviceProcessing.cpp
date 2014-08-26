@@ -2382,4 +2382,38 @@ CBaseModule* IDeviceProcessing::GetBaseModule(HimSlaveType_t Type)
     return mp_DevProc->GetBaseModule(Type);
 }
 
+quint16 IDeviceProcessing::IDGetRemoteAlarmStatus()
+{
+    return m_pPeriphery->GetRemoteAlarmStatus();
+}
+
+quint16 IDeviceProcessing::IDGetLocalAlarmStatus()
+{
+    return m_pPeriphery->GetLocalAlarmStatus();
+}
+
+ReturnCode_t IDeviceProcessing::IDSetAlarm(int opcode)
+{
+
+    if (m_pPeriphery == NULL)
+            return DCL_ERR_FCT_CALL_FAILED;
+
+    switch (opcode) {
+        case 0:
+            return m_pPeriphery->TurnOffLocalAlarm();
+        case 1:
+            return m_pPeriphery->TurnOnLocalAlarm();
+        case 2:
+            return m_pPeriphery->TurnOffRemoteAlarm();
+        case 3:
+            return m_pPeriphery->TurnOnRemoteAlarm();
+
+        default:
+            m_pPeriphery->TurnOffLocalAlarm();
+            m_pPeriphery->TurnOffRemoteAlarm();
+        break;
+    }
+    return DCL_ERR_FCT_CALL_FAILED;
+}
+
 } // namespace

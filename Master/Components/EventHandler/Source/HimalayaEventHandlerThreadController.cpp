@@ -79,107 +79,134 @@ void HimalayaEventHandlerThreadController::ConnectToEventObject()
 
 }
 
+void HimalayaEventHandlerThreadController::HandleAlarm(quint32 EventID, quint32 Scenario, const quint32 EventKey, const bool Active)
+{
+    const XMLEvent* pEvent = NULL;
+    if(!m_ActiveEvents.contains(EventKey))
+        pEvent = m_EventManager.GetEvent(EventID, Scenario);
+    else
+        pEvent = m_ActiveEvents[EventKey].Event;
+
+     if (pEvent == NULL)
+           return ;
+
+    switch (pEvent->GetAlarmType()) {
+        case Global::ALARMPOS_REMOTE:
+            emit SetRmtLocAlarm(Active ? 3 : 2);
+        case Global::ALARMPOS_LOCAL:
+            emit SetRmtLocAlarm(Active ? 1 : 0);
+        case Global::ALARMPOS_DEVICE:
+            InformAlarmHandler(pEvent->GetErrorType(), EventID, Active);
+            break;
+        case Global::ALARMPOS_NONE:
+            break;
+        default:
+            break;
+    }
+}
+
 void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
                                                         const bool Active, const bool ActionResult,
                                                         const Global::tTranslatableStringList &EventStringParList,
                                                         const Global::tTranslatableStringList &EventRDStringParList)
 {
-    if(Active){
-        quint32 EventID = EventIDScenario >> 32;
-        quint32 Scenario = EventIDScenario & 0xffffffff;
-        if (EventID == EVENT_GUI_AVAILABLE) {
-                SetGuiAvailable(true);
-                return;
-        }
-        const XMLEvent* pEvent = NULL; // current Event
-        const EventStep* pCurrentStep = NULL; // current step
-        const EventStep* pNextStep = NULL; // Next step
-        quint32 NextStepID = 0;
-        if(!m_ActiveEvents.contains(EventKey)){ // first coming
-            pEvent = m_EventManager.GetEvent(EventID,Scenario);
-            if(pEvent){
-                pNextStep = pEvent->GetStep(0);
-                if(pEvent && pNextStep){ // insert to active event list
-                    EventRuntimeInfo_t EventInfo;
-                    EventInfo.EventKey = EventKey;
-                    EventInfo.EventID = EventID;
-                    EventInfo.Scenario = Scenario;
-                    EventInfo.ActionResult = ActionResult;
-                    EventInfo.CurrentStep = 0;
-                    EventInfo.Event = pEvent;
-                    EventInfo.EventStringParList = EventStringParList;
-                    EventInfo.EventRDStringParList = EventRDStringParList;
-                    m_ActiveEvents.insert(EventKey,EventInfo);
-                }
-            }
-#if 1
-            else{  // only for debug
-                NetCommands::EventReportDataStruct EventReportData;
-                EventReportData.EventStatus = true;
-                EventReportData.EventType = Global::EVTTYPE_DEBUG;
-                EventReportData.ID = (((quint64)EventID) << 32) + EventKey;
-                EventReportData.EventKey = EventKey;
-                EventReportData.MsgString = QString("DBG: Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
-                EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
-                EventReportData.BtnType = Global::OK;
-                EventReportData.StatusBarIcon = false;
-                if (m_GuiAvailable){
-                    Global::tRefType Ref = GetNewCommandRef();
-                    SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
-                }
-            }
-#endif
-        }
-        else{ //move to next step
-            pEvent = m_ActiveEvents[EventKey].Event;
-            pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
-            if(pEvent && pCurrentStep){ //caculate the next step
-                m_ActiveEvents[EventKey].ActionResult = ActionResult;
-                if(pCurrentStep->GetType().compare("ACT") == 0){ //action step
-                    LogEntry(m_ActiveEvents[EventKey]); //log the action result
-                    if(ActionResult){
-                        m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
-                        NextStepID = pCurrentStep->GetNextStepOnSuccess();
-                    }
-                    else{
-                        NextStepID = pCurrentStep->GetNextStepOnFail();
-                    }
-                    if(NextStepID != 0){
-                        pNextStep = pEvent->GetStep(NextStepID);
-                        m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
-                    }
-                    else{ // event finished
-                        m_ActiveEvents.remove(EventKey);
-                    }
-                }
-                else{ // this case should be processed in onAcknowledge()
-                }
-            }
-        }
+    quint32 EventID = EventIDScenario >> 32;
+    quint32 Scenario = EventIDScenario & 0xffffffff;
 
-        if(pEvent && pNextStep){ // do next step
-            if(pNextStep->GetType().compare("ACT") == 0){ // send cmd to scheduler
-                SendACTCommand(EventKey, pEvent, pNextStep);
+    HandleAlarm(EventID, Scenario, EventKey, Active);
+
+    if (!Active) {
+        m_ActiveEvents.remove(EventKey);
+        return ;
+    }
+    if (EventID == EVENT_GUI_AVAILABLE) {
+        SetGuiAvailable(true);
+        return;
+    }
+
+    const EventStep* pCurrentStep = NULL; // current step
+    const EventStep* pNextStep = NULL; // Next step
+    quint32 NextStepID = 0;
+
+    const XMLEvent* pEvent = NULL;
+    if(!m_ActiveEvents.contains(EventKey)) { // first coming
+        pEvent = m_EventManager.GetEvent(EventID, Scenario);
+        if(pEvent) {
+            pNextStep = pEvent->GetStep(0);
+            if(pNextStep) { // insert to active event list
+                EventRuntimeInfo_t EventInfo;
+                EventInfo.EventKey = EventKey;
+                EventInfo.EventID = EventID;
+                EventInfo.Scenario = Scenario;
+                EventInfo.ActionResult = ActionResult;
+                EventInfo.CurrentStep = 0;
+                EventInfo.Event = pEvent;
+                EventInfo.EventStringParList = EventStringParList;
+                EventInfo.EventRDStringParList = EventRDStringParList;
+                m_ActiveEvents.insert(EventKey,EventInfo);
             }
-            else{ //send cmd to GUI
-                m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
-                LogEntry(m_ActiveEvents[EventKey]);
-                if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
-                    SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+        }
+#if 1
+        else {  // only for debug
+            NetCommands::EventReportDataStruct EventReportData;
+            EventReportData.EventStatus = true;
+            EventReportData.EventType = Global::EVTTYPE_DEBUG;
+            EventReportData.ID = (((quint64)EventID) << 32) + EventKey;
+            EventReportData.EventKey = EventKey;
+            EventReportData.MsgString = QString("DBG: Unknow EventID and Scenario: %1, %2").arg(EventID).arg(Scenario);
+            EventReportData.Time = Global::AdjustedTime::Instance().GetCurrentDateTime().toString();
+            EventReportData.BtnType = Global::OK;
+            EventReportData.StatusBarIcon = false;
+            if (m_GuiAvailable) {
+                Global::tRefType Ref = GetNewCommandRef();
+                SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
+            }
+        }
+#endif
+    }
+    else { //move to next step
+        pEvent = m_ActiveEvents[EventKey].Event;
+        pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
+        if(pEvent && pCurrentStep) { //caculate the next step
+            m_ActiveEvents[EventKey].ActionResult = ActionResult;
+            if(pCurrentStep->GetType().compare("ACT") == 0){ //action step
+                LogEntry(m_ActiveEvents[EventKey]); //log the action result
+                if(ActionResult){
+                    m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
+                    NextStepID = pCurrentStep->GetNextStepOnSuccess();
                 }
-                else{ // event only for logging
+                else {
+                    NextStepID = pCurrentStep->GetNextStepOnFail();
+                }
+                if(NextStepID != 0){
+                    pNextStep = pEvent->GetStep(NextStepID);
+                    m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
+                }
+                else { // event finished
                     m_ActiveEvents.remove(EventKey);
                 }
             }
+            else { // this case should be processed in onAcknowledge()
+            }
         }
-
-
     }
-    else{  //incative event: remove from m_ActiveEvents
-        m_ActiveEvents.remove(EventKey);
+
+    if(pEvent && pNextStep) { // do next step
+        if(pNextStep->GetType().compare("ACT") == 0) { // send cmd to scheduler
+            SendACTCommand(EventKey, pEvent, pNextStep);
+        }
+        else { //send cmd to GUI
+            m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
+            LogEntry(m_ActiveEvents[EventKey]);
+            if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
+                SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+            }
+            else { // event only for logging
+                m_ActiveEvents.remove(EventKey);
+            }
+        }
     }
 }
-
 
 void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventID,
                   const Global::tTranslatableStringList &EventStringList,
@@ -209,36 +236,39 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
         quint32 NextStepID = 0;
         pEvent = m_ActiveEvents[EventKey].Event;
         pCurrentStep = pEvent->GetStep(m_ActiveEvents[EventKey].CurrentStep);
-        if(pEvent && pCurrentStep){ //caculate the next step
+        if(pEvent && pCurrentStep) { //caculate the next step
             if(pCurrentStep->GetType().compare("MSG") == 0){ //msg step
                 m_ActiveEvents[EventKey].UserSelect = ack.GetButtonClicked();
                 LogEntry(m_ActiveEvents[EventKey]);
                 NetCommands::ClickedButton_t clicked = ack.GetButtonClicked();
-                switch(clicked){
+                switch(clicked) {
                     case NetCommands::OK_BUTTON:
                         NextStepID = pCurrentStep->GetNextStepOnClickOK();
+                        emit SetRmtLocAlarm(-1);
+                        ResetAlarm();
                         break;
+
                     case NetCommands::TIMEOUT:
                     default: //time out
-                    qDebug() << "I get the timeout message";
+                        qDebug() << "I get the timeout message";
                         NextStepID = pCurrentStep->GetNextStepOnTimeOut();
                 }
-                if(NextStepID != 0){
+                if(NextStepID != 0) {
                     pNextStep = pEvent->GetStep(NextStepID);
                     m_ActiveEvents[EventKey].CurrentStep = NextStepID; //move to next step
                 }
-                else{
+                else {
                     m_ActiveEvents.remove(EventKey); // remove
                 }
             }
-            else{ // this case should be processed in processEvent()
+            else { // this case should be processed in processEvent()
             }
         }
-        if(pEvent && pNextStep){ // do next step
-            if(pNextStep->GetType().compare("ACT") == 0){ // send cmd to scheduler
+        if (pEvent && pNextStep) { // do next step
+            if(pNextStep->GetType().compare("ACT") == 0) { // send cmd to scheduler
                 SendACTCommand(EventKey, pEvent, pNextStep);
             }
-            else{ //send cmd to GUI
+            else { //send cmd to GUI
                 SendMSGCommand(EventKey, pEvent, pNextStep,true);
             }
         }
@@ -290,7 +320,7 @@ void HimalayaEventHandlerThreadController::SendACTCommand(quint32 EventKey, cons
     }
     else
     {
-        m_PendingActions.insert(EventKey,Global::CommandShPtr_t(p_CmdSystemAction));
+        m_PendingActions.insert(EventKey, Global::CommandShPtr_t(p_CmdSystemAction));
         SendDebugMSG(EventKey,pEvent,pStep);
     }
 }

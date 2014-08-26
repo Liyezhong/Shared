@@ -270,6 +270,22 @@ void EventHandlerThreadController::InformAlarmHandler(const DataLogging::DayEven
     }
 }
 
+void EventHandlerThreadController::InformAlarmHandler(Global::EventType EvtType, const quint64 EventId64, bool StartAlarm)
+{
+    Global::AlarmType AlarmType = Global::ALARM_NONE;
+    if (EvtType == Global::EVTTYPE_ERROR)
+        AlarmType = Global::ALARM_ERROR;
+    else if (EvtType == Global::EVTTYPE_WARNING)
+        AlarmType = Global::ALARM_WARNING;
+
+    mp_AlarmHandler->setAlarm(EventId64, AlarmType, StartAlarm);
+}
+
+void EventHandlerThreadController::ResetAlarm()
+{
+    mp_AlarmHandler->reset();
+}
+
 /****************************************************************************/
 /*!
  *  \brief    Map action type enum to action ( Mesage Type) string

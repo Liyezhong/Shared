@@ -125,6 +125,17 @@ public:
     /****************************************************************************/
     void LogEntry(const EventRuntimeInfo_t& EventInfo);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  handle alarm action
+     *  \iparam EventID:  event id
+     *  \iparam Scenario: error scenario
+     *  \iparam EventKey: event key
+     *  \iparam Active:   alarm action
+     */
+    /****************************************************************************/
+    void HandleAlarm(quint32 EventID, quint32 Scenario, const quint32 EventKey, const bool Active);
+
 public slots:
 
     /****************************************************************************/
@@ -242,7 +253,7 @@ private:
     QHash<Global::tRefType, quint32> m_EventKeyRefMap;//!< Hash of Event Key Reference Map
     bool m_TestMode; //!< flag for test mode
     QMap<quint32,Global::CommandShPtr_t> m_PendingActions;    //!< all pending action
-
 };
+
 } //end if namespace EventHandler
 #endif // HIMALAYAEVENTHANDLERTHREADCONTROLLER_H

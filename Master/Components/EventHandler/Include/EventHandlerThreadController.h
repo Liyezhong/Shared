@@ -63,7 +63,6 @@ namespace EventHandler {
 /****************************************************************************/
 class EventHandlerThreadController : public Threads::ThreadController {
     Q_OBJECT
-
 public:
 
     friend class TestEventHandlerThreadController;
@@ -227,6 +226,10 @@ protected:
     /****************************************************************************/
     void OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Ack);
 
+    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
+    void InformAlarmHandler(Global::EventType EType, const quint64 EventId64, bool StartAlarm);
+    void ResetAlarm();
+
 private:
     /****************************************************************************/
     /**
@@ -295,7 +298,7 @@ private:
                           const quint32 EventID,
                           const Global::tTranslatableStringList &EventStringList,
                           const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE);
-    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
+
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
     void SetGuiAvailable(const bool active);
     void InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
@@ -310,7 +313,7 @@ private:
      * See detailed description in the base class' header.
      *
      * \iparam   TheDayEventEntry = event from one of local objects
-     * \return      true if event was processed.
+     * \return   true if event was processed.
      */
     /****************************************************************************/
     bool LocalProcessErrorEvent(const DataLogging::DayEventEntry & TheDayEventEntry);
@@ -411,7 +414,6 @@ public slots:
         m_SerialNumber = SerialNumber;
     }
 
-
 signals:
     /****************************************************************************/
     /**
@@ -447,6 +449,14 @@ signals:
      */
     /****************************************************************************/
     void SendEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
+    /****************************************************************************/
+    /**
+     * \brief Signal for remote/local alarm
+     *
+     * \iparam   opcode operate code to turn on/off remote/local alarm
+     */
+    /****************************************************************************/
+    void SetRmtLocAlarm(int opcode);
 };
 
 } // end namespace EventHandler

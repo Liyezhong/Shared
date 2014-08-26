@@ -662,6 +662,33 @@ public:
      */
     /****************************************************************************/
     CBaseModule* GetBaseModule(HimSlaveType_t Type);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  get remote alarm connect status
+     *
+     *  \return 1: connected, 0: not connected
+     */
+    quint16 IDGetRemoteAlarmStatus();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  get local alarm connect status
+     *
+     *  \return 1: connected, 0: not connected
+     */
+    quint16 IDGetLocalAlarmStatus();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function IDSetAlarm
+     *
+     *  \param opcode = operate code to turn on/off local/remote alarm
+     *
+     *  \return operate result
+     */
+    ReturnCode_t IDSetAlarm(int opcode);
+
     /****************************************************************************/
     /*!
      *  \brief  Initialize the state machine for archieve service information
