@@ -49,7 +49,7 @@
 namespace DeviceControl
 {
 //2* 24 * 60 * 60 * 1000;
-const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2 * 60 * 1000;
+const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2* 24 * 60 * 60 * 1000;
 /****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
