@@ -1558,7 +1558,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
 {
     LogDebug(QString( "INFO: Start setting up pressure for bottle check"));
     bool stop = false;
-    quint32 TimeSlotPassed = 0;
+    qint64 startTime = 0;
     qreal CurrentPressure;
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
 
@@ -1578,6 +1578,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
     }
     (void)IsPIDDataSteady(0,  0,  0,  0, true);
 
+    startTime = QDateTime::currentMSecsSinceEpoch();
     while(!stop)
     {
         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_PRESSURE, 200);
@@ -1587,10 +1588,9 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
             retCode = DCL_ERR_UNEXPECTED_BREAK;
             goto SORTIE;
         }
-        TimeSlotPassed++;
         CurrentPressure = GetRecentPressure();
         if (IsPIDDataSteady(10,  CurrentPressure,  \
-                            2, 8, false))
+                            1, 8, false))
         {
             LogDebug(QString("INFO: Target pressure is getting steady now."));
             retCode = DCL_ERR_FCT_CALL_SUCCESS;
@@ -1598,7 +1598,7 @@ ReturnCode_t CAirLiquidDevice::PressureForBottoleCheck()
         }
         else
         {
-            if((TimeSlotPassed * 200) > PRESSURE_MAX_SETUP_TIME)
+            if((QDateTime::currentMSecsSinceEpoch() - startTime) > 30*1000)
             {
                 LogDebug(QString("WARNING: Pressure exceed maximum setup time, exit!"));
                 //stop compressor
