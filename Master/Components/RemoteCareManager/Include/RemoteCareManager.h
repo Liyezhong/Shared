@@ -74,6 +74,7 @@ private:
     Global::EventLogLevel m_EventPriority;                               //!< The event priority
     bool m_RCAAvailable;                                                 //!< is remote care agent active
     bool m_SubscriptionStatus;                                           //!< is remote care subscribed
+    bool m_RCSoftwareAvailable;                                          //!< is remote care software update
     quint8 m_NumberOfLogFiles;                                           //!< total number of log files to be exported to RC
     DataManager::CRCConfigurationInterface *mp_RCConfigurationInterface; //!< RC Config interface.
     DataManager::CRCConfiguration *mp_RCConfiguration;                   //!< RC Config.

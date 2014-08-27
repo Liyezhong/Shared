@@ -123,7 +123,13 @@ void RemoteCareManager::ReadCurrentSettingsState()
                                                    mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_EVENT_PRIORITY)).value();
           m_SubscriptionStatus  = static_cast<bool>(mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_SUBSCRIPTION).toInt());
           m_NumberOfLogFiles    = static_cast<quint8>(mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_LOG_NUMBER).toInt());
-          qDebug() << "State " << __FILE__ << __LINE__ << m_EventClass << m_EventPriority << m_SubscriptionStatus << m_NumberOfLogFiles;
+          m_RCSoftwareAvailable = static_cast<bool>(mp_RCConfiguration->GetDataItemValue(RC_DATAITEM_SET_UPDATE_AVAILABLE).toInt());
+
+          if (m_RCSoftwareAvailable) {
+              //broadcast this msg so that gui receives this.
+              emit SendRCCmdToGui(Global::CommandShPtr_t(new CmdRCSoftwareUpdate(15000, SWUpdate_Available)));
+          }
+          qDebug() << "Remote care State " << __FILE__ << __LINE__ << m_EventClass << m_EventPriority << m_SubscriptionStatus << m_NumberOfLogFiles;
         }
         CATCHALL();
     }
