@@ -104,8 +104,6 @@ void ThreadController::SendCommand(Global::tRefType Ref, const Global::CommandSh
              << ", Timeout=" << Cmd.GetPointerToUserData()->GetTimeout()
              << ", Thread=" << this->thread();
 
-
-
     DoSendCommand(Ref, Cmd, m_CommandChannel);
     // return computed Ref
 }

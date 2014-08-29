@@ -227,6 +227,26 @@ private:
     void SendACTCommand(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep);
     /****************************************************************************/
     /*!
+     *  \brief  Function to send Action to component
+     *
+     *  \param    EventKey eventkey
+     *  \param    EventId64 envent id
+     *  \param    pEvent XMLEvent
+     *  \param    active on/off
+     */
+    /****************************************************************************/
+    void SendALMCommand(quint32 EventKey, const quint64 EventId64, const XMLEvent* pEvent, bool active);
+    /****************************************************************************/
+    /*!
+     *  \brief    Function to reset remote & local alarm
+     *  \param    EventKey eventkey
+     *  \param    pEvent XMLEvent
+     */
+    /****************************************************************************/
+    void ResetRmtLocAlarm(quint32 EventKey, const XMLEvent* pEvent);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Function to send msg to gui
      *
      *  \param    pEvent XMLEvent

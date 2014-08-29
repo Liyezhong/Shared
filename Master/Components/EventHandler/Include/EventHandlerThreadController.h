@@ -449,14 +449,6 @@ signals:
      */
     /****************************************************************************/
     void SendEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
-    /****************************************************************************/
-    /**
-     * \brief Signal for remote/local alarm
-     *
-     * \iparam   opcode operate code to turn on/off remote/local alarm
-     */
-    /****************************************************************************/
-    void SetRmtLocAlarm(int opcode);
 };
 
 } // end namespace EventHandler

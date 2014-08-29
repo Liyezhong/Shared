@@ -27,9 +27,10 @@
 #include <NetCommands/Include/CmdSystemAction.h>
 #include <EventHandler/Include/HimalayaEventHandlerThreadController.h>
 #include <EventHandler/Include/EventHandlerEventCodes.h>
+#include <QFile>
+#include <stdio.h>
 
 namespace EventHandler {
-
 
 HimalayaEventHandlerThreadController::HimalayaEventHandlerThreadController(quint32 ThreadID, quint32 RebootCount, QStringList FileList)
     :EventHandlerThreadController(ThreadID,RebootCount,QStringList())
@@ -87,22 +88,16 @@ void HimalayaEventHandlerThreadController::HandleAlarm(quint32 EventID, quint32 
     else
         pEvent = m_ActiveEvents[EventKey].Event;
 
-     if (pEvent == NULL)
-           return ;
+    if (pEvent == NULL)
+        return ;
 
-    switch (pEvent->GetAlarmType()) {
-        case Global::ALARMPOS_REMOTE:
-            emit SetRmtLocAlarm(Active ? 3 : 2);
-        case Global::ALARMPOS_LOCAL:
-            emit SetRmtLocAlarm(Active ? 1 : 0);
-        case Global::ALARMPOS_DEVICE:
-            InformAlarmHandler(pEvent->GetErrorType(), EventID, Active);
-            break;
-        case Global::ALARMPOS_NONE:
-            break;
-        default:
-            break;
-    }
+    if (pEvent->GetErrorType() == Global::EVTTYPE_UNDEFINED || pEvent->GetErrorType() == Global::EVTTYPE_DEBUG) 
+        return ;
+
+    if (pEvent->GetAlarmType() == Global::ALARMPOS_NONE) 
+        return ;
+
+    SendALMCommand(EventKey, EventID, pEvent, Active);
 }
 
 void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, const quint64 EventIDScenario,
@@ -244,7 +239,7 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                 switch(clicked) {
                     case NetCommands::OK_BUTTON:
                         NextStepID = pCurrentStep->GetNextStepOnClickOK();
-                        emit SetRmtLocAlarm(-1);
+                        ResetRmtLocAlarm(EventKey, pEvent);
                         ResetAlarm();
                         break;
 
@@ -323,6 +318,85 @@ void HimalayaEventHandlerThreadController::SendACTCommand(quint32 EventKey, cons
         m_PendingActions.insert(EventKey, Global::CommandShPtr_t(p_CmdSystemAction));
         SendDebugMSG(EventKey,pEvent,pStep);
     }
+}
+
+void HimalayaEventHandlerThreadController::SendALMCommand(quint32 EventKey, const quint64 EventId64, const XMLEvent* pEvent, bool active)
+{
+    if (pEvent == NULL)
+        return ;
+
+    NetCommands::CmdSystemAction *p_CmdSystemAction;
+    p_CmdSystemAction = new NetCommands::CmdSystemAction();
+    p_CmdSystemAction->SetEventKey(EventKey);
+    p_CmdSystemAction->SetEventID(pEvent->GetErrorId());
+    p_CmdSystemAction->SetSource(pEvent->GetEventSource());
+
+    // opcode:
+    // bit2 bit1  bit0
+    // 00 device  0: off, 1: on
+    // 01 local
+    // 10 remote
+
+    // 0: device off
+    // 1: device on
+    // 2: local  off
+    // 3: local  on
+    // 4: remote off
+    // 5: remote on
+
+     // -1: alarm off
+
+    int opcode = -1;
+    QString ActionString = "ALARM_";
+    switch (pEvent->GetAlarmType()) {
+    case Global::ALARMPOS_REMOTE:
+        opcode = active ? 5 : 4;
+        break;
+    case Global::ALARMPOS_LOCAL:
+        opcode = active ? 3 : 2;
+        break;
+    case Global::ALARMPOS_DEVICE:
+        opcode = active ? 1 : 0;
+        break;
+    }
+
+    if (opcode == 1 || opcode == 3 || opcode == 5) {
+        InformAlarmHandler(pEvent->GetErrorType(), EventId64, true);
+    }
+    else {
+        InformAlarmHandler(pEvent->GetErrorType(), EventId64, false);
+    }
+
+    // Turn off remote & local alarm
+    if (opcode == 1 || opcode == 0) {
+        opcode = -1;
+    }
+    
+    ActionString += QString("%1").arg(opcode);
+    p_CmdSystemAction->SetActionString(ActionString);
+
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
+}
+
+void HimalayaEventHandlerThreadController::ResetRmtLocAlarm(quint32 EventKey, const XMLEvent* pEvent)
+{
+    if (pEvent == NULL)
+        return ;
+
+    NetCommands::CmdSystemAction *p_CmdSystemAction;
+    p_CmdSystemAction = new NetCommands::CmdSystemAction();
+    p_CmdSystemAction->SetEventKey(EventKey);
+    p_CmdSystemAction->SetEventID(pEvent->GetErrorId());
+    p_CmdSystemAction->SetSource(pEvent->GetEventSource());
+
+    int opcode = -1;
+    QString ActionString = "ALARM_";
+    ActionString += QString("%1").arg(opcode);
+    p_CmdSystemAction->SetActionString(ActionString);
+
+    Global::tRefType NewRef = GetNewCommandRef();
+    SendCommand(NewRef, Global::CommandShPtr_t(p_CmdSystemAction));
 }
 
 void HimalayaEventHandlerThreadController::SendDebugMSG(quint32 EventKey, const XMLEvent* pEvent, const EventStep* pStep)

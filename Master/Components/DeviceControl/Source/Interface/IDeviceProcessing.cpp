@@ -2394,26 +2394,25 @@ quint16 IDeviceProcessing::IDGetLocalAlarmStatus()
 
 ReturnCode_t IDeviceProcessing::IDSetAlarm(int opcode)
 {
-
     if (m_pPeriphery == NULL)
-            return DCL_ERR_FCT_CALL_FAILED;
+        return DCL_ERR_FCT_CALL_FAILED;
 
     switch (opcode) {
-        case 0:
-            return m_pPeriphery->TurnOffLocalAlarm();
-        case 1:
-            return m_pPeriphery->TurnOnLocalAlarm();
-        case 2:
-            return m_pPeriphery->TurnOffRemoteAlarm();
-        case 3:
-            return m_pPeriphery->TurnOnRemoteAlarm();
+    case 5:
+        m_pPeriphery->TurnOnRemoteAlarm();
+    case 3:
+        m_pPeriphery->TurnOnLocalAlarm();
+        break;
 
-        default:
-            m_pPeriphery->TurnOffLocalAlarm();
-            m_pPeriphery->TurnOffRemoteAlarm();
+    case 4:
+    case 2:
+    case -1:
+    default:
+        m_pPeriphery->TurnOffLocalAlarm();
+        m_pPeriphery->TurnOffRemoteAlarm();
         break;
     }
-    return DCL_ERR_FCT_CALL_FAILED;
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 } // namespace
