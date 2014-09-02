@@ -422,6 +422,10 @@ bool CBaseDevice::InsertBaseModule(CBaseModule* pBase)
     {
         return false;
     }
+    (void)connect(pBase, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+                  this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
+    (void)connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+                  this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
     m_BaseModuleList.append(pBase);
 
     return true;
@@ -469,6 +473,7 @@ CBaseModule* CBaseDevice::GetCANNodeFromID(quint16 CANNodeID)
 quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
 {
     quint16 retValue = 0;
+#if 0
     if(m_pDevProc)
     {
         CBaseModule* pBaseModule = GetCANNodeFromID(CANNodeID);
@@ -486,6 +491,7 @@ quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
             }
         }
     }
+#endif
     return retValue;
 }
 
@@ -505,6 +511,9 @@ quint16 CBaseDevice::GetBaseModuleVoltage(quint16 CANNodeID)
 /****************************************************************************/
 void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures)
 {
+    m_BaseModuleVoltageState = State;
+    m_BaseModuleVoltage = Value;
+#if 0
     (void)State;
     (void)Failures;
     if(m_pDevProc)
@@ -513,10 +522,12 @@ void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo,
         (void)disconnect(pBaseModule, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)), this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
         if(HdlInfo == DCL_ERR_FCT_CALL_SUCCESS)
         {
+            m_BaseModuleVoltageState = State;
             m_BaseModuleVoltage = Value;
         }
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_BASE_GET_VOLTAGE, HdlInfo);
     }
+#endif
 }
 
 /****************************************************************************/
@@ -532,6 +543,7 @@ void CBaseDevice::OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo,
 quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
 {
     quint16 retValue = 0;
+#if 0
     if(m_pDevProc)
     {
         CBaseModule* pBaseModule = GetCANNodeFromID(CANNodeID);
@@ -549,6 +561,7 @@ quint16 CBaseDevice::GetBaseModuleCurrent(quint16 CANNodeID)
             }
         }
     }
+#endif
     return retValue;
 }
 ReportError_t CBaseDevice::GetSlaveModuleError(quint8 errorCode, quint32 instanceID)
@@ -643,6 +656,9 @@ ReportError_t CBaseDevice::GetSlaveModuleError(quint8 errorCode, quint32 instanc
 /****************************************************************************/
 void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures)
 {
+    m_BaseModuleCurrentState = State;
+    m_BaseModuleCurrent = Value;
+#if 0
     (void)State;
     (void)Failures;
     if(m_pDevProc)
@@ -655,6 +671,7 @@ void CBaseDevice::OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo,
         }
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_BASE_GET_CURRENT, HdlInfo);
     }
+#endif
 }
 
 void CBaseDevice::SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord)

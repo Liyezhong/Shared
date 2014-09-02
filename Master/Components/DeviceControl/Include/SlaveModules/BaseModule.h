@@ -712,6 +712,7 @@ private:
     QString m_SerialNumber;     //!< Serial number of the slave
     QByteArray m_UniqueNumber;  //!< Unique number of the slave
     bool m_IsVirtual;
+    qint64 m_LastCheckTime;     //!< Last check time
 };
 
 QTextStream& operator<< (QTextStream& s, const NodeState_t &NodeState); //!< convert NodeState_t to string

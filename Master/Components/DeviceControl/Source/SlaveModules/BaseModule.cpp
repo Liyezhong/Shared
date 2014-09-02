@@ -100,6 +100,7 @@ CBaseModule::CBaseModule(const CANMessageConfiguration *p_MessageConfiguration, 
 
     m_bHeartbeatActive = 0;
     m_bHBErrorState = 0;
+    m_LastCheckTime = 0;
 
     //Heartbeat timer initialization
     if(ftime(&m_tbHeartbeatTimeDelay) != 0)
@@ -1050,8 +1051,15 @@ void CBaseModule::HandleTaskFctConfiguration()
 /****************************************************************************/
 void CBaseModule::HandleIdleState()
 {
-    CallHandleTaskFctModules();
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if(now > (m_LastCheckTime + MINIMUM_CHECK_SENSOR_T))
+    {
+        this->ReqVoltageState();
+        this->ReqCurrentState();
+        m_LastCheckTime = now;
+    }
 
+    CallHandleTaskFctModules();
     m_Mutex.lock();
     if(m_TaskID == MODULE_TASKID_COMMAND_HDL)
     {

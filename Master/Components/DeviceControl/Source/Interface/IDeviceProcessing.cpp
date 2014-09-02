@@ -855,6 +855,21 @@ ReturnCode_t IDeviceProcessing::ALFilling(quint32 DelayTime, bool EnableInsuffic
     }
 }
 
+
+ReturnCode_t IDeviceProcessing::ALStopCmdExec(quint8 CmdType)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+
+    if (m_pAirLiquid)
+    {
+        m_pAirLiquid->StopCommandExec(CmdType);
+    }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
+
 /****************************************************************************/
 /**
  *  \brief  Device interface function.
@@ -2077,7 +2092,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 
         LOG()<<"Bottle Check pressure: " << pressure;
 
-#if 0
+
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
@@ -2099,7 +2114,6 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
             retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_BLOCKAGE;
             LOG()<<"Bottle Check: Blockage";
         }
-#endif
 #endif
 
         (void)m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)((quint32)TubePos + 1));
@@ -2331,19 +2345,22 @@ quint16 IDeviceProcessing::IDGetSlaveCurrent(HimSlaveType_t Type)
     case Slave_3:
         if(m_pRotaryValve)
         {
-            current = m_pRotaryValve->GetBaseModuleCurrent((quint16)Type);
+           // current = m_pRotaryValve->GetBaseModuleCurrent((quint16)Type);
+            current = m_pRotaryValve->GetrecentBaseModuleCurrent();
         }
         break;
     case Slave_5:
         if(m_pOven)
         {
-            current = m_pOven->GetBaseModuleCurrent((quint16)Type);
+            //current = m_pOven->GetBaseModuleCurrent((quint16)Type);
+            current = m_pOven->GetrecentBaseModuleCurrent();
         }
         break;
     case Slave_15:
         if(m_pAirLiquid)
         {
-            current = m_pAirLiquid->GetBaseModuleCurrent((quint16)Type);
+            //current = m_pAirLiquid->GetBaseModuleCurrent((quint16)Type);
+            current = m_pAirLiquid->GetrecentBaseModuleCurrent();
         }
         break;
     }
@@ -2358,19 +2375,22 @@ quint16 IDeviceProcessing::IDGetSlaveVoltage(HimSlaveType_t Type)
     case Slave_3:
         if(m_pRotaryValve)
         {
-            voltage = m_pRotaryValve->GetBaseModuleVoltage((quint16)Type);
+            //voltage = m_pRotaryValve->GetBaseModuleVoltage((quint16)Type);
+            voltage = m_pRotaryValve->GetrecentBaseModuleVoltage();
         }
         break;
     case Slave_5:
         if(m_pOven)
         {
-            voltage = m_pOven->GetBaseModuleVoltage((quint16)Type);
+           // voltage = m_pOven->GetBaseModuleVoltage((quint16)Type);
+            voltage = m_pOven->GetrecentBaseModuleVoltage();
         }
         break;
     case Slave_15:
         if(m_pAirLiquid)
         {
-            voltage = m_pAirLiquid->GetBaseModuleVoltage((quint16)Type);
+            //voltage = m_pAirLiquid->GetBaseModuleVoltage((quint16)Type);
+            voltage = m_pAirLiquid->GetrecentBaseModuleVoltage();
         }
         break;
     }

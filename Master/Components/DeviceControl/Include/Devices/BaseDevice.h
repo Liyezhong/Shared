@@ -225,6 +225,13 @@ public:
     /****************************************************************************/
     ReportError_t GetSlaveModuleError(quint8 errorCode, quint32 instanceID);
 
+    PowerState_t GetRecentBaseModuleVoltageState() { return m_BaseModuleVoltageState; }
+
+    quint16 GetrecentBaseModuleVoltage() { return m_BaseModuleVoltage; }
+
+    PowerState_t GetRecentBaseModuleCurrentState() { return m_BaseModuleCurrentState; }
+
+    quint16 GetrecentBaseModuleCurrent() { return m_BaseModuleCurrent; }
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetNewCANStepperMotorTask
@@ -430,7 +437,9 @@ protected:
 
     QString      m_TypeKey;                 ///< key, used for process settings access
     ListBaseModule m_BaseModuleList;        ///< The list contain all the base modules.
+    PowerState_t m_BaseModuleVoltageState;  ///< The base module's actual voltage state
     quint16 m_BaseModuleVoltage;            ///< The base module's actual voltage
+    PowerState_t m_BaseModuleCurrentState;  ///< The base module's actual current state
     quint16 m_BaseModuleCurrent;            ///< The base module's actual current
     qint64 m_LastSensorCheckTime;           ///< The last check sensor's time(in sec since Epoch)
 
@@ -440,7 +449,6 @@ protected:
     QVector<ReportError_t>  m_ReportErrorList;
     QStateMachine m_machine;        //!< State machine
     ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
-
 };
 
 } //namespace

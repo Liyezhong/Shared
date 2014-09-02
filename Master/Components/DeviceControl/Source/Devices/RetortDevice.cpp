@@ -1316,7 +1316,7 @@ quint16 CRetortDevice::GetLidStatus()
  *
  *  \iparam  Type = The target temperature contorl module to control.
  *
- *  \return  Temperature control module's hardware status.
+ *  \return    control module's hardware status.
  */
 /****************************************************************************/
 ReturnCode_t CRetortDevice::GetHardwareStatusAsync(RTTempCtrlType_t Type)

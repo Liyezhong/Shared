@@ -155,6 +155,7 @@ DeviceProcessing::DeviceProcessing(QObject *p_Parent) : QObject(p_Parent),
         FILE_LOG_L(laDEVPROC, llERROR) << " DeviceProcessing: error: " << retCode << "!"; //lint !e641
         return;
     }
+    CONNECTSIGNALSLOT(this, SigStopCommandExec(quint8), this, OnStopCommandExec(quint8));
 
 } //lint !e1566
 
@@ -2188,6 +2189,19 @@ ReturnCode_t DeviceProcessing::BlockingForSyncCall(SyncCmdType_t CmdType, ulong 
             retValue = (ReturnCode_t)m_EventLoopsForSyncCall[CmdType].eventloop.exec();
         }
         return retValue;
+}
+
+
+void DeviceProcessing::OnStopCommandExec(quint8 CmdType)
+{
+    if (0 == CmdType)
+    {
+        m_EventLoopsForSyncCall[SYNC_CMD_AL_PROCEDURE_SUCKING_LEVELSENSOR].eventloop.exit(DCL_ERR_UNEXPECTED_BREAK);
+    }
+    else if (1 == CmdType)
+    {
+        m_EventLoopsForSyncCall[SYNC_CMD_AL_PROCEDURE_DRAINING].eventloop.exit(DCL_ERR_UNEXPECTED_BREAK);
+    }
 }
 
 /****************************************************************************/

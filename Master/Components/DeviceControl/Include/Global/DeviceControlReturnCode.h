@@ -101,9 +101,10 @@ typedef enum {
 	DCL_ERR_DEV_MC_LOCALALARM_UNCONNECTED                      	= 500050411,
 	DCL_ERR_DEV_ASB3_ASB5_VOLTAGE_VALUE_DIFFERENT              	= 500060010,
 	DCL_ERR_DEV_ASB5_VOLTAGE_VALUE_UNKNOWN                     	= 500060020,
-	DCL_ERR_DEV_POWERFAILURE                                   	= 500060100
+	DCL_ERR_DEV_POWERFAILURE                                   	= 500060100,
+	DCL_ERR_DEV_TISSUE_PROTECT_REPORT                          	= 500070001
 } ReturnCode_t;
 }
-Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
 
+Q_DECLARE_METATYPE(DeviceControl::ReturnCode_t)
 #endif

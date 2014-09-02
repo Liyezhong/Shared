@@ -428,6 +428,13 @@ signals:
     /****************************************************************************/
     void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceType);
 
+    /****************************************************************************/
+    /*!
+     *  \brief Signal for Stopping command execution
+     */
+    /****************************************************************************/
+    void SigStopCommandExec(quint8 CmdType);
+
 private slots:
     //! Slot fucntion used to receive CAN message
     void ReceiveCANMessage(quint32 ID, quint8 data0, quint8 data1, quint8 data2, quint8 data3, quint8 data4, quint8 data5, quint8 data6, quint8 data7, quint8 dlc);
@@ -436,6 +443,14 @@ private slots:
     //! Callback function for the timer used in eventloop
     void BlockingTimerCallback();
 #endif
+    /*****************************************************************************/
+    /*!
+     *  \brief  Slot for stopping command execution
+     *  \param  quint8 command type
+     *  \return void
+     */
+    /*****************************************************************************/
+    void OnStopCommandExec(quint8 CmdType);
 
 private:
     DeviceProcessing(const DeviceProcessing &);                     ///< Not implemented.

@@ -147,6 +147,17 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief   Stop command execution
+     *
+     *  \iparam  void
+     *
+     *  \return  void
+     */
+    /****************************************************************************/
+    void StopCommandExec(quint8 CmdType);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function Filling4Service
      *
      *  \param DelayTime = quint32 type parameter
@@ -219,7 +230,7 @@ public:
      *  \param Type = ALTempCtrlType_t type parameter
      *  \param NominalTemperature =  qreal type parameter
      *  \param SlopeTempChange =  quint8 type parameter
-     *  \param MaxTemperature =  quint16 type parameter
+     *  \param MaxTemperature =  quint1SigStopCommandExec6 type parameter
      *  \param ControllerGain =  quint16 type parameter
      *  \param ResetTime =  quint16 type parameter
      *  \param DerivativeTime =  quint16 type parameter
@@ -576,6 +587,13 @@ private slots:
     //  RVPosition_t GetRVPositionFromEncoderDiskPos(qint32 EDPosition);
     //! Return the motor position from oven cover position type
     // qint32 GetEDPosFromRVPos(RVPosition_t RVPosition);
+signals:
+    /****************************************************************************/
+    /*!
+     *  \brief  Signal for Stopping command execution
+     */
+    /****************************************************************************/
+    void SigStopCommandExec(quint8 CmdType);
 
 private:
     //Function modules

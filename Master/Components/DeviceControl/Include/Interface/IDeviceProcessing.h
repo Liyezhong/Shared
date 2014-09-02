@@ -156,6 +156,17 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief  Definition/Declaration of function ALStopCmdExec
+     *
+     *  \param CmdType = quint8 type parameter
+     *
+     *  \return from ALStopCmdExec
+     */
+    /****************************************************************************/
+    ReturnCode_t ALStopCmdExec(quint8 CmdType);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function ALFillingForService
      *
      *  \param DelayTime = quint32 type parameter

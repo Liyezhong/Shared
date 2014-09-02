@@ -42,6 +42,7 @@ CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing,
     Reset();
     FILE_LOG_L(laDEV, llINFO) << "Air-liquid device created";
     LogDebug(QString("Air-liquid device created"));
+    CONNECTSIGNALSIGNAL(this,SigStopCommandExec(quint8),m_pDevProc,SigStopCommandExec(quint8));
 } //lint !e1566
 
 /****************************************************************************/
@@ -1379,6 +1380,20 @@ SORTIE:
     (void)ReleasePressure();
     (void)TurnOffFan();
     return RetValue;
+}
+
+/****************************************************************************/
+/*!
+ *  \brief   Stop command execution
+ *
+ *  \iparam  quint8 command type
+ *
+ *  \return  void
+ */
+/****************************************************************************/
+void CAirLiquidDevice::StopCommandExec(quint8 CmdType)
+{
+    emit SigStopCommandExec(CmdType);
 }
 
 /****************************************************************************/

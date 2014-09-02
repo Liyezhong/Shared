@@ -108,8 +108,6 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
     quint32 EventID = EventIDScenario >> 32;
     quint32 Scenario = EventIDScenario & 0xffffffff;
 
-    HandleAlarm(EventID, Scenario, EventKey, Active);
-
     if (!Active) {
         m_ActiveEvents.remove(EventKey);
         return ;
@@ -139,6 +137,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.EventStringParList = EventStringParList;
                 EventInfo.EventRDStringParList = EventRDStringParList;
                 m_ActiveEvents.insert(EventKey,EventInfo);
+                HandleAlarm(EventID, Scenario, EventKey, Active);
             }
         }
 #if 1
