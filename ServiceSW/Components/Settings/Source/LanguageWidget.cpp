@@ -54,6 +54,7 @@ CLanguageWidget::CLanguageWidget(QWidget *p_Parent) :
     m_LanguageModel.SetVisibleRowCount(5);
 
     mp_TableWidget->setModel(&m_LanguageModel);
+    mp_Ui->tableWidget->setFixedSize(272, 314);
     mp_Ui->tableWidget->SetContent(mp_TableWidget);    
     PopulateLanguageList();
     //m_LanguageList.append(QApplication::translate("ServiceUpdates::CLanguageWidget",
