@@ -108,7 +108,14 @@ public:
      */
     /****************************************************************************/
     quint32 GetRecentCurrent(RTTempCtrlType_t Type);
-
+    /****************************************************************************/
+    /*!
+     *  \brief   Get the heater switch type of temperature sensor in last 500 milliseconds.
+     *
+     *  \return  Actual switch type, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint8 GetRecentHeaterSwitchType();
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function GetTemperatureControlState
@@ -162,6 +169,14 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t Lock();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTemperatureSwitchState
+     *
+     *  \return from SetTemperatureSwitchState
+     */
+    /****************************************************************************/
+    ReturnCode_t SetTemperatureSwitchState(RTTempCtrlType_t type, qint8 HeaterVoltage, qint8 AutoType);
 
 private slots:
     /****************************************************************************/
@@ -282,6 +297,12 @@ private slots:
      */
     /****************************************************************************/
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetSwitchState
+     */
+    /****************************************************************************/
+    void OnSetSwitchState(quint32 InstanceID, ReturnCode_t ReturnCode, qint8 SwitchState, qint8 AutoSwitch);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnSetDOOutputValue

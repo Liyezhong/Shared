@@ -335,6 +335,13 @@ ReturnCode_t CRotaryValveDevice::HandleConfigurationState()
         FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportSetPidAckn'failed.";
         return DCL_ERR_FCT_CALL_FAILED;
     }
+    if(!connect(m_pTempCtrl, SIGNAL(ReportSetSwitchState(quint32, ReturnCode_t, qint8, qint8)),
+                this, SLOT(OnSetSwitchState(quint32, ReturnCode_t, qint8, qint8))))
+    {
+        SetErrorParameter(EVENT_GRP_DCL_RV_DEV, ERROR_DCL_RV_DEV_CONFIG_CONNECT_FAILED, (quint16) CANObjectKeyLUT::FCTMOD_RV_TEMPCONTROL);
+        FILE_LOG_L(laDEV, llERROR) << "   Connect motor signal 'ReportSetSwitchState'failed.";
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
     Reset();
 
     return DCL_ERR_FCT_CALL_SUCCESS;
@@ -687,6 +694,17 @@ quint32 CRotaryValveDevice::GetRecentCurrent()
     if((Now - m_LastGetTCCurrentTime) <= 500) // check if 500 msec has passed since last read
     {
         RetValue = m_TCHardwareStatus.Current;
+    }
+    return RetValue;
+}
+
+quint8 CRotaryValveDevice::GetRecentHeaterSwitchType()
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    quint32 RetValue = UNDEFINED_1_BYTE;
+    if((Now - m_LastGetTCCurrentTime) <= 500) // check if 500 msec has passed since last read
+    {
+        RetValue = m_TCHardwareStatus.HeaterSwitchType;
     }
     return RetValue;
 }
@@ -2497,6 +2515,51 @@ void CRotaryValveDevice::OnTCGetHardwareStatus(quint32 InstanceID, ReturnCode_t 
     if(m_pDevProc)
     {
         m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_TC_GET_HW_STATUS, ReturnCode);
+    }
+}
+
+ReturnCode_t CRotaryValveDevice::SetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType)
+{
+    ReturnCode_t retCode;
+    if(m_pTempCtrl != NULL)
+    {
+        retCode = m_pTempCtrl->SetSwitchState(HeaterVoltage, AutoType);
+        if(DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+        if(m_pDevProc)
+        {
+            return m_pDevProc->BlockingForSyncCall(SYNC_CMD_RV_SET_SWITCH_STATE);
+        }
+        else
+        {
+            return DCL_ERR_NOT_INITIALIZED;
+        }
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+void CRotaryValveDevice::OnSetSwitchState(quint32 InstanceID, ReturnCode_t ReturnCode, qint8 SwitchState, qint8 AutoSwitch)
+{
+    Q_UNUSED(InstanceID)
+    Q_UNUSED(SwitchState)
+    Q_UNUSED(SwitchState)
+    Q_UNUSED(AutoSwitch)
+    if(DCL_ERR_FCT_CALL_SUCCESS == ReturnCode)
+    {
+        FILE_LOG_L(laDEVPROC, llINFO) << "INFO: RV Set switch state successful! ";
+    }
+    else
+    {
+        FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: RV set temperature switch state failed! " << ReturnCode; //lint !e641
+    }
+    if(m_pDevProc)
+    {
+        m_pDevProc->ResumeFromSyncCall(SYNC_CMD_RV_SET_SWITCH_STATE, ReturnCode);
     }
 }
 

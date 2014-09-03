@@ -2625,6 +2625,12 @@ ReturnCode_t CAirLiquidDevice::AllStop(void)
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+ReturnCode_t CAirLiquidDevice::ControlValve(quint8 ValveIndex, quint8 ValveState)
+{
+    LogDebug(QString("INFO:Control valve valveIndex:%1,valveState:%2").arg(ValveIndex).arg(ValveState));
+    return SetValve(ValveIndex, ValveState);
+}
+
 /****************************************************************************/
 /*!
  *  \brief  Set pressure drift value of the pressure control module.

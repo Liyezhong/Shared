@@ -308,6 +308,14 @@ public:
     ReturnCode_t AllStop(void);
     /****************************************************************************/
     /*!
+     *  \brief  Definition/Declaration of function ControlValve
+     *
+     *  \return from ControlValve
+     */
+    /****************************************************************************/
+    ReturnCode_t ControlValve(quint8 ValveIndex, quint8 ValveState);
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function SetPressureDrift
      *
      *  \param pressureDrift = float type parameter

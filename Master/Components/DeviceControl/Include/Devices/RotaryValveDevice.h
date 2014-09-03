@@ -123,6 +123,14 @@ public:
      */
     /****************************************************************************/
     quint32 GetRecentCurrent();
+    /****************************************************************************/
+    /*!
+     *  \brief   Get the heater switch type of temperature sensor in last 500 milliseconds.
+     *
+     *  \return  Actual switch type, UNDEFINED if failed.
+     */
+    /****************************************************************************/
+    quint8 GetRecentHeaterSwitchType();
 
     /****************************************************************************/
     /*!
@@ -183,6 +191,15 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t ClearErrorState();
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetTemperatureSwitchState
+     *          Request the status of the oven temperature control
+     *
+     *  \return from ClearErrorState
+     */
+    /****************************************************************************/
+    ReturnCode_t SetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType);
 
 signals:
     /****************************************************************************/
@@ -333,6 +350,12 @@ private slots:
      */
     /****************************************************************************/
     void OnSetTempPid(quint32, ReturnCode_t ReturnCode, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnSetSwitchState
+     */
+    /****************************************************************************/
+    void OnSetSwitchState(quint32 InstanceID, ReturnCode_t ReturnCode, qint8 SwitchState, qint8 AutoSwitch);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnTCGetHardwareStatus

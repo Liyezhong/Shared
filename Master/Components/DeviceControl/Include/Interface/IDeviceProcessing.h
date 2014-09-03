@@ -301,6 +301,18 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t ALStartTemperatureControlWithPID(ALTempCtrlType_t Type, qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ALControlValve
+     *
+     *  \param ValveIndex = quint type parameter
+     *  \param ValveState = quint type parameter
+     *
+     *  \return from ALControlValve
+     */
+    /****************************************************************************/
+    ReturnCode_t ALControlValve(quint8 ValveIndex, quint8 ValveState);
+
     //Rotary Valve device func
     /****************************************************************************/
     /*!
@@ -381,6 +393,15 @@ public:
      */
     /****************************************************************************/
     ReturnCode_t RVStartTemperatureControlWithPID(qreal NominalTemperature, quint8 SlopeTempChange, quint16 MaxTemperature, quint16 ControllerGain, quint16 ResetTime, quint16 DerivativeTime);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function RVSetTemperatureSwitchState
+     *
+     *  \return from RVSetTemperatureSwitchState
+     */
+    /****************************************************************************/
+    ReturnCode_t RVSetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType);
+
     //Oven device func
     /****************************************************************************/
     /*!
@@ -575,6 +596,14 @@ public:
     ReturnCode_t RTLock();
     /****************************************************************************/
     /*!
+     *  \brief  Definition/Declaration of function RTSetTemperatureSwitchState
+     *
+     *  \return from RTSetTemperatureSwitchState
+     */
+    /****************************************************************************/
+    ReturnCode_t RTSetTemperatureSwitchState(RTTempCtrlType_t Type, qint8 HeaterVoltage, qint8 AutoType);
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function RTGetRecentLockStatus
      *
      *  \return from RTGetRecentLockStatus
@@ -762,6 +791,14 @@ public:
     /****************************************************************************/
     quint16 GetSensorCurrent(const QString& DevName, quint8 Index);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Get heater switch type of the specific sensor
+     *  \param  QString DevName - Device name
+     *  \return quint16 - sensor's switch type
+     */
+    /****************************************************************************/
+    quint8 GetHeaterSwitchType(const QString& DevName);
 
 signals:
     //! Forward the 'intitialisation finished' notification

@@ -1184,6 +1184,21 @@ ReturnCode_t IDeviceProcessing::ALAllStop()
     }
 }
 
+ReturnCode_t IDeviceProcessing::ALControlValve(quint8 ValveIndex, quint8 ValveState)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->ControlValve(ValveIndex, ValveState);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
 
 /****************************************************************************/
 /**
@@ -1474,6 +1489,22 @@ RVPosition_t IDeviceProcessing::RVReqActRVPosition()
     else
     {
         return RV_UNDEF;
+    }
+}
+
+ReturnCode_t IDeviceProcessing::RVSetTemperatureSwitchState(qint8 HeaterVoltage, qint8 AutoType)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pRotaryValve)
+    {
+        return m_pRotaryValve->SetTemperatureSwitchState(HeaterVoltage, AutoType);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
     }
 }
 
@@ -1924,6 +1955,21 @@ ReturnCode_t IDeviceProcessing::RTLock()
     }
 }
 
+ReturnCode_t IDeviceProcessing::RTSetTemperatureSwitchState(RTTempCtrlType_t Type, qint8 HeaterVoltage, qint8 AutoType)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pRetort)
+    {
+        return m_pRetort->SetTemperatureSwitchState(Type, HeaterVoltage, AutoType);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
 
 /****************************************************************************/
 /*!
@@ -2276,6 +2322,29 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
     }
 
     return reportError;
+}
+
+quint8 IDeviceProcessing::GetHeaterSwitchType(const QString& DevName)
+{
+    quint8 switchType = 0;
+    if ( ("Retort" == DevName && m_pRetort != NULL)  )
+    {
+        switchType = m_pRetort->GetRecentHeaterSwitchType();
+    }
+    else if ("Oven" == DevName && m_pOven != NULL)
+    {
+
+    }
+    else if ("LA" == DevName && m_pAirLiquid != NULL)
+    {
+
+    }
+    else if ("RV" == DevName && m_pRotaryValve != NULL)
+    {
+        switchType = m_pRotaryValve->GetRecentHeaterSwitchType();
+    }
+
+    return switchType;
 }
 
 quint16 IDeviceProcessing::GetSensorCurrent(const QString& DevName, quint8 Index)
