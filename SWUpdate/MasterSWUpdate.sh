@@ -42,8 +42,7 @@ else
 	exit 1
 fi
 
-# Extract current script name
-PROGNAME=$(basename $0) 
+# Extract current script name PROGNAME=$(basename $0) 
 
 CMDARG="Usage: $0 [-update / -updateRollback] [baseeventid]"
 
@@ -974,9 +973,10 @@ case "$1" in
         MasterSWUpdate
         Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"
         #reboot the os if init script is updated
-        [ $InitScriptsUpdated = true ] && reboot
+        #[ $InitScriptsUpdated = true ] && reboot
 #        $(kill -9 $(pidof -x PowerFailMonitor.sh)) > /dev/null 2>&1
         $(kill -9 $(pidof ImageTestApp)) > /dev/null 2>&1
+		reboot
         exit 0
         ;;
     -updateRollback)
