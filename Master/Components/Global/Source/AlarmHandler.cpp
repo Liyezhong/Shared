@@ -92,7 +92,6 @@ void AlarmHandler::setAlarm(quint64 eventKey, Global::AlarmType alarmType, bool 
 
 void AlarmHandler::reset()
 {
-    m_Timer->stop();
     m_errorList.clear();
     m_warningList.clear();
 }
