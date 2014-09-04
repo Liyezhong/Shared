@@ -919,6 +919,22 @@ ProcessSWVersionXml()
 }
 
 #=== FUNCTION ================================================================
+# NAME: ContinueMasterSW
+# DESCRIPTION: Re-open Master Software
+# PARAMETER : NA 
+#=============================================================================
+ContinueMasterSW()
+{
+	if [ ! -x /home/Leica/Scripts/EBox-StartupExtended.sh ]; then
+        echo "FATAL ERROR: Please contact service." > /dev/tty0
+        exit 1
+    else
+        . /home/Leica/Scripts/EBox-StartupExtended.sh
+        continue_startup && exit 0 || exit 1
+    fi
+}
+
+#=== FUNCTION ================================================================
 # NAME: MasterSWUpdate
 # DESCRIPTION:  Interface for Master software update 
 # PARAMETER : NA 
@@ -972,11 +988,14 @@ case "$1" in
         lcd on
         MasterSWUpdate
         Log "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_SUCCESS"
-        #reboot the os if init script is updated
-        #[ $InitScriptsUpdated = true ] && reboot
 #        $(kill -9 $(pidof -x PowerFailMonitor.sh)) > /dev/null 2>&1
         $(kill -9 $(pidof ImageTestApp)) > /dev/null 2>&1
-		reboot
+        #reboot the os if init script is updated
+        if [ $InitScriptsUpdated = true ]; then
+            reboot
+        else
+            ContinueMasterSW
+        fi 
         exit 0
         ;;
     -updateRollback)
