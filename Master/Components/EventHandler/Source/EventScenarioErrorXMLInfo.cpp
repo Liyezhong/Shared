@@ -200,7 +200,7 @@ quint32 EventScenarioErrXMLInfo::GetErrorCode(quint32 eventId, quint32 scenarioI
 	int size = scenarioErrList.size();
     QHash<QString, quint32>::iterator sceErrIter = scenarioErrList.begin();
 	// If scenarioId is empty, we suppose scenario type is "all" and there is only one element in the list
-    if (scenarioId == 0 && size == 1 && sceErrIter.key() == "all"){
+    if (size == 1 && sceErrIter.key() == "all"){
 		return sceErrIter.value();
 	}
     QString strScenarioId = "";
