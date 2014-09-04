@@ -377,6 +377,9 @@ QStringList CFileSelectionModel::GetSelectedFiles()
             FileList.append(m_FileList.value(Counter));
         }
     }
+    if(FileList.count() == 0) {
+        m_MaximumSelection = false;
+    }
     return FileList;
 }
 

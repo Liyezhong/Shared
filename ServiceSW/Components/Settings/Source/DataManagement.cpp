@@ -306,7 +306,7 @@ void CDataManagement::FileSelectionForImport(QStringList FileList)
     FileSelection.SetData(1, "_", 1, QStringList() << "Service", QStringList() << "Service");
     FileSelection.SetFileList(FileList);
     FileSelection.setModal(true);
-    FileSelection.SetFileSelectionPanelSize(600, 400);
+    FileSelection.SetFileSelectionPanelSize(870, 400);
     (void) FileSelection.exec();
 }
 
