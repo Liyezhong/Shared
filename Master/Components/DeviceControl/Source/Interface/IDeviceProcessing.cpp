@@ -2148,7 +2148,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         }
         else if(pressure < (0.7 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_INSUFFICIENT;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_LEAKAGE;
             LOG()<<"Bottle Check: Leakage or Not Full";
         }
         else if(pressure < (2 * density * basePressure))
