@@ -138,6 +138,9 @@ void CUserSettingsCommandInterface::SettingsUpdateHandler(Global::tRefType Ref, 
                 ProxySettingsChanged = true;
             }
 
+            if (TempSettings.GetRemoteCare() != Settings.GetRemoteCare())
+                (const_cast<RemoteCare::RemoteCareManager*>(mp_MasterThreadController->GetRemoteCareManager()))->SetRemoteCareStatus(Settings.GetRemoteCare() == Global::ONOFFSTATE_ON ? true : false);
+
             // raise the event if the agitation speed is changed
             if (TempSettings.GetValue("Agitation_Speed") != Settings.GetValue("Agitation_Speed")) {
                 Global::EventObject::Instance().RaiseEvent(Global::EVENT_GLOBAL_USER_ACTIVITY_US_AGITATION_SPEED_CHANGED,

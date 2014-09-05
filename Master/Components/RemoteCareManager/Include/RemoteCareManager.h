@@ -79,6 +79,8 @@ private:
     DataManager::CRCConfigurationInterface *mp_RCConfigurationInterface; //!< RC Config interface.
     DataManager::CRCConfiguration *mp_RCConfiguration;                   //!< RC Config.
 
+    bool m_RemoteCareStatus;                                             //! Remote care enable/disable.
+
     QHash<QString, Global::EventLogLevel> m_EventLogLevelEnumMap;        //!< Hash of Event Log Level to RemoteCare values
 
 
@@ -314,6 +316,15 @@ public slots:
      */
     /****************************************************************************/
     void SendNotifyReconnectToRemoteCare();
+    /****************************************************************************/
+    /**
+     * \brief Inform remote care to set enable/disable
+     */
+    /****************************************************************************/
+    void SetRemoteCareStatus(bool status)
+    {
+        m_RemoteCareStatus = status;
+    }
 
 private slots:
     /************************************************************************************/

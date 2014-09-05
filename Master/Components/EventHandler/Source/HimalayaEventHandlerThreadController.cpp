@@ -457,24 +457,24 @@ void HimalayaEventHandlerThreadController::SendMSGCommand(quint32 EventKey, cons
 }
 
 void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
+{
+    qDebug() << "HimalayaEventHandlerThreadController::SetGuiAvailable" << active;
+    m_GuiAvailable = active;
+
+    if (active)
     {
-        qDebug() << "HimalayaEventHandlerThreadController::SetGuiAvailable" << active;
-        m_GuiAvailable = active;
-
-        if (active)
+        foreach(quint32 EventKey, m_PendingGuiEvent)
         {
-            foreach(quint32 EventKey, m_PendingGuiEvent)
-            {
-                Global::tRefType Ref = GetNewCommandRef();
-                NetCommands::EventReportDataStruct EventReportData;
-                EventRuntimeInfo_t Eventinfo = m_ActiveEvents.value(EventKey);
-                //todo init EventReportData by Eventinfo
+            Global::tRefType Ref = GetNewCommandRef();
+            NetCommands::EventReportDataStruct EventReportData;
+            EventRuntimeInfo_t Eventinfo = m_ActiveEvents.value(EventKey);
+            //todo init EventReportData by Eventinfo
 
-                SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
-            }
-            m_PendingGuiEvent.clear();
+            SendCommand(Ref, Global::CommandShPtr_t(new NetCommands::CmdEventReport(Global::Command::MAXTIMEOUT, EventReportData)));
         }
+        m_PendingGuiEvent.clear();
     }
+}
 
 
 void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& EventInfo)
@@ -521,10 +521,10 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
     if (receivers(SIGNAL(SendEventToRemoteCare(const DataLogging::DayEventEntry&, const quint64))) == 0)
         return;
 
-    if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
-        return;
-    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
-        return;
+//    if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
+//        return;
+//    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
+//        return;
 
     quint64 EventId64 = ((quint64)EventInfo.EventID << 32) | EventInfo.EventKey;
 

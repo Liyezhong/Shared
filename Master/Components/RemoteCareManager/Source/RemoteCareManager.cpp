@@ -144,7 +144,7 @@ void RemoteCareManager::SetupMaps() {
 
 /****************************************************************************/
 void RemoteCareManager::RegisterCommands()
-{    
+{
     // so far the only registration with real function:
     // to receive remote care events
     m_MasterThreadControllerRef.RegisterCommandForProcessing<NetCommands::CmdRCSetLogEvent, RemoteCareManager>
@@ -298,7 +298,10 @@ void RemoteCareManager::SetEventClassHandler(const Global::tRefType &Ref,
 
 /****************************************************************************/
 void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64)
-{        
+{
+    if (!m_RemoteCareStatus)
+        return;
+
     if (m_RCAAvailable && m_SubscriptionStatus) {
         bool SendEvent = false;
 

@@ -1,1 +1,0 @@
-AeInitLocal.o: AeInitLocal.c

@@ -147,16 +147,22 @@ public:
 public slots:
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of slot UpdateReagentList
+     *  \brief  Definition/Declaration of slot SetProcessState
      */
     /****************************************************************************/
     void SetProcessState(bool &ProcessState);
-    /****************************************************************************/
+    /*************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of slot UpdateReagentList
+     *  \brief  Definition/Declaration of slot SetRemoteCareState
      */
     /****************************************************************************/
     void SetRemoteCareState(bool &RemoteCareState);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot OnDisableRemoteCareEvents
+     */
+    /****************************************************************************/
+    void OnDisableRemoteCareEvents(const bool DisableStatus);
 
 signals:
     /****************************************************************************/

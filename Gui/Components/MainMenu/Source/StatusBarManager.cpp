@@ -264,5 +264,19 @@ void CStatusBarManager::SetRemoteCareState(bool &RemoteCareState)
     }
 }
 
+/****************************************************************************/
+/*!
+ *  \brief This slots Sets/Unsets the remote care icon on Status Bar.
+ *
+ *  \iparam DisableStatus = True or False
+ *
+ */
+/****************************************************************************/
+void CStatusBarManager::OnDisableRemoteCareEvents(const bool DisableStatus)
+{
+    bool SetIcon = !DisableStatus;
+    SetRemoteCareState(SetIcon);
+}
+
 } // end namespace EventHandling
 
