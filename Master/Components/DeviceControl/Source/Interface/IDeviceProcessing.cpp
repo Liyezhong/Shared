@@ -2113,6 +2113,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         if((ReagentGrpID == "RG1")||(ReagentGrpID == "RG2"))
         {
             density = 1;
+            basePressure = 1.25;
         }
         else if((ReagentGrpID == "RG3")||(ReagentGrpID == "RG4")||(ReagentGrpID == "RG8"))
         {
