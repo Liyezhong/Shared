@@ -64,10 +64,11 @@ const QString STRING_SPACE                  = " "; ///< constant string for spac
 const qint32 EVENTSTRING_TIMESTAMP          = 0; ///< event log timestamp number if the event is splitted
 const qint32 EVENTSTRING_EVENTID            = 1; ///< event log event ID number if the event is splitted
 const qint32 EVENTSTRING_EVENTTYPE          = 2; ///< event log event type number if the event is splitted
-const qint32 EVENTSTRING_EVENTSTRING        = 3; ///< event log event string number if the event is splitted
-const qint32 EVENTSTRING_USERLOG            = 4; ///< event log user log flag number if the event is splitted
-const qint32 EVENTSTRING_ALTERNATETEXT      = 5; ///< event log alternate text flag number if the event is splitted
-const qint32 EVENTSTRING_PARAMETERS         = 6; ///< event log parameters number if the event is splitted
+const qint32 EVENTSTRING_STRINGID           = 3; ///< enent log string id number
+const qint32 EVENTSTRING_EVENTSTRING        = 4; ///< event log event string number if the event is splitted
+const qint32 EVENTSTRING_USERLOG            = 5; ///< event log user log flag number if the event is splitted
+const qint32 EVENTSTRING_ALTERNATETEXT      = 6; ///< event log alternate text flag number if the event is splitted
+const qint32 EVENTSTRING_PARAMETERS         = 7; ///< event log parameters number if the event is splitted
 
 
 /****************************************************************************/
@@ -146,7 +147,7 @@ void DayLogFileInformation::ReadAndTranslateTheFile(const QString &FileName, con
 
                     // translate the data
                     QString EventData = Global::UITranslator::TranslatorInstance().Translate
-                            (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(1)).toInt(),
+                            (Global::TranslatableString(QString(ReadData.split(DELIMITER_SEMICOLON).value(EVENTSTRING_STRINGID)).toInt(),
                                                         TranslateStringList), UseAlternateText);
 
                     if (EventData.isEmpty() || EventData.contains(TRANSLATE_RETURN_VALUE_1) ||

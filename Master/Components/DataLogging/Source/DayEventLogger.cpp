@@ -193,8 +193,9 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
     }
 
     QString LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
-                            QString::number(Entry.GetStringID(), 10) + ";" +
+                            QString::number(Entry.GetEventCode(), 10) + ";" +
                             TrEventType + ";" +
+                            QString::number(Entry.GetStringID(),10) + ";" +
                             TrEventMessage + ";" +
                             ShowInRunLog + ";" +
                             AlternateString + ";" +
@@ -203,8 +204,9 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
 
     if(EventType == Global::EVTTYPE_DEBUG){
         LoggingString = TimeStampToString(Entry.GetTimeStamp()) + ";" +
-                        QString::number(Entry.GetStringID(), 10) + ";" +
+                        QString::number(Entry.GetEventCode(), 10) + ";" +
                         TrEventType + ";" +
+                        QString::number(Entry.GetStringID(),10) + ";" +
                         TrEventMessage;
     }
 

@@ -485,7 +485,8 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
     m_EventEntry.SetEventStatus(EventInfo.ActionResult);
 
 
-    m_EventEntry.SetEventCode(EventInfo.EventID);
+    //m_EventEntry.SetEventCode(EventInfo.EventID);
+    m_EventEntry.SetEventCode(EventInfo.Event->GetErrorId());
     m_EventEntry.SetEventName(EventInfo.Event->GetEventName());
     m_EventEntry.SetEventType(EventInfo.Event->GetErrorType());
     m_EventEntry.SetEventSource(EventInfo.Event->GetEventSource());
