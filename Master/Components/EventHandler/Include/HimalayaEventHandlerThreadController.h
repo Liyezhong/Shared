@@ -52,6 +52,7 @@ struct EventRuntimeInfo_t
     NetCommands::ClickedButton_t UserSelect;        //!< button selected by user
     Global::tTranslatableStringList EventStringParList;     //!< event parameters strings
     Global::tTranslatableStringList EventRDStringParList;   //!< event RD parameter strings
+    bool AlarmActFlag;                                 //!< alarm action flag
 };
 
 /****************************************************************************/

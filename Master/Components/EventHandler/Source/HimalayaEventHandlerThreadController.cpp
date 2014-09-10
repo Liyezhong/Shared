@@ -137,7 +137,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.EventStringParList = EventStringParList;
                 EventInfo.EventRDStringParList = EventRDStringParList;
                 m_ActiveEvents.insert(EventKey,EventInfo);
-                HandleAlarm(EventID, Scenario, EventKey, Active);
+                 EventInfo.AlarmActFlag = false;
             }
         }
 #if 1
@@ -180,8 +180,6 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     m_ActiveEvents.remove(EventKey);
                 }
             }
-            else { // this case should be processed in onAcknowledge()
-            }
         }
     }
 
@@ -193,6 +191,10 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
             m_ActiveEvents[EventKey].UserSelect = NetCommands::NOT_SPECIFIED;// index not from gui.
             LogEntry(m_ActiveEvents[EventKey]);
             if(pNextStep->GetButtonType() != Global::NOT_SPECIFIED){
+                if (m_ActiveEvents[EventKey].AlarmActFlag == false) {
+                    HandleAlarm(EventID, Scenario, EventKey, Active);
+                    m_ActiveEvents[EventKey].AlarmActFlag = true;
+                }
                 SendMSGCommand(EventKey, pEvent, pNextStep,Active);
             }
             else { // event only for logging
@@ -235,6 +237,10 @@ void HimalayaEventHandlerThreadController::OnAcknowledge(Global::tRefType ref, c
                 m_ActiveEvents[EventKey].UserSelect = ack.GetButtonClicked();
                 LogEntry(m_ActiveEvents[EventKey]);
                 NetCommands::ClickedButton_t clicked = ack.GetButtonClicked();
+                if (NetCommands::TIMEOUT != clicked) {
+                    ResetRmtLocAlarm(EventKey, pEvent);
+                    ResetAlarm();
+                }
                 switch(clicked) {
                     case NetCommands::OK_BUTTON:
                         NextStepID = pCurrentStep->GetNextStepOnClickOK();
