@@ -76,7 +76,7 @@ CMainWindow::CMainWindow(QWidget *p_Parent) :QMainWindow(p_Parent), mp_Ui(new Ui
     installEventFilter(this);
     mp_Ui->statusLabelErr->installEventFilter(this);
     mp_Ui->statusLabelWarn->installEventFilter(this);
-    (void) SetStatusIcons(RemoteCare);
+    (void) UnsetStatusIcons(RemoteCare);
     if (Application::CLeicaStyle::GetCurrentDeviceType() == Application::DEVICE_SEPIA) {
         QFont Font("Sans");
         Font.setPixelSize(20);
