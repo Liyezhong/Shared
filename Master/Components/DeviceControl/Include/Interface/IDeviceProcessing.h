@@ -462,6 +462,16 @@ public:
     qreal OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index);
     /****************************************************************************/
     /*!
+     *  \brief  Get Heating status
+     *
+     *  \param Type = OVENTempCtrlType_t type parameter
+     *
+     *  \return true - on, false -off
+     */
+    /****************************************************************************/
+    bool OvenGetHeatingStatus(OVENTempCtrlType_t Type);
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function OvenGetRecentLidStatus
      *
      *  \return from OvenGetRecentLidStatus

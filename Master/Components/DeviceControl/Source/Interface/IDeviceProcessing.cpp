@@ -1675,6 +1675,17 @@ qreal IDeviceProcessing::OvenGetRecentTemperature(OVENTempCtrlType_t Type, quint
     }
 }
 
+bool IDeviceProcessing::OvenGetHeatingStatus(OVENTempCtrlType_t Type)
+{
+    if(m_pOven)
+    {
+        return m_pOven->GetRecentHeatingStatus(Type);
+    }
+    else
+    {
+        return false;
+    }
+}
 /****************************************************************************/
 /*!
  *  \brief   Get the Oven lid sensor data captured in last 500 milliseconds.

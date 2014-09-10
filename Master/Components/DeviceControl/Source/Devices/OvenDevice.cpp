@@ -62,6 +62,7 @@ void COvenDevice::Reset()
     m_instanceID = DEVICE_INSTANCE_ID_OVEN;
     m_LastGetLidStatusTime = 0;
     memset( &m_LastGetTempTime, 0 , sizeof(m_LastGetTempTime)); //lint !e545
+    memset( &m_LastGetTempCtrlStatus, 0 , sizeof(m_LastGetTempCtrlStatus)); //lint !e545
     memset( &m_TargetTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_TargetTempCtrlStatus)); //lint !e545 !e641
     memset( &m_CurrentTempCtrlStatus, TEMPCTRL_STATUS_UNDEF , sizeof(m_CurrentTempCtrlStatus)); //lint !e545 !e641
     memset( &m_CurrentTemperatures, 0 , sizeof(m_CurrentTemperatures)); //lint !e545 !e641
@@ -420,12 +421,14 @@ void COvenDevice::CheckSensorsData()
     {
         (void)GetTemperatureAsync(OVEN_TOP, 0);
         (void)GetHeaterCurrentAsync(OVEN_TOP);
+        (void)GetTemperatureControlStatusAsync(OVEN_TOP);
     }
     if(m_pTempCtrls[OVEN_BOTTOM])
     {
         (void)GetTemperatureAsync(OVEN_BOTTOM, 0);
         (void)GetTemperatureAsync(OVEN_BOTTOM, 1);
         (void)GetHeaterCurrentAsync(OVEN_BOTTOM);
+        (void)GetTemperatureControlStatusAsync(OVEN_BOTTOM);
     }
     if(m_pLidDigitalInput)
     {
@@ -558,6 +561,11 @@ qreal COvenDevice::GetRecentTemperature(OVENTempCtrlType_t Type, quint8 Index)
         RetValue = UNDEFINED_4_BYTE;
     }
     return RetValue;
+}
+
+bool COvenDevice::GetRecentHeatingStatus(OVENTempCtrlType_t Type)
+{
+    return m_CurrentTempCtrlStatus[Type] == TEMPCTRL_STATUS_ON;
 }
 
 /****************************************************************************/
@@ -965,6 +973,16 @@ ReturnCode_t COvenDevice::GetTemperatureAsync(OVENTempCtrlType_t Type, quint8 In
     return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
+ReturnCode_t COvenDevice::GetTemperatureControlStatusAsync(OVENTempCtrlType_t Type)
+{
+    qint64 Now = QDateTime::currentMSecsSinceEpoch();
+    if((Now - m_LastGetTempCtrlStatus[Type]) >= CHECK_SENSOR_TIME) // check if 200 msec has passed since last read
+    {
+        m_LastGetTempCtrlStatus[Type] = Now;
+        return   m_pTempCtrls[Type]->ReqStatus();
+    }
+    return DCL_ERR_FCT_CALL_SUCCESS;
+}
 /****************************************************************************/
 /*!
  *  \brief   slot associated with get temperature.

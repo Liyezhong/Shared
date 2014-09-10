@@ -154,6 +154,14 @@ public:
     /****************************************************************************/
     quint8 GetHeaterSwitchType();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Get Rescent Heating status
+     *
+     *  \return true - heating, false - not heating
+     */
+    /****************************************************************************/
+    bool GetRecentHeatingStatus(OVENTempCtrlType_t Type);
 private slots:
     /****************************************************************************/
     /*!
@@ -190,6 +198,12 @@ private slots:
      */
     /****************************************************************************/
     ReturnCode_t SetTemperatureControlStatus(OVENTempCtrlType_t Type, TempCtrlStatus_t TempCtrlStatus);
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of slot SetTemperatureControlStatus
+     */
+    /****************************************************************************/
+    ReturnCode_t GetTemperatureControlStatusAsync(OVENTempCtrlType_t Type);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot SetTemperature
@@ -304,6 +318,7 @@ private:
     qreal m_TargetTemperatures[OVEN_TEMP_CTRL_NUM];                     //!< Current temperature
     TempCtrlStatus_t m_TargetTempCtrlStatus[OVEN_TEMP_CTRL_NUM];        //!< Target temperature control status; for verification of action result.
     TempCtrlStatus_t m_CurrentTempCtrlStatus[OVEN_TEMP_CTRL_NUM];       //!< Current temperature control status
+    qint64           m_LastGetTempCtrlStatus[OVEN_TEMP_CTRL_NUM];       //!< time for update temp ctrl status
     TempCtrlMainsVoltage_t m_MainsVoltageStatus[OVEN_TEMP_CTRL_NUM];    //!< Mains voltage state of the heaters
     qint64 m_LastGetTempTime[OVEN_TEMP_CTRL_NUM][MAX_SENSOR_PER_TEMP_CTRL];                    //!< Last get temperature time
     qint64 m_LastGetLidStatusTime;                                      //!< Last get lid status time
