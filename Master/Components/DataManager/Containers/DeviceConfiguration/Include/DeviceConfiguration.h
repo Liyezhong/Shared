@@ -175,6 +175,18 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief Get the serial number value
+     *
+     *  \return string of serial number.
+     */
+    /****************************************************************************/
+    QString GetSerialNumber() const
+    {
+        return m_ValueList.value("SERIALNUMBER");
+    }
+
+    /****************************************************************************/
+    /*!
      *  \brief Get the configuration value related to key
      *
      *  \iparam key
