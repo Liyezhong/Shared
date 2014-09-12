@@ -831,6 +831,31 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
 
 /****************************************************************************/
 /**
+ *  \brief  Device Force Draining function
+ *
+ *  \iparam  DelayTime = Delay time before stop pump.
+ *
+ *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
+ */
+/****************************************************************************/
+ReturnCode_t IDeviceProcessing::ALForceDraining(quint32 DelayTime, float targetPressure)
+{
+    if(QThread::currentThreadId() != m_ParentThreadID)
+    {
+        return DCL_ERR_FCT_CALL_FAILED;
+    }
+    if(m_pAirLiquid)
+    {
+        return m_pAirLiquid->ForceDraining(DelayTime, targetPressure);
+    }
+    else
+    {
+        return DCL_ERR_NOT_INITIALIZED;
+    }
+}
+
+/****************************************************************************/
+/**
  *  \brief  Device interface function.
  *
  *  \iparam  DelayTime = Delay time before stop pump.
@@ -2145,7 +2170,12 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
         {
             return retCode;
         }
-        (void)usleep(3000*1000);
+        //make the stable threshold time 3 seconds
+        QTime delayTime = QTime::currentTime().addMSecs(3000);
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
         qreal pressure = m_pAirLiquid->GetRecentPressure();
 
         LOG()<<"Bottle Check pressure: " << pressure;
@@ -2154,7 +2184,7 @@ ReturnCode_t IDeviceProcessing::IDBottleCheck(QString ReagentGrpID, RVPosition_t
 #ifdef __arm__
         if(pressure < (0.4 * density * basePressure))
         {
-            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY ;
+            retCode = DCL_ERR_DEV_LA_BOTTLECHECK_FAILED_EMPTY;
             LOG()<<"Bottle Check: Empty";
         }
         else if(pressure < (0.7 * density * basePressure))

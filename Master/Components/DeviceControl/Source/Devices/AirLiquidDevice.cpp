@@ -1,4 +1,4 @@
-
+#include <QCoreApplication>
 #include "DeviceControl/Include/Devices/AirLiquidDevice.h"
 #include "DeviceControl/Include/DeviceProcessing/DeviceProcessing.h"
 #include "DeviceControl/Include/SlaveModules/PressureControl.h"
@@ -1210,6 +1210,46 @@ SORTIE:
     (void)TurnOffFan();
 
     return RetValue;
+}
+
+ReturnCode_t CAirLiquidDevice::ForceDraining(quint32 DelayTime, float targetPressure)
+{
+    ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
+
+    LogDebug(QString("INFO: Start Force Drainging procedure."));
+    //release pressure
+    RetValue = ReleasePressure();
+    if( DCL_ERR_FCT_CALL_SUCCESS != RetValue )
+    {
+        LogDebug(QString("INFO: Release pressure failed"));
+    }
+
+    (void)TurnOnFan();
+    RetValue = SetTargetPressure(AL_PUMP_MODE_PWM_POSITIVE, targetPressure);
+    if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
+    {
+        LogDebug(QString("INFO: Set target pressure failed"));
+    }
+
+    //waiting for some time
+    if(DelayTime > 0)
+    {
+        //make the stable threshold time 3 seconds
+        QTime extraTime = QTime::currentTime().addMSecs(DelayTime*1000);
+        while (QTime::currentTime() < extraTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
+    }
+
+    //stop compressor
+    StopCompressor();
+    //close both valve
+    (void)SetValve(VALVE_1_INDEX,VALVE_STATE_CLOSE);
+    (void)SetValve(VALVE_2_INDEX,VALVE_STATE_CLOSE);
+    (void)TurnOffFan();
+
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/
