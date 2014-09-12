@@ -1249,7 +1249,7 @@ void MasterThreadController::CreateRebootFile(QFile *p_BootConfigFile) {
         BootConfigFileStream << "Main_Rebooted:" << "No" << "\n" << left;
         BootConfigFileStream << "Reboot_Count:" << "0" << "\n" << left;
         BootConfigFileStream << "Software_Update_Status:" << "NA" << "\n" << left;
-        BootConfigFileStream << "PowrFailed:"<< "No" << "\n" << left;
+        BootConfigFileStream << "PowerFailed:"<< "No" << "\n" << left;
         p_BootConfigFile->close();
     }
 }
