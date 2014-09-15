@@ -200,6 +200,8 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
                                        Threads::CommandChannel &AckCommandChannel)
 {
     m_MasterThreadControllerRef.SendAcknowledgeOK(Ref, AckCommandChannel);
+    if (!m_RemoteCareStatus || !m_RCAAvailable)
+        return;
     NetCommands::RCLogEventReportStruct RCEventData;
     QByteArray EventData(const_cast<QByteArray &>(Cmd.GetEventData()));
     QDataStream EventDataStream(&EventData, QIODevice::ReadWrite);
