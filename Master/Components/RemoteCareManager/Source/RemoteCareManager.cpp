@@ -200,8 +200,7 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
                                        Threads::CommandChannel &AckCommandChannel)
 {
     m_MasterThreadControllerRef.SendAcknowledgeOK(Ref, AckCommandChannel);
-    if (!m_RemoteCareStatus || !m_RCAAvailable)
-        return;
+
     NetCommands::RCLogEventReportStruct RCEventData;
     QByteArray EventData(const_cast<QByteArray &>(Cmd.GetEventData()));
     QDataStream EventDataStream(&EventData, QIODevice::ReadWrite);
@@ -214,6 +213,10 @@ void RemoteCareManager::OnCmdRCSetLogEventHandler(const Global::tRefType Ref,
     EventDataStream >> AltStringUsage;
     RCEventData.AltStringUsage = (Global::AlternateEventStringUsage) AltStringUsage;
 
+    if (RCEventData.EventCode == RCAgentNamespace::EVENT_REMOTECARE_ERROR_SUBMITEVENT_POST) {
+        if (!m_RemoteCareStatus || !m_RCAAvailable)
+            return;
+    }
 
     if (RCEventData.EventCode == RCAgentNamespace::EVENT_REMOTECARE_ERROR_WEB_ACCESS) {
         //broadcast this msg so that gui receives this.
