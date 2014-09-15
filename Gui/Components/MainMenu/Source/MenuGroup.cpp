@@ -224,7 +224,7 @@ void CMenuGroup::ButtonPressed(int Number)
     mp_Ui->contentWidget->setVisible(true);
     mp_Widget->setVisible(false); 
 
-    mp_Ui->contentWidget->SetPanelTitle(QString("%1").arg(mp_ButtonGroup->button(Number)->text()));
+    mp_Ui->contentWidget->SetPanelTitle(QString("%1").arg(mp_ButtonGroup->button(Number)->text().replace(QRegExp("&&"), "&")));
     mp_ContentStack->setCurrentIndex(Number);
 
     emit PanelChanged();
