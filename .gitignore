@@ -2,6 +2,8 @@
 # Compiled object files
 *.o
 *.out
+*.a
+*.d
 
 # Generated MOC, resource and UI files
 moc_*.cpp
