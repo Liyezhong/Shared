@@ -147,8 +147,8 @@ void CLogViewer::SelectionChanged(QModelIndex Index)
  */
 /****************************************************************************/
 void CLogViewer::ExecDialog()
-{    
-    if (m_LogFileName.toString().isEmpty()) {
+{
+    if (mp_TableWidget->currentIndex().row() < 0) {
         mp_MessageDlg->SetTitle(QApplication::translate("LogViewer::CSystemLogViewer",
                                               "Warning", 0, QApplication::UnicodeUTF8));
         mp_MessageDlg->SetButtonText(1, QApplication::translate("LogViewer::CSystemLogViewer",
