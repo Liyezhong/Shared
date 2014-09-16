@@ -528,8 +528,8 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
     if (receivers(SIGNAL(SendEventToRemoteCare(const DataLogging::DayEventEntry&, const quint64))) == 0)
         return;
 
-//    if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
-//        return;
+    if (EventInfo.Event->GetErrorType() == Global::EVTTYPE_DEBUG || EventInfo.Event->GetErrorType() == Global::EVTTYPE_UNDEFINED)
+        return;
 //    if (EventInfo.Event->GetAlarmType() != Global::ALARMPOS_REMOTE)
 //        return;
 
