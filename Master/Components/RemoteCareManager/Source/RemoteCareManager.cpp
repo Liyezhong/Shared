@@ -71,6 +71,7 @@ RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThre
     , m_NumberOfLogFiles(5)
     , mp_RCConfigurationInterface(RCConfigurationInterface)
     , mp_RCConfiguration(NULL)
+    , m_RemoteCareStatus(false)
 {
     //This object shall now live on master thread.
     this->setParent(&MasterThreadControllerRef);
