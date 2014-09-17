@@ -833,25 +833,112 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
 /**
  *  \brief  Device Force Draining function
  *
- *  \iparam  DelayTime = Delay time before stop pump.
+ *  \iparam  RVPos = RV position
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALForceDraining(quint32 DelayTime, float targetPressure)
+ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure)
 {
+    ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
-    if(m_pAirLiquid)
+    if((m_pRotaryValve)&&(m_pAirLiquid))
     {
-        return m_pAirLiquid->ForceDraining(DelayTime, targetPressure);
+        retCode = m_pAirLiquid->ReleasePressure();
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+        // Move RV to sealing position
+        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+
+        bool IsRightPos = false;
+        QTime delayTime = QTime::currentTime().addMSecs(30*1000);
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
+            if (position == RVPos+1)
+            {
+                IsRightPos = true;
+                break;
+            }
+        }
+        if (false == IsRightPos)
+        {
+            return DCL_ERR_FCT_CALL_FAILED;
+        }
+
+        // Set positive pressure (40 kpa)
+        retCode = m_pAirLiquid->Pressure(targetPressure);
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            m_pAirLiquid->ReleasePressure();
+            return retCode;
+        }
+
+        //Wait for 2 minutes to get 35kpa
+        delayTime = QTime::currentTime().addMSecs(120*1000);
+        qreal pressure = 0.0;
+        bool IsGetTargetPressure = false;
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            pressure = m_pAirLiquid->GetRecentPressure();
+            if (qAbs(pressure - targetPressure) < 5.0)
+            {
+                IsGetTargetPressure = true;
+                break;
+            }
+        }
+
+        // Wait for 2 minutes to see if 20kpa has been reached. If not, report error
+        if (false == IsGetTargetPressure)
+        {
+            pressure = m_pAirLiquid->GetRecentPressure();
+            if (pressure < 20.0)
+            {
+                m_pAirLiquid->ReleasePressure();
+                return DCL_ERR_FCT_CALL_FAILED;
+            }
+        }
+
+
+        // Move RV to tube position
+        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
+        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        {
+            return retCode;
+        }
+
+        // Check if there is No reagent in the bottle
+        delayTime = QTime::currentTime().addMSecs(30*1000);
+        while (QTime::currentTime() < delayTime)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        }
+        pressure = m_pAirLiquid->GetRecentPressure();
+        if (pressure < DRAINGING_TARGET_FINISHED_PRESSURE)
+        {
+            m_pAirLiquid->ReleasePressure();
+            return DCL_ERR_FCT_CALL_SUCCESS;
+        }
+        else
+        {
+            m_pAirLiquid->ReleasePressure();
+            return DCL_ERR_FCT_CALL_FAILED;
+        }
+
     }
-    else
-    {
-        return DCL_ERR_NOT_INITIALIZED;
-    }
+     m_pAirLiquid->ReleasePressure();
+    return DCL_ERR_FCT_CALL_SUCCESS;
 }
 
 /****************************************************************************/
@@ -2360,6 +2447,10 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
         {
             //FILE_LOG_L(laFCT, llERROR) <<"LA Tube2 current is: "<<m_pAirLiquid->GetHeaterCurrent(AL_TUBE2);
             reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_TUBE2TEMPCTRL);
+        }
+        else if (AL_FAN == sensorName)
+        {
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_FANDO);
         }
     }
 

@@ -136,16 +136,6 @@ public:
 
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of function ForceDraining
-     *
-     *  \param DelayTime = quint32 type parameter
-     *
-     *  \return from Draining
-     */
-    /****************************************************************************/
-    ReturnCode_t ForceDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
-    /****************************************************************************/
-    /*!
      *  \brief  Definition/Declaration of function Filling
      *
      *  \param DelayTime = quint32 type parameter

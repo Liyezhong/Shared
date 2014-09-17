@@ -213,6 +213,7 @@ namespace DeviceControl
 
 #define AL_TARGET_PRESSURE_POSITIVE                 (30)
 #define AL_TARGET_PRESSURE_NEGATIVE                 (-30)
+#define AL_FORCEDRAIN_PRESSURE                      (40)
 
 /*! Synchronized functions definitions */
 typedef enum
@@ -475,6 +476,9 @@ typedef enum {
     AL_TUBE2 = 2,
     AL_TEMP_CTRL_NUM = 3
 } ALTempCtrlType_t;
+
+/* Fan belongs to pressurecontrol, so we just hardcode here */
+const quint32 AL_FAN = 4;
 
 /*! Oven device's temperature control function module*/
 typedef enum {

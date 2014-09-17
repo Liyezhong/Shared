@@ -145,14 +145,14 @@ public:
 
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of function ALForceDraining
+     *  \brief  Definition/Declaration of function IDForceDraining
      *
      *  \param DelayTime = quint32 type parameter
      *
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t ALForceDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
+    ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE);
 
     /****************************************************************************/
     /*!
