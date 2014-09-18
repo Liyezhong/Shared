@@ -919,22 +919,6 @@ ProcessSWVersionXml()
 }
 
 #=== FUNCTION ================================================================
-# NAME: ContinueMasterSW
-# DESCRIPTION: Re-open Master Software
-# PARAMETER : NA 
-#=============================================================================
-ContinueMasterSW()
-{
-	if [ ! -x /home/Leica/Scripts/EBox-StartupExtended.sh ]; then
-        echo "FATAL ERROR: Please contact service." > /dev/tty0
-        exit 1
-    else
-        . /home/Leica/Scripts/EBox-StartupExtended.sh
-        continue_startup && exit 0 || exit 1
-    fi
-}
-
-#=== FUNCTION ================================================================
 # NAME: MasterSWUpdate
 # DESCRIPTION:  Interface for Master software update 
 # PARAMETER : NA 
