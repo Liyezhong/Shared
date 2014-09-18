@@ -56,6 +56,8 @@ namespace DeviceControl
     m_machine(this),
     m_ModuleLifeCycleRecord(0)
 {
+    m_ReportErrorList.clear();
+
     m_MainState = DEVICE_MAIN_STATE_START;
     m_MainStateOld = DEVICE_MAIN_STATE_START;
     qRegisterMetaType<DataManager::CModule>("DataManager::CModule");
