@@ -993,8 +993,6 @@ case "$1" in
         #reboot the os if init script is updated
         if [ $InitScriptsUpdated = true ]; then
             reboot
-        else
-            ContinueMasterSW
         fi 
         exit 0
         ;;
