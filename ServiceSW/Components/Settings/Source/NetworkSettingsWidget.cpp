@@ -390,9 +390,9 @@ void CNetworkSettingsWidget::KeyBoardValidateEnteredString(QString Value)
         }
 
         if (!IsIPAddressValid) {
-            mp_MessageDlg->SetText
-                    (tr("%1 is not a valid IP address.Valid range is from 000.000.000.001 to 255.255.255.255")
-                     .arg(Value));
+            mp_MessageDlg->SetText(QApplication::translate("ServiceUpdates::CNetworkSettingsWidget",
+                                                           "%1 is not a valid IP address.Valid range is from 000.000.000.001 to 255.255.255.255",
+                                                           0, QApplication::UnicodeUTF8).arg(Value));
             (void) mp_MessageDlg->exec();
             emit KeyBoardStringValidationComplete(false);
             return;
