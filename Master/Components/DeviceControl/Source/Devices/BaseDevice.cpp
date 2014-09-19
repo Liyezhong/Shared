@@ -424,10 +424,13 @@ bool CBaseDevice::InsertBaseModule(CBaseModule* pBase)
     {
         return false;
     }
-    (void)connect(pBase, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+    if (m_BaseModuleList.empty())
+    {
+        (void)connect(pBase, SIGNAL(ReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
                   this, SLOT(OnReportVoltageState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
-    (void)connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
+        (void)connect(pBase, SIGNAL(ReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)),
                   this, SLOT(OnReportCurrentState(quint32, ReturnCode_t, PowerState_t, quint16, quint16)));
+    }
     m_BaseModuleList.append(pBase);
 
     return true;
