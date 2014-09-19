@@ -2450,7 +2450,7 @@ ReportError_t IDeviceProcessing::GetSlaveModuleReportError(quint8 errorCode, con
         }
         else if (AL_FAN == sensorName)
         {
-            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_FANDO);
+            reportError = m_pAirLiquid->GetSlaveModuleError(errorCode,CANObjectKeyLUT::FCTMOD_AL_PRESSURECTRL);
         }
     }
 

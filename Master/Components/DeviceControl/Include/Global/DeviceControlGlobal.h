@@ -598,6 +598,28 @@ public:
     const quint8 TEMP_SENSOR_OUT_OF_RANGE = 5; 	//!< Temperature is too high
     const quint8 TEMP_SENSOR_INCONSISTENT = 6; 	//!< Temperature sensors are measuring different values
     const quint8 TEMP_SENSOR_NOT_SUPPORTED= 7; 	//!< Unsupported type of temperature sensor
+
+
+    // Pressure module related errors
+    //! The parameters of the PID controller are not set
+    const quint8 PRESS_PID_NOT_CONFIGURED = 0;
+    //! The module is pumping, operation not permitted
+    const quint8 PRESS_MODULE_ACTIVE = 1;
+    //! The module is stopped or in standby
+    const quint8 PRESS_MODULE_INACTIVE = 2;
+    //! The current through the pump elements is too high or too low
+    const quint8 PRESS_CURRENT_OUT_OF_RANGE = 3;
+    //! Pressure is too high
+    const quint8 PRESS_SENSOR_OUT_OF_RANGE = 4;
+    //! Pressure sensors are measuring different values
+    const quint8 PRESS_SENSORS_INCONSISTENT = 5;
+    //! Unsupported type of pressure sensor
+    const quint8 PRESS_SENSOR_NOT_SUPPORTED = 6;
+    //! The parameters of the PWM controller are not set
+    const quint8 PRESS_PWM_NOT_CONFIGURED = 7;
+    //! The current through the fan elements is too high or too low
+    const quint8 PRESS_FAN_OUT_OF_RANGE = 8;
+
 }
 
 Q_DECLARE_METATYPE(DeviceControl::RTTempCtrlType_t)
