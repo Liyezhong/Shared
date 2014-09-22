@@ -117,7 +117,7 @@ public:
      *  \return from WaitForUpdate
      */
     /****************************************************************************/
-    void WaitForUpdate(bool Wait);
+    static void WaitForUpdate(bool Wait);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function BootFirmware
@@ -315,7 +315,7 @@ private:
     CBaseModule *mp_BaseModule;  //!< Base module assigned to the boot loader
     QFile m_FirmwareImage;  //!< Firmware image file to be programmed
     bool m_UpdateRequired;  //!< Indicates if an update is required or not
-    bool m_WaitForUpdate;   //!< Set to wait for an update
+    static bool m_WaitForUpdate;   //!< Set to wait for an update
     quint8 m_UpdateType;    //!< Type of updated info (BoardInfo/BootInfo/BoardOptions)
     quint8 *mp_Info;        //!< Pointer to info blocks (BoardInfo/BootInfo/BoardOptions)
     quint32 m_InfoSize;     //!< Number of info block bytes

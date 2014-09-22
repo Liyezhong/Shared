@@ -50,7 +50,7 @@ const quint32 CBootLoader::m_Crc32InitialValue = 0xFFFFFFFF;
 CBootLoader::CBootLoader(const CANMessageConfiguration *p_CanMsgConfig, const quint32 CanNodeId,
                          DeviceControl::CANCommunicator *p_CanCommunicator, DeviceControl::CBaseModule *p_BaseModule) :
     mp_CanCommunicator(p_CanCommunicator), mp_BaseModule(p_BaseModule), m_UpdateRequired(false),
-    m_WaitForUpdate(false), m_UpdateType(0), mp_Info(NULL), m_InfoSize(0), m_State(BOOTLOADER_IDLE), m_Count(0)
+    m_UpdateType(0), mp_Info(NULL), m_InfoSize(0), m_State(BOOTLOADER_IDLE), m_Count(0)
 {
 #ifdef SLAVE_UPDATER
     m_WaitForUpdate = true;
@@ -190,7 +190,6 @@ ReturnCode_t CBootLoader::UpdateBootLoader(const QString &BootLoaderPath)
 /****************************************************************************/
 void CBootLoader::WaitForUpdate(bool Wait)
 {
-    QMutexLocker Locker(&m_Mutex);
 
     m_WaitForUpdate = Wait;
 }
@@ -786,5 +785,7 @@ ReturnCode_t CBootLoader::HandleCanMsgUpdateInfoAck(const can_frame *p_CanFrame)
 
     return ReturnCode;
 }
+
+bool CBootLoader::m_WaitForUpdate = false;
 
 } //namespace DeviceControl
