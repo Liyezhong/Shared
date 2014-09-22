@@ -52,11 +52,6 @@ CBootLoader::CBootLoader(const CANMessageConfiguration *p_CanMsgConfig, const qu
     mp_CanCommunicator(p_CanCommunicator), mp_BaseModule(p_BaseModule), m_UpdateRequired(false),
     m_UpdateType(0), mp_Info(NULL), m_InfoSize(0), m_State(BOOTLOADER_IDLE), m_Count(0)
 {
-#ifdef SLAVE_UPDATER
-    m_WaitForUpdate = true;
-#else
-    m_WaitForUpdate = false;
-#endif
     if (p_CanMsgConfig == NULL) {
         THROW(EVENT_GROUP_PLATFORM_DEVICECOMMANDPROCESSOR);
     }
