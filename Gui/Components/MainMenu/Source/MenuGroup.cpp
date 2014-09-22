@@ -105,7 +105,7 @@ void CMenuGroup::changeEvent(QEvent *p_Event)
     QWidget::changeEvent(p_Event);
     switch (p_Event->type()) {
         case QEvent::LanguageChange:
-            mp_Ui->menuWidget->SetPanelTitle(tr("Menu"));
+            mp_Ui->menuWidget->SetPanelTitle(QApplication::translate("CMenuGroup", "Menu", 0, QApplication::UnicodeUTF8));
             mp_Ui->retranslateUi(this);
             break;
         default:
