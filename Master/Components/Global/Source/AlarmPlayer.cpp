@@ -113,7 +113,16 @@ void AlarmPlayer::emitAlarm(Global::AlarmType alarmType, bool UsePresetValues, Q
         }
     }//Mutex scope ends
 
-    double volumeLevel = ((UsePresetValues) ? (((float)ActiveVolume/(float)MAX_VOLUME) * 100) : ((Volume/(float)MAX_VOLUME ) * 100));
+    quint8 volume = UsePresetValues ? ActiveVolume : Volume;
+    if (volume < 0)
+        volume = 0;
+    if (volume > MAX_VOLUME)
+        volume = MAX_VOLUME;
+
+    double volumeRatio = ((float)volume + 1.0) * 0.04000 + 0.60000;
+    double volumeLevel = volumeRatio * 100.0;
+    //double volumeLevel = ((UsePresetValues) ? (((float)ActiveVolume/(float)MAX_VOLUME) * 100) : ((Volume/(float)MAX_VOLUME ) * 100));
+
     QString SetVolume= "amixer set PCM " + QString::number(volumeLevel) +"%";
     if (!m_processSetVolume) {
         m_processSetVolume = new QProcess();
