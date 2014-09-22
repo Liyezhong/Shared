@@ -53,7 +53,7 @@ CRCConfiguration::CRCConfiguration() :
     m_DeviceType(RemoteCare::RCDRMDeviceMaster),
     m_DeviceId(15),
     m_ProxyProtocol(RemoteCare::RCWebProxyProtoNone),
-    m_RemoteSessionName("ColoradoRemote"),
+    m_RemoteSessionName("HimlayaRemote"),
     m_RemoteSessionIPAddress("127.0.0.1"),
     m_Compression(Global::ONOFFSTATE_OFF),
     m_MaxChunkSize(1000000)
