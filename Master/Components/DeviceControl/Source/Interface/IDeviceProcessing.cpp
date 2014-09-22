@@ -919,26 +919,21 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         }
 
         // Check if there is No reagent in the bottle
-        delayTime = QTime::currentTime().addMSecs(30*1000);
+        delayTime = QTime::currentTime().addMSecs(60*1000);
         while (QTime::currentTime() < delayTime)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-        }
-        pressure = m_pAirLiquid->GetRecentPressure();
-        if (pressure < DRAINGING_TARGET_FINISHED_PRESSURE)
-        {
-            m_pAirLiquid->ReleasePressure();
-            return DCL_ERR_FCT_CALL_SUCCESS;
-        }
-        else
-        {
-            m_pAirLiquid->ReleasePressure();
-            return DCL_ERR_FCT_CALL_FAILED;
+            pressure = m_pAirLiquid->GetRecentPressure();
+            if (pressure < DRAINGING_TARGET_FINISHED_PRESSURE)
+            {
+                m_pAirLiquid->ReleasePressure();
+                return DCL_ERR_FCT_CALL_SUCCESS;
+            }
         }
 
     }
-     m_pAirLiquid->ReleasePressure();
-    return DCL_ERR_FCT_CALL_SUCCESS;
+    m_pAirLiquid->ReleasePressure();
+    return DCL_ERR_FCT_CALL_FAILED;
 }
 
 /****************************************************************************/

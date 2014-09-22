@@ -400,6 +400,7 @@ void CBaseDevice::OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, 
         reportErr.instanceID = InstanceID;
         reportErr.errorGroup = ErrorGroup;
         reportErr.errorCode = ErrorCode;
+        reportErr.errorData = ErrorData;
         reportErr.errorTime = ErrorTime.toMSecsSinceEpoch();
         m_ReportErrorList.push_back(reportErr);
     }
