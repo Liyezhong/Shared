@@ -281,7 +281,7 @@ UpdateSlaveFW()
         UPDATED_FIRMWARE+=( "$FirmwareName" )
     done    
 	if [ $FWCount -ne 0 ]; then 
-        ExecutePTS "$SLAVEUPDATEFILE"
+        ExecutePTS "$SLAVEFILEDIR"
         for Name in "${FIRMWARES_TO_BE_UPDATED[@]}";do
             #Update Version in SW_Version.xml    
             xmlstarlet ed -L -u "//file[@Filename='$Name']/@Version" -v ${UpdatePkgFWNameVersionMap[$Name]} $SWVERFILE
@@ -395,7 +395,7 @@ RollbackFW()
             ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKFIRMWAREDIR/" "$SLAVEFILEDIR"
         fi
     done
-    ExecutePTS "$SLAVEUPDATEFILE" "DontRollbackOnFailure"
+    ExecutePTS "$SLAVEFILEDIR" "DontRollbackOnFailure"
 	if [ $? -ne 0 ];then 
         RollbackFailed=true
         ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED"
