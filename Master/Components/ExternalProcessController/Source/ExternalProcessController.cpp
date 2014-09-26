@@ -202,11 +202,13 @@ void ExternalProcessController::CreateAndInitializeObjects() {
  ****************************************************************************/
 void ExternalProcessController::ExternalProcessExited(const QString &name, int code)
 {
-    Q_UNUSED(name)
-    Q_UNUSED(code)
+    qDebug() << "\n\n\n\n=================" << __FUNCTION__ << ":" << name << code << "\n\n\n\n";
     qDebug() << "\nExternalProcessController: ExternalProcessExited called.\n";
 
     CHECKPTR(m_myStateManager);
+    if (name.contains("Himalaya Device GUI"))
+        exit(code);
+
     Global::EventObject::Instance().RaiseEvent(EVENT_EPC_EXTERNAL_PROCESS_EXITED, Global::FmtArgs() << GetProcessName() << code);
     if (m_myStateManager->GetCurrentState()->GetName() != "CommunicationRetry") {
         m_ProcessExited = true;
