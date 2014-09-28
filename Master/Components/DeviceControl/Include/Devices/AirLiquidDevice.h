@@ -132,7 +132,7 @@ public:
      *  \return from Draining
      */
     /****************************************************************************/
-    ReturnCode_t Draining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
+    ReturnCode_t Draining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE, bool IgnorePressure = false);
 
     /****************************************************************************/
     /*!

@@ -1088,7 +1088,7 @@ SORTIE:
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure)
+ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure, bool IgnorePressure)
 {
 
     bool stop = false;
@@ -1119,6 +1119,16 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure)
     TimeStartPressure = QDateTime::currentMSecsSinceEpoch();
     FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Set target pressure finished.";
     LogDebug(QString("INFO: Set target pressure finished."));
+
+    if (false == IgnorePressure)
+    {
+        PressureHasBeenSetup = false;
+    }
+    else
+    {
+        PressureHasBeenSetup = true;
+        TimeStartDraining = QDateTime::currentMSecsSinceEpoch();
+    }
 
     while(!stop)
     {

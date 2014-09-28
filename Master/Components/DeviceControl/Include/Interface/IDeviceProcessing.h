@@ -141,7 +141,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t ALDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE);
+    ReturnCode_t ALDraining(quint32 DelayTime, float targetPressure = AL_TARGET_PRESSURE_POSITIVE, bool IgnorePressure = false);
 
     /****************************************************************************/
     /*!
