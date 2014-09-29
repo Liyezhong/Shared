@@ -47,8 +47,8 @@ public:
      */
     /****************************************************************************/
     explicit EventStep(quint32 stepId, const QString& strType)
-        : m_Id(stepId),m_NextStepOnClickNO(0),m_NextStepOnClickOk(0),m_NextStepOnClickYES(0),
-          m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_NextStepOnTimeOut(0),m_Type(strType)
+        : m_Id(stepId),m_Type(strType),m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_NextStepOnTimeOut(0),
+          m_NextStepOnClickOk(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0)
 	{ }
 
     /****************************************************************************/
@@ -113,6 +113,15 @@ public:
      */
     /****************************************************************************/
     QString GetTimeOut() const { return m_TimeOut; }
+    /****************************************************************************/
+    /**
+     * \brief Set Timeout attribute
+     *
+     * \param  TimeOut Type
+     */
+    /****************************************************************************/
+    void SetTimeOut(QString TimeOut) const {m_TimeOut = TimeOut;}
+
 
     /****************************************************************************/
     /**
@@ -207,7 +216,7 @@ private:
 
 	//For MSg type
     quint32                     m_StringId;				///< Msg String Id
-    QString                     m_TimeOut;				///< Time Out
+    mutable QString                     m_TimeOut;				///< Time Out
     Global::GuiButtonType		m_ButtonType;			///< Button Type
     QString                     m_ButtonEnableConditon;	///< Condition on button enabled
     quint32                     m_NextStepOnTimeOut;	///< Next step on time out
@@ -291,7 +300,7 @@ public:
      * \return Code attribute	
      */
     /****************************************************************************/
-    const quint32 GetCode() const { return m_Code; }
+    quint32 GetCode() const { return m_Code; }
 
     /****************************************************************************/
     /**

@@ -46,6 +46,7 @@ struct EventRuntimeInfo_t
     quint32 EventKey;                               //!< event key
     quint32 EventID;                                //!< event ID
     quint32 Scenario;                               //!< scenario
+    quint64 time;                                   //!< event happen time
     const XMLEvent* Event;                          //!< event info
     quint32 CurrentStep;                            //!< current step info
     bool ActionResult;                              //!< action result

@@ -27,6 +27,7 @@
 #include <NetCommands/Include/CmdSystemAction.h>
 #include <EventHandler/Include/HimalayaEventHandlerThreadController.h>
 #include <EventHandler/Include/EventHandlerEventCodes.h>
+#include <DataManager/Helper/Include/Helper.h>
 #include <QFile>
 #include <stdio.h>
 
@@ -128,6 +129,7 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
             pNextStep = pEvent->GetStep(0);
             if(pNextStep) { // insert to active event list
                 EventRuntimeInfo_t EventInfo;
+                EventInfo.time = QDateTime::currentMSecsSinceEpoch();
                 EventInfo.EventKey = EventKey;
                 EventInfo.EventID = EventID;
                 EventInfo.Scenario = Scenario;
@@ -195,7 +197,26 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                     HandleAlarm(EventID, Scenario, EventKey, Active);
                     m_ActiveEvents[EventKey].AlarmActFlag = true;
                 }
-                SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+                if(!pNextStep->GetTimeOut().isEmpty())
+                {
+                    quint64 RemainingTimeInSeconds = DataManager::Helper::ConvertTimeStringToSeconds(pNextStep->GetTimeOut()) -
+                                                    (QDateTime::currentMSecsSinceEpoch() - m_ActiveEvents[EventKey].time) / 1000;
+                    if(RemainingTimeInSeconds <= 0) // already timeout, skip show message box
+                    {
+                        Global::tRefType Ref = GetNewCommandRef();
+                        m_EventKeyRefMap.insert(Ref,EventKey);
+                        OnAcknowledge(Ref,NetCommands::CmdAcknEventReport(0,NetCommands::TIMEOUT));
+                    }
+                    else
+                    {
+                        pNextStep->SetTimeOut(DataManager::Helper::ConvertSecondsToTimeString(RemainingTimeInSeconds));
+                        SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+                    }
+                }
+                else
+                {
+                    SendMSGCommand(EventKey, pEvent, pNextStep,Active);
+                }
             }
             else { // event only for logging
                 m_ActiveEvents.remove(EventKey);
