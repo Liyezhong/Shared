@@ -385,6 +385,7 @@ RollbackFW()
     #remove old files from slave update dir
     rm -rf $SLAVEFILEDIR/*
 	mkdir -p $SLAVEFILEDIR 
+	local FWCount=0
     #FIRMWARES_TO_BE_UPDATED contains all the firmwares that were getting updated. We rollback only those.
     for Name in "${FIRMWARES_TO_BE_UPDATED[@]}"; do
         local FirmwareName=$(GenerateFirmwareName $Name)
@@ -394,11 +395,14 @@ RollbackFW()
             RollbackFailed=true
             ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_FILE_FOLDER_COPY_FAILED" "$ROLLBACKFIRMWAREDIR/" "$SLAVEFILEDIR"
         fi
+		((FWCount++))
     done
-    ExecutePTS "$SLAVEFILEDIR" "DontRollbackOnFailure"
-	if [ $? -ne 0 ];then 
-        RollbackFailed=true
-        ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED"
+	if [ $FWCount -ne 0 ];then
+    	ExecutePTS "$SLAVEFILEDIR" "DontRollbackOnFailure"
+		if [ $? -ne 0 ];then 
+        	RollbackFailed=true
+        	ExitOnError "$EVENT_SOURCE_MASTER" "$EVENT_SWUPDATE_ROLLBACKFAILED"
+		fi
     fi
 }
 
