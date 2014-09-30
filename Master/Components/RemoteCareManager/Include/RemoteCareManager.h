@@ -52,8 +52,8 @@ class RemoteCareManager : public QObject
     friend class RemoteCare::TestRemoteCareManager;
 public:
     RemoteCareManager(Threads::MasterThreadController &MasterThreadControllerRef,
-                      DataManager::CRCConfigurationInterface *RCConfigurationInterface);
-               //DataManager::CDataManagerBase &DataManagerRef);
+                      DataManager::CRCConfigurationInterface *RCConfigurationInterface,
+                      bool remoteCareStatus);
 
     void Init();
 

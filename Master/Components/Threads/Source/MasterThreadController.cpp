@@ -258,8 +258,9 @@ void MasterThreadController::CreateControllersAndThreads() {
     // create and connect axeda controller
 //    DataManager::CRCConfigurationInterface* mp_RCConfigurationInterface = mp_DataManagerBase->GetRCConfigurationInterface();
     if(!mp_RemoteCareManager) {
-//        mp_RemoteCareManager = new RemoteCare::RemoteCareManager(*this, *mp_DataManagerBase);
-        mp_RemoteCareManager = new RemoteCare::RemoteCareManager(*this, mp_DataManagerBase->GetRCConfigurationInterface());
+        mp_RemoteCareManager = new RemoteCare::RemoteCareManager(*this,
+             mp_DataManagerBase->GetRCConfigurationInterface(),
+             mp_DataManagerBase->GetUserSettingsInterface()->GetUserSettings()->GetRemoteCare() == Global::ONOFFSTATE_ON);
 
         mp_RemoteCareManager->Init();
         // Connect Remote Care related signals/slots:

@@ -62,7 +62,8 @@ const quint32 CONFIG_FILE_TIMER_INTERVAL    = 3000;  //!< 3[s] for desktop
  */
 /****************************************************************************/
 RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThreadControllerRef,
-                                     DataManager::CRCConfigurationInterface *RCConfigurationInterface)
+                                     DataManager::CRCConfigurationInterface *RCConfigurationInterface,
+                                     bool remoteCareStatus)
     : m_MasterThreadControllerRef(MasterThreadControllerRef)
     , m_EventClass(RC_EVENT_CLASS_ALARM_WARN_INFO)
     , m_EventPriority(Global::LOGLEVEL_NONE)
@@ -71,7 +72,7 @@ RemoteCareManager::RemoteCareManager(Threads::MasterThreadController &MasterThre
     , m_NumberOfLogFiles(5)
     , mp_RCConfigurationInterface(RCConfigurationInterface)
     , mp_RCConfiguration(NULL)
-    , m_RemoteCareStatus(false)
+    , m_RemoteCareStatus(remoteCareStatus)
 {
     //This object shall now live on master thread.
     this->setParent(&MasterThreadControllerRef);
@@ -308,29 +309,32 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
     if (!m_RemoteCareStatus)
         return;
 
+    qDebug() << "==================" << "TheEvent.GetEventName ="<< TheEvent.GetEventName() << "GetEventCode=" << TheEvent.GetEventCode() << "TheEvent.GetEventType() =" \
+             << TheEvent.GetEventType() << "TheEvent.GetLogLevel() =" << TheEvent.GetLogLevel();
+
     if (m_RCAAvailable && m_SubscriptionStatus) {
         bool SendEvent = false;
 
-        if(EventId64 == EVENT_RCMANAGER_RECEIVED_COMMAND ||
+        if (EventId64 == EVENT_RCMANAGER_RECEIVED_COMMAND ||
                 EventId64 == EVENT_RCMANAGER_REMOTESESSION_ACCEPTED ||
                 EventId64 == EVENT_RCMANAGER_SENT_COMMAND) {
             SendEvent = false;
         }
         //send only those event types registered by Remote Care
-        if(RC_EVENT_CLASS_ALARM == m_EventClass) {
+        if (RC_EVENT_CLASS_ALARM == m_EventClass) {
             if(Global::EVTTYPE_ERROR == TheEvent.GetEventType() ||
                     Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
                 SendEvent = true;
             }
         }
-        else if(RC_EVENT_CLASS_ALARM_WARN == m_EventClass) {
-            if(Global::EVTTYPE_WARNING == TheEvent.GetEventType() ||
+        else if (RC_EVENT_CLASS_ALARM_WARN == m_EventClass) {
+            if (Global::EVTTYPE_WARNING == TheEvent.GetEventType() ||
                     Global::EVTTYPE_ERROR == TheEvent.GetEventType() ||
                     Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
                 SendEvent = true;
             }
         }
-        else if(RC_EVENT_CLASS_ALARM_WARN_INFO == m_EventClass) {
+        else if (RC_EVENT_CLASS_ALARM_WARN_INFO == m_EventClass) {
             if(Global::EVTTYPE_INFO == TheEvent.GetEventType() ||
                     Global::EVTTYPE_WARNING == TheEvent.GetEventType() ||
                     Global::EVTTYPE_ERROR == TheEvent.GetEventType() ||
@@ -343,12 +347,12 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
         }
 
         //send only the requested type of events
-        if(!SendEvent) {
+        if (!SendEvent) {
             return;
         }
 
 //        // send only the requested priority of events
-        if(TheEvent.GetLogLevel() != m_EventPriority) {
+        if (TheEvent.GetLogLevel() != m_EventPriority) {
             return;
         }
 
@@ -366,13 +370,13 @@ void RemoteCareManager::ForwardEventToRemoteCare(const DataLogging::DayEventEntr
         EventReportData.m_EventMessage = MsgString;
 
         //add event severity
-        if(Global::EVTTYPE_ERROR == TheEvent.GetEventType() || Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
+        if (Global::EVTTYPE_ERROR == TheEvent.GetEventType() || Global::EVTTYPE_FATAL_ERROR == TheEvent.GetEventType()) {
             EventReportData.m_EventSeverity = RC_EVENT_SEVERITY_ALARM;
         }
-        else if(Global::EVTTYPE_WARNING == TheEvent.GetEventType()) {
+        else if (Global::EVTTYPE_WARNING == TheEvent.GetEventType()) {
             EventReportData.m_EventSeverity = RC_EVENT_SEVERITY_WARNING;
         }
-        else if(Global::EVTTYPE_INFO == TheEvent.GetEventType()) {
+        else if (Global::EVTTYPE_INFO == TheEvent.GetEventType()) {
             EventReportData.m_EventSeverity = RC_EVENT_SEVERITY_INFO;
         }
 
