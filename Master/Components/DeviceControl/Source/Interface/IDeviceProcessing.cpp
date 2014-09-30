@@ -788,7 +788,7 @@ ReturnCode_t IDeviceProcessing::ALPressure(float targetPressure)
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::ALVaccum()
+ReturnCode_t IDeviceProcessing::ALVaccum(float targetPressure)
 {
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
@@ -796,7 +796,7 @@ ReturnCode_t IDeviceProcessing::ALVaccum()
     }
     if(m_pAirLiquid)
     {
-        return m_pAirLiquid->Vaccum();
+        return m_pAirLiquid->Vaccum(targetPressure);
     }
     else
     {

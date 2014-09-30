@@ -118,11 +118,11 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function Vaccum
-     *
+     *  \param  targetPressure - AL_TARGET_PRESSURE_NEGATIVE
      *  \return from Vaccum
      */
     /****************************************************************************/
-    ReturnCode_t Vaccum(void);
+    ReturnCode_t Vaccum(float targetPressure = AL_TARGET_PRESSURE_NEGATIVE);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function Draining

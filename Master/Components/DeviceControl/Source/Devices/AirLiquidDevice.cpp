@@ -997,7 +997,7 @@ ReturnCode_t CAirLiquidDevice::ReleasePressure(void)
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t CAirLiquidDevice::Vaccum()
+ReturnCode_t CAirLiquidDevice::Vaccum(float targetPressure)
 {
     ReturnCode_t RetValue = DCL_ERR_FCT_CALL_SUCCESS;
     if( DCL_ERR_FCT_CALL_SUCCESS != ReleasePressure())
@@ -1007,7 +1007,7 @@ ReturnCode_t CAirLiquidDevice::Vaccum()
         goto SORTIE;
     }
     (void)TurnOnFan();
-    RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_NEGATIVE, m_WorkingPressureNegative);
+    RetValue = SetTargetPressure(AL_PUMP_MODE_ON_OFF_NEGATIVE, targetPressure);
     if(DCL_ERR_FCT_CALL_SUCCESS != RetValue)
     {
         //stop compressor

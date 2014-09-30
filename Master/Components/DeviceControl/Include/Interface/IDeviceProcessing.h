@@ -127,11 +127,11 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALVaccum
-     *
+     *  \param  targetPressure - AL_TARGET_PRESSURE_NEGATIVE
      *  \return from ALVaccum
      */
     /****************************************************************************/
-    ReturnCode_t ALVaccum();
+    ReturnCode_t ALVaccum(float targetPressure = AL_TARGET_PRESSURE_NEGATIVE);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ALDraining
