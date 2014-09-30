@@ -30,6 +30,8 @@
 #include <QFile>
 #include <QDateTime>
 #include <Global/Include/EventObject.h>
+#include <QCoreApplication>
+#include <QProcess>
 
 namespace Global {
 
@@ -38,6 +40,7 @@ SignalHandler::SignalHandler()
 {
 }
 
+/****************************************************************************/
 void SignalHandler::init()
 {
     signal(SIGSEGV, SignalHandler::crashHandler);
@@ -46,14 +49,14 @@ void SignalHandler::init()
     signal(SIGFPE, SignalHandler::crashHandler);
     signal(SIGABRT, SignalHandler::crashHandler);
     signal(SIGILL, SignalHandler::crashHandler);
-//    signal(SIGPIPE, SIG_IGN);   // ignore broken pipe errors
 }
 
+/****************************************************************************/
 QStringList SignalHandler::getBackTrace(int depth)
 {
     QRegExp regexp("([^(]+)\\(([^)^+]+)(\\+[^)]+)\\)\\s(\\[[^]]+\\])");
 
-    void *array[20];
+    void *array[150];
     size_t nfuncs;
 
     nfuncs = backtrace(array, depth);
@@ -138,16 +141,14 @@ QStringList SignalHandler::getBackTrace(int depth)
     return ret;
 }
 
-
+/****************************************************************************/
 void SignalHandler::crashHandler(int sig)
 {
     qDebug() << "++++++++++++++++++++++++++++\n++++ Signal catched ++++\n++++++++++++++++++++++++++++";
 
-
     qDebug() << "Signal" << sig;
     QStringList stringList = getBackTrace();
     qDebug() << stringList.join("\n");
-//    Global::EventObject::Instance().RaiseEvent(EVENT_GLOBAL_ERROR_SIGNAL_RECEIVED, Global::FmtArgs() << stringList.join(";"), true);
 
     qDebug() << "+++++++++++++++++++++++++++++++++\n++++ Terminating application ++++\n+++++++++++++++++++++++++++++++++";
 
@@ -164,12 +165,10 @@ void SignalHandler::crashHandler(int sig)
         file.close();
     }
 
-    if (sig == SIGTERM) {
-        exit(0);
-    }
-    else {
-        exit(1);
-    }
+   	quint64 PID = QCoreApplication::applicationPid();
+    //Kill child processes e.g. GUI, RemotecareAgent etc
+    (void)QProcess::execute(QString("pkill -P %1").arg(PID).toStdString().c_str());
+    exit(sig);
 }
 
 
