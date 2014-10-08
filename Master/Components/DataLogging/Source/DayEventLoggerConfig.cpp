@@ -34,10 +34,11 @@ DayEventLoggerConfig::DayEventLoggerConfig() :
 }
 
 /****************************************************************************/
-DayEventLoggerConfig::DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,
+DayEventLoggerConfig::DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,const QString& Version,
                                                    const QString &Path, int MaxFileCount, const QString &BaseFileName) :
     m_OperatingMode(OperatingMode),
     m_SerialNumber(SerialNumber),
+    m_SWVersion(Version),
     m_Path(Path),
     m_MaxFileCount(MaxFileCount),
     m_BaseFileName(BaseFileName) {
@@ -57,6 +58,7 @@ DayEventLoggerConfig::~DayEventLoggerConfig() {
 void DayEventLoggerConfig::CopyFrom(const DayEventLoggerConfig &rOther) {
     m_OperatingMode = rOther.m_OperatingMode;
     m_SerialNumber  = rOther.m_SerialNumber;
+    m_SWVersion     = rOther.m_SWVersion;
     m_Path          = rOther.m_Path;
     m_MaxFileCount  = rOther.m_MaxFileCount;
     m_BaseFileName  = rOther.m_BaseFileName;

@@ -93,6 +93,7 @@ void DataLoggingThreadController::CreateAndInitializeObjects() {
 
     mp_DayEventLogger->Configure(DayEventLoggerConfig(m_OperatingMode,
                                                     m_SerialNumber,
+                                                    m_SWVersion,
                                                     Global::SystemPaths::Instance().GetLogfilesPath(),
                                                     m_DayEventLoggerMaxFileCount,
                                                     m_EventLoggerBaseFileName));

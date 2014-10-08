@@ -55,7 +55,8 @@ private:
     bool                        m_oPowerFail;                       ///< Flag indicating if power fail state active.
     QString                     m_OperatingMode;                    ///< Operating mode as string.
     QString                     m_EventLoggerBaseFileName;          ///< Base for file name for event logging.
-    QString                     m_SerialNumber;                     ///< Serial number.
+    QString                     m_SerialNumber;                   ///< Serial number.
+    QString                     m_SWVersion;                   ///< SW version.
     qint64                      m_EventLoggerMaxFileSize;           ///< Max file size for event logger.
     int                         m_DayEventLoggerMaxFileCount;   ///< Max number of files for day operation logger.
     DayEventLogger              *mp_DayEventLogger;               ///< Day operation logger.
@@ -218,7 +219,16 @@ public:
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
     }
-
+    /****************************************************************************/
+    /**
+     * \brief Set SW version.
+     *
+     * \iparam   version    SW version.
+     */
+    /****************************************************************************/
+    inline void SetSWVersion(const QString &version) {
+        m_SWVersion = version;
+    }
     /****************************************************************************/
     /**
      * \brief Set maximal file size for event logger.

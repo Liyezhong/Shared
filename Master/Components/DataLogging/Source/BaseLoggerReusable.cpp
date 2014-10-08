@@ -41,9 +41,10 @@ BaseLoggerReusable::BaseLoggerReusable(QObject *pParent,
 
 /****************************************************************************/
 void BaseLoggerReusable::SetConfiguration(const QString &OperatingMode,
-                                          const QString &SerialNumber, const QString &Path) {
+                                          const QString &SerialNumber, const QString &Version, const QString &Path) {
     m_OperatingMode = OperatingMode;
     m_SerialNumber = SerialNumber;
+    m_SWVersion    = Version;
     m_Path = Path;
 }
 
@@ -86,7 +87,8 @@ void BaseLoggerReusable::WriteHeader() {
                             "FileName: " + GetCompleteBaseFileName() + "\n\n" +
                             "TimeStamp: " + GetTimeStampHeader() + "\n\n" +
                             "OperatingMode: " + m_OperatingMode + "\n\n" +
-                            "Serial Number: " + m_SerialNumber + "\n";
+                            "Serial Number: " + m_SerialNumber + "\n\n" +
+                            "SW Version: " + m_SWVersion + "\n";
     // append data to file
     AppendLine(HeaderString);
 }

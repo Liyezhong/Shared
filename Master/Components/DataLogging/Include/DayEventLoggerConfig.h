@@ -42,6 +42,7 @@ friend class TestDayOperationLoggerConfig;
 private:
     QString     m_OperatingMode;        ///< Current operating mode as string.
     QString     m_SerialNumber;         ///< Serial number.
+    QString     m_SWVersion;         ///< SW Version
     QString     m_Path;                 ///< Absolute path in which log files must be written.
     int         m_MaxFileCount;         ///< Maximal file count. 0 means no maximal file count monitoring!
     QString     m_BaseFileName;         ///< Base file name
@@ -72,7 +73,7 @@ public:
      * \iparam   BaseFileName        Base file name
      */
     /****************************************************************************/
-    DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,
+    DayEventLoggerConfig(const QString &OperatingMode, const QString &SerialNumber,const QString& Version,
                              const QString &Path, int MaxFileCount, const QString &BaseFileName);
 
     /****************************************************************************/
@@ -137,6 +138,16 @@ public:
         return m_SerialNumber;
     }
 
+    /****************************************************************************/
+    /**
+     * \brief Get SW Version.
+     *
+     * \return      SW Version.
+     */
+    /****************************************************************************/
+    inline QString GetSWVersion() const {
+        return m_SWVersion;
+    }
     /****************************************************************************/
     /**
      * \brief Get absolute path in which log files must be written.

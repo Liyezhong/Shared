@@ -257,7 +257,7 @@ void DayEventLogger::Log(const DayEventEntry &Entry) {
 void DayEventLogger::Configure(const DayEventLoggerConfig &Config) {
 
     // save configuration
-    SetConfiguration(Config.GetOperatingMode(), Config.GetSerialNumber(), Config.GetPath());
+    SetConfiguration(Config.GetOperatingMode(), Config.GetSerialNumber(), Config.GetSWVersion(), Config.GetPath());
     m_MaxFileCount = Config.GetMaxFileCount();
     // Time is stored to overcome the problem created when the number of files
     // have reached max count and SwitchToNew file removes the oldest file even

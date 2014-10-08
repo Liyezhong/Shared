@@ -43,6 +43,7 @@ private:
     QString     m_OperatingMode;        ///< Current operating mode as string.
     QString     m_SerialNumber;         ///< Serial number.
     QString     m_Path;                 ///< Absolute path in which log files must be written.
+    QString     m_SWVersion;            ///< SW version string
     /****************************************************************************/
     /****************************************************************************/
     /**
@@ -72,7 +73,7 @@ protected:
      * \iparam   Path                Absolute path.
      */
     /****************************************************************************/
-    void SetConfiguration(const QString &OperatingMode, const QString &SerialNumber, const QString &Path);
+    void SetConfiguration(const QString &OperatingMode, const QString &SerialNumber,  const QString &Version, const QString &Path);
 
     /****************************************************************************/
     /**
@@ -142,7 +143,27 @@ protected:
     inline QString GetPath() const {
         return m_Path;
     }
+    /****************************************************************************/
+    /**
+     * \brief Get SW Version.
+     *
+     * \return      SW version.
+     */
+    /****************************************************************************/
+    inline QString GetSWVersion() const {
+        return m_SWVersion;
+    }
 
+    /****************************************************************************/
+    /**
+     * \brief Set SW Version.
+     *
+     * \param version      SW version.
+     */
+    /****************************************************************************/
+    inline void SetSWVersion(QString version) {
+        m_SWVersion = version;
+    }
 public:
     /****************************************************************************/
     /**

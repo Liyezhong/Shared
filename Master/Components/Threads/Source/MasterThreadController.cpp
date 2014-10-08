@@ -36,6 +36,7 @@
 #include <DataManager/Helper/Include/DataManagerEventCodes.h>
 //#include <DataManager/Containers/ProcessSettings/Commands/Include/CmdGetProcessSettingsDataContainer.h>
 #include <DataManager/Containers/RCConfiguration/Include/RCConfigurationInterface.h>
+#include <DataManager/Containers/SWVersions/Include/SWVersionList.h>
 
 #include <DeviceControl/Include/DeviceProcessing/DeviceProcessing.h>
 #include <EventHandler/Include/StateHandler.h>
@@ -53,8 +54,6 @@
 #include <Threads/Include/PlatformThreadIDs.h>
 #include <SWUpdateManager/Include/SWUpdateManager.h>
 #include <QNetworkInterface>
-
-
 
 namespace Threads {
 
@@ -153,6 +152,7 @@ void MasterThreadController::CreateAndInitializeObjects() {
     mp_DataLoggingThreadController->SetOperatingMode(m_OperatingMode);
     mp_DataLoggingThreadController->SetEventLoggerBaseFileName(m_EventLoggerBaseFileName);
     mp_DataLoggingThreadController->SetSerialNumber(m_SerialNumber);
+    mp_DataLoggingThreadController->SetSWVersion(m_SWVersion);
     mp_DataLoggingThreadController->SetEventLoggerMaxFileSize(m_EventLoggerMaxFileSize);
     mp_DataLoggingThreadController->SetDayEventLoggerMaxFileCount(m_DayEventLoggerMaxFileCount);
     m_InstrumentName = p_DeviceConfigInterface->GetDeviceConfiguration()->GetValue("DEVICENAME");

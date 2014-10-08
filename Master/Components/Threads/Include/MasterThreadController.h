@@ -461,6 +461,7 @@ protected:
     QString                                     m_InstrumentType;               //!< Instrument type
     QString                                     m_Eth0MacAddress;               //!< MAC address of eth0 network interface
     QString                                     m_SerialNumber;                     //!< Serial number.
+    QString                                     m_SWVersion;                    //!< SW version
 
 
     /****************************************************************************/
@@ -983,6 +984,17 @@ public:
     /****************************************************************************/
     inline void SetSerialNumber(const QString &SerialNumber) {
         m_SerialNumber = SerialNumber;
+    }
+
+    /****************************************************************************/
+    /**
+     * \brief Set the SV version
+     *
+     * \iparam   Version SW version
+     */
+    /****************************************************************************/
+    inline void SetSWVersion(const QString &Version) {
+        m_SWVersion = Version;
     }
     /****************************************************************************/
     /**
