@@ -123,6 +123,7 @@ void CLanguageWidget::SetLanguages()
         }
         else if (mp_MainWindow->GetSaMUserMode() == QString("Service")) {
             m_SelectedLanguage = m_LanguageList.value(1);
+            mp_TableWidget->hideRow(0);
         }
     }
 
