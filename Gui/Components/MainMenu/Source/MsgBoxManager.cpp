@@ -419,10 +419,6 @@ void CMsgBoxManager::ShowMsgBoxIfQueueNotEmpty()
         if ("" != m_CurrentMsgData.AutoQuitMsgBoxTime)
         {
             int timeInSeconds = DataManager::Helper::ConvertTimeStringToSeconds(m_CurrentMsgData.AutoQuitMsgBoxTime);
-            if (QFile::exists("TEST_ISSAC"))
-            {
-                timeInSeconds = 15;
-            }
             m_AutoQuitMsgBoxTimer.start(timeInSeconds*1000);
         }
 
