@@ -125,11 +125,9 @@ long CPasswordManager::ComputeFallbackPassword() {
 }
 
 /****************************************************************************/
-bool CPasswordManager::ServiceAuthentication(const QString &Password, const QString &DeviceName) {
-
-    return true;
+bool CPasswordManager::ServiceAuthentication(const QString &Password, const QString &DeviceName)
+{
     CServicePassword ServiceUser(Password, DeviceName);
-
     return ServiceUser.ValidateAuthentication();
 }
 
