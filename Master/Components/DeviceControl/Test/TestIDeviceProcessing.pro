@@ -16,6 +16,6 @@ SOURCES += TestIDeviceProcessing.cpp
 HEADERS += ../Include/Interface/*.h
 HEADERS += ../Include/Global/*.h
 
-UseLibs(Global DeviceControl)
+UseLibs(Global DataManager DeviceControl)
 
 LIBS += -ldl
