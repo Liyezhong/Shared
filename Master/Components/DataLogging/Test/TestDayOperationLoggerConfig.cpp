@@ -117,8 +117,8 @@ void TestDayOperationLoggerConfig::utDefaultConstructor() {
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utConstructorWithData() {
     // test constructor with data
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1","HIM_0.001", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "HIM_0.001", "Path2", 2, "Leica_ST_");
 
     QCOMPARE(TestObject1.m_OperatingMode,   QString("assembly"));
     QCOMPARE(TestObject1.m_SerialNumber,    QString("SerNum1"));
@@ -136,8 +136,8 @@ void TestDayOperationLoggerConfig::utConstructorWithData() {
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utCopyConstructor() {
     // test copy constructor
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "HIM_0.001", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "HIM_0.001", "Path2", 2, "Leica_ST_");
     DayEventLoggerConfig TestObject3(TestObject1);
     DayEventLoggerConfig TestObject4(TestObject2);
 
@@ -169,8 +169,8 @@ void TestDayOperationLoggerConfig::utCopyConstructor() {
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utAssignmentOperator() {
     // test assignment operator
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "HIM_0.001", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "HIM_0.001", "Path2", 2, "Leica_ST_");
     DayEventLoggerConfig TestObject3;
     DayEventLoggerConfig TestObject4;
     DayEventLoggerConfig TestObject5;
@@ -227,8 +227,8 @@ void TestDayOperationLoggerConfig::utAssignmentOperator() {
 /****************************************************************************/
 void TestDayOperationLoggerConfig::utGet() {
     // test get methods
-    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "Path1", 1, "Leica_");
-    DayEventLoggerConfig TestObject2("production",  "SerNum2", "Path2", 2, "Leica_ST_");
+    DayEventLoggerConfig TestObject1("assembly",    "SerNum1", "HIM_0.001", "Path1", 1, "Leica_");
+    DayEventLoggerConfig TestObject2("production",  "SerNum2", "HIM_0.001", "Path2", 2, "Leica_ST_");
 
     QCOMPARE(TestObject1.GetOperatingMode(),    QString("assembly"));
     QCOMPARE(TestObject1.GetSerialNumber(),     QString("SerNum1"));
