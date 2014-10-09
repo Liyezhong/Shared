@@ -194,7 +194,7 @@ UpdateMd5SumForFirmware()
     while read Line; do
         local FileName=$(echo "$Line" | awk '{print $2}')
         CheckIfMd5SumNeedsToBeUpdateForFileInFirmware $FileName
-        if [ $? -eq 0 ]then;
+        if [ $? -eq 0 ]; then
 			sed -i "/\s$FileName\b/c\\$Line" $FIRMWAREDIR/.md5sum.txt
 			cp $TMPFIRMWAREDIR/$FileName $FIRMWAREDIR/
 		fi
