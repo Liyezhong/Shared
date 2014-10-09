@@ -194,7 +194,10 @@ UpdateMd5SumForFirmware()
     while read Line; do
         local FileName=$(echo "$Line" | awk '{print $2}')
         CheckIfMd5SumNeedsToBeUpdateForFileInFirmware $FileName
-        [ $? -eq 0 ] && sed -i "/\s$FileName\b/c\\$Line" $FIRMWAREDIR/.md5sum.txt
+        if [ $? -eq 0 ]then;
+			sed -i "/\s$FileName\b/c\\$Line" $FIRMWAREDIR/.md5sum.txt
+			cp $TMPFIRMWAREDIR/$FileName $FIRMWAREDIR
+		fi
     done < $TMPFIRMWAREDIR/.md5sum.txt
     VerifyMd5sum "$FIRMWAREDIR"
     [ $? -ne 0 ] && LogRollBackAndExit "FW" "$EVENT_SWUPDATE_ERROR_MD5SUM" "$FIRMWAREDIR"
