@@ -6,4 +6,4 @@ TARGET = utTestEventCSVInfo
 
 SOURCES += TestEventCSVInfo.cpp
 
-UseLibs(Global DataLogging EventHandler)
+UseLibs(Global DataManager DataLogging EventHandler)

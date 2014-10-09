@@ -6,4 +6,4 @@ TARGET = utTestStateHandler
 
 SOURCES += TestStateHandler.cpp
 
-UseLibs(NetCommands Global DataLogging EventHandler)
+UseLibs(NetCommands DataManager Global DataLogging EventHandler)

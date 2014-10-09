@@ -12,5 +12,5 @@ INCLUDEPATH += ../..
 #            ../../../Include/DataLoggingSources.h \
 #            ../../../Include/ColoradoProcessExitCodes.h
 
-UseLibs(Global DataLogging EventHandler Threads NetCommands Global)
+UseLibs(Global  DataManager DataLogging EventHandler Threads NetCommands Global)
 QT += network

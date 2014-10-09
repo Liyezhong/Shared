@@ -6,4 +6,4 @@ TARGET = utTestEventScenarioErrorXMLInfo
 
 SOURCES += TestEventScenarioErrorXMLInfo.cpp
 
-UseLibs(Global DataLogging EventHandler)
+UseLibs(Global  DataManager DataLogging EventHandler)
