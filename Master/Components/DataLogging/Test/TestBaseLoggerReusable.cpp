@@ -145,8 +145,8 @@ void TestBaseLoggerReusable::utConfigure() {
     BaseLoggerReusable TestObject1(NULL, LS1, 33);
     BaseLoggerReusable TestObject2(NULL, LS2, 42);
     // configure
-    TestObject1.SetConfiguration("production",  "sernum1", "path1");
-    TestObject2.SetConfiguration("service",     "sernum2", "path2");
+    TestObject1.SetConfiguration("production",  "sernum1", "HIM_0.001","path1");
+    TestObject2.SetConfiguration("service",     "sernum2", "HIM_0.001","path2");
 
     // and test
     QCOMPARE(TestObject1.GetLoggingSource(),    LS1);
@@ -178,7 +178,7 @@ void TestBaseLoggerReusable::utWriteHeader() {
 
     QString LS1("Logger1");
     BaseLoggerReusable TestObject1(NULL, LS1, 33);
-    TestObject1.SetConfiguration("assembly", "sernum1", m_DirHelper.GetDir());
+    TestObject1.SetConfiguration("assembly", "sernum1", "HIM_0.001",m_DirHelper.GetDir());
     QString FileName = m_DirHelper.AbsoluteFileName("file1.log");
 
     // open file
