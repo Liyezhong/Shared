@@ -48,7 +48,7 @@ class COtherModule : public CFunctionModule
 public:
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of function CUart
+     *  \brief  Definition/Declaration of function constructor
      *
      *  \param p_MessageConfiguration
      *  \param pCANCommunicator
@@ -59,19 +59,51 @@ public:
     /****************************************************************************/
     COtherModule(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,
           CBaseModule* pParentNode);
+    /****************************************************************************/
+    /*!
+     *  \brief  destructor
+     */
+    /****************************************************************************/
     ~COtherModule();
 
-    /// function module initialization, can communication initialisation
+    /****************************************************************************/
+    /*!
+     *  \brief  function module initialization, can communication initialisation
+     *  \return return code
+     */
+    /****************************************************************************/    
     ReturnCode_t Initialize();
 
-    /// task handling function
+    /****************************************************************************/
+    /*!
+     *  \brief  task handling function
+     *  \return return code
+     */
+    /****************************************************************************/ 
     void HandleTasks();
 
-    /// recall function to receive CAN messages from communication layer
+    /****************************************************************************/
+    /*!
+     *  \brief  recall function to receive CAN messages from communication layer
+     *  \param  pCANframe can frame
+     */
+    /****************************************************************************/     
     void HandleCanMessage(can_frame* pCANframe);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  recall function SetLifeTime
+     *  \param  lifeTime life time
+     */
+    /****************************************************************************/   
     inline void SetLifeTime(quint32 lifeTime) { m_LifeTime = lifeTime;}
 
+    /****************************************************************************/
+    /*!
+     *  \brief  recall function GetLifeTime
+     *  \return life time
+     */
+    /****************************************************************************/   
     inline quint32 GetLifeTime() {return m_LifeTime;}
 
 private:
@@ -86,7 +118,7 @@ private:
     /// Handle the idle state
     void HandleIdleState();
 
-    quint32 m_LifeTime;
+    quint32 m_LifeTime; //!< life time
 };
 
 } //namespace

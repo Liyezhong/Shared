@@ -266,6 +266,10 @@ public:
     ReturnCode_t SetModuleSerialNumber(quint64 ModuleSerialNumber) const;
 
     static QMap<quint32, std::string> m_EventString;    //!< list with info strings for CAN events
+    /**
+      * \brief function is virtual
+      * \return bool
+    */
     bool IsVirtual(){ return m_IsVirtual; }
 signals:
     /****************************************************************************/

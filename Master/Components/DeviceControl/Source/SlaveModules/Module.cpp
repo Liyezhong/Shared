@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Module.cpp
+/*! \file DeviceControl/Source/SlaveModules/Module.cpp
  *
  *  \brief
  *

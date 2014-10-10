@@ -56,6 +56,8 @@ public:
     /****************************************************************************/
     /**
      * \brief Constructor.
+     * \param TimeOut time out
+     * \param ShutDown flag
      */
     /****************************************************************************/
     CmdRequestShutDown(int TimeOut, bool ShutDown=false);

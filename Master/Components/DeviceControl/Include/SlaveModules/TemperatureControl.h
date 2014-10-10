@@ -187,8 +187,23 @@ class CTemperatureControl : public CFunctionModule
     /****************************************************************************/
     ReturnCode_t SetSwitchState(qint8 SwitchState, qint8 AutoSwitch);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetLifeCycle
+     *
+     *  \param times =  time
+     *
+     *  \return from SetLifeCycle
+     */
+    /****************************************************************************/
     void SetLifeCycle(quint32 times);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetLifeCycle
+     *  \return life cycle
+     */
+    /****************************************************************************/
     quint32 GetLifeCycle() { return m_LifeCycle; }
 
 signals:

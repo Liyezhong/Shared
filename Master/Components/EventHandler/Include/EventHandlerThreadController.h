@@ -226,8 +226,24 @@ protected:
     /****************************************************************************/
     void OnAckOKNOK(Global::tRefType Ref, const Global::AckOKNOK &Ack);
 
-    void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
+	/**
+	* \brief inform alarm handler
+	* \iparam EventEntry event entry
+	* \iparam EventId64 event id
+	* \iparam StartAlarm flag to start alarm
+	*/
+	void InformAlarmHandler(const DataLogging::DayEventEntry &EventEntry, const quint64 EventId64, bool StartAlarm);
+
+	/**
+	* \brief inform alarm handler
+	* \iparam EType event type
+	* \iparam EventId64 event id
+	* \iparam StartAlarm flag to start alarm
+	*/
     void InformAlarmHandler(Global::EventType EType, const quint64 EventId64, bool StartAlarm);
+	/**
+	* \brief reset alarm, turn off all alarms
+	*/
     void ResetAlarm();
 
 private:
@@ -276,8 +292,11 @@ private:
     QList<DataLogging::DayEventEntry> m_DayEventEntryList; //!< Store list of event entries
     QHash<quint32, quint8> m_improperEvents;            //!< Store list of improper event entries
 
-
-    EventHandlerThreadController();                                          ///< Not implemented.
+	
+	/**
+	* \brief Event Handler Thread Controller
+	*/
+    EventHandlerThreadController();  ///< Not implemented.
     /****************************************************************************/
     /*!
      *  \brief Disable copy and assignment operator.
@@ -287,11 +306,37 @@ private:
     Q_DISABLE_COPY(EventHandlerThreadController)
 
 
+	/**
+	* \brief add action type
+	*/
     void AddActionTypes();
+	/**
+	* \brief add event type
+	*/
     void AddEventTypes();
+	/**
+	* \brief add event log level
+	*/
     void AddEventLogLevels();
+	/**
+	* \brief add source components
+	*/
     void AddSourceComponents();
+	/**
+	* \brief add action type
+	* \iparam EventEntry event entry
+	* \iparam EventId64 event id
+	*/
     void HandleInactiveEvent(DataLogging::DayEventEntry &EventEntry, quint64 &EventId64);
+
+	/**
+	* \brief create event entry
+	* \iparam EventEntry event entry
+	* \iparam EventStatus event status
+	* \iparam EventID event id
+	* \iparam EventKey event key
+	* \iparam AltStringUsage alt string usage
+	*/
     void CreateEventEntry(DataLogging::DayEventEntry &EventEntry,
                           EventCSVInfo &EventInfo,
                           const bool EventStatus,
@@ -299,11 +344,37 @@ private:
                           const Global::tTranslatableStringList &EventStringList,
                           const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsage = Global::NOT_APPLICABLE);
 
+
+	/**
+	* \brief  set statemachine
+	* \iparam TheEvent event
+	*/
     void SetSystemStateMachine(const DataLogging::DayEventEntry &TheEvent);
+
+	/**
+	* \brief  SetGuiAvailable
+	* \iparam active active flag
+	*/
     void SetGuiAvailable(const bool active);
+
+	/**
+	* \brief  inform GUI
+	* \iparam TheEvent event
+	* \iparam EventId64 event id
+	*/
     void InformGUI(const DataLogging::DayEventEntry &TheEvent, const quint64 EventId64);
+
+	/**
+	* \brief  log entry
+	* \iparam EventEntry event
+	*/
     void LogEntry(const DataLogging::DayEventEntry &EventEntry);
 
+	/**
+	* \brief  HandleImproperEvents
+	* \iparam eventId event id 
+	* \iparam column column
+	*/
     void HandleImproperEvents(quint32 eventId, bool success, quint8 column);
 
     /****************************************************************************/
@@ -318,49 +389,151 @@ private:
     /****************************************************************************/
     bool LocalProcessErrorEvent(const DataLogging::DayEventEntry & TheDayEventEntry);
 
+	/**
+	* \brief  ReadConfigFile
+	* \iparam filename file
+	* \return bool
+	*/
     bool ReadConfigFile(QString filename);
 
+	/**
+	* \brief  VerifyEventConfigCSV
+	* \iparam filename file
+	* \return bool
+	*/
     bool VerifyEventConfigCSV(QString filename);
 
+	/**
+	* \brief  VerifyEventIDs
+	* \iparam EventId  event id
+	* \return bool
+	*/
     bool VerifyEventIDs(quint32 EventId);
 
+	/**
+	* \brief  VerifyEventMacro
+	* \iparam EventMacroName  event id
+	* \return bool
+	*/
     bool VerifyEventMacro(QString EventMacroName);
 
+	/**
+	* \brief  VerifyEventType
+	* \iparam EventType  event type
+	* \return bool
+	*/
     bool VerifyEventType(Global::EventType EventType);
 
+	/**
+	* \brief  VerifyAction
+	* \iparam ActionType  action type
+	* \return bool
+	*/
     bool VerifyAction(Global::ActionType ActionType);
 
+	/**
+	* \brief  VerifySource
+	* \iparam EventSourceType  source type
+	* \return bool
+	*/
     bool VerifySource(Global::EventSourceType);
 
+	/**
+	* \brief  VerifyLogLevel
+	* \iparam EventLogLevel  log leval
+	* \return bool
+	*/
     bool VerifyLogLevel(Global::EventLogLevel EventLogLevel);
 
+	/**
+	* \brief  VerifyBoolean
+	* \iparam strValue  value
+	* \return bool
+	*/
     bool VerifyBoolean(QString strValue);
 
+	/**
+	* \brief  VerifyGuiButtonType
+	* \iparam GuiButtonType  button type
+	* \return bool
+	*/
     bool VerifyGuiButtonType(Global::GuiButtonType GuiButtonType);
 
+	/**
+	* \brief  VerifyStringList
+	* \iparam EventString  event
+	* \return bool
+	*/
     bool VerifyStringList(QString EventString);
 
+	/**
+	* \brief  VerifyAlarmEventTypeDependency
+	* \iparam EventInfo  event info
+	* \return bool
+	*/
     bool VerifyAlarmEventTypeDependency(EventHandler::EventCSVInfo EventInfo);
 
+	/**
+	* \brief  RegisterCommands
+	* \return bool
+	*/
     void RegisterCommands();
 
+	/**
+	* \brief  VerifyAlarmEventTypeDependency
+	* \iparam filename  file
+	* \return bool
+	*/
     bool VerifyEventCSVFilenameExists(QString filename);
 
+	/**
+	* \brief  VerifyAlarmGUIOptionsDependency
+	* \iparam EventInfo  event info
+	* \return bool
+	*/
     bool VerifyAlarmGUIOptionsDependency(EventHandler::EventCSVInfo EventInfo);
 
+	/**
+	* \brief  VerifyStatusbarGUIOptionDependency
+	* \iparam EventInfo  event info
+	* \return bool
+	*/
     bool VerifyStatusbarGUIOptionDependency( EventHandler::EventCSVInfo EventInfo);
 
+	/**
+	* \brief  VerifySourceComponentGUIOptionsDependency
+	* \iparam EventInfo  event info
+	* \return bool
+	*/
     bool VerifySourceComponentGUIOptionsDependency(EventHandler::EventCSVInfo EventInfo);
 
+	/**
+	* \brief  VerifyActionGUIOptionsDependency
+	* \iparam EventInfo  event info
+	* \return bool
+	*/
     bool VerifyActionGUIOptionsDependency(EventHandler::EventCSVInfo EventInfo);
 
+	/**
+	* \brief  VerifyUserLogGUIOptionDependency
+	* \iparam EventCSVInfo  event csv info
+	* \return bool
+	*/
     bool VerifyUserLogGUIOptionDependency( EventHandler::EventCSVInfo EventCSVInfo );
 
 public slots:
 
+	/**
+	* \brief  ProcessEvent
+	* \iparam EventID  event id
+	* \iparam EventStringList  event list
+	* \iparam EventStatus  event status
+	* \iparam EventKey  event key
+	* \iparam AltStringUsuage  alt string usage
+	*/
     virtual void ProcessEvent(const quint32 EventID,
                       const Global::tTranslatableStringList &EventStringList,
-                      const bool EventStatus, const quint32 EventKeyRef, const Global::AlternateEventStringUsage AltStringUsuage);
+                      const bool EventStatus, const quint32 EventKey, const Global::AlternateEventStringUsage AltStringUsuage);
 
 
     /****************************************************************************/
@@ -372,10 +545,10 @@ public slots:
      *
      *  \iparam    EventKey
      *  \iparam    EventIDScenario
-     *  \bparam    Active
-     *  \bparam    ActionResult
-     *  \lparam    EventStringParList
-     *  \lparam    EventRDStringParList
+     *  \iparam    Active
+     *  \iparam    ActionResult
+     *  \iparam    EventStringParList
+     *  \iparam    EventRDStringParList
      *
      *
      ****************************************************************************/

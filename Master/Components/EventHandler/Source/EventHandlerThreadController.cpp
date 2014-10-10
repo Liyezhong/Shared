@@ -734,12 +734,10 @@ void EventHandlerThreadController::UpdateEventDataStructures(quint32 EventID,
  *      according to the event type.
  *
  *  \iparam    EventID
- *  \iparam    &EventStringList
+ *  \iparam    EventStringList
  *  \iparam    EventStatus
  *  \iparam    EventKey
  *  \iparam    AltStringUsuage
- *
- *
  *
  ****************************************************************************/
 void EventHandlerThreadController::ProcessEvent(const quint32 EventID,

@@ -275,10 +275,10 @@ public:
      *  \iparam    EventKey
      *  \iparam    EventID
      *  \iparam    Scenario
-     *  \bparam    Active
-     *  \bparam    ActionResult
-     *  \lparam    EventStringParList
-     *  \lparam    EventRDStringParList
+     *  \iparam    Active
+     *  \iparam    ActionResult
+     *  \iparam    EventStringParList
+     *  \iparam    EventRDStringParList
      *
      *
      ****************************************************************************/
@@ -364,6 +364,7 @@ signals:
     /**
      * \brief This signal is used to connect EventObject to Event Handler thread
      *        controller
+     * \param EventKey event key
      */
     /****************************************************************************/
     void ForwardEvent(const quint32, const Global::tTranslatableStringList &, const bool, quint32 EventKey, const Global::AlternateEventStringUsage);
@@ -372,6 +373,12 @@ signals:
     /**
      * \brief This signal is used to connect EventObject to Event Handler thread
      *        controller
+     * \param  EventKey Event Key
+     * \param  EventIDScenario scenario id
+     * \param  Active active flag
+     * \param  ActionResult action result
+     * \param  EventStringParList param list
+     * \param  EventRDStringParList RD param list
      */
     /****************************************************************************/
     void ForwardEvent(const quint32 EventKey, const quint64 EventIDScenario,

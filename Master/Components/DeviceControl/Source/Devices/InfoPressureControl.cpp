@@ -38,7 +38,7 @@ typedef CSignalTransition<CInfoPressureControl> CInfoPressureControlTransition;
 /*!
  *  \brief  Constructor of class CInfoPressureControl
  *
- *  \iparam p_StepperMotor = Function module used for communication
+ *  \iparam p_PressureControl = Function module used for communication
  *  \iparam p_SubModule = The data is stored here
  *  \iparam p_Parent = Parent state
  */

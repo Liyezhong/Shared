@@ -38,8 +38,8 @@ typedef QHash<QLocale::Language, tLanguageData> tTranslations;  ///< Typedef for
 /**
  * \brief Class used to translate strings with arguments.
  *
- * See method \ref InsertArguments for how translation is done. A default and
- * a fallback language are also defined.\n
+ * See method InsertArguments for how translation is done. A default and
+ * a fallback language are also defined.
  * <b>This class is thread safe.</b>
  */
 /****************************************************************************/
@@ -212,7 +212,7 @@ public:
     /**
      * \brief Translate into default language.
      *
-     * See documentation to \ref TranslateToLanguage.
+     * See documentation to TranslateToLanguage.
      *
      * \iparam   String          String to translate.
      * \iparam   ChopArguments   true indicates chop arguments

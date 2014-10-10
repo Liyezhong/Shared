@@ -94,7 +94,7 @@ CModule::CModule(const CModule& Module)
  *         This function should be called from CopyConstructor or
  *         Assignment operator only.
  *
- *  \iparam ModuleInfo = Instance of the CModule class
+ *  \iparam Other Instance of the CModule class
 .*  \note  Method for internal use only
  *
  *  \return

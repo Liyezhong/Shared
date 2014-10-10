@@ -39,7 +39,7 @@ typedef CSignalTransition<CInfoOtherModule> CInfoInfoOtherModuleTransition;
 /*!
  *  \brief  Constructor of class CInfoOtherModule
  *
- *  \iparam p_DigitalInput = Function module used for communication
+ *  \iparam p_OtherModule = Function module used for communication
  *  \iparam p_SubModule = The data is stored here
  *  \iparam p_Parent = Parent state
  */

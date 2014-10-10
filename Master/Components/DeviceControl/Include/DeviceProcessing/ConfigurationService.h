@@ -134,6 +134,7 @@ public:
      */
     /****************************************************************************/
     bool ConfigurationComplete();
+    //! WriteDeviceLifeCycle
     void WriteDeviceLifeCycle();
 
 private:

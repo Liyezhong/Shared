@@ -16,10 +16,10 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
 /****************************************************************************/
 /*!
  *  \brief    Constructor of the CRotaryValveDevice class
- *
- *
  *  \param    pDeviceProcessing = pointer to DeviceProcessing
  *  \param    Type = Device type string
+ *  \param    ModuleList module list
+ *  \param    InstanceID instance id
  */
 /****************************************************************************/
 CRotaryValveDevice::CRotaryValveDevice(DeviceProcessing* pDeviceProcessing, QString& Type, const DeviceModuleList_t &ModuleList,
@@ -1121,7 +1121,7 @@ bool CRotaryValveDevice::IsOutsideRange(quint8 Index)
 /****************************************************************************/
 /*!
  *  \brief   Request the rotary valve to move to its initial position.
- *
+ *  \param   RVPosition rv position
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/

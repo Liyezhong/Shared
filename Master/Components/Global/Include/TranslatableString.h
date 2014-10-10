@@ -39,7 +39,7 @@ typedef QList<TranslatableString> tTranslatableStringList; ///< typedef for list
  *
  * It contains an string ID and an list of arguments. These arguments are
  * translatable strings themselves. It may also be of type plain string
- * in which case this string is saved in \ref m_String.
+ * in which case this string is saved in m_String.
  * \warning This class is not thread safe!
  */
 /****************************************************************************/

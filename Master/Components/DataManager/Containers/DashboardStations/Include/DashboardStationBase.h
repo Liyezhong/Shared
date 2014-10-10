@@ -40,7 +40,20 @@ class CDashboardStationBase
 {
     friend class CDashboardDataStationList;
 private:
+	/**
+	* \brief serialize content
+	* \iparam XmlStreamWriter xml stream writer
+	* \iparam CompleteData complete data
+	* \return succuss status 
+	*/
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
+
+	/**
+	* \brief deserialize content
+	* \iparam XmlStreamWriter xml stream writer
+	* \iparam CompleteData complete data
+	* \return succuss status 
+	*/
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
 protected:
@@ -49,14 +62,52 @@ protected:
     bool m_Disabled;                            //!< Whether the station is disabled or not
 
 public:
+	/**
+     * \brief constructor
+	*/
     CDashboardStationBase();
+	/**
+     * \brief constructor
+	 * \iparam ID station id
+	*/
     CDashboardStationBase(const QString ID);
-    CDashboardStationBase(const CDashboardStationBase&);
-    void CopyFromOther(const CDashboardStationBase &Station);
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CDashboardStationBase& Station);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CDashboardStationBase& Station);
-    CDashboardStationBase& operator=(const CDashboardStationBase&);
 
+	/**
+     * \brief constructor
+	 * \iparam Station another instance 
+	*/
+    CDashboardStationBase(const CDashboardStationBase& Station);
+
+	/**
+     * \brief copy function
+	 * \iparam Station another instance 
+	*/
+    void CopyFromOther(const CDashboardStationBase &Station);
+
+	/**
+     * \brief operator <<
+	 * \iparam OutDataStream out data stream
+	 * \iparam Station station
+	*/
+    friend QDataStream& operator <<(QDataStream& OutDataStream, const CDashboardStationBase& Station);
+	/**
+     * \brief operator >>
+	 * \iparam InDataStream in data stream
+	 * \iparam Station station
+	*/
+    friend QDataStream& operator >>(QDataStream& InDataStream, CDashboardStationBase& Station);
+
+	/**
+     * \brief operator =
+	 * \iparam Station station
+	 * \return CDashboardStationBase
+	*/
+    CDashboardStationBase& operator=(const CDashboardStationBase& Station);
+
+	/**
+	 * \brief get dashboard type
+	 * \return DashboardStationType_t
+	*/
     DashboardStationType_t GetDashboardStationType();
 
     /******************** INLINE FuNCTIONS **************************************/
@@ -74,8 +125,6 @@ public:
      *  \brief Set's the Station ID
      *
      *  \iparam Value = station ID string
-     *
-     *  \return
      */
     /****************************************************************************/
     void SetDashboardStationID(const QString Value){m_DashboardStationID = Value.trimmed();}
@@ -94,8 +143,6 @@ public:
      *  \brief Sets the Station Defect State
      *
      *  \iparam Defect = True or false, bool type
-     *
-     *  \return
      */
     /****************************************************************************/
     void SetDashboardStationDefect(bool Defect) { m_Defect = Defect; }
@@ -113,13 +160,11 @@ public:
     /*!
      *  \brief Sets the Station Defect State
      *
-     *  \iparam Defect = True or false, bool type
+     *  \iparam Disabled = True or false, bool type
      *
-     *  \return
      */
     /****************************************************************************/
     void SetDashboardStationDisabled(bool Disabled) { m_Disabled = Disabled; }
-
 };
 
 } // namespace DataManager

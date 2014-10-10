@@ -30,11 +30,21 @@ namespace Threads {
 
 const Global::gSubComponentType SUBCOMPONENT_THREADCONTROLLER = 0x0000; ///< Subcomponent type for thread controller.
 
+/**
+* \brief function NullAcknowledgeProcessorFunctor
+* \return AcknowledgeProcessorFunctorShPtr_t
+*/
 const AcknowledgeProcessorFunctorShPtr_t    NullAcknowledgeProcessorFunctor(NULL);  ///< NULL functor for acknowledge processing.
+
 const TimeoutProcessorFunctorShPtr_t        NullTimeoutProcessorFunctor(NULL);      ///< NULL functor for timeout processing.
+
 const CmdDataChangedFunctorShPtr_t          NullDataChangedFunctor(NULL);           ///< NULL functor for data changed.
 
-const int STOP_TIMEOUT(1000);                                                       ///< time to wait if thread get's stuck in OnStopReceived()
+/**
+* \brief function STOP_TIMEOUT
+* \return int
+*/
+const int STOP_TIMEOUT(1000);         ///< time to wait if thread get's stuck in OnStopReceived()
 
 /****************************************************************************/
 BaseThreadController::BaseThreadController(const quint32 ThreadID, const QString ThreadName) :

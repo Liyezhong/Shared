@@ -12,6 +12,8 @@ namespace DeviceControl
  *
  *  \param    pDeviceProcessing = pointer to DeviceProcessing
  *  \param    Type = Device type string
+ *  \param    ModuleList module list
+ *  \param    InstanceID instance id
  */
 /****************************************************************************/
 COtherDevice::COtherDevice(DeviceProcessing* pDeviceProcessing, QString& Type,

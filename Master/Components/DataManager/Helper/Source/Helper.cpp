@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Master/Components/DataManager/Helper/Source/Helper.cpp
+/*! \file DataManager/Helper/Source/Helper.cpp
  *
  *  \brief Implementation file for general purpose functions.
  *
@@ -52,9 +52,9 @@ Helper::Helper()
  * This method converts a given number of seconds into an string value
  * containing the corresponding formated string for this time duration.
  *
- * \param[in]   TimeDurationInSeconds       Time duration given in seconds.
+ * \param  TimeDurationInSeconds Time duration given in seconds.
  *
- * \return  QString     Leica specific format for time durations.
+ * \return Leica specific format for time durations.
  */
 /****************************************************************************/
 QString Helper::ConvertSecondsToTimeString(int TimeDurationInSeconds)

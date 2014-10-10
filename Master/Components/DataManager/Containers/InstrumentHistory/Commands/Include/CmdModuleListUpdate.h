@@ -40,9 +40,28 @@ public:
     static QString NAME;    //!< Command name.
     QString               m_DeviceType;      //!< Device type
     bool                  m_Error;           //!< true if module data is erroneous
+    /**
+      * \brief constructor
+      * \param Timeout Timeout
+      * \param ModuleData Module Data
+      * \param DeviceType device type
+      * \param Error error
+    */
     CmdModuleListUpdate(int Timeout, const DataManager::CModule& ModuleData, const QString& DeviceType, const bool Error = false);
-    CmdModuleListUpdate();   
+
+    /**
+    * \brief constructor
+    */
+    CmdModuleListUpdate();
+    /**
+    * \brief destructor
+    */
     ~CmdModuleListUpdate();
+
+    /**
+    * \brief function GetName
+    * \return QString
+    */
     virtual QString GetName() const;
 
     /****************************************************************************/
@@ -53,6 +72,10 @@ public:
     /****************************************************************************/
     DataManager::CModule const* GetModuleData() const { return mp_ModuleData; }
 
+    /**
+    * \brief get device type
+    * \return device type
+    */
     const QString& DeviceType() const { return m_DeviceType; }
 
 private:

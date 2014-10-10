@@ -595,7 +595,7 @@ void UnMountStorageDevice();
 /****************************************************************************/
 /**
  * \brief  Dump string to console.
- *
+ * \param  StringToDump string
  */
 /****************************************************************************/
 void DumpToConsole(const QString StringToDump);
@@ -610,7 +610,7 @@ typedef enum {
     LOW_PRIO = 1, //!< Thread running as LOW_PRIO would only run when the processor would otherwise be idle
     BATCH_PRIO, //!< Batch style execution
     DEFAULT_PRIO, //!< default prio -> simple round robin mechanism
-    HIGH_PRIO, //!< Thread will be given more priority -> real time round robin mechanism
+    HIGH_PRIO //!< Thread will be given more priority -> real time round robin mechanism
 }ThreadPrio_t;
 
 /****************************************************************************/
@@ -623,6 +623,10 @@ typedef enum {
 /****************************************************************************/
 void SetThreadPriority(const ThreadPrio_t ThreadPriority);
 
+/**
+* \brief function  UpdateRebootFile
+* \param RebootFileContent content
+*/
 void UpdateRebootFile(const QMap<QString, QString> RebootFileContent);
 } // end namespace Global
 

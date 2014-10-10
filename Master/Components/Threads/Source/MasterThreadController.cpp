@@ -63,6 +63,10 @@ static const quint32 ALARM_REPEAT_MAX    =  2;                      ///< Play er
 
 static const CommandExecuteFunctorAckShPtr_t    NullCommandExecuteFunctor(NULL);    ///< NULL functor for command execution.
 static const CommandExecuteFunctorShPtr_t       NullCommandExecuteFunctorWithouAck(NULL); ///< Null functor command execution
+/**
+* \brief function NullAcknowledgeProcessorFunctor
+* \return AcknowledgeProcessorFunctorShPtr_t
+*/
 const AcknowledgeProcessorFunctorShPtr_t    NullAcknowledgeProcessorFunctor(NULL);  ///< NULL functor for acknowledge processing.
 
 /****************************************************************************/

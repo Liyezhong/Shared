@@ -156,7 +156,7 @@ void DeviceCommandProcessorThreadController::OnDeviceProcessingCleanup(Global::t
 /**
  *  \brief     Initialisation finished notification
  *
- *  \param     InstanceID  = Device instance ID for grappler identification
+ *  \param     devInstanceID  = Device instance ID for grappler identification
  *  \param     InitResult  = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(quint32 devInstanceID, ReturnCode_t InitResult)
@@ -191,7 +191,7 @@ void DeviceCommandProcessorThreadController::DevProcInitialisationAckn(quint32 d
 /**
  *  \brief     Configuration finished notification
  *
- *  \param     InstanceID   = Device instance ID for grappler identification
+ *  \param     devInstanceID   = Device instance ID for grappler identification
  *  \param     ConfigResult = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(quint32 devInstanceID, ReturnCode_t ConfigResult)
@@ -215,7 +215,7 @@ void DeviceCommandProcessorThreadController::DevProcConfigurationAckn(quint32 de
 /**
  *  \brief     Normal operation mode start notification
  *
- *  \param     InstanceID = Device instance ID for grappler identification
+ *  \param     devInstanceID = Device instance ID for grappler identification
  *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(quint32 devInstanceID, ReturnCode_t HdlInfo)
@@ -247,7 +247,6 @@ void DeviceCommandProcessorThreadController::DevProcStartNormalOpModeAckn(quint3
 /**
  *  \brief     Mode change notification ( config - normal - diag - adjust - shutdown)
  *
- *  \param     InstanceID = Device instance ID for grappler identification
  *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *  \param     NewState   = New state identification
  *****************************************************************************/
@@ -260,8 +259,6 @@ void DeviceCommandProcessorThreadController::DevProcModeChangeInfo(ReturnCode_t 
 /*****************************************************************************/
 /**
  *  \brief     Adjustment service start notification
- *
- *  \param     InstanceID = Device instance ID for grappler identification
  *  \param     HdlInfo    = Return code, DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise error return code
  *****************************************************************************/
 void DeviceCommandProcessorThreadController::StartAdjustmentServiceAckn(ReturnCode_t HdlInfo)

@@ -241,6 +241,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief   Operator "->"
+     *  \return  ClassT*
      *
      ****************************************************************************/
     ClassT* operator->() const
@@ -254,6 +255,7 @@ public:
     /****************************************************************************/
     /*!
      *  \brief   Get pointer to the tracked object.
+     * \return   ClassT*
      *
      ****************************************************************************/
     ClassT* GetPointerToUserData() const
@@ -314,7 +316,6 @@ public:
      *  \brief   Set contained pointer to NULL.
      *
      * Decrement refcount and delete pointer if needed. This method is thread safe.
-     * Calls \ref NonsafeClear.
      */
      /***************************************************************************/
     void Clear()

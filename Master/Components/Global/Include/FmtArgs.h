@@ -33,21 +33,33 @@ namespace Global {
 class FmtArgs: public Global::tTranslatableStringList
 {
     public:
-        /// overloaded << operator for appending integer
+        /**
+          * \brief operator <<
+          * \param val val
+          * \return FmtArgs
+        */
         FmtArgs& operator<<(const int val)
         {
             this->append(QString::number(val));
             return *this;
         }
 
-        /// << operator for strings must be redefined for child class!
+        /**
+          * \brief operator <<
+          * \param strg string
+          * \return FmtArgs
+        */
         FmtArgs& operator<<(const QString& strg)
         {
             this->append(strg);
             return *this;
         }
 
-        /// << operator for strings must be redefined for child class!
+        /**
+          * \brief operator <<
+          * \param strgList string list
+          * \return FmtArgs
+        */
         FmtArgs& operator<<(const QStringList& strgList)
         {
             foreach (QString strg, strgList) {

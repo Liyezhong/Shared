@@ -297,8 +297,6 @@ public:
     /*****************************************************************************/
     /*!
      *  \brief  emit signal on level sensnor status change to 1
-     *  \param  no
-     *  \return void
      */
     /*****************************************************************************/
     void OnReportLevelSensorStatus1() { emit ReportLevelSensorStatus1(); }
@@ -306,8 +304,6 @@ public:
     /*****************************************************************************/
     /*!
      *  \brief  emit signal on Filling TimeOut 2Min
-     *  \param  no
-     *  \return void
      */
     /*****************************************************************************/
     void OnReportFillingTimeOut2Min() { emit ReportFillingTimeOut2Min(); }
@@ -315,8 +311,6 @@ public:
     /*****************************************************************************/
     /*!
      *  \brief  emit signal on Draining TimeOut 2Min
-     *  \param  no
-     *  \return void
      */
     /*****************************************************************************/
     void OnReportDrainingTimeOut2Min() { emit ReportDrainingTimeOut2Min(); }
@@ -339,6 +333,9 @@ public slots:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnReportGetServiceInfo
+     *  \param  ReturnCode return code
+     *  \param  ModuleInfo module info
+     *  \param  deviceType device type
      */
     /****************************************************************************/
     void OnReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceType);
@@ -423,7 +420,8 @@ signals:
      *  \brief  Returns the service information of a device
      *
      *  \iparam ReturnCode = ReturnCode of Device Control Layer
-     *  \iparam ModuleInfo = Contains the service information
+     *  \iparam ModuleInfo = Contains the service information.
+     *  \iparam deviceType device type
      */
     /****************************************************************************/
     void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString& deviceType);
@@ -431,6 +429,7 @@ signals:
     /****************************************************************************/
     /*!
      *  \brief Signal for Stopping command execution
+     *  \iparam CmdType cmd type
      */
     /****************************************************************************/
     void SigStopCommandExec(quint8 CmdType);
@@ -446,13 +445,13 @@ private slots:
     /*****************************************************************************/
     /*!
      *  \brief  Slot for stopping command execution
-     *  \param  quint8 command type
-     *  \return void
+     *  \param  CmdType command type
      */
     /*****************************************************************************/
     void OnStopCommandExec(quint8 CmdType);
 
 private:
+    //! constructor
     DeviceProcessing(const DeviceProcessing &);                     ///< Not implemented.
     //const DeviceProcessing & operator = (const DeviceProcessing &); ///< Not implemented.
 
@@ -461,6 +460,7 @@ private:
 
     //! Set priority of the calling thread context
     ReturnCode_t SetPriority();
+
     //! Initialize the communication via CAN or tcp/ip
     ReturnCode_t InitCommunication();
 

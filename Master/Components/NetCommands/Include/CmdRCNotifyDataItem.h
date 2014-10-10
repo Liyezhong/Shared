@@ -37,36 +37,94 @@ namespace NetCommands {
 class CmdRCNotifyDataItem : public Global::Command
 {
     /// streaming operators are friends
+    /**
+      * \brief operator <<
+      * \return QDataStream
+    */
     friend QDataStream & operator << (const QDataStream &, const CmdRCNotifyDataItem &);
+    /**
+      * \brief operator >>
+      * \return QDataStream
+    */
     friend QDataStream & operator >> (const QDataStream &, const CmdRCNotifyDataItem &);
 
 public:
 
     static QString NAME; //!< name of this command
 
+    /**
+      * \brief constructor
+    */
     CmdRCNotifyDataItem();
 //    CmdRCNotifyDataItem(const int& timeout);
+
+    /**
+      * \brief constructor
+      * \param timeout time out
+      * \param name name
+      * \param type type
+      * \param quality quality
+      * \param value value
+      * \param timestamp time stamp
+    */
     CmdRCNotifyDataItem(const int& timeout, const QString& name, const RemoteCare::RCDataItemType_t& type, \
                      const RemoteCare::RCDataItemQuality_t& quality, const QString& value, const QString& timestamp);
+
+    /**
+      * \brief constructor
+      * \param  rOther instance
+    */
     CmdRCNotifyDataItem(const CmdRCNotifyDataItem& rOther); //!< Not implemented
+
+    /**
+      * \brief operator =
+      * \return CmdRCNotifyDataItem
+    */
     const CmdRCNotifyDataItem & operator = (const CmdRCNotifyDataItem& rOther);
     ~CmdRCNotifyDataItem();
 
     // inherited function
+    /**
+      * \brief function GetName
+      * \return name
+    */
     virtual QString GetName() const;
-    // own functions
+
+    /**
+      * \brief function GetDataItemName
+      * \return name
+    */
     QString GetDataItemName() const;
+
+    /**
+      * \brief function GetDataItemType
+      * \return item type
+    */
     RemoteCare::RCDataItemType_t GetDataItemType() const;
+    /**
+      * \brief function GetDataItemType
+      * \return quality
+    */
     RemoteCare::RCDataItemQuality_t GetDataItemQuality() const;
+    /**
+      * \brief function GetDataItemValue
+      * \return value
+    */
     QString GetDataItemValue() const;
+    /**
+      * \brief function GetDataItemTimestamp
+      * \return time stamp
+    */
     QString GetDataItemTimestamp() const;
 
 private:
-
+    /**
+      * \brief function CopyFrom
+      * \param rOther other instance
+    */
     void CopyFrom(const CmdRCNotifyDataItem &rOther);
 
 private:
-
     QString                 m_Name;       //!< DataItem name
     RemoteCare::RCDataItemType_t        m_Type;       //!< DataItem type (digital/analog/string)
     RemoteCare::RCDataItemQuality_t  m_Quality;    //!< DataItem quality (good/bad/uncertain)

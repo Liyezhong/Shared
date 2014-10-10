@@ -63,7 +63,6 @@ CDashboardStationBase::CDashboardStationBase(const QString ID) :
  *
  *  \iparam Station = Instance of the CDashboardStationBase class
  *
- *  \return
  */
 /****************************************************************************/
 CDashboardStationBase::CDashboardStationBase(const CDashboardStationBase& Station)
@@ -254,17 +253,6 @@ QDataStream& operator >>(QDataStream& InDataStream, CDashboardStationBase& Stati
     return InDataStream;
 }
 
-/****************************************************************************/
-/*!
- *  \brief Assignment Operator which copies from rhs to lhs.
- *
- *  \iparam SourceStation = CDashboardStationBase class object
- *
- *  \return CDashboardStationBase Class Object
- *  \note   Swap idiom is not used since CDashboardStationBase doesnt manage any resource
- *          and exception wont be throwns
- */
-/****************************************************************************/
 CDashboardStationBase& CDashboardStationBase::operator=(const CDashboardStationBase& SourceStation)
 {
     CopyFromOther(SourceStation);

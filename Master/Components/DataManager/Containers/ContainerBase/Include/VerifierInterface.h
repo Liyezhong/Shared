@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Platform/Master/Components/DataManager/Containers/ContainerBase/Include/VerifierInterface.h
+/*! \file DataManager/Containers/ContainerBase/Include/VerifierInterface.h
  *
  *  \brief Definition file for interface IVerifierInterface.
  *

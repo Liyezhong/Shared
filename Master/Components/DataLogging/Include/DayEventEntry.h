@@ -450,7 +450,7 @@ public:
     /**
      * \brief Set the final action value .
      *
-     * \return Action Action final value.
+     * \iparam Action Action final value.
      */
     /****************************************************************************/
     inline  void SetFinalAction(Global::ActionType Action) {

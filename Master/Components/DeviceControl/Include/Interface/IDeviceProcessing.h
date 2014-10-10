@@ -147,7 +147,8 @@ public:
     /*!
      *  \brief  Definition/Declaration of function IDForceDraining
      *
-     *  \param DelayTime = quint32 type parameter
+     *  \param RVPos = rv pos
+     *  \param targetPressure target pressure
      *
      *  \return from ALDraining
      */
@@ -408,7 +409,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function RVSetTemperatureSwitchState
-     *
+     *  \param  HeaterVoltage heater voltage
+     *  \param  AutoType  auto type
      *  \return from RVSetTemperatureSwitchState
      */
     /****************************************************************************/
@@ -618,9 +620,11 @@ public:
     ReturnCode_t RTLock();
     /****************************************************************************/
     /*!
-     *  \brief  Definition/Declaration of function RTSetTemperatureSwitchState
-     *
-     *  \return from RTSetTemperatureSwitchState
+    *  \brief  Definition/Declaration of function RTSetTemperatureSwitchState
+    *  \param  Type  type
+    *  \param  HeaterVoltage  voltage
+    *  \param  AutoType  auto type
+    *  \return from RTSetTemperatureSwitchState
      */
     /****************************************************************************/
     ReturnCode_t RTSetTemperatureSwitchState(RTTempCtrlType_t Type, qint8 HeaterVoltage, qint8 AutoType);
@@ -771,6 +775,11 @@ public:
      *
      */
     /****************************************************************************/
+    /*!
+     *  \brief  function NotifySavedServiceInfor
+     *  \param  deviceType device type
+     *
+     */
     void NotifySavedServiceInfor(const QString& deviceType);
     /****************************************************************************/
     /*!
@@ -782,7 +791,6 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Get Current and Voltage status of all the slave devices
-     *  \param  void
      *
      *  \return bool
      */
@@ -792,9 +800,9 @@ public:
     /*!
      *  \brief  Get report error for the specific slave module
      *
-     *  \param  quint8 errorCode - Error Code of temperature module
-     *  \param  Qstring devName - Device name
-     *  \param  quint32 - sensor name
+     *  \param  errorCode - Error Code of temperature module
+     *  \param  devName - Device name
+     *  \param  sensorName sensor name
      *
      *  \return ReportError_t
      */
@@ -805,10 +813,10 @@ public:
     /*!
      *  \brief  Get current of the specific sensor
      *
-     *  \param  Qstring DevName - Device name
-     *  \param  quint32 - sensor name
+     *  \param  DevName - Device name
+     *  \param  Index index
      *
-     *  \return quint16 - sensor's current
+     *  \return sensor's current
      */
     /****************************************************************************/
     quint16 GetSensorCurrent(const QString& DevName, quint8 Index);
@@ -816,8 +824,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Get heater switch type of the specific sensor
-     *  \param  QString DevName - Device name
-     *  \return quint16 - sensor's switch type
+     *  \param  DevName - Device name
+     *  \return sensor's switch type
      */
     /****************************************************************************/
     quint8 GetHeaterSwitchType(const QString& DevName);
@@ -857,6 +865,7 @@ signals:
     /****************************************************************************/
     void ReportErrorWithInfo(quint32 instanceID, quint16 usErrorGroup, quint16 usErrorID,
                              quint16 usErrorData, QDateTime timeStamp, QString strErrorInfo);
+    
     //! Forward the 'Destroy finished' to IDeviceProcessing
     void ReportDestroyFinished();
     /****************************************************************************/
@@ -887,15 +896,19 @@ signals:
     /****************************************************************************/
     void ReportDrainingTimeOut2Min();
 
+    /*!
+     *  \brief  function ReportGetServiceInfo
+     * \param  ReturnCode return code
+     * \param  ModuleInfo module info
+     */
+    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString&);
     /****************************************************************************/
     /*!
-     *  \brief  Returns the service information of a device
+     *  \brief  function ReportSavedServiceInfor
      *
-     *  \iparam ReturnCode = ReturnCode of Device Control Layer
-     *  \iparam ModuleInfo = Contains the service information
+     *  \iparam deviceType = device type
      */
     /****************************************************************************/
-    void ReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo, const QString&);
     void ReportSavedServiceInfor(const QString& deviceType);
 
 public slots:
@@ -932,6 +945,12 @@ private slots:
      */
     /****************************************************************************/
     void OnDestroyFinished();
+    
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of OnTimeOutSaveServiceInfor
+     */
+    /****************************************************************************/
     void OnTimeOutSaveServiceInfor();
 
 private:

@@ -40,6 +40,7 @@ const CreatorFunctorShPtr_t     NullCreatorFunctor(NULL);   ///< NULL functor.
  *
  * \param[in]   prname - the name of the process
  * \param[in]   ThreadID = Unique Thread ID
+ * \param[in]   ExternalProcessWithoutNetCommunication flag
  */
 /****************************************************************************/
 ExternalProcessController::ExternalProcessController(const QString &prname, quint32 ThreadID, const bool ExternalProcessWithoutNetCommunication) :

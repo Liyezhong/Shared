@@ -45,7 +45,6 @@ public:
     /**
      * \brief Constructor.
      *
-     * \param[in]   Timeout             Desired timeout.
      */
     /****************************************************************************/
     CmdDeviceProcessingCleanup();

@@ -41,6 +41,8 @@ namespace DeviceControl
  *
  *  \param    pDeviceProcessing = pointer to DeviceProcessing
  *  \param    Type = Device type string
+ *  \param    ModuleList Module List
+ *  \param    InstanceID instance id
  *
  ****************************************************************************/
  CBaseDevice::CBaseDevice(DeviceProcessing* pDeviceProcessing,

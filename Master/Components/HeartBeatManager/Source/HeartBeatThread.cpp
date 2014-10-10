@@ -179,7 +179,7 @@ void HeartBeatThreadController::AddControllerForHeartBeatCheck(quint32 ThreadID)
 /**
  * \brief Remove controllers from HeartBeat Check .
  *
- *  \iparam   ThreadID    thread id of controller to be removed from heartbeat check.
+ *  \iparam ThreadId thread id of controller to be removed from heartbeat check.
  */
 /****************************************************************************/
 void HeartBeatThreadController::RemoveControllerForHeartBeatCheck(quint32 ThreadId)

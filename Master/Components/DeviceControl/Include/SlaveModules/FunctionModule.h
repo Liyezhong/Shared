@@ -103,8 +103,26 @@ public:
      */
     /****************************************************************************/
     const CBaseModule *GetBaseModule() const { return m_pParent; }
+    
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the base module of the function SetPartLifeCycleRecord
+     *
+     *  \param pPartLifeCycleRecord life cycle record
+     */
+    /****************************************************************************/
     void SetPartLifeCycleRecord(PartLifeCycleRecord* pPartLifeCycleRecord) { m_pPartLifeCycleRecord = pPartLifeCycleRecord;}
+
+
+    /****************************************************************************/
+    /*!
+     *  \brief  Returns the base module of the function GetPartLifeCycleRecord
+     *
+     *  \return PartLifeCycleRecord
+     */
+    /****************************************************************************/
     PartLifeCycleRecord* GetPartLifeCycleRecord() {return m_pPartLifeCycleRecord; }
+
 protected:
     /****************************************************************************/
     /*!
@@ -128,7 +146,7 @@ protected:
 
     CANFctModMainState_t m_mainState;   //!< Main state
     CBaseModule* m_pParent;             //!< Pointer to CANNode this module is assigned to
-    PartLifeCycleRecord* m_pPartLifeCycleRecord;
+    PartLifeCycleRecord* m_pPartLifeCycleRecord; //!< Pointer to life cycle record
 private:
     CFunctionModule();                                              ///< Not implemented.
     CFunctionModule(const CFunctionModule &);                       ///< Not implemented.

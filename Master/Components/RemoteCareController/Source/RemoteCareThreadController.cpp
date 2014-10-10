@@ -36,10 +36,11 @@ namespace RemoteCare {
 
 /****************************************************************************/
 /**
- * \brief Constructor.
- *
- * \iparam   ThreadID    Thread ID.
- */
+* \brief Constructor.
+* \iparam   ThreadID  Thread ID.
+* \iparam   networkProcessName   process name
+* \iparam   serverType server type
+*/
 /****************************************************************************/
 RemoteCareController::RemoteCareController(const quint32 ThreadID, const QString networkProcessName, NetworkBase::NetworkServerType_t serverType)
     : ExternalProcessController::ExternalProcessController(networkProcessName, ThreadID)

@@ -94,27 +94,54 @@ class CPressureControl : public CFunctionModule
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function SetValveLifeCycle
-     *
+     *  \param valve1Cycle = valve1 Cycle
+     *  \param valve2Cycle = valve2 Cycle
      *  \return from SetValveLifeCycle
      */
     /****************************************************************************/
     void SetValveLifeCycle(quint32 valve1Cycle, quint32 valve2Cycle);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetActiveCarbonFilterLifeTime
+     *
+     *  \param setVal = setVal
+     */
+    /****************************************************************************/
     void SetActiveCarbonFilterLifeTime(quint32 setVal)
     {
         m_ActiveCarbonFilterLifeTime = setVal;
     }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetExhaustFanLifeTime
+     *
+     *  \param setVal = setVal
+     */
+    /****************************************************************************/
     void SetExhaustFanLifeTime(quint32 setVal)
     {
         m_ExhaustFanLifeTime = setVal;
     }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetActiveCarbonFilterLifeTime
+     *	\return return from GetActiveCarbonFilterLifeTime
+     */
+    /****************************************************************************/
     quint32 GetActiveCarbonFilterLifeTime()
     {
         return m_ActiveCarbonFilterLifeTime;
     }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetExhaustFanLifeTime
+     *	\return return from GetExhaustFanLifeTime
+     */
+    /****************************************************************************/
     quint32 GetExhaustFanLifeTime()
     {
         return m_ExhaustFanLifeTime;

@@ -319,6 +319,7 @@ public slots:
     /****************************************************************************/
     /**
      * \brief Inform remote care to set enable/disable
+     * \iparam status remote status
      */
     /****************************************************************************/
     void SetRemoteCareStatus(bool status)

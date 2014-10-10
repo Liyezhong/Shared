@@ -58,6 +58,7 @@ QMap<quint32, std::string> CBaseModule::m_EventString;  // static string list wi
  *  \iparam pCANCommunicator = pointer to communication class
  *  \iparam nCANNodeType = Type of the node (hardware type ID)
  *  \iparam nCANNodeIndex = Node index (within nodes with same node type)
+ *  \iparam isVirtual = is virtual
  */
 /****************************************************************************/
 CBaseModule::CBaseModule(const CANMessageConfiguration *p_MessageConfiguration, CANCommunicator* pCANCommunicator,

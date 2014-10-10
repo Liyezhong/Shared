@@ -27,6 +27,10 @@
 
 namespace Threads {
 
+/**
+ * \brief function NullCommandExecuteFunctor
+ * \return CommandExecuteFunctorShPtr_t
+*/
 static const CommandExecuteFunctorShPtr_t          NullCommandExecuteFunctor(NULL);        ///< NULL functor for command execution.
 
 /****************************************************************************/

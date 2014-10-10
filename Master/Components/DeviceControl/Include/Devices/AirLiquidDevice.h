@@ -150,9 +150,8 @@ public:
     /*!
      *  \brief   Stop command execution
      *
-     *  \iparam  void
+     *  \iparam  CmdType cmd type
      *
-     *  \return  void
      */
     /****************************************************************************/
     void StopCommandExec(quint8 CmdType);
@@ -310,7 +309,8 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function ControlValve
-     *
+     *  \param  ValveIndex index
+     *  \param  ValveState state
      *  \return from ControlValve
      */
     /****************************************************************************/
@@ -600,6 +600,7 @@ signals:
     /****************************************************************************/
     /*!
      *  \brief  Signal for Stopping command execution
+     *  \param CmdType cmd type
      */
     /****************************************************************************/
     void SigStopCommandExec(quint8 CmdType);

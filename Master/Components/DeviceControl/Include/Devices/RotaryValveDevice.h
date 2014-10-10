@@ -195,7 +195,8 @@ public:
     /*!
      *  \brief  Definition/Declaration of function SetTemperatureSwitchState
      *          Request the status of the oven temperature control
-     *
+     *  \param HeaterVoltage Heater Voltage
+     *  \param AutoType Auto Type
      *  \return from ClearErrorState
      */
     /****************************************************************************/

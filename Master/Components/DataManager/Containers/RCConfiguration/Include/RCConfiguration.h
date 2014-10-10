@@ -642,7 +642,7 @@ public:
      *
      *  \iparam Name = Nameof data item.
      *
-     *  return data item value otherwise throw exception
+     *  \return data item value otherwise throw exception
      */
     /****************************************************************************/
     const QString GetDataItemValue(const QString& Name) const

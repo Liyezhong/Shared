@@ -30,7 +30,7 @@ QString CmdSetWaterStations::NAME = "MsgClasses::CmdSetWaterStations";
  *
  * \param[in]   Timeout     Timeout for command.
  * \param[in]   ReagentID   Reagent ID.
- * \param[in]   Timeout     Group.
+ * \param[in]   Group     Group.
  */
 /****************************************************************************/
 CmdSetWaterStations::CmdSetWaterStations(int Timeout, const QString &ReagentID, const QString &Group) :

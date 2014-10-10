@@ -50,8 +50,23 @@ class CMasterLinkDevice : public QObject
     Q_OBJECT
 
 public:
+    /**
+      * \brief constructor
+      * \iparam ip ip address
+      * \iparam port port number
+      * \iparam clientType client type
+    */
     CMasterLinkDevice(QString ip, QString port, const NetworkBase::NetworkClientType_t clientType);
+
+    /**
+     * destructor
+    */
     virtual ~CMasterLinkDevice();
+
+    /**
+      * \brief network initial
+      * \return bool
+    */
     bool NetworkInit();
 
     /****************************************************************************/

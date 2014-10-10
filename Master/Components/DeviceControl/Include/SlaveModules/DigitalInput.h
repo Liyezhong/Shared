@@ -79,8 +79,21 @@ public:
     /****************************************************************************/
     ReturnCode_t ReqActInputValue();
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetLifeCycle
+     *  \param  times time
+     *  \return from SetLifeCycle
+     */
+    /****************************************************************************/
     void SetLifeCycle(quint32 times);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function GetLifeCycle
+     *  \return from GetLifeCycle
+     */
+    /****************************************************************************/
     quint32 GetLifeCycle() { return m_LifeCycle; }
 
 signals:
@@ -165,13 +178,29 @@ private:
     ModuleCommand_t m_ModuleCommand[MAX_DINP_CMD_IDX];  //!< // array of module commands for simultaneously execution
 
     //!< set the module command type to free entry within array
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetModuleTask
+     *  \param  CommandType command type
+     *  \param  pCmdIndex command index
+     *  \return from SetModuleTask
+     */
+    /****************************************************************************/
     bool SetModuleTask(CANDigitalInputModuleCmdType_t CommandType, quint8* pCmdIndex = 0);
     //!< clears all entrys with the specified module command type to free
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function ResetModuleCommand
+     *  \param  CommandType command type
+     *  \return from ResetModuleCommand
+     */
+    /****************************************************************************/
     void ResetModuleCommand(CANDigitalInputModuleCmdType_t CommandType);
-    quint32 m_LifeCycle;
-    bool m_bLogLifeCycle;
-    quint16 m_LastInputValue;
+    
+    quint32 m_LifeCycle;  //!< life cycle
+    bool m_bLogLifeCycle; //!< log life cycle
+    quint16 m_LastInputValue; //!< last input value
 };
 
 } //namespace

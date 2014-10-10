@@ -73,7 +73,7 @@ public:
     /*!
      *  \brief    Constructor for the HimalayaEventHandlerThreadController
      *
-     *  \iparam ThreaID  thread it
+     *  \iparam ThreadID thread it
      *  \iparam RebootCount reboot count
      *  \iparam FileList  event config file list
      *
@@ -122,7 +122,7 @@ public:
     /*!
      *  \brief  Log the events which are there in queue
      *
-     *  \iparam    EventEntry event entry object
+     *  \iparam EventInfo EventEntry event entry object
      */
     /****************************************************************************/
     void LogEntry(const EventRuntimeInfo_t& EventInfo);

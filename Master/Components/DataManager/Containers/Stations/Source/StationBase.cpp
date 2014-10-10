@@ -304,14 +304,14 @@ QDataStream& operator >>(QDataStream& InDataStream, CStationBase& Station)
 /*!
  *  \brief Assignment Operator which copies from rhs to lhs.
  *
- *  \iparam SourceStation = CStationBase class object
+ *  \iparam Station = CStationBase class object
  *
  *  \return CStationBase Class Object
  *  \note   Swap idiom is not used since CStationBase doesnt manage any resource
  *          and exception wont be throwns
  */
 /****************************************************************************/
-CStationBase& CStationBase::operator=(const CStationBase& SourceStation)
+CStationBase& CStationBase::operator=(const CStationBase& Station)
 {
     CopyFromOther(SourceStation);
     return *this;

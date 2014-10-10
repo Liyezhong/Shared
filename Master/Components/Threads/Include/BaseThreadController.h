@@ -295,7 +295,7 @@ protected:
      * NullAcknowledgeProcessorFunctor will be returned.
      *
      * \iparam   AckName     Name of acknowledge.
-     * \return                  The functor or NullAcknowledgeProcessorFunctor.
+     * \return   The functor or NullAcknowledgeProcessorFunctor.
      */
     /****************************************************************************/
     AcknowledgeProcessorFunctorShPtr_t GetAcknowledgeProcessorFunctor(const QString &AckName) const;

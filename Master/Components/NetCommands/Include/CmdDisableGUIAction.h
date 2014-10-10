@@ -70,8 +70,9 @@ public:
     /**
      * \brief Constructor.
      *
-     * \iparam   TimeOut                 Timeout for command.
-     * \iparam   m_Enable                Enable/Disable GUI action
+     * \iparam   TimeOut               Timeout for command.
+     * \iparam   ActionGroupType       ActionGroupType
+     * \iparam   Enable                Enable/Disable GUI action
      */
     /****************************************************************************/
     CmdDisableGUIAction(int TimeOut, const ActionGroupType_t ActionGroupType, bool Enable);
@@ -103,9 +104,9 @@ public:
 /**
  * \brief Streaming operator.
  *
- * \param[in,out]   Stream      Stream to stream into.
- * \iparam       Cmd         The command to stream.
- * \return                      Stream.
+ * \param[in,out] Stream Stream to stream into.
+ * \iparam  Cmd The command to stream.
+ * \return  Stream.
  */
 /****************************************************************************/
 inline QDataStream & operator << (QDataStream &Stream, const CmdDisableGUIAction &Cmd)

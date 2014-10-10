@@ -42,7 +42,7 @@ public:
     /****************************************************************************/
     /**
      * \brief explicit EventStep class constructor
-     * \param[in] strId		Step Id	
+     * \param[in] stepId    Step Id
      * \param[in] strType	Step Type (ACT or MSG)	
      */
     /****************************************************************************/
@@ -273,6 +273,13 @@ public:
     const EventStep*  GetStep(quint32 stepId) const;
 
 
+    /****************************************************************************/
+    /**
+     * \brief Get last Step
+     * \param[in] stepId Step Id	
+     * \return success status
+     */
+    /****************************************************************************/
     bool IsLastStep(quint32 stepId) const;
 
     /****************************************************************************/

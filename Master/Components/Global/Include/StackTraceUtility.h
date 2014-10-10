@@ -18,28 +18,42 @@ class StackTraceUtility
 
 public:
 	/**
-	 * \rief returns current base pointer EBP
+     * \brief returns current base pointer EBP
+     * \return current EBP
 	 */
-    static unsigned int getCurrentEBP   ();
+    static unsigned int getCurrentEBP();
+
     /**
-	 * \rief symbol table initialization; must be called on system start by global deploy method only
+     * \brief symbol table initialization; must be called on system start by global deploy method only
 	 */
-	static void         initSymbolTable ();
+    static void initSymbolTable ();
 	/**
-	 * \rief determine call stack given by base pointer; memory for instruction pointers must be provided
+     * \brief determine call stack given by base pointer; memory for instruction pointers must be provided
+     * \iparam ebp ebp
+     * \iparam instructionPointers instructionPointers
+     * \iparam vectorSize vectorSize
 	 */
-	static void         getStackTrace   (unsigned int ebp, unsigned int* instructionPointers, size_t vectorSize );
-	/**
-	 * \rief determine current call stack; memory for instruction pointers must be provided
+    static void getStackTrace   (unsigned int ebp, unsigned int* instructionPointers, size_t vectorSize );
+
+    /**
+     * \brief determine current call stack; memory for instruction pointers must be provided
+     * \iparam instructionPointers instructionPointers
+     * \iparam vectorSize vectorSize
 	 */
-	static void         getStackTrace   (unsigned int* instructionPointers, size_t vectorSize);
-	/**
-	 * \rief returns symbol information concerning given instruction; symbol name space must be provided
+    static void getStackTrace(unsigned int* instructionPointers, size_t vectorSize);
+
+    /**
+     * \brief returns symbol information concerning given instruction; symbol name space must be provided
+     * \iparam instruction instruction
+     * \iparam symbolName symbolName
+     * \iparam bufferSize bufferSize
+     * \return symbol name
 	 */
-	static const char*  getSymbolName   (unsigned int instruction, char* symbolName, size_t bufferSize);
+    static const char*  getSymbolName   (unsigned int instruction, char* symbolName, size_t bufferSize);
 	/**
 	 * \brief returns a path i.e for temporary files; looks for $TMP environment variable; if
 	 * $TMP is not set, "." will be returned
+     * \return temp path
 	 */
 	static std::string getTempPath();
 };

@@ -49,7 +49,7 @@
 namespace DeviceControl
 {
 //2* 24 * 60 * 60 * 1000;
-const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2* 24 * 60 * 60 * 1000;
+const int INTERVAL_SAVE_SERVICE_LIFE_CYCLE = 2* 24 * 60 * 60 * 1000;  //!< 48 hours
 /****************************************************************************/
 /*!
  *  \brief  Constructor of the class IDeviceProcessing
@@ -760,7 +760,7 @@ ReturnCode_t IDeviceProcessing::ALReleasePressure(void)
 /**
  *  \brief  Device interface function.
  *
- *
+ *  \param   targetPressure target Pressure
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
@@ -836,6 +836,7 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
  *  \brief  Device Force Draining function
  *
  *  \iparam  RVPos = RV position
+ *  \iparam  targetPressure target pressure
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1536,7 +1537,7 @@ TempCtrlState_t IDeviceProcessing::RVGetTemperatureControlState()
 /****************************************************************************/
 /*!
  *  \brief   Request the rotary valve to move to its initial position.
- *
+ *  \param   RVPosition  rv position
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/

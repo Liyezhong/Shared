@@ -217,20 +217,44 @@ public:
     /*!
      *  \brief  Get the report error based on instance Id
      *
-     *  \param  errorCode, error code of temperature module
-     *  \param  instanceID, instance id of slave module
+     *  \param  errorCode  error code of temperature module
+     *  \param  instanceID  instance id of slave module
      *
      *  \return ReportError_t
      */
     /****************************************************************************/
     ReportError_t GetSlaveModuleError(quint8 errorCode, quint32 instanceID);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  function GetRecentBaseModuleVoltageState
+     *  \return PowerState_t
+     */
+    /****************************************************************************/
     PowerState_t GetRecentBaseModuleVoltageState() { return m_BaseModuleVoltageState; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  function GetrecentBaseModuleVoltage
+     *  \return voltage
+     */
+    /****************************************************************************/
     quint16 GetrecentBaseModuleVoltage() { return m_BaseModuleVoltage; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  function GetRecentBaseModuleCurrentState
+     *  \return PowerState_t
+     */
+    /****************************************************************************/
     PowerState_t GetRecentBaseModuleCurrentState() { return m_BaseModuleCurrentState; }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  function GetrecentBaseModuleCurrent
+     *  \return return from GetrecentBaseModuleCurrent
+     */
+    /****************************************************************************/
     quint16 GetrecentBaseModuleCurrent() { return m_BaseModuleCurrent; }
     /****************************************************************************/
     /*!
@@ -312,6 +336,14 @@ public:
 #endif
     }
 
+    /****************************************************************************/
+    /*!
+     *  \brief  Definition/Declaration of function SetModuleLifeCycleRecord
+     *
+     *  \param pModuleLifeCycleRecord = Life Cycle Record
+     *
+     */
+    /****************************************************************************/
     void SetModuleLifeCycleRecord(ModuleLifeCycleRecord* pModuleLifeCycleRecord);
 
 signals:
@@ -356,24 +388,45 @@ signals:
     /****************************************************************************/
     void ReportResetServiceInfo(ReturnCode_t ReturnCode);
 
+    /****************************************************************************/
+    /*!
+     *  \brief  function ReportSavedServiceInfor
+     *
+     */
+    /****************************************************************************/
     void ReportSavedServiceInfor();
 
 public slots:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnFunctionModuleError
+     *  \param  InstanceID instance id
+     *  \param  ErrorGroup ErrorGroup
+     *  \param  ErrorCode ErrorCode
+     *  \param  ErrorData  ErrorData
+     *  \param  ErrorTime  ErrorTime
      */
     /****************************************************************************/
     void OnFunctionModuleError(quint32 InstanceID, quint16 ErrorGroup, quint16 ErrorCode, quint16 ErrorData, QDateTime ErrorTime);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnReportVoltageState
+     *  \param  InstanceID instance id
+     *  \param  HdlInfo  HdlInfo
+     *  \param  State  State
+     *  \param  Value   Value
+     *  \param  Failures  Failures
      */
     /****************************************************************************/
     void OnReportVoltageState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of slot OnReportCurrentState
+     *  \param  InstanceID instance id
+     *  \param  HdlInfo  HdlInfo
+     *  \param  State  State
+     *  \param  Value   Value
+     *  \param  Failures  Failures
      */
     /****************************************************************************/
     void OnReportCurrentState(quint32 InstanceID, ReturnCode_t HdlInfo, PowerState_t State, quint16 Value, quint16 Failures);
@@ -384,12 +437,26 @@ public slots:
      *
      *  \iparam ReturnCode = ReturnCode of Device Control Layer
      *  \iparam ModuleInfo = Contains the service information
-     *  \iparam deviceName = Contains the device name
      */
     /****************************************************************************/
     void OnReportGetServiceInfo(ReturnCode_t ReturnCode, const DataManager::CModule &ModuleInfo);
+
+    /****************************************************************************/
+    /*!
+     *  \brief  function OnGetServiceInfor
+     *
+     */
+    /****************************************************************************/
     void OnGetServiceInfor();
+
+    /****************************************************************************/
+    /*!
+     *  \brief  function OnReportSavedServiceInfor
+     *  \iparam deviceType device type
+     */
+    /****************************************************************************/
     void OnReportSavedServiceInfor(const QString& deviceType);
+
 protected:
     /// Compact function to set the error parameter and error time by one code line
     void SetErrorParameter(quint16 errorGroup, quint16 errorCode, quint16 errorData);
@@ -446,9 +513,9 @@ protected:
     CServiceState *mp_Service;      //!< Service functionality of the base device
     QMap<QString, CModule *> m_ModuleMap;   //!< Maps keys to Slave module pointers
 
-    QVector<ReportError_t>  m_ReportErrorList;
+    QVector<ReportError_t>  m_ReportErrorList; //!< report error list
     QStateMachine m_machine;        //!< State machine
-    ModuleLifeCycleRecord* m_ModuleLifeCycleRecord;
+    ModuleLifeCycleRecord* m_ModuleLifeCycleRecord; //!< module life cycle record
 };
 
 } //namespace

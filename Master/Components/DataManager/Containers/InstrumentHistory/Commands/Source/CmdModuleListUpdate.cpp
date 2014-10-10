@@ -28,20 +28,8 @@
 
 namespace MsgClasses {
 
-QString CmdModuleListUpdate::NAME = "MsgClasses::CmdModuleListUpdate";
+QString CmdModuleListUpdate::NAME = "MsgClasses::CmdModuleListUpdate"; //!< global name
 
-/****************************************************************************/
-/*!
- * \brief   Constructor for sending
- *
- * \iparam   Timeout             Timeout for command.
- * \iparam   Module
- * \iparam   DeviceName          Name of the device for which information is
- *                               being sent
- * \iparam   Error               set to true if retrieving module information
- *                               had failed ,else false.
- */
-/****************************************************************************/
 CmdModuleListUpdate::CmdModuleListUpdate(int Timeout, const DataManager::CModule& Module, const QString& DeviceType, const bool Error) :
     Command(Timeout), m_DeviceType(DeviceType), m_Error(Error), mp_ModuleData(NULL)
 {   

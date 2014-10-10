@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! \file Module.h
+/*! \file DeviceControl/Include/SlaveModules/Module.h
  *
  *  \brief
  *

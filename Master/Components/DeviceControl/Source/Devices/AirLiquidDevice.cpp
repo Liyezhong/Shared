@@ -30,6 +30,8 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  *
  *  \param    pDeviceProcessing = pointer to DeviceProcessing
  *  \param    Type = Device type string
+ *  \param    ModuleList = Module List
+ *  \param    InstanceID = instance  id
  */
 /****************************************************************************/
 CAirLiquidDevice::CAirLiquidDevice(DeviceProcessing* pDeviceProcessing,
@@ -1025,7 +1027,7 @@ SORTIE:
 /****************************************************************************/
 /*!
  *  \brief   Set-up pre-defied vaccum enviroment in the system.
- *
+ *  \param   targetPressure target Pressure
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
@@ -1084,6 +1086,8 @@ SORTIE:
  *
  *  \iparam  DelayTime = Delay a small period(in milliseconds) before turn-off
  *                       the pump when retort has been detected empty.
+ *  \iparam targetPressure target Pressure
+ *  \iparam IgnorePressure Ignore Pressure
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -1396,9 +1400,7 @@ SORTIE:
 /*!
  *  \brief   Stop command execution
  *
- *  \iparam  quint8 command type
- *
- *  \return  void
+ *  \iparam  CmdType command type
  */
 /****************************************************************************/
 void CAirLiquidDevice::StopCommandExec(quint8 CmdType)

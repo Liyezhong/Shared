@@ -211,9 +211,9 @@ namespace DeviceControl
 #define EVENT_CODE_TIMEOUT_WARNING           0x12    //!< Event Code: Timeout for Warning
 #define EVENT_CODE_TIMEOUT_ERROR             0x13    //!< Event Code: Timeout for Error
 
-#define AL_TARGET_PRESSURE_POSITIVE                 (30)
-#define AL_TARGET_PRESSURE_NEGATIVE                 (-30)
-#define AL_FORCEDRAIN_PRESSURE                      (40)
+#define AL_TARGET_PRESSURE_POSITIVE          (30) //!< AL_TARGET_PRESSURE_POSITIVE
+#define AL_TARGET_PRESSURE_NEGATIVE          (-30) //!< AL_TARGET_PRESSURE_NEGATIVE
+#define AL_FORCEDRAIN_PRESSURE               (40) //!< AL_FORCEDRAIN_PRESSURE
 
 /*! Synchronized functions definitions */
 typedef enum
@@ -464,52 +464,52 @@ const quint32 DEVICE_INSTANCE_ID_OTHER_DEVICE   = 0x000080C6;   //!< Other devic
 
 /*! Slaves used in Himalaya project */
 typedef enum {
-    Slave_3 = 3,
-    Slave_5 = 5,
-    Slave_15 = 15
+    Slave_3 = 3, //!< Slave_3
+    Slave_5 = 5, //!< Slave_5
+    Slave_15 = 15 //!< Slave_15
 }HimSlaveType_t;
 
 /*! Air-liquid device's temperature control function module*/
 typedef enum {
-    AL_LEVELSENSOR = 0,
-    AL_TUBE1 = 1,
-    AL_TUBE2 = 2,
-    AL_TEMP_CTRL_NUM = 3
+    AL_LEVELSENSOR = 0, //!< AL_LEVELSENSOR
+    AL_TUBE1 = 1, //!< AL_TUBE1
+    AL_TUBE2 = 2, //!< AL_TUBE2
+    AL_TEMP_CTRL_NUM = 3 //!< AL_TEMP_CTRL_NUM
 } ALTempCtrlType_t;
 
 /* Fan belongs to pressurecontrol, so we just hardcode here */
-const quint32 AL_FAN = 4;
+const quint32 AL_FAN = 4; //!< AL_FAN
 
 /*! Oven device's temperature control function module*/
 typedef enum {
-    OVEN_TOP = 0,
-    OVEN_BOTTOM = 1,
-    OVEN_TEMP_CTRL_NUM =2
+    OVEN_TOP = 0, //!< OVEN_TOP
+    OVEN_BOTTOM = 1, //!< OVEN_BOTTOM
+    OVEN_TEMP_CTRL_NUM =2 //!< OVEN_TEMP_CTRL_NUM
 } OVENTempCtrlType_t;
 
 /*! Retort device's temperature control function module*/
 typedef enum {
-    RT_BOTTOM = 0,
-    RT_SIDE = 1,
-    RT_TEMP_CTRL_NUM =2
+    RT_BOTTOM = 0, //!< RT_BOTTOM
+    RT_SIDE = 1, //!< RT_SIDE
+    RT_TEMP_CTRL_NUM =2 //!< RT_TEMP_CTRL_NUM
 } RTTempCtrlType_t;
 
 /*! Other device's modules */
 typedef enum {
-    OD_EBox = 0,
-    OD_VentilationFan = 1,
-    OD_TouchScreen = 2,
-    OD_Pressure_Sensor = 3,
-    OD_OtherModule_NUM = 4
+    OD_EBox = 0, //!< OD_EBox
+    OD_VentilationFan = 1, //!< OD_VentilationFan
+    OD_TouchScreen = 2, //!< OD_TouchScreen
+    OD_Pressure_Sensor = 3, //!< OD_Pressure_Sensor
+    OD_OtherModule_NUM = 4 //!< OD_OtherModule_NUM
 } OtherDeviceModuleType_t;
 
 /*! error list from slave module */
 typedef struct {
-    quint32           instanceID;
-    quint16           errorGroup;
-    quint16           errorCode;
-    quint16           errorData;
-    qint64            errorTime;
+    quint32           instanceID; //!< instanceID
+    quint16           errorGroup; //!< errorGroup
+    quint16           errorCode; //!< errorCode
+    quint16           errorData; //!< errorData
+    qint64            errorTime; //!< errorTime
 }ReportError_t;
 
 /****************************************************************************/

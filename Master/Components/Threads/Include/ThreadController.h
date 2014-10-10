@@ -115,7 +115,7 @@ protected:
      * NullCommandExecuteFunctor will be returned.
      *
      * \iparam   CommandName     Name of command.
-     * \return                      The functor or NullCommandExecuteFunctor.
+     * \return  The functor or NullCommandExecuteFunctor.
      */
     /****************************************************************************/
     CommandExecuteFunctorShPtr_t GetCommandExecuteFunctor(const QString &CommandName) const;

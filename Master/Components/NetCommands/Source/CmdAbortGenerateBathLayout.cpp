@@ -30,7 +30,8 @@ QString CmdAbortGenerateBathLayout::NAME = "NetCommands::CmdAbortGenerateBathLay
 /*!
  *  \brief   Constructor
  *
- * \iparam   Timeout                          Timeout for command.
+ * \iparam   Timeout  Timeout for command.
+ * \iparam   GenerateBLGProcessStatus  GenerateBLGProcessStatus flag
  */
 /****************************************************************************/
 CmdAbortGenerateBathLayout::CmdAbortGenerateBathLayout(int Timeout, GenBLGProcessFlags_t GenerateBLGProcessStatus) :

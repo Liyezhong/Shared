@@ -167,9 +167,9 @@ public:
     }
     /****************************************************************************/
     /*!
-     *  \brief       This function sets the Action Type
+     *  \brief   This function sets the Action Type
      *
-     *  \iparam   QString   Type of Action
+     *  \iparam  ActionType   Type of Action
      */
     /****************************************************************************/
     inline void SetActionString(QString  ActionType) {

@@ -41,9 +41,22 @@ namespace DataManager {
 /****************************************************************************/
 class CStationBase
 {
-    friend class CDataStationList;
+    friend class CDataStationList; //!< station list
 private:
+	/**
+	* \brief serialize 
+	* \iparam XmlStreamWriter xml stream writer
+	* \iparam CompleteData complete data
+	* \return bool
+	*/
     bool SerializeContent(QXmlStreamWriter& XmlStreamWriter, bool CompleteData);
+
+	/**
+	* \brief deserialize 
+	* \iparam XmlStreamWriter xml stream writer
+	* \iparam CompleteData complete data
+	* \return bool
+	*/
     bool DeserializeContent(QXmlStreamReader& XmlStreamReader, bool CompleteData);
 
 protected:
@@ -54,14 +67,53 @@ protected:
     bool m_Disabled;                            //!< Whether the station is disabled or not
 
 public:
+	/**
+	* \brief constructor
+	*/
     CStationBase();
+	/**
+	* \brief constructor
+	* \iparam ID id
+	*/
     CStationBase(const QString ID);
-    CStationBase(const CStationBase&);
+	/**
+	* \brief constructor
+	* \iparam Station  station
+	*/
+    CStationBase(const CStationBase& Station);
+	/**
+	* \brief CopyFromOther
+	* \iparam Station  station
+	*/
     void CopyFromOther(const CStationBase &Station);
-    friend QDataStream& operator <<(QDataStream& OutDataStream, const CStationBase& Station);
-    friend QDataStream& operator >>(QDataStream& InDataStream, CStationBase& Station);
-    CStationBase& operator=(const CStationBase&);
 
+	/**
+	* \brief operator << 
+	* \iparam  OutDataStream out stream
+	* \iparam  Station station
+	* \return QDataStream
+	*/
+    friend QDataStream& operator <<(QDataStream& OutDataStream, const CStationBase& Station);
+
+	/**
+	* \brief operator >>
+	* \iparam  InDataStream in stream
+	* \iparam  Station station
+	* \return QDataStream
+	*/
+    friend QDataStream& operator >>(QDataStream& InDataStream, CStationBase& Station);
+
+	/**
+	* \brief operator =
+	* \iparam  Station  station
+	* \return CStationBase
+	*/
+    CStationBase& operator=(const CStationBase& Station);
+
+	/**
+	* 	\brief GetStationType
+	* 	\return station type
+	*/
     StationsType_t GetStationType();
 
     /******************** INLINE FuNCTIONS **************************************/
@@ -79,8 +131,6 @@ public:
      *  \brief Set's the Station ID
      *
      *  \iparam Value = station ID string
-     *
-     *  \return
      */
     /****************************************************************************/
     void SetStationID(const QString Value){m_StationID = Value.trimmed();}
@@ -101,7 +151,6 @@ public:
      *
      *  \iparam Temp = Station Temperature
      *
-     *  \return
      */
     /****************************************************************************/
     void SetStationTemperature(const int Temp) {m_StationTemp =  Temp;}

@@ -172,7 +172,9 @@ public:
     /****************************************************************************/
     /*!
      *  \brief  Definition/Declaration of function SetTemperatureSwitchState
-     *
+     *  \param type type
+     *  \param  HeaterVoltage Heater Voltage
+     *  \param  AutoType Auto Type
      *  \return from SetTemperatureSwitchState
      */
     /****************************************************************************/

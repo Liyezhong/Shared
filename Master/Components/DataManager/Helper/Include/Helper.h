@@ -53,7 +53,7 @@ public:
          * This method converts a given number of seconds into an string value
          * containing the corresponding formated string for this time duration.
          *
-         * \param[in]   int       Time duration given in seconds.
+         * \param[in] TimeDurationInSeconds  Time duration given in seconds.
          *
          * \return  QString     Leica specific format for time durations.
          */
@@ -76,12 +76,33 @@ public:
          */
         /****************************************************************************/
         static int ConvertTimeStringToSeconds(QString TimeDuration);
-        static QDate ConvertDateStringToQDate(QString Date);
-        static QDateTime ConvertDateTimeStringToQDateTime(QString DateTime);
-        static bool ReadNode(const QXmlStreamReader& XmlStreamReader, QString NodeName);
-        static void ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString);
 
-	
+        /**
+          * \brief convert date string to qdate string
+          * return qdate
+        */
+        static QDate ConvertDateStringToQDate(QString Date);
+
+        /**
+          * \brief convert date string to qdate string
+          * \iparam DateTime datetime
+          * return QDateTime
+        */
+        static QDateTime ConvertDateTimeStringToQDateTime(QString DateTime);
+        /**
+          * \brief read xml node
+          * \iparam XmlStreamReader xml stream reader
+          * \iparam NodeName node name
+          * \return read status
+        */
+        static bool ReadNode(const QXmlStreamReader& XmlStreamReader, QString NodeName);
+
+        /**
+          * \brief  error id to string
+          * \iparam ErrorList error list
+          * \iparam ErrorString error string
+        */
+        static void ErrorIDToString(ListOfErrors_t &ErrorList, QString &ErrorString);
 };
 
 } // namespace DataManager

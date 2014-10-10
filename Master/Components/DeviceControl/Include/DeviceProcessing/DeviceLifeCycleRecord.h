@@ -1,5 +1,5 @@
 /******************************************************************/
-/*! \file DeviceLifeCycleRecord.h.h
+/*! \file DeviceLifeCycleRecord.h
  *
  *  \brief
  *
@@ -30,30 +30,57 @@
 
 namespace DeviceControl
 {
+    /**
+      * \brief PartLifeCycleRecord
+    */
     class PartLifeCycleRecord
     {
     public:
-        QMap<QString, QString> m_ParamMap;
+        QMap<QString, QString> m_ParamMap; //!< param map
     };
 
+    /**
+      * \brief ModuleLifeCycleRecord
+    */
     class ModuleLifeCycleRecord
     {
     public:
-       QMap<QString, PartLifeCycleRecord*> m_PartLifeCycleMap;
+       QMap<QString, PartLifeCycleRecord*> m_PartLifeCycleMap; //!< life cycle map
     };
 
 
+    /**
+      * \brief DeviceLifeCycleRecord
+    */
     class DeviceLifeCycleRecord
     {
     public:
+        /**
+         * \brief constructor
+        */
         DeviceLifeCycleRecord();
+        /**
+         * \brief destructor
+        */
         ~DeviceLifeCycleRecord();
+
+        /**
+         * \brief ReadRecord
+        */
         void ReadRecord();
+        /**
+         * \brief WriteRecord
+        */
         void WriteRecord();
-        QMap<QString, ModuleLifeCycleRecord*> m_ModuleLifeCycleMap;
+
+        QMap<QString, ModuleLifeCycleRecord*> m_ModuleLifeCycleMap; //!< life cycle map
+
     private:
+        /**
+         * \brief free object
+        */
         void FreeObjects();
-        QString m_DeviceLifeCycleRecordFileName;
+        QString m_DeviceLifeCycleRecordFileName; //!< life cycle file name
     };
 }
 #endif // DEVICELIFECYCLERECORD_H

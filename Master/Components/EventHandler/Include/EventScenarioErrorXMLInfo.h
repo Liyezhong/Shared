@@ -42,7 +42,9 @@ public:
     /****************************************************************************/
     /**
      * \brief explicit ESEInfo class constructor
-     * \param[in] strId   Event Id   
+     * \iparam id id
+     * \iparam  strName name
+     * \iparam strGroup group
      */
     /****************************************************************************/
     explicit ESEInfo(quint32 id, const QString& strName, const QString& strGroup)
@@ -115,6 +117,7 @@ public:
     /**
      * \brief explicit EventScenarioErrXMLInfo class constructor
      * \param[in] XMLFile	XML file 	
+	 * \param[in] genRetCode flag to gen return code
      */
     /****************************************************************************/
     explicit  EventScenarioErrXMLInfo(const QString& XMLFile, bool genRetCode=false);

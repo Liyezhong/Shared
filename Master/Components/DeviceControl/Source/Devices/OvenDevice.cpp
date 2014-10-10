@@ -20,6 +20,8 @@ const qint32 TOLERANCE = 10; //!< tolerance value for calculating inside and out
  *
  *  \param    pDeviceProcessing = pointer to DeviceProcessing
  *  \param    Type = Device type string
+ *  \param    ModuleList module list
+ *  \param    InstanceID instance id
  */
 /****************************************************************************/
 COvenDevice::COvenDevice(DeviceProcessing* pDeviceProcessing, QString& Type,

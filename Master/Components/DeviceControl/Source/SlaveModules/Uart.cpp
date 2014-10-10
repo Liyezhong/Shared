@@ -374,7 +374,7 @@ void CUart::HandleReqReceiveDataTask()
  *   was registered to this class instance, was received.
  *   The message will be forwarded to the specialized function.
  *
- *  \iparam pCANframe = struct contains the data of the receipt CAN message
+ *  \param pCANframe = struct contains the data of the receipt CAN message
  */
 /****************************************************************************/
 void CUart::HandleCanMessage(can_frame* pCANframe)
@@ -403,7 +403,7 @@ void CUart::HandleCanMessage(can_frame* pCANframe)
 /*!
  *  \brief  Handle the receipt of the 'send data ackn' CAN-message
  *
- *  \iparam pCANframe = Received CAN message
+ *  \param pCANframe = Received CAN message
  */
 /****************************************************************************/
 void CUart::HandleCANMsgSendDataAckn(can_frame* pCANframe)
@@ -557,7 +557,7 @@ ReturnCode_t CUart::SendCANMsgReceiveDataRequest()
  *      The passed data willbe transmitted via CAN-Bus to the slave's UART-function module
  *      and send by this functionmodule via UAR
  *
- *  \iparam   OutData = Data array containing data to be send
+ *  \param   OutData = Data array containing data to be send
  *
  *  \return   DCL_ERR_FCT_CALL_SUCCESS if the request was accepted
  *            otherwise DCL_ERR_INVALID_STATE
