@@ -290,7 +290,7 @@ void TestRemoteCareManager::utTestRemoteCareManager()
     DataManager::CColoradoDataManagerTemp *p_DataManagerBase =
             new DataManager::CColoradoDataManagerTemp(p_MasterThreadController);
 
-    RemoteCare::RemoteCareManager RCManager(*p_MasterThreadController, p_DataManagerBase->GetRCConfigurationInterface());
+    RemoteCare::RemoteCareManager RCManager(*p_MasterThreadController, p_DataManagerBase->GetRCConfigurationInterface(), true);
 
     RCManager.Init();
 
