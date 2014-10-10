@@ -841,13 +841,14 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
 /****************************************************************************/
-ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure)
+ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPressure, bool IsMoveRV)
 {
     ReturnCode_t retCode = DCL_ERR_FCT_CALL_SUCCESS;
     if(QThread::currentThreadId() != m_ParentThreadID)
     {
         return DCL_ERR_FCT_CALL_FAILED;
     }
+    QTime delayTime = QTime::currentTime();
     if((m_pRotaryValve)&&(m_pAirLiquid))
     {
         retCode = m_pAirLiquid->ReleasePressure();
@@ -855,28 +856,31 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
         {
             return retCode;
         }
-        // Move RV to sealing position
-        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
-        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        if(IsMoveRV)
         {
-            return retCode;
-        }
-
-        bool IsRightPos = false;
-        QTime delayTime = QTime::currentTime().addMSecs(30*1000);
-        while (QTime::currentTime() < delayTime)
-        {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-            RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
-            if (position == RVPos+1)
+            // Move RV to sealing position
+            retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos + 1));
+            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
-                IsRightPos = true;
-                break;
+                return retCode;
             }
-        }
-        if (false == IsRightPos)
-        {
-            return DCL_ERR_FCT_CALL_FAILED;
+
+            bool IsRightPos = false;
+            delayTime = QTime::currentTime().addMSecs(30*1000);
+            while (QTime::currentTime() < delayTime)
+            {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                RVPosition_t position = m_pRotaryValve->ReqActRVPosition();
+                if (position == RVPos+1)
+                {
+                    IsRightPos = true;
+                    break;
+                }
+            }
+            if (false == IsRightPos)
+            {
+                return DCL_ERR_FCT_CALL_FAILED;
+            }
         }
 
         // Set positive pressure (40 kpa)
@@ -913,12 +917,14 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
             }
         }
 
-
-        // Move RV to tube position
-        retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
-        if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+        if(IsMoveRV)
         {
-            return retCode;
+            // Move RV to tube position
+            retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
+            if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
+            {
+                return retCode;
+            }
         }
 
         // Check if there is No reagent in the bottle

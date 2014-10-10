@@ -153,7 +153,7 @@ public:
      *  \return from ALDraining
      */
     /****************************************************************************/
-    ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE);
+    ReturnCode_t IDForceDraining(quint32 RVPos, float targetPressure = AL_FORCEDRAIN_PRESSURE, bool IsMoveRV = true);
 
     /****************************************************************************/
     /*!
