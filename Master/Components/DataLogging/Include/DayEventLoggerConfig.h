@@ -68,6 +68,7 @@ public:
      *
      * \iparam   OperatingMode       Operating mode as string.
      * \iparam   SerialNumber        Serial number
+     * \iparam   Version             Version
      * \iparam   Path                Absolute path in which log files must be written.
      * \iparam   MaxFileCount        Maximal file count. 0 means no maximal file count monitoring!
      * \iparam   BaseFileName        Base file name

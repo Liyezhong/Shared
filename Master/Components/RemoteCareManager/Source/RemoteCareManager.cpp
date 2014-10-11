@@ -58,6 +58,7 @@ const quint32 CONFIG_FILE_TIMER_INTERVAL    = 3000;  //!< 3[s] for desktop
  *
  *  \iparam MasterThreadControllerRef
  *  \iparam RCConfigurationInterface
+ *  \iparam remoteCareStatus
  *
  */
 /****************************************************************************/

@@ -81,11 +81,10 @@ CSWDetails::CSWDetails(const CSWDetails& SWDetails)
  *         This function should be called from CopyConstructor or
  *         Assignment operator only.
  *
-.*  \note  Method for internal use only
+ *  \note  Method for internal use only
  *
  *  \iparam SWDetails = Instance of the CSWDetails class
  *
- *  \return
  */
 /****************************************************************************/
 void CSWDetails::CopyFromOther(const CSWDetails &SWDetails)

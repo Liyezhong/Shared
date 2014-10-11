@@ -82,11 +82,9 @@ CRCDataItem::CRCDataItem(const CRCDataItem& RCDataItem)
  *         This function should be called from CopyConstructor or
  *         Assignment operator only.
  *
-.*  \note  Method for internal use only
+ *  \note  Method for internal use only
  *
  *  \iparam RCDataItem = Instance of the CRCDataItem class
- *
- *  \return
  */
 /****************************************************************************/
 void CRCDataItem::CopyFromOther(const CRCDataItem &RCDataItem)

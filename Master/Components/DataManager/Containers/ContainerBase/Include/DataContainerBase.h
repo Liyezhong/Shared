@@ -37,11 +37,11 @@ namespace DataManager {
 /**
  * \brief	Name of the Temporary Data Container File,
  *			Written to this before Overwriting the original file.
- *
- * \return
+ * \return  xml file name
  */
 /****************************************************************************/
 const QString TEMP_CONTAINER_XMLFILE("TempDataContainer.xml");  //!< Name of Temporary File
+
 typedef QList<IVerifierInterface*> ListOfVerifiers_t; ///< List to store the verifiers
 
 /****************************************************************************/

@@ -70,6 +70,7 @@ protected:
      *
      * \iparam   OperatingMode       Operating mode.
      * \iparam   SerialNumber        Serial number.
+     * \iparam   Version             Version
      * \iparam   Path                Absolute path.
      */
     /****************************************************************************/
