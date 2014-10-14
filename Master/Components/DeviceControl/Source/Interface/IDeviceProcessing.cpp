@@ -923,6 +923,7 @@ ReturnCode_t IDeviceProcessing::IDForceDraining(quint32 RVPos, float targetPress
             retCode = m_pRotaryValve->ReqMoveToRVPosition((RVPosition_t)(RVPos));
             if (DCL_ERR_FCT_CALL_SUCCESS != retCode)
             {
+                m_pAirLiquid->ReleasePressure();
                 return retCode;
             }
         }
