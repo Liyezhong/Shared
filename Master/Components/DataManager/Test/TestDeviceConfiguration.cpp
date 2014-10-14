@@ -123,7 +123,7 @@ void TestDeviceConfiguration::utTestDeviceConfiguration() {
     LangList1.append("Spanish");
     LangList1.append("Portuguese");
     DeviceConfig1->SetLanguageList(LangList1);
-    DeviceConfig1->SetValue("DeviceName", QString("ST 8200"));
+    DeviceConfig1->SetValue("DeviceName", QString("ST8200"));
     DeviceConfig1->SetValue("SerialNumber", QString("12345678"));
     DeviceConfig1->SetValue("CoverSlipperName", QString("CV 8020"));
     DeviceConfig1->SetValue("WorkstationMode", false);
@@ -134,7 +134,7 @@ void TestDeviceConfiguration::utTestDeviceConfiguration() {
     LangList2.clear();
     LangList2 = DeviceConfig1->GetLanguageList();
     //QCOMPARE(DeviceConfig1->GetLanguageList(),LangList);
-    QCOMPARE(DeviceConfig1->GetValue("DeviceName") ,QString("ST 8200"));
+    QCOMPARE(DeviceConfig1->GetValue("DeviceName") ,QString("ST8200"));
     QCOMPARE(DeviceConfig1->GetValue("SerialNumber") ,QString("12345678"));
     QCOMPARE(DeviceConfig1->GetValue("CoverSlipperName") ,QString("CV 8020"));
     QCOMPARE(DeviceConfig1->GetBoolValue("WorkstationMode") ,false);
@@ -174,7 +174,7 @@ void TestDeviceConfiguration::utTestWriteReadDeviceConfigurationInterface() {
 
     // check all the values
     //QCOMPARE(DeviceConfig->GetLanguage(),(QLocale::German));
-    QCOMPARE(DeviceConfig->GetValue("DeviceName"), QString("ST 8200"));
+    QCOMPARE(DeviceConfig->GetValue("DeviceName"), QString("ST8200"));
     QCOMPARE(DeviceConfig->GetValue("SerialNumber"), QString("12345678"));
     QCOMPARE(DeviceConfig->GetValue("CoverSlipperName"), QString("CV 8020"));
     QCOMPARE(DeviceConfig->GetBoolValue("WorkstationMode"), false);
@@ -201,7 +201,7 @@ void TestDeviceConfiguration::utTestWriteReadDeviceConfigurationInterface() {
 
     // change all the DeviceConfig again
    // DeviceConfig->SetLanguage(QLocale::English);
-    DeviceConfig->SetValue("DeviceName", QString("ST 8200"));
+    DeviceConfig->SetValue("DeviceName", QString("ST8200"));
     DeviceConfig->SetValue("SerialNumber", QString("44446666"));
     DeviceConfig->SetValue("CoverSlipperName", QString("CV 9999"));
     DeviceConfig->SetValue("WorkstationMode", false);
@@ -210,7 +210,7 @@ void TestDeviceConfiguration::utTestWriteReadDeviceConfigurationInterface() {
 	
     // now test DeviceConfig
     //QCOMPARE(DeviceConfig->GetLanguage(),(QLocale::English));
-    QCOMPARE(DeviceConfig->GetValue("DeviceName") ,QString("ST 8200"));
+    QCOMPARE(DeviceConfig->GetValue("DeviceName") ,QString("ST8200"));
     QCOMPARE(DeviceConfig->GetValue("SerialNumber") ,QString("44446666"));
     QCOMPARE(DeviceConfig->GetValue("CoverSlipperName") ,QString("CV 9999"));
     QCOMPARE(DeviceConfig->GetBoolValue("WorkstationMode") ,false);
@@ -224,7 +224,7 @@ void TestDeviceConfiguration::utTestWriteReadDeviceConfigurationInterface() {
 
     // now test DeviceConfig
    // QCOMPARE(DeviceConfig->GetLanguage(),(QLocale::English));
-    QCOMPARE(DeviceConfig->GetValue("DeviceName") ,QString("ST 9200"));
+    QCOMPARE(DeviceConfig->GetValue("DeviceName") ,QString("ST9200"));
     QCOMPARE(DeviceConfig->GetValue("SerialNumber") ,QString("99998888"));
     QCOMPARE(DeviceConfig->GetValue("CoverSlipperName") ,QString("CV 9020"));
     QCOMPARE(DeviceConfig->GetBoolValue("WorkstationMode") ,true);
@@ -256,7 +256,7 @@ void TestDeviceConfiguration::utTestWriteReadDeviceConfigurationVerifier() {
 
     //********************* Device Name ********************
     // checking the boundry values
-    DeviceConfig->SetValue("DeviceName", "ST 8200");
+    DeviceConfig->SetValue("DeviceName", "ST8200");
     QCOMPARE(DeviceConfigInterface.UpdateDeviceConfiguration(DeviceConfig), true);
     DeviceConfig->SetValue("DeviceName", "AB9999");
     QCOMPARE(DeviceConfigInterface.UpdateDeviceConfiguration(DeviceConfig), true);
