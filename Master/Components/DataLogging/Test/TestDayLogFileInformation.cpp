@@ -134,7 +134,7 @@ void TestDayLogFileInformation::utDailyRunLogFileNames() {
     QStringList FileNames;
     DayLogFileNames.CreateAndListDailyRunLogFileName(FileNames);
 
-    QCOMPARE(FileNames.count(), 1);
+    QCOMPARE(FileNames.count(), 0);
 
 }
 
@@ -146,7 +146,7 @@ void TestDayLogFileInformation::utDailyRunLogFileData() {
     QStringList FileNames;
     DayLogFileData.CreateAndListDailyRunLogFileName(FileNames);
 
-    QCOMPARE(FileNames.count(), 1);
+    QCOMPARE(FileNames.count(), 0);
 
     QByteArray DataBytes;
     DataBytes.clear();

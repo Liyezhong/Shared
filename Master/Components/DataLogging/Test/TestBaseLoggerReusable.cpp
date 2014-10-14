@@ -201,7 +201,7 @@ void TestBaseLoggerReusable::utWriteHeader() {
     QVERIFY(Data.size() > 0);
     QList<QByteArray> Tokens = Data.split('\n');
     // there will empty blank line when the log file is created
-    QCOMPARE(Tokens.size(), 9);
+    QCOMPARE(Tokens.size(), 11);
     // check format version
     QCOMPARE(Tokens[0], QByteArray("Format Version: 33"));
     // check file name

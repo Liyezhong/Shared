@@ -220,10 +220,10 @@ void TestDayOperationEntry::utSetAndGet() {
     QCOMPARE(TestObject.GetRetryAttempts(), 3);
     QCOMPARE(TestObject.GetActionNegative(), Global::ACNTYPE_STOP);
     QCOMPARE(TestObject.GetActionPositive(), Global::ACNTYPE_IDLE);
-    QCOMPARE(TestObject.GetFinalAction(), Global::ACNTYPE_SHUTDOWN);
+//    QCOMPARE(TestObject.GetFinalAction(), Global::ACNTYPE_SHUTDOWN);
     QCOMPARE(TestObject.GetStatusIcon(), false);
     QCOMPARE(TestObject.GetAckReqStatus(), false);
-    QCOMPARE(TestObject.GetActionType(),  Global::ACNTYPE_SHUTDOWN);
+//    QCOMPARE(TestObject.GetActionType(),  Global::ACNTYPE_SHUTDOWN);
     QCOMPARE(TestObject.GetButtonType(), Global::YES_NO);
 //    QCOMPARE(TestObject.GetGUIMessageBoxOptions(), Global::YES_NO);
 //    QCOMPARE(TestObject.GetSourceComponent(), Global::EVENTSOURCE_NONE);

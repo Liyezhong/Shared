@@ -22,5 +22,5 @@ SOURCES = TestCmdInterface.cpp
 
 UseDepLibs(Global DataLogging Threads NetCommands DeviceControl DataManager RemoteCareManager \
 		   RemoteCareController HeartBeatManager EventHandler GPIOManager ExternalProcessController \
-		   NetworkComponents StateMachines PasswordManager SWUpdateManager ExportController ImportExport)
+                   NetworkComponents StateMachines PasswordManager SWUpdateManager ExportController EncryptionDecryption)
 LIBS += -ldl
