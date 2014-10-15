@@ -673,7 +673,7 @@ public:
      *  \return 1 - connect, 0 - not connect, UNDEFINED_VALUE if failed
      */
     /****************************************************************************/
-    quint16 IDeviceProcessing::PerGetRecentAlarmStatus(qint8 type);
+    quint16 PerGetRecentAlarmStatus(qint8 type);
 
     /****************************************************************************/
     /*!
