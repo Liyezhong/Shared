@@ -667,6 +667,16 @@ public:
 
     /****************************************************************************/
     /*!
+     *  \brief  Get local or remote Alarm status in last 500 milliseconds.
+     *
+     *  \param  0 - local alarm, 1 - remote alarm
+     *  \return 1 - connect, 0 - not connect, UNDEFINED_VALUE if failed
+     */
+    /****************************************************************************/
+    quint16 IDeviceProcessing::PerGetRecentAlarmStatus(qint8 type);
+
+    /****************************************************************************/
+    /*!
      *  \brief  Definition/Declaration of function IDBottleCheck
      *
      *  \param ReagentGrpID = QString type parameter
