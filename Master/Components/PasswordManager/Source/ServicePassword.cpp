@@ -289,8 +289,8 @@ bool CServicePassword::ValidateAuthentication() {
     if (CheckSumMatched && CompareDate()) {
         if (ReadDeviceNameTagsExistence()) {
             // log the service ID
-            Global::EventObject::Instance().RaiseEvent
-                    (EVENT_PASSWORDMANAGER_LOG_SERVICE_ID, Global::FmtArgs() << ReadServiceID(), true);
+//            Global::EventObject::Instance().RaiseEvent
+//                    (EVENT_PASSWORDMANAGER_LOG_SERVICE_ID, Global::FmtArgs() << ReadServiceID(), true);
             m_Authentication = AUTHENTICATION_VALID;
             return true;
         }
