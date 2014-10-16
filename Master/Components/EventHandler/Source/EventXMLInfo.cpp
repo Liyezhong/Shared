@@ -199,6 +199,38 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             {
                 EventName = m_pXMLReader->attributes().value("Name").toString();
             }
+            // for service string id
+            quint32 ServiceString = Global::EVENT_GLOBAL_UNKNOWN_STRING_ID;
+            if (m_pXMLReader->attributes().hasAttribute("ServiceString"))
+            {
+                bool ok;
+                ServiceString = m_pXMLReader->attributes().value("ServiceString").toString().toUInt(&ok);
+            }
+
+            Global::EventLogLevel logLevel = Global::LOGLEVEL_NONE;
+            if (m_pXMLReader->attributes().hasAttribute("LogLevel"))
+            {
+                QString Level = m_pXMLReader->attributes().value("LogLevel").toString().toUpper();
+                if (Level.trimmed().compare("LOW",Qt::CaseInsensitive) == 0)
+                {
+                    logLevel = Global::LOGLEVEL_LOW;
+                }
+                else if (Level.trimmed().compare("MEDIUM",Qt::CaseInsensitive) == 0)
+                {
+                    logLevel = Global::LOGLEVEL_MEDIUM;
+                }
+                else if (Level.trimmed().compare("HIGH",Qt::CaseInsensitive) == 0)
+                {
+                    logLevel = Global::LOGLEVEL_HIGH;
+                }
+            }
+
+            bool UserLog = false;
+            if (m_pXMLReader->attributes().hasAttribute("UserLog"))
+            {
+                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString().toUpper();
+                UserLog = ((strUserLog.toUpper() == "TRUE") || (strUserLog.toUpper() == "YES"));
+            }
 
             Global::EventSourceType eventSource = EVENTSOURCE_NONE;
             if (m_pXMLReader->attributes().hasAttribute("EventSource"))
@@ -267,6 +299,9 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             pXMLEvent->m_AlarmType = alarmType;
             pXMLEvent->m_RootStep = rootStep;
             pXMLEvent->m_EventSource = eventSource;
+            pXMLEvent->m_LogLevel = logLevel;
+            pXMLEvent->m_UserLog = UserLog;
+            pXMLEvent->m_ServiceString = ServiceString;
         }
         else if (m_pXMLReader->name() == "Event" && m_pXMLReader->isEndElement())
         {
@@ -293,31 +328,6 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
             if (m_pXMLReader->attributes().hasAttribute("Type"))
             {
                 Type = m_pXMLReader->attributes().value("Type").toString();
-            }
-
-            Global::EventLogLevel logLevel = Global::LOGLEVEL_NONE;
-            if (m_pXMLReader->attributes().hasAttribute("LogLevel"))
-            {
-                QString Level = m_pXMLReader->attributes().value("LogLevel").toString().toUpper();
-                if (Level.trimmed().compare("LOW",Qt::CaseInsensitive) == 0)
-                {
-                    logLevel = Global::LOGLEVEL_LOW;
-                }
-                else if (Level.trimmed().compare("MEDIUM",Qt::CaseInsensitive) == 0)
-                {
-                    logLevel = Global::LOGLEVEL_MEDIUM;
-                }
-                else if (Level.trimmed().compare("HIGH",Qt::CaseInsensitive) == 0)
-                {
-                    logLevel = Global::LOGLEVEL_HIGH;
-                }
-            }
-
-            bool UserLog = false;
-            if (m_pXMLReader->attributes().hasAttribute("UserLog"))
-            {
-                QString strUserLog = m_pXMLReader->attributes().value("UserLog").toString().toUpper();
-                UserLog = ((strUserLog.toUpper() == "TRUE") || (strUserLog.toUpper() == "YES"));
             }
 
             QString Action = "";
@@ -459,8 +469,6 @@ bool EventXMLInfo::ConstructXMLEvent(const QString& strSrcName)
 
             QSharedPointer<EventStep> pEventStep(new EventStep(Id, Type));
             pEventStep->m_Action = Action;
-            pEventStep->m_LogLevel = logLevel;
-            pEventStep->m_UserLog = UserLog;
             pEventStep->m_NextStepOnFail = NextStepOnFail;
             pEventStep->m_NextStepOnSuccess = NextStepOnSuccess;
             pEventStep->m_StringId = StringId;

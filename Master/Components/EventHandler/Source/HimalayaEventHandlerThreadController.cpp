@@ -518,8 +518,8 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
     m_EventEntry.SetEventType(EventInfo.Event->GetErrorType());
     m_EventEntry.SetEventSource(EventInfo.Event->GetEventSource());
     m_EventEntry.SetAlarmType(EventInfo.Event->GetAlarmType());
-    m_EventEntry.SetLogLevel(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetLogLevel());
-    m_EventEntry.SetShowInRunLogStatus(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetUserLog());
+    m_EventEntry.SetLogLevel(EventInfo.Event->GetLogLevel());
+    m_EventEntry.SetShowInRunLogStatus(EventInfo.Event->GetUserLog());
     m_EventEntry.SetStatusIcon(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStatusBar());
 
 

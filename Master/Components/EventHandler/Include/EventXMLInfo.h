@@ -47,8 +47,8 @@ public:
      */
     /****************************************************************************/
     explicit EventStep(quint32 stepId, const QString& strType)
-        : m_Id(stepId),m_Type(strType),m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_NextStepOnTimeOut(0),
-          m_NextStepOnClickOk(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0)
+        : m_Id(stepId),m_Type(strType),m_NextStepOnFail(0),m_NextStepOnSuccess(0),m_StringId(0),m_NextStepOnTimeOut(0),
+          m_NextStepOnClickOk(0),m_NextStepOnClickYES(0),m_NextStepOnClickNO(0),m_StatusBar(false)
 	{ }
 
     /****************************************************************************/
@@ -186,23 +186,6 @@ public:
     /****************************************************************************/
     bool GetStatusBar() const { return m_StatusBar; }
 
-    /****************************************************************************/
-    /**
-     * \brief Get UserLog attribute
-     *
-     * \return UserLog Flag
-     */
-    /****************************************************************************/
-    bool GetUserLog() const { return m_UserLog; }
-
-    /****************************************************************************/
-    /**
-     * \brief Get Log Level attribute
-     *
-     * \return Log level
-     */
-    /****************************************************************************/
-    Global::EventLogLevel GetLogLevel() const { return m_LogLevel; }
 private:
     quint32		m_Id;					///< Step Id
 	QString		m_Type;					///< Step Type 
@@ -211,8 +194,6 @@ private:
 	QString		m_Action;				///< Action Name
     quint32		m_NextStepOnFail;		///< Next step when current action fails
     quint32		m_NextStepOnSuccess;	///< Next step when current action succeeds
-    Global::EventLogLevel    m_LogLevel;     ///< Log level
-    bool                m_UserLog;      ////< user log
 
 	//For MSg type
     quint32                     m_StringId;				///< Msg String Id
@@ -260,7 +241,8 @@ public:
      */
     /****************************************************************************/
     explicit XMLEvent(quint32 errorID)
-      : m_ErrorId(errorID)
+        : m_ErrorId(errorID),m_ErrorType(Global::EVTTYPE_INFO),m_AlarmType(Global::ALARMPOS_NONE),
+          m_LogLevel(Global::LOGLEVEL_LOW),m_UserLog(false),m_ServiceString(0)
 	{ }
 
     /****************************************************************************/
@@ -364,6 +346,31 @@ public:
      */
     /****************************************************************************/
     const QString& GetEventName() const { return m_EventName; }
+    /****************************************************************************/
+    /**
+     * \brief Get UserLog attribute
+     *
+     * \return UserLog Flag
+     */
+    /****************************************************************************/
+    bool GetUserLog() const { return m_UserLog; }
+
+    /****************************************************************************/
+    /**
+     * \brief Get Log Level attribute
+     *
+     * \return Log level
+     */
+    /****************************************************************************/
+    Global::EventLogLevel GetLogLevel() const { return m_LogLevel; }
+    /****************************************************************************/
+    /**
+     * \brief Get service string id
+     *
+     * \return service string id
+     */
+    /****************************************************************************/
+    quint32 GetServiceString() const { return m_ServiceString; }
 private:
     quint32                                 		m_ErrorId;			///< Error Code
     QString                                 		m_Source;			///< Source Name
@@ -375,6 +382,9 @@ private:
     quint32                                 		m_RootStep;			///< Root Step
     Global::EventSourceType                         m_EventSource;		///< Event Source
     QHash< quint32, QSharedPointer<EventStep> >		m_pEventStepList;	///< XML Step List
+    Global::EventLogLevel    m_LogLevel;     ///< Log level
+    bool                m_UserLog;      ///< user log
+    quint32             m_ServiceString;  ///< service string ID.
 private:
     /****************************************************************************/
     /**
