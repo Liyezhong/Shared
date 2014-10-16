@@ -783,7 +783,7 @@ ReturnCode_t IDeviceProcessing::ALPressure(float targetPressure)
 /****************************************************************************/
 /**
  *  \brief  Device interface function.
- *
+ *  \param  targetPressure target Pressure
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
@@ -837,6 +837,7 @@ ReturnCode_t IDeviceProcessing::ALDraining(quint32 DelayTime, float targetPressu
  *
  *  \iparam  RVPos = RV position
  *  \iparam  targetPressure target pressure
+ *  \iparam  IsMoveRV move flag
  *
  *  \return  DCL_ERR_FCT_CALL_SUCCESS if successfull, otherwise an error code
  */
