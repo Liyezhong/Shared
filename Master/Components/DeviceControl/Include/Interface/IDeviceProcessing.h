@@ -669,7 +669,7 @@ public:
     /*!
      *  \brief  Get local or remote Alarm status in last 500 milliseconds.
      *
-     *  \param  0 - local alarm, 1 - remote alarm
+     *  \param  type - qint8 0 - local alarm, 1 - remote alarm
      *  \return 1 - connect, 0 - not connect, UNDEFINED_VALUE if failed
      */
     /****************************************************************************/

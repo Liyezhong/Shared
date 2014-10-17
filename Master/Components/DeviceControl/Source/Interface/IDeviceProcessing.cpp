@@ -2204,14 +2204,6 @@ ReturnCode_t IDeviceProcessing::PerControlAlarm(bool On, bool Remote)
     }
 }
 
-/****************************************************************************/
-/*!
- *  \brief  Get local or remote Alarm status in last 500 milliseconds.
- *
- *  \param  0 - local alarm, 1 - remote alarm
- *  \return 0 - connected, 1 - not connected, UNDEFINED_VALUE if failed
- */
-/****************************************************************************/
 quint16 IDeviceProcessing::PerGetRecentAlarmStatus(qint8 type)
 {
     if(m_pPeriphery)
