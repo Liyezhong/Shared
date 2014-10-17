@@ -23,6 +23,7 @@
 #include <Global/Include/Exception.h>
 #include <Global/Include/EventObject.h>
 #include <Global/Include/Utils.h>
+#include <Global/Include/SystemPaths.h>
 #include <unistd.h> //for fsync
 //lint -e1536
 //lint -e593
@@ -107,14 +108,17 @@ bool CDataContainerBase::Write()
             }
         }
 
-	File.flush();
-	fsync(File.handle());
-	File.close();
+        File.flush();
+        fsync(File.handle());
+        File.close();
 
         if (!QFile::rename(TEMP_CONTAINER_XMLFILE, GetFilename())) {
             qDebug() << "File renamed failed in Write: " << TEMP_CONTAINER_XMLFILE;
             return false;
         }
+        const QString MD5sumGenerator = QString("%1%2 %3").arg(Global::SystemPaths::Instance().GetScriptsPath()).
+                arg(QString("/EBox-Utils.sh update_md5sum_for_file_in_settings")).arg(GetFilename());
+        (void)system(MD5sumGenerator.toStdString().c_str());
         return true;
     }
     CATCHALL();
