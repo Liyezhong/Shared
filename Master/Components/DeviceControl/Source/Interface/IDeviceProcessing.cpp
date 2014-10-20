@@ -2345,7 +2345,7 @@ ReturnCode_t IDeviceProcessing::IDSealingCheck(qreal ThresholdPressure)
 
         // Make sure to get the target pressure (30Kpa) in 30 seconds
         qreal targetPressure = 0.0;
-        if(QFile::exists("TEST_FREDDY"))
+        if(QFile::exists("TEST_BEAN"))
         {
             targetPressure = 15.0;
             retCode = m_pAirLiquid->SealingCheckPressure();

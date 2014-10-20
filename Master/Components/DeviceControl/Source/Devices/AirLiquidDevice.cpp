@@ -1203,9 +1203,9 @@ ReturnCode_t CAirLiquidDevice::Draining(quint32 DelayTime, float targetPressure,
     //waiting for some time
     if(DelayTime > 0)
     {
-         FILE_LOG_L(laDEVPROC, llINFO) << "INFO: Finished. start hold for "<< DelayTime << " millisecond.";
+        QTime extraTime = QTime::currentTime().addMSecs(DelayTime);
          LogDebug(QString("INFO: Draining Finished. start hold for %1 millisecond.").arg(DelayTime));
-         retCode =  m_pDevProc->BlockingForSyncCall(SYNC_CMD_AL_PROCEDURE_DRAINING, DelayTime);
+        while (QTime::currentTime() < extraTime)
          if (DCL_ERR_UNEXPECTED_BREAK == retCode)
          {
              FILE_LOG_L(laDEVPROC, llWARNING) << "WARNING: Current procedure has been interrupted, exit now.";
