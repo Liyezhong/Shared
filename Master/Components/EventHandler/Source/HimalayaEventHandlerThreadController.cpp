@@ -139,7 +139,10 @@ void HimalayaEventHandlerThreadController::ProcessEvent(const quint32 EventKey, 
                 EventInfo.EventStringParList = EventStringParList;
                 EventInfo.EventRDStringParList = EventRDStringParList;
                 m_ActiveEvents.insert(EventKey,EventInfo);
-                 EventInfo.AlarmActFlag = false;
+                EventInfo.AlarmActFlag = false;
+                if(pEvent->GetServiceString() > 0){
+                    LogEntry(EventInfo,true);
+                }
             }
         }
 #if 1
@@ -504,7 +507,7 @@ void HimalayaEventHandlerThreadController::SetGuiAvailable(const bool active)
 }
 
 
-void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& EventInfo)
+void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& EventInfo, bool Service)
 {
 
     m_EventEntry.SetEventKey(EventInfo.EventKey);
@@ -524,8 +527,12 @@ void HimalayaEventHandlerThreadController::LogEntry(const EventRuntimeInfo_t& Ev
 
 
     m_EventEntry.SetScenario(EventInfo.Scenario);
-
-    if(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetType() == "MSG"){
+    if(Service){
+        m_EventEntry.SetStringID(EventInfo.Event->GetServiceString());
+        m_EventEntry.SetString(EventInfo.EventRDStringParList);
+        m_EventEntry.SetShowInRunLogStatus(false);
+    }
+    else if(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetType() == "MSG"){
         m_EventEntry.SetStringID(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetStringID());
         m_EventEntry.SetString(EventInfo.EventStringParList);
         m_EventEntry.SetButtonType(EventInfo.Event->GetStep(EventInfo.CurrentStep)->GetButtonType());

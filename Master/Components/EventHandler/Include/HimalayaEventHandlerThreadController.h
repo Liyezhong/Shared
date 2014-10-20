@@ -125,7 +125,7 @@ public:
      *  \iparam EventInfo EventEntry event entry object
      */
     /****************************************************************************/
-    void LogEntry(const EventRuntimeInfo_t& EventInfo);
+    void LogEntry(const EventRuntimeInfo_t& EventInfo, bool Service = false);
 
     /****************************************************************************/
     /*!
