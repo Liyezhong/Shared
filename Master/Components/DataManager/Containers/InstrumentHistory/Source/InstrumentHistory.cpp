@@ -201,7 +201,8 @@ bool CInstrumentHistory::WriteArchiveFile(const QString FileName)
 
     QByteArray Byte = DocumentArchive.toByteArray();
     (void) File.write(Byte);
-
+    (void)File.flush();
+    (void)fsync(File.handle());
     File.close();
 
     return Result;

@@ -160,6 +160,8 @@ void DeviceLifeCycleRecord::WriteRecord()
     domDocument.appendChild(root);
     const int IndentSize = 4;
     domDocument.save(out, IndentSize);
+    (void)file.flush();
+    (void)fsync(file.handle());
     file.close();
 }
 
