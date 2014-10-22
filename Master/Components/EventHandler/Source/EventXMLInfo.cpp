@@ -31,8 +31,8 @@ EventXMLInfo::EventXMLInfo(const QStringList& eventXMLFileList, const QString& E
     : m_eventXMLFileList(eventXMLFileList),
       m_ESEXMLFile(ESEXMLFile),
       m_pXMLReader(NULL),
-      m_pESEXMLInfo(NULL),
-      m_ParsingStatus(false)
+      m_ParsingStatus(false),
+      m_pESEXMLInfo(NULL)
 {
 }
 

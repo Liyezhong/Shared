@@ -50,11 +50,11 @@ namespace DeviceControl
                           const DeviceModuleList_t &ModuleList,
                           quint32 InstanceID) :
     m_pDevProc(pDeviceProcessing),
+    m_ModuleList(ModuleList),
     m_Type(Type),
     m_instanceID(InstanceID),
     m_stateTimespan(0),
     m_LastSensorCheckTime(0),
-    m_ModuleList(ModuleList),
     m_machine(this),
     m_ModuleLifeCycleRecord(0)
 {
